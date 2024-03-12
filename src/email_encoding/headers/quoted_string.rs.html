@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/email-encoding-0.2.0/src/headers/quoted_string.rs`."><title>quoted_string.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="email_encoding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/email-encoding-0.2.0/src/headers/quoted_string.rs`."><title>quoted_string.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="email_encoding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -235,52 +236,52 @@
 /// # use email_encoding::headers::writer::EmailWriter;
 /// # fn main() -&gt; std::fmt::Result {
 /// {
-///     let input = &quot;John&quot;;
+///     let input = "John";
 ///
 ///     let mut output = String::new();
 ///     {
 ///         let mut writer = EmailWriter::new(&amp;mut output, 0, 0, false, false);
 ///         email_encoding::headers::quoted_string::encode(input, &amp;mut writer)?;
 ///     }
-///     assert_eq!(output, &quot;John&quot;);
+///     assert_eq!(output, "John");
 /// }
 ///
 /// {
-///     let input = &quot;John Smith&quot;;
+///     let input = "John Smith";
 ///
 ///     let mut output = String::new();
 ///     {
 ///         let mut writer = EmailWriter::new(&amp;mut output, 0, 0, false, false);
 ///         email_encoding::headers::quoted_string::encode(input, &amp;mut writer)?;
 ///     }
-///     assert_eq!(output, &quot;\&quot;John Smith\&quot;&quot;);
+///     assert_eq!(output, "\"John Smith\"");
 /// }
 ///
 /// {
-///     let input = &quot;Rogue \&quot; User&quot;;
+///     let input = "Rogue \" User";
 ///
 ///     let mut output = String::new();
 ///     {
 ///         let mut writer = EmailWriter::new(&amp;mut output, 0, 0, false, false);
 ///         email_encoding::headers::quoted_string::encode(input, &amp;mut writer)?;
 ///     }
-///     assert_eq!(output, &quot;\&quot;Rogue \\\&quot; User\&quot;&quot;);
+///     assert_eq!(output, "\"Rogue \\\" User\"");
 /// }
 ///
 /// {
-///     let input = &quot;Adrián&quot;;
+///     let input = "Adrián";
 ///
 ///     let mut output = String::new();
 ///     {
 ///         let mut writer = EmailWriter::new(&amp;mut output, 0, 0, false, false);
 ///         email_encoding::headers::quoted_string::encode(input, &amp;mut writer)?;
 ///     }
-///     assert_eq!(output, &quot;=?utf-8?b?QWRyacOhbg==?=&quot;);
+///     assert_eq!(output, "=?utf-8?b?QWRyacOhbg==?=");
 /// }
 /// # Ok(())
 /// # }
 /// ```
-</span><span class="kw">pub fn </span>encode(value: <span class="kw-2">&amp;</span>str, w: <span class="kw-2">&amp;mut </span>EmailWriter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+</span><span class="kw">pub fn </span>encode(value: <span class="kw-2">&amp;</span>str, w: <span class="kw-2">&amp;mut </span>EmailWriter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">enum </span>Strategy {
         Plain,
@@ -297,7 +298,7 @@
     </span><span class="kw">while </span>!bytes.is_empty() {
         <span class="kw">let </span>byte = bytes[<span class="number">0</span>];
 
-        <span class="kw">if </span>!byte.is_ascii_alphanumeric() &amp;&amp; !<span class="macro">matches!</span>(byte, <span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;_&#39; </span>| <span class="string">b&#39;.&#39;</span>) {
+        <span class="kw">if </span>!byte.is_ascii_alphanumeric() &amp;&amp; !<span class="macro">matches!</span>(byte, <span class="string">b'-' </span>| <span class="string">b'_' </span>| <span class="string">b'.'</span>) {
             strategy = Strategy::Quoted;
             <span class="kw">break</span>;
         }
@@ -309,7 +310,7 @@
     </span><span class="kw">while </span>!bytes.is_empty() {
         <span class="kw">let </span>byte = bytes[<span class="number">0</span>];
 
-        <span class="kw">if </span>!byte.is_ascii_alphanumeric() &amp;&amp; !<span class="macro">matches!</span>(byte, <span class="string">b&#39; &#39; </span>| <span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;_&#39; </span>| <span class="string">b&#39;.&#39;</span>) {
+        <span class="kw">if </span>!byte.is_ascii_alphanumeric() &amp;&amp; !<span class="macro">matches!</span>(byte, <span class="string">b' ' </span>| <span class="string">b'-' </span>| <span class="string">b'_' </span>| <span class="string">b'.'</span>) {
             strategy = Strategy::QuotedEscaped;
             <span class="kw">break</span>;
         }
@@ -322,7 +323,7 @@
         <span class="kw">let </span>byte = bytes[<span class="number">0</span>];
 
         <span class="kw">if </span>!byte.is_ascii_alphanumeric()
-            &amp;&amp; !<span class="macro">matches!</span>(byte, <span class="string">b&#39;\\&#39; </span>| <span class="string">b&#39;&quot;&#39; </span>| <span class="string">b&#39; &#39; </span>| <span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;_&#39; </span>| <span class="string">b&#39;.&#39;</span>)
+            &amp;&amp; !<span class="macro">matches!</span>(byte, <span class="string">b'\\' </span>| <span class="string">b'"' </span>| <span class="string">b' ' </span>| <span class="string">b'-' </span>| <span class="string">b'_' </span>| <span class="string">b'.'</span>)
         {
             strategy = Strategy::Rfc2047;
             <span class="kw">break</span>;
@@ -336,14 +337,14 @@
             w.write_str(value)<span class="question-mark">?</span>;
         }
         Strategy::Quoted =&gt; {
-            w.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
+            w.write_char(<span class="string">'"'</span>)<span class="question-mark">?</span>;
             w.folding().write_str(value)<span class="question-mark">?</span>;
-            w.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
+            w.write_char(<span class="string">'"'</span>)<span class="question-mark">?</span>;
         }
         Strategy::QuotedEscaped =&gt; {
-            w.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
+            w.write_char(<span class="string">'"'</span>)<span class="question-mark">?</span>;
             utils::write_escaped(value, <span class="kw-2">&amp;mut </span>w.folding())<span class="question-mark">?</span>;
-            w.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
+            w.write_char(<span class="string">'"'</span>)<span class="question-mark">?</span>;
         }
         Strategy::Rfc2047 =&gt; {
             rfc2047::encode(value, w)<span class="question-mark">?</span>;
@@ -366,10 +367,10 @@
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">0</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
-            encode(<span class="string">&quot;1234567890abcd&quot;</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
+            encode(<span class="string">"1234567890abcd"</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
         }
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;1234567890abcd&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"1234567890abcd"</span>);
     }
 
     <span class="attr">#[test]
@@ -379,10 +380,10 @@
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">0</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
-            encode(<span class="string">&quot;1234567890 abcd&quot;</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
+            encode(<span class="string">"1234567890 abcd"</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
         }
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;\&quot;1234567890 abcd\&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"\"1234567890 abcd\""</span>);
     }
 
     <span class="attr">#[test]
@@ -392,12 +393,12 @@
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">0</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
-            encode(<span class="string">&quot;1234567890 abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd&quot;</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
+            encode(<span class="string">"1234567890 abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd"</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
         }
 
         <span class="macro">assert_eq!</span>(s, <span class="macro">concat!</span>(
-            <span class="string">&quot;\&quot;1234567890\r\n&quot;</span>,
-            <span class="string">&quot; abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\&quot;&quot;
+            <span class="string">"\"1234567890\r\n"</span>,
+            <span class="string">" abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\""
         </span>));
     }
 
@@ -408,10 +409,10 @@
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">0</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
-            encode(<span class="string">&quot;12345\\67890 ab\&quot;cd&quot;</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
+            encode(<span class="string">"12345\\67890 ab\"cd"</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
         }
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;\&quot;12345\\\\67890 ab\\\&quot;cd\&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"\"12345\\\\67890 ab\\\"cd\""</span>);
     }
 
     <span class="comment">// TODO: get it working for the quoted escaped strategy
@@ -422,12 +423,12 @@
     //
     //     {
     //         let mut w = EmailWriter::new(&amp;mut s, line_len, 0, false, false);
-    //         encode(&quot;12345\\67890 ab\&quot;cdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd&quot;, &amp;mut w).unwrap();
+    //         encode("12345\\67890 ab\"cdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd", &amp;mut w).unwrap();
     //     }
     //
     //     assert_eq!(s, concat!(
-    //         &quot;\&quot;12345\\\\67890\r\n&quot;,
-    //         &quot; ab\\\&quot;cdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\&quot;&quot;
+    //         "\"12345\\\\67890\r\n",
+    //         " ab\\\"cdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\""
     //     ));
     // }
 
@@ -438,10 +439,10 @@
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">0</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
-            encode(<span class="string">&quot;12345\\67890 perché ab\&quot;cd&quot;</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
+            encode(<span class="string">"12345\\67890 perché ab\"cd"</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
         }
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;=?utf-8?b?MTIzNDVcNjc4OTAgcGVyY2jDqSBhYiJjZA==?=&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"=?utf-8?b?MTIzNDVcNjc4OTAgcGVyY2jDqSBhYiJjZA==?="</span>);
     }
 }
 </code></pre></div></section></main></body></html>

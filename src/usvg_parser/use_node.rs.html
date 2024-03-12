@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/use_node.rs`."><title>use_node.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/use_node.rs`."><title>use_node.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -360,7 +361,7 @@
         </span><span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// We require an original transformation to setup &#39;clipPath&#39;.
+    <span class="comment">// We require an original transformation to setup 'clipPath'.
     </span><span class="kw">let </span><span class="kw-2">mut </span>orig_ts = node.resolve_transform(AId::Transform, state);
     <span class="kw">let </span><span class="kw-2">mut </span>new_ts = Transform::default();
 
@@ -426,15 +427,15 @@
             </span><span class="kw">let </span>def = Length::new(<span class="number">100.0</span>, LengthUnit::Percent);
 
             <span class="kw">let </span><span class="kw-2">mut </span>state = state.clone();
-            <span class="comment">// As per usual, the SVG spec doesn&#39;t clarify this edge case,
+            <span class="comment">// As per usual, the SVG spec doesn't clarify this edge case,
             // but it seems like `use` size has to be reset by each `use`.
             // Meaning if we have two nested `use` elements, where one had set `width` and
             // other set `height`, we have to ignore the first `width`.
             //
             // Example:
-            // &lt;use id=&quot;use1&quot; xlink:href=&quot;#use2&quot; width=&quot;100&quot;/&gt;
-            // &lt;use id=&quot;use2&quot; xlink:href=&quot;#svg2&quot; height=&quot;100&quot;/&gt;
-            // &lt;svg id=&quot;svg2&quot; x=&quot;40&quot; y=&quot;40&quot; width=&quot;80&quot; height=&quot;80&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;/&gt;
+            // &lt;use id="use1" xlink:href="#use2" width="100"/&gt;
+            // &lt;use id="use2" xlink:href="#svg2" height="100"/&gt;
+            // &lt;svg id="svg2" x="40" y="40" width="80" height="80" xmlns="http://www.w3.org/2000/svg"/&gt;
             //
             // In this case `svg2` size is 80x100 and not 100x100.
             </span>state.use_size = (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
@@ -462,7 +463,7 @@
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
     parent: <span class="kw-2">&amp;mut </span>Group,
 ) {
-    <span class="comment">// We require original transformation to setup &#39;clipPath&#39;.
+    <span class="comment">// We require original transformation to setup 'clipPath'.
     </span><span class="kw">let </span><span class="kw-2">mut </span>orig_ts = node.resolve_transform(AId::Transform, state);
     <span class="kw">let </span><span class="kw-2">mut </span>new_ts = Transform::default();
 
@@ -477,7 +478,7 @@
     }
 
     <span class="comment">// We have to create a new state which would have its viewBox set to the current SVG element.
-    // Note that we&#39;re not updating State::size - it&#39;s a completely different property.
+    // Note that we're not updating State::size - it's a completely different property.
     </span><span class="kw">let </span><span class="kw-2">mut </span>new_state = state.clone();
     new_state.view_box = {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(vb) = node.parse_viewbox() {
@@ -514,7 +515,7 @@
     transform: Transform,
     state: <span class="kw-2">&amp;</span>converter::State,
 ) -&gt; Group {
-    <span class="comment">// We can&#39;t set `clip-path` on the element itself,
+    <span class="comment">// We can't set `clip-path` on the element itself,
     // because it will be affected by a possible transform.
     // So we have to create an additional group.
 
@@ -526,11 +527,11 @@
     //
     // To:
     // &lt;defs&gt;
-    //   &lt;clipPath id=&quot;clipPath1&quot;&gt;
+    //   &lt;clipPath id="clipPath1"&gt;
     //     &lt;rect/&gt;
     //   &lt;/clipPath&gt;
     // &lt;/defs&gt;
-    // &lt;g clip-path=&quot;ulr(#clipPath1)&quot;&gt;
+    // &lt;g clip-path="ulr(#clipPath1)"&gt;
     //   &lt;elem/&gt;
     // &lt;/g&gt;
 
@@ -596,12 +597,12 @@
     <span class="comment">// No need to clip elements with overflow:visible.
     </span><span class="kw">if </span><span class="macro">matches!</span>(
         symbol_node.attribute(AId::Overflow),
-        <span class="prelude-val">Some</span>(<span class="string">&quot;visible&quot;</span>) | <span class="prelude-val">Some</span>(<span class="string">&quot;auto&quot;</span>)
+        <span class="prelude-val">Some</span>(<span class="string">"visible"</span>) | <span class="prelude-val">Some</span>(<span class="string">"auto"</span>)
     ) {
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// A nested `svg` with only the `viewBox` attribute and no &quot;rectangle&quot; (x, y, width, height)
+    <span class="comment">// A nested `svg` with only the `viewBox` attribute and no "rectangle" (x, y, width, height)
     // should not be clipped.
     </span><span class="kw">if </span>use_node.tag_name() == <span class="prelude-val">Some</span>(EId::Svg) {
         <span class="comment">// Nested `svg` referenced by `use` still should be clipped, but by `use` bounds.

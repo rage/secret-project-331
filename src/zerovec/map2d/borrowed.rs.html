@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/map2d/borrowed.rs`."><title>borrowed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/map2d/borrowed.rs`."><title>borrowed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -361,7 +362,7 @@
 /// ```
 /// use zerovec::maps::ZeroMap2dBorrowed;
 ///
-/// // Example byte buffer representing the map { 1: {2: &quot;three&quot; } }
+/// // Example byte buffer representing the map { 1: {2: "three" } }
 /// let BINCODE_BYTES: &amp;[u8; 51] = &amp;[
 ///     2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0,
 ///     0, 0, 0, 0, 0, 0, 2, 0, 11, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 116,
@@ -371,42 +372,42 @@
 /// // Deserializing to ZeroMap2d requires no heap allocations.
 /// let zero_map: ZeroMap2dBorrowed&lt;u16, u16, str&gt; =
 ///     bincode::deserialize(BINCODE_BYTES)
-///         .expect(&quot;Should deserialize successfully&quot;);
-/// assert_eq!(zero_map.get_2d(&amp;1, &amp;2), Some(&quot;three&quot;));
+///         .expect("Should deserialize successfully");
+/// assert_eq!(zero_map.get_2d(&amp;1, &amp;2), Some("three"));
 /// ```
 ///
 /// This can be obtained from a [`ZeroMap2d`](super::ZeroMap2d) via [`ZeroMap2d::as_borrowed`](super::ZeroMap2d::as_borrowed)
-</span><span class="kw">pub struct </span>ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+</span><span class="kw">pub struct </span>ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) keys0: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K0::Slice,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) joiner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ZeroSlice&lt;u32&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) keys1: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K1::Slice,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V::Slice,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) keys0: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>K0::Slice,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) joiner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ZeroSlice&lt;u32&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) keys1: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>K1::Slice,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V::Slice,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; Copy <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; Copy <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; Clone <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; Clone <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
@@ -416,14 +417,14 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; Default <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; Default <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    K0::Slice: <span class="lifetime">&#39;static</span>,
-    K1::Slice: <span class="lifetime">&#39;static</span>,
-    V::Slice: <span class="lifetime">&#39;static</span>,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    K0::Slice: <span class="lifetime">'static</span>,
+    K1::Slice: <span class="lifetime">'static</span>,
+    V::Slice: <span class="lifetime">'static</span>,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
@@ -433,14 +434,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    K0::Slice: <span class="lifetime">&#39;static</span>,
-    K1::Slice: <span class="lifetime">&#39;static</span>,
-    V::Slice: <span class="lifetime">&#39;static</span>,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    K0::Slice: <span class="lifetime">'static</span>,
+    K1::Slice: <span class="lifetime">'static</span>,
+    V::Slice: <span class="lifetime">'static</span>,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
@@ -468,21 +469,21 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
 {
     <span class="attr">#[doc(hidden)] </span><span class="comment">// databake internal
     </span><span class="kw">pub const unsafe fn </span>from_parts_unchecked(
-        keys0: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K0::Slice,
-        joiner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ZeroSlice&lt;u32&gt;,
-        keys1: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K1::Slice,
-        values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V::Slice,
+        keys0: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>K0::Slice,
+        joiner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ZeroSlice&lt;u32&gt;,
+        keys1: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>K1::Slice,
+        values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V::Slice,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             keys0,
@@ -503,11 +504,11 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Ord,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Ord,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
@@ -523,27 +524,27 @@
     /// use zerovec::ZeroMap2d;
     ///
     /// let mut map = ZeroMap2d::new();
-    /// map.insert(&amp;1, &quot;one&quot;, &quot;foo&quot;);
-    /// map.insert(&amp;2, &quot;one&quot;, &quot;bar&quot;);
-    /// map.insert(&amp;2, &quot;two&quot;, &quot;baz&quot;);
+    /// map.insert(&amp;1, "one", "foo");
+    /// map.insert(&amp;2, "one", "bar");
+    /// map.insert(&amp;2, "two", "baz");
     ///
     /// let borrowed = map.as_borrowed();
-    /// assert_eq!(borrowed.get_2d(&amp;1, &quot;one&quot;), Some(&quot;foo&quot;));
-    /// assert_eq!(borrowed.get_2d(&amp;1, &quot;two&quot;), None);
-    /// assert_eq!(borrowed.get_2d(&amp;2, &quot;one&quot;), Some(&quot;bar&quot;));
-    /// assert_eq!(borrowed.get_2d(&amp;2, &quot;two&quot;), Some(&quot;baz&quot;));
-    /// assert_eq!(borrowed.get_2d(&amp;3, &quot;three&quot;), None);
+    /// assert_eq!(borrowed.get_2d(&amp;1, "one"), Some("foo"));
+    /// assert_eq!(borrowed.get_2d(&amp;1, "two"), None);
+    /// assert_eq!(borrowed.get_2d(&amp;2, "one"), Some("bar"));
+    /// assert_eq!(borrowed.get_2d(&amp;2, "two"), Some("baz"));
+    /// assert_eq!(borrowed.get_2d(&amp;3, "three"), None);
     /// ```
-    </span><span class="kw">pub fn </span>get_2d(<span class="kw-2">&amp;</span><span class="self">self</span>, key0: <span class="kw-2">&amp;</span>K0, key1: <span class="kw-2">&amp;</span>K1) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V::GetType&gt; {
+    </span><span class="kw">pub fn </span>get_2d(<span class="kw-2">&amp;</span><span class="self">self</span>, key0: <span class="kw-2">&amp;</span>K0, key1: <span class="kw-2">&amp;</span>K1) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>V::GetType&gt; {
         <span class="self">self</span>.get0(key0)<span class="question-mark">?</span>.get1(key1)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Ord,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Ord,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
@@ -556,14 +557,14 @@
     /// use zerovec::ZeroMap2d;
     ///
     /// let mut map = ZeroMap2d::new();
-    /// map.insert(&amp;1, &quot;one&quot;, &quot;foo&quot;);
-    /// map.insert(&amp;2, &quot;two&quot;, &quot;bar&quot;);
+    /// map.insert(&amp;1, "one", "foo");
+    /// map.insert(&amp;2, "two", "bar");
     /// let borrowed = map.as_borrowed();
     /// assert!(matches!(borrowed.get0(&amp;1), Some(_)));
     /// assert!(matches!(borrowed.get0(&amp;3), None));
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>get0&lt;<span class="lifetime">&#39;l</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>, key0: <span class="kw-2">&amp;</span>K0) -&gt; <span class="prelude-ty">Option</span>&lt;ZeroMap2dCursor&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>, K0, K1, V&gt;&gt; {
+    </span><span class="kw">pub fn </span>get0&lt;<span class="lifetime">'l</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>, key0: <span class="kw-2">&amp;</span>K0) -&gt; <span class="prelude-ty">Option</span>&lt;ZeroMap2dCursor&lt;<span class="lifetime">'a</span>, <span class="lifetime">'a</span>, K0, K1, V&gt;&gt; {
         <span class="kw">let </span>key0_index = <span class="self">self</span>.keys0.zvl_binary_search(key0).ok()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(ZeroMap2dCursor::from_borrowed(<span class="self">self</span>, key0_index))
     }
@@ -575,16 +576,16 @@
     /// use zerovec::ZeroMap2d;
     ///
     /// let mut map = ZeroMap2d::new();
-    /// map.insert(&amp;1, &quot;one&quot;, &quot;foo&quot;);
-    /// map.insert(&amp;2, &quot;two&quot;, &quot;bar&quot;);
+    /// map.insert(&amp;1, "one", "foo");
+    /// map.insert(&amp;2, "two", "bar");
     /// let borrowed = map.as_borrowed();
     /// assert!(matches!(borrowed.get0_by(|probe| probe.cmp(&amp;1)), Some(_)));
     /// assert!(matches!(borrowed.get0_by(|probe| probe.cmp(&amp;3)), None));
     /// ```
-    </span><span class="kw">pub fn </span>get0_by&lt;<span class="lifetime">&#39;l</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>get0_by&lt;<span class="lifetime">'l</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>,
         predicate: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span>K0) -&gt; Ordering,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;ZeroMap2dCursor&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>, K0, K1, V&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;ZeroMap2dCursor&lt;<span class="lifetime">'a</span>, <span class="lifetime">'a</span>, K0, K1, V&gt;&gt; {
         <span class="kw">let </span>key0_index = <span class="self">self</span>.keys0.zvl_binary_search_by(predicate).ok()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(ZeroMap2dCursor::from_borrowed(<span class="self">self</span>, key0_index))
     }
@@ -596,8 +597,8 @@
     /// use zerovec::ZeroMap2d;
     ///
     /// let mut map = ZeroMap2d::new();
-    /// map.insert(&amp;1, &quot;one&quot;, &quot;foo&quot;);
-    /// map.insert(&amp;2, &quot;two&quot;, &quot;bar&quot;);
+    /// map.insert(&amp;1, "one", "foo");
+    /// map.insert(&amp;2, "two", "bar");
     /// let borrowed = map.as_borrowed();
     /// assert!(borrowed.contains_key0(&amp;1));
     /// assert!(!borrowed.contains_key0(&amp;3));
@@ -607,26 +608,26 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
 {
     <span class="doccomment">/// Produce an ordered iterator over keys0
-    </span><span class="kw">pub fn </span>iter0&lt;<span class="lifetime">&#39;l</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = ZeroMap2dCursor&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>, K0, K1, V&gt;&gt; + <span class="lifetime">&#39;_ </span>{
+    </span><span class="kw">pub fn </span>iter0&lt;<span class="lifetime">'l</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = ZeroMap2dCursor&lt;<span class="lifetime">'a</span>, <span class="lifetime">'a</span>, K0, K1, V&gt;&gt; + <span class="lifetime">'_ </span>{
         (<span class="number">0</span>..<span class="self">self</span>.keys0.zvl_len()).map(<span class="kw">move </span>|idx| ZeroMap2dCursor::from_borrowed(<span class="self">self</span>, idx))
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Ord,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Ord,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
     V: Copy,
     K0: <span class="question-mark">?</span>Sized,
     K1: <span class="question-mark">?</span>Sized,
@@ -637,20 +638,20 @@
     }
 }
 
-<span class="comment">// We can&#39;t use the default PartialEq because ZeroMap2d is invariant
+<span class="comment">// We can't use the default PartialEq because ZeroMap2d is invariant
 // so otherwise rustc will not automatically allow you to compare ZeroMaps
 // with different lifetimes
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, K0, K1, V&gt; PartialEq&lt;ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;b</span>, K0, K1, V&gt;&gt;
-    <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, K0, K1, V&gt; PartialEq&lt;ZeroMap2dBorrowed&lt;<span class="lifetime">'b</span>, K0, K1, V&gt;&gt;
+    <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;c</span>&gt; + <span class="question-mark">?</span>Sized,
-    K1: <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;c</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;c</span>&gt; + <span class="question-mark">?</span>Sized,
-    &lt;K0 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Slice: PartialEq&lt;&lt;K0 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt;&gt;::Slice&gt;,
-    &lt;K1 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Slice: PartialEq&lt;&lt;K1 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt;&gt;::Slice&gt;,
-    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Slice: PartialEq&lt;&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt;&gt;::Slice&gt;,
+    </span>K0: <span class="kw">for</span>&lt;<span class="lifetime">'c</span>&gt; ZeroMapKV&lt;<span class="lifetime">'c</span>&gt; + <span class="question-mark">?</span>Sized,
+    K1: <span class="kw">for</span>&lt;<span class="lifetime">'c</span>&gt; ZeroMapKV&lt;<span class="lifetime">'c</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: <span class="kw">for</span>&lt;<span class="lifetime">'c</span>&gt; ZeroMapKV&lt;<span class="lifetime">'c</span>&gt; + <span class="question-mark">?</span>Sized,
+    &lt;K0 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::Slice: PartialEq&lt;&lt;K0 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'b</span>&gt;&gt;::Slice&gt;,
+    &lt;K1 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::Slice: PartialEq&lt;&lt;K1 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'b</span>&gt;&gt;::Slice&gt;,
+    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::Slice: PartialEq&lt;&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'b</span>&gt;&gt;::Slice&gt;,
 {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;b</span>, K0, K1, V&gt;) -&gt; bool {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>ZeroMap2dBorrowed&lt;<span class="lifetime">'b</span>, K0, K1, V&gt;) -&gt; bool {
         <span class="self">self</span>.keys0.eq(other.keys0)
             &amp;&amp; <span class="self">self</span>.joiner.eq(other.joiner)
             &amp;&amp; <span class="self">self</span>.keys1.eq(other.keys1)
@@ -658,21 +659,21 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; fmt::Debug <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; fmt::Debug <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    K1: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K0: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    K1: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
     K0::Slice: fmt::Debug,
     K1::Slice: fmt::Debug,
     V::Slice: fmt::Debug,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
-        f.debug_struct(<span class="string">&quot;ZeroMap2dBorrowed&quot;</span>)
-            .field(<span class="string">&quot;keys0&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.keys0)
-            .field(<span class="string">&quot;joiner&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.joiner)
-            .field(<span class="string">&quot;keys1&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.keys1)
-            .field(<span class="string">&quot;values&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.values)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+        f.debug_struct(<span class="string">"ZeroMap2dBorrowed"</span>)
+            .field(<span class="string">"keys0"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.keys0)
+            .field(<span class="string">"joiner"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.joiner)
+            .field(<span class="string">"keys1"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.keys1)
+            .field(<span class="string">"values"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.values)
             .finish()
     }
 }

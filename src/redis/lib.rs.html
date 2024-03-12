@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -483,14 +484,14 @@
 //!
 //! ```ini
 //! [dependencies.redis]
-//! version = &quot;*&quot;
+//! version = "*"
 //! ```
 //!
 //! If you want to use the git version:
 //!
 //! ```ini
 //! [dependencies.redis]
-//! git = &quot;https://github.com/redis-rs/redis-rs.git&quot;
+//! git = "https://github.com/redis-rs/redis-rs.git"
 //! ```
 //!
 //! # Basic Operation
@@ -515,7 +516,7 @@
 //! extern crate redis;
 //!
 //! fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-//!     let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;)?;
+//!     let client = redis::Client::open("redis://127.0.0.1/")?;
 //!     let mut con = client.get_connection()?;
 //!
 //!     /* do something here */
@@ -557,7 +558,7 @@
 //!
 //! `redis+unix:///&lt;path&gt;[?db=&lt;db&gt;[&amp;pass=&lt;password&gt;][&amp;user=&lt;username&gt;]]`
 //!
-//! For compatibility with some other redis libraries, the &quot;unix&quot; scheme
+//! For compatibility with some other redis libraries, the "unix" scheme
 //! is also supported:
 //!
 //! `unix:///&lt;path&gt;[?db=&lt;db&gt;][&amp;pass=&lt;password&gt;][&amp;user=&lt;username&gt;]]`
@@ -570,7 +571,7 @@
 //!
 //! ```rust,no_run
 //! fn do_something(con: &amp;mut redis::Connection) -&gt; redis::RedisResult&lt;()&gt; {
-//!     let _ : () = redis::cmd(&quot;SET&quot;).arg(&quot;my_key&quot;).arg(42).query(con)?;
+//!     let _ : () = redis::cmd("SET").arg("my_key").arg(42).query(con)?;
 //!     Ok(())
 //! }
 //! ```
@@ -579,17 +580,17 @@
 //! about the actual return value (other than that it is not a failure)
 //! you can always type annotate it to the unit type `()`.
 //!
-//! Note that commands with a sub-command (like &quot;MEMORY USAGE&quot;, &quot;ACL WHOAMI&quot;,
-//! &quot;LATENCY HISTORY&quot;, etc) must specify the sub-command as a separate `arg`:
+//! Note that commands with a sub-command (like "MEMORY USAGE", "ACL WHOAMI",
+//! "LATENCY HISTORY", etc) must specify the sub-command as a separate `arg`:
 //!
 //! ```rust,no_run
 //! fn do_something(con: &amp;mut redis::Connection) -&gt; redis::RedisResult&lt;usize&gt; {
-//!     // This will result in a server error: &quot;unknown command `MEMORY USAGE`&quot;
-//!     // because &quot;USAGE&quot; is technically a sub-command of &quot;MEMORY&quot;.
-//!     redis::cmd(&quot;MEMORY USAGE&quot;).arg(&quot;my_key&quot;).query(con)?;
+//!     // This will result in a server error: "unknown command `MEMORY USAGE`"
+//!     // because "USAGE" is technically a sub-command of "MEMORY".
+//!     redis::cmd("MEMORY USAGE").arg("my_key").query(con)?;
 //!
-//!     // However, this will work as you&#39;d expect
-//!     redis::cmd(&quot;MEMORY&quot;).arg(&quot;USAGE&quot;).arg(&quot;my_key&quot;).query(con)
+//!     // However, this will work as you'd expect
+//!     redis::cmd("MEMORY").arg("USAGE").arg("my_key").query(con)
 //! }
 //! ```
 //!
@@ -605,7 +606,7 @@
 //! use redis::Commands;
 //!
 //! fn do_something(con: &amp;mut redis::Connection) -&gt; redis::RedisResult&lt;()&gt; {
-//!     let _ : () = con.set(&quot;my_key&quot;, 42)?;
+//!     let _ : () = con.set("my_key", 42)?;
 //!     Ok(())
 //! }
 //! ```
@@ -629,17 +630,17 @@
 //! # use redis::Commands;
 //! # use std::collections::{HashMap, HashSet};
 //! # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-//! # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+//! # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 //! # let mut con = client.get_connection().unwrap();
-//! let count : i32 = con.get(&quot;my_counter&quot;)?;
-//! let count = con.get(&quot;my_counter&quot;).unwrap_or(0i32);
-//! let k : Option&lt;String&gt; = con.get(&quot;missing_key&quot;)?;
-//! let name : String = con.get(&quot;my_name&quot;)?;
-//! let bin : Vec&lt;u8&gt; = con.get(&quot;my_binary&quot;)?;
-//! let map : HashMap&lt;String, i32&gt; = con.hgetall(&quot;my_hash&quot;)?;
-//! let keys : Vec&lt;String&gt; = con.hkeys(&quot;my_hash&quot;)?;
-//! let mems : HashSet&lt;i32&gt; = con.smembers(&quot;my_set&quot;)?;
-//! let (k1, k2) : (String, String) = con.get(&amp;[&quot;k1&quot;, &quot;k2&quot;])?;
+//! let count : i32 = con.get("my_counter")?;
+//! let count = con.get("my_counter").unwrap_or(0i32);
+//! let k : Option&lt;String&gt; = con.get("missing_key")?;
+//! let name : String = con.get("my_name")?;
+//! let bin : Vec&lt;u8&gt; = con.get("my_binary")?;
+//! let map : HashMap&lt;String, i32&gt; = con.hgetall("my_hash")?;
+//! let keys : Vec&lt;String&gt; = con.hkeys("my_hash")?;
+//! let mems : HashSet&lt;i32&gt; = con.smembers("my_set")?;
+//! let (k1, k2) : (String, String) = con.get(&amp;["k1", "k2"])?;
 //! # Ok(())
 //! # }
 //! ```
@@ -647,16 +648,16 @@
 //! # Iteration Protocol
 //!
 //! In addition to sending a single query, iterators are also supported.  When
-//! used with regular bulk responses they don&#39;t give you much over querying and
+//! used with regular bulk responses they don't give you much over querying and
 //! converting into a vector (both use a vector internally) but they can also
 //! be used with `SCAN` like commands in which case iteration will send more
 //! queries until the cursor is exhausted:
 //!
 //! ```rust,ignore
 //! # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-//! # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+//! # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 //! # let mut con = client.get_connection().unwrap();
-//! let mut iter : redis::Iter&lt;isize&gt; = redis::cmd(&quot;SSCAN&quot;).arg(&quot;my_set&quot;)
+//! let mut iter : redis::Iter&lt;isize&gt; = redis::cmd("SSCAN").arg("my_set")
 //!     .cursor_arg(0).clone().iter(&amp;mut con)?;
 //! for x in iter {
 //!     // do something with the item
@@ -678,31 +679,31 @@
 //!
 //! ```rust,no_run
 //! # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-//! # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+//! # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 //! # let mut con = client.get_connection().unwrap();
 //! let (k1, k2) : (i32, i32) = redis::pipe()
-//!     .cmd(&quot;SET&quot;).arg(&quot;key_1&quot;).arg(42).ignore()
-//!     .cmd(&quot;SET&quot;).arg(&quot;key_2&quot;).arg(43).ignore()
-//!     .cmd(&quot;GET&quot;).arg(&quot;key_1&quot;)
-//!     .cmd(&quot;GET&quot;).arg(&quot;key_2&quot;).query(&amp;mut con)?;
+//!     .cmd("SET").arg("key_1").arg(42).ignore()
+//!     .cmd("SET").arg("key_2").arg(43).ignore()
+//!     .cmd("GET").arg("key_1")
+//!     .cmd("GET").arg("key_2").query(&amp;mut con)?;
 //! # Ok(()) }
 //! ```
 //!
 //! If you want the pipeline to be wrapped in a `MULTI`/`EXEC` block you can
 //! easily do that by switching the pipeline into `atomic` mode.  From the
-//! caller&#39;s point of view nothing changes, the pipeline itself will take
+//! caller's point of view nothing changes, the pipeline itself will take
 //! care of the rest for you:
 //!
 //! ```rust,no_run
 //! # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-//! # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+//! # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 //! # let mut con = client.get_connection().unwrap();
 //! let (k1, k2) : (i32, i32) = redis::pipe()
 //!     .atomic()
-//!     .cmd(&quot;SET&quot;).arg(&quot;key_1&quot;).arg(42).ignore()
-//!     .cmd(&quot;SET&quot;).arg(&quot;key_2&quot;).arg(43).ignore()
-//!     .cmd(&quot;GET&quot;).arg(&quot;key_1&quot;)
-//!     .cmd(&quot;GET&quot;).arg(&quot;key_2&quot;).query(&amp;mut con)?;
+//!     .cmd("SET").arg("key_1").arg(42).ignore()
+//!     .cmd("SET").arg("key_2").arg(43).ignore()
+//!     .cmd("GET").arg("key_1")
+//!     .cmd("GET").arg("key_2").query(&amp;mut con)?;
 //! # Ok(()) }
 //! ```
 //!
@@ -710,14 +711,14 @@
 //!
 //! ```rust,no_run
 //! # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-//! # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+//! # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 //! # let mut con = client.get_connection().unwrap();
 //! let (k1, k2) : (i32, i32) = redis::pipe()
 //!     .atomic()
-//!     .set(&quot;key_1&quot;, 42).ignore()
-//!     .set(&quot;key_2&quot;, 43).ignore()
-//!     .get(&quot;key_1&quot;)
-//!     .get(&quot;key_2&quot;).query(&amp;mut con)?;
+//!     .set("key_1", 42).ignore()
+//!     .set("key_2", 43).ignore()
+//!     .get("key_1")
+//!     .get("key_2").query(&amp;mut con)?;
 //! # Ok(()) }
 //! ```
 //!
@@ -730,16 +731,16 @@
 //! ```rust,no_run
 //! # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
 //! use redis::Commands;
-//! # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+//! # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 //! # let mut con = client.get_connection().unwrap();
-//! let key = &quot;the_key&quot;;
+//! let key = "the_key";
 //! let (new_val,) : (isize,) = redis::transaction(&amp;mut con, &amp;[key], |con, pipe| {
 //!     let old_val : isize = con.get(key)?;
 //!     pipe
 //!         .set(key, old_val + 1).ignore()
 //!         .get(key).query(con)
 //! })?;
-//! println!(&quot;The incremented number is: {}&quot;, new_val);
+//! println!("The incremented number is: {}", new_val);
 //! # Ok(()) }
 //! ```
 //!
@@ -756,23 +757,23 @@
 //!
 //! ```rust,no_run
 //! # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-//! let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;)?;
+//! let client = redis::Client::open("redis://127.0.0.1/")?;
 //! let mut con = client.get_connection()?;
 //! let mut pubsub = con.as_pubsub();
-//! pubsub.subscribe(&quot;channel_1&quot;)?;
-//! pubsub.subscribe(&quot;channel_2&quot;)?;
+//! pubsub.subscribe("channel_1")?;
+//! pubsub.subscribe("channel_2")?;
 //!
 //! loop {
 //!     let msg = pubsub.get_message()?;
 //!     let payload : String = msg.get_payload()?;
-//!     println!(&quot;channel &#39;{}&#39;: {}&quot;, msg.get_channel_name(), payload);
+//!     println!("channel '{}': {}", msg.get_channel_name(), payload);
 //! }
 //! # }
 //! ```
 //!
 </span><span class="attr">#![cfg_attr(
-    feature = <span class="string">&quot;script&quot;</span>,
-    doc = <span class="string">r##&quot;
+    feature = <span class="string">"script"</span>,
+    doc = <span class="string">r##"
 # Scripts
 
 Lua scripts are supported through the `Script` type in a convenient
@@ -783,24 +784,24 @@ Example:
 
 ```rust,no_run
 # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-# let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+# let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 # let mut con = client.get_connection().unwrap();
-let script = redis::Script::new(r&quot;
+let script = redis::Script::new(r"
     return tonumber(ARGV[1]) + tonumber(ARGV[2]);
-&quot;);
+");
 let result : isize = script.arg(1).arg(2).invoke(&amp;mut con)?;
 assert_eq!(result, 3);
 # Ok(()) }
 ```
-&quot;##
+"##
 </span>)]
 </span><span class="doccomment">//!
 </span><span class="attr">#![cfg_attr(
-    feature = <span class="string">&quot;aio&quot;</span>,
-    doc = <span class="string">r##&quot;
+    feature = <span class="string">"aio"</span>,
+    doc = <span class="string">r##"
 # Async
 
-In addition to the synchronous interface that&#39;s been explained above there also exists an
+In addition to the synchronous interface that's been explained above there also exists an
 asynchronous interface based on [`futures`][] and [`tokio`][].
 
 This interface exists under the `aio` (async io) module (which requires that the `aio` feature
@@ -813,21 +814,21 @@ use redis::AsyncCommands;
 
 # #[tokio::main]
 # async fn main() -&gt; redis::RedisResult&lt;()&gt; {
-let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 let mut con = client.get_async_connection().await?;
 
-con.set(&quot;key1&quot;, b&quot;foo&quot;).await?;
+con.set("key1", b"foo").await?;
 
-redis::cmd(&quot;SET&quot;).arg(&amp;[&quot;key2&quot;, &quot;bar&quot;]).query_async(&amp;mut con).await?;
+redis::cmd("SET").arg(&amp;["key2", "bar"]).query_async(&amp;mut con).await?;
 
-let result = redis::cmd(&quot;MGET&quot;)
- .arg(&amp;[&quot;key1&quot;, &quot;key2&quot;])
+let result = redis::cmd("MGET")
+ .arg(&amp;["key1", "key2"])
  .query_async(&amp;mut con)
  .await;
-assert_eq!(result, Ok((&quot;foo&quot;.to_string(), b&quot;bar&quot;.to_vec())));
+assert_eq!(result, Ok(("foo".to_string(), b"bar".to_vec())));
 # Ok(()) }
 ```
-&quot;##
+"##
 </span>)]
 </span><span class="doccomment">//!
 //! [`futures`]:https://crates.io/crates/futures
@@ -851,8 +852,8 @@ assert_eq!(result, Ok((&quot;foo&quot;.to_string(), b&quot;bar&quot;.to_vec())))
 <span class="kw">pub use </span><span class="kw">crate</span>::parser::{parse_redis_value, Parser};
 <span class="kw">pub use </span><span class="kw">crate</span>::pipeline::Pipeline;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;script&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;script&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"script"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"script"</span>)))]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::script::{Script, ScriptInvocation};
 
 <span class="comment">// preserve grouping and order
@@ -884,8 +885,8 @@ assert_eq!(result, Ok((&quot;foo&quot;.to_string(), b&quot;bar&quot;.to_vec())))
     </span>Value,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;aio&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"aio"</span>)))]
 </span><span class="kw">pub use crate</span>::{
     cmd::AsyncIter, commands::AsyncCommands, parser::parse_redis_value_async, types::RedisFuture,
 };
@@ -893,56 +894,56 @@ assert_eq!(result, Ok((&quot;foo&quot;.to_string(), b&quot;bar&quot;.to_vec())))
 <span class="kw">mod </span>macros;
 <span class="kw">mod </span>pipeline;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
 </span><span class="kw">pub mod </span>acl;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;aio&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"aio"</span>)))]
 </span><span class="kw">pub mod </span>aio;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::commands::JsonCommands;
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, feature = <span class="string">&quot;aio&quot;</span>))]
+<span class="attr">#[cfg(all(feature = <span class="string">"json"</span>, feature = <span class="string">"aio"</span>))]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::commands::JsonAsyncCommands;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;geospatial&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;geospatial&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"geospatial"</span>)))]
 </span><span class="kw">pub mod </span>geo;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;cluster&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"cluster"</span>)))]
 </span><span class="kw">pub mod </span>cluster;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
 </span><span class="kw">mod </span>cluster_client;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
 </span><span class="kw">mod </span>cluster_pipeline;
 
 <span class="doccomment">/// Routing information for cluster commands.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
 </span><span class="kw">pub mod </span>cluster_routing;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;r2d2&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;r2d2&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"r2d2"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"r2d2"</span>)))]
 </span><span class="kw">mod </span>r2d2;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
 </span><span class="kw">pub mod </span>streams;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;cluster-async&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"cluster-async"</span>)]
 </span><span class="kw">pub mod </span>cluster_async;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;sentinel&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"sentinel"</span>)]
 </span><span class="kw">pub mod </span>sentinel;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;tls-rustls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"tls-rustls"</span>)]
 </span><span class="kw">mod </span>tls;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;tls-rustls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"tls-rustls"</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::tls::{ClientTlsConfig, TlsCertificates};
 
 <span class="kw">mod </span>client;

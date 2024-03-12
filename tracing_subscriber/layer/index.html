@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The `Layer` trait, a composable abstraction for building `Subscriber`s."><title>tracing_subscriber::layer - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></a><h2><a href="../../tracing_subscriber/index.html">tracing_subscriber</a><span class="version">0.3.18</span></h2></div><h2 class="location"><a href="#">Module layer</a></h2><div class="sidebar-elems"><section><ul class="block"><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></section><h2><a href="../index.html">In crate tracing_subscriber</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">tracing_subscriber</a>::<wbr><a class="mod" href="#">layer</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../../src/tracing_subscriber/layer/mod.rs.html#1-1909">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a> trait, a composable abstraction for building <a href="../../tracing_core/subscriber/trait.Subscriber.html" title="trait tracing_core::subscriber::Subscriber"><code>Subscriber</code></a>s.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The `Layer` trait, a composable abstraction for building `Subscriber`s."><title>tracing_subscriber::layer - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></a><h2><a href="../../tracing_subscriber/index.html">tracing_subscriber</a><span class="version">0.3.18</span></h2></div><h2 class="location"><a href="#">Module layer</a></h2><div class="sidebar-elems"><section><ul class="block"><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></section><h2><a href="../index.html">In crate tracing_subscriber</a></h2></div></nav><div class="sidebar-resizer"></div>
+    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../tracing_subscriber/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">tracing_subscriber</a>::<wbr><a class="mod" href="#">layer</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../../src/tracing_subscriber/layer/mod.rs.html#1-1909">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a> trait, a composable abstraction for building <a href="../../tracing_core/subscriber/trait.Subscriber.html" title="trait tracing_core::subscriber::Subscriber"><code>Subscriber</code></a>s.</p>
 <p>The <a href="../../tracing_core/subscriber/trait.Subscriber.html" title="trait tracing_core::subscriber::Subscriber"><code>Subscriber</code></a> trait in <code>tracing-core</code> represents the <em>complete</em> set of
 functionality required to consume <code>tracing</code> instrumentation. This means that
 a single <code>Subscriber</code> instance is a self-contained implementation of a
@@ -111,8 +112,8 @@ work:</p>
 };
 
 tracing::subscriber::set_global_default(subscriber)
-    .expect(<span class="string">&quot;Unable to set global subscriber&quot;</span>);</code></pre></div>
-<p>However, a <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a> wrapped in an <a href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option"><code>Option</code></a> <a href="trait.Layer.html#impl-Layer%3CS%3E-for-Option%3CL%3E" title="trait tracing_subscriber::layer::Layer">also implements the <code>Layer</code>
+    .expect(<span class="string">"Unable to set global subscriber"</span>);</code></pre></div>
+<p>However, a <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a> wrapped in an <a href="https://doc.rust-lang.org/1.76.0/core/option/enum.Option.html" title="enum core::option::Option"><code>Option</code></a> <a href="trait.Layer.html#impl-Layer%3CS%3E-for-Option%3CL%3E" title="trait tracing_subscriber::layer::Layer">also implements the <code>Layer</code>
 trait</a>. This allows individual layers to be enabled or disabled at
 runtime while always producing a <a href="../../tracing_core/subscriber/trait.Subscriber.html" title="trait tracing_core::subscriber::Subscriber"><code>Subscriber</code></a> of the same type. For
 example:</p>
@@ -136,11 +137,11 @@ example:</p>
 
 <span class="comment">// If `cfg.is_prod` is false, then `json` will be `None`, and this layer
 // will do nothing. However, the subscriber will still have the same type
-// regardless of whether the `Option`&#39;s value is `None` or `Some`.
+// regardless of whether the `Option`'s value is `None` or `Some`.
 </span><span class="kw">let </span>subscriber = subscriber.with(json_log);
 
 tracing::subscriber::set_global_default(subscriber)
-   .expect(<span class="string">&quot;Unable to set global subscriber&quot;</span>);</code></pre></div>
+   .expect(<span class="string">"Unable to set global subscriber"</span>);</code></pre></div>
 <p>If a <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a> may be one of several different types, note that <a href="trait.Layer.html#impl-Layer%3CS%3E-for-Box%3Cdyn%20Layer%3CS%3E%20+%20Send%20+%20Sync%3E" title="trait tracing_subscriber::layer::Layer"><code>Box&lt;dyn Layer&lt;S&gt; + Send + Sync&gt;</code> implements <code>Layer</code></a>.
 This may be used to erase the type of a <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a>.</p>
 <p>For example, a function that configures a <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a> to log to one of
@@ -161,10 +162,10 @@ several outputs might return a <code>Box&lt;dyn Layer&lt;S&gt; + Send + Sync + '
 }
 
 <span class="kw">impl </span>LogConfig {
-    <span class="kw">pub fn </span>layer&lt;S&gt;(<span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Layer&lt;S&gt; + Send + Sync + <span class="lifetime">&#39;static</span>&gt;
+    <span class="kw">pub fn </span>layer&lt;S&gt;(<span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Layer&lt;S&gt; + Send + Sync + <span class="lifetime">'static</span>&gt;
     <span class="kw">where
         </span>S: tracing_core::Subscriber,
-        <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; S: LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;,
+        <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; S: LookupSpan&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="comment">// Shared configuration regardless of where logs are output to.
         </span><span class="kw">let </span>fmt = tracing_subscriber::fmt::layer()
@@ -174,7 +175,7 @@ several outputs might return a <code>Box&lt;dyn Layer&lt;S&gt; + Send + Sync + '
         <span class="comment">// Configure the writer based on the desired log target:
         </span><span class="kw">match </span><span class="self">self </span>{
             LogConfig::File(path) =&gt; {
-                <span class="kw">let </span>file = File::create(path).expect(<span class="string">&quot;failed to create log file&quot;</span>);
+                <span class="kw">let </span>file = File::create(path).expect(<span class="string">"failed to create log file"</span>);
                 Box::new(fmt.with_writer(file))
             },
             LogConfig::Stdout =&gt; Box::new(fmt.with_writer(io::stdout)),
@@ -188,7 +189,7 @@ tracing_subscriber::registry()
     .with(config.layer())
     .init();</code></pre></div>
 <p>The <a href="trait.Layer.html#method.boxed" title="method tracing_subscriber::layer::Layer::boxed"><code>Layer::boxed</code></a> method is provided to make boxing a <code>Layer</code>
-more convenient, but <a href="https://doc.rust-lang.org/1.75.0/alloc/boxed/struct.Box.html#method.new" title="associated function alloc::boxed::Box::new"><code>Box::new</code></a> may be used as well.</p>
+more convenient, but <a href="https://doc.rust-lang.org/1.76.0/alloc/boxed/struct.Box.html#method.new" title="associated function alloc::boxed::Box::new"><code>Box::new</code></a> may be used as well.</p>
 <p>When the number of <code>Layer</code>s varies at runtime, note that a
 <a href="trait.Layer.html#impl-Layer%3CS%3E-for-Vec%3CL%3E" title="trait tracing_subscriber::layer::Layer"><code>Vec&lt;L&gt; where L: Layer</code> also implements <code>Layer</code></a>. This
 can be used to add a variable number of <code>Layer</code>s to a <code>Subscriber</code>:</p>
@@ -235,7 +236,7 @@ be used. For example:</p>
 </span><span class="kw">let </span><span class="kw-2">mut </span>layers = Vec::new();
 
 <span class="kw">if </span>cfg.enable_log_file {
-    <span class="kw">let </span>file = File::create(<span class="string">&quot;myapp.log&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>file = File::create(<span class="string">"myapp.log"</span>)<span class="question-mark">?</span>;
     <span class="kw">let </span>layer = tracing_subscriber::fmt::layer()
         .with_thread_names(<span class="bool-val">true</span>)
         .with_target(<span class="bool-val">true</span>)
@@ -355,8 +356,8 @@ common forms of filtering. For custom filtering policies, the <a href="../filter
 and <a href="../filter/struct.DynFilterFn.html" title="struct tracing_subscriber::filter::DynFilterFn"><code>DynFilterFn</code></a> types allow implementing a <a href="../filter/index.html" title="mod tracing_subscriber::filter"><code>Filter</code></a> with a closure or
 function pointer. In addition, when more control is required, the <a href="../filter/index.html" title="mod tracing_subscriber::filter"><code>Filter</code></a>
 trait may also be implemented for user-defined types.</p>
-<p>//! <a href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option"><code>Option&lt;Filter&gt;</code></a> also implements <a href="../filter/index.html" title="mod tracing_subscriber::filter"><code>Filter</code></a>, which allows for an optional
-filter. <a href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html#variant.None" title="variant core::option::Option::None"><code>None</code></a> filters out <em>nothing</em> (that is, allows
+<p>//! <a href="https://doc.rust-lang.org/1.76.0/core/option/enum.Option.html" title="enum core::option::Option"><code>Option&lt;Filter&gt;</code></a> also implements <a href="../filter/index.html" title="mod tracing_subscriber::filter"><code>Filter</code></a>, which allows for an optional
+filter. <a href="https://doc.rust-lang.org/1.76.0/core/option/enum.Option.html#variant.None" title="variant core::option::Option::None"><code>None</code></a> filters out <em>nothing</em> (that is, allows
 everything through). For example:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn </span>setup_tracing&lt;S: Subscriber&gt;(filter_config: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) {
@@ -383,9 +384,9 @@ standard out, a <a href="../filter/index.html" title="mod tracing_subscriber::fi
 // Add a filter to the access log layer so that it only observes
 // spans and events with the `http_access` target.
 </span><span class="kw">let </span>access_log = access_log.with_filter(filter::filter_fn(|metadata| {
-    <span class="comment">// Returns `true` if and only if the span or event&#39;s target is
-    // &quot;http_access&quot;.
-    </span>metadata.target() == <span class="string">&quot;http_access&quot;
+    <span class="comment">// Returns `true` if and only if the span or event's target is
+    // "http_access".
+    </span>metadata.target() == <span class="string">"http_access"
 </span>}));
 
 <span class="comment">// A general-purpose logging layer.
@@ -408,10 +409,10 @@ the previous example:</p>
 </span><span class="kw">let </span>fmt_layer = tracing_subscriber::fmt::layer();
 
 tracing_subscriber::registry()
-    <span class="comment">// Add the filter for the &quot;http_access&quot; target to the access
+    <span class="comment">// Add the filter for the "http_access" target to the access
     // log layer, like before.
     </span>.with(access_log.with_filter(filter_fn(|metadata| {
-        metadata.target() == <span class="string">&quot;http_access&quot;
+        metadata.target() == <span class="string">"http_access"
     </span>})))
     <span class="comment">// Add a filter for spans and events with the INFO level
     // and below to the logging layer.
@@ -419,17 +420,17 @@ tracing_subscriber::registry()
     .init();
 
 <span class="comment">// Neither layer will observe this event
-</span><span class="macro">tracing::debug!</span>(does_anyone_care = <span class="bool-val">false</span>, <span class="string">&quot;a tree fell in the forest&quot;</span>);
+</span><span class="macro">tracing::debug!</span>(does_anyone_care = <span class="bool-val">false</span>, <span class="string">"a tree fell in the forest"</span>);
 
 <span class="comment">// This event will be observed by the logging layer, but not
 // by the access log layer.
-</span><span class="macro">tracing::warn!</span>(dose_roentgen = %<span class="number">3.8</span>, <span class="string">&quot;not great, but not terrible&quot;</span>);
+</span><span class="macro">tracing::warn!</span>(dose_roentgen = %<span class="number">3.8</span>, <span class="string">"not great, but not terrible"</span>);
 
 <span class="comment">// This event will be observed only by the access log layer.
-</span><span class="macro">tracing::trace!</span>(target: <span class="string">&quot;http_access&quot;</span>, <span class="string">&quot;HTTP request started&quot;</span>);
+</span><span class="macro">tracing::trace!</span>(target: <span class="string">"http_access"</span>, <span class="string">"HTTP request started"</span>);
 
 <span class="comment">// Both layers will observe this event.
-</span><span class="macro">tracing::error!</span>(target: <span class="string">&quot;http_access&quot;</span>, <span class="string">&quot;HTTP request failed with a very bad error!&quot;</span>);</code></pre></div>
+</span><span class="macro">tracing::error!</span>(target: <span class="string">"http_access"</span>, <span class="string">"HTTP request failed with a very bad error!"</span>);</code></pre></div>
 <p>A per-layer filter can be applied to multiple <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a>s at a time, by
 combining them into a <a href="struct.Layered.html" title="struct tracing_subscriber::layer::Layered"><code>Layered</code></a> layer using <a href="trait.Layer.html#method.and_then" title="method tracing_subscriber::layer::Layer::and_then"><code>Layer::and_then</code></a>, and then
 calling <a href="trait.Layer.html#method.with_filter" title="method tracing_subscriber::layer::Layer::with_filter"><code>Layer::with_filter</code></a> on the resulting <a href="struct.Layered.html" title="struct tracing_subscriber::layer::Layered"><code>Layered</code></a> layer.</p>
@@ -481,13 +482,13 @@ to the stdout log:</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tracing_subscriber::{filter, prelude::<span class="kw-2">*</span>};
 <span class="kw">use </span>std::{fs::File, sync::Arc};
 
-<span class="comment">// A layer that logs events to stdout using the human-readable &quot;pretty&quot;
+<span class="comment">// A layer that logs events to stdout using the human-readable "pretty"
 // format.
 </span><span class="kw">let </span>stdout_log = tracing_subscriber::fmt::layer()
     .pretty();
 
 <span class="comment">// A layer that logs events to a file.
-</span><span class="kw">let </span>file = File::create(<span class="string">&quot;debug.log&quot;</span>)<span class="question-mark">?</span>;
+</span><span class="kw">let </span>file = File::create(<span class="string">"debug.log"</span>)<span class="question-mark">?</span>;
 <span class="kw">let </span>debug_log = tracing_subscriber::fmt::layer()
     .with_writer(Arc::new(file));
 
@@ -505,28 +506,28 @@ tracing_subscriber::registry()
             <span class="comment">// Add a filter to *both* layers that rejects spans and
             // events whose targets start with `metrics`.
             </span>.with_filter(filter::filter_fn(|metadata| {
-                !metadata.target().starts_with(<span class="string">&quot;metrics&quot;</span>)
+                !metadata.target().starts_with(<span class="string">"metrics"</span>)
             }))
     )
     .with(
         <span class="comment">// Add a filter to the metrics label that *only* enables
         // events whose targets start with `metrics`.
         </span>metrics_layer.with_filter(filter::filter_fn(|metadata| {
-            metadata.target().starts_with(<span class="string">&quot;metrics&quot;</span>)
+            metadata.target().starts_with(<span class="string">"metrics"</span>)
         }))
     )
     .init();
 
 <span class="comment">// This event will *only* be recorded by the metrics layer.
-</span><span class="macro">tracing::info!</span>(target: <span class="string">&quot;metrics::cool_stuff_count&quot;</span>, value = <span class="number">42</span>);
+</span><span class="macro">tracing::info!</span>(target: <span class="string">"metrics::cool_stuff_count"</span>, value = <span class="number">42</span>);
 
 <span class="comment">// This event will only be seen by the debug log file layer:
-</span><span class="macro">tracing::debug!</span>(<span class="string">&quot;this is a message, and part of a system of messages&quot;</span>);
+</span><span class="macro">tracing::debug!</span>(<span class="string">"this is a message, and part of a system of messages"</span>);
 
 <span class="comment">// This event will be seen by both the stdout log layer *and*
 // the debug log file layer, but not by the metrics layer.
-</span><span class="macro">tracing::warn!</span>(<span class="string">&quot;the message is a warning about danger!&quot;</span>);</code></pre></div>
-</div></details><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Context.html" title="struct tracing_subscriber::layer::Context">Context</a></div><div class="desc docblock-short">Represents information about the current context provided to <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a>s by the
+</span><span class="macro">tracing::warn!</span>(<span class="string">"the message is a warning about danger!"</span>);</code></pre></div>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Context.html" title="struct tracing_subscriber::layer::Context">Context</a></div><div class="desc docblock-short">Represents information about the current context provided to <a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a>s by the
 wrapped <a href="../../tracing_core/subscriber/trait.Subscriber.html" title="trait tracing_core::subscriber::Subscriber"><code>Subscriber</code></a>.</div></li><li><div class="item-name"><a class="struct" href="struct.Identity.html" title="struct tracing_subscriber::layer::Identity">Identity</a></div><div class="desc docblock-short">A layer that does nothing.</div></li><li><div class="item-name"><a class="struct" href="struct.Layered.html" title="struct tracing_subscriber::layer::Layered">Layered</a></div><div class="desc docblock-short">A <a href="../../tracing_core/subscriber/trait.Subscriber.html" title="trait tracing_core::subscriber::Subscriber"><code>Subscriber</code></a> composed of a <code>Subscriber</code> wrapped by one or more
-<a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a>s.</div></li></ul><h2 id="traits" class="small-section-header"><a href="#traits">Traits</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.Filter.html" title="trait tracing_subscriber::layer::Filter">Filter</a></div><div class="desc docblock-short">A per-<a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a> filter that determines whether a span or event is enabled
+<a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a>s.</div></li></ul><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.Filter.html" title="trait tracing_subscriber::layer::Filter">Filter</a></div><div class="desc docblock-short">A per-<a href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer"><code>Layer</code></a> filter that determines whether a span or event is enabled
 for an individual layer.</div></li><li><div class="item-name"><a class="trait" href="trait.Layer.html" title="trait tracing_subscriber::layer::Layer">Layer</a></div><div class="desc docblock-short">A composable handler for <code>tracing</code> events.</div></li><li><div class="item-name"><a class="trait" href="trait.SubscriberExt.html" title="trait tracing_subscriber::layer::SubscriberExt">SubscriberExt</a></div><div class="desc docblock-short">Extension trait adding a <code>with(Layer)</code> combinator to <code>Subscriber</code>s.</div></li></ul></section></div></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/layer/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/layer/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1921,7 +1922,7 @@
 //! a single `Subscriber` for a given thread at any point in time &amp;mdash;
 //! otherwise, there would be no authoritative source of span IDs.
 //!
-//! On the other hand, the majority of the [`Subscriber`] trait&#39;s functionality
+//! On the other hand, the majority of the [`Subscriber`] trait's functionality
 //! is composable: any number of subscribers may _observe_ events, span entry
 //! and exit, and so on, provided that there is a single authoritative source of
 //! span IDs. The [`Layer`] trait represents this composable subset of the
@@ -1939,7 +1940,7 @@
 //! added to constrain what types implementing `Subscriber` a `Layer` can wrap.
 //!
 //! `Layer`s may be added to a `Subscriber` by using the [`SubscriberExt::with`]
-//! method, which is provided by `tracing-subscriber`&#39;s [prelude]. This method
+//! method, which is provided by `tracing-subscriber`'s [prelude]. This method
 //! returns a [`Layered`] struct that implements `Subscriber` by composing the
 //! `Layer` with the `Subscriber`.
 //!
@@ -2055,12 +2056,12 @@
 //! work:
 //!
 //! ```compile_fail
-//! # fn docs() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + &#39;static&gt;&gt; {
+//! # fn docs() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + 'static&gt;&gt; {
 //! # struct Config {
 //! #    is_prod: bool,
-//! #    path: &amp;&#39;static str,
+//! #    path: &amp;'static str,
 //! # }
-//! # let cfg = Config { is_prod: false, path: &quot;debug.log&quot; };
+//! # let cfg = Config { is_prod: false, path: "debug.log" };
 //! use std::fs::File;
 //! use tracing_subscriber::{Registry, prelude::*};
 //!
@@ -2080,7 +2081,7 @@
 //! };
 //!
 //! tracing::subscriber::set_global_default(subscriber)
-//!     .expect(&quot;Unable to set global subscriber&quot;);
+//!     .expect("Unable to set global subscriber");
 //! # Ok(()) }
 //! ```
 //!
@@ -2090,12 +2091,12 @@
 //! example:
 //!
 //! ```
-//! # fn docs() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + &#39;static&gt;&gt; {
+//! # fn docs() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + 'static&gt;&gt; {
 //! # struct Config {
 //! #    is_prod: bool,
-//! #    path: &amp;&#39;static str,
+//! #    path: &amp;'static str,
 //! # }
-//! # let cfg = Config { is_prod: false, path: &quot;debug.log&quot; };
+//! # let cfg = Config { is_prod: false, path: "debug.log" };
 //! use std::fs::File;
 //! use tracing_subscriber::{Registry, prelude::*};
 //!
@@ -2115,11 +2116,11 @@
 //!
 //! // If `cfg.is_prod` is false, then `json` will be `None`, and this layer
 //! // will do nothing. However, the subscriber will still have the same type
-//! // regardless of whether the `Option`&#39;s value is `None` or `Some`.
+//! // regardless of whether the `Option`'s value is `None` or `Some`.
 //! let subscriber = subscriber.with(json_log);
 //!
 //! tracing::subscriber::set_global_default(subscriber)
-//!    .expect(&quot;Unable to set global subscriber&quot;);
+//!    .expect("Unable to set global subscriber");
 //! # Ok(()) }
 //! ```
 //!
@@ -2128,7 +2129,7 @@
 //! This may be used to erase the type of a [`Layer`].
 //!
 //! For example, a function that configures a [`Layer`] to log to one of
-//! several outputs might return a `Box&lt;dyn Layer&lt;S&gt; + Send + Sync + &#39;static&gt;`:
+//! several outputs might return a `Box&lt;dyn Layer&lt;S&gt; + Send + Sync + 'static&gt;`:
 //! ```
 //! use tracing_subscriber::{
 //!     Layer,
@@ -2145,10 +2146,10 @@
 //! }
 //!
 //! impl LogConfig {
-//!     pub fn layer&lt;S&gt;(self) -&gt; Box&lt;dyn Layer&lt;S&gt; + Send + Sync + &#39;static&gt;
+//!     pub fn layer&lt;S&gt;(self) -&gt; Box&lt;dyn Layer&lt;S&gt; + Send + Sync + 'static&gt;
 //!     where
 //!         S: tracing_core::Subscriber,
-//!         for&lt;&#39;a&gt; S: LookupSpan&lt;&#39;a&gt;,
+//!         for&lt;'a&gt; S: LookupSpan&lt;'a&gt;,
 //!     {
 //!         // Shared configuration regardless of where logs are output to.
 //!         let fmt = tracing_subscriber::fmt::layer()
@@ -2158,7 +2159,7 @@
 //!         // Configure the writer based on the desired log target:
 //!         match self {
 //!             LogConfig::File(path) =&gt; {
-//!                 let file = File::create(path).expect(&quot;failed to create log file&quot;);
+//!                 let file = File::create(path).expect("failed to create log file");
 //!                 Box::new(fmt.with_writer(file))
 //!             },
 //!             LogConfig::Stdout =&gt; Box::new(fmt.with_writer(io::stdout)),
@@ -2224,7 +2225,7 @@
 //! }
 //! # impl Config {
 //! #    fn from_config_file()-&gt; Result&lt;Self, Box&lt;dyn std::error::Error&gt;&gt; {
-//! #         // don&#39;t enable the log file so that the example doesn&#39;t actually create it
+//! #         // don't enable the log file so that the example doesn't actually create it
 //! #         Ok(Self { enable_log_file: false, enable_stdout: true, enable_stderr: true })
 //! #    }
 //! # }
@@ -2235,7 +2236,7 @@
 //! let mut layers = Vec::new();
 //!
 //! if cfg.enable_log_file {
-//!     let file = File::create(&quot;myapp.log&quot;)?;
+//!     let file = File::create("myapp.log")?;
 //!     let layer = tracing_subscriber::fmt::layer()
 //!         .with_thread_names(true)
 //!         .with_target(true)
@@ -2344,11 +2345,11 @@
 //!   of the actual `Event`/`Span` to be skipped.
 //! - For events only (and not spans), [`event_enabled`] is called just before
 //!   processing the event. This gives layers one last chance to say that
-//!   an event should be filtered out, now that the event&#39;s fields are known.
+//!   an event should be filtered out, now that the event's fields are known.
 //!
 //! ## Per-Layer Filtering
 //!
-//! **Note**: per-layer filtering APIs currently require the [`&quot;registry&quot;` crate
+//! **Note**: per-layer filtering APIs currently require the [`"registry"` crate
 //! feature flag][feat] to be enabled.
 //!
 //! Sometimes, it may be desirable for one `Layer` to record a particular subset
@@ -2369,7 +2370,7 @@
 //! potentially record them. The [`Layer::with_filter`] method combines a
 //! `Layer` with a [`Filter`], returning a [`Filtered`] layer.
 //!
-//! This crate&#39;s [`filter`] module provides a number of types which implement
+//! This crate's [`filter`] module provides a number of types which implement
 //! the [`Filter`] trait, such as [`LevelFilter`], [`Targets`], and
 //! [`FilterFn`]. These [`Filter`]s provide ready-made implementations of
 //! common forms of filtering. For custom filtering policies, the [`FilterFn`]
@@ -2395,8 +2396,8 @@
 //! }
 //! ```
 //!
-//! &lt;pre class=&quot;compile_fail&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;
-//!     &lt;strong&gt;Warning&lt;/strong&gt;: Currently, the &lt;a href=&quot;../struct.Registry.html&quot;&gt;
+//! &lt;pre class="compile_fail" style="white-space:normal;font:inherit;"&gt;
+//!     &lt;strong&gt;Warning&lt;/strong&gt;: Currently, the &lt;a href="../struct.Registry.html"&gt;
 //!     &lt;code&gt;Registry&lt;/code&gt;&lt;/a&gt; type defined in this crate is the only root
 //!     &lt;code&gt;Subscriber&lt;/code&gt; capable of supporting &lt;code&gt;Layer&lt;/code&gt;s with
 //!     per-layer filters. In the future, new APIs will be added to allow other
@@ -2417,9 +2418,9 @@
 //! // Add a filter to the access log layer so that it only observes
 //! // spans and events with the `http_access` target.
 //! let access_log = access_log.with_filter(filter::filter_fn(|metadata| {
-//!     // Returns `true` if and only if the span or event&#39;s target is
-//!     // &quot;http_access&quot;.
-//!     metadata.target() == &quot;http_access&quot;
+//!     // Returns `true` if and only if the span or event's target is
+//!     // "http_access".
+//!     metadata.target() == "http_access"
 //! }));
 //!
 //! // A general-purpose logging layer.
@@ -2446,10 +2447,10 @@
 //! let fmt_layer = tracing_subscriber::fmt::layer();
 //!
 //! tracing_subscriber::registry()
-//!     // Add the filter for the &quot;http_access&quot; target to the access
+//!     // Add the filter for the "http_access" target to the access
 //!     // log layer, like before.
 //!     .with(access_log.with_filter(filter_fn(|metadata| {
-//!         metadata.target() == &quot;http_access&quot;
+//!         metadata.target() == "http_access"
 //!     })))
 //!     // Add a filter for spans and events with the INFO level
 //!     // and below to the logging layer.
@@ -2457,17 +2458,17 @@
 //!     .init();
 //!
 //! // Neither layer will observe this event
-//! tracing::debug!(does_anyone_care = false, &quot;a tree fell in the forest&quot;);
+//! tracing::debug!(does_anyone_care = false, "a tree fell in the forest");
 //!
 //! // This event will be observed by the logging layer, but not
 //! // by the access log layer.
-//! tracing::warn!(dose_roentgen = %3.8, &quot;not great, but not terrible&quot;);
+//! tracing::warn!(dose_roentgen = %3.8, "not great, but not terrible");
 //!
 //! // This event will be observed only by the access log layer.
-//! tracing::trace!(target: &quot;http_access&quot;, &quot;HTTP request started&quot;);
+//! tracing::trace!(target: "http_access", "HTTP request started");
 //!
 //! // Both layers will observe this event.
-//! tracing::error!(target: &quot;http_access&quot;, &quot;HTTP request failed with a very bad error!&quot;);
+//! tracing::error!(target: "http_access", "HTTP request failed with a very bad error!");
 //! ```
 //!
 //! A per-layer filter can be applied to multiple [`Layer`]s at a time, by
@@ -2524,19 +2525,19 @@
 //! to the stdout log:
 //!
 //! ```
-//! # // wrap this in a function so we don&#39;t actually create `debug.log` when
+//! # // wrap this in a function so we don't actually create `debug.log` when
 //! # // running the doctests..
-//! # fn docs() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + &#39;static&gt;&gt; {
+//! # fn docs() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + 'static&gt;&gt; {
 //! use tracing_subscriber::{filter, prelude::*};
 //! use std::{fs::File, sync::Arc};
 //!
-//! // A layer that logs events to stdout using the human-readable &quot;pretty&quot;
+//! // A layer that logs events to stdout using the human-readable "pretty"
 //! // format.
 //! let stdout_log = tracing_subscriber::fmt::layer()
 //!     .pretty();
 //!
 //! // A layer that logs events to a file.
-//! let file = File::create(&quot;debug.log&quot;)?;
+//! let file = File::create("debug.log")?;
 //! let debug_log = tracing_subscriber::fmt::layer()
 //!     .with_writer(Arc::new(file));
 //!
@@ -2554,27 +2555,27 @@
 //!             // Add a filter to *both* layers that rejects spans and
 //!             // events whose targets start with `metrics`.
 //!             .with_filter(filter::filter_fn(|metadata| {
-//!                 !metadata.target().starts_with(&quot;metrics&quot;)
+//!                 !metadata.target().starts_with("metrics")
 //!             }))
 //!     )
 //!     .with(
 //!         // Add a filter to the metrics label that *only* enables
 //!         // events whose targets start with `metrics`.
 //!         metrics_layer.with_filter(filter::filter_fn(|metadata| {
-//!             metadata.target().starts_with(&quot;metrics&quot;)
+//!             metadata.target().starts_with("metrics")
 //!         }))
 //!     )
 //!     .init();
 //!
 //! // This event will *only* be recorded by the metrics layer.
-//! tracing::info!(target: &quot;metrics::cool_stuff_count&quot;, value = 42);
+//! tracing::info!(target: "metrics::cool_stuff_count", value = 42);
 //!
 //! // This event will only be seen by the debug log file layer:
-//! tracing::debug!(&quot;this is a message, and part of a system of messages&quot;);
+//! tracing::debug!("this is a message, and part of a system of messages");
 //!
 //! // This event will be seen by both the stdout log layer *and*
 //! // the debug log file layer, but not by the metrics layer.
-//! tracing::warn!(&quot;the message is a warning about danger!&quot;);
+//! tracing::warn!("the message is a warning about danger!");
 //! # Ok(()) }
 //! ```
 //!
@@ -2611,7 +2612,7 @@
 <span class="kw">use </span>core::any::TypeId;
 
 <span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;alloc&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"alloc"</span>]
     </span><span class="kw">use </span>alloc::boxed::Box;
     <span class="kw">use </span>core::ops::{Deref, DerefMut};
 }
@@ -2636,7 +2637,7 @@
 </span><span class="kw">pub trait </span>Layer&lt;S&gt;
 <span class="kw">where
     </span>S: Subscriber,
-    <span class="self">Self</span>: <span class="lifetime">&#39;static</span>,
+    <span class="self">Self</span>: <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Performs late initialization when installing this layer as a
     /// [`Subscriber`].
@@ -2675,14 +2676,14 @@
     /// recieved by method calls on the [`Subscriber`].
     ///
     /// For example, [`Filtered`] layers implement `on_layer` to call the
-    /// [`Subscriber`]&#39;s [`register_filter`] method, and store the returned
+    /// [`Subscriber`]'s [`register_filter`] method, and store the returned
     /// [`FilterId`] as a field.
     ///
     /// **Note** In most cases, `Layer` implementations will not need to
     /// implement this method. However, in cases where a type implementing
     /// `Layer` wraps one or more other types that implement `Layer`, like the
     /// [`Layered`] and [`Filtered`] types in this crate, that type MUST ensure
-    /// that the inner `Layer`s&#39; `on_layer` methods are called. Otherwise,
+    /// that the inner `Layer`s' `on_layer` methods are called. Otherwise,
     /// functionality that relies on `on_layer`, such as [per-layer filtering],
     /// may not work correctly.
     ///
@@ -2701,17 +2702,17 @@
     /// By default, this returns [`Interest::always()`] if [`self.enabled`] returns
     /// true, or [`Interest::never()`] if it returns false.
     ///
-    /// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;
-    /// &lt;strong&gt;Note&lt;/strong&gt;: This method (and &lt;a href=&quot;#method.enabled&quot;&gt;
+    /// &lt;pre class="ignore" style="white-space:normal;font:inherit;"&gt;
+    /// &lt;strong&gt;Note&lt;/strong&gt;: This method (and &lt;a href="#method.enabled"&gt;
     /// &lt;code&gt;Layer::enabled&lt;/code&gt;&lt;/a&gt;) determine whether a span or event is
     /// globally enabled, &lt;em&gt;not&lt;/em&gt; whether the individual layer will be
     /// notified about that span or event. This is intended to be used
     /// by layers that implement filtering for the entire stack. Layers which do
     /// not wish to be notified about certain spans or events but do not wish to
     /// globally disable them should ignore those spans or events in their
-    /// &lt;a href=&quot;#method.on_event&quot;&gt;&lt;code&gt;on_event&lt;/code&gt;&lt;/a&gt;,
-    /// &lt;a href=&quot;#method.on_enter&quot;&gt;&lt;code&gt;on_enter&lt;/code&gt;&lt;/a&gt;,
-    /// &lt;a href=&quot;#method.on_exit&quot;&gt;&lt;code&gt;on_exit&lt;/code&gt;&lt;/a&gt;, and other notification
+    /// &lt;a href="#method.on_event"&gt;&lt;code&gt;on_event&lt;/code&gt;&lt;/a&gt;,
+    /// &lt;a href="#method.on_enter"&gt;&lt;code&gt;on_enter&lt;/code&gt;&lt;/a&gt;,
+    /// &lt;a href="#method.on_exit"&gt;&lt;code&gt;on_exit&lt;/code&gt;&lt;/a&gt;, and other notification
     /// methods.
     /// &lt;/pre&gt;
     ///
@@ -2734,7 +2735,7 @@
     /// [`on_enter`]: Layer::on_enter()
     /// [`on_exit`]: Layer::on_exit()
     /// [the trait-level documentation]: #filtering-with-layers
-    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="kw">if </span><span class="self">self</span>.enabled(metadata, Context::none()) {
             Interest::always()
         } <span class="kw">else </span>{
@@ -2749,17 +2750,17 @@
     /// By default, this always returns `true`, allowing the wrapped subscriber
     /// to choose to disable the span.
     ///
-    /// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;
-    /// &lt;strong&gt;Note&lt;/strong&gt;: This method (and &lt;a href=&quot;#method.register_callsite&quot;&gt;
+    /// &lt;pre class="ignore" style="white-space:normal;font:inherit;"&gt;
+    /// &lt;strong&gt;Note&lt;/strong&gt;: This method (and &lt;a href="#method.register_callsite"&gt;
     /// &lt;code&gt;Layer::register_callsite&lt;/code&gt;&lt;/a&gt;) determine whether a span or event is
     /// globally enabled, &lt;em&gt;not&lt;/em&gt; whether the individual layer will be
     /// notified about that span or event. This is intended to be used
     /// by layers that implement filtering for the entire stack. Layers which do
     /// not wish to be notified about certain spans or events but do not wish to
     /// globally disable them should ignore those spans or events in their
-    /// &lt;a href=&quot;#method.on_event&quot;&gt;&lt;code&gt;on_event&lt;/code&gt;&lt;/a&gt;,
-    /// &lt;a href=&quot;#method.on_enter&quot;&gt;&lt;code&gt;on_enter&lt;/code&gt;&lt;/a&gt;,
-    /// &lt;a href=&quot;#method.on_exit&quot;&gt;&lt;code&gt;on_exit&lt;/code&gt;&lt;/a&gt;, and other notification
+    /// &lt;a href="#method.on_event"&gt;&lt;code&gt;on_event&lt;/code&gt;&lt;/a&gt;,
+    /// &lt;a href="#method.on_enter"&gt;&lt;code&gt;on_enter&lt;/code&gt;&lt;/a&gt;,
+    /// &lt;a href="#method.on_exit"&gt;&lt;code&gt;on_exit&lt;/code&gt;&lt;/a&gt;, and other notification
     /// methods.
     /// &lt;/pre&gt;
     ///
@@ -2774,14 +2775,14 @@
     /// [`on_enter`]: Layer::on_enter()
     /// [`on_exit`]: Layer::on_exit()
     /// [the trait-level documentation]: #filtering-with-layers
-    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="kw">let _ </span>= (metadata, ctx);
         <span class="bool-val">true
     </span>}
 
     <span class="doccomment">/// Notifies this layer that a new span was constructed with the given
     /// `Attributes` and `Id`.
-    </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">let _ </span>= (attrs, id, ctx);
     }
 
@@ -2795,22 +2796,22 @@
 
     <span class="doccomment">/// Notifies this layer that a span with the given `Id` recorded the given
     /// `values`.
-    </span><span class="comment">// Note: it&#39;s unclear to me why we&#39;d need the current span in `record` (the
+    </span><span class="comment">// Note: it's unclear to me why we'd need the current span in `record` (the
     // only thing the `Context` type currently provides), but passing it in anyway
     // seems like a good future-proofing measure as it may grow other methods later...
-    </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, _span: <span class="kw-2">&amp;</span>span::Id, _values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, _ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {}
+    </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, _span: <span class="kw-2">&amp;</span>span::Id, _values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, _ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {}
 
     <span class="doccomment">/// Notifies this layer that a span with the ID `span` recorded that it
     /// follows from the span with the ID `follows`.
-    </span><span class="comment">// Note: it&#39;s unclear to me why we&#39;d need the current span in `record` (the
+    </span><span class="comment">// Note: it's unclear to me why we'd need the current span in `record` (the
     // only thing the `Context` type currently provides), but passing it in anyway
     // seems like a good future-proofing measure as it may grow other methods later...
-    </span><span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, _span: <span class="kw-2">&amp;</span>span::Id, _follows: <span class="kw-2">&amp;</span>span::Id, _ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {}
+    </span><span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, _span: <span class="kw-2">&amp;</span>span::Id, _follows: <span class="kw-2">&amp;</span>span::Id, _ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {}
 
     <span class="doccomment">/// Called before [`on_event`], to determine if `on_event` should be called.
     ///
-    /// &lt;div class=&quot;example-wrap&quot; style=&quot;display:inline-block&quot;&gt;
-    /// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;
+    /// &lt;div class="example-wrap" style="display:inline-block"&gt;
+    /// &lt;pre class="ignore" style="white-space:normal;font:inherit;"&gt;
     ///
     /// **Note**: This method determines whether an event is globally enabled,
     /// *not* whether the individual `Layer` will be notified about the
@@ -2828,25 +2829,25 @@
     /// [`Interest`]: tracing_core::Interest
     /// [the trait-level documentation]: #filtering-with-layers
     </span><span class="attr">#[inline] </span><span class="comment">// collapse this to a constant please mrs optimizer
-    </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, _event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, _ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, _event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, _ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="bool-val">true
     </span>}
 
     <span class="doccomment">/// Notifies this layer that an event has occurred.
-    </span><span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, _event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, _ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {}
+    </span><span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, _event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, _ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {}
 
     <span class="doccomment">/// Notifies this layer that a span with the given ID was entered.
-    </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, _id: <span class="kw-2">&amp;</span>span::Id, _ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {}
+    </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, _id: <span class="kw-2">&amp;</span>span::Id, _ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {}
 
     <span class="doccomment">/// Notifies this layer that the span with the given ID was exited.
-    </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, _id: <span class="kw-2">&amp;</span>span::Id, _ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {}
+    </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, _id: <span class="kw-2">&amp;</span>span::Id, _ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {}
 
     <span class="doccomment">/// Notifies this layer that the span with the given ID has been closed.
-    </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, _id: span::Id, _ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {}
+    </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, _id: span::Id, _ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {}
 
     <span class="doccomment">/// Notifies this layer that a span ID has been cloned, and that the
     /// subscriber returned a different ID.
-    </span><span class="kw">fn </span>on_id_change(<span class="kw-2">&amp;</span><span class="self">self</span>, _old: <span class="kw-2">&amp;</span>span::Id, _new: <span class="kw-2">&amp;</span>span::Id, _ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {}
+    </span><span class="kw">fn </span>on_id_change(<span class="kw-2">&amp;</span><span class="self">self</span>, _old: <span class="kw-2">&amp;</span>span::Id, _new: <span class="kw-2">&amp;</span>span::Id, _ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {}
 
     <span class="doccomment">/// Composes this layer around the given `Layer`, returning a `Layered`
     /// struct implementing `Layer`.
@@ -3014,8 +3015,8 @@
     ///
     /// [`Filtered`]: crate::filter::Filtered
     /// [plf]: crate::layer#per-layer-filtering
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;registry&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))]
-    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;registry&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"registry"</span>, feature = <span class="string">"std"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"registry"</span>, feature = <span class="string">"std"</span>))))]
     </span><span class="kw">fn </span>with_filter&lt;F&gt;(<span class="self">self</span>, filter: F) -&gt; filter::Filtered&lt;<span class="self">Self</span>, F, S&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
@@ -3059,19 +3060,19 @@
     ///         tracing_subscriber::fmt::layer()
     ///             .with_thread_ids(true)
     ///             .with_thread_names(true)
-    ///             // Selecting the JSON logging format changes the layer&#39;s
+    ///             // Selecting the JSON logging format changes the layer's
     ///             // type.
     ///             .json()
     ///             .with_span_list(true)
     ///             // Setting the writer to use our log file changes the
-    ///             // layer&#39;s type again.
+    ///             // layer's type again.
     ///             .with_writer(file)
     ///     },
     ///
     ///     // If logging to stdout, use a pretty, human-readable configuration.
     ///     LogConfig::Stdout =&gt; tracing_subscriber::fmt::layer()
-    ///         // Selecting the &quot;pretty&quot; logging format changes the
-    ///         // layer&#39;s type!
+    ///         // Selecting the "pretty" logging format changes the
+    ///         // layer's type!
     ///         .pretty()
     ///         .with_writer(io::stdout)
     ///         // Add a filter based on the RUST_LOG environment variable;
@@ -3080,10 +3081,10 @@
     ///
     ///     // If logging to stdout, only log errors and warnings.
     ///     LogConfig::Stderr =&gt; tracing_subscriber::fmt::layer()
-    ///         // Changing the writer changes the layer&#39;s type
+    ///         // Changing the writer changes the layer's type
     ///         .with_writer(io::stderr)
     ///         // Only log the `WARN` and `ERROR` levels. Adding a filter
-    ///         // changes the layer&#39;s type to `Filtered&lt;LevelFilter, ...&gt;`.
+    ///         // changes the layer's type to `Filtered&lt;LevelFilter, ...&gt;`.
     ///         .with_filter(LevelFilter::WARN),
     /// };
     ///
@@ -3094,7 +3095,7 @@
     /// ```
     ///
     /// However, adding a call to `.boxed()` after each match arm erases the
-    /// layer&#39;s type, so this code *does* compile:
+    /// layer's type, so this code *does* compile:
     ///
     /// ```
     /// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
@@ -3138,12 +3139,12 @@
     ///     .init();
     /// # Ok(()) }
     /// ```
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))]
-    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
-    </span><span class="kw">fn </span>boxed(<span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Layer&lt;S&gt; + Send + Sync + <span class="lifetime">&#39;static</span>&gt;
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"alloc"</span>, feature = <span class="string">"std"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"alloc"</span>, feature = <span class="string">"std"</span>))))]
+    </span><span class="kw">fn </span>boxed(<span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Layer&lt;S&gt; + Send + Sync + <span class="lifetime">'static</span>&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
-        <span class="self">Self</span>: Layer&lt;S&gt; + Send + Sync + <span class="lifetime">&#39;static</span>,
+        <span class="self">Self</span>: Layer&lt;S&gt; + Send + Sync + <span class="lifetime">'static</span>,
         S: Subscriber,
     {
         Box::new(<span class="self">self</span>)
@@ -3160,7 +3161,7 @@
 }
 
 <span class="macro">feature! </span>{
-    <span class="attr">#![all(feature = <span class="string">&quot;registry&quot;</span>, feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#![all(feature = <span class="string">"registry"</span>, feature = <span class="string">"std"</span>)]
 
     </span><span class="doccomment">/// A per-[`Layer`] filter that determines whether a span or event is enabled
     /// for an individual layer.
@@ -3186,7 +3187,7 @@
         /// [`metadata`]: tracing_core::Metadata
         /// [`Subscriber::enabled`]: tracing_core::Subscriber::enabled
         /// [filtered]: crate::filter::Filtered
-        </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool;
+        </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool;
 
         <span class="doccomment">/// Returns an [`Interest`] indicating whether this layer will [always],
         /// [sometimes], or [never] be interested in the given [`Metadata`].
@@ -3197,7 +3198,7 @@
         /// never enable a particular callsite, providing an implementation of this
         /// function is recommended.
         ///
-        /// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;
+        /// &lt;pre class="ignore" style="white-space:normal;font:inherit;"&gt;
         /// &lt;strong&gt;Note&lt;/strong&gt;: If a &lt;code&gt;Filter&lt;/code&gt; will perform
         /// &lt;em&gt;dynamic filtering&lt;/em&gt; that depends on the current context in which
         /// a span or event was observered (e.g. only enabling an event when it
@@ -3240,11 +3241,11 @@
         /// ## Default Implementation
         ///
         /// The default implementation of this method assumes that the
-        /// `Filter`&#39;s [`enabled`] method _may_ perform dynamic filtering, and
+        /// `Filter`'s [`enabled`] method _may_ perform dynamic filtering, and
         /// returns [`Interest::sometimes()`][sometimes], to ensure that [`enabled`]
         /// is called to determine whether a particular _instance_ of the callsite
         /// is enabled in the current context. If this is *not* the case, and the
-        /// `Filter`&#39;s [`enabled`] method will always return the same result
+        /// `Filter`'s [`enabled`] method will always return the same result
         /// for a particular [`Metadata`], this method can be overridden as
         /// follows:
         ///
@@ -3261,14 +3262,14 @@
         ///     // must be factored out from the `enabled` method, so that it can be
         ///     // called without a `Context` (which is not provided to the
         ///     // `callsite_enabled` method).
-        ///     fn is_enabled(&amp;self, metadata: &amp;Metadata&lt;&#39;_&gt;) -&gt; bool {
+        ///     fn is_enabled(&amp;self, metadata: &amp;Metadata&lt;'_&gt;) -&gt; bool {
         ///         // ...
         ///         # drop(metadata); true
         ///     }
         /// }
         ///
         /// impl&lt;S&gt; layer::Filter&lt;S&gt; for MyFilter {
-        ///     fn enabled(&amp;self, metadata: &amp;Metadata&lt;&#39;_&gt;, _: &amp;layer::Context&lt;&#39;_, S&gt;) -&gt; bool {
+        ///     fn enabled(&amp;self, metadata: &amp;Metadata&lt;'_&gt;, _: &amp;layer::Context&lt;'_, S&gt;) -&gt; bool {
         ///         // Even though we are implementing `callsite_enabled`, we must still provide a
         ///         // working implementation of `enabled`, as returning `Interest::always()` or
         ///         // `Interest::never()` will *allow* caching, but will not *guarantee* it.
@@ -3277,7 +3278,7 @@
         ///         self.is_enabled(metadata)
         ///     }
         ///
-        ///     fn callsite_enabled(&amp;self, metadata: &amp;&#39;static Metadata&lt;&#39;static&gt;) -&gt; Interest {
+        ///     fn callsite_enabled(&amp;self, metadata: &amp;'static Metadata&lt;'static&gt;) -&gt; Interest {
         ///         // The result of `self.enabled(metadata, ...)` will always be
         ///         // the same for any given `Metadata`, so we can convert it into
         ///         // an `Interest`:
@@ -3299,12 +3300,12 @@
         /// [`Subscriber`]: tracing_core::Subscriber
         /// [`enabled`]: Filter::enabled
         /// [`Filtered`]: crate::filter::Filtered
-        </span><span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+        </span><span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
             <span class="kw">let _ </span>= meta;
             Interest::sometimes()
         }
 
-        <span class="doccomment">/// Called before the filtered [`Layer]&#39;s [`on_event`], to determine if
+        <span class="doccomment">/// Called before the filtered [`Layer]'s [`on_event`], to determine if
         /// `on_event` should be called.
         ///
         /// This gives a chance to filter events based on their fields. Note,
@@ -3319,7 +3320,7 @@
         /// [`enabled`]: crate::layer::Filter::enabled
         /// [`on_event`]: crate::layer::Layer::on_event
         </span><span class="attr">#[inline] </span><span class="comment">// collapse this to a constant please mrs optimizer
-        </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+        </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
             <span class="kw">let _ </span>= (event, cx);
             <span class="bool-val">true
         </span>}
@@ -3363,7 +3364,7 @@
         /// By default, this method does nothing. `Filter` implementations that
         /// need to be notified when new spans are created can override this
         /// method.
-        </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">let _ </span>= (attrs, id, ctx);
         }
 
@@ -3374,7 +3375,7 @@
         /// By default, this method does nothing. `Filter` implementations that
         /// need to be notified when new spans are created can override this
         /// method.
-        </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">let _ </span>= (id, values, ctx);
         }
 
@@ -3382,7 +3383,7 @@
         ///
         /// By default, this method does nothing. `Filter` implementations that
         /// need to be notified when a span is entered can override this method.
-        </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">let _ </span>= (id, ctx);
         }
 
@@ -3390,7 +3391,7 @@
         ///
         /// By default, this method does nothing. `Filter` implementations that
         /// need to be notified when a span is exited can override this method.
-        </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">let _ </span>= (id, ctx);
         }
 
@@ -3398,7 +3399,7 @@
         ///
         /// By default, this method does nothing. `Filter` implementations that
         /// need to be notified when a span is closed can override this method.
-        </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">let _ </span>= (id, ctx);
         }
     }
@@ -3435,12 +3436,12 @@
     S: Subscriber,
 {
     <span class="kw">unsafe </span>{
-        <span class="comment">// Safety: we&#39;re not actually *doing* anything with this pointer ---
+        <span class="comment">// Safety: we're not actually *doing* anything with this pointer ---
         // this only care about the `Option`, which is essentially being used
         // as a bool. We can rely on the pointer being valid, because it is
         // a crate-private type, and is only returned by the `Layer` impl
         // for `Option`s. However, even if the layer *does* decide to be
-        // evil and give us an invalid pointer here, that&#39;s fine, because we&#39;ll
+        // evil and give us an invalid pointer here, that's fine, because we'll
         // never actually dereference it.
         </span>layer.downcast_raw(TypeId::of::&lt;NoneLayerMarker&gt;())
     }
@@ -3453,12 +3454,12 @@
     </span>S: Subscriber,
 {
     <span class="kw">unsafe </span>{
-        <span class="comment">// Safety: we&#39;re not actually *doing* anything with this pointer ---
+        <span class="comment">// Safety: we're not actually *doing* anything with this pointer ---
         // this only care about the `Option`, which is essentially being used
         // as a bool. We can rely on the pointer being valid, because it is
         // a crate-private type, and is only returned by the `Layer` impl
         // for `Option`s. However, even if the subscriber *does* decide to be
-        // evil and give us an invalid pointer here, that&#39;s fine, because we&#39;ll
+        // evil and give us an invalid pointer here, that's fine, because we'll
         // never actually dereference it.
         </span>subscriber.downcast_raw(TypeId::of::&lt;NoneLayerMarker&gt;())
     }
@@ -3477,14 +3478,14 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) = <span class="self">self </span>{
             inner.on_new_span(attrs, id, ctx)
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) =&gt; inner.register_callsite(metadata),
             <span class="prelude-val">None </span>=&gt; Interest::always(),
@@ -3492,7 +3493,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) =&gt; inner.enabled(metadata, ctx),
             <span class="prelude-val">None </span>=&gt; <span class="bool-val">true</span>,
@@ -3512,21 +3513,21 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) = <span class="self">self </span>{
             inner.on_record(span, values, ctx);
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, follows: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, follows: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) = <span class="self">self </span>{
             inner.on_follows_from(span, follows, ctx);
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) =&gt; inner.event_enabled(event, ctx),
             <span class="prelude-val">None </span>=&gt; <span class="bool-val">true</span>,
@@ -3534,35 +3535,35 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) = <span class="self">self </span>{
             inner.on_event(event, ctx);
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) = <span class="self">self </span>{
             inner.on_enter(id, ctx);
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) = <span class="self">self </span>{
             inner.on_exit(id, ctx);
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) = <span class="self">self </span>{
             inner.on_close(id, ctx);
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_id_change(<span class="kw-2">&amp;</span><span class="self">self</span>, old: <span class="kw-2">&amp;</span>span::Id, new: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_id_change(<span class="kw-2">&amp;</span><span class="self">self</span>, old: <span class="kw-2">&amp;</span>span::Id, new: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) = <span class="self">self </span>{
             inner.on_id_change(old, new, ctx)
         }
@@ -3582,8 +3583,8 @@
 }
 
 <span class="macro">feature! </span>{
-    <span class="attr">#![any(feature = <span class="string">&quot;std&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>)]
-    #[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+    <span class="attr">#![any(feature = <span class="string">"std"</span>, feature = <span class="string">"alloc"</span>)]
+    #[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">use </span>alloc::vec::Vec;
 
     <span class="macro">macro_rules! </span>layer_impl_body {
@@ -3599,17 +3600,17 @@
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+            </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
                 <span class="self">self</span>.deref().on_new_span(attrs, id, ctx)
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+            </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
                 <span class="self">self</span>.deref().register_callsite(metadata)
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+            </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
                 <span class="self">self</span>.deref().enabled(metadata, ctx)
             }
 
@@ -3619,42 +3620,42 @@
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+            </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
                 <span class="self">self</span>.deref().on_record(span, values, ctx)
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, follows: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+            </span><span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, follows: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
                 <span class="self">self</span>.deref().on_follows_from(span, follows, ctx)
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+            </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
                 <span class="self">self</span>.deref().event_enabled(event, ctx)
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+            </span><span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
                 <span class="self">self</span>.deref().on_event(event, ctx)
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+            </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
                 <span class="self">self</span>.deref().on_enter(id, ctx)
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+            </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
                 <span class="self">self</span>.deref().on_exit(id, ctx)
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+            </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
                 <span class="self">self</span>.deref().on_close(id, ctx)
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>on_id_change(<span class="kw-2">&amp;</span><span class="self">self</span>, old: <span class="kw-2">&amp;</span>span::Id, new: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+            </span><span class="kw">fn </span>on_id_change(<span class="kw-2">&amp;</span><span class="self">self</span>, old: <span class="kw-2">&amp;</span>span::Id, new: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
                 <span class="self">self</span>.deref().on_id_change(old, new, ctx)
             }
 
@@ -3695,7 +3696,7 @@
             }
         }
 
-        <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+        <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
             <span class="comment">// Return highest level of interest.
             </span><span class="kw">let </span><span class="kw-2">mut </span>interest = Interest::never();
             <span class="kw">for </span>l <span class="kw">in </span><span class="self">self </span>{
@@ -3710,15 +3711,15 @@
             interest
         }
 
-        <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+        <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
             <span class="self">self</span>.iter().all(|l| l.enabled(metadata, ctx.clone()))
         }
 
-        <span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+        <span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
             <span class="self">self</span>.iter().all(|l| l.event_enabled(event, ctx.clone()))
         }
 
-        <span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        <span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">for </span>l <span class="kw">in </span><span class="self">self </span>{
                 l.on_new_span(attrs, id, ctx.clone());
             }
@@ -3738,37 +3739,37 @@
             <span class="prelude-val">Some</span>(max_level)
         }
 
-        <span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        <span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">for </span>l <span class="kw">in </span><span class="self">self </span>{
                 l.on_record(span, values, ctx.clone())
             }
         }
 
-        <span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, follows: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        <span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, follows: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">for </span>l <span class="kw">in </span><span class="self">self </span>{
                 l.on_follows_from(span, follows, ctx.clone());
             }
         }
 
-        <span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        <span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">for </span>l <span class="kw">in </span><span class="self">self </span>{
                 l.on_event(event, ctx.clone());
             }
         }
 
-        <span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        <span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">for </span>l <span class="kw">in </span><span class="self">self </span>{
                 l.on_enter(id, ctx.clone());
             }
         }
 
-        <span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        <span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">for </span>l <span class="kw">in </span><span class="self">self </span>{
                 l.on_exit(id, ctx.clone());
             }
         }
 
-        <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">for </span>l <span class="kw">in </span><span class="self">self </span>{
                 l.on_close(id.clone(), ctx.clone());
             }
@@ -3786,7 +3787,7 @@
             // layers without filters. It should only be treated as a
             // per-layer-filtered layer if *all* its layers have
             // per-layer filters.
-            // XXX(eliza): it&#39;s a bummer we have to do this linear search every
+            // XXX(eliza): it's a bummer we have to do this linear search every
             // time. It would be nice if this could be cached, but that would
             // require replacing the `Vec` impl with an impl for a newtype...
             </span><span class="kw">if </span>filter::is_plf_downcast_marker(id) &amp;&amp; <span class="self">self</span>.iter().any(|s| s.downcast_raw(id).is_none()) {

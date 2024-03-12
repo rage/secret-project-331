@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/pool/inner.rs`."><title>inner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/pool/inner.rs`."><title>inner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -679,7 +680,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>num_idle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="comment">// We don&#39;t use `self.idle_conns.len()` as it waits for the internal
+        <span class="comment">// We don't use `self.idle_conns.len()` as it waits for the internal
         // head and tail pointers to stop changing for a moment before calculating the length,
         // which may take a long time at high levels of churn.
         //
@@ -696,7 +697,7 @@
         <span class="self">self</span>.on_closed.notify(usize::MAX);
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>close&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="kw">impl </span>Future&lt;Output = ()&gt; + <span class="lifetime">&#39;a </span>{
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>close&lt;<span class="lifetime">'a</span>&gt;(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="kw">impl </span>Future&lt;Output = ()&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.mark_closed();
 
         <span class="kw">async move </span>{
@@ -724,12 +725,12 @@
 
     <span class="doccomment">/// Attempt to pull a permit from `self.semaphore` or steal one from the parent.
     ///
-    /// If we steal a permit from the parent but *don&#39;t* open a connection,
+    /// If we steal a permit from the parent but *don't* open a connection,
     /// it should be returned to the parent.
-    </span><span class="kw">async fn </span>acquire_permit&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;AsyncSemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">async fn </span>acquire_permit&lt;<span class="lifetime">'a</span>&gt;(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;AsyncSemaphoreReleaser&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
         <span class="kw">let </span>parent = <span class="self">self
             </span>.parent()
-            <span class="comment">// If we&#39;re already at the max size, we shouldn&#39;t try to steal from the parent.
+            <span class="comment">// If we're already at the max size, we shouldn't try to steal from the parent.
             // This is just going to cause unnecessary churn in `acquire()`.
             </span>.filter(|<span class="kw">_</span>| <span class="self">self</span>.size() &lt; <span class="self">self</span>.options.max_connections);
 
@@ -755,7 +756,7 @@
                 }
 
                 <span class="kw">if </span>parent_close_event.as_mut().poll(cx).is_ready() {
-                    <span class="comment">// Propagate the parent&#39;s close event to the child.
+                    <span class="comment">// Propagate the parent's close event to the child.
                     </span><span class="kw">let _ </span>= <span class="self">self</span>.close();
                     <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(Error::PoolClosed));
                 }
@@ -764,7 +765,7 @@
                     <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(permit));
                 }
 
-                <span class="comment">// Don&#39;t try the parent right away.
+                <span class="comment">// Don't try the parent right away.
                 </span><span class="kw">if </span>poll_parent {
                     acquire_parent.as_mut().poll(cx).map(<span class="prelude-val">Ok</span>)
                 } <span class="kw">else </span>{
@@ -794,10 +795,10 @@
         <span class="self">self</span>.pop_idle(permit).ok()
     }
 
-    <span class="kw">fn </span>pop_idle&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arc&lt;<span class="self">Self</span>&gt;,
-        permit: AsyncSemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Floating&lt;DB, Idle&lt;DB&gt;&gt;, AsyncSemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    <span class="kw">fn </span>pop_idle&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Arc&lt;<span class="self">Self</span>&gt;,
+        permit: AsyncSemaphoreReleaser&lt;<span class="lifetime">'a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Floating&lt;DB, Idle&lt;DB&gt;&gt;, AsyncSemaphoreReleaser&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(idle) = <span class="self">self</span>.idle_conns.pop() {
             <span class="self">self</span>.num_idle.fetch_sub(<span class="number">1</span>, Ordering::AcqRel);
             <span class="prelude-val">Ok</span>(Floating::from_idle(idle, (<span class="kw-2">*</span><span class="self">self</span>).clone(), permit))
@@ -812,11 +813,11 @@
         </span><span class="kw">let </span>Floating { inner: idle, guard } = floating.into_idle();
 
         <span class="kw">if </span>!<span class="self">self</span>.idle_conns.push(idle).is_ok() {
-            <span class="macro">panic!</span>(<span class="string">&quot;BUG: connection queue overflow in release()&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"BUG: connection queue overflow in release()"</span>);
         }
 
         <span class="comment">// NOTE: we need to make sure we drop the permit *after* we push to the idle queue
-        // don&#39;t decrease the size
+        // don't decrease the size
         </span>guard.release_permit();
 
         <span class="self">self</span>.num_idle.fetch_add(<span class="number">1</span>, Ordering::AcqRel);
@@ -825,10 +826,10 @@
     <span class="doccomment">/// Try to atomically increment the pool size for a new connection.
     ///
     /// Returns `Err` if the pool is at max capacity already or is closed.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>try_increment_size&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arc&lt;<span class="self">Self</span>&gt;,
-        permit: AsyncSemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;DecrementSizeGuard&lt;DB&gt;, AsyncSemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>try_increment_size&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Arc&lt;<span class="self">Self</span>&gt;,
+        permit: AsyncSemaphoreReleaser&lt;<span class="lifetime">'a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;DecrementSizeGuard&lt;DB&gt;, AsyncSemaphoreReleaser&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">match </span><span class="self">self
             </span>.size
             .fetch_update(Ordering::AcqRel, Ordering::Acquire, |size| {
@@ -870,7 +871,7 @@
                             <span class="comment">// All good!
                             </span><span class="prelude-val">Ok</span>(live) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(live),
 
-                            <span class="comment">// if the connection isn&#39;t usable for one reason or another,
+                            <span class="comment">// if the connection isn't usable for one reason or another,
                             // we get the `DecrementSizeGuard` back to open a new one
                             </span><span class="prelude-val">Err</span>(guard) =&gt; guard,
                         },
@@ -878,11 +879,11 @@
                             <span class="comment">// we can open a new connection
                             </span>guard
                         } <span class="kw">else </span>{
-                            <span class="comment">// This can happen for a child pool that&#39;s at its connection limit,
+                            <span class="comment">// This can happen for a child pool that's at its connection limit,
                             // or if the pool was closed between `acquire_permit()` and
                             // `try_increment_size()`.
-                            </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;woke but was unable to acquire idle connection or open new one; retrying&quot;</span>);
-                            <span class="comment">// If so, we&#39;re likely in the current-thread runtime if it&#39;s Tokio
+                            </span><span class="macro">tracing::debug!</span>(<span class="string">"woke but was unable to acquire idle connection or open new one; retrying"</span>);
+                            <span class="comment">// If so, we're likely in the current-thread runtime if it's Tokio
                             // and so we should yield to let any spawned release_to_pool() tasks
                             // execute.
                             </span><span class="kw">crate</span>::rt::yield_now().<span class="kw">await</span>;
@@ -919,7 +920,7 @@
             </span><span class="kw">let </span>connect_options = <span class="self">self
                 </span>.connect_options
                 .read()
-                .expect(<span class="string">&quot;write-lock holder panicked&quot;</span>)
+                .expect(<span class="string">"write-lock holder panicked"</span>)
                 .clone();
 
             <span class="comment">// result here is `Result&lt;Result&lt;C, Error&gt;, TimeoutError&gt;`
@@ -942,8 +943,8 @@
                     <span class="kw">match </span>res {
                         <span class="prelude-val">Ok</span>(()) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(Floating::new_live(raw, guard)),
                         <span class="prelude-val">Err</span>(error) =&gt; {
-                            <span class="macro">tracing::error!</span>(%error, <span class="string">&quot;error returned from after_connect&quot;</span>);
-                            <span class="comment">// The connection is broken, don&#39;t try to close nicely.
+                            <span class="macro">tracing::error!</span>(%error, <span class="string">"error returned from after_connect"</span>);
+                            <span class="comment">// The connection is broken, don't try to close nicely.
                             </span><span class="kw">let _ </span>= raw.close_hard().<span class="kw">await</span>;
 
                             <span class="comment">// Fall through to the backoff.
@@ -976,9 +977,9 @@
     <span class="doccomment">/// Try to maintain `min_connections`, returning any errors (including `PoolTimedOut`).
     </span><span class="kw">pub async fn </span>try_min_connections(<span class="self">self</span>: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;, deadline: Instant) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">while </span><span class="self">self</span>.size() &lt; <span class="self">self</span>.options.min_connections {
-            <span class="comment">// Don&#39;t wait for a semaphore permit.
+            <span class="comment">// Don't wait for a semaphore permit.
             //
-            // If no extra permits are available then we shouldn&#39;t be trying to spin up
+            // If no extra permits are available then we shouldn't be trying to spin up
             // connections anyway.
             </span><span class="kw">let </span><span class="prelude-val">Some</span>(permit) = <span class="self">self</span>.semaphore.try_acquire(<span class="number">1</span>) <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(());
@@ -1000,7 +1001,7 @@
     <span class="doccomment">/// Attempt to maintain `min_connections`, logging if unable.
     </span><span class="kw">pub async fn </span>min_connections_maintenance(<span class="self">self</span>: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;, deadline: <span class="prelude-ty">Option</span>&lt;Instant&gt;) {
         <span class="kw">let </span>deadline = deadline.unwrap_or_else(|| {
-            <span class="comment">// Arbitrary default deadline if the caller doesn&#39;t care.
+            <span class="comment">// Arbitrary default deadline if the caller doesn't care.
             </span>Instant::now() + Duration::from_secs(<span class="number">300</span>)
         });
 
@@ -1008,9 +1009,9 @@
             <span class="prelude-val">Ok</span>(()) =&gt; (),
             <span class="prelude-val">Err</span>(Error::PoolClosed) =&gt; (),
             <span class="prelude-val">Err</span>(Error::PoolTimedOut) =&gt; {
-                <span class="macro">tracing::debug!</span>(<span class="string">&quot;unable to complete `min_connections` maintenance before deadline&quot;</span>)
+                <span class="macro">tracing::debug!</span>(<span class="string">"unable to complete `min_connections` maintenance before deadline"</span>)
             }
-            <span class="prelude-val">Err</span>(error) =&gt; <span class="macro">tracing::debug!</span>(%error, <span class="string">&quot;error while maintaining min_connections&quot;</span>),
+            <span class="prelude-val">Err</span>(error) =&gt; <span class="macro">tracing::debug!</span>(%error, <span class="string">"error while maintaining min_connections"</span>),
         }
     }
 }
@@ -1054,10 +1055,10 @@
         <span class="comment">// Check that the connection is still live
         </span><span class="kw">if let </span><span class="prelude-val">Err</span>(error) = conn.ping().<span class="kw">await </span>{
             <span class="comment">// an error here means the other end has hung up or we lost connectivity
-            // either way we&#39;re fine to just discard the connection
-            // the error itself here isn&#39;t necessarily unexpected so WARN is too strong
-            </span><span class="macro">tracing::info!</span>(%error, <span class="string">&quot;ping on idle connection returned error&quot;</span>);
-            <span class="comment">// connection is broken so don&#39;t try to close nicely
+            // either way we're fine to just discard the connection
+            // the error itself here isn't necessarily unexpected so WARN is too strong
+            </span><span class="macro">tracing::info!</span>(%error, <span class="string">"ping on idle connection returned error"</span>);
+            <span class="comment">// connection is broken so don't try to close nicely
             </span><span class="kw">return </span><span class="prelude-val">Err</span>(conn.close_hard().<span class="kw">await</span>);
         }
     }
@@ -1071,8 +1072,8 @@
             }
 
             <span class="prelude-val">Err</span>(error) =&gt; {
-                <span class="macro">tracing::warn!</span>(%error, <span class="string">&quot;error from `before_acquire`&quot;</span>);
-                <span class="comment">// connection is broken so don&#39;t try to close nicely
+                <span class="macro">tracing::warn!</span>(%error, <span class="string">"error from `before_acquire`"</span>);
+                <span class="comment">// connection is broken so don't try to close nicely
                 </span><span class="kw">return </span><span class="prelude-val">Err</span>(conn.close_hard().<span class="kw">await</span>);
             }
 
@@ -1080,13 +1081,13 @@
         }
     }
 
-    <span class="comment">// No need to re-connect; connection is alive or we don&#39;t care
+    <span class="comment">// No need to re-connect; connection is alive or we don't care
     </span><span class="prelude-val">Ok</span>(conn.into_live())
 }
 
 <span class="kw">fn </span>spawn_maintenance_tasks&lt;DB: Database&gt;(pool: <span class="kw-2">&amp;</span>Arc&lt;PoolInner&lt;DB&gt;&gt;) {
     <span class="comment">// NOTE: use `pool_weak` for the maintenance tasks so
-    // they don&#39;t keep `PoolInner` from being dropped.
+    // they don't keep `PoolInner` from being dropped.
     </span><span class="kw">let </span>pool_weak = Arc::downgrade(<span class="kw-2">&amp;</span>pool);
 
     <span class="kw">let </span>period = <span class="kw">match </span>(pool.options.max_lifetime, pool.options.idle_timeout) {
@@ -1121,7 +1122,7 @@
                         <span class="kw">return</span>;
                     }
 
-                    <span class="comment">// Don&#39;t run the reaper right away.
+                    <span class="comment">// Don't run the reaper right away.
                     </span><span class="kw">if </span>slept &amp;&amp; !pool.idle_conns.is_empty() {
                         do_reap(<span class="kw-2">&amp;</span>pool).<span class="kw">await</span>;
                     }
@@ -1130,11 +1131,11 @@
 
                     pool.min_connections_maintenance(<span class="prelude-val">Some</span>(next_run)).<span class="kw">await</span>;
 
-                    <span class="comment">// Don&#39;t hold a reference to the pool while sleeping.
+                    <span class="comment">// Don't hold a reference to the pool while sleeping.
                     </span>drop(pool);
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(duration) = next_run.checked_duration_since(Instant::now()) {
-                        <span class="comment">// `async-std` doesn&#39;t have a `sleep_until()`
+                        <span class="comment">// `async-std` doesn't have a `sleep_until()`
                         </span><span class="kw">crate</span>::rt::sleep(duration).<span class="kw">await</span>;
                     } <span class="kw">else </span>{
                         <span class="comment">// `next_run` is in the past, just yield.
@@ -1173,7 +1174,7 @@
 
 <span class="doccomment">/// RAII guard returned by `Pool::try_increment_size()` and others.
 ///
-/// Will decrement the pool size if dropped, to avoid semantically &quot;leaking&quot; connections
+/// Will decrement the pool size if dropped, to avoid semantically "leaking" connections
 /// (where the pool thinks it has more connections than it does).
 </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::pool) <span class="kw">struct </span>DecrementSizeGuard&lt;DB: Database&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) pool: Arc&lt;PoolInner&lt;DB&gt;&gt;,
@@ -1189,7 +1190,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>from_permit(pool: Arc&lt;PoolInner&lt;DB&gt;&gt;, permit: AsyncSemaphoreReleaser&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_permit(pool: Arc&lt;PoolInner&lt;DB&gt;&gt;, permit: AsyncSemaphoreReleaser&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="comment">// here we effectively take ownership of the permit
         </span>permit.disarm();
         <span class="self">Self</span>::new_permit(pool)
@@ -1197,7 +1198,7 @@
 
     <span class="doccomment">/// Release the semaphore permit without decreasing the pool size.
     ///
-    /// If the permit was stolen from the pool&#39;s parent, it will be returned to the child&#39;s semaphore.
+    /// If the permit was stolen from the pool's parent, it will be returned to the child's semaphore.
     </span><span class="kw">fn </span>release_permit(<span class="self">self</span>) {
         <span class="self">self</span>.pool.semaphore.release(<span class="number">1</span>);
         <span class="self">self</span>.cancel();

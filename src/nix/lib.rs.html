@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nix" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.28.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nix" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -362,16 +363,6 @@
 <a href="#362" id="362">362</a>
 <a href="#363" id="363">363</a>
 <a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a>
-<a href="#367" id="367">367</a>
-<a href="#368" id="368">368</a>
-<a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Rust friendly bindings to the various *nix system functions.
 //!
 //! Modules are structured according to the C header file that they would be
@@ -386,10 +377,11 @@
 //! * `dir` - Stuff relating to directory iteration
 //! * `env` - Manipulate environment variables
 //! * `event` - Event-driven APIs, like `kqueue` and `epoll`
+//! * `fanotify` - Linux's `fanotify` filesystem events monitoring API
 //! * `feature` - Query characteristics of the OS at runtime
 //! * `fs` - File system functionality
-//! * `hostname` - Get and set the system&#39;s hostname
-//! * `inotify` - Linux&#39;s `inotify` file system notification API
+//! * `hostname` - Get and set the system's hostname
+//! * `inotify` - Linux's `inotify` file system notification API
 //! * `ioctl` - The `ioctl` syscall, and wrappers for many specific instances
 //! * `kmod` - Load and unload kernel modules
 //! * `mman` - Stuff relating to memory management
@@ -404,57 +396,57 @@
 //! * `quota` - File system quotas
 //! * `reboot` - Reboot the system
 //! * `resource` - Process resource limits
-//! * `sched` - Manipulate process&#39;s scheduling
+//! * `sched` - Manipulate process's scheduling
 //! * `socket` - Sockets, whether for networking or local use
 //! * `signal` - Send and receive signals to processes
 //! * `term` - Terminal control APIs
-//! * `time` - Query the operating system&#39;s clocks
+//! * `time` - Query the operating system's clocks
 //! * `ucontext` - User thread context
 //! * `uio` - Vectored I/O
 //! * `user` - Stuff relating to users and groups
 //! * `zerocopy` - APIs like `sendfile` and `copy_file_range`
-</span><span class="attr">#![crate_name = <span class="string">&quot;nix&quot;</span>]
+</span><span class="attr">#![crate_name = <span class="string">"nix"</span>]
 #![cfg(unix)]
-#![cfg_attr(docsrs, doc(cfg(all())))]
 #![allow(non_camel_case_types)]
 #![cfg_attr(test, deny(warnings))]
-#![recursion_limit = <span class="string">&quot;500&quot;</span>]
+#![recursion_limit = <span class="string">"500"</span>]
 #![deny(unused)]
 #![allow(unused_macros)]
 #![cfg_attr(
     not(all(
-        feature = <span class="string">&quot;acct&quot;</span>,
-        feature = <span class="string">&quot;aio&quot;</span>,
-        feature = <span class="string">&quot;dir&quot;</span>,
-        feature = <span class="string">&quot;env&quot;</span>,
-        feature = <span class="string">&quot;event&quot;</span>,
-        feature = <span class="string">&quot;feature&quot;</span>,
-        feature = <span class="string">&quot;fs&quot;</span>,
-        feature = <span class="string">&quot;hostname&quot;</span>,
-        feature = <span class="string">&quot;inotify&quot;</span>,
-        feature = <span class="string">&quot;ioctl&quot;</span>,
-        feature = <span class="string">&quot;kmod&quot;</span>,
-        feature = <span class="string">&quot;mman&quot;</span>,
-        feature = <span class="string">&quot;mount&quot;</span>,
-        feature = <span class="string">&quot;mqueue&quot;</span>,
-        feature = <span class="string">&quot;net&quot;</span>,
-        feature = <span class="string">&quot;personality&quot;</span>,
-        feature = <span class="string">&quot;poll&quot;</span>,
-        feature = <span class="string">&quot;process&quot;</span>,
-        feature = <span class="string">&quot;pthread&quot;</span>,
-        feature = <span class="string">&quot;ptrace&quot;</span>,
-        feature = <span class="string">&quot;quota&quot;</span>,
-        feature = <span class="string">&quot;reboot&quot;</span>,
-        feature = <span class="string">&quot;resource&quot;</span>,
-        feature = <span class="string">&quot;sched&quot;</span>,
-        feature = <span class="string">&quot;socket&quot;</span>,
-        feature = <span class="string">&quot;signal&quot;</span>,
-        feature = <span class="string">&quot;term&quot;</span>,
-        feature = <span class="string">&quot;time&quot;</span>,
-        feature = <span class="string">&quot;ucontext&quot;</span>,
-        feature = <span class="string">&quot;uio&quot;</span>,
-        feature = <span class="string">&quot;user&quot;</span>,
-        feature = <span class="string">&quot;zerocopy&quot;</span>,
+        feature = <span class="string">"acct"</span>,
+        feature = <span class="string">"aio"</span>,
+        feature = <span class="string">"dir"</span>,
+        feature = <span class="string">"env"</span>,
+        feature = <span class="string">"event"</span>,
+        feature = <span class="string">"fanotify"</span>,
+        feature = <span class="string">"feature"</span>,
+        feature = <span class="string">"fs"</span>,
+        feature = <span class="string">"hostname"</span>,
+        feature = <span class="string">"inotify"</span>,
+        feature = <span class="string">"ioctl"</span>,
+        feature = <span class="string">"kmod"</span>,
+        feature = <span class="string">"mman"</span>,
+        feature = <span class="string">"mount"</span>,
+        feature = <span class="string">"mqueue"</span>,
+        feature = <span class="string">"net"</span>,
+        feature = <span class="string">"personality"</span>,
+        feature = <span class="string">"poll"</span>,
+        feature = <span class="string">"process"</span>,
+        feature = <span class="string">"pthread"</span>,
+        feature = <span class="string">"ptrace"</span>,
+        feature = <span class="string">"quota"</span>,
+        feature = <span class="string">"reboot"</span>,
+        feature = <span class="string">"resource"</span>,
+        feature = <span class="string">"sched"</span>,
+        feature = <span class="string">"socket"</span>,
+        feature = <span class="string">"signal"</span>,
+        feature = <span class="string">"term"</span>,
+        feature = <span class="string">"time"</span>,
+        feature = <span class="string">"ucontext"</span>,
+        feature = <span class="string">"uio"</span>,
+        feature = <span class="string">"user"</span>,
+        feature = <span class="string">"zerocopy"</span>,
     )),
     allow(unused_imports)
 )]
@@ -464,6 +456,7 @@
 #![warn(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(clippy::cast_ptr_alignment)]
+#![deny(unsafe_op_in_unsafe_fn)]
 
 </span><span class="comment">// Re-exported external crates
 </span><span class="kw">pub use </span>libc;
@@ -473,101 +466,89 @@
 </span><span class="kw">mod </span>macros;
 
 <span class="comment">// Public crates
-</span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+</span><span class="attr">#[cfg(not(target_os = <span class="string">"redox"</span>))]
 </span><span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;dir&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"dir"</span>]
     </span><span class="kw">pub mod </span>dir;
 }
 <span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;env&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"env"</span>]
     </span><span class="kw">pub mod </span>env;
 }
 <span class="attr">#[allow(missing_docs)]
 </span><span class="kw">pub mod </span>errno;
 <span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;feature&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"feature"</span>]
 
     #[deny(missing_docs)]
     </span><span class="kw">pub mod </span>features;
 }
-<span class="attr">#[allow(missing_docs)]
-</span><span class="kw">pub mod </span>fcntl;
+<span class="kw">pub mod </span>fcntl;
 <span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;net&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"net"</span>]
 
-    #[cfg(any(target_os = <span class="string">&quot;android&quot;</span>,
-              target_os = <span class="string">&quot;dragonfly&quot;</span>,
-              target_os = <span class="string">&quot;freebsd&quot;</span>,
-              target_os = <span class="string">&quot;ios&quot;</span>,
-              target_os = <span class="string">&quot;linux&quot;</span>,
-              target_os = <span class="string">&quot;macos&quot;</span>,
-              target_os = <span class="string">&quot;netbsd&quot;</span>,
-              target_os = <span class="string">&quot;illumos&quot;</span>,
-              target_os = <span class="string">&quot;openbsd&quot;</span>))]
+    #[cfg(any(linux_android,
+              bsd,
+              solarish))]
     #[deny(missing_docs)]
     </span><span class="kw">pub mod </span>ifaddrs;
-    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+    <span class="attr">#[cfg(not(target_os = <span class="string">"redox"</span>))]
     #[deny(missing_docs)]
     </span><span class="kw">pub mod </span>net;
 }
-<span class="attr">#[cfg(any(target_os = <span class="string">&quot;android&quot;</span>, target_os = <span class="string">&quot;linux&quot;</span>))]
+<span class="attr">#[cfg(linux_android)]
 </span><span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;kmod&quot;</span>]
-    #[allow(missing_docs)]
+    <span class="attr">#![feature = <span class="string">"kmod"</span>]
     </span><span class="kw">pub mod </span>kmod;
 }
 <span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;mount&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"mount"</span>]
     </span><span class="kw">pub mod </span>mount;
 }
-<span class="attr">#[cfg(any(
-    target_os = <span class="string">&quot;dragonfly&quot;</span>,
-    target_os = <span class="string">&quot;freebsd&quot;</span>,
-    target_os = <span class="string">&quot;linux&quot;</span>,
-    target_os = <span class="string">&quot;netbsd&quot;
-</span>))]
+<span class="attr">#[cfg(any(freebsdlike, target_os = <span class="string">"linux"</span>, target_os = <span class="string">"netbsd"</span>))]
 </span><span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;mqueue&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"mqueue"</span>]
     </span><span class="kw">pub mod </span>mqueue;
 }
 <span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;poll&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"poll"</span>]
     </span><span class="kw">pub mod </span>poll;
 }
-<span class="attr">#[cfg(not(any(target_os = <span class="string">&quot;redox&quot;</span>, target_os = <span class="string">&quot;fuchsia&quot;</span>)))]
+<span class="attr">#[cfg(not(any(target_os = <span class="string">"redox"</span>, target_os = <span class="string">"fuchsia"</span>)))]
 </span><span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;term&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"term"</span>]
     #[deny(missing_docs)]
     </span><span class="kw">pub mod </span>pty;
 }
 <span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;sched&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"sched"</span>]
     </span><span class="kw">pub mod </span>sched;
 }
 <span class="kw">pub mod </span>sys;
 <span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;time&quot;</span>]
-    #[allow(missing_docs)]
+    <span class="attr">#![feature = <span class="string">"time"</span>]
     </span><span class="kw">pub mod </span>time;
 }
 <span class="comment">// This can be implemented for other platforms as soon as libc
 // provides bindings for them.
 </span><span class="attr">#[cfg(all(
-    target_os = <span class="string">&quot;linux&quot;</span>,
+    target_os = <span class="string">"linux"</span>,
     any(
-        target_arch = <span class="string">&quot;aarch64&quot;</span>,
-        target_arch = <span class="string">&quot;s390x&quot;</span>,
-        target_arch = <span class="string">&quot;x86&quot;</span>,
-        target_arch = <span class="string">&quot;x86_64&quot;
+        target_arch = <span class="string">"aarch64"</span>,
+        target_arch = <span class="string">"s390x"</span>,
+        target_arch = <span class="string">"x86"</span>,
+        target_arch = <span class="string">"x86_64"
     </span>)
 ))]
 </span><span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;ucontext&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"ucontext"</span>]
     #[allow(missing_docs)]
     </span><span class="kw">pub mod </span>ucontext;
 }
-<span class="attr">#[allow(missing_docs)]
-</span><span class="kw">pub mod </span>unistd;
+<span class="kw">pub mod </span>unistd;
+
+<span class="attr">#[cfg(any(feature = <span class="string">"poll"</span>, feature = <span class="string">"event"</span>))]
+</span><span class="kw">mod </span>poll_timeout;
 
 <span class="kw">use </span>std::ffi::{CStr, CString, OsStr};
 <span class="kw">use </span>std::mem::MaybeUninit;
@@ -580,15 +561,15 @@
 <span class="doccomment">/// Nix Result Type
 </span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = result::Result&lt;T, Errno&gt;;
 
-<span class="doccomment">/// Nix&#39;s main error type.
+<span class="doccomment">/// Nix's main error type.
 ///
-/// It&#39;s a wrapper around Errno.  As such, it&#39;s very interoperable with
+/// It's a wrapper around Errno.  As such, it's very interoperable with
 /// [`std::io::Error`], but it has the advantages of:
 /// * `Clone`
 /// * `Copy`
 /// * `Eq`
 /// * Small size
-/// * Represents all of the system&#39;s errnos, instead of just the most common
+/// * Represents all of the system's errnos, instead of just the most common
 /// ones.
 </span><span class="kw">pub type </span>Error = Errno;
 
@@ -672,7 +653,7 @@
     <span class="kw">where
         </span>F: FnOnce(<span class="kw-2">&amp;</span>CStr) -&gt; T,
     {
-        <span class="comment">// The real PATH_MAX is typically 4096, but it&#39;s statistically unlikely to have a path
+        <span class="comment">// The real PATH_MAX is typically 4096, but it's statistically unlikely to have a path
         // longer than ~300 bytes. See the the PR description to get stats for your own machine.
         // https://github.com/nix-rust/nix/pull/1656
         //
@@ -685,7 +666,7 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = MaybeUninit::&lt;[u8; MAX_STACK_ALLOCATION]&gt;::uninit();
-        <span class="kw">let </span>buf_ptr = buf.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>u8;
+        <span class="kw">let </span>buf_ptr = buf.as_mut_ptr().cast();
 
         <span class="kw">unsafe </span>{
             ptr::copy_nonoverlapping(<span class="self">self</span>.as_ptr(), buf_ptr, <span class="self">self</span>.len());

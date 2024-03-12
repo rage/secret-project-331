@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/object.rs`."><title>object.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/object.rs`."><title>object.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -257,12 +258,12 @@
 <span class="doccomment">/// A structure to represent a git [object][1]
 ///
 /// [1]: http://git-scm.com/book/en/Git-Internals-Git-Objects
-</span><span class="kw">pub struct </span>Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>Object&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_object,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;repo </span>Repository&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'repo </span>Repository&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Object&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="doccomment">/// Get the id (SHA1) of a repository object
     </span><span class="kw">pub fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Oid {
         <span class="kw">unsafe </span>{ Binding::from_raw(raw::git_object_id(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)) }
@@ -280,7 +281,7 @@
     /// If you pass `Any` as the target type, then the object will be
     /// peeled until the type changes (e.g. a tag will be chased until the
     /// referenced object is no longer a tag).
-    </span><span class="kw">pub fn </span>peel(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: ObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>peel(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: ObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">'repo</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_object_peel(<span class="kw-2">&amp;mut </span>raw, <span class="kw-2">&amp;*</span><span class="self">self</span>.raw(), kind));
@@ -289,32 +290,32 @@
     }
 
     <span class="doccomment">/// Recursively peel an object until a blob is found
-    </span><span class="kw">pub fn </span>peel_to_blob(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Blob&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>peel_to_blob(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Blob&lt;<span class="lifetime">'repo</span>&gt;, Error&gt; {
         <span class="self">self</span>.peel(ObjectType::Blob)
             .map(|o| o.cast_or_panic(ObjectType::Blob))
     }
 
     <span class="doccomment">/// Recursively peel an object until a commit is found
-    </span><span class="kw">pub fn </span>peel_to_commit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Commit&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>peel_to_commit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Commit&lt;<span class="lifetime">'repo</span>&gt;, Error&gt; {
         <span class="self">self</span>.peel(ObjectType::Commit)
             .map(|o| o.cast_or_panic(ObjectType::Commit))
     }
 
     <span class="doccomment">/// Recursively peel an object until a tag is found
-    </span><span class="kw">pub fn </span>peel_to_tag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Tag&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>peel_to_tag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Tag&lt;<span class="lifetime">'repo</span>&gt;, Error&gt; {
         <span class="self">self</span>.peel(ObjectType::Tag)
             .map(|o| o.cast_or_panic(ObjectType::Tag))
     }
 
     <span class="doccomment">/// Recursively peel an object until a tree is found
-    </span><span class="kw">pub fn </span>peel_to_tree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Tree&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>peel_to_tree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Tree&lt;<span class="lifetime">'repo</span>&gt;, Error&gt; {
         <span class="self">self</span>.peel(ObjectType::Tree)
             .map(|o| o.cast_or_panic(ObjectType::Tree))
     }
 
     <span class="doccomment">/// Get a short abbreviated OID string for the object
     ///
-    /// This starts at the &quot;core.abbrev&quot; length (default 7 characters) and
+    /// This starts at the "core.abbrev" length (default 7 characters) and
     /// iteratively extends to a longer string if that length is ambiguous. The
     /// result will be unambiguous (at least until new objects are added to the
     /// repository).
@@ -329,63 +330,63 @@
     <span class="doccomment">/// Attempt to view this object as a commit.
     ///
     /// Returns `None` if the object is not actually a commit.
-    </span><span class="kw">pub fn </span>as_commit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_commit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.cast(ObjectType::Commit)
     }
 
     <span class="doccomment">/// Attempt to consume this object and return a commit.
     ///
     /// Returns `Err(self)` if this object is not actually a commit.
-    </span><span class="kw">pub fn </span>into_commit(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Commit&lt;<span class="lifetime">&#39;repo</span>&gt;, Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>into_commit(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Commit&lt;<span class="lifetime">'repo</span>&gt;, Object&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.cast_into(ObjectType::Commit)
     }
 
     <span class="doccomment">/// Attempt to view this object as a tag.
     ///
     /// Returns `None` if the object is not actually a tag.
-    </span><span class="kw">pub fn </span>as_tag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tag&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_tag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tag&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.cast(ObjectType::Tag)
     }
 
     <span class="doccomment">/// Attempt to consume this object and return a tag.
     ///
     /// Returns `Err(self)` if this object is not actually a tag.
-    </span><span class="kw">pub fn </span>into_tag(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Tag&lt;<span class="lifetime">&#39;repo</span>&gt;, Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>into_tag(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Tag&lt;<span class="lifetime">'repo</span>&gt;, Object&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.cast_into(ObjectType::Tag)
     }
 
     <span class="doccomment">/// Attempt to view this object as a tree.
     ///
     /// Returns `None` if the object is not actually a tree.
-    </span><span class="kw">pub fn </span>as_tree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_tree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.cast(ObjectType::Tree)
     }
 
     <span class="doccomment">/// Attempt to consume this object and return a tree.
     ///
     /// Returns `Err(self)` if this object is not actually a tree.
-    </span><span class="kw">pub fn </span>into_tree(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Tree&lt;<span class="lifetime">&#39;repo</span>&gt;, Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>into_tree(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Tree&lt;<span class="lifetime">'repo</span>&gt;, Object&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.cast_into(ObjectType::Tree)
     }
 
     <span class="doccomment">/// Attempt to view this object as a blob.
     ///
     /// Returns `None` if the object is not actually a blob.
-    </span><span class="kw">pub fn </span>as_blob(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Blob&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_blob(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Blob&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.cast(ObjectType::Blob)
     }
 
     <span class="doccomment">/// Attempt to consume this object and return a blob.
     ///
     /// Returns `Err(self)` if this object is not actually a blob.
-    </span><span class="kw">pub fn </span>into_blob(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Blob&lt;<span class="lifetime">&#39;repo</span>&gt;, Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>into_blob(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Blob&lt;<span class="lifetime">'repo</span>&gt;, Object&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.cast_into(ObjectType::Blob)
     }
 
     <span class="doccomment">/// Describes a commit
     ///
     /// Performs a describe operation on this commitish object.
-    </span><span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>, opts: <span class="kw-2">&amp;</span>DescribeOptions) -&gt; <span class="prelude-ty">Result</span>&lt;Describe&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>, opts: <span class="kw-2">&amp;</span>DescribeOptions) -&gt; <span class="prelude-ty">Result</span>&lt;Describe&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_describe_commit(<span class="kw-2">&amp;mut </span>ret, <span class="self">self</span>.raw, opts.raw()));
@@ -394,7 +395,7 @@
     }
 
     <span class="kw">fn </span>cast&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: ObjectType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
-        <span class="macro">assert_eq!</span>(mem::size_of::&lt;Object&lt;<span class="lifetime">&#39;_</span>&gt;&gt;(), mem::size_of::&lt;T&gt;());
+        <span class="macro">assert_eq!</span>(mem::size_of::&lt;Object&lt;<span class="lifetime">'_</span>&gt;&gt;(), mem::size_of::&lt;T&gt;());
         <span class="kw">if </span><span class="self">self</span>.kind() == <span class="prelude-val">Some</span>(kind) {
             <span class="kw">unsafe </span>{ <span class="prelude-val">Some</span>(<span class="kw-2">&amp;*</span>(<span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*const </span>T)) }
         } <span class="kw">else </span>{
@@ -402,7 +403,7 @@
         </span>}
     }
 
-    <span class="kw">fn </span>cast_into&lt;T&gt;(<span class="self">self</span>, kind: ObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;T, Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    <span class="kw">fn </span>cast_into&lt;T&gt;(<span class="self">self</span>, kind: ObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;T, Object&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="macro">assert_eq!</span>(mem::size_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>), mem::size_of::&lt;T&gt;());
         <span class="kw">if </span><span class="self">self</span>.kind() == <span class="prelude-val">Some</span>(kind) {
             <span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{
@@ -421,7 +422,7 @@
     <span class="kw">fn </span>cast_or_panic&lt;T&gt;(<span class="self">self</span>, kind: ObjectType) -&gt; T;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; CastOrPanic <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; CastOrPanic <span class="kw">for </span>Object&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>cast_or_panic&lt;T&gt;(<span class="self">self</span>, kind: ObjectType) -&gt; T {
         <span class="macro">assert_eq!</span>(mem::size_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>), mem::size_of::&lt;T&gt;());
         <span class="kw">if </span><span class="self">self</span>.kind() == <span class="prelude-val">Some</span>(kind) {
@@ -435,12 +436,12 @@
             <span class="kw">let </span>akind = <span class="kw">match </span><span class="self">self</span>.kind() {
                 <span class="prelude-val">Some</span>(akind) =&gt; akind.str(),
                 <span class="prelude-val">None </span>=&gt; {
-                    buf = <span class="macro">format!</span>(<span class="string">&quot;unknown ({})&quot;</span>, <span class="kw">unsafe </span>{ raw::git_object_type(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) });
+                    buf = <span class="macro">format!</span>(<span class="string">"unknown ({})"</span>, <span class="kw">unsafe </span>{ raw::git_object_type(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) });
                     <span class="kw-2">&amp;</span>buf
                 }
             };
             <span class="macro">panic!</span>(
-                <span class="string">&quot;Expected object {} to be {} but it is {}&quot;</span>,
+                <span class="string">"Expected object {} to be {} but it is {}"</span>,
                 <span class="self">self</span>.id(),
                 kind.str(),
                 akind
@@ -449,8 +450,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Clone <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Clone <span class="kw">for </span>Object&lt;<span class="lifetime">'repo</span>&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Object&lt;<span class="lifetime">'repo</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>rc = raw::git_object_dup(<span class="kw-2">&amp;mut </span>raw, <span class="self">self</span>.raw);
@@ -460,25 +461,25 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; std::fmt::Debug <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>ds = f.debug_struct(<span class="string">&quot;Object&quot;</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; std::fmt::Debug <span class="kw">for </span>Object&lt;<span class="lifetime">'repo</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ds = f.debug_struct(<span class="string">"Object"</span>);
         <span class="kw">match </span><span class="self">self</span>.kind() {
-            <span class="prelude-val">Some</span>(kind) =&gt; ds.field(<span class="string">&quot;kind&quot;</span>, <span class="kw-2">&amp;</span>kind),
+            <span class="prelude-val">Some</span>(kind) =&gt; ds.field(<span class="string">"kind"</span>, <span class="kw-2">&amp;</span>kind),
             <span class="prelude-val">None </span>=&gt; ds.field(
-                <span class="string">&quot;kind&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Unknow ({})&quot;</span>, <span class="kw">unsafe </span>{ raw::git_object_type(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) }),
+                <span class="string">"kind"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Unknow ({})"</span>, <span class="kw">unsafe </span>{ raw::git_object_type(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) }),
             ),
         };
-        ds.field(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id());
+        ds.field(<span class="string">"id"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id());
         ds.finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>Object&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_object;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_object) -&gt; Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_object) -&gt; Object&lt;<span class="lifetime">'repo</span>&gt; {
         Object {
             raw,
             _marker: marker::PhantomData,
@@ -489,7 +490,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>Object&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_object_free(<span class="self">self</span>.raw) }
     }

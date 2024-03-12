@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/pe/rich.rs`."><title>rich.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/pe/rich.rs`."><title>rich.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -99,20 +100,20 @@
 
 <span class="doccomment">/// Parsed information about a Rich Header.
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
-</span><span class="kw">pub struct </span>RichHeaderInfo&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub struct </span>RichHeaderInfo&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// The offset at which the rich header starts.
     </span><span class="kw">pub </span>offset: usize,
     <span class="doccomment">/// The length (in bytes) of the rich header.
     ///
     /// This includes the payload, but also the 16-byte start sequence and the
-    /// 8-byte final &quot;Rich&quot; and XOR key.
+    /// 8-byte final "Rich" and XOR key.
     </span><span class="kw">pub </span>length: usize,
     <span class="doccomment">/// The XOR key used to mask the rich header.
     ///
     /// Unless the file has been tampered with, it should be equal to a checksum
     /// of the file header.
     </span><span class="kw">pub </span>xor_key: u32,
-    masked_entries: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[pe::MaskedRichHeaderEntry],
+    masked_entries: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[pe::MaskedRichHeaderEntry],
 }
 
 <span class="doccomment">/// A PE rich header entry after it has been unmasked.
@@ -127,16 +128,16 @@
     </span><span class="kw">pub </span>count: u32,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; RichHeaderInfo&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; RichHeaderInfo&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Try to locate a rich header and its entries in the current PE file.
-    </span><span class="kw">pub fn </span>parse&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R, nt_header_offset: u64) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>parse&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R, nt_header_offset: u64) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="comment">// Locate the rich header, if any.
-        // It ends with the &quot;Rich&quot; string and an XOR key, before the NT header.
+        // It ends with the "Rich" string and an XOR key, before the NT header.
         </span><span class="kw">let </span>data = data.read_bytes_at(<span class="number">0</span>, nt_header_offset).map(Bytes).ok()<span class="question-mark">?</span>;
-        <span class="kw">let </span>end_marker_offset = memmem(data.<span class="number">0</span>, <span class="string">b&quot;Rich&quot;</span>, <span class="number">4</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>end_marker_offset = memmem(data.<span class="number">0</span>, <span class="string">b"Rich"</span>, <span class="number">4</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>xor_key = <span class="kw-2">*</span>data.read_at::&lt;U32&lt;LE&gt;&gt;(end_marker_offset + <span class="number">4</span>).ok()<span class="question-mark">?</span>;
 
-        <span class="comment">// It starts at the masked &quot;DanS&quot; string and 3 masked zeroes.
+        <span class="comment">// It starts at the masked "DanS" string and 3 masked zeroes.
         </span><span class="kw">let </span>masked_start_marker = U32::new(LE, <span class="number">0x536e_6144 </span>^ xor_key.get(LE));
         <span class="kw">let </span>start_header = [masked_start_marker, xor_key, xor_key, xor_key];
         <span class="kw">let </span>start_sequence = bytes_of_slice(<span class="kw-2">&amp;</span>start_header);
@@ -149,7 +150,7 @@
         <span class="kw">let </span>items = data.read_slice_at(items_offset, item_count).ok()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(RichHeaderInfo {
             offset: start_marker_offset,
-            <span class="comment">// Includes &quot;Rich&quot; marker and the XOR key.
+            <span class="comment">// Includes "Rich" marker and the XOR key.
             </span>length: end_marker_offset - start_marker_offset + <span class="number">8</span>,
             xor_key: xor_key.get(LE),
             masked_entries: items,
@@ -157,7 +158,7 @@
     }
 
     <span class="doccomment">/// Returns an iterator over the unmasked entries.
-    </span><span class="kw">pub fn </span>unmasked_entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RichHeaderEntry&gt; + <span class="lifetime">&#39;data </span>{
+    </span><span class="kw">pub fn </span>unmasked_entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RichHeaderEntry&gt; + <span class="lifetime">'data </span>{
         <span class="kw">let </span>xor_key = <span class="self">self</span>.xor_key;
         <span class="self">self</span>.masked_entries
             .iter()

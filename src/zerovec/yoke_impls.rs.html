@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/yoke_impls.rs`."><title>yoke_impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/yoke_impls.rs`."><title>yoke_impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -571,10 +572,10 @@
 
 <span class="comment">// This impl is similar to the impl on Cow and is safe for the same reasons
 </span><span class="doccomment">/// This impl requires enabling the optional `yoke` Cargo feature of the `zerovec` crate
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;static </span>+ AsULE + <span class="question-mark">?</span>Sized&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;static</span>, T&gt; {
-    <span class="kw">type </span>Output = ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;;
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, T: <span class="lifetime">'static </span>+ AsULE + <span class="question-mark">?</span>Sized&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'static</span>, T&gt; {
+    <span class="kw">type </span>Output = ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output {
         <span class="self">self
     </span>}
     <span class="attr">#[inline]
@@ -589,9 +590,9 @@
         ptr::read(ptr)
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
         <span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>, <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
     }
@@ -599,10 +600,10 @@
 
 <span class="comment">// This impl is similar to the impl on Cow and is safe for the same reasons
 </span><span class="doccomment">/// This impl requires enabling the optional `yoke` Cargo feature of the `zerovec` crate
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;static </span>+ VarULE + <span class="question-mark">?</span>Sized&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>VarZeroVec&lt;<span class="lifetime">&#39;static</span>, T&gt; {
-    <span class="kw">type </span>Output = VarZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;;
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, T: <span class="lifetime">'static </span>+ VarULE + <span class="question-mark">?</span>Sized&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>VarZeroVec&lt;<span class="lifetime">'static</span>, T&gt; {
+    <span class="kw">type </span>Output = VarZeroVec&lt;<span class="lifetime">'a</span>, T&gt;;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output {
         <span class="self">self
     </span>}
     <span class="attr">#[inline]
@@ -617,9 +618,9 @@
         ptr::read(ptr)
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
         <span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>, <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
     }
@@ -627,10 +628,10 @@
 
 <span class="comment">// This impl is similar to the impl on Cow and is safe for the same reasons
 </span><span class="doccomment">/// This impl requires enabling the optional `yoke` Cargo feature of the `zerovec` crate
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">&#39;static</span>&gt; {
-    <span class="kw">type </span>Output = FlexZeroVec&lt;<span class="lifetime">&#39;a</span>&gt;;
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">'static</span>&gt; {
+    <span class="kw">type </span>Output = FlexZeroVec&lt;<span class="lifetime">'a</span>&gt;;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output {
         <span class="self">self
     </span>}
     <span class="attr">#[inline]
@@ -645,9 +646,9 @@
         ptr::read(ptr)
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
         <span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>, <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
     }
@@ -655,20 +656,20 @@
 
 <span class="doccomment">/// This impl requires enabling the optional `yoke` Cargo feature of the `zerovec` crate
 </span><span class="attr">#[allow(clippy::transmute_ptr_to_ptr)]
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">&#39;static</span>, K, V&gt;
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">'static</span>, K, V&gt;
 <span class="kw">where
-    </span>K: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    &lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
-    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
+    </span>K: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    &lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
+    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
 {
-    <span class="kw">type </span>Output = ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;;
+    <span class="kw">type </span>Output = ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output {
         <span class="kw">unsafe </span>{
             <span class="comment">// Unfortunately, because K and V are generic, rustc is
             // unaware that these are covariant types, and cannot perform this cast automatically.
-            // We transmute it instead, and enforce the lack of a lifetime with the `K, V: &#39;static` bound
+            // We transmute it instead, and enforce the lack of a lifetime with the `K, V: 'static` bound
             </span>mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)
         }
     }
@@ -677,7 +678,7 @@
         <span class="macro">debug_assert!</span>(mem::size_of::&lt;<span class="self">Self</span>::Output&gt;() == mem::size_of::&lt;<span class="self">Self</span>&gt;());
         <span class="kw">unsafe </span>{
             <span class="comment">// Similar problem as transform(), but we need to use ptr::read since
-            // the compiler isn&#39;t sure of the sizes
+            // the compiler isn't sure of the sizes
             </span><span class="kw">let </span>this = mem::ManuallyDrop::new(<span class="self">self</span>);
             <span class="kw">let </span>ptr: <span class="kw-2">*const </span><span class="self">Self</span>::Output = (<span class="kw-2">&amp;*</span>this <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>).cast();
             ptr::read(ptr)
@@ -691,9 +692,9 @@
         ptr::read(ptr)
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
         <span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>, <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
     }
@@ -701,20 +702,20 @@
 
 <span class="doccomment">/// This impl requires enabling the optional `yoke` Cargo feature of the `zerovec` crate
 </span><span class="attr">#[allow(clippy::transmute_ptr_to_ptr)]
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>ZeroMapBorrowed&lt;<span class="lifetime">&#39;static</span>, K, V&gt;
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>ZeroMapBorrowed&lt;<span class="lifetime">'static</span>, K, V&gt;
 <span class="kw">where
-    </span>K: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
+    </span>K: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    <span class="kw-2">&amp;</span><span class="lifetime">'static </span>&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
+    <span class="kw-2">&amp;</span><span class="lifetime">'static </span>&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
 {
-    <span class="kw">type </span>Output = ZeroMapBorrowed&lt;<span class="lifetime">&#39;a</span>, K, V&gt;;
+    <span class="kw">type </span>Output = ZeroMapBorrowed&lt;<span class="lifetime">'a</span>, K, V&gt;;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output {
         <span class="kw">unsafe </span>{
             <span class="comment">// Unfortunately, because K and V are generic, rustc is
             // unaware that these are covariant types, and cannot perform this cast automatically.
-            // We transmute it instead, and enforce the lack of a lifetime with the `K, V: &#39;static` bound
+            // We transmute it instead, and enforce the lack of a lifetime with the `K, V: 'static` bound
             </span>mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)
         }
     }
@@ -723,7 +724,7 @@
         <span class="macro">debug_assert!</span>(mem::size_of::&lt;<span class="self">Self</span>::Output&gt;() == mem::size_of::&lt;<span class="self">Self</span>&gt;());
         <span class="kw">unsafe </span>{
             <span class="comment">// Similar problem as transform(), but we need to use ptr::read since
-            // the compiler isn&#39;t sure of the sizes
+            // the compiler isn't sure of the sizes
             </span><span class="kw">let </span>this = mem::ManuallyDrop::new(<span class="self">self</span>);
             <span class="kw">let </span>ptr: <span class="kw-2">*const </span><span class="self">Self</span>::Output = (<span class="kw-2">&amp;*</span>this <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>).cast();
             ptr::read(ptr)
@@ -737,9 +738,9 @@
         ptr::read(ptr)
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
         <span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>, <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
     }
@@ -747,22 +748,22 @@
 
 <span class="doccomment">/// This impl requires enabling the optional `yoke` Cargo feature of the `zerovec` crate
 </span><span class="attr">#[allow(clippy::transmute_ptr_to_ptr)]
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>ZeroMap2d&lt;<span class="lifetime">&#39;static</span>, K0, K1, V&gt;
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>ZeroMap2d&lt;<span class="lifetime">'static</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    K1: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    &lt;K0 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
-    &lt;K1 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
-    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
+    </span>K0: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    K1: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    &lt;K0 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
+    &lt;K1 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
+    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Container: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
 {
-    <span class="kw">type </span>Output = ZeroMap2d&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;;
+    <span class="kw">type </span>Output = ZeroMap2d&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output {
         <span class="kw">unsafe </span>{
             <span class="comment">// Unfortunately, because K and V are generic, rustc is
             // unaware that these are covariant types, and cannot perform this cast automatically.
-            // We transmute it instead, and enforce the lack of a lifetime with the `K0, K1, V: &#39;static` bound
+            // We transmute it instead, and enforce the lack of a lifetime with the `K0, K1, V: 'static` bound
             </span>mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)
         }
     }
@@ -771,7 +772,7 @@
         <span class="macro">debug_assert!</span>(mem::size_of::&lt;<span class="self">Self</span>::Output&gt;() == mem::size_of::&lt;<span class="self">Self</span>&gt;());
         <span class="kw">unsafe </span>{
             <span class="comment">// Similar problem as transform(), but we need to use ptr::read since
-            // the compiler isn&#39;t sure of the sizes
+            // the compiler isn't sure of the sizes
             </span><span class="kw">let </span>this = mem::ManuallyDrop::new(<span class="self">self</span>);
             <span class="kw">let </span>ptr: <span class="kw-2">*const </span><span class="self">Self</span>::Output = (<span class="kw-2">&amp;*</span>this <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>).cast();
             ptr::read(ptr)
@@ -785,9 +786,9 @@
         ptr::read(ptr)
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
         <span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>, <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
     }
@@ -795,22 +796,22 @@
 
 <span class="doccomment">/// This impl requires enabling the optional `yoke` Cargo feature of the `zerovec` crate
 </span><span class="attr">#[allow(clippy::transmute_ptr_to_ptr)]
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;static</span>, K0, K1, V&gt;
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K0, K1, V&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>ZeroMap2dBorrowed&lt;<span class="lifetime">'static</span>, K0, K1, V&gt;
 <span class="kw">where
-    </span>K0: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    K1: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt; + <span class="question-mark">?</span>Sized,
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>&lt;K0 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>&lt;K1 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; Yokeable&lt;<span class="lifetime">&#39;b</span>&gt;,
+    </span>K0: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    K1: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; ZeroMapKV&lt;<span class="lifetime">'b</span>&gt; + <span class="question-mark">?</span>Sized,
+    <span class="kw-2">&amp;</span><span class="lifetime">'static </span>&lt;K0 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
+    <span class="kw-2">&amp;</span><span class="lifetime">'static </span>&lt;K1 <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
+    <span class="kw-2">&amp;</span><span class="lifetime">'static </span>&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'static</span>&gt;&gt;::Slice: <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; Yokeable&lt;<span class="lifetime">'b</span>&gt;,
 {
-    <span class="kw">type </span>Output = ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;a</span>, K0, K1, V&gt;;
+    <span class="kw">type </span>Output = ZeroMap2dBorrowed&lt;<span class="lifetime">'a</span>, K0, K1, V&gt;;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output {
         <span class="kw">unsafe </span>{
             <span class="comment">// Unfortunately, because K and V are generic, rustc is
             // unaware that these are covariant types, and cannot perform this cast automatically.
-            // We transmute it instead, and enforce the lack of a lifetime with the `K0, K1, V: &#39;static` bound
+            // We transmute it instead, and enforce the lack of a lifetime with the `K0, K1, V: 'static` bound
             </span>mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)
         }
     }
@@ -819,7 +820,7 @@
         <span class="macro">debug_assert!</span>(mem::size_of::&lt;<span class="self">Self</span>::Output&gt;() == mem::size_of::&lt;<span class="self">Self</span>&gt;());
         <span class="kw">unsafe </span>{
             <span class="comment">// Similar problem as transform(), but we need to use ptr::read since
-            // the compiler isn&#39;t sure of the sizes
+            // the compiler isn't sure of the sizes
             </span><span class="kw">let </span>this = mem::ManuallyDrop::new(<span class="self">self</span>);
             <span class="kw">let </span>ptr: <span class="kw-2">*const </span><span class="self">Self</span>::Output = (<span class="kw-2">&amp;*</span>this <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>).cast();
             ptr::read(ptr)
@@ -833,9 +834,9 @@
         ptr::read(ptr)
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
         <span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>, <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
     }
@@ -852,18 +853,18 @@
     // duplicate tests elsewhere in this crate, but they are here for completeness.
 
     </span><span class="attr">#[derive(yoke::Yokeable, zerofrom::ZeroFrom)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
-    </span><span class="kw">struct </span>DeriveTest_ZeroVec&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u16&gt;,
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    </span><span class="kw">struct </span>DeriveTest_ZeroVec&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: ZeroVec&lt;<span class="lifetime">'data</span>, u16&gt;,
     }
 
     <span class="attr">#[test]
     #[ignore] </span><span class="comment">// https://github.com/rust-lang/rust/issues/98906
     </span><span class="kw">fn </span>bake_ZeroVec() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_ZeroVec&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_ZeroVec&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_ZeroVec {
                 _data: <span class="kw">crate</span>::ZeroVec::new(),
             },
@@ -872,17 +873,17 @@
     }
 
     <span class="attr">#[derive(yoke::Yokeable)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
-    </span><span class="kw">struct </span>DeriveTest_ZeroSlice&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;u16&gt;,
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    </span><span class="kw">struct </span>DeriveTest_ZeroSlice&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u16&gt;,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_ZeroSlice() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_ZeroSlice&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_ZeroSlice&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_ZeroSlice {
                 _data: <span class="kw">crate</span>::ZeroSlice::new_empty(),
             },
@@ -891,17 +892,17 @@
     }
 
     <span class="attr">#[derive(yoke::Yokeable, zerofrom::ZeroFrom)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
-    </span><span class="kw">struct </span>DeriveTest_FlexZeroVec&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: FlexZeroVec&lt;<span class="lifetime">&#39;data</span>&gt;,
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    </span><span class="kw">struct </span>DeriveTest_FlexZeroVec&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: FlexZeroVec&lt;<span class="lifetime">'data</span>&gt;,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_FlexZeroVec() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_FlexZeroVec&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_FlexZeroVec&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_FlexZeroVec {
                 _data: <span class="kw">crate</span>::vecs::FlexZeroVec::new(),
             },
@@ -910,36 +911,36 @@
     }
 
     <span class="attr">#[derive(yoke::Yokeable)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
-    </span><span class="kw">struct </span>DeriveTest_FlexZeroSlice&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>FlexZeroSlice,
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    </span><span class="kw">struct </span>DeriveTest_FlexZeroSlice&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>FlexZeroSlice,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_FlexZeroSlice() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_FlexZeroSlice&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_FlexZeroSlice&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_FlexZeroSlice {
-                _data: <span class="kw">unsafe </span>{ <span class="kw">crate</span>::vecs::FlexZeroSlice::from_byte_slice_unchecked(<span class="string">b&quot;\x01\0&quot;</span>) },
+                _data: <span class="kw">unsafe </span>{ <span class="kw">crate</span>::vecs::FlexZeroSlice::from_byte_slice_unchecked(<span class="string">b"\x01\0"</span>) },
             },
             zerovec,
         );
     }
 
     <span class="attr">#[derive(yoke::Yokeable, zerofrom::ZeroFrom)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
-    </span><span class="kw">struct </span>DeriveTest_VarZeroVec&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: VarZeroVec&lt;<span class="lifetime">&#39;data</span>, str&gt;,
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    </span><span class="kw">struct </span>DeriveTest_VarZeroVec&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: VarZeroVec&lt;<span class="lifetime">'data</span>, str&gt;,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_VarZeroVec() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_VarZeroVec&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_VarZeroVec&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_VarZeroVec {
                 _data: <span class="kw">crate</span>::VarZeroVec::new(),
             },
@@ -948,17 +949,17 @@
     }
 
     <span class="attr">#[derive(yoke::Yokeable)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
-    </span><span class="kw">struct </span>DeriveTest_VarZeroSlice&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>VarZeroSlice&lt;str&gt;,
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    </span><span class="kw">struct </span>DeriveTest_VarZeroSlice&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>VarZeroSlice&lt;str&gt;,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_VarZeroSlice() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_VarZeroSlice&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_VarZeroSlice&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_VarZeroSlice {
                 _data: <span class="kw">crate</span>::VarZeroSlice::new_empty()
             },
@@ -967,18 +968,18 @@
     }
 
     <span class="attr">#[derive(yoke::Yokeable, zerofrom::ZeroFrom)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
     #[yoke(prove_covariance_manually)]
-    </span><span class="kw">struct </span>DeriveTest_ZeroMap&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: ZeroMap&lt;<span class="lifetime">&#39;data</span>, [u8], str&gt;,
+    </span><span class="kw">struct </span>DeriveTest_ZeroMap&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: ZeroMap&lt;<span class="lifetime">'data</span>, [u8], str&gt;,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_ZeroMap() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_ZeroMap&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_ZeroMap&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_ZeroMap {
                 _data: <span class="kw">unsafe </span>{
                     <span class="attr">#[allow(unused_unsafe)]
@@ -993,18 +994,18 @@
     }
 
     <span class="attr">#[derive(yoke::Yokeable)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
     #[yoke(prove_covariance_manually)]
-    </span><span class="kw">struct </span>DeriveTest_ZeroMapBorrowed&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: ZeroMapBorrowed&lt;<span class="lifetime">&#39;data</span>, [u8], str&gt;,
+    </span><span class="kw">struct </span>DeriveTest_ZeroMapBorrowed&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: ZeroMapBorrowed&lt;<span class="lifetime">'data</span>, [u8], str&gt;,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_ZeroMapBorrowed() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_ZeroMapBorrowed&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_ZeroMapBorrowed&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_ZeroMapBorrowed {
                 _data: <span class="kw">unsafe </span>{
                     <span class="attr">#[allow(unused_unsafe)]
@@ -1019,18 +1020,18 @@
     }
 
     <span class="attr">#[derive(yoke::Yokeable, zerofrom::ZeroFrom)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
     #[yoke(prove_covariance_manually)]
-    </span><span class="kw">struct </span>DeriveTest_ZeroMapWithULE&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: ZeroMap&lt;<span class="lifetime">&#39;data</span>, ZeroSlice&lt;u32&gt;, str&gt;,
+    </span><span class="kw">struct </span>DeriveTest_ZeroMapWithULE&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: ZeroMap&lt;<span class="lifetime">'data</span>, ZeroSlice&lt;u32&gt;, str&gt;,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_ZeroMapWithULE() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_ZeroMapWithULE&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_ZeroMapWithULE&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_ZeroMapWithULE {
                 _data: <span class="kw">unsafe </span>{
                     <span class="attr">#[allow(unused_unsafe)]
@@ -1045,18 +1046,18 @@
     }
 
     <span class="attr">#[derive(yoke::Yokeable, zerofrom::ZeroFrom)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
     #[yoke(prove_covariance_manually)]
-    </span><span class="kw">struct </span>DeriveTest_ZeroMap2d&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: ZeroMap2d&lt;<span class="lifetime">&#39;data</span>, u16, u16, str&gt;,
+    </span><span class="kw">struct </span>DeriveTest_ZeroMap2d&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: ZeroMap2d&lt;<span class="lifetime">'data</span>, u16, u16, str&gt;,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_ZeroMap2d() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_ZeroMap2d&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_ZeroMap2d&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_ZeroMap2d {
                 _data: <span class="kw">unsafe </span>{
                     <span class="attr">#[allow(unused_unsafe)]
@@ -1073,18 +1074,18 @@
     }
 
     <span class="attr">#[derive(yoke::Yokeable)]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
-    #[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerovec::yoke_impls::test))]
     #[yoke(prove_covariance_manually)]
-    </span><span class="kw">struct </span>DeriveTest_ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span>_data: ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;data</span>, u16, u16, str&gt;,
+    </span><span class="kw">struct </span>DeriveTest_ZeroMap2dBorrowed&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span>_data: ZeroMap2dBorrowed&lt;<span class="lifetime">'data</span>, u16, u16, str&gt;,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bake_ZeroMap2dBorrowed() {
         <span class="macro">test_bake!</span>(
-            DeriveTest_ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;static</span>&gt;,
+            DeriveTest_ZeroMap2dBorrowed&lt;<span class="lifetime">'static</span>&gt;,
             <span class="kw">crate</span>::yoke_impls::test::DeriveTest_ZeroMap2dBorrowed {
                 _data: <span class="kw">unsafe </span>{
                     <span class="attr">#[allow(unused_unsafe)]

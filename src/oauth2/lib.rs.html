@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/oauth2-4.4.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oauth2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/oauth2-4.4.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oauth2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3251,13 +3252,13 @@
 //!    `default-features = false` in `Cargo.toml` (replacing `...` with the desired version of this
 //!    crate):
 //!    ```toml
-//!    oauth2 = { version = &quot;...&quot;, default-features = false }
+//!    oauth2 = { version = "...", default-features = false }
 //!    ```
 //!
 //!    Synchronous HTTP clients should implement the following trait:
 //!    ```rust,ignore
 //!    FnOnce(HttpRequest) -&gt; Result&lt;HttpResponse, RE&gt;
-//!    where RE: std::error::Error + &#39;static
+//!    where RE: std::error::Error + 'static
 //!    ```
 //!
 //!    Asynchronous HTTP clients should implement the following trait:
@@ -3265,7 +3266,7 @@
 //!    FnOnce(HttpRequest) -&gt; F
 //!    where
 //!      F: Future&lt;Output = Result&lt;HttpResponse, RE&gt;&gt;,
-//!      RE: std::error::Error + &#39;static
+//!      RE: std::error::Error + 'static
 //!    ```
 //!
 //! # Getting started: Authorization Code Grant w/ PKCE
@@ -3276,7 +3277,7 @@
 //!
 //! ## Example: Synchronous (blocking) API
 //!
-//! This example works with `oauth2`&#39;s default feature flags, which include `reqwest`.
+//! This example works with `oauth2`'s default feature flags, which include `reqwest`.
 //!
 //! ```rust,no_run
 //! use anyhow;
@@ -3301,13 +3302,13 @@
 //! // token URL.
 //! let client =
 //!     BasicClient::new(
-//!         ClientId::new(&quot;client_id&quot;.to_string()),
-//!         Some(ClientSecret::new(&quot;client_secret&quot;.to_string())),
-//!         AuthUrl::new(&quot;http://authorize&quot;.to_string())?,
-//!         Some(TokenUrl::new(&quot;http://token&quot;.to_string())?)
+//!         ClientId::new("client_id".to_string()),
+//!         Some(ClientSecret::new("client_secret".to_string())),
+//!         AuthUrl::new("http://authorize".to_string())?,
+//!         Some(TokenUrl::new("http://token".to_string())?)
 //!     )
 //!     // Set the URL the user will be redirected to after the authorization process.
-//!     .set_redirect_uri(RedirectUrl::new(&quot;http://redirect&quot;.to_string())?);
+//!     .set_redirect_uri(RedirectUrl::new("http://redirect".to_string())?);
 //!
 //! // Generate a PKCE challenge.
 //! let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
@@ -3316,24 +3317,24 @@
 //! let (auth_url, csrf_token) = client
 //!     .authorize_url(CsrfToken::new_random)
 //!     // Set the desired scopes.
-//!     .add_scope(Scope::new(&quot;read&quot;.to_string()))
-//!     .add_scope(Scope::new(&quot;write&quot;.to_string()))
+//!     .add_scope(Scope::new("read".to_string()))
+//!     .add_scope(Scope::new("write".to_string()))
 //!     // Set the PKCE code challenge.
 //!     .set_pkce_challenge(pkce_challenge)
 //!     .url();
 //!
 //! // This is the URL you should redirect the user to, in order to trigger the authorization
 //! // process.
-//! println!(&quot;Browse to: {}&quot;, auth_url);
+//! println!("Browse to: {}", auth_url);
 //!
-//! // Once the user has been redirected to the redirect URL, you&#39;ll have access to the
+//! // Once the user has been redirected to the redirect URL, you'll have access to the
 //! // authorization code. For security reasons, your code should verify that the `state`
 //! // parameter returned by the server matches `csrf_state`.
 //!
 //! // Now you can trade it for an access token.
 //! let token_result =
 //!     client
-//!         .exchange_code(AuthorizationCode::new(&quot;some authorization code&quot;.to_string()))
+//!         .exchange_code(AuthorizationCode::new("some authorization code".to_string()))
 //!         // Set the PKCE code verifier.
 //!         .set_pkce_verifier(pkce_verifier)
 //!         .request(http_client)?;
@@ -3362,23 +3363,23 @@
 //!     TokenUrl
 //! };
 //! use oauth2::basic::BasicClient;
-//! # #[cfg(feature = &quot;reqwest&quot;)]
+//! # #[cfg(feature = "reqwest")]
 //! use oauth2::reqwest::async_http_client;
 //! use url::Url;
 //!
-//! # #[cfg(feature = &quot;reqwest&quot;)]
+//! # #[cfg(feature = "reqwest")]
 //! # async fn err_wrapper() -&gt; Result&lt;(), anyhow::Error&gt; {
 //! // Create an OAuth2 client by specifying the client ID, client secret, authorization URL and
 //! // token URL.
 //! let client =
 //!     BasicClient::new(
-//!         ClientId::new(&quot;client_id&quot;.to_string()),
-//!         Some(ClientSecret::new(&quot;client_secret&quot;.to_string())),
-//!         AuthUrl::new(&quot;http://authorize&quot;.to_string())?,
-//!         Some(TokenUrl::new(&quot;http://token&quot;.to_string())?)
+//!         ClientId::new("client_id".to_string()),
+//!         Some(ClientSecret::new("client_secret".to_string())),
+//!         AuthUrl::new("http://authorize".to_string())?,
+//!         Some(TokenUrl::new("http://token".to_string())?)
 //!     )
 //!     // Set the URL the user will be redirected to after the authorization process.
-//!     .set_redirect_uri(RedirectUrl::new(&quot;http://redirect&quot;.to_string())?);
+//!     .set_redirect_uri(RedirectUrl::new("http://redirect".to_string())?);
 //!
 //! // Generate a PKCE challenge.
 //! let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
@@ -3387,23 +3388,23 @@
 //! let (auth_url, csrf_token) = client
 //!     .authorize_url(CsrfToken::new_random)
 //!     // Set the desired scopes.
-//!     .add_scope(Scope::new(&quot;read&quot;.to_string()))
-//!     .add_scope(Scope::new(&quot;write&quot;.to_string()))
+//!     .add_scope(Scope::new("read".to_string()))
+//!     .add_scope(Scope::new("write".to_string()))
 //!     // Set the PKCE code challenge.
 //!     .set_pkce_challenge(pkce_challenge)
 //!     .url();
 //!
 //! // This is the URL you should redirect the user to, in order to trigger the authorization
 //! // process.
-//! println!(&quot;Browse to: {}&quot;, auth_url);
+//! println!("Browse to: {}", auth_url);
 //!
-//! // Once the user has been redirected to the redirect URL, you&#39;ll have access to the
+//! // Once the user has been redirected to the redirect URL, you'll have access to the
 //! // authorization code. For security reasons, your code should verify that the `state`
 //! // parameter returned by the server matches `csrf_state`.
 //!
 //! // Now you can trade it for an access token.
 //! let token_result = client
-//!     .exchange_code(AuthorizationCode::new(&quot;some authorization code&quot;.to_string()))
+//!     .exchange_code(AuthorizationCode::new("some authorization code".to_string()))
 //!     // Set the PKCE code verifier.
 //!     .set_pkce_verifier(pkce_verifier)
 //!     .request_async(async_http_client)
@@ -3438,9 +3439,9 @@
 //! # fn err_wrapper() -&gt; Result&lt;(), anyhow::Error&gt; {
 //! let client =
 //!     BasicClient::new(
-//!         ClientId::new(&quot;client_id&quot;.to_string()),
-//!         Some(ClientSecret::new(&quot;client_secret&quot;.to_string())),
-//!         AuthUrl::new(&quot;http://authorize&quot;.to_string())?,
+//!         ClientId::new("client_id".to_string()),
+//!         Some(ClientSecret::new("client_secret".to_string())),
+//!         AuthUrl::new("http://authorize".to_string())?,
 //!         None
 //!     );
 //!
@@ -3452,9 +3453,9 @@
 //!
 //! // This is the URL you should redirect the user to, in order to trigger the authorization
 //! // process.
-//! println!(&quot;Browse to: {}&quot;, auth_url);
+//! println!("Browse to: {}", auth_url);
 //!
-//! // Once the user has been redirected to the redirect URL, you&#39;ll have the access code.
+//! // Once the user has been redirected to the redirect URL, you'll have the access code.
 //! // For security reasons, your code should verify that the `state` parameter returned by the
 //! // server matches `csrf_state`.
 //!
@@ -3488,19 +3489,19 @@
 //! # fn err_wrapper() -&gt; Result&lt;(), anyhow::Error&gt; {
 //! let client =
 //!     BasicClient::new(
-//!         ClientId::new(&quot;client_id&quot;.to_string()),
-//!         Some(ClientSecret::new(&quot;client_secret&quot;.to_string())),
-//!         AuthUrl::new(&quot;http://authorize&quot;.to_string())?,
-//!         Some(TokenUrl::new(&quot;http://token&quot;.to_string())?)
+//!         ClientId::new("client_id".to_string()),
+//!         Some(ClientSecret::new("client_secret".to_string())),
+//!         AuthUrl::new("http://authorize".to_string())?,
+//!         Some(TokenUrl::new("http://token".to_string())?)
 //!     );
 //!
 //! let token_result =
 //!     client
 //!         .exchange_password(
-//!             &amp;ResourceOwnerUsername::new(&quot;user&quot;.to_string()),
-//!             &amp;ResourceOwnerPassword::new(&quot;pass&quot;.to_string())
+//!             &amp;ResourceOwnerUsername::new("user".to_string()),
+//!             &amp;ResourceOwnerPassword::new("pass".to_string())
 //!         )
-//!         .add_scope(Scope::new(&quot;read&quot;.to_string()))
+//!         .add_scope(Scope::new("read".to_string()))
 //!         .request(http_client)?;
 //! # Ok(())
 //! # }
@@ -3530,15 +3531,15 @@
 //! # fn err_wrapper() -&gt; Result&lt;(), anyhow::Error&gt; {
 //! let client =
 //!     BasicClient::new(
-//!         ClientId::new(&quot;client_id&quot;.to_string()),
-//!         Some(ClientSecret::new(&quot;client_secret&quot;.to_string())),
-//!         AuthUrl::new(&quot;http://authorize&quot;.to_string())?,
-//!         Some(TokenUrl::new(&quot;http://token&quot;.to_string())?),
+//!         ClientId::new("client_id".to_string()),
+//!         Some(ClientSecret::new("client_secret".to_string())),
+//!         AuthUrl::new("http://authorize".to_string())?,
+//!         Some(TokenUrl::new("http://token".to_string())?),
 //!     );
 //!
 //! let token_result = client
 //!     .exchange_client_credentials()
-//!     .add_scope(Scope::new(&quot;read&quot;.to_string()))
+//!     .add_scope(Scope::new("read".to_string()))
 //!     .request(http_client)?;
 //! # Ok(())
 //! # }
@@ -3571,23 +3572,23 @@
 //! use url::Url;
 //!
 //! # fn err_wrapper() -&gt; Result&lt;(), anyhow::Error&gt; {
-//! let device_auth_url = DeviceAuthorizationUrl::new(&quot;http://deviceauth&quot;.to_string())?;
+//! let device_auth_url = DeviceAuthorizationUrl::new("http://deviceauth".to_string())?;
 //! let client =
 //!     BasicClient::new(
-//!         ClientId::new(&quot;client_id&quot;.to_string()),
-//!         Some(ClientSecret::new(&quot;client_secret&quot;.to_string())),
-//!         AuthUrl::new(&quot;http://authorize&quot;.to_string())?,
-//!         Some(TokenUrl::new(&quot;http://token&quot;.to_string())?),
+//!         ClientId::new("client_id".to_string()),
+//!         Some(ClientSecret::new("client_secret".to_string())),
+//!         AuthUrl::new("http://authorize".to_string())?,
+//!         Some(TokenUrl::new("http://token".to_string())?),
 //!     )
 //!     .set_device_authorization_url(device_auth_url);
 //!
 //! let details: StandardDeviceAuthorizationResponse = client
 //!     .exchange_device_code()?
-//!     .add_scope(Scope::new(&quot;read&quot;.to_string()))
+//!     .add_scope(Scope::new("read".to_string()))
 //!     .request(http_client)?;
 //!
 //! println!(
-//!     &quot;Open this URL in your browser:\n{}\nand enter the code: {}&quot;,
+//!     "Open this URL in your browser:\n{}\nand enter the code: {}",
 //!     details.verification_uri().to_string(),
 //!     details.user_code().secret().to_string()
 //! );
@@ -3642,13 +3643,13 @@
 
 <span class="doccomment">///
 /// HTTP client backed by the [curl](https://crates.io/crates/curl) crate.
-/// Requires &quot;curl&quot; feature.
+/// Requires "curl" feature.
 ///
-</span><span class="attr">#[cfg(all(feature = <span class="string">&quot;curl&quot;</span>, not(target_arch = <span class="string">&quot;wasm32&quot;</span>)))]
+</span><span class="attr">#[cfg(all(feature = <span class="string">"curl"</span>, not(target_arch = <span class="string">"wasm32"</span>)))]
 </span><span class="kw">pub mod </span>curl;
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;curl&quot;</span>, target_arch = <span class="string">&quot;wasm32&quot;</span>))]
-</span><span class="macro">compile_error!</span>(<span class="string">&quot;wasm32 is not supported with the `curl` feature. Use the `reqwest` backend or a custom backend for wasm32 support&quot;</span>);
+<span class="attr">#[cfg(all(feature = <span class="string">"curl"</span>, target_arch = <span class="string">"wasm32"</span>))]
+</span><span class="macro">compile_error!</span>(<span class="string">"wasm32 is not supported with the `curl` feature. Use the `reqwest` backend or a custom backend for wasm32 support"</span>);
 
 <span class="doccomment">///
 /// Device Code Flow OAuth2 implementation
@@ -3669,9 +3670,9 @@
 
 <span class="doccomment">///
 /// HTTP client backed by the [reqwest](https://crates.io/crates/reqwest) crate.
-/// Requires &quot;reqwest&quot; feature.
+/// Requires "reqwest" feature.
 ///
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;reqwest&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"reqwest"</span>)]
 </span><span class="kw">pub mod </span>reqwest;
 
 <span class="attr">#[cfg(test)]
@@ -3681,9 +3682,9 @@
 
 <span class="doccomment">///
 /// HTTP client backed by the [ureq](https://crates.io/crates/ureq) crate.
-/// Requires &quot;ureq&quot; feature.
+/// Requires "ureq" feature.
 ///
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;ureq&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"ureq"</span>)]
 </span><span class="kw">pub mod </span>ureq;
 
 <span class="doccomment">///
@@ -3708,8 +3709,8 @@
 
 <span class="kw">pub use </span>revocation::{RevocableToken, RevocationErrorResponseType, StandardRevocableToken};
 
-<span class="kw">const </span>CONTENT_TYPE_JSON: <span class="kw-2">&amp;</span>str = <span class="string">&quot;application/json&quot;</span>;
-<span class="kw">const </span>CONTENT_TYPE_FORMENCODED: <span class="kw-2">&amp;</span>str = <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>;
+<span class="kw">const </span>CONTENT_TYPE_JSON: <span class="kw-2">&amp;</span>str = <span class="string">"application/json"</span>;
+<span class="kw">const </span>CONTENT_TYPE_FORMENCODED: <span class="kw-2">&amp;</span>str = <span class="string">"application/x-www-form-urlencoded"</span>;
 
 <span class="doccomment">///
 /// There was a problem configuring the request.
@@ -3720,13 +3721,13 @@
     <span class="doccomment">///
     /// The endpoint URL tp be contacted is missing.
     ///
-    </span><span class="attr">#[error(<span class="string">&quot;No {0} endpoint URL specified&quot;</span>)]
-    </span>MissingUrl(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str),
+    </span><span class="attr">#[error(<span class="string">"No {0} endpoint URL specified"</span>)]
+    </span>MissingUrl(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
     <span class="doccomment">///
     /// The endpoint URL to be contacted MUST be HTTPS.
     ///
-    </span><span class="attr">#[error(<span class="string">&quot;Scheme for {0} endpoint URL must be HTTPS&quot;</span>)]
-    </span>InsecureUrl(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str),
+    </span><span class="attr">#[error(<span class="string">"Scheme for {0} endpoint URL must be HTTPS"</span>)]
+    </span>InsecureUrl(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
 }
 
 <span class="doccomment">///
@@ -3765,16 +3766,16 @@
 /// # use http::header::{HeaderValue, CONTENT_TYPE};
 /// # use oauth2::{*, basic::*};
 /// # let client = BasicClient::new(
-/// #     ClientId::new(&quot;aaa&quot;.to_string()),
-/// #     Some(ClientSecret::new(&quot;bbb&quot;.to_string())),
-/// #     AuthUrl::new(&quot;https://example.com/auth&quot;.to_string()).unwrap(),
-/// #     Some(TokenUrl::new(&quot;https://example.com/token&quot;.to_string()).unwrap()),
+/// #     ClientId::new("aaa".to_string()),
+/// #     Some(ClientSecret::new("bbb".to_string())),
+/// #     AuthUrl::new("https://example.com/auth".to_string()).unwrap(),
+/// #     Some(TokenUrl::new("https://example.com/token".to_string()).unwrap()),
 /// # )
-/// # .set_revocation_uri(RevocationUrl::new(&quot;https://revocation/url&quot;.to_string()).unwrap());
+/// # .set_revocation_uri(RevocationUrl::new("https://revocation/url".to_string()).unwrap());
 /// #
 /// # #[derive(Debug, Error)]
 /// # enum FakeError {
-/// #     #[error(&quot;error&quot;)]
+/// #     #[error("error")]
 /// #     Err,
 /// # }
 /// #
@@ -3783,19 +3784,19 @@
 /// #         status_code: StatusCode::BAD_REQUEST,
 /// #         headers: vec![(
 /// #             CONTENT_TYPE,
-/// #             HeaderValue::from_str(&quot;application/json&quot;).unwrap(),
+/// #             HeaderValue::from_str("application/json").unwrap(),
 /// #         )]
 /// #         .into_iter()
 /// #         .collect(),
-/// #         body: &quot;{\&quot;error\&quot;: \&quot;unsupported_token_type\&quot;, \&quot;error_description\&quot;: \&quot;stuff happened\&quot;, \
-/// #                \&quot;error_uri\&quot;: \&quot;https://errors\&quot;}&quot;
+/// #         body: "{\"error\": \"unsupported_token_type\", \"error_description\": \"stuff happened\", \
+/// #                \"error_uri\": \"https://errors\"}"
 /// #             .to_string()
 /// #             .into_bytes(),
 /// #     })
 /// # };
 /// #
 /// let res = client
-///     .revoke_token(AccessToken::new(&quot;some token&quot;.to_string()).into())
+///     .revoke_token(AccessToken::new("some token".to_string()).into())
 ///     .unwrap()
 ///     .request(http_client);
 ///
@@ -3828,12 +3829,12 @@
 
 <span class="kw">impl</span>&lt;TE, TR, TT, TIR, RT, TRE&gt; Client&lt;TE, TR, TT, TIR, RT, TRE&gt;
 <span class="kw">where
-    </span>TE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    </span>TE: ErrorResponse + <span class="lifetime">'static</span>,
     TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
     TIR: TokenIntrospectionResponse&lt;TT&gt;,
     RT: RevocableToken,
-    TRE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    TRE: ErrorResponse + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">///
     /// Initializes an OAuth2 client with the fields common to most OAuth2 flows.
@@ -3962,7 +3963,7 @@
             extra_params: Vec::new(),
             pkce_challenge: <span class="prelude-val">None</span>,
             redirect_url: <span class="self">self</span>.redirect_url.as_ref().map(Cow::Borrowed),
-            response_type: <span class="string">&quot;code&quot;</span>.into(),
+            response_type: <span class="string">"code"</span>.into(),
             scopes: Vec::new(),
             state: state_fn(),
         }
@@ -3995,15 +3996,15 @@
     ///
     /// See &lt;https://tools.ietf.org/html/rfc6749#section-4.3.2&gt;.
     ///
-    </span><span class="kw">pub fn </span>exchange_password&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        username: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>ResourceOwnerUsername,
-        password: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>ResourceOwnerPassword,
-    ) -&gt; PasswordTokenRequest&lt;<span class="lifetime">&#39;b</span>, TE, TR, TT&gt;
+    </span><span class="kw">pub fn </span>exchange_password&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        username: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>ResourceOwnerUsername,
+        password: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>ResourceOwnerPassword,
+    ) -&gt; PasswordTokenRequest&lt;<span class="lifetime">'b</span>, TE, TR, TT&gt;
     <span class="kw">where
-        </span><span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>,
+        </span><span class="lifetime">'a</span>: <span class="lifetime">'b</span>,
     {
-        PasswordTokenRequest::&lt;<span class="lifetime">&#39;b</span>&gt; {
+        PasswordTokenRequest::&lt;<span class="lifetime">'b</span>&gt; {
             auth_type: <span class="kw-2">&amp;</span><span class="self">self</span>.auth_type,
             client_id: <span class="kw-2">&amp;</span><span class="self">self</span>.client_id,
             client_secret: <span class="self">self</span>.client_secret.as_ref(),
@@ -4038,12 +4039,12 @@
     ///
     /// See &lt;https://tools.ietf.org/html/rfc6749#section-6&gt;.
     ///
-    </span><span class="kw">pub fn </span>exchange_refresh_token&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        refresh_token: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>RefreshToken,
-    ) -&gt; RefreshTokenRequest&lt;<span class="lifetime">&#39;b</span>, TE, TR, TT&gt;
+    </span><span class="kw">pub fn </span>exchange_refresh_token&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        refresh_token: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>RefreshToken,
+    ) -&gt; RefreshTokenRequest&lt;<span class="lifetime">'b</span>, TE, TR, TT&gt;
     <span class="kw">where
-        </span><span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>,
+        </span><span class="lifetime">'a</span>: <span class="lifetime">'b</span>,
     {
         RefreshTokenRequest {
             auth_type: <span class="kw-2">&amp;</span><span class="self">self</span>.auth_type,
@@ -4073,7 +4074,7 @@
             device_authorization_url: <span class="self">self
                 </span>.device_authorization_url
                 .as_ref()
-                .ok_or(ConfigurationError::MissingUrl(<span class="string">&quot;device authorization_url&quot;</span>))<span class="question-mark">?</span>,
+                .ok_or(ConfigurationError::MissingUrl(<span class="string">"device authorization_url"</span>))<span class="question-mark">?</span>,
             _phantom: PhantomData,
         })
     }
@@ -4082,12 +4083,12 @@
     /// Perform a device access token request as per
     /// &lt;https://tools.ietf.org/html/rfc8628#section-3.4&gt;.
     ///
-    </span><span class="kw">pub fn </span>exchange_device_access_token&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>, EF&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        auth_response: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>DeviceAuthorizationResponse&lt;EF&gt;,
-    ) -&gt; DeviceAccessTokenRequest&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>, TR, TT, EF&gt;
+    </span><span class="kw">pub fn </span>exchange_device_access_token&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, <span class="lifetime">'c</span>, EF&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        auth_response: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>DeviceAuthorizationResponse&lt;EF&gt;,
+    ) -&gt; DeviceAccessTokenRequest&lt;<span class="lifetime">'b</span>, <span class="lifetime">'c</span>, TR, TT, EF&gt;
     <span class="kw">where
-        </span><span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>,
+        </span><span class="lifetime">'a</span>: <span class="lifetime">'b</span>,
         EF: ExtraDeviceAuthorizationFields,
     {
         DeviceAccessTokenRequest {
@@ -4113,10 +4114,10 @@
     /// Attempting to submit the generated request without calling [`set_introspection_uri()`](Self::set_introspection_uri())
     /// first will result in an error.
     ///
-    </span><span class="kw">pub fn </span>introspect&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        token: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AccessToken,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;IntrospectionRequest&lt;<span class="lifetime">&#39;a</span>, TE, TIR, TT&gt;, ConfigurationError&gt; {
+    </span><span class="kw">pub fn </span>introspect&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        token: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AccessToken,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;IntrospectionRequest&lt;<span class="lifetime">'a</span>, TE, TIR, TT&gt;, ConfigurationError&gt; {
         <span class="prelude-val">Ok</span>(IntrospectionRequest {
             auth_type: <span class="kw-2">&amp;</span><span class="self">self</span>.auth_type,
             client_id: <span class="kw-2">&amp;</span><span class="self">self</span>.client_id,
@@ -4125,7 +4126,7 @@
             introspection_url: <span class="self">self
                 </span>.introspection_url
                 .as_ref()
-                .ok_or(ConfigurationError::MissingUrl(<span class="string">&quot;introspection&quot;</span>))<span class="question-mark">?</span>,
+                .ok_or(ConfigurationError::MissingUrl(<span class="string">"introspection"</span>))<span class="question-mark">?</span>,
             token,
             token_type_hint: <span class="prelude-val">None</span>,
             _phantom: PhantomData,
@@ -4147,14 +4148,14 @@
         token: RT,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;RevocationRequest&lt;RT, TRE&gt;, ConfigurationError&gt; {
         <span class="comment">// https://tools.ietf.org/html/rfc7009#section-2 states:
-        //   &quot;The client requests the revocation of a particular token by making an
+        //   "The client requests the revocation of a particular token by making an
         //    HTTP POST request to the token revocation endpoint URL.  This URL
         //    MUST conform to the rules given in [RFC6749], Section 3.1.  Clients
-        //    MUST verify that the URL is an HTTPS URL.&quot;
+        //    MUST verify that the URL is an HTTPS URL."
         </span><span class="kw">let </span>revocation_url = <span class="kw">match </span><span class="self">self</span>.revocation_url.as_ref() {
-            <span class="prelude-val">Some</span>(url) <span class="kw">if </span>url.url().scheme() == <span class="string">&quot;https&quot; </span>=&gt; <span class="prelude-val">Ok</span>(url),
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ConfigurationError::InsecureUrl(<span class="string">&quot;revocation&quot;</span>)),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(ConfigurationError::MissingUrl(<span class="string">&quot;revocation&quot;</span>)),
+            <span class="prelude-val">Some</span>(url) <span class="kw">if </span>url.url().scheme() == <span class="string">"https" </span>=&gt; <span class="prelude-val">Ok</span>(url),
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ConfigurationError::InsecureUrl(<span class="string">"revocation"</span>)),
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(ConfigurationError::MissingUrl(<span class="string">"revocation"</span>)),
         }<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(RevocationRequest {
@@ -4233,17 +4234,17 @@
 /// A request to the authorization endpoint
 ///
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>AuthorizationRequest&lt;<span class="lifetime">&#39;a</span>&gt; {
-    auth_url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthUrl,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)&gt;,
+</span><span class="kw">pub struct </span>AuthorizationRequest&lt;<span class="lifetime">'a</span>&gt; {
+    auth_url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthUrl,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)&gt;,
     pkce_challenge: <span class="prelude-ty">Option</span>&lt;PkceCodeChallenge&gt;,
-    redirect_url: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;a</span>, RedirectUrl&gt;&gt;,
-    response_type: Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;,
-    scopes: Vec&lt;Cow&lt;<span class="lifetime">&#39;a</span>, Scope&gt;&gt;,
+    redirect_url: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'a</span>, RedirectUrl&gt;&gt;,
+    response_type: Cow&lt;<span class="lifetime">'a</span>, str&gt;,
+    scopes: Vec&lt;Cow&lt;<span class="lifetime">'a</span>, Scope&gt;&gt;,
     state: CsrfToken,
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AuthorizationRequest&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; AuthorizationRequest&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">///
     /// Appends a new scope to the authorization URL.
     ///
@@ -4280,8 +4281,8 @@
     ///
     </span><span class="kw">pub fn </span>add_extra_param&lt;N, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: N, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
-        V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>N: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
+        V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.extra_params.push((name.into(), value.into()));
         <span class="self">self
@@ -4291,7 +4292,7 @@
     /// Enables the [Implicit Grant](https://tools.ietf.org/html/rfc6749#section-4.2) flow.
     ///
     </span><span class="kw">pub fn </span>use_implicit_flow(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.response_type = <span class="string">&quot;token&quot;</span>.into();
+        <span class="self">self</span>.response_type = <span class="string">"token"</span>.into();
         <span class="self">self
     </span>}
 
@@ -4319,7 +4320,7 @@
     <span class="doccomment">///
     /// Overrides the `redirect_url` to the one specified.
     ///
-    </span><span class="kw">pub fn </span>set_redirect_uri(<span class="kw-2">mut </span><span class="self">self</span>, redirect_url: Cow&lt;<span class="lifetime">&#39;a</span>, RedirectUrl&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>set_redirect_uri(<span class="kw-2">mut </span><span class="self">self</span>, redirect_url: Cow&lt;<span class="lifetime">'a</span>, RedirectUrl&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.redirect_url = <span class="prelude-val">Some</span>(redirect_url);
         <span class="self">self
     </span>}
@@ -4334,26 +4335,26 @@
             .iter()
             .map(|s| s.to_string())
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-            .join(<span class="string">&quot; &quot;</span>);
+            .join(<span class="string">" "</span>);
 
         <span class="kw">let </span>url = {
             <span class="kw">let </span><span class="kw-2">mut </span>pairs: Vec&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt; = <span class="macro">vec!</span>[
-                (<span class="string">&quot;response_type&quot;</span>, <span class="self">self</span>.response_type.as_ref()),
-                (<span class="string">&quot;client_id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.client_id),
-                (<span class="string">&quot;state&quot;</span>, <span class="self">self</span>.state.secret()),
+                (<span class="string">"response_type"</span>, <span class="self">self</span>.response_type.as_ref()),
+                (<span class="string">"client_id"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.client_id),
+                (<span class="string">"state"</span>, <span class="self">self</span>.state.secret()),
             ];
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pkce_challenge) = <span class="self">self</span>.pkce_challenge {
-                pairs.push((<span class="string">&quot;code_challenge&quot;</span>, <span class="kw-2">&amp;</span>pkce_challenge.as_str()));
-                pairs.push((<span class="string">&quot;code_challenge_method&quot;</span>, <span class="kw-2">&amp;</span>pkce_challenge.method().as_str()));
+                pairs.push((<span class="string">"code_challenge"</span>, <span class="kw-2">&amp;</span>pkce_challenge.as_str()));
+                pairs.push((<span class="string">"code_challenge_method"</span>, <span class="kw-2">&amp;</span>pkce_challenge.method().as_str()));
             }
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>redirect_url) = <span class="self">self</span>.redirect_url {
-                pairs.push((<span class="string">&quot;redirect_uri&quot;</span>, redirect_url.as_str()));
+                pairs.push((<span class="string">"redirect_uri"</span>, redirect_url.as_str()));
             }
 
             <span class="kw">if </span>!scopes.is_empty() {
-                pairs.push((<span class="string">&quot;scope&quot;</span>, <span class="kw-2">&amp;</span>scopes));
+                pairs.push((<span class="string">"scope"</span>, <span class="kw-2">&amp;</span>scopes));
             }
 
             <span class="kw">let </span><span class="kw-2">mut </span>url: Url = <span class="self">self</span>.auth_url.url().to_owned();
@@ -4406,25 +4407,25 @@
 /// See &lt;https://tools.ietf.org/html/rfc6749#section-4.1.3&gt;.
 ///
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>CodeTokenRequest&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt;
+</span><span class="kw">pub struct </span>CodeTokenRequest&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt;
 <span class="kw">where
     </span>TE: ErrorResponse,
     TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
 {
-    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthType,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientSecret&gt;,
+    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthType,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientSecret&gt;,
     code: AuthorizationCode,
-    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)&gt;,
+    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)&gt;,
     pkce_verifier: <span class="prelude-ty">Option</span>&lt;PkceCodeVerifier&gt;,
-    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TokenUrl&gt;,
-    redirect_url: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;a</span>, RedirectUrl&gt;&gt;,
+    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TokenUrl&gt;,
+    redirect_url: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'a</span>, RedirectUrl&gt;&gt;,
     _phantom: PhantomData&lt;(TE, TR, TT)&gt;,
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt; CodeTokenRequest&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt; CodeTokenRequest&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt;
 <span class="kw">where
-    </span>TE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    </span>TE: ErrorResponse + <span class="lifetime">'static</span>,
     TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
 {
@@ -4445,8 +4446,8 @@
     ///
     </span><span class="kw">pub fn </span>add_extra_param&lt;N, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: N, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
-        V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>N: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
+        V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.extra_params.push((name.into(), value.into()));
         <span class="self">self
@@ -4467,21 +4468,21 @@
     <span class="doccomment">///
     /// Overrides the `redirect_url` to the one specified.
     ///
-    </span><span class="kw">pub fn </span>set_redirect_uri(<span class="kw-2">mut </span><span class="self">self</span>, redirect_url: Cow&lt;<span class="lifetime">&#39;a</span>, RedirectUrl&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>set_redirect_uri(<span class="kw-2">mut </span><span class="self">self</span>, redirect_url: Cow&lt;<span class="lifetime">'a</span>, RedirectUrl&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.redirect_url = <span class="prelude-val">Some</span>(redirect_url);
         <span class="self">self
     </span>}
 
     <span class="kw">fn </span>prepare_request&lt;RE&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HttpRequest, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>params = <span class="macro">vec!</span>[
-            (<span class="string">&quot;grant_type&quot;</span>, <span class="string">&quot;authorization_code&quot;</span>),
-            (<span class="string">&quot;code&quot;</span>, <span class="self">self</span>.code.secret()),
+            (<span class="string">"grant_type"</span>, <span class="string">"authorization_code"</span>),
+            (<span class="string">"code"</span>, <span class="self">self</span>.code.secret()),
         ];
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pkce_verifier) = <span class="self">self</span>.pkce_verifier {
-            params.push((<span class="string">&quot;code_verifier&quot;</span>, pkce_verifier.secret()));
+            params.push((<span class="string">"code_verifier"</span>, pkce_verifier.secret()));
         }
 
         <span class="prelude-val">Ok</span>(endpoint_request(
@@ -4492,7 +4493,7 @@
             <span class="self">self</span>.redirect_url,
             <span class="prelude-val">None</span>,
             <span class="self">self</span>.token_url
-                .ok_or_else(|| RequestTokenError::Other(<span class="string">&quot;no token_url provided&quot;</span>.to_string()))<span class="question-mark">?
+                .ok_or_else(|| RequestTokenError::Other(<span class="string">"no token_url provided"</span>.to_string()))<span class="question-mark">?
                 </span>.url(),
             params,
         ))
@@ -4504,7 +4505,7 @@
     </span><span class="kw">pub fn </span>request&lt;F, RE&gt;(<span class="self">self</span>, http_client: F) -&gt; <span class="prelude-ty">Result</span>&lt;TR, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
         </span>F: FnOnce(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         http_client(<span class="self">self</span>.prepare_request()<span class="question-mark">?</span>)
             .map_err(RequestTokenError::Request)
@@ -4521,7 +4522,7 @@
     <span class="kw">where
         </span>C: FnOnce(HttpRequest) -&gt; F,
         F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>http_request = <span class="self">self</span>.prepare_request()<span class="question-mark">?</span>;
         <span class="kw">let </span>http_response = http_client(http_request)
@@ -4537,24 +4538,24 @@
 /// See &lt;https://tools.ietf.org/html/rfc6749#section-6&gt;.
 ///
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>RefreshTokenRequest&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt;
+</span><span class="kw">pub struct </span>RefreshTokenRequest&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt;
 <span class="kw">where
     </span>TE: ErrorResponse,
     TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
 {
-    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthType,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientSecret&gt;,
-    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)&gt;,
-    refresh_token: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>RefreshToken,
-    scopes: Vec&lt;Cow&lt;<span class="lifetime">&#39;a</span>, Scope&gt;&gt;,
-    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TokenUrl&gt;,
+    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthType,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientSecret&gt;,
+    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)&gt;,
+    refresh_token: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>RefreshToken,
+    scopes: Vec&lt;Cow&lt;<span class="lifetime">'a</span>, Scope&gt;&gt;,
+    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TokenUrl&gt;,
     _phantom: PhantomData&lt;(TE, TR, TT)&gt;,
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt; RefreshTokenRequest&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt; RefreshTokenRequest&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt;
 <span class="kw">where
-    </span>TE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    </span>TE: ErrorResponse + <span class="lifetime">'static</span>,
     TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
 {
@@ -4575,8 +4576,8 @@
     ///
     </span><span class="kw">pub fn </span>add_extra_param&lt;N, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: N, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
-        V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>N: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
+        V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.extra_params.push((name.into(), value.into()));
         <span class="self">self
@@ -4607,7 +4608,7 @@
     </span><span class="kw">pub fn </span>request&lt;F, RE&gt;(<span class="self">self</span>, http_client: F) -&gt; <span class="prelude-ty">Result</span>&lt;TR, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
         </span>F: FnOnce(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         http_client(<span class="self">self</span>.prepare_request()<span class="question-mark">?</span>)
             .map_err(RequestTokenError::Request)
@@ -4623,7 +4624,7 @@
     <span class="kw">where
         </span>C: FnOnce(HttpRequest) -&gt; F,
         F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>http_request = <span class="self">self</span>.prepare_request()<span class="question-mark">?</span>;
         <span class="kw">let </span>http_response = http_client(http_request)
@@ -4634,7 +4635,7 @@
 
     <span class="kw">fn </span>prepare_request&lt;RE&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HttpRequest, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="prelude-val">Ok</span>(endpoint_request(
             <span class="self">self</span>.auth_type,
@@ -4644,11 +4645,11 @@
             <span class="prelude-val">None</span>,
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.scopes),
             <span class="self">self</span>.token_url
-                .ok_or_else(|| RequestTokenError::Other(<span class="string">&quot;no token_url provided&quot;</span>.to_string()))<span class="question-mark">?
+                .ok_or_else(|| RequestTokenError::Other(<span class="string">"no token_url provided"</span>.to_string()))<span class="question-mark">?
                 </span>.url(),
             <span class="macro">vec!</span>[
-                (<span class="string">&quot;grant_type&quot;</span>, <span class="string">&quot;refresh_token&quot;</span>),
-                (<span class="string">&quot;refresh_token&quot;</span>, <span class="self">self</span>.refresh_token.secret()),
+                (<span class="string">"grant_type"</span>, <span class="string">"refresh_token"</span>),
+                (<span class="string">"refresh_token"</span>, <span class="self">self</span>.refresh_token.secret()),
             ],
         ))
     }
@@ -4660,25 +4661,25 @@
 /// See &lt;https://tools.ietf.org/html/rfc6749#section-4.3&gt;.
 ///
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PasswordTokenRequest&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt;
+</span><span class="kw">pub struct </span>PasswordTokenRequest&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt;
 <span class="kw">where
     </span>TE: ErrorResponse,
     TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
 {
-    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthType,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientSecret&gt;,
-    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)&gt;,
-    username: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ResourceOwnerUsername,
-    password: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ResourceOwnerPassword,
-    scopes: Vec&lt;Cow&lt;<span class="lifetime">&#39;a</span>, Scope&gt;&gt;,
-    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TokenUrl&gt;,
+    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthType,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientSecret&gt;,
+    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)&gt;,
+    username: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ResourceOwnerUsername,
+    password: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ResourceOwnerPassword,
+    scopes: Vec&lt;Cow&lt;<span class="lifetime">'a</span>, Scope&gt;&gt;,
+    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TokenUrl&gt;,
     _phantom: PhantomData&lt;(TE, TR, TT)&gt;,
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt; PasswordTokenRequest&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt; PasswordTokenRequest&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt;
 <span class="kw">where
-    </span>TE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    </span>TE: ErrorResponse + <span class="lifetime">'static</span>,
     TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
 {
@@ -4699,8 +4700,8 @@
     ///
     </span><span class="kw">pub fn </span>add_extra_param&lt;N, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: N, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
-        V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>N: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
+        V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.extra_params.push((name.into(), value.into()));
         <span class="self">self
@@ -4731,7 +4732,7 @@
     </span><span class="kw">pub fn </span>request&lt;F, RE&gt;(<span class="self">self</span>, http_client: F) -&gt; <span class="prelude-ty">Result</span>&lt;TR, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
         </span>F: FnOnce(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         http_client(<span class="self">self</span>.prepare_request()<span class="question-mark">?</span>)
             .map_err(RequestTokenError::Request)
@@ -4748,7 +4749,7 @@
     <span class="kw">where
         </span>C: FnOnce(HttpRequest) -&gt; F,
         F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>http_request = <span class="self">self</span>.prepare_request()<span class="question-mark">?</span>;
         <span class="kw">let </span>http_response = http_client(http_request)
@@ -4759,7 +4760,7 @@
 
     <span class="kw">fn </span>prepare_request&lt;RE&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HttpRequest, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="prelude-val">Ok</span>(endpoint_request(
             <span class="self">self</span>.auth_type,
@@ -4769,12 +4770,12 @@
             <span class="prelude-val">None</span>,
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.scopes),
             <span class="self">self</span>.token_url
-                .ok_or_else(|| RequestTokenError::Other(<span class="string">&quot;no token_url provided&quot;</span>.to_string()))<span class="question-mark">?
+                .ok_or_else(|| RequestTokenError::Other(<span class="string">"no token_url provided"</span>.to_string()))<span class="question-mark">?
                 </span>.url(),
             <span class="macro">vec!</span>[
-                (<span class="string">&quot;grant_type&quot;</span>, <span class="string">&quot;password&quot;</span>),
-                (<span class="string">&quot;username&quot;</span>, <span class="self">self</span>.username),
-                (<span class="string">&quot;password&quot;</span>, <span class="self">self</span>.password.secret()),
+                (<span class="string">"grant_type"</span>, <span class="string">"password"</span>),
+                (<span class="string">"username"</span>, <span class="self">self</span>.username),
+                (<span class="string">"password"</span>, <span class="self">self</span>.password.secret()),
             ],
         ))
     }
@@ -4786,23 +4787,23 @@
 /// See &lt;https://tools.ietf.org/html/rfc6749#section-4.4&gt;.
 ///
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>ClientCredentialsTokenRequest&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt;
+</span><span class="kw">pub struct </span>ClientCredentialsTokenRequest&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt;
 <span class="kw">where
     </span>TE: ErrorResponse,
     TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
 {
-    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthType,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientSecret&gt;,
-    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)&gt;,
-    scopes: Vec&lt;Cow&lt;<span class="lifetime">&#39;a</span>, Scope&gt;&gt;,
-    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TokenUrl&gt;,
+    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthType,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientSecret&gt;,
+    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)&gt;,
+    scopes: Vec&lt;Cow&lt;<span class="lifetime">'a</span>, Scope&gt;&gt;,
+    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TokenUrl&gt;,
     _phantom: PhantomData&lt;(TE, TR, TT)&gt;,
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt; ClientCredentialsTokenRequest&lt;<span class="lifetime">&#39;a</span>, TE, TR, TT&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt; ClientCredentialsTokenRequest&lt;<span class="lifetime">'a</span>, TE, TR, TT&gt;
 <span class="kw">where
-    </span>TE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    </span>TE: ErrorResponse + <span class="lifetime">'static</span>,
     TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
 {
@@ -4823,8 +4824,8 @@
     ///
     </span><span class="kw">pub fn </span>add_extra_param&lt;N, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: N, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
-        V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>N: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
+        V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.extra_params.push((name.into(), value.into()));
         <span class="self">self
@@ -4855,7 +4856,7 @@
     </span><span class="kw">pub fn </span>request&lt;F, RE&gt;(<span class="self">self</span>, http_client: F) -&gt; <span class="prelude-ty">Result</span>&lt;TR, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
         </span>F: FnOnce(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         http_client(<span class="self">self</span>.prepare_request()<span class="question-mark">?</span>)
             .map_err(RequestTokenError::Request)
@@ -4872,7 +4873,7 @@
     <span class="kw">where
         </span>C: FnOnce(HttpRequest) -&gt; F,
         F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>http_request = <span class="self">self</span>.prepare_request()<span class="question-mark">?</span>;
         <span class="kw">let </span>http_response = http_client(http_request)
@@ -4883,7 +4884,7 @@
 
     <span class="kw">fn </span>prepare_request&lt;RE&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HttpRequest, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="prelude-val">Ok</span>(endpoint_request(
             <span class="self">self</span>.auth_type,
@@ -4893,9 +4894,9 @@
             <span class="prelude-val">None</span>,
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.scopes),
             <span class="self">self</span>.token_url
-                .ok_or_else(|| RequestTokenError::Other(<span class="string">&quot;no token_url provided&quot;</span>.to_string()))<span class="question-mark">?
+                .ok_or_else(|| RequestTokenError::Other(<span class="string">"no token_url provided"</span>.to_string()))<span class="question-mark">?
                 </span>.url(),
-            <span class="macro">vec!</span>[(<span class="string">&quot;grant_type&quot;</span>, <span class="string">&quot;client_credentials&quot;</span>)],
+            <span class="macro">vec!</span>[(<span class="string">"grant_type"</span>, <span class="string">"client_credentials"</span>)],
         ))
     }
 }
@@ -4906,27 +4907,27 @@
 /// See &lt;https://tools.ietf.org/html/rfc7662#section-2.1&gt;.
 ///
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>IntrospectionRequest&lt;<span class="lifetime">&#39;a</span>, TE, TIR, TT&gt;
+</span><span class="kw">pub struct </span>IntrospectionRequest&lt;<span class="lifetime">'a</span>, TE, TIR, TT&gt;
 <span class="kw">where
     </span>TE: ErrorResponse,
     TIR: TokenIntrospectionResponse&lt;TT&gt;,
     TT: TokenType,
 {
-    token: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AccessToken,
-    token_type_hint: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+    token: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AccessToken,
+    token_type_hint: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
 
-    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthType,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientSecret&gt;,
-    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)&gt;,
-    introspection_url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IntrospectionUrl,
+    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthType,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientSecret&gt;,
+    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)&gt;,
+    introspection_url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>IntrospectionUrl,
 
     _phantom: PhantomData&lt;(TE, TIR, TT)&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, TE, TIR, TT&gt; IntrospectionRequest&lt;<span class="lifetime">&#39;a</span>, TE, TIR, TT&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, TE, TIR, TT&gt; IntrospectionRequest&lt;<span class="lifetime">'a</span>, TE, TIR, TT&gt;
 <span class="kw">where
-    </span>TE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    </span>TE: ErrorResponse + <span class="lifetime">'static</span>,
     TIR: TokenIntrospectionResponse&lt;TT&gt;,
     TT: TokenType,
 {
@@ -4942,12 +4943,12 @@
     ///      extend its search across all of its supported token types.  An
     ///      authorization server MAY ignore this parameter, particularly if it
     ///      is able to detect the token type automatically.  Values for this
-    ///      field are defined in the &quot;OAuth Token Type Hints&quot; registry defined
+    ///      field are defined in the "OAuth Token Type Hints" registry defined
     ///      in OAuth Token Revocation [RFC7009](https://tools.ietf.org/html/rfc7009).
     ///
     </span><span class="kw">pub fn </span>set_token_type_hint&lt;V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.token_type_hint = <span class="prelude-val">Some</span>(value.into());
 
@@ -4971,8 +4972,8 @@
     ///
     </span><span class="kw">pub fn </span>add_extra_param&lt;N, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: N, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
-        V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>N: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
+        V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.extra_params.push((name.into(), value.into()));
         <span class="self">self
@@ -4980,11 +4981,11 @@
 
     <span class="kw">fn </span>prepare_request&lt;RE&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HttpRequest, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>params: Vec&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt; = <span class="macro">vec!</span>[(<span class="string">&quot;token&quot;</span>, <span class="self">self</span>.token.secret())];
+        <span class="kw">let </span><span class="kw-2">mut </span>params: Vec&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt; = <span class="macro">vec!</span>[(<span class="string">"token"</span>, <span class="self">self</span>.token.secret())];
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>token_type_hint) = <span class="self">self</span>.token_type_hint {
-            params.push((<span class="string">&quot;token_type_hint&quot;</span>, token_type_hint));
+            params.push((<span class="string">"token_type_hint"</span>, token_type_hint));
         }
 
         <span class="prelude-val">Ok</span>(endpoint_request(
@@ -5005,7 +5006,7 @@
     </span><span class="kw">pub fn </span>request&lt;F, RE&gt;(<span class="self">self</span>, http_client: F) -&gt; <span class="prelude-ty">Result</span>&lt;TIR, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
         </span>F: FnOnce(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         http_client(<span class="self">self</span>.prepare_request()<span class="question-mark">?</span>)
             .map_err(RequestTokenError::Request)
@@ -5022,7 +5023,7 @@
     <span class="kw">where
         </span>C: FnOnce(HttpRequest) -&gt; F,
         F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>http_request = <span class="self">self</span>.prepare_request()<span class="question-mark">?</span>;
         <span class="kw">let </span>http_response = http_client(http_request)
@@ -5037,26 +5038,26 @@
 /// endpoint.
 ///
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>RevocationRequest&lt;<span class="lifetime">&#39;a</span>, RT, TE&gt;
+</span><span class="kw">pub struct </span>RevocationRequest&lt;<span class="lifetime">'a</span>, RT, TE&gt;
 <span class="kw">where
     </span>RT: RevocableToken,
     TE: ErrorResponse,
 {
     token: RT,
 
-    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthType,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientSecret&gt;,
-    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)&gt;,
-    revocation_url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>RevocationUrl,
+    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthType,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientSecret&gt;,
+    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)&gt;,
+    revocation_url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>RevocationUrl,
 
     _phantom: PhantomData&lt;(RT, TE)&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, RT, TE&gt; RevocationRequest&lt;<span class="lifetime">&#39;a</span>, RT, TE&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, RT, TE&gt; RevocationRequest&lt;<span class="lifetime">'a</span>, RT, TE&gt;
 <span class="kw">where
     </span>RT: RevocableToken,
-    TE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    TE: ErrorResponse + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">///
     /// Appends an extra param to the token revocation request.
@@ -5075,8 +5076,8 @@
     ///
     </span><span class="kw">pub fn </span>add_extra_param&lt;N, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: N, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
-        V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>N: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
+        V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.extra_params.push((name.into(), value.into()));
         <span class="self">self
@@ -5084,11 +5085,11 @@
 
     <span class="kw">fn </span>prepare_request&lt;RE&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HttpRequest, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>params: Vec&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt; = <span class="macro">vec!</span>[(<span class="string">&quot;token&quot;</span>, <span class="self">self</span>.token.secret())];
+        <span class="kw">let </span><span class="kw-2">mut </span>params: Vec&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt; = <span class="macro">vec!</span>[(<span class="string">"token"</span>, <span class="self">self</span>.token.secret())];
         <span class="kw">if let </span><span class="prelude-val">Some</span>(type_hint) = <span class="self">self</span>.token.type_hint() {
-            params.push((<span class="string">&quot;token_type_hint&quot;</span>, type_hint));
+            params.push((<span class="string">"token_type_hint"</span>, type_hint));
         }
 
         <span class="prelude-val">Ok</span>(endpoint_request(
@@ -5115,11 +5116,11 @@
     </span><span class="kw">pub fn </span>request&lt;F, RE&gt;(<span class="self">self</span>, http_client: F) -&gt; <span class="prelude-ty">Result</span>&lt;(), RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
         </span>F: FnOnce(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="comment">// From https://tools.ietf.org/html/rfc7009#section-2.2:
-        //   &quot;The content of the response body is ignored by the client as all
-        //    necessary information is conveyed in the response code.&quot;
+        //   "The content of the response body is ignored by the client as all
+        //    necessary information is conveyed in the response code."
         </span>http_client(<span class="self">self</span>.prepare_request()<span class="question-mark">?</span>)
             .map_err(RequestTokenError::Request)
             .and_then(endpoint_response_status_only)
@@ -5135,7 +5136,7 @@
     <span class="kw">where
         </span>C: FnOnce(HttpRequest) -&gt; F,
         F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>http_request = <span class="self">self</span>.prepare_request()<span class="question-mark">?</span>;
         <span class="kw">let </span>http_response = http_client(http_request)
@@ -5146,15 +5147,15 @@
 }
 
 <span class="attr">#[allow(clippy::too_many_arguments)]
-</span><span class="kw">fn </span>endpoint_request&lt;<span class="lifetime">&#39;a</span>&gt;(
-    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthType,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientSecret&gt;,
-    extra_params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)],
-    redirect_url: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;a</span>, RedirectUrl&gt;&gt;,
-    scopes: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;Cow&lt;<span class="lifetime">&#39;a</span>, Scope&gt;&gt;&gt;,
-    url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Url,
-    params: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str)&gt;,
+</span><span class="kw">fn </span>endpoint_request&lt;<span class="lifetime">'a</span>&gt;(
+    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthType,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientSecret&gt;,
+    extra_params: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)],
+    redirect_url: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'a</span>, RedirectUrl&gt;&gt;,
+    scopes: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Vec&lt;Cow&lt;<span class="lifetime">'a</span>, Scope&gt;&gt;&gt;,
+    url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Url,
+    params: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str)&gt;,
 ) -&gt; HttpRequest {
     <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
     headers.append(ACCEPT, HeaderValue::from_static(CONTENT_TYPE_JSON));
@@ -5170,7 +5171,7 @@
                     .iter()
                     .map(|s| s.to_string())
                     .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-                    .join(<span class="string">&quot; &quot;</span>),
+                    .join(<span class="string">" "</span>),
             )
         } <span class="kw">else </span>{
             <span class="prelude-val">None
@@ -5179,7 +5180,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>params: Vec&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt; = params;
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>scopes) = scopes_opt {
-        params.push((<span class="string">&quot;scope&quot;</span>, scopes));
+        params.push((<span class="string">"scope"</span>, scopes));
     }
 
     <span class="comment">// FIXME: add support for auth extensions? e.g., client_secret_jwt and private_key_jwt
@@ -5189,28 +5190,28 @@
         </span>(AuthType::BasicAuth, <span class="prelude-val">Some</span>(secret)) =&gt; {
             <span class="comment">// Section 2.3.1 of RFC 6749 requires separately url-encoding the id and secret
             // before using them as HTTP Basic auth username and password. Note that this is
-            // not standard for ordinary Basic auth, so curl won&#39;t do it for us.
+            // not standard for ordinary Basic auth, so curl won't do it for us.
             </span><span class="kw">let </span>urlencoded_id: String =
                 form_urlencoded::byte_serialize(<span class="kw-2">&amp;</span>client_id.as_bytes()).collect();
             <span class="kw">let </span>urlencoded_secret: String =
                 form_urlencoded::byte_serialize(secret.secret().as_bytes()).collect();
             <span class="kw">let </span>b64_credential =
-                base64::encode(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="kw-2">&amp;</span>urlencoded_id, urlencoded_secret));
+                base64::encode(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}:{}"</span>, <span class="kw-2">&amp;</span>urlencoded_id, urlencoded_secret));
             headers.append(
                 AUTHORIZATION,
-                HeaderValue::from_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Basic {}&quot;</span>, <span class="kw-2">&amp;</span>b64_credential)).unwrap(),
+                HeaderValue::from_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Basic {}"</span>, <span class="kw-2">&amp;</span>b64_credential)).unwrap(),
             );
         }
         (AuthType::RequestBody, <span class="kw">_</span>) | (AuthType::BasicAuth, <span class="prelude-val">None</span>) =&gt; {
-            params.push((<span class="string">&quot;client_id&quot;</span>, client_id));
+            params.push((<span class="string">"client_id"</span>, client_id));
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>client_secret) = client_secret {
-                params.push((<span class="string">&quot;client_secret&quot;</span>, client_secret.secret()));
+                params.push((<span class="string">"client_secret"</span>, client_secret.secret()));
             }
         }
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>redirect_url) = redirect_url {
-        params.push((<span class="string">&quot;redirect_uri&quot;</span>, redirect_url.as_str()));
+        params.push((<span class="string">"redirect_uri"</span>, redirect_url.as_str()));
     }
 
     params.extend_from_slice(
@@ -5238,7 +5239,7 @@
     http_response: HttpResponse,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;DO, RequestTokenError&lt;RE, TE&gt;&gt;
 <span class="kw">where
-    </span>RE: Error + <span class="lifetime">&#39;static</span>,
+    </span>RE: Error + <span class="lifetime">'static</span>,
     TE: ErrorResponse,
     DO: DeserializeOwned,
 {
@@ -5255,7 +5256,7 @@
     http_response: HttpResponse,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), RequestTokenError&lt;RE, TE&gt;&gt;
 <span class="kw">where
-    </span>RE: Error + <span class="lifetime">&#39;static</span>,
+    </span>RE: Error + <span class="lifetime">'static</span>,
     TE: ErrorResponse,
 {
     check_response_status(<span class="kw-2">&amp;</span>http_response)
@@ -5265,14 +5266,14 @@
     http_response: <span class="kw-2">&amp;</span>HttpResponse,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), RequestTokenError&lt;RE, TE&gt;&gt;
 <span class="kw">where
-    </span>RE: Error + <span class="lifetime">&#39;static</span>,
+    </span>RE: Error + <span class="lifetime">'static</span>,
     TE: ErrorResponse,
 {
     <span class="kw">if </span>http_response.status_code != StatusCode::OK {
         <span class="kw">let </span>reason = http_response.body.as_slice();
         <span class="kw">if </span>reason.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(RequestTokenError::Other(
-                <span class="string">&quot;Server returned empty error response&quot;</span>.to_string(),
+                <span class="string">"Server returned empty error response"</span>.to_string(),
             ));
         } <span class="kw">else </span>{
             <span class="kw">let </span>error = <span class="kw">match </span>serde_path_to_error::deserialize::&lt;<span class="kw">_</span>, TE&gt;(
@@ -5292,7 +5293,7 @@
     http_response: <span class="kw-2">&amp;</span>HttpResponse,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), RequestTokenError&lt;RE, TE&gt;&gt;
 <span class="kw">where
-    </span>RE: Error + <span class="lifetime">&#39;static</span>,
+    </span>RE: Error + <span class="lifetime">'static</span>,
     TE: ErrorResponse,
 {
     <span class="comment">// Validate that the response Content-Type is JSON.
@@ -5307,7 +5308,7 @@
                 <span class="prelude-val">Err</span>(
                     RequestTokenError::Other(
                         <span class="macro">format!</span>(
-                            <span class="string">&quot;Unexpected response Content-Type: {:?}, should be `{}`&quot;</span>,
+                            <span class="string">"Unexpected response Content-Type: {:?}, should be `{}`"</span>,
                             content_type,
                             CONTENT_TYPE_JSON
                         )
@@ -5320,7 +5321,7 @@
 
     <span class="kw">if </span>http_response.body.is_empty() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(RequestTokenError::Other(
-            <span class="string">&quot;Server returned empty response body&quot;</span>.to_string(),
+            <span class="string">"Server returned empty response body"</span>.to_string(),
         ));
     }
 
@@ -5333,22 +5334,22 @@
 /// See &lt;https://tools.ietf.org/html/rfc8628#section-3.1&gt;.
 ///
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>DeviceAuthorizationRequest&lt;<span class="lifetime">&#39;a</span>, TE&gt;
+</span><span class="kw">pub struct </span>DeviceAuthorizationRequest&lt;<span class="lifetime">'a</span>, TE&gt;
 <span class="kw">where
     </span>TE: ErrorResponse,
 {
-    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthType,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientSecret&gt;,
-    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)&gt;,
-    scopes: Vec&lt;Cow&lt;<span class="lifetime">&#39;a</span>, Scope&gt;&gt;,
-    device_authorization_url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DeviceAuthorizationUrl,
+    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthType,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientSecret&gt;,
+    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)&gt;,
+    scopes: Vec&lt;Cow&lt;<span class="lifetime">'a</span>, Scope&gt;&gt;,
+    device_authorization_url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DeviceAuthorizationUrl,
     _phantom: PhantomData&lt;TE&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, TE&gt; DeviceAuthorizationRequest&lt;<span class="lifetime">&#39;a</span>, TE&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, TE&gt; DeviceAuthorizationRequest&lt;<span class="lifetime">'a</span>, TE&gt;
 <span class="kw">where
-    </span>TE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    </span>TE: ErrorResponse + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">///
     /// Appends an extra param to the token request.
@@ -5367,8 +5368,8 @@
     ///
     </span><span class="kw">pub fn </span>add_extra_param&lt;N, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: N, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
-        V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>N: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
+        V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.extra_params.push((name.into(), value.into()));
         <span class="self">self
@@ -5395,7 +5396,7 @@
 
     <span class="kw">fn </span>prepare_request&lt;RE&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HttpRequest, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="prelude-val">Ok</span>(endpoint_request(
             <span class="self">self</span>.auth_type,
@@ -5418,7 +5419,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;DeviceAuthorizationResponse&lt;EF&gt;, RequestTokenError&lt;RE, TE&gt;&gt;
     <span class="kw">where
         </span>F: FnOnce(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
         EF: ExtraDeviceAuthorizationFields,
     {
         http_client(<span class="self">self</span>.prepare_request()<span class="question-mark">?</span>)
@@ -5436,7 +5437,7 @@
     <span class="kw">where
         </span>C: FnOnce(HttpRequest) -&gt; F,
         F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
         EF: ExtraDeviceAuthorizationFields,
     {
         <span class="kw">let </span>http_request = <span class="self">self</span>.prepare_request()<span class="question-mark">?</span>;
@@ -5453,24 +5454,24 @@
 /// See &lt;https://tools.ietf.org/html/rfc8628#section-3.4&gt;.
 ///
 </span><span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>DeviceAccessTokenRequest&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, TR, TT, EF&gt;
+</span><span class="kw">pub struct </span>DeviceAccessTokenRequest&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, TR, TT, EF&gt;
 <span class="kw">where
     </span>TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
     EF: ExtraDeviceAuthorizationFields,
 {
-    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AuthType,
-    client_id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientId,
-    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ClientSecret&gt;,
-    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;, Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;)&gt;,
-    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TokenUrl&gt;,
-    dev_auth_resp: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DeviceAuthorizationResponse&lt;EF&gt;,
-    time_fn: Arc&lt;<span class="kw">dyn </span>Fn() -&gt; DateTime&lt;Utc&gt; + <span class="lifetime">&#39;b </span>+ Send + Sync&gt;,
+    auth_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AuthType,
+    client_id: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientId,
+    client_secret: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientSecret&gt;,
+    extra_params: Vec&lt;(Cow&lt;<span class="lifetime">'a</span>, str&gt;, Cow&lt;<span class="lifetime">'a</span>, str&gt;)&gt;,
+    token_url: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TokenUrl&gt;,
+    dev_auth_resp: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DeviceAuthorizationResponse&lt;EF&gt;,
+    time_fn: Arc&lt;<span class="kw">dyn </span>Fn() -&gt; DateTime&lt;Utc&gt; + <span class="lifetime">'b </span>+ Send + Sync&gt;,
     max_backoff_interval: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     _phantom: PhantomData&lt;(TR, TT, EF)&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, TR, TT, EF&gt; DeviceAccessTokenRequest&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, TR, TT, EF&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, TR, TT, EF&gt; DeviceAccessTokenRequest&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, TR, TT, EF&gt;
 <span class="kw">where
     </span>TR: TokenResponse&lt;TT&gt;,
     TT: TokenType,
@@ -5493,8 +5494,8 @@
     ///
     </span><span class="kw">pub fn </span>add_extra_param&lt;N, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, name: N, value: V) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
-        V: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;,
+        </span>N: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
+        V: Into&lt;Cow&lt;<span class="lifetime">'a</span>, str&gt;&gt;,
     {
         <span class="self">self</span>.extra_params.push((name.into(), value.into()));
         <span class="self">self
@@ -5507,7 +5508,7 @@
     ///
     </span><span class="kw">pub fn </span>set_time_fn&lt;T&gt;(<span class="kw-2">mut </span><span class="self">self</span>, time_fn: T) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>T: Fn() -&gt; DateTime&lt;Utc&gt; + <span class="lifetime">&#39;b </span>+ Send + Sync,
+        </span>T: Fn() -&gt; DateTime&lt;Utc&gt; + <span class="lifetime">'b </span>+ Send + Sync,
     {
         <span class="self">self</span>.time_fn = Arc::new(time_fn);
         <span class="self">self
@@ -5535,7 +5536,7 @@
     <span class="kw">where
         </span>F: Fn(HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;,
         S: Fn(Duration),
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="comment">// Get the request timeout and starting interval
         </span><span class="kw">let </span>timeout_dt = <span class="self">self</span>.compute_timeout(timeout)<span class="question-mark">?</span>;
@@ -5548,7 +5549,7 @@
                 <span class="kw">break </span><span class="prelude-val">Err</span>(RequestTokenError::ServerResponse(
                     DeviceCodeErrorResponse::new(
                         DeviceCodeErrorResponseType::ExpiredToken,
-                        <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;This device code has expired.&quot;</span>)),
+                        <span class="prelude-val">Some</span>(String::from(<span class="string">"This device code has expired."</span>)),
                         <span class="prelude-val">None</span>,
                     ),
                 ));
@@ -5580,7 +5581,7 @@
         F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, RE&gt;&gt;,
         S: Fn(Duration) -&gt; SF,
         SF: Future&lt;Output = ()&gt;,
-        RE: Error + <span class="lifetime">&#39;static</span>,
+        RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="comment">// Get the request timeout and starting interval
         </span><span class="kw">let </span>timeout_dt = <span class="self">self</span>.compute_timeout(timeout)<span class="question-mark">?</span>;
@@ -5593,7 +5594,7 @@
                 <span class="kw">break </span><span class="prelude-val">Err</span>(RequestTokenError::ServerResponse(
                     DeviceCodeErrorResponse::new(
                         DeviceCodeErrorResponseType::ExpiredToken,
-                        <span class="prelude-val">Some</span>(String::from(<span class="string">&quot;This device code has expired.&quot;</span>)),
+                        <span class="prelude-val">Some</span>(String::from(<span class="string">"This device code has expired."</span>)),
                         <span class="prelude-val">None</span>,
                     ),
                 ));
@@ -5615,7 +5616,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;HttpRequest, RequestTokenError&lt;RE, DeviceCodeErrorResponse&gt;&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="prelude-val">Ok</span>(endpoint_request(
             <span class="self">self</span>.auth_type,
@@ -5625,11 +5626,11 @@
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
             <span class="self">self</span>.token_url
-                .ok_or_else(|| RequestTokenError::Other(<span class="string">&quot;no token_url provided&quot;</span>.to_string()))<span class="question-mark">?
+                .ok_or_else(|| RequestTokenError::Other(<span class="string">"no token_url provided"</span>.to_string()))<span class="question-mark">?
                 </span>.url(),
             <span class="macro">vec!</span>[
-                (<span class="string">&quot;grant_type&quot;</span>, <span class="string">&quot;urn:ietf:params:oauth:grant-type:device_code&quot;</span>),
-                (<span class="string">&quot;device_code&quot;</span>, <span class="self">self</span>.dev_auth_resp.device_code().secret()),
+                (<span class="string">"grant_type"</span>, <span class="string">"urn:ietf:params:oauth:grant-type:device_code"</span>),
+                (<span class="string">"device_code"</span>, <span class="self">self</span>.dev_auth_resp.device_code().secret()),
             ],
         ))
     }
@@ -5640,14 +5641,14 @@
         current_interval: Duration,
     ) -&gt; DeviceAccessTokenPollResult&lt;TR, RE, DeviceCodeErrorResponse, TT&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>http_response = <span class="kw">match </span>res {
             <span class="prelude-val">Ok</span>(inner) =&gt; inner,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                <span class="comment">// RFC 8628 requires a backoff in cases of connection timeout, but we can&#39;t
+                <span class="comment">// RFC 8628 requires a backoff in cases of connection timeout, but we can't
                 // distinguish between connection timeouts and other HTTP client request errors
-                // here. Set a maximum backoff so that the client doesn&#39;t effectively backoff
+                // here. Set a maximum backoff so that the client doesn't effectively backoff
                 // infinitely when there are network issues unrelated to server load.
                 </span><span class="kw">const </span>DEFAULT_MAX_BACKOFF_INTERVAL: Duration = Duration::from_secs(<span class="number">10</span>);
                 <span class="kw">let </span>new_interval = std::cmp::min(
@@ -5695,19 +5696,19 @@
         timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;DateTime&lt;Utc&gt;, RequestTokenError&lt;RE, DeviceCodeErrorResponse&gt;&gt;
     <span class="kw">where
-        </span>RE: Error + <span class="lifetime">&#39;static</span>,
+        </span>RE: Error + <span class="lifetime">'static</span>,
     {
         <span class="comment">// Calculate the request timeout - if the user specified a timeout,
         // use that, otherwise use the value given by the device authorization
         // response.
         </span><span class="kw">let </span>timeout_dur = timeout.unwrap_or_else(|| <span class="self">self</span>.dev_auth_resp.expires_in());
         <span class="kw">let </span>chrono_timeout = chrono::Duration::from_std(timeout_dur)
-            .map_err(|<span class="kw">_</span>| RequestTokenError::Other(<span class="string">&quot;Failed to convert duration&quot;</span>.to_string()))<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| RequestTokenError::Other(<span class="string">"Failed to convert duration"</span>.to_string()))<span class="question-mark">?</span>;
 
         <span class="comment">// Calculate the DateTime at which the request times out.
         </span><span class="kw">let </span>timeout_dt = (<span class="kw-2">*</span><span class="self">self</span>.time_fn)()
             .checked_add_signed(chrono_timeout)
-            .ok_or_else(|| RequestTokenError::Other(<span class="string">&quot;Failed to calculate timeout&quot;</span>.to_string()))<span class="question-mark">?</span>;
+            .ok_or_else(|| RequestTokenError::Other(<span class="string">"Failed to calculate timeout"</span>.to_string()))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(timeout_dt)
     }
@@ -5789,21 +5790,21 @@
     TT: TokenType,
 {
     access_token: AccessToken,
-    <span class="attr">#[serde(bound = <span class="string">&quot;TT: TokenType&quot;</span>)]
-    #[serde(deserialize_with = <span class="string">&quot;helpers::deserialize_untagged_enum_case_insensitive&quot;</span>)]
+    <span class="attr">#[serde(bound = <span class="string">"TT: TokenType"</span>)]
+    #[serde(deserialize_with = <span class="string">"helpers::deserialize_untagged_enum_case_insensitive"</span>)]
     </span>token_type: TT,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>expires_in: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>refresh_token: <span class="prelude-ty">Option</span>&lt;RefreshToken&gt;,
-    <span class="attr">#[serde(rename = <span class="string">&quot;scope&quot;</span>)]
-    #[serde(deserialize_with = <span class="string">&quot;helpers::deserialize_space_delimited_vec&quot;</span>)]
-    #[serde(serialize_with = <span class="string">&quot;helpers::serialize_space_delimited_vec&quot;</span>)]
-    #[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"scope"</span>)]
+    #[serde(deserialize_with = <span class="string">"helpers::deserialize_space_delimited_vec"</span>)]
+    #[serde(serialize_with = <span class="string">"helpers::serialize_space_delimited_vec"</span>)]
+    #[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     #[serde(default)]
     </span>scopes: <span class="prelude-ty">Option</span>&lt;Vec&lt;Scope&gt;&gt;,
 
-    <span class="attr">#[serde(bound = <span class="string">&quot;EF: ExtraTokenFields&quot;</span>)]
+    <span class="attr">#[serde(bound = <span class="string">"EF: ExtraTokenFields"</span>)]
     #[serde(flatten)]
     </span>extra_fields: EF,
 }
@@ -5937,10 +5938,10 @@
 {
     <span class="doccomment">///
     /// REQUIRED.  Boolean indicator of whether or not the presented token
-    /// is currently active.  The specifics of a token&#39;s &quot;active&quot; state
+    /// is currently active.  The specifics of a token's "active" state
     /// will vary depending on the implementation of the authorization
-    /// server and the information it keeps about its tokens, but a &quot;true&quot;
-    /// value return for the &quot;active&quot; property will generally indicate
+    /// server and the information it keeps about its tokens, but a "true"
+    /// value return for the "active" property will generally indicate
     /// that a given token has been issued by this authorization server,
     /// has not been revoked by the resource owner, and is within its
     /// given time window of validity (e.g., after its issuance time and
@@ -6026,50 +6027,50 @@
 </span><span class="kw">pub struct </span>StandardTokenIntrospectionResponse&lt;EF, TT&gt;
 <span class="kw">where
     </span>EF: ExtraTokenFields,
-    TT: TokenType + <span class="lifetime">&#39;static</span>,
+    TT: TokenType + <span class="lifetime">'static</span>,
 {
     active: bool,
-    <span class="attr">#[serde(rename = <span class="string">&quot;scope&quot;</span>)]
-    #[serde(deserialize_with = <span class="string">&quot;helpers::deserialize_space_delimited_vec&quot;</span>)]
-    #[serde(serialize_with = <span class="string">&quot;helpers::serialize_space_delimited_vec&quot;</span>)]
-    #[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"scope"</span>)]
+    #[serde(deserialize_with = <span class="string">"helpers::deserialize_space_delimited_vec"</span>)]
+    #[serde(serialize_with = <span class="string">"helpers::serialize_space_delimited_vec"</span>)]
+    #[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     #[serde(default)]
     </span>scopes: <span class="prelude-ty">Option</span>&lt;Vec&lt;Scope&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>client_id: <span class="prelude-ty">Option</span>&lt;ClientId&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>username: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="attr">#[serde(
-        bound = <span class="string">&quot;TT: TokenType&quot;</span>,
-        skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>,
-        deserialize_with = <span class="string">&quot;helpers::deserialize_untagged_enum_case_insensitive&quot;</span>,
-        default = <span class="string">&quot;none_field&quot;
+        bound = <span class="string">"TT: TokenType"</span>,
+        skip_serializing_if = <span class="string">"Option::is_none"</span>,
+        deserialize_with = <span class="string">"helpers::deserialize_untagged_enum_case_insensitive"</span>,
+        default = <span class="string">"none_field"
     </span>)]
     </span>token_type: <span class="prelude-ty">Option</span>&lt;TT&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    #[serde(with = <span class="string">&quot;ts_seconds_option&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
+    #[serde(with = <span class="string">"ts_seconds_option"</span>)]
     #[serde(default)]
     </span>exp: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    #[serde(with = <span class="string">&quot;ts_seconds_option&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
+    #[serde(with = <span class="string">"ts_seconds_option"</span>)]
     #[serde(default)]
     </span>iat: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
-    #[serde(with = <span class="string">&quot;ts_seconds_option&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
+    #[serde(with = <span class="string">"ts_seconds_option"</span>)]
     #[serde(default)]
     </span>nbf: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>sub: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     #[serde(default)]
-    #[serde(deserialize_with = <span class="string">&quot;helpers::deserialize_optional_string_or_vec_string&quot;</span>)]
+    #[serde(deserialize_with = <span class="string">"helpers::deserialize_optional_string_or_vec_string"</span>)]
     </span>aud: <span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>iss: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>jti: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
-    <span class="attr">#[serde(bound = <span class="string">&quot;EF: ExtraTokenFields&quot;</span>)]
+    <span class="attr">#[serde(bound = <span class="string">"EF: ExtraTokenFields"</span>)]
     #[serde(flatten)]
     </span>extra_fields: EF,
 }
@@ -6272,13 +6273,13 @@
 ///
 </span><span class="attr">#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 </span><span class="kw">pub struct </span>StandardErrorResponse&lt;T: ErrorResponseType&gt; {
-    <span class="attr">#[serde(bound = <span class="string">&quot;T: ErrorResponseType&quot;</span>)]
+    <span class="attr">#[serde(bound = <span class="string">"T: ErrorResponseType"</span>)]
     </span>error: T,
     <span class="attr">#[serde(default)]
-    #[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    #[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>error_description: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="attr">#[serde(default)]
-    #[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    #[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>error_uri: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
@@ -6296,7 +6297,7 @@
     ///   `%x20-21 / %x23-5B / %x5D-7E`.
     /// * `error_uri` - OPTIONAL. A URI identifying a human-readable web page with information
     ///   about the error used to provide the client developer with additional information about
-    ///   the error. Values for the &quot;error_uri&quot; parameter MUST conform to the URI-reference
+    ///   the error. Values for the "error_uri" parameter MUST conform to the URI-reference
     ///   syntax and thus MUST NOT include characters outside the set `%x21 / %x23-5B / %x5D-7E`.
     ///
     </span><span class="kw">pub fn </span>new(error: T, error_description: <span class="prelude-ty">Option</span>&lt;String&gt;, error_uri: <span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="self">Self </span>{
@@ -6325,7 +6326,7 @@
     <span class="doccomment">///
     /// OPTIONAL. URI identifying a human-readable web page with information about the error,
     /// used to provide the client developer with additional information about the error.
-    /// Values for the &quot;error_uri&quot; parameter MUST conform to the URI-reference syntax and
+    /// Values for the "error_uri" parameter MUST conform to the URI-reference syntax and
     /// thus MUST NOT include characters outside the set `%x21 / %x23-5B / %x5D-7E`.
     ///
     </span><span class="kw">pub fn </span>error_uri(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>String&gt; {
@@ -6333,7 +6334,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; ErrorResponse <span class="kw">for </span>StandardErrorResponse&lt;T&gt; <span class="kw">where </span>T: ErrorResponseType + <span class="lifetime">&#39;static </span>{}
+<span class="kw">impl</span>&lt;T&gt; ErrorResponse <span class="kw">for </span>StandardErrorResponse&lt;T&gt; <span class="kw">where </span>T: ErrorResponseType + <span class="lifetime">'static </span>{}
 
 <span class="kw">impl</span>&lt;TE&gt; Display <span class="kw">for </span>StandardErrorResponse&lt;TE&gt;
 <span class="kw">where
@@ -6343,16 +6344,16 @@
         <span class="kw">let </span><span class="kw-2">mut </span>formatted = <span class="self">self</span>.error().to_string();
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(error_description) = <span class="self">self</span>.error_description() {
-            formatted.push_str(<span class="string">&quot;: &quot;</span>);
+            formatted.push_str(<span class="string">": "</span>);
             formatted.push_str(error_description);
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(error_uri) = <span class="self">self</span>.error_uri() {
-            formatted.push_str(<span class="string">&quot; / See &quot;</span>);
+            formatted.push_str(<span class="string">" / See "</span>);
             formatted.push_str(error_uri);
         }
 
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, formatted)
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, formatted)
     }
 }
 
@@ -6362,26 +6363,26 @@
 </span><span class="attr">#[derive(Debug, thiserror::Error)]
 </span><span class="kw">pub enum </span>RequestTokenError&lt;RE, T&gt;
 <span class="kw">where
-    </span>RE: Error + <span class="lifetime">&#39;static</span>,
-    T: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    </span>RE: Error + <span class="lifetime">'static</span>,
+    T: ErrorResponse + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">///
     /// Error response returned by authorization server. Contains the parsed `ErrorResponse`
     /// returned by the server.
     ///
-    </span><span class="attr">#[error(<span class="string">&quot;Server returned error response&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Server returned error response"</span>)]
     </span>ServerResponse(T),
     <span class="doccomment">///
     /// An error occurred while sending the request or receiving the response (e.g., network
     /// connectivity failed).
     ///
-    </span><span class="attr">#[error(<span class="string">&quot;Request failed&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Request failed"</span>)]
     </span>Request(<span class="attr">#[source] </span>RE),
     <span class="doccomment">///
     /// Failed to parse server response. Parse errors may occur while parsing either successful
     /// or error responses.
     ///
-    </span><span class="attr">#[error(<span class="string">&quot;Failed to parse server response&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"Failed to parse server response"</span>)]
     </span>Parse(
         <span class="attr">#[source] </span>serde_path_to_error::Error&lt;serde_json::error::Error&gt;,
         Vec&lt;u8&gt;,
@@ -6389,7 +6390,7 @@
     <span class="doccomment">///
     /// Some other type of error occurred (e.g., an unexpected server response).
     ///
-    </span><span class="attr">#[error(<span class="string">&quot;Other error: {}&quot;</span>, _0)]
+    </span><span class="attr">#[error(<span class="string">"Other error: {}"</span>, _0)]
     </span>Other(String),
 }
 </code></pre></div></section></main></body></html>

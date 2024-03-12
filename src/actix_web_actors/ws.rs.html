@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-actors-4.3.0/src/ws.rs`."><title>ws.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web_actors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web_actors/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web_actors"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-actors-4.3.0/src/ws.rs`."><title>ws.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web_actors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_web_actors/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web_actors"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1088,19 +1089,19 @@
 //!     }
 //! }
 //!
-//! #[get(&quot;/ws&quot;)]
+//! #[get("/ws")]
 //! async fn websocket(req: HttpRequest, stream: web::Payload) -&gt; Result&lt;HttpResponse, Error&gt; {
 //!     ws::start(MyWs, &amp;req, stream)
 //! }
 //!
 //! const MAX_FRAME_SIZE: usize = 16_384; // 16KiB
 //!
-//! #[get(&quot;/custom-ws&quot;)]
+//! #[get("/custom-ws")]
 //! async fn custom_websocket(req: HttpRequest, stream: web::Payload) -&gt; Result&lt;HttpResponse, Error&gt; {
 //!     // Create a Websocket session with a specific max frame size, and protocols.
 //!     ws::WsResponseBuilder::new(MyWs, &amp;req, stream)
 //!         .frame_size(MAX_FRAME_SIZE)
-//!         .protocols(&amp;[&quot;A&quot;, &quot;B&quot;])
+//!         .protocols(&amp;["A", "B"])
 //!         .start()
 //! }
 //!
@@ -1111,7 +1112,7 @@
 //!                 .service(websocket)
 //!                 .service(custom_websocket)
 //!         })
-//!         .bind((&quot;127.0.0.1&quot;, 8080))?
+//!         .bind(("127.0.0.1", 8080))?
 //!         .run()
 //!         .await
 //! }
@@ -1171,21 +1172,21 @@
 /// #     fn handle(&amp;mut self, msg: Result&lt;ws::Message, ws::ProtocolError&gt;, ctx: &amp;mut Self::Context) {}
 /// # }
 /// #
-/// #[get(&quot;/ws&quot;)]
+/// #[get("/ws")]
 /// async fn websocket(req: HttpRequest, stream: web::Payload) -&gt; Result&lt;HttpResponse, Error&gt; {
 ///     ws::WsResponseBuilder::new(MyWs, &amp;req, stream).start()
 /// }
 ///
 /// const MAX_FRAME_SIZE: usize = 16_384; // 16KiB
 ///
-/// #[get(&quot;/custom-ws&quot;)]
+/// #[get("/custom-ws")]
 /// async fn custom_websocket(req: HttpRequest, stream: web::Payload) -&gt; Result&lt;HttpResponse, Error&gt; {
 ///     // Create a Websocket session with a specific max frame size, codec, and protocols.
 ///     ws::WsResponseBuilder::new(MyWs, &amp;req, stream)
 ///         .codec(actix_http::ws::Codec::new())
-///         // This will overwrite the codec&#39;s max frame-size
+///         // This will overwrite the codec's max frame-size
 ///         .frame_size(MAX_FRAME_SIZE)
-///         .protocols(&amp;[&quot;A&quot;, &quot;B&quot;])
+///         .protocols(&amp;["A", "B"])
 ///         .start()
 /// }
 /// #
@@ -1196,33 +1197,33 @@
 /// #                 .service(websocket)
 /// #                 .service(custom_websocket)
 /// #         })
-/// #         .bind((&quot;127.0.0.1&quot;, 8080))?
+/// #         .bind(("127.0.0.1", 8080))?
 /// #         .run()
 /// #         .await
 /// # }
 /// ```
-</span><span class="kw">pub struct </span>WsResponseBuilder&lt;<span class="lifetime">&#39;a</span>, A, T&gt;
+</span><span class="kw">pub struct </span>WsResponseBuilder&lt;<span class="lifetime">'a</span>, A, T&gt;
 <span class="kw">where
     </span>A: Actor&lt;Context = WebsocketContext&lt;A&gt;&gt; + StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
 {
     actor: A,
-    req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HttpRequest,
+    req: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>HttpRequest,
     stream: T,
     codec: <span class="prelude-ty">Option</span>&lt;Codec&gt;,
-    protocols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str]&gt;,
+    protocols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str]&gt;,
     frame_size: <span class="prelude-ty">Option</span>&lt;usize&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, A, T&gt; WsResponseBuilder&lt;<span class="lifetime">&#39;a</span>, A, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, A, T&gt; WsResponseBuilder&lt;<span class="lifetime">'a</span>, A, T&gt;
 <span class="kw">where
     </span>A: Actor&lt;Context = WebsocketContext&lt;A&gt;&gt; + StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Construct a new `WsResponseBuilder` with actor, request, and payload stream.
     ///
     /// For usage example, see docs on [`WsResponseBuilder`] struct.
-    </span><span class="kw">pub fn </span>new(actor: A, req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HttpRequest, stream: T) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(actor: A, req: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>HttpRequest, stream: T) -&gt; <span class="self">Self </span>{
         WsResponseBuilder {
             actor,
             req,
@@ -1234,21 +1235,21 @@
     }
 
     <span class="doccomment">/// Set the protocols for the session.
-    </span><span class="kw">pub fn </span>protocols(<span class="kw-2">mut </span><span class="self">self</span>, protocols: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>protocols(<span class="kw-2">mut </span><span class="self">self</span>, protocols: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str]) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.protocols = <span class="prelude-val">Some</span>(protocols);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Set the max frame size for each message (in bytes).
     ///
-    /// **Note**: This will override any given [`Codec`]&#39;s max frame size.
+    /// **Note**: This will override any given [`Codec`]'s max frame size.
     </span><span class="kw">pub fn </span>frame_size(<span class="kw-2">mut </span><span class="self">self</span>, frame_size: usize) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.frame_size = <span class="prelude-val">Some</span>(frame_size);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Set the [`Codec`] for the session. If [`Self::frame_size`] is also set, the given
-    /// [`Codec`]&#39;s max frame size will be overridden.
+    /// [`Codec`]'s max frame size will be overridden.
     </span><span class="kw">pub fn </span>codec(<span class="kw-2">mut </span><span class="self">self</span>, codec: Codec) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.codec = <span class="prelude-val">Some</span>(codec);
         <span class="self">self
@@ -1265,7 +1266,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(frame_size) = <span class="self">self</span>.frame_size {
             <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.codec {
                 <span class="prelude-val">Some</span>(codec) =&gt; {
-                    <span class="comment">// modify existing codec&#39;s max frame size
+                    <span class="comment">// modify existing codec's max frame size
                     </span><span class="kw">let </span>orig_codec = mem::take(codec);
                     <span class="kw-2">*</span>codec = orig_codec.max_size(frame_size);
                 }
@@ -1290,7 +1291,7 @@
     ) -&gt; (Addr&lt;A&gt;, <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;&gt;)
     <span class="kw">where
         </span>A: StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>mb = Mailbox::default();
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = WebsocketContext {
@@ -1365,7 +1366,7 @@
 </span><span class="kw">pub fn </span>start&lt;A, T&gt;(actor: A, req: <span class="kw-2">&amp;</span>HttpRequest, stream: T) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, Error&gt;
 <span class="kw">where
     </span>A: Actor&lt;Context = WebsocketContext&lt;A&gt;&gt; + StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
 {
     <span class="kw">let </span><span class="kw-2">mut </span>res = handshake(req)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(res.streaming(WebsocketContext::create(actor, stream)))
@@ -1381,7 +1382,7 @@
 ///
 /// If successful, returns a pair where the first item is an address for the created actor and the
 /// second item is the response that should be returned from the WebSocket request.
-</span><span class="attr">#[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Prefer `WsResponseBuilder::start_with_addr`.&quot;</span>)]
+</span><span class="attr">#[deprecated(since = <span class="string">"4.0.0"</span>, note = <span class="string">"Prefer `WsResponseBuilder::start_with_addr`."</span>)]
 </span><span class="kw">pub fn </span>start_with_addr&lt;A, T&gt;(
     actor: A,
     req: <span class="kw-2">&amp;</span>HttpRequest,
@@ -1389,7 +1390,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Addr&lt;A&gt;, HttpResponse), Error&gt;
 <span class="kw">where
     </span>A: Actor&lt;Context = WebsocketContext&lt;A&gt;&gt; + StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
 {
     <span class="kw">let </span><span class="kw-2">mut </span>res = handshake(req)<span class="question-mark">?</span>;
     <span class="kw">let </span>(addr, out_stream) = WebsocketContext::create_with_addr(actor, stream);
@@ -1400,8 +1401,8 @@
 ///
 /// `protocols` is a sequence of known protocols.
 </span><span class="attr">#[deprecated(
-    since = <span class="string">&quot;4.0.0&quot;</span>,
-    note = <span class="string">&quot;Prefer `WsResponseBuilder` for setting protocols.&quot;
+    since = <span class="string">"4.0.0"</span>,
+    note = <span class="string">"Prefer `WsResponseBuilder` for setting protocols."
 </span>)]
 </span><span class="kw">pub fn </span>start_with_protocols&lt;A, T&gt;(
     actor: A,
@@ -1411,7 +1412,7 @@
 ) -&gt; <span class="prelude-ty">Result</span>&lt;HttpResponse, Error&gt;
 <span class="kw">where
     </span>A: Actor&lt;Context = WebsocketContext&lt;A&gt;&gt; + StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    T: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
 {
     <span class="kw">let </span><span class="kw-2">mut </span>res = handshake_with_protocols(req, protocols)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(res.streaming(WebsocketContext::create(actor, stream)))
@@ -1441,10 +1442,10 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(HandshakeError::GetMethodRequired);
     }
 
-    <span class="comment">// check for &quot;UPGRADE&quot; to WebSocket header
+    <span class="comment">// check for "UPGRADE" to WebSocket header
     </span><span class="kw">let </span>has_hdr = <span class="kw">if let </span><span class="prelude-val">Some</span>(hdr) = req.headers().get(<span class="kw-2">&amp;</span>header::UPGRADE) {
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = hdr.to_str() {
-            s.to_ascii_lowercase().contains(<span class="string">&quot;websocket&quot;</span>)
+            s.to_ascii_lowercase().contains(<span class="string">"websocket"</span>)
         } <span class="kw">else </span>{
             <span class="bool-val">false
         </span>}
@@ -1466,7 +1467,7 @@
     }
     <span class="kw">let </span>supported_ver = {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(hdr) = req.headers().get(<span class="kw-2">&amp;</span>header::SEC_WEBSOCKET_VERSION) {
-            hdr == <span class="string">&quot;13&quot; </span>|| hdr == <span class="string">&quot;8&quot; </span>|| hdr == <span class="string">&quot;7&quot;
+            hdr == <span class="string">"13" </span>|| hdr == <span class="string">"8" </span>|| hdr == <span class="string">"7"
         </span>} <span class="kw">else </span>{
             <span class="bool-val">false
         </span>}
@@ -1491,13 +1492,13 @@
         .and_then(|req_protocols| {
             <span class="kw">let </span>req_protocols = req_protocols.to_str().ok()<span class="question-mark">?</span>;
             req_protocols
-                .split(<span class="string">&#39;,&#39;</span>)
+                .split(<span class="string">','</span>)
                 .map(|req_p| req_p.trim())
                 .find(|req_p| protocols.iter().any(|p| p == req_p))
         });
 
     <span class="kw">let </span><span class="kw-2">mut </span>response = HttpResponse::build(StatusCode::SWITCHING_PROTOCOLS)
-        .upgrade(<span class="string">&quot;websocket&quot;</span>)
+        .upgrade(<span class="string">"websocket"</span>)
         .insert_header((
             header::SEC_WEBSOCKET_ACCEPT,
             <span class="comment">// key is known to be header value safe ascii
@@ -1544,14 +1545,14 @@
 {
     <span class="kw">fn </span>spawn&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fut: F) -&gt; SpawnHandle
     <span class="kw">where
-        </span>F: ActorFuture&lt;A, Output = ()&gt; + <span class="lifetime">&#39;static</span>,
+        </span>F: ActorFuture&lt;A, Output = ()&gt; + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.inner.spawn(fut)
     }
 
     <span class="kw">fn </span>wait&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fut: F)
     <span class="kw">where
-        </span>F: ActorFuture&lt;A, Output = ()&gt; + <span class="lifetime">&#39;static</span>,
+        </span>F: ActorFuture&lt;A, Output = ()&gt; + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.inner.wait(fut)
     }
@@ -1583,7 +1584,7 @@
     </span><span class="kw">pub fn </span>create&lt;S&gt;(actor: A, stream: S) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;&gt;
     <span class="kw">where
         </span>A: StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>(<span class="kw">_</span>, stream) = WebsocketContext::create_with_addr(actor, stream);
         stream
@@ -1600,7 +1601,7 @@
     ) -&gt; (Addr&lt;A&gt;, <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;&gt;)
     <span class="kw">where
         </span>A: StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>mb = Mailbox::default();
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = WebsocketContext {
@@ -1622,7 +1623,7 @@
     ) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;&gt;
     <span class="kw">where
         </span>A: StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>mb = Mailbox::default();
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = WebsocketContext {
@@ -1637,9 +1638,9 @@
     <span class="doccomment">/// Create a new Websocket context
     </span><span class="kw">pub fn </span>with_factory&lt;S, F&gt;(stream: S, f: F) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;&gt;
     <span class="kw">where
-        </span>F: FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; A + <span class="lifetime">&#39;static</span>,
+        </span>F: FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; A + <span class="lifetime">'static</span>,
         A: StreamHandler&lt;<span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;&gt;,
-        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>mb = Mailbox::default();
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = WebsocketContext {
@@ -1754,7 +1755,7 @@
 {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;;
 
-    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
 
         <span class="kw">if </span>this.fut.alive() {
@@ -1784,7 +1785,7 @@
 <span class="kw">impl</span>&lt;A, M&gt; ToEnvelope&lt;A, M&gt; <span class="kw">for </span>WebsocketContext&lt;A&gt;
 <span class="kw">where
     </span>A: Actor&lt;Context = WebsocketContext&lt;A&gt;&gt; + Handler&lt;M&gt;,
-    M: ActixMessage + Send + <span class="lifetime">&#39;static</span>,
+    M: ActixMessage + Send + <span class="lifetime">'static</span>,
     M::Result: Send,
 {
     <span class="kw">fn </span>pack(msg: M, tx: <span class="prelude-ty">Option</span>&lt;oneshot::Sender&lt;M::Result&gt;&gt;) -&gt; Envelope&lt;A&gt; {
@@ -1823,7 +1824,7 @@
 {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Message, ProtocolError&gt;;
 
-    <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+    <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.as_mut().project();
 
         <span class="kw">if </span>!<span class="kw-2">*</span>this.closed {
@@ -1840,7 +1841,7 @@
                     Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err))) =&gt; {
                         <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(ProtocolError::Io(io::Error::new(
                             io::ErrorKind::Other,
-                            <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>),
+                            <span class="macro">format!</span>(<span class="string">"{err}"</span>),
                         )))));
                     }
                 }
@@ -1861,7 +1862,7 @@
                         Message::Text(ByteString::try_from(data).map_err(|e| {
                             ProtocolError::Io(io::Error::new(
                                 io::ErrorKind::Other,
-                                <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, e),
+                                <span class="macro">format!</span>(<span class="string">"{}"</span>, e),
                             ))
                         })<span class="question-mark">?</span>)
                     }
@@ -1903,7 +1904,7 @@
         );
 
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((header::UPGRADE, header::HeaderValue::from_static(<span class="string">&quot;test&quot;</span>)))
+            .insert_header((header::UPGRADE, header::HeaderValue::from_static(<span class="string">"test"</span>)))
             .to_http_request();
         <span class="macro">assert_eq!</span>(
             HandshakeError::NoWebsocketUpgrade,
@@ -1913,7 +1914,7 @@
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::UPGRADE,
-                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"websocket"</span>),
             ))
             .to_http_request();
         <span class="macro">assert_eq!</span>(
@@ -1924,11 +1925,11 @@
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::UPGRADE,
-                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"websocket"</span>),
             ))
             .insert_header((
                 header::CONNECTION,
-                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"upgrade"</span>),
             ))
             .to_http_request();
         <span class="macro">assert_eq!</span>(
@@ -1939,15 +1940,15 @@
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::UPGRADE,
-                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"websocket"</span>),
             ))
             .insert_header((
                 header::CONNECTION,
-                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"upgrade"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_VERSION,
-                header::HeaderValue::from_static(<span class="string">&quot;5&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"5"</span>),
             ))
             .to_http_request();
         <span class="macro">assert_eq!</span>(
@@ -1958,15 +1959,15 @@
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::UPGRADE,
-                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"websocket"</span>),
             ))
             .insert_header((
                 header::CONNECTION,
-                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"upgrade"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_VERSION,
-                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"13"</span>),
             ))
             .to_http_request();
         <span class="macro">assert_eq!</span>(
@@ -1977,19 +1978,19 @@
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::UPGRADE,
-                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"websocket"</span>),
             ))
             .insert_header((
                 header::CONNECTION,
-                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"upgrade"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_VERSION,
-                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"13"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_KEY,
-                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"13"</span>),
             ))
             .to_http_request();
 
@@ -2001,27 +2002,27 @@
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::UPGRADE,
-                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"websocket"</span>),
             ))
             .insert_header((
                 header::CONNECTION,
-                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"upgrade"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_VERSION,
-                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"13"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_KEY,
-                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"13"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_PROTOCOL,
-                header::HeaderValue::from_static(<span class="string">&quot;graphql&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"graphql"</span>),
             ))
             .to_http_request();
 
-        <span class="kw">let </span>protocols = [<span class="string">&quot;graphql&quot;</span>];
+        <span class="kw">let </span>protocols = [<span class="string">"graphql"</span>];
 
         <span class="macro">assert_eq!</span>(
             StatusCode::SWITCHING_PROTOCOLS,
@@ -2031,7 +2032,7 @@
                 .status()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>header::HeaderValue::from_static(<span class="string">&quot;graphql&quot;</span>)),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>header::HeaderValue::from_static(<span class="string">"graphql"</span>)),
             handshake_with_protocols(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;</span>protocols)
                 .unwrap()
                 .finish()
@@ -2042,27 +2043,27 @@
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::UPGRADE,
-                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"websocket"</span>),
             ))
             .insert_header((
                 header::CONNECTION,
-                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"upgrade"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_VERSION,
-                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"13"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_KEY,
-                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"13"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_PROTOCOL,
-                header::HeaderValue::from_static(<span class="string">&quot;p1, p2, p3&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"p1, p2, p3"</span>),
             ))
             .to_http_request();
 
-        <span class="kw">let </span>protocols = <span class="macro">vec!</span>[<span class="string">&quot;p3&quot;</span>, <span class="string">&quot;p2&quot;</span>];
+        <span class="kw">let </span>protocols = <span class="macro">vec!</span>[<span class="string">"p3"</span>, <span class="string">"p2"</span>];
 
         <span class="macro">assert_eq!</span>(
             StatusCode::SWITCHING_PROTOCOLS,
@@ -2072,7 +2073,7 @@
                 .status()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>header::HeaderValue::from_static(<span class="string">&quot;p2&quot;</span>)),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>header::HeaderValue::from_static(<span class="string">"p2"</span>)),
             handshake_with_protocols(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;</span>protocols)
                 .unwrap()
                 .finish()
@@ -2083,27 +2084,27 @@
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::UPGRADE,
-                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"websocket"</span>),
             ))
             .insert_header((
                 header::CONNECTION,
-                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"upgrade"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_VERSION,
-                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"13"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_KEY,
-                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"13"</span>),
             ))
             .insert_header((
                 header::SEC_WEBSOCKET_PROTOCOL,
-                header::HeaderValue::from_static(<span class="string">&quot;p1,p2,p3&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"p1,p2,p3"</span>),
             ))
             .to_http_request();
 
-        <span class="kw">let </span>protocols = <span class="macro">vec!</span>[<span class="string">&quot;p3&quot;</span>, <span class="string">&quot;p2&quot;</span>];
+        <span class="kw">let </span>protocols = <span class="macro">vec!</span>[<span class="string">"p3"</span>, <span class="string">"p2"</span>];
 
         <span class="macro">assert_eq!</span>(
             StatusCode::SWITCHING_PROTOCOLS,
@@ -2113,7 +2114,7 @@
                 .status()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>header::HeaderValue::from_static(<span class="string">&quot;p2&quot;</span>)),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>header::HeaderValue::from_static(<span class="string">"p2"</span>)),
             handshake_with_protocols(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;</span>protocols)
                 .unwrap()
                 .finish()

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-intrusive-0.5.0/src/sync/mutex.rs`."><title>mutex.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="futures_intrusive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-intrusive-0.5.0/src/sync/mutex.rs`."><title>mutex.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="futures_intrusive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -585,7 +586,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(last_waiter) = last_waiter {
             <span class="comment">// Notify the waiter that it can try to lock the mutex again.
             // The notification gets tracked inside the waiter.
-            // If the waiter aborts it&#39;s wait (drops the future), another task
+            // If the waiter aborts it's wait (drops the future), another task
             // must be woken.
             </span>last_waiter.state = PollState::Notified;
 
@@ -635,18 +636,18 @@
 
     <span class="doccomment">/// Tries to acquire the Mutex from a WaitQueueEntry.
     ///
-    /// If it isn&#39;t available, the WaitQueueEntry gets added to the wait
+    /// If it isn't available, the WaitQueueEntry gets added to the wait
     /// queue at the Mutex, and will be signalled once ready.
     /// This function is only safe as long as the `wait_node`s address is guaranteed
     /// to be stable until it gets removed from the queue.
     </span><span class="kw">unsafe fn </span>try_lock(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;WaitQueueEntry&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; Poll&lt;()&gt; {
         <span class="kw">match </span>wait_node.state {
             PollState::New =&gt; {
-                <span class="comment">// The fast path - the Mutex isn&#39;t locked by anyone else.
+                <span class="comment">// The fast path - the Mutex isn't locked by anyone else.
                 // If the mutex is fair, noone must be in the wait list before us.
                 </span><span class="kw">if </span><span class="self">self</span>.try_lock_sync() {
                     wait_node.state = PollState::Done;
@@ -669,7 +670,7 @@
                     Poll::Pending
                 } <span class="kw">else </span>{
                     <span class="comment">// For throughput improvement purposes, grab the lock immediately
-                    // if it&#39;s available.
+                    // if it's available.
                     </span><span class="kw">if </span>!<span class="self">self</span>.is_locked {
                         <span class="self">self</span>.is_locked = <span class="bool-val">true</span>;
                         wait_node.state = PollState::Done;
@@ -690,7 +691,7 @@
             PollState::Notified =&gt; {
                 <span class="comment">// We had been woken by the mutex, since the mutex is available again.
                 // The mutex thereby removed us from the waiters list.
-                // Just try to lock again. If the mutex isn&#39;t available,
+                // Just try to lock again. If the mutex isn't available,
                 // we need to add it to the wait queue again.
                 </span><span class="kw">if </span>!<span class="self">self</span>.is_locked {
                     <span class="kw">if </span><span class="self">self</span>.is_fair {
@@ -716,7 +717,7 @@
             }
             PollState::Done =&gt; {
                 <span class="comment">// The future had been polled to completion before
-                </span><span class="macro">panic!</span>(<span class="string">&quot;polled Mutex after completion&quot;</span>);
+                </span><span class="macro">panic!</span>(<span class="string">"polled Mutex after completion"</span>);
             }
         }
     }
@@ -728,9 +729,9 @@
         wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;WaitQueueEntry&gt;,
     ) {
         <span class="kw">if </span>!<span class="self">self</span>.waiters.remove(wait_node) {
-            <span class="comment">// Panic if the address isn&#39;t found. This can only happen if the contract was
+            <span class="comment">// Panic if the address isn't found. This can only happen if the contract was
             // violated, e.g. the WaitQueueEntry got moved after the initial poll.
-            </span><span class="macro">panic!</span>(<span class="string">&quot;Future could not be removed from wait queue&quot;</span>);
+            </span><span class="macro">panic!</span>(<span class="string">"Future could not be removed from wait queue"</span>);
         }
     }
 
@@ -779,20 +780,20 @@
 <span class="doccomment">/// An RAII guard returned by the `lock` and `try_lock` methods.
 /// When this structure is dropped (falls out of scope), the lock will be
 /// unlocked.
-</span><span class="kw">pub struct </span>GenericMutexGuard&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T: <span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>GenericMutexGuard&lt;<span class="lifetime">'a</span>, MutexType: RawMutex, T: <span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The Mutex which is associated with this Guard
-    </span>mutex: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>GenericMutex&lt;MutexType, T&gt;,
+    </span>mutex: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>GenericMutex&lt;MutexType, T&gt;,
 }
 
 <span class="kw">impl</span>&lt;MutexType: RawMutex, T: core::fmt::Debug&gt; core::fmt::Debug
-    <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt;
+    <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">'_</span>, MutexType, T&gt;
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;GenericMutexGuard&quot;</span>).finish()
+        f.debug_struct(<span class="string">"GenericMutexGuard"</span>).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; Drop <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt; {
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; Drop <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">'_</span>, MutexType, T&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// Release the mutex
         </span><span class="kw">let </span>waker = { <span class="self">self</span>.mutex.state.lock().unlock() };
@@ -802,14 +803,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; Deref <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt; {
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; Deref <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">'_</span>, MutexType, T&gt; {
     <span class="kw">type </span>Target = T;
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
         <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.mutex.value.get() }
     }
 }
 
-<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; DerefMut <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt; {
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; DerefMut <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">'_</span>, MutexType, T&gt; {
     <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
         <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.mutex.value.get() }
     }
@@ -818,15 +819,15 @@
 <span class="comment">// Safety: GenericMutexGuard may only be used across threads if the underlying
 // type is Sync.
 </span><span class="kw">unsafe impl</span>&lt;MutexType: RawMutex, T: Sync&gt; Sync
-    <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt;
+    <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">'_</span>, MutexType, T&gt;
 {
 }
 
 <span class="doccomment">/// A future which resolves when the target mutex has been successfully acquired.
-</span><span class="attr">#[must_use = <span class="string">&quot;futures do nothing unless polled&quot;</span>]
-</span><span class="kw">pub struct </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T: <span class="lifetime">&#39;a</span>&gt; {
+</span><span class="attr">#[must_use = <span class="string">"futures do nothing unless polled"</span>]
+</span><span class="kw">pub struct </span>GenericMutexLockFuture&lt;<span class="lifetime">'a</span>, MutexType: RawMutex, T: <span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The Mutex which should get locked trough this Future
-    </span>mutex: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>GenericMutex&lt;MutexType, T&gt;&gt;,
+    </span>mutex: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>GenericMutex&lt;MutexType, T&gt;&gt;,
     <span class="doccomment">/// Node for waiting at the mutex
     </span>wait_node: ListNode&lt;WaitQueueEntry&gt;,
 }
@@ -834,34 +835,34 @@
 <span class="comment">// Safety: Futures can be sent between threads as long as the underlying
 // mutex is thread-safe (Sync), which allows to poll/register/unregister from
 // a different thread.
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex + Sync, T: <span class="lifetime">&#39;a</span>&gt; Send
-    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, MutexType: RawMutex + Sync, T: <span class="lifetime">'a</span>&gt; Send
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">'a</span>, MutexType, T&gt;
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T: core::fmt::Debug&gt; core::fmt::Debug
-    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, MutexType: RawMutex, T: core::fmt::Debug&gt; core::fmt::Debug
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">'a</span>, MutexType, T&gt;
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;GenericMutexLockFuture&quot;</span>).finish()
+        f.debug_struct(<span class="string">"GenericMutexLockFuture"</span>).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T&gt; Future
-    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, MutexType: RawMutex, T&gt; Future
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">'a</span>, MutexType, T&gt;
 {
-    <span class="kw">type </span>Output = GenericMutexGuard&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;;
+    <span class="kw">type </span>Output = GenericMutexGuard&lt;<span class="lifetime">'a</span>, MutexType, T&gt;;
 
-    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="comment">// Safety: The next operations are safe, because Pin promises us that
         // the address of the wait queue entry inside GenericMutexLockFuture is stable,
-        // and we don&#39;t move any fields inside the future until it gets dropped.
+        // and we don't move any fields inside the future until it gets dropped.
         </span><span class="kw">let </span>mut_self: <span class="kw-2">&amp;mut </span>GenericMutexLockFuture&lt;MutexType, T&gt; =
             <span class="kw">unsafe </span>{ Pin::get_unchecked_mut(<span class="self">self</span>) };
 
         <span class="kw">let </span>mutex = mut_self
             .mutex
-            .expect(<span class="string">&quot;polled GenericMutexLockFuture after completion&quot;</span>);
+            .expect(<span class="string">"polled GenericMutexLockFuture after completion"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>mutex_state = mutex.state.lock();
 
         <span class="kw">let </span>poll_res =
@@ -872,22 +873,22 @@
             Poll::Ready(()) =&gt; {
                 <span class="comment">// The mutex was acquired
                 </span>mut_self.mutex = <span class="prelude-val">None</span>;
-                Poll::Ready(GenericMutexGuard::&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; { mutex })
+                Poll::Ready(GenericMutexGuard::&lt;<span class="lifetime">'a</span>, MutexType, T&gt; { mutex })
             }
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T&gt; FusedFuture
-    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, MutexType: RawMutex, T&gt; FusedFuture
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">'a</span>, MutexType, T&gt;
 {
     <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.mutex.is_none()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T&gt; Drop
-    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, MutexType: RawMutex, T&gt; Drop
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">'a</span>, MutexType, T&gt;
 {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// If this GenericMutexLockFuture has been polled and it was added to the
@@ -928,8 +929,8 @@
     <span class="kw">for </span>GenericMutex&lt;MutexType, T&gt;
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;Mutex&quot;</span>)
-            .field(<span class="string">&quot;is_locked&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_locked())
+        f.debug_struct(<span class="string">"Mutex"</span>)
+            .field(<span class="string">"is_locked"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_locked())
             .finish()
     }
 }
@@ -939,7 +940,7 @@
     ///
     /// `is_fair` defines whether the `Mutex` should behave be fair regarding the
     /// order of waiters. A fair `Mutex` will only allow the first waiter which
-    /// tried to lock but failed to lock the `Mutex` once it&#39;s available again.
+    /// tried to lock but failed to lock the `Mutex` once it's available again.
     /// Other waiters must wait until either this locking attempt completes, and
     /// the `Mutex` gets unlocked again, or until the `MutexLockFuture` which
     /// tried to gain the lock is dropped.
@@ -954,7 +955,7 @@
     ///
     /// This method returns a future that will resolve once the mutex has been
     /// successfully acquired.
-    </span><span class="kw">pub fn </span>lock(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GenericMutexLockFuture&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt; {
+    </span><span class="kw">pub fn </span>lock(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GenericMutexLockFuture&lt;<span class="lifetime">'_</span>, MutexType, T&gt; {
         GenericMutexLockFuture::&lt;MutexType, T&gt; {
             mutex: <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>),
             wait_node: ListNode::new(WaitQueueEntry::new()),
@@ -967,7 +968,7 @@
     /// will be returned, which allows to access the contained data.
     ///
     /// Otherwise `None` will be returned.
-    </span><span class="kw">pub fn </span>try_lock(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt;&gt; {
+    </span><span class="kw">pub fn </span>try_lock(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;GenericMutexGuard&lt;<span class="lifetime">'_</span>, MutexType, T&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.state.lock().try_lock_sync() {
             <span class="prelude-val">Some</span>(GenericMutexGuard { mutex: <span class="self">self </span>})
         } <span class="kw">else </span>{
@@ -986,11 +987,11 @@
 </span><span class="doccomment">/// A [`GenericMutex`] which is not thread-safe.
 </span><span class="kw">pub type </span>LocalMutex&lt;T&gt; = GenericMutex&lt;NoopLock, T&gt;;
 <span class="doccomment">/// A [`GenericMutexGuard`] for [`LocalMutex`].
-</span><span class="kw">pub type </span>LocalMutexGuard&lt;<span class="lifetime">&#39;a</span>, T&gt; = GenericMutexGuard&lt;<span class="lifetime">&#39;a</span>, NoopLock, T&gt;;
+</span><span class="kw">pub type </span>LocalMutexGuard&lt;<span class="lifetime">'a</span>, T&gt; = GenericMutexGuard&lt;<span class="lifetime">'a</span>, NoopLock, T&gt;;
 <span class="doccomment">/// A [`GenericMutexLockFuture`] for [`LocalMutex`].
-</span><span class="kw">pub type </span>LocalMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, T&gt; = GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, NoopLock, T&gt;;
+</span><span class="kw">pub type </span>LocalMutexLockFuture&lt;<span class="lifetime">'a</span>, T&gt; = GenericMutexLockFuture&lt;<span class="lifetime">'a</span>, NoopLock, T&gt;;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">mod </span>if_std {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -999,13 +1000,13 @@
     </span><span class="doccomment">/// A [`GenericMutex`] backed by [`parking_lot`].
     </span><span class="kw">pub type </span>Mutex&lt;T&gt; = GenericMutex&lt;parking_lot::RawMutex, T&gt;;
     <span class="doccomment">/// A [`GenericMutexGuard`] for [`Mutex`].
-    </span><span class="kw">pub type </span>MutexGuard&lt;<span class="lifetime">&#39;a</span>, T&gt; =
-        GenericMutexGuard&lt;<span class="lifetime">&#39;a</span>, parking_lot::RawMutex, T&gt;;
+    </span><span class="kw">pub type </span>MutexGuard&lt;<span class="lifetime">'a</span>, T&gt; =
+        GenericMutexGuard&lt;<span class="lifetime">'a</span>, parking_lot::RawMutex, T&gt;;
     <span class="doccomment">/// A [`GenericMutexLockFuture`] for [`Mutex`].
-    </span><span class="kw">pub type </span>MutexLockFuture&lt;<span class="lifetime">&#39;a</span>, T&gt; =
-        GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, parking_lot::RawMutex, T&gt;;
+    </span><span class="kw">pub type </span>MutexLockFuture&lt;<span class="lifetime">'a</span>, T&gt; =
+        GenericMutexLockFuture&lt;<span class="lifetime">'a</span>, parking_lot::RawMutex, T&gt;;
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">pub use </span><span class="self">self</span>::if_std::<span class="kw-2">*</span>;
 </code></pre></div></section></main></body></html>

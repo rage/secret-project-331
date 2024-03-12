@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libgit2-sys-0.16.1+1.7.1/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="libgit2_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libgit2-sys-0.16.2+1.7.2/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="libgit2_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4310,14 +4311,27 @@
 <a href="#4310" id="4310">4310</a>
 <a href="#4311" id="4311">4311</a>
 <a href="#4312" id="4312">4312</a>
-</pre></div><pre class="rust"><code><span class="attr">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/libgit2-sys/0.16&quot;</span>)]
+<a href="#4313" id="4313">4313</a>
+<a href="#4314" id="4314">4314</a>
+<a href="#4315" id="4315">4315</a>
+<a href="#4316" id="4316">4316</a>
+<a href="#4317" id="4317">4317</a>
+<a href="#4318" id="4318">4318</a>
+<a href="#4319" id="4319">4319</a>
+<a href="#4320" id="4320">4320</a>
+<a href="#4321" id="4321">4321</a>
+<a href="#4322" id="4322">4322</a>
+<a href="#4323" id="4323">4323</a>
+<a href="#4324" id="4324">4324</a>
+<a href="#4325" id="4325">4325</a>
+</pre></div><pre class="rust"><code><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/libgit2-sys/0.16"</span>)]
 #![allow(non_camel_case_types, unused_extern_crates)]
 
 </span><span class="comment">// This is required to link libz when libssh2-sys is not included.
 </span><span class="kw">extern crate </span>libz_sys <span class="kw">as </span>libz;
 
 <span class="kw">use </span>libc::{c_char, c_int, c_uchar, c_uint, c_void, size_t};
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssh&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssh"</span>)]
 </span><span class="kw">use </span>libssh2_sys <span class="kw">as </span>libssh2;
 <span class="kw">use </span>std::ffi::CStr;
 
@@ -4341,9 +4355,9 @@
 
 <span class="macro">macro_rules! </span>git_enum {
     (<span class="kw">pub enum </span><span class="macro-nonterminal">$name</span>:ident { $(<span class="macro-nonterminal">$variants</span>:tt)* }) =&gt; {
-        <span class="attr">#[cfg(target_env = <span class="string">&quot;msvc&quot;</span>)]
+        <span class="attr">#[cfg(target_env = <span class="string">"msvc"</span>)]
         </span><span class="kw">pub type </span><span class="macro-nonterminal">$name </span>= i32;
-        <span class="attr">#[cfg(not(target_env = <span class="string">&quot;msvc&quot;</span>))]
+        <span class="attr">#[cfg(not(target_env = <span class="string">"msvc"</span>))]
         </span><span class="kw">pub type </span><span class="macro-nonterminal">$name </span>= u32;
         <span class="macro">git_enum!</span>(gen, <span class="macro-nonterminal">$name</span>, <span class="number">0</span>, $(<span class="macro-nonterminal">$variants</span>)<span class="kw-2">*</span>);
     };
@@ -4625,7 +4639,7 @@
 }
 
 <span class="kw">pub type </span>git_checkout_notify_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         git_checkout_notify_t,
         <span class="kw-2">*const </span>c_char,
         <span class="kw-2">*const </span>git_diff_file,
@@ -4635,10 +4649,10 @@
     ) -&gt; c_int,
 &gt;;
 <span class="kw">pub type </span>git_checkout_progress_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, size_t, size_t, <span class="kw-2">*mut </span>c_void)&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, size_t, size_t, <span class="kw-2">*mut </span>c_void)&gt;;
 
 <span class="kw">pub type </span>git_checkout_perfdata_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_checkout_perfdata, <span class="kw-2">*mut </span>c_void)&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_checkout_perfdata, <span class="kw-2">*mut </span>c_void)&gt;;
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_checkout_perfdata {
@@ -4660,11 +4674,11 @@
 }
 
 <span class="kw">pub type </span>git_indexer_progress_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_indexer_progress, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_indexer_progress, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="attr">#[deprecated(
-    since = <span class="string">&quot;0.10.0&quot;</span>,
-    note = <span class="string">&quot;renamed to `git_indexer_progress` to match upstream&quot;
+    since = <span class="string">"0.10.0"</span>,
+    note = <span class="string">"renamed to `git_indexer_progress` to match upstream"
 </span>)]
 </span><span class="kw">pub type </span>git_transfer_progress = git_indexer_progress;
 
@@ -4676,18 +4690,18 @@
     <span class="kw">pub </span>verify: c_uchar,
 }
 
-<span class="kw">pub type </span>git_remote_ready_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_remote, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+<span class="kw">pub type </span>git_remote_ready_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_remote, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_remote_callbacks {
     <span class="kw">pub </span>version: c_uint,
     <span class="kw">pub </span>sideband_progress: git_transport_message_cb,
-    <span class="kw">pub </span>completion: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(git_remote_completion_type, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
+    <span class="kw">pub </span>completion: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(git_remote_completion_type, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
     <span class="kw">pub </span>credentials: git_cred_acquire_cb,
     <span class="kw">pub </span>certificate_check: git_transport_certificate_check_cb,
     <span class="kw">pub </span>transfer_progress: git_indexer_progress_cb,
     <span class="kw">pub </span>update_tips:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>git_oid, <span class="kw-2">*const </span>git_oid, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>git_oid, <span class="kw-2">*const </span>git_oid, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
     <span class="kw">pub </span>pack_progress: git_packbuilder_progress,
     <span class="kw">pub </span>push_transfer_progress: git_push_transfer_progress,
     <span class="kw">pub </span>push_update_reference: git_push_update_reference_cb,
@@ -4746,25 +4760,25 @@
 }
 
 <span class="kw">pub type </span>git_transport_message_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_cred_acquire_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_cred, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, c_uint, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_cred, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, c_uint, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
 &gt;;
 <span class="kw">pub type </span>git_transfer_progress_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_indexer_progress, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_indexer_progress, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_packbuilder_progress =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(git_packbuilder_stage_t, c_uint, c_uint, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(git_packbuilder_stage_t, c_uint, c_uint, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_push_transfer_progress =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(c_uint, c_uint, size_t, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(c_uint, c_uint, size_t, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_transport_certificate_check_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_cert, c_int, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_cert, c_int, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_push_negotiation =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut *const </span>git_push_update, size_t, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut *const </span>git_push_update, size_t, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="kw">pub type </span>git_push_update_reference_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_url_resolve_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_buf, <span class="kw-2">*const </span>c_char, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_buf, <span class="kw-2">*const </span>c_char, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_push_update {
@@ -4848,9 +4862,9 @@
 }
 
 <span class="kw">pub type </span>git_repository_create_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_repository, <span class="kw-2">*const </span>c_char, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_repository, <span class="kw-2">*const </span>c_char, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_remote_create_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         <span class="kw-2">*mut *mut </span>git_remote,
         <span class="kw-2">*mut </span>git_repository,
         <span class="kw-2">*const </span>c_char,
@@ -5043,11 +5057,11 @@
 }
 
 <span class="kw">pub type </span>git_treewalk_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>git_tree_entry, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>git_tree_entry, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_treebuilder_filter_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_tree_entry, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_tree_entry, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
-<span class="kw">pub type </span>git_revwalk_hide_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_oid, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+<span class="kw">pub type </span>git_revwalk_hide_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_oid, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="macro">git_enum! </span>{
     <span class="kw">pub enum </span>git_tree_update_t {
@@ -5117,7 +5131,7 @@
 }
 
 <span class="kw">pub type </span>git_index_matched_path_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="macro">git_enum! </span>{
     <span class="kw">pub enum </span>git_index_entry_extended_flag_t {
@@ -5169,7 +5183,7 @@
     <span class="kw">pub </span>value: <span class="kw-2">*const </span>c_char,
     <span class="kw">pub </span>include_depth: c_uint,
     <span class="kw">pub </span>level: git_config_level_t,
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_config_entry)&gt;,
+    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_config_entry)&gt;,
     <span class="kw">pub </span>payload: <span class="kw-2">*mut </span>c_void,
 }
 
@@ -5207,7 +5221,7 @@
 }
 
 <span class="kw">pub type </span>git_submodule_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_submodule, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_submodule, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_submodule_update_options {
@@ -5219,9 +5233,9 @@
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_writestream {
-    <span class="kw">pub </span>write: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_writestream, <span class="kw-2">*const </span>c_char, size_t) -&gt; c_int&gt;,
-    <span class="kw">pub </span>close: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_writestream) -&gt; c_int&gt;,
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_writestream)&gt;,
+    <span class="kw">pub </span>write: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_writestream, <span class="kw-2">*const </span>c_char, size_t) -&gt; c_int&gt;,
+    <span class="kw">pub </span>close: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_writestream) -&gt; c_int&gt;,
+    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_writestream)&gt;,
 }
 
 <span class="macro">git_enum! </span>{
@@ -5242,7 +5256,7 @@
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_cred {
     <span class="kw">pub </span>credtype: git_credtype_t,
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_cred)&gt;,
+    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_cred)&gt;,
 }
 
 <span class="macro">git_enum! </span>{
@@ -5258,7 +5272,7 @@
 }
 
 <span class="kw">pub type </span>git_cred_ssh_interactive_callback = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         name: <span class="kw-2">*const </span>c_char,
         name_len: c_int,
         instruction: <span class="kw-2">*const </span>c_char,
@@ -5271,7 +5285,7 @@
 &gt;;
 
 <span class="kw">pub type </span>git_cred_sign_callback = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         session: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
         sig: <span class="kw-2">*mut *mut </span>c_uchar,
         sig_len: <span class="kw-2">*mut </span>size_t,
@@ -5296,7 +5310,7 @@
 }
 
 <span class="kw">pub type </span>git_tag_foreach_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(name: <span class="kw-2">*const </span>c_char, oid: <span class="kw-2">*mut </span>git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(name: <span class="kw-2">*const </span>c_char, oid: <span class="kw-2">*mut </span>git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="macro">git_enum! </span>{
     <span class="kw">pub enum </span>git_index_add_option_t {
@@ -5399,11 +5413,11 @@
     }
 }
 
-<span class="kw">pub type </span>git_diff_file_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff_delta, f32, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+<span class="kw">pub type </span>git_diff_file_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff_delta, f32, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_diff_hunk_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff_delta, <span class="kw-2">*const </span>git_diff_hunk, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff_delta, <span class="kw-2">*const </span>git_diff_hunk, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 <span class="kw">pub type </span>git_diff_line_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         <span class="kw-2">*const </span>git_diff_delta,
         <span class="kw-2">*const </span>git_diff_hunk,
         <span class="kw-2">*const </span>git_diff_line,
@@ -5411,7 +5425,7 @@
     ) -&gt; c_int,
 &gt;;
 <span class="kw">pub type </span>git_diff_binary_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff_delta, <span class="kw-2">*const </span>git_diff_binary, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff_delta, <span class="kw-2">*const </span>git_diff_binary, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_diff_hunk {
@@ -5425,15 +5439,15 @@
 
 <span class="macro">git_enum! </span>{
     <span class="kw">pub enum </span>git_diff_line_t {
-        GIT_DIFF_LINE_CONTEXT = <span class="string">b&#39; &#39; </span><span class="kw">as </span>git_diff_line_t,
-        GIT_DIFF_LINE_ADDITION = <span class="string">b&#39;+&#39; </span><span class="kw">as </span>git_diff_line_t,
-        GIT_DIFF_LINE_DELETION = <span class="string">b&#39;-&#39; </span><span class="kw">as </span>git_diff_line_t,
-        GIT_DIFF_LINE_CONTEXT_EOFNL = <span class="string">b&#39;=&#39; </span><span class="kw">as </span>git_diff_line_t,
-        GIT_DIFF_LINE_ADD_EOFNL = <span class="string">b&#39;&gt;&#39; </span><span class="kw">as </span>git_diff_line_t,
-        GIT_DIFF_LINE_DEL_EOFNL = <span class="string">b&#39;&lt;&#39; </span><span class="kw">as </span>git_diff_line_t,
-        GIT_DIFF_LINE_FILE_HDR = <span class="string">b&#39;F&#39; </span><span class="kw">as </span>git_diff_line_t,
-        GIT_DIFF_LINE_HUNK_HDR = <span class="string">b&#39;H&#39; </span><span class="kw">as </span>git_diff_line_t,
-        GIT_DIFF_LINE_BINARY = <span class="string">b&#39;B&#39; </span><span class="kw">as </span>git_diff_line_t,
+        GIT_DIFF_LINE_CONTEXT = <span class="string">b' ' </span><span class="kw">as </span>git_diff_line_t,
+        GIT_DIFF_LINE_ADDITION = <span class="string">b'+' </span><span class="kw">as </span>git_diff_line_t,
+        GIT_DIFF_LINE_DELETION = <span class="string">b'-' </span><span class="kw">as </span>git_diff_line_t,
+        GIT_DIFF_LINE_CONTEXT_EOFNL = <span class="string">b'=' </span><span class="kw">as </span>git_diff_line_t,
+        GIT_DIFF_LINE_ADD_EOFNL = <span class="string">b'&gt;' </span><span class="kw">as </span>git_diff_line_t,
+        GIT_DIFF_LINE_DEL_EOFNL = <span class="string">b'&lt;' </span><span class="kw">as </span>git_diff_line_t,
+        GIT_DIFF_LINE_FILE_HDR = <span class="string">b'F' </span><span class="kw">as </span>git_diff_line_t,
+        GIT_DIFF_LINE_HUNK_HDR = <span class="string">b'H' </span><span class="kw">as </span>git_diff_line_t,
+        GIT_DIFF_LINE_BINARY = <span class="string">b'B' </span><span class="kw">as </span>git_diff_line_t,
     }
 }
 
@@ -5496,11 +5510,11 @@
 }
 
 <span class="kw">pub type </span>git_diff_notify_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff, <span class="kw-2">*const </span>git_diff_delta, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff, <span class="kw-2">*const </span>git_diff_delta, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
 &gt;;
 
 <span class="kw">pub type </span>git_diff_progress_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="macro">git_enum! </span>{
     <span class="kw">pub enum </span>git_diff_option_t {
@@ -5552,10 +5566,10 @@
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_diff_similarity_metric {
     <span class="kw">pub </span>file_signature: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>c_void, <span class="kw-2">*const </span>git_diff_file, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>c_void, <span class="kw-2">*const </span>git_diff_file, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>buffer_signature: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut *mut </span>c_void,
             <span class="kw-2">*const </span>git_diff_file,
             <span class="kw-2">*const </span>c_char,
@@ -5563,9 +5577,9 @@
             <span class="kw-2">*mut </span>c_void,
         ) -&gt; c_int,
     &gt;,
-    <span class="kw">pub </span>free_signature: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>c_void)&gt;,
+    <span class="kw">pub </span>free_signature: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>c_void)&gt;,
     <span class="kw">pub </span>similarity:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_int, <span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_int, <span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
     <span class="kw">pub </span>payload: <span class="kw-2">*mut </span>c_void,
 }
 
@@ -5699,7 +5713,7 @@
 }
 
 <span class="kw">pub type </span>git_transport_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         out: <span class="kw-2">*mut *mut </span>git_transport,
         owner: <span class="kw-2">*mut </span>git_remote,
         param: <span class="kw-2">*mut </span>c_void,
@@ -5710,7 +5724,7 @@
 </span><span class="kw">pub struct </span>git_transport {
     <span class="kw">pub </span>version: c_uint,
     <span class="kw">pub </span>connect: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             transport: <span class="kw-2">*mut </span>git_transport,
             url: <span class="kw-2">*const </span>c_char,
             direction: c_int,
@@ -5718,41 +5732,41 @@
         ) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>set_connect_opts: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             transport: <span class="kw-2">*mut </span>git_transport,
             connect_opts: <span class="kw-2">*const </span>git_remote_connect_options,
         ) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>capabilities:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(capabilities: <span class="kw-2">*mut </span>c_uint, transport: <span class="kw-2">*mut </span>git_transport) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(capabilities: <span class="kw-2">*mut </span>c_uint, transport: <span class="kw-2">*mut </span>git_transport) -&gt; c_int&gt;,
     <span class="kw">pub </span>ls: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             out: <span class="kw-2">*mut *mut *const </span>git_remote_head,
             size: <span class="kw-2">*mut </span>size_t,
             transport: <span class="kw-2">*mut </span>git_transport,
         ) -&gt; c_int,
     &gt;,
-    <span class="kw">pub </span>push: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport, push: <span class="kw-2">*mut </span>git_push) -&gt; c_int&gt;,
+    <span class="kw">pub </span>push: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport, push: <span class="kw-2">*mut </span>git_push) -&gt; c_int&gt;,
     <span class="kw">pub </span>negotiate_fetch: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             transport: <span class="kw-2">*mut </span>git_transport,
             repo: <span class="kw-2">*mut </span>git_repository,
             fetch_data: <span class="kw-2">*const </span>git_fetch_negotiation,
         ) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>shallow_roots:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(out: <span class="kw-2">*mut </span>git_oidarray, transport: <span class="kw-2">*mut </span>git_transport) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(out: <span class="kw-2">*mut </span>git_oidarray, transport: <span class="kw-2">*mut </span>git_transport) -&gt; c_int&gt;,
     <span class="kw">pub </span>download_pack: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             transport: <span class="kw-2">*mut </span>git_transport,
             repo: <span class="kw-2">*mut </span>git_repository,
             stats: <span class="kw-2">*mut </span>git_indexer_progress,
         ) -&gt; c_int,
     &gt;,
-    <span class="kw">pub </span>is_connected: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport) -&gt; c_int&gt;,
-    <span class="kw">pub </span>cancel: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport)&gt;,
-    <span class="kw">pub </span>close: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport) -&gt; c_int&gt;,
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport)&gt;,
+    <span class="kw">pub </span>is_connected: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport) -&gt; c_int&gt;,
+    <span class="kw">pub </span>cancel: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport)&gt;,
+    <span class="kw">pub </span>close: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport) -&gt; c_int&gt;,
+    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(transport: <span class="kw-2">*mut </span>git_transport)&gt;,
 }
 
 <span class="attr">#[repr(C)]
@@ -5777,7 +5791,7 @@
     <span class="kw">pub </span>version: c_uint,
     <span class="kw">pub </span>odb: <span class="kw-2">*mut </span>git_odb,
     <span class="kw">pub </span>read: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut *mut </span>c_void,
             <span class="kw-2">*mut </span>size_t,
             <span class="kw-2">*mut </span>git_object_t,
@@ -5787,7 +5801,7 @@
     &gt;,
 
     <span class="kw">pub </span>read_prefix: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut </span>git_oid,
             <span class="kw-2">*mut *mut </span>c_void,
             <span class="kw-2">*mut </span>size_t,
@@ -5798,7 +5812,7 @@
         ) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>read_header: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut </span>size_t,
             <span class="kw-2">*mut </span>git_object_t,
             <span class="kw-2">*mut </span>git_odb_backend,
@@ -5807,7 +5821,7 @@
     &gt;,
 
     <span class="kw">pub </span>write: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut </span>git_odb_backend,
             <span class="kw-2">*const </span>git_oid,
             <span class="kw-2">*const </span>c_void,
@@ -5817,7 +5831,7 @@
     &gt;,
 
     <span class="kw">pub </span>writestream: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut *mut </span>git_odb_stream,
             <span class="kw-2">*mut </span>git_odb_backend,
             git_object_size_t,
@@ -5826,7 +5840,7 @@
     &gt;,
 
     <span class="kw">pub </span>readstream: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut *mut </span>git_odb_stream,
             <span class="kw-2">*mut </span>size_t,
             <span class="kw-2">*mut </span>git_object_t,
@@ -5835,18 +5849,18 @@
         ) -&gt; c_int,
     &gt;,
 
-    <span class="kw">pub </span>exists: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend, <span class="kw-2">*const </span>git_oid) -&gt; c_int&gt;,
+    <span class="kw">pub </span>exists: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend, <span class="kw-2">*const </span>git_oid) -&gt; c_int&gt;,
 
     <span class="kw">pub </span>exists_prefix:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_oid, <span class="kw-2">*mut </span>git_odb_backend, <span class="kw-2">*const </span>git_oid, size_t) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_oid, <span class="kw-2">*mut </span>git_odb_backend, <span class="kw-2">*const </span>git_oid, size_t) -&gt; c_int&gt;,
 
-    <span class="kw">pub </span>refresh: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend) -&gt; c_int&gt;,
+    <span class="kw">pub </span>refresh: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend) -&gt; c_int&gt;,
 
     <span class="kw">pub </span>foreach:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend, git_odb_foreach_cb, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend, git_odb_foreach_cb, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
 
     <span class="kw">pub </span>writepack: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut *mut </span>git_odb_writepack,
             <span class="kw-2">*mut </span>git_odb_backend,
             <span class="kw-2">*mut </span>git_odb,
@@ -5855,11 +5869,11 @@
         ) -&gt; c_int,
     &gt;,
 
-    <span class="kw">pub </span>writemidx: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend) -&gt; c_int&gt;,
+    <span class="kw">pub </span>writemidx: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend) -&gt; c_int&gt;,
 
-    <span class="kw">pub </span>freshen: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend, <span class="kw-2">*const </span>git_oid) -&gt; c_int&gt;,
+    <span class="kw">pub </span>freshen: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend, <span class="kw-2">*const </span>git_oid) -&gt; c_int&gt;,
 
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend)&gt;,
+    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend)&gt;,
 }
 
 <span class="macro">git_enum! </span>{
@@ -5873,7 +5887,7 @@
     <span class="kw">pub </span>backend: <span class="kw-2">*mut </span>git_odb_backend,
 
     <span class="kw">pub </span>append: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut </span>git_odb_writepack,
             <span class="kw-2">*const </span>c_void,
             size_t,
@@ -5882,27 +5896,27 @@
     &gt;,
 
     <span class="kw">pub </span>commit:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_writepack, <span class="kw-2">*mut </span>git_indexer_progress) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_writepack, <span class="kw-2">*mut </span>git_indexer_progress) -&gt; c_int&gt;,
 
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_writepack)&gt;,
+    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_writepack)&gt;,
 }
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_refdb_backend {
     <span class="kw">pub </span>version: c_uint,
-    <span class="kw">pub </span>exists: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_int, <span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
+    <span class="kw">pub </span>exists: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_int, <span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
     <span class="kw">pub </span>lookup: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_reference, <span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int,
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_reference, <span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>iterator: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut *mut </span>git_reference_iterator,
             <span class="kw-2">*mut </span>git_refdb_backend,
             <span class="kw-2">*const </span>c_char,
         ) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>write: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut </span>git_refdb_backend,
             <span class="kw-2">*const </span>git_reference,
             c_int,
@@ -5913,7 +5927,7 @@
         ) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>rename: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut *mut </span>git_reference,
             <span class="kw-2">*mut </span>git_refdb_backend,
             <span class="kw-2">*const </span>c_char,
@@ -5924,27 +5938,27 @@
         ) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>del: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut </span>git_refdb_backend,
             <span class="kw-2">*const </span>c_char,
             <span class="kw-2">*const </span>git_oid,
             <span class="kw-2">*const </span>c_char,
         ) -&gt; c_int,
     &gt;,
-    <span class="kw">pub </span>compress: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend) -&gt; c_int&gt;,
-    <span class="kw">pub </span>has_log: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
-    <span class="kw">pub </span>ensure_log: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend)&gt;,
+    <span class="kw">pub </span>compress: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend) -&gt; c_int&gt;,
+    <span class="kw">pub </span>has_log: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
+    <span class="kw">pub </span>ensure_log: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
+    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend)&gt;,
     <span class="kw">pub </span>reflog_read:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_reflog, <span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
-    <span class="kw">pub </span>reflog_write: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*mut </span>git_reflog) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_reflog, <span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
+    <span class="kw">pub </span>reflog_write: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*mut </span>git_reflog) -&gt; c_int&gt;,
     <span class="kw">pub </span>reflog_rename:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
-    <span class="kw">pub </span>reflog_delete: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
+    <span class="kw">pub </span>reflog_delete: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
     <span class="kw">pub </span>lock:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>c_void, <span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>c_void, <span class="kw-2">*mut </span>git_refdb_backend, <span class="kw-2">*const </span>c_char) -&gt; c_int&gt;,
     <span class="kw">pub </span>unlock: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut </span>git_refdb_backend,
             <span class="kw-2">*mut </span>c_void,
             c_int,
@@ -5987,7 +6001,7 @@
 </span><span class="kw">pub struct </span>git_smart_subtransport_stream {
     <span class="kw">pub </span>subtransport: <span class="kw-2">*mut </span>git_smart_subtransport,
     <span class="kw">pub </span>read: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut </span>git_smart_subtransport_stream,
             <span class="kw-2">*mut </span>c_char,
             size_t,
@@ -5995,26 +6009,26 @@
         ) -&gt; c_int,
     &gt;,
     <span class="kw">pub </span>write:
-        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_smart_subtransport_stream, <span class="kw-2">*const </span>c_char, size_t) -&gt; c_int&gt;,
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_smart_subtransport_stream)&gt;,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_smart_subtransport_stream, <span class="kw-2">*const </span>c_char, size_t) -&gt; c_int&gt;,
+    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_smart_subtransport_stream)&gt;,
 }
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_smart_subtransport {
     <span class="kw">pub </span>action: <span class="prelude-ty">Option</span>&lt;
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
             <span class="kw-2">*mut *mut </span>git_smart_subtransport_stream,
             <span class="kw-2">*mut </span>git_smart_subtransport,
             <span class="kw-2">*const </span>c_char,
             git_smart_service_t,
         ) -&gt; c_int,
     &gt;,
-    <span class="kw">pub </span>close: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_smart_subtransport) -&gt; c_int&gt;,
-    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_smart_subtransport)&gt;,
+    <span class="kw">pub </span>close: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_smart_subtransport) -&gt; c_int&gt;,
+    <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_smart_subtransport)&gt;,
 }
 
 <span class="kw">pub type </span>git_smart_subtransport_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_smart_subtransport, <span class="kw-2">*mut </span>git_transport, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut *mut </span>git_smart_subtransport, <span class="kw-2">*mut </span>git_transport, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
 &gt;;
 
 <span class="attr">#[repr(C)]
@@ -6108,10 +6122,10 @@
 }
 
 <span class="kw">pub type </span>git_stash_apply_progress_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(progress: git_stash_apply_progress_t, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(progress: git_stash_apply_progress_t, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="kw">pub type </span>git_stash_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         index: size_t,
         message: <span class="kw-2">*const </span>c_char,
         stash_id: <span class="kw-2">*const </span>git_oid,
@@ -6120,13 +6134,13 @@
 &gt;;
 
 <span class="kw">pub type </span>git_packbuilder_foreach_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_void, size_t, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_void, size_t, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="kw">pub type </span>git_odb_foreach_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(id: <span class="kw-2">*const </span>git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(id: <span class="kw-2">*const </span>git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="kw">pub type </span>git_commit_signing_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         signature: <span class="kw-2">*mut </span>git_buf,
         signature_field: <span class="kw-2">*mut </span>git_buf,
         commit_content: <span class="kw-2">*const </span>c_char,
@@ -6135,7 +6149,7 @@
 &gt;;
 
 <span class="kw">pub type </span>git_commit_create_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
         <span class="kw-2">*mut </span>git_oid,
         <span class="kw-2">*const </span>git_signature,
         <span class="kw-2">*const </span>git_signature,
@@ -6192,10 +6206,10 @@
 <span class="kw">pub type </span>git_revert_options = git_cherrypick_options;
 
 <span class="kw">pub type </span>git_apply_delta_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(delta: <span class="kw-2">*const </span>git_diff_delta, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(delta: <span class="kw-2">*const </span>git_diff_delta, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="kw">pub type </span>git_apply_hunk_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(hunk: <span class="kw-2">*const </span>git_diff_hunk, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(hunk: <span class="kw-2">*const </span>git_diff_hunk, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="macro">git_enum! </span>{
     <span class="kw">pub enum </span>git_apply_flags_t {
@@ -6301,10 +6315,10 @@
 <span class="kw">pub const </span>GIT_WORKTREE_PRUNE_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
 
 <span class="kw">pub type </span>git_repository_mergehead_foreach_cb =
-    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(oid: <span class="kw-2">*const </span>git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
+    <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(oid: <span class="kw-2">*const </span>git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
 <span class="kw">pub type </span>git_repository_fetchhead_foreach_cb = <span class="prelude-ty">Option</span>&lt;
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>git_oid, c_uint, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>git_oid, c_uint, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
 &gt;;
 
 <span class="macro">git_enum! </span>{
@@ -6312,10 +6326,10 @@
         <span class="comment">/* No tracing will be performed. */
         </span>GIT_TRACE_NONE = <span class="number">0</span>,
 
-        <span class="comment">/* Severe errors that may impact the program&#39;s execution */
+        <span class="comment">/* Severe errors that may impact the program's execution */
         </span>GIT_TRACE_FATAL = <span class="number">1</span>,
 
-        <span class="comment">/* Errors that do not impact the program&#39;s execution */
+        <span class="comment">/* Errors that do not impact the program's execution */
         </span>GIT_TRACE_ERROR = <span class="number">2</span>,
 
         <span class="comment">/* Warnings that suggest abnormal data */
@@ -6332,7 +6346,7 @@
     }
 }
 
-<span class="kw">pub type </span>git_trace_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(level: git_trace_level_t, msg: <span class="kw-2">*const </span>c_char)&gt;;
+<span class="kw">pub type </span>git_trace_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(level: git_trace_level_t, msg: <span class="kw-2">*const </span>c_char)&gt;;
 
 <span class="macro">git_enum! </span>{
     <span class="kw">pub enum </span>git_feature_t {
@@ -6379,7 +6393,7 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="comment">// threads
     </span><span class="kw">pub fn </span>git_libgit2_init() -&gt; c_int;
     <span class="kw">pub fn </span>git_libgit2_shutdown() -&gt; c_int;
@@ -6515,6 +6529,13 @@
         dest: <span class="kw-2">*mut *mut </span>git_object,
         repo: <span class="kw-2">*mut </span>git_repository,
         id: <span class="kw-2">*const </span>git_oid,
+        kind: git_object_t,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>git_object_lookup_prefix(
+        dest: <span class="kw-2">*mut *mut </span>git_object,
+        repo: <span class="kw-2">*mut </span>git_repository,
+        id: <span class="kw-2">*const </span>git_oid,
+        len: size_t,
         kind: git_object_t,
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_object_type(obj: <span class="kw-2">*const </span>git_object) -&gt; git_object_t;
@@ -7138,6 +7159,12 @@
         commit: <span class="kw-2">*mut *mut </span>git_commit,
         repo: <span class="kw-2">*mut </span>git_repository,
         id: <span class="kw-2">*const </span>git_oid,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>git_commit_lookup_prefix(
+        commit: <span class="kw-2">*mut *mut </span>git_commit,
+        repo: <span class="kw-2">*mut </span>git_repository,
+        id: <span class="kw-2">*const </span>git_oid,
+        len: size_t,
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_commit_message(commit: <span class="kw-2">*const </span>git_commit) -&gt; <span class="kw-2">*const </span>c_char;
     <span class="kw">pub fn </span>git_commit_message_encoding(commit: <span class="kw-2">*const </span>git_commit) -&gt; <span class="kw-2">*const </span>c_char;
@@ -8170,7 +8197,7 @@
         progress_cb: git_indexer_progress_cb,
         progress_cb_payload: <span class="kw-2">*mut </span>c_void,
     ) -&gt; c_int;
-    <span class="attr">#[deprecated = <span class="string">&quot;use `git_packbuilder_name` to retrieve the filename&quot;</span>]
+    <span class="attr">#[deprecated = <span class="string">"use `git_packbuilder_name` to retrieve the filename"</span>]
     </span><span class="kw">pub fn </span>git_packbuilder_hash(pb: <span class="kw-2">*mut </span>git_packbuilder) -&gt; <span class="kw-2">*const </span>git_oid;
     <span class="kw">pub fn </span>git_packbuilder_name(pb: <span class="kw-2">*mut </span>git_packbuilder) -&gt; <span class="kw-2">*const </span>c_char;
     <span class="kw">pub fn </span>git_packbuilder_foreach(
@@ -8202,7 +8229,7 @@
         stats: <span class="kw-2">*mut </span>git_indexer_progress,
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_indexer_commit(idx: <span class="kw-2">*mut </span>git_indexer, stats: <span class="kw-2">*mut </span>git_indexer_progress) -&gt; c_int;
-    <span class="attr">#[deprecated = <span class="string">&quot;use `git_indexer_name` to retrieve the filename&quot;</span>]
+    <span class="attr">#[deprecated = <span class="string">"use `git_indexer_name` to retrieve the filename"</span>]
     </span><span class="kw">pub fn </span>git_indexer_hash(idx: <span class="kw-2">*const </span>git_indexer) -&gt; <span class="kw-2">*const </span>git_oid;
     <span class="kw">pub fn </span>git_indexer_name(idx: <span class="kw-2">*const </span>git_indexer) -&gt; <span class="kw-2">*const </span>c_char;
     <span class="kw">pub fn </span>git_indexer_free(idx: <span class="kw-2">*mut </span>git_indexer);
@@ -8581,7 +8608,7 @@
         <span class="kw">let </span>rc = git_libgit2_init();
         <span class="kw">if </span>rc &gt;= <span class="number">0 </span>{
             <span class="comment">// Note that we intentionally never schedule `git_libgit2_shutdown`
-            // to get called. There&#39;s not really a great time to call that and
+            // to get called. There's not really a great time to call that and
             // #276 has some more info about how automatically doing it can
             // cause problems.
             </span><span class="kw">return</span>;
@@ -8591,31 +8618,31 @@
         <span class="kw">let </span>error = <span class="kw">if </span>!git_error.is_null() {
             CStr::from_ptr((<span class="kw-2">*</span>git_error).message).to_string_lossy()
         } <span class="kw">else </span>{
-            <span class="string">&quot;unknown error&quot;</span>.into()
+            <span class="string">"unknown error"</span>.into()
         };
         <span class="macro">panic!</span>(
-            <span class="string">&quot;couldn&#39;t initialize the libgit2 library: {}, error: {}&quot;</span>,
+            <span class="string">"couldn't initialize the libgit2 library: {}, error: {}"</span>,
             rc, error
         );
     });
 }
 
-<span class="attr">#[cfg(all(unix, feature = <span class="string">&quot;https&quot;</span>))]
+<span class="attr">#[cfg(all(unix, feature = <span class="string">"https"</span>))]
 #[doc(hidden)]
 </span><span class="kw">pub fn </span>openssl_init() {
     openssl_sys::init();
 }
 
-<span class="attr">#[cfg(any(windows, not(feature = <span class="string">&quot;https&quot;</span>)))]
+<span class="attr">#[cfg(any(windows, not(feature = <span class="string">"https"</span>)))]
 #[doc(hidden)]
 </span><span class="kw">pub fn </span>openssl_init() {}
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssh&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssh"</span>)]
 </span><span class="kw">fn </span>ssh_init() {
     libssh2::init();
 }
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;ssh&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"ssh"</span>))]
 </span><span class="kw">fn </span>ssh_init() {}
 
 <span class="attr">#[doc(hidden)]

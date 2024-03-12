@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/build.rs`."><title>build.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/build.rs`."><title>build.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -889,7 +890,7 @@
 ///     Cred::ssh_key(
 ///       username_from_url.unwrap(),
 ///       None,
-///       Path::new(&amp;format!(&quot;{}/.ssh/id_rsa&quot;, env::var(&quot;HOME&quot;).unwrap())),
+///       Path::new(&amp;format!("{}/.ssh/id_rsa", env::var("HOME").unwrap())),
 ///       None,
 ///     )
 ///   });
@@ -904,26 +905,26 @@
 ///
 ///   // Clone the project.
 ///   builder.clone(
-///     &quot;git@github.com:rust-lang/git2-rs.git&quot;,
-///     Path::new(&quot;/tmp/git2-rs&quot;),
+///     "git@github.com:rust-lang/git2-rs.git",
+///     Path::new("/tmp/git2-rs"),
 ///   );
 /// ```
-</span><span class="kw">pub struct </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+</span><span class="kw">pub struct </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
     bare: bool,
     branch: <span class="prelude-ty">Option</span>&lt;CString&gt;,
     local: bool,
     hardlinks: bool,
-    checkout: <span class="prelude-ty">Option</span>&lt;CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;,
-    fetch_opts: <span class="prelude-ty">Option</span>&lt;FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;,
+    checkout: <span class="prelude-ty">Option</span>&lt;CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt;&gt;,
+    fetch_opts: <span class="prelude-ty">Option</span>&lt;FetchOptions&lt;<span class="lifetime">'cb</span>&gt;&gt;,
     clone_local: <span class="prelude-ty">Option</span>&lt;CloneLocal&gt;,
-    remote_create: <span class="prelude-ty">Option</span>&lt;Box&lt;RemoteCreate&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;&gt;,
+    remote_create: <span class="prelude-ty">Option</span>&lt;Box&lt;RemoteCreate&lt;<span class="lifetime">'cb</span>&gt;&gt;&gt;,
 }
 
 <span class="doccomment">/// Type of callback passed to `RepoBuilder::remote_create`.
 ///
-/// The second and third arguments are the remote&#39;s name and the remote&#39;s URL.
-</span><span class="kw">pub type </span>RemoteCreate&lt;<span class="lifetime">&#39;cb</span>&gt; =
-    <span class="kw">dyn for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Repository, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; + <span class="lifetime">&#39;cb</span>;
+/// The second and third arguments are the remote's name and the remote's URL.
+</span><span class="kw">pub type </span>RemoteCreate&lt;<span class="lifetime">'cb</span>&gt; =
+    <span class="kw">dyn for</span>&lt;<span class="lifetime">'a</span>&gt; FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Repository, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">'a</span>&gt;, Error&gt; + <span class="lifetime">'cb</span>;
 
 <span class="doccomment">/// A builder struct for git tree updates.
 ///
@@ -940,7 +941,7 @@
 }
 
 <span class="doccomment">/// A builder struct for configuring checkouts of a repository.
-</span><span class="kw">pub struct </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+</span><span class="kw">pub struct </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
     their_label: <span class="prelude-ty">Option</span>&lt;CString&gt;,
     our_label: <span class="prelude-ty">Option</span>&lt;CString&gt;,
     ancestor_label: <span class="prelude-ty">Option</span>&lt;CString&gt;,
@@ -951,8 +952,8 @@
     dir_perm: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     disable_filters: bool,
     checkout_opts: u32,
-    progress: <span class="prelude-ty">Option</span>&lt;Box&lt;Progress&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;&gt;,
-    notify: <span class="prelude-ty">Option</span>&lt;Box&lt;Notify&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;&gt;,
+    progress: <span class="prelude-ty">Option</span>&lt;Box&lt;Progress&lt;<span class="lifetime">'cb</span>&gt;&gt;&gt;,
+    notify: <span class="prelude-ty">Option</span>&lt;Box&lt;Notify&lt;<span class="lifetime">'cb</span>&gt;&gt;&gt;,
     notify_flags: CheckoutNotificationType,
 }
 
@@ -960,7 +961,7 @@
 ///
 /// The first argument is the path for the notification, the next is the number
 /// of completed steps so far, and the final is the total number of steps.
-</span><span class="kw">pub type </span>Progress&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;, usize, usize) + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>Progress&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;, usize, usize) + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// Checkout notifications callback.
 ///
@@ -969,16 +970,16 @@
 ///
 /// The callback must return a bool specifying whether the checkout should
 /// continue.
-</span><span class="kw">pub type </span>Notify&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(
+</span><span class="kw">pub type </span>Notify&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(
         CheckoutNotificationType,
         <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;,
-        <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; bool
-    + <span class="lifetime">&#39;a</span>;
+    + <span class="lifetime">'a</span>;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; Default <span class="kw">for </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; Default <span class="kw">for </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
@@ -999,19 +1000,19 @@
     <span class="doccomment">/// Never bypass the git-aware transport
     </span><span class="prelude-val">None </span>= raw::GIT_CLONE_NO_LOCAL <span class="kw">as </span>isize,
 
-    <span class="doccomment">/// Bypass the git-aware transport, but don&#39;t try to use hardlinks.
+    <span class="doccomment">/// Bypass the git-aware transport, but don't try to use hardlinks.
     </span>NoLinks = raw::GIT_CLONE_LOCAL_NO_LINKS <span class="kw">as </span>isize,
 
     <span class="attr">#[doc(hidden)]
     </span>__Nonexhaustive = <span class="number">0xff</span>,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="doccomment">/// Creates a new repository builder with all of the default configuration.
     ///
     /// When ready, the `clone()` method can be used to clone a new repository
     /// using this configuration.
-    </span><span class="kw">pub fn </span>new() -&gt; RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>new() -&gt; RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="kw">crate</span>::init();
         RepoBuilder {
             bare: <span class="bool-val">false</span>,
@@ -1027,15 +1028,15 @@
 
     <span class="doccomment">/// Indicate whether the repository will be cloned as a bare repository or
     /// not.
-    </span><span class="kw">pub fn </span>bare(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bare: bool) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>bare(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bare: bool) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.bare = bare;
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Specify the name of the branch to check out after the clone.
     ///
-    /// If not specified, the remote&#39;s default branch will be used.
-    </span><span class="kw">pub fn </span>branch(<span class="kw-2">&amp;mut </span><span class="self">self</span>, branch: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    /// If not specified, the remote's default branch will be used.
+    </span><span class="kw">pub fn </span>branch(<span class="kw-2">&amp;mut </span><span class="self">self</span>, branch: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.branch = <span class="prelude-val">Some</span>(CString::new(branch).unwrap());
         <span class="self">self
     </span>}
@@ -1045,7 +1046,7 @@
     /// Bypassing it means that instead of a fetch libgit2 will copy the object
     /// database directory instead of figuring out what it needs, which is
     /// faster. If possible, it will hardlink the files to save space.
-    </span><span class="kw">pub fn </span>clone_local(<span class="kw-2">&amp;mut </span><span class="self">self</span>, clone_local: CloneLocal) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>clone_local(<span class="kw-2">&amp;mut </span><span class="self">self</span>, clone_local: CloneLocal) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.clone_local = <span class="prelude-val">Some</span>(clone_local);
         <span class="self">self
     </span>}
@@ -1055,25 +1056,25 @@
     ///
     /// If `true`, the git-aware transport will be bypassed for local paths. If
     /// `false`, the git-aware transport will not be bypassed.
-    </span><span class="attr">#[deprecated(note = <span class="string">&quot;use `clone_local` instead&quot;</span>)]
+    </span><span class="attr">#[deprecated(note = <span class="string">"use `clone_local` instead"</span>)]
     #[doc(hidden)]
-    </span><span class="kw">pub fn </span>local(<span class="kw-2">&amp;mut </span><span class="self">self</span>, local: bool) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>local(<span class="kw-2">&amp;mut </span><span class="self">self</span>, local: bool) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.local = local;
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Set the flag for whether hardlinks are used when using a local git-aware
     /// transport mechanism.
-    </span><span class="attr">#[deprecated(note = <span class="string">&quot;use `clone_local` instead&quot;</span>)]
+    </span><span class="attr">#[deprecated(note = <span class="string">"use `clone_local` instead"</span>)]
     #[doc(hidden)]
-    </span><span class="kw">pub fn </span>hardlinks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, links: bool) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>hardlinks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, links: bool) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.hardlinks = links;
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Configure the checkout which will be performed by consuming a checkout
     /// builder.
-    </span><span class="kw">pub fn </span>with_checkout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, checkout: CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>with_checkout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, checkout: CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.checkout = <span class="prelude-val">Some</span>(checkout);
         <span class="self">self
     </span>}
@@ -1082,16 +1083,16 @@
     ///
     /// The callbacks are used for reporting fetch progress, and for acquiring
     /// credentials in the event they are needed.
-    </span><span class="kw">pub fn </span>fetch_options(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fetch_opts: FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>fetch_options(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fetch_opts: FetchOptions&lt;<span class="lifetime">'cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.fetch_opts = <span class="prelude-val">Some</span>(fetch_opts);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Configures a callback used to create the git remote, prior to its being
     /// used to perform the clone operation.
-    </span><span class="kw">pub fn </span>remote_create&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">&#39;cb</span>&gt;
+    </span><span class="kw">pub fn </span>remote_create&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="kw-2">&amp;mut </span>RepoBuilder&lt;<span class="lifetime">'cb</span>&gt;
     <span class="kw">where
-        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Repository, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; + <span class="lifetime">&#39;cb</span>,
+        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Repository, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">'a</span>&gt;, Error&gt; + <span class="lifetime">'cb</span>,
     {
         <span class="self">self</span>.remote_create = <span class="prelude-val">Some</span>(Box::new(f));
         <span class="self">self
@@ -1152,7 +1153,7 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>remote_create_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>remote_create_cb(
     out: <span class="kw-2">*mut *mut </span>raw::git_remote,
     repo: <span class="kw-2">*mut </span>raw::git_repository,
     name: <span class="kw-2">*const </span>c_char,
@@ -1164,7 +1165,7 @@
         <span class="kw">let </span>code = panic::wrap(|| {
             <span class="kw">let </span>name = CStr::from_ptr(name).to_str().unwrap();
             <span class="kw">let </span>url = CStr::from_ptr(url).to_str().unwrap();
-            <span class="kw">let </span>f = payload <span class="kw">as </span><span class="kw-2">*mut </span>Box&lt;RemoteCreate&lt;<span class="lifetime">&#39;_</span>&gt;&gt;;
+            <span class="kw">let </span>f = payload <span class="kw">as </span><span class="kw-2">*mut </span>Box&lt;RemoteCreate&lt;<span class="lifetime">'_</span>&gt;&gt;;
             <span class="kw">match </span>(<span class="kw-2">*</span>f)(<span class="kw-2">&amp;</span>repo, name, url) {
                 <span class="prelude-val">Ok</span>(remote) =&gt; {
                     <span class="kw-2">*</span>out = <span class="kw">crate</span>::remote::remote_into_raw(remote);
@@ -1178,16 +1179,16 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; Default <span class="kw">for </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; Default <span class="kw">for </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="doccomment">/// Creates a new builder for checkouts with all of its default
     /// configuration.
-    </span><span class="kw">pub fn </span>new() -&gt; CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>new() -&gt; CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="kw">crate</span>::init();
         CheckoutBuilder {
             disable_filters: <span class="bool-val">false</span>,
@@ -1208,7 +1209,7 @@
 
     <span class="doccomment">/// Indicate that this checkout should perform a dry run by checking for
     /// conflicts but not make any actual changes.
-    </span><span class="kw">pub fn </span>dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.checkout_opts &amp;= !((<span class="number">1 </span>&lt;&lt; <span class="number">4</span>) - <span class="number">1</span>);
         <span class="self">self</span>.checkout_opts |= raw::GIT_CHECKOUT_NONE <span class="kw">as </span>u32;
         <span class="self">self
@@ -1216,7 +1217,7 @@
 
     <span class="doccomment">/// Take any action necessary to get the working directory to match the
     /// target including potentially discarding modified files.
-    </span><span class="kw">pub fn </span>force(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>force(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.checkout_opts &amp;= !((<span class="number">1 </span>&lt;&lt; <span class="number">4</span>) - <span class="number">1</span>);
         <span class="self">self</span>.checkout_opts |= raw::GIT_CHECKOUT_FORCE <span class="kw">as </span>u32;
         <span class="self">self
@@ -1226,13 +1227,13 @@
     /// files to be created but not overwriting existing files or changes.
     ///
     /// This is the default.
-    </span><span class="kw">pub fn </span>safe(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>safe(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.checkout_opts &amp;= !((<span class="number">1 </span>&lt;&lt; <span class="number">4</span>) - <span class="number">1</span>);
         <span class="self">self</span>.checkout_opts |= raw::GIT_CHECKOUT_SAFE <span class="kw">as </span>u32;
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>flag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bit: raw::git_checkout_strategy_t, on: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    <span class="kw">fn </span>flag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bit: raw::git_checkout_strategy_t, on: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="kw">if </span>on {
             <span class="self">self</span>.checkout_opts |= bit <span class="kw">as </span>u32;
         } <span class="kw">else </span>{
@@ -1241,10 +1242,10 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// In safe mode, create files that don&#39;t exist.
+    <span class="doccomment">/// In safe mode, create files that don't exist.
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>recreate_missing(<span class="kw-2">&amp;mut </span><span class="self">self</span>, allow: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>recreate_missing(<span class="kw-2">&amp;mut </span><span class="self">self</span>, allow: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_RECREATE_MISSING, allow)
     }
 
@@ -1252,21 +1253,21 @@
     /// instead of canceling the checkout.
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>allow_conflicts(<span class="kw-2">&amp;mut </span><span class="self">self</span>, allow: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>allow_conflicts(<span class="kw-2">&amp;mut </span><span class="self">self</span>, allow: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_ALLOW_CONFLICTS, allow)
     }
 
     <span class="doccomment">/// Remove untracked files from the working dir.
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>remove_untracked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, remove: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>remove_untracked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, remove: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_REMOVE_UNTRACKED, remove)
     }
 
     <span class="doccomment">/// Remove ignored files from the working dir.
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>remove_ignored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, remove: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>remove_ignored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, remove: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_REMOVE_IGNORED, remove)
     }
 
@@ -1275,15 +1276,15 @@
     /// If set, files will not be created or deleted.
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>update_only(<span class="kw-2">&amp;mut </span><span class="self">self</span>, update: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>update_only(<span class="kw-2">&amp;mut </span><span class="self">self</span>, update: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_UPDATE_ONLY, update)
     }
 
-    <span class="doccomment">/// Prevents checkout from writing the updated files&#39; information to the
+    <span class="doccomment">/// Prevents checkout from writing the updated files' information to the
     /// index.
     ///
     /// Defaults to true.
-    </span><span class="kw">pub fn </span>update_index(<span class="kw-2">&amp;mut </span><span class="self">self</span>, update: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>update_index(<span class="kw-2">&amp;mut </span><span class="self">self</span>, update: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_DONT_UPDATE_INDEX, !update)
     }
 
@@ -1291,44 +1292,44 @@
     /// disk before any operations.
     ///
     /// Defaults to true,
-    </span><span class="kw">pub fn </span>refresh(<span class="kw-2">&amp;mut </span><span class="self">self</span>, refresh: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>refresh(<span class="kw-2">&amp;mut </span><span class="self">self</span>, refresh: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_NO_REFRESH, !refresh)
     }
 
     <span class="doccomment">/// Skip files with unmerged index entries.
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>skip_unmerged(<span class="kw-2">&amp;mut </span><span class="self">self</span>, skip: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>skip_unmerged(<span class="kw-2">&amp;mut </span><span class="self">self</span>, skip: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_SKIP_UNMERGED, skip)
     }
 
     <span class="doccomment">/// Indicate whether the checkout should proceed on conflicts by using the
-    /// stage 2 version of the file (&quot;ours&quot;).
+    /// stage 2 version of the file ("ours").
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>use_ours(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ours: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>use_ours(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ours: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_USE_OURS, ours)
     }
 
     <span class="doccomment">/// Indicate whether the checkout should proceed on conflicts by using the
-    /// stage 3 version of the file (&quot;theirs&quot;).
+    /// stage 3 version of the file ("theirs").
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>use_theirs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, theirs: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>use_theirs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, theirs: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_USE_THEIRS, theirs)
     }
 
     <span class="doccomment">/// Indicate whether ignored files should be overwritten during the checkout.
     ///
     /// Defaults to true.
-    </span><span class="kw">pub fn </span>overwrite_ignored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, overwrite: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>overwrite_ignored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, overwrite: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_DONT_OVERWRITE_IGNORED, !overwrite)
     }
 
     <span class="doccomment">/// Indicate whether a normal merge file should be written for conflicts.
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>conflict_style_merge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, on: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>conflict_style_merge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, on: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_CONFLICT_STYLE_MERGE, on)
     }
 
@@ -1339,7 +1340,7 @@
     </span><span class="kw">pub fn </span>notify_on(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         notification_types: CheckoutNotificationType,
-    ) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    ) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.notify_flags = notification_types;
         <span class="self">self
     </span>}
@@ -1348,12 +1349,12 @@
     /// for conflicts.
     ///
     /// Defaults to false.
-    </span><span class="kw">pub fn </span>conflict_style_diff3(<span class="kw-2">&amp;mut </span><span class="self">self</span>, on: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>conflict_style_diff3(<span class="kw-2">&amp;mut </span><span class="self">self</span>, on: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.flag(raw::GIT_CHECKOUT_CONFLICT_STYLE_DIFF3, on)
     }
 
     <span class="doccomment">/// Indicate whether to apply filters like CRLF conversion.
-    </span><span class="kw">pub fn </span>disable_filters(<span class="kw-2">&amp;mut </span><span class="self">self</span>, disable: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>disable_filters(<span class="kw-2">&amp;mut </span><span class="self">self</span>, disable: bool) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.disable_filters = disable;
         <span class="self">self
     </span>}
@@ -1361,7 +1362,7 @@
     <span class="doccomment">/// Set the mode with which new directories are created.
     ///
     /// Default is 0755
-    </span><span class="kw">pub fn </span>dir_perm(<span class="kw-2">&amp;mut </span><span class="self">self</span>, perm: i32) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>dir_perm(<span class="kw-2">&amp;mut </span><span class="self">self</span>, perm: i32) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.dir_perm = <span class="prelude-val">Some</span>(perm);
         <span class="self">self
     </span>}
@@ -1369,7 +1370,7 @@
     <span class="doccomment">/// Set the mode with which new files are created.
     ///
     /// The default is 0644 or 0755 as dictated by the blob.
-    </span><span class="kw">pub fn </span>file_perm(<span class="kw-2">&amp;mut </span><span class="self">self</span>, perm: i32) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>file_perm(<span class="kw-2">&amp;mut </span><span class="self">self</span>, perm: i32) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.file_perm = <span class="prelude-val">Some</span>(perm);
         <span class="self">self
     </span>}
@@ -1378,7 +1379,7 @@
     ///
     /// If no paths are specified, then all files are checked out. Otherwise
     /// only these specified paths are checked out.
-    </span><span class="kw">pub fn </span>path&lt;T: IntoCString&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: T) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>path&lt;T: IntoCString&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: T) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="kw">let </span>path = util::cstring_to_repo_path(path).unwrap();
         <span class="self">self</span>.path_ptrs.push(path.as_ptr());
         <span class="self">self</span>.paths.push(path);
@@ -1386,36 +1387,36 @@
     </span>}
 
     <span class="doccomment">/// Set the directory to check out to
-    </span><span class="kw">pub fn </span>target_dir(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;</span>Path) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>target_dir(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;</span>Path) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="comment">// Normal file path OK (does not need Windows conversion).
         </span><span class="self">self</span>.target_dir = <span class="prelude-val">Some</span>(dst.into_c_string().unwrap());
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// The name of the common ancestor side of conflicts
-    </span><span class="kw">pub fn </span>ancestor_label(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>ancestor_label(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.ancestor_label = <span class="prelude-val">Some</span>(CString::new(label).unwrap());
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// The name of the common our side of conflicts
-    </span><span class="kw">pub fn </span>our_label(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>our_label(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.our_label = <span class="prelude-val">Some</span>(CString::new(label).unwrap());
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// The name of the common their side of conflicts
-    </span><span class="kw">pub fn </span>their_label(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>their_label(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt; {
         <span class="self">self</span>.their_label = <span class="prelude-val">Some</span>(CString::new(label).unwrap());
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Set a callback to receive notifications of checkout progress.
-    </span><span class="kw">pub fn </span>progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt;
+    </span><span class="kw">pub fn </span>progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;, usize, usize) + <span class="lifetime">&#39;cb</span>,
+        </span>F: FnMut(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;, usize, usize) + <span class="lifetime">'cb</span>,
     {
-        <span class="self">self</span>.progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;Progress&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;);
+        <span class="self">self</span>.progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;Progress&lt;<span class="lifetime">'cb</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
@@ -1423,18 +1424,18 @@
     ///
     /// Callbacks are invoked prior to modifying any files on disk.
     /// Returning `false` from the callback will cancel the checkout.
-    </span><span class="kw">pub fn </span>notify&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt;
+    </span><span class="kw">pub fn </span>notify&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt;
     <span class="kw">where
         </span>F: FnMut(
                 CheckoutNotificationType,
                 <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;,
-                <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-                <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-                <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+                <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">'_</span>&gt;&gt;,
+                <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">'_</span>&gt;&gt;,
+                <span class="prelude-ty">Option</span>&lt;DiffFile&lt;<span class="lifetime">'_</span>&gt;&gt;,
             ) -&gt; bool
-            + <span class="lifetime">&#39;cb</span>,
+            + <span class="lifetime">'cb</span>,
     {
-        <span class="self">self</span>.notify = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;Notify&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;);
+        <span class="self">self</span>.notify = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;Notify&lt;<span class="lifetime">'cb</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
@@ -1478,14 +1479,14 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>progress_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>progress_cb(
     path: <span class="kw-2">*const </span>c_char,
     completed: size_t,
     total: size_t,
     data: <span class="kw-2">*mut </span>c_void,
 ) {
     panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>CheckoutBuilder&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.progress {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
@@ -1499,7 +1500,7 @@
     });
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>notify_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>notify_cb(
     why: raw::git_checkout_notify_t,
     path: <span class="kw-2">*const </span>c_char,
     baseline: <span class="kw-2">*const </span>raw::git_diff_file,
@@ -1509,7 +1510,7 @@
 ) -&gt; c_int {
     <span class="comment">// pack callback etc
     </span>panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>CheckoutBuilder&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.notify {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="number">0</span>,
@@ -1603,7 +1604,7 @@
     <span class="doccomment">/// Create a new tree from the specified baseline and this series of updates.
     ///
     /// The baseline tree must exist in the specified repository.
-    </span><span class="kw">pub fn </span>create_updated(<span class="kw-2">&amp;mut </span><span class="self">self</span>, repo: <span class="kw-2">&amp;</span>Repository, baseline: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
+    </span><span class="kw">pub fn </span>create_updated(<span class="kw-2">&amp;mut </span><span class="self">self</span>, repo: <span class="kw-2">&amp;</span>Repository, baseline: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = raw::git_oid {
             id: [<span class="number">0</span>; raw::GIT_OID_RAWSZ],
         };
@@ -1630,27 +1631,27 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke() {
-        <span class="kw">let </span>r = RepoBuilder::new().clone(<span class="string">&quot;/path/to/nowhere&quot;</span>, Path::new(<span class="string">&quot;foo&quot;</span>));
+        <span class="kw">let </span>r = RepoBuilder::new().clone(<span class="string">"/path/to/nowhere"</span>, Path::new(<span class="string">"foo"</span>));
         <span class="macro">assert!</span>(r.is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke2() {
         <span class="kw">let </span>td = TempDir::new().unwrap();
-        Repository::init_bare(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;bare&quot;</span>)).unwrap();
+        Repository::init_bare(<span class="kw-2">&amp;</span>td.path().join(<span class="string">"bare"</span>)).unwrap();
         <span class="kw">let </span>url = <span class="kw">if </span><span class="macro">cfg!</span>(unix) {
-            <span class="macro">format!</span>(<span class="string">&quot;file://{}/bare&quot;</span>, td.path().display())
+            <span class="macro">format!</span>(<span class="string">"file://{}/bare"</span>, td.path().display())
         } <span class="kw">else </span>{
             <span class="macro">format!</span>(
-                <span class="string">&quot;file:///{}/bare&quot;</span>,
-                td.path().display().to_string().replace(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;/&quot;</span>)
+                <span class="string">"file:///{}/bare"</span>,
+                td.path().display().to_string().replace(<span class="string">"\\"</span>, <span class="string">"/"</span>)
             )
         };
 
-        <span class="kw">let </span>dst = td.path().join(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>dst = td.path().join(<span class="string">"foo"</span>);
         RepoBuilder::new().clone(<span class="kw-2">&amp;</span>url, <span class="kw-2">&amp;</span>dst).unwrap();
         fs::remove_dir_all(<span class="kw-2">&amp;</span>dst).unwrap();
-        <span class="macro">assert!</span>(RepoBuilder::new().branch(<span class="string">&quot;foo&quot;</span>).clone(<span class="kw-2">&amp;</span>url, <span class="kw-2">&amp;</span>dst).is_err());
+        <span class="macro">assert!</span>(RepoBuilder::new().branch(<span class="string">"foo"</span>).clone(<span class="kw-2">&amp;</span>url, <span class="kw-2">&amp;</span>dst).is_err());
     }
 
     <span class="attr">#[test]
@@ -1658,15 +1659,15 @@
         <span class="kw">let </span>(_tempdir, repo) = <span class="kw">crate</span>::test::repo_init();
         <span class="kw">let </span>(<span class="kw">_</span>, tree_id) = <span class="kw">crate</span>::test::commit(<span class="kw-2">&amp;</span>repo);
         <span class="kw">let </span>tree = <span class="macro">t!</span>(repo.find_tree(tree_id));
-        <span class="macro">assert!</span>(tree.get_name(<span class="string">&quot;bar&quot;</span>).is_none());
-        <span class="kw">let </span>foo_id = tree.get_name(<span class="string">&quot;foo&quot;</span>).unwrap().id();
+        <span class="macro">assert!</span>(tree.get_name(<span class="string">"bar"</span>).is_none());
+        <span class="kw">let </span>foo_id = tree.get_name(<span class="string">"foo"</span>).unwrap().id();
         <span class="kw">let </span>tree2_id = <span class="macro">t!</span>(TreeUpdateBuilder::new()
-            .remove(<span class="string">&quot;foo&quot;</span>)
-            .upsert(<span class="string">&quot;bar/baz&quot;</span>, foo_id, FileMode::Blob)
+            .remove(<span class="string">"foo"</span>)
+            .upsert(<span class="string">"bar/baz"</span>, foo_id, FileMode::Blob)
             .create_updated(<span class="kw-2">&amp;</span>repo, <span class="kw-2">&amp;</span>tree));
         <span class="kw">let </span>tree2 = <span class="macro">t!</span>(repo.find_tree(tree2_id));
-        <span class="macro">assert!</span>(tree2.get_name(<span class="string">&quot;foo&quot;</span>).is_none());
-        <span class="kw">let </span>baz_id = tree2.get_path(Path::new(<span class="string">&quot;bar/baz&quot;</span>)).unwrap().id();
+        <span class="macro">assert!</span>(tree2.get_name(<span class="string">"foo"</span>).is_none());
+        <span class="kw">let </span>baz_id = tree2.get_path(Path::new(<span class="string">"bar/baz"</span>)).unwrap().id();
         <span class="macro">assert_eq!</span>(foo_id, baz_id);
     }
 
@@ -1678,29 +1679,29 @@
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>opts = <span class="kw">crate</span>::RepositoryInitOptions::new();
-            opts.initial_head(<span class="string">&quot;main&quot;</span>);
+            opts.initial_head(<span class="string">"main"</span>);
             <span class="kw">let </span>repo = Repository::init_opts(<span class="kw-2">&amp;</span>td.path(), <span class="kw-2">&amp;</span>opts).unwrap();
 
             <span class="kw">let </span><span class="kw-2">mut </span>config = repo.config().unwrap();
-            config.set_str(<span class="string">&quot;user.name&quot;</span>, <span class="string">&quot;name&quot;</span>).unwrap();
-            config.set_str(<span class="string">&quot;user.email&quot;</span>, <span class="string">&quot;email&quot;</span>).unwrap();
+            config.set_str(<span class="string">"user.name"</span>, <span class="string">"name"</span>).unwrap();
+            config.set_str(<span class="string">"user.email"</span>, <span class="string">"email"</span>).unwrap();
 
             <span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
-            <span class="kw">let </span>p = Path::new(td.path()).join(<span class="string">&quot;file&quot;</span>);
-            <span class="macro">println!</span>(<span class="string">&quot;using path {:?}&quot;</span>, p);
+            <span class="kw">let </span>p = Path::new(td.path()).join(<span class="string">"file"</span>);
+            <span class="macro">println!</span>(<span class="string">"using path {:?}"</span>, p);
             fs::File::create(<span class="kw-2">&amp;</span>p).unwrap();
-            index.add_path(<span class="kw-2">&amp;</span>Path::new(<span class="string">&quot;file&quot;</span>)).unwrap();
+            index.add_path(<span class="kw-2">&amp;</span>Path::new(<span class="string">"file"</span>)).unwrap();
             <span class="kw">let </span>id = index.write_tree().unwrap();
 
             <span class="kw">let </span>tree = repo.find_tree(id).unwrap();
             <span class="kw">let </span>sig = repo.signature().unwrap();
-            repo.commit(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">&quot;initial&quot;</span>, <span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>[])
+            repo.commit(<span class="prelude-val">Some</span>(<span class="string">"HEAD"</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">"initial"</span>, <span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>[])
                 .unwrap();
         }
 
-        <span class="kw">let </span>repo = Repository::open_bare(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;.git&quot;</span>)).unwrap();
+        <span class="kw">let </span>repo = Repository::open_bare(<span class="kw-2">&amp;</span>td.path().join(<span class="string">".git"</span>)).unwrap();
         <span class="kw">let </span>tree = repo
-            .revparse_single(<span class="kw-2">&amp;</span><span class="string">&quot;main&quot;</span>)
+            .revparse_single(<span class="kw-2">&amp;</span><span class="string">"main"</span>)
             .unwrap()
             .peel_to_tree()
             .unwrap();
@@ -1712,7 +1713,7 @@
         checkout_opts.notify_on(CheckoutNotificationType::all());
         checkout_opts.notify(|_notif, _path, baseline, target, workdir| {
             <span class="macro">assert!</span>(baseline.is_none());
-            <span class="macro">assert_eq!</span>(target.unwrap().path(), <span class="prelude-val">Some</span>(Path::new(<span class="string">&quot;file&quot;</span>)));
+            <span class="macro">assert_eq!</span>(target.unwrap().path(), <span class="prelude-val">Some</span>(Path::new(<span class="string">"file"</span>)));
             <span class="macro">assert!</span>(workdir.is_none());
             <span class="bool-val">true
         </span>});

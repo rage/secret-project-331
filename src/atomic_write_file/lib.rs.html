@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-write-file-0.1.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="atomic_write_file" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-write-file-0.1.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="atomic_write_file" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -843,21 +844,21 @@
 //!
 //! ```
 //! # fn main() -&gt; std::io::Result&lt;()&gt; {
-//! # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-//! # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-//! # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+//! # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+//! # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+//! # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
 //! use std::io::Write;
 //! use std::fs::File;
 //!
 //! let mut file = File::options()
 //!                     .write(true)
 //!                     .create(true)
-//!                     .open(&quot;config.json&quot;)?;
+//!                     .open("config.json")?;
 //!
-//! writeln!(file, &quot;{{&quot;)?;
-//! writeln!(file, &quot;  \&quot;key1\&quot;: \&quot;value1\&quot;,&quot;)?;
-//! writeln!(file, &quot;  \&quot;key2\&quot;: \&quot;value2\&quot;&quot;)?;
-//! writeln!(file, &quot;}}&quot;)?;
+//! writeln!(file, "{{")?;
+//! writeln!(file, "  \"key1\": \"value1\",")?;
+//! writeln!(file, "  \"key2\": \"value2\"")?;
+//! writeln!(file, "}}")?;
 //! # Ok(())
 //! # }
 //! ```
@@ -876,19 +877,19 @@
 //!
 //! ```
 //! # fn main() -&gt; std::io::Result&lt;()&gt; {
-//! # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-//! # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-//! # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+//! # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+//! # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+//! # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
 //! use std::io::Write;
 //! use atomic_write_file::AtomicWriteFile;
 //!
 //! let mut file = AtomicWriteFile::options()
-//!                                .open(&quot;config.json&quot;)?;
+//!                                .open("config.json")?;
 //!
-//! writeln!(file, &quot;{{&quot;)?;
-//! writeln!(file, &quot;  \&quot;key1\&quot;: \&quot;value1\&quot;,&quot;)?;
-//! writeln!(file, &quot;  \&quot;key2\&quot;: \&quot;value2\&quot;&quot;)?;
-//! writeln!(file, &quot;}}&quot;)?;
+//! writeln!(file, "{{")?;
+//! writeln!(file, "  \"key1\": \"value1\",")?;
+//! writeln!(file, "  \"key2\": \"value2\"")?;
+//! writeln!(file, "}}")?;
 //!
 //! file.commit()?;
 //! # Ok(())
@@ -896,7 +897,7 @@
 //! ```
 //!
 //! Note that this code is almost the same as the original, except that it now uses
-//! `AtomicWriteFile` instead of `File` and there&#39;s an additional call to `commit()`.
+//! `AtomicWriteFile` instead of `File` and there's an additional call to `commit()`.
 //!
 //! If the code is interrupted early, before the call to `commit()`, the original file
 //! `config.json` will be left untouched. Only if the new contents are fully written to the
@@ -911,10 +912,10 @@
 //! On **Unix**, the implementation is roughly equivalent to this pseudocode:
 //!
 //! ```text
-//! fd = open(&quot;/path/to/directory/.filename.XXXXXX&quot;, O_WRONLY | O_CLOEXEC);
+//! fd = open("/path/to/directory/.filename.XXXXXX", O_WRONLY | O_CLOEXEC);
 //! /* ... write contents ... */
 //! fsync(fd);
-//! rename(&quot;/path/to/directory/.filename.XXXXXX&quot;, &quot;/path/to/directory/filename&quot;);
+//! rename("/path/to/directory/.filename.XXXXXX", "/path/to/directory/filename");
 //! ```
 //!
 //! Where `XXXXXX` represents a random suffix. On **non-Unix** platforms, the implementation is
@@ -930,11 +931,11 @@
 //! implementation is roughly equivalent to this pseudocode:
 //!
 //! ```text
-//! fd = open(&quot;/path/to/directory&quot;, O_TMPFILE | O_WRONLY | O_CLOEXEC);
+//! fd = open("/path/to/directory", O_TMPFILE | O_WRONLY | O_CLOEXEC);
 //! /* ... write contents ... */
 //! fsync(fd);
-//! link(&quot;/proc/self/fd/$fd&quot;, &quot;/path/to/directory/.filename.XXXXXX&quot;);
-//! rename(&quot;/path/to/directory/.filename.XXXXXX&quot;, &quot;/path/to/directory/filename&quot;);
+//! link("/proc/self/fd/$fd", "/path/to/directory/.filename.XXXXXX");
+//! rename("/path/to/directory/.filename.XXXXXX", "/path/to/directory/filename");
 //! ```
 //!
 //! This **Linux**-specific behavior is controlled by the `unnamed-tmpfile` feature of this Crate,
@@ -954,7 +955,7 @@
 //! * On Linux, with the `unnamed-tmpfile` feature (enabled by default), [`AtomicWriteFile`] uses
 //!   unnamed temporary files. This ensures that, if the process is interrupted abruptly *before* a
 //!   commit, the temporary file is automatically cleaned up by the operating system. However, if
-//!   the process is interrupted *during* a commit, it&#39;s still possible (although unlikely) that a
+//!   the process is interrupted *during* a commit, it's still possible (although unlikely) that a
 //!   named temporary file will be left inside the destination directory.
 //!
 //! * On Linux, with the `unnamed-tmpfile` feature (enabled by default), [`AtomicWriteFile`]
@@ -969,7 +970,7 @@
 //!   will be better customizable.
 //!
 //! * Because [`AtomicWriteFile`] works by creating a temporary file, and then replacing the
-//!   original file (see [&quot;how it works&quot;](#how-it-works) above), some metadata of the original file
+//!   original file (see ["how it works"](#how-it-works) above), some metadata of the original file
 //!   may be lost:
 //!
 //!   * On Unix, it is possible to preserve permissions and ownership of the original file.
@@ -1007,12 +1008,12 @@
 <span class="kw">use </span>std::ops::DerefMut;
 <span class="kw">use </span>std::path::Path;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;unstable-read_buf&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"unstable-read_buf"</span>)]
 </span><span class="kw">use </span>std::io::BorrowedCursor;
 
 <span class="kw">mod </span>imp;
 
-<span class="attr">#[cfg(any(unix, target_os = <span class="string">&quot;wasi&quot;</span>))]
+<span class="attr">#[cfg(any(unix, target_os = <span class="string">"wasi"</span>))]
 </span><span class="kw">mod </span>fd;
 
 <span class="attr">#[cfg(unix)]
@@ -1036,7 +1037,7 @@
 /// # Notable differences between `std::fs::OpenOptions` and `atomic_write_file::OpenOptions`
 ///
 /// The `OpenOptions` provided in this crate opens all files for writing by default, and the opened
-/// file is always initially empty (&quot;truncated&quot;). As such, the following methods are not provided:
+/// file is always initially empty ("truncated"). As such, the following methods are not provided:
 /// `write()`, `truncate()`, `append()`.
 ///
 /// `create()` is not provided because a new file is always created if an original file does not
@@ -1050,7 +1051,7 @@
 /// When passing a path to [`open()`](OpenOptions::open) that points to a file that already exists,
 /// [`AtomicWriteFile`] may preserve some of the metadata of the existing file (permissions,
 /// ownership, and more). This behavior is platform-specific and can be controlled using the
-/// platform-specific `OpenOptionsExt` traits. See also the [&quot;notes and limitations&quot; section on the
+/// platform-specific `OpenOptionsExt` traits. See also the ["notes and limitations" section on the
 /// module-level documentations](crate#notes-and-limitations) for more information about what
 /// metadata is preserved, what is not preserved, and in what circumstances.
 ///
@@ -1060,22 +1061,22 @@
 /// [`AtomicWriteFile::open()`]):
 ///
 /// ```
-/// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-/// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-/// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+/// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+/// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+/// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
 /// use atomic_write_file::OpenOptions;
-/// let file = OpenOptions::new().open(&quot;foo.txt&quot;);
+/// let file = OpenOptions::new().open("foo.txt");
 /// # std::mem::drop(file);
 /// ```
 ///
 /// Opening a file for both reading and writing:
 ///
 /// ```
-/// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-/// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-/// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+/// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+/// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+/// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
 /// use atomic_write_file::OpenOptions;
-/// let file = OpenOptions::new().read(true).open(&quot;foo.txt&quot;);
+/// let file = OpenOptions::new().read(true).open("foo.txt");
 /// # std::mem::drop(file)
 /// ```
 </span><span class="attr">#[derive(Clone, Debug)]
@@ -1103,19 +1104,19 @@
     ///
     /// ```
     /// # fn main() -&gt; std::io::Result&lt;()&gt; {
-    /// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-    /// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-    /// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+    /// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+    /// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+    /// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
     /// use std::io::Seek;
     /// use std::io::Write;
     /// use std::io::read_to_string;
     /// use atomic_write_file::OpenOptions;
     ///
-    /// let mut file = OpenOptions::new().read(true).open(&quot;foo.txt&quot;)?;
-    /// writeln!(file, &quot;hello&quot;)?;
+    /// let mut file = OpenOptions::new().read(true).open("foo.txt")?;
+    /// writeln!(file, "hello")?;
     ///
     /// file.rewind()?;
-    /// assert_eq!(read_to_string(&amp;file)?, &quot;hello\n&quot;);
+    /// assert_eq!(read_to_string(&amp;file)?, "hello\n");
     /// # Ok(())
     /// # }
     /// ```
@@ -1132,11 +1133,11 @@
     /// # Examples
     ///
     /// ```
-    /// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-    /// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-    /// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+    /// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+    /// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+    /// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
     /// use atomic_write_file::OpenOptions;
-    /// let file = OpenOptions::new().read(true).open(&quot;foo.txt&quot;);
+    /// let file = OpenOptions::new().read(true).open("foo.txt");
     /// # std::mem::drop(file)
     /// ```
     </span><span class="kw">pub fn </span>open&lt;P: AsRef&lt;Path&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, path: P) -&gt; <span class="prelude-ty">Result</span>&lt;AtomicWriteFile&gt; {
@@ -1157,11 +1158,11 @@
 
 <span class="doccomment">/// A file whose contents become visible to users only after the file is committed.
 ///
-/// An `AtomicWriteFile` is a file that is assigned to a path, but whose contents won&#39;t appear at
+/// An `AtomicWriteFile` is a file that is assigned to a path, but whose contents won't appear at
 /// that path until the file is [committed](AtomicWriteFile::commit). If `AtomicWriteFile` is used
 /// to open a file that already exists, the contents of the existing file will remain available
 /// until the `AtomicWriteFile` is committed. During that time, the `AtomicWriteFile` may be used
-/// to write new contents, but these new contents won&#39;t be visible until after the file is
+/// to write new contents, but these new contents won't be visible until after the file is
 /// committed.
 ///
 /// Internally, `AtomicWriteFile` is implemented by initally opening a temporary file, and then
@@ -1212,7 +1213,7 @@
 /// Cloning a `AtomicWriteFile` is not possible, because this would result in ambiguity and race
 /// conditions when committing the file and its clones. It is however possible to clone the
 /// underlaying [`File`] struct using [`try_clone()`](File::try_clone). Writes to this cloned
-/// [`File`] however won&#39;t be atomic after the `AtomicWriteFile` is committed.
+/// [`File`] however won't be atomic after the `AtomicWriteFile` is committed.
 ///
 /// # Examples
 ///
@@ -1220,18 +1221,18 @@
 ///
 /// ```
 /// # fn main() -&gt; std::io::Result&lt;()&gt; {
-/// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-/// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-/// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+/// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+/// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+/// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
 /// use std::io::Write;
 /// use atomic_write_file::AtomicWriteFile;
 ///
-/// let mut file = AtomicWriteFile::open(&quot;foo.txt&quot;)?; // if &quot;foo.txt&quot; already exists, it is not
+/// let mut file = AtomicWriteFile::open("foo.txt")?; // if "foo.txt" already exists, it is not
 ///                                                   // initially truncated or deleted
-/// writeln!(file, &quot;hello&quot;)?; // &quot;hello&quot; is written to a temporary location; &quot;foo.txt&quot; (if it
+/// writeln!(file, "hello")?; // "hello" is written to a temporary location; "foo.txt" (if it
 ///                           // exists) keeps its old contents after this write
 ///
-/// file.commit()?; // only now &quot;foo.txt&quot; gets swapped with the new contents (&quot;hello&quot;)
+/// file.commit()?; // only now "foo.txt" gets swapped with the new contents ("hello")
 /// # Ok(())
 /// # }
 /// ```
@@ -1249,11 +1250,11 @@
     /// # Examples
     ///
     /// ```
-    /// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-    /// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-    /// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+    /// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+    /// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+    /// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
     /// use atomic_write_file::AtomicWriteFile;
-    /// let file = AtomicWriteFile::open(&quot;foo.txt&quot;);
+    /// let file = AtomicWriteFile::open("foo.txt");
     /// # std::mem::drop(file);
     /// ```
     </span><span class="attr">#[inline]
@@ -1268,11 +1269,11 @@
     /// # Examples
     ///
     /// ```
-    /// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-    /// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-    /// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+    /// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+    /// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+    /// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
     /// use atomic_write_file::AtomicWriteFile;
-    /// let file = AtomicWriteFile::options().read(true).open(&quot;foo.txt&quot;);
+    /// let file = AtomicWriteFile::options().read(true).open("foo.txt");
     /// # std::mem::drop(file)
     /// ```
     </span><span class="attr">#[inline]
@@ -1288,19 +1289,19 @@
     /// # Examples
     ///
     /// ```
-    /// # #[cfg(any(unix, target_os = &quot;wasi&quot;))]
+    /// # #[cfg(any(unix, target_os = "wasi"))]
     /// # fn main() -&gt; std::io::Result&lt;()&gt; {
-    /// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-    /// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-    /// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+    /// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+    /// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+    /// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
     /// use std::os::fd::AsRawFd;
     /// use atomic_write_file::AtomicWriteFile;
     ///
-    /// let file = AtomicWriteFile::open(&quot;foo.txt&quot;)?;
+    /// let file = AtomicWriteFile::open("foo.txt")?;
     /// assert_eq!(file.as_raw_fd(), file.as_file().as_raw_fd());
     /// # Ok(())
     /// # }
-    /// # #[cfg(not(any(unix, target_os = &quot;wasi&quot;)))]
+    /// # #[cfg(not(any(unix, target_os = "wasi")))]
     /// # fn main() -&gt; std::io::Result&lt;()&gt; {
     /// # Ok(())
     /// # }
@@ -1319,14 +1320,14 @@
     ///
     /// ```
     /// # fn main() -&gt; std::io::Result&lt;()&gt; {
-    /// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-    /// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-    /// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+    /// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+    /// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+    /// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
     /// use std::io::Write;
     /// use atomic_write_file::AtomicWriteFile;
     ///
-    /// let mut file = AtomicWriteFile::open(&quot;foo.txt&quot;)?;
-    /// writeln!(file.as_file_mut(), &quot;hello&quot;)?;
+    /// let mut file = AtomicWriteFile::open("foo.txt")?;
+    /// writeln!(file.as_file_mut(), "hello")?;
     /// # Ok(())
     /// # }
     /// ```
@@ -1354,14 +1355,14 @@
     ///
     /// ```
     /// # fn main() -&gt; std::io::Result&lt;()&gt; {
-    /// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-    /// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-    /// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+    /// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+    /// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+    /// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
     /// use std::io::Write;
     /// use atomic_write_file::AtomicWriteFile;
     ///
-    /// let file = AtomicWriteFile::open(&quot;foo.txt&quot;)?;
-    /// writeln!(&amp;file, &quot;hello&quot;)?;
+    /// let file = AtomicWriteFile::open("foo.txt")?;
+    /// writeln!(&amp;file, "hello")?;
     /// file.commit()?;
     /// # Ok(())
     /// # }
@@ -1391,14 +1392,14 @@
     ///
     /// ```
     /// # fn main() -&gt; std::io::Result&lt;()&gt; {
-    /// # let test_dir = option_env!(&quot;TEST_DIR&quot;).unwrap_or(&quot;target/test-files&quot;);
-    /// # std::fs::create_dir_all(&amp;test_dir).expect(&quot;failed to create test dir&quot;);
-    /// # std::env::set_current_dir(test_dir).expect(&quot;failed to move to test dir&quot;);
+    /// # let test_dir = option_env!("TEST_DIR").unwrap_or("target/test-files");
+    /// # std::fs::create_dir_all(&amp;test_dir).expect("failed to create test dir");
+    /// # std::env::set_current_dir(test_dir).expect("failed to move to test dir");
     /// use std::io::Write;
     /// use atomic_write_file::AtomicWriteFile;
     ///
-    /// let file = AtomicWriteFile::open(&quot;foo.txt&quot;)?;
-    /// writeln!(&amp;file, &quot;hello&quot;)?;
+    /// let file = AtomicWriteFile::open("foo.txt")?;
+    /// writeln!(&amp;file, "hello")?;
     /// file.discard()?;
     /// # Ok(())
     /// # }
@@ -1448,12 +1449,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>read_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;mut </span>[IoSliceMut&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+    </span><span class="kw">fn </span>read_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;mut </span>[IoSliceMut&lt;<span class="lifetime">'_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="self">self</span>.temporary_file.file.read_vectored(bufs)
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-can_vector&quot;</span>)]
+    #[cfg(feature = <span class="string">"unstable-can_vector"</span>)]
     </span><span class="kw">fn </span>is_read_vectored(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.temporary_file.file.is_read_vectored()
     }
@@ -1474,14 +1475,14 @@
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-read_buf&quot;</span>)]
-    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: BorrowedCursor&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    #[cfg(feature = <span class="string">"unstable-read_buf"</span>)]
+    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: BorrowedCursor&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.temporary_file.file.read_buf(buf)
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-read_buf&quot;</span>)]
-    </span><span class="kw">fn </span>read_buf_exact(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cursor: BorrowedCursor&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    #[cfg(feature = <span class="string">"unstable-read_buf"</span>)]
+    </span><span class="kw">fn </span>read_buf_exact(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cursor: BorrowedCursor&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.temporary_file.file.read_buf_exact(cursor)
     }
 }
@@ -1493,12 +1494,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>read_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;mut </span>[IoSliceMut&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+    </span><span class="kw">fn </span>read_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;mut </span>[IoSliceMut&lt;<span class="lifetime">'_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         (<span class="kw-2">&amp;</span><span class="self">self</span>.temporary_file.file).read_vectored(bufs)
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-can_vector&quot;</span>)]
+    #[cfg(feature = <span class="string">"unstable-can_vector"</span>)]
     </span><span class="kw">fn </span>is_read_vectored(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.temporary_file.file.is_read_vectored()
     }
@@ -1519,14 +1520,14 @@
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-read_buf&quot;</span>)]
-    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: BorrowedCursor&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    #[cfg(feature = <span class="string">"unstable-read_buf"</span>)]
+    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: BorrowedCursor&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         (<span class="kw-2">&amp;</span><span class="self">self</span>.temporary_file.file).read_buf(buf)
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-read_buf&quot;</span>)]
-    </span><span class="kw">fn </span>read_buf_exact(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cursor: BorrowedCursor&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    #[cfg(feature = <span class="string">"unstable-read_buf"</span>)]
+    </span><span class="kw">fn </span>read_buf_exact(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cursor: BorrowedCursor&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         (<span class="kw-2">&amp;</span><span class="self">self</span>.temporary_file.file).read_buf_exact(cursor)
     }
 }
@@ -1543,12 +1544,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="self">self</span>.temporary_file.file.write_vectored(bufs)
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-can_vector&quot;</span>)]
+    #[cfg(feature = <span class="string">"unstable-can_vector"</span>)]
     </span><span class="kw">fn </span>is_write_vectored(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.temporary_file.file.is_write_vectored()
     }
@@ -1559,13 +1560,13 @@
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-can_vector&quot;</span>)]
-    </span><span class="kw">fn </span>write_all_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;mut </span>[IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    #[cfg(feature = <span class="string">"unstable-can_vector"</span>)]
+    </span><span class="kw">fn </span>write_all_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;mut </span>[IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.temporary_file.file.write_all_vectored(bufs)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: Arguments&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: Arguments&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.temporary_file.file.write_fmt(fmt)
     }
 }
@@ -1582,12 +1583,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         (<span class="kw-2">&amp;</span><span class="self">self</span>.temporary_file.file).write_vectored(bufs)
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-can_vector&quot;</span>)]
+    #[cfg(feature = <span class="string">"unstable-can_vector"</span>)]
     </span><span class="kw">fn </span>is_write_vectored(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         (<span class="kw-2">&amp;</span><span class="self">self</span>.temporary_file.file).is_write_vectored()
     }
@@ -1598,13 +1599,13 @@
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-can_vector&quot;</span>)]
-    </span><span class="kw">fn </span>write_all_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;mut </span>[IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    #[cfg(feature = <span class="string">"unstable-can_vector"</span>)]
+    </span><span class="kw">fn </span>write_all_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;mut </span>[IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         (<span class="kw-2">&amp;</span><span class="self">self</span>.temporary_file.file).write_all_vectored(bufs)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: Arguments&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: Arguments&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         (<span class="kw-2">&amp;</span><span class="self">self</span>.temporary_file.file).write_fmt(fmt)
     }
 }
@@ -1621,7 +1622,7 @@
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-seek_stream_len&quot;</span>)]
+    #[cfg(feature = <span class="string">"unstable-seek_stream_len"</span>)]
     </span><span class="kw">fn </span>stream_len(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         <span class="self">self</span>.temporary_file.file.stream_len()
     }
@@ -1644,7 +1645,7 @@
     }
 
     <span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;unstable-seek_stream_len&quot;</span>)]
+    #[cfg(feature = <span class="string">"unstable-seek_stream_len"</span>)]
     </span><span class="kw">fn </span>stream_len(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         (<span class="kw-2">&amp;</span><span class="self">self</span>.temporary_file.file).stream_len()
     }

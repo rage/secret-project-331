@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode_categories-0.1.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unicode_categories" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode_categories-0.1.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unicode_categories" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -429,9 +430,9 @@
 //! ```
 //! use unicode_categories::UnicodeCategories;
 //!
-//! assert!(&#39;a&#39;.is_letter_lowercase());
-//! assert!(&#39;A&#39;.is_letter_uppercase());
-//! assert!(&#39;\n&#39;.is_other_control());
+//! assert!('a'.is_letter_lowercase());
+//! assert!('A'.is_letter_uppercase());
+//! assert!('\n'.is_other_control());
 //! ```
 //!
 //! `UnicodeCategories` is the only item contained exported
@@ -443,119 +444,119 @@
 <span class="kw">pub trait </span>UnicodeCategories : Sized + Copy {
 
     <span class="doccomment">/// Returns `true` if this value is a member
-    /// of the &quot;Other, Control&quot; (Cc) category.
+    /// of the "Other, Control" (Cc) category.
     </span><span class="kw">fn </span>is_other_control(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns `true` if this value is a member
-    /// of the &quot;Other, Format&quot; (Cf) category.
+    /// of the "Other, Format" (Cf) category.
     </span><span class="kw">fn </span>is_other_format(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member
-    /// of the &quot;Other, Private Use&quot; (Co) category.
+    /// of the "Other, Private Use" (Co) category.
     </span><span class="kw">fn </span>is_other_private_use(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member
-    /// of the &quot;Letter, Lowercase&quot; (Ll) category.
+    /// of the "Letter, Lowercase" (Ll) category.
     </span><span class="kw">fn </span>is_letter_lowercase(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Letter, Modifier&quot; (Lm) category.
+    /// the "Letter, Modifier" (Lm) category.
     </span><span class="kw">fn </span>is_letter_modifier(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Letter, Other&quot; (Lo) category.
+    /// the "Letter, Other" (Lo) category.
     </span><span class="kw">fn </span>is_letter_other(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Letter, Titlecase&quot; (Lt) category.
+    /// the "Letter, Titlecase" (Lt) category.
     </span><span class="kw">fn </span>is_letter_titlecase(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Letter, Uppercase&quot; (Lu) category.
+    /// the "Letter, Uppercase" (Lu) category.
     </span><span class="kw">fn </span>is_letter_uppercase(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Mark, Spacing Combining&quot; (Mc) category.
+    /// the "Mark, Spacing Combining" (Mc) category.
     </span><span class="kw">fn </span>is_mark_spacing_combining(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Mark, Enclosing&quot; (Me) category.
+    /// the "Mark, Enclosing" (Me) category.
     </span><span class="kw">fn </span>is_mark_enclosing(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Mark, Nonspacing&quot; (Mn) category.
+    /// the "Mark, Nonspacing" (Mn) category.
     </span><span class="kw">fn </span>is_mark_nonspacing(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Number, Decimal Digit&quot; (Nd) category.
+    /// the "Number, Decimal Digit" (Nd) category.
     </span><span class="kw">fn </span>is_number_decimal_digit(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Number, Letter&quot; (Nl) category.
+    /// the "Number, Letter" (Nl) category.
     </span><span class="kw">fn </span>is_number_letter(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Number, Other&quot; (No) category.
+    /// the "Number, Other" (No) category.
     </span><span class="kw">fn </span>is_number_other(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Punctuation, Connector&quot; (Pc) category.
+    /// the "Punctuation, Connector" (Pc) category.
     </span><span class="kw">fn </span>is_punctuation_connector(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Punctuation, Dash&quot; (Pd) category.
+    /// the "Punctuation, Dash" (Pd) category.
     </span><span class="kw">fn </span>is_punctuation_dash(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Punctuation, Close&quot; (Pe) category.
+    /// the "Punctuation, Close" (Pe) category.
     </span><span class="kw">fn </span>is_punctuation_close(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Punctuation, Final Quote&quot; (Pf) category.
+    /// the "Punctuation, Final Quote" (Pf) category.
     </span><span class="kw">fn </span>is_punctuation_final_quote(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Punctuation, Initial Quote&quot; (Pi) category.
+    /// the "Punctuation, Initial Quote" (Pi) category.
     </span><span class="kw">fn </span>is_punctuation_initial_quote(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Punctuation, Other&quot; (Po) category.
+    /// the "Punctuation, Other" (Po) category.
     </span><span class="kw">fn </span>is_punctuation_other(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Punctuation, Open&quot; (Ps) category.
+    /// the "Punctuation, Open" (Ps) category.
     </span><span class="kw">fn </span>is_punctuation_open(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Symbol, Currency&quot; (Sc) category.
+    /// the "Symbol, Currency" (Sc) category.
     </span><span class="kw">fn </span>is_symbol_currency(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Symbol, Modifier&quot; (Sk) category.
+    /// the "Symbol, Modifier" (Sk) category.
     </span><span class="kw">fn </span>is_symbol_modifier(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Symbol, Math&quot; (Sm) category.
+    /// the "Symbol, Math" (Sm) category.
     </span><span class="kw">fn </span>is_symbol_math(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Symbol, Other&quot; (So) category.
+    /// the "Symbol, Other" (So) category.
     </span><span class="kw">fn </span>is_symbol_other(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Separator, Line&quot; (Zl) category.
+    /// the "Separator, Line" (Zl) category.
     </span><span class="kw">fn </span>is_separator_line(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Separator, Paragraph&quot; (Zp) category.
+    /// the "Separator, Paragraph" (Zp) category.
     </span><span class="kw">fn </span>is_separator_paragraph(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// the &quot;Separator, Space&quot; (Zs) category.
+    /// the "Separator, Space" (Zs) category.
     </span><span class="kw">fn </span>is_separator_space(<span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// a &quot;Other&quot; category: Cc, Cf, Cn, or Co.
+    /// a "Other" category: Cc, Cf, Cn, or Co.
     /// Surrogates cannot be `chars` in Rust, so
     /// they are not included.
     </span><span class="attr">#[inline]
@@ -566,7 +567,7 @@
     }
 
     <span class="doccomment">/// Returns true if this value is a member of
-    /// a &quot;Letter&quot; category: Lc, Ll, Lm, Lo, Lt, or Lu.
+    /// a "Letter" category: Lc, Ll, Lm, Lo, Lt, or Lu.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>is_letter(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_letter_lowercase()
@@ -577,7 +578,7 @@
     }
 
     <span class="doccomment">/// Returns true if this value is a member of a
-    /// &quot;Mark&quot; category: Mc, Me, or Mn.
+    /// "Mark" category: Mc, Me, or Mn.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>is_mark(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_mark_spacing_combining()
@@ -586,7 +587,7 @@
     }
 
     <span class="doccomment">/// Returns true if this value is a member of a
-    /// &quot;Number&quot; category: Nd, Nl, or No.
+    /// "Number" category: Nd, Nl, or No.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>is_number(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_number_decimal_digit()
@@ -595,7 +596,7 @@
     }
 
     <span class="doccomment">/// Returns true if this value is a member of a
-    /// &quot;Punctuation&quot; category: Pc, Pd, Pe, Pf, Pi, Po, or Ps.
+    /// "Punctuation" category: Pc, Pd, Pe, Pf, Pi, Po, or Ps.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>is_punctuation(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_punctuation_connector()
@@ -609,7 +610,7 @@
     }
 
     <span class="doccomment">/// Returns true if this value is a member of a
-    /// &quot;Symbol&quot; category: Sc, Sk, Sm, or So.
+    /// "Symbol" category: Sc, Sk, Sm, or So.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>is_symbol(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_symbol_currency()
@@ -619,7 +620,7 @@
     }
 
     <span class="doccomment">/// Returns true if this value is a member of a
-    /// &quot;Separator&quot; category: Zl, Zp, or Zs.
+    /// "Separator" category: Zl, Zp, or Zs.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>is_separator(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_separator_line()
@@ -628,7 +629,7 @@
     }
 }
 
-<span class="kw">fn </span>table_binary_search(target: char, table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[char]) -&gt; bool {
+<span class="kw">fn </span>table_binary_search(target: char, table: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[char]) -&gt; bool {
     table.binary_search(<span class="kw-2">&amp;</span>target).is_ok()
 }
 
@@ -647,11 +648,11 @@
     </span><span class="kw">fn </span>is_other_private_use(<span class="self">self</span>) -&gt; bool {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="comment">// Private Use
-            </span><span class="string">&#39;\u{E000}&#39;</span>...<span class="string">&#39;\u{F8FF}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{E000}'</span>...<span class="string">'\u{F8FF}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="comment">// Plane 15, Private Use
-            </span><span class="string">&#39;\u{F0000}&#39;</span>...<span class="string">&#39;\u{FFFFD}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{F0000}'</span>...<span class="string">'\u{FFFFD}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="comment">// Plane 16, private Use
-            </span><span class="string">&#39;\u{100000}&#39;</span>...<span class="string">&#39;\u{10FFFD}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{100000}'</span>...<span class="string">'\u{10FFFD}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="kw">_ </span>=&gt; table_binary_search(<span class="self">self</span>, tables::OTHER_PRIVATE_USE)
         }
     }
@@ -670,21 +671,21 @@
     </span><span class="kw">fn </span>is_letter_other(<span class="self">self</span>) -&gt; bool {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="comment">// CJK Ideograph Extension A
-            </span><span class="string">&#39;\u{3400}&#39;</span>...<span class="string">&#39;\u{4DB5}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{3400}'</span>...<span class="string">'\u{4DB5}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="comment">// CJK Ideograph
-            </span><span class="string">&#39;\u{4E00}&#39;</span>...<span class="string">&#39;\u{9FD5}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{4E00}'</span>...<span class="string">'\u{9FD5}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="comment">// Hangul Syllable
-            </span><span class="string">&#39;\u{AC00}&#39;</span>...<span class="string">&#39;\u{D7A3}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{AC00}'</span>...<span class="string">'\u{D7A3}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="comment">// Tangut Ideograph
-            </span><span class="string">&#39;\u{17000}&#39;</span>...<span class="string">&#39;\u{187EC}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{17000}'</span>...<span class="string">'\u{187EC}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="comment">// CJK Ideograph Extension B
-            </span><span class="string">&#39;\u{20000}&#39;</span>...<span class="string">&#39;\u{2A6D6}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{20000}'</span>...<span class="string">'\u{2A6D6}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="comment">// CJK Ideograph Extension C
-            </span><span class="string">&#39;\u{2A700}&#39;</span>...<span class="string">&#39;\u{2B734}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{2A700}'</span>...<span class="string">'\u{2B734}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="comment">// CJK Ideograph Extension D
-            </span><span class="string">&#39;\u{2B740}&#39;</span>...<span class="string">&#39;\u{2B81D}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{2B740}'</span>...<span class="string">'\u{2B81D}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="comment">// CJK Ideograph Extension E
-            </span><span class="string">&#39;\u{2B820}&#39;</span>...<span class="string">&#39;\u{2CEA1}&#39; </span>=&gt; <span class="bool-val">true</span>,
+            </span><span class="string">'\u{2B820}'</span>...<span class="string">'\u{2CEA1}' </span>=&gt; <span class="bool-val">true</span>,
             <span class="kw">_ </span>=&gt; table_binary_search(<span class="self">self</span>, tables::LETTER_OTHER)
         }
     }
@@ -806,38 +807,38 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_other_control() {
-        <span class="macro">assert!</span>(<span class="string">&#39;\0&#39;</span>.is_other_control());
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{007F}&#39;</span>.is_other_control());
-        <span class="macro">assert!</span>(!<span class="string">&#39;f&#39;</span>.is_other_control());
+        <span class="macro">assert!</span>(<span class="string">'\0'</span>.is_other_control());
+        <span class="macro">assert!</span>(<span class="string">'\u{007F}'</span>.is_other_control());
+        <span class="macro">assert!</span>(!<span class="string">'f'</span>.is_other_control());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_other_format() {
-        <span class="macro">assert!</span>(<span class="string">&#39;؁&#39;</span>.is_other_format());
-        <span class="macro">assert!</span>(!<span class="string">&#39;0&#39;</span>.is_other_format());
+        <span class="macro">assert!</span>(<span class="string">'؁'</span>.is_other_format());
+        <span class="macro">assert!</span>(!<span class="string">'0'</span>.is_other_format());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_other_private_use() {
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{F8FF}&#39;</span>.is_other_private_use());
-        <span class="macro">assert!</span>(!<span class="string">&#39;n&#39;</span>.is_other_private_use())
+        <span class="macro">assert!</span>(<span class="string">'\u{F8FF}'</span>.is_other_private_use());
+        <span class="macro">assert!</span>(!<span class="string">'n'</span>.is_other_private_use())
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_letter_lowercase() {
-        <span class="macro">assert!</span>(<span class="string">&#39;q&#39;</span>.is_letter_lowercase());
-        <span class="macro">assert!</span>(!<span class="string">&#39;N&#39;</span>.is_letter_lowercase());
+        <span class="macro">assert!</span>(<span class="string">'q'</span>.is_letter_lowercase());
+        <span class="macro">assert!</span>(!<span class="string">'N'</span>.is_letter_lowercase());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_letter_modifier() {
-        <span class="macro">assert!</span>(<span class="string">&#39;ˢ&#39;</span>.is_letter_modifier());
-        <span class="macro">assert!</span>(!<span class="string">&#39;m&#39;</span>.is_letter_modifier());
+        <span class="macro">assert!</span>(<span class="string">'ˢ'</span>.is_letter_modifier());
+        <span class="macro">assert!</span>(!<span class="string">'m'</span>.is_letter_modifier());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_letter_range() {
-        <span class="macro">assert!</span>(<span class="string">&#39;界&#39;</span>.is_letter_other());
+        <span class="macro">assert!</span>(<span class="string">'界'</span>.is_letter_other());
     }
 }
 </code></pre></div></section></main></body></html>

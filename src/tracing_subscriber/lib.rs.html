@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -273,7 +274,7 @@
 //! which implement a *complete* strategy for how trace data is collected,
 //! [`Layer`]s provide *modular* implementations of specific behaviors.
 //! Therefore, they can be [composed together] to form a [`Subscriber`] which is
-//! capable of recording traces in a variety of ways. See the [`layer` module&#39;s
+//! capable of recording traces in a variety of ways. See the [`layer` module's
 //! documentation][layer] for details on using [`Layer`]s.
 //!
 //! In addition, the [`Filter`] trait defines an interface for filtering what
@@ -298,20 +299,20 @@
 //!
 //! - `std`: Enables APIs that depend on the Rust standard library
 //!   (enabled by default).
-//! - `alloc`: Depend on [`liballoc`] (enabled by &quot;std&quot;).
+//! - `alloc`: Depend on [`liballoc`] (enabled by "std").
 //! - `env-filter`: Enables the [`EnvFilter`] type, which implements filtering
-//!   similar to the [`env_logger` crate]. **Requires &quot;std&quot;**.
+//!   similar to the [`env_logger` crate]. **Requires "std"**.
 //! - `fmt`: Enables the [`fmt`] module, which provides a subscriber
 //!   implementation for printing formatted representations of trace events.
-//!   Enabled by default. **Requires &quot;registry&quot; and &quot;std&quot;**.
+//!   Enabled by default. **Requires "registry" and "std"**.
 //! - `ansi`: Enables `fmt` support for ANSI terminal colors. Enabled by
 //!   default.
 //! - `registry`: enables the [`registry`] module. Enabled by default.
-//!   **Requires &quot;std&quot;**.
+//!   **Requires "std"**.
 //! - `json`: Enables `fmt` support for JSON output. In JSON output, the ANSI
-//!   feature does nothing. **Requires &quot;fmt&quot; and &quot;std&quot;**.
+//!   feature does nothing. **Requires "fmt" and "std"**.
 //! - `local-time`: Enables local time formatting when using the [`time`
-//!   crate]&#39;s timestamp formatters with the `fmt` subscriber.
+//!   crate]'s timestamp formatters with the `fmt` subscriber.
 //!
 //! [`registry`]: mod@registry
 //!
@@ -323,8 +324,8 @@
 //!   formatting in the `fmt` subscriber.
 //! - [`smallvec`]: Causes the `EnvFilter` type to use the `smallvec` crate (rather
 //!   than `Vec`) as a performance optimization. Enabled by default.
-//! - [`parking_lot`]: Use the `parking_lot` crate&#39;s `RwLock` implementation
-//!   rather than the Rust standard library&#39;s implementation.
+//! - [`parking_lot`]: Use the `parking_lot` crate's `RwLock` implementation
+//!   rather than the Rust standard library's implementation.
 //!
 //! ### `no_std` Support
 //!
@@ -336,14 +337,14 @@
 //! `no_std` environments.
 //!
 //! The dependency on the standard library is controlled by two crate feature
-//! flags, &quot;std&quot;, which enables the dependency on [`libstd`], and &quot;alloc&quot;, which
-//! enables the dependency on [`liballoc`] (and is enabled by the &quot;std&quot;
+//! flags, "std", which enables the dependency on [`libstd`], and "alloc", which
+//! enables the dependency on [`liballoc`] (and is enabled by the "std"
 //! feature). These features are enabled by default, but `no_std` users can
 //! disable them using:
 //!
 //! ```toml
 //! # Cargo.toml
-//! tracing-subscriber = { version = &quot;0.3&quot;, default-features = false }
+//! tracing-subscriber = { version = "0.3", default-features = false }
 //! ```
 //!
 //! Additional APIs are available when [`liballoc`] is available. To enable
@@ -351,7 +352,7 @@
 //!
 //! ```toml
 //! # Cargo.toml
-//! tracing-subscriber = { version = &quot;0.3&quot;, default-features = false, features = [&quot;alloc&quot;] }
+//! tracing-subscriber = { version = "0.3", default-features = false, features = ["alloc"] }
 //! ```
 //!
 //! ### Unstable Features
@@ -371,14 +372,14 @@
 //! env variable when running `cargo` commands:
 //!
 //! ```shell
-//! RUSTFLAGS=&quot;--cfg tracing_unstable&quot; cargo build
+//! RUSTFLAGS="--cfg tracing_unstable" cargo build
 //! ```
 //! Alternatively, the following can be added to the `.cargo/config` file in a
 //! project to automatically enable the cfg flag for that project:
 //!
 //! ```toml
 //! [build]
-//! rustflags = [&quot;--cfg&quot;, &quot;tracing_unstable&quot;]
+//! rustflags = ["--cfg", "tracing_unstable"]
 //! ```
 //!
 //! [feature flags]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
@@ -411,14 +412,14 @@
 //! [`liballoc`]: https://doc.rust-lang.org/alloc/index.html
 //! [`libstd`]: https://doc.rust-lang.org/std/index.html
 </span><span class="attr">#![doc(
-    html_logo_url = <span class="string">&quot;https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png&quot;</span>,
-    issue_tracker_base_url = <span class="string">&quot;https://github.com/tokio-rs/tracing/issues/&quot;
+    html_logo_url = <span class="string">"https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png"</span>,
+    issue_tracker_base_url = <span class="string">"https://github.com/tokio-rs/tracing/issues/"
 </span>)]
 #![cfg_attr(
     docsrs,
     <span class="comment">// Allows displaying cfgs/feature flags in the documentation.
     </span>feature(doc_cfg),
-    <span class="comment">// Allows adding traits to RustDoc&#39;s list of &quot;notable traits&quot;
+    <span class="comment">// Allows adding traits to RustDoc's list of "notable traits"
     </span>feature(doc_notable_trait),
     <span class="comment">// Fail the docs build if any intra-docs links are broken
     </span>deny(rustdoc::broken_intra_doc_links),
@@ -447,11 +448,11 @@
 </span><span class="comment">// Using struct update syntax when a struct has no additional fields avoids
 // a potential source change if additional fields are added to the struct in the
 // future, reducing diff noise. Allow this even though clippy considers it
-// &quot;needless&quot;.
+// "needless".
 </span><span class="attr">#![allow(clippy::needless_update)]
-#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
+#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
 
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">extern crate </span>alloc;
 
 <span class="attr">#[macro_use]
@@ -466,27 +467,27 @@
 <span class="kw">pub mod </span>util;
 
 <span class="macro">feature! </span>{
-    <span class="attr">#![feature = <span class="string">&quot;std&quot;</span>]
+    <span class="attr">#![feature = <span class="string">"std"</span>]
     </span><span class="kw">pub mod </span>reload;
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>sync;
 }
 
 <span class="macro">feature! </span>{
-    <span class="attr">#![all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#![all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub mod </span>fmt;
     <span class="kw">pub use </span>fmt::fmt;
     <span class="kw">pub use </span>fmt::Subscriber <span class="kw">as </span>FmtSubscriber;
 }
 
 <span class="macro">feature! </span>{
-    <span class="attr">#![all(feature = <span class="string">&quot;env-filter&quot;</span>, feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#![all(feature = <span class="string">"env-filter"</span>, feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub use </span>filter::EnvFilter;
 }
 
 <span class="kw">pub use </span>layer::Layer;
 
 <span class="macro">feature! </span>{
-    <span class="attr">#![all(feature = <span class="string">&quot;registry&quot;</span>, feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#![all(feature = <span class="string">"registry"</span>, feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub use </span>registry::Registry;
 
     <span class="doccomment">///

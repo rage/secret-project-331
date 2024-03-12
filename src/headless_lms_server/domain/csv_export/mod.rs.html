@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/csv_export/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/csv_export/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -501,11 +502,11 @@
     handles: FuturesUnordered&lt;JoinHandle&lt;<span class="prelude-ty">Result</span>&lt;()&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;W: Write + Send + <span class="lifetime">&#39;static</span>&gt; CsvWriter&lt;W&gt; {
+<span class="kw">impl</span>&lt;W: Write + Send + <span class="lifetime">'static</span>&gt; CsvWriter&lt;W&gt; {
     <span class="doccomment">/// Creates a new CsvWriter, and also writes the given headers before returning.
     </span><span class="kw">async fn </span>new_with_initialized_headers&lt;I, T&gt;(writer: W, headers: I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt;
     <span class="kw">where
-        </span>I: IntoIterator&lt;Item = T&gt; + Send + <span class="lifetime">&#39;static</span>,
+        </span>I: IntoIterator&lt;Item = T&gt; + Send + <span class="lifetime">'static</span>,
         T: AsRef&lt;[u8]&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>writer = csv::WriterBuilder::new()
@@ -516,7 +517,7 @@
         </span><span class="kw">let </span>writer = tokio::task::spawn_blocking(<span class="kw">move </span>|| {
             writer
                 .write_record(headers)
-                .context(<span class="string">&quot;Failed to write headers&quot;</span>)<span class="question-mark">?</span>;
+                .context(<span class="string">"Failed to write headers"</span>)<span class="question-mark">?</span>;
             <span class="prelude-ty">Result</span>::&lt;<span class="kw">_</span>, anyhow::Error&gt;::Ok(writer)
         })
         .<span class="kw">await</span><span class="question-mark">??</span>;
@@ -530,16 +531,16 @@
     <span class="doccomment">/// Spawns a task that writes a single CSV record
     </span><span class="kw">fn </span>write_record&lt;I, T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, csv_row: I)
     <span class="kw">where
-        </span>I: IntoIterator&lt;Item = T&gt; + Send + <span class="lifetime">&#39;static</span>,
+        </span>I: IntoIterator&lt;Item = T&gt; + Send + <span class="lifetime">'static</span>,
         T: AsRef&lt;[u8]&gt;,
     {
         <span class="kw">let </span>writer = <span class="self">self</span>.csv_writer.clone();
         <span class="kw">let </span>handle = tokio::task::spawn_blocking(<span class="kw">move </span>|| {
             writer
                 .lock()
-                .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to lock mutex&quot;</span>))<span class="question-mark">?
+                .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Failed to lock mutex"</span>))<span class="question-mark">?
                 </span>.write_record(csv_row)
-                .context(<span class="string">&quot;Failed to serialize points&quot;</span>)
+                .context(<span class="string">"Failed to serialize points"</span>)
         });
         <span class="self">self</span>.handles.push(handle);
     }
@@ -555,18 +556,18 @@
         <span class="kw">let </span>writer = tokio::task::spawn_blocking(<span class="kw">move </span>|| {
             <span class="kw">let _ </span>= <span class="kw-2">&amp;</span><span class="self">self</span>;
             Arc::try_unwrap(<span class="self">self</span>.csv_writer)
-                .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to extract inner writer from arc&quot;</span>))<span class="question-mark">?
+                .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Failed to extract inner writer from arc"</span>))<span class="question-mark">?
                 </span>.into_inner()
                 .map_err(|e| {
                     <span class="macro">anyhow::anyhow!</span>(
-                        <span class="string">&quot;Failed to extract inner writer from mutex: {}&quot;</span>,
+                        <span class="string">"Failed to extract inner writer from mutex: {}"</span>,
                         e.to_string()
                     )
                 })<span class="question-mark">?
                 </span>.into_inner()
                 .map_err(|e| {
                     <span class="macro">anyhow::anyhow!</span>(
-                        <span class="string">&quot;Failed to extract inner writer from CSV writer: {}&quot;</span>,
+                        <span class="string">"Failed to extract inner writer from CSV writer: {}"</span>,
                         e.to_string()
                     )
                 })
@@ -578,7 +579,7 @@
 
 <span class="doccomment">/**
  * For csv export. Return the grade as a number if there is a numeric grade. If the grade is not numeric, returns pass/fail/
- * If course module has not been completed yet, returns &quot;-&quot;.
+ * If course module has not been completed yet, returns "-".
  */
 </span><span class="kw">fn </span>course_module_completion_info_to_grade_string(
     input: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CourseModuleCompletionWithRegistrationInfo&gt;,
@@ -588,19 +589,19 @@
             <span class="kw">return </span>grade.to_string();
         }
         <span class="kw">if </span>info.passed {
-            <span class="kw">return </span><span class="string">&quot;pass&quot;</span>.to_string();
+            <span class="kw">return </span><span class="string">"pass"</span>.to_string();
         };
-        <span class="string">&quot;fail&quot;</span>.to_string()
+        <span class="string">"fail"</span>.to_string()
     });
     <span class="kw">if let </span><span class="prelude-val">Some</span>(grade_string) = grade_string {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(info) = input {
             <span class="kw">if </span>!info.prerequisite_modules_completed {
-                <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;{grade_string}*&quot;</span>);
+                <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{grade_string}*"</span>);
             }
         }
         <span class="kw">return </span>grade_string;
     }
-    <span class="string">&quot;-&quot;</span>.to_string()
+    <span class="string">"-"</span>.to_string()
 }
 
 <span class="kw">pub struct </span>CSVExportAdapter {
@@ -627,11 +628,11 @@
 ```ignore
 HttpResponse::Ok()
     .append_header((
-        &quot;Content-Disposition&quot;,
+        "Content-Disposition",
         format!(
-            &quot;attachment; filename=\&quot;Exam: {} - Submissions {}.csv\&quot;&quot;,
+            "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
             exam.name,
-            Utc::now().format(&quot;%Y-%m-%d&quot;)
+            Utc::now().format("%Y-%m-%d")
         ),
     ))
     .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
@@ -655,22 +656,22 @@ HttpResponse::Ok()
         item.map(|item2| {
             <span class="kw">match </span>serde_json::to_vec(<span class="kw-2">&amp;</span>item2) {
                 <span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>v) =&gt; {
-                    <span class="comment">// Only item index available, we don&#39;t know the length of the stream
+                    <span class="comment">// Only item index available, we don't know the length of the stream
                     </span><span class="kw">if </span>n == <span class="number">0 </span>{
                         <span class="comment">// Start of array character to the beginning of the stream
-                        </span>v.insert(<span class="number">0</span>, <span class="string">b&#39;[&#39;</span>);
+                        </span>v.insert(<span class="number">0</span>, <span class="string">b'['</span>);
                     } <span class="kw">else </span>{
                         <span class="comment">// Separator character before every item excluding the first item
-                        </span>v.insert(<span class="number">0</span>, <span class="string">b&#39;,&#39;</span>);
+                        </span>v.insert(<span class="number">0</span>, <span class="string">b','</span>);
                     }
                     Bytes::from(v)
                 }
                 <span class="prelude-val">Err</span>(e) =&gt; {
-                    <span class="comment">// Since we&#39;re already streaming a response, we have no way to change the status code of the response anymore.
+                    <span class="comment">// Since we're already streaming a response, we have no way to change the status code of the response anymore.
                     // Our best option at this point is to write the error to the response, hopefully causing the response to be invalid json.
-                    </span><span class="macro">error!</span>(<span class="string">&quot;Failed to serialize item: {}&quot;</span>, e);
+                    </span><span class="macro">error!</span>(<span class="string">"Failed to serialize item: {}"</span>, e);
                     Bytes::from(<span class="macro">format!</span>(
-                        <span class="string">&quot;Streaming error: Failed to serialize item. Details: {:?}&quot;</span>,
+                        <span class="string">"Streaming error: Failed to serialize item. Details: {:?}"</span>,
                         e
                     ))
                 }
@@ -684,8 +685,8 @@ HttpResponse::Ok()
             )
         })
     });
-    <span class="comment">// Chaining the end of the json array character here because in the previous map we don&#39;t know the length of the stream
-    </span>res_stream.chain(tokio_stream::iter(<span class="macro">vec!</span>[<span class="prelude-val">Ok</span>(Bytes::from_static(<span class="string">b&quot;]&quot;</span>))]))
+    <span class="comment">// Chaining the end of the json array character here because in the previous map we don't know the length of the stream
+    </span>res_stream.chain(tokio_stream::iter(<span class="macro">vec!</span>[<span class="prelude-val">Ok</span>(Bytes::from_static(<span class="string">b"]"</span>))]))
 }
 
 <span class="attr">#[async_trait]
@@ -701,7 +702,7 @@ HttpResponse::Ok()
 <span class="kw">pub async fn </span>general_export(
     pool: web::Data&lt;PgPool&gt;,
     content_disposition: <span class="kw-2">&amp;</span>str,
-    data_loader: <span class="kw">impl </span>CsvExportDataLoader + std::marker::Send + <span class="lifetime">&#39;static</span>,
+    data_loader: <span class="kw">impl </span>CsvExportDataLoader + std::marker::Send + <span class="lifetime">'static</span>,
     token: AuthorizationToken,
 ) -&gt; ControllerResult&lt;HttpResponse&gt; {
     <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
@@ -711,14 +712,14 @@ HttpResponse::Ok()
         <span class="kw">let </span>fut = data_loader.load_data(sender, <span class="kw-2">&amp;mut </span>handle_conn, token);
         <span class="kw">let </span>res = fut.<span class="kw">await</span>;
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = res {
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to export: {}&quot;</span>, err);
+            <span class="macro">tracing::error!</span>(<span class="string">"Failed to export: {}"</span>, err);
         }
     });
 
     <span class="comment">// return response that streams data from the receiver
     </span><span class="kw">return </span>token.authorized_ok(
         HttpResponse::Ok()
-            .append_header((<span class="string">&quot;Content-Disposition&quot;</span>, content_disposition))
+            .append_header((<span class="string">"Content-Disposition"</span>, content_disposition))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
                 receiver,
             ))),
@@ -765,7 +766,7 @@ HttpResponse::Ok()
         <span class="kw">let </span>u2 = users::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
-            <span class="string">&quot;second@example.org&quot;</span>,
+            <span class="string">"second@example.org"</span>,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
         )
@@ -775,8 +776,8 @@ HttpResponse::Ok()
             tx.as_mut(),
             PKeyPolicy::Generate,
             <span class="kw-2">&amp;</span>NewChapter {
-                name: <span class="string">&quot;&quot;</span>.to_string(),
-                color: <span class="prelude-val">Some</span>(<span class="string">&quot;#065853&quot;</span>.to_string()),
+                name: <span class="string">""</span>.to_string(),
+                color: <span class="prelude-val">Some</span>(<span class="string">"#065853"</span>.to_string()),
                 course_id: course,
                 chapter_number: <span class="number">2</span>,
                 front_page_id: <span class="prelude-val">None</span>,
@@ -788,7 +789,7 @@ HttpResponse::Ok()
         .<span class="kw">await
         </span>.unwrap();
 
-        <span class="kw">let </span>e2 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="string">&quot;&quot;</span>, page, c2, <span class="number">0</span>)
+        <span class="kw">let </span>e2 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="string">""</span>, page, c2, <span class="number">0</span>)
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>s2 = exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, e2, <span class="number">0</span>)
@@ -799,7 +800,7 @@ HttpResponse::Ok()
             PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: s2,
-                exercise_type: <span class="string">&quot;&quot;</span>.to_string(),
+                exercise_type: <span class="string">""</span>.to_string(),
                 assignment: <span class="macro">vec!</span>[],
                 public_spec: <span class="prelude-val">Some</span>(Value::Null),
                 private_spec: <span class="prelude-val">Some</span>(Value::Null),
@@ -810,7 +811,7 @@ HttpResponse::Ok()
         .<span class="kw">await
         </span>.unwrap();
 
-        <span class="kw">let </span>e3 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="string">&quot;&quot;</span>, page, c2, <span class="number">1</span>)
+        <span class="kw">let </span>e3 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="string">""</span>, page, c2, <span class="number">1</span>)
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>s3 = exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, e3, <span class="number">0</span>)
@@ -821,7 +822,7 @@ HttpResponse::Ok()
             PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: s3,
-                exercise_type: <span class="string">&quot;&quot;</span>.to_string(),
+                exercise_type: <span class="string">""</span>.to_string(),
                 assignment: <span class="macro">vec!</span>[],
                 public_spec: <span class="prelude-val">Some</span>(Value::Null),
                 private_spec: <span class="prelude-val">Some</span>(Value::Null),
@@ -847,7 +848,7 @@ HttpResponse::Ok()
         <span class="kw">for </span>record <span class="kw">in </span>reader.records() {
             count += <span class="number">1</span>;
             <span class="kw">let </span>record = record.unwrap();
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, record.as_slice());
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, record.as_slice());
             <span class="kw">let </span>user_id = Uuid::parse_str(<span class="kw-2">&amp;</span>record[<span class="number">0</span>]).unwrap();
             <span class="kw">let </span>first = record[<span class="number">1</span>].parse::&lt;f32&gt;().unwrap();
             <span class="kw">let </span>second = record[<span class="number">2</span>].parse::&lt;f32&gt;().unwrap();
@@ -856,7 +857,7 @@ HttpResponse::Ok()
             } <span class="kw">else if </span>user_id == u2 {
                 <span class="macro">assert!</span>((first - <span class="number">0.0</span>).abs() &lt; <span class="number">0.1 </span>&amp;&amp; (second - <span class="number">0.8023</span>).abs() &lt; <span class="number">0.1</span>);
             } <span class="kw">else </span>{
-                <span class="macro">panic!</span>(<span class="string">&quot;unexpected user id&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"unexpected user id"</span>);
             }
         }
         <span class="macro">assert_eq!</span>(count, <span class="number">2</span>)

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/request.rs`."><title>request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/request.rs`."><title>request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -974,7 +975,7 @@
 <span class="kw">use </span>actix_http::{Message, RequestHead};
 <span class="kw">use </span>actix_router::{Path, Url};
 <span class="kw">use </span>actix_utils::future::{ok, Ready};
-<span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
 </span><span class="kw">use </span>cookie::{Cookie, ParseError <span class="kw">as </span>CookieParseError};
 <span class="kw">use </span>smallvec::SmallVec;
 
@@ -989,8 +990,8 @@
     Error, FromRequest, HttpMessage,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
-</span><span class="kw">struct </span>Cookies(Vec&lt;Cookie&lt;<span class="lifetime">&#39;static</span>&gt;&gt;);
+<span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
+</span><span class="kw">struct </span>Cookies(Vec&lt;Cookie&lt;<span class="lifetime">'static</span>&gt;&gt;);
 
 <span class="doccomment">/// An incoming request.
 </span><span class="attr">#[derive(Clone)]
@@ -998,7 +999,7 @@
     <span class="doccomment">/// # Invariant
     /// `Rc&lt;HttpRequestInner&gt;` is used exclusively and NO `Weak&lt;HttpRequestInner&gt;`
     /// is allowed anywhere in the code. Weak pointer is purposely ignored when
-    /// doing `Rc`&#39;s ref counter check. Expect panics if this invariant is violated.
+    /// doing `Rc`'s ref counter check. Expect panics if this invariant is violated.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) inner: Rc&lt;HttpRequestInner&gt;,
 }
 
@@ -1051,7 +1052,7 @@
         <span class="kw-2">&amp;mut </span>Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner).unwrap().head
     }
 
-    <span class="doccomment">/// Request&#39;s uri.
+    <span class="doccomment">/// Request's uri.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>uri(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Uri {
         <span class="kw-2">&amp;</span><span class="self">self</span>.head().uri
@@ -1070,7 +1071,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="doccomment">/// Returns request&#39;s headers.
+    </span><span class="doccomment">/// Returns request's headers.
     </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
         <span class="kw-2">&amp;</span><span class="self">self</span>.head().headers
     }
@@ -1096,7 +1097,7 @@
     ///
     /// # Percent Encoding and URL Parameters
     /// Because each URL parameter is able to capture multiple path segments, none of
-    /// `[&quot;%2F&quot;, &quot;%25&quot;, &quot;%2B&quot;]` found in the request URI are decoded into `[&quot;/&quot;, &quot;%&quot;, &quot;+&quot;]` in order
+    /// `["%2F", "%25", "%2B"]` found in the request URI are decoded into `["/", "%", "+"]` in order
     /// to preserve path integrity. If a URL parameter is expected to contain these characters, then
     /// it is on the user to decode them or use the [`web::Path`](crate::web::Path) extractor which
     /// _will_ decode these special sequences.
@@ -1117,7 +1118,7 @@
     <span class="doccomment">/// The resource definition pattern that matched the path. Useful for logging and metrics.
     ///
     /// For example, when a resource with pattern `/user/{id}/profile` is defined and a call is made
-    /// to `/user/123/profile` this function would return `Some(&quot;/user/{id}/profile&quot;)`.
+    /// to `/user/123/profile` this function would return `Some("/user/{id}/profile")`.
     ///
     /// Returns a None when no resource is fully matched, including default services.
     </span><span class="attr">#[inline]
@@ -1140,7 +1141,7 @@
     /// ```
     ///
     /// [on-connect]: crate::HttpServer::on_connect
-    </span><span class="kw">pub fn </span>conn_data&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+    </span><span class="kw">pub fn </span>conn_data&lt;T: <span class="lifetime">'static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
         <span class="self">self</span>.inner
             .conn_data
             .as_deref()
@@ -1152,7 +1153,7 @@
     /// This substitutes in sequence all URL parameters that appear in the resource itself and in
     /// parent [scopes](crate::web::scope), if any.
     ///
-    /// It is worth noting that the characters `[&#39;/&#39;, &#39;%&#39;]` are not escaped and therefore a single
+    /// It is worth noting that the characters `['/', '%']` are not escaped and therefore a single
     /// URL parameter may expand into multiple path segments and `elements` can be percent-encoded
     /// beforehand without worrying about double encoding. Any other character that is not valid in
     /// a URL path context is escaped using percent-encoding.
@@ -1161,13 +1162,13 @@
     /// ```
     /// # use actix_web::{web, App, HttpRequest, HttpResponse};
     /// fn index(req: HttpRequest) -&gt; HttpResponse {
-    ///     let url = req.url_for(&quot;foo&quot;, &amp;[&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]); // &lt;- generate URL for &quot;foo&quot; resource
+    ///     let url = req.url_for("foo", &amp;["1", "2", "3"]); // &lt;- generate URL for "foo" resource
     ///     HttpResponse::Ok().into()
     /// }
     ///
     /// let app = App::new()
-    ///     .service(web::resource(&quot;/test/{one}/{two}/{three}&quot;)
-    ///          .name(&quot;foo&quot;)  // &lt;- set resource name so it can be used in `url_for`
+    ///     .service(web::resource("/test/{one}/{two}/{three}")
+    ///          .name("foo")  // &lt;- set resource name so it can be used in `url_for`
     ///          .route(web::get().to(|| HttpResponse::Ok()))
     ///     );
     /// ```
@@ -1196,7 +1197,7 @@
 
     <span class="doccomment">/// Returns peer socket address.
     ///
-    /// Peer address is the directly connected peer&#39;s socket address. If a proxy is used in front of
+    /// Peer address is the directly connected peer's socket address. If a proxy is used in front of
     /// the Actix Web server, then it would be address of this proxy.
     ///
     /// For expanded client connection information, use [`connection_info`] instead.
@@ -1215,9 +1216,9 @@
     /// The return type, [`ConnectionInfo`], can also be used as an extractor.
     ///
     /// # Panics
-    /// Panics if request&#39;s extensions container is already borrowed.
+    /// Panics if request's extensions container is already borrowed.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>connection_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, ConnectionInfo&gt; {
+    </span><span class="kw">pub fn </span>connection_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, ConnectionInfo&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.extensions().contains::&lt;ConnectionInfo&gt;() {
             <span class="kw">let </span>info = ConnectionInfo::new(<span class="self">self</span>.head(), <span class="self">self</span>.app_config());
             <span class="self">self</span>.extensions_mut().insert(info);
@@ -1226,7 +1227,7 @@
         Ref::map(<span class="self">self</span>.extensions(), |data| data.get().unwrap())
     }
 
-    <span class="doccomment">/// Returns a reference to the application&#39;s connection configuration.
+    <span class="doccomment">/// Returns a reference to the application's connection configuration.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>app_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AppConfig {
         <span class="self">self</span>.app_state().config()
@@ -1239,11 +1240,11 @@
     /// [`Resource`](crate::Resource::app_data)) during application configuration.
     ///
     /// Since the Actix Web router layers application data, the returned object will reference the
-    /// &quot;closest&quot; instance of the type. For example, if an `App` stores a `u32`, a nested `Scope`
+    /// "closest" instance of the type. For example, if an `App` stores a `u32`, a nested `Scope`
     /// also stores a `u32`, and the delegated request handler falls within that `Scope`, then
     /// calling `.app_data::&lt;u32&gt;()` on an `HttpRequest` within that handler will return the
-    /// `Scope`&#39;s instance. However, using the same router set up and a request that does not get
-    /// captured by the `Scope`, `.app_data::&lt;u32&gt;()` would return the `App`&#39;s instance.
+    /// `Scope`'s instance. However, using the same router set up and a request that does not get
+    /// captured by the `Scope`, `.app_data::&lt;u32&gt;()` would return the `App`'s instance.
     ///
     /// If the state was stored using the [`Data`] wrapper, then it must also be retrieved using
     /// this same type.
@@ -1259,8 +1260,8 @@
     /// ```
     ///
     /// [`Data`]: crate::web::Data
-    </span><span class="attr">#[doc(alias = <span class="string">&quot;state&quot;</span>)]
-    </span><span class="kw">pub fn </span>app_data&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+    </span><span class="attr">#[doc(alias = <span class="string">"state"</span>)]
+    </span><span class="kw">pub fn </span>app_data&lt;T: <span class="lifetime">'static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
         <span class="kw">for </span>container <span class="kw">in </span><span class="self">self</span>.inner.app_data.iter().rev() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = container.get::&lt;T&gt;() {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(data);
@@ -1276,15 +1277,15 @@
     }
 
     <span class="doccomment">/// Load request cookies.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
-    </span><span class="kw">pub fn </span>cookies(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Ref&lt;<span class="lifetime">&#39;_</span>, Vec&lt;Cookie&lt;<span class="lifetime">&#39;static</span>&gt;&gt;&gt;, CookieParseError&gt; {
+    </span><span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
+    </span><span class="kw">pub fn </span>cookies(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Ref&lt;<span class="lifetime">'_</span>, Vec&lt;Cookie&lt;<span class="lifetime">'static</span>&gt;&gt;&gt;, CookieParseError&gt; {
         <span class="kw">use </span>actix_http::header::COOKIE;
 
         <span class="kw">if </span><span class="self">self</span>.extensions().get::&lt;Cookies&gt;().is_none() {
             <span class="kw">let </span><span class="kw-2">mut </span>cookies = Vec::new();
             <span class="kw">for </span>hdr <span class="kw">in </span><span class="self">self</span>.headers().get_all(COOKIE) {
                 <span class="kw">let </span>s = str::from_utf8(hdr.as_bytes()).map_err(CookieParseError::from)<span class="question-mark">?</span>;
-                <span class="kw">for </span>cookie_str <span class="kw">in </span>s.split(<span class="string">&#39;;&#39;</span>).map(|s| s.trim()) {
+                <span class="kw">for </span>cookie_str <span class="kw">in </span>s.split(<span class="string">';'</span>).map(|s| s.trim()) {
                     <span class="kw">if </span>!cookie_str.is_empty() {
                         cookies.push(Cookie::parse_encoded(cookie_str)<span class="question-mark">?</span>.into_owned());
                     }
@@ -1299,8 +1300,8 @@
     }
 
     <span class="doccomment">/// Return request cookie.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
-    </span><span class="kw">pub fn </span>cookie(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">&#39;static</span>&gt;&gt; {
+    </span><span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
+    </span><span class="kw">pub fn </span>cookie(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">'static</span>&gt;&gt; {
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(cookies) = <span class="self">self</span>.cookies() {
             <span class="kw">for </span>cookie <span class="kw">in </span>cookies.iter() {
                 <span class="kw">if </span>cookie.name() == name {
@@ -1321,12 +1322,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         <span class="self">self</span>.inner.extensions.borrow()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         <span class="self">self</span>.inner.extensions.borrow_mut()
     }
 
@@ -1338,7 +1339,7 @@
 
 <span class="kw">impl </span>Drop <span class="kw">for </span>HttpRequest {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="comment">// if possible, contribute to current worker&#39;s HttpRequest allocation pool
+        <span class="comment">// if possible, contribute to current worker's HttpRequest allocation pool
 
         // This relies on no weak references to inner existing anywhere within the codebase.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner) {
@@ -1353,7 +1354,7 @@
                     .get_mut()
                     .clear();
 
-                <span class="comment">// We can&#39;t use the same trick as req data because the conn_data is held by the
+                <span class="comment">// We can't use the same trick as req data because the conn_data is held by the
                 // dispatcher, too.
                 </span>inner.conn_data = <span class="prelude-val">None</span>;
 
@@ -1374,11 +1375,11 @@
 ///
 /// /// extract `Thing` from request
 /// async fn index(req: HttpRequest) -&gt; String {
-///    format!(&quot;Got thing: {:?}&quot;, req)
+///    format!("Got thing: {:?}", req)
 /// }
 ///
 /// let app = App::new().service(
-///     web::resource(&quot;/users/{first}&quot;).route(
+///     web::resource("/users/{first}").route(
 ///         web::get().to(index))
 /// );
 /// ```
@@ -1393,33 +1394,33 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>HttpRequest {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">writeln!</span>(
             f,
-            <span class="string">&quot;\nHttpRequest {:?} {}:{}&quot;</span>,
+            <span class="string">"\nHttpRequest {:?} {}:{}"</span>,
             <span class="self">self</span>.inner.head.version,
             <span class="self">self</span>.inner.head.method,
             <span class="self">self</span>.path()
         )<span class="question-mark">?</span>;
 
         <span class="kw">if </span>!<span class="self">self</span>.query_string().is_empty() {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;  query: ?{:?}&quot;</span>, <span class="self">self</span>.query_string())<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"  query: ?{:?}"</span>, <span class="self">self</span>.query_string())<span class="question-mark">?</span>;
         }
 
         <span class="kw">if </span>!<span class="self">self</span>.match_info().is_empty() {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;  params: {:?}&quot;</span>, <span class="self">self</span>.match_info())<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"  params: {:?}"</span>, <span class="self">self</span>.match_info())<span class="question-mark">?</span>;
         }
 
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;  headers:&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"  headers:"</span>)<span class="question-mark">?</span>;
 
         <span class="kw">for </span>(key, val) <span class="kw">in </span><span class="self">self</span>.headers().iter() {
             <span class="kw">match </span>key {
                 <span class="comment">// redact sensitive header values from debug output
                 </span><span class="kw-2">&amp;</span><span class="kw">crate</span>::http::header::AUTHORIZATION
                 | <span class="kw-2">&amp;</span><span class="kw">crate</span>::http::header::PROXY_AUTHORIZATION
-                | <span class="kw-2">&amp;</span><span class="kw">crate</span>::http::header::COOKIE =&gt; <span class="macro">writeln!</span>(f, <span class="string">&quot;    {:?}: {:?}&quot;</span>, key, <span class="string">&quot;*redacted*&quot;</span>)<span class="question-mark">?</span>,
+                | <span class="kw-2">&amp;</span><span class="kw">crate</span>::http::header::COOKIE =&gt; <span class="macro">writeln!</span>(f, <span class="string">"    {:?}: {:?}"</span>, key, <span class="string">"*redacted*"</span>)<span class="question-mark">?</span>,
 
-                <span class="kw">_ </span>=&gt; <span class="macro">writeln!</span>(f, <span class="string">&quot;    {:?}: {:?}&quot;</span>, key, val)<span class="question-mark">?</span>,
+                <span class="kw">_ </span>=&gt; <span class="macro">writeln!</span>(f, <span class="string">"    {:?}: {:?}"</span>, key, val)<span class="question-mark">?</span>,
             }
         }
 
@@ -1436,7 +1437,7 @@
 /// Request objects are added when they are dropped (see `&lt;HttpRequest as Drop&gt;::drop`) and re-used
 /// in `&lt;AppInitService as Service&gt;::call` when there are available objects in the list.
 ///
-/// The pool&#39;s default capacity is 128 items.
+/// The pool's default capacity is 128 items.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>HttpRequestPool {
     inner: RefCell&lt;Vec&lt;Rc&lt;HttpRequestInner&gt;&gt;&gt;,
     cap: usize,
@@ -1498,143 +1499,143 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_debug() {
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;text/plain&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"text/plain"</span>))
             .to_http_request();
-        <span class="kw">let </span>dbg = <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, req);
-        <span class="macro">assert!</span>(dbg.contains(<span class="string">&quot;HttpRequest&quot;</span>));
+        <span class="kw">let </span>dbg = <span class="macro">format!</span>(<span class="string">"{:?}"</span>, req);
+        <span class="macro">assert!</span>(dbg.contains(<span class="string">"HttpRequest"</span>));
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+    #[cfg(feature = <span class="string">"cookies"</span>)]
     </span><span class="kw">fn </span>test_no_request_cookies() {
         <span class="kw">let </span>req = TestRequest::default().to_http_request();
         <span class="macro">assert!</span>(req.cookies().unwrap().is_empty());
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+    #[cfg(feature = <span class="string">"cookies"</span>)]
     </span><span class="kw">fn </span>test_request_cookies() {
         <span class="kw">let </span>req = TestRequest::default()
-            .append_header((header::COOKIE, <span class="string">&quot;cookie1=value1&quot;</span>))
-            .append_header((header::COOKIE, <span class="string">&quot;cookie2=value2&quot;</span>))
+            .append_header((header::COOKIE, <span class="string">"cookie1=value1"</span>))
+            .append_header((header::COOKIE, <span class="string">"cookie2=value2"</span>))
             .to_http_request();
         {
             <span class="kw">let </span>cookies = req.cookies().unwrap();
             <span class="macro">assert_eq!</span>(cookies.len(), <span class="number">2</span>);
-            <span class="macro">assert_eq!</span>(cookies[<span class="number">0</span>].name(), <span class="string">&quot;cookie1&quot;</span>);
-            <span class="macro">assert_eq!</span>(cookies[<span class="number">0</span>].value(), <span class="string">&quot;value1&quot;</span>);
-            <span class="macro">assert_eq!</span>(cookies[<span class="number">1</span>].name(), <span class="string">&quot;cookie2&quot;</span>);
-            <span class="macro">assert_eq!</span>(cookies[<span class="number">1</span>].value(), <span class="string">&quot;value2&quot;</span>);
+            <span class="macro">assert_eq!</span>(cookies[<span class="number">0</span>].name(), <span class="string">"cookie1"</span>);
+            <span class="macro">assert_eq!</span>(cookies[<span class="number">0</span>].value(), <span class="string">"value1"</span>);
+            <span class="macro">assert_eq!</span>(cookies[<span class="number">1</span>].name(), <span class="string">"cookie2"</span>);
+            <span class="macro">assert_eq!</span>(cookies[<span class="number">1</span>].value(), <span class="string">"value2"</span>);
         }
 
-        <span class="kw">let </span>cookie = req.cookie(<span class="string">&quot;cookie1&quot;</span>);
+        <span class="kw">let </span>cookie = req.cookie(<span class="string">"cookie1"</span>);
         <span class="macro">assert!</span>(cookie.is_some());
         <span class="kw">let </span>cookie = cookie.unwrap();
-        <span class="macro">assert_eq!</span>(cookie.name(), <span class="string">&quot;cookie1&quot;</span>);
-        <span class="macro">assert_eq!</span>(cookie.value(), <span class="string">&quot;value1&quot;</span>);
+        <span class="macro">assert_eq!</span>(cookie.name(), <span class="string">"cookie1"</span>);
+        <span class="macro">assert_eq!</span>(cookie.value(), <span class="string">"value1"</span>);
 
-        <span class="kw">let </span>cookie = req.cookie(<span class="string">&quot;cookie-unknown&quot;</span>);
+        <span class="kw">let </span>cookie = req.cookie(<span class="string">"cookie-unknown"</span>);
         <span class="macro">assert!</span>(cookie.is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_request_query() {
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/?id=test&quot;</span>).to_http_request();
-        <span class="macro">assert_eq!</span>(req.query_string(), <span class="string">&quot;id=test&quot;</span>);
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/?id=test"</span>).to_http_request();
+        <span class="macro">assert_eq!</span>(req.query_string(), <span class="string">"id=test"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_url_for() {
-        <span class="kw">let </span><span class="kw-2">mut </span>res = ResourceDef::new(<span class="string">&quot;/user/{name}.{ext}&quot;</span>);
-        res.set_name(<span class="string">&quot;index&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>res = ResourceDef::new(<span class="string">"/user/{name}.{ext}"</span>);
+        res.set_name(<span class="string">"index"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rmap = ResourceMap::new(ResourceDef::prefix(<span class="string">&quot;&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>rmap = ResourceMap::new(ResourceDef::prefix(<span class="string">""</span>));
         rmap.add(<span class="kw-2">&amp;mut </span>res, <span class="prelude-val">None</span>);
-        <span class="macro">assert!</span>(rmap.has_resource(<span class="string">&quot;/user/test.html&quot;</span>));
-        <span class="macro">assert!</span>(!rmap.has_resource(<span class="string">&quot;/test/unknown&quot;</span>));
+        <span class="macro">assert!</span>(rmap.has_resource(<span class="string">"/user/test.html"</span>));
+        <span class="macro">assert!</span>(!rmap.has_resource(<span class="string">"/test/unknown"</span>));
 
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((header::HOST, <span class="string">&quot;www.rust-lang.org&quot;</span>))
+            .insert_header((header::HOST, <span class="string">"www.rust-lang.org"</span>))
             .rmap(rmap)
             .to_http_request();
 
         <span class="macro">assert_eq!</span>(
-            req.url_for(<span class="string">&quot;unknown&quot;</span>, [<span class="string">&quot;test&quot;</span>]),
+            req.url_for(<span class="string">"unknown"</span>, [<span class="string">"test"</span>]),
             <span class="prelude-val">Err</span>(UrlGenerationError::ResourceNotFound)
         );
         <span class="macro">assert_eq!</span>(
-            req.url_for(<span class="string">&quot;index&quot;</span>, [<span class="string">&quot;test&quot;</span>]),
+            req.url_for(<span class="string">"index"</span>, [<span class="string">"test"</span>]),
             <span class="prelude-val">Err</span>(UrlGenerationError::NotEnoughElements)
         );
-        <span class="kw">let </span>url = req.url_for(<span class="string">&quot;index&quot;</span>, [<span class="string">&quot;test&quot;</span>, <span class="string">&quot;html&quot;</span>]);
+        <span class="kw">let </span>url = req.url_for(<span class="string">"index"</span>, [<span class="string">"test"</span>, <span class="string">"html"</span>]);
         <span class="macro">assert_eq!</span>(
             url.ok().unwrap().as_str(),
-            <span class="string">&quot;http://www.rust-lang.org/user/test.html&quot;
+            <span class="string">"http://www.rust-lang.org/user/test.html"
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_url_for_static() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rdef = ResourceDef::new(<span class="string">&quot;/index.html&quot;</span>);
-        rdef.set_name(<span class="string">&quot;index&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>rdef = ResourceDef::new(<span class="string">"/index.html"</span>);
+        rdef.set_name(<span class="string">"index"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rmap = ResourceMap::new(ResourceDef::prefix(<span class="string">&quot;&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>rmap = ResourceMap::new(ResourceDef::prefix(<span class="string">""</span>));
         rmap.add(<span class="kw-2">&amp;mut </span>rdef, <span class="prelude-val">None</span>);
 
-        <span class="macro">assert!</span>(rmap.has_resource(<span class="string">&quot;/index.html&quot;</span>));
+        <span class="macro">assert!</span>(rmap.has_resource(<span class="string">"/index.html"</span>));
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test&quot;</span>)
-            .insert_header((header::HOST, <span class="string">&quot;www.rust-lang.org&quot;</span>))
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test"</span>)
+            .insert_header((header::HOST, <span class="string">"www.rust-lang.org"</span>))
             .rmap(rmap)
             .to_http_request();
-        <span class="kw">let </span>url = req.url_for_static(<span class="string">&quot;index&quot;</span>);
+        <span class="kw">let </span>url = req.url_for_static(<span class="string">"index"</span>);
         <span class="macro">assert_eq!</span>(
             url.ok().unwrap().as_str(),
-            <span class="string">&quot;http://www.rust-lang.org/index.html&quot;
+            <span class="string">"http://www.rust-lang.org/index.html"
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_match_name() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rdef = ResourceDef::new(<span class="string">&quot;/index.html&quot;</span>);
-        rdef.set_name(<span class="string">&quot;index&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>rdef = ResourceDef::new(<span class="string">"/index.html"</span>);
+        rdef.set_name(<span class="string">"index"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rmap = ResourceMap::new(ResourceDef::prefix(<span class="string">&quot;&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>rmap = ResourceMap::new(ResourceDef::prefix(<span class="string">""</span>));
         rmap.add(<span class="kw-2">&amp;mut </span>rdef, <span class="prelude-val">None</span>);
 
-        <span class="macro">assert!</span>(rmap.has_resource(<span class="string">&quot;/index.html&quot;</span>));
+        <span class="macro">assert!</span>(rmap.has_resource(<span class="string">"/index.html"</span>));
 
         <span class="kw">let </span>req = TestRequest::default()
-            .uri(<span class="string">&quot;/index.html&quot;</span>)
+            .uri(<span class="string">"/index.html"</span>)
             .rmap(rmap)
             .to_http_request();
 
-        <span class="macro">assert_eq!</span>(req.match_name(), <span class="prelude-val">Some</span>(<span class="string">&quot;index&quot;</span>));
+        <span class="macro">assert_eq!</span>(req.match_name(), <span class="prelude-val">Some</span>(<span class="string">"index"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_url_for_external() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rdef = ResourceDef::new(<span class="string">&quot;https://youtube.com/watch/{video_id}&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>rdef = ResourceDef::new(<span class="string">"https://youtube.com/watch/{video_id}"</span>);
 
-        rdef.set_name(<span class="string">&quot;youtube&quot;</span>);
+        rdef.set_name(<span class="string">"youtube"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rmap = ResourceMap::new(ResourceDef::prefix(<span class="string">&quot;&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>rmap = ResourceMap::new(ResourceDef::prefix(<span class="string">""</span>));
         rmap.add(<span class="kw-2">&amp;mut </span>rdef, <span class="prelude-val">None</span>);
 
         <span class="kw">let </span>req = TestRequest::default().rmap(rmap).to_http_request();
-        <span class="kw">let </span>url = req.url_for(<span class="string">&quot;youtube&quot;</span>, [<span class="string">&quot;oHg5SJYRHA0&quot;</span>]);
+        <span class="kw">let </span>url = req.url_for(<span class="string">"youtube"</span>, [<span class="string">"oHg5SJYRHA0"</span>]);
         <span class="macro">assert_eq!</span>(
             url.ok().unwrap().as_str(),
-            <span class="string">&quot;https://youtube.com/watch/oHg5SJYRHA0&quot;
+            <span class="string">"https://youtube.com/watch/oHg5SJYRHA0"
         </span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_drop_http_request_pool() {
         <span class="kw">let </span>srv = init_service(
-            App::new().service(web::resource(<span class="string">&quot;/&quot;</span>).to(|req: HttpRequest| {
+            App::new().service(web::resource(<span class="string">"/"</span>).to(|req: HttpRequest| {
                 HttpResponse::Ok()
-                    .insert_header((<span class="string">&quot;pool_cap&quot;</span>, req.app_state().pool().cap))
+                    .insert_header((<span class="string">"pool_cap"</span>, req.app_state().pool().cap))
                     .finish()
             })),
         )
@@ -1645,12 +1646,12 @@
 
         drop(srv);
 
-        <span class="macro">assert_eq!</span>(resp.headers().get(<span class="string">&quot;pool_cap&quot;</span>).unwrap(), <span class="string">&quot;128&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(<span class="string">"pool_cap"</span>).unwrap(), <span class="string">"128"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_data() {
-        <span class="kw">let </span>srv = init_service(App::new().app_data(<span class="number">10usize</span>).service(web::resource(<span class="string">&quot;/&quot;</span>).to(
+        <span class="kw">let </span>srv = init_service(App::new().app_data(<span class="number">10usize</span>).service(web::resource(<span class="string">"/"</span>).to(
             |req: HttpRequest| {
                 <span class="kw">if </span>req.app_data::&lt;usize&gt;().is_some() {
                     HttpResponse::Ok()
@@ -1665,7 +1666,7 @@
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
 
-        <span class="kw">let </span>srv = init_service(App::new().app_data(<span class="number">10u32</span>).service(web::resource(<span class="string">&quot;/&quot;</span>).to(
+        <span class="kw">let </span>srv = init_service(App::new().app_data(<span class="number">10u32</span>).service(web::resource(<span class="string">"/"</span>).to(
             |req: HttpRequest| {
                 <span class="kw">if </span>req.app_data::&lt;usize&gt;().is_some() {
                     HttpResponse::Ok()
@@ -1692,24 +1693,24 @@
         <span class="kw">let </span>srv = init_service(
             App::new()
                 .app_data(<span class="number">88usize</span>)
-                .service(web::resource(<span class="string">&quot;/&quot;</span>).route(web::get().to(echo_usize)))
+                .service(web::resource(<span class="string">"/"</span>).route(web::get().to(echo_usize)))
                 .service(
-                    web::resource(<span class="string">&quot;/one&quot;</span>)
+                    web::resource(<span class="string">"/one"</span>)
                         .app_data(<span class="number">1u32</span>)
                         .route(web::get().to(echo_usize)),
                 ),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>body = read_body(resp).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b&quot;88&quot;</span>));
+        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b"88"</span>));
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/one&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/one"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>body = read_body(resp).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b&quot;88&quot;</span>));
+        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b"88"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1723,24 +1724,24 @@
         <span class="kw">let </span>srv = init_service(
             App::new()
                 .app_data(<span class="number">88usize</span>)
-                .service(web::resource(<span class="string">&quot;/&quot;</span>).route(web::get().to(echo_usize)))
+                .service(web::resource(<span class="string">"/"</span>).route(web::get().to(echo_usize)))
                 .service(
-                    web::resource(<span class="string">&quot;/one&quot;</span>)
+                    web::resource(<span class="string">"/one"</span>)
                         .app_data(<span class="number">1usize</span>)
                         .route(web::get().to(echo_usize)),
                 ),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>body = read_body(resp).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b&quot;88&quot;</span>));
+        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b"88"</span>));
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/one&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/one"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>body = read_body(resp).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b&quot;1&quot;</span>));
+        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b"1"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1760,7 +1761,7 @@
         <span class="kw">let </span>tracker = Rc::new(RefCell::new(Tracker { dropped: <span class="bool-val">false </span>}));
         {
             <span class="kw">let </span>tracker2 = Rc::clone(<span class="kw-2">&amp;</span>tracker);
-            <span class="kw">let </span>srv = init_service(App::new().service(web::resource(<span class="string">&quot;/&quot;</span>).to(
+            <span class="kw">let </span>srv = init_service(App::new().service(web::resource(<span class="string">"/"</span>).to(
                 <span class="kw">move </span>|req: HttpRequest| {
                     req.extensions_mut().insert(Foo {
                         tracker: Rc::clone(<span class="kw-2">&amp;</span>tracker2),
@@ -1782,10 +1783,10 @@
     </span><span class="kw">async fn </span>extract_path_pattern() {
         <span class="kw">let </span>srv = init_service(
             App::new().service(
-                web::scope(<span class="string">&quot;/user/{id}&quot;</span>)
-                    .service(web::resource(<span class="string">&quot;/profile&quot;</span>).route(web::get().to(
+                web::scope(<span class="string">"/user/{id}"</span>)
+                    .service(web::resource(<span class="string">"/profile"</span>).route(web::get().to(
                         <span class="kw">move </span>|req: HttpRequest| {
-                            <span class="macro">assert_eq!</span>(req.match_pattern(), <span class="prelude-val">Some</span>(<span class="string">&quot;/user/{id}/profile&quot;</span>.to_owned()));
+                            <span class="macro">assert_eq!</span>(req.match_pattern(), <span class="prelude-val">Some</span>(<span class="string">"/user/{id}/profile"</span>.to_owned()));
 
                             HttpResponse::Ok().finish()
                         },
@@ -1798,11 +1799,11 @@
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/user/22/profile&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/user/22/profile"</span>).to_request();
         <span class="kw">let </span>res = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/user/22/not-exist&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/user/22/not-exist"</span>).to_request();
         <span class="kw">let </span>res = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
     }
@@ -1811,15 +1812,15 @@
     </span><span class="kw">async fn </span>extract_path_pattern_complex() {
         <span class="kw">let </span>srv = init_service(
             App::new()
-                .service(web::scope(<span class="string">&quot;/user&quot;</span>).service(web::scope(<span class="string">&quot;/{id}&quot;</span>).service(
-                    web::resource(<span class="string">&quot;&quot;</span>).to(<span class="kw">move </span>|req: HttpRequest| {
-                        <span class="macro">assert_eq!</span>(req.match_pattern(), <span class="prelude-val">Some</span>(<span class="string">&quot;/user/{id}&quot;</span>.to_owned()));
+                .service(web::scope(<span class="string">"/user"</span>).service(web::scope(<span class="string">"/{id}"</span>).service(
+                    web::resource(<span class="string">""</span>).to(<span class="kw">move </span>|req: HttpRequest| {
+                        <span class="macro">assert_eq!</span>(req.match_pattern(), <span class="prelude-val">Some</span>(<span class="string">"/user/{id}"</span>.to_owned()));
 
                         HttpResponse::Ok().finish()
                     }),
                 )))
-                .service(web::resource(<span class="string">&quot;/&quot;</span>).to(<span class="kw">move </span>|req: HttpRequest| {
-                    <span class="macro">assert_eq!</span>(req.match_pattern(), <span class="prelude-val">Some</span>(<span class="string">&quot;/&quot;</span>.to_owned()));
+                .service(web::resource(<span class="string">"/"</span>).to(<span class="kw">move </span>|req: HttpRequest| {
+                    <span class="macro">assert_eq!</span>(req.match_pattern(), <span class="prelude-val">Some</span>(<span class="string">"/"</span>.to_owned()));
 
                     HttpResponse::Ok().finish()
                 }))
@@ -1830,40 +1831,40 @@
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/user/test&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/user/test"</span>).to_request();
         <span class="kw">let </span>res = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/"</span>).to_request();
         <span class="kw">let </span>res = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/not-exist&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/not-exist"</span>).to_request();
         <span class="kw">let </span>res = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>url_for_closest_named_resource() {
-        <span class="comment">// we mount the route named &#39;nested&#39; on 2 different scopes, &#39;a&#39; and &#39;b&#39;
+        <span class="comment">// we mount the route named 'nested' on 2 different scopes, 'a' and 'b'
         </span><span class="kw">let </span>srv = test::init_service(
             App::new()
                 .service(
-                    web::scope(<span class="string">&quot;/foo&quot;</span>)
-                        .service(web::resource(<span class="string">&quot;/nested&quot;</span>).name(<span class="string">&quot;nested&quot;</span>).route(web::get().to(
+                    web::scope(<span class="string">"/foo"</span>)
+                        .service(web::resource(<span class="string">"/nested"</span>).name(<span class="string">"nested"</span>).route(web::get().to(
                             |req: HttpRequest| {
                                 HttpResponse::Ok()
-                                    .body(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, req.url_for_static(<span class="string">&quot;nested&quot;</span>).unwrap()))
+                                    .body(<span class="macro">format!</span>(<span class="string">"{}"</span>, req.url_for_static(<span class="string">"nested"</span>).unwrap()))
                             },
                         )))
-                        .service(web::scope(<span class="string">&quot;/baz&quot;</span>).service(web::resource(<span class="string">&quot;deep&quot;</span>)))
-                        .service(web::resource(<span class="string">&quot;{foo_param}&quot;</span>)),
+                        .service(web::scope(<span class="string">"/baz"</span>).service(web::resource(<span class="string">"deep"</span>)))
+                        .service(web::resource(<span class="string">"{foo_param}"</span>)),
                 )
-                .service(web::scope(<span class="string">&quot;/bar&quot;</span>).service(
-                    web::resource(<span class="string">&quot;/nested&quot;</span>).name(<span class="string">&quot;nested&quot;</span>).route(web::get().to(
+                .service(web::scope(<span class="string">"/bar"</span>).service(
+                    web::resource(<span class="string">"/nested"</span>).name(<span class="string">"nested"</span>).route(web::get().to(
                         |req: HttpRequest| {
                             HttpResponse::Ok()
-                                .body(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, req.url_for_static(<span class="string">&quot;nested&quot;</span>).unwrap()))
+                                .body(<span class="macro">format!</span>(<span class="string">"{}"</span>, req.url_for_static(<span class="string">"nested"</span>).unwrap()))
                         },
                     )),
                 )),
@@ -1871,35 +1872,35 @@
         .<span class="kw">await</span>;
 
         <span class="kw">let </span>foo_resp =
-            test::call_service(<span class="kw-2">&amp;</span>srv, TestRequest::with_uri(<span class="string">&quot;/foo/nested&quot;</span>).to_request()).<span class="kw">await</span>;
+            test::call_service(<span class="kw-2">&amp;</span>srv, TestRequest::with_uri(<span class="string">"/foo/nested"</span>).to_request()).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(foo_resp.status(), StatusCode::OK);
         <span class="kw">let </span>body = read_body(foo_resp).<span class="kw">await</span>;
         <span class="comment">// `body` equals http://localhost:8080/bar/nested
-        // because nested from /bar overrides /foo&#39;s
+        // because nested from /bar overrides /foo's
         // to do this any other way would require something like a custom tree search
         // see https://github.com/actix/actix-web/issues/1763
-        </span><span class="macro">assert_eq!</span>(body, <span class="string">&quot;http://localhost:8080/bar/nested&quot;</span>);
+        </span><span class="macro">assert_eq!</span>(body, <span class="string">"http://localhost:8080/bar/nested"</span>);
 
         <span class="kw">let </span>bar_resp =
-            test::call_service(<span class="kw-2">&amp;</span>srv, TestRequest::with_uri(<span class="string">&quot;/bar/nested&quot;</span>).to_request()).<span class="kw">await</span>;
+            test::call_service(<span class="kw-2">&amp;</span>srv, TestRequest::with_uri(<span class="string">"/bar/nested"</span>).to_request()).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(bar_resp.status(), StatusCode::OK);
         <span class="kw">let </span>body = read_body(bar_resp).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(body, <span class="string">&quot;http://localhost:8080/bar/nested&quot;</span>);
+        <span class="macro">assert_eq!</span>(body, <span class="string">"http://localhost:8080/bar/nested"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>authorization_header_hidden_in_debug() {
-        <span class="kw">let </span>authorization_header = <span class="string">&quot;Basic bXkgdXNlcm5hbWU6bXkgcGFzc3dvcmQK&quot;</span>;
+        <span class="kw">let </span>authorization_header = <span class="string">"Basic bXkgdXNlcm5hbWU6bXkgcGFzc3dvcmQK"</span>;
         <span class="kw">let </span>req = TestRequest::get()
             .insert_header((<span class="kw">crate</span>::http::header::AUTHORIZATION, authorization_header))
             .to_http_request();
 
-        <span class="macro">assert!</span>(!<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, req).contains(authorization_header));
+        <span class="macro">assert!</span>(!<span class="macro">format!</span>(<span class="string">"{:?}"</span>, req).contains(authorization_header));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>proxy_authorization_header_hidden_in_debug() {
-        <span class="kw">let </span>proxy_authorization_header = <span class="string">&quot;secret value&quot;</span>;
+        <span class="kw">let </span>proxy_authorization_header = <span class="string">"secret value"</span>;
         <span class="kw">let </span>req = TestRequest::get()
             .insert_header((
                 <span class="kw">crate</span>::http::header::PROXY_AUTHORIZATION,
@@ -1907,27 +1908,27 @@
             ))
             .to_http_request();
 
-        <span class="macro">assert!</span>(!<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, req).contains(proxy_authorization_header));
+        <span class="macro">assert!</span>(!<span class="macro">format!</span>(<span class="string">"{:?}"</span>, req).contains(proxy_authorization_header));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>cookie_header_hidden_in_debug() {
-        <span class="kw">let </span>cookie_header = <span class="string">&quot;secret&quot;</span>;
+        <span class="kw">let </span>cookie_header = <span class="string">"secret"</span>;
         <span class="kw">let </span>req = TestRequest::get()
             .insert_header((<span class="kw">crate</span>::http::header::COOKIE, cookie_header))
             .to_http_request();
 
-        <span class="macro">assert!</span>(!<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, req).contains(cookie_header));
+        <span class="macro">assert!</span>(!<span class="macro">format!</span>(<span class="string">"{:?}"</span>, req).contains(cookie_header));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>other_header_visible_in_debug() {
-        <span class="kw">let </span>location_header = <span class="string">&quot;192.0.0.1&quot;</span>;
+        <span class="kw">let </span>location_header = <span class="string">"192.0.0.1"</span>;
         <span class="kw">let </span>req = TestRequest::get()
             .insert_header((<span class="kw">crate</span>::http::header::LOCATION, location_header))
             .to_http_request();
 
-        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, req).contains(location_header));
+        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">"{:?}"</span>, req).contains(location_header));
     }
 }
 </code></pre></div></section></main></body></html>

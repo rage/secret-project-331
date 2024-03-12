@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlformat-0.2.3/src/tokenizer.rs`."><title>tokenizer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlformat" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlformat-0.2.3/src/tokenizer.rs`."><title>tokenizer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlformat" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1002,7 +1003,7 @@
 <span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>unicode_categories::UnicodeCategories;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>tokenize(<span class="kw-2">mut </span>input: <span class="kw-2">&amp;</span>str, named_placeholders: bool) -&gt; Vec&lt;Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>tokenize(<span class="kw-2">mut </span>input: <span class="kw-2">&amp;</span>str, named_placeholders: bool) -&gt; Vec&lt;Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tokens: Vec&lt;Token&gt; = Vec::new();
 
     <span class="kw">let </span><span class="kw-2">mut </span>last_reserved_token = <span class="prelude-val">None</span>;
@@ -1025,11 +1026,11 @@
 }
 
 <span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Token&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Token&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub </span>kind: TokenKind,
-    <span class="kw">pub </span>value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="comment">// Only used for placeholder--there is a reason this isn&#39;t on the enum
-    </span><span class="kw">pub </span>key: <span class="prelude-ty">Option</span>&lt;PlaceholderKind&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    <span class="kw">pub </span>value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="comment">// Only used for placeholder--there is a reason this isn't on the enum
+    </span><span class="kw">pub </span>key: <span class="prelude-ty">Option</span>&lt;PlaceholderKind&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
 
 <span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1051,17 +1052,17 @@
 }
 
 <span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>PlaceholderKind&lt;<span class="lifetime">&#39;a</span>&gt; {
-    Named(Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;),
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>PlaceholderKind&lt;<span class="lifetime">'a</span>&gt; {
+    Named(Cow&lt;<span class="lifetime">'a</span>, str&gt;),
     ZeroIndexed(usize),
     OneIndexed(usize),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PlaceholderKind&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>named(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PlaceholderKind&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub fn </span>named(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             PlaceholderKind::Named(val) =&gt; val.as_ref(),
-            <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>,
+            <span class="kw">_ </span>=&gt; <span class="string">""</span>,
         }
     }
 
@@ -1074,12 +1075,12 @@
     }
 }
 
-<span class="kw">fn </span>get_next_token&lt;<span class="lifetime">&#39;a</span>&gt;(
-    input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    previous_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-    last_reserved_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+<span class="kw">fn </span>get_next_token&lt;<span class="lifetime">'a</span>&gt;(
+    input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    previous_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">'a</span>&gt;&gt;,
+    last_reserved_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">'a</span>&gt;&gt;,
     named_placeholders: bool,
-) -&gt; IResult&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, Token&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+) -&gt; IResult&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, Token&lt;<span class="lifetime">'a</span>&gt;&gt; {
     get_whitespace_token(input)
         .or_else(|<span class="kw">_</span>| get_comment_token(input))
         .or_else(|<span class="kw">_</span>| get_string_token(input))
@@ -1092,7 +1093,7 @@
         .or_else(|<span class="kw">_</span>| get_operator_token(input))
 }
 
-<span class="kw">fn </span>get_whitespace_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_whitespace_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     take_while1(char::is_whitespace)(input).map(|(input, token)| {
         (
             input,
@@ -1105,12 +1106,12 @@
     })
 }
 
-<span class="kw">fn </span>get_comment_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_comment_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     get_line_comment_token(input).or_else(|<span class="kw">_</span>| get_block_comment_token(input))
 }
 
-<span class="kw">fn </span>get_line_comment_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
-    recognize(tuple((alt((tag(<span class="string">&quot;#&quot;</span>), tag(<span class="string">&quot;--&quot;</span>))), not_line_ending)))(input).map(|(input, token)| {
+<span class="kw">fn </span>get_line_comment_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
+    recognize(tuple((alt((tag(<span class="string">"#"</span>), tag(<span class="string">"--"</span>))), not_line_ending)))(input).map(|(input, token)| {
         (
             input,
             Token {
@@ -1122,10 +1123,10 @@
     })
 }
 
-<span class="kw">fn </span>get_block_comment_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_block_comment_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     recognize(tuple((
-        tag(<span class="string">&quot;/*&quot;</span>),
-        alt((take_until(<span class="string">&quot;*/&quot;</span>), recognize(many0(anychar)))),
+        tag(<span class="string">"/*"</span>),
+        alt((take_until(<span class="string">"*/"</span>), recognize(many0(anychar)))),
         opt(take(<span class="number">2usize</span>)),
     )))(input)
     .map(|(input, token)| {
@@ -1140,10 +1141,10 @@
     })
 }
 
-<span class="kw">pub fn </span>take_till_escaping&lt;<span class="lifetime">&#39;a</span>, Error: ParseError&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;&gt;(
+<span class="kw">pub fn </span>take_till_escaping&lt;<span class="lifetime">'a</span>, Error: ParseError&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;&gt;(
     desired: char,
-    escapes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[char],
-) -&gt; <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, Error&gt; {
+    escapes: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[char],
+) -&gt; <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, Error&gt; {
     <span class="kw">move </span>|input: <span class="kw-2">&amp;</span>str| {
         <span class="kw">let </span><span class="kw-2">mut </span>chars = input.chars().enumerate().peekable();
         <span class="kw">loop </span>{
@@ -1164,7 +1165,7 @@
                     }
                 }
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="string">&quot;&quot;</span>, input));
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="string">""</span>, input));
                 }
             }
         }
@@ -1174,34 +1175,34 @@
 <span class="comment">// This enables the following string patterns:
 // 1. backtick quoted string using `` to escape
 // 2. square bracket quoted string (SQL Server) using ]] to escape
-// 3. double quoted string using &quot;&quot; or \&quot; to escape
-// 4. single quoted string using &#39;&#39; or \&#39; to escape
-// 5. national character quoted string using N&#39;&#39; or N\&#39; to escape
-</span><span class="kw">fn </span>get_string_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+// 3. double quoted string using "" or \" to escape
+// 4. single quoted string using '' or \' to escape
+// 5. national character quoted string using N'' or N\' to escape
+</span><span class="kw">fn </span>get_string_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     alt((
         recognize(tuple((
-            char(<span class="string">&#39;`&#39;</span>),
-            take_till_escaping(<span class="string">&#39;`&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;`&#39;</span>]),
+            char(<span class="string">'`'</span>),
+            take_till_escaping(<span class="string">'`'</span>, <span class="kw-2">&amp;</span>[<span class="string">'`'</span>]),
             take(<span class="number">1usize</span>),
         ))),
         recognize(tuple((
-            char(<span class="string">&#39;[&#39;</span>),
-            take_till_escaping(<span class="string">&#39;]&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;]&#39;</span>]),
+            char(<span class="string">'['</span>),
+            take_till_escaping(<span class="string">']'</span>, <span class="kw-2">&amp;</span>[<span class="string">']'</span>]),
             take(<span class="number">1usize</span>),
         ))),
         recognize(tuple((
-            char(<span class="string">&#39;&quot;&#39;</span>),
-            take_till_escaping(<span class="string">&#39;&quot;&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;&quot;&#39;</span>, <span class="string">&#39;\\&#39;</span>]),
+            char(<span class="string">'"'</span>),
+            take_till_escaping(<span class="string">'"'</span>, <span class="kw-2">&amp;</span>[<span class="string">'"'</span>, <span class="string">'\\'</span>]),
             take(<span class="number">1usize</span>),
         ))),
         recognize(tuple((
-            char(<span class="string">&#39;\&#39;&#39;</span>),
-            take_till_escaping(<span class="string">&#39;\&#39;&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;\&#39;&#39;</span>, <span class="string">&#39;\\&#39;</span>]),
+            char(<span class="string">'\''</span>),
+            take_till_escaping(<span class="string">'\''</span>, <span class="kw-2">&amp;</span>[<span class="string">'\''</span>, <span class="string">'\\'</span>]),
             take(<span class="number">1usize</span>),
         ))),
         recognize(tuple((
-            tag(<span class="string">&quot;N&#39;&quot;</span>),
-            take_till_escaping(<span class="string">&#39;\&#39;&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;\&#39;&#39;</span>, <span class="string">&#39;\\&#39;</span>]),
+            tag(<span class="string">"N'"</span>),
+            take_till_escaping(<span class="string">'\''</span>, <span class="kw-2">&amp;</span>[<span class="string">'\''</span>, <span class="string">'\\'</span>]),
             take(<span class="number">1usize</span>),
         ))),
     ))(input)
@@ -1217,32 +1218,32 @@
     })
 }
 
-<span class="comment">// Like above but it doesn&#39;t replace double quotes
-</span><span class="kw">fn </span>get_placeholder_string_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="comment">// Like above but it doesn't replace double quotes
+</span><span class="kw">fn </span>get_placeholder_string_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     alt((
         recognize(tuple((
-            char(<span class="string">&#39;`&#39;</span>),
-            take_till_escaping(<span class="string">&#39;`&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;`&#39;</span>]),
+            char(<span class="string">'`'</span>),
+            take_till_escaping(<span class="string">'`'</span>, <span class="kw-2">&amp;</span>[<span class="string">'`'</span>]),
             take(<span class="number">1usize</span>),
         ))),
         recognize(tuple((
-            char(<span class="string">&#39;[&#39;</span>),
-            take_till_escaping(<span class="string">&#39;]&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;]&#39;</span>]),
+            char(<span class="string">'['</span>),
+            take_till_escaping(<span class="string">']'</span>, <span class="kw-2">&amp;</span>[<span class="string">']'</span>]),
             take(<span class="number">1usize</span>),
         ))),
         recognize(tuple((
-            char(<span class="string">&#39;&quot;&#39;</span>),
-            take_till_escaping(<span class="string">&#39;&quot;&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;\\&#39;</span>]),
+            char(<span class="string">'"'</span>),
+            take_till_escaping(<span class="string">'"'</span>, <span class="kw-2">&amp;</span>[<span class="string">'\\'</span>]),
             take(<span class="number">1usize</span>),
         ))),
         recognize(tuple((
-            char(<span class="string">&#39;\&#39;&#39;</span>),
-            take_till_escaping(<span class="string">&#39;\&#39;&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;\\&#39;</span>]),
+            char(<span class="string">'\''</span>),
+            take_till_escaping(<span class="string">'\''</span>, <span class="kw-2">&amp;</span>[<span class="string">'\\'</span>]),
             take(<span class="number">1usize</span>),
         ))),
         recognize(tuple((
-            tag(<span class="string">&quot;N&#39;&quot;</span>),
-            take_till_escaping(<span class="string">&#39;\&#39;&#39;</span>, <span class="kw-2">&amp;</span>[<span class="string">&#39;\\&#39;</span>]),
+            tag(<span class="string">"N'"</span>),
+            take_till_escaping(<span class="string">'\''</span>, <span class="kw-2">&amp;</span>[<span class="string">'\\'</span>]),
             take(<span class="number">1usize</span>),
         ))),
     ))(input)
@@ -1258,8 +1259,8 @@
     })
 }
 
-<span class="kw">fn </span>get_open_paren_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
-    alt((tag(<span class="string">&quot;(&quot;</span>), terminated(tag_no_case(<span class="string">&quot;CASE&quot;</span>), end_of_word)))(input).map(|(input, token)| {
+<span class="kw">fn </span>get_open_paren_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
+    alt((tag(<span class="string">"("</span>), terminated(tag_no_case(<span class="string">"CASE"</span>), end_of_word)))(input).map(|(input, token)| {
         (
             input,
             Token {
@@ -1271,8 +1272,8 @@
     })
 }
 
-<span class="kw">fn </span>get_close_paren_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
-    alt((tag(<span class="string">&quot;)&quot;</span>), terminated(tag_no_case(<span class="string">&quot;END&quot;</span>), end_of_word)))(input).map(|(input, token)| {
+<span class="kw">fn </span>get_close_paren_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
+    alt((tag(<span class="string">")"</span>), terminated(tag_no_case(<span class="string">"END"</span>), end_of_word)))(input).map(|(input, token)| {
         (
             input,
             Token {
@@ -1284,9 +1285,9 @@
     })
 }
 
-<span class="kw">fn </span>get_placeholder_token(input: <span class="kw-2">&amp;</span>str, named_placeholders: bool) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
-    <span class="comment">// The precedence changes based on &#39;named_placeholders&#39; but not the exhaustiveness.
-    // This is to ensure the formatting is the same even if parameters aren&#39;t used.
+<span class="kw">fn </span>get_placeholder_token(input: <span class="kw-2">&amp;</span>str, named_placeholders: bool) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
+    <span class="comment">// The precedence changes based on 'named_placeholders' but not the exhaustiveness.
+    // This is to ensure the formatting is the same even if parameters aren't used.
 
     </span><span class="kw">if </span>named_placeholders {
         alt((
@@ -1303,10 +1304,10 @@
     }
 }
 
-<span class="kw">fn </span>get_indexed_placeholder_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_indexed_placeholder_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     alt((
-        recognize(tuple((alt((char(<span class="string">&#39;?&#39;</span>), char(<span class="string">&#39;$&#39;</span>))), digit1))),
-        recognize(char(<span class="string">&#39;?&#39;</span>)),
+        recognize(tuple((alt((char(<span class="string">'?'</span>), char(<span class="string">'$'</span>))), digit1))),
+        recognize(char(<span class="string">'?'</span>)),
     ))(input)
     .map(|(input, token)| {
         (
@@ -1316,7 +1317,7 @@
                 value: token,
                 key: <span class="kw">if </span>token.len() &gt; <span class="number">1 </span>{
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(index) = token[<span class="number">1</span>..].parse::&lt;usize&gt;() {
-                        <span class="prelude-val">Some</span>(<span class="kw">if </span>token.starts_with(<span class="string">&#39;$&#39;</span>) {
+                        <span class="prelude-val">Some</span>(<span class="kw">if </span>token.starts_with(<span class="string">'$'</span>) {
                             PlaceholderKind::OneIndexed(index)
                         } <span class="kw">else </span>{
                             PlaceholderKind::ZeroIndexed(index)
@@ -1332,11 +1333,11 @@
     })
 }
 
-<span class="kw">fn </span>get_ident_named_placeholder_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_ident_named_placeholder_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     recognize(tuple((
-        alt((char(<span class="string">&#39;@&#39;</span>), char(<span class="string">&#39;:&#39;</span>), char(<span class="string">&#39;$&#39;</span>))),
+        alt((char(<span class="string">'@'</span>), char(<span class="string">':'</span>), char(<span class="string">'$'</span>))),
         take_while1(|item: char| {
-            item.is_alphanumeric() || item == <span class="string">&#39;.&#39; </span>|| item == <span class="string">&#39;_&#39; </span>|| item == <span class="string">&#39;$&#39;
+            item.is_alphanumeric() || item == <span class="string">'.' </span>|| item == <span class="string">'_' </span>|| item == <span class="string">'$'
         </span>}),
     )))(input)
     .map(|(input, token)| {
@@ -1352,9 +1353,9 @@
     })
 }
 
-<span class="kw">fn </span>get_string_named_placeholder_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_string_named_placeholder_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     recognize(tuple((
-        alt((char(<span class="string">&#39;@&#39;</span>), char(<span class="string">&#39;:&#39;</span>))),
+        alt((char(<span class="string">'@'</span>), char(<span class="string">':'</span>))),
         get_placeholder_string_token,
     )))(input)
     .map(|(input, token)| {
@@ -1371,13 +1372,13 @@
     })
 }
 
-<span class="kw">fn </span>get_escaped_placeholder_key&lt;<span class="lifetime">&#39;a</span>&gt;(key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, quote_char: <span class="kw-2">&amp;</span>str) -&gt; Cow&lt;<span class="lifetime">&#39;a</span>, str&gt; {
-    Cow::Owned(key.replace(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\\{}&quot;</span>, quote_char), quote_char))
+<span class="kw">fn </span>get_escaped_placeholder_key&lt;<span class="lifetime">'a</span>&gt;(key: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, quote_char: <span class="kw-2">&amp;</span>str) -&gt; Cow&lt;<span class="lifetime">'a</span>, str&gt; {
+    Cow::Owned(key.replace(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"\\{}"</span>, quote_char), quote_char))
 }
 
-<span class="kw">fn </span>get_number_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_number_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     recognize(tuple((
-        opt(tag(<span class="string">&quot;-&quot;</span>)),
+        opt(tag(<span class="string">"-"</span>)),
         alt((scientific_notation, decimal_number, digit1)),
     )))(input)
     .map(|(input, token)| {
@@ -1393,27 +1394,27 @@
 }
 
 <span class="kw">fn </span>decimal_number(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str&gt; {
-    recognize(tuple((digit1, tag(<span class="string">&quot;.&quot;</span>), digit0)))(input)
+    recognize(tuple((digit1, tag(<span class="string">"."</span>), digit0)))(input)
 }
 
 <span class="kw">fn </span>scientific_notation(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str&gt; {
     recognize(tuple((
         alt((decimal_number, digit1)),
-        tag(<span class="string">&quot;e&quot;</span>),
-        alt((tag(<span class="string">&quot;-&quot;</span>), tag(<span class="string">&quot;+&quot;</span>), tag(<span class="string">&quot;&quot;</span>))),
+        tag(<span class="string">"e"</span>),
+        alt((tag(<span class="string">"-"</span>), tag(<span class="string">"+"</span>), tag(<span class="string">""</span>))),
         digit1,
     )))(input)
 }
 
-<span class="kw">fn </span>get_reserved_word_token&lt;<span class="lifetime">&#39;a</span>&gt;(
-    input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    previous_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-    last_reserved_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-) -&gt; IResult&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, Token&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-    <span class="comment">// A reserved word cannot be preceded by a &quot;.&quot;
-    // this makes it so in &quot;my_table.from&quot;, &quot;from&quot; is not considered a reserved word
+<span class="kw">fn </span>get_reserved_word_token&lt;<span class="lifetime">'a</span>&gt;(
+    input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    previous_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">'a</span>&gt;&gt;,
+    last_reserved_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">'a</span>&gt;&gt;,
+) -&gt; IResult&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, Token&lt;<span class="lifetime">'a</span>&gt;&gt; {
+    <span class="comment">// A reserved word cannot be preceded by a "."
+    // this makes it so in "my_table.from", "from" is not considered a reserved word
     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(token) = previous_token {
-        <span class="kw">if </span>token.value == <span class="string">&quot;.&quot; </span>{
+        <span class="kw">if </span>token.value == <span class="string">"." </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(Err::Error(Error::new(input, ErrorKind::IsNot)));
         }
     }
@@ -1432,41 +1433,41 @@
         .split_whitespace()
         .take(words)
         .collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>str&gt;&gt;()
-        .join(<span class="string">&quot; &quot;</span>)
+        .join(<span class="string">" "</span>)
         .to_ascii_uppercase()
 }
 
-<span class="kw">fn </span>get_top_level_reserved_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_top_level_reserved_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     <span class="kw">let </span>uc_input = get_uc_words(input, <span class="number">3</span>);
     <span class="kw">let </span>result: IResult&lt;<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str&gt; = alt((
-        terminated(tag(<span class="string">&quot;ADD&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;AFTER&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ALTER COLUMN&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ALTER TABLE&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;DELETE FROM&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;EXCEPT&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;FETCH FIRST&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;FROM&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;GROUP BY&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;GO&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;HAVING&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;INSERT INTO&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;INSERT&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;LIMIT&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;MODIFY&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ORDER BY&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;SELECT&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;SET CURRENT SCHEMA&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;SET SCHEMA&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;SET&quot;</span>), end_of_word),
+        terminated(tag(<span class="string">"ADD"</span>), end_of_word),
+        terminated(tag(<span class="string">"AFTER"</span>), end_of_word),
+        terminated(tag(<span class="string">"ALTER COLUMN"</span>), end_of_word),
+        terminated(tag(<span class="string">"ALTER TABLE"</span>), end_of_word),
+        terminated(tag(<span class="string">"DELETE FROM"</span>), end_of_word),
+        terminated(tag(<span class="string">"EXCEPT"</span>), end_of_word),
+        terminated(tag(<span class="string">"FETCH FIRST"</span>), end_of_word),
+        terminated(tag(<span class="string">"FROM"</span>), end_of_word),
+        terminated(tag(<span class="string">"GROUP BY"</span>), end_of_word),
+        terminated(tag(<span class="string">"GO"</span>), end_of_word),
+        terminated(tag(<span class="string">"HAVING"</span>), end_of_word),
+        terminated(tag(<span class="string">"INSERT INTO"</span>), end_of_word),
+        terminated(tag(<span class="string">"INSERT"</span>), end_of_word),
+        terminated(tag(<span class="string">"LIMIT"</span>), end_of_word),
+        terminated(tag(<span class="string">"MODIFY"</span>), end_of_word),
+        terminated(tag(<span class="string">"ORDER BY"</span>), end_of_word),
+        terminated(tag(<span class="string">"SELECT"</span>), end_of_word),
+        terminated(tag(<span class="string">"SET CURRENT SCHEMA"</span>), end_of_word),
+        terminated(tag(<span class="string">"SET SCHEMA"</span>), end_of_word),
+        terminated(tag(<span class="string">"SET"</span>), end_of_word),
         alt((
-            terminated(tag(<span class="string">&quot;UPDATE&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;VALUES&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;WHERE&quot;</span>), end_of_word),
+            terminated(tag(<span class="string">"UPDATE"</span>), end_of_word),
+            terminated(tag(<span class="string">"VALUES"</span>), end_of_word),
+            terminated(tag(<span class="string">"WHERE"</span>), end_of_word),
         )),
     ))(<span class="kw-2">&amp;</span>uc_input);
     <span class="kw">if let </span><span class="prelude-val">Ok</span>((<span class="kw">_</span>, token)) = result {
-        <span class="kw">let </span>final_word = token.split(<span class="string">&#39; &#39;</span>).last().unwrap();
+        <span class="kw">let </span>final_word = token.split(<span class="string">' '</span>).last().unwrap();
         <span class="kw">let </span>input_end_pos = input.to_ascii_uppercase().find(final_word).unwrap() + final_word.len();
         <span class="kw">let </span>(token, input) = input.split_at(input_end_pos);
         <span class="prelude-val">Ok</span>((
@@ -1482,38 +1483,38 @@
     }
 }
 
-<span class="kw">fn </span>get_newline_reserved_token&lt;<span class="lifetime">&#39;a</span>&gt;(
-    last_reserved_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-) -&gt; <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, Token&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-    <span class="kw">move </span>|input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str| {
+<span class="kw">fn </span>get_newline_reserved_token&lt;<span class="lifetime">'a</span>&gt;(
+    last_reserved_token: <span class="prelude-ty">Option</span>&lt;Token&lt;<span class="lifetime">'a</span>&gt;&gt;,
+) -&gt; <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, Token&lt;<span class="lifetime">'a</span>&gt;&gt; {
+    <span class="kw">move </span>|input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str| {
         <span class="kw">let </span>uc_input = get_uc_words(input, <span class="number">3</span>);
         <span class="kw">let </span>result: IResult&lt;<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str&gt; = alt((
-            terminated(tag(<span class="string">&quot;AND&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CROSS APPLY&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CROSS JOIN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;ELSE&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;INNER JOIN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;JOIN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;LEFT JOIN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;LEFT OUTER JOIN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;OR&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;OUTER APPLY&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;OUTER JOIN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;RIGHT JOIN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;RIGHT OUTER JOIN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;WHEN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;XOR&quot;</span>), end_of_word),
+            terminated(tag(<span class="string">"AND"</span>), end_of_word),
+            terminated(tag(<span class="string">"CROSS APPLY"</span>), end_of_word),
+            terminated(tag(<span class="string">"CROSS JOIN"</span>), end_of_word),
+            terminated(tag(<span class="string">"ELSE"</span>), end_of_word),
+            terminated(tag(<span class="string">"INNER JOIN"</span>), end_of_word),
+            terminated(tag(<span class="string">"JOIN"</span>), end_of_word),
+            terminated(tag(<span class="string">"LEFT JOIN"</span>), end_of_word),
+            terminated(tag(<span class="string">"LEFT OUTER JOIN"</span>), end_of_word),
+            terminated(tag(<span class="string">"OR"</span>), end_of_word),
+            terminated(tag(<span class="string">"OUTER APPLY"</span>), end_of_word),
+            terminated(tag(<span class="string">"OUTER JOIN"</span>), end_of_word),
+            terminated(tag(<span class="string">"RIGHT JOIN"</span>), end_of_word),
+            terminated(tag(<span class="string">"RIGHT OUTER JOIN"</span>), end_of_word),
+            terminated(tag(<span class="string">"WHEN"</span>), end_of_word),
+            terminated(tag(<span class="string">"XOR"</span>), end_of_word),
         ))(<span class="kw-2">&amp;</span>uc_input);
         <span class="kw">if let </span><span class="prelude-val">Ok</span>((<span class="kw">_</span>, token)) = result {
-            <span class="kw">let </span>final_word = token.split(<span class="string">&#39; &#39;</span>).last().unwrap();
+            <span class="kw">let </span>final_word = token.split(<span class="string">' '</span>).last().unwrap();
             <span class="kw">let </span>input_end_pos =
                 input.to_ascii_uppercase().find(final_word).unwrap() + final_word.len();
             <span class="kw">let </span>(token, input) = input.split_at(input_end_pos);
-            <span class="kw">let </span>kind = <span class="kw">if </span>token == <span class="string">&quot;AND&quot;
+            <span class="kw">let </span>kind = <span class="kw">if </span>token == <span class="string">"AND"
                 </span>&amp;&amp; last_reserved_token.is_some()
-                &amp;&amp; last_reserved_token.as_ref().unwrap().value == <span class="string">&quot;BETWEEN&quot;
+                &amp;&amp; last_reserved_token.as_ref().unwrap().value == <span class="string">"BETWEEN"
             </span>{
-                <span class="comment">// If the &quot;AND&quot; is part of a &quot;BETWEEN&quot; clause, we want to handle it as one clause by not adding a new line.
+                <span class="comment">// If the "AND" is part of a "BETWEEN" clause, we want to handle it as one clause by not adding a new line.
                 </span>TokenKind::Reserved
             } <span class="kw">else </span>{
                 TokenKind::ReservedNewline
@@ -1532,20 +1533,20 @@
     }
 }
 
-<span class="kw">fn </span>get_top_level_reserved_token_no_indent(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_top_level_reserved_token_no_indent(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     <span class="kw">let </span>uc_input = get_uc_words(input, <span class="number">2</span>);
     <span class="kw">let </span>result: IResult&lt;<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str&gt; = alt((
-        terminated(tag(<span class="string">&quot;BEGIN&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;DECLARE&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;INTERSECT&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;INTERSECT ALL&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;MINUS&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;UNION&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;UNION ALL&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;$$&quot;</span>), end_of_word),
+        terminated(tag(<span class="string">"BEGIN"</span>), end_of_word),
+        terminated(tag(<span class="string">"DECLARE"</span>), end_of_word),
+        terminated(tag(<span class="string">"INTERSECT"</span>), end_of_word),
+        terminated(tag(<span class="string">"INTERSECT ALL"</span>), end_of_word),
+        terminated(tag(<span class="string">"MINUS"</span>), end_of_word),
+        terminated(tag(<span class="string">"UNION"</span>), end_of_word),
+        terminated(tag(<span class="string">"UNION ALL"</span>), end_of_word),
+        terminated(tag(<span class="string">"$$"</span>), end_of_word),
     ))(<span class="kw-2">&amp;</span>uc_input);
     <span class="kw">if let </span><span class="prelude-val">Ok</span>((<span class="kw">_</span>, token)) = result {
-        <span class="kw">let </span>final_word = token.split(<span class="string">&#39; &#39;</span>).last().unwrap();
+        <span class="kw">let </span>final_word = token.split(<span class="string">' '</span>).last().unwrap();
         <span class="kw">let </span>input_end_pos = input.to_ascii_uppercase().find(final_word).unwrap() + final_word.len();
         <span class="kw">let </span>(token, input) = input.split_at(input_end_pos);
         <span class="prelude-val">Ok</span>((
@@ -1561,333 +1562,333 @@
     }
 }
 
-<span class="kw">fn </span>get_plain_reserved_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_plain_reserved_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     <span class="kw">let </span>uc_input = get_uc_words(input, <span class="number">1</span>);
     <span class="kw">let </span>result: IResult&lt;<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str&gt; = alt((
-        terminated(tag(<span class="string">&quot;ACCESSIBLE&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ACTION&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;AGAINST&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;AGGREGATE&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ALGORITHM&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ALL&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ALTER&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ANALYSE&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ANALYZE&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;AS&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;ASC&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;AUTOCOMMIT&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;AUTO_INCREMENT&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;BACKUP&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;BETWEEN&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;BINLOG&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;BOTH&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;CASCADE&quot;</span>), end_of_word),
-        terminated(tag(<span class="string">&quot;CASE&quot;</span>), end_of_word),
+        terminated(tag(<span class="string">"ACCESSIBLE"</span>), end_of_word),
+        terminated(tag(<span class="string">"ACTION"</span>), end_of_word),
+        terminated(tag(<span class="string">"AGAINST"</span>), end_of_word),
+        terminated(tag(<span class="string">"AGGREGATE"</span>), end_of_word),
+        terminated(tag(<span class="string">"ALGORITHM"</span>), end_of_word),
+        terminated(tag(<span class="string">"ALL"</span>), end_of_word),
+        terminated(tag(<span class="string">"ALTER"</span>), end_of_word),
+        terminated(tag(<span class="string">"ANALYSE"</span>), end_of_word),
+        terminated(tag(<span class="string">"ANALYZE"</span>), end_of_word),
+        terminated(tag(<span class="string">"AS"</span>), end_of_word),
+        terminated(tag(<span class="string">"ASC"</span>), end_of_word),
+        terminated(tag(<span class="string">"AUTOCOMMIT"</span>), end_of_word),
+        terminated(tag(<span class="string">"AUTO_INCREMENT"</span>), end_of_word),
+        terminated(tag(<span class="string">"BACKUP"</span>), end_of_word),
+        terminated(tag(<span class="string">"BETWEEN"</span>), end_of_word),
+        terminated(tag(<span class="string">"BINLOG"</span>), end_of_word),
+        terminated(tag(<span class="string">"BOTH"</span>), end_of_word),
+        terminated(tag(<span class="string">"CASCADE"</span>), end_of_word),
+        terminated(tag(<span class="string">"CASE"</span>), end_of_word),
         alt((
-            terminated(tag(<span class="string">&quot;CHANGE&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CHANGED&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CHARACTER SET&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CHARSET&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CHECK&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CHECKSUM&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;COLLATE&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;COLLATION&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;COLUMN&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;COLUMNS&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;COMMENT&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;COMMIT&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;COMMITTED&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;COMPRESSED&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CONCURRENT&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CONSTRAINT&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CONTAINS&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CONVERT&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CREATE&quot;</span>), end_of_word),
-            terminated(tag(<span class="string">&quot;CROSS&quot;</span>), end_of_word),
+            terminated(tag(<span class="string">"CHANGE"</span>), end_of_word),
+            terminated(tag(<span class="string">"CHANGED"</span>), end_of_word),
+            terminated(tag(<span class="string">"CHARACTER SET"</span>), end_of_word),
+            terminated(tag(<span class="string">"CHARSET"</span>), end_of_word),
+            terminated(tag(<span class="string">"CHECK"</span>), end_of_word),
+            terminated(tag(<span class="string">"CHECKSUM"</span>), end_of_word),
+            terminated(tag(<span class="string">"COLLATE"</span>), end_of_word),
+            terminated(tag(<span class="string">"COLLATION"</span>), end_of_word),
+            terminated(tag(<span class="string">"COLUMN"</span>), end_of_word),
+            terminated(tag(<span class="string">"COLUMNS"</span>), end_of_word),
+            terminated(tag(<span class="string">"COMMENT"</span>), end_of_word),
+            terminated(tag(<span class="string">"COMMIT"</span>), end_of_word),
+            terminated(tag(<span class="string">"COMMITTED"</span>), end_of_word),
+            terminated(tag(<span class="string">"COMPRESSED"</span>), end_of_word),
+            terminated(tag(<span class="string">"CONCURRENT"</span>), end_of_word),
+            terminated(tag(<span class="string">"CONSTRAINT"</span>), end_of_word),
+            terminated(tag(<span class="string">"CONTAINS"</span>), end_of_word),
+            terminated(tag(<span class="string">"CONVERT"</span>), end_of_word),
+            terminated(tag(<span class="string">"CREATE"</span>), end_of_word),
+            terminated(tag(<span class="string">"CROSS"</span>), end_of_word),
             alt((
-                terminated(tag(<span class="string">&quot;CURRENT_TIMESTAMP&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DATABASE&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DATABASES&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DAY&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DAY_HOUR&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DAY_MINUTE&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DAY_SECOND&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DEFAULT&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DEFINER&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DELAYED&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DELETE&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DESC&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DESCRIBE&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DETERMINISTIC&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DISTINCT&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DISTINCTROW&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DIV&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DO&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DROP&quot;</span>), end_of_word),
-                terminated(tag(<span class="string">&quot;DUMPFILE&quot;</span>), end_of_word),
+                terminated(tag(<span class="string">"CURRENT_TIMESTAMP"</span>), end_of_word),
+                terminated(tag(<span class="string">"DATABASE"</span>), end_of_word),
+                terminated(tag(<span class="string">"DATABASES"</span>), end_of_word),
+                terminated(tag(<span class="string">"DAY"</span>), end_of_word),
+                terminated(tag(<span class="string">"DAY_HOUR"</span>), end_of_word),
+                terminated(tag(<span class="string">"DAY_MINUTE"</span>), end_of_word),
+                terminated(tag(<span class="string">"DAY_SECOND"</span>), end_of_word),
+                terminated(tag(<span class="string">"DEFAULT"</span>), end_of_word),
+                terminated(tag(<span class="string">"DEFINER"</span>), end_of_word),
+                terminated(tag(<span class="string">"DELAYED"</span>), end_of_word),
+                terminated(tag(<span class="string">"DELETE"</span>), end_of_word),
+                terminated(tag(<span class="string">"DESC"</span>), end_of_word),
+                terminated(tag(<span class="string">"DESCRIBE"</span>), end_of_word),
+                terminated(tag(<span class="string">"DETERMINISTIC"</span>), end_of_word),
+                terminated(tag(<span class="string">"DISTINCT"</span>), end_of_word),
+                terminated(tag(<span class="string">"DISTINCTROW"</span>), end_of_word),
+                terminated(tag(<span class="string">"DIV"</span>), end_of_word),
+                terminated(tag(<span class="string">"DO"</span>), end_of_word),
+                terminated(tag(<span class="string">"DROP"</span>), end_of_word),
+                terminated(tag(<span class="string">"DUMPFILE"</span>), end_of_word),
                 alt((
-                    terminated(tag(<span class="string">&quot;DUPLICATE&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;DYNAMIC&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;ELSE&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;ENCLOSED&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;END&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;ENGINE&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;ENGINES&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;ENGINE_TYPE&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;ESCAPE&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;ESCAPED&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;EVENTS&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;EXEC&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;EXECUTE&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;EXISTS&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;EXPLAIN&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;EXTENDED&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;FAST&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;FETCH&quot;</span>), end_of_word),
-                    terminated(tag(<span class="string">&quot;FIELDS&quot;</span>), end_of_word),
+                    terminated(tag(<span class="string">"DUPLICATE"</span>), end_of_word),
+                    terminated(tag(<span class="string">"DYNAMIC"</span>), end_of_word),
+                    terminated(tag(<span class="string">"ELSE"</span>), end_of_word),
+                    terminated(tag(<span class="string">"ENCLOSED"</span>), end_of_word),
+                    terminated(tag(<span class="string">"END"</span>), end_of_word),
+                    terminated(tag(<span class="string">"ENGINE"</span>), end_of_word),
+                    terminated(tag(<span class="string">"ENGINES"</span>), end_of_word),
+                    terminated(tag(<span class="string">"ENGINE_TYPE"</span>), end_of_word),
+                    terminated(tag(<span class="string">"ESCAPE"</span>), end_of_word),
+                    terminated(tag(<span class="string">"ESCAPED"</span>), end_of_word),
+                    terminated(tag(<span class="string">"EVENTS"</span>), end_of_word),
+                    terminated(tag(<span class="string">"EXEC"</span>), end_of_word),
+                    terminated(tag(<span class="string">"EXECUTE"</span>), end_of_word),
+                    terminated(tag(<span class="string">"EXISTS"</span>), end_of_word),
+                    terminated(tag(<span class="string">"EXPLAIN"</span>), end_of_word),
+                    terminated(tag(<span class="string">"EXTENDED"</span>), end_of_word),
+                    terminated(tag(<span class="string">"FAST"</span>), end_of_word),
+                    terminated(tag(<span class="string">"FETCH"</span>), end_of_word),
+                    terminated(tag(<span class="string">"FIELDS"</span>), end_of_word),
                     alt((
-                        terminated(tag(<span class="string">&quot;FILE&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;FIRST&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;FIXED&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;FLUSH&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;FOR&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;FORCE&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;FOREIGN&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;FULL&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;FULLTEXT&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;FUNCTION&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;GLOBAL&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;GRANT&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;GRANTS&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;GROUP_CONCAT&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;HEAP&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;HIGH_PRIORITY&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;HOSTS&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;HOUR&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;HOUR_MINUTE&quot;</span>), end_of_word),
-                        terminated(tag(<span class="string">&quot;HOUR_SECOND&quot;</span>), end_of_word),
+                        terminated(tag(<span class="string">"FILE"</span>), end_of_word),
+                        terminated(tag(<span class="string">"FIRST"</span>), end_of_word),
+                        terminated(tag(<span class="string">"FIXED"</span>), end_of_word),
+                        terminated(tag(<span class="string">"FLUSH"</span>), end_of_word),
+                        terminated(tag(<span class="string">"FOR"</span>), end_of_word),
+                        terminated(tag(<span class="string">"FORCE"</span>), end_of_word),
+                        terminated(tag(<span class="string">"FOREIGN"</span>), end_of_word),
+                        terminated(tag(<span class="string">"FULL"</span>), end_of_word),
+                        terminated(tag(<span class="string">"FULLTEXT"</span>), end_of_word),
+                        terminated(tag(<span class="string">"FUNCTION"</span>), end_of_word),
+                        terminated(tag(<span class="string">"GLOBAL"</span>), end_of_word),
+                        terminated(tag(<span class="string">"GRANT"</span>), end_of_word),
+                        terminated(tag(<span class="string">"GRANTS"</span>), end_of_word),
+                        terminated(tag(<span class="string">"GROUP_CONCAT"</span>), end_of_word),
+                        terminated(tag(<span class="string">"HEAP"</span>), end_of_word),
+                        terminated(tag(<span class="string">"HIGH_PRIORITY"</span>), end_of_word),
+                        terminated(tag(<span class="string">"HOSTS"</span>), end_of_word),
+                        terminated(tag(<span class="string">"HOUR"</span>), end_of_word),
+                        terminated(tag(<span class="string">"HOUR_MINUTE"</span>), end_of_word),
+                        terminated(tag(<span class="string">"HOUR_SECOND"</span>), end_of_word),
                         alt((
-                            terminated(tag(<span class="string">&quot;IDENTIFIED&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;IF&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;IFNULL&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;IGNORE&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;IN&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;INDEX&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;INDEXES&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;INFILE&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;INSERT&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;INSERT_ID&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;INSERT_METHOD&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;INTERVAL&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;INTO&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;INVOKER&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;IS&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;ISOLATION&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;KEY&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;KEYS&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;KILL&quot;</span>), end_of_word),
-                            terminated(tag(<span class="string">&quot;LAST_INSERT_ID&quot;</span>), end_of_word),
+                            terminated(tag(<span class="string">"IDENTIFIED"</span>), end_of_word),
+                            terminated(tag(<span class="string">"IF"</span>), end_of_word),
+                            terminated(tag(<span class="string">"IFNULL"</span>), end_of_word),
+                            terminated(tag(<span class="string">"IGNORE"</span>), end_of_word),
+                            terminated(tag(<span class="string">"IN"</span>), end_of_word),
+                            terminated(tag(<span class="string">"INDEX"</span>), end_of_word),
+                            terminated(tag(<span class="string">"INDEXES"</span>), end_of_word),
+                            terminated(tag(<span class="string">"INFILE"</span>), end_of_word),
+                            terminated(tag(<span class="string">"INSERT"</span>), end_of_word),
+                            terminated(tag(<span class="string">"INSERT_ID"</span>), end_of_word),
+                            terminated(tag(<span class="string">"INSERT_METHOD"</span>), end_of_word),
+                            terminated(tag(<span class="string">"INTERVAL"</span>), end_of_word),
+                            terminated(tag(<span class="string">"INTO"</span>), end_of_word),
+                            terminated(tag(<span class="string">"INVOKER"</span>), end_of_word),
+                            terminated(tag(<span class="string">"IS"</span>), end_of_word),
+                            terminated(tag(<span class="string">"ISOLATION"</span>), end_of_word),
+                            terminated(tag(<span class="string">"KEY"</span>), end_of_word),
+                            terminated(tag(<span class="string">"KEYS"</span>), end_of_word),
+                            terminated(tag(<span class="string">"KILL"</span>), end_of_word),
+                            terminated(tag(<span class="string">"LAST_INSERT_ID"</span>), end_of_word),
                             alt((
-                                terminated(tag(<span class="string">&quot;LEADING&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LEVEL&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LIKE&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LINEAR&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LINES&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LOAD&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LOCAL&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LOCK&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LOCKS&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LOGS&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;LOW_PRIORITY&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;MARIA&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;MASTER&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;MASTER_CONNECT_RETRY&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;MASTER_HOST&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;MASTER_LOG_FILE&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;MATCH&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;MAX_CONNECTIONS_PER_HOUR&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;MAX_QUERIES_PER_HOUR&quot;</span>), end_of_word),
-                                terminated(tag(<span class="string">&quot;MAX_ROWS&quot;</span>), end_of_word),
+                                terminated(tag(<span class="string">"LEADING"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LEVEL"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LIKE"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LINEAR"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LINES"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LOAD"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LOCAL"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LOCK"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LOCKS"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LOGS"</span>), end_of_word),
+                                terminated(tag(<span class="string">"LOW_PRIORITY"</span>), end_of_word),
+                                terminated(tag(<span class="string">"MARIA"</span>), end_of_word),
+                                terminated(tag(<span class="string">"MASTER"</span>), end_of_word),
+                                terminated(tag(<span class="string">"MASTER_CONNECT_RETRY"</span>), end_of_word),
+                                terminated(tag(<span class="string">"MASTER_HOST"</span>), end_of_word),
+                                terminated(tag(<span class="string">"MASTER_LOG_FILE"</span>), end_of_word),
+                                terminated(tag(<span class="string">"MATCH"</span>), end_of_word),
+                                terminated(tag(<span class="string">"MAX_CONNECTIONS_PER_HOUR"</span>), end_of_word),
+                                terminated(tag(<span class="string">"MAX_QUERIES_PER_HOUR"</span>), end_of_word),
+                                terminated(tag(<span class="string">"MAX_ROWS"</span>), end_of_word),
                                 alt((
-                                    terminated(tag(<span class="string">&quot;MAX_UPDATES_PER_HOUR&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MAX_USER_CONNECTIONS&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MEDIUM&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MERGE&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MINUTE&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MINUTE_SECOND&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MIN_ROWS&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MODE&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MODIFY&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MONTH&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MRG_MYISAM&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;MYISAM&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;NAMES&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;NATURAL&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;NOT&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;NOW()&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;NULL&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;OFFSET&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;ON DELETE&quot;</span>), end_of_word),
-                                    terminated(tag(<span class="string">&quot;ON UPDATE&quot;</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MAX_UPDATES_PER_HOUR"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MAX_USER_CONNECTIONS"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MEDIUM"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MERGE"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MINUTE"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MINUTE_SECOND"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MIN_ROWS"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MODE"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MODIFY"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MONTH"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MRG_MYISAM"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"MYISAM"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"NAMES"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"NATURAL"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"NOT"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"NOW()"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"NULL"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"OFFSET"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"ON DELETE"</span>), end_of_word),
+                                    terminated(tag(<span class="string">"ON UPDATE"</span>), end_of_word),
                                     alt((
-                                        terminated(tag(<span class="string">&quot;ON&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;ONLY&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;OPEN&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;OPTIMIZE&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;OPTION&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;OPTIONALLY&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;OUTFILE&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PACK_KEYS&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PAGE&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PARTIAL&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PARTITION&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PARTITIONS&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PASSWORD&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PRIMARY&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PRIVILEGES&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PROCEDURE&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PROCESS&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PROCESSLIST&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;PURGE&quot;</span>), end_of_word),
-                                        terminated(tag(<span class="string">&quot;QUICK&quot;</span>), end_of_word),
+                                        terminated(tag(<span class="string">"ON"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"ONLY"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"OPEN"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"OPTIMIZE"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"OPTION"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"OPTIONALLY"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"OUTFILE"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PACK_KEYS"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PAGE"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PARTIAL"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PARTITION"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PARTITIONS"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PASSWORD"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PRIMARY"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PRIVILEGES"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PROCEDURE"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PROCESS"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PROCESSLIST"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"PURGE"</span>), end_of_word),
+                                        terminated(tag(<span class="string">"QUICK"</span>), end_of_word),
                                         alt((
-                                            terminated(tag(<span class="string">&quot;RAID0&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RAID_CHUNKS&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RAID_CHUNKSIZE&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RAID_TYPE&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RANGE&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;READ&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;READ_ONLY&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;READ_WRITE&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;REFERENCES&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;REGEXP&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RELOAD&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RENAME&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;REPAIR&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;REPEATABLE&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;REPLACE&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;REPLICATION&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RESET&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RESTORE&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RESTRICT&quot;</span>), end_of_word),
-                                            terminated(tag(<span class="string">&quot;RETURN&quot;</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RAID0"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RAID_CHUNKS"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RAID_CHUNKSIZE"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RAID_TYPE"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RANGE"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"READ"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"READ_ONLY"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"READ_WRITE"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"REFERENCES"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"REGEXP"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RELOAD"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RENAME"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"REPAIR"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"REPEATABLE"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"REPLACE"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"REPLICATION"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RESET"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RESTORE"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RESTRICT"</span>), end_of_word),
+                                            terminated(tag(<span class="string">"RETURN"</span>), end_of_word),
                                             alt((
-                                                terminated(tag(<span class="string">&quot;RETURNS&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;REVOKE&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;RLIKE&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;ROLLBACK&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;ROW&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;ROWS&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;ROW_FORMAT&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SECOND&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SECURITY&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SEPARATOR&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SERIALIZABLE&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SESSION&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SHARE&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SHOW&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SHUTDOWN&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SLAVE&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SONAME&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SOUNDS&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SQL&quot;</span>), end_of_word),
-                                                terminated(tag(<span class="string">&quot;SQL_AUTO_IS_NULL&quot;</span>), end_of_word),
+                                                terminated(tag(<span class="string">"RETURNS"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"REVOKE"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"RLIKE"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"ROLLBACK"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"ROW"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"ROWS"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"ROW_FORMAT"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SECOND"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SECURITY"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SEPARATOR"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SERIALIZABLE"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SESSION"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SHARE"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SHOW"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SHUTDOWN"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SLAVE"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SONAME"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SOUNDS"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SQL"</span>), end_of_word),
+                                                terminated(tag(<span class="string">"SQL_AUTO_IS_NULL"</span>), end_of_word),
                                                 alt((
-                                                    terminated(tag(<span class="string">&quot;SQL_BIG_RESULT&quot;</span>), end_of_word),
-                                                    terminated(tag(<span class="string">&quot;SQL_BIG_SELECTS&quot;</span>), end_of_word),
-                                                    terminated(tag(<span class="string">&quot;SQL_BIG_TABLES&quot;</span>), end_of_word),
+                                                    terminated(tag(<span class="string">"SQL_BIG_RESULT"</span>), end_of_word),
+                                                    terminated(tag(<span class="string">"SQL_BIG_SELECTS"</span>), end_of_word),
+                                                    terminated(tag(<span class="string">"SQL_BIG_TABLES"</span>), end_of_word),
                                                     terminated(
-                                                        tag(<span class="string">&quot;SQL_BUFFER_RESULT&quot;</span>),
+                                                        tag(<span class="string">"SQL_BUFFER_RESULT"</span>),
                                                         end_of_word,
                                                     ),
-                                                    terminated(tag(<span class="string">&quot;SQL_CACHE&quot;</span>), end_of_word),
+                                                    terminated(tag(<span class="string">"SQL_CACHE"</span>), end_of_word),
                                                     terminated(
-                                                        tag(<span class="string">&quot;SQL_CALC_FOUND_ROWS&quot;</span>),
+                                                        tag(<span class="string">"SQL_CALC_FOUND_ROWS"</span>),
                                                         end_of_word,
                                                     ),
-                                                    terminated(tag(<span class="string">&quot;SQL_LOG_BIN&quot;</span>), end_of_word),
-                                                    terminated(tag(<span class="string">&quot;SQL_LOG_OFF&quot;</span>), end_of_word),
-                                                    terminated(tag(<span class="string">&quot;SQL_LOG_UPDATE&quot;</span>), end_of_word),
+                                                    terminated(tag(<span class="string">"SQL_LOG_BIN"</span>), end_of_word),
+                                                    terminated(tag(<span class="string">"SQL_LOG_OFF"</span>), end_of_word),
+                                                    terminated(tag(<span class="string">"SQL_LOG_UPDATE"</span>), end_of_word),
                                                     terminated(
-                                                        tag(<span class="string">&quot;SQL_LOW_PRIORITY_UPDATES&quot;</span>),
-                                                        end_of_word,
-                                                    ),
-                                                    terminated(
-                                                        tag(<span class="string">&quot;SQL_MAX_JOIN_SIZE&quot;</span>),
-                                                        end_of_word,
-                                                    ),
-                                                    terminated(tag(<span class="string">&quot;SQL_NO_CACHE&quot;</span>), end_of_word),
-                                                    terminated(
-                                                        tag(<span class="string">&quot;SQL_QUOTE_SHOW_CREATE&quot;</span>),
+                                                        tag(<span class="string">"SQL_LOW_PRIORITY_UPDATES"</span>),
                                                         end_of_word,
                                                     ),
                                                     terminated(
-                                                        tag(<span class="string">&quot;SQL_SAFE_UPDATES&quot;</span>),
+                                                        tag(<span class="string">"SQL_MAX_JOIN_SIZE"</span>),
+                                                        end_of_word,
+                                                    ),
+                                                    terminated(tag(<span class="string">"SQL_NO_CACHE"</span>), end_of_word),
+                                                    terminated(
+                                                        tag(<span class="string">"SQL_QUOTE_SHOW_CREATE"</span>),
                                                         end_of_word,
                                                     ),
                                                     terminated(
-                                                        tag(<span class="string">&quot;SQL_SELECT_LIMIT&quot;</span>),
+                                                        tag(<span class="string">"SQL_SAFE_UPDATES"</span>),
                                                         end_of_word,
                                                     ),
                                                     terminated(
-                                                        tag(<span class="string">&quot;SQL_SLAVE_SKIP_COUNTER&quot;</span>),
+                                                        tag(<span class="string">"SQL_SELECT_LIMIT"</span>),
                                                         end_of_word,
                                                     ),
                                                     terminated(
-                                                        tag(<span class="string">&quot;SQL_SMALL_RESULT&quot;</span>),
+                                                        tag(<span class="string">"SQL_SLAVE_SKIP_COUNTER"</span>),
                                                         end_of_word,
                                                     ),
-                                                    terminated(tag(<span class="string">&quot;SQL_WARNINGS&quot;</span>), end_of_word),
-                                                    terminated(tag(<span class="string">&quot;START&quot;</span>), end_of_word),
-                                                    terminated(tag(<span class="string">&quot;STARTING&quot;</span>), end_of_word),
+                                                    terminated(
+                                                        tag(<span class="string">"SQL_SMALL_RESULT"</span>),
+                                                        end_of_word,
+                                                    ),
+                                                    terminated(tag(<span class="string">"SQL_WARNINGS"</span>), end_of_word),
+                                                    terminated(tag(<span class="string">"START"</span>), end_of_word),
+                                                    terminated(tag(<span class="string">"STARTING"</span>), end_of_word),
                                                     alt((
-                                                        terminated(tag(<span class="string">&quot;STATUS&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;STOP&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;STORAGE&quot;</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"STATUS"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"STOP"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"STORAGE"</span>), end_of_word),
                                                         terminated(
-                                                            tag(<span class="string">&quot;STRAIGHT_JOIN&quot;</span>),
+                                                            tag(<span class="string">"STRAIGHT_JOIN"</span>),
                                                             end_of_word,
                                                         ),
-                                                        terminated(tag(<span class="string">&quot;STRING&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;STRIPED&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;SUPER&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;TABLE&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;TABLES&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;TEMPORARY&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;TERMINATED&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;THEN&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;TO&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;TRAILING&quot;</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"STRING"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"STRIPED"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"SUPER"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TABLE"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TABLES"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TEMPORARY"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TERMINATED"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"THEN"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TO"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TRAILING"</span>), end_of_word),
                                                         terminated(
-                                                            tag(<span class="string">&quot;TRANSACTIONAL&quot;</span>),
+                                                            tag(<span class="string">"TRANSACTIONAL"</span>),
                                                             end_of_word,
                                                         ),
-                                                        terminated(tag(<span class="string">&quot;TRUE&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;TRUNCATE&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;TYPE&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;TYPES&quot;</span>), end_of_word),
-                                                        terminated(tag(<span class="string">&quot;UNCOMMITTED&quot;</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TRUE"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TRUNCATE"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TYPE"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"TYPES"</span>), end_of_word),
+                                                        terminated(tag(<span class="string">"UNCOMMITTED"</span>), end_of_word),
                                                         alt((
-                                                            terminated(tag(<span class="string">&quot;UNIQUE&quot;</span>), end_of_word),
-                                                            terminated(tag(<span class="string">&quot;UNLOCK&quot;</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"UNIQUE"</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"UNLOCK"</span>), end_of_word),
                                                             terminated(
-                                                                tag(<span class="string">&quot;UNSIGNED&quot;</span>),
+                                                                tag(<span class="string">"UNSIGNED"</span>),
                                                                 end_of_word,
                                                             ),
-                                                            terminated(tag(<span class="string">&quot;USAGE&quot;</span>), end_of_word),
-                                                            terminated(tag(<span class="string">&quot;USE&quot;</span>), end_of_word),
-                                                            terminated(tag(<span class="string">&quot;USING&quot;</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"USAGE"</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"USE"</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"USING"</span>), end_of_word),
                                                             terminated(
-                                                                tag(<span class="string">&quot;VARIABLES&quot;</span>),
+                                                                tag(<span class="string">"VARIABLES"</span>),
                                                                 end_of_word,
                                                             ),
-                                                            terminated(tag(<span class="string">&quot;VIEW&quot;</span>), end_of_word),
-                                                            terminated(tag(<span class="string">&quot;WHEN&quot;</span>), end_of_word),
-                                                            terminated(tag(<span class="string">&quot;WITH&quot;</span>), end_of_word),
-                                                            terminated(tag(<span class="string">&quot;WORK&quot;</span>), end_of_word),
-                                                            terminated(tag(<span class="string">&quot;WRITE&quot;</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"VIEW"</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"WHEN"</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"WITH"</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"WORK"</span>), end_of_word),
+                                                            terminated(tag(<span class="string">"WRITE"</span>), end_of_word),
                                                             terminated(
-                                                                tag(<span class="string">&quot;YEAR_MONTH&quot;</span>),
+                                                                tag(<span class="string">"YEAR_MONTH"</span>),
                                                                 end_of_word,
                                                             ),
                                                         )),
@@ -1920,7 +1921,7 @@
     }
 }
 
-<span class="kw">fn </span>get_word_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_word_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     take_while1(is_word_character)(input).map(|(input, token)| {
         (
             input,
@@ -1933,29 +1934,29 @@
     })
 }
 
-<span class="kw">fn </span>get_operator_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">fn </span>get_operator_token(input: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
     alt((
-        tag(<span class="string">&quot;!=&quot;</span>),
-        tag(<span class="string">&quot;&lt;&gt;&quot;</span>),
-        tag(<span class="string">&quot;==&quot;</span>),
-        tag(<span class="string">&quot;&lt;=&quot;</span>),
-        tag(<span class="string">&quot;&gt;=&quot;</span>),
-        tag(<span class="string">&quot;!&lt;&quot;</span>),
-        tag(<span class="string">&quot;!&gt;&quot;</span>),
-        tag(<span class="string">&quot;||&quot;</span>),
-        tag(<span class="string">&quot;::&quot;</span>),
-        tag(<span class="string">&quot;-&gt;&gt;&quot;</span>),
-        tag(<span class="string">&quot;-&gt;&quot;</span>),
-        tag(<span class="string">&quot;~~*&quot;</span>),
-        tag(<span class="string">&quot;~~&quot;</span>),
-        tag(<span class="string">&quot;!~~*&quot;</span>),
-        tag(<span class="string">&quot;!~~&quot;</span>),
-        tag(<span class="string">&quot;~*&quot;</span>),
-        tag(<span class="string">&quot;!~*&quot;</span>),
-        tag(<span class="string">&quot;!~&quot;</span>),
-        tag(<span class="string">&quot;:=&quot;</span>),
+        tag(<span class="string">"!="</span>),
+        tag(<span class="string">"&lt;&gt;"</span>),
+        tag(<span class="string">"=="</span>),
+        tag(<span class="string">"&lt;="</span>),
+        tag(<span class="string">"&gt;="</span>),
+        tag(<span class="string">"!&lt;"</span>),
+        tag(<span class="string">"!&gt;"</span>),
+        tag(<span class="string">"||"</span>),
+        tag(<span class="string">"::"</span>),
+        tag(<span class="string">"-&gt;&gt;"</span>),
+        tag(<span class="string">"-&gt;"</span>),
+        tag(<span class="string">"~~*"</span>),
+        tag(<span class="string">"~~"</span>),
+        tag(<span class="string">"!~~*"</span>),
+        tag(<span class="string">"!~~"</span>),
+        tag(<span class="string">"~*"</span>),
+        tag(<span class="string">"!~*"</span>),
+        tag(<span class="string">"!~"</span>),
+        tag(<span class="string">":="</span>),
         recognize(verify(take(<span class="number">1usize</span>), |token: <span class="kw-2">&amp;</span>str| {
-            token != <span class="string">&quot;\n&quot; </span>&amp;&amp; token != <span class="string">&quot;\r&quot;
+            token != <span class="string">"\n" </span>&amp;&amp; token != <span class="string">"\r"
         </span>})),
     ))(input)
     .map(|(input, token)| {

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.63/src/ssl/callbacks.rs`."><title>callbacks.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/ssl/callbacks.rs`."><title>callbacks.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -708,12 +709,12 @@
 </pre></div><pre class="rust"><code><span class="kw">use </span>cfg_if::cfg_if;
 <span class="kw">use </span>foreign_types::ForeignType;
 <span class="kw">use </span>foreign_types::ForeignTypeRef;
-<span class="attr">#[cfg(any(ossl111, not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>)))]
+<span class="attr">#[cfg(any(ossl111, not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>)))]
 </span><span class="kw">use </span>libc::c_char;
 <span class="attr">#[cfg(ossl111)]
 </span><span class="kw">use </span>libc::size_t;
 <span class="kw">use </span>libc::{c_int, c_uchar, c_uint, c_void};
-<span class="attr">#[cfg(any(ossl111, not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>)))]
+<span class="attr">#[cfg(any(ossl111, not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>)))]
 </span><span class="kw">use </span>std::ffi::CStr;
 <span class="kw">use </span>std::mem;
 <span class="kw">use </span>std::ptr;
@@ -741,30 +742,30 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::x509::X509Ref;
 <span class="kw">use </span><span class="kw">crate</span>::x509::{X509StoreContext, X509StoreContextRef};
 
-<span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_verify&lt;F&gt;(preverify_ok: c_int, x509_ctx: <span class="kw-2">*mut </span>ffi::X509_STORE_CTX) -&gt; c_int
+<span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_verify&lt;F&gt;(preverify_ok: c_int, x509_ctx: <span class="kw-2">*mut </span>ffi::X509_STORE_CTX) -&gt; c_int
 <span class="kw">where
-    </span>F: Fn(bool, <span class="kw-2">&amp;mut </span>X509StoreContextRef) -&gt; bool + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(bool, <span class="kw-2">&amp;mut </span>X509StoreContextRef) -&gt; bool + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>ctx = X509StoreContextRef::from_ptr_mut(x509_ctx);
-        <span class="kw">let </span>ssl_idx = X509StoreContext::ssl_idx().expect(<span class="string">&quot;BUG: store context ssl index missing&quot;</span>);
+        <span class="kw">let </span>ssl_idx = X509StoreContext::ssl_idx().expect(<span class="string">"BUG: store context ssl index missing"</span>);
         <span class="kw">let </span>verify_idx = SslContext::cached_ex_index::&lt;F&gt;();
 
         <span class="comment">// raw pointer shenanigans to break the borrow of ctx
-        // the callback can&#39;t mess with its own ex_data slot so this is safe
+        // the callback can't mess with its own ex_data slot so this is safe
         </span><span class="kw">let </span>verify = ctx
             .ex_data(ssl_idx)
-            .expect(<span class="string">&quot;BUG: store context missing ssl&quot;</span>)
+            .expect(<span class="string">"BUG: store context missing ssl"</span>)
             .ssl_context()
             .ex_data(verify_idx)
-            .expect(<span class="string">&quot;BUG: verify callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+            .expect(<span class="string">"BUG: verify callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
 
         (<span class="kw-2">*</span>verify)(preverify_ok != <span class="number">0</span>, ctx) <span class="kw">as </span>c_int
     }
 }
 
-<span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
-</span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_client_psk&lt;F&gt;(
+<span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
+</span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_client_psk&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     hint: <span class="kw-2">*const </span>c_char,
     identity: <span class="kw-2">*mut </span>c_char,
@@ -774,7 +775,7 @@
 ) -&gt; c_uint
 <span class="kw">where
     </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;, <span class="kw-2">&amp;mut </span>[u8], <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt;
-        + <span class="lifetime">&#39;static
+        + <span class="lifetime">'static
         </span>+ Sync
         + Send,
 {
@@ -785,7 +786,7 @@
         <span class="kw">let </span>callback = ssl
             .ssl_context()
             .ex_data(callback_idx)
-            .expect(<span class="string">&quot;BUG: psk callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+            .expect(<span class="string">"BUG: psk callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
         <span class="kw">let </span>hint = <span class="kw">if </span>!hint.is_null() {
             <span class="prelude-val">Some</span>(CStr::from_ptr(hint).to_bytes())
         } <span class="kw">else </span>{
@@ -805,8 +806,8 @@
     }
 }
 
-<span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
-</span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_server_psk&lt;F&gt;(
+<span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
+</span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_server_psk&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     identity: <span class="kw-2">*const </span>c_char,
     psk: <span class="kw-2">*mut </span>c_uchar,
@@ -814,7 +815,7 @@
 ) -&gt; c_uint
 <span class="kw">where
     </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt;
-        + <span class="lifetime">&#39;static
+        + <span class="lifetime">'static
         </span>+ Sync
         + Send,
 {
@@ -825,7 +826,7 @@
         <span class="kw">let </span>callback = ssl
             .ssl_context()
             .ex_data(callback_idx)
-            .expect(<span class="string">&quot;BUG: psk callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+            .expect(<span class="string">"BUG: psk callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
         <span class="kw">let </span>identity = <span class="kw">if </span>identity.is_null() {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -844,32 +845,32 @@
     }
 }
 
-<span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>ssl_raw_verify&lt;F&gt;(
+<span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>ssl_raw_verify&lt;F&gt;(
     preverify_ok: c_int,
     x509_ctx: <span class="kw-2">*mut </span>ffi::X509_STORE_CTX,
 ) -&gt; c_int
 <span class="kw">where
-    </span>F: Fn(bool, <span class="kw-2">&amp;mut </span>X509StoreContextRef) -&gt; bool + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(bool, <span class="kw-2">&amp;mut </span>X509StoreContextRef) -&gt; bool + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>ctx = X509StoreContextRef::from_ptr_mut(x509_ctx);
-        <span class="kw">let </span>ssl_idx = X509StoreContext::ssl_idx().expect(<span class="string">&quot;BUG: store context ssl index missing&quot;</span>);
+        <span class="kw">let </span>ssl_idx = X509StoreContext::ssl_idx().expect(<span class="string">"BUG: store context ssl index missing"</span>);
         <span class="kw">let </span>callback_idx = Ssl::cached_ex_index::&lt;Arc&lt;F&gt;&gt;();
 
         <span class="kw">let </span>callback = ctx
             .ex_data(ssl_idx)
-            .expect(<span class="string">&quot;BUG: store context missing ssl&quot;</span>)
+            .expect(<span class="string">"BUG: store context missing ssl"</span>)
             .ex_data(callback_idx)
-            .expect(<span class="string">&quot;BUG: ssl verify callback missing&quot;</span>)
+            .expect(<span class="string">"BUG: ssl verify callback missing"</span>)
             .clone();
 
         callback(preverify_ok != <span class="number">0</span>, ctx) <span class="kw">as </span>c_int
     }
 }
 
-<span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_sni&lt;F&gt;(ssl: <span class="kw-2">*mut </span>ffi::SSL, al: <span class="kw-2">*mut </span>c_int, arg: <span class="kw-2">*mut </span>c_void) -&gt; c_int
+<span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_sni&lt;F&gt;(ssl: <span class="kw-2">*mut </span>ffi::SSL, al: <span class="kw-2">*mut </span>c_int, arg: <span class="kw-2">*mut </span>c_void) -&gt; c_int
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>SslAlert) -&gt; <span class="prelude-ty">Result</span>&lt;(), SniError&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>SslAlert) -&gt; <span class="prelude-ty">Result</span>&lt;(), SniError&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
@@ -886,7 +887,7 @@
 }
 
 <span class="attr">#[cfg(any(ossl102, libressl261))]
-</span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_alpn_select&lt;F&gt;(
+</span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_alpn_select&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     out: <span class="kw-2">*mut *const </span>c_uchar,
     outlen: <span class="kw-2">*mut </span>c_uchar,
@@ -895,14 +896,14 @@
     _arg: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int
 <span class="kw">where
-    </span>F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], AlpnError&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], AlpnError&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
         <span class="kw">let </span>callback = ssl
             .ssl_context()
             .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-            .expect(<span class="string">&quot;BUG: alpn callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+            .expect(<span class="string">"BUG: alpn callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
         <span class="attr">#[allow(clippy::unnecessary_cast)]
         </span><span class="kw">let </span>protos = slice::from_raw_parts(inbuf <span class="kw">as </span><span class="kw-2">*const </span>u8, inlen <span class="kw">as </span>usize);
 
@@ -917,19 +918,19 @@
     }
 }
 
-<span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_tmp_dh&lt;F&gt;(
+<span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_tmp_dh&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     is_export: c_int,
     keylength: c_int,
 ) -&gt; <span class="kw-2">*mut </span>ffi::DH
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;Dh&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;Dh&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
     <span class="kw">let </span>callback = ssl
         .ssl_context()
         .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-        .expect(<span class="string">&quot;BUG: tmp dh callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+        .expect(<span class="string">"BUG: tmp dh callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
 
     <span class="kw">match </span>(<span class="kw-2">*</span>callback)(ssl, is_export != <span class="number">0</span>, keylength <span class="kw">as </span>u32) {
         <span class="prelude-val">Ok</span>(dh) =&gt; {
@@ -945,19 +946,19 @@
 }
 
 <span class="attr">#[cfg(all(ossl101, not(ossl110)))]
-</span><span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_tmp_ecdh&lt;F&gt;(
+</span><span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_tmp_ecdh&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     is_export: c_int,
     keylength: c_int,
 ) -&gt; <span class="kw-2">*mut </span>ffi::EC_KEY
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;EcKey&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;EcKey&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
     <span class="kw">let </span>callback = ssl
         .ssl_context()
         .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-        .expect(<span class="string">&quot;BUG: tmp ecdh callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+        .expect(<span class="string">"BUG: tmp ecdh callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
 
     <span class="kw">match </span>(<span class="kw-2">*</span>callback)(ssl, is_export != <span class="number">0</span>, keylength <span class="kw">as </span>u32) {
         <span class="prelude-val">Ok</span>(ec_key) =&gt; {
@@ -972,18 +973,18 @@
     }
 }
 
-<span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_tmp_dh_ssl&lt;F&gt;(
+<span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_tmp_dh_ssl&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     is_export: c_int,
     keylength: c_int,
 ) -&gt; <span class="kw-2">*mut </span>ffi::DH
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;Dh&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;Dh&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
     <span class="kw">let </span>callback = ssl
         .ex_data(Ssl::cached_ex_index::&lt;Arc&lt;F&gt;&gt;())
-        .expect(<span class="string">&quot;BUG: ssl tmp dh callback missing&quot;</span>)
+        .expect(<span class="string">"BUG: ssl tmp dh callback missing"</span>)
         .clone();
 
     <span class="kw">match </span>callback(ssl, is_export != <span class="number">0</span>, keylength <span class="kw">as </span>u32) {
@@ -1000,18 +1001,18 @@
 }
 
 <span class="attr">#[cfg(all(ossl101, not(ossl110)))]
-</span><span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_tmp_ecdh_ssl&lt;F&gt;(
+</span><span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_tmp_ecdh_ssl&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     is_export: c_int,
     keylength: c_int,
 ) -&gt; <span class="kw-2">*mut </span>ffi::EC_KEY
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;EcKey&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;EcKey&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
     <span class="kw">let </span>callback = ssl
         .ex_data(Ssl::cached_ex_index::&lt;Arc&lt;F&gt;&gt;())
-        .expect(<span class="string">&quot;BUG: ssl tmp ecdh callback missing&quot;</span>)
+        .expect(<span class="string">"BUG: ssl tmp ecdh callback missing"</span>)
         .clone();
 
     <span class="kw">match </span>callback(ssl, is_export != <span class="number">0</span>, keylength <span class="kw">as </span>u32) {
@@ -1027,15 +1028,15 @@
     }
 }
 
-<span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_tlsext_status&lt;F&gt;(ssl: <span class="kw-2">*mut </span>ffi::SSL, <span class="kw">_</span>: <span class="kw-2">*mut </span>c_void) -&gt; c_int
+<span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_tlsext_status&lt;F&gt;(ssl: <span class="kw-2">*mut </span>ffi::SSL, <span class="kw">_</span>: <span class="kw-2">*mut </span>c_void) -&gt; c_int
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef) -&gt; <span class="prelude-ty">Result</span>&lt;bool, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef) -&gt; <span class="prelude-ty">Result</span>&lt;bool, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
     <span class="kw">let </span>callback = ssl
         .ssl_context()
         .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-        .expect(<span class="string">&quot;BUG: ocsp callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+        .expect(<span class="string">"BUG: ocsp callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
     <span class="kw">let </span>ret = (<span class="kw-2">*</span>callback)(ssl);
 
     <span class="kw">if </span>ssl.is_server() {
@@ -1059,39 +1060,39 @@
     }
 }
 
-<span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_new_session&lt;F&gt;(
+<span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_new_session&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     session: <span class="kw-2">*mut </span>ffi::SSL_SESSION,
 ) -&gt; c_int
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, SslSession) + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, SslSession) + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>session_ctx_index =
-        try_get_session_ctx_index().expect(<span class="string">&quot;BUG: session context index initialization failed&quot;</span>);
+        try_get_session_ctx_index().expect(<span class="string">"BUG: session context index initialization failed"</span>);
     <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
     <span class="kw">let </span>callback = ssl
         .ex_data(<span class="kw-2">*</span>session_ctx_index)
-        .expect(<span class="string">&quot;BUG: session context missing&quot;</span>)
+        .expect(<span class="string">"BUG: session context missing"</span>)
         .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-        .expect(<span class="string">&quot;BUG: new session callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+        .expect(<span class="string">"BUG: new session callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
     <span class="kw">let </span>session = SslSession::from_ptr(session);
 
     (<span class="kw-2">*</span>callback)(ssl, session);
 
-    <span class="comment">// the return code doesn&#39;t indicate error vs success, but whether or not we consumed the session
+    <span class="comment">// the return code doesn't indicate error vs success, but whether or not we consumed the session
     </span><span class="number">1
 </span>}
 
-<span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_remove_session&lt;F&gt;(
+<span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_remove_session&lt;F&gt;(
     ctx: <span class="kw-2">*mut </span>ffi::SSL_CTX,
     session: <span class="kw-2">*mut </span>ffi::SSL_SESSION,
 ) <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>SslContextRef, <span class="kw-2">&amp;</span>SslSessionRef) + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;</span>SslContextRef, <span class="kw-2">&amp;</span>SslSessionRef) + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>ctx = SslContextRef::from_ptr(ctx);
     <span class="kw">let </span>callback = ctx
         .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-        .expect(<span class="string">&quot;BUG: remove session callback missing&quot;</span>);
+        .expect(<span class="string">"BUG: remove session callback missing"</span>);
     <span class="kw">let </span>session = SslSessionRef::from_ptr(session);
 
     callback(ctx, session)
@@ -1105,23 +1106,23 @@
     }
 }
 
-<span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_get_session&lt;F&gt;(
+<span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_get_session&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     data: DataPtr,
     len: c_int,
     copy: <span class="kw-2">*mut </span>c_int,
 ) -&gt; <span class="kw-2">*mut </span>ffi::SSL_SESSION
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;SslSession&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;SslSession&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>session_ctx_index =
-        try_get_session_ctx_index().expect(<span class="string">&quot;BUG: session context index initialization failed&quot;</span>);
+        try_get_session_ctx_index().expect(<span class="string">"BUG: session context index initialization failed"</span>);
     <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
     <span class="kw">let </span>callback = ssl
         .ex_data(<span class="kw-2">*</span>session_ctx_index)
-        .expect(<span class="string">&quot;BUG: session context missing&quot;</span>)
+        .expect(<span class="string">"BUG: session context missing"</span>)
         .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-        .expect(<span class="string">&quot;BUG: get session callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+        .expect(<span class="string">"BUG: get session callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
     <span class="attr">#[allow(clippy::unnecessary_cast)]
     </span><span class="kw">let </span>data = slice::from_raw_parts(data <span class="kw">as </span><span class="kw-2">*const </span>u8, len <span class="kw">as </span>usize);
 
@@ -1137,15 +1138,15 @@
 }
 
 <span class="attr">#[cfg(ossl111)]
-</span><span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_keylog&lt;F&gt;(ssl: <span class="kw-2">*const </span>ffi::SSL, line: <span class="kw-2">*const </span>c_char)
+</span><span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_keylog&lt;F&gt;(ssl: <span class="kw-2">*const </span>ffi::SSL, line: <span class="kw-2">*const </span>c_char)
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>SslRef, <span class="kw-2">&amp;</span>str) + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;</span>SslRef, <span class="kw-2">&amp;</span>str) + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>ssl = SslRef::from_const_ptr(ssl);
     <span class="kw">let </span>callback = ssl
         .ssl_context()
         .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-        .expect(<span class="string">&quot;BUG: get session callback missing&quot;</span>);
+        .expect(<span class="string">"BUG: get session callback missing"</span>);
     <span class="kw">let </span>line = CStr::from_ptr(line).to_bytes();
     <span class="kw">let </span>line = str::from_utf8_unchecked(line);
 
@@ -1153,19 +1154,19 @@
 }
 
 <span class="attr">#[cfg(ossl111)]
-</span><span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_stateless_cookie_generate&lt;F&gt;(
+</span><span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_stateless_cookie_generate&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     cookie: <span class="kw-2">*mut </span>c_uchar,
     cookie_len: <span class="kw-2">*mut </span>size_t,
 ) -&gt; c_int
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
     <span class="kw">let </span>callback = ssl
         .ssl_context()
         .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-        .expect(<span class="string">&quot;BUG: stateless cookie generate callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+        .expect(<span class="string">"BUG: stateless cookie generate callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
     <span class="attr">#[allow(clippy::unnecessary_cast)]
     </span><span class="kw">let </span>slice = slice::from_raw_parts_mut(cookie <span class="kw">as </span><span class="kw-2">*mut </span>u8, ffi::SSL_COOKIE_LENGTH <span class="kw">as </span>usize);
     <span class="kw">match </span>(<span class="kw-2">*</span>callback)(ssl, slice) {
@@ -1181,39 +1182,39 @@
 }
 
 <span class="attr">#[cfg(ossl111)]
-</span><span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_stateless_cookie_verify&lt;F&gt;(
+</span><span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_stateless_cookie_verify&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     cookie: <span class="kw-2">*const </span>c_uchar,
     cookie_len: size_t,
 ) -&gt; c_int
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
     <span class="kw">let </span>callback = ssl
         .ssl_context()
         .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-        .expect(<span class="string">&quot;BUG: stateless cookie verify callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+        .expect(<span class="string">"BUG: stateless cookie verify callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
     <span class="attr">#[allow(clippy::unnecessary_cast)]
     </span><span class="kw">let </span>slice = slice::from_raw_parts(cookie <span class="kw">as </span><span class="kw-2">*const </span>c_uchar <span class="kw">as </span><span class="kw-2">*const </span>u8, cookie_len);
     (<span class="kw-2">*</span>callback)(ssl, slice) <span class="kw">as </span>c_int
 }
 
 <span class="attr">#[cfg(not(boringssl))]
-</span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_cookie_generate&lt;F&gt;(
+</span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_cookie_generate&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     cookie: <span class="kw-2">*mut </span>c_uchar,
     cookie_len: <span class="kw-2">*mut </span>c_uint,
 ) -&gt; c_int
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
         <span class="kw">let </span>callback = ssl
             .ssl_context()
             .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-            .expect(<span class="string">&quot;BUG: cookie generate callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+            .expect(<span class="string">"BUG: cookie generate callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
         <span class="comment">// We subtract 1 from DTLS1_COOKIE_LENGTH as the ostensible value, 256, is erroneous but retained for
         // compatibility. See comments in dtls1.h.
         </span><span class="attr">#[allow(clippy::unnecessary_cast)]
@@ -1242,20 +1243,20 @@
 }
 
 <span class="attr">#[cfg(not(boringssl))]
-</span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_cookie_verify&lt;F&gt;(
+</span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_cookie_verify&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     cookie: CookiePtr,
     cookie_len: c_uint,
 ) -&gt; c_int
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
         <span class="kw">let </span>callback = ssl
             .ssl_context()
             .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-            .expect(<span class="string">&quot;BUG: cookie verify callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+            .expect(<span class="string">"BUG: cookie verify callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
         <span class="attr">#[allow(clippy::unnecessary_cast)]
         </span><span class="kw">let </span>slice =
             slice::from_raw_parts(cookie <span class="kw">as </span><span class="kw-2">*const </span>c_uchar <span class="kw">as </span><span class="kw-2">*const </span>u8, cookie_len <span class="kw">as </span>usize);
@@ -1267,7 +1268,7 @@
 </span><span class="kw">pub struct </span>CustomExtAddState&lt;T&gt;(<span class="prelude-ty">Option</span>&lt;T&gt;);
 
 <span class="attr">#[cfg(ossl111)]
-</span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_custom_ext_add&lt;F, T&gt;(
+</span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_custom_ext_add&lt;F, T&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     <span class="kw">_</span>: c_uint,
     context: c_uint,
@@ -1280,17 +1281,17 @@
 ) -&gt; c_int
 <span class="kw">where
     </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, ExtensionContext, <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span>X509Ref)&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, SslAlert&gt;
-        + <span class="lifetime">&#39;static
+        + <span class="lifetime">'static
         </span>+ Sync
         + Send,
-    T: AsRef&lt;[u8]&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+    T: AsRef&lt;[u8]&gt; + <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
         <span class="kw">let </span>callback = ssl
             .ssl_context()
             .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-            .expect(<span class="string">&quot;BUG: custom ext add callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+            .expect(<span class="string">"BUG: custom ext add callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
         <span class="kw">let </span>ectx = ExtensionContext::from_bits_truncate(context);
         <span class="kw">let </span>cert = <span class="kw">if </span>ectx.contains(ExtensionContext::TLS1_3_CERTIFICATE) {
             <span class="prelude-val">Some</span>((chainidx, X509Ref::from_ptr(x)))
@@ -1326,14 +1327,14 @@
 }
 
 <span class="attr">#[cfg(ossl111)]
-</span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_custom_ext_free&lt;T&gt;(
+</span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_custom_ext_free&lt;T&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     <span class="kw">_</span>: c_uint,
     <span class="kw">_</span>: c_uint,
     <span class="kw">_</span>: <span class="kw-2">*const </span>c_uchar,
     <span class="kw">_</span>: <span class="kw-2">*mut </span>c_void,
 ) <span class="kw">where
-    </span>T: <span class="lifetime">&#39;static </span>+ Sync + Send,
+    </span>T: <span class="lifetime">'static </span>+ Sync + Send,
 {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>ssl = SslRef::from_ptr_mut(ssl);
@@ -1345,7 +1346,7 @@
 }
 
 <span class="attr">#[cfg(ossl111)]
-</span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_custom_ext_parse&lt;F&gt;(
+</span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_custom_ext_parse&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     <span class="kw">_</span>: c_uint,
     context: c_uint,
@@ -1358,7 +1359,7 @@
 ) -&gt; c_int
 <span class="kw">where
     </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, ExtensionContext, <span class="kw-2">&amp;</span>[u8], <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span>X509Ref)&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), SslAlert&gt;
-        + <span class="lifetime">&#39;static
+        + <span class="lifetime">'static
         </span>+ Sync
         + Send,
 {
@@ -1367,7 +1368,7 @@
         <span class="kw">let </span>callback = ssl
             .ssl_context()
             .ex_data(SslContext::cached_ex_index::&lt;F&gt;())
-            .expect(<span class="string">&quot;BUG: custom ext parse callback missing&quot;</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
+            .expect(<span class="string">"BUG: custom ext parse callback missing"</span>) <span class="kw">as </span><span class="kw-2">*const </span>F;
         <span class="kw">let </span>ectx = ExtensionContext::from_bits_truncate(context);
         <span class="attr">#[allow(clippy::unnecessary_cast)]
         </span><span class="kw">let </span>slice = slice::from_raw_parts(input <span class="kw">as </span><span class="kw-2">*const </span>u8, inlen);
@@ -1387,14 +1388,14 @@
 }
 
 <span class="attr">#[cfg(ossl111)]
-</span><span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>raw_client_hello&lt;F&gt;(
+</span><span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>raw_client_hello&lt;F&gt;(
     ssl: <span class="kw-2">*mut </span>ffi::SSL,
     al: <span class="kw-2">*mut </span>c_int,
     arg: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int
 <span class="kw">where
     </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>SslAlert) -&gt; <span class="prelude-ty">Result</span>&lt;ClientHelloResponse, ErrorStack&gt;
-        + <span class="lifetime">&#39;static
+        + <span class="lifetime">'static
         </span>+ Sync
         + Send,
 {

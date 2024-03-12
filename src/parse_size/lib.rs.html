@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/parse-size-1.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="parse_size" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/parse-size-1.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="parse_size" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -603,8 +604,8 @@
 //! ```rust
 //! use parse_size::parse_size;
 //!
-//! assert_eq!(parse_size(&quot;0.2 MiB&quot;), Ok(209715));
-//! assert_eq!(parse_size(&quot;14.2e+8&quot;), Ok(14_2000_0000));
+//! assert_eq!(parse_size("0.2 MiB"), Ok(209715));
+//! assert_eq!(parse_size("14.2e+8"), Ok(14_2000_0000));
 //! ```
 //!
 //! # Features
@@ -613,19 +614,19 @@
 //!
 //! ```rust
 //! # use parse_size::parse_size;
-//! assert_eq!(parse_size(&quot;1 B&quot;), Ok(1));
-//! assert_eq!(parse_size(&quot;1 KiB&quot;), Ok(1 &lt;&lt; 10));
-//! assert_eq!(parse_size(&quot;1 MiB&quot;), Ok(1 &lt;&lt; 20));
-//! assert_eq!(parse_size(&quot;1 GiB&quot;), Ok(1 &lt;&lt; 30));
-//! assert_eq!(parse_size(&quot;1 TiB&quot;), Ok(1 &lt;&lt; 40));
-//! assert_eq!(parse_size(&quot;1 PiB&quot;), Ok(1 &lt;&lt; 50));
-//! assert_eq!(parse_size(&quot;1 EiB&quot;), Ok(1 &lt;&lt; 60));
-//! assert_eq!(parse_size(&quot;1 KB&quot;), Ok(1_000));
-//! assert_eq!(parse_size(&quot;1 MB&quot;), Ok(1_000_000));
-//! assert_eq!(parse_size(&quot;1 GB&quot;), Ok(1_000_000_000));
-//! assert_eq!(parse_size(&quot;1 TB&quot;), Ok(1_000_000_000_000));
-//! assert_eq!(parse_size(&quot;1 PB&quot;), Ok(1_000_000_000_000_000));
-//! assert_eq!(parse_size(&quot;1 EB&quot;), Ok(1_000_000_000_000_000_000));
+//! assert_eq!(parse_size("1 B"), Ok(1));
+//! assert_eq!(parse_size("1 KiB"), Ok(1 &lt;&lt; 10));
+//! assert_eq!(parse_size("1 MiB"), Ok(1 &lt;&lt; 20));
+//! assert_eq!(parse_size("1 GiB"), Ok(1 &lt;&lt; 30));
+//! assert_eq!(parse_size("1 TiB"), Ok(1 &lt;&lt; 40));
+//! assert_eq!(parse_size("1 PiB"), Ok(1 &lt;&lt; 50));
+//! assert_eq!(parse_size("1 EiB"), Ok(1 &lt;&lt; 60));
+//! assert_eq!(parse_size("1 KB"), Ok(1_000));
+//! assert_eq!(parse_size("1 MB"), Ok(1_000_000));
+//! assert_eq!(parse_size("1 GB"), Ok(1_000_000_000));
+//! assert_eq!(parse_size("1 TB"), Ok(1_000_000_000_000));
+//! assert_eq!(parse_size("1 PB"), Ok(1_000_000_000_000_000));
+//! assert_eq!(parse_size("1 EB"), Ok(1_000_000_000_000_000_000));
 //! ```
 //!
 //! Numbers can be fractional and/or in scientific notation.
@@ -633,31 +634,31 @@
 //!
 //! ```rust
 //! # use parse_size::parse_size;
-//! assert_eq!(parse_size(&quot;2.999999999999999999e18&quot;), Ok(2999999999999999999));
-//! assert_eq!(parse_size(&quot;3.000000000000000001 EB&quot;), Ok(3000000000000000001));
+//! assert_eq!(parse_size("2.999999999999999999e18"), Ok(2999999999999999999));
+//! assert_eq!(parse_size("3.000000000000000001 EB"), Ok(3000000000000000001));
 //! ```
 //!
-//! The unit is case-insensitive. The &quot;B&quot; suffix is also optional.
+//! The unit is case-insensitive. The "B" suffix is also optional.
 //!
 //! ```rust
 //! # use parse_size::parse_size;
-//! assert_eq!(parse_size(&quot;5gb&quot;), Ok(5_000_000_000));
-//! assert_eq!(parse_size(&quot;2ki&quot;), Ok(2048));
+//! assert_eq!(parse_size("5gb"), Ok(5_000_000_000));
+//! assert_eq!(parse_size("2ki"), Ok(2048));
 //! ```
 //!
 //! Fractional bytes are allowed, and rounded to nearest integer.
 //!
 //! ```rust
 //! # use parse_size::parse_size;
-//! assert_eq!(parse_size(&quot;0.333333 KB&quot;), Ok(333));
-//! assert_eq!(parse_size(&quot;2.666666 KB&quot;), Ok(2667));
+//! assert_eq!(parse_size("0.333333 KB"), Ok(333));
+//! assert_eq!(parse_size("2.666666 KB"), Ok(2667));
 //! ```
 //!
 //! Underscores and spaces in the numbers are ignored to support digit grouping.
 //!
 //! ```rust
 //! # use parse_size::parse_size;
-//! assert_eq!(parse_size(&quot; 69_420_000&quot;), Ok(69_420_000));
+//! assert_eq!(parse_size(" 69_420_000"), Ok(69_420_000));
 //! ```
 //!
 //! Conventional units (KB, GB, ...) can be configured to use the binary system.
@@ -666,10 +667,10 @@
 //! use parse_size::Config;
 //!
 //! let cfg = Config::new().with_binary();
-//! assert_eq!(cfg.parse_size(&quot;1 KB&quot;), Ok(1024));
-//! assert_eq!(cfg.parse_size(&quot;1 KiB&quot;), Ok(1024));
-//! assert_eq!(cfg.parse_size(&quot;1 MB&quot;), Ok(1048576));
-//! assert_eq!(cfg.parse_size(&quot;1 MiB&quot;), Ok(1048576));
+//! assert_eq!(cfg.parse_size("1 KB"), Ok(1024));
+//! assert_eq!(cfg.parse_size("1 KiB"), Ok(1024));
+//! assert_eq!(cfg.parse_size("1 MB"), Ok(1048576));
+//! assert_eq!(cfg.parse_size("1 MiB"), Ok(1048576));
 //! ```
 //!
 //! # Integration examples
@@ -686,20 +687,20 @@
 //!     pub size: u64,
 //! }
 //!
-//! let opt = Opt::from_iter(&amp;[&quot;./app&quot;, &quot;--size&quot;, &quot;2.5 K&quot;]);
+//! let opt = Opt::from_iter(&amp;["./app", "--size", "2.5 K"]);
 //! assert_eq!(opt.size, 2500);
 //! ```
 
-</span><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
+</span><span class="attr">#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
 
 </span><span class="kw">use </span>core::{convert::TryFrom, fmt};
 
-<span class="doccomment">/// The system to use when parsing prefixes like &quot;KB&quot; and &quot;GB&quot;.
+<span class="doccomment">/// The system to use when parsing prefixes like "KB" and "GB".
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 </span><span class="kw">pub enum </span>UnitSystem {
-    <span class="doccomment">/// Use powers of 1000 for prefixes. Parsing &quot;1 KB&quot; returns 1000.
+    <span class="doccomment">/// Use powers of 1000 for prefixes. Parsing "1 KB" returns 1000.
     </span>Decimal,
-    <span class="doccomment">/// Use powers of 1024 for prefixes. Parsing &quot;1 KB&quot; returns 1024.
+    <span class="doccomment">/// Use powers of 1024 for prefixes. Parsing "1 KB" returns 1024.
     </span>Binary,
 }
 
@@ -712,32 +713,32 @@
     /// Y exceed the `u64` range and thus considered invalid.
     </span><span class="kw">fn </span>factor(<span class="self">self</span>, prefix: u8) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
         <span class="prelude-val">Some</span>(<span class="kw">match </span>(<span class="self">self</span>, prefix) {
-            (<span class="self">Self</span>::Decimal, <span class="string">b&#39;k&#39;</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b&#39;K&#39;</span>) =&gt; <span class="number">1_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b&#39;m&#39;</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b&#39;M&#39;</span>) =&gt; <span class="number">1_000_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b&#39;g&#39;</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b&#39;G&#39;</span>) =&gt; <span class="number">1_000_000_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b&#39;t&#39;</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b&#39;T&#39;</span>) =&gt; <span class="number">1_000_000_000_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b&#39;p&#39;</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b&#39;P&#39;</span>) =&gt; <span class="number">1_000_000_000_000_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b&#39;e&#39;</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b&#39;E&#39;</span>) =&gt; <span class="number">1_000_000_000_000_000_000</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b&#39;k&#39;</span>) | (<span class="self">Self</span>::Binary, <span class="string">b&#39;K&#39;</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">10</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b&#39;m&#39;</span>) | (<span class="self">Self</span>::Binary, <span class="string">b&#39;M&#39;</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">20</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b&#39;g&#39;</span>) | (<span class="self">Self</span>::Binary, <span class="string">b&#39;G&#39;</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">30</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b&#39;t&#39;</span>) | (<span class="self">Self</span>::Binary, <span class="string">b&#39;T&#39;</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">40</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b&#39;p&#39;</span>) | (<span class="self">Self</span>::Binary, <span class="string">b&#39;P&#39;</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">50</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b&#39;e&#39;</span>) | (<span class="self">Self</span>::Binary, <span class="string">b&#39;E&#39;</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">60</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'k'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'K'</span>) =&gt; <span class="number">1_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'm'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'M'</span>) =&gt; <span class="number">1_000_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'g'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'G'</span>) =&gt; <span class="number">1_000_000_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b't'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'T'</span>) =&gt; <span class="number">1_000_000_000_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'p'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'P'</span>) =&gt; <span class="number">1_000_000_000_000_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'e'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'E'</span>) =&gt; <span class="number">1_000_000_000_000_000_000</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'k'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'K'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">10</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'm'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'M'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">20</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'g'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'G'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">30</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b't'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'T'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">40</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'p'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'P'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">50</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'e'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'E'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">60</span>,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
     }
 }
 
-<span class="doccomment">/// How to deal with the &quot;B&quot; suffix.
+<span class="doccomment">/// How to deal with the "B" suffix.
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 </span><span class="kw">pub enum </span>ByteSuffix {
-    <span class="doccomment">/// The &quot;B&quot; suffix must never appear. Parsing a string with the &quot;B&quot; suffix
+    <span class="doccomment">/// The "B" suffix must never appear. Parsing a string with the "B" suffix
     /// causes [`Error::InvalidDigit`] error.
     </span>Deny,
-    <span class="doccomment">/// The &quot;B&quot; suffix is optional.
+    <span class="doccomment">/// The "B" suffix is optional.
     </span>Allow,
-    <span class="doccomment">/// The &quot;B&quot; suffix is required. Parsing a string without the &quot;B&quot; suffix
+    <span class="doccomment">/// The "B" suffix is required. Parsing a string without the "B" suffix
     /// causes [`Error::InvalidDigit`] error.
     </span>Require,
 }
@@ -760,7 +761,7 @@
         }
     }
 
-    <span class="doccomment">/// Changes the configuration&#39;s unit system.
+    <span class="doccomment">/// Changes the configuration's unit system.
     ///
     /// The default system is decimal (powers of 1000).
     </span><span class="kw">pub const fn </span>with_unit_system(<span class="kw-2">mut </span><span class="self">self</span>, unit_system: UnitSystem) -&gt; <span class="self">Self </span>{
@@ -777,10 +778,10 @@
     /// use parse_size::Config;
     ///
     /// let cfg = Config::new().with_binary();
-    /// assert_eq!(cfg.parse_size(&quot;1 KB&quot;), Ok(1024));
-    /// assert_eq!(cfg.parse_size(&quot;1 KiB&quot;), Ok(1024));
-    /// assert_eq!(cfg.parse_size(&quot;1 MB&quot;), Ok(1048576));
-    /// assert_eq!(cfg.parse_size(&quot;1 MiB&quot;), Ok(1048576));
+    /// assert_eq!(cfg.parse_size("1 KB"), Ok(1024));
+    /// assert_eq!(cfg.parse_size("1 KiB"), Ok(1024));
+    /// assert_eq!(cfg.parse_size("1 MB"), Ok(1048576));
+    /// assert_eq!(cfg.parse_size("1 MiB"), Ok(1048576));
     /// ```
     </span><span class="kw">pub const fn </span>with_binary(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.with_unit_system(UnitSystem::Binary)
@@ -795,10 +796,10 @@
     /// use parse_size::Config;
     ///
     /// let cfg = Config::new().with_decimal();
-    /// assert_eq!(cfg.parse_size(&quot;1 KB&quot;), Ok(1000));
-    /// assert_eq!(cfg.parse_size(&quot;1 KiB&quot;), Ok(1024));
-    /// assert_eq!(cfg.parse_size(&quot;1 MB&quot;), Ok(1000000));
-    /// assert_eq!(cfg.parse_size(&quot;1 MiB&quot;), Ok(1048576));
+    /// assert_eq!(cfg.parse_size("1 KB"), Ok(1000));
+    /// assert_eq!(cfg.parse_size("1 KiB"), Ok(1024));
+    /// assert_eq!(cfg.parse_size("1 MB"), Ok(1000000));
+    /// assert_eq!(cfg.parse_size("1 MiB"), Ok(1048576));
     /// ```
     </span><span class="kw">pub const fn </span>with_decimal(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.with_unit_system(UnitSystem::Decimal)
@@ -819,19 +820,19 @@
     /// use parse_size::Config;
     ///
     /// let cfg = Config::new().with_default_factor(1048576);
-    /// assert_eq!(cfg.parse_size(&quot;10&quot;), Ok(10485760));
-    /// assert_eq!(cfg.parse_size(&quot;0.5&quot;), Ok(524288));
-    /// assert_eq!(cfg.parse_size(&quot;128 B&quot;), Ok(128)); // explicit units overrides the default
-    /// assert_eq!(cfg.parse_size(&quot;16 KiB&quot;), Ok(16384));
+    /// assert_eq!(cfg.parse_size("10"), Ok(10485760));
+    /// assert_eq!(cfg.parse_size("0.5"), Ok(524288));
+    /// assert_eq!(cfg.parse_size("128 B"), Ok(128)); // explicit units overrides the default
+    /// assert_eq!(cfg.parse_size("16 KiB"), Ok(16384));
     /// ```
     </span><span class="kw">pub const fn </span>with_default_factor(<span class="kw-2">mut </span><span class="self">self</span>, factor: u64) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.default_factor = factor;
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Changes the handling of the &quot;B&quot; suffix.
+    <span class="doccomment">/// Changes the handling of the "B" suffix.
     ///
-    /// Normally, the character &quot;B&quot; at the end of the input is optional. This
+    /// Normally, the character "B" at the end of the input is optional. This
     /// can be changed to deny or require such suffix.
     ///
     /// Power prefixes (K, Ki, M, Mi, ...) are not affected.
@@ -844,10 +845,10 @@
     /// use parse_size::{ByteSuffix, Config, Error};
     ///
     /// let cfg = Config::new().with_byte_suffix(ByteSuffix::Deny);
-    /// assert_eq!(cfg.parse_size(&quot;123&quot;), Ok(123));
-    /// assert_eq!(cfg.parse_size(&quot;123k&quot;), Ok(123000));
-    /// assert_eq!(cfg.parse_size(&quot;123B&quot;), Err(Error::InvalidDigit));
-    /// assert_eq!(cfg.parse_size(&quot;123KB&quot;), Err(Error::InvalidDigit));
+    /// assert_eq!(cfg.parse_size("123"), Ok(123));
+    /// assert_eq!(cfg.parse_size("123k"), Ok(123000));
+    /// assert_eq!(cfg.parse_size("123B"), Err(Error::InvalidDigit));
+    /// assert_eq!(cfg.parse_size("123KB"), Err(Error::InvalidDigit));
     /// ```
     ///
     /// Require the suffix.
@@ -856,10 +857,10 @@
     /// use parse_size::{ByteSuffix, Config, Error};
     ///
     /// let cfg = Config::new().with_byte_suffix(ByteSuffix::Require);
-    /// assert_eq!(cfg.parse_size(&quot;123&quot;), Err(Error::InvalidDigit));
-    /// assert_eq!(cfg.parse_size(&quot;123k&quot;), Err(Error::InvalidDigit));
-    /// assert_eq!(cfg.parse_size(&quot;123B&quot;), Ok(123));
-    /// assert_eq!(cfg.parse_size(&quot;123KB&quot;), Ok(123000));
+    /// assert_eq!(cfg.parse_size("123"), Err(Error::InvalidDigit));
+    /// assert_eq!(cfg.parse_size("123k"), Err(Error::InvalidDigit));
+    /// assert_eq!(cfg.parse_size("123B"), Ok(123));
+    /// assert_eq!(cfg.parse_size("123KB"), Ok(123000));
     /// ```
     </span><span class="kw">pub const fn </span>with_byte_suffix(<span class="kw-2">mut </span><span class="self">self</span>, byte_suffix: ByteSuffix) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.byte_suffix = byte_suffix;
@@ -874,9 +875,9 @@
     /// use parse_size::{Config, Error};
     ///
     /// let cfg = Config::new().with_binary();
-    /// assert_eq!(cfg.parse_size(&quot;10 KB&quot;), Ok(10240));
-    /// assert_eq!(cfg.parse_size(&quot;20000&quot;), Ok(20000));
-    /// assert_eq!(cfg.parse_size(&quot;^_^&quot;), Err(Error::InvalidDigit));
+    /// assert_eq!(cfg.parse_size("10 KB"), Ok(10240));
+    /// assert_eq!(cfg.parse_size("20000"), Ok(20000));
+    /// assert_eq!(cfg.parse_size("^_^"), Err(Error::InvalidDigit));
     /// ```
     </span><span class="kw">pub fn </span>parse_size&lt;T: AsRef&lt;[u8]&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, src: T) -&gt; <span class="prelude-ty">Result</span>&lt;u64, Error&gt; {
         parse_size_inner(<span class="self">self</span>, src.as_ref())
@@ -903,16 +904,16 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.write_str(<span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Empty =&gt; <span class="string">&quot;cannot parse integer from empty string&quot;</span>,
-            <span class="self">Self</span>::InvalidDigit =&gt; <span class="string">&quot;invalid digit found in string&quot;</span>,
-            <span class="self">Self</span>::PosOverflow =&gt; <span class="string">&quot;number too large to fit in target type&quot;</span>,
+            <span class="self">Self</span>::Empty =&gt; <span class="string">"cannot parse integer from empty string"</span>,
+            <span class="self">Self</span>::InvalidDigit =&gt; <span class="string">"invalid digit found in string"</span>,
+            <span class="self">Self</span>::PosOverflow =&gt; <span class="string">"number too large to fit in target type"</span>,
         })
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {}
 
 <span class="doccomment">/// Parses the string input into the number of bytes it represents using the
@@ -926,20 +927,20 @@
 /// ```rust
 /// use parse_size::{parse_size, Error};
 ///
-/// assert_eq!(parse_size(&quot;10 KB&quot;), Ok(10000));
-/// assert_eq!(parse_size(&quot;20000&quot;), Ok(20000));
-/// assert_eq!(parse_size(&quot;0.2 MiB&quot;), Ok(209715));
-/// assert_eq!(parse_size(&quot;^_^&quot;), Err(Error::InvalidDigit));
+/// assert_eq!(parse_size("10 KB"), Ok(10000));
+/// assert_eq!(parse_size("20000"), Ok(20000));
+/// assert_eq!(parse_size("0.2 MiB"), Ok(209715));
+/// assert_eq!(parse_size("^_^"), Err(Error::InvalidDigit));
 /// ```
 </span><span class="kw">pub fn </span>parse_size&lt;T: AsRef&lt;[u8]&gt;&gt;(src: T) -&gt; <span class="prelude-ty">Result</span>&lt;u64, Error&gt; {
     parse_size_inner(<span class="kw-2">&amp;</span>Config::new(), src.as_ref())
 }
 
 <span class="kw">fn </span>parse_size_inner(cfg: <span class="kw-2">&amp;</span>Config, <span class="kw-2">mut </span>src: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;u64, Error&gt; {
-    <span class="comment">// if it ends with &#39;B&#39; the default factor is always 1.
+    <span class="comment">// if it ends with 'B' the default factor is always 1.
     </span><span class="kw">let </span><span class="kw-2">mut </span>multiply = cfg.default_factor;
     <span class="kw">match </span>src {
-        [init @ .., <span class="string">b&#39;b&#39;</span>] | [init @ .., <span class="string">b&#39;B&#39;</span>] =&gt; {
+        [init @ .., <span class="string">b'b'</span>] | [init @ .., <span class="string">b'B'</span>] =&gt; {
             <span class="kw">if </span>cfg.byte_suffix == ByteSuffix::Deny {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidDigit);
             }
@@ -953,10 +954,10 @@
         }
     }
 
-    <span class="comment">// if it ends with an &#39;i&#39; we always use binary prefix.
+    <span class="comment">// if it ends with an 'i' we always use binary prefix.
     </span><span class="kw">let </span><span class="kw-2">mut </span>unit_system = cfg.unit_system;
     <span class="kw">match </span>src {
-        [init @ .., <span class="string">b&#39;i&#39;</span>] | [init @ .., <span class="string">b&#39;I&#39;</span>] =&gt; {
+        [init @ .., <span class="string">b'i'</span>] | [init @ .., <span class="string">b'I'</span>] =&gt; {
             src = init;
             unit_system = UnitSystem::Binary;
         }
@@ -985,7 +986,7 @@
         (<span class="macro-nonterminal">$before</span>:expr, <span class="macro-nonterminal">$method</span>:ident, <span class="macro-nonterminal">$digit_char</span>:expr) =&gt; {
             <span class="macro-nonterminal">$before
                 </span>.checked_mul(<span class="number">10</span>)
-                .and_then(|v| v.<span class="macro-nonterminal">$method</span>((<span class="macro-nonterminal">$digit_char </span>- <span class="string">b&#39;0&#39;</span>).into()))
+                .and_then(|v| v.<span class="macro-nonterminal">$method</span>((<span class="macro-nonterminal">$digit_char </span>- <span class="string">b'0'</span>).into()))
         };
     }
 
@@ -996,58 +997,58 @@
 
     <span class="kw">for </span>b <span class="kw">in </span>src {
         <span class="kw">match </span>(state, <span class="kw-2">*</span>b) {
-            (Ps::Integer, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>) | (Ps::Empty, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>) =&gt; {
+            (Ps::Integer, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) | (Ps::Empty, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = <span class="macro">append_digit!</span>(mantissa, checked_add, <span class="kw-2">*</span>b) {
                     mantissa = m;
                     state = Ps::Integer;
                 } <span class="kw">else </span>{
-                    <span class="kw">if </span><span class="kw-2">*</span>b &gt;= <span class="string">b&#39;5&#39; </span>{
+                    <span class="kw">if </span><span class="kw-2">*</span>b &gt;= <span class="string">b'5' </span>{
                         mantissa += <span class="number">1</span>;
                     }
                     state = Ps::IntegerOverflow;
                     fractional_exponent += <span class="number">1</span>;
                 }
             }
-            (Ps::IntegerOverflow, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>) =&gt; {
+            (Ps::IntegerOverflow, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {
                 fractional_exponent += <span class="number">1</span>;
             }
-            (Ps::Fraction, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>) =&gt; {
+            (Ps::Fraction, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = <span class="macro">append_digit!</span>(mantissa, checked_add, <span class="kw-2">*</span>b) {
                     mantissa = m;
                     fractional_exponent -= <span class="number">1</span>;
                 } <span class="kw">else </span>{
-                    <span class="kw">if </span><span class="kw-2">*</span>b &gt;= <span class="string">b&#39;5&#39; </span>{
+                    <span class="kw">if </span><span class="kw-2">*</span>b &gt;= <span class="string">b'5' </span>{
                         mantissa += <span class="number">1</span>;
                     }
                     state = Ps::FractionOverflow;
                 }
             }
-            (Ps::FractionOverflow, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>) =&gt; {}
-            (Ps::PosExponent, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>) =&gt; {
+            (Ps::FractionOverflow, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {}
+            (Ps::PosExponent, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(e) = <span class="macro">append_digit!</span>(exponent, checked_add, <span class="kw-2">*</span>b) {
                     exponent = e;
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::PosOverflow);
                 }
             }
-            (Ps::NegExponent, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>) =&gt; {
+            (Ps::NegExponent, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(e) = <span class="macro">append_digit!</span>(exponent, checked_sub, <span class="kw-2">*</span>b) {
                     exponent = e;
                 }
             }
 
-            (<span class="kw">_</span>, <span class="string">b&#39;_&#39;</span>) | (<span class="kw">_</span>, <span class="string">b&#39; &#39;</span>) | (Ps::PosExponent, <span class="string">b&#39;+&#39;</span>) =&gt; {}
-            (Ps::Integer, <span class="string">b&#39;e&#39;</span>)
-            | (Ps::Integer, <span class="string">b&#39;E&#39;</span>)
-            | (Ps::Fraction, <span class="string">b&#39;e&#39;</span>)
-            | (Ps::Fraction, <span class="string">b&#39;E&#39;</span>)
-            | (Ps::IntegerOverflow, <span class="string">b&#39;e&#39;</span>)
-            | (Ps::IntegerOverflow, <span class="string">b&#39;E&#39;</span>)
-            | (Ps::FractionOverflow, <span class="string">b&#39;e&#39;</span>)
-            | (Ps::FractionOverflow, <span class="string">b&#39;E&#39;</span>) =&gt; state = Ps::PosExponent,
-            (Ps::PosExponent, <span class="string">b&#39;-&#39;</span>) =&gt; state = Ps::NegExponent,
-            (Ps::Integer, <span class="string">b&#39;.&#39;</span>) =&gt; state = Ps::Fraction,
-            (Ps::IntegerOverflow, <span class="string">b&#39;.&#39;</span>) =&gt; state = Ps::FractionOverflow,
+            (<span class="kw">_</span>, <span class="string">b'_'</span>) | (<span class="kw">_</span>, <span class="string">b' '</span>) | (Ps::PosExponent, <span class="string">b'+'</span>) =&gt; {}
+            (Ps::Integer, <span class="string">b'e'</span>)
+            | (Ps::Integer, <span class="string">b'E'</span>)
+            | (Ps::Fraction, <span class="string">b'e'</span>)
+            | (Ps::Fraction, <span class="string">b'E'</span>)
+            | (Ps::IntegerOverflow, <span class="string">b'e'</span>)
+            | (Ps::IntegerOverflow, <span class="string">b'E'</span>)
+            | (Ps::FractionOverflow, <span class="string">b'e'</span>)
+            | (Ps::FractionOverflow, <span class="string">b'E'</span>) =&gt; state = Ps::PosExponent,
+            (Ps::PosExponent, <span class="string">b'-'</span>) =&gt; state = Ps::NegExponent,
+            (Ps::Integer, <span class="string">b'.'</span>) =&gt; state = Ps::Fraction,
+            (Ps::IntegerOverflow, <span class="string">b'.'</span>) =&gt; state = Ps::FractionOverflow,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidDigit),
         }
     }
@@ -1075,125 +1076,125 @@
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_passes() {
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;0&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;3&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">3</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;30&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">30</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;32&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">32</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;_5_&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">5</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1 234 567&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">1_234_567</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"0"</span>), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"3"</span>), <span class="prelude-val">Ok</span>(<span class="number">3</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"30"</span>), <span class="prelude-val">Ok</span>(<span class="number">30</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"32"</span>), <span class="prelude-val">Ok</span>(<span class="number">32</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"_5_"</span>), <span class="prelude-val">Ok</span>(<span class="number">5</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1 234 567"</span>), <span class="prelude-val">Ok</span>(<span class="number">1_234_567</span>));
 
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;18_446_744_073_709_551_581&quot;</span>),
+        parse_size(<span class="string">"18_446_744_073_709_551_581"</span>),
         <span class="prelude-val">Ok</span>(<span class="number">18_446_744_073_709_551_581</span>)
     );
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;18_446_744_073_709_551_615&quot;</span>),
+        parse_size(<span class="string">"18_446_744_073_709_551_615"</span>),
         <span class="prelude-val">Ok</span>(<span class="number">18_446_744_073_709_551_615</span>)
     );
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;18_446_744_073_709_551_616&quot;</span>),
+        parse_size(<span class="string">"18_446_744_073_709_551_616"</span>),
         <span class="prelude-val">Err</span>(Error::PosOverflow)
     );
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;18_446_744_073_709_551_620&quot;</span>),
+        parse_size(<span class="string">"18_446_744_073_709_551_620"</span>),
         <span class="prelude-val">Err</span>(Error::PosOverflow)
     );
 
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1kB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">1_000</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;2MB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">2_000_000</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;3GB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">3_000_000_000</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;4TB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">4_000_000_000_000</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;5PB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">5_000_000_000_000_000</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;6EB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">6_000_000_000_000_000_000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1kB"</span>), <span class="prelude-val">Ok</span>(<span class="number">1_000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"2MB"</span>), <span class="prelude-val">Ok</span>(<span class="number">2_000_000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"3GB"</span>), <span class="prelude-val">Ok</span>(<span class="number">3_000_000_000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"4TB"</span>), <span class="prelude-val">Ok</span>(<span class="number">4_000_000_000_000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"5PB"</span>), <span class="prelude-val">Ok</span>(<span class="number">5_000_000_000_000_000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"6EB"</span>), <span class="prelude-val">Ok</span>(<span class="number">6_000_000_000_000_000_000</span>));
 
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;7 KiB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">7 </span>&lt;&lt; <span class="number">10</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;8 MiB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">8 </span>&lt;&lt; <span class="number">20</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;9 GiB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">9 </span>&lt;&lt; <span class="number">30</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;10 TiB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">10 </span>&lt;&lt; <span class="number">40</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;11 PiB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">11 </span>&lt;&lt; <span class="number">50</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;12 EiB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">12 </span>&lt;&lt; <span class="number">60</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"7 KiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">7 </span>&lt;&lt; <span class="number">10</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"8 MiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">8 </span>&lt;&lt; <span class="number">20</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"9 GiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">9 </span>&lt;&lt; <span class="number">30</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"10 TiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">10 </span>&lt;&lt; <span class="number">40</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"11 PiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">11 </span>&lt;&lt; <span class="number">50</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"12 EiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">12 </span>&lt;&lt; <span class="number">60</span>));
 
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1mib&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">1_048_576</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1mib"</span>), <span class="prelude-val">Ok</span>(<span class="number">1_048_576</span>));
 
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;5k&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">5000</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1.1 K&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">1100</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1.2345 K&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">1235</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1.2345m&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">1_234_500</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;5.k&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">5000</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;0.0025KB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">3</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"5k"</span>), <span class="prelude-val">Ok</span>(<span class="number">5000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1.1 K"</span>), <span class="prelude-val">Ok</span>(<span class="number">1100</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1.2345 K"</span>), <span class="prelude-val">Ok</span>(<span class="number">1235</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1.2345m"</span>), <span class="prelude-val">Ok</span>(<span class="number">1_234_500</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"5.k"</span>), <span class="prelude-val">Ok</span>(<span class="number">5000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"0.0025KB"</span>), <span class="prelude-val">Ok</span>(<span class="number">3</span>));
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;3.141_592_653_589_793_238e&quot;</span>),
+        parse_size(<span class="string">"3.141_592_653_589_793_238e"</span>),
         <span class="prelude-val">Ok</span>(<span class="number">3_141_592_653_589_793_238</span>)
     );
 
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;18.446_744_073_709_551_615 EB&quot;</span>),
+        parse_size(<span class="string">"18.446_744_073_709_551_615 EB"</span>),
         <span class="prelude-val">Ok</span>(<span class="number">18_446_744_073_709_551_615</span>)
     );
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;18.446_744_073_709_551_616 EB&quot;</span>),
+        parse_size(<span class="string">"18.446_744_073_709_551_616 EB"</span>),
         <span class="prelude-val">Err</span>(Error::PosOverflow)
     );
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;1.000_000_000_000_000_001 EB&quot;</span>),
+        parse_size(<span class="string">"1.000_000_000_000_000_001 EB"</span>),
         <span class="prelude-val">Ok</span>(<span class="number">1_000_000_000_000_000_001</span>)
     );
 
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1e2 KIB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">102_400</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1E+6&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">1_000_000</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1e-4 MiB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">105</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1.1e2&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">110</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;5.7E3&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">5700</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1e2 KIB"</span>), <span class="prelude-val">Ok</span>(<span class="number">102_400</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1E+6"</span>), <span class="prelude-val">Ok</span>(<span class="number">1_000_000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1e-4 MiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">105</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1.1e2"</span>), <span class="prelude-val">Ok</span>(<span class="number">110</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"5.7E3"</span>), <span class="prelude-val">Ok</span>(<span class="number">5700</span>));
 
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;20_000_000_000_000_000_000e-18&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">20</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;98_765_432_109_876_543_210e-16&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">9877</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1e21&quot;</span>), <span class="prelude-val">Err</span>(Error::PosOverflow));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;0.01e21&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">10_000_000_000_000_000_000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"20_000_000_000_000_000_000e-18"</span>), <span class="prelude-val">Ok</span>(<span class="number">20</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"98_765_432_109_876_543_210e-16"</span>), <span class="prelude-val">Ok</span>(<span class="number">9877</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1e21"</span>), <span class="prelude-val">Err</span>(Error::PosOverflow));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"0.01e21"</span>), <span class="prelude-val">Ok</span>(<span class="number">10_000_000_000_000_000_000</span>));
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;3.333_333_333_333_333_333_333_333_333_333_333_333_333_333_333_333 EB&quot;</span>),
+        parse_size(<span class="string">"3.333_333_333_333_333_333_333_333_333_333_333_333_333_333_333_333 EB"</span>),
         <span class="prelude-val">Ok</span>(<span class="number">3_333_333_333_333_333_333</span>)
     );
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;2e+0_9&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">2_000_000_000</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"2e+0_9"</span>), <span class="prelude-val">Ok</span>(<span class="number">2_000_000_000</span>));
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;3e+66666666666666666666&quot;</span>),
+        parse_size(<span class="string">"3e+66666666666666666666"</span>),
         <span class="prelude-val">Err</span>(Error::PosOverflow)
     );
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;4e-77777777777777777777&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;5e-88888888888888888888 EiB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"4e-77777777777777777777"</span>), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"5e-88888888888888888888 EiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
 
     <span class="macro">assert_eq!</span>(
-        parse_size(<span class="string">&quot;123_456_789_012_345_678_901_234_567.890e-16&quot;</span>),
+        parse_size(<span class="string">"123_456_789_012_345_678_901_234_567.890e-16"</span>),
         <span class="prelude-val">Ok</span>(<span class="number">12_345_678_901</span>)
     );
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;0.1e-2147483648&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;184467440737095516150e-38EiB&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">2</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"0.1e-2147483648"</span>), <span class="prelude-val">Ok</span>(<span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"184467440737095516150e-38EiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">2</span>));
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_parse_errors() {
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;&quot;</span>), <span class="prelude-val">Err</span>(Error::Empty));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;.&quot;</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;.5k&quot;</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;k&quot;</span>), <span class="prelude-val">Err</span>(Error::Empty));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;kb&quot;</span>), <span class="prelude-val">Err</span>(Error::Empty));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;kib&quot;</span>), <span class="prelude-val">Err</span>(Error::Empty));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;  &quot;</span>), <span class="prelude-val">Err</span>(Error::Empty));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;__&quot;</span>), <span class="prelude-val">Err</span>(Error::Empty));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;a&quot;</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;-1&quot;</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1,5&quot;</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1e+f&quot;</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1e0.5&quot;</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1 ZiB&quot;</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
-    <span class="macro">assert_eq!</span>(parse_size(<span class="string">&quot;1 YiB&quot;</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">""</span>), <span class="prelude-val">Err</span>(Error::Empty));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"."</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">".5k"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"k"</span>), <span class="prelude-val">Err</span>(Error::Empty));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"kb"</span>), <span class="prelude-val">Err</span>(Error::Empty));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"kib"</span>), <span class="prelude-val">Err</span>(Error::Empty));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"  "</span>), <span class="prelude-val">Err</span>(Error::Empty));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"__"</span>), <span class="prelude-val">Err</span>(Error::Empty));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"a"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"-1"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1,5"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1e+f"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1e0.5"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1 ZiB"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(parse_size(<span class="string">"1 YiB"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_config() {
     <span class="kw">let </span>cfg = Config::new().with_binary().with_default_factor(<span class="number">1_048_576</span>);
 
-    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">&quot;3.5&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">3_670_016</span>));
-    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">&quot;35 B&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">35</span>));
-    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">&quot;5K&quot;</span>), <span class="prelude-val">Ok</span>(<span class="number">5120</span>));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"3.5"</span>), <span class="prelude-val">Ok</span>(<span class="number">3_670_016</span>));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"35 B"</span>), <span class="prelude-val">Ok</span>(<span class="number">35</span>));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"5K"</span>), <span class="prelude-val">Ok</span>(<span class="number">5120</span>));
 }
 </code></pre></div></section></main></body></html>

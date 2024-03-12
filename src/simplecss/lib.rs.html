@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/simplecss-0.2.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="simplecss" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/simplecss-0.2.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="simplecss" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -521,7 +522,7 @@ This is not a browser-grade CSS parser. If you need one,
 use [cssparser](https://crates.io/crates/cssparser) +
 [selectors](https://crates.io/crates/selectors).
 
-Since it&#39;s very simple we will start with limitations:
+Since it's very simple we will start with limitations:
 
 ## Limitations
 
@@ -542,7 +543,7 @@ Since it&#39;s very simple we will start with limitations:
 - No unsafe.
 */
 
-</span><span class="attr">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/simplecss/0.2.1&quot;</span>)]
+</span><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/simplecss/0.2.1"</span>)]
 
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
@@ -599,35 +600,35 @@ Since it&#39;s very simple we will start with limitations:
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             Error::UnexpectedEndOfStream =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;unexpected end of stream&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"unexpected end of stream"</span>)
             }
             Error::InvalidIdent(pos) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;invalid ident at {}&quot;</span>, pos)
+                <span class="macro">write!</span>(f, <span class="string">"invalid ident at {}"</span>, pos)
             }
             Error::InvalidComment(pos) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;invalid comment at {}&quot;</span>, pos)
+                <span class="macro">write!</span>(f, <span class="string">"invalid comment at {}"</span>, pos)
             }
             Error::InvalidValue(pos) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;invalid value at {}&quot;</span>, pos)
+                <span class="macro">write!</span>(f, <span class="string">"invalid value at {}"</span>, pos)
             }
             Error::InvalidByte { expected, actual, pos } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;expected &#39;{}&#39; not &#39;{}&#39; at {}&quot;</span>,
+                <span class="macro">write!</span>(f, <span class="string">"expected '{}' not '{}' at {}"</span>,
                        expected <span class="kw">as </span>char, actual <span class="kw">as </span>char, pos)
             }
             Error::SelectorMissing =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;selector missing&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"selector missing"</span>)
             }
             Error::UnexpectedSelector =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;unexpected selector&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"unexpected selector"</span>)
             }
             Error::UnexpectedCombinator =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;unexpected combinator&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"unexpected combinator"</span>)
             }
             Error::InvalidAttributeSelector =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;invalid or unsupported attribute selector&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"invalid or unsupported attribute selector"</span>)
             }
             Error::InvalidLanguagePseudoClass =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;invalid language pseudo-class&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"invalid language pseudo-class"</span>)
             }
         }
     }
@@ -657,7 +658,7 @@ Since it&#39;s very simple we will start with limitations:
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>TextPos {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}:{}&quot;</span>, <span class="self">self</span>.row, <span class="self">self</span>.col)
+        <span class="macro">write!</span>(f, <span class="string">"{}:{}"</span>, <span class="self">self</span>.row, <span class="self">self</span>.col)
     }
 }
 
@@ -665,29 +666,29 @@ Since it&#39;s very simple we will start with limitations:
 <span class="doccomment">/// A declaration.
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
 #[allow(missing_docs)]
-</span><span class="kw">pub struct </span>Declaration&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+</span><span class="kw">pub struct </span>Declaration&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     <span class="kw">pub </span>important: bool,
 }
 
 <span class="doccomment">/// A rule.
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>Rule&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Rule&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// A rule selector.
-    </span><span class="kw">pub </span>selector: Selector&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span><span class="kw">pub </span>selector: Selector&lt;<span class="lifetime">'a</span>&gt;,
     <span class="doccomment">/// A rule declarations.
-    </span><span class="kw">pub </span>declarations: Vec&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    </span><span class="kw">pub </span>declarations: Vec&lt;Declaration&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
 
 <span class="doccomment">/// A style sheet.
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>StyleSheet&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>StyleSheet&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// A list of rules.
-    </span><span class="kw">pub </span>rules: Vec&lt;Rule&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    </span><span class="kw">pub </span>rules: Vec&lt;Rule&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; StyleSheet&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; StyleSheet&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates an empty style sheet.
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         StyleSheet { rules: Vec::new() }
@@ -699,17 +700,17 @@ Since it&#39;s very simple we will start with limitations:
     ///
     /// # Errors
     ///
-    /// Doesn&#39;t produce any errors. In worst case scenario will return an empty stylesheet.
+    /// Doesn't produce any errors. In worst case scenario will return an empty stylesheet.
     ///
     /// All warnings will be logged.
-    </span><span class="kw">pub fn </span>parse(text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>parse(text: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>sheet = StyleSheet::new();
         sheet.parse_more(text);
         sheet
     }
 
     <span class="doccomment">/// Parses a style sheet from a text to the current style sheet.
-    </span><span class="kw">pub fn </span>parse_more(<span class="kw-2">&amp;mut </span><span class="self">self</span>, text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) {
+    </span><span class="kw">pub fn </span>parse_more(<span class="kw-2">&amp;mut </span><span class="self">self</span>, text: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) {
         <span class="kw">let </span><span class="kw-2">mut </span>s = Stream::from(text);
 
         <span class="kw">if </span>s.skip_spaces_and_comments().is_err() {
@@ -725,7 +726,7 @@ Since it&#39;s very simple we will start with limitations:
         }
 
         <span class="kw">if </span>!s.at_end() {
-            <span class="macro">warn!</span>(<span class="string">&quot;{} bytes were left.&quot;</span>, s.slice_tail().len());
+            <span class="macro">warn!</span>(<span class="string">"{} bytes were left."</span>, s.slice_tail().len());
         }
 
         <span class="comment">// Remove empty rules.
@@ -736,18 +737,18 @@ Since it&#39;s very simple we will start with limitations:
     }
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>StyleSheet&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>StyleSheet&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">for </span>(i, rule) <span class="kw">in </span><span class="self">self</span>.rules.iter().enumerate() {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{} {{ &quot;</span>, rule.selector)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"{} {{ "</span>, rule.selector)<span class="question-mark">?</span>;
             <span class="kw">for </span>dec <span class="kw">in </span><span class="kw-2">&amp;</span>rule.declarations {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}:{}&quot;</span>, dec.name, dec.value)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">"{}:{}"</span>, dec.name, dec.value)<span class="question-mark">?</span>;
                 <span class="kw">if </span>dec.important {
-                    <span class="macro">write!</span>(f, <span class="string">&quot; !important&quot;</span>)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">" !important"</span>)<span class="question-mark">?</span>;
                 }
-                <span class="macro">write!</span>(f, <span class="string">&quot;;&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">";"</span>)<span class="question-mark">?</span>;
             }
-            <span class="macro">write!</span>(f, <span class="string">&quot; }}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">" }}"</span>)<span class="question-mark">?</span>;
 
             <span class="kw">if </span>i != <span class="self">self</span>.rules.len() - <span class="number">1 </span>{
                 <span class="macro">writeln!</span>(f)<span class="question-mark">?</span>;
@@ -758,8 +759,8 @@ Since it&#39;s very simple we will start with limitations:
     }
 }
 
-<span class="kw">fn </span>consume_statement&lt;<span class="lifetime">&#39;a</span>&gt;(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">&#39;a</span>&gt;, rules: <span class="kw-2">&amp;mut </span>Vec&lt;Rule&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b&#39;@&#39;</span>) {
+<span class="kw">fn </span>consume_statement&lt;<span class="lifetime">'a</span>&gt;(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'a</span>&gt;, rules: <span class="kw-2">&amp;mut </span>Vec&lt;Rule&lt;<span class="lifetime">'a</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b'@'</span>) {
         s.advance(<span class="number">1</span>);
         consume_at_rule(s)
     } <span class="kw">else </span>{
@@ -769,24 +770,24 @@ Since it&#39;s very simple we will start with limitations:
 
 <span class="kw">fn </span>consume_at_rule(s: <span class="kw-2">&amp;mut </span>Stream) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">let </span>ident = s.consume_ident()<span class="question-mark">?</span>;
-    <span class="macro">warn!</span>(<span class="string">&quot;The @{} rule is not supported. Skipped.&quot;</span>, ident);
+    <span class="macro">warn!</span>(<span class="string">"The @{} rule is not supported. Skipped."</span>, ident);
 
-    s.skip_bytes(|c| c != <span class="string">b&#39;;&#39; </span>&amp;&amp; c != <span class="string">b&#39;{&#39;</span>);
+    s.skip_bytes(|c| c != <span class="string">b';' </span>&amp;&amp; c != <span class="string">b'{'</span>);
 
     <span class="kw">match </span>s.curr_byte()<span class="question-mark">? </span>{
-        <span class="string">b&#39;;&#39; </span>=&gt; s.advance(<span class="number">1</span>),
-        <span class="string">b&#39;{&#39; </span>=&gt; consume_block(s),
+        <span class="string">b';' </span>=&gt; s.advance(<span class="number">1</span>),
+        <span class="string">b'{' </span>=&gt; consume_block(s),
         <span class="kw">_ </span>=&gt; {}
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn </span>consume_rule_set&lt;<span class="lifetime">&#39;a</span>&gt;(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">&#39;a</span>&gt;, rules: <span class="kw-2">&amp;mut </span>Vec&lt;Rule&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+<span class="kw">fn </span>consume_rule_set&lt;<span class="lifetime">'a</span>&gt;(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'a</span>&gt;, rules: <span class="kw-2">&amp;mut </span>Vec&lt;Rule&lt;<span class="lifetime">'a</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">let </span>start_rule_idx = rules.len();
 
-    <span class="kw">while </span>s.curr_byte()<span class="question-mark">? </span>== <span class="string">b&#39;,&#39; </span>|| start_rule_idx == rules.len() {
-        <span class="kw">if </span>s.curr_byte()<span class="question-mark">? </span>== <span class="string">b&#39;,&#39; </span>{
+    <span class="kw">while </span>s.curr_byte()<span class="question-mark">? </span>== <span class="string">b',' </span>|| start_rule_idx == rules.len() {
+        <span class="kw">if </span>s.curr_byte()<span class="question-mark">? </span>== <span class="string">b',' </span>{
             s.advance(<span class="number">1</span>);
         }
 
@@ -799,44 +800,44 @@ Since it&#39;s very simple we will start with limitations:
         }
 
         <span class="kw">match </span>s.curr_byte()<span class="question-mark">? </span>{
-            <span class="string">b&#39;{&#39; </span>=&gt; <span class="kw">break</span>,
-            <span class="string">b&#39;,&#39; </span>=&gt; {}
+            <span class="string">b'{' </span>=&gt; <span class="kw">break</span>,
+            <span class="string">b',' </span>=&gt; {}
             <span class="kw">_ </span>=&gt; {
-                s.skip_bytes(|c| c != <span class="string">b&#39;{&#39;</span>);
+                s.skip_bytes(|c| c != <span class="string">b'{'</span>);
                 <span class="kw">break</span>;
             }
         }
     }
 
-    s.try_consume_byte(<span class="string">b&#39;{&#39;</span>);
+    s.try_consume_byte(<span class="string">b'{'</span>);
 
     <span class="kw">let </span>declarations = consume_declarations(s)<span class="question-mark">?</span>;
     <span class="kw">for </span>i <span class="kw">in </span>start_rule_idx..rules.len() {
         rules[i].declarations = declarations.clone();
     }
 
-    s.try_consume_byte(<span class="string">b&#39;}&#39;</span>);
+    s.try_consume_byte(<span class="string">b'}'</span>);
 
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn </span>consume_block(s: <span class="kw-2">&amp;mut </span>Stream) {
-    s.try_consume_byte(<span class="string">b&#39;{&#39;</span>);
+    s.try_consume_byte(<span class="string">b'{'</span>);
     consume_until_block_end(s);
 }
 
 <span class="kw">fn </span>consume_until_block_end(s: <span class="kw-2">&amp;mut </span>Stream) {
     <span class="comment">// Block can have nested blocks, so we have to check for matching braces.
     // We simply counting the number of opening braces, which is incorrect,
-    // since `{` can be inside a string, but it&#39;s fine for majority of the cases.
+    // since `{` can be inside a string, but it's fine for majority of the cases.
 
     </span><span class="kw">let </span><span class="kw-2">mut </span>braces = <span class="number">0</span>;
     <span class="kw">while </span>!s.at_end() {
         <span class="kw">match </span>s.curr_byte_unchecked() {
-            <span class="string">b&#39;{&#39; </span>=&gt; {
+            <span class="string">b'{' </span>=&gt; {
                 braces += <span class="number">1</span>;
             }
-            <span class="string">b&#39;}&#39; </span>=&gt; {
+            <span class="string">b'}' </span>=&gt; {
                 <span class="kw">if </span>braces == <span class="number">0 </span>{
                     <span class="kw">break</span>;
                 } <span class="kw">else </span>{
@@ -849,13 +850,13 @@ Since it&#39;s very simple we will start with limitations:
         s.advance(<span class="number">1</span>);
     }
 
-    s.try_consume_byte(<span class="string">b&#39;}&#39;</span>);
+    s.try_consume_byte(<span class="string">b'}'</span>);
 }
 
-<span class="kw">fn </span>consume_declarations&lt;<span class="lifetime">&#39;a</span>&gt;(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, Error&gt; {
+<span class="kw">fn </span>consume_declarations&lt;<span class="lifetime">'a</span>&gt;(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Declaration&lt;<span class="lifetime">'a</span>&gt;&gt;, Error&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>declarations = Vec::new();
 
-    <span class="kw">while </span>!s.at_end() &amp;&amp; s.curr_byte() != <span class="prelude-val">Ok</span>(<span class="string">b&#39;}&#39;</span>) {
+    <span class="kw">while </span>!s.at_end() &amp;&amp; s.curr_byte() != <span class="prelude-val">Ok</span>(<span class="string">b'}'</span>) {
         <span class="kw">match </span>consume_declaration(s) {
             <span class="prelude-val">Ok</span>(declaration) =&gt; declarations.push(declaration),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
@@ -878,24 +879,24 @@ Since it&#39;s very simple we will start with limitations:
 /// ```
 /// use simplecss::{DeclarationTokenizer, Declaration};
 ///
-/// let mut t = DeclarationTokenizer::from(&quot;background: url(\&quot;img.png\&quot;); color:red !important&quot;);
-/// assert_eq!(t.next().unwrap(), Declaration { name: &quot;background&quot;, value: &quot;url(\&quot;img.png\&quot;)&quot;, important: false });
-/// assert_eq!(t.next().unwrap(), Declaration { name: &quot;color&quot;, value: &quot;red&quot;, important: true });
+/// let mut t = DeclarationTokenizer::from("background: url(\"img.png\"); color:red !important");
+/// assert_eq!(t.next().unwrap(), Declaration { name: "background", value: "url(\"img.png\")", important: false });
+/// assert_eq!(t.next().unwrap(), Declaration { name: "color", value: "red", important: true });
 /// ```
-</span><span class="kw">pub struct </span>DeclarationTokenizer&lt;<span class="lifetime">&#39;a</span>&gt; {
-    stream: Stream&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>DeclarationTokenizer&lt;<span class="lifetime">'a</span>&gt; {
+    stream: Stream&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>DeclarationTokenizer&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>DeclarationTokenizer&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>from(text: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         DeclarationTokenizer {
             stream: Stream::from(text),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>DeclarationTokenizer&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = Declaration&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>DeclarationTokenizer&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = Declaration&lt;<span class="lifetime">'a</span>&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let _ </span>= <span class="self">self</span>.stream.skip_spaces_and_comments();
@@ -914,20 +915,20 @@ Since it&#39;s very simple we will start with limitations:
     }
 }
 
-<span class="kw">fn </span>consume_declaration&lt;<span class="lifetime">&#39;a</span>&gt;(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+<span class="kw">fn </span>consume_declaration&lt;<span class="lifetime">'a</span>&gt;(s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Declaration&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
     s.skip_spaces_and_comments()<span class="question-mark">?</span>;
 
     <span class="comment">// Parse name.
 
     // https://snook.ca/archives/html_and_css/targetting_ie7
-    </span><span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b&#39;*&#39;</span>) {
+    </span><span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b'*'</span>) {
         s.advance(<span class="number">1</span>);
     }
 
     <span class="kw">let </span>name = s.consume_ident()<span class="question-mark">?</span>;
 
     s.skip_spaces_and_comments()<span class="question-mark">?</span>;
-    s.consume_byte(<span class="string">b&#39;:&#39;</span>)<span class="question-mark">?</span>;
+    s.consume_byte(<span class="string">b':'</span>)<span class="question-mark">?</span>;
     s.skip_spaces_and_comments()<span class="question-mark">?</span>;
 
     <span class="comment">// Parse value.
@@ -943,10 +944,10 @@ Since it&#39;s very simple we will start with limitations:
 
     <span class="comment">// Check for `important`.
     </span><span class="kw">let </span><span class="kw-2">mut </span>important = <span class="bool-val">false</span>;
-    <span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b&#39;!&#39;</span>) {
+    <span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b'!'</span>) {
         s.advance(<span class="number">1</span>);
         s.skip_spaces_and_comments()<span class="question-mark">?</span>;
-        <span class="kw">if </span>s.slice_tail().starts_with(<span class="string">&quot;important&quot;</span>) {
+        <span class="kw">if </span>s.slice_tail().starts_with(<span class="string">"important"</span>) {
             s.advance(<span class="number">9</span>);
             important = <span class="bool-val">true</span>;
         }
@@ -954,7 +955,7 @@ Since it&#39;s very simple we will start with limitations:
 
     s.skip_spaces_and_comments()<span class="question-mark">?</span>;
 
-    <span class="kw">while </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b&#39;;&#39;</span>) {
+    <span class="kw">while </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b';'</span>) {
         s.advance(<span class="number">1</span>);
         s.skip_spaces_and_comments()<span class="question-mark">?</span>;
     }
@@ -972,14 +973,14 @@ Since it&#39;s very simple we will start with limitations:
     <span class="kw">fn </span>consume_digits(s: <span class="kw-2">&amp;mut </span>Stream) {
         <span class="kw">while let </span><span class="prelude-val">Ok</span>(c) = s.curr_byte() {
             <span class="kw">match </span>c {
-                <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; s.advance(<span class="number">1</span>),
+                <span class="string">b'0'</span>..=<span class="string">b'9' </span>=&gt; s.advance(<span class="number">1</span>),
                 <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
             }
         }
     }
 
     <span class="kw">match </span>s.curr_byte()<span class="question-mark">? </span>{
-        <span class="string">b&#39;#&#39; </span>=&gt; {
+        <span class="string">b'#' </span>=&gt; {
             s.advance(<span class="number">1</span>);
             <span class="kw">match </span>s.consume_ident() {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {}
@@ -987,43 +988,43 @@ Since it&#39;s very simple we will start with limitations:
                     <span class="comment">// Try consume as a hex color.
                     </span><span class="kw">while let </span><span class="prelude-val">Ok</span>(c) = s.curr_byte() {
                         <span class="kw">match </span>c {
-                            <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>| <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;F&#39; </span>=&gt; s.advance(<span class="number">1</span>),
+                            <span class="string">b'0'</span>..=<span class="string">b'9' </span>| <span class="string">b'a'</span>..=<span class="string">b'f' </span>| <span class="string">b'A'</span>..=<span class="string">b'F' </span>=&gt; s.advance(<span class="number">1</span>),
                             <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
                         }
                     }
                 }
             }
         }
-        <span class="string">b&#39;+&#39; </span>| <span class="string">b&#39;-&#39; </span>| <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>| <span class="string">b&#39;.&#39; </span>=&gt; {
+        <span class="string">b'+' </span>| <span class="string">b'-' </span>| <span class="string">b'0'</span>..=<span class="string">b'9' </span>| <span class="string">b'.' </span>=&gt; {
             <span class="comment">// Consume number.
 
             </span>s.advance(<span class="number">1</span>);
             consume_digits(s);
-            <span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b&#39;.&#39;</span>) {
+            <span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b'.'</span>) {
                 s.advance(<span class="number">1</span>);
                 consume_digits(s);
             }
 
-            <span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b&#39;%&#39;</span>) {
+            <span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b'%'</span>) {
                 s.advance(<span class="number">1</span>);
             } <span class="kw">else </span>{
                 <span class="comment">// Consume suffix if any.
                 </span><span class="kw">let _ </span>= s.consume_ident();
             }
         }
-        <span class="string">b&#39;\&#39;&#39; </span>| <span class="string">b&#39;&quot;&#39; </span>=&gt; {
+        <span class="string">b'\'' </span>| <span class="string">b'"' </span>=&gt; {
             s.consume_string()<span class="question-mark">?</span>;
         }
-        <span class="string">b&#39;,&#39; </span>=&gt; {
+        <span class="string">b',' </span>=&gt; {
             s.advance(<span class="number">1</span>);
         }
         <span class="kw">_ </span>=&gt; {
             <span class="kw">let _ </span>= s.consume_ident()<span class="question-mark">?</span>;
 
             <span class="comment">// Consume function.
-            </span><span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b&#39;(&#39;</span>) {
-                s.skip_bytes(|c| c != <span class="string">b&#39;)&#39;</span>);
-                s.consume_byte(<span class="string">b&#39;)&#39;</span>)<span class="question-mark">?</span>;
+            </span><span class="kw">if </span>s.curr_byte() == <span class="prelude-val">Ok</span>(<span class="string">b'('</span>) {
+                s.skip_bytes(|c| c != <span class="string">b')'</span>);
+                s.consume_byte(<span class="string">b')'</span>)<span class="question-mark">?</span>;
             }
         }
     }

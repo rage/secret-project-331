@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha1_smol-1.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sha1_smol" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha1_smol-1.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sha1_smol" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -803,9 +804,9 @@
 //! # fn main() {
 //!
 //! let mut m = sha1_smol::Sha1::new();
-//! m.update(b&quot;Hello World!&quot;);
+//! m.update(b"Hello World!");
 //! assert_eq!(m.digest().to_string(),
-//!            &quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;);
+//!            "2ef7bde608ce5404e97d5f042f95f89f1c232871");
 //! # }
 //! ```
 //!
@@ -813,11 +814,11 @@
 //! it once you can also use shortcuts (requires std):
 //!
 //! ```
-//! # trait X { fn hexdigest(&amp;self) -&gt; &amp;&#39;static str { &quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot; }}
+//! # trait X { fn hexdigest(&amp;self) -&gt; &amp;'static str { "2ef7bde608ce5404e97d5f042f95f89f1c232871" }}
 //! # impl X for sha1_smol::Sha1 {}
 //! # fn main() {
-//! assert_eq!(sha1_smol::Sha1::from(&quot;Hello World!&quot;).hexdigest(),
-//!            &quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;);
+//! assert_eq!(sha1_smol::Sha1::from("Hello World!").hexdigest(),
+//!            "2ef7bde608ce5404e97d5f042f95f89f1c232871");
 //! # }
 //! ```
 
@@ -835,7 +836,7 @@
 <span class="kw">mod </span>simd;
 <span class="kw">use </span><span class="kw">crate</span>::simd::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">extern crate </span>std;
 
 <span class="doccomment">/// The length of a SHA1 digest in bytes
@@ -918,7 +919,7 @@
         rv
     }
 
-    <span class="doccomment">/// Resets the hash object to it&#39;s initial state.
+    <span class="doccomment">/// Resets the hash object to it's initial state.
     </span><span class="kw">pub fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.state = DEFAULT_STATE;
         <span class="self">self</span>.len = <span class="number">0</span>;
@@ -969,7 +970,7 @@
     <span class="doccomment">/// Retrieve the digest result as hex string directly.
     ///
     /// (The function is only available if the `std` feature is enabled)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub fn </span>hexdigest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::string::String {
         <span class="kw">use </span>std::string::ToString;
         <span class="self">self</span>.digest().to_string()
@@ -1092,7 +1093,7 @@
         <span class="number">1 </span>=&gt; sha1rnds4p(abcd, work + K1V),
         <span class="number">2 </span>=&gt; sha1rnds4m(abcd, work + K2V),
         <span class="number">3 </span>=&gt; sha1rnds4p(abcd, work + K3V),
-        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;unknown icosaround index&quot;</span>),
+        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"unknown icosaround index"</span>),
     }
 }
 
@@ -1328,20 +1329,20 @@
     }
 }
 
-<span class="doccomment">/// Indicates that a digest couldn&#39;t be parsed.
+<span class="doccomment">/// Indicates that a digest couldn't be parsed.
 </span><span class="attr">#[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, Debug)]
 </span><span class="kw">pub struct </span>DigestParseError(());
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DigestParseError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;not a valid sha1 hash&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">"not a valid sha1 hash"</span>)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>DigestParseError {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="string">&quot;not a valid sha1 hash&quot;
+        <span class="string">"not a valid sha1 hash"
     </span>}
 }
 
@@ -1365,7 +1366,7 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Digest {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">for </span>i <span class="kw">in </span><span class="self">self</span>.data.state.iter() {
-            <span class="macro">r#try!</span>(<span class="macro">write!</span>(f, <span class="string">&quot;{:08x}&quot;</span>, i));
+            <span class="macro">r#try!</span>(<span class="macro">write!</span>(f, <span class="string">"{:08x}"</span>, i));
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1373,18 +1374,18 @@
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Digest {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Digest {{ \&quot;{}\&quot; }}&quot;</span>, <span class="self">self</span>)
+        <span class="macro">write!</span>(f, <span class="string">"Digest {{ \"{}\" }}"</span>, <span class="self">self</span>)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">impl </span>serde::ser::Serialize <span class="kw">for </span>Digest {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
         </span>S: serde::ser::Serializer,
     {
         <span class="kw">fn </span>to_hex(num: u8) -&gt; u8 {
-            <span class="string">b&quot;0123456789abcdef&quot;</span>[num <span class="kw">as </span>usize]
+            <span class="string">b"0123456789abcdef"</span>[num <span class="kw">as </span>usize]
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>hex_str = [<span class="number">0u8</span>; <span class="number">40</span>];
@@ -1401,19 +1402,19 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::de::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Digest {
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::de::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Digest {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::de::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::de::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">struct </span>V;
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>V {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>V {
             <span class="kw">type </span>Value = Digest;
 
             <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-                formatter.write_str(<span class="string">&quot;SHA-1 hash&quot;</span>)
+                formatter.write_str(<span class="string">"SHA-1 hash"</span>)
             }
 
             <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Digest, E&gt;
@@ -1446,18 +1447,18 @@
         <span class="kw">let </span><span class="kw-2">mut </span>m = Sha1::new();
 
         <span class="kw">let </span>tests = [
-            (<span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>,
-             <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>),
-            (<span class="string">&quot;The quick brown fox jumps over the lazy cog&quot;</span>,
-             <span class="string">&quot;de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3&quot;</span>),
-            (<span class="string">&quot;&quot;</span>, <span class="string">&quot;da39a3ee5e6b4b0d3255bfef95601890afd80709&quot;</span>),
-            (<span class="string">&quot;testing\n&quot;</span>, <span class="string">&quot;9801739daae44ec5293d4e1f53d3f4d2d426d91c&quot;</span>),
-            (<span class="string">&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;</span>,
-             <span class="string">&quot;025ecbd5d70f8fb3c5457cd96bab13fda305dc59&quot;</span>),
-            (<span class="string">&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;</span>,
-             <span class="string">&quot;4300320394f7ee239bcdce7d3b8bcee173a0cd5c&quot;</span>),
-            (<span class="string">&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;</span>,
-             <span class="string">&quot;cef734ba81a024479e09eb5a75b6ddae62e6abf1&quot;</span>),
+            (<span class="string">"The quick brown fox jumps over the lazy dog"</span>,
+             <span class="string">"2fd4e1c67a2d28fced849ee1bb76e7391b93eb12"</span>),
+            (<span class="string">"The quick brown fox jumps over the lazy cog"</span>,
+             <span class="string">"de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3"</span>),
+            (<span class="string">""</span>, <span class="string">"da39a3ee5e6b4b0d3255bfef95601890afd80709"</span>),
+            (<span class="string">"testing\n"</span>, <span class="string">"9801739daae44ec5293d4e1f53d3f4d2d426d91c"</span>),
+            (<span class="string">"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</span>,
+             <span class="string">"025ecbd5d70f8fb3c5457cd96bab13fda305dc59"</span>),
+            (<span class="string">"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</span>,
+             <span class="string">"4300320394f7ee239bcdce7d3b8bcee173a0cd5c"</span>),
+            (<span class="string">"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</span>,
+             <span class="string">"cef734ba81a024479e09eb5a75b6ddae62e6abf1"</span>),
         ];
 
         <span class="kw">for </span><span class="kw-2">&amp;</span>(s, <span class="kw-2">ref </span>h) <span class="kw">in </span>tests.iter() {
@@ -1474,15 +1475,15 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_shortcuts() {
-        <span class="kw">let </span>s = Sha1::from(<span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>);
-        <span class="macro">assert_eq!</span>(s.digest().to_string(), <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>);
+        <span class="kw">let </span>s = Sha1::from(<span class="string">"The quick brown fox jumps over the lazy dog"</span>);
+        <span class="macro">assert_eq!</span>(s.digest().to_string(), <span class="string">"2fd4e1c67a2d28fced849ee1bb76e7391b93eb12"</span>);
 
-        <span class="kw">let </span>s = Sha1::from(<span class="kw-2">&amp;</span><span class="string">b&quot;The quick brown fox jumps over the lazy dog&quot;</span>[..]);
-        <span class="macro">assert_eq!</span>(s.digest().to_string(), <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>);
+        <span class="kw">let </span>s = Sha1::from(<span class="kw-2">&amp;</span><span class="string">b"The quick brown fox jumps over the lazy dog"</span>[..]);
+        <span class="macro">assert_eq!</span>(s.digest().to_string(), <span class="string">"2fd4e1c67a2d28fced849ee1bb76e7391b93eb12"</span>);
 
-        <span class="attr">#[cfg(feature=<span class="string">&quot;std&quot;</span>)] </span>{
-            <span class="kw">let </span>s = Sha1::from(<span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>);
-            <span class="macro">assert_eq!</span>(s.hexdigest(), <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>);
+        <span class="attr">#[cfg(feature=<span class="string">"std"</span>)] </span>{
+            <span class="kw">let </span>s = Sha1::from(<span class="string">"The quick brown fox jumps over the lazy dog"</span>);
+            <span class="macro">assert_eq!</span>(s.hexdigest(), <span class="string">"2fd4e1c67a2d28fced849ee1bb76e7391b93eb12"</span>);
         }
     }
 
@@ -1491,13 +1492,13 @@
         <span class="kw">let </span><span class="kw-2">mut </span>m = Sha1::new();
 
         m.reset();
-        m.update(<span class="string">&quot;The quick brown &quot;</span>.as_bytes());
-        m.update(<span class="string">&quot;fox jumps over &quot;</span>.as_bytes());
-        m.update(<span class="string">&quot;the lazy dog&quot;</span>.as_bytes());
+        m.update(<span class="string">"The quick brown "</span>.as_bytes());
+        m.update(<span class="string">"fox jumps over "</span>.as_bytes());
+        m.update(<span class="string">"the lazy dog"</span>.as_bytes());
         <span class="kw">let </span>hh = m.digest().to_string();
 
 
-        <span class="kw">let </span>h = <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>;
+        <span class="kw">let </span>h = <span class="string">"2fd4e1c67a2d28fced849ee1bb76e7391b93eb12"</span>;
         <span class="macro">assert_eq!</span>(hh.len(), h.len());
         <span class="macro">assert_eq!</span>(hh, <span class="kw-2">&amp;*</span>h);
     }
@@ -1505,7 +1506,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_sha1_loop() {
         <span class="kw">let </span><span class="kw-2">mut </span>m = Sha1::new();
-        <span class="kw">let </span>s = <span class="string">&quot;The quick brown fox jumps over the lazy dog.&quot;</span>;
+        <span class="kw">let </span>s = <span class="string">"The quick brown fox jumps over the lazy dog."</span>;
         <span class="kw">let </span>n = <span class="number">1000u64</span>;
 
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">3 </span>{
@@ -1514,7 +1515,7 @@
                 m.update(s.as_bytes());
             }
             <span class="macro">assert_eq!</span>(m.digest().to_string(),
-                       <span class="string">&quot;7ca27655f67fceaa78ed2e645a81c7f1d6e249d2&quot;</span>);
+                       <span class="string">"7ca27655f67fceaa78ed2e645a81c7f1d6e249d2"</span>);
         }
     }
 
@@ -1541,20 +1542,20 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+    #[cfg(feature=<span class="string">"std"</span>)]
     </span><span class="kw">fn </span>test_parse() {
         <span class="kw">use </span><span class="kw">crate</span>::Digest;
         <span class="kw">use </span>std::error::Error;
-        <span class="kw">let </span>y: Digest = <span class="string">&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;</span>.parse().unwrap();
-        <span class="macro">assert_eq!</span>(y.to_string(), <span class="string">&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;</span>);
-        <span class="macro">assert!</span>(<span class="string">&quot;asdfasdf&quot;</span>.parse::&lt;Digest&gt;().is_err());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;asdfasdf&quot;</span>.parse::&lt;Digest&gt;()
-            .map_err(|x| x.description().to_string()).unwrap_err(), <span class="string">&quot;not a valid sha1 hash&quot;</span>);
+        <span class="kw">let </span>y: Digest = <span class="string">"2ef7bde608ce5404e97d5f042f95f89f1c232871"</span>.parse().unwrap();
+        <span class="macro">assert_eq!</span>(y.to_string(), <span class="string">"2ef7bde608ce5404e97d5f042f95f89f1c232871"</span>);
+        <span class="macro">assert!</span>(<span class="string">"asdfasdf"</span>.parse::&lt;Digest&gt;().is_err());
+        <span class="macro">assert_eq!</span>(<span class="string">"asdfasdf"</span>.parse::&lt;Digest&gt;()
+            .map_err(|x| x.description().to_string()).unwrap_err(), <span class="string">"not a valid sha1 hash"</span>);
     }
 }
 
 <span class="attr">#[rustfmt::skip]
-#[cfg(all(test, feature=<span class="string">&quot;serde&quot;</span>))]
+#[cfg(all(test, feature=<span class="string">"serde"</span>))]
 </span><span class="kw">mod </span>serde_tests {
     <span class="kw">extern crate </span>std;
     <span class="kw">extern crate </span>serde_json;
@@ -1566,16 +1567,16 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_to_json() {
         <span class="kw">let </span><span class="kw-2">mut </span>s = Sha1::new();
-        s.update(<span class="string">b&quot;Hello World!&quot;</span>);
+        s.update(<span class="string">b"Hello World!"</span>);
         <span class="kw">let </span>x = s.digest();
         <span class="kw">let </span>y = serde_json::to_vec(<span class="kw-2">&amp;</span>x).unwrap();
-        <span class="macro">assert_eq!</span>(y, <span class="kw-2">&amp;</span><span class="string">b&quot;\&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871\&quot;&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(y, <span class="kw-2">&amp;</span><span class="string">b"\"2ef7bde608ce5404e97d5f042f95f89f1c232871\""</span>[..]);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_json() {
-        <span class="kw">let </span>y: Digest = serde_json::from_str(<span class="string">&quot;\&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871\&quot;&quot;</span>).unwrap();
-        <span class="macro">assert_eq!</span>(y.to_string(), <span class="string">&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;</span>);
+        <span class="kw">let </span>y: Digest = serde_json::from_str(<span class="string">"\"2ef7bde608ce5404e97d5f042f95f89f1c232871\""</span>).unwrap();
+        <span class="macro">assert_eq!</span>(y.to_string(), <span class="string">"2ef7bde608ce5404e97d5f042f95f89f1c232871"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

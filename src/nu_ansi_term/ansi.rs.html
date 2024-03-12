@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nu-ansi-term-0.46.0/src/ansi.rs`."><title>ansi.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nu_ansi_term" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nu-ansi-term-0.46.0/src/ansi.rs`."><title>ansi.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nu_ansi_term" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -422,42 +423,42 @@
 
         <span class="comment">// Write the codes’ prefix, then write numbers, separated by
         // semicolons, for each text style we want to apply.
-        </span><span class="macro">write!</span>(f, <span class="string">&quot;\x1B[&quot;</span>)<span class="question-mark">?</span>;
+        </span><span class="macro">write!</span>(f, <span class="string">"\x1B["</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>written_anything = <span class="bool-val">false</span>;
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>write_char = |c| {
                 <span class="kw">if </span>written_anything {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;;&quot;</span>)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">";"</span>)<span class="question-mark">?</span>;
                 }
                 written_anything = <span class="bool-val">true</span>;
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, c)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">"{}"</span>, c)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(())
             };
 
             <span class="kw">if </span><span class="self">self</span>.is_bold {
-                write_char(<span class="string">&#39;1&#39;</span>)<span class="question-mark">?
+                write_char(<span class="string">'1'</span>)<span class="question-mark">?
             </span>}
             <span class="kw">if </span><span class="self">self</span>.is_dimmed {
-                write_char(<span class="string">&#39;2&#39;</span>)<span class="question-mark">?
+                write_char(<span class="string">'2'</span>)<span class="question-mark">?
             </span>}
             <span class="kw">if </span><span class="self">self</span>.is_italic {
-                write_char(<span class="string">&#39;3&#39;</span>)<span class="question-mark">?
+                write_char(<span class="string">'3'</span>)<span class="question-mark">?
             </span>}
             <span class="kw">if </span><span class="self">self</span>.is_underline {
-                write_char(<span class="string">&#39;4&#39;</span>)<span class="question-mark">?
+                write_char(<span class="string">'4'</span>)<span class="question-mark">?
             </span>}
             <span class="kw">if </span><span class="self">self</span>.is_blink {
-                write_char(<span class="string">&#39;5&#39;</span>)<span class="question-mark">?
+                write_char(<span class="string">'5'</span>)<span class="question-mark">?
             </span>}
             <span class="kw">if </span><span class="self">self</span>.is_reverse {
-                write_char(<span class="string">&#39;7&#39;</span>)<span class="question-mark">?
+                write_char(<span class="string">'7'</span>)<span class="question-mark">?
             </span>}
             <span class="kw">if </span><span class="self">self</span>.is_hidden {
-                write_char(<span class="string">&#39;8&#39;</span>)<span class="question-mark">?
+                write_char(<span class="string">'8'</span>)<span class="question-mark">?
             </span>}
             <span class="kw">if </span><span class="self">self</span>.is_strikethrough {
-                write_char(<span class="string">&#39;9&#39;</span>)<span class="question-mark">?
+                write_char(<span class="string">'9'</span>)<span class="question-mark">?
             </span>}
         }
 
@@ -466,7 +467,7 @@
         // (see `write_background_code` and `write_foreground_code`)
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(bg) = <span class="self">self</span>.background {
             <span class="kw">if </span>written_anything {
-                <span class="macro">write!</span>(f, <span class="string">&quot;;&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">";"</span>)<span class="question-mark">?</span>;
             }
             written_anything = <span class="bool-val">true</span>;
             bg.write_background_code(f)<span class="question-mark">?</span>;
@@ -474,13 +475,13 @@
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(fg) = <span class="self">self</span>.foreground {
             <span class="kw">if </span>written_anything {
-                <span class="macro">write!</span>(f, <span class="string">&quot;;&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">";"</span>)<span class="question-mark">?</span>;
             }
             fg.write_foreground_code(f)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// All the codes end with an `m`, because reasons.
-        </span><span class="macro">write!</span>(f, <span class="string">&quot;m&quot;</span>)<span class="question-mark">?</span>;
+        </span><span class="macro">write!</span>(f, <span class="string">"m"</span>)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -490,64 +491,64 @@
         <span class="kw">if </span><span class="self">self</span>.is_plain() {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, RESET)
+            <span class="macro">write!</span>(f, <span class="string">"{}"</span>, RESET)
         }
     }
 }
 
 <span class="doccomment">/// The code to send to reset all styles and return to `Style::default()`.
-</span><span class="kw">pub static </span>RESET: <span class="kw-2">&amp;</span>str = <span class="string">&quot;\x1B[0m&quot;</span>;
+</span><span class="kw">pub static </span>RESET: <span class="kw-2">&amp;</span>str = <span class="string">"\x1B[0m"</span>;
 
 <span class="kw">impl </span>Color {
     <span class="kw">fn </span>write_foreground_code&lt;W: AnyWrite + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>W) -&gt; <span class="prelude-ty">Result</span>&lt;(), W::Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Color::Black =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;30&quot;</span>),
-            Color::Red =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;31&quot;</span>),
-            Color::Green =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;32&quot;</span>),
-            Color::Yellow =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;33&quot;</span>),
-            Color::Blue =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;34&quot;</span>),
-            Color::Purple =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;35&quot;</span>),
-            Color::Magenta =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;35&quot;</span>),
-            Color::Cyan =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;36&quot;</span>),
-            Color::White =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;37&quot;</span>),
-            Color::Fixed(num) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;38;5;{}&quot;</span>, num),
-            Color::Rgb(r, g, b) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;38;2;{};{};{}&quot;</span>, r, g, b),
-            Color::Default =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;39&quot;</span>),
-            Color::DarkGray =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;90&quot;</span>),
-            Color::LightRed =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;91&quot;</span>),
-            Color::LightGreen =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;92&quot;</span>),
-            Color::LightYellow =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;93&quot;</span>),
-            Color::LightBlue =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;94&quot;</span>),
-            Color::LightPurple =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;95&quot;</span>),
-            Color::LightMagenta =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;95&quot;</span>),
-            Color::LightCyan =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;96&quot;</span>),
-            Color::LightGray =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;97&quot;</span>),
+            Color::Black =&gt; <span class="macro">write!</span>(f, <span class="string">"30"</span>),
+            Color::Red =&gt; <span class="macro">write!</span>(f, <span class="string">"31"</span>),
+            Color::Green =&gt; <span class="macro">write!</span>(f, <span class="string">"32"</span>),
+            Color::Yellow =&gt; <span class="macro">write!</span>(f, <span class="string">"33"</span>),
+            Color::Blue =&gt; <span class="macro">write!</span>(f, <span class="string">"34"</span>),
+            Color::Purple =&gt; <span class="macro">write!</span>(f, <span class="string">"35"</span>),
+            Color::Magenta =&gt; <span class="macro">write!</span>(f, <span class="string">"35"</span>),
+            Color::Cyan =&gt; <span class="macro">write!</span>(f, <span class="string">"36"</span>),
+            Color::White =&gt; <span class="macro">write!</span>(f, <span class="string">"37"</span>),
+            Color::Fixed(num) =&gt; <span class="macro">write!</span>(f, <span class="string">"38;5;{}"</span>, num),
+            Color::Rgb(r, g, b) =&gt; <span class="macro">write!</span>(f, <span class="string">"38;2;{};{};{}"</span>, r, g, b),
+            Color::Default =&gt; <span class="macro">write!</span>(f, <span class="string">"39"</span>),
+            Color::DarkGray =&gt; <span class="macro">write!</span>(f, <span class="string">"90"</span>),
+            Color::LightRed =&gt; <span class="macro">write!</span>(f, <span class="string">"91"</span>),
+            Color::LightGreen =&gt; <span class="macro">write!</span>(f, <span class="string">"92"</span>),
+            Color::LightYellow =&gt; <span class="macro">write!</span>(f, <span class="string">"93"</span>),
+            Color::LightBlue =&gt; <span class="macro">write!</span>(f, <span class="string">"94"</span>),
+            Color::LightPurple =&gt; <span class="macro">write!</span>(f, <span class="string">"95"</span>),
+            Color::LightMagenta =&gt; <span class="macro">write!</span>(f, <span class="string">"95"</span>),
+            Color::LightCyan =&gt; <span class="macro">write!</span>(f, <span class="string">"96"</span>),
+            Color::LightGray =&gt; <span class="macro">write!</span>(f, <span class="string">"97"</span>),
         }
     }
 
     <span class="kw">fn </span>write_background_code&lt;W: AnyWrite + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>W) -&gt; <span class="prelude-ty">Result</span>&lt;(), W::Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Color::Black =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;40&quot;</span>),
-            Color::Red =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;41&quot;</span>),
-            Color::Green =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;42&quot;</span>),
-            Color::Yellow =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;43&quot;</span>),
-            Color::Blue =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;44&quot;</span>),
-            Color::Purple =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;45&quot;</span>),
-            Color::Magenta =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;45&quot;</span>),
-            Color::Cyan =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;46&quot;</span>),
-            Color::White =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;47&quot;</span>),
-            Color::Fixed(num) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;48;5;{}&quot;</span>, num),
-            Color::Rgb(r, g, b) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;48;2;{};{};{}&quot;</span>, r, g, b),
-            Color::Default =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;49&quot;</span>),
-            Color::DarkGray =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;100&quot;</span>),
-            Color::LightRed =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;101&quot;</span>),
-            Color::LightGreen =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;102&quot;</span>),
-            Color::LightYellow =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;103&quot;</span>),
-            Color::LightBlue =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;104&quot;</span>),
-            Color::LightPurple =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;105&quot;</span>),
-            Color::LightMagenta =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;105&quot;</span>),
-            Color::LightCyan =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;106&quot;</span>),
-            Color::LightGray =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;107&quot;</span>),
+            Color::Black =&gt; <span class="macro">write!</span>(f, <span class="string">"40"</span>),
+            Color::Red =&gt; <span class="macro">write!</span>(f, <span class="string">"41"</span>),
+            Color::Green =&gt; <span class="macro">write!</span>(f, <span class="string">"42"</span>),
+            Color::Yellow =&gt; <span class="macro">write!</span>(f, <span class="string">"43"</span>),
+            Color::Blue =&gt; <span class="macro">write!</span>(f, <span class="string">"44"</span>),
+            Color::Purple =&gt; <span class="macro">write!</span>(f, <span class="string">"45"</span>),
+            Color::Magenta =&gt; <span class="macro">write!</span>(f, <span class="string">"45"</span>),
+            Color::Cyan =&gt; <span class="macro">write!</span>(f, <span class="string">"46"</span>),
+            Color::White =&gt; <span class="macro">write!</span>(f, <span class="string">"47"</span>),
+            Color::Fixed(num) =&gt; <span class="macro">write!</span>(f, <span class="string">"48;5;{}"</span>, num),
+            Color::Rgb(r, g, b) =&gt; <span class="macro">write!</span>(f, <span class="string">"48;2;{};{};{}"</span>, r, g, b),
+            Color::Default =&gt; <span class="macro">write!</span>(f, <span class="string">"49"</span>),
+            Color::DarkGray =&gt; <span class="macro">write!</span>(f, <span class="string">"100"</span>),
+            Color::LightRed =&gt; <span class="macro">write!</span>(f, <span class="string">"101"</span>),
+            Color::LightGreen =&gt; <span class="macro">write!</span>(f, <span class="string">"102"</span>),
+            Color::LightYellow =&gt; <span class="macro">write!</span>(f, <span class="string">"103"</span>),
+            Color::LightBlue =&gt; <span class="macro">write!</span>(f, <span class="string">"104"</span>),
+            Color::LightPurple =&gt; <span class="macro">write!</span>(f, <span class="string">"105"</span>),
+            Color::LightMagenta =&gt; <span class="macro">write!</span>(f, <span class="string">"105"</span>),
+            Color::LightCyan =&gt; <span class="macro">write!</span>(f, <span class="string">"106"</span>),
+            Color::LightGray =&gt; <span class="macro">write!</span>(f, <span class="string">"107"</span>),
         }
     }
 }
@@ -590,15 +591,15 @@
     /// use nu_ansi_term::{Style, Color::Blue};
     ///
     /// let style = Style::default().bold();
-    /// assert_eq!(&quot;\x1b[1m&quot;,
+    /// assert_eq!("\x1b[1m",
     ///            style.prefix().to_string());
     ///
     /// let style = Blue.bold();
-    /// assert_eq!(&quot;\x1b[1;34m&quot;,
+    /// assert_eq!("\x1b[1;34m",
     ///            style.prefix().to_string());
     ///
     /// let style = Style::default();
-    /// assert_eq!(&quot;&quot;,
+    /// assert_eq!("",
     ///            style.prefix().to_string());
     /// ```
     </span><span class="kw">pub fn </span>prefix(<span class="self">self</span>) -&gt; Prefix {
@@ -615,15 +616,15 @@
     /// use nu_ansi_term::{Style, Color::Green};
     ///
     /// let style = Style::default().bold();
-    /// assert_eq!(&quot;\x1b[32m&quot;,
+    /// assert_eq!("\x1b[32m",
     ///            style.infix(Green.bold()).to_string());
     ///
     /// let style = Green.normal();
-    /// assert_eq!(&quot;\x1b[1m&quot;,
+    /// assert_eq!("\x1b[1m",
     ///            style.infix(Green.bold()).to_string());
     ///
     /// let style = Style::default();
-    /// assert_eq!(&quot;&quot;,
+    /// assert_eq!("",
     ///            style.infix(style).to_string());
     /// ```
     </span><span class="kw">pub fn </span>infix(<span class="self">self</span>, next: Style) -&gt; Infix {
@@ -639,15 +640,15 @@
     /// use nu_ansi_term::{Style, Color::Green};
     ///
     /// let style = Style::default().bold();
-    /// assert_eq!(&quot;\x1b[0m&quot;,
+    /// assert_eq!("\x1b[0m",
     ///            style.suffix().to_string());
     ///
     /// let style = Green.normal().bold();
-    /// assert_eq!(&quot;\x1b[0m&quot;,
+    /// assert_eq!("\x1b[0m",
     ///            style.suffix().to_string());
     ///
     /// let style = Style::default();
-    /// assert_eq!(&quot;&quot;,
+    /// assert_eq!("",
     ///            style.suffix().to_string());
     /// ```
     </span><span class="kw">pub fn </span>suffix(<span class="self">self</span>) -&gt; Suffix {
@@ -666,7 +667,7 @@
     /// ```
     /// use nu_ansi_term::Color::Green;
     ///
-    /// assert_eq!(&quot;\x1b[0m&quot;,
+    /// assert_eq!("\x1b[0m",
     ///            Green.suffix().to_string());
     /// ```
     </span><span class="kw">pub fn </span>prefix(<span class="self">self</span>) -&gt; Prefix {
@@ -684,7 +685,7 @@
     /// ```
     /// use nu_ansi_term::Color::{Red, Yellow};
     ///
-    /// assert_eq!(&quot;\x1b[33m&quot;,
+    /// assert_eq!("\x1b[33m",
     ///            Red.infix(Yellow).to_string());
     /// ```
     </span><span class="kw">pub fn </span>infix(<span class="self">self</span>, next: Color) -&gt; Infix {
@@ -701,7 +702,7 @@
     /// ```
     /// use nu_ansi_term::Color::Purple;
     ///
-    /// assert_eq!(&quot;\x1b[0m&quot;,
+    /// assert_eq!("\x1b[0m",
     ///            Purple.suffix().to_string());
     /// ```
     </span><span class="kw">pub fn </span>suffix(<span class="self">self</span>) -&gt; Suffix {
@@ -727,7 +728,7 @@
             }
             Difference::Reset =&gt; {
                 <span class="kw">let </span>f: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>fmt::Write = f;
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}{}&quot;</span>, RESET, <span class="self">self</span>.<span class="number">1</span>.prefix())
+                <span class="macro">write!</span>(f, <span class="string">"{}{}"</span>, RESET, <span class="self">self</span>.<span class="number">1</span>.prefix())
             }
             Difference::Empty =&gt; {
                 <span class="prelude-val">Ok</span>(()) <span class="comment">// nothing to write
@@ -761,55 +762,55 @@
         };
     }
 
-    <span class="macro">test!</span>(plain:                 Style::default();                  <span class="string">&quot;text/plain&quot; </span>=&gt; <span class="string">&quot;text/plain&quot;</span>);
-    <span class="macro">test!</span>(red:                   Red;                               <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[31mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(black:                 Black.normal();                    <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[30mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(yellow_bold:           Yellow.bold();                     <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[1;33mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(yellow_bold_2:         Yellow.normal().bold();            <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[1;33mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(blue_underline:        Blue.underline();                  <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[4;34mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(green_bold_ul:         Green.bold().underline();          <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[1;4;32mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(green_bold_ul_2:       Green.underline().bold();          <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[1;4;32mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(purple_on_white:       Purple.on(White);                  <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[47;35mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(purple_on_white_2:     Purple.normal().on(White);         <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[47;35mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(yellow_on_blue:        Style::new().on(Blue).fg(Yellow);  <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[44;33mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(magenta_on_white:      Magenta.on(White);                  <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[47;35mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(magenta_on_white_2:    Magenta.normal().on(White);         <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[47;35mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(yellow_on_blue_2:      Cyan.on(Blue).fg(Yellow);          <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[44;33mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(cyan_bold_on_white:    Cyan.bold().on(White);             <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[1;47;36mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(cyan_ul_on_white:      Cyan.underline().on(White);        <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[4;47;36mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(cyan_bold_ul_on_white: Cyan.bold().underline().on(White); <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[1;4;47;36mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(cyan_ul_bold_on_white: Cyan.underline().bold().on(White); <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[1;4;47;36mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(fixed:                 Fixed(<span class="number">100</span>);                        <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[38;5;100mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(fixed_on_purple:       Fixed(<span class="number">100</span>).on(Purple);             <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[45;38;5;100mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(fixed_on_fixed:        Fixed(<span class="number">100</span>).on(Fixed(<span class="number">200</span>));         <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[48;5;200;38;5;100mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(rgb:                   Rgb(<span class="number">70</span>,<span class="number">130</span>,<span class="number">180</span>);                   <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[38;2;70;130;180mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(rgb_on_blue:           Rgb(<span class="number">70</span>,<span class="number">130</span>,<span class="number">180</span>).on(Blue);          <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[44;38;2;70;130;180mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(blue_on_rgb:           Blue.on(Rgb(<span class="number">70</span>,<span class="number">130</span>,<span class="number">180</span>));          <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[48;2;70;130;180;34mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(rgb_on_rgb:            Rgb(<span class="number">70</span>,<span class="number">130</span>,<span class="number">180</span>).on(Rgb(<span class="number">5</span>,<span class="number">10</span>,<span class="number">15</span>));  <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[48;2;5;10;15;38;2;70;130;180mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(bold:                  Style::new().bold();               <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[1mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(underline:             Style::new().underline();          <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[4mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(bunderline:            Style::new().bold().underline();   <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[1;4mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(dimmed:                Style::new().dimmed();             <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[2mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(italic:                Style::new().italic();             <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[3mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(blink:                 Style::new().blink();              <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[5mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(reverse:               Style::new().reverse();            <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[7mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(hidden:                Style::new().hidden();             <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[8mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(stricken:              Style::new().strikethrough();      <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[9mhi\x1B[0m&quot;</span>);
-    <span class="macro">test!</span>(lr_on_lr:              LightRed.on(LightRed);             <span class="string">&quot;hi&quot; </span>=&gt; <span class="string">&quot;\x1B[101;91mhi\x1B[0m&quot;</span>);
+    <span class="macro">test!</span>(plain:                 Style::default();                  <span class="string">"text/plain" </span>=&gt; <span class="string">"text/plain"</span>);
+    <span class="macro">test!</span>(red:                   Red;                               <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[31mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(black:                 Black.normal();                    <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[30mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(yellow_bold:           Yellow.bold();                     <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[1;33mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(yellow_bold_2:         Yellow.normal().bold();            <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[1;33mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(blue_underline:        Blue.underline();                  <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[4;34mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(green_bold_ul:         Green.bold().underline();          <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[1;4;32mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(green_bold_ul_2:       Green.underline().bold();          <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[1;4;32mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(purple_on_white:       Purple.on(White);                  <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[47;35mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(purple_on_white_2:     Purple.normal().on(White);         <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[47;35mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(yellow_on_blue:        Style::new().on(Blue).fg(Yellow);  <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[44;33mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(magenta_on_white:      Magenta.on(White);                  <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[47;35mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(magenta_on_white_2:    Magenta.normal().on(White);         <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[47;35mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(yellow_on_blue_2:      Cyan.on(Blue).fg(Yellow);          <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[44;33mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(cyan_bold_on_white:    Cyan.bold().on(White);             <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[1;47;36mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(cyan_ul_on_white:      Cyan.underline().on(White);        <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[4;47;36mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(cyan_bold_ul_on_white: Cyan.bold().underline().on(White); <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[1;4;47;36mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(cyan_ul_bold_on_white: Cyan.underline().bold().on(White); <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[1;4;47;36mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(fixed:                 Fixed(<span class="number">100</span>);                        <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[38;5;100mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(fixed_on_purple:       Fixed(<span class="number">100</span>).on(Purple);             <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[45;38;5;100mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(fixed_on_fixed:        Fixed(<span class="number">100</span>).on(Fixed(<span class="number">200</span>));         <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[48;5;200;38;5;100mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(rgb:                   Rgb(<span class="number">70</span>,<span class="number">130</span>,<span class="number">180</span>);                   <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[38;2;70;130;180mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(rgb_on_blue:           Rgb(<span class="number">70</span>,<span class="number">130</span>,<span class="number">180</span>).on(Blue);          <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[44;38;2;70;130;180mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(blue_on_rgb:           Blue.on(Rgb(<span class="number">70</span>,<span class="number">130</span>,<span class="number">180</span>));          <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[48;2;70;130;180;34mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(rgb_on_rgb:            Rgb(<span class="number">70</span>,<span class="number">130</span>,<span class="number">180</span>).on(Rgb(<span class="number">5</span>,<span class="number">10</span>,<span class="number">15</span>));  <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[48;2;5;10;15;38;2;70;130;180mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(bold:                  Style::new().bold();               <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[1mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(underline:             Style::new().underline();          <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[4mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(bunderline:            Style::new().bold().underline();   <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[1;4mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(dimmed:                Style::new().dimmed();             <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[2mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(italic:                Style::new().italic();             <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[3mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(blink:                 Style::new().blink();              <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[5mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(reverse:               Style::new().reverse();            <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[7mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(hidden:                Style::new().hidden();             <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[8mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(stricken:              Style::new().strikethrough();      <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[9mhi\x1B[0m"</span>);
+    <span class="macro">test!</span>(lr_on_lr:              LightRed.on(LightRed);             <span class="string">"hi" </span>=&gt; <span class="string">"\x1B[101;91mhi\x1B[0m"</span>);
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_infix() {
         <span class="macro">assert_eq!</span>(
             Style::new().dimmed().infix(Style::new()).to_string(),
-            <span class="string">&quot;\x1B[0m&quot;
+            <span class="string">"\x1B[0m"
         </span>);
         <span class="macro">assert_eq!</span>(
             White.dimmed().infix(White.normal()).to_string(),
-            <span class="string">&quot;\x1B[0m\x1B[37m&quot;
+            <span class="string">"\x1B[0m\x1B[37m"
         </span>);
-        <span class="macro">assert_eq!</span>(White.normal().infix(White.bold()).to_string(), <span class="string">&quot;\x1B[1m&quot;</span>);
-        <span class="macro">assert_eq!</span>(White.normal().infix(Blue.normal()).to_string(), <span class="string">&quot;\x1B[34m&quot;</span>);
-        <span class="macro">assert_eq!</span>(Blue.bold().infix(Blue.bold()).to_string(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(White.normal().infix(White.bold()).to_string(), <span class="string">"\x1B[1m"</span>);
+        <span class="macro">assert_eq!</span>(White.normal().infix(Blue.normal()).to_string(), <span class="string">"\x1B[34m"</span>);
+        <span class="macro">assert_eq!</span>(Blue.bold().infix(Blue.bold()).to_string(), <span class="string">""</span>);
     }
 }
 </code></pre></div></section></main></body></html>

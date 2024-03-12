@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/elf/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/elf/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -936,38 +937,38 @@
 ///
 /// This is a file that starts with [`elf::FileHeader32`], and corresponds
 /// to [`crate::FileKind::Elf32`].
-</span><span class="kw">pub type </span>ElfFile32&lt;<span class="lifetime">&#39;data</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    ElfFile&lt;<span class="lifetime">&#39;data</span>, elf::FileHeader32&lt;Endian&gt;, R&gt;;
+</span><span class="kw">pub type </span>ElfFile32&lt;<span class="lifetime">'data</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    ElfFile&lt;<span class="lifetime">'data</span>, elf::FileHeader32&lt;Endian&gt;, R&gt;;
 <span class="doccomment">/// A 64-bit ELF object file.
 ///
 /// This is a file that starts with [`elf::FileHeader64`], and corresponds
 /// to [`crate::FileKind::Elf64`].
-</span><span class="kw">pub type </span>ElfFile64&lt;<span class="lifetime">&#39;data</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    ElfFile&lt;<span class="lifetime">&#39;data</span>, elf::FileHeader64&lt;Endian&gt;, R&gt;;
+</span><span class="kw">pub type </span>ElfFile64&lt;<span class="lifetime">'data</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    ElfFile&lt;<span class="lifetime">'data</span>, elf::FileHeader64&lt;Endian&gt;, R&gt;;
 
 <span class="doccomment">/// A partially parsed ELF file.
 ///
 /// Most functionality is provided by the [`Object`] trait implementation.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>ElfFile&lt;<span class="lifetime">&#39;data</span>, Elf, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>ElfFile&lt;<span class="lifetime">'data</span>, Elf, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>Elf: FileHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
     <span class="kw">pub</span>(<span class="kw">super</span>) endian: Elf::Endian,
     <span class="kw">pub</span>(<span class="kw">super</span>) data: R,
-    <span class="kw">pub</span>(<span class="kw">super</span>) header: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Elf,
-    <span class="kw">pub</span>(<span class="kw">super</span>) segments: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[Elf::ProgramHeader],
-    <span class="kw">pub</span>(<span class="kw">super</span>) sections: SectionTable&lt;<span class="lifetime">&#39;data</span>, Elf, R&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) header: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Elf,
+    <span class="kw">pub</span>(<span class="kw">super</span>) segments: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[Elf::ProgramHeader],
+    <span class="kw">pub</span>(<span class="kw">super</span>) sections: SectionTable&lt;<span class="lifetime">'data</span>, Elf, R&gt;,
     <span class="kw">pub</span>(<span class="kw">super</span>) relocations: RelocationSections,
-    <span class="kw">pub</span>(<span class="kw">super</span>) symbols: SymbolTable&lt;<span class="lifetime">&#39;data</span>, Elf, R&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) dynamic_symbols: SymbolTable&lt;<span class="lifetime">&#39;data</span>, Elf, R&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) symbols: SymbolTable&lt;<span class="lifetime">'data</span>, Elf, R&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) dynamic_symbols: SymbolTable&lt;<span class="lifetime">'data</span>, Elf, R&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Elf, R&gt; ElfFile&lt;<span class="lifetime">&#39;data</span>, Elf, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf, R&gt; ElfFile&lt;<span class="lifetime">'data</span>, Elf, R&gt;
 <span class="kw">where
     </span>Elf: FileHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
     <span class="doccomment">/// Parse the raw ELF file data.
     </span><span class="kw">pub fn </span>parse(data: R) -&gt; read::Result&lt;<span class="self">Self</span>&gt; {
@@ -1004,19 +1005,19 @@
     }
 
     <span class="doccomment">/// Returns the raw ELF file header.
-    </span><span class="kw">pub fn </span>raw_header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Elf {
+    </span><span class="kw">pub fn </span>raw_header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Elf {
         <span class="self">self</span>.header
     }
 
     <span class="doccomment">/// Returns the raw ELF segments.
-    </span><span class="kw">pub fn </span>raw_segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[Elf::ProgramHeader] {
+    </span><span class="kw">pub fn </span>raw_segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[Elf::ProgramHeader] {
         <span class="self">self</span>.segments
     }
 
-    <span class="kw">fn </span>raw_section_by_name&lt;<span class="lifetime">&#39;file</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
+    <span class="kw">fn </span>raw_section_by_name&lt;<span class="lifetime">'file</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         section_name: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;&gt; {
         <span class="self">self</span>.sections
             .section_by_name(<span class="self">self</span>.endian, section_name)
             .map(|(index, section)| ElfSection {
@@ -1026,52 +1027,52 @@
             })
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;compression&quot;</span>)]
-    </span><span class="kw">fn </span>zdebug_section_by_name&lt;<span class="lifetime">&#39;file</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
+    <span class="attr">#[cfg(feature = <span class="string">"compression"</span>)]
+    </span><span class="kw">fn </span>zdebug_section_by_name&lt;<span class="lifetime">'file</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         section_name: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;&gt; {
-        <span class="kw">if </span>!section_name.starts_with(<span class="string">b&quot;.debug_&quot;</span>) {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;&gt; {
+        <span class="kw">if </span>!section_name.starts_with(<span class="string">b".debug_"</span>) {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
         <span class="kw">let </span><span class="kw-2">mut </span>name = Vec::with_capacity(section_name.len() + <span class="number">1</span>);
-        name.extend_from_slice(<span class="string">b&quot;.zdebug_&quot;</span>);
+        name.extend_from_slice(<span class="string">b".zdebug_"</span>);
         name.extend_from_slice(<span class="kw-2">&amp;</span>section_name[<span class="number">7</span>..]);
         <span class="self">self</span>.raw_section_by_name(<span class="kw-2">&amp;</span>name)
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;compression&quot;</span>))]
-    </span><span class="kw">fn </span>zdebug_section_by_name&lt;<span class="lifetime">&#39;file</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
+    <span class="attr">#[cfg(not(feature = <span class="string">"compression"</span>))]
+    </span><span class="kw">fn </span>zdebug_section_by_name&lt;<span class="lifetime">'file</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         _section_name: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;&gt; {
         <span class="prelude-val">None
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Elf, R&gt; read::private::Sealed <span class="kw">for </span>ElfFile&lt;<span class="lifetime">&#39;data</span>, Elf, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf, R&gt; read::private::Sealed <span class="kw">for </span>ElfFile&lt;<span class="lifetime">'data</span>, Elf, R&gt;
 <span class="kw">where
     </span>Elf: FileHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt; Object&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>&gt; <span class="kw">for </span>ElfFile&lt;<span class="lifetime">&#39;data</span>, Elf, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt; Object&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>&gt; <span class="kw">for </span>ElfFile&lt;<span class="lifetime">'data</span>, Elf, R&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
+    </span><span class="lifetime">'data</span>: <span class="lifetime">'file</span>,
     Elf: FileHeader,
-    R: <span class="lifetime">&#39;file </span>+ ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: <span class="lifetime">'file </span>+ ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>Segment = ElfSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
-    <span class="kw">type </span>SegmentIterator = ElfSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
-    <span class="kw">type </span>Section = ElfSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
-    <span class="kw">type </span>SectionIterator = ElfSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
-    <span class="kw">type </span>Comdat = ElfComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
-    <span class="kw">type </span>ComdatIterator = ElfComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
-    <span class="kw">type </span>Symbol = ElfSymbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
-    <span class="kw">type </span>SymbolIterator = ElfSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
-    <span class="kw">type </span>SymbolTable = ElfSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
-    <span class="kw">type </span>DynamicRelocationIterator = ElfDynamicRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;;
+    <span class="kw">type </span>Segment = ElfSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
+    <span class="kw">type </span>SegmentIterator = ElfSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
+    <span class="kw">type </span>Section = ElfSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
+    <span class="kw">type </span>SectionIterator = ElfSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
+    <span class="kw">type </span>Comdat = ElfComdat&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
+    <span class="kw">type </span>ComdatIterator = ElfComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
+    <span class="kw">type </span>Symbol = ElfSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
+    <span class="kw">type </span>SymbolIterator = ElfSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
+    <span class="kw">type </span>SymbolTable = ElfSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
+    <span class="kw">type </span>DynamicRelocationIterator = ElfDynamicRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;;
 
     <span class="kw">fn </span>architecture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Architecture {
         <span class="kw">match </span>(
@@ -1128,7 +1129,7 @@
         }
     }
 
-    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; ElfSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt; {
+    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; ElfSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt; {
         ElfSegmentIterator {
             file: <span class="self">self</span>,
             iter: <span class="self">self</span>.segments.iter(),
@@ -1136,17 +1137,17 @@
     }
 
     <span class="kw">fn </span>section_by_name_bytes(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         section_name: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;&gt; {
         <span class="self">self</span>.raw_section_by_name(section_name)
             .or_else(|| <span class="self">self</span>.zdebug_section_by_name(section_name))
     }
 
     <span class="kw">fn </span>section_by_index(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         index: SectionIndex,
-    ) -&gt; read::Result&lt;ElfSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;&gt; {
+    ) -&gt; read::Result&lt;ElfSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;&gt; {
         <span class="kw">let </span>section = <span class="self">self</span>.sections.section(index)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ElfSection {
             file: <span class="self">self</span>,
@@ -1155,14 +1156,14 @@
         })
     }
 
-    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; ElfSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt; {
+    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; ElfSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt; {
         ElfSectionIterator {
             file: <span class="self">self</span>,
             iter: <span class="self">self</span>.sections.iter().enumerate(),
         }
     }
 
-    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; ElfComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt; {
+    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; ElfComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt; {
         ElfComdatIterator {
             file: <span class="self">self</span>,
             iter: <span class="self">self</span>.sections.iter().enumerate(),
@@ -1170,9 +1171,9 @@
     }
 
     <span class="kw">fn </span>symbol_by_index(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         index: SymbolIndex,
-    ) -&gt; read::Result&lt;ElfSymbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;&gt; {
+    ) -&gt; read::Result&lt;ElfSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;&gt; {
         <span class="kw">let </span>symbol = <span class="self">self</span>.symbols.symbol(index.<span class="number">0</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ElfSymbol {
             endian: <span class="self">self</span>.endian,
@@ -1182,7 +1183,7 @@
         })
     }
 
-    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; ElfSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt; {
+    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; ElfSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt; {
         ElfSymbolIterator {
             endian: <span class="self">self</span>.endian,
             symbols: <span class="kw-2">&amp;</span><span class="self">self</span>.symbols,
@@ -1190,7 +1191,7 @@
         }
     }
 
-    <span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;&gt; {
+    <span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.symbols.is_empty() {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -1200,7 +1201,7 @@
         })
     }
 
-    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; ElfSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt; {
+    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; ElfSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt; {
         ElfSymbolIterator {
             endian: <span class="self">self</span>.endian,
             symbols: <span class="kw-2">&amp;</span><span class="self">self</span>.dynamic_symbols,
@@ -1208,7 +1209,7 @@
         }
     }
 
-    <span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;&gt; {
+    <span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ElfSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.dynamic_symbols.is_empty() {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -1219,8 +1220,8 @@
     }
 
     <span class="kw">fn </span>dynamic_relocations(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfDynamicRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Elf, R&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;ElfDynamicRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Elf, R&gt;&gt; {
         <span class="prelude-val">Some</span>(ElfDynamicRelocationIterator {
             section_index: SectionIndex(<span class="number">1</span>),
             file: <span class="self">self</span>,
@@ -1228,7 +1229,7 @@
         })
     }
 
-    <span class="kw">fn </span>imports(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;Vec&lt;Import&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+    <span class="kw">fn </span>imports(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;Vec&lt;Import&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>imports = Vec::new();
         <span class="kw">for </span>symbol <span class="kw">in </span><span class="self">self</span>.dynamic_symbols.iter() {
             <span class="kw">if </span>symbol.is_undefined(<span class="self">self</span>.endian) {
@@ -1245,7 +1246,7 @@
         <span class="prelude-val">Ok</span>(imports)
     }
 
-    <span class="kw">fn </span>exports(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;Vec&lt;Export&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+    <span class="kw">fn </span>exports(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;Vec&lt;Export&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>exports = Vec::new();
         <span class="kw">for </span>symbol <span class="kw">in </span><span class="self">self</span>.dynamic_symbols.iter() {
             <span class="kw">if </span>symbol.is_definition(<span class="self">self</span>.endian) {
@@ -1263,7 +1264,7 @@
     <span class="kw">fn </span>has_debug_symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">for </span>section <span class="kw">in </span><span class="self">self</span>.sections.iter() {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(name) = <span class="self">self</span>.sections.section_name(<span class="self">self</span>.endian, section) {
-                <span class="kw">if </span>name == <span class="string">b&quot;.debug_info&quot; </span>|| name == <span class="string">b&quot;.zdebug_info&quot; </span>{
+                <span class="kw">if </span>name == <span class="string">b".debug_info" </span>|| name == <span class="string">b".zdebug_info" </span>{
                     <span class="kw">return </span><span class="bool-val">true</span>;
                 }
             }
@@ -1271,7 +1272,7 @@
         <span class="bool-val">false
     </span>}
 
-    <span class="kw">fn </span>build_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;&gt; {
+    <span class="kw">fn </span>build_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;&gt; {
         <span class="kw">let </span>endian = <span class="self">self</span>.endian;
         <span class="comment">// Use section headers if present, otherwise use program headers.
         </span><span class="kw">if </span>!<span class="self">self</span>.sections.is_empty() {
@@ -1302,40 +1303,40 @@
         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 
-    <span class="kw">fn </span>gnu_debuglink(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;<span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], u32)&gt;&gt; {
-        <span class="kw">let </span>section = <span class="kw">match </span><span class="self">self</span>.raw_section_by_name(<span class="string">b&quot;.gnu_debuglink&quot;</span>) {
+    <span class="kw">fn </span>gnu_debuglink(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;<span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], u32)&gt;&gt; {
+        <span class="kw">let </span>section = <span class="kw">match </span><span class="self">self</span>.raw_section_by_name(<span class="string">b".gnu_debuglink"</span>) {
             <span class="prelude-val">Some</span>(section) =&gt; section,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
         };
         <span class="kw">let </span>data = section
             .section
             .data(<span class="self">self</span>.endian, <span class="self">self</span>.data)
-            .read_error(<span class="string">&quot;Invalid ELF .gnu_debuglink section offset or size&quot;</span>)
+            .read_error(<span class="string">"Invalid ELF .gnu_debuglink section offset or size"</span>)
             .map(Bytes)<span class="question-mark">?</span>;
         <span class="kw">let </span>filename = data
             .read_string_at(<span class="number">0</span>)
-            .read_error(<span class="string">&quot;Missing ELF .gnu_debuglink filename&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Missing ELF .gnu_debuglink filename"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>crc_offset = util::align(filename.len() + <span class="number">1</span>, <span class="number">4</span>);
         <span class="kw">let </span>crc = data
             .read_at::&lt;U32&lt;<span class="kw">_</span>&gt;&gt;(crc_offset)
-            .read_error(<span class="string">&quot;Missing ELF .gnu_debuglink crc&quot;</span>)<span class="question-mark">?
+            .read_error(<span class="string">"Missing ELF .gnu_debuglink crc"</span>)<span class="question-mark">?
             </span>.get(<span class="self">self</span>.endian);
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((filename, crc)))
     }
 
-    <span class="kw">fn </span>gnu_debugaltlink(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;<span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8])&gt;&gt; {
-        <span class="kw">let </span>section = <span class="kw">match </span><span class="self">self</span>.raw_section_by_name(<span class="string">b&quot;.gnu_debugaltlink&quot;</span>) {
+    <span class="kw">fn </span>gnu_debugaltlink(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;<span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8])&gt;&gt; {
+        <span class="kw">let </span>section = <span class="kw">match </span><span class="self">self</span>.raw_section_by_name(<span class="string">b".gnu_debugaltlink"</span>) {
             <span class="prelude-val">Some</span>(section) =&gt; section,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
         };
         <span class="kw">let </span><span class="kw-2">mut </span>data = section
             .section
             .data(<span class="self">self</span>.endian, <span class="self">self</span>.data)
-            .read_error(<span class="string">&quot;Invalid ELF .gnu_debugaltlink section offset or size&quot;</span>)
+            .read_error(<span class="string">"Invalid ELF .gnu_debugaltlink section offset or size"</span>)
             .map(Bytes)<span class="question-mark">?</span>;
         <span class="kw">let </span>filename = data
             .read_string()
-            .read_error(<span class="string">&quot;Missing ELF .gnu_debugaltlink filename&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Missing ELF .gnu_debugaltlink filename"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>build_id = data.<span class="number">0</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((filename, build_id)))
     }
@@ -1360,7 +1361,7 @@
 <span class="doccomment">/// A trait for generic access to [`elf::FileHeader32`] and [`elf::FileHeader64`].
 </span><span class="attr">#[allow(missing_docs)]
 </span><span class="kw">pub trait </span>FileHeader: Debug + Pod {
-    <span class="comment">// Ideally this would be a `u64: From&lt;Word&gt;`, but can&#39;t express that.
+    <span class="comment">// Ideally this would be a `u64: From&lt;Word&gt;`, but can't express that.
     </span><span class="kw">type </span>Word: Into&lt;u64&gt;;
     <span class="kw">type </span>Sword: Into&lt;i64&gt;;
     <span class="kw">type </span>Endian: endian::Endian;
@@ -1407,12 +1408,12 @@
     </span><span class="doccomment">/// Read the file header.
     ///
     /// Also checks that the ident field in the file header is a supported format.
-    </span><span class="kw">fn </span>parse&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">Self</span>&gt; {
+    </span><span class="kw">fn </span>parse&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">Self</span>&gt; {
         <span class="kw">let </span>header = data
             .read_at::&lt;<span class="self">Self</span>&gt;(<span class="number">0</span>)
-            .read_error(<span class="string">&quot;Invalid ELF header size or alignment&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid ELF header size or alignment"</span>)<span class="question-mark">?</span>;
         <span class="kw">if </span>!header.is_supported() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unsupported ELF header&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unsupported ELF header"</span>));
         }
         <span class="comment">// TODO: Check self.e_ehsize?
         </span><span class="prelude-val">Ok</span>(header)
@@ -1448,18 +1449,18 @@
     }
 
     <span class="kw">fn </span>endian(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;<span class="self">Self</span>::Endian&gt; {
-        <span class="self">Self</span>::Endian::from_big_endian(<span class="self">self</span>.is_big_endian()).read_error(<span class="string">&quot;Unsupported ELF endian&quot;</span>)
+        <span class="self">Self</span>::Endian::from_big_endian(<span class="self">self</span>.is_big_endian()).read_error(<span class="string">"Unsupported ELF endian"</span>)
     }
 
     <span class="doccomment">/// Return the first section header, if present.
     ///
     /// Section 0 is a special case because getting the section headers normally
     /// requires `shnum`, but `shnum` may be in the first section header.
-    </span><span class="kw">fn </span>section_0&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>section_0&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
-    ) -&gt; read::Result&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">Self</span>::SectionHeader&gt;&gt; {
+    ) -&gt; read::Result&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">Self</span>::SectionHeader&gt;&gt; {
         <span class="kw">let </span>shoff: u64 = <span class="self">self</span>.e_shoff(endian).into();
         <span class="kw">if </span>shoff == <span class="number">0 </span>{
             <span class="comment">// No section headers is ok.
@@ -1468,17 +1469,17 @@
         <span class="kw">let </span>shentsize = usize::from(<span class="self">self</span>.e_shentsize(endian));
         <span class="kw">if </span>shentsize != mem::size_of::&lt;<span class="self">Self</span>::SectionHeader&gt;() {
             <span class="comment">// Section header size must match.
-            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Invalid ELF section header entry size&quot;</span>));
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid ELF section header entry size"</span>));
         }
         data.read_at(shoff)
             .map(<span class="prelude-val">Some</span>)
-            .read_error(<span class="string">&quot;Invalid ELF section header offset or size&quot;</span>)
+            .read_error(<span class="string">"Invalid ELF section header offset or size"</span>)
     }
 
     <span class="doccomment">/// Return the `e_phnum` field of the header. Handles extended values.
     ///
     /// Returns `Err` for invalid values.
-    </span><span class="kw">fn </span>phnum&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>phnum&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
@@ -1490,14 +1491,14 @@
             <span class="prelude-val">Ok</span>(section_0.sh_info(endian) <span class="kw">as </span>usize)
         } <span class="kw">else </span>{
             <span class="comment">// Section 0 must exist if e_phnum overflows.
-            </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Missing ELF section headers for e_phnum overflow&quot;</span>))
+            </span><span class="prelude-val">Err</span>(Error(<span class="string">"Missing ELF section headers for e_phnum overflow"</span>))
         }
     }
 
     <span class="doccomment">/// Return the `e_shnum` field of the header. Handles extended values.
     ///
     /// Returns `Err` for invalid values.
-    </span><span class="kw">fn </span>shnum&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>shnum&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
@@ -1511,7 +1512,7 @@
                 .into()
                 .try_into()
                 .ok()
-                .read_error(<span class="string">&quot;Invalid ELF extended e_shnum&quot;</span>)
+                .read_error(<span class="string">"Invalid ELF extended e_shnum"</span>)
         } <span class="kw">else </span>{
             <span class="comment">// No section headers is ok.
             </span><span class="prelude-val">Ok</span>(<span class="number">0</span>)
@@ -1521,7 +1522,7 @@
     <span class="doccomment">/// Return the `e_shstrndx` field of the header. Handles extended values.
     ///
     /// Returns `Err` for invalid values (including if the index is 0).
-    </span><span class="kw">fn </span>shstrndx&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>shstrndx&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
@@ -1532,11 +1533,11 @@
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(section_0) = <span class="self">self</span>.section_0(endian, data)<span class="question-mark">? </span>{
             section_0.sh_link(endian)
         } <span class="kw">else </span>{
-            <span class="comment">// Section 0 must exist if we&#39;re trying to read e_shstrndx.
-            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Missing ELF section headers for e_shstrndx overflow&quot;</span>));
+            <span class="comment">// Section 0 must exist if we're trying to read e_shstrndx.
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Missing ELF section headers for e_shstrndx overflow"</span>));
         };
         <span class="kw">if </span>index == <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Missing ELF e_shstrndx&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Missing ELF e_shstrndx"</span>));
         }
         <span class="prelude-val">Ok</span>(index)
     }
@@ -1545,11 +1546,11 @@
     ///
     /// Returns `Ok(&amp;[])` if there are no program headers.
     /// Returns `Err` for invalid values.
-    </span><span class="kw">fn </span>program_headers&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>program_headers&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
-    ) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[<span class="self">Self</span>::ProgramHeader]&gt; {
+    ) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[<span class="self">Self</span>::ProgramHeader]&gt; {
         <span class="kw">let </span>phoff: u64 = <span class="self">self</span>.e_phoff(endian).into();
         <span class="kw">if </span>phoff == <span class="number">0 </span>{
             <span class="comment">// No program headers is ok.
@@ -1563,21 +1564,21 @@
         <span class="kw">let </span>phentsize = <span class="self">self</span>.e_phentsize(endian) <span class="kw">as </span>usize;
         <span class="kw">if </span>phentsize != mem::size_of::&lt;<span class="self">Self</span>::ProgramHeader&gt;() {
             <span class="comment">// Program header size must match.
-            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Invalid ELF program header entry size&quot;</span>));
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid ELF program header entry size"</span>));
         }
         data.read_slice_at(phoff, phnum)
-            .read_error(<span class="string">&quot;Invalid ELF program header size or alignment&quot;</span>)
+            .read_error(<span class="string">"Invalid ELF program header size or alignment"</span>)
     }
 
     <span class="doccomment">/// Return the slice of section headers.
     ///
     /// Returns `Ok(&amp;[])` if there are no section headers.
     /// Returns `Err` for invalid values.
-    </span><span class="kw">fn </span>section_headers&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>section_headers&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
-    ) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[<span class="self">Self</span>::SectionHeader]&gt; {
+    ) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[<span class="self">Self</span>::SectionHeader]&gt; {
         <span class="kw">let </span>shoff: u64 = <span class="self">self</span>.e_shoff(endian).into();
         <span class="kw">if </span>shoff == <span class="number">0 </span>{
             <span class="comment">// No section headers is ok.
@@ -1591,28 +1592,28 @@
         <span class="kw">let </span>shentsize = usize::from(<span class="self">self</span>.e_shentsize(endian));
         <span class="kw">if </span>shentsize != mem::size_of::&lt;<span class="self">Self</span>::SectionHeader&gt;() {
             <span class="comment">// Section header size must match.
-            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Invalid ELF section header entry size&quot;</span>));
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid ELF section header entry size"</span>));
         }
         data.read_slice_at(shoff, shnum)
-            .read_error(<span class="string">&quot;Invalid ELF section header offset/size/alignment&quot;</span>)
+            .read_error(<span class="string">"Invalid ELF section header offset/size/alignment"</span>)
     }
 
     <span class="doccomment">/// Return the string table for the section headers.
-    </span><span class="kw">fn </span>section_strings&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>section_strings&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
         sections: <span class="kw-2">&amp;</span>[<span class="self">Self</span>::SectionHeader],
-    ) -&gt; read::Result&lt;StringTable&lt;<span class="lifetime">&#39;data</span>, R&gt;&gt; {
+    ) -&gt; read::Result&lt;StringTable&lt;<span class="lifetime">'data</span>, R&gt;&gt; {
         <span class="kw">if </span>sections.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(StringTable::default());
         }
         <span class="kw">let </span>index = <span class="self">self</span>.shstrndx(endian, data)<span class="question-mark">? </span><span class="kw">as </span>usize;
-        <span class="kw">let </span>shstrtab = sections.get(index).read_error(<span class="string">&quot;Invalid ELF e_shstrndx&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>shstrtab = sections.get(index).read_error(<span class="string">"Invalid ELF e_shstrndx"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>strings = <span class="kw">if let </span><span class="prelude-val">Some</span>((shstrtab_offset, shstrtab_size)) = shstrtab.file_range(endian) {
             <span class="kw">let </span>shstrtab_end = shstrtab_offset
                 .checked_add(shstrtab_size)
-                .read_error(<span class="string">&quot;Invalid ELF shstrtab size&quot;</span>)<span class="question-mark">?</span>;
+                .read_error(<span class="string">"Invalid ELF shstrtab size"</span>)<span class="question-mark">?</span>;
             StringTable::new(data, shstrtab_offset, shstrtab_end)
         } <span class="kw">else </span>{
             StringTable::default()
@@ -1621,11 +1622,11 @@
     }
 
     <span class="doccomment">/// Return the section table.
-    </span><span class="kw">fn </span>sections&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>sections&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
-    ) -&gt; read::Result&lt;SectionTable&lt;<span class="lifetime">&#39;data</span>, <span class="self">Self</span>, R&gt;&gt; {
+    ) -&gt; read::Result&lt;SectionTable&lt;<span class="lifetime">'data</span>, <span class="self">Self</span>, R&gt;&gt; {
         <span class="kw">let </span>sections = <span class="self">self</span>.section_headers(endian, data)<span class="question-mark">?</span>;
         <span class="kw">let </span>strings = <span class="self">self</span>.section_strings(endian, data, sections)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SectionTable::new(sections, strings))

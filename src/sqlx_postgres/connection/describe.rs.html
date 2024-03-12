@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/connection/describe.rs`."><title>describe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/connection/describe.rs`."><title>describe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -616,12 +617,12 @@
 
     <span class="kw">fn </span>try_from(t: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>t = <span class="kw">match </span>t {
-            <span class="string">b&#39;b&#39; </span>=&gt; <span class="self">Self</span>::Base,
-            <span class="string">b&#39;c&#39; </span>=&gt; <span class="self">Self</span>::Composite,
-            <span class="string">b&#39;d&#39; </span>=&gt; <span class="self">Self</span>::Domain,
-            <span class="string">b&#39;e&#39; </span>=&gt; <span class="self">Self</span>::Enum,
-            <span class="string">b&#39;p&#39; </span>=&gt; <span class="self">Self</span>::Pseudo,
-            <span class="string">b&#39;r&#39; </span>=&gt; <span class="self">Self</span>::Range,
+            <span class="string">b'b' </span>=&gt; <span class="self">Self</span>::Base,
+            <span class="string">b'c' </span>=&gt; <span class="self">Self</span>::Composite,
+            <span class="string">b'd' </span>=&gt; <span class="self">Self</span>::Domain,
+            <span class="string">b'e' </span>=&gt; <span class="self">Self</span>::Enum,
+            <span class="string">b'p' </span>=&gt; <span class="self">Self</span>::Pseudo,
+            <span class="string">b'r' </span>=&gt; <span class="self">Self</span>::Range,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(()),
         };
         <span class="prelude-val">Ok</span>(t)
@@ -655,21 +656,21 @@
 
     <span class="kw">fn </span>try_from(c: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>c = <span class="kw">match </span>c {
-            <span class="string">b&#39;A&#39; </span>=&gt; <span class="self">Self</span>::Array,
-            <span class="string">b&#39;B&#39; </span>=&gt; <span class="self">Self</span>::Boolean,
-            <span class="string">b&#39;C&#39; </span>=&gt; <span class="self">Self</span>::Composite,
-            <span class="string">b&#39;D&#39; </span>=&gt; <span class="self">Self</span>::DateTime,
-            <span class="string">b&#39;E&#39; </span>=&gt; <span class="self">Self</span>::Enum,
-            <span class="string">b&#39;G&#39; </span>=&gt; <span class="self">Self</span>::Geometric,
-            <span class="string">b&#39;I&#39; </span>=&gt; <span class="self">Self</span>::Network,
-            <span class="string">b&#39;N&#39; </span>=&gt; <span class="self">Self</span>::Numeric,
-            <span class="string">b&#39;P&#39; </span>=&gt; <span class="self">Self</span>::Pseudo,
-            <span class="string">b&#39;R&#39; </span>=&gt; <span class="self">Self</span>::Range,
-            <span class="string">b&#39;S&#39; </span>=&gt; <span class="self">Self</span>::String,
-            <span class="string">b&#39;T&#39; </span>=&gt; <span class="self">Self</span>::Timespan,
-            <span class="string">b&#39;U&#39; </span>=&gt; <span class="self">Self</span>::User,
-            <span class="string">b&#39;V&#39; </span>=&gt; <span class="self">Self</span>::BitString,
-            <span class="string">b&#39;X&#39; </span>=&gt; <span class="self">Self</span>::Unknown,
+            <span class="string">b'A' </span>=&gt; <span class="self">Self</span>::Array,
+            <span class="string">b'B' </span>=&gt; <span class="self">Self</span>::Boolean,
+            <span class="string">b'C' </span>=&gt; <span class="self">Self</span>::Composite,
+            <span class="string">b'D' </span>=&gt; <span class="self">Self</span>::DateTime,
+            <span class="string">b'E' </span>=&gt; <span class="self">Self</span>::Enum,
+            <span class="string">b'G' </span>=&gt; <span class="self">Self</span>::Geometric,
+            <span class="string">b'I' </span>=&gt; <span class="self">Self</span>::Network,
+            <span class="string">b'N' </span>=&gt; <span class="self">Self</span>::Numeric,
+            <span class="string">b'P' </span>=&gt; <span class="self">Self</span>::Pseudo,
+            <span class="string">b'R' </span>=&gt; <span class="self">Self</span>::Range,
+            <span class="string">b'S' </span>=&gt; <span class="self">Self</span>::String,
+            <span class="string">b'T' </span>=&gt; <span class="self">Self</span>::Timespan,
+            <span class="string">b'U' </span>=&gt; <span class="self">Self</span>::User,
+            <span class="string">b'V' </span>=&gt; <span class="self">Self</span>::BitString,
+            <span class="string">b'X' </span>=&gt; <span class="self">Self</span>::Unknown,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(()),
         };
         <span class="prelude-val">Ok</span>(c)
@@ -751,7 +752,7 @@
             <span class="kw">let </span>info = <span class="self">self</span>.fetch_type_by_oid(oid).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="comment">// cache the type name &lt;-&gt; oid relationship in a paired hashmap
-            // so we don&#39;t come down this road again
+            // so we don't come down this road again
             </span><span class="self">self</span>.cache_type_info.insert(oid, info.clone());
             <span class="self">self</span>.cache_type_oid
                 .insert(info.<span class="number">0</span>.name().to_string().into(), oid);
@@ -761,17 +762,17 @@
             <span class="comment">// we are not in a place that *can* run a query
             // this generally means we are in the middle of another query
             // this _should_ only happen for complex types sent through the TEXT protocol
-            // we&#39;re open to ideas to correct this.. but it&#39;d probably be more efficient to figure
-            // out a way to &quot;prime&quot; the type cache for connections rather than make this
+            // we're open to ideas to correct this.. but it'd probably be more efficient to figure
+            // out a way to "prime" the type cache for connections rather than make this
             // fallback work correctly for complex user-defined types for the TEXT protocol
             </span><span class="prelude-val">Ok</span>(PgTypeInfo(PgType::DeclareWithOid(oid)))
         }
     }
 
-    <span class="kw">fn </span>fetch_type_by_oid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, oid: Oid) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
+    <span class="kw">fn </span>fetch_type_by_oid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, oid: Oid) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
         Box::pin(<span class="kw">async move </span>{
             <span class="kw">let </span>(name, typ_type, category, relation_id, element, base_type): (String, i8, i8, Oid, Oid, Oid) = query_as(
-                <span class="string">&quot;SELECT typname, typtype, typcategory, typrelid, typelem, typbasetype FROM pg_catalog.pg_type WHERE oid = $1&quot;</span>,
+                <span class="string">"SELECT typname, typtype, typcategory, typrelid, typelem, typbasetype FROM pg_catalog.pg_type WHERE oid = $1"</span>,
             )
             .bind(oid)
             .fetch_one(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
@@ -824,12 +825,12 @@
 
     <span class="kw">async fn </span>fetch_enum_by_oid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, oid: Oid, name: String) -&gt; <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt; {
         <span class="kw">let </span>variants: Vec&lt;String&gt; = query_scalar(
-            <span class="string">r#&quot;
+            <span class="string">r#"
 SELECT enumlabel
 FROM pg_catalog.pg_enum
 WHERE enumtypid = $1
 ORDER BY enumsortorder
-            &quot;#</span>,
+            "#</span>,
         )
         .bind(oid)
         .fetch_all(<span class="self">self</span>)
@@ -847,17 +848,17 @@ ORDER BY enumsortorder
         oid: Oid,
         relation_id: Oid,
         name: String,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
         Box::pin(<span class="kw">async move </span>{
             <span class="kw">let </span>raw_fields: Vec&lt;(String, Oid)&gt; = query_as(
-                <span class="string">r#&quot;
+                <span class="string">r#"
 SELECT attname, atttypid
 FROM pg_catalog.pg_attribute
 WHERE attrelid = $1
 AND NOT attisdropped
 AND attnum &gt; 0
 ORDER BY attnum
-                &quot;#</span>,
+                "#</span>,
             )
             .bind(relation_id)
             .fetch_all(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
@@ -884,7 +885,7 @@ ORDER BY attnum
         oid: Oid,
         base_type: Oid,
         name: String,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
         Box::pin(<span class="kw">async move </span>{
             <span class="kw">let </span>base_type = <span class="self">self</span>.maybe_fetch_type_info_by_oid(base_type, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -900,14 +901,14 @@ ORDER BY attnum
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         oid: Oid,
         name: String,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
         Box::pin(<span class="kw">async move </span>{
             <span class="kw">let </span>element_oid: Oid = query_scalar(
-                <span class="string">r#&quot;
+                <span class="string">r#"
 SELECT rngsubtype
 FROM pg_catalog.pg_range
 WHERE rngtypid = $1
-                &quot;#</span>,
+                "#</span>,
             )
             .bind(oid)
             .fetch_one(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
@@ -929,7 +930,7 @@ WHERE rngtypid = $1
         }
 
         <span class="comment">// language=SQL
-        </span><span class="kw">let </span>(oid,): (Oid,) = query_as(<span class="string">&quot;SELECT $1::regtype::oid&quot;</span>)
+        </span><span class="kw">let </span>(oid,): (Oid,) = query_as(<span class="string">"SELECT $1::regtype::oid"</span>)
             .bind(name)
             .fetch_optional(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
             .<span class="kw">await</span><span class="question-mark">?
@@ -950,17 +951,17 @@ WHERE rngtypid = $1
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[]);
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>nullable_query = String::from(<span class="string">&quot;SELECT NOT pg_attribute.attnotnull FROM (VALUES &quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>nullable_query = String::from(<span class="string">"SELECT NOT pg_attribute.attnotnull FROM (VALUES "</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>args = PgArguments::default();
 
         <span class="kw">for </span>(i, (column, bind)) <span class="kw">in </span>meta.columns.iter().zip((<span class="number">1</span>..).step_by(<span class="number">3</span>)).enumerate() {
             <span class="kw">if </span>!args.buffer.is_empty() {
-                nullable_query += <span class="string">&quot;, &quot;</span>;
+                nullable_query += <span class="string">", "</span>;
             }
 
             <span class="kw">let _ </span>= <span class="macro">write!</span>(
                 nullable_query,
-                <span class="string">&quot;(${}::int4, ${}::int4, ${}::int2)&quot;</span>,
+                <span class="string">"(${}::int4, ${}::int4, ${}::int2)"</span>,
                 bind,
                 bind + <span class="number">1</span>,
                 bind + <span class="number">2
@@ -972,12 +973,12 @@ WHERE rngtypid = $1
         }
 
         nullable_query.push_str(
-            <span class="string">&quot;) as col(idx, table_id, col_idx) \
+            <span class="string">") as col(idx, table_id, col_idx) \
             LEFT JOIN pg_catalog.pg_attribute \
                 ON table_id IS NOT NULL \
                AND attrelid = table_id \
                AND attnum = col_idx \
-            ORDER BY col.idx&quot;</span>,
+            ORDER BY col.idx"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>nullables = query_scalar_with::&lt;<span class="kw">_</span>, <span class="prelude-ty">Option</span>&lt;bool&gt;, <span class="kw">_</span>&gt;(<span class="kw-2">&amp;</span>nullable_query, args)
@@ -985,8 +986,8 @@ WHERE rngtypid = $1
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="comment">// If the server is CockroachDB or Materialize, skip this step (#1248).
-        </span><span class="kw">if </span>!<span class="self">self</span>.stream.parameter_statuses.contains_key(<span class="string">&quot;crdb_version&quot;</span>)
-            &amp;&amp; !<span class="self">self</span>.stream.parameter_statuses.contains_key(<span class="string">&quot;mz_version&quot;</span>)
+        </span><span class="kw">if </span>!<span class="self">self</span>.stream.parameter_statuses.contains_key(<span class="string">"crdb_version"</span>)
+            &amp;&amp; !<span class="self">self</span>.stream.parameter_statuses.contains_key(<span class="string">"mz_version"</span>)
         {
             <span class="comment">// patch up our null inference with data from EXPLAIN
             </span><span class="kw">let </span>nullable_patch = <span class="self">self
@@ -1011,25 +1012,25 @@ WHERE rngtypid = $1
         params_len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="prelude-ty">Option</span>&lt;bool&gt;&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>explain = <span class="macro">format!</span>(
-            <span class="string">&quot;EXPLAIN (VERBOSE, FORMAT JSON) EXECUTE sqlx_s_{}&quot;</span>,
+            <span class="string">"EXPLAIN (VERBOSE, FORMAT JSON) EXECUTE sqlx_s_{}"</span>,
             stmt_id.<span class="number">0
         </span>);
         <span class="kw">let </span><span class="kw-2">mut </span>comma = <span class="bool-val">false</span>;
 
         <span class="kw">if </span>params_len &gt; <span class="number">0 </span>{
-            explain += <span class="string">&quot;(&quot;</span>;
+            explain += <span class="string">"("</span>;
 
             <span class="comment">// fill the arguments list with NULL, which should theoretically be valid
             </span><span class="kw">for _ in </span><span class="number">0</span>..params_len {
                 <span class="kw">if </span>comma {
-                    explain += <span class="string">&quot;, &quot;</span>;
+                    explain += <span class="string">", "</span>;
                 }
 
-                explain += <span class="string">&quot;NULL&quot;</span>;
+                explain += <span class="string">"NULL"</span>;
                 comma = <span class="bool-val">true</span>;
             }
 
-            explain += <span class="string">&quot;)&quot;</span>;
+            explain += <span class="string">")"</span>;
         }
 
         <span class="kw">let </span>(Json([explain]),): (Json&lt;[Explain; <span class="number">1</span>]&gt;,) = query_as(<span class="kw-2">&amp;</span>explain).fetch_one(<span class="self">self</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1056,12 +1057,12 @@ WHERE rngtypid = $1
     <span class="kw">if let </span><span class="prelude-val">Some</span>(plan_outputs) = <span class="kw-2">&amp;</span>plan.output {
         <span class="comment">// all outputs of a Full Join must be marked nullable
         // otherwise, all outputs of the inner half of an outer join must be marked nullable
-        </span><span class="kw">if </span>plan.join_type.as_deref() == <span class="prelude-val">Some</span>(<span class="string">&quot;Full&quot;</span>)
-            || plan.parent_relation.as_deref() == <span class="prelude-val">Some</span>(<span class="string">&quot;Inner&quot;</span>)
+        </span><span class="kw">if </span>plan.join_type.as_deref() == <span class="prelude-val">Some</span>(<span class="string">"Full"</span>)
+            || plan.parent_relation.as_deref() == <span class="prelude-val">Some</span>(<span class="string">"Inner"</span>)
         {
             <span class="kw">for </span>output <span class="kw">in </span>plan_outputs {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = outputs.iter().position(|o| o == output) {
-                    <span class="comment">// N.B. this may produce false positives but those don&#39;t cause runtime errors
+                    <span class="comment">// N.B. this may produce false positives but those don't cause runtime errors
                     </span>nullables[i] = <span class="prelude-val">Some</span>(<span class="bool-val">true</span>);
                 }
             }
@@ -1069,7 +1070,7 @@ WHERE rngtypid = $1
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(plans) = <span class="kw-2">&amp;</span>plan.plans {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&quot;Left&quot;</span>) | <span class="prelude-val">Some</span>(<span class="string">&quot;Right&quot;</span>) = plan.join_type.as_deref() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">"Left"</span>) | <span class="prelude-val">Some</span>(<span class="string">"Right"</span>) = plan.join_type.as_deref() {
             <span class="kw">for </span>plan <span class="kw">in </span>plans {
                 visit_plan(plan, outputs, nullables);
             }
@@ -1085,69 +1086,69 @@ WHERE rngtypid = $1
     //
     // In this case, we should just fall back to assuming all is nullable.
     //
-    // It may also contain additional fields we don&#39;t care about, which should not break parsing:
+    // It may also contain additional fields we don't care about, which should not break parsing:
     // https://github.com/launchbadge/sqlx/issues/2587
     // https://github.com/launchbadge/sqlx/issues/2622
     </span>Plan {
-        <span class="attr">#[serde(rename = <span class="string">&quot;Plan&quot;</span>)]
+        <span class="attr">#[serde(rename = <span class="string">"Plan"</span>)]
         </span>plan: Plan,
     },
 
     <span class="comment">// This ensures that parsing never technically fails.
     //
-    // We don&#39;t want to specifically expect `&quot;Utility Statement&quot;` because there might be other cases
-    // and we don&#39;t care unless it contains a query plan anyway.
+    // We don't want to specifically expect `"Utility Statement"` because there might be other cases
+    // and we don't care unless it contains a query plan anyway.
     </span>Other(serde::de::IgnoredAny),
 }
 
 <span class="attr">#[derive(serde::Deserialize, Debug)]
 </span><span class="kw">struct </span>Plan {
-    <span class="attr">#[serde(rename = <span class="string">&quot;Join Type&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"Join Type"</span>)]
     </span>join_type: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attr">#[serde(rename = <span class="string">&quot;Parent Relationship&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"Parent Relationship"</span>)]
     </span>parent_relation: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attr">#[serde(rename = <span class="string">&quot;Output&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"Output"</span>)]
     </span>output: <span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;,
-    <span class="attr">#[serde(rename = <span class="string">&quot;Plans&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"Plans"</span>)]
     </span>plans: <span class="prelude-ty">Option</span>&lt;Vec&lt;Plan&gt;&gt;,
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>explain_parsing() {
-    <span class="kw">let </span>normal_plan = <span class="string">r#&quot;[
+    <span class="kw">let </span>normal_plan = <span class="string">r#"[
    {
-     &quot;Plan&quot;: {
-       &quot;Node Type&quot;: &quot;Result&quot;,
-       &quot;Parallel Aware&quot;: false,
-       &quot;Async Capable&quot;: false,
-       &quot;Startup Cost&quot;: 0.00,
-       &quot;Total Cost&quot;: 0.01,
-       &quot;Plan Rows&quot;: 1,
-       &quot;Plan Width&quot;: 4,
-       &quot;Output&quot;: [&quot;1&quot;]
+     "Plan": {
+       "Node Type": "Result",
+       "Parallel Aware": false,
+       "Async Capable": false,
+       "Startup Cost": 0.00,
+       "Total Cost": 0.01,
+       "Plan Rows": 1,
+       "Plan Width": 4,
+       "Output": ["1"]
      }
    }
-]&quot;#</span>;
+]"#</span>;
 
     <span class="comment">// https://github.com/launchbadge/sqlx/issues/2622
-    </span><span class="kw">let </span>extra_field = <span class="string">r#&quot;[
+    </span><span class="kw">let </span>extra_field = <span class="string">r#"[
    {                                        
-     &quot;Plan&quot;: {                              
-       &quot;Node Type&quot;: &quot;Result&quot;,               
-       &quot;Parallel Aware&quot;: false,             
-       &quot;Async Capable&quot;: false,              
-       &quot;Startup Cost&quot;: 0.00,                
-       &quot;Total Cost&quot;: 0.01,                  
-       &quot;Plan Rows&quot;: 1,                      
-       &quot;Plan Width&quot;: 4,                     
-       &quot;Output&quot;: [&quot;1&quot;]                      
+     "Plan": {                              
+       "Node Type": "Result",               
+       "Parallel Aware": false,             
+       "Async Capable": false,              
+       "Startup Cost": 0.00,                
+       "Total Cost": 0.01,                  
+       "Plan Rows": 1,                      
+       "Plan Width": 4,                     
+       "Output": ["1"]                      
      },                                     
-     &quot;Query Identifier&quot;: 1147616880456321454
+     "Query Identifier": 1147616880456321454
    }                                        
-]&quot;#</span>;
+]"#</span>;
 
     <span class="comment">// https://github.com/launchbadge/sqlx/issues/1449
-    </span><span class="kw">let </span>utility_statement = <span class="string">r#&quot;[&quot;Utility Statement&quot;]&quot;#</span>;
+    </span><span class="kw">let </span>utility_statement = <span class="string">r#"["Utility Statement"]"#</span>;
 
     <span class="kw">let </span>normal_plan_parsed = serde_json::from_str::&lt;[Explain; <span class="number">1</span>]&gt;(normal_plan).unwrap();
     <span class="kw">let </span>extra_field_parsed = serde_json::from_str::&lt;[Explain; <span class="number">1</span>]&gt;(extra_field).unwrap();
@@ -1155,17 +1156,17 @@ WHERE rngtypid = $1
 
     <span class="macro">assert!</span>(
         <span class="macro">matches!</span>(normal_plan_parsed, [Explain::Plan { plan: Plan { .. } }]),
-        <span class="string">&quot;unexpected parse from {normal_plan:?}: {normal_plan_parsed:?}&quot;
+        <span class="string">"unexpected parse from {normal_plan:?}: {normal_plan_parsed:?}"
     </span>);
 
     <span class="macro">assert!</span>(
         <span class="macro">matches!</span>(extra_field_parsed, [Explain::Plan { plan: Plan { .. } }]),
-        <span class="string">&quot;unexpected parse from {extra_field:?}: {extra_field_parsed:?}&quot;
+        <span class="string">"unexpected parse from {extra_field:?}: {extra_field_parsed:?}"
     </span>);
 
     <span class="macro">assert!</span>(
         <span class="macro">matches!</span>(utility_statement_parsed, [Explain::Other(<span class="kw">_</span>)]),
-        <span class="string">&quot;unexpected parse from {utility_statement:?}: {utility_statement_parsed:?}&quot;
+        <span class="string">"unexpected parse from {utility_statement:?}: {utility_statement_parsed:?}"
     </span>)
 }
 </code></pre></div></section></main></body></html>

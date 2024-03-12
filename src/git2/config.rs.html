@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/config.rs`."><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/config.rs`."><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -793,9 +794,9 @@
 <span class="doccomment">/// A struct representing a certain entry owned by a `Config` instance.
 ///
 /// An entry has a name, a value, and a level it applies to.
-</span><span class="kw">pub struct </span>ConfigEntry&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+</span><span class="kw">pub struct </span>ConfigEntry&lt;<span class="lifetime">'cfg</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_config_entry,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;cfg </span>Config&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'cfg </span>Config&gt;,
     owned: bool,
 }
 
@@ -821,19 +822,19 @@
 /// iter
 ///     .for_each(|entry| {
 ///         let name = entry.name().unwrap().to_string();
-///         let value = entry.value().unwrap_or(&quot;&quot;).to_string();
+///         let value = entry.value().unwrap_or("").to_string();
 ///         entries.push((name, value))
 ///     })?;
 /// for entry in &amp;entries {
-///     println!(&quot;{} = {}&quot;, entry.0, entry.1);
+///     println!("{} = {}", entry.0, entry.1);
 /// }
 /// # Ok::&lt;(), git2::Error&gt;(())
 ///
 /// ```
-</span><span class="kw">pub struct </span>ConfigEntries&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+</span><span class="kw">pub struct </span>ConfigEntries&lt;<span class="lifetime">'cfg</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_config_iterator,
-    current: <span class="prelude-ty">Option</span>&lt;ConfigEntry&lt;<span class="lifetime">&#39;cfg</span>&gt;&gt;,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;cfg </span>Config&gt;,
+    current: <span class="prelude-ty">Option</span>&lt;ConfigEntry&lt;<span class="lifetime">'cfg</span>&gt;&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'cfg </span>Config&gt;,
 }
 
 <span class="kw">impl </span>Config {
@@ -898,7 +899,7 @@
 
     <span class="doccomment">/// Locate the path to the system configuration file
     ///
-    /// If /etc/gitconfig doesn&#39;t exist, it will look for `%PROGRAMFILES%`
+    /// If /etc/gitconfig doesn't exist, it will look for `%PROGRAMFILES%`
     </span><span class="kw">pub fn </span>find_system() -&gt; <span class="prelude-ty">Result</span>&lt;PathBuf, Error&gt; {
         <span class="kw">crate</span>::init();
         <span class="kw">let </span>buf = Buf::new();
@@ -923,7 +924,7 @@
 
     <span class="doccomment">/// Add an on-disk config file instance to an existing config
     ///
-    /// The on-disk file pointed at by path will be opened and parsed; it&#39;s
+    /// The on-disk file pointed at by path will be opened and parsed; it's
     /// expected to be a native Git config file following the default Git config
     /// syntax (see man git-config).
     ///
@@ -1018,7 +1019,7 @@
     /// This method will return an error if this `Config` is not a snapshot.
     </span><span class="kw">pub fn </span>get_str(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str, Error&gt; {
         str::from_utf8(<span class="self">self</span>.get_bytes(name)<span class="question-mark">?</span>)
-            .map_err(|<span class="kw">_</span>| Error::from_str(<span class="string">&quot;configuration value is not valid utf8&quot;</span>))
+            .map_err(|<span class="kw">_</span>| Error::from_str(<span class="string">"configuration value is not valid utf8"</span>))
     }
 
     <span class="doccomment">/// Get the value of a string config variable as a byte slice.
@@ -1048,13 +1049,13 @@
         }
         str::from_utf8(<span class="kw-2">&amp;</span>ret)
             .map(|s| s.to_string())
-            .map_err(|<span class="kw">_</span>| Error::from_str(<span class="string">&quot;configuration value is not valid utf8&quot;</span>))
+            .map_err(|<span class="kw">_</span>| Error::from_str(<span class="string">"configuration value is not valid utf8"</span>))
     }
 
     <span class="doccomment">/// Get the value of a path config variable as an owned `PathBuf`.
     ///
-    /// A leading &#39;~&#39; will be expanded to the global search path (which
-    /// defaults to the user&#39;s home directory but can be overridden via
+    /// A leading '~' will be expanded to the global search path (which
+    /// defaults to the user's home directory but can be overridden via
     /// [`raw::git_libgit2_opts`].
     ///
     /// All config files will be looked into, in the order of their
@@ -1070,7 +1071,7 @@
     }
 
     <span class="doccomment">/// Get the ConfigEntry for a config variable.
-    </span><span class="kw">pub fn </span>get_entry(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ConfigEntry&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>get_entry(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ConfigEntry&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
@@ -1101,10 +1102,10 @@
     /// let mut entries = cfg.entries(None).unwrap();
     /// while let Some(entry) = entries.next() {
     ///     let entry = entry.unwrap();
-    ///     println!(&quot;{} =&gt; {}&quot;, entry.name().unwrap(), entry.value().unwrap());
+    ///     println!("{} =&gt; {}", entry.name().unwrap(), entry.value().unwrap());
     /// }
     /// ```
-    </span><span class="kw">pub fn </span>entries(<span class="kw-2">&amp;</span><span class="self">self</span>, glob: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ConfigEntries&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>entries(<span class="kw-2">&amp;</span><span class="self">self</span>, glob: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ConfigEntries&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="kw">match </span>glob {
@@ -1131,7 +1132,7 @@
     ///
     /// Due to lifetime restrictions, the returned value does not implement
     /// the standard [`Iterator`] trait. See [`ConfigEntries`] for more.
-    </span><span class="kw">pub fn </span>multivar(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, regexp: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ConfigEntries&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>multivar(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, regexp: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ConfigEntries&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span>regexp = regexp.map(CString::new).transpose()<span class="question-mark">?</span>;
@@ -1143,12 +1144,12 @@
         }
     }
 
-    <span class="doccomment">/// Open the global/XDG configuration file according to git&#39;s rules
+    <span class="doccomment">/// Open the global/XDG configuration file according to git's rules
     ///
     /// Git allows you to store your global configuration at `$HOME/.config` or
     /// `$XDG_CONFIG_HOME/git/config`. For backwards compatibility, the XDG file
-    /// shouldn&#39;t be used unless the use has created it explicitly. With this
-    /// function you&#39;ll open the correct one to write to.
+    /// shouldn't be used unless the use has created it explicitly. With this
+    /// function you'll open the correct one to write to.
     </span><span class="kw">pub fn </span>open_global(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Config, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -1239,8 +1240,8 @@
 
     <span class="doccomment">/// Parse a string as a bool.
     ///
-    /// Interprets &quot;true&quot;, &quot;yes&quot;, &quot;on&quot;, 1, or any non-zero number as true.
-    /// Interprets &quot;false&quot;, &quot;no&quot;, &quot;off&quot;, 0, or an empty string as false.
+    /// Interprets "true", "yes", "on", 1, or any non-zero number as true.
+    /// Interprets "false", "no", "off", 0, or an empty string as false.
     </span><span class="kw">pub fn </span>parse_bool&lt;S: IntoCString&gt;(s: S) -&gt; <span class="prelude-ty">Result</span>&lt;bool, Error&gt; {
         <span class="kw">let </span>s = s.into_c_string()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>out = <span class="number">0</span>;
@@ -1292,7 +1293,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cfg</span>&gt; ConfigEntry&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cfg</span>&gt; ConfigEntry&lt;<span class="lifetime">'cfg</span>&gt; {
     <span class="doccomment">/// Gets the name of this entry.
     ///
     /// May return `None` if the name is not valid utf-8
@@ -1343,10 +1344,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cfg</span>&gt; Binding <span class="kw">for </span>ConfigEntry&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cfg</span>&gt; Binding <span class="kw">for </span>ConfigEntry&lt;<span class="lifetime">'cfg</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_config_entry;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_config_entry) -&gt; ConfigEntry&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_config_entry) -&gt; ConfigEntry&lt;<span class="lifetime">'cfg</span>&gt; {
         ConfigEntry {
             raw,
             _marker: marker::PhantomData,
@@ -1358,10 +1359,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cfg</span>&gt; Binding <span class="kw">for </span>ConfigEntries&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cfg</span>&gt; Binding <span class="kw">for </span>ConfigEntries&lt;<span class="lifetime">'cfg</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_config_iterator;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_config_iterator) -&gt; ConfigEntries&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_config_iterator) -&gt; ConfigEntries&lt;<span class="lifetime">'cfg</span>&gt; {
         ConfigEntries {
             raw,
             current: <span class="prelude-val">None</span>,
@@ -1373,11 +1374,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cfg</span>&gt; ConfigEntries&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cfg</span>&gt; ConfigEntries&lt;<span class="lifetime">'cfg</span>&gt; {
     <span class="doccomment">/// Advances the iterator and returns the next value.
     ///
     /// Returns `None` when iteration is finished.
-    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>ConfigEntry&lt;<span class="lifetime">&#39;cfg</span>&gt;, Error&gt;&gt; {
+    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>ConfigEntry&lt;<span class="lifetime">'cfg</span>&gt;, Error&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         drop(<span class="self">self</span>.current.take());
         <span class="kw">unsafe </span>{
@@ -1393,7 +1394,7 @@
     }
 
     <span class="doccomment">/// Calls the given closure for each remaining entry in the iterator.
-    </span><span class="kw">pub fn </span>for_each&lt;F: FnMut(<span class="kw-2">&amp;</span>ConfigEntry&lt;<span class="lifetime">&#39;cfg</span>&gt;)&gt;(<span class="kw-2">mut </span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">pub fn </span>for_each&lt;F: FnMut(<span class="kw-2">&amp;</span>ConfigEntry&lt;<span class="lifetime">'cfg</span>&gt;)&gt;(<span class="kw-2">mut </span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">while let </span><span class="prelude-val">Some</span>(entry) = <span class="self">self</span>.next() {
             <span class="kw">let </span>entry = entry<span class="question-mark">?</span>;
             f(entry);
@@ -1402,13 +1403,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cfg</span>&gt; Drop <span class="kw">for </span>ConfigEntries&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cfg</span>&gt; Drop <span class="kw">for </span>ConfigEntries&lt;<span class="lifetime">'cfg</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_config_iterator_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cfg</span>&gt; Drop <span class="kw">for </span>ConfigEntry&lt;<span class="lifetime">&#39;cfg</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cfg</span>&gt; Drop <span class="kw">for </span>ConfigEntry&lt;<span class="lifetime">'cfg</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if </span><span class="self">self</span>.owned {
             <span class="kw">unsafe </span>{ raw::git_config_entry_free(<span class="self">self</span>.raw) }
@@ -1434,23 +1435,23 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>persisted() {
         <span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>path = td.path().join(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>path = td.path().join(<span class="string">"foo"</span>);
         File::create(<span class="kw-2">&amp;</span>path).unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>cfg = Config::open(<span class="kw-2">&amp;</span>path).unwrap();
-        <span class="macro">assert!</span>(cfg.get_bool(<span class="string">&quot;foo.bar&quot;</span>).is_err());
-        cfg.set_bool(<span class="string">&quot;foo.k1&quot;</span>, <span class="bool-val">true</span>).unwrap();
-        cfg.set_i32(<span class="string">&quot;foo.k2&quot;</span>, <span class="number">1</span>).unwrap();
-        cfg.set_i64(<span class="string">&quot;foo.k3&quot;</span>, <span class="number">2</span>).unwrap();
-        cfg.set_str(<span class="string">&quot;foo.k4&quot;</span>, <span class="string">&quot;bar&quot;</span>).unwrap();
+        <span class="macro">assert!</span>(cfg.get_bool(<span class="string">"foo.bar"</span>).is_err());
+        cfg.set_bool(<span class="string">"foo.k1"</span>, <span class="bool-val">true</span>).unwrap();
+        cfg.set_i32(<span class="string">"foo.k2"</span>, <span class="number">1</span>).unwrap();
+        cfg.set_i64(<span class="string">"foo.k3"</span>, <span class="number">2</span>).unwrap();
+        cfg.set_str(<span class="string">"foo.k4"</span>, <span class="string">"bar"</span>).unwrap();
         cfg.snapshot().unwrap();
         drop(cfg);
 
         <span class="kw">let </span>cfg = Config::open(<span class="kw-2">&amp;</span>path).unwrap().snapshot().unwrap();
-        <span class="macro">assert_eq!</span>(cfg.get_bool(<span class="string">&quot;foo.k1&quot;</span>).unwrap(), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(cfg.get_i32(<span class="string">&quot;foo.k2&quot;</span>).unwrap(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(cfg.get_i64(<span class="string">&quot;foo.k3&quot;</span>).unwrap(), <span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(cfg.get_str(<span class="string">&quot;foo.k4&quot;</span>).unwrap(), <span class="string">&quot;bar&quot;</span>);
+        <span class="macro">assert_eq!</span>(cfg.get_bool(<span class="string">"foo.k1"</span>).unwrap(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(cfg.get_i32(<span class="string">"foo.k2"</span>).unwrap(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(cfg.get_i64(<span class="string">"foo.k3"</span>).unwrap(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(cfg.get_str(<span class="string">"foo.k4"</span>).unwrap(), <span class="string">"bar"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>entries = cfg.entries(<span class="prelude-val">None</span>).unwrap();
         <span class="kw">while let </span><span class="prelude-val">Some</span>(entry) = entries.next() {
@@ -1464,27 +1465,27 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multivar() {
         <span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>path = td.path().join(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>path = td.path().join(<span class="string">"foo"</span>);
         File::create(<span class="kw-2">&amp;</span>path).unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>cfg = Config::open(<span class="kw-2">&amp;</span>path).unwrap();
-        cfg.set_multivar(<span class="string">&quot;foo.bar&quot;</span>, <span class="string">&quot;^$&quot;</span>, <span class="string">&quot;baz&quot;</span>).unwrap();
-        cfg.set_multivar(<span class="string">&quot;foo.bar&quot;</span>, <span class="string">&quot;^$&quot;</span>, <span class="string">&quot;qux&quot;</span>).unwrap();
-        cfg.set_multivar(<span class="string">&quot;foo.bar&quot;</span>, <span class="string">&quot;^$&quot;</span>, <span class="string">&quot;quux&quot;</span>).unwrap();
-        cfg.set_multivar(<span class="string">&quot;foo.baz&quot;</span>, <span class="string">&quot;^$&quot;</span>, <span class="string">&quot;oki&quot;</span>).unwrap();
+        cfg.set_multivar(<span class="string">"foo.bar"</span>, <span class="string">"^$"</span>, <span class="string">"baz"</span>).unwrap();
+        cfg.set_multivar(<span class="string">"foo.bar"</span>, <span class="string">"^$"</span>, <span class="string">"qux"</span>).unwrap();
+        cfg.set_multivar(<span class="string">"foo.bar"</span>, <span class="string">"^$"</span>, <span class="string">"quux"</span>).unwrap();
+        cfg.set_multivar(<span class="string">"foo.baz"</span>, <span class="string">"^$"</span>, <span class="string">"oki"</span>).unwrap();
 
         <span class="comment">// `entries` filters by name
         </span><span class="kw">let </span><span class="kw-2">mut </span>entries: Vec&lt;String&gt; = Vec::new();
-        cfg.entries(<span class="prelude-val">Some</span>(<span class="string">&quot;foo.bar&quot;</span>))
+        cfg.entries(<span class="prelude-val">Some</span>(<span class="string">"foo.bar"</span>))
             .unwrap()
             .for_each(|entry| entries.push(entry.value().unwrap().to_string()))
             .unwrap();
         entries.sort();
-        <span class="macro">assert_eq!</span>(entries, [<span class="string">&quot;baz&quot;</span>, <span class="string">&quot;quux&quot;</span>, <span class="string">&quot;qux&quot;</span>]);
+        <span class="macro">assert_eq!</span>(entries, [<span class="string">"baz"</span>, <span class="string">"quux"</span>, <span class="string">"qux"</span>]);
 
         <span class="comment">// which is the same as `multivar` without a regex
         </span><span class="kw">let </span><span class="kw-2">mut </span>multivals = Vec::new();
-        cfg.multivar(<span class="string">&quot;foo.bar&quot;</span>, <span class="prelude-val">None</span>)
+        cfg.multivar(<span class="string">"foo.bar"</span>, <span class="prelude-val">None</span>)
             .unwrap()
             .for_each(|entry| multivals.push(entry.value().unwrap().to_string()))
             .unwrap();
@@ -1493,63 +1494,63 @@
 
         <span class="comment">// yet _with_ a regex, `multivar` filters by value
         </span><span class="kw">let </span><span class="kw-2">mut </span>quxish = Vec::new();
-        cfg.multivar(<span class="string">&quot;foo.bar&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;qu.*x&quot;</span>))
+        cfg.multivar(<span class="string">"foo.bar"</span>, <span class="prelude-val">Some</span>(<span class="string">"qu.*x"</span>))
             .unwrap()
             .for_each(|entry| quxish.push(entry.value().unwrap().to_string()))
             .unwrap();
         quxish.sort();
-        <span class="macro">assert_eq!</span>(quxish, [<span class="string">&quot;quux&quot;</span>, <span class="string">&quot;qux&quot;</span>]);
+        <span class="macro">assert_eq!</span>(quxish, [<span class="string">"quux"</span>, <span class="string">"qux"</span>]);
 
-        cfg.remove_multivar(<span class="string">&quot;foo.bar&quot;</span>, <span class="string">&quot;.*&quot;</span>).unwrap();
+        cfg.remove_multivar(<span class="string">"foo.bar"</span>, <span class="string">".*"</span>).unwrap();
 
-        <span class="kw">let </span>count = |entries: <span class="kw">super</span>::ConfigEntries&lt;<span class="lifetime">&#39;_</span>&gt;| -&gt; usize {
+        <span class="kw">let </span>count = |entries: <span class="kw">super</span>::ConfigEntries&lt;<span class="lifetime">'_</span>&gt;| -&gt; usize {
             <span class="kw">let </span><span class="kw-2">mut </span>c = <span class="number">0</span>;
             entries.for_each(|<span class="kw">_</span>| c += <span class="number">1</span>).unwrap();
             c
         };
 
-        <span class="macro">assert_eq!</span>(count(cfg.entries(<span class="prelude-val">Some</span>(<span class="string">&quot;foo.bar&quot;</span>)).unwrap()), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(count(cfg.multivar(<span class="string">&quot;foo.bar&quot;</span>, <span class="prelude-val">None</span>).unwrap()), <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(count(cfg.entries(<span class="prelude-val">Some</span>(<span class="string">"foo.bar"</span>)).unwrap()), <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(count(cfg.multivar(<span class="string">"foo.bar"</span>, <span class="prelude-val">None</span>).unwrap()), <span class="number">0</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse() {
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;&quot;</span>).unwrap(), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;false&quot;</span>).unwrap(), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;no&quot;</span>).unwrap(), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;off&quot;</span>).unwrap(), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;0&quot;</span>).unwrap(), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">""</span>).unwrap(), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">"false"</span>).unwrap(), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">"no"</span>).unwrap(), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">"off"</span>).unwrap(), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">"0"</span>).unwrap(), <span class="bool-val">false</span>);
 
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;true&quot;</span>).unwrap(), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;yes&quot;</span>).unwrap(), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;on&quot;</span>).unwrap(), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;1&quot;</span>).unwrap(), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">&quot;42&quot;</span>).unwrap(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">"true"</span>).unwrap(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">"yes"</span>).unwrap(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">"on"</span>).unwrap(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">"1"</span>).unwrap(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_bool(<span class="string">"42"</span>).unwrap(), <span class="bool-val">true</span>);
 
-        <span class="macro">assert!</span>(Config::parse_bool(<span class="string">&quot; &quot;</span>).is_err());
-        <span class="macro">assert!</span>(Config::parse_bool(<span class="string">&quot;some-string&quot;</span>).is_err());
-        <span class="macro">assert!</span>(Config::parse_bool(<span class="string">&quot;-&quot;</span>).is_err());
+        <span class="macro">assert!</span>(Config::parse_bool(<span class="string">" "</span>).is_err());
+        <span class="macro">assert!</span>(Config::parse_bool(<span class="string">"some-string"</span>).is_err());
+        <span class="macro">assert!</span>(Config::parse_bool(<span class="string">"-"</span>).is_err());
 
-        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">&quot;0&quot;</span>).unwrap(), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">&quot;1&quot;</span>).unwrap(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">&quot;100&quot;</span>).unwrap(), <span class="number">100</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">&quot;-1&quot;</span>).unwrap(), -<span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">&quot;-100&quot;</span>).unwrap(), -<span class="number">100</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">&quot;1k&quot;</span>).unwrap(), <span class="number">1024</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">&quot;4k&quot;</span>).unwrap(), <span class="number">4096</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">&quot;1M&quot;</span>).unwrap(), <span class="number">1048576</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">&quot;1G&quot;</span>).unwrap(), <span class="number">1024 </span>* <span class="number">1024 </span>* <span class="number">1024</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">"0"</span>).unwrap(), <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">"1"</span>).unwrap(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">"100"</span>).unwrap(), <span class="number">100</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">"-1"</span>).unwrap(), -<span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">"-100"</span>).unwrap(), -<span class="number">100</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">"1k"</span>).unwrap(), <span class="number">1024</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">"4k"</span>).unwrap(), <span class="number">4096</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">"1M"</span>).unwrap(), <span class="number">1048576</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i32(<span class="string">"1G"</span>).unwrap(), <span class="number">1024 </span>* <span class="number">1024 </span>* <span class="number">1024</span>);
 
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;0&quot;</span>).unwrap(), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;1&quot;</span>).unwrap(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;100&quot;</span>).unwrap(), <span class="number">100</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;-1&quot;</span>).unwrap(), -<span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;-100&quot;</span>).unwrap(), -<span class="number">100</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;1k&quot;</span>).unwrap(), <span class="number">1024</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;4k&quot;</span>).unwrap(), <span class="number">4096</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;1M&quot;</span>).unwrap(), <span class="number">1048576</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;1G&quot;</span>).unwrap(), <span class="number">1024 </span>* <span class="number">1024 </span>* <span class="number">1024</span>);
-        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">&quot;100G&quot;</span>).unwrap(), <span class="number">100 </span>* <span class="number">1024 </span>* <span class="number">1024 </span>* <span class="number">1024</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"0"</span>).unwrap(), <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"1"</span>).unwrap(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"100"</span>).unwrap(), <span class="number">100</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"-1"</span>).unwrap(), -<span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"-100"</span>).unwrap(), -<span class="number">100</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"1k"</span>).unwrap(), <span class="number">1024</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"4k"</span>).unwrap(), <span class="number">4096</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"1M"</span>).unwrap(), <span class="number">1048576</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"1G"</span>).unwrap(), <span class="number">1024 </span>* <span class="number">1024 </span>* <span class="number">1024</span>);
+        <span class="macro">assert_eq!</span>(Config::parse_i64(<span class="string">"100G"</span>).unwrap(), <span class="number">100 </span>* <span class="number">1024 </span>* <span class="number">1024 </span>* <span class="number">1024</span>);
     }
 }
 </code></pre></div></section></main></body></html>

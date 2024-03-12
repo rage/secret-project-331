@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/folder_checksum.rs`."><title>folder_checksum.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_utils" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/folder_checksum.rs`."><title>folder_checksum.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_utils" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -273,7 +274,7 @@ might take a while since reading a lot of data from disk is not fast.
         <span class="comment">// The extra separators at the end and at the beginning are to prevent
         // accidental collisions in the hashed string.
         </span><span class="kw">let </span>serialized_metadata = <span class="macro">format!</span>(
-            <span class="string">&quot;-{}{}{}{}{:?}-&quot;</span>,
+            <span class="string">"-{}{}{}{}{:?}-"</span>,
             directory <span class="kw">as </span>u8, file <span class="kw">as </span>u8, symlink <span class="kw">as </span>u8, <span class="kw-2">&amp;</span>permissions_mode, <span class="kw-2">&amp;</span>relative_path
         );
 
@@ -281,7 +282,7 @@ might take a while since reading a lot of data from disk is not fast.
 
         <span class="kw">if </span>file {
             <span class="kw">let </span>file = File::open(full_path).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="comment">// We read the file contents with a bufreader so that handling really big files wouldn&#39;t cause us problems.
+            <span class="comment">// We read the file contents with a bufreader so that handling really big files wouldn't cause us problems.
             </span><span class="kw">let </span>reader = BufReader::new(file);
             <span class="kw">let </span><span class="kw-2">mut </span>stream = ReaderStream::new(reader);
             <span class="kw">while let </span><span class="prelude-val">Some</span>(chunk) = stream.next().<span class="kw">await </span>{
@@ -323,7 +324,7 @@ might take a while since reading a lot of data from disk is not fast.
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="kw">async fn </span>do_the_test() {
-        <span class="kw">let </span>dir = TempDir::new(<span class="string">&quot;test-folder-checksum&quot;</span>).expect(<span class="string">&quot;Failed to create a temp dir&quot;</span>);
+        <span class="kw">let </span>dir = TempDir::new(<span class="string">"test-folder-checksum"</span>).expect(<span class="string">"Failed to create a temp dir"</span>);
         File::open(dir.path())
             .<span class="kw">await
             </span>.unwrap()
@@ -333,22 +334,22 @@ might take a while since reading a lot of data from disk is not fast.
         <span class="kw">let </span>first_hash = hash_folder(dir.path()).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(
             first_hash.to_hex().to_string(),
-            <span class="string">&quot;01444ae9678097d0214e449568b68eb351c4743b2697bfc3d517b5c601535823&quot;
+            <span class="string">"01444ae9678097d0214e449568b68eb351c4743b2697bfc3d517b5c601535823"
         </span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>file = File::create(dir.path().join(<span class="string">&quot;test-file&quot;</span>)).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>file = File::create(dir.path().join(<span class="string">"test-file"</span>)).<span class="kw">await</span>.unwrap();
         file.set_permissions(Permissions::from_mode(<span class="number">0o644</span>))
             .<span class="kw">await
             </span>.unwrap();
-        file.write_all(<span class="string">b&quot;Test file&quot;</span>).<span class="kw">await</span>.unwrap();
+        file.write_all(<span class="string">b"Test file"</span>).<span class="kw">await</span>.unwrap();
 
         <span class="kw">let </span>second_hash = hash_folder(dir.path()).<span class="kw">await</span>.unwrap();
 
         <span class="macro">assert_eq!</span>(
             second_hash.to_hex().to_string(),
-            <span class="string">&quot;c2f4caaaafeb41dfd5e5381ea9c1583ccaa7d09378745def8c979b1e1f0e5c2a&quot;
+            <span class="string">"c2f4caaaafeb41dfd5e5381ea9c1583ccaa7d09378745def8c979b1e1f0e5c2a"
         </span>);
 
-        fs::set_permissions(dir.path().join(<span class="string">&quot;test-file&quot;</span>), Permissions::from_mode(<span class="number">0o444</span>))
+        fs::set_permissions(dir.path().join(<span class="string">"test-file"</span>), Permissions::from_mode(<span class="number">0o444</span>))
             .<span class="kw">await
             </span>.unwrap();
 
@@ -356,10 +357,10 @@ might take a while since reading a lot of data from disk is not fast.
 
         <span class="macro">assert_eq!</span>(
             third_hash.to_hex().to_string(),
-            <span class="string">&quot;1b1820abcb400974e0eb751c103303864f7b0ae7ad387c5135521d9968dbb4de&quot;
+            <span class="string">"1b1820abcb400974e0eb751c103303864f7b0ae7ad387c5135521d9968dbb4de"
         </span>);
 
-        <span class="kw">let </span>inner_dir_path = dir.path().join(<span class="string">&quot;directory&quot;</span>);
+        <span class="kw">let </span>inner_dir_path = dir.path().join(<span class="string">"directory"</span>);
         create_dir(<span class="kw-2">&amp;</span>inner_dir_path).<span class="kw">await</span>.unwrap();
         File::open(inner_dir_path)
             .<span class="kw">await
@@ -372,20 +373,20 @@ might take a while since reading a lot of data from disk is not fast.
 
         <span class="macro">assert_eq!</span>(
             fourth_hash.to_hex().to_string(),
-            <span class="string">&quot;f1113337a98c5fe5d7ed0f2a9fc17490993b1149ea44784a027e53d1a1884c9e&quot;
+            <span class="string">"f1113337a98c5fe5d7ed0f2a9fc17490993b1149ea44784a027e53d1a1884c9e"
         </span>);
 
-        remove_dir(<span class="kw-2">&amp;</span>dir.path().join(<span class="string">&quot;directory&quot;</span>)).<span class="kw">await</span>.unwrap();
+        remove_dir(<span class="kw-2">&amp;</span>dir.path().join(<span class="string">"directory"</span>)).<span class="kw">await</span>.unwrap();
 
         <span class="kw">let </span>fifth_hash = hash_folder(dir.path()).<span class="kw">await</span>.unwrap();
 
         <span class="macro">assert_eq!</span>(
             fifth_hash.to_hex().to_string(),
-            <span class="string">&quot;1b1820abcb400974e0eb751c103303864f7b0ae7ad387c5135521d9968dbb4de&quot;
+            <span class="string">"1b1820abcb400974e0eb751c103303864f7b0ae7ad387c5135521d9968dbb4de"
         </span>);
 
         <span class="comment">// Should not have the same checksum as with the directory created before
-        </span><span class="kw">let </span>file = File::create(<span class="kw-2">&amp;</span>dir.path().join(<span class="string">&quot;directory&quot;</span>)).<span class="kw">await</span>.unwrap();
+        </span><span class="kw">let </span>file = File::create(<span class="kw-2">&amp;</span>dir.path().join(<span class="string">"directory"</span>)).<span class="kw">await</span>.unwrap();
         file.set_permissions(Permissions::from_mode(<span class="number">0o755</span>))
             .<span class="kw">await
             </span>.unwrap();
@@ -398,10 +399,10 @@ might take a while since reading a lot of data from disk is not fast.
         );
         <span class="macro">assert_eq!</span>(
             sixth_hash.to_hex().to_string(),
-            <span class="string">&quot;4b9255096a4b233be4a24b0fb74fa5e955a0261a422c8e9cfbe7ac11f1256030&quot;
+            <span class="string">"4b9255096a4b233be4a24b0fb74fa5e955a0261a422c8e9cfbe7ac11f1256030"
         </span>);
-        <span class="kw">let </span>symlink_path = <span class="kw-2">&amp;</span>dir.path().join(<span class="string">&quot;symlink&quot;</span>);
-        symlink(Path::new(<span class="string">&quot;directory&quot;</span>), <span class="kw-2">&amp;</span>symlink_path)
+        <span class="kw">let </span>symlink_path = <span class="kw-2">&amp;</span>dir.path().join(<span class="string">"symlink"</span>);
+        symlink(Path::new(<span class="string">"directory"</span>), <span class="kw-2">&amp;</span>symlink_path)
             .<span class="kw">await
             </span>.unwrap();
         File::open(symlink_path)
@@ -414,11 +415,11 @@ might take a while since reading a lot of data from disk is not fast.
         <span class="kw">let </span>seventh_hash = hash_folder(dir.path()).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(
             seventh_hash.to_hex().to_string(),
-            <span class="string">&quot;5144015ff90807ec6448a0b6bfcc470de495182441e0af019c6483da8edaa05c&quot;
+            <span class="string">"5144015ff90807ec6448a0b6bfcc470de495182441e0af019c6483da8edaa05c"
         </span>);
     }
 
-    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;windows&quot;</span>))]
+    <span class="attr">#[cfg(not(target_os = <span class="string">"windows"</span>))]
     #[tokio::test]
     </span><span class="kw">async fn </span>it_works() {
         <span class="kw">let </span>res = std::panic::catch_unwind(|| {
@@ -428,7 +429,7 @@ might take a while since reading a lot of data from disk is not fast.
             <span class="kw">return</span>;
         }
 
-        <span class="macro">warn!</span>(<span class="string">&quot;First attempt at the folder checksum test failed. Retrying in case there was a file corruption issue on this machine.&quot;</span>);
+        <span class="macro">warn!</span>(<span class="string">"First attempt at the folder checksum test failed. Retrying in case there was a file corruption issue on this machine."</span>);
         do_the_test().<span class="kw">await</span>;
     }
 }

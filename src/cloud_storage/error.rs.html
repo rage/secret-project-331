@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -486,16 +487,16 @@
     <span class="doccomment">/// If another network error causes something to fail, this variant is used.
     </span>Reqwest(reqwest::Error),
     <span class="doccomment">/// If we encounter a problem decoding the private key, this variant is used.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
     </span>Pem(pem::PemError),
     <span class="doccomment">/// If we encounter a problem parsing the private key, this variant is used.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
     </span>KeyRejected(ring::error::KeyRejected),
     <span class="doccomment">/// If we encounter a problem signing a request, this variant is used.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
     </span>Signing(ring::error::Unspecified),
     <span class="doccomment">/// If we encouter a SSL error, for example an invalid certificate, this variant is used.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
     </span>Ssl(openssl::error::ErrorStack),
     <span class="doccomment">/// If we have problems creating or parsing a json web token, this variant is used.
     </span>Jwt(jsonwebtoken::errors::Error),
@@ -512,23 +513,23 @@
 }
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Error {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        <span class="macro">writeln!</span>(f, <span class="string">"{:?}"</span>, <span class="self">self</span>)
     }
 }
 
 <span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">&#39;static</span>)&gt; {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">'static</span>)&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Google(e) =&gt; <span class="prelude-val">Some</span>(e),
             <span class="self">Self</span>::Reqwest(e) =&gt; <span class="prelude-val">Some</span>(e),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
             </span><span class="self">Self</span>::Ssl(e) =&gt; <span class="prelude-val">Some</span>(e),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
             </span><span class="self">Self</span>::Pem(e) =&gt; <span class="prelude-val">Some</span>(e),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
             </span><span class="self">Self</span>::KeyRejected(e) =&gt; <span class="prelude-val">Some</span>(e),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
             </span><span class="self">Self</span>::Signing(e) =&gt; <span class="prelude-val">Some</span>(e),
             <span class="self">Self</span>::Jwt(e) =&gt; <span class="prelude-val">Some</span>(e),
             <span class="self">Self</span>::Serialization(e) =&gt; <span class="prelude-val">Some</span>(e),
@@ -543,28 +544,28 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
 </span><span class="kw">impl </span>From&lt;openssl::error::ErrorStack&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: openssl::error::ErrorStack) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Ssl(err)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
 </span><span class="kw">impl </span>From&lt;pem::PemError&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: pem::PemError) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Pem(err)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
 </span><span class="kw">impl </span>From&lt;ring::error::KeyRejected&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: ring::error::KeyRejected) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::KeyRejected(err)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
 </span><span class="kw">impl </span>From&lt;ring::error::Unspecified&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: ring::error::Unspecified) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::Signing(err)
@@ -596,7 +597,7 @@
 }
 
 <span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename = <span class="string">"camelCase"</span>)]
 #[serde(untagged)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>GoogleResponse&lt;T&gt; {
     Success(T),
@@ -628,7 +629,7 @@
 
 </span><span class="doccomment">/// The structure of a error response returned by Google.
 </span><span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>GoogleErrorResponse {
     <span class="doccomment">/// A container for the error information.
     </span><span class="kw">pub </span>error: ErrorList,
@@ -649,8 +650,8 @@
 }
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>GoogleErrorResponse {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        <span class="macro">writeln!</span>(f, <span class="string">"{:?}"</span>, <span class="self">self</span>)
     }
 }
 
@@ -658,7 +659,7 @@
 
 <span class="doccomment">/// A container for the error information.
 </span><span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>ErrorList {
     <span class="doccomment">/// A container for the error details.
     </span><span class="kw">pub </span>errors: Vec&lt;GoogleError&gt;,
@@ -672,7 +673,7 @@
 
 <span class="doccomment">/// Google Error structure
 </span><span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>GoogleError {
     <span class="doccomment">/// The scope of the error. Example values include: global and push.
     </span><span class="kw">pub </span>domain: String,
@@ -697,8 +698,8 @@
 }
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>GoogleError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.message)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.message)
     }
 }
 
@@ -719,7 +720,7 @@
 
 <span class="doccomment">/// Google provides a list of codes, but testing indicates that this list is not exhaustive.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub enum </span>Reason {
     <span class="doccomment">/// When requesting a download using alt=media URL parameter, the direct URL path to use is
     /// prefixed by /download. If this is omitted, the service will issue this redirect with the
@@ -740,7 +741,7 @@
     </span><span class="doccomment">/// Undocumeten variant that is sometimes returned by Google.
     </span>Invalid,
     <span class="doccomment">/// The request cannot be completed based on your current Cloud Storage settings. For example,
-    /// you cannot lock a retention policy if the requested bucket doesn&#39;t have a retention policy,
+    /// you cannot lock a retention policy if the requested bucket doesn't have a retention policy,
     /// and you cannot set ACLs if the requested bucket has Bucket Policy Only enabled.
     </span>BadRequest,
     <span class="doccomment">/// The retention period on a locked bucket cannot be reduced.
@@ -749,7 +750,7 @@
     </span>CloudKmsBadKey,
     <span class="doccomment">/// Cloud KMS key name cannot be changed.
     </span>CloudKmsCannotChangeKeyName,
-    <span class="doccomment">/// Resource&#39;s Cloud KMS decryption key not found.
+    <span class="doccomment">/// Resource's Cloud KMS decryption key not found.
     </span>CloudKmsDecryptionKeyNotFound,
     <span class="doccomment">/// Cloud KMS key is disabled, destroyed, or scheduled to be destroyed.
     </span>CloudKmsDisabledKey,
@@ -757,7 +758,7 @@
     </span>CloudKmsEncryptionKeyNotFound,
     <span class="doccomment">/// Cloud KMS key location not allowed.
     </span>CloudKmsKeyLocationNotAllowed,
-    <span class="doccomment">/// Missing an encryption algorithm, or the provided algorithm is not &quot;AE256.&quot;
+    <span class="doccomment">/// Missing an encryption algorithm, or the provided algorithm is not "AE256."
     </span>CustomerEncryptionAlgorithmIsInvalid,
     <span class="doccomment">/// Missing an encryption key, or it is not Base64 encoded, or it does not meet the required
     /// length of the encryption algorithm.
@@ -785,16 +786,16 @@
     <span class="doccomment">/// Could not parse the body of the request according to the provided Content-Type.
     </span>ParseError,
     <span class="doccomment">/// Channel id must match the following regular expression: `[A-Za-z0-9\\-_\\+/=]+`.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;push.channelIdInvalid&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"push.channelIdInvalid"</span>)]
     </span>PushChannelIdInvalid,
-    <span class="doccomment">/// `storage.objects.watchAll`&#39;s id property must be unique across channels.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;push.channelIdNotUnique&quot;</span>)]
+    <span class="doccomment">/// `storage.objects.watchAll`'s id property must be unique across channels.
+    </span><span class="attr">#[serde(rename = <span class="string">"push.channelIdNotUnique"</span>)]
     </span>PushChannelIdNotUnique,
-    <span class="doccomment">/// `storage.objects.watchAll`&#39;s address property must contain a valid URL.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;push.webhookUrlNoHostOrAddress&quot;</span>)]
+    <span class="doccomment">/// `storage.objects.watchAll`'s address property must contain a valid URL.
+    </span><span class="attr">#[serde(rename = <span class="string">"push.webhookUrlNoHostOrAddress"</span>)]
     </span>PushWebhookUrlNoHostOrAddress,
-    <span class="doccomment">/// `storage.objects.watchAll`&#39;s address property must be an HTTPS URL.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;push.webhookUrlNotHttps&quot;</span>)]
+    <span class="doccomment">/// `storage.objects.watchAll`'s address property must be an HTTPS URL.
+    </span><span class="attr">#[serde(rename = <span class="string">"push.webhookUrlNotHttps"</span>)]
     </span>PushWebhookUrlNotHttps,
     <span class="doccomment">/// A required URL parameter or required request body JSON property is missing.
     </span>Required,
@@ -822,7 +823,7 @@
 
     // &lt;unauthorized&gt;
     </span><span class="doccomment">/// Access to a Requester Pays bucket requires authentication.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;AuthenticationRequiredRequesterPays&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"AuthenticationRequiredRequesterPays"</span>)]
     </span>AuthenticationRequiredRequesterPays,
     <span class="doccomment">/// This error indicates a problem with the authorization provided in the request to Cloud
     /// Storage. The following are some situations where that will occur:
@@ -831,7 +832,7 @@
     ///   refreshing the access token early, but code can also catch this error, refresh the token
     ///   and retry automatically.
     /// * Multiple non-matching authorizations were provided; choose one mode only.
-    /// * The OAuth access token&#39;s bound project does not match the project associated with the
+    /// * The OAuth access token's bound project does not match the project associated with the
     ///   provided developer key.
     /// * The Authorization header was of an unrecognized format or uses an unsupported credential
     ///   type.
@@ -842,7 +843,7 @@
     /// redirect.
     </span>LockedDomainExpired,
     <span class="doccomment">/// Requests to storage.objects.watchAll will fail unless you verify you own the domain.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;push.webhookUrlUnauthorized&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"push.webhookUrlUnauthorized"</span>)]
     </span>PushWebhookUrlUnauthorized,
     <span class="comment">// /// Access to a non-public method that requires authorization was made, but none was provided in
     // /// the Authorization header or through other means.
@@ -854,9 +855,9 @@
     </span>AccountDisabled,
     <span class="doccomment">/// The Cloud Storage JSON API is restricted by law from operating with certain countries.
     </span>CountryBlocked,
-    <span class="doccomment">///  According to access control policy, the current user does not have access to perform the requested action. This code applies even if the resource being acted on doesn&#39;t exist.
+    <span class="doccomment">///  According to access control policy, the current user does not have access to perform the requested action. This code applies even if the resource being acted on doesn't exist.
     </span>Forbidden,
-    <span class="doccomment">///  According to access control policy, the current user does not have access to perform the requested action. This code applies even if the resource being acted on doesn&#39;t exist.
+    <span class="doccomment">///  According to access control policy, the current user does not have access to perform the requested action. This code applies even if the resource being acted on doesn't exist.
     </span>InsufficientPermissions,
     <span class="doccomment">///  Object overwrite or deletion is not allowed due to an active hold on the object.
     </span>ObjectUnderActiveHold,
@@ -869,17 +870,17 @@
     <span class="doccomment">///  Calls to storage.channels.stop require that the caller own the channel.
     </span>StopChannelCallerNotOwner,
     <span class="doccomment">///  This error implies that for the project associated with the OAuth token or the developer key provided, access to Cloud Storage JSON API is not enabled. This is most commonly because Cloud Storage JSON API is not enabled in the Google Cloud Console, though there are other cases where the project is blocked or has been deleted when this can occur.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;UsageLimits.accessNotConfigured&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"UsageLimits.accessNotConfigured"</span>)]
     </span>UsageLimitsAccessNotConfigured,
     <span class="doccomment">/// The requester is not authorized to use the project specified in their request. The
     /// requester must have either the serviceusage.services.use permission or the Editor role for
     /// the specified project.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;UserProjectAccessDenied&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"UserProjectAccessDenied"</span>)]
     </span>UserProjectAccessDenied,
     <span class="doccomment">/// There is a problem with the project used in the request that prevents the operation from
     /// completing successfully. One issue could be billing. Check the billing page to see if you
     /// have a past due balance or if the credit card (or other payment mechanism) on your account is expired. For project creation, see the Projects page in the Google Cloud Console. For other problems, see the Resources and Support page.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;UserProjectAccountProblem&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"UserProjectAccountProblem"</span>)]
     </span>UserProjectAccountProblem,
     <span class="doccomment">/// The developer-specified per-user rate quota was exceeded. If you are the developer, then
     /// you can view these quotas at Quotas pane in the Google Cloud Console.
@@ -899,7 +900,7 @@
     <span class="doccomment">/// A request to change a resource, usually a storage.*.update or storage.*.patch method, failed
     /// to commit the change due to a conflicting concurrent change to the same resource. The
     /// request can be retried, though care should be taken to consider the new state of the
-    /// resource to avoid blind overwriting of other agent&#39;s changes.
+    /// resource to avoid blind overwriting of other agent's changes.
     </span>Conflict,
     <span class="doccomment">/// You have attempted to use a resumable upload session that is no longer available. If the
     /// reported status code was not successful and you still wish to upload the file, you must
@@ -924,8 +925,8 @@
     </span>RequestedRangeNotSatisfiable,
     <span class="doccomment">/// A [Cloud Storage JSON API usage limit](https://cloud.google.com/storage/quotas) was
     /// exceeded. If your application tries to use more than its limit, additional requests will
-    /// fail. Throttle your client&#39;s requests, and/or use truncated exponential backoff.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;usageLimits.rateLimitExceeded&quot;</span>)]
+    /// fail. Throttle your client's requests, and/or use truncated exponential backoff.
+    </span><span class="attr">#[serde(rename = <span class="string">"usageLimits.rateLimitExceeded"</span>)]
     </span>UsageLimitsRateLimitExceeded,
 
     <span class="comment">// &lt;internal server error&gt;
@@ -940,22 +941,22 @@
 }
 
 <span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename = <span class="string">"camelCase"</span>)]
 </span><span class="kw">enum </span>BadRequest {}
 
 <span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename = <span class="string">"camelCase"</span>)]
 </span><span class="kw">enum </span>Unauthorized {}
 
 <span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename = <span class="string">"camelCase"</span>)]
 </span><span class="kw">enum </span>Forbidden {}
 
 <span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename = <span class="string">"camelCase"</span>)]
 </span><span class="kw">enum </span>PreconditionFailed {}
 
 <span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename = <span class="string">"camelCase"</span>)]
 </span><span class="kw">enum </span>InternalServerError {}
 </code></pre></div></section></main></body></html>

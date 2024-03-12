@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.6.1/src/form/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_multipart/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_multipart"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.6.1/src/form/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_multipart/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_multipart"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -752,11 +753,11 @@
 
 <span class="kw">pub mod </span>bytes;
 <span class="kw">pub mod </span>json;
-<span class="attr">#[cfg(feature = <span class="string">&quot;tempfile&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"tempfile"</span>)]
 </span><span class="kw">pub mod </span>tempfile;
 <span class="kw">pub mod </span>text;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;derive&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"derive"</span>)]
 </span><span class="kw">pub use </span>actix_multipart_derive::MultipartForm;
 
 <span class="kw">type </span>FieldErrorHandler&lt;T&gt; = <span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>Fn(T, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + Send + Sync&gt;&gt;;
@@ -764,12 +765,12 @@
 <span class="doccomment">/// Trait that data types to be used in a multipart form struct should implement.
 ///
 /// It represents an asynchronous handler that processes a multipart field to produce `Self`.
-</span><span class="kw">pub trait </span>FieldReader&lt;<span class="lifetime">&#39;t</span>&gt;: Sized + Any {
+</span><span class="kw">pub trait </span>FieldReader&lt;<span class="lifetime">'t</span>&gt;: Sized + Any {
     <span class="doccomment">/// Future that resolves to a `Self`.
     </span><span class="kw">type </span>Future: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MultipartError&gt;&gt;;
 
     <span class="doccomment">/// The form will call this function to handle the field.
-    </span><span class="kw">fn </span>read_field(req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span>HttpRequest, field: Field, limits: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>Limits) -&gt; <span class="self">Self</span>::Future;
+    </span><span class="kw">fn </span>read_field(req: <span class="kw-2">&amp;</span><span class="lifetime">'t </span>HttpRequest, field: Field, limits: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>Limits) -&gt; <span class="self">Self</span>::Future;
 }
 
 <span class="doccomment">/// Used to accumulate the state of the loaded fields.
@@ -779,33 +780,33 @@
 
 <span class="doccomment">/// Trait that the field collection types implement, i.e. `Vec&lt;T&gt;`, `Option&lt;T&gt;`, or `T` itself.
 </span><span class="attr">#[doc(hidden)]
-</span><span class="kw">pub trait </span>FieldGroupReader&lt;<span class="lifetime">&#39;t</span>&gt;: Sized + Any {
+</span><span class="kw">pub trait </span>FieldGroupReader&lt;<span class="lifetime">'t</span>&gt;: Sized + Any {
     <span class="kw">type </span>Future: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;(), MultipartError&gt;&gt;;
 
     <span class="doccomment">/// The form will call this function for each matching field.
     </span><span class="kw">fn </span>handle_field(
-        req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span>HttpRequest,
+        req: <span class="kw-2">&amp;</span><span class="lifetime">'t </span>HttpRequest,
         field: Field,
-        limits: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>Limits,
-        state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>State,
+        limits: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>Limits,
+        state: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>State,
         duplicate_field: DuplicateField,
     ) -&gt; <span class="self">Self</span>::Future;
 
     <span class="doccomment">/// Construct `Self` from the group of processed fields.
-    </span><span class="kw">fn </span>from_state(name: <span class="kw-2">&amp;</span>str, state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>State) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MultipartError&gt;;
+    </span><span class="kw">fn </span>from_state(name: <span class="kw-2">&amp;</span>str, state: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>State) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MultipartError&gt;;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;t</span>, T&gt; FieldGroupReader&lt;<span class="lifetime">&#39;t</span>&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'t</span>, T&gt; FieldGroupReader&lt;<span class="lifetime">'t</span>&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt;
 <span class="kw">where
-    </span>T: FieldReader&lt;<span class="lifetime">&#39;t</span>&gt;,
+    </span>T: FieldReader&lt;<span class="lifetime">'t</span>&gt;,
 {
-    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;t</span>, <span class="prelude-ty">Result</span>&lt;(), MultipartError&gt;&gt;;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">'t</span>, <span class="prelude-ty">Result</span>&lt;(), MultipartError&gt;&gt;;
 
     <span class="kw">fn </span>handle_field(
-        req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span>HttpRequest,
+        req: <span class="kw-2">&amp;</span><span class="lifetime">'t </span>HttpRequest,
         field: Field,
-        limits: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>Limits,
-        state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>State,
+        limits: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>Limits,
+        state: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>State,
         duplicate_field: DuplicateField,
     ) -&gt; <span class="self">Self</span>::Future {
         <span class="kw">if </span>state.contains_key(field.name()) {
@@ -830,22 +831,22 @@
         })
     }
 
-    <span class="kw">fn </span>from_state(name: <span class="kw-2">&amp;</span>str, state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>State) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MultipartError&gt; {
+    <span class="kw">fn </span>from_state(name: <span class="kw-2">&amp;</span>str, state: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>State) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MultipartError&gt; {
         <span class="prelude-val">Ok</span>(state.remove(name).map(|m| <span class="kw-2">*</span>m.downcast::&lt;T&gt;().unwrap()))
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;t</span>, T&gt; FieldGroupReader&lt;<span class="lifetime">&#39;t</span>&gt; <span class="kw">for </span>Vec&lt;T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'t</span>, T&gt; FieldGroupReader&lt;<span class="lifetime">'t</span>&gt; <span class="kw">for </span>Vec&lt;T&gt;
 <span class="kw">where
-    </span>T: FieldReader&lt;<span class="lifetime">&#39;t</span>&gt;,
+    </span>T: FieldReader&lt;<span class="lifetime">'t</span>&gt;,
 {
-    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;t</span>, <span class="prelude-ty">Result</span>&lt;(), MultipartError&gt;&gt;;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">'t</span>, <span class="prelude-ty">Result</span>&lt;(), MultipartError&gt;&gt;;
 
     <span class="kw">fn </span>handle_field(
-        req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span>HttpRequest,
+        req: <span class="kw-2">&amp;</span><span class="lifetime">'t </span>HttpRequest,
         field: Field,
-        limits: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>Limits,
-        state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>State,
+        limits: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>Limits,
+        state: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>State,
         _duplicate_field: DuplicateField,
     ) -&gt; <span class="self">Self</span>::Future {
         Box::pin(<span class="kw">async move </span>{
@@ -866,7 +867,7 @@
         })
     }
 
-    <span class="kw">fn </span>from_state(name: <span class="kw-2">&amp;</span>str, state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>State) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MultipartError&gt; {
+    <span class="kw">fn </span>from_state(name: <span class="kw-2">&amp;</span>str, state: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>State) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MultipartError&gt; {
         <span class="prelude-val">Ok</span>(state
             .remove(name)
             .map(|m| <span class="kw-2">*</span>m.downcast::&lt;Vec&lt;T&gt;&gt;().unwrap())
@@ -874,17 +875,17 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;t</span>, T&gt; FieldGroupReader&lt;<span class="lifetime">&#39;t</span>&gt; <span class="kw">for </span>T
+<span class="kw">impl</span>&lt;<span class="lifetime">'t</span>, T&gt; FieldGroupReader&lt;<span class="lifetime">'t</span>&gt; <span class="kw">for </span>T
 <span class="kw">where
-    </span>T: FieldReader&lt;<span class="lifetime">&#39;t</span>&gt;,
+    </span>T: FieldReader&lt;<span class="lifetime">'t</span>&gt;,
 {
-    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;t</span>, <span class="prelude-ty">Result</span>&lt;(), MultipartError&gt;&gt;;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">'t</span>, <span class="prelude-ty">Result</span>&lt;(), MultipartError&gt;&gt;;
 
     <span class="kw">fn </span>handle_field(
-        req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span>HttpRequest,
+        req: <span class="kw-2">&amp;</span><span class="lifetime">'t </span>HttpRequest,
         field: Field,
-        limits: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>Limits,
-        state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>State,
+        limits: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>Limits,
+        state: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>State,
         duplicate_field: DuplicateField,
     ) -&gt; <span class="self">Self</span>::Future {
         <span class="kw">if </span>state.contains_key(field.name()) {
@@ -909,7 +910,7 @@
         })
     }
 
-    <span class="kw">fn </span>from_state(name: <span class="kw-2">&amp;</span>str, state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>State) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MultipartError&gt; {
+    <span class="kw">fn </span>from_state(name: <span class="kw-2">&amp;</span>str, state: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>State) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MultipartError&gt; {
         state
             .remove(name)
             .map(|m| <span class="kw-2">*</span>m.downcast::&lt;T&gt;().unwrap())
@@ -927,12 +928,12 @@
 
     <span class="doccomment">/// The extractor will call this function for each incoming field, the state can be updated
     /// with the processed field data.
-    </span><span class="kw">fn </span>handle_field&lt;<span class="lifetime">&#39;t</span>&gt;(
-        req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span>HttpRequest,
+    </span><span class="kw">fn </span>handle_field&lt;<span class="lifetime">'t</span>&gt;(
+        req: <span class="kw-2">&amp;</span><span class="lifetime">'t </span>HttpRequest,
         field: Field,
-        limits: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>Limits,
-        state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>State,
-    ) -&gt; LocalBoxFuture&lt;<span class="lifetime">&#39;t</span>, <span class="prelude-ty">Result</span>&lt;(), MultipartError&gt;&gt;;
+        limits: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>Limits,
+        state: <span class="kw-2">&amp;</span><span class="lifetime">'t </span><span class="kw-2">mut </span>State,
+    ) -&gt; LocalBoxFuture&lt;<span class="lifetime">'t</span>, <span class="prelude-ty">Result</span>&lt;(), MultipartError&gt;&gt;;
 
     <span class="doccomment">/// Once all the fields have been processed and stored in the state, this is called
     /// to convert into the struct representation.
@@ -1025,7 +1026,7 @@
     </span>T: MultipartCollect,
 {
     <span class="kw">type </span>Error = Error;
-    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt;&gt;;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt;&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, payload: <span class="kw-2">&amp;mut </span>dev::Payload) -&gt; <span class="self">Self</span>::Future {
@@ -1099,7 +1100,7 @@
     <span class="doccomment">/// Sets custom error handler.
     </span><span class="kw">pub fn </span>error_handler&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(MultipartError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(MultipartError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + Send + Sync + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.err_handler = <span class="prelude-val">Some</span>(Arc::new(f));
         <span class="self">self
@@ -1139,8 +1140,8 @@
 
     <span class="kw">pub async fn </span>send_form(
         srv: <span class="kw-2">&amp;</span>TestServer,
-        form: multipart::Form&lt;<span class="lifetime">&#39;static</span>&gt;,
-        uri: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        form: multipart::Form&lt;<span class="lifetime">'static</span>&gt;,
+        uri: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     ) -&gt; ClientResponse&lt;Decoder&lt;Payload&gt;&gt; {
         Client::default()
             .post(srv.url(uri))
@@ -1165,12 +1166,12 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_options() {
-        <span class="kw">let </span>srv = actix_test::start(|| App::new().route(<span class="string">&quot;/&quot;</span>, web::post().to(test_options_route)));
+        <span class="kw">let </span>srv = actix_test::start(|| App::new().route(<span class="string">"/"</span>, web::post().to(test_options_route)));
 
         <span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field1&quot;</span>, <span class="string">&quot;value&quot;</span>);
+        form.add_text(<span class="string">"field1"</span>, <span class="string">"value"</span>);
 
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/&quot;</span>).<span class="kw">await</span>;
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
     }
 
@@ -1188,52 +1189,52 @@
             .into_iter()
             .map(|s| s.into_inner())
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        <span class="macro">assert_eq!</span>(strings, <span class="macro">vec!</span>[<span class="string">&quot;value1&quot;</span>, <span class="string">&quot;value2&quot;</span>, <span class="string">&quot;value3&quot;</span>]);
+        <span class="macro">assert_eq!</span>(strings, <span class="macro">vec!</span>[<span class="string">"value1"</span>, <span class="string">"value2"</span>, <span class="string">"value3"</span>]);
         <span class="macro">assert_eq!</span>(form.list2.len(), <span class="number">0</span>);
         HttpResponse::Ok().finish()
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_vec() {
-        <span class="kw">let </span>srv = actix_test::start(|| App::new().route(<span class="string">&quot;/&quot;</span>, web::post().to(test_vec_route)));
+        <span class="kw">let </span>srv = actix_test::start(|| App::new().route(<span class="string">"/"</span>, web::post().to(test_vec_route)));
 
         <span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;list1&quot;</span>, <span class="string">&quot;value1&quot;</span>);
-        form.add_text(<span class="string">&quot;list1&quot;</span>, <span class="string">&quot;value2&quot;</span>);
-        form.add_text(<span class="string">&quot;list1&quot;</span>, <span class="string">&quot;value3&quot;</span>);
+        form.add_text(<span class="string">"list1"</span>, <span class="string">"value1"</span>);
+        form.add_text(<span class="string">"list1"</span>, <span class="string">"value2"</span>);
+        form.add_text(<span class="string">"list1"</span>, <span class="string">"value3"</span>);
 
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/&quot;</span>).<span class="kw">await</span>;
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
     }
 
     <span class="doccomment">/// Test the `rename` field attribute.
     </span><span class="attr">#[derive(MultipartForm)]
     </span><span class="kw">struct </span>TestFieldRenaming {
-        <span class="attr">#[multipart(rename = <span class="string">&quot;renamed&quot;</span>)]
+        <span class="attr">#[multipart(rename = <span class="string">"renamed"</span>)]
         </span>field1: Text&lt;String&gt;,
-        <span class="attr">#[multipart(rename = <span class="string">&quot;field1&quot;</span>)]
+        <span class="attr">#[multipart(rename = <span class="string">"field1"</span>)]
         </span>field2: Text&lt;String&gt;,
         field3: Text&lt;String&gt;,
     }
 
     <span class="kw">async fn </span>test_field_renaming_route(form: MultipartForm&lt;TestFieldRenaming&gt;) -&gt; <span class="kw">impl </span>Responder {
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field1, <span class="string">&quot;renamed&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field2, <span class="string">&quot;field1&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field3, <span class="string">&quot;field3&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field1, <span class="string">"renamed"</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field2, <span class="string">"field1"</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field3, <span class="string">"field3"</span>);
         HttpResponse::Ok().finish()
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_field_renaming() {
         <span class="kw">let </span>srv =
-            actix_test::start(|| App::new().route(<span class="string">&quot;/&quot;</span>, web::post().to(test_field_renaming_route)));
+            actix_test::start(|| App::new().route(<span class="string">"/"</span>, web::post().to(test_field_renaming_route)));
 
         <span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;renamed&quot;</span>, <span class="string">&quot;renamed&quot;</span>);
-        form.add_text(<span class="string">&quot;field1&quot;</span>, <span class="string">&quot;field1&quot;</span>);
-        form.add_text(<span class="string">&quot;field3&quot;</span>, <span class="string">&quot;field3&quot;</span>);
+        form.add_text(<span class="string">"renamed"</span>, <span class="string">"renamed"</span>);
+        form.add_text(<span class="string">"field1"</span>, <span class="string">"field1"</span>);
+        form.add_text(<span class="string">"field3"</span>, <span class="string">"field3"</span>);
 
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/&quot;</span>).<span class="kw">await</span>;
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
     }
 
@@ -1257,36 +1258,36 @@
     </span><span class="kw">async fn </span>test_deny_unknown() {
         <span class="kw">let </span>srv = actix_test::start(|| {
             App::new()
-                .route(<span class="string">&quot;/deny&quot;</span>, web::post().to(test_deny_unknown_route))
-                .route(<span class="string">&quot;/allow&quot;</span>, web::post().to(test_allow_unknown_route))
+                .route(<span class="string">"/deny"</span>, web::post().to(test_deny_unknown_route))
+                .route(<span class="string">"/allow"</span>, web::post().to(test_allow_unknown_route))
         });
 
         <span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;unknown&quot;</span>, <span class="string">&quot;value&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/deny&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"unknown"</span>, <span class="string">"value"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/deny"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::BAD_REQUEST);
 
         <span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;unknown&quot;</span>, <span class="string">&quot;value&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/allow&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"unknown"</span>, <span class="string">"value"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/allow"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
     }
 
     <span class="doccomment">/// Test the `duplicate_field` struct attribute.
     </span><span class="attr">#[derive(MultipartForm)]
-    #[multipart(duplicate_field = <span class="string">&quot;deny&quot;</span>)]
+    #[multipart(duplicate_field = <span class="string">"deny"</span>)]
     </span><span class="kw">struct </span>TestDuplicateDeny {
         _field: Text&lt;String&gt;,
     }
 
     <span class="attr">#[derive(MultipartForm)]
-    #[multipart(duplicate_field = <span class="string">&quot;replace&quot;</span>)]
+    #[multipart(duplicate_field = <span class="string">"replace"</span>)]
     </span><span class="kw">struct </span>TestDuplicateReplace {
         field: Text&lt;String&gt;,
     }
 
     <span class="attr">#[derive(MultipartForm)]
-    #[multipart(duplicate_field = <span class="string">&quot;ignore&quot;</span>)]
+    #[multipart(duplicate_field = <span class="string">"ignore"</span>)]
     </span><span class="kw">struct </span>TestDuplicateIgnore {
         field: Text&lt;String&gt;,
     }
@@ -1298,14 +1299,14 @@
     <span class="kw">async fn </span>test_duplicate_replace_route(
         form: MultipartForm&lt;TestDuplicateReplace&gt;,
     ) -&gt; <span class="kw">impl </span>Responder {
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field, <span class="string">&quot;second_value&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field, <span class="string">"second_value"</span>);
         HttpResponse::Ok().finish()
     }
 
     <span class="kw">async fn </span>test_duplicate_ignore_route(
         form: MultipartForm&lt;TestDuplicateIgnore&gt;,
     ) -&gt; <span class="kw">impl </span>Responder {
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field, <span class="string">&quot;first_value&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>form.field, <span class="string">"first_value"</span>);
         HttpResponse::Ok().finish()
     }
 
@@ -1313,27 +1314,27 @@
     </span><span class="kw">async fn </span>test_duplicate_field() {
         <span class="kw">let </span>srv = actix_test::start(|| {
             App::new()
-                .route(<span class="string">&quot;/deny&quot;</span>, web::post().to(test_duplicate_deny_route))
-                .route(<span class="string">&quot;/replace&quot;</span>, web::post().to(test_duplicate_replace_route))
-                .route(<span class="string">&quot;/ignore&quot;</span>, web::post().to(test_duplicate_ignore_route))
+                .route(<span class="string">"/deny"</span>, web::post().to(test_duplicate_deny_route))
+                .route(<span class="string">"/replace"</span>, web::post().to(test_duplicate_replace_route))
+                .route(<span class="string">"/ignore"</span>, web::post().to(test_duplicate_ignore_route))
         });
 
         <span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;_field&quot;</span>, <span class="string">&quot;first_value&quot;</span>);
-        form.add_text(<span class="string">&quot;_field&quot;</span>, <span class="string">&quot;second_value&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/deny&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"_field"</span>, <span class="string">"first_value"</span>);
+        form.add_text(<span class="string">"_field"</span>, <span class="string">"second_value"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/deny"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::BAD_REQUEST);
 
         <span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;first_value&quot;</span>);
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;second_value&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/replace&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"first_value"</span>);
+        form.add_text(<span class="string">"field"</span>, <span class="string">"second_value"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/replace"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
 
         <span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;first_value&quot;</span>);
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;second_value&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/ignore&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"first_value"</span>);
+        form.add_text(<span class="string">"field"</span>, <span class="string">"second_value"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/ignore"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
     }
 
@@ -1364,8 +1365,8 @@
     </span><span class="kw">async fn </span>test_memory_limits() {
         <span class="kw">let </span>srv = actix_test::start(|| {
             App::new()
-                .route(<span class="string">&quot;/text&quot;</span>, web::post().to(test_upload_limits_memory))
-                .route(<span class="string">&quot;/file&quot;</span>, web::post().to(test_upload_limits_file))
+                .route(<span class="string">"/text"</span>, web::post().to(test_upload_limits_memory))
+                .route(<span class="string">"/file"</span>, web::post().to(test_upload_limits_file))
                 .app_data(
                     MultipartFormConfig::default()
                         .memory_limit(<span class="number">20</span>)
@@ -1375,14 +1376,14 @@
 
         <span class="comment">// Exceeds the 20 byte memory limit
         </span><span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;this string is 28 bytes long&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/text&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"this string is 28 bytes long"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/text"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::BAD_REQUEST);
 
         <span class="comment">// Memory limit should not apply when the data is being streamed to disk
         </span><span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;this string is 28 bytes long&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/file&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"this string is 28 bytes long"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/file"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
     }
 
@@ -1390,8 +1391,8 @@
     </span><span class="kw">async fn </span>test_total_limit() {
         <span class="kw">let </span>srv = actix_test::start(|| {
             App::new()
-                .route(<span class="string">&quot;/text&quot;</span>, web::post().to(test_upload_limits_memory))
-                .route(<span class="string">&quot;/file&quot;</span>, web::post().to(test_upload_limits_file))
+                .route(<span class="string">"/text"</span>, web::post().to(test_upload_limits_memory))
+                .route(<span class="string">"/file"</span>, web::post().to(test_upload_limits_file))
                 .app_data(
                     MultipartFormConfig::default()
                         .memory_limit(usize::MAX)
@@ -1401,26 +1402,26 @@
 
         <span class="comment">// Within the 20 byte limit
         </span><span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;7 bytes&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/text&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"7 bytes"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/text"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
 
         <span class="comment">// Exceeds the 20 byte overall limit
         </span><span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;this string is 28 bytes long&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/text&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"this string is 28 bytes long"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/text"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::BAD_REQUEST);
 
         <span class="comment">// Exceeds the 20 byte overall limit
         </span><span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;this string is 28 bytes long&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/file&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"this string is 28 bytes long"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/file"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::BAD_REQUEST);
     }
 
     <span class="attr">#[derive(MultipartForm)]
     </span><span class="kw">struct </span>TestFieldLevelLimits {
-        <span class="attr">#[multipart(limit = <span class="string">&quot;30B&quot;</span>)]
+        <span class="attr">#[multipart(limit = <span class="string">"30B"</span>)]
         </span>field: Vec&lt;Bytes&gt;,
     }
 
@@ -1435,7 +1436,7 @@
     </span><span class="kw">async fn </span>test_field_level_limits() {
         <span class="kw">let </span>srv = actix_test::start(|| {
             App::new()
-                .route(<span class="string">&quot;/&quot;</span>, web::post().to(test_field_level_limits_route))
+                .route(<span class="string">"/"</span>, web::post().to(test_field_level_limits_route))
                 .app_data(
                     MultipartFormConfig::default()
                         .memory_limit(usize::MAX)
@@ -1445,28 +1446,28 @@
 
         <span class="comment">// Within the 30 byte limit
         </span><span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;this string is 28 bytes long&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"this string is 28 bytes long"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
 
         <span class="comment">// Exceeds the the 30 byte limit
         </span><span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;this string is more than 30 bytes long&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"this string is more than 30 bytes long"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::BAD_REQUEST);
 
-        <span class="comment">// Total of values (14 bytes) is within 30 byte limit for &quot;field&quot;
+        <span class="comment">// Total of values (14 bytes) is within 30 byte limit for "field"
         </span><span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;7 bytes&quot;</span>);
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;7 bytes&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"7 bytes"</span>);
+        form.add_text(<span class="string">"field"</span>, <span class="string">"7 bytes"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
 
-        <span class="comment">// Total of values exceeds 30 byte limit for &quot;field&quot;
+        <span class="comment">// Total of values exceeds 30 byte limit for "field"
         </span><span class="kw">let </span><span class="kw-2">mut </span>form = multipart::Form::default();
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;this string is 28 bytes long&quot;</span>);
-        form.add_text(<span class="string">&quot;field&quot;</span>, <span class="string">&quot;this string is 28 bytes long&quot;</span>);
-        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">&quot;/&quot;</span>).<span class="kw">await</span>;
+        form.add_text(<span class="string">"field"</span>, <span class="string">"this string is 28 bytes long"</span>);
+        form.add_text(<span class="string">"field"</span>, <span class="string">"this string is 28 bytes long"</span>);
+        <span class="kw">let </span>response = send_form(<span class="kw-2">&amp;</span>srv, form, <span class="string">"/"</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::BAD_REQUEST);
     }
 }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/status.rs`."><title>status.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/status.rs`."><title>status.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -473,25 +474,25 @@
 ///
 /// Each instance appears as if it were a collection, having a length and
 /// allowing indexing, as well as providing an iterator.
-</span><span class="kw">pub struct </span>Statuses&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>Statuses&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_status_list,
 
-    <span class="comment">// Hm, not currently present, but can&#39;t hurt?
-    </span>_marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;repo </span>Repository&gt;,
+    <span class="comment">// Hm, not currently present, but can't hurt?
+    </span>_marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'repo </span>Repository&gt;,
 }
 
 <span class="doccomment">/// An iterator over the statuses in a `Statuses` instance.
-</span><span class="kw">pub struct </span>StatusIter&lt;<span class="lifetime">&#39;statuses</span>&gt; {
-    statuses: <span class="kw-2">&amp;</span><span class="lifetime">&#39;statuses </span>Statuses&lt;<span class="lifetime">&#39;statuses</span>&gt;,
+</span><span class="kw">pub struct </span>StatusIter&lt;<span class="lifetime">'statuses</span>&gt; {
+    statuses: <span class="kw-2">&amp;</span><span class="lifetime">'statuses </span>Statuses&lt;<span class="lifetime">'statuses</span>&gt;,
     range: Range&lt;usize&gt;,
 }
 
 <span class="doccomment">/// A structure representing an entry in the `Statuses` structure.
 ///
 /// Instances are created through the `.iter()` method or the `.get()` method.
-</span><span class="kw">pub struct </span>StatusEntry&lt;<span class="lifetime">&#39;statuses</span>&gt; {
+</span><span class="kw">pub struct </span>StatusEntry&lt;<span class="lifetime">'statuses</span>&gt; {
     raw: <span class="kw-2">*const </span>raw::git_status_entry,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;statuses </span>DiffDelta&lt;<span class="lifetime">&#39;statuses</span>&gt;&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'statuses </span>DiffDelta&lt;<span class="lifetime">'statuses</span>&gt;&gt;,
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>StatusOptions {
@@ -552,7 +553,7 @@
     <span class="doccomment">/// Flag whether untracked files will be included.
     ///
     /// Untracked files will only be included if the workdir files are included
-    /// in the status &quot;show&quot; option.
+    /// in the status "show" option.
     </span><span class="kw">pub fn </span>include_untracked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, include: bool) -&gt; <span class="kw-2">&amp;mut </span>StatusOptions {
         <span class="self">self</span>.flag(raw::GIT_STATUS_OPT_INCLUDE_UNTRACKED, include)
     }
@@ -560,7 +561,7 @@
     <span class="doccomment">/// Flag whether ignored files will be included.
     ///
     /// The files will only be included if the workdir files are included
-    /// in the status &quot;show&quot; option.
+    /// in the status "show" option.
     </span><span class="kw">pub fn </span>include_ignored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, include: bool) -&gt; <span class="kw-2">&amp;mut </span>StatusOptions {
         <span class="self">self</span>.flag(raw::GIT_STATUS_OPT_INCLUDE_IGNORED, include)
     }
@@ -626,7 +627,7 @@
         <span class="self">self</span>.flag(raw::GIT_STATUS_OPT_RENAMES_FROM_REWRITES, include)
     }
 
-    <span class="doccomment">/// Bypasses the default status behavior of doing a &quot;soft&quot; index reload.
+    <span class="doccomment">/// Bypasses the default status behavior of doing a "soft" index reload.
     </span><span class="kw">pub fn </span>no_refresh(<span class="kw-2">&amp;mut </span><span class="self">self</span>, include: bool) -&gt; <span class="kw-2">&amp;mut </span>StatusOptions {
         <span class="self">self</span>.flag(raw::GIT_STATUS_OPT_NO_REFRESH, include)
     }
@@ -671,11 +672,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Statuses&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Statuses&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="doccomment">/// Gets a status entry from this list at the specified index.
     ///
     /// Returns `None` if the index is out of bounds.
-    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;StatusEntry&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;StatusEntry&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>p = raw::git_status_byindex(<span class="self">self</span>.raw, index <span class="kw">as </span>size_t);
             Binding::from_raw_opt(p)
@@ -696,7 +697,7 @@
     </span>}
 
     <span class="doccomment">/// Returns an iterator over the statuses in this list.
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusIter&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusIter&lt;<span class="lifetime">'_</span>&gt; {
         StatusIter {
             statuses: <span class="self">self</span>,
             range: <span class="number">0</span>..<span class="self">self</span>.len(),
@@ -704,9 +705,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Statuses&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>Statuses&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_status_list;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_status_list) -&gt; Statuses&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_status_list) -&gt; Statuses&lt;<span class="lifetime">'repo</span>&gt; {
         Statuses {
             raw,
             _marker: marker::PhantomData,
@@ -717,7 +718,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Statuses&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>Statuses&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             raw::git_status_list_free(<span class="self">self</span>.raw);
@@ -725,33 +726,33 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>StatusIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = StatusEntry&lt;<span class="lifetime">&#39;a</span>&gt;;
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;StatusEntry&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>StatusIter&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = StatusEntry&lt;<span class="lifetime">'a</span>&gt;;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;StatusEntry&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="self">self</span>.range.next().and_then(|i| <span class="self">self</span>.statuses.get(i))
     }
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
         <span class="self">self</span>.range.size_hint()
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DoubleEndedIterator <span class="kw">for </span>StatusIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;StatusEntry&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DoubleEndedIterator <span class="kw">for </span>StatusIter&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;StatusEntry&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="self">self</span>.range.next_back().and_then(|i| <span class="self">self</span>.statuses.get(i))
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; FusedIterator <span class="kw">for </span>StatusIter&lt;<span class="lifetime">&#39;a</span>&gt; {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ExactSizeIterator <span class="kw">for </span>StatusIter&lt;<span class="lifetime">&#39;a</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FusedIterator <span class="kw">for </span>StatusIter&lt;<span class="lifetime">'a</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ExactSizeIterator <span class="kw">for </span>StatusIter&lt;<span class="lifetime">'a</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Statuses&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = StatusEntry&lt;<span class="lifetime">&#39;a</span>&gt;;
-    <span class="kw">type </span>IntoIter = StatusIter&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>Statuses&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = StatusEntry&lt;<span class="lifetime">'a</span>&gt;;
+    <span class="kw">type </span>IntoIter = StatusIter&lt;<span class="lifetime">'a</span>&gt;;
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
         <span class="self">self</span>.iter()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;statuses</span>&gt; StatusEntry&lt;<span class="lifetime">&#39;statuses</span>&gt; {
-    <span class="doccomment">/// Access the bytes for this entry&#39;s corresponding pathname
+<span class="kw">impl</span>&lt;<span class="lifetime">'statuses</span>&gt; StatusEntry&lt;<span class="lifetime">'statuses</span>&gt; {
+    <span class="doccomment">/// Access the bytes for this entry's corresponding pathname
     </span><span class="kw">pub fn </span>path_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="kw">unsafe </span>{
             <span class="kw">if </span>(<span class="kw-2">*</span><span class="self">self</span>.raw).head_to_index.is_null() {
@@ -763,7 +764,7 @@
         }
     }
 
-    <span class="doccomment">/// Access this entry&#39;s path name as a string.
+    <span class="doccomment">/// Access this entry's path name as a string.
     ///
     /// Returns `None` if the path is not valid utf-8.
     </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
@@ -777,21 +778,21 @@
 
     <span class="doccomment">/// Access detailed information about the differences between the file in
     /// HEAD and the file in the index.
-    </span><span class="kw">pub fn </span>head_to_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;statuses</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>head_to_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'statuses</span>&gt;&gt; {
         <span class="kw">unsafe </span>{ Binding::from_raw_opt((<span class="kw-2">*</span><span class="self">self</span>.raw).head_to_index) }
     }
 
     <span class="doccomment">/// Access detailed information about the differences between the file in
     /// the index and the file in the working directory.
-    </span><span class="kw">pub fn </span>index_to_workdir(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;statuses</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>index_to_workdir(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'statuses</span>&gt;&gt; {
         <span class="kw">unsafe </span>{ Binding::from_raw_opt((<span class="kw-2">*</span><span class="self">self</span>.raw).index_to_workdir) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;statuses</span>&gt; Binding <span class="kw">for </span>StatusEntry&lt;<span class="lifetime">&#39;statuses</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'statuses</span>&gt; Binding <span class="kw">for </span>StatusEntry&lt;<span class="lifetime">'statuses</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*const </span>raw::git_status_entry;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_status_entry) -&gt; StatusEntry&lt;<span class="lifetime">&#39;statuses</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_status_entry) -&gt; StatusEntry&lt;<span class="lifetime">'statuses</span>&gt; {
         StatusEntry {
             raw,
             _marker: marker::PhantomData,
@@ -813,57 +814,57 @@
     </span><span class="kw">fn </span>smoke() {
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
         <span class="macro">assert_eq!</span>(repo.statuses(<span class="prelude-val">None</span>).unwrap().len(), <span class="number">0</span>);
-        File::create(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;foo&quot;</span>)).unwrap();
+        File::create(<span class="kw-2">&amp;</span>td.path().join(<span class="string">"foo"</span>)).unwrap();
         <span class="kw">let </span>statuses = repo.statuses(<span class="prelude-val">None</span>).unwrap();
         <span class="macro">assert_eq!</span>(statuses.iter().count(), <span class="number">1</span>);
         <span class="kw">let </span>status = statuses.iter().next().unwrap();
-        <span class="macro">assert_eq!</span>(status.path(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
+        <span class="macro">assert_eq!</span>(status.path(), <span class="prelude-val">Some</span>(<span class="string">"foo"</span>));
         <span class="macro">assert!</span>(status.status().contains(<span class="kw">crate</span>::Status::WT_NEW));
         <span class="macro">assert!</span>(!status.status().contains(<span class="kw">crate</span>::Status::INDEX_NEW));
         <span class="macro">assert!</span>(status.head_to_index().is_none());
         <span class="kw">let </span>diff = status.index_to_workdir().unwrap();
-        <span class="macro">assert_eq!</span>(diff.old_file().path_bytes().unwrap(), <span class="string">b&quot;foo&quot;</span>);
-        <span class="macro">assert_eq!</span>(diff.new_file().path_bytes().unwrap(), <span class="string">b&quot;foo&quot;</span>);
+        <span class="macro">assert_eq!</span>(diff.old_file().path_bytes().unwrap(), <span class="string">b"foo"</span>);
+        <span class="macro">assert_eq!</span>(diff.new_file().path_bytes().unwrap(), <span class="string">b"foo"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>filter() {
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;foo&quot;</span>)));
-        <span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;bar&quot;</span>)));
+        <span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(<span class="string">"foo"</span>)));
+        <span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(<span class="string">"bar"</span>)));
         <span class="kw">let </span><span class="kw-2">mut </span>opts = StatusOptions::new();
-        opts.include_untracked(<span class="bool-val">true</span>).pathspec(<span class="string">&quot;foo&quot;</span>);
+        opts.include_untracked(<span class="bool-val">true</span>).pathspec(<span class="string">"foo"</span>);
 
         <span class="kw">let </span>statuses = <span class="macro">t!</span>(repo.statuses(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>opts)));
         <span class="macro">assert_eq!</span>(statuses.iter().count(), <span class="number">1</span>);
         <span class="kw">let </span>status = statuses.iter().next().unwrap();
-        <span class="macro">assert_eq!</span>(status.path(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
+        <span class="macro">assert_eq!</span>(status.path(), <span class="prelude-val">Some</span>(<span class="string">"foo"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>gitignore() {
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(td.path().join(<span class="string">&quot;.gitignore&quot;</span>))).write_all(<span class="string">b&quot;foo\n&quot;</span>));
-        <span class="macro">assert!</span>(!<span class="macro">t!</span>(repo.status_should_ignore(Path::new(<span class="string">&quot;bar&quot;</span>))));
-        <span class="macro">assert!</span>(<span class="macro">t!</span>(repo.status_should_ignore(Path::new(<span class="string">&quot;foo&quot;</span>))));
+        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(td.path().join(<span class="string">".gitignore"</span>))).write_all(<span class="string">b"foo\n"</span>));
+        <span class="macro">assert!</span>(!<span class="macro">t!</span>(repo.status_should_ignore(Path::new(<span class="string">"bar"</span>))));
+        <span class="macro">assert!</span>(<span class="macro">t!</span>(repo.status_should_ignore(Path::new(<span class="string">"foo"</span>))));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>status_file() {
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="macro">assert!</span>(repo.status_file(Path::new(<span class="string">&quot;foo&quot;</span>)).is_err());
+        <span class="macro">assert!</span>(repo.status_file(Path::new(<span class="string">"foo"</span>)).is_err());
         <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
-            <span class="macro">assert!</span>(repo.status_file(Path::new(<span class="string">&quot;bar\\foo.txt&quot;</span>)).is_err());
+            <span class="macro">assert!</span>(repo.status_file(Path::new(<span class="string">"bar\\foo.txt"</span>)).is_err());
         }
-        <span class="macro">t!</span>(File::create(td.path().join(<span class="string">&quot;foo&quot;</span>)));
+        <span class="macro">t!</span>(File::create(td.path().join(<span class="string">"foo"</span>)));
         <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
-            <span class="macro">t!</span>(::std::fs::create_dir_all(td.path().join(<span class="string">&quot;bar&quot;</span>)));
-            <span class="macro">t!</span>(File::create(td.path().join(<span class="string">&quot;bar&quot;</span>).join(<span class="string">&quot;foo.txt&quot;</span>)));
+            <span class="macro">t!</span>(::std::fs::create_dir_all(td.path().join(<span class="string">"bar"</span>)));
+            <span class="macro">t!</span>(File::create(td.path().join(<span class="string">"bar"</span>).join(<span class="string">"foo.txt"</span>)));
         }
-        <span class="kw">let </span>status = <span class="macro">t!</span>(repo.status_file(Path::new(<span class="string">&quot;foo&quot;</span>)));
+        <span class="kw">let </span>status = <span class="macro">t!</span>(repo.status_file(Path::new(<span class="string">"foo"</span>)));
         <span class="macro">assert!</span>(status.contains(<span class="kw">crate</span>::Status::WT_NEW));
         <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
-            <span class="kw">let </span>status = <span class="macro">t!</span>(repo.status_file(Path::new(<span class="string">&quot;bar\\foo.txt&quot;</span>)));
+            <span class="kw">let </span>status = <span class="macro">t!</span>(repo.status_file(Path::new(<span class="string">"bar\\foo.txt"</span>)));
             <span class="macro">assert!</span>(status.contains(<span class="kw">crate</span>::Status::WT_NEW));
         }
     }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zstd-safe-7.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zstd_safe" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zstd-safe-7.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zstd_safe" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2255,11 +2256,11 @@
 //!
 //! Features denoted as experimental in the C library are hidden behind an
 //! `experimental` feature.
-</span><span class="attr">#![cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, feature(doc_cfg))]
+</span><span class="attr">#![cfg_attr(feature = <span class="string">"doc-cfg"</span>, feature(doc_cfg))]
 
 </span><span class="comment">// TODO: Use alloc feature instead to implement stuff for Vec
 // TODO: What about Cursor?
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">extern crate </span>std;
 
 <span class="attr">#[cfg(test)]
@@ -2281,10 +2282,10 @@
 <span class="kw">use </span>core::ptr::NonNull;
 <span class="kw">use </span>core::str;
 
-<span class="macro">include!</span>(<span class="string">&quot;constants.rs&quot;</span>);
+<span class="macro">include!</span>(<span class="string">"constants.rs"</span>);
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-</span><span class="macro">include!</span>(<span class="string">&quot;constants_experimental.rs&quot;</span>);
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+</span><span class="macro">include!</span>(<span class="string">"constants_experimental.rs"</span>);
 
 <span class="doccomment">/// Represents the compression level used by zstd.
 </span><span class="kw">pub type </span>CompressionLevel = i32;
@@ -2304,8 +2305,8 @@
 </span><span class="kw">pub struct </span>ContentSizeError;
 
 <span class="kw">impl </span>core::fmt::Display <span class="kw">for </span>ContentSizeError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        f.write_str(<span class="string">&quot;Could not get content size&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.write_str(<span class="string">"Could not get content size"</span>)
     }
 }
 
@@ -2359,8 +2360,8 @@
 
 <span class="doccomment">/// Returns a string representation of the ZSTD version.
 ///
-/// For example &quot;1.5.3&quot;.
-</span><span class="kw">pub fn </span>version_string() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+/// For example "1.5.3".
+</span><span class="kw">pub fn </span>version_string() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
     <span class="comment">// Safety: Assumes `ZSTD_versionString` returns a valid utf8 string.
     </span><span class="kw">unsafe </span>{ c_char_to_str(zstd_sys::ZSTD_versionString()) }
 }
@@ -2384,7 +2385,7 @@
 /// This will try to compress `src` entirely and write the result to `dst`, returning the number of
 /// bytes written. If `dst` is too small to hold the compressed content, an error will be returned.
 ///
-/// For streaming operations that don&#39;t require to store the entire input/ouput in memory, see
+/// For streaming operations that don't require to store the entire input/ouput in memory, see
 /// `compress_stream`.
 </span><span class="kw">pub fn </span>compress&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
     dst: <span class="kw-2">&amp;mut </span>C,
@@ -2433,7 +2434,7 @@
 <span class="doccomment">/// Wraps the `ZSTD_getDecompressedSize` function.
 ///
 /// Returns `None` if the size could not be found, or if the content is actually empty.
-</span><span class="attr">#[deprecated(note = <span class="string">&quot;Use ZSTD_getFrameContentSize instead&quot;</span>)]
+</span><span class="attr">#[deprecated(note = <span class="string">"Use ZSTD_getFrameContentSize instead"</span>)]
 </span><span class="kw">pub fn </span>get_decompressed_size(src: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroU64&gt; {
     <span class="comment">// Safety: Just FFI
     </span>NonZeroU64::new(<span class="kw">unsafe </span>{
@@ -2451,15 +2452,15 @@
 ///
 /// It is recommended to allocate a single context per thread and re-use it
 /// for many compression operations.
-</span><span class="kw">pub struct </span>CCtx&lt;<span class="lifetime">&#39;a</span>&gt;(NonNull&lt;zstd_sys::ZSTD_CCtx&gt;, PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;);
+</span><span class="kw">pub struct </span>CCtx&lt;<span class="lifetime">'a</span>&gt;(NonNull&lt;zstd_sys::ZSTD_CCtx&gt;, PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;);
 
-<span class="kw">impl </span>Default <span class="kw">for </span>CCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Default <span class="kw">for </span>CCtx&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         CCtx::create()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CCtx&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Tries to create a new context.
     ///
     /// Returns `None` if zstd returns a NULL pointer - may happen if allocation fails.
@@ -2478,7 +2479,7 @@
     /// If zstd returns a NULL pointer.
     </span><span class="kw">pub fn </span>create() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::try_create()
-            .expect(<span class="string">&quot;zstd returned null pointer when creating new context&quot;</span>)
+            .expect(<span class="string">"zstd returned null pointer when creating new context"</span>)
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_compressCCtx()` function
@@ -2553,7 +2554,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         dst: <span class="kw-2">&amp;mut </span>C,
         src: <span class="kw-2">&amp;</span>[u8],
-        cdict: <span class="kw-2">&amp;</span>CDict&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cdict: <span class="kw-2">&amp;</span>CDict&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; SafeResult {
         <span class="comment">// Safety: ZSTD_compress_usingCDict returns how many bytes were written.
         </span><span class="kw">unsafe </span>{
@@ -2584,8 +2585,8 @@
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_initCStream_srcSize()` function.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     #[deprecated]
     </span><span class="kw">pub fn </span>init_src_size(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -2604,8 +2605,8 @@
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_initCStream_usingDict()` function.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     #[deprecated]
     </span><span class="kw">pub fn </span>init_using_dict(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -2625,12 +2626,12 @@
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_initCStream_usingCDict()` function.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     #[deprecated]
-    </span><span class="kw">pub fn </span>init_using_cdict&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cdict: <span class="kw-2">&amp;</span>CDict&lt;<span class="lifetime">&#39;b</span>&gt;) -&gt; SafeResult
+    </span><span class="kw">pub fn </span>init_using_cdict&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cdict: <span class="kw-2">&amp;</span>CDict&lt;<span class="lifetime">'b</span>&gt;) -&gt; SafeResult
     <span class="kw">where
-        </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>, <span class="comment">// Dictionary outlives the stream.
+        </span><span class="lifetime">'b</span>: <span class="lifetime">'a</span>, <span class="comment">// Dictionary outlives the stream.
     </span>{
         <span class="comment">// Safety: Just FFI
         </span><span class="kw">let </span>code = <span class="kw">unsafe </span>{
@@ -2665,9 +2666,9 @@
     <span class="doccomment">/// Wraps the `ZSTD_CCtx_refCDict()` function.
     ///
     /// Dictionary must outlive the context.
-    </span><span class="kw">pub fn </span>ref_cdict&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cdict: <span class="kw-2">&amp;</span>CDict&lt;<span class="lifetime">&#39;b</span>&gt;) -&gt; SafeResult
+    </span><span class="kw">pub fn </span>ref_cdict&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cdict: <span class="kw-2">&amp;</span>CDict&lt;<span class="lifetime">'b</span>&gt;) -&gt; SafeResult
     <span class="kw">where
-        </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
+        </span><span class="lifetime">'b</span>: <span class="lifetime">'a</span>,
     {
         <span class="comment">// Safety: Just FFI
         </span>parse_code(<span class="kw">unsafe </span>{
@@ -2675,7 +2676,7 @@
         })
     }
 
-    <span class="doccomment">/// Return to &quot;no-dictionary&quot; mode.
+    <span class="doccomment">/// Return to "no-dictionary" mode.
     ///
     /// This will disable any dictionary/prefix previously registered for future frames.
     </span><span class="kw">pub fn </span>disable_dictionary(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; SafeResult {
@@ -2693,10 +2694,10 @@
     ///
     /// Just like a dictionary, decompression will need to be given the same prefix.
     ///
-    /// This is best used if the &quot;prefix&quot; looks like the data to be compressed.
-    </span><span class="kw">pub fn </span>ref_prefix&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prefix: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>[u8]) -&gt; SafeResult
+    /// This is best used if the "prefix" looks like the data to be compressed.
+    </span><span class="kw">pub fn </span>ref_prefix&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prefix: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8]) -&gt; SafeResult
     <span class="kw">where
-        </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
+        </span><span class="lifetime">'b</span>: <span class="lifetime">'a</span>,
     {
         <span class="comment">// Safety: Just FFI
         </span>parse_code(<span class="kw">unsafe </span>{
@@ -2714,15 +2715,15 @@
     ///
     /// # Returns
     ///
-    /// A hint for the &quot;ideal&quot; amount of input data to provide in the next call.
+    /// A hint for the "ideal" amount of input data to provide in the next call.
     ///
     /// This hint is only for performance purposes.
     ///
     /// Wraps the `ZSTD_compressStream()` function.
     </span><span class="kw">pub fn </span>compress_stream&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">&#39;_</span>, C&gt;,
-        input: <span class="kw-2">&amp;mut </span>InBuffer&lt;<span class="lifetime">&#39;_</span>&gt;,
+        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">'_</span>, C&gt;,
+        input: <span class="kw-2">&amp;mut </span>InBuffer&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; SafeResult {
         <span class="kw">let </span><span class="kw-2">mut </span>output = output.wrap();
         <span class="kw">let </span><span class="kw-2">mut </span>input = input.wrap();
@@ -2754,8 +2755,8 @@
     /// Wraps the `ZSTD_compressStream2()` function.
     </span><span class="kw">pub fn </span>compress_stream2&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">&#39;_</span>, C&gt;,
-        input: <span class="kw-2">&amp;mut </span>InBuffer&lt;<span class="lifetime">&#39;_</span>&gt;,
+        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">'_</span>, C&gt;,
+        input: <span class="kw-2">&amp;mut </span>InBuffer&lt;<span class="lifetime">'_</span>&gt;,
         end_op: zstd_sys::ZSTD_EndDirective,
     ) -&gt; SafeResult {
         <span class="kw">let </span><span class="kw-2">mut </span>output = output.wrap();
@@ -2778,7 +2779,7 @@
     /// Wraps the `ZSTD_flushStream()` function.
     </span><span class="kw">pub fn </span>flush_stream&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">&#39;_</span>, C&gt;,
+        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">'_</span>, C&gt;,
     ) -&gt; SafeResult {
         <span class="kw">let </span><span class="kw-2">mut </span>output = output.wrap();
         <span class="comment">// Safety: Just FFI
@@ -2795,7 +2796,7 @@
     /// Wraps the `ZSTD_endStream()` function.
     </span><span class="kw">pub fn </span>end_stream&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">&#39;_</span>, C&gt;,
+        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">'_</span>, C&gt;,
     ) -&gt; SafeResult {
         <span class="kw">let </span><span class="kw-2">mut </span>output = output.wrap();
         <span class="comment">// Safety: Just FFI
@@ -2829,9 +2830,9 @@
     ///
     /// Some of these parameters need to be set during de-compression as well.
     </span><span class="kw">pub fn </span>set_parameter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, param: CParameter) -&gt; SafeResult {
-        <span class="comment">// TODO: Until bindgen properly generates a binding for this, we&#39;ll need to do it here.
+        <span class="comment">// TODO: Until bindgen properly generates a binding for this, we'll need to do it here.
 
-        </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
         </span><span class="kw">use </span>zstd_sys::ZSTD_cParameter::{
             ZSTD_c_experimentalParam1 <span class="kw">as </span>ZSTD_c_rsyncable,
             ZSTD_c_experimentalParam10 <span class="kw">as </span>ZSTD_c_stableOutBuffer,
@@ -2858,63 +2859,63 @@
         <span class="kw">use </span>CParameter::<span class="kw-2">*</span>;
 
         <span class="kw">let </span>(param, value) = <span class="kw">match </span>param {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>RSyncable(rsyncable) =&gt; (ZSTD_c_rsyncable, rsyncable <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>Format(format) =&gt; (ZSTD_c_format, format <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>ForceMaxWindow(force) =&gt; (ZSTD_c_forceMaxWindow, force <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>ForceAttachDict(force) =&gt; (ZSTD_c_forceAttachDict, force <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>LiteralCompressionMode(mode) =&gt; {
                 (ZSTD_c_literalCompressionMode, mode <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>TargetCBlockSize(value) =&gt; {
                 (ZSTD_c_targetCBlockSize, value <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>SrcSizeHint(value) =&gt; (ZSTD_c_srcSizeHint, value <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>EnableDedicatedDictSearch(enable) =&gt; {
                 (ZSTD_c_enableDedicatedDictSearch, enable <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>StableInBuffer(stable) =&gt; (ZSTD_c_stableInBuffer, stable <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>StableOutBuffer(stable) =&gt; {
                 (ZSTD_c_stableOutBuffer, stable <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>BlockDelimiters(value) =&gt; (ZSTD_c_blockDelimiters, value <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>ValidateSequences(validate) =&gt; {
                 (ZSTD_c_validateSequences, validate <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>UseBlockSplitter(split) =&gt; {
                 (ZSTD_c_useBlockSplitter, split <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>UseRowMatchFinder(mode) =&gt; {
                 (ZSTD_c_useRowMatchFinder, mode <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>DeterministicRefPrefix(deterministic) =&gt; {
                 (ZSTD_c_deterministicRefPrefix, deterministic <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>PrefetchCDictTables(prefetch) =&gt; {
                 (ZSTD_c_prefetchCDictTables, prefetch <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>EnableSeqProducerFallback(enable) =&gt; {
                 (ZSTD_c_enableSeqProducerFallback, enable <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>MaxBlockSize(value) =&gt; (ZSTD_c_maxBlockSize, value <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>SearchForExternalRepcodes(value) =&gt; {
                 (ZSTD_c_searchForExternalRepcodes, value <span class="kw">as </span>c_int)
             }
@@ -2977,8 +2978,8 @@
     ///
     /// This only works before any data has been compressed. An error will be
     /// returned otherwise.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span><span class="kw">pub fn </span>try_clone(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         pledged_src_size: <span class="prelude-ty">Option</span>&lt;u64&gt;,
@@ -3000,16 +3001,16 @@
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_getBlockSize()` function.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span><span class="kw">pub fn </span>get_block_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="comment">// Safety: Just FFI
         </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_getBlockSize(<span class="self">self</span>.<span class="number">0</span>.as_ptr()) }
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_compressBlock()` function.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span><span class="kw">pub fn </span>compress_block&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         dst: <span class="kw-2">&amp;mut </span>C,
@@ -3046,7 +3047,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Drop <span class="kw">for </span>CCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Drop <span class="kw">for </span>CCtx&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// Safety: Just FFI
         </span><span class="kw">unsafe </span>{
@@ -3055,17 +3056,17 @@
     }
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Send <span class="kw">for </span>CCtx&lt;<span class="lifetime">&#39;a</span>&gt; {}
-<span class="comment">// CCtx can&#39;t be shared across threads, so it does not implement Sync.
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Send <span class="kw">for </span>CCtx&lt;<span class="lifetime">'a</span>&gt; {}
+<span class="comment">// CCtx can't be shared across threads, so it does not implement Sync.
 
-</span><span class="kw">unsafe fn </span>c_char_to_str(text: <span class="kw-2">*const </span>c_char) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+</span><span class="kw">unsafe fn </span>c_char_to_str(text: <span class="kw-2">*const </span>c_char) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
     core::ffi::CStr::from_ptr(text)
         .to_str()
-        .expect(<span class="string">&quot;bad error message from zstd&quot;</span>)
+        .expect(<span class="string">"bad error message from zstd"</span>)
 }
 
 <span class="doccomment">/// Returns the error string associated with an error code.
-</span><span class="kw">pub fn </span>get_error_name(code: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+</span><span class="kw">pub fn </span>get_error_name(code: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
     <span class="kw">unsafe </span>{
         <span class="comment">// Safety: assumes ZSTD returns a well-formed utf8 string.
         </span><span class="kw">let </span>name = zstd_sys::ZSTD_getErrorName(code);
@@ -3077,18 +3078,18 @@
 ///
 /// The lifetime references the potential dictionary used for this context.
 ///
-/// If no dictionary was used, it will most likely be `&#39;static`.
+/// If no dictionary was used, it will most likely be `'static`.
 ///
 /// Same as `DStream`.
-</span><span class="kw">pub struct </span>DCtx&lt;<span class="lifetime">&#39;a</span>&gt;(NonNull&lt;zstd_sys::ZSTD_DCtx&gt;, PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;);
+</span><span class="kw">pub struct </span>DCtx&lt;<span class="lifetime">'a</span>&gt;(NonNull&lt;zstd_sys::ZSTD_DCtx&gt;, PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;);
 
-<span class="kw">impl </span>Default <span class="kw">for </span>DCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Default <span class="kw">for </span>DCtx&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         DCtx::create()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DCtx&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Try to create a new decompression context.
     ///
     /// Returns `None` if the operation failed (for example, not enough memory).
@@ -3106,7 +3107,7 @@
     /// If the context creation fails.
     </span><span class="kw">pub fn </span>create() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::try_create()
-            .expect(<span class="string">&quot;zstd returned null pointer when creating new context&quot;</span>)
+            .expect(<span class="string">"zstd returned null pointer when creating new context"</span>)
     }
 
     <span class="doccomment">/// Fully decompress the given frame.
@@ -3171,7 +3172,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         dst: <span class="kw-2">&amp;mut </span>C,
         src: <span class="kw-2">&amp;</span>[u8],
-        ddict: <span class="kw-2">&amp;</span>DDict&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ddict: <span class="kw-2">&amp;</span>DDict&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; SafeResult {
         <span class="kw">unsafe </span>{
             dst.write_from(|buffer, capacity| {
@@ -3200,8 +3201,8 @@
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_initDStream_usingDict()` function.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     #[deprecated]
     </span><span class="kw">pub fn </span>init_using_dict(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dict: <span class="kw-2">&amp;</span>[u8]) -&gt; SafeResult {
         <span class="kw">let </span>code = <span class="kw">unsafe </span>{
@@ -3215,12 +3216,12 @@
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_initDStream_usingDDict()` function.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     #[deprecated]
-    </span><span class="kw">pub fn </span>init_using_ddict&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ddict: <span class="kw-2">&amp;</span>DDict&lt;<span class="lifetime">&#39;b</span>&gt;) -&gt; SafeResult
+    </span><span class="kw">pub fn </span>init_using_ddict&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ddict: <span class="kw-2">&amp;</span>DDict&lt;<span class="lifetime">'b</span>&gt;) -&gt; SafeResult
     <span class="kw">where
-        </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
+        </span><span class="lifetime">'b</span>: <span class="lifetime">'a</span>,
     {
         <span class="kw">let </span>code = <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_initDStream_usingDDict(
@@ -3263,7 +3264,7 @@
         })
     }
 
-    <span class="doccomment">/// Return to &quot;no-dictionary&quot; mode.
+    <span class="doccomment">/// Return to "no-dictionary" mode.
     ///
     /// This will disable any dictionary/prefix previously registered for future frames.
     </span><span class="kw">pub fn </span>disable_dictionary(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; SafeResult {
@@ -3283,9 +3284,9 @@
     /// It will apply to all frames decompressed by this context (until a new dictionary is set).
     ///
     /// Wraps the `ZSTD_DCtx_refDDict()` function.
-    </span><span class="kw">pub fn </span>ref_ddict&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ddict: <span class="kw-2">&amp;</span>DDict&lt;<span class="lifetime">&#39;b</span>&gt;) -&gt; SafeResult
+    </span><span class="kw">pub fn </span>ref_ddict&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ddict: <span class="kw-2">&amp;</span>DDict&lt;<span class="lifetime">'b</span>&gt;) -&gt; SafeResult
     <span class="kw">where
-        </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
+        </span><span class="lifetime">'b</span>: <span class="lifetime">'a</span>,
     {
         parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_DCtx_refDDict(<span class="self">self</span>.<span class="number">0</span>.as_ptr(), ddict.<span class="number">0</span>.as_ptr())
@@ -3299,9 +3300,9 @@
     /// But unlike a dictionary, this only applies to the next frame.
     ///
     /// Wraps the `ZSTD_DCtx_refPrefix()` function.
-    </span><span class="kw">pub fn </span>ref_prefix&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prefix: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>[u8]) -&gt; SafeResult
+    </span><span class="kw">pub fn </span>ref_prefix&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prefix: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8]) -&gt; SafeResult
     <span class="kw">where
-        </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
+        </span><span class="lifetime">'b</span>: <span class="lifetime">'a</span>,
     {
         parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_DCtx_refPrefix(
@@ -3314,7 +3315,7 @@
 
     <span class="doccomment">/// Sets a decompression parameter.
     </span><span class="kw">pub fn </span>set_parameter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, param: DParameter) -&gt; SafeResult {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
         </span><span class="kw">use </span>zstd_sys::ZSTD_dParameter::{
             ZSTD_d_experimentalParam1 <span class="kw">as </span>ZSTD_d_format,
             ZSTD_d_experimentalParam2 <span class="kw">as </span>ZSTD_d_stableOutBuffer,
@@ -3326,17 +3327,17 @@
         <span class="kw">use </span>DParameter::<span class="kw-2">*</span>;
 
         <span class="kw">let </span>(param, value) = <span class="kw">match </span>param {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>Format(format) =&gt; (ZSTD_d_format, format <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>StableOutBuffer(stable) =&gt; {
                 (ZSTD_d_stableOutBuffer, stable <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>ForceIgnoreChecksum(force) =&gt; {
                 (ZSTD_d_forceIgnoreChecksum, force <span class="kw">as </span>c_int)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>RefMultipleDDicts(value) =&gt; {
                 (ZSTD_d_refMultipleDDicts, value <span class="kw">as </span>c_int)
             }
@@ -3356,14 +3357,14 @@
     /// # Returns
     ///
     /// * `Ok(0)` if the current frame just finished decompressing successfully.
-    /// * `Ok(hint)` with a hint for the &quot;ideal&quot; amount of input data to provide in the next call.
+    /// * `Ok(hint)` with a hint for the "ideal" amount of input data to provide in the next call.
     ///     Can be safely ignored.
     ///
     /// Wraps the `ZSTD_decompressStream()` function.
     </span><span class="kw">pub fn </span>decompress_stream&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">&#39;_</span>, C&gt;,
-        input: <span class="kw-2">&amp;mut </span>InBuffer&lt;<span class="lifetime">&#39;_</span>&gt;,
+        output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">'_</span>, C&gt;,
+        input: <span class="kw-2">&amp;mut </span>InBuffer&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; SafeResult {
         <span class="kw">let </span><span class="kw-2">mut </span>output = output.wrap();
         <span class="kw">let </span><span class="kw-2">mut </span>input = input.wrap();
@@ -3397,8 +3398,8 @@
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_decompressBlock()` function.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span><span class="kw">pub fn </span>decompress_block&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         dst: <span class="kw-2">&amp;mut </span>C,
@@ -3418,8 +3419,8 @@
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_insertBlock()` function.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span><span class="kw">pub fn </span>insert_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;</span>[u8]) -&gt; usize {
         <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_insertBlock(
@@ -3434,8 +3435,8 @@
     ///
     /// This only works before any data has been decompressed. An error will be
     /// returned otherwise.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span><span class="kw">pub fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ErrorCode&gt; {
         <span class="kw">let </span>context = NonNull::new(<span class="kw">unsafe </span>{ zstd_sys::ZSTD_createDCtx() })
             .ok_or(<span class="number">0usize</span>)<span class="question-mark">?</span>;
@@ -3446,7 +3447,7 @@
     }
 }
 
-<span class="kw">impl </span>Drop <span class="kw">for </span>DCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Drop <span class="kw">for </span>DCtx&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_freeDCtx(<span class="self">self</span>.<span class="number">0</span>.as_ptr());
@@ -3454,13 +3455,13 @@
     }
 }
 
-<span class="kw">unsafe impl </span>Send <span class="kw">for </span>DCtx&lt;<span class="lifetime">&#39;_</span>&gt; {}
-<span class="comment">// DCtx can&#39;t be shared across threads, so it does not implement Sync.
+<span class="kw">unsafe impl </span>Send <span class="kw">for </span>DCtx&lt;<span class="lifetime">'_</span>&gt; {}
+<span class="comment">// DCtx can't be shared across threads, so it does not implement Sync.
 
 </span><span class="doccomment">/// Compression dictionary.
-</span><span class="kw">pub struct </span>CDict&lt;<span class="lifetime">&#39;a</span>&gt;(NonNull&lt;zstd_sys::ZSTD_CDict&gt;, PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;);
+</span><span class="kw">pub struct </span>CDict&lt;<span class="lifetime">'a</span>&gt;(NonNull&lt;zstd_sys::ZSTD_CDict&gt;, PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;);
 
-<span class="kw">impl </span>CDict&lt;<span class="lifetime">&#39;static</span>&gt; {
+<span class="kw">impl </span>CDict&lt;<span class="lifetime">'static</span>&gt; {
     <span class="doccomment">/// Prepare a dictionary to compress data.
     ///
     /// This will make it easier for compression contexts to load this dictionary.
@@ -3475,7 +3476,7 @@
         compression_level: CompressionLevel,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::try_create(dict_buffer, compression_level)
-            .expect(<span class="string">&quot;zstd returned null pointer when creating dict&quot;</span>)
+            .expect(<span class="string">"zstd returned null pointer when creating dict"</span>)
     }
 
     <span class="doccomment">/// Prepare a dictionary to compress data.
@@ -3500,11 +3501,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CDict&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CDict&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span><span class="kw">pub fn </span>create_by_reference(
-        dict_buffer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+        dict_buffer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
         compression_level: CompressionLevel,
     ) -&gt; <span class="self">Self </span>{
         CDict(
@@ -3515,7 +3516,7 @@
                     compression_level,
                 )
             })
-            .expect(<span class="string">&quot;zstd returned null pointer&quot;</span>),
+            .expect(<span class="string">"zstd returned null pointer"</span>),
             PhantomData,
         )
     }
@@ -3541,11 +3542,11 @@
 </span><span class="kw">pub fn </span>create_cdict(
     dict_buffer: <span class="kw-2">&amp;</span>[u8],
     compression_level: CompressionLevel,
-) -&gt; CDict&lt;<span class="lifetime">&#39;static</span>&gt; {
+) -&gt; CDict&lt;<span class="lifetime">'static</span>&gt; {
     CDict::create(dict_buffer, compression_level)
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Drop <span class="kw">for </span>CDict&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Drop <span class="kw">for </span>CDict&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_freeCDict(<span class="self">self</span>.<span class="number">0</span>.as_ptr());
@@ -3553,26 +3554,26 @@
     }
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Send <span class="kw">for </span>CDict&lt;<span class="lifetime">&#39;a</span>&gt; {}
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sync <span class="kw">for </span>CDict&lt;<span class="lifetime">&#39;a</span>&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Send <span class="kw">for </span>CDict&lt;<span class="lifetime">'a</span>&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Sync <span class="kw">for </span>CDict&lt;<span class="lifetime">'a</span>&gt; {}
 
 <span class="doccomment">/// Wraps the `ZSTD_compress_usingCDict()` function.
 </span><span class="kw">pub fn </span>compress_using_cdict(
-    cctx: <span class="kw-2">&amp;mut </span>CCtx&lt;<span class="lifetime">&#39;_</span>&gt;,
+    cctx: <span class="kw-2">&amp;mut </span>CCtx&lt;<span class="lifetime">'_</span>&gt;,
     dst: <span class="kw-2">&amp;mut </span>[u8],
     src: <span class="kw-2">&amp;</span>[u8],
-    cdict: <span class="kw-2">&amp;</span>CDict&lt;<span class="lifetime">&#39;_</span>&gt;,
+    cdict: <span class="kw-2">&amp;</span>CDict&lt;<span class="lifetime">'_</span>&gt;,
 ) -&gt; SafeResult {
     cctx.compress_using_cdict(dst, src, cdict)
 }
 
 <span class="doccomment">/// A digested decompression dictionary.
-</span><span class="kw">pub struct </span>DDict&lt;<span class="lifetime">&#39;a</span>&gt;(NonNull&lt;zstd_sys::ZSTD_DDict&gt;, PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;);
+</span><span class="kw">pub struct </span>DDict&lt;<span class="lifetime">'a</span>&gt;(NonNull&lt;zstd_sys::ZSTD_DDict&gt;, PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;);
 
-<span class="kw">impl </span>DDict&lt;<span class="lifetime">&#39;static</span>&gt; {
+<span class="kw">impl </span>DDict&lt;<span class="lifetime">'static</span>&gt; {
     <span class="kw">pub fn </span>create(dict_buffer: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::try_create(dict_buffer)
-            .expect(<span class="string">&quot;zstd returned null pointer when creating dict&quot;</span>)
+            .expect(<span class="string">"zstd returned null pointer when creating dict"</span>)
     }
 
     <span class="kw">pub fn </span>try_create(dict_buffer: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
@@ -3588,7 +3589,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DDict&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DDict&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub fn </span>sizeof(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="kw">unsafe </span>{ zstd_sys::ZSTD_sizeof_DDict(<span class="self">self</span>.<span class="number">0</span>.as_ptr()) }
     }
@@ -3596,9 +3597,9 @@
     <span class="doccomment">/// Wraps the `ZSTD_createDDict_byReference()` function.
     ///
     /// The dictionary will keep referencing `dict_buffer`.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
-    </span><span class="kw">pub fn </span>create_by_reference(dict_buffer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
+    </span><span class="kw">pub fn </span>create_by_reference(dict_buffer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         DDict(
             NonNull::new(<span class="kw">unsafe </span>{
                 zstd_sys::ZSTD_createDDict_byReference(
@@ -3606,7 +3607,7 @@
                     dict_buffer.len(),
                 )
             })
-            .expect(<span class="string">&quot;zstd returned null pointer&quot;</span>),
+            .expect(<span class="string">"zstd returned null pointer"</span>),
             PhantomData,
         )
     }
@@ -3623,12 +3624,12 @@
 
 <span class="doccomment">/// Wraps the `ZSTD_createDDict()` function.
 ///
-/// It copies the dictionary internally, so the resulting `DDict` is `&#39;static`.
-</span><span class="kw">pub fn </span>create_ddict(dict_buffer: <span class="kw-2">&amp;</span>[u8]) -&gt; DDict&lt;<span class="lifetime">&#39;static</span>&gt; {
+/// It copies the dictionary internally, so the resulting `DDict` is `'static`.
+</span><span class="kw">pub fn </span>create_ddict(dict_buffer: <span class="kw-2">&amp;</span>[u8]) -&gt; DDict&lt;<span class="lifetime">'static</span>&gt; {
     DDict::create(dict_buffer)
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Drop <span class="kw">for </span>DDict&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Drop <span class="kw">for </span>DDict&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_freeDDict(<span class="self">self</span>.<span class="number">0</span>.as_ptr());
@@ -3636,15 +3637,15 @@
     }
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Send <span class="kw">for </span>DDict&lt;<span class="lifetime">&#39;a</span>&gt; {}
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sync <span class="kw">for </span>DDict&lt;<span class="lifetime">&#39;a</span>&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Send <span class="kw">for </span>DDict&lt;<span class="lifetime">'a</span>&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Sync <span class="kw">for </span>DDict&lt;<span class="lifetime">'a</span>&gt; {}
 
 <span class="doccomment">/// Wraps the `ZSTD_decompress_usingDDict()` function.
 </span><span class="kw">pub fn </span>decompress_using_ddict(
-    dctx: <span class="kw-2">&amp;mut </span>DCtx&lt;<span class="lifetime">&#39;_</span>&gt;,
+    dctx: <span class="kw-2">&amp;mut </span>DCtx&lt;<span class="lifetime">'_</span>&gt;,
     dst: <span class="kw-2">&amp;mut </span>[u8],
     src: <span class="kw-2">&amp;</span>[u8],
-    ddict: <span class="kw-2">&amp;</span>DDict&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ddict: <span class="kw-2">&amp;</span>DDict&lt;<span class="lifetime">'_</span>&gt;,
 ) -&gt; SafeResult {
     dctx.decompress_using_ddict(dst, src, ddict)
 }
@@ -3652,18 +3653,18 @@
 <span class="doccomment">/// Compression stream.
 ///
 /// Same as `CCtx`.
-</span><span class="kw">pub type </span>CStream&lt;<span class="lifetime">&#39;a</span>&gt; = CCtx&lt;<span class="lifetime">&#39;a</span>&gt;;
+</span><span class="kw">pub type </span>CStream&lt;<span class="lifetime">'a</span>&gt; = CCtx&lt;<span class="lifetime">'a</span>&gt;;
 
-<span class="comment">// CStream can&#39;t be shared across threads, so it does not implement Sync.
+<span class="comment">// CStream can't be shared across threads, so it does not implement Sync.
 
 </span><span class="doccomment">/// Allocates a new `CStream`.
-</span><span class="kw">pub fn </span>create_cstream&lt;<span class="lifetime">&#39;a</span>&gt;() -&gt; CStream&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub fn </span>create_cstream&lt;<span class="lifetime">'a</span>&gt;() -&gt; CStream&lt;<span class="lifetime">'a</span>&gt; {
     CCtx::create()
 }
 
 <span class="doccomment">/// Prepares an existing `CStream` for compression at the given level.
 </span><span class="kw">pub fn </span>init_cstream(
-    zcs: <span class="kw-2">&amp;mut </span>CStream&lt;<span class="lifetime">&#39;_</span>&gt;,
+    zcs: <span class="kw-2">&amp;mut </span>CStream&lt;<span class="lifetime">'_</span>&gt;,
     compression_level: CompressionLevel,
 ) -&gt; SafeResult {
     zcs.init(compression_level)
@@ -3675,8 +3676,8 @@
 /// Bytes will be read starting at `src[pos]`.
 ///
 /// `pos` will be updated after reading.
-</span><span class="kw">pub struct </span>InBuffer&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>src: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+</span><span class="kw">pub struct </span>InBuffer&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub </span>src: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
     <span class="kw">pub </span>pos: usize,
 }
 
@@ -3692,7 +3693,7 @@
 ///   Any existing data will be overwritten.
 /// * `[u8]` and `[u8; N]`. These must start already-initialized, and will not be resized. It will
 ///   be up to the caller to only use the part that was written.
-/// * `std::io::Cursor&lt;T: WriteBuf&gt;`. This will ignore data before the cursor&#39;s position, and
+/// * `std::io::Cursor&lt;T: WriteBuf&gt;`. This will ignore data before the cursor's position, and
 ///   append data after that.
 </span><span class="kw">pub unsafe trait </span>WriteBuf {
     <span class="doccomment">/// Returns the valid data part of this container. Should only cover initialized data.
@@ -3732,8 +3733,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">unsafe impl</span>&lt;T&gt; WriteBuf <span class="kw">for </span>std::io::Cursor&lt;T&gt;
 <span class="kw">where
     </span>T: WriteBuf,
@@ -3762,18 +3763,18 @@
         }
 
         <span class="comment">// Here we assume data _before_ self.position() was already initialized.
-        // Egh it&#39;s not actually guaranteed by Cursor? So let&#39;s guarantee it ourselves.
+        // Egh it's not actually guaranteed by Cursor? So let's guarantee it ourselves.
         </span><span class="kw">let </span>position = <span class="self">self</span>.position() <span class="kw">as </span>usize;
         <span class="kw">let </span>initialized = <span class="self">self</span>.get_ref().as_slice().len();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(uninitialized) = position.checked_sub(initialized) {
-            <span class="comment">// Cursor&#39;s solution is to pad with zeroes
+            <span class="comment">// Cursor's solution is to pad with zeroes
             // From the end of valid data (as_slice().len()) to the position.
 
             // Safety:
             // * We know `n &gt; 0`
             // * This means `self.capacity() &gt; 0` (promise by the caller)
             // * This means `self.get_ref().capacity() &gt; self.position`
-            // * This means that `position` is within the nested pointer&#39;s allocation.
+            // * This means that `position` is within the nested pointer's allocation.
             // * Finally, `initialized + uninitialized = position`, so the entire byte
             //   range here is within the allocation
             </span><span class="kw">unsafe </span>{
@@ -3790,9 +3791,9 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; WriteBuf <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>std::vec::Vec&lt;u8&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"std"</span>)))]
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; WriteBuf <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>std::vec::Vec&lt;u8&gt; {
     <span class="kw">fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         std::vec::Vec::as_slice(<span class="self">self</span>)
     }
@@ -3810,8 +3811,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">unsafe impl </span>WriteBuf <span class="kw">for </span>std::vec::Vec&lt;u8&gt; {
     <span class="kw">fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="kw-2">&amp;</span><span class="self">self</span>[..]
@@ -3827,8 +3828,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;arrays&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;arrays&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"arrays"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"arrays"</span>)))]
 </span><span class="kw">unsafe impl</span>&lt;<span class="kw">const </span>N: usize&gt; WriteBuf <span class="kw">for </span>[u8; N] {
     <span class="kw">fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="self">self
@@ -3865,7 +3866,7 @@
 
 <span class="comment">/*
 // This is possible, but... why?
-unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
+unsafe impl&lt;'a&gt; WriteBuf for OutBuffer&lt;'a, [u8]&gt; {
     fn as_slice(&amp;self) -&gt; &amp;[u8] {
         self.dst
     }
@@ -3893,8 +3894,8 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 /// # Invariant
 ///
 /// `pos &lt;= dst.capacity()`
-</span><span class="kw">pub struct </span>OutBuffer&lt;<span class="lifetime">&#39;a</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; {
-    dst: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>C,
+</span><span class="kw">pub struct </span>OutBuffer&lt;<span class="lifetime">'a</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; {
+    dst: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>C,
     pos: usize,
 }
 
@@ -3906,12 +3907,12 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 <span class="doccomment">/// Interface between a C-level ZSTD_outBuffer and a rust-level `OutBuffer`.
 ///
 /// Will update the parent buffer from the C buffer on drop.
-</span><span class="kw">struct </span>OutBufferWrapper&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; {
+</span><span class="kw">struct </span>OutBufferWrapper&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; {
     buf: zstd_sys::ZSTD_outBuffer,
-    parent: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>OutBuffer&lt;<span class="lifetime">&#39;b</span>, C&gt;,
+    parent: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>OutBuffer&lt;<span class="lifetime">'b</span>, C&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; Deref <span class="kw">for </span>OutBufferWrapper&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, C&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>: <span class="lifetime">'a</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; Deref <span class="kw">for </span>OutBufferWrapper&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, C&gt; {
     <span class="kw">type </span>Target = zstd_sys::ZSTD_outBuffer;
 
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
@@ -3919,19 +3920,19 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; DerefMut
-    <span class="kw">for </span>OutBufferWrapper&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, C&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>: <span class="lifetime">'a</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; DerefMut
+    <span class="kw">for </span>OutBufferWrapper&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, C&gt;
 {
     <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.buf
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; OutBuffer&lt;<span class="lifetime">&#39;a</span>, C&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; OutBuffer&lt;<span class="lifetime">'a</span>, C&gt; {
     <span class="doccomment">/// Returns a new `OutBuffer` around the given slice.
     ///
     /// Starts with `pos = 0`.
-    </span><span class="kw">pub fn </span>around(dst: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>C) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>around(dst: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>C) -&gt; <span class="self">Self </span>{
         OutBuffer { dst, pos: <span class="number">0 </span>}
     }
 
@@ -3940,9 +3941,9 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     /// # Panics
     ///
     /// If `pos &gt; dst.capacity()`.
-    </span><span class="kw">pub fn </span>around_pos(dst: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>C, pos: usize) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>around_pos(dst: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>C, pos: usize) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>pos &gt; dst.capacity() {
-            <span class="macro">panic!</span>(<span class="string">&quot;Given position outside of the buffer bounds.&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"Given position outside of the buffer bounds."</span>);
         }
 
         OutBuffer { dst, pos }
@@ -3972,7 +3973,7 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     /// Data up to `pos` must have actually been written to.
     </span><span class="kw">pub unsafe fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pos: usize) {
         <span class="kw">if </span>pos &gt; <span class="self">self</span>.dst.capacity() {
-            <span class="macro">panic!</span>(<span class="string">&quot;Given position outside of the buffer bounds.&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"Given position outside of the buffer bounds."</span>);
         }
 
         <span class="self">self</span>.dst.filled_until(pos);
@@ -3980,7 +3981,7 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
         <span class="self">self</span>.pos = pos;
     }
 
-    <span class="kw">fn </span>wrap&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; OutBufferWrapper&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>, C&gt; {
+    <span class="kw">fn </span>wrap&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; OutBufferWrapper&lt;<span class="lifetime">'b</span>, <span class="lifetime">'a</span>, C&gt; {
         OutBufferWrapper {
             buf: zstd_sys::ZSTD_outBuffer {
                 dst: ptr_mut_void(<span class="self">self</span>.dst),
@@ -3992,9 +3993,9 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     }
 
     <span class="doccomment">/// Returns the part of this buffer that was written to.
-    </span><span class="kw">pub fn </span>as_slice&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]
+    </span><span class="kw">pub fn </span>as_slice&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]
     <span class="kw">where
-        </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
+        </span><span class="lifetime">'b</span>: <span class="lifetime">'a</span>,
     {
         <span class="kw">let </span>pos = <span class="self">self</span>.pos;
         <span class="kw-2">&amp;</span><span class="self">self</span>.dst.as_slice()[..pos]
@@ -4006,19 +4007,19 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; Drop <span class="kw">for </span>OutBufferWrapper&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, C&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, C: WriteBuf + <span class="question-mark">?</span>Sized&gt; Drop <span class="kw">for </span>OutBufferWrapper&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, C&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// Safe because we guarantee that data until `self.buf.pos` has been written.
         </span><span class="kw">unsafe </span>{ <span class="self">self</span>.parent.set_pos(<span class="self">self</span>.buf.pos) };
     }
 }
 
-<span class="kw">struct </span>InBufferWrapper&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">struct </span>InBufferWrapper&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
     buf: zstd_sys::ZSTD_inBuffer,
-    parent: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>InBuffer&lt;<span class="lifetime">&#39;b</span>&gt;,
+    parent: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>InBuffer&lt;<span class="lifetime">'b</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>&gt; Deref <span class="kw">for </span>InBufferWrapper&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>: <span class="lifetime">'a</span>&gt; Deref <span class="kw">for </span>InBufferWrapper&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
     <span class="kw">type </span>Target = zstd_sys::ZSTD_inBuffer;
 
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
@@ -4026,17 +4027,17 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>&gt; DerefMut <span class="kw">for </span>InBufferWrapper&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>: <span class="lifetime">'a</span>&gt; DerefMut <span class="kw">for </span>InBufferWrapper&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
     <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.buf
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; InBuffer&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; InBuffer&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a new `InBuffer` around the given slice.
     ///
     /// Starts with `pos = 0`.
-    </span><span class="kw">pub fn </span>around(src: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>around(src: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         InBuffer { src, pos: <span class="number">0 </span>}
     }
 
@@ -4052,12 +4053,12 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     /// If `pos &gt; self.src.len()`.
     </span><span class="kw">pub fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pos: usize) {
         <span class="kw">if </span>pos &gt; <span class="self">self</span>.src.len() {
-            <span class="macro">panic!</span>(<span class="string">&quot;Given position outside of the buffer bounds.&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"Given position outside of the buffer bounds."</span>);
         }
         <span class="self">self</span>.pos = pos;
     }
 
-    <span class="kw">fn </span>wrap&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; InBufferWrapper&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>wrap&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; InBufferWrapper&lt;<span class="lifetime">'b</span>, <span class="lifetime">'a</span>&gt; {
         InBufferWrapper {
             buf: zstd_sys::ZSTD_inBuffer {
                 src: ptr_void(<span class="self">self</span>.src),
@@ -4069,7 +4070,7 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; Drop <span class="kw">for </span>InBufferWrapper&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; Drop <span class="kw">for </span>InBufferWrapper&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.parent.set_pos(<span class="self">self</span>.buf.pos);
     }
@@ -4078,9 +4079,9 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 <span class="doccomment">/// A Decompression stream.
 ///
 /// Same as `DCtx`.
-</span><span class="kw">pub type </span>DStream&lt;<span class="lifetime">&#39;a</span>&gt; = DCtx&lt;<span class="lifetime">&#39;a</span>&gt;;
+</span><span class="kw">pub type </span>DStream&lt;<span class="lifetime">'a</span>&gt; = DCtx&lt;<span class="lifetime">'a</span>&gt;;
 
-<span class="comment">// Some functions work on a &quot;frame prefix&quot;.
+<span class="comment">// Some functions work on a "frame prefix".
 // TODO: Define `struct FramePrefix(&amp;[u8]);` and move these functions to it?
 //
 // Some other functions work on a dictionary (not CDict or DDict).
@@ -4116,8 +4117,8 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 <span class="doccomment">/// Wraps the `ZSTD_findDecompressedSize()` function.
 ///
 /// `src` should be exactly a sequence of ZSTD frames.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
 </span><span class="kw">pub fn </span>find_decompressed_size(
     src: <span class="kw-2">&amp;</span>[u8],
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;u64&gt;, ContentSizeError&gt; {
@@ -4127,8 +4128,8 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 }
 
 <span class="doccomment">/// Wraps the `ZSTD_isFrame()` function.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
 </span><span class="kw">pub fn </span>is_frame(buffer: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
     <span class="kw">unsafe </span>{ zstd_sys::ZSTD_isFrame(ptr_void(buffer), buffer.len()) &gt; <span class="number">0 </span>}
 }
@@ -4190,8 +4191,8 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 </span><span class="kw">pub enum </span>FrameFormat {
@@ -4202,8 +4203,8 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     </span>Magicless = zstd_sys::ZSTD_format_e::ZSTD_f_zstd1_magicless <span class="kw">as </span>u32,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 </span><span class="kw">pub enum </span>DictAttachPref {
@@ -4214,8 +4215,8 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     ForceLoad = zstd_sys::ZSTD_dictAttachPref_e::ZSTD_dictForceLoad <span class="kw">as </span>u32,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 </span><span class="kw">pub enum </span>ParamSwitch {
@@ -4227,80 +4228,80 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 <span class="doccomment">/// A compression parameter.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>CParameter {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>RSyncable(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>Format(FrameFormat),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>ForceMaxWindow(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>ForceAttachDict(DictAttachPref),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>LiteralCompressionMode(ParamSwitch),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>TargetCBlockSize(u32),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>SrcSizeHint(u32),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>EnableDedicatedDictSearch(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>StableInBuffer(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>StableOutBuffer(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>BlockDelimiters(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>ValidateSequences(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>UseBlockSplitter(ParamSwitch),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>UseRowMatchFinder(ParamSwitch),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>DeterministicRefPrefix(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>PrefetchCDictTables(ParamSwitch),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>EnableSeqProducerFallback(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>MaxBlockSize(u32),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>SearchForExternalRepcodes(ParamSwitch),
 
     <span class="doccomment">/// Compression level to use.
@@ -4310,7 +4311,7 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 
     <span class="doccomment">/// Maximum allowed back-reference distance.
     ///
-    /// The actual distance is 2 power &quot;this value&quot;.
+    /// The actual distance is 2 power "this value".
     </span>WindowLog(u32),
 
     HashLog(u32),
@@ -4378,27 +4379,27 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 </span><span class="kw">pub enum </span>DParameter {
     WindowLogMax(u32),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span><span class="doccomment">/// See `FrameFormat`.
     </span>Format(FrameFormat),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>StableOutBuffer(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>ForceIgnoreChecksum(bool),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>RefMultipleDDicts(bool),
 }
 
 <span class="doccomment">/// Wraps the `ZDICT_trainFromBuffer()` function.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;zdict_builder&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;zdict_builder&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"zdict_builder"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"zdict_builder"</span>)))]
 </span><span class="kw">pub fn </span>train_from_buffer&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
     dict_buffer: <span class="kw-2">&amp;mut </span>C,
     samples_buffer: <span class="kw-2">&amp;</span>[u8],
@@ -4420,8 +4421,8 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 }
 
 <span class="doccomment">/// Wraps the `ZDICT_getDictID()` function.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;zdict_builder&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;zdict_builder&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"zdict_builder"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"zdict_builder"</span>)))]
 </span><span class="kw">pub fn </span>get_dict_id(dict_buffer: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroU32&gt; {
     NonZeroU32::new(<span class="kw">unsafe </span>{
         zstd_sys::ZDICT_getDictID(ptr_void(dict_buffer), dict_buffer.len())
@@ -4429,15 +4430,15 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 }
 
 <span class="doccomment">/// Wraps the `ZSTD_getBlockSize()` function.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
 </span><span class="kw">pub fn </span>get_block_size(cctx: <span class="kw-2">&amp;</span>CCtx) -&gt; usize {
     <span class="kw">unsafe </span>{ zstd_sys::ZSTD_getBlockSize(cctx.<span class="number">0</span>.as_ptr()) }
 }
 
 <span class="doccomment">/// Wraps the `ZSTD_decompressBound` function
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
 </span><span class="kw">pub fn </span>decompress_bound(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;u64, ErrorCode&gt; {
     <span class="kw">let </span>bound =
         <span class="kw">unsafe </span>{ zstd_sys::ZSTD_decompressBound(ptr_void(data), data.len()) };
@@ -4450,8 +4451,8 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 
 <span class="doccomment">/// Given a buffer of size `src_size`, returns the maximum number of sequences that can ge
 /// generated.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
 </span><span class="kw">pub fn </span>sequence_bound(src_size: usize) -&gt; usize {
     <span class="comment">// Safety: Just FFI.
     </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_sequenceBound(src_size) }
@@ -4462,8 +4463,8 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
 /// When using in-place decompression, the output buffer must be at least this much bigger (in
 /// bytes) than the input buffer. The extra space must be at the front of the output buffer (the
 /// input buffer must be at the end of the output buffer).
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+#[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
 </span><span class="kw">pub fn </span>decompression_margin(
     compressed_data: <span class="kw-2">&amp;</span>[u8],
 ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorCode&gt; {

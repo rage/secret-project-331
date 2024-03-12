@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/chapters.rs`."><title>chapters.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/chapters.rs`."><title>chapters.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -662,7 +663,7 @@
 };
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>DatabaseChapter {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -690,7 +691,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>Chapter {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -738,8 +739,8 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-#[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+#[serde(rename_all = <span class="string">"snake_case"</span>)]
 </span><span class="kw">pub enum </span>ChapterStatus {
     Open,
     Closed,
@@ -765,7 +766,7 @@
 
 <span class="comment">// Represents the subset of page fields that are required to create a new course.
 </span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewChapter {
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>color: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -780,7 +781,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ChapterUpdate {
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>color: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -815,7 +816,7 @@
     };
     <span class="comment">// ---------- ----------
     </span><span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">r&quot;
+        <span class="string">r"
 INSERT INTO chapters(
     id,
     name,
@@ -828,7 +829,7 @@ INSERT INTO chapters(
   )
 VALUES($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
-        &quot;</span>,
+        "</span>,
         pkey_policy.into_uuid(),
         new_chapter.name,
         new_chapter.color,
@@ -849,7 +850,7 @@ RETURNING id
     front_page_id: Uuid,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE chapters SET front_page_id = $1 WHERE id = $2&quot;</span>,
+        <span class="string">"UPDATE chapters SET front_page_id = $1 WHERE id = $2"</span>,
         front_page_id,
         chapter_id
     )
@@ -864,7 +865,7 @@ RETURNING id
     opens_at: DateTime&lt;Utc&gt;,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE chapters SET opens_at = $1 WHERE id = $2&quot;</span>,
+        <span class="string">"UPDATE chapters SET opens_at = $1 WHERE id = $2"</span>,
         opens_at,
         chapter_id,
     )
@@ -876,11 +877,11 @@ RETURNING id
 <span class="doccomment">/// Checks the opens_at field for the chapter and compares it to the current time. If null, the chapter is always open.
 </span><span class="kw">pub async fn </span>is_open(conn: <span class="kw-2">&amp;mut </span>PgConnection, chapter_id: Uuid) -&gt; ModelResult&lt;bool&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT opens_at
 FROM chapters
 WHERE id = $1
-&quot;#</span>,
+"#</span>,
         chapter_id
     )
     .fetch_one(conn)
@@ -895,10 +896,10 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;DatabaseChapter&gt; {
     <span class="kw">let </span>chapter = <span class="macro">sqlx::query_as!</span>(
         DatabaseChapter,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 from chapters
-where id = $1;&quot;</span>,
+where id = $1;"</span>,
         chapter_id,
     )
     .fetch_one(conn)
@@ -907,7 +908,7 @@ where id = $1;&quot;</span>,
 }
 
 <span class="kw">pub async fn </span>get_course_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, chapter_id: Uuid) -&gt; ModelResult&lt;Uuid&gt; {
-    <span class="kw">let </span>course_id = <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT course_id from chapters where id = $1&quot;</span>, chapter_id)
+    <span class="kw">let </span>course_id = <span class="macro">sqlx::query!</span>(<span class="string">"SELECT course_id from chapters where id = $1"</span>, chapter_id)
         .fetch_one(conn)
         .<span class="kw">await</span><span class="question-mark">?
         </span>.course_id;
@@ -921,7 +922,7 @@ where id = $1;&quot;</span>,
 ) -&gt; ModelResult&lt;DatabaseChapter&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         DatabaseChapter,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE chapters
 SET name = $2,
   deadline = $3,
@@ -930,7 +931,7 @@ SET name = $2,
   color = $6
 WHERE id = $1
 RETURNING *;
-    &quot;#</span>,
+    "#</span>,
         chapter_id,
         chapter_update.name,
         chapter_update.deadline,
@@ -950,11 +951,11 @@ RETURNING *;
 ) -&gt; ModelResult&lt;DatabaseChapter&gt; {
     <span class="kw">let </span>updated_chapter = <span class="macro">sqlx::query_as!</span>(
         DatabaseChapter,
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE chapters
 SET chapter_image_path = $1
 WHERE id = $2
-RETURNING *;&quot;</span>,
+RETURNING *;"</span>,
         chapter_image_path,
         chapter_id
     )
@@ -964,7 +965,7 @@ RETURNING *;&quot;</span>,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ChapterWithStatus {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -1015,7 +1016,7 @@ RETURNING *;&quot;</span>,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserCourseInstanceChapterProgress {
     <span class="kw">pub </span>score_given: f32,
     <span class="kw">pub </span>score_maximum: i32,
@@ -1029,7 +1030,7 @@ RETURNING *;&quot;</span>,
 ) -&gt; ModelResult&lt;Vec&lt;DatabaseChapter&gt;&gt; {
     <span class="kw">let </span>chapters = <span class="macro">sqlx::query_as!</span>(
         DatabaseChapter,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -1047,7 +1048,7 @@ SELECT id,
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
-&quot;#</span>,
+"#</span>,
         course_id
     )
     .fetch_all(conn)
@@ -1061,7 +1062,7 @@ WHERE course_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;DatabaseChapter&gt;&gt; {
     <span class="kw">let </span>chapters = <span class="macro">sqlx::query_as!</span>(
         DatabaseChapter,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -1079,7 +1080,7 @@ SELECT id,
 FROM chapters
 WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
   AND deleted_at IS NULL;
-&quot;#</span>,
+"#</span>,
         course_instance_id
     )
     .fetch_all(conn)
@@ -1094,35 +1095,35 @@ WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>deleted = <span class="macro">sqlx::query_as!</span>(
         DatabaseChapter,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE chapters
 SET deleted_at = now()
 WHERE id = $1
 RETURNING *;
-&quot;#</span>,
+"#</span>,
         chapter_id
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// We&#39;ll also delete all the pages and exercises so that they don&#39;t conflict with future chapters
+    <span class="comment">// We'll also delete all the pages and exercises so that they don't conflict with future chapters
     </span><span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;&quot;</span>,
+        <span class="string">"UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;"</span>,
         chapter_id
     )
     .execute(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));&quot;</span>,
+        <span class="string">"UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));"</span>,
         chapter_id
     )
     .execute(<span class="kw-2">&amp;mut *</span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);&quot;</span>,
+        <span class="string">"UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);"</span>,
         chapter_id
     )
     .execute(<span class="kw-2">&amp;mut *</span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;&quot;</span>,
+        <span class="string">"UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;"</span>,
         chapter_id
     )
     .execute(<span class="kw-2">&amp;mut *</span>tx)
@@ -1166,14 +1167,14 @@ RETURNING *;
 ) -&gt; ModelResult&lt;DatabaseChapter&gt; {
     <span class="kw">let </span>chapter = <span class="macro">sqlx::query_as!</span>(
         DatabaseChapter,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT c.*
 FROM chapters c,
   pages p
 WHERE c.id = p.chapter_id
   AND p.id = $1
   AND c.deleted_at IS NULL
-    &quot;</span>,
+    "</span>,
         page_id
     )
     .fetch_one(conn)
@@ -1188,7 +1189,7 @@ WHERE c.id = p.chapter_id
 ) -&gt; ModelResult&lt;ChapterInfo&gt; {
     <span class="kw">let </span>chapter_page = <span class="macro">sqlx::query_as!</span>(
         ChapterInfo,
-        <span class="string">&quot;
+        <span class="string">"
         SELECT
             c.id as chapter_id,
             c.name as chapter_name,
@@ -1197,7 +1198,7 @@ WHERE c.id = p.chapter_id
         WHERE c.id = $1
         AND c.course_id = $2
             AND c.deleted_at IS NULL;
-        &quot;</span>,
+        "</span>,
         current_page_metadata.chapter_id,
         current_page_metadata.course_id
     )
@@ -1213,11 +1214,11 @@ WHERE c.id = p.chapter_id
     module_id: Uuid,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE chapters
 SET course_module_id = $2
 WHERE id = $1
-&quot;</span>,
+"</span>,
         chapter_id,
         module_id
     )
@@ -1228,12 +1229,12 @@ WHERE id = $1
 
 <span class="kw">pub async fn </span>get_for_module(conn: <span class="kw-2">&amp;mut </span>PgConnection, module_id: Uuid) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id
 FROM chapters
 WHERE course_module_id = $1
 AND deleted_at IS NULL
-&quot;</span>,
+"</span>,
         module_id
     )
     .map(|c| c.id)
@@ -1257,13 +1258,13 @@ AND deleted_at IS NULL
                 tx.as_mut(),
                 PKeyPolicy::Generate,
                 NewCourse {
-                    name: <span class="string">&quot;&quot;</span>.to_string(),
-                    slug: <span class="string">&quot;course-2&quot;</span>.to_string(),
+                    name: <span class="string">""</span>.to_string(),
+                    slug: <span class="string">"course-2"</span>.to_string(),
                     organization_id: org,
-                    language_code: <span class="string">&quot;en-US&quot;</span>.to_string(),
-                    teacher_in_charge_name: <span class="string">&quot;Teacher&quot;</span>.to_string(),
-                    teacher_in_charge_email: <span class="string">&quot;teacher@example.com&quot;</span>.to_string(),
-                    description: <span class="string">&quot;&quot;</span>.to_string(),
+                    language_code: <span class="string">"en-US"</span>.to_string(),
+                    teacher_in_charge_name: <span class="string">"Teacher"</span>.to_string(),
+                    teacher_in_charge_email: <span class="string">"teacher@example.com"</span>.to_string(),
+                    description: <span class="string">""</span>.to_string(),
                     is_draft: <span class="bool-val">false</span>,
                     is_test_mode: <span class="bool-val">false</span>,
                     copy_user_permissions: <span class="bool-val">false</span>,
@@ -1280,7 +1281,7 @@ AND deleted_at IS NULL
                 tx.as_mut(),
                 PKeyPolicy::Generate,
                 <span class="kw-2">&amp;</span>NewChapter {
-                    name: <span class="string">&quot;Chapter of second course&quot;</span>.to_string(),
+                    name: <span class="string">"Chapter of second course"</span>.to_string(),
                     color: <span class="prelude-val">None</span>,
                     course_id: course_2,
                     chapter_number: <span class="number">0</span>,
@@ -1293,7 +1294,7 @@ AND deleted_at IS NULL
             .<span class="kw">await</span>;
             <span class="macro">assert!</span>(
                 chapter_result_2.is_err(),
-                <span class="string">&quot;Expected chapter creation to fail when course module belongs to a different course.&quot;
+                <span class="string">"Expected chapter creation to fail when course module belongs to a different course."
             </span>);
         }
     }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/litemap-0.7.2/src/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="litemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/litemap-0.7.2/src/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="litemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1260,13 +1261,13 @@
 <span class="kw">use </span>core::mem;
 <span class="kw">use </span>core::ops::{Index, IndexMut, Range};
 
-<span class="doccomment">/// A simple &quot;flat&quot; map based on a sorted vector
+<span class="doccomment">/// A simple "flat" map based on a sorted vector
 ///
 /// See the [module level documentation][super] for why one should use this.
 ///
 /// The API is roughly similar to that of [`std::collections::BTreeMap`].
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-#[cfg_attr(feature = <span class="string">&quot;yoke&quot;</span>, derive(yoke::Yokeable))]
+#[cfg_attr(feature = <span class="string">"yoke"</span>, derive(yoke::Yokeable))]
 </span><span class="kw">pub struct </span>LiteMap&lt;K: <span class="question-mark">?</span>Sized, V: <span class="question-mark">?</span>Sized, S = alloc::vec::Vec&lt;(K, V)&gt;&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) values: S,
     <span class="kw">pub</span>(<span class="kw">crate</span>) _key_type: PhantomData&lt;K&gt;,
@@ -1349,9 +1350,9 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map =
-    ///     LiteMap::&lt;i32, &amp;str, Vec&lt;_&gt;&gt;::from_iter([(1, &quot;uno&quot;), (3, &quot;tres&quot;)]);
+    ///     LiteMap::&lt;i32, &amp;str, Vec&lt;_&gt;&gt;::from_iter([(1, "uno"), (3, "tres")]);
     ///
-    /// assert_eq!(map.first(), Some((&amp;1, &amp;&quot;uno&quot;)));
+    /// assert_eq!(map.first(), Some((&amp;1, &amp;"uno")));
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>first(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V)&gt; {
@@ -1366,9 +1367,9 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map =
-    ///     LiteMap::&lt;i32, &amp;str, Vec&lt;_&gt;&gt;::from_iter([(1, &quot;uno&quot;), (3, &quot;tres&quot;)]);
+    ///     LiteMap::&lt;i32, &amp;str, Vec&lt;_&gt;&gt;::from_iter([(1, "uno"), (3, "tres")]);
     ///
-    /// assert_eq!(map.last(), Some((&amp;3, &amp;&quot;tres&quot;)));
+    /// assert_eq!(map.last(), Some((&amp;3, &amp;"tres")));
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>last(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V)&gt; {
@@ -1385,20 +1386,20 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map: LiteMap&lt;&amp;str, &amp;str&gt; = LiteMap::new_vec();
-    /// map.insert(&quot;one&quot;, &quot;uno&quot;);
-    /// map.insert(&quot;two&quot;, &quot;dos&quot;);
+    /// map.insert("one", "uno");
+    /// map.insert("two", "dos");
     ///
     /// let boxed_map: LiteMap&lt;Box&lt;str&gt;, Box&lt;str&gt;&gt; = map.to_boxed_keys_values();
     ///
-    /// assert_eq!(boxed_map.get(&quot;one&quot;), Some(&amp;Box::from(&quot;uno&quot;)));
+    /// assert_eq!(boxed_map.get("one"), Some(&amp;Box::from("uno")));
     /// ```
     </span><span class="kw">pub fn </span>to_boxed_keys_values&lt;KB: <span class="question-mark">?</span>Sized, VB: <span class="question-mark">?</span>Sized, SB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LiteMap&lt;Box&lt;KB&gt;, Box&lt;VB&gt;, SB&gt;
     <span class="kw">where
         </span>SB: StoreMut&lt;Box&lt;KB&gt;, Box&lt;VB&gt;&gt;,
         K: Borrow&lt;KB&gt;,
         V: Borrow&lt;VB&gt;,
-        Box&lt;KB&gt;: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>KB&gt;,
-        Box&lt;VB&gt;: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VB&gt;,
+        Box&lt;KB&gt;: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>KB&gt;,
+        Box&lt;VB&gt;: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>VB&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>values = SB::lm_with_capacity(<span class="self">self</span>.len());
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.len() {
@@ -1423,19 +1424,19 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map: LiteMap&lt;&amp;str, usize&gt; = LiteMap::new_vec();
-    /// map.insert(&quot;one&quot;, 11);
-    /// map.insert(&quot;two&quot;, 22);
+    /// map.insert("one", 11);
+    /// map.insert("two", 22);
     ///
     /// let boxed_map: LiteMap&lt;Box&lt;str&gt;, usize&gt; = map.to_boxed_keys();
     ///
-    /// assert_eq!(boxed_map.get(&quot;one&quot;), Some(&amp;11));
+    /// assert_eq!(boxed_map.get("one"), Some(&amp;11));
     /// ```
     </span><span class="kw">pub fn </span>to_boxed_keys&lt;KB: <span class="question-mark">?</span>Sized, SB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LiteMap&lt;Box&lt;KB&gt;, V, SB&gt;
     <span class="kw">where
         </span>V: Clone,
         SB: StoreMut&lt;Box&lt;KB&gt;, V&gt;,
         K: Borrow&lt;KB&gt;,
-        Box&lt;KB&gt;: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>KB&gt;,
+        Box&lt;KB&gt;: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>KB&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>values = SB::lm_with_capacity(<span class="self">self</span>.len());
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.len() {
@@ -1460,19 +1461,19 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map: LiteMap&lt;usize, &amp;str&gt; = LiteMap::new_vec();
-    /// map.insert(11, &quot;uno&quot;);
-    /// map.insert(22, &quot;dos&quot;);
+    /// map.insert(11, "uno");
+    /// map.insert(22, "dos");
     ///
     /// let boxed_map: LiteMap&lt;usize, Box&lt;str&gt;&gt; = map.to_boxed_values();
     ///
-    /// assert_eq!(boxed_map.get(&amp;11), Some(&amp;Box::from(&quot;uno&quot;)));
+    /// assert_eq!(boxed_map.get(&amp;11), Some(&amp;Box::from("uno")));
     /// ```
     </span><span class="kw">pub fn </span>to_boxed_values&lt;VB: <span class="question-mark">?</span>Sized, SB&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LiteMap&lt;K, Box&lt;VB&gt;, SB&gt;
     <span class="kw">where
         </span>K: Clone,
         SB: StoreMut&lt;K, Box&lt;VB&gt;&gt;,
         V: Borrow&lt;VB&gt;,
-        Box&lt;VB&gt;: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VB&gt;,
+        Box&lt;VB&gt;: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>VB&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>values = SB::lm_with_capacity(<span class="self">self</span>.len());
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.len() {
@@ -1499,9 +1500,9 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(2, &quot;two&quot;);
-    /// assert_eq!(map.get(&amp;1), Some(&amp;&quot;one&quot;));
+    /// map.insert(1, "one");
+    /// map.insert(2, "two");
+    /// assert_eq!(map.get(&amp;1), Some(&amp;"one"));
     /// assert_eq!(map.get(&amp;3), None);
     /// ```
     </span><span class="kw">pub fn </span>get&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V&gt;
@@ -1528,8 +1529,8 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(2, &quot;two&quot;);
+    /// map.insert(1, "one");
+    /// map.insert(2, "two");
     /// assert!(map.contains_key(&amp;1));
     /// assert!(!map.contains_key(&amp;3));
     /// ```
@@ -1570,14 +1571,14 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(2, &quot;two&quot;);
-    /// map.insert(3, &quot;three&quot;);
+    /// map.insert(1, "one");
+    /// map.insert(2, "two");
+    /// map.insert(3, "three");
     ///
-    /// let mut sub_map = map.get_indexed_range(1..3).expect(&quot;valid range&quot;);
+    /// let mut sub_map = map.get_indexed_range(1..3).expect("valid range");
     /// assert_eq!(sub_map.get(&amp;1), None);
-    /// assert_eq!(sub_map.get(&amp;2), Some(&amp;&quot;two&quot;));
-    /// assert_eq!(sub_map.get(&amp;3), Some(&amp;&quot;three&quot;));
+    /// assert_eq!(sub_map.get(&amp;2), Some(&amp;"two"));
+    /// assert_eq!(sub_map.get(&amp;3), Some(&amp;"three"));
     /// ```
     </span><span class="kw">pub fn </span>get_indexed_range(<span class="kw-2">&amp;</span><span class="self">self</span>, range: Range&lt;usize&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;LiteMap&lt;K, V, <span class="kw-2">&amp;</span>S::Slice&gt;&gt; {
         <span class="kw">let </span>subslice = <span class="self">self</span>.values.lm_get_range(range)<span class="question-mark">?</span>;
@@ -1599,15 +1600,15 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(2, &quot;two&quot;);
+    /// map.insert(1, "one");
+    /// map.insert(2, "two");
     ///
     /// let borrowed_map = map.as_sliced();
-    /// assert_eq!(borrowed_map.get(&amp;1), Some(&amp;&quot;one&quot;));
-    /// assert_eq!(borrowed_map.get(&amp;2), Some(&amp;&quot;two&quot;));
+    /// assert_eq!(borrowed_map.get(&amp;1), Some(&amp;"one"));
+    /// assert_eq!(borrowed_map.get(&amp;2), Some(&amp;"two"));
     /// ```
     </span><span class="kw">pub fn </span>as_sliced(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LiteMap&lt;K, V, <span class="kw-2">&amp;</span>S::Slice&gt; {
-        <span class="comment">// Won&#39;t panic: 0..self.len() is within range
+        <span class="comment">// Won't panic: 0..self.len() is within range
         </span><span class="attr">#[allow(clippy::unwrap_used)]
         </span><span class="kw">let </span>subslice = <span class="self">self</span>.values.lm_get_range(<span class="number">0</span>..<span class="self">self</span>.len()).unwrap();
         LiteMap {
@@ -1627,20 +1628,20 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(2, &quot;two&quot;);
+    /// map.insert(1, "one");
+    /// map.insert(2, "two");
     ///
     /// let slice = map.as_slice();
-    /// assert_eq!(slice, &amp;[(1, &quot;one&quot;), (2, &quot;two&quot;)]);
+    /// assert_eq!(slice, &amp;[(1, "one"), (2, "two")]);
     /// ```
     </span><span class="kw">pub fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>S::Slice {
-        <span class="comment">// Won&#39;t panic: 0..self.len() is within range
+        <span class="comment">// Won't panic: 0..self.len() is within range
         </span><span class="attr">#[allow(clippy::unwrap_used)]
         </span><span class="self">self</span>.values.lm_get_range(<span class="number">0</span>..<span class="self">self</span>.len()).unwrap()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a</span>, V: <span class="lifetime">&#39;a</span>, S&gt; LiteMap&lt;K, V, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a</span>, S&gt; LiteMap&lt;K, V, S&gt;
 <span class="kw">where
     </span>S: Store&lt;K, V&gt;,
 {
@@ -1652,20 +1653,20 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map: LiteMap&lt;Box&lt;usize&gt;, String&gt; = LiteMap::new_vec();
-    /// map.insert(Box::new(1), &quot;one&quot;.to_string());
-    /// map.insert(Box::new(2), &quot;two&quot;.to_string());
+    /// map.insert(Box::new(1), "one".to_string());
+    /// map.insert(Box::new(2), "two".to_string());
     ///
     /// let borrowed_map: LiteMap&lt;&amp;usize, &amp;str&gt; = map.to_borrowed_keys_values();
     ///
-    /// assert_eq!(borrowed_map.get(&amp;1), Some(&amp;&quot;one&quot;));
+    /// assert_eq!(borrowed_map.get(&amp;1), Some(&amp;"one"));
     /// ```
     </span><span class="kw">pub fn </span>to_borrowed_keys_values&lt;KB: <span class="question-mark">?</span>Sized, VB: <span class="question-mark">?</span>Sized, SB&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-    ) -&gt; LiteMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>KB, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VB, SB&gt;
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+    ) -&gt; LiteMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>KB, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>VB, SB&gt;
     <span class="kw">where
         </span>K: Borrow&lt;KB&gt;,
         V: Borrow&lt;VB&gt;,
-        SB: StoreMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>KB, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VB&gt;,
+        SB: StoreMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>KB, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>VB&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>values = SB::lm_with_capacity(<span class="self">self</span>.len());
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.len() {
@@ -1688,18 +1689,18 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map: LiteMap&lt;Box&lt;usize&gt;, String&gt; = LiteMap::new_vec();
-    /// map.insert(Box::new(1), &quot;one&quot;.to_string());
-    /// map.insert(Box::new(2), &quot;two&quot;.to_string());
+    /// map.insert(Box::new(1), "one".to_string());
+    /// map.insert(Box::new(2), "two".to_string());
     ///
     /// let borrowed_map: LiteMap&lt;&amp;usize, String&gt; = map.to_borrowed_keys();
     ///
-    /// assert_eq!(borrowed_map.get(&amp;1), Some(&amp;&quot;one&quot;.to_string()));
+    /// assert_eq!(borrowed_map.get(&amp;1), Some(&amp;"one".to_string()));
     /// ```
-    </span><span class="kw">pub fn </span>to_borrowed_keys&lt;KB: <span class="question-mark">?</span>Sized, SB&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; LiteMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>KB, V, SB&gt;
+    </span><span class="kw">pub fn </span>to_borrowed_keys&lt;KB: <span class="question-mark">?</span>Sized, SB&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; LiteMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>KB, V, SB&gt;
     <span class="kw">where
         </span>K: Borrow&lt;KB&gt;,
         V: Clone,
-        SB: StoreMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>KB, V&gt;,
+        SB: StoreMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>KB, V&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>values = SB::lm_with_capacity(<span class="self">self</span>.len());
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.len() {
@@ -1722,18 +1723,18 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map: LiteMap&lt;Box&lt;usize&gt;, String&gt; = LiteMap::new_vec();
-    /// map.insert(Box::new(1), &quot;one&quot;.to_string());
-    /// map.insert(Box::new(2), &quot;two&quot;.to_string());
+    /// map.insert(Box::new(1), "one".to_string());
+    /// map.insert(Box::new(2), "two".to_string());
     ///
     /// let borrowed_map: LiteMap&lt;Box&lt;usize&gt;, &amp;str&gt; = map.to_borrowed_values();
     ///
-    /// assert_eq!(borrowed_map.get(&amp;1), Some(&amp;&quot;one&quot;));
+    /// assert_eq!(borrowed_map.get(&amp;1), Some(&amp;"one"));
     /// ```
-    </span><span class="kw">pub fn </span>to_borrowed_values&lt;VB: <span class="question-mark">?</span>Sized, SB&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; LiteMap&lt;K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VB, SB&gt;
+    </span><span class="kw">pub fn </span>to_borrowed_values&lt;VB: <span class="question-mark">?</span>Sized, SB&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; LiteMap&lt;K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>VB, SB&gt;
     <span class="kw">where
         </span>K: Clone,
         V: Borrow&lt;VB&gt;,
-        SB: StoreMut&lt;K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VB&gt;,
+        SB: StoreMut&lt;K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>VB&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>values = SB::lm_with_capacity(<span class="self">self</span>.len());
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.len() {
@@ -1789,12 +1790,12 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(2, &quot;two&quot;);
+    /// map.insert(1, "one");
+    /// map.insert(2, "two");
     /// if let Some(mut v) = map.get_mut(&amp;1) {
-    ///     *v = &quot;uno&quot;;
+    ///     *v = "uno";
     /// }
-    /// assert_eq!(map.get(&amp;1), Some(&amp;&quot;uno&quot;));
+    /// assert_eq!(map.get(&amp;1), Some(&amp;"uno"));
     /// ```
     </span><span class="kw">pub fn </span>get_mut&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>V&gt;
     <span class="kw">where
@@ -1815,25 +1816,25 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// assert!(map.try_append(1, &quot;uno&quot;).is_none());
-    /// assert!(map.try_append(3, &quot;tres&quot;).is_none());
+    /// assert!(map.try_append(1, "uno").is_none());
+    /// assert!(map.try_append(3, "tres").is_none());
     ///
     /// assert!(
-    ///     matches!(map.try_append(3, &quot;tres-updated&quot;), Some((3, &quot;tres-updated&quot;))),
-    ///     &quot;append duplicate of last key&quot;,
+    ///     matches!(map.try_append(3, "tres-updated"), Some((3, "tres-updated"))),
+    ///     "append duplicate of last key",
     /// );
     ///
     /// assert!(
-    ///     matches!(map.try_append(2, &quot;dos&quot;), Some((2, &quot;dos&quot;))),
-    ///     &quot;append out of order&quot;
+    ///     matches!(map.try_append(2, "dos"), Some((2, "dos"))),
+    ///     "append out of order"
     /// );
     ///
-    /// assert_eq!(map.get(&amp;1), Some(&amp;&quot;uno&quot;));
+    /// assert_eq!(map.get(&amp;1), Some(&amp;"uno"));
     ///
     /// // contains the original value for the key: 3
-    /// assert_eq!(map.get(&amp;3), Some(&amp;&quot;tres&quot;));
+    /// assert_eq!(map.get(&amp;3), Some(&amp;"tres"));
     ///
-    /// // not appended since it wasn&#39;t in order
+    /// // not appended since it wasn't in order
     /// assert_eq!(map.get(&amp;2), None);
     /// ```
     </span><span class="attr">#[must_use]
@@ -1854,9 +1855,9 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(2, &quot;two&quot;);
-    /// assert_eq!(map.get(&amp;1), Some(&amp;&quot;one&quot;));
+    /// map.insert(1, "one");
+    /// map.insert(2, "two");
+    /// assert_eq!(map.get(&amp;1), Some(&amp;"one"));
     /// assert_eq!(map.get(&amp;3), None);
     /// ```
     </span><span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, value: V) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt; {
@@ -1890,15 +1891,15 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(3, &quot;three&quot;);
+    /// map.insert(1, "one");
+    /// map.insert(3, "three");
     ///
     /// // 2 is not yet in the map...
-    /// assert_eq!(map.try_insert(2, &quot;two&quot;), None);
+    /// assert_eq!(map.try_insert(2, "two"), None);
     /// assert_eq!(map.len(), 3);
     ///
     /// // ...but now it is.
-    /// assert_eq!(map.try_insert(2, &quot;TWO&quot;), Some((2, &quot;TWO&quot;)));
+    /// assert_eq!(map.try_insert(2, "TWO"), Some((2, "TWO")));
     /// assert_eq!(map.len(), 3);
     /// ```
     </span><span class="kw">pub fn </span>try_insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, value: V) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt; {
@@ -1920,7 +1921,7 @@
     /// If `key` is already in the map, a reference to the existing value is returned.
     ///
     /// Additionally, the index of the value in the map is returned. If it is not desirable
-    /// to hold on to the mutable reference&#39;s lifetime, the index can be used to access the
+    /// to hold on to the mutable reference's lifetime, the index can be used to access the
     /// element via [`LiteMap::get_indexed()`].
     ///
     /// The closure returns a `Result` to allow for a fallible insertion function. If the
@@ -1935,21 +1936,21 @@
     /// }
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(3, &quot;three&quot;);
+    /// map.insert(1, "one");
+    /// map.insert(3, "three");
     ///
     /// // 2 is not yet in the map...
     /// let result1 = unwrap_infallible(
-    ///     map.try_get_or_insert(2, |_| Ok(&quot;two&quot;))
+    ///     map.try_get_or_insert(2, |_| Ok("two"))
     /// );
-    /// assert_eq!(result1.1, &amp;&quot;two&quot;);
+    /// assert_eq!(result1.1, &amp;"two");
     /// assert_eq!(map.len(), 3);
     ///
     /// // ...but now it is.
     /// let result1 = unwrap_infallible(
-    ///     map.try_get_or_insert(2, |_| Ok(&quot;TWO&quot;))
+    ///     map.try_get_or_insert(2, |_| Ok("TWO"))
     /// );
-    /// assert_eq!(result1.1, &amp;&quot;two&quot;);
+    /// assert_eq!(result1.1, &amp;"two");
     /// assert_eq!(map.len(), 3);
     /// ```
     </span><span class="kw">pub fn </span>try_get_or_insert&lt;E&gt;(
@@ -1975,9 +1976,9 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(2, &quot;two&quot;);
-    /// assert_eq!(map.remove(&amp;1), Some(&quot;one&quot;));
+    /// map.insert(1, "one");
+    /// map.insert(2, "two");
+    /// assert_eq!(map.remove(&amp;1), Some("one"));
     /// assert_eq!(map.get(&amp;1), None);
     /// ```
     </span><span class="kw">pub fn </span>remove&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt;
@@ -1992,10 +1993,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a</span>, V: <span class="lifetime">&#39;a</span>, S&gt; LiteMap&lt;K, V, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a</span>, S&gt; LiteMap&lt;K, V, S&gt;
 <span class="kw">where
     </span>K: Ord,
-    S: StoreIterableMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; + StoreFromIterator&lt;K, V&gt;,
+    S: StoreIterableMut&lt;<span class="lifetime">'a</span>, K, V&gt; + StoreFromIterator&lt;K, V&gt;,
 {
     <span class="doccomment">/// Insert all elements from `other` into this `LiteMap`.
     ///
@@ -2011,23 +2012,23 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map1 = LiteMap::new_vec();
-    /// map1.insert(1, &quot;one&quot;);
-    /// map1.insert(2, &quot;two&quot;);
+    /// map1.insert(1, "one");
+    /// map1.insert(2, "two");
     ///
     /// let mut map2 = LiteMap::new_vec();
-    /// map2.insert(2, &quot;TWO&quot;);
-    /// map2.insert(4, &quot;FOUR&quot;);
+    /// map2.insert(2, "TWO");
+    /// map2.insert(4, "FOUR");
     ///
     /// let leftovers = map1.extend_from_litemap(map2);
     ///
     /// assert_eq!(map1.len(), 3);
-    /// assert_eq!(map1.get(&amp;1), Some(&quot;one&quot;).as_ref());
-    /// assert_eq!(map1.get(&amp;2), Some(&quot;TWO&quot;).as_ref());
-    /// assert_eq!(map1.get(&amp;4), Some(&quot;FOUR&quot;).as_ref());
+    /// assert_eq!(map1.get(&amp;1), Some("one").as_ref());
+    /// assert_eq!(map1.get(&amp;2), Some("TWO").as_ref());
+    /// assert_eq!(map1.get(&amp;4), Some("FOUR").as_ref());
     ///
-    /// let map3 = leftovers.expect(&quot;Duplicate keys&quot;);
+    /// let map3 = leftovers.expect("Duplicate keys");
     /// assert_eq!(map3.len(), 1);
-    /// assert_eq!(map3.get(&amp;2), Some(&quot;two&quot;).as_ref());
+    /// assert_eq!(map3.get(&amp;2), Some("two").as_ref());
     /// ```
     </span><span class="kw">pub fn </span>extend_from_litemap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_empty() {
@@ -2078,7 +2079,7 @@
         }
     }
 }
-<span class="kw">impl</span>&lt;K, V, S&gt; Index&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>K&gt; <span class="kw">for </span>LiteMap&lt;K, V, S&gt;
+<span class="kw">impl</span>&lt;K, V, S&gt; Index&lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>K&gt; <span class="kw">for </span>LiteMap&lt;K, V, S&gt;
 <span class="kw">where
     </span>K: Ord,
     S: Store&lt;K, V&gt;,
@@ -2088,11 +2089,11 @@
         <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// documented
         </span><span class="kw">match </span><span class="self">self</span>.get(key) {
             <span class="prelude-val">Some</span>(v) =&gt; v,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;no entry found for key&quot;</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">"no entry found for key"</span>),
         }
     }
 }
-<span class="kw">impl</span>&lt;K, V, S&gt; IndexMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>K&gt; <span class="kw">for </span>LiteMap&lt;K, V, S&gt;
+<span class="kw">impl</span>&lt;K, V, S&gt; IndexMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>K&gt; <span class="kw">for </span>LiteMap&lt;K, V, S&gt;
 <span class="kw">where
     </span>K: Ord,
     S: StoreMut&lt;K, V&gt;,
@@ -2101,7 +2102,7 @@
         <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// documented
         </span><span class="kw">match </span><span class="self">self</span>.get_mut(key) {
             <span class="prelude-val">Some</span>(v) =&gt; v,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;no entry found for key&quot;</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">"no entry found for key"</span>),
         }
     }
 }
@@ -2116,32 +2117,32 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a</span>, V: <span class="lifetime">&#39;a</span>, S&gt; LiteMap&lt;K, V, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a</span>, S&gt; LiteMap&lt;K, V, S&gt;
 <span class="kw">where
-    </span>S: StoreIterable&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+    </span>S: StoreIterable&lt;<span class="lifetime">'a</span>, K, V&gt;,
 {
     <span class="doccomment">/// Produce an ordered iterator over key-value pairs
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt; {
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; {
         <span class="self">self</span>.values.lm_iter()
     }
 
     <span class="doccomment">/// Produce an ordered iterator over keys
-    </span><span class="kw">pub fn </span>iter_keys(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K&gt; {
+    </span><span class="kw">pub fn </span>iter_keys(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>K&gt; {
         <span class="self">self</span>.values.lm_iter().map(|val| val.<span class="number">0</span>)
     }
 
     <span class="doccomment">/// Produce an iterator over values, ordered by their keys
-    </span><span class="kw">pub fn </span>iter_values(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V&gt; {
+    </span><span class="kw">pub fn </span>iter_values(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V&gt; {
         <span class="self">self</span>.values.lm_iter().map(|val| val.<span class="number">1</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a</span>, V: <span class="lifetime">&#39;a</span>, S&gt; LiteMap&lt;K, V, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a</span>, S&gt; LiteMap&lt;K, V, S&gt;
 <span class="kw">where
-    </span>S: StoreIterableMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+    </span>S: StoreIterableMut&lt;<span class="lifetime">'a</span>, K, V&gt;,
 {
     <span class="doccomment">/// Produce an ordered mutable iterator over key-value pairs
-    </span><span class="kw">pub fn </span>iter_mut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V)&gt; {
+    </span><span class="kw">pub fn </span>iter_mut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)&gt; {
         <span class="self">self</span>.values.lm_iter_mut()
     }
 }
@@ -2160,14 +2161,14 @@
     /// use litemap::LiteMap;
     ///
     /// let mut map = LiteMap::new_vec();
-    /// map.insert(1, &quot;one&quot;);
-    /// map.insert(2, &quot;two&quot;);
-    /// map.insert(3, &quot;three&quot;);
+    /// map.insert(1, "one");
+    /// map.insert(2, "two");
+    /// map.insert(3, "three");
     ///
     /// // Retain elements with odd keys
     /// map.retain(|k, _| k % 2 == 1);
     ///
-    /// assert_eq!(map.get(&amp;1), Some(&amp;&quot;one&quot;));
+    /// assert_eq!(map.get(&amp;1), Some(&amp;"one"));
     /// assert_eq!(map.get(&amp;2), None);
     /// ```
     </span><span class="attr">#[inline]
@@ -2179,7 +2180,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; LiteMap&lt;K, V, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, V)]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; LiteMap&lt;K, V, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, V)]&gt; {
     <span class="doccomment">/// Const version of [`LiteMap::len()`] for a slice store.
     ///
     /// Note: This function will no longer be needed if const trait behavior is stabilized.
@@ -2190,7 +2191,7 @@
     /// use litemap::LiteMap;
     ///
     /// static map: LiteMap&lt;&amp;str, usize, &amp;[(&amp;str, usize)]&gt; =
-    ///     LiteMap::from_sorted_store_unchecked(&amp;[(&quot;a&quot;, 11), (&quot;b&quot;, 22)]);
+    ///     LiteMap::from_sorted_store_unchecked(&amp;[("a", 11), ("b", 22)]);
     /// static len: usize = map.const_len();
     /// assert_eq!(len, 2);
     /// ```
@@ -2232,14 +2233,14 @@
     /// use litemap::LiteMap;
     ///
     /// static map: LiteMap&lt;&amp;str, usize, &amp;[(&amp;str, usize)]&gt; =
-    ///     LiteMap::from_sorted_store_unchecked(&amp;[(&quot;a&quot;, 11), (&quot;b&quot;, 22)]);
+    ///     LiteMap::from_sorted_store_unchecked(&amp;[("a", 11), ("b", 22)]);
     /// static t: &amp;(&amp;str, usize) = map.const_get_indexed_or_panic(0);
-    /// assert_eq!(t.0, &quot;a&quot;);
+    /// assert_eq!(t.0, "a");
     /// assert_eq!(t.1, 11);
     /// ```
     </span><span class="attr">#[inline]
     #[allow(clippy::indexing_slicing)] </span><span class="comment">// documented
-    </span><span class="kw">pub const fn </span>const_get_indexed_or_panic(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>(K, V) {
+    </span><span class="kw">pub const fn </span>const_get_indexed_or_panic(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>(K, V) {
         <span class="kw-2">&amp;</span><span class="self">self</span>.values[index]
     }
 }
@@ -2267,7 +2268,7 @@
     default
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, V&gt; LiteMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, V, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, V)]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, V&gt; LiteMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, V, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, V)]&gt; {
     <span class="doccomment">/// Const function to get the value associated with a `&amp;str` key, if it exists.
     ///
     /// Also returns the index of the value.
@@ -2281,20 +2282,20 @@
     ///
     /// static map: LiteMap&lt;&amp;str, usize, &amp;[(&amp;str, usize)]&gt; =
     ///     LiteMap::from_sorted_store_unchecked(&amp;[
-    ///         (&quot;abc&quot;, 11),
-    ///         (&quot;bcd&quot;, 22),
-    ///         (&quot;cde&quot;, 33),
-    ///         (&quot;def&quot;, 44),
-    ///         (&quot;efg&quot;, 55),
+    ///         ("abc", 11),
+    ///         ("bcd", 22),
+    ///         ("cde", 33),
+    ///         ("def", 44),
+    ///         ("efg", 55),
     ///     ]);
     ///
-    /// static d: Option&lt;(usize, &amp;usize)&gt; = map.const_get_with_index(&quot;def&quot;);
+    /// static d: Option&lt;(usize, &amp;usize)&gt; = map.const_get_with_index("def");
     /// assert_eq!(d, Some((3, &amp;44)));
     ///
-    /// static n: Option&lt;(usize, &amp;usize)&gt; = map.const_get_with_index(&quot;dng&quot;);
+    /// static n: Option&lt;(usize, &amp;usize)&gt; = map.const_get_with_index("dng");
     /// assert_eq!(n, None);
     /// ```
-    </span><span class="kw">pub const fn </span>const_get_with_index(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt; {
+    </span><span class="kw">pub const fn </span>const_get_with_index(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>j = <span class="self">self</span>.const_len();
         <span class="kw">while </span>i &lt; j {
@@ -2311,7 +2312,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, V&gt; LiteMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], V, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], V)]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, V&gt; LiteMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], V, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], V)]&gt; {
     <span class="doccomment">/// Const function to get the value associated with a `&amp;[u8]` key, if it exists.
     ///
     /// Also returns the index of the value.
@@ -2325,20 +2326,20 @@
     ///
     /// static map: LiteMap&lt;&amp;[u8], usize, &amp;[(&amp;[u8], usize)]&gt; =
     ///     LiteMap::from_sorted_store_unchecked(&amp;[
-    ///         (b&quot;abc&quot;, 11),
-    ///         (b&quot;bcd&quot;, 22),
-    ///         (b&quot;cde&quot;, 33),
-    ///         (b&quot;def&quot;, 44),
-    ///         (b&quot;efg&quot;, 55),
+    ///         (b"abc", 11),
+    ///         (b"bcd", 22),
+    ///         (b"cde", 33),
+    ///         (b"def", 44),
+    ///         (b"efg", 55),
     ///     ]);
     ///
-    /// static d: Option&lt;(usize, &amp;usize)&gt; = map.const_get_with_index(b&quot;def&quot;);
+    /// static d: Option&lt;(usize, &amp;usize)&gt; = map.const_get_with_index(b"def");
     /// assert_eq!(d, Some((3, &amp;44)));
     ///
-    /// static n: Option&lt;(usize, &amp;usize)&gt; = map.const_get_with_index(b&quot;dng&quot;);
+    /// static n: Option&lt;(usize, &amp;usize)&gt; = map.const_get_with_index(b"dng");
     /// assert_eq!(n, None);
     /// ```
-    </span><span class="kw">pub const fn </span>const_get_with_index(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt; {
+    </span><span class="kw">pub const fn </span>const_get_with_index(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>j = <span class="self">self</span>.const_len();
         <span class="kw">while </span>i &lt; j {
@@ -2357,13 +2358,13 @@
 
 <span class="macro">macro_rules! </span>impl_const_get_with_index_for_integer {
     (<span class="macro-nonterminal">$integer</span>:ty) =&gt; {
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, V&gt; LiteMap&lt;<span class="macro-nonterminal">$integer</span>, V, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(<span class="macro-nonterminal">$integer</span>, V)]&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, V&gt; LiteMap&lt;<span class="macro-nonterminal">$integer</span>, V, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(<span class="macro-nonterminal">$integer</span>, V)]&gt; {
             <span class="doccomment">/// Const function to get the value associated with an integer key, if it exists.
             ///
             /// Note: This function will no longer be needed if const trait behavior is stabilized.
             ///
             /// Also returns the index of the value.
-            </span><span class="kw">pub const fn </span>const_get_with_index(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="macro-nonterminal">$integer</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt; {
+            </span><span class="kw">pub const fn </span>const_get_with_index(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="macro-nonterminal">$integer</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
                 <span class="kw">let </span><span class="kw-2">mut </span>j = <span class="self">self</span>.const_len();
                 <span class="kw">while </span>i &lt; j {
@@ -2404,42 +2405,42 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>from_iterator() {
         <span class="kw">let </span><span class="kw-2">mut </span>expected = LiteMap::with_capacity(<span class="number">4</span>);
-        expected.insert(<span class="number">1</span>, <span class="string">&quot;updated-one&quot;</span>);
-        expected.insert(<span class="number">2</span>, <span class="string">&quot;original-two&quot;</span>);
-        expected.insert(<span class="number">3</span>, <span class="string">&quot;original-three&quot;</span>);
-        expected.insert(<span class="number">4</span>, <span class="string">&quot;updated-four&quot;</span>);
+        expected.insert(<span class="number">1</span>, <span class="string">"updated-one"</span>);
+        expected.insert(<span class="number">2</span>, <span class="string">"original-two"</span>);
+        expected.insert(<span class="number">3</span>, <span class="string">"original-three"</span>);
+        expected.insert(<span class="number">4</span>, <span class="string">"updated-four"</span>);
 
         <span class="kw">let </span>actual = [
-            (<span class="number">1</span>, <span class="string">&quot;original-one&quot;</span>),
-            (<span class="number">2</span>, <span class="string">&quot;original-two&quot;</span>),
-            (<span class="number">4</span>, <span class="string">&quot;original-four&quot;</span>),
-            (<span class="number">4</span>, <span class="string">&quot;updated-four&quot;</span>),
-            (<span class="number">1</span>, <span class="string">&quot;updated-one&quot;</span>),
-            (<span class="number">3</span>, <span class="string">&quot;original-three&quot;</span>),
+            (<span class="number">1</span>, <span class="string">"original-one"</span>),
+            (<span class="number">2</span>, <span class="string">"original-two"</span>),
+            (<span class="number">4</span>, <span class="string">"original-four"</span>),
+            (<span class="number">4</span>, <span class="string">"updated-four"</span>),
+            (<span class="number">1</span>, <span class="string">"updated-one"</span>),
+            (<span class="number">3</span>, <span class="string">"original-three"</span>),
         ]
         .into_iter()
         .collect::&lt;LiteMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
 
         <span class="macro">assert_eq!</span>(expected, actual);
     }
-    <span class="kw">fn </span>make_13() -&gt; LiteMap&lt;usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    <span class="kw">fn </span>make_13() -&gt; LiteMap&lt;usize, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>result = LiteMap::new();
-        result.insert(<span class="number">1</span>, <span class="string">&quot;one&quot;</span>);
-        result.insert(<span class="number">3</span>, <span class="string">&quot;three&quot;</span>);
+        result.insert(<span class="number">1</span>, <span class="string">"one"</span>);
+        result.insert(<span class="number">3</span>, <span class="string">"three"</span>);
         result
     }
 
-    <span class="kw">fn </span>make_24() -&gt; LiteMap&lt;usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    <span class="kw">fn </span>make_24() -&gt; LiteMap&lt;usize, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>result = LiteMap::new();
-        result.insert(<span class="number">2</span>, <span class="string">&quot;TWO&quot;</span>);
-        result.insert(<span class="number">4</span>, <span class="string">&quot;FOUR&quot;</span>);
+        result.insert(<span class="number">2</span>, <span class="string">"TWO"</span>);
+        result.insert(<span class="number">4</span>, <span class="string">"FOUR"</span>);
         result
     }
 
-    <span class="kw">fn </span>make_46() -&gt; LiteMap&lt;usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    <span class="kw">fn </span>make_46() -&gt; LiteMap&lt;usize, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>result = LiteMap::new();
-        result.insert(<span class="number">4</span>, <span class="string">&quot;four&quot;</span>);
-        result.insert(<span class="number">6</span>, <span class="string">&quot;six&quot;</span>);
+        result.insert(<span class="number">4</span>, <span class="string">"four"</span>);
+        result.insert(<span class="number">6</span>, <span class="string">"six"</span>);
         result
     }
 
@@ -2448,10 +2449,10 @@
         <span class="kw">let </span><span class="kw-2">mut </span>map = LiteMap::new();
         map.extend_from_litemap(make_13())
             .ok_or(())
-            .expect_err(<span class="string">&quot;Append to empty map&quot;</span>);
+            .expect_err(<span class="string">"Append to empty map"</span>);
         map.extend_from_litemap(make_46())
             .ok_or(())
-            .expect_err(<span class="string">&quot;Append to lesser map&quot;</span>);
+            .expect_err(<span class="string">"Append to lesser map"</span>);
         <span class="macro">assert_eq!</span>(map.len(), <span class="number">4</span>);
     }
 
@@ -2460,10 +2461,10 @@
         <span class="kw">let </span><span class="kw-2">mut </span>map = LiteMap::new();
         map.extend_from_litemap(make_46())
             .ok_or(())
-            .expect_err(<span class="string">&quot;Prepend to empty map&quot;</span>);
+            .expect_err(<span class="string">"Prepend to empty map"</span>);
         map.extend_from_litemap(make_13())
             .ok_or(())
-            .expect_err(<span class="string">&quot;Prepend to lesser map&quot;</span>);
+            .expect_err(<span class="string">"Prepend to lesser map"</span>);
         <span class="macro">assert_eq!</span>(map.len(), <span class="number">4</span>);
     }
 
@@ -2472,19 +2473,19 @@
         <span class="kw">let </span><span class="kw-2">mut </span>map = LiteMap::new();
         map.extend_from_litemap(make_13())
             .ok_or(())
-            .expect_err(<span class="string">&quot;Append to empty map&quot;</span>);
+            .expect_err(<span class="string">"Append to empty map"</span>);
         map.extend_from_litemap(make_24())
             .ok_or(())
-            .expect_err(<span class="string">&quot;Insert with no conflict&quot;</span>);
+            .expect_err(<span class="string">"Insert with no conflict"</span>);
         map.extend_from_litemap(make_46())
             .ok_or(())
-            .expect(<span class="string">&quot;Insert with conflict&quot;</span>);
+            .expect(<span class="string">"Insert with conflict"</span>);
         <span class="macro">assert_eq!</span>(map.len(), <span class="number">5</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_const_cmp_bytes() {
-        <span class="kw">let </span>strs = <span class="kw-2">&amp;</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;aa&quot;</span>, <span class="string">&quot;abc&quot;</span>, <span class="string">&quot;abde&quot;</span>, <span class="string">&quot;bcd&quot;</span>, <span class="string">&quot;bcde&quot;</span>];
+        <span class="kw">let </span>strs = <span class="kw-2">&amp;</span>[<span class="string">"a"</span>, <span class="string">"aa"</span>, <span class="string">"abc"</span>, <span class="string">"abde"</span>, <span class="string">"bcd"</span>, <span class="string">"bcde"</span>];
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..strs.len() {
             <span class="kw">for </span>j <span class="kw">in </span><span class="number">0</span>..strs.len() {
                 <span class="kw">let </span>a = strs[i].as_bytes();

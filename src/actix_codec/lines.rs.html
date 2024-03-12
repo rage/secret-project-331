@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-codec-0.5.2/src/lines.rs`."><title>lines.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_codec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_codec/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_codec"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-codec-0.5.2/src/lines.rs`."><title>lines.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_codec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_codec/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_codec"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -179,7 +180,7 @@
         <span class="kw">let </span>item = item.as_ref();
         dst.reserve(item.len() + <span class="number">1</span>);
         dst.put_slice(item.as_bytes());
-        dst.put_u8(<span class="string">b&#39;\n&#39;</span>);
+        dst.put_u8(<span class="string">b'\n'</span>);
         <span class="prelude-val">Ok</span>(())
     }
 }
@@ -193,7 +194,7 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">let </span>len = <span class="kw">match </span>memchr(<span class="string">b&#39;\n&#39;</span>, src) {
+        <span class="kw">let </span>len = <span class="kw">match </span>memchr(<span class="string">b'\n'</span>, src) {
             <span class="prelude-val">Some</span>(n) =&gt; n,
             <span class="prelude-val">None </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
@@ -209,7 +210,7 @@
 
         <span class="kw">match </span>buf.last() {
             <span class="comment">// remove carriage returns at the end of buf
-            </span><span class="prelude-val">Some</span>(<span class="string">b&#39;\r&#39;</span>) =&gt; buf.truncate(len - <span class="number">1</span>),
+            </span><span class="prelude-val">Some</span>(<span class="string">b'\r'</span>) =&gt; buf.truncate(len - <span class="number">1</span>),
 
             <span class="comment">// line is empty
             </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(String::new())),
@@ -227,7 +228,7 @@
             <span class="prelude-val">None </span>=&gt; {
                 <span class="kw">let </span>buf = <span class="kw">match </span>src.last() {
                     <span class="comment">// if last line ends in a CR then take everything up to it
-                    </span><span class="prelude-val">Some</span>(<span class="string">b&#39;\r&#39;</span>) =&gt; src.split_to(src.len() - <span class="number">1</span>),
+                    </span><span class="prelude-val">Some</span>(<span class="string">b'\r'</span>) =&gt; src.split_to(src.len() - <span class="number">1</span>),
 
                     <span class="comment">// take all bytes from source
                     </span><span class="kw">_ </span>=&gt; src.split(),
@@ -259,19 +260,19 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>lines_decoder() {
         <span class="kw">let </span><span class="kw-2">mut </span>codec = LinesCodec::default();
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">&quot;\nline 1\nline 2\r\nline 3\n\r\n\r&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">"\nline 1\nline 2\r\nline 3\n\r\n\r"</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;&quot;</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;line 1&quot;</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;line 2&quot;</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;line 3&quot;</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;&quot;</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
+        <span class="macro">assert_eq!</span>(<span class="string">""</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
+        <span class="macro">assert_eq!</span>(<span class="string">"line 1"</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
+        <span class="macro">assert_eq!</span>(<span class="string">"line 2"</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
+        <span class="macro">assert_eq!</span>(<span class="string">"line 3"</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
+        <span class="macro">assert_eq!</span>(<span class="string">""</span>, codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
         <span class="macro">assert!</span>(codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none());
         <span class="macro">assert!</span>(codec.decode_eof(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none());
 
-        buf.put_slice(<span class="string">b&quot;k&quot;</span>);
+        buf.put_slice(<span class="string">b"k"</span>);
         <span class="macro">assert!</span>(codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;\rk&quot;</span>, codec.decode_eof(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
+        <span class="macro">assert_eq!</span>(<span class="string">"\rk"</span>, codec.decode_eof(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap());
 
         <span class="macro">assert!</span>(codec.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none());
         <span class="macro">assert!</span>(codec.decode_eof(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none());
@@ -283,14 +284,14 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
 
-        codec.encode(<span class="string">&quot;&quot;</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b&quot;\n&quot;</span>);
+        codec.encode(<span class="string">""</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b"\n"</span>);
 
-        codec.encode(<span class="string">&quot;test&quot;</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b&quot;\ntest\n&quot;</span>);
+        codec.encode(<span class="string">"test"</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b"\ntest\n"</span>);
 
-        codec.encode(<span class="string">&quot;a\nb&quot;</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b&quot;\ntest\na\nb\n&quot;</span>);
+        codec.encode(<span class="string">"a\nb"</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b"\ntest\na\nb\n"</span>);
     }
 
     <span class="attr">#[test]
@@ -298,20 +299,20 @@
         <span class="kw">let </span><span class="kw-2">mut </span>codec = LinesCodec::default();
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
-        codec.encode(<span class="string">&quot;1234567&quot;</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b&quot;1234567\n&quot;</span>);
+        codec.encode(<span class="string">"1234567"</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b"1234567\n"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
-        codec.encode(<span class="string">&quot;12345678&quot;</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b&quot;12345678\n&quot;</span>);
+        codec.encode(<span class="string">"12345678"</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b"12345678\n"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
-        codec.encode(<span class="string">&quot;123456789111213&quot;</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b&quot;123456789111213\n&quot;</span>);
+        codec.encode(<span class="string">"123456789111213"</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b"123456789111213\n"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
-        codec.encode(<span class="string">&quot;1234567891112131&quot;</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b&quot;1234567891112131\n&quot;</span>);
+        codec.encode(<span class="string">"1234567891112131"</span>, <span class="kw-2">&amp;mut </span>buf).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="string">b"1234567891112131\n"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/regrading.rs`."><title>regrading.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/regrading.rs`."><title>regrading.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1002,7 +1003,7 @@
 };
 
 <span class="kw">type </span>GradingFutures =
-    HashMap&lt;String, Vec&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>Future&lt;Output = GradingData&gt; + Send + <span class="lifetime">&#39;static</span>&gt;&gt;&gt;&gt;;
+    HashMap&lt;String, Vec&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>Future&lt;Output = GradingData&gt; + Send + <span class="lifetime">'static</span>&gt;&gt;&gt;&gt;;
 
 <span class="kw">pub async fn </span>regrade(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
@@ -1011,14 +1012,14 @@
         Url,
         <span class="kw-2">&amp;</span>ExerciseTask,
         <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="comment">// stores all the futures which will resolve into new gradings
     </span><span class="kw">let </span><span class="kw-2">mut </span>grading_futures = GradingFutures::new();
     <span class="comment">// set of regradings that should not be marked as completed by the end
     </span><span class="kw">let </span><span class="kw-2">mut </span>incomplete_regradings = HashSet::new();
 
-    <span class="macro">tracing::debug!</span>(<span class="string">&quot;fetching uncompleted regradings&quot;</span>);
+    <span class="macro">tracing::debug!</span>(<span class="string">"fetching uncompleted regradings"</span>);
     <span class="kw">let </span>regrading_ids =
         models::regradings::get_uncompleted_regradings_and_mark_as_started(<span class="kw-2">&amp;mut *</span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">for </span>regrading_id <span class="kw">in </span>regrading_ids.iter().copied() {
@@ -1041,11 +1042,11 @@
             <span class="prelude-val">Ok</span>(regrading_status) =&gt; {
                 <span class="kw">if </span>!regrading_status.missing_exercise_services.is_empty() {
                     <span class="kw">let </span>msg = <span class="macro">format!</span>(
-                        <span class="string">&quot;Regrading {} failed: no exercise service found for exercise types [{}]&quot;</span>,
+                        <span class="string">"Regrading {} failed: no exercise service found for exercise types [{}]"</span>,
                         regrading_id,
-                        regrading_status.missing_exercise_services.iter().join(<span class="string">&quot;, &quot;</span>)
+                        regrading_status.missing_exercise_services.iter().join(<span class="string">", "</span>)
                     );
-                    <span class="macro">tracing::error!</span>(<span class="string">&quot;{}&quot;</span>, msg);
+                    <span class="macro">tracing::error!</span>(<span class="string">"{}"</span>, msg);
                     models::regradings::set_error_message(conn, regrading_id, <span class="kw-2">&amp;</span>msg).<span class="kw">await</span><span class="question-mark">?</span>;
                     models::regradings::set_total_grading_progress(
                         conn,
@@ -1059,7 +1060,7 @@
                 }
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">tracing::error!</span>(<span class="string">&quot;Regrading {} failed: {}&quot;</span>, regrading_id, err);
+                <span class="macro">tracing::error!</span>(<span class="string">"Regrading {} failed: {}"</span>, regrading_id, err);
                 models::regradings::set_error_message(conn, regrading_id, <span class="kw-2">&amp;</span>err.to_string()).<span class="kw">await</span><span class="question-mark">?</span>;
                 models::regradings::set_total_grading_progress(
                     conn,
@@ -1089,7 +1090,7 @@
             <span class="prelude-val">Ok</span>(grading_result) =&gt; grading_result,
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="macro">tracing::error!</span>(
-                    <span class="string">&quot;Failed to get grading from exercise service {}: {}&quot;</span>,
+                    <span class="string">"Failed to get grading from exercise service {}: {}"</span>,
                     exercise_service_name,
                     err
                 );
@@ -1134,7 +1135,7 @@
         Url,
         <span class="kw-2">&amp;</span>ExerciseTask,
         <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
 ) -&gt; ModelResult&lt;RegradingStatus&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>regrading_status = RegradingStatus {
         exercise_services_full: <span class="bool-val">false</span>,
@@ -1149,7 +1150,7 @@
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">tracing::info!</span>(
-        <span class="string">&quot;found {} submissions for regrading {}&quot;</span>,
+        <span class="string">"found {} submissions for regrading {}"</span>,
         regrading_submissions.len(),
         regrading_id
     );
@@ -1205,11 +1206,11 @@
                 .entry(exercise_task.exercise_type.clone())
                 .or_default();
 
-            <span class="comment">// make sure we aren&#39;t sending too many requests
+            <span class="comment">// make sure we aren't sending too many requests
             </span><span class="kw">let </span>limit = usize::try_from(exercise_service.max_reprocessing_submissions_at_once)
                 .unwrap_or_else(|_e| {
                     <span class="macro">tracing::error!</span>(
-                        <span class="string">&quot;{}: invalid max_reprocessing_submissions_at_once {}&quot;</span>,
+                        <span class="string">"{}: invalid max_reprocessing_submissions_at_once {}"</span>,
                         exercise_service.name,
                         exercise_service.max_reprocessing_submissions_at_once
                     );
@@ -1232,15 +1233,15 @@
                     });
                 entry.push(Box::pin(grading_future));
             } <span class="kw">else </span>{
-                <span class="comment">// we can&#39;t send this submission right now
+                <span class="comment">// we can't send this submission right now
                 </span>regrading_status.exercise_services_full = <span class="bool-val">true</span>;
             }
         } <span class="kw">else </span>{
             <span class="kw">let </span>msg = <span class="macro">format!</span>(
-                <span class="string">&quot;No exercise services found for type {}&quot;</span>,
+                <span class="string">"No exercise services found for type {}"</span>,
                 exercise_task.exercise_type,
             );
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;{}&quot;</span>, msg);
+            <span class="macro">tracing::error!</span>(<span class="string">"{}"</span>, msg);
             models::exercise_task_gradings::set_grading_progress(
                 <span class="kw-2">&amp;mut *</span>conn,
                 not_ready_grading.id,
@@ -1292,7 +1293,7 @@
             PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide,
-                exercise_type: <span class="string">&quot;test-exercise&quot;</span>.to_string(),
+                exercise_type: <span class="string">"test-exercise"</span>.to_string(),
                 assignment: <span class="macro">vec!</span>[],
                 public_spec: <span class="prelude-val">Some</span>(Value::Null),
                 private_spec: <span class="prelude-val">Some</span>(Value::Null),
@@ -1347,15 +1348,15 @@
         )
         .<span class="kw">await
         </span>.unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new_async().<span class="kw">await</span>;
         <span class="kw">let </span>_m = server
-            .mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
+            .mock(<span class="string">"POST"</span>, Matcher::Any)
             .with_body(serde_json::to_string(<span class="kw-2">&amp;</span>grading_result).unwrap())
             .create();
-        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise&quot;</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
+        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">"test-exercise"</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>services = HashMap::from([(<span class="string">&quot;test-exercise&quot;</span>.to_string(), service)]);
+        <span class="kw">let </span>services = HashMap::from([(<span class="string">"test-exercise"</span>.to_string(), service)]);
 
         <span class="kw">let </span>regrading_submission =
             models::exercise_task_regrading_submissions::get_regrading_submission(
@@ -1405,7 +1406,7 @@
             PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide,
-                exercise_type: <span class="string">&quot;test-exercise&quot;</span>.to_string(),
+                exercise_type: <span class="string">"test-exercise"</span>.to_string(),
                 assignment: <span class="macro">vec!</span>[],
                 public_spec: <span class="prelude-val">Some</span>(Value::Null),
                 private_spec: <span class="prelude-val">Some</span>(Value::Null),
@@ -1440,15 +1441,15 @@
         )
         .<span class="kw">await
         </span>.unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new_async().<span class="kw">await</span>;
         <span class="kw">let </span>_m = server
-            .mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
+            .mock(<span class="string">"POST"</span>, Matcher::Any)
             .with_body(serde_json::to_string(<span class="kw-2">&amp;</span>grading_result).unwrap())
             .create();
-        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise&quot;</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
+        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">"test-exercise"</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>services = HashMap::from([(<span class="string">&quot;test-exercise&quot;</span>.to_string(), service)]);
+        <span class="kw">let </span>services = HashMap::from([(<span class="string">"test-exercise"</span>.to_string(), service)]);
 
         <span class="kw">let </span>regrading = models::regradings::insert(
             tx.as_mut(),
@@ -1522,7 +1523,7 @@
             PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide_1,
-                exercise_type: <span class="string">&quot;test-exercise-1&quot;</span>.to_string(),
+                exercise_type: <span class="string">"test-exercise-1"</span>.to_string(),
                 assignment: <span class="macro">vec!</span>[],
                 public_spec: <span class="prelude-val">Some</span>(Value::Null),
                 private_spec: <span class="prelude-val">Some</span>(Value::Null),
@@ -1563,7 +1564,7 @@
             PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide_2,
-                exercise_type: <span class="string">&quot;test-exercise-2&quot;</span>.to_string(),
+                exercise_type: <span class="string">"test-exercise-2"</span>.to_string(),
                 assignment: <span class="macro">vec!</span>[],
                 public_spec: <span class="prelude-val">Some</span>(Value::Null),
                 private_spec: <span class="prelude-val">Some</span>(Value::Null),
@@ -1604,20 +1605,20 @@
             .exercise_task_submission_results
             .first()
             .unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new_async().<span class="kw">await</span>;
         <span class="kw">let </span>_m = server
-            .mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
+            .mock(<span class="string">"POST"</span>, Matcher::Any)
             .with_body(serde_json::to_string(<span class="kw-2">&amp;</span>grading_result).unwrap())
             .create();
-        <span class="kw">let </span>service_1 = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise-1&quot;</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
+        <span class="kw">let </span>service_1 = create_mock_service(tx.as_mut(), <span class="string">"test-exercise-1"</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>service_2 = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise-2&quot;</span>.to_string(), <span class="number">0</span>, <span class="kw-2">&amp;</span>server)
+        <span class="kw">let </span>service_2 = create_mock_service(tx.as_mut(), <span class="string">"test-exercise-2"</span>.to_string(), <span class="number">0</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>services = HashMap::from([
-            (<span class="string">&quot;test-exercise-1&quot;</span>.to_string(), service_1),
-            (<span class="string">&quot;test-exercise-2&quot;</span>.to_string(), service_2),
+            (<span class="string">"test-exercise-1"</span>.to_string(), service_1),
+            (<span class="string">"test-exercise-2"</span>.to_string(), service_2),
         ]);
 
         <span class="kw">let </span>regrading = models::regradings::insert(
@@ -1687,7 +1688,7 @@
             PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide,
-                exercise_type: <span class="string">&quot;test-exercise&quot;</span>.to_string(),
+                exercise_type: <span class="string">"test-exercise"</span>.to_string(),
                 assignment: <span class="macro">vec!</span>[],
                 public_spec: <span class="prelude-val">Some</span>(Value::Null),
                 private_spec: <span class="prelude-val">Some</span>(Value::Null),
@@ -1724,9 +1725,9 @@
         )
         .<span class="kw">await
         </span>.unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new_async().<span class="kw">await</span>;
         <span class="kw">let </span>_m = server
-            .mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
+            .mock(<span class="string">"POST"</span>, Matcher::Any)
             .with_body(
                 serde_json::to_string(<span class="kw-2">&amp;</span>ExerciseTaskGradingResult {
                     grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -1739,10 +1740,10 @@
                 .unwrap(),
             )
             .create();
-        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise&quot;</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
+        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">"test-exercise"</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>services = HashMap::from([(<span class="string">&quot;test-exercise&quot;</span>.to_string(), service)]);
+        <span class="kw">let </span>services = HashMap::from([(<span class="string">"test-exercise"</span>.to_string(), service)]);
 
         <span class="kw">let </span>regrading = models::regradings::insert(
             tx.as_mut(),
@@ -1775,7 +1776,7 @@
         </span>.unwrap();
         <span class="macro">assert!</span>(
             f32_approx_eq(user_exercise_state.score_given.unwrap(), <span class="number">0.0</span>),
-            <span class="string">&quot;{} != {}&quot;</span>,
+            <span class="string">"{} != {}"</span>,
             user_exercise_state.score_given.unwrap(),
             <span class="number">0.0
         </span>);
@@ -1807,7 +1808,7 @@
         </span>.unwrap();
         <span class="macro">assert!</span>(
             f32_approx_eq(user_exercise_state.score_given.unwrap(), <span class="number">1.0</span>),
-            <span class="string">&quot;{} != {}&quot;</span>,
+            <span class="string">"{} != {}"</span>,
             user_exercise_state.score_given.unwrap(),
             <span class="number">1.0
         </span>);
@@ -1924,9 +1925,9 @@
         <span class="kw">let </span>exercise_service = models::exercise_services::insert_exercise_service(
             conn,
             <span class="kw-2">&amp;</span>exercise_services::ExerciseServiceNewOrUpdate {
-                name: <span class="string">&quot;&quot;</span>.to_string(),
+                name: <span class="string">""</span>.to_string(),
                 slug: service_slug,
-                public_url: <span class="string">&quot;&quot;</span>.to_string(),
+                public_url: <span class="string">""</span>.to_string(),
                 internal_url: <span class="prelude-val">Some</span>(server.url()),
                 max_reprocessing_submissions_at_once,
             },
@@ -1936,10 +1937,10 @@
             conn,
             <span class="kw-2">&amp;</span>models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service.id,
-                user_interface_iframe_path: <span class="string">&quot;/iframe&quot;</span>.to_string(),
-                grade_endpoint_path: <span class="string">&quot;/grade&quot;</span>.to_string(),
-                public_spec_endpoint_path: <span class="string">&quot;/public-spec&quot;</span>.to_string(),
-                model_solution_spec_endpoint_path: <span class="string">&quot;/model-solution&quot;</span>.to_string(),
+                user_interface_iframe_path: <span class="string">"/iframe"</span>.to_string(),
+                grade_endpoint_path: <span class="string">"/grade"</span>.to_string(),
+                public_spec_endpoint_path: <span class="string">"/public-spec"</span>.to_string(),
+                model_solution_spec_endpoint_path: <span class="string">"/model-solution"</span>.to_string(),
                 has_custom_view: <span class="bool-val">false</span>,
             },
         )

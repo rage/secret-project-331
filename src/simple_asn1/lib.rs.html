@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/simple_asn1-0.4.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="simple_asn1" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/simple_asn1-0.4.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="simple_asn1" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1666,8 +1667,8 @@
 //! used with the offset information in the primitive `ASN1Block`s to, for
 //! example, validate signatures in X509 documents.
 //!
-//! Finally, this library supports ASN.1 class information. I&#39;m still not sure
-//! why it&#39;s useful, but there it is.
+//! Finally, this library supports ASN.1 class information. I'm still not sure
+//! why it's useful, but there it is.
 //!
 //! Please send any bug reports, patches, and curses to the GitHub repository
 //! at &lt;code&gt;https://github.com/acw/simple_asn1&lt;/code&gt;.
@@ -1691,7 +1692,7 @@
 
 <span class="doccomment">/// An ASN.1 block class.
 ///
-/// I&#39;m not sure if/when these are used, but here they are in case you want
+/// I'm not sure if/when these are used, but here they are in case you want
 /// to do something with them.
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
 </span><span class="kw">pub enum </span>ASN1Class {
@@ -1705,7 +1706,7 @@
 ///
 /// Primitive blocks all contain the offset from the beginning of the parsed
 /// document, followed by whatever data is associated with the block. The latter
-/// should be fairly self-explanatory, so let&#39;s discuss the offset.
+/// should be fairly self-explanatory, so let's discuss the offset.
 ///
 /// The offset is only valid during the reading process. It is ignored for
 /// the purposes of encoding blocks into their binary form. It is also
@@ -1915,7 +1916,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialEq&lt;OID&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>OID {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PartialEq&lt;OID&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>OID {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, v2: <span class="kw-2">&amp;</span>OID) -&gt; bool {
         <span class="kw">let </span>&amp;&amp;OID(<span class="kw-2">ref </span>vec1) = <span class="self">self</span>;
         <span class="kw">let </span><span class="kw-2">&amp;</span>OID(<span class="kw-2">ref </span>vec2) = v2;
@@ -1950,8 +1951,8 @@
     }};
 }
 
-<span class="kw">const </span>PRINTABLE_CHARS: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str =
-    <span class="string">&quot;ABCDEFGHIJKLMOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&#39;()+,-./:=? &quot;</span>;
+<span class="kw">const </span>PRINTABLE_CHARS: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str =
+    <span class="string">"ABCDEFGHIJKLMOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'()+,-./:=? "</span>;
 
 <span class="doccomment">/// An error that can arise decoding ASN.1 primitive blocks.
 </span><span class="attr">#[derive(Clone, Debug, PartialEq)]
@@ -1978,25 +1979,25 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             ASN1DecodeErr::EmptyBuffer =&gt;
-                <span class="macro">write!</span>(f, <span class="string">&quot;Encountered an empty buffer decoding ASN1 block.&quot;</span>),
+                <span class="macro">write!</span>(f, <span class="string">"Encountered an empty buffer decoding ASN1 block."</span>),
             ASN1DecodeErr::BadBooleanLength(x) =&gt;
-                <span class="macro">write!</span>(f, <span class="string">&quot;Bad length field in boolean block: {}&quot;</span>, x),
+                <span class="macro">write!</span>(f, <span class="string">"Bad length field in boolean block: {}"</span>, x),
             ASN1DecodeErr::LengthTooLarge(x) =&gt;
-                <span class="macro">write!</span>(f, <span class="string">&quot;Length field too large for object type: {}&quot;</span>, x),
+                <span class="macro">write!</span>(f, <span class="string">"Length field too large for object type: {}"</span>, x),
             ASN1DecodeErr::UTF8DecodeFailure(x) =&gt;
-                <span class="macro">write!</span>(f, <span class="string">&quot;UTF8 string failed to properly decode: {}&quot;</span>, x),
+                <span class="macro">write!</span>(f, <span class="string">"UTF8 string failed to properly decode: {}"</span>, x),
             ASN1DecodeErr::PrintableStringDecodeFailure =&gt;
-                <span class="macro">write!</span>(f, <span class="string">&quot;Printable string failed to properly decode.&quot;</span>),
+                <span class="macro">write!</span>(f, <span class="string">"Printable string failed to properly decode."</span>),
             ASN1DecodeErr::InvalidDateValue(x) =&gt;
-                <span class="macro">write!</span>(f, <span class="string">&quot;Invalid date value: {}&quot;</span>, x),
+                <span class="macro">write!</span>(f, <span class="string">"Invalid date value: {}"</span>, x),
             ASN1DecodeErr::InvalidBitStringLength(i) =&gt;
-                <span class="macro">write!</span>(f, <span class="string">&quot;Invalid length of bit string: {}&quot;</span>, i),
+                <span class="macro">write!</span>(f, <span class="string">"Invalid length of bit string: {}"</span>, i),
             ASN1DecodeErr::InvalidClass(i) =&gt;
-                <span class="macro">write!</span>(f, <span class="string">&quot;Invalid class value: {}&quot;</span>, i),
+                <span class="macro">write!</span>(f, <span class="string">"Invalid class value: {}"</span>, i),
             ASN1DecodeErr::Incomplete =&gt;
-                <span class="macro">write!</span>(f, <span class="string">&quot;Incomplete data or invalid ASN1&quot;</span>),
+                <span class="macro">write!</span>(f, <span class="string">"Incomplete data or invalid ASN1"</span>),
             ASN1DecodeErr::__Nonexhaustive =&gt;
-              <span class="macro">panic!</span>(<span class="string">&quot;A non exhaustive error should not be constructed&quot;</span>),
+              <span class="macro">panic!</span>(<span class="string">"A non exhaustive error should not be constructed"</span>),
         }
     }
 }
@@ -2005,25 +2006,25 @@
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="self">self </span>{
             ASN1DecodeErr::EmptyBuffer =&gt;
-                <span class="string">&quot;Encountered an empty buffer decoding ASN1 block.&quot;</span>,
+                <span class="string">"Encountered an empty buffer decoding ASN1 block."</span>,
             ASN1DecodeErr::BadBooleanLength(<span class="kw">_</span>) =&gt;
-                <span class="string">&quot;Bad length field in boolean block.&quot;</span>,
+                <span class="string">"Bad length field in boolean block."</span>,
             ASN1DecodeErr::LengthTooLarge(<span class="kw">_</span>) =&gt;
-                <span class="string">&quot;Length field too large for object type.&quot;</span>,
+                <span class="string">"Length field too large for object type."</span>,
             ASN1DecodeErr::UTF8DecodeFailure(<span class="kw">_</span>) =&gt;
-                <span class="string">&quot;UTF8 string failed to properly decode.&quot;</span>,
+                <span class="string">"UTF8 string failed to properly decode."</span>,
             ASN1DecodeErr::PrintableStringDecodeFailure =&gt;
-                <span class="string">&quot;Printable string failed to properly decode.&quot;</span>,
+                <span class="string">"Printable string failed to properly decode."</span>,
             ASN1DecodeErr::InvalidDateValue(<span class="kw">_</span>) =&gt;
-                <span class="string">&quot;Invalid date value.&quot;</span>,
+                <span class="string">"Invalid date value."</span>,
             ASN1DecodeErr::InvalidClass(<span class="kw">_</span>) =&gt;
-                <span class="string">&quot;Invalid class value&quot;</span>,
+                <span class="string">"Invalid class value"</span>,
             ASN1DecodeErr::InvalidBitStringLength(<span class="kw">_</span>) =&gt;
-                <span class="string">&quot;Invalid length of bit string&quot;</span>,
+                <span class="string">"Invalid length of bit string"</span>,
             ASN1DecodeErr::Incomplete =&gt;
-                <span class="string">&quot;Incomplete data or invalid ASN1&quot;</span>,
+                <span class="string">"Incomplete data or invalid ASN1"</span>,
             ASN1DecodeErr::__Nonexhaustive =&gt;
-              <span class="macro">panic!</span>(<span class="string">&quot;A non exhaustive error should not be constructed&quot;</span>),
+              <span class="macro">panic!</span>(<span class="string">"A non exhaustive error should not be constructed"</span>),
         }
     }
 
@@ -2031,7 +2032,7 @@
         <span class="prelude-val">None
     </span>}
 
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + <span class="lifetime">&#39;static</span>)&gt; {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + <span class="lifetime">'static</span>)&gt; {
         <span class="prelude-val">None
     </span>}
 }
@@ -2054,11 +2055,11 @@
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="self">self </span>{
             ASN1EncodeErr::ObjectIdentHasTooFewFields =&gt;
-                <span class="string">&quot;ASN1 object identifier has too few fields.&quot;</span>,
+                <span class="string">"ASN1 object identifier has too few fields."</span>,
             ASN1EncodeErr::ObjectIdentVal1TooLarge =&gt;
-                <span class="string">&quot;First value in ASN1 OID is too big.&quot;</span>,
+                <span class="string">"First value in ASN1 OID is too big."</span>,
             ASN1EncodeErr::ObjectIdentVal2TooLarge =&gt;
-                <span class="string">&quot;Second value in ASN1 OID is too big.&quot;
+                <span class="string">"Second value in ASN1 OID is too big."
         </span>}
     }
 
@@ -2066,13 +2067,13 @@
         <span class="prelude-val">None
     </span>}
 
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + <span class="lifetime">&#39;static</span>)&gt; {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + <span class="lifetime">'static</span>)&gt; {
         <span class="prelude-val">None
     </span>}
 }
 
 <span class="doccomment">/// Translate a binary blob into a series of `ASN1Block`s, or provide an
-/// error if it didn&#39;t work.
+/// error if it didn't work.
 </span><span class="kw">pub fn </span>from_der(i: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ASN1Block&gt;, ASN1DecodeErr&gt; {
     from_der_(i, <span class="number">0</span>)
 }
@@ -2251,11 +2252,11 @@
             <span class="comment">// UTCTime
             </span><span class="prelude-val">Some</span>(<span class="number">0x17</span>) =&gt; {
                 <span class="kw">if </span>body.len() != <span class="number">13 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(ASN1DecodeErr::InvalidDateValue(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, body.len())));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ASN1DecodeErr::InvalidDateValue(<span class="macro">format!</span>(<span class="string">"{}"</span>, body.len())));
                 }
 
                 <span class="kw">let </span>v = String::from_iter(body.iter().map(|x| <span class="kw-2">*</span>x <span class="kw">as </span>char));
-                <span class="kw">match </span>Utc.datetime_from_str(<span class="kw-2">&amp;</span>v, <span class="string">&quot;%y%m%d%H%M%SZ&quot;</span>) {
+                <span class="kw">match </span>Utc.datetime_from_str(<span class="kw-2">&amp;</span>v, <span class="string">"%y%m%d%H%M%SZ"</span>) {
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt;
                         <span class="kw">return </span><span class="prelude-val">Err</span>(ASN1DecodeErr::InvalidDateValue(v)),
                     <span class="prelude-val">Ok</span>(t) =&gt; {
@@ -2266,7 +2267,7 @@
             <span class="comment">// GeneralizedTime
             </span><span class="prelude-val">Some</span>(<span class="number">0x18</span>) =&gt; {
                 <span class="kw">if </span>body.len() &lt; <span class="number">15 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(ASN1DecodeErr::InvalidDateValue(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, body.len())));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ASN1DecodeErr::InvalidDateValue(<span class="macro">format!</span>(<span class="string">"{}"</span>, body.len())));
                 }
 
                 <span class="kw">let </span><span class="kw-2">mut </span>v: String = String::from_utf8(body.to_vec())
@@ -2277,15 +2278,15 @@
                     <span class="kw">return </span><span class="prelude-val">Err</span>(ASN1DecodeErr::InvalidDateValue(v));
                 }
 
-                <span class="comment">// We need to add padding back to the string if it&#39;s not there.
-                </span><span class="kw">if </span>!v.contains(<span class="string">&#39;.&#39;</span>) {
-                    v.insert(<span class="number">14</span>, <span class="string">&#39;.&#39;</span>)
+                <span class="comment">// We need to add padding back to the string if it's not there.
+                </span><span class="kw">if </span>!v.contains(<span class="string">'.'</span>) {
+                    v.insert(<span class="number">14</span>, <span class="string">'.'</span>)
                 }
                 <span class="kw">while </span>v.len() &lt; <span class="number">25 </span>{
                     <span class="kw">let </span>idx = v.len() - <span class="number">1</span>;
-                    v.insert(idx, <span class="string">&#39;0&#39;</span>);
+                    v.insert(idx, <span class="string">'0'</span>);
                 }
-                <span class="kw">match </span>Utc.datetime_from_str(<span class="kw-2">&amp;</span>v, <span class="string">&quot;%Y%m%d%H%M%S.%fZ&quot;</span>) {
+                <span class="kw">match </span>Utc.datetime_from_str(<span class="kw-2">&amp;</span>v, <span class="string">"%Y%m%d%H%M%S.%fZ"</span>) {
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt;
                         <span class="kw">return </span><span class="prelude-val">Err</span>(ASN1DecodeErr::InvalidDateValue(v)),
                     <span class="prelude-val">Ok</span>(t) =&gt; {
@@ -2382,7 +2383,7 @@
 
     <span class="comment">// NOTE: Technically, this size can be much larger than a usize.
     // However, our whole universe starts to break down if we get
-    // things that big. So we&#39;re boring, and only accept lengths
+    // things that big. So we're boring, and only accept lengths
     // that fit within a usize.
     </span><span class="kw-2">*</span>index += <span class="number">1</span>;
     <span class="kw">if </span>startbyte &gt;= <span class="number">0x80 </span>{
@@ -2566,7 +2567,7 @@
             <span class="prelude-val">Ok</span>(res)
         }
         <span class="kw-2">&amp;</span>ASN1Block::UTCTime(<span class="kw">_</span>, <span class="kw-2">ref </span>time) =&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>body = time.format(<span class="string">&quot;%y%m%d%H%M%SZ&quot;</span>).to_string().into_bytes();
+            <span class="kw">let </span><span class="kw-2">mut </span>body = time.format(<span class="string">"%y%m%d%H%M%SZ"</span>).to_string().into_bytes();
             <span class="kw">let </span>inttag = BigUint::from_u8(<span class="number">0x17</span>).unwrap();
             <span class="kw">let </span><span class="kw-2">mut </span>lenbytes = encode_len(body.len());
             <span class="kw">let </span><span class="kw-2">mut </span>tagbytes = encode_tag(ASN1Class::Universal, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span>inttag);
@@ -2578,10 +2579,10 @@
             <span class="prelude-val">Ok</span>(res)
         }
         <span class="kw-2">&amp;</span>ASN1Block::GeneralizedTime(<span class="kw">_</span>, <span class="kw-2">ref </span>time) =&gt; {
-            <span class="kw">let </span>base = time.format(<span class="string">&quot;%Y%m%d%H%M%S.%f&quot;</span>).to_string();
-            <span class="kw">let </span>zclear = base.trim_end_matches(<span class="string">&#39;0&#39;</span>);
-            <span class="kw">let </span>dclear = zclear.trim_end_matches(<span class="string">&#39;.&#39;</span>);
-            <span class="kw">let </span><span class="kw-2">mut </span>body = <span class="macro">format!</span>(<span class="string">&quot;{}Z&quot;</span>, dclear).into_bytes();
+            <span class="kw">let </span>base = time.format(<span class="string">"%Y%m%d%H%M%S.%f"</span>).to_string();
+            <span class="kw">let </span>zclear = base.trim_end_matches(<span class="string">'0'</span>);
+            <span class="kw">let </span>dclear = zclear.trim_end_matches(<span class="string">'.'</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>body = <span class="macro">format!</span>(<span class="string">"{}Z"</span>, dclear).into_bytes();
 
             <span class="kw">let </span>inttag = BigUint::from_u8(<span class="number">0x18</span>).unwrap();
             <span class="kw">let </span><span class="kw-2">mut </span>lenbytes = encode_len(body.len());
@@ -2699,7 +2700,7 @@
 
         <span class="kw">match </span>digit.to_u8() {
             <span class="prelude-val">None </span>=&gt;
-                <span class="macro">panic!</span>(<span class="string">&quot;7 bits don&#39;t fit into 8, cause ...&quot;</span>),
+                <span class="macro">panic!</span>(<span class="string">"7 bits don't fit into 8, cause ..."</span>),
             <span class="prelude-val">Some</span>(x) <span class="kw">if </span>res.is_empty() =&gt;
                 res.push(x),
             <span class="prelude-val">Some</span>(x) =&gt;
@@ -2752,10 +2753,10 @@
 </span><span class="kw">pub trait </span>FromASN1WithBody: Sized {
     <span class="kw">type </span>Error: From&lt;ASN1DecodeErr&gt;;
 
-    <span class="kw">fn </span>from_asn1_with_body&lt;<span class="lifetime">&#39;a</span>&gt;(
-        v: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[ASN1Block],
+    <span class="kw">fn </span>from_asn1_with_body&lt;<span class="lifetime">'a</span>&gt;(
+        v: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[ASN1Block],
         _b: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[ASN1Block]), <span class="self">Self</span>::Error&gt;;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[ASN1Block]), <span class="self">Self</span>::Error&gt;;
 }
 
 <span class="doccomment">/// A trait defining types that can be decoded from an `ASN1Block` stream.
@@ -2770,10 +2771,10 @@
 <span class="kw">impl</span>&lt;T: FromASN1&gt; FromASN1WithBody <span class="kw">for </span>T {
     <span class="kw">type </span>Error = T::Error;
 
-    <span class="kw">fn </span>from_asn1_with_body&lt;<span class="lifetime">&#39;a</span>&gt;(
-        v: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[ASN1Block],
+    <span class="kw">fn </span>from_asn1_with_body&lt;<span class="lifetime">'a</span>&gt;(
+        v: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[ASN1Block],
         _b: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[ASN1Block]), T::Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(T, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[ASN1Block]), T::Error&gt; {
         T::from_asn1(v)
     }
 }
@@ -2831,7 +2832,7 @@
                 <span class="number">1 </span>=&gt; ASN1Class::ContextSpecific,
                 <span class="number">2 </span>=&gt; ASN1Class::Universal,
                 <span class="number">3 </span>=&gt; ASN1Class::Application,
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;I weep for a broken life.&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"I weep for a broken life."</span>),
             }
         }
     }
@@ -3100,7 +3101,7 @@
 
         <span class="kw">match </span>g.choose(<span class="kw-2">&amp;</span>possibles[..]) {
             <span class="prelude-val">Some</span>(f) =&gt; f(g, d),
-            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t generate arbitrary value.&quot;</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Couldn't generate arbitrary value."</span>),
         }
     }
 
@@ -3114,25 +3115,25 @@
         <span class="kw">fn </span>encode_decode_roundtrips(v: ASN1Block) -&gt; bool {
             <span class="kw">match </span>to_der(<span class="kw-2">&amp;</span>v) {
                 <span class="prelude-val">Err</span>(e) =&gt; {
-                    <span class="macro">println!</span>(<span class="string">&quot;Serialization error: {:?}&quot;</span>, e);
+                    <span class="macro">println!</span>(<span class="string">"Serialization error: {:?}"</span>, e);
                     <span class="bool-val">false
                 </span>}
                 <span class="prelude-val">Ok</span>(bytes) =&gt;
                     <span class="kw">match </span>from_der(<span class="kw-2">&amp;</span>bytes[..]) {
                         <span class="prelude-val">Err</span>(e) =&gt; {
-                            <span class="macro">println!</span>(<span class="string">&quot;Parse error: {:?}&quot;</span>, e);
+                            <span class="macro">println!</span>(<span class="string">"Parse error: {:?}"</span>, e);
                             <span class="bool-val">false
                         </span>}
                         <span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>rvec) <span class="kw">if </span>rvec.len() == <span class="number">1 </span>=&gt; {
                             <span class="kw">let </span>v2 = rvec.get(<span class="number">0</span>).unwrap();
                             <span class="kw">if </span><span class="kw-2">&amp;</span>v != v2 {
-                                <span class="macro">println!</span>(<span class="string">&quot;Original: {:?}&quot;</span>, v);
-                                <span class="macro">println!</span>(<span class="string">&quot;Constructed: {:?}&quot;</span>, v2);
+                                <span class="macro">println!</span>(<span class="string">"Original: {:?}"</span>, v);
+                                <span class="macro">println!</span>(<span class="string">"Constructed: {:?}"</span>, v2);
                             }
                             <span class="kw-2">&amp;</span>v == v2
                         }
                         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-                            <span class="macro">println!</span>(<span class="string">&quot;Too many results returned.&quot;</span>);
+                            <span class="macro">println!</span>(<span class="string">"Too many results returned."</span>);
                             <span class="bool-val">false
                         </span>}
                     }
@@ -3149,35 +3150,35 @@
     </span><span class="kw">fn </span>generalized_time_tests() {
         check_spec(
             <span class="kw-2">&amp;</span>Utc.ymd(<span class="number">1992</span>, <span class="number">5</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            <span class="string">&quot;19920521000000Z&quot;</span>.to_string(),
+            <span class="string">"19920521000000Z"</span>.to_string(),
         );
         check_spec(
             <span class="kw-2">&amp;</span>Utc.ymd(<span class="number">1992</span>, <span class="number">6</span>, <span class="number">22</span>).and_hms(<span class="number">12</span>, <span class="number">34</span>, <span class="number">21</span>),
-            <span class="string">&quot;19920622123421Z&quot;</span>.to_string(),
+            <span class="string">"19920622123421Z"</span>.to_string(),
         );
         check_spec(
             <span class="kw-2">&amp;</span>Utc.ymd(<span class="number">1992</span>, <span class="number">7</span>, <span class="number">22</span>).and_hms_milli(<span class="number">13</span>, <span class="number">21</span>, <span class="number">00</span>, <span class="number">300</span>),
-            <span class="string">&quot;19920722132100.3Z&quot;</span>.to_string(),
+            <span class="string">"19920722132100.3Z"</span>.to_string(),
         );
     }
 
     <span class="kw">fn </span>check_spec(d: <span class="kw-2">&amp;</span>DateTime&lt;Utc&gt;, s: String) {
         <span class="kw">let </span>b = ASN1Block::GeneralizedTime(<span class="number">0</span>, d.clone());
         <span class="kw">match </span>to_der(<span class="kw-2">&amp;</span>b) {
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;Broken: {}&quot;</span>, d), s),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"Broken: {}"</span>, d), s),
             <span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>vec) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>resvec = vec.clone();
                 resvec.remove(<span class="number">0</span>);
                 resvec.remove(<span class="number">0</span>);
                 <span class="macro">assert_eq!</span>(String::from_utf8(resvec).unwrap(), s);
                 <span class="kw">match </span>from_der_(vec, <span class="number">0</span>) {
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;Broken [reparse]: {}&quot;</span>, d), s),
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"Broken [reparse]: {}"</span>, d), s),
                     <span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>vec) =&gt; {
                         <span class="macro">assert_eq!</span>(vec.len(), <span class="number">1</span>);
                         <span class="kw">match </span>vec.pop() {
-                            <span class="prelude-val">None </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;The world&#39;s gone mad again.&quot;</span>),
+                            <span class="prelude-val">None </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"The world's gone mad again."</span>),
                             <span class="prelude-val">Some</span>(ASN1Block::GeneralizedTime(<span class="kw">_</span>, d2)) =&gt; <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>d2, d),
-                            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Bad reparse of GeneralizedTime.&quot;</span>),
+                            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Bad reparse of GeneralizedTime."</span>),
                         }
                     }
                 }
@@ -3204,8 +3205,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>x509_tests() {
-        can_parse(<span class="string">&quot;test/server.bin&quot;</span>).unwrap();
-        can_parse(<span class="string">&quot;test/key.bin&quot;</span>).unwrap();
+        can_parse(<span class="string">"test/server.bin"</span>).unwrap();
+        can_parse(<span class="string">"test/key.bin"</span>).unwrap();
     }
 
     <span class="attr">#[test]
@@ -3283,7 +3284,7 @@
 
         <span class="kw">for </span>test <span class="kw">in </span>tests {
             <span class="kw">let </span>expected = test.<span class="number">1</span>;
-            <span class="kw">let </span>raw_oid = test.<span class="number">0</span>.as_raw().expect(<span class="string">&quot;Failed to convert OID to raw&quot;</span>);
+            <span class="kw">let </span>raw_oid = test.<span class="number">0</span>.as_raw().expect(<span class="string">"Failed to convert OID to raw"</span>);
             <span class="macro">assert_eq!</span>(raw_oid, <span class="kw-2">&amp;</span>expected[<span class="number">6</span>..(expected.len() - <span class="number">4</span>)]);
         }
     }

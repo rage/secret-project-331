@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -511,7 +512,7 @@
 <a href="#511" id="511">511</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Error types, traits and utilities.
 //!
-//! *“I like the cover,&quot; he said. &quot;Don&#39;t Panic. It&#39;s the first helpful or intelligible thing anybody&#39;s said to me all
+//! *“I like the cover," he said. "Don't Panic. It's the first helpful or intelligible thing anybody's said to me all
 //! day.”*
 //!
 //! You can implement the [`Error`] trait to create your own parser errors, or you can use one provided by the crate
@@ -521,24 +522,24 @@
 <span class="kw">use </span>alloc::{format, string::ToString};
 <span class="kw">use </span>core::hash::Hash;
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">use </span>hashbrown::HashSet;
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::collections::HashSet;
 
 <span class="comment">// (ahash + std) =&gt; ahash
 // (ahash)       =&gt; ahash
 // (std)         =&gt; std
 // ()            =&gt; ahash
-</span><span class="attr">#[cfg(any(feature = <span class="string">&quot;ahash&quot;</span>, not(feature = <span class="string">&quot;std&quot;</span>)))]
+</span><span class="attr">#[cfg(any(feature = <span class="string">"ahash"</span>, not(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">type </span>RandomState = hashbrown::hash_map::DefaultHashBuilder;
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;ahash&quot;</span>), feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"ahash"</span>), feature = <span class="string">"std"</span>))]
 </span><span class="kw">type </span>RandomState = std::collections::hash_map::RandomState;
 
 <span class="doccomment">/// A trait that describes parser error types.
 ///
 /// If you have a custom error type in your compiler, or your needs are not sufficiently met by [`Simple`], you should
-/// implement this trait. If your error type has &#39;extra&#39; features that allow for more specific error messages, you can
+/// implement this trait. If your error type has 'extra' features that allow for more specific error messages, you can
 /// use the [`Parser::map_err`] or [`Parser::try_map`] functions to take advantage of these inline within your parser.
 ///
 /// # Examples
@@ -584,9 +585,9 @@
 ///     None =&gt; Err(MyError::NotADigit(span, c)),
 /// });
 ///
-/// assert_eq!(numeral.parse(&quot;3&quot;), Ok(3));
-/// assert_eq!(numeral.parse(&quot;7&quot;), Ok(7));
-/// assert_eq!(numeral.parse(&quot;f&quot;), Err(vec![MyError::NotADigit(0..1, &#39;f&#39;)]));
+/// assert_eq!(numeral.parse("3"), Ok(3));
+/// assert_eq!(numeral.parse("7"), Ok(7));
+/// assert_eq!(numeral.parse("f"), Err(vec![MyError::NotADigit(0..1, 'f')]));
 /// ```
 </span><span class="kw">pub trait </span>Error&lt;I&gt;: Sized {
     <span class="doccomment">/// The type of spans to be used in the error.
@@ -596,7 +597,7 @@
     ///
     /// This can be used to generate errors that tell the user what syntactic structure was currently being parsed when
     /// the error occurred.
-    </span><span class="kw">type </span>Label; <span class="comment">// TODO: Default to = &amp;&#39;static str;
+    </span><span class="kw">type </span>Label; <span class="comment">// TODO: Default to = &amp;'static str;
 
     </span><span class="doccomment">/// Create a new error describing a conflict between expected inputs and that which was actually found.
     ///
@@ -615,7 +616,7 @@
     /// that was found in its place, the closing delimiter that was expected but not found, and the input that was
     /// found in its place.
     ///
-    /// The default implementation of this function uses [`Error::expected_input_found`], but you&#39;ll probably want to
+    /// The default implementation of this function uses [`Error::expected_input_found`], but you'll probably want to
     /// implement it yourself to take full advantage of the extra diagnostic information.
     </span><span class="kw">fn </span>unclosed_delimiter(
         unclosed_span: <span class="self">Self</span>::Span,
@@ -631,7 +632,7 @@
     <span class="doccomment">/// Indicate that the error occurred while parsing a particular syntactic structure.
     ///
     /// How the error handles this information is up to it. It can append it to a list of structures to get a sort of
-    /// &#39;parse backtrace&#39;, or it can just keep only the most recent label. If the latter, this method should have no
+    /// 'parse backtrace', or it can just keep only the most recent label. If the latter, this method should have no
     /// effect when the error already has a label.
     </span><span class="kw">fn </span>with_label(<span class="self">self</span>, label: <span class="self">Self</span>::Label) -&gt; <span class="self">Self</span>;
 
@@ -643,20 +644,20 @@
 // #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 // pub enum SimplePattern&lt;I&gt; {
 //     /// A pattern with the given name was expected.
-//     Labelled(&amp;&#39;static str),
+//     Labelled(&amp;'static str),
 //     /// A specific input was expected.
 //     Token(I),
 // }
 
-// impl&lt;I&gt; From&lt;&amp;&#39;static str&gt; for SimplePattern&lt;I&gt; {
-//     fn from(s: &amp;&#39;static str) -&gt; Self { Self::Labelled(s) }
+// impl&lt;I&gt; From&lt;&amp;'static str&gt; for SimplePattern&lt;I&gt; {
+//     fn from(s: &amp;'static str) -&gt; Self { Self::Labelled(s) }
 // }
 
 // impl&lt;I: fmt::Display&gt; fmt::Display for SimplePattern&lt;I&gt; {
 //     fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
 //         match self {
-//             Self::Labelled(s) =&gt; write!(f, &quot;{}&quot;, s),
-//             Self::Token(x) =&gt; write!(f, &quot;&#39;{}&#39;&quot;, x),
+//             Self::Labelled(s) =&gt; write!(f, "{}", s),
+//             Self::Token(x) =&gt; write!(f, "'{}'", x),
 //         }
 //     }
 // }
@@ -679,14 +680,14 @@
 
 <span class="kw">impl</span>&lt;I: fmt::Display, S: fmt::Display&gt; fmt::Display <span class="kw">for </span>SimpleReason&lt;I, S&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="kw">const </span>DEFAULT_DISPLAY_UNEXPECTED: <span class="kw-2">&amp;</span>str = <span class="string">&quot;unexpected input&quot;</span>;
+        <span class="kw">const </span>DEFAULT_DISPLAY_UNEXPECTED: <span class="kw-2">&amp;</span>str = <span class="string">"unexpected input"</span>;
 
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Unexpected =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, DEFAULT_DISPLAY_UNEXPECTED),
+            <span class="self">Self</span>::Unexpected =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, DEFAULT_DISPLAY_UNEXPECTED),
             <span class="self">Self</span>::Unclosed { span, delimiter } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;unclosed delimiter ({}) in {}&quot;</span>, span, delimiter)
+                <span class="macro">write!</span>(f, <span class="string">"unclosed delimiter ({}) in {}"</span>, span, delimiter)
             }
-            <span class="self">Self</span>::Custom(string) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;error {}&quot;</span>, string),
+            <span class="self">Self</span>::Custom(string) =&gt; <span class="macro">write!</span>(f, <span class="string">"error {}"</span>, string),
         }
     }
 }
@@ -694,7 +695,7 @@
 <span class="doccomment">/// A type representing zero, one, or many labels applied to an error
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
 </span><span class="kw">enum </span>SimpleLabel {
-    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str),
+    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
     <span class="prelude-val">None</span>,
     Multi,
 }
@@ -712,7 +713,7 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;SimpleLabel&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">impl </span>From&lt;SimpleLabel&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="kw">fn </span>from(label: SimpleLabel) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>label {
             SimpleLabel::Some(s) =&gt; <span class="prelude-val">Some</span>(s),
@@ -752,7 +753,7 @@
     }
 
     <span class="doccomment">/// Returns an iterator over possible expected patterns.
-    </span><span class="kw">pub fn </span>expected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;I&gt;&gt; + <span class="lifetime">&#39;_ </span>{
+    </span><span class="kw">pub fn </span>expected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;I&gt;&gt; + <span class="lifetime">'_ </span>{
         <span class="self">self</span>.expected.iter()
     }
 
@@ -766,12 +767,12 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.reason
     }
 
-    <span class="doccomment">/// Returns the error&#39;s label, if any.
-    </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    <span class="doccomment">/// Returns the error's label, if any.
+    </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="self">self</span>.label.into()
     }
 
-    <span class="doccomment">/// Map the error&#39;s inputs using the given function.
+    <span class="doccomment">/// Map the error's inputs using the given function.
     ///
     /// This can be used to unify the errors between parsing stages that operate upon two forms of input (for example,
     /// the initial lexing stage and the parsing stage in most compilers).
@@ -795,7 +796,7 @@
 
 <span class="kw">impl</span>&lt;I: Hash + Eq, S: Span + Clone + fmt::Debug&gt; Error&lt;I&gt; <span class="kw">for </span>Simple&lt;I, S&gt; {
     <span class="kw">type </span>Span = S;
-    <span class="kw">type </span>Label = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">type </span>Label = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="kw">fn </span>expected_input_found&lt;Iter: IntoIterator&lt;Item = <span class="prelude-ty">Option</span>&lt;I&gt;&gt;&gt;(
         span: <span class="self">Self</span>::Span,
@@ -871,33 +872,33 @@
         <span class="comment">// TODO: Take `self.reason` into account
 
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(found) = <span class="kw-2">&amp;</span><span class="self">self</span>.found {
-            <span class="macro">write!</span>(f, <span class="string">&quot;found {:?}&quot;</span>, found.to_string())<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"found {:?}"</span>, found.to_string())<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;found end of input&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"found end of input"</span>)<span class="question-mark">?</span>;
         };
 
         <span class="kw">match </span><span class="self">self</span>.expected.len() {
-            <span class="number">0 </span>=&gt; {} <span class="comment">//write!(f, &quot; but end of input was expected&quot;)?,
+            <span class="number">0 </span>=&gt; {} <span class="comment">//write!(f, " but end of input was expected")?,
             </span><span class="number">1 </span>=&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot; but expected {}&quot;</span>,
+                <span class="string">" but expected {}"</span>,
                 <span class="kw">match </span><span class="self">self</span>.expected.iter().next().unwrap() {
-                    <span class="prelude-val">Some</span>(x) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, x.to_string()),
-                    <span class="prelude-val">None </span>=&gt; <span class="string">&quot;end of input&quot;</span>.to_string(),
+                    <span class="prelude-val">Some</span>(x) =&gt; <span class="macro">format!</span>(<span class="string">"{:?}"</span>, x.to_string()),
+                    <span class="prelude-val">None </span>=&gt; <span class="string">"end of input"</span>.to_string(),
                 },
             )<span class="question-mark">?</span>,
             <span class="kw">_ </span>=&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot; but expected one of {}&quot;</span>,
+                    <span class="string">" but expected one of {}"</span>,
                     <span class="self">self</span>.expected
                         .iter()
                         .map(|expected| <span class="kw">match </span>expected {
-                            <span class="prelude-val">Some</span>(x) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, x.to_string()),
-                            <span class="prelude-val">None </span>=&gt; <span class="string">&quot;end of input&quot;</span>.to_string(),
+                            <span class="prelude-val">Some</span>(x) =&gt; <span class="macro">format!</span>(<span class="string">"{:?}"</span>, x.to_string()),
+                            <span class="prelude-val">None </span>=&gt; <span class="string">"end of input"</span>.to_string(),
                         })
                         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-                        .join(<span class="string">&quot;, &quot;</span>)
+                        .join(<span class="string">", "</span>)
                 )<span class="question-mark">?</span>;
             }
         }
@@ -906,7 +907,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl</span>&lt;I: fmt::Debug + fmt::Display + Hash + Eq, S: Span + fmt::Display + fmt::Debug&gt;
     std::error::Error <span class="kw">for </span>Simple&lt;I, S&gt;
 {
@@ -917,7 +918,7 @@
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>Cheap&lt;I, S = Range&lt;usize&gt;&gt; {
     span: S,
-    label: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    label: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;,
     phantom: PhantomData&lt;I&gt;,
 }
 
@@ -927,15 +928,15 @@
         <span class="self">self</span>.span.clone()
     }
 
-    <span class="doccomment">/// Returns the error&#39;s label, if any.
-    </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    <span class="doccomment">/// Returns the error's label, if any.
+    </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="self">self</span>.label
     }
 }
 
 <span class="kw">impl</span>&lt;I, S: Span + Clone + fmt::Debug&gt; Error&lt;I&gt; <span class="kw">for </span>Cheap&lt;I, S&gt; {
     <span class="kw">type </span>Span = S;
-    <span class="kw">type </span>Label = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">type </span>Label = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="kw">fn </span>expected_input_found&lt;Iter: IntoIterator&lt;Item = <span class="prelude-ty">Option</span>&lt;I&gt;&gt;&gt;(
         span: <span class="self">Self</span>::Span,
@@ -959,7 +960,7 @@
     </span>}
 }
 
-<span class="doccomment">/// An internal type used to facilitate error prioritisation. You shouldn&#39;t need to interact with this type during
+<span class="doccomment">/// An internal type used to facilitate error prioritisation. You shouldn't need to interact with this type during
 /// normal use of the crate.
 </span><span class="kw">pub struct </span>Located&lt;I, E&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) at: usize,

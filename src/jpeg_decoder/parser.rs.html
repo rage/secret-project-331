@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jpeg-decoder-0.3.1/src/parser.rs`."><title>parser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jpeg_decoder" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jpeg-decoder-0.3.1/src/parser.rs`."><title>parser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jpeg_decoder" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -844,7 +845,7 @@
     </span><span class="kw">let </span>length = usize::from(read_u16_from_be(reader)<span class="question-mark">?</span>);
 
     <span class="kw">if </span>length &lt; <span class="number">2 </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;encountered {:?} with invalid length {}&quot;</span>, marker, length)));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"encountered {:?} with invalid length {}"</span>, marker, length)));
     }
 
     <span class="prelude-val">Ok</span>(length - <span class="number">2</span>)
@@ -866,7 +867,7 @@
     <span class="kw">let </span>length = read_length(reader, marker)<span class="question-mark">?</span>;
 
     <span class="kw">if </span>length &lt;= <span class="number">6 </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;invalid length in SOF&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"invalid length in SOF"</span>.to_owned()));
     }
 
     <span class="kw">let </span>is_baseline = marker == SOF(<span class="number">0</span>);
@@ -893,12 +894,12 @@
         <span class="number">8 </span>=&gt; {},
         <span class="number">12 </span>=&gt; {
             <span class="kw">if </span>is_baseline {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;12 bit sample precision is not allowed in baseline&quot;</span>.to_owned()));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"12 bit sample precision is not allowed in baseline"</span>.to_owned()));
             }
         },
         <span class="kw">_ </span>=&gt; {
             <span class="kw">if </span>coding_process != CodingProcess::Lossless || precision &gt; <span class="number">16 </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid precision {} in frame header&quot;</span>, precision)))
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid precision {} in frame header"</span>, precision)))
             }
         },
     }
@@ -907,27 +908,27 @@
     <span class="kw">let </span>width = read_u16_from_be(reader)<span class="question-mark">?</span>;
 
     <span class="comment">// height:
-    // &quot;Value 0 indicates that the number of lines shall be defined by the DNL marker and
-    //     parameters at the end of the first scan (see B.2.5).&quot;
+    // "Value 0 indicates that the number of lines shall be defined by the DNL marker and
+    //     parameters at the end of the first scan (see B.2.5)."
     </span><span class="kw">if </span>height == <span class="number">0 </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Unsupported(UnsupportedFeature::DNL));
     }
 
     <span class="kw">if </span>width == <span class="number">0 </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;zero width in frame header&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"zero width in frame header"</span>.to_owned()));
     }
 
     <span class="kw">let </span>component_count = read_u8(reader)<span class="question-mark">?</span>;
 
     <span class="kw">if </span>component_count == <span class="number">0 </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;zero component count in frame header&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"zero component count in frame header"</span>.to_owned()));
     }
     <span class="kw">if </span>coding_process == CodingProcess::DctProgressive &amp;&amp; component_count &gt; <span class="number">4 </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;progressive frame with more than 4 components&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"progressive frame with more than 4 components"</span>.to_owned()));
     }
 
     <span class="kw">if </span>length != <span class="number">6 </span>+ <span class="number">3 </span>* component_count <span class="kw">as </span>usize {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;invalid length in SOF&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"invalid length in SOF"</span>.to_owned()));
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>components: Vec&lt;Component&gt; = Vec::with_capacity(component_count <span class="kw">as </span>usize);
@@ -935,9 +936,9 @@
     <span class="kw">for _ in </span><span class="number">0 </span>.. component_count {
         <span class="kw">let </span>identifier = read_u8(reader)<span class="question-mark">?</span>;
 
-        <span class="comment">// Each component&#39;s identifier must be unique.
+        <span class="comment">// Each component's identifier must be unique.
         </span><span class="kw">if </span>components.iter().any(|c| c.identifier == identifier) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;duplicate frame component identifier {}&quot;</span>, identifier)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"duplicate frame component identifier {}"</span>, identifier)));
         }
 
         <span class="kw">let </span>byte = read_u8(reader)<span class="question-mark">?</span>;
@@ -945,16 +946,16 @@
         <span class="kw">let </span>vertical_sampling_factor = byte &amp; <span class="number">0x0f</span>;
 
         <span class="kw">if </span>horizontal_sampling_factor == <span class="number">0 </span>|| horizontal_sampling_factor &gt; <span class="number">4 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid horizontal sampling factor {}&quot;</span>, horizontal_sampling_factor)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid horizontal sampling factor {}"</span>, horizontal_sampling_factor)));
         }
         <span class="kw">if </span>vertical_sampling_factor == <span class="number">0 </span>|| vertical_sampling_factor &gt; <span class="number">4 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid vertical sampling factor {}&quot;</span>, vertical_sampling_factor)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid vertical sampling factor {}"</span>, vertical_sampling_factor)));
         }
 
         <span class="kw">let </span>quantization_table_index = read_u8(reader)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>quantization_table_index &gt; <span class="number">3 </span>|| (coding_process == CodingProcess::Lossless &amp;&amp; quantization_table_index != <span class="number">0</span>) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid quantization table index {}&quot;</span>, quantization_table_index)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid quantization table index {}"</span>, quantization_table_index)));
         }
 
         components.push(Component {
@@ -988,7 +989,7 @@
     <span class="kw">if </span>x == <span class="number">0 </span>|| y == <span class="number">0 </span>{
         <span class="comment">// TODO Determine how this error is reached. Can we validate input
         // earlier and error out then?
-        </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;invalid dimensions&quot;</span>.to_owned()));
+        </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"invalid dimensions"</span>.to_owned()));
     }
     <span class="prelude-val">Ok</span>((<span class="number">1 </span>+ ((x - <span class="number">1</span>) / y)) <span class="kw">as </span>u16)
 }
@@ -1036,17 +1037,17 @@
 </span><span class="kw">pub fn </span>parse_sos&lt;R: Read&gt;(reader: <span class="kw-2">&amp;mut </span>R, frame: <span class="kw-2">&amp;</span>FrameInfo) -&gt; <span class="prelude-ty">Result</span>&lt;ScanInfo&gt; {
     <span class="kw">let </span>length = read_length(reader, SOS)<span class="question-mark">?</span>;
     <span class="kw">if </span><span class="number">0 </span>== length {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;zero length in SOS&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"zero length in SOS"</span>.to_owned()));
     }
 
     <span class="kw">let </span>component_count = read_u8(reader)<span class="question-mark">?</span>;
 
     <span class="kw">if </span>component_count == <span class="number">0 </span>|| component_count &gt; <span class="number">4 </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid component count {} in scan header&quot;</span>, component_count)));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid component count {} in scan header"</span>, component_count)));
     }
 
     <span class="kw">if </span>length != <span class="number">4 </span>+ <span class="number">2 </span>* component_count <span class="kw">as </span>usize {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;invalid length in SOS&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"invalid length in SOS"</span>.to_owned()));
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>component_indices = Vec::with_capacity(component_count <span class="kw">as </span>usize);
@@ -1058,17 +1059,17 @@
 
         <span class="kw">let </span>component_index = <span class="kw">match </span>frame.components.iter().position(|c| c.identifier == identifier) {
             <span class="prelude-val">Some</span>(value) =&gt; value,
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;scan component identifier {} does not match any of the component identifiers defined in the frame&quot;</span>, identifier))),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"scan component identifier {} does not match any of the component identifiers defined in the frame"</span>, identifier))),
         };
 
-        <span class="comment">// Each of the scan&#39;s components must be unique.
+        <span class="comment">// Each of the scan's components must be unique.
         </span><span class="kw">if </span>component_indices.contains(<span class="kw-2">&amp;</span>component_index) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;duplicate scan component identifier {}&quot;</span>, identifier)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"duplicate scan component identifier {}"</span>, identifier)));
         }
 
-        <span class="comment">// &quot;... the ordering in the scan header shall follow the ordering in the frame header.&quot;
+        <span class="comment">// "... the ordering in the scan header shall follow the ordering in the frame header."
         </span><span class="kw">if </span>component_index &lt; <span class="kw-2">*</span>component_indices.iter().max().unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;the scan component order does not follow the order in the frame header&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"the scan component order does not follow the order in the frame header"</span>.to_owned()));
         }
 
         <span class="kw">let </span>byte = read_u8(reader)<span class="question-mark">?</span>;
@@ -1076,10 +1077,10 @@
         <span class="kw">let </span>ac_table_index = byte &amp; <span class="number">0x0f</span>;
 
         <span class="kw">if </span>dc_table_index &gt; <span class="number">3 </span>|| (frame.is_baseline &amp;&amp; dc_table_index &gt; <span class="number">1</span>) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid dc table index {}&quot;</span>, dc_table_index)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid dc table index {}"</span>, dc_table_index)));
         }
         <span class="kw">if </span>ac_table_index &gt; <span class="number">3 </span>|| (frame.is_baseline &amp;&amp; ac_table_index &gt; <span class="number">1</span>) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid ac table index {}&quot;</span>, ac_table_index)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid ac table index {}"</span>, ac_table_index)));
         }
 
         component_indices.push(component_index);
@@ -1092,10 +1093,10 @@
     }).fold(<span class="number">0</span>, ops::Add::add);
 
     <span class="kw">if </span>component_count &gt; <span class="number">1 </span>&amp;&amp; blocks_per_mcu &gt; <span class="number">10 </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;scan with more than one component and more than 10 blocks per MCU&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"scan with more than one component and more than 10 blocks per MCU"</span>.to_owned()));
     }
 
-    <span class="comment">// Also utilized as &#39;Predictor&#39; in lossless coding, as MEAN in JPEG-LS etc.
+    <span class="comment">// Also utilized as 'Predictor' in lossless coding, as MEAN in JPEG-LS etc.
     </span><span class="kw">let </span>spectral_selection_start = read_u8(reader)<span class="question-mark">?</span>;
     <span class="comment">// Also utilized as ILV parameter in JPEG-LS.
     </span><span class="kw">let </span><span class="kw-2">mut </span>spectral_selection_end = read_u8(reader)<span class="question-mark">?</span>;
@@ -1105,7 +1106,7 @@
     <span class="kw">let </span>successive_approximation_low = byte &amp; <span class="number">0x0f</span>;
 
     <span class="comment">// The Differential Pulse-Mode prediction used (similar to png). Only utilized in Lossless
-    // coding. Don&#39;t confuse with the JPEG-LS parameter coded using the same scan info portion.
+    // coding. Don't confuse with the JPEG-LS parameter coded using the same scan info portion.
     </span><span class="kw">let </span>predictor_selection;
     <span class="kw">let </span>point_transform = successive_approximation_low;
 
@@ -1113,29 +1114,29 @@
         predictor_selection = Predictor::NoPrediction;
         <span class="kw">if </span>spectral_selection_end &gt; <span class="number">63 </span>|| spectral_selection_start &gt; spectral_selection_end ||
                 (spectral_selection_start == <span class="number">0 </span>&amp;&amp; spectral_selection_end != <span class="number">0</span>) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid spectral selection parameters: ss={}, se={}&quot;</span>, spectral_selection_start, spectral_selection_end)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid spectral selection parameters: ss={}, se={}"</span>, spectral_selection_start, spectral_selection_end)));
         }
         <span class="kw">if </span>spectral_selection_start != <span class="number">0 </span>&amp;&amp; component_count != <span class="number">1 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;spectral selection scan with AC coefficients can&#39;t have more than one component&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"spectral selection scan with AC coefficients can't have more than one component"</span>.to_owned()));
         }
 
         <span class="kw">if </span>successive_approximation_high &gt; <span class="number">13 </span>|| successive_approximation_low &gt; <span class="number">13 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid successive approximation parameters: ah={}, al={}&quot;</span>, successive_approximation_high, successive_approximation_low)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid successive approximation parameters: ah={}, al={}"</span>, successive_approximation_high, successive_approximation_low)));
         }
 
         <span class="comment">// Section G.1.1.1.2
-        // &quot;Each scan which follows the first scan for a given band progressively improves
-        //     the precision of the coefficients by one bit, until full precision is reached.&quot;
+        // "Each scan which follows the first scan for a given band progressively improves
+        //     the precision of the coefficients by one bit, until full precision is reached."
         </span><span class="kw">if </span>successive_approximation_high != <span class="number">0 </span>&amp;&amp; successive_approximation_high != successive_approximation_low + <span class="number">1 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;successive approximation scan with more than one bit of improvement&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"successive approximation scan with more than one bit of improvement"</span>.to_owned()));
         }
     }
     <span class="kw">else if </span>frame.coding_process == CodingProcess::Lossless {
         <span class="kw">if </span>spectral_selection_end != <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;spectral selection end shall be zero in lossless scan&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"spectral selection end shall be zero in lossless scan"</span>.to_owned()));
         }
         <span class="kw">if </span>successive_approximation_high != <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;successive approximation high shall be zero in lossless scan&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"successive approximation high shall be zero in lossless scan"</span>.to_owned()));
         }
         predictor_selection = <span class="kw">match </span>spectral_selection_start {
             <span class="number">0 </span>=&gt; Predictor::NoPrediction,
@@ -1147,7 +1148,7 @@
             <span class="number">6 </span>=&gt; Predictor::RaRbRc3,
             <span class="number">7 </span>=&gt; Predictor::RaRb,
             <span class="kw">_ </span>=&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid predictor selection value: {}&quot;</span>, spectral_selection_start)));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid predictor selection value: {}"</span>, spectral_selection_start)));
             },
         };
     }
@@ -1157,10 +1158,10 @@
             spectral_selection_end = <span class="number">63</span>;
         }
         <span class="kw">if </span>spectral_selection_start != <span class="number">0 </span>|| spectral_selection_end != <span class="number">63 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;spectral selection is not allowed in non-progressive scan&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"spectral selection is not allowed in non-progressive scan"</span>.to_owned()));
         }
         <span class="kw">if </span>successive_approximation_high != <span class="number">0 </span>|| successive_approximation_low != <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;successive approximation is not allowed in non-progressive scan&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"successive approximation is not allowed in non-progressive scan"</span>.to_owned()));
         }
     }
 
@@ -1192,20 +1193,20 @@
 
         <span class="comment">// The combination of 8-bit sample precision and 16-bit quantization tables is explicitly
         // disallowed by the JPEG spec:
-        //     &quot;An 8-bit DCT-based process shall not use a 16-bit precision quantization table.&quot;
-        //     &quot;Pq: Quantization table element precision – Specifies the precision of the Qk
+        //     "An 8-bit DCT-based process shall not use a 16-bit precision quantization table."
+        //     "Pq: Quantization table element precision – Specifies the precision of the Qk
         //      values. Value 0 indicates 8-bit Qk values; value 1 indicates 16-bit Qk values. Pq
-        //      shall be zero for 8 bit sample precision P (see B.2.2).&quot;
+        //      shall be zero for 8 bit sample precision P (see B.2.2)."
         // libjpeg allows this behavior though, and there are images in the wild using it. So to
-        // match libjpeg&#39;s behavior we are deviating from the JPEG spec here.
+        // match libjpeg's behavior we are deviating from the JPEG spec here.
         </span><span class="kw">if </span>precision &gt; <span class="number">1 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid precision {} in DQT&quot;</span>, precision)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid precision {} in DQT"</span>, precision)));
         }
         <span class="kw">if </span>index &gt; <span class="number">3 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid destination identifier {} in DQT&quot;</span>, index)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid destination identifier {} in DQT"</span>, index)));
         }
         <span class="kw">if </span>length &lt; <span class="number">65 </span>+ <span class="number">64 </span>* precision {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;invalid length in DQT&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"invalid length in DQT"</span>.to_owned()));
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>table = [<span class="number">0u16</span>; <span class="number">64</span>];
@@ -1219,7 +1220,7 @@
         }
 
         <span class="kw">if </span>table.iter().any(|<span class="kw-2">&amp;</span>val| val == <span class="number">0</span>) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;quantization table contains element with a zero value&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"quantization table contains element with a zero value"</span>.to_owned()));
         }
 
         tables[index] = <span class="prelude-val">Some</span>(table);
@@ -1243,13 +1244,13 @@
         <span class="kw">let </span>index = (byte &amp; <span class="number">0x0f</span>) <span class="kw">as </span>usize;
 
         <span class="kw">if </span>class != <span class="number">0 </span>&amp;&amp; class != <span class="number">1 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid class {} in DHT&quot;</span>, class)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid class {} in DHT"</span>, class)));
         }
         <span class="kw">if </span>is_baseline == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) &amp;&amp; index &gt; <span class="number">1 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;a maximum of two huffman tables per class are allowed in baseline&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"a maximum of two huffman tables per class are allowed in baseline"</span>.to_owned()));
         }
         <span class="kw">if </span>index &gt; <span class="number">3 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">&quot;invalid destination identifier {} in DHT&quot;</span>, index)));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(<span class="string">"invalid destination identifier {} in DHT"</span>, index)));
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>counts = [<span class="number">0u8</span>; <span class="number">16</span>];
@@ -1258,13 +1259,13 @@
         <span class="kw">let </span>size = counts.iter().map(|<span class="kw-2">&amp;</span>val| val <span class="kw">as </span>usize).fold(<span class="number">0</span>, ops::Add::add);
 
         <span class="kw">if </span>size == <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;encountered table with zero length in DHT&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"encountered table with zero length in DHT"</span>.to_owned()));
         }
         <span class="kw">else if </span>size &gt; <span class="number">256 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;encountered table with excessive length in DHT&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"encountered table with excessive length in DHT"</span>.to_owned()));
         }
         <span class="kw">else if </span>size &gt; length - <span class="number">17 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;invalid length in DHT&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"invalid length in DHT"</span>.to_owned()));
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>values = <span class="macro">vec!</span>[<span class="number">0u8</span>; size];
@@ -1280,7 +1281,7 @@
     }
 
     <span class="kw">if </span>length != <span class="number">0 </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;invalid length in DHT&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"invalid length in DHT"</span>.to_owned()));
     }
 
     <span class="prelude-val">Ok</span>((dc_tables, ac_tables))
@@ -1291,7 +1292,7 @@
     <span class="kw">let </span>length = read_length(reader, DRI)<span class="question-mark">?</span>;
 
     <span class="kw">if </span>length != <span class="number">2 </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;DRI with invalid length&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"DRI with invalid length"</span>.to_owned()));
     }
 
     <span class="prelude-val">Ok</span>(read_u16_from_be(reader)<span class="question-mark">?</span>)
@@ -1321,10 +1322,10 @@
                 bytes_read = buffer.len();
 
                 <span class="comment">// http://www.w3.org/Graphics/JPEG/jfif3.pdf
-                </span><span class="kw">if </span>buffer[<span class="number">0</span>..<span class="number">5</span>] == <span class="kw-2">*</span><span class="string">b&quot;JFIF\0&quot; </span>{
+                </span><span class="kw">if </span>buffer[<span class="number">0</span>..<span class="number">5</span>] == <span class="kw-2">*</span><span class="string">b"JFIF\0" </span>{
                     result = <span class="prelude-val">Some</span>(AppData::Jfif);
                 <span class="comment">// https://sno.phy.queensu.ca/~phil/exiftool/TagNames/JPEG.html#AVI1
-                </span>} <span class="kw">else if </span>buffer[<span class="number">0</span>..<span class="number">5</span>] == <span class="kw-2">*</span><span class="string">b&quot;AVI1\0&quot; </span>{
+                </span>} <span class="kw">else if </span>buffer[<span class="number">0</span>..<span class="number">5</span>] == <span class="kw-2">*</span><span class="string">b"AVI1\0" </span>{
                     result = <span class="prelude-val">Some</span>(AppData::Avi1);
                 }
             }
@@ -1336,12 +1337,12 @@
 
             <span class="comment">// https://web.archive.org/web/20190624045241if_/http://www.cipa.jp:80/std/documents/e/DC-008-Translation-2019-E.pdf
             // 4.5.4 Basic Structure of JPEG Compressed Data
-            </span><span class="kw">if </span>length &gt;= <span class="number">6 </span>&amp;&amp; buffer[<span class="number">0</span>..<span class="number">6</span>] == <span class="kw-2">*</span><span class="string">b&quot;Exif\x00\x00&quot; </span>{
+            </span><span class="kw">if </span>length &gt;= <span class="number">6 </span>&amp;&amp; buffer[<span class="number">0</span>..<span class="number">6</span>] == <span class="kw-2">*</span><span class="string">b"Exif\x00\x00" </span>{
                 result = <span class="prelude-val">Some</span>(AppData::Exif(buffer[<span class="number">6</span>..].to_vec()));
             }
             <span class="comment">// XMP packet
             // https://github.com/adobe/XMP-Toolkit-SDK/blob/main/docs/XMPSpecificationPart3.pdf
-            </span><span class="kw">else if </span>length &gt;= <span class="number">29 </span>&amp;&amp; buffer[<span class="number">0</span>..<span class="number">29</span>] == <span class="kw-2">*</span><span class="string">b&quot;http://ns.adobe.com/xap/1.0/\0&quot; </span>{
+            </span><span class="kw">else if </span>length &gt;= <span class="number">29 </span>&amp;&amp; buffer[<span class="number">0</span>..<span class="number">29</span>] == <span class="kw-2">*</span><span class="string">b"http://ns.adobe.com/xap/1.0/\0" </span>{
                 result = <span class="prelude-val">Some</span>(AppData::Xmp(buffer[<span class="number">29</span>..].to_vec()));
             }
         }
@@ -1353,7 +1354,7 @@
 
                 <span class="comment">// http://www.color.org/ICC_Minor_Revision_for_Web.pdf
                 // B.4 Embedding ICC profiles in JFIF files
-                </span><span class="kw">if </span>buffer[<span class="number">0</span>..<span class="number">12</span>] == <span class="kw-2">*</span><span class="string">b&quot;ICC_PROFILE\0&quot; </span>{
+                </span><span class="kw">if </span>buffer[<span class="number">0</span>..<span class="number">12</span>] == <span class="kw-2">*</span><span class="string">b"ICC_PROFILE\0" </span>{
                     <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[<span class="number">0</span>; length - bytes_read];
                     reader.read_exact(<span class="kw-2">&amp;mut </span>data)<span class="question-mark">?</span>;
                     bytes_read += data.len();
@@ -1373,7 +1374,7 @@
 
                 <span class="comment">// PSIR (Photoshop)
                 // https://github.com/adobe/XMP-Toolkit-SDK/blob/main/docs/XMPSpecificationPart3.pdf
-                </span><span class="kw">if </span>buffer[<span class="number">0</span>..<span class="number">14</span>] == <span class="kw-2">*</span><span class="string">b&quot;Photoshop 3.0\0&quot; </span>{
+                </span><span class="kw">if </span>buffer[<span class="number">0</span>..<span class="number">14</span>] == <span class="kw-2">*</span><span class="string">b"Photoshop 3.0\0" </span>{
                     <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[<span class="number">0</span>; length - bytes_read];
                     reader.read_exact(<span class="kw-2">&amp;mut </span>data)<span class="question-mark">?</span>;
                     bytes_read += data.len();
@@ -1388,12 +1389,12 @@
                 bytes_read = buffer.len();
 
                 <span class="comment">// http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/JPEG.html#Adobe
-                </span><span class="kw">if </span>buffer[<span class="number">0 </span>.. <span class="number">6</span>] == <span class="kw-2">*</span><span class="string">b&quot;Adobe\0&quot; </span>{
+                </span><span class="kw">if </span>buffer[<span class="number">0 </span>.. <span class="number">6</span>] == <span class="kw-2">*</span><span class="string">b"Adobe\0" </span>{
                     <span class="kw">let </span>color_transform = <span class="kw">match </span>buffer[<span class="number">11</span>] {
                         <span class="number">0 </span>=&gt; AdobeColorTransform::Unknown,
                         <span class="number">1 </span>=&gt; AdobeColorTransform::YCbCr,
                         <span class="number">2 </span>=&gt; AdobeColorTransform::YCCK,
-                        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;invalid color transform in adobe app segment&quot;</span>.to_owned())),
+                        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"invalid color transform in adobe app segment"</span>.to_owned())),
                     };
 
                     result = <span class="prelude-val">Some</span>(AppData::Adobe(color_transform));

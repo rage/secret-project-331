@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/token.rs`."><title>token.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/token.rs`."><title>token.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -734,11 +735,11 @@
 /// # use combine::*;
 /// # fn main() {
 /// let mut char_parser = any();
-/// assert_eq!(char_parser.parse(&quot;!&quot;).map(|x| x.0), Ok(&#39;!&#39;));
-/// assert!(char_parser.parse(&quot;&quot;).is_err());
+/// assert_eq!(char_parser.parse("!").map(|x| x.0), Ok('!'));
+/// assert!(char_parser.parse("").is_err());
 /// let mut byte_parser = any();
-/// assert_eq!(byte_parser.parse(&amp;b&quot;!&quot;[..]).map(|x| x.0), Ok(b&#39;!&#39;));
-/// assert!(byte_parser.parse(&amp;b&quot;&quot;[..]).is_err());
+/// assert_eq!(byte_parser.parse(&amp;b"!"[..]).map(|x| x.0), Ok(b'!'));
+/// assert!(byte_parser.parse(&amp;b""[..]).is_err());
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>any&lt;Input&gt;() -&gt; Any&lt;Input&gt;
@@ -796,9 +797,9 @@
 /// # extern crate combine;
 /// # use combine::*;
 /// # fn main() {
-/// let mut parser = satisfy(|c| c == &#39;!&#39; || c == &#39;?&#39;);
-/// assert_eq!(parser.parse(&quot;!&quot;).map(|x| x.0), Ok(&#39;!&#39;));
-/// assert_eq!(parser.parse(&quot;?&quot;).map(|x| x.0), Ok(&#39;?&#39;));
+/// let mut parser = satisfy(|c| c == '!' || c == '?');
+/// assert_eq!(parser.parse("!").map(|x| x.0), Ok('!'));
+/// assert_eq!(parser.parse("?").map(|x| x.0), Ok('?'));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>satisfy&lt;Input, P&gt;(predicate: P) -&gt; Satisfy&lt;Input, P&gt;
@@ -846,13 +847,13 @@
 /// }
 /// let mut parser = satisfy_map(|c| {
 ///     match c {
-///         &#39;Y&#39; =&gt; Some(YesNo::Yes),
-///         &#39;N&#39; =&gt; Some(YesNo::No),
+///         'Y' =&gt; Some(YesNo::Yes),
+///         'N' =&gt; Some(YesNo::No),
 ///         _ =&gt; None,
 ///     }
 /// });
-/// assert_eq!(parser.parse(&quot;Y&quot;).map(|x| x.0), Ok(YesNo::Yes));
-/// assert!(parser.parse(&quot;A&quot;).map(|x| x.0).is_err());
+/// assert_eq!(parser.parse("Y").map(|x| x.0), Ok(YesNo::Yes));
+/// assert!(parser.parse("A").map(|x| x.0).is_err());
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>satisfy_map&lt;Input, P, R&gt;(predicate: P) -&gt; SatisfyMap&lt;Input, P&gt;
@@ -899,10 +900,10 @@
 /// # extern crate combine;
 /// # use combine::*;
 /// # fn main() {
-/// let result = token(&#39;!&#39;)
-///     .parse(&quot;!&quot;)
+/// let result = token('!')
+///     .parse("!")
 ///     .map(|x| x.0);
-/// assert_eq!(result, Ok(&#39;!&#39;));
+/// assert_eq!(result, Ok('!'));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>token&lt;Input&gt;(c: Input::Token) -&gt; Token&lt;Input&gt;
@@ -930,7 +931,7 @@
 <span class="kw">impl</span>&lt;Input, C, E, T&gt; Parser&lt;Input&gt; <span class="kw">for </span>Tokens&lt;C, E, T, Input&gt;
 <span class="kw">where
     </span>C: FnMut(T::Item, Input::Token) -&gt; bool,
-    E: <span class="kw">for</span>&lt;<span class="lifetime">&#39;s</span>&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, Input::Token, Input::Range&gt;,
+    E: <span class="kw">for</span>&lt;<span class="lifetime">'s</span>&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, Input::Token, Input::Range&gt;,
     T: Clone + IntoIterator,
     Input: Stream,
 {
@@ -993,18 +994,18 @@
 /// # use combine::*;
 /// # use combine::error;
 /// # fn main() {
-/// let result = tokens(|l, r| l.eq_ignore_ascii_case(&amp;r), &quot;abc&quot;, &quot;abc&quot;.chars())
-///     .parse(&quot;AbC&quot;)
+/// let result = tokens(|l, r| l.eq_ignore_ascii_case(&amp;r), "abc", "abc".chars())
+///     .parse("AbC")
 ///     .map(|x| x.0.as_str());
-/// assert_eq!(result, Ok(&quot;abc&quot;));
+/// assert_eq!(result, Ok("abc"));
 /// let result = tokens(
 ///     |&amp;l, r| (if l &lt; r { r - l } else { l - r }) &lt;= 2,
-///     error::Range(&amp;b&quot;025&quot;[..]),
-///     &amp;b&quot;025&quot;[..]
+///     error::Range(&amp;b"025"[..]),
+///     &amp;b"025"[..]
 /// )
-///     .parse(&amp;b&quot;123&quot;[..])
+///     .parse(&amp;b"123"[..])
 ///     .map(|x| x.0);
-/// assert_eq!(result, Ok(&amp;b&quot;025&quot;[..]));
+/// assert_eq!(result, Ok(&amp;b"025"[..]));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>tokens&lt;C, E, T, Input&gt;(cmp: C, expected: E, tokens: T) -&gt; Tokens&lt;C, E, T, Input&gt;
@@ -1094,17 +1095,17 @@
 /// # fn main() {
 /// # #[allow(deprecated)]
 /// # use std::ascii::AsciiExt;
-/// let result = tokens_cmp(&quot;abc&quot;.chars(), |l, r| l.eq_ignore_ascii_case(&amp;r))
-///     .parse(&quot;AbC&quot;)
+/// let result = tokens_cmp("abc".chars(), |l, r| l.eq_ignore_ascii_case(&amp;r))
+///     .parse("AbC")
 ///     .map(|x| x.0.as_str());
-/// assert_eq!(result, Ok(&quot;abc&quot;));
+/// assert_eq!(result, Ok("abc"));
 /// let result = tokens_cmp(
-///     &amp;b&quot;025&quot;[..],
+///     &amp;b"025"[..],
 ///     |&amp;l, r| (if l &lt; r { r - l } else { l - r }) &lt;= 2,
 /// )
-///     .parse(&amp;b&quot;123&quot;[..])
+///     .parse(&amp;b"123"[..])
 ///     .map(|x| x.0);
-/// assert_eq!(result, Ok(&amp;b&quot;025&quot;[..]));
+/// assert_eq!(result, Ok(&amp;b"025"[..]));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>tokens_cmp&lt;C, T, I&gt;(tokens: T, cmp: C) -&gt; TokensCmp&lt;C, T, I&gt;
@@ -1148,11 +1149,11 @@
 /// # use combine::*;
 /// # use combine::stream::position::{self, SourcePosition};
 /// # fn main() {
-/// let result = (position(), token(&#39;!&#39;), position())
-///     .parse(position::Stream::new(&quot;!&quot;))
+/// let result = (position(), token('!'), position())
+///     .parse(position::Stream::new("!"))
 ///     .map(|x| x.0);
 /// assert_eq!(result, Ok((SourcePosition { line: 1, column: 1 },
-///                        &#39;!&#39;,
+///                        '!',
 ///                        SourcePosition { line: 1, column: 2 })));
 /// # }
 /// ```
@@ -1201,9 +1202,9 @@
 /// # extern crate combine;
 /// # use combine::*;
 /// # fn main() {
-/// let result = many(one_of(&quot;abc&quot;.chars()))
-///     .parse(&quot;abd&quot;);
-/// assert_eq!(result, Ok((String::from(&quot;ab&quot;), &quot;d&quot;)));
+/// let result = many(one_of("abc".chars()))
+///     .parse("abd");
+/// assert_eq!(result, Ok((String::from("ab"), "d")));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>one_of&lt;T, Input&gt;(tokens: T) -&gt; OneOf&lt;T, Input&gt;
@@ -1250,16 +1251,16 @@
 /// # use combine::stream::easy;
 /// # use combine::stream::position;
 /// # fn main() {
-/// let mut parser = many1(none_of(b&quot;abc&quot;.iter().cloned()));
-/// let result = parser.easy_parse(position::Stream::new(&amp;b&quot;xyb&quot;[..]))
+/// let mut parser = many1(none_of(b"abc".iter().cloned()));
+/// let result = parser.easy_parse(position::Stream::new(&amp;b"xyb"[..]))
 ///     .map(|(output, input)| (output, input.input));
-/// assert_eq!(result, Ok((b&quot;xy&quot;[..].to_owned(), &amp;b&quot;b&quot;[..])));
+/// assert_eq!(result, Ok((b"xy"[..].to_owned(), &amp;b"b"[..])));
 ///
-/// let result = parser.easy_parse(position::Stream::new(&amp;b&quot;ab&quot;[..]));
+/// let result = parser.easy_parse(position::Stream::new(&amp;b"ab"[..]));
 /// assert_eq!(result, Err(easy::Errors {
 ///     position: 0,
 ///     errors: vec![
-///         easy::Error::Unexpected(easy::Info::Token(b&#39;a&#39;)),
+///         easy::Error::Unexpected(easy::Info::Token(b'a')),
 ///     ]
 /// }));
 /// # }
@@ -1298,7 +1299,7 @@
 /// # use combine::*;
 /// # fn main() {
 /// let result = value(42)
-///     .parse(&quot;hello world&quot;)
+///     .parse("hello world")
 ///     .map(|x| x.0);
 /// assert_eq!(result, Ok(42));
 /// # }
@@ -1335,7 +1336,7 @@
 /// #[derive(Debug, PartialEq)]
 /// struct NoClone;
 /// let result = produce(|| vec![NoClone])
-///     .parse(&quot;hello world&quot;)
+///     .parse("hello world")
 ///     .map(|x| x.0);
 /// assert_eq!(result, Ok(vec![NoClone]));
 /// ```
@@ -1369,7 +1370,7 @@
     }
 
     <span class="kw">fn </span>add_error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, errors: <span class="kw-2">&amp;mut </span>Tracked&lt;&lt;Input <span class="kw">as </span>StreamOnce&gt;::Error&gt;) {
-        errors.error.add_expected(<span class="string">&quot;end of input&quot;</span>);
+        errors.error.add_expected(<span class="string">"end of input"</span>);
     }
 }
 
@@ -1382,12 +1383,12 @@
 /// # use combine::stream::position::{self, SourcePosition};
 /// # fn main() {
 /// let mut parser = eof();
-/// assert_eq!(parser.easy_parse(position::Stream::new(&quot;&quot;)), Ok(((), position::Stream::new(&quot;&quot;))));
-/// assert_eq!(parser.easy_parse(position::Stream::new(&quot;x&quot;)), Err(easy::Errors {
+/// assert_eq!(parser.easy_parse(position::Stream::new("")), Ok(((), position::Stream::new(""))));
+/// assert_eq!(parser.easy_parse(position::Stream::new("x")), Err(easy::Errors {
 ///     position: SourcePosition::default(),
 ///     errors: vec![
-///         easy::Error::Unexpected(&#39;x&#39;.into()),
-///         easy::Error::Expected(&quot;end of input&quot;.into())
+///         easy::Error::Unexpected('x'.into()),
+///         easy::Error::Expected("end of input".into())
 ///     ]
 /// }));
 /// # }

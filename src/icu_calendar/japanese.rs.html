@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/japanese.rs`."><title>japanese.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/japanese.rs`."><title>japanese.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1001,12 +1002,12 @@
 //!
 //! // `Date` type
 //! let date_iso = Date::try_new_iso_date(1970, 1, 2)
-//!     .expect(&quot;Failed to initialize ISO Date instance.&quot;);
+//!     .expect("Failed to initialize ISO Date instance.");
 //! let date_japanese = Date::new_from_iso(date_iso, japanese_calendar.clone());
 //!
 //! // `DateTime` type
 //! let datetime_iso = DateTime::try_new_iso_datetime(1970, 1, 2, 13, 1, 0)
-//!     .expect(&quot;Failed to initialize ISO DateTime instance.&quot;);
+//!     .expect("Failed to initialize ISO DateTime instance.");
 //! let datetime_japanese =
 //!     DateTime::new_from_iso(datetime_iso, japanese_calendar.clone());
 //!
@@ -1014,7 +1015,7 @@
 //! assert_eq!(date_japanese.year().number, 45);
 //! assert_eq!(date_japanese.month().ordinal, 1);
 //! assert_eq!(date_japanese.day_of_month().0, 2);
-//! assert_eq!(date_japanese.year().era, Era(tinystr!(16, &quot;showa&quot;)));
+//! assert_eq!(date_japanese.year().era, Era(tinystr!(16, "showa")));
 //!
 //! // `DateTime` type
 //! assert_eq!(datetime_japanese.date.year().number, 45);
@@ -1022,7 +1023,7 @@
 //! assert_eq!(datetime_japanese.date.day_of_month().0, 2);
 //! assert_eq!(
 //!     datetime_japanese.date.year().era,
-//!     Era(tinystr!(16, &quot;showa&quot;))
+//!     Era(tinystr!(16, "showa"))
 //! );
 //! assert_eq!(datetime_japanese.time.hour.number(), 13);
 //! assert_eq!(datetime_japanese.time.minute.number(), 1);
@@ -1053,8 +1054,8 @@
 /// # Era codes
 ///
 /// This calendar currently supports seven era codes. It supports the five post-Meiji eras
-/// (`&quot;meiji&quot;`, `&quot;taisho&quot;`, `&quot;showa&quot;`, `&quot;heisei&quot;`, `&quot;reiwa&quot;`), as well as using the Gregorian
-/// `&quot;bce&quot;` and `&quot;ce&quot;` for dates before the Meiji era.
+/// (`"meiji"`, `"taisho"`, `"showa"`, `"heisei"`, `"reiwa"`), as well as using the Gregorian
+/// `"bce"` and `"ce"` for dates before the Meiji era.
 ///
 /// Future eras will also be added to this type when they are decided.
 ///
@@ -1063,7 +1064,7 @@
 ///
 /// # Month codes
 ///
-/// This calendar supports 12 solar month codes (`&quot;M01&quot; - &quot;M12&quot;`)
+/// This calendar supports 12 solar month codes (`"M01" - "M12"`)
 </span><span class="attr">#[derive(Clone, Debug, Default)]
 </span><span class="kw">pub struct </span>Japanese {
     eras: DataPayload&lt;JapaneseErasV1Marker&gt;,
@@ -1082,9 +1083,9 @@
 /// # Era codes
 ///
 /// This calendar supports a large number of era codes. It supports the five post-Meiji eras
-/// (`&quot;meiji&quot;`, `&quot;taisho&quot;`, `&quot;showa&quot;`, `&quot;heisei&quot;`, `&quot;reiwa&quot;`). Pre-Meiji eras are represented
-/// with their names converted to lowercase ascii and followed by their start year. E.g. the &quot;Ten&#39;ō&quot;
-/// era (781 - 782 CE) has the code `&quot;teno-781&quot;`. The  Gregorian `&quot;bce&quot;` and `&quot;ce&quot;` eras
+/// (`"meiji"`, `"taisho"`, `"showa"`, `"heisei"`, `"reiwa"`). Pre-Meiji eras are represented
+/// with their names converted to lowercase ascii and followed by their start year. E.g. the "Ten'ō"
+/// era (781 - 782 CE) has the code `"teno-781"`. The  Gregorian `"bce"` and `"ce"` eras
 /// are used for dates before the first known era era.
 ///
 ///
@@ -1107,7 +1108,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             eras: DataPayload::from_static_ref(
@@ -1141,7 +1142,7 @@
         year: i32,
         month_code: types::MonthCode,
         day: u8,
-        debug_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        debug_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;JapaneseDateInner, CalendarError&gt; {
         <span class="kw">let </span>month = month_code.parsed();
         <span class="kw">let </span>month = <span class="kw">if let </span><span class="prelude-val">Some</span>((month, <span class="bool-val">false</span>)) = month {
@@ -1157,7 +1158,7 @@
         <span class="self">self</span>.new_japanese_date_inner(era, year, month, day)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DEBUG_NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;Japanese&quot;</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DEBUG_NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"Japanese"</span>;
 }
 
 <span class="kw">impl </span>JapaneseExtended {
@@ -1166,7 +1167,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(Japanese {
             eras: DataPayload::from_static_ref(
@@ -1194,7 +1195,7 @@
         }))
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DEBUG_NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;Japanese (historical era data)&quot;</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DEBUG_NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"Japanese (historical era data)"</span>;
 }
 
 <span class="kw">impl </span>Calendar <span class="kw">for </span>Japanese {
@@ -1300,7 +1301,7 @@
         }
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="self">Self</span>::DEBUG_NAME
     }
 
@@ -1390,7 +1391,7 @@
         Japanese::day_of_year_info(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, date)
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="self">Self</span>::DEBUG_NAME
     }
 
@@ -1403,10 +1404,10 @@
     <span class="doccomment">/// Construct a new Japanese Date.
     ///
     /// Years are specified in the era provided, and must be in range for Japanese
-    /// eras (e.g. dates past April 30 Heisei 31 must be in Reiwa; &quot;Jun 5 Heisei 31&quot; and &quot;Jan 1 Heisei 32&quot;
+    /// eras (e.g. dates past April 30 Heisei 31 must be in Reiwa; "Jun 5 Heisei 31" and "Jan 1 Heisei 32"
     /// will not be adjusted to being in Reiwa 1 and 2 respectively)
     ///
-    /// However, dates may always be specified in &quot;bce&quot; or &quot;ce&quot; and they will be adjusted as necessary.
+    /// However, dates may always be specified in "bce" or "ce" and they will be adjusted as necessary.
     ///
     /// ```rust
     /// use icu::calendar::japanese::Japanese;
@@ -1418,10 +1419,10 @@
     /// // for easy sharing
     /// let japanese_calendar = Ref(&amp;japanese_calendar);
     ///
-    /// let era = types::Era(tinystr!(16, &quot;heisei&quot;));
+    /// let era = types::Era(tinystr!(16, "heisei"));
     ///
     /// let date = Date::try_new_japanese_date(era, 14, 1, 2, japanese_calendar)
-    ///     .expect(&quot;Constructing a date should succeed&quot;);
+    ///     .expect("Constructing a date should succeed");
     ///
     /// assert_eq!(date.year().era, era);
     /// assert_eq!(date.year().number, 14);
@@ -1435,7 +1436,7 @@
     /// assert!(oob_date.is_err());
     ///
     /// // and for unknown eras
-    /// let fake_era = types::Era(tinystr!(16, &quot;neko&quot;)); // 🐱
+    /// let fake_era = types::Era(tinystr!(16, "neko")); // 🐱
     /// let fake_date =
     ///     Date::try_new_japanese_date(fake_era, 10, 1, 2, japanese_calendar);
     /// assert!(fake_date.is_err());
@@ -1458,10 +1459,10 @@
     <span class="doccomment">/// Construct a new Japanese Date with all eras.
     ///
     /// Years are specified in the era provided, and must be in range for Japanese
-    /// eras (e.g. dates past April 30 Heisei 31 must be in Reiwa; &quot;Jun 5 Heisei 31&quot; and &quot;Jan 1 Heisei 32&quot;
+    /// eras (e.g. dates past April 30 Heisei 31 must be in Reiwa; "Jun 5 Heisei 31" and "Jan 1 Heisei 32"
     /// will not be adjusted to being in Reiwa 1 and 2 respectively)
     ///
-    /// However, dates may always be specified in &quot;bce&quot; or &quot;ce&quot; and they will be adjusted as necessary.
+    /// However, dates may always be specified in "bce" or "ce" and they will be adjusted as necessary.
     ///
     /// ```rust
     /// use icu::calendar::japanese::JapaneseExtended;
@@ -1473,11 +1474,11 @@
     /// // for easy sharing
     /// let japanext_calendar = Ref(&amp;japanext_calendar);
     ///
-    /// let era = types::Era(tinystr!(16, &quot;kansei-1789&quot;));
+    /// let era = types::Era(tinystr!(16, "kansei-1789"));
     ///
     /// let date =
     ///     Date::try_new_japanese_extended_date(era, 7, 1, 2, japanext_calendar)
-    ///         .expect(&quot;Constructing a date should succeed&quot;);
+    ///         .expect("Constructing a date should succeed");
     ///
     /// assert_eq!(date.year().era, era);
     /// assert_eq!(date.year().number, 7);
@@ -1518,7 +1519,7 @@
     ///
     /// let japanese_calendar = Japanese::new();
     ///
-    /// let era = types::Era(tinystr!(16, &quot;heisei&quot;));
+    /// let era = types::Era(tinystr!(16, "heisei"));
     ///
     /// let datetime = DateTime::try_new_japanese_datetime(
     ///     era,
@@ -1530,7 +1531,7 @@
     ///     0,
     ///     japanese_calendar,
     /// )
-    /// .expect(&quot;Constructing a date should succeed&quot;);
+    /// .expect("Constructing a date should succeed");
     ///
     /// assert_eq!(datetime.date.year().era, era);
     /// assert_eq!(datetime.date.year().number, 14);
@@ -1540,7 +1541,7 @@
     /// assert_eq!(datetime.time.minute.number(), 1);
     /// assert_eq!(datetime.time.second.number(), 0);
     /// ```
-    </span><span class="attr">#[allow(clippy::too_many_arguments)] </span><span class="comment">// it&#39;s more convenient to have this many arguments
+    </span><span class="attr">#[allow(clippy::too_many_arguments)] </span><span class="comment">// it's more convenient to have this many arguments
                                          // if people wish to construct this by parts they can use
                                          // Date::try_new_japanese_date() + DateTime::new(date, time)
     </span><span class="kw">pub fn </span>try_new_japanese_datetime&lt;A: AsCalendar&lt;Calendar = Japanese&gt;&gt;(
@@ -1573,7 +1574,7 @@
     ///
     /// let japanext_calendar = JapaneseExtended::new();
     ///
-    /// let era = types::Era(tinystr!(16, &quot;kansei-1789&quot;));
+    /// let era = types::Era(tinystr!(16, "kansei-1789"));
     ///
     /// let datetime = DateTime::try_new_japanese_extended_datetime(
     ///     era,
@@ -1585,7 +1586,7 @@
     ///     0,
     ///     japanext_calendar,
     /// )
-    /// .expect(&quot;Constructing a date should succeed&quot;);
+    /// .expect("Constructing a date should succeed");
     ///
     /// assert_eq!(datetime.date.year().era, era);
     /// assert_eq!(datetime.date.year().number, 7);
@@ -1595,7 +1596,7 @@
     /// assert_eq!(datetime.time.minute.number(), 1);
     /// assert_eq!(datetime.time.second.number(), 0);
     /// ```
-    </span><span class="attr">#[allow(clippy::too_many_arguments)] </span><span class="comment">// it&#39;s more convenient to have this many arguments
+    </span><span class="attr">#[allow(clippy::too_many_arguments)] </span><span class="comment">// it's more convenient to have this many arguments
                                          // if people wish to construct this by parts they can use
                                          // Date::try_new_japanese_date() + DateTime::new(date, time)
     </span><span class="kw">pub fn </span>try_new_japanese_extended_datetime&lt;A: AsCalendar&lt;Calendar = JapaneseExtended&gt;&gt;(
@@ -1641,7 +1642,7 @@
     day: <span class="number">1</span>,
 };
 
-<span class="kw">const </span>FALLBACK_ERA: (EraStartDate, TinyStr16) = (REIWA_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;reiwa&quot;</span>));
+<span class="kw">const </span>FALLBACK_ERA: (EraStartDate, TinyStr16) = (REIWA_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"reiwa"</span>));
 
 <span class="kw">impl </span>Japanese {
     <span class="doccomment">/// Given an ISO date, give year and era for that date in the Japanese calendar
@@ -1657,9 +1658,9 @@
         // In such a case, we instead fall back to Gregorian era codes
         </span><span class="kw">if </span>date &lt; start {
             <span class="kw">if </span>date.year &lt; <span class="number">0 </span>{
-                (<span class="number">1 </span>- date.year, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>))
+                (<span class="number">1 </span>- date.year, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"bce"</span>))
             } <span class="kw">else </span>{
-                (date.year, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>))
+                (date.year, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ce"</span>))
             }
         } <span class="kw">else </span>{
             (date.year - start.year + <span class="number">1</span>, era)
@@ -1669,23 +1670,23 @@
     <span class="doccomment">/// Given an date, obtain the era data (not counting spliced gregorian eras)
     </span><span class="kw">fn </span>japanese_era_for(<span class="kw-2">&amp;</span><span class="self">self</span>, date: EraStartDate) -&gt; (EraStartDate, TinyStr16) {
         <span class="kw">let </span>era_data = <span class="self">self</span>.eras.get();
-        <span class="comment">// We optimize for the five &quot;modern&quot; post-Meiji eras, which are stored in a smaller
+        <span class="comment">// We optimize for the five "modern" post-Meiji eras, which are stored in a smaller
         // array and also hardcoded. The hardcoded version is not used if data indicates the
         // presence of newer eras.
         </span><span class="kw">if </span>date &gt;= MEIJI_START
-            &amp;&amp; era_data.dates_to_eras.last().map(|x| x.<span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;reiwa&quot;</span>))
+            &amp;&amp; era_data.dates_to_eras.last().map(|x| x.<span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"reiwa"</span>))
         {
             <span class="comment">// Fast path in case eras have not changed since this code was written
             </span><span class="kw">return if </span>date &gt;= REIWA_START {
-                (REIWA_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;reiwa&quot;</span>))
+                (REIWA_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"reiwa"</span>))
             } <span class="kw">else if </span>date &gt;= HEISEI_START {
-                (HEISEI_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;heisei&quot;</span>))
+                (HEISEI_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"heisei"</span>))
             } <span class="kw">else if </span>date &gt;= SHOWA_START {
-                (SHOWA_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;showa&quot;</span>))
+                (SHOWA_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"showa"</span>))
             } <span class="kw">else if </span>date &gt;= TAISHO_START {
-                (TAISHO_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;taisho&quot;</span>))
+                (TAISHO_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"taisho"</span>))
             } <span class="kw">else </span>{
-                (MEIJI_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;meiji&quot;</span>))
+                (MEIJI_START, <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"meiji"</span>))
             };
         }
         <span class="kw">let </span>data = <span class="kw-2">&amp;</span>era_data.dates_to_eras;
@@ -1698,7 +1699,7 @@
     }
 
     <span class="doccomment">/// Returns the range of dates for a given Japanese era code,
-    /// not handling &quot;bce&quot; or &quot;ce&quot;
+    /// not handling "bce" or "ce"
     ///
     /// Returns (era_start, era_end)
     </span><span class="kw">fn </span>japanese_era_range_for(
@@ -1706,35 +1707,35 @@
         era: TinyStr16,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(EraStartDate, <span class="prelude-ty">Option</span>&lt;EraStartDate&gt;), CalendarError&gt; {
         <span class="comment">// Avoid linear search by trying well known eras
-        </span><span class="kw">if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;reiwa&quot;</span>) {
-            <span class="comment">// Check if we&#39;re the last
+        </span><span class="kw">if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"reiwa"</span>) {
+            <span class="comment">// Check if we're the last
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(last) = <span class="self">self</span>.eras.get().dates_to_eras.last() {
                 <span class="kw">if </span>last.<span class="number">1 </span>== era {
                     <span class="kw">return </span><span class="prelude-val">Ok</span>((REIWA_START, <span class="prelude-val">None</span>));
                 }
             }
-        } <span class="kw">else if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;heisei&quot;</span>) {
+        } <span class="kw">else if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"heisei"</span>) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>((HEISEI_START, <span class="prelude-val">Some</span>(REIWA_START)));
-        } <span class="kw">else if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;showa&quot;</span>) {
+        } <span class="kw">else if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"showa"</span>) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>((SHOWA_START, <span class="prelude-val">Some</span>(HEISEI_START)));
-        } <span class="kw">else if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;taisho&quot;</span>) {
+        } <span class="kw">else if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"taisho"</span>) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>((TAISHO_START, <span class="prelude-val">Some</span>(SHOWA_START)));
-        } <span class="kw">else if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;meiji&quot;</span>) {
+        } <span class="kw">else if </span>era == <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"meiji"</span>) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>((MEIJI_START, <span class="prelude-val">Some</span>(TAISHO_START)));
         }
 
         <span class="kw">let </span>era_data = <span class="self">self</span>.eras.get();
         <span class="kw">let </span>data = <span class="kw-2">&amp;</span>era_data.dates_to_eras;
         <span class="comment">// Try to avoid linear search by binary searching for the year suffix
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(year) = era.split(<span class="string">&#39;-&#39;</span>).nth(<span class="number">1</span>) {
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(year) = era.split(<span class="string">'-'</span>).nth(<span class="number">1</span>) {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>int) = year.parse::&lt;i32&gt;() {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(index) = data.binary_search_by(|(d, <span class="kw">_</span>)| d.year.cmp(int)) {
                     <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// see expect message
                     </span><span class="kw">let </span>(era_start, code) = data
                         .get(index)
-                        .expect(<span class="string">&quot;Indexing from successful binary search must succeed&quot;</span>);
+                        .expect(<span class="string">"Indexing from successful binary search must succeed"</span>);
                     <span class="comment">// There is a slight chance we hit the case where there are two eras in the same year
-                    // There are a couple of rare cases of this, but it&#39;s not worth writing a range-based binary search
+                    // There are a couple of rare cases of this, but it's not worth writing a range-based binary search
                     // to catch them since this is an optimization
                     </span><span class="kw">if </span>code == era {
                         <span class="kw">return </span><span class="prelude-val">Ok</span>((era_start, data.get(index + <span class="number">1</span>).map(|e| e.<span class="number">0</span>)));
@@ -1743,7 +1744,7 @@
             }
         }
 
-        <span class="comment">// Avoidance didn&#39;t work. Let&#39;s find the era manually, searching back from the present
+        <span class="comment">// Avoidance didn't work. Let's find the era manually, searching back from the present
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>((index, (start, <span class="kw">_</span>))) = data.iter().enumerate().rev().find(|d| d.<span class="number">1 </span>.<span class="number">1 </span>== era) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>((start, data.get(index + <span class="number">1</span>).map(|e| e.<span class="number">0</span>)));
         }
@@ -1759,14 +1760,14 @@
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;JapaneseDateInner, CalendarError&gt; {
         <span class="kw">let </span>cal = Ref(<span class="self">self</span>);
-        <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>) {
+        <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"bce"</span>) {
             <span class="kw">if </span>year &lt;= <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
             }
             <span class="kw">return </span><span class="prelude-val">Ok</span>(Date::try_new_iso_date(<span class="number">1 </span>- year, month, day)<span class="question-mark">?
                 </span>.to_calendar(cal)
                 .inner);
-        } <span class="kw">else if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>) {
+        } <span class="kw">else if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ce"</span>) {
             <span class="kw">if </span>year &lt;= <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
             }
@@ -1806,17 +1807,17 @@
     <span class="kw">use </span><span class="kw">crate</span>::Ref;
 
     <span class="kw">fn </span>single_test_roundtrip(calendar: Ref&lt;Japanese&gt;, era: <span class="kw-2">&amp;</span>str, year: i32, month: u8, day: u8) {
-        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">&quot;era must parse&quot;</span>));
+        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">"era must parse"</span>));
 
         <span class="kw">let </span>date =
             Date::try_new_japanese_date(era, year, month, day, calendar).unwrap_or_else(|e| {
-                <span class="macro">panic!</span>(<span class="string">&quot;Failed to construct date with {era:?}, {year}, {month}, {day}: {e}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"Failed to construct date with {era:?}, {year}, {month}, {day}: {e}"</span>)
             });
         <span class="kw">let </span>iso = date.to_iso();
         <span class="kw">let </span>reconstructed = Date::new_from_iso(iso, calendar);
         <span class="macro">assert_eq!</span>(
             date, reconstructed,
-            <span class="string">&quot;Failed to roundtrip with {era:?}, {year}, {month}, {day}&quot;
+            <span class="string">"Failed to roundtrip with {era:?}, {year}, {month}, {day}"
         </span>)
     }
 
@@ -1827,17 +1828,17 @@
         month: u8,
         day: u8,
     ) {
-        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">&quot;era must parse&quot;</span>));
+        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">"era must parse"</span>));
 
         <span class="kw">let </span>date = Date::try_new_japanese_extended_date(era, year, month, day, calendar)
             .unwrap_or_else(|e| {
-                <span class="macro">panic!</span>(<span class="string">&quot;Failed to construct date with {era:?}, {year}, {month}, {day}: {e}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"Failed to construct date with {era:?}, {year}, {month}, {day}: {e}"</span>)
             });
         <span class="kw">let </span>iso = date.to_iso();
         <span class="kw">let </span>reconstructed = Date::new_from_iso(iso, calendar);
         <span class="macro">assert_eq!</span>(
             date, reconstructed,
-            <span class="string">&quot;Failed to roundtrip with {era:?}, {year}, {month}, {day}&quot;
+            <span class="string">"Failed to roundtrip with {era:?}, {year}, {month}, {day}"
         </span>)
     }
 
@@ -1851,25 +1852,25 @@
         era2: <span class="kw-2">&amp;</span>str,
         year2: i32,
     ) {
-        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">&quot;era must parse&quot;</span>));
-        <span class="kw">let </span>era2 = types::Era(era2.parse().expect(<span class="string">&quot;era must parse&quot;</span>));
+        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">"era must parse"</span>));
+        <span class="kw">let </span>era2 = types::Era(era2.parse().expect(<span class="string">"era must parse"</span>));
 
         <span class="kw">let </span>expected = Date::try_new_japanese_extended_date(era2, year2, month, day, calendar)
             .unwrap_or_else(|e| {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;Failed to construct expectation date with {era2:?}, {year2}, {month}, {day}: {e}&quot;
+                    <span class="string">"Failed to construct expectation date with {era2:?}, {year2}, {month}, {day}: {e}"
                 </span>)
             });
 
         <span class="kw">let </span>date = Date::try_new_japanese_extended_date(era, year, month, day, calendar)
             .unwrap_or_else(|e| {
-                <span class="macro">panic!</span>(<span class="string">&quot;Failed to construct date with {era:?}, {year}, {month}, {day}: {e}&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"Failed to construct date with {era:?}, {year}, {month}, {day}: {e}"</span>)
             });
         <span class="kw">let </span>iso = date.to_iso();
         <span class="kw">let </span>reconstructed = Date::new_from_iso(iso, calendar);
         <span class="macro">assert_eq!</span>(
             expected, reconstructed,
-            <span class="string">&quot;Failed to roundtrip with {era:?}, {year}, {month}, {day} == {era2:?}, {year}&quot;
+            <span class="string">"Failed to roundtrip with {era:?}, {year}, {month}, {day} == {era2:?}, {year}"
         </span>)
     }
 
@@ -1881,13 +1882,13 @@
         day: u8,
         error: CalendarError,
     ) {
-        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">&quot;era must parse&quot;</span>));
+        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">"era must parse"</span>));
 
         <span class="kw">let </span>date = Date::try_new_japanese_date(era, year, month, day, calendar);
         <span class="macro">assert_eq!</span>(
             date,
             <span class="prelude-val">Err</span>(error),
-            <span class="string">&quot;Construction with {era:?}, {year}, {month}, {day} did not return {error:?}&quot;
+            <span class="string">"Construction with {era:?}, {year}, {month}, {day} did not return {error:?}"
         </span>)
     }
 
@@ -1899,13 +1900,13 @@
         day: u8,
         error: CalendarError,
     ) {
-        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">&quot;era must parse&quot;</span>));
+        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">"era must parse"</span>));
 
         <span class="kw">let </span>date = Date::try_new_japanese_extended_date(era, year, month, day, calendar);
         <span class="macro">assert_eq!</span>(
             date,
             <span class="prelude-val">Err</span>(error),
-            <span class="string">&quot;Construction with {era:?}, {year}, {month}, {day} did not return {error:?}&quot;
+            <span class="string">"Construction with {era:?}, {year}, {month}, {day} did not return {error:?}"
         </span>)
     }
 
@@ -1916,49 +1917,49 @@
         <span class="kw">let </span>calendar = Ref(<span class="kw-2">&amp;</span>calendar);
         <span class="kw">let </span>calendar_ext = Ref(<span class="kw-2">&amp;</span>calendar_ext);
 
-        single_test_roundtrip(calendar, <span class="string">&quot;heisei&quot;</span>, <span class="number">12</span>, <span class="number">3</span>, <span class="number">1</span>);
-        single_test_roundtrip(calendar, <span class="string">&quot;taisho&quot;</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_roundtrip(calendar, <span class="string">"heisei"</span>, <span class="number">12</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_roundtrip(calendar, <span class="string">"taisho"</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">1</span>);
         <span class="comment">// Heisei did not start until later in the year
-        </span>single_test_error(calendar, <span class="string">&quot;heisei&quot;</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        </span>single_test_error(calendar, <span class="string">"heisei"</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, CalendarError::OutOfRange);
 
-        single_test_roundtrip_ext(calendar_ext, <span class="string">&quot;heisei&quot;</span>, <span class="number">12</span>, <span class="number">3</span>, <span class="number">1</span>);
-        single_test_roundtrip_ext(calendar_ext, <span class="string">&quot;taisho&quot;</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">1</span>);
-        single_test_error_ext(calendar_ext, <span class="string">&quot;heisei&quot;</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_roundtrip_ext(calendar_ext, <span class="string">"heisei"</span>, <span class="number">12</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_roundtrip_ext(calendar_ext, <span class="string">"taisho"</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_error_ext(calendar_ext, <span class="string">"heisei"</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, CalendarError::OutOfRange);
 
-        single_test_roundtrip_ext(calendar_ext, <span class="string">&quot;hakuho-672&quot;</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_roundtrip_ext(calendar_ext, <span class="string">"hakuho-672"</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">1</span>);
         single_test_error(
             calendar,
-            <span class="string">&quot;hakuho-672&quot;</span>,
+            <span class="string">"hakuho-672"</span>,
             <span class="number">4</span>,
             <span class="number">3</span>,
             <span class="number">1</span>,
-            CalendarError::UnknownEra(<span class="string">&quot;hakuho-672&quot;</span>.parse().unwrap(), <span class="string">&quot;Japanese&quot;</span>),
+            CalendarError::UnknownEra(<span class="string">"hakuho-672"</span>.parse().unwrap(), <span class="string">"Japanese"</span>),
         );
 
         <span class="comment">// handle bce/ce
-        </span>single_test_roundtrip(calendar, <span class="string">&quot;bce&quot;</span>, <span class="number">100</span>, <span class="number">3</span>, <span class="number">1</span>);
-        single_test_roundtrip(calendar, <span class="string">&quot;bce&quot;</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>);
-        single_test_roundtrip(calendar, <span class="string">&quot;ce&quot;</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>);
-        single_test_roundtrip(calendar, <span class="string">&quot;ce&quot;</span>, <span class="number">100</span>, <span class="number">3</span>, <span class="number">1</span>);
-        single_test_roundtrip_ext(calendar_ext, <span class="string">&quot;ce&quot;</span>, <span class="number">100</span>, <span class="number">3</span>, <span class="number">1</span>);
-        single_test_roundtrip(calendar, <span class="string">&quot;ce&quot;</span>, <span class="number">1000</span>, <span class="number">3</span>, <span class="number">1</span>);
-        single_test_error(calendar, <span class="string">&quot;ce&quot;</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">1</span>, CalendarError::OutOfRange);
-        single_test_error(calendar, <span class="string">&quot;bce&quot;</span>, -<span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        </span>single_test_roundtrip(calendar, <span class="string">"bce"</span>, <span class="number">100</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_roundtrip(calendar, <span class="string">"bce"</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_roundtrip(calendar, <span class="string">"ce"</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_roundtrip(calendar, <span class="string">"ce"</span>, <span class="number">100</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_roundtrip_ext(calendar_ext, <span class="string">"ce"</span>, <span class="number">100</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_roundtrip(calendar, <span class="string">"ce"</span>, <span class="number">1000</span>, <span class="number">3</span>, <span class="number">1</span>);
+        single_test_error(calendar, <span class="string">"ce"</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_error(calendar, <span class="string">"bce"</span>, -<span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>, CalendarError::OutOfRange);
 
         <span class="comment">// handle the cases where bce/ce get adjusted to different eras
-        // single_test_gregorian_roundtrip(calendar, &quot;ce&quot;, 2021, 3, 1, &quot;reiwa&quot;, 3);
-        </span>single_test_gregorian_roundtrip_ext(calendar_ext, <span class="string">&quot;ce&quot;</span>, <span class="number">1000</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="string">&quot;choho-999&quot;</span>, <span class="number">2</span>);
-        single_test_gregorian_roundtrip_ext(calendar_ext, <span class="string">&quot;ce&quot;</span>, <span class="number">749</span>, <span class="number">5</span>, <span class="number">10</span>, <span class="string">&quot;tenpyokampo-749&quot;</span>, <span class="number">1</span>);
-        single_test_gregorian_roundtrip_ext(calendar_ext, <span class="string">&quot;bce&quot;</span>, <span class="number">10</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="string">&quot;bce&quot;</span>, <span class="number">10</span>);
+        // single_test_gregorian_roundtrip(calendar, "ce", 2021, 3, 1, "reiwa", 3);
+        </span>single_test_gregorian_roundtrip_ext(calendar_ext, <span class="string">"ce"</span>, <span class="number">1000</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="string">"choho-999"</span>, <span class="number">2</span>);
+        single_test_gregorian_roundtrip_ext(calendar_ext, <span class="string">"ce"</span>, <span class="number">749</span>, <span class="number">5</span>, <span class="number">10</span>, <span class="string">"tenpyokampo-749"</span>, <span class="number">1</span>);
+        single_test_gregorian_roundtrip_ext(calendar_ext, <span class="string">"bce"</span>, <span class="number">10</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="string">"bce"</span>, <span class="number">10</span>);
 
         <span class="comment">// There were multiple eras in this year
         // This one is from Apr 14 to July 2
-        </span>single_test_roundtrip_ext(calendar_ext, <span class="string">&quot;tenpyokampo-749&quot;</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">20</span>);
-        single_test_roundtrip_ext(calendar_ext, <span class="string">&quot;tenpyokampo-749&quot;</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">14</span>);
-        single_test_roundtrip_ext(calendar_ext, <span class="string">&quot;tenpyokampo-749&quot;</span>, <span class="number">1</span>, <span class="number">7</span>, <span class="number">1</span>);
+        </span>single_test_roundtrip_ext(calendar_ext, <span class="string">"tenpyokampo-749"</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">20</span>);
+        single_test_roundtrip_ext(calendar_ext, <span class="string">"tenpyokampo-749"</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">14</span>);
+        single_test_roundtrip_ext(calendar_ext, <span class="string">"tenpyokampo-749"</span>, <span class="number">1</span>, <span class="number">7</span>, <span class="number">1</span>);
         single_test_error_ext(
             calendar_ext,
-            <span class="string">&quot;tenpyokampo-749&quot;</span>,
+            <span class="string">"tenpyokampo-749"</span>,
             <span class="number">1</span>,
             <span class="number">7</span>,
             <span class="number">5</span>,
@@ -1966,7 +1967,7 @@
         );
         single_test_error_ext(
             calendar_ext,
-            <span class="string">&quot;tenpyokampo-749&quot;</span>,
+            <span class="string">"tenpyokampo-749"</span>,
             <span class="number">1</span>,
             <span class="number">4</span>,
             <span class="number">13</span>,

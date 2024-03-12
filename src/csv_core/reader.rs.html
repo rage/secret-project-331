@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-core-0.1.11/src/reader.rs`."><title>reader.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-core-0.1.11/src/reader.rs`."><title>reader.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2009,7 +2010,7 @@
 
 <span class="comment">// BE ADVISED
 //
-// This may just be one of the more complicated CSV parsers you&#39;ll come across.
+// This may just be one of the more complicated CSV parsers you'll come across.
 // The implementation never allocates and consists of both a functional NFA
 // parser and a DFA parser. The DFA parser is the work horse and we could elide
 // much of the work involved in making the NFA parser work, but the NFA parser
@@ -2025,7 +2026,7 @@
 // Note that some pieces of the NFA parser (such as the NFA state machine) are
 // required. In particular, the translation from the NFA to the DFA depends on
 // the configuration of the CSV parser as given by the caller, and indeed, this
-// is one of the key performance benefits of the DFA: it doesn&#39;t have any
+// is one of the key performance benefits of the DFA: it doesn't have any
 // overhead (other than a bigger transition table) associated with the number
 // of configuration options.
 //
@@ -2039,7 +2040,7 @@
 //
 // * If you add a new NFA state, then you also need to consider how it impacts
 //   the DFA. If all of the incoming transitions into an NFA state are
-//   epsilon transitions, then it probably isn&#39;t materialized in the DFA.
+//   epsilon transitions, then it probably isn't materialized in the DFA.
 //   If the NFA state indicates that a field or a record has been parsed, then
 //   it should be considered final. Let the comments in `NfaState` be your
 //   guide.
@@ -2072,7 +2073,7 @@
 /// trade offs.
 ///
 /// * `read_field` - Copies a single CSV field into an output buffer while
-///   unescaping quotes. This is simple to use and doesn&#39;t require storing an
+///   unescaping quotes. This is simple to use and doesn't require storing an
 ///   entire record contiguously in memory, but it is slower.
 /// * `read_record` - Copies an entire CSV record into an output buffer while
 ///   unescaping quotes. The ending positions of each field are copied into
@@ -2087,7 +2088,7 @@
 /// CSV data that is seen in the wild can vary significantly. Often, the CSV
 /// data is outright invalid. Instead of fixing the producers of bad CSV data,
 /// we have seen fit to make consumers much more flexible in what they accept.
-/// This reader continues that tradition, and therefore, isn&#39;t technically
+/// This reader continues that tradition, and therefore, isn't technically
 /// compliant with RFC 4180. In particular, this reader will never return an
 /// error and will always find *a* parse.
 ///
@@ -2122,7 +2123,7 @@
     </span>quoting: bool,
     <span class="doccomment">/// Whether to use the NFA for parsing.
     ///
-    /// Generally this is for debugging. There&#39;s otherwise no good reason
+    /// Generally this is for debugging. There's otherwise no good reason
     /// to avoid the DFA.
     </span>use_nfa: bool,
     <span class="doccomment">/// The current line number.
@@ -2139,9 +2140,9 @@
             dfa: Dfa::new(),
             dfa_state: DfaState::start(),
             nfa_state: NfaState::StartRecord,
-            delimiter: <span class="string">b&#39;,&#39;</span>,
+            delimiter: <span class="string">b','</span>,
             term: Terminator::default(),
-            quote: <span class="string">b&#39;&quot;&#39;</span>,
+            quote: <span class="string">b'"'</span>,
             escape: <span class="prelude-val">None</span>,
             double_quote: <span class="bool-val">true</span>,
             comment: <span class="prelude-val">None</span>,
@@ -2179,7 +2180,7 @@
 
     <span class="doccomment">/// The field delimiter to use when parsing CSV.
     ///
-    /// The default is `b&#39;,&#39;`.
+    /// The default is `b','`.
     </span><span class="kw">pub fn </span>delimiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, delimiter: u8) -&gt; <span class="kw-2">&amp;mut </span>ReaderBuilder {
         <span class="self">self</span>.rdr.delimiter = delimiter;
         <span class="self">self
@@ -2197,7 +2198,7 @@
 
     <span class="doccomment">/// The quote character to use when parsing CSV.
     ///
-    /// The default is `b&#39;&quot;&#39;`.
+    /// The default is `b'"'`.
     </span><span class="kw">pub fn </span>quote(<span class="kw-2">&amp;mut </span><span class="self">self</span>, quote: u8) -&gt; <span class="kw-2">&amp;mut </span>ReaderBuilder {
         <span class="self">self</span>.rdr.quote = quote;
         <span class="self">self
@@ -2249,7 +2250,7 @@
     /// This sets the delimiter and record terminator to the ASCII unit
     /// separator (`\x1F`) and record separator (`\x1E`), respectively.
     </span><span class="kw">pub fn </span>ascii(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ReaderBuilder {
-        <span class="self">self</span>.delimiter(<span class="string">b&#39;\x1F&#39;</span>).terminator(Terminator::Any(<span class="string">b&#39;\x1E&#39;</span>))
+        <span class="self">self</span>.delimiter(<span class="string">b'\x1F'</span>).terminator(Terminator::Any(<span class="string">b'\x1E'</span>))
     }
 
     <span class="doccomment">/// Enable or disable the NFA for parsing CSV.
@@ -2420,7 +2421,7 @@
 /// optimized out when converting the machine to a DFA.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 </span><span class="kw">enum </span>NfaState {
-    <span class="comment">// These states aren&#39;t used in the DFA, so we
+    <span class="comment">// These states aren't used in the DFA, so we
     // assign them meaningless numbers.
     </span>EndFieldTerm = <span class="number">200</span>,
     InRecordTerm = <span class="number">201</span>,
@@ -2434,17 +2435,17 @@
     InEscapedQuote = <span class="number">4</span>,
     InDoubleEscapedQuote = <span class="number">5</span>,
     InComment = <span class="number">6</span>,
-    <span class="comment">// All states below are &quot;final field&quot; states.
+    <span class="comment">// All states below are "final field" states.
     // Namely, they indicate that a field has been parsed.
     </span>EndFieldDelim = <span class="number">7</span>,
-    <span class="comment">// All states below are &quot;final record&quot; states.
+    <span class="comment">// All states below are "final record" states.
     // Namely, they indicate that a record has been parsed.
     </span>EndRecord = <span class="number">8</span>,
     CRLF = <span class="number">9</span>,
 }
 
 <span class="doccomment">/// A list of NFA states that have an explicit representation in the DFA.
-</span><span class="kw">const </span>NFA_STATES: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[NfaState] = <span class="kw-2">&amp;</span>[
+</span><span class="kw">const </span>NFA_STATES: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[NfaState] = <span class="kw-2">&amp;</span>[
     NfaState::StartRecord,
     NfaState::StartField,
     NfaState::EndFieldDelim,
@@ -2613,12 +2614,12 @@
 
     <span class="doccomment">/// Strip off a possible UTF-8 BOM at the start of a file. Quick note that
     /// this method will fail to strip off the BOM if only part of the BOM is
-    /// buffered. Hopefully that won&#39;t happen very often.
-    </span><span class="kw">fn </span>strip_utf8_bom&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], usize) {
+    /// buffered. Hopefully that won't happen very often.
+    </span><span class="kw">fn </span>strip_utf8_bom&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], usize) {
         <span class="kw">let </span>(input, nin) = <span class="kw">if </span>{
             !<span class="self">self</span>.has_read
                 &amp;&amp; input.len() &gt;= <span class="number">3
-                </span>&amp;&amp; <span class="kw-2">&amp;</span>input[<span class="number">0</span>..<span class="number">3</span>] == <span class="string">b&quot;\xef\xbb\xbf&quot;
+                </span>&amp;&amp; <span class="kw-2">&amp;</span>input[<span class="number">0</span>..<span class="number">3</span>] == <span class="string">b"\xef\xbb\xbf"
         </span>} {
             (<span class="kw-2">&amp;</span>input[<span class="number">3</span>..], <span class="number">3</span>)
         } <span class="kw">else </span>{
@@ -2640,11 +2641,11 @@
                 <span class="self">self</span>.dfa.new_read_record_result(s, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
             <span class="comment">// This part is a little tricky. When reading the final record,
             // the last result the caller will get is an InputEmpty, and while
-            // they&#39;ll have everything they need in `output`, they&#39;ll be
+            // they'll have everything they need in `output`, they'll be
             // missing the final end position of the final field in `ends`.
             // We insert that here, but we must take care to handle the case
-            // where `ends` doesn&#39;t have enough space. If it doesn&#39;t have
-            // enough space, then we also can&#39;t transition to the next state.
+            // where `ends` doesn't have enough space. If it doesn't have
+            // enough space, then we also can't transition to the next state.
             </span><span class="kw">return match </span>res {
                 ReadRecordResult::Record =&gt; {
                     <span class="kw">if </span>ends.is_empty() {
@@ -2671,7 +2672,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.dfa_state;
         <span class="kw">while </span>nin &lt; input.len() &amp;&amp; nout &lt; output.len() &amp;&amp; nend &lt; ends.len() {
             <span class="kw">let </span>(s, has_out) = <span class="self">self</span>.dfa.get_output(state, input[nin]);
-            <span class="self">self</span>.line += (input[nin] == <span class="string">b&#39;\n&#39;</span>) <span class="kw">as </span>u64;
+            <span class="self">self</span>.line += (input[nin] == <span class="string">b'\n'</span>) <span class="kw">as </span>u64;
             state = s;
             <span class="kw">if </span>has_out {
                 output[nout] = input[nin];
@@ -2730,7 +2731,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.dfa_state;
         <span class="kw">while </span>nin &lt; input.len() &amp;&amp; nout &lt; output.len() {
             <span class="kw">let </span>b = input[nin];
-            <span class="self">self</span>.line += (b == <span class="string">b&#39;\n&#39;</span>) <span class="kw">as </span>u64;
+            <span class="self">self</span>.line += (b == <span class="string">b'\n'</span>) <span class="kw">as </span>u64;
             <span class="kw">let </span>(s, has_out) = <span class="self">self</span>.dfa.get_output(state, b);
             state = s;
             <span class="kw">if </span>has_out {
@@ -2755,7 +2756,7 @@
     <span class="doccomment">/// Perform the final state transition, i.e., when the caller indicates
     /// that the input has been exhausted.
     </span><span class="kw">fn </span>transition_final_dfa(<span class="kw-2">&amp;</span><span class="self">self</span>, state: DfaState) -&gt; DfaState {
-        <span class="comment">// If we&#39;&#39;ve already emitted a record or think we&#39;re ready to start
+        <span class="comment">// If we''ve already emitted a record or think we're ready to start
         // parsing a new record, then we should sink into the final state
         // and never move from there. (pro-tip: the start state doubles as
         // the final state!)
@@ -2766,7 +2767,7 @@
         }
     }
 
-    <span class="doccomment">/// Write the transition tables for the DFA based on this parser&#39;s
+    <span class="doccomment">/// Write the transition tables for the DFA based on this parser's
     /// configuration.
     </span><span class="kw">fn </span>build_dfa(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// A naive DFA transition table has
@@ -2774,12 +2775,12 @@
         // could get away with that, the table would have `10 * 256 = 2560`
         // entries. Even worse, in order to avoid a multiplication instruction
         // when computing the next transition, we store the starting index of
-        // each state&#39;s row, which would not be representible in a single byte.
-        // So we&#39;d need a `u16`, which doubles our transition table size to
+        // each state's row, which would not be representible in a single byte.
+        // So we'd need a `u16`, which doubles our transition table size to
         // ~5KB. This is a lot to put on the stack, even though it probably
         // fits in the L1 cache of most modern CPUs.
         //
-        // To avoid this, we note that while our &quot;true&quot; alphabet
+        // To avoid this, we note that while our "true" alphabet
         // has 256 distinct possibilities, the DFA itself is only
         // discriminatory on a very small subset of that alphabet. For
         // example, assuming neither `a` nor `b` are set as special
@@ -2805,7 +2806,7 @@
         // logic will need to be adjusted further.
         //
         // Even though this requires an extra bit of indirection when computing
-        // the next transition, microbenchmarks say that it doesn&#39;t make much
+        // the next transition, microbenchmarks say that it doesn't make much
         // of a difference. Perhaps because everything fits into the L1 cache.
         </span><span class="self">self</span>.dfa.classes.add(<span class="self">self</span>.delimiter);
         <span class="kw">if </span><span class="self">self</span>.quoting {
@@ -2820,8 +2821,8 @@
         <span class="kw">match </span><span class="self">self</span>.term {
             Terminator::Any(b) =&gt; <span class="self">self</span>.dfa.classes.add(b),
             Terminator::CRLF =&gt; {
-                <span class="self">self</span>.dfa.classes.add(<span class="string">b&#39;\r&#39;</span>);
-                <span class="self">self</span>.dfa.classes.add(<span class="string">b&#39;\n&#39;</span>);
+                <span class="self">self</span>.dfa.classes.add(<span class="string">b'\r'</span>);
+                <span class="self">self</span>.dfa.classes.add(<span class="string">b'\n'</span>);
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
@@ -3049,21 +3050,21 @@
                 }
             }
             InComment =&gt; {
-                <span class="kw">if </span><span class="string">b&#39;\n&#39; </span>== c {
+                <span class="kw">if </span><span class="string">b'\n' </span>== c {
                     (StartRecord, NfaInputAction::Discard)
                 } <span class="kw">else </span>{
                     (InComment, NfaInputAction::Discard)
                 }
             }
             InRecordTerm =&gt; {
-                <span class="kw">if </span><span class="self">self</span>.term.is_crlf() &amp;&amp; <span class="string">b&#39;\r&#39; </span>== c {
+                <span class="kw">if </span><span class="self">self</span>.term.is_crlf() &amp;&amp; <span class="string">b'\r' </span>== c {
                     (CRLF, NfaInputAction::Discard)
                 } <span class="kw">else </span>{
                     (EndRecord, NfaInputAction::Discard)
                 }
             }
             CRLF =&gt; {
-                <span class="kw">if </span><span class="string">b&#39;\n&#39; </span>== c {
+                <span class="kw">if </span><span class="string">b'\n' </span>== c {
                     (StartRecord, NfaInputAction::Discard)
                 } <span class="kw">else </span>{
                     (StartRecord, NfaInputAction::Epsilon)
@@ -3240,7 +3241,7 @@
 
     <span class="kw">fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: u8) {
         <span class="kw">if </span><span class="self">self</span>.next_class &gt; CLASS_SIZE {
-            <span class="macro">panic!</span>(<span class="string">&quot;added too many classes&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"added too many classes"</span>)
         }
         <span class="self">self</span>.classes[b <span class="kw">as </span>usize] = <span class="self">self</span>.next_class <span class="kw">as </span>u8;
         <span class="self">self</span>.next_class = <span class="self">self</span>.next_class + <span class="number">1</span>;
@@ -3300,7 +3301,7 @@
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Dfa {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Dfa(N/A)&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">"Dfa(N/A)"</span>)
     }
 }
 
@@ -3308,7 +3309,7 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;DfaClasses {{ classes: N/A, next_class: {:?} }}&quot;</span>,
+            <span class="string">"DfaClasses {{ classes: N/A, next_class: {:?} }}"</span>,
             <span class="self">self</span>.next_class
         )
     }
@@ -3378,7 +3379,7 @@
                 <span class="kw">let </span><span class="kw-2">mut </span>rdr = builder.build();
                 <span class="kw">let </span>got = parse_by_field(<span class="kw-2">&amp;mut </span>rdr, <span class="macro-nonterminal">$data</span>);
                 <span class="kw">let </span>expected = <span class="macro-nonterminal">$expected</span>;
-                <span class="macro">assert_eq!</span>(expected, got, <span class="string">&quot;nfa by field&quot;</span>);
+                <span class="macro">assert_eq!</span>(expected, got, <span class="string">"nfa by field"</span>);
 
                 <span class="kw">let </span><span class="kw-2">mut </span>builder = ReaderBuilder::new();
                 builder.nfa(<span class="bool-val">true</span>);
@@ -3386,21 +3387,21 @@
                 <span class="kw">let </span><span class="kw-2">mut </span>rdr = builder.build();
                 <span class="kw">let </span>got = parse_by_record(<span class="kw-2">&amp;mut </span>rdr, <span class="macro-nonterminal">$data</span>);
                 <span class="kw">let </span>expected = <span class="macro-nonterminal">$expected</span>;
-                <span class="macro">assert_eq!</span>(expected, got, <span class="string">&quot;nfa by record&quot;</span>);
+                <span class="macro">assert_eq!</span>(expected, got, <span class="string">"nfa by record"</span>);
 
                 <span class="kw">let </span><span class="kw-2">mut </span>builder = ReaderBuilder::new();
                 <span class="macro-nonterminal">$config</span>(<span class="kw-2">&amp;mut </span>builder);
                 <span class="kw">let </span><span class="kw-2">mut </span>rdr = builder.build();
                 <span class="kw">let </span>got = parse_by_field(<span class="kw-2">&amp;mut </span>rdr, <span class="macro-nonterminal">$data</span>);
                 <span class="kw">let </span>expected = <span class="macro-nonterminal">$expected</span>;
-                <span class="macro">assert_eq!</span>(expected, got, <span class="string">&quot;dfa by field&quot;</span>);
+                <span class="macro">assert_eq!</span>(expected, got, <span class="string">"dfa by field"</span>);
 
                 <span class="kw">let </span><span class="kw-2">mut </span>builder = ReaderBuilder::new();
                 <span class="macro-nonterminal">$config</span>(<span class="kw-2">&amp;mut </span>builder);
                 <span class="kw">let </span><span class="kw-2">mut </span>rdr = builder.build();
                 <span class="kw">let </span>got = parse_by_record(<span class="kw-2">&amp;mut </span>rdr, <span class="macro-nonterminal">$data</span>);
                 <span class="kw">let </span>expected = <span class="macro-nonterminal">$expected</span>;
-                <span class="macro">assert_eq!</span>(expected, got, <span class="string">&quot;dfa by record&quot;</span>);
+                <span class="macro">assert_eq!</span>(expected, got, <span class="string">"dfa by record"</span>);
             }
         };
     }
@@ -3419,10 +3420,10 @@
             <span class="kw">match </span>res {
                 ReadFieldResult::InputEmpty =&gt; {
                     <span class="kw">if </span>!data.is_empty() {
-                        <span class="macro">panic!</span>(<span class="string">&quot;missing input data&quot;</span>)
+                        <span class="macro">panic!</span>(<span class="string">"missing input data"</span>)
                     }
                 }
-                ReadFieldResult::OutputFull =&gt; <span class="macro">panic!</span>(<span class="string">&quot;field too large&quot;</span>),
+                ReadFieldResult::OutputFull =&gt; <span class="macro">panic!</span>(<span class="string">"field too large"</span>),
                 ReadFieldResult::Field { record_end } =&gt; {
                     <span class="kw">let </span>s = str::from_utf8(<span class="kw-2">&amp;</span>field[..outpos]).unwrap();
                     row.push(Field::from(s).unwrap());
@@ -3461,11 +3462,11 @@
             <span class="kw">match </span>res {
                 InputEmpty =&gt; {
                     <span class="kw">if </span>!data.is_empty() {
-                        <span class="macro">panic!</span>(<span class="string">&quot;missing input data&quot;</span>)
+                        <span class="macro">panic!</span>(<span class="string">"missing input data"</span>)
                     }
                 }
-                OutputFull =&gt; <span class="macro">panic!</span>(<span class="string">&quot;record too large (out buffer)&quot;</span>),
-                OutputEndsFull =&gt; <span class="macro">panic!</span>(<span class="string">&quot;record too large (end buffer)&quot;</span>),
+                OutputFull =&gt; <span class="macro">panic!</span>(<span class="string">"record too large (out buffer)"</span>),
+                OutputEndsFull =&gt; <span class="macro">panic!</span>(<span class="string">"record too large (end buffer)"</span>),
                 Record =&gt; {
                     <span class="kw">let </span>s = str::from_utf8(<span class="kw-2">&amp;</span>record[..outpos]).unwrap();
                     <span class="kw">let </span><span class="kw-2">mut </span>start = <span class="number">0</span>;
@@ -3483,188 +3484,188 @@
         }
     }
 
-    <span class="macro">parses_to!</span>(one_row_one_field, <span class="string">&quot;a&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_many_fields, <span class="string">&quot;a,b,c&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_trailing_comma, <span class="string">&quot;a,b,&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_one_field_lf, <span class="string">&quot;a\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_many_fields_lf, <span class="string">&quot;a,b,c\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_trailing_comma_lf, <span class="string">&quot;a,b,\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_one_field_crlf, <span class="string">&quot;a\r\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_many_fields_crlf, <span class="string">&quot;a,b,c\r\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_trailing_comma_crlf, <span class="string">&quot;a,b,\r\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_one_field_cr, <span class="string">&quot;a\r&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_many_fields_cr, <span class="string">&quot;a,b,c\r&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]]);
-    <span class="macro">parses_to!</span>(one_row_trailing_comma_cr, <span class="string">&quot;a,b,\r&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;&quot;</span>]]);
+    <span class="macro">parses_to!</span>(one_row_one_field, <span class="string">"a"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>]]);
+    <span class="macro">parses_to!</span>(one_row_many_fields, <span class="string">"a,b,c"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]]);
+    <span class="macro">parses_to!</span>(one_row_trailing_comma, <span class="string">"a,b,"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">""</span>]]);
+    <span class="macro">parses_to!</span>(one_row_one_field_lf, <span class="string">"a\n"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>]]);
+    <span class="macro">parses_to!</span>(one_row_many_fields_lf, <span class="string">"a,b,c\n"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]]);
+    <span class="macro">parses_to!</span>(one_row_trailing_comma_lf, <span class="string">"a,b,\n"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">""</span>]]);
+    <span class="macro">parses_to!</span>(one_row_one_field_crlf, <span class="string">"a\r\n"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>]]);
+    <span class="macro">parses_to!</span>(one_row_many_fields_crlf, <span class="string">"a,b,c\r\n"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]]);
+    <span class="macro">parses_to!</span>(one_row_trailing_comma_crlf, <span class="string">"a,b,\r\n"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">""</span>]]);
+    <span class="macro">parses_to!</span>(one_row_one_field_cr, <span class="string">"a\r"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>]]);
+    <span class="macro">parses_to!</span>(one_row_many_fields_cr, <span class="string">"a,b,c\r"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]]);
+    <span class="macro">parses_to!</span>(one_row_trailing_comma_cr, <span class="string">"a,b,\r"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">""</span>]]);
 
-    <span class="macro">parses_to!</span>(many_rows_one_field, <span class="string">&quot;a\nb&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>], [<span class="string">&quot;b&quot;</span>]]);
+    <span class="macro">parses_to!</span>(many_rows_one_field, <span class="string">"a\nb"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>], [<span class="string">"b"</span>]]);
     <span class="macro">parses_to!</span>(
         many_rows_many_fields,
-        <span class="string">&quot;a,b,c\nx,y,z&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>]]
+        <span class="string">"a,b,c\nx,y,z"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>]]
     );
     <span class="macro">parses_to!</span>(
         many_rows_trailing_comma,
-        <span class="string">&quot;a,b,\nx,y,&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;&quot;</span>]]
+        <span class="string">"a,b,\nx,y,"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">""</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">""</span>]]
     );
-    <span class="macro">parses_to!</span>(many_rows_one_field_lf, <span class="string">&quot;a\nb\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>], [<span class="string">&quot;b&quot;</span>]]);
+    <span class="macro">parses_to!</span>(many_rows_one_field_lf, <span class="string">"a\nb\n"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>], [<span class="string">"b"</span>]]);
     <span class="macro">parses_to!</span>(
         many_rows_many_fields_lf,
-        <span class="string">&quot;a,b,c\nx,y,z\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>]]
+        <span class="string">"a,b,c\nx,y,z\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>]]
     );
     <span class="macro">parses_to!</span>(
         many_rows_trailing_comma_lf,
-        <span class="string">&quot;a,b,\nx,y,\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;&quot;</span>]]
+        <span class="string">"a,b,\nx,y,\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">""</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">""</span>]]
     );
-    <span class="macro">parses_to!</span>(many_rows_one_field_crlf, <span class="string">&quot;a\r\nb\r\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>], [<span class="string">&quot;b&quot;</span>]]);
+    <span class="macro">parses_to!</span>(many_rows_one_field_crlf, <span class="string">"a\r\nb\r\n"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>], [<span class="string">"b"</span>]]);
     <span class="macro">parses_to!</span>(
         many_rows_many_fields_crlf,
-        <span class="string">&quot;a,b,c\r\nx,y,z\r\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>]]
+        <span class="string">"a,b,c\r\nx,y,z\r\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>]]
     );
     <span class="macro">parses_to!</span>(
         many_rows_trailing_comma_crlf,
-        <span class="string">&quot;a,b,\r\nx,y,\r\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;&quot;</span>]]
+        <span class="string">"a,b,\r\nx,y,\r\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">""</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">""</span>]]
     );
-    <span class="macro">parses_to!</span>(many_rows_one_field_cr, <span class="string">&quot;a\rb\r&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>], [<span class="string">&quot;b&quot;</span>]]);
+    <span class="macro">parses_to!</span>(many_rows_one_field_cr, <span class="string">"a\rb\r"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>], [<span class="string">"b"</span>]]);
     <span class="macro">parses_to!</span>(
         many_rows_many_fields_cr,
-        <span class="string">&quot;a,b,c\rx,y,z\r&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>]]
+        <span class="string">"a,b,c\rx,y,z\r"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>]]
     );
     <span class="macro">parses_to!</span>(
         many_rows_trailing_comma_cr,
-        <span class="string">&quot;a,b,\rx,y,\r&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;&quot;</span>]]
+        <span class="string">"a,b,\rx,y,\r"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">""</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">""</span>]]
     );
 
     <span class="macro">parses_to!</span>(
         trailing_lines_no_record,
-        <span class="string">&quot;\n\n\na,b,c\nx,y,z\n\n\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>]]
+        <span class="string">"\n\n\na,b,c\nx,y,z\n\n\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>]]
     );
     <span class="macro">parses_to!</span>(
         trailing_lines_no_record_cr,
-        <span class="string">&quot;\r\r\ra,b,c\rx,y,z\r\r\r&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>]]
+        <span class="string">"\r\r\ra,b,c\rx,y,z\r\r\r"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>]]
     );
     <span class="macro">parses_to!</span>(
         trailing_lines_no_record_crlf,
-        <span class="string">&quot;\r\n\r\n\r\na,b,c\r\nx,y,z\r\n\r\n\r\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>]]
+        <span class="string">"\r\n\r\n\r\na,b,c\r\nx,y,z\r\n\r\n\r\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>]]
     );
 
-    <span class="macro">parses_to!</span>(empty, <span class="string">&quot;&quot;</span>, <span class="macro">csv!</span>[]);
-    <span class="macro">parses_to!</span>(empty_lines, <span class="string">&quot;\n\n\n\n&quot;</span>, <span class="macro">csv!</span>[]);
+    <span class="macro">parses_to!</span>(empty, <span class="string">""</span>, <span class="macro">csv!</span>[]);
+    <span class="macro">parses_to!</span>(empty_lines, <span class="string">"\n\n\n\n"</span>, <span class="macro">csv!</span>[]);
     <span class="macro">parses_to!</span>(
         empty_lines_interspersed,
-        <span class="string">&quot;\n\na,b\n\n\nx,y\n\n\nm,n\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>], [<span class="string">&quot;m&quot;</span>, <span class="string">&quot;n&quot;</span>]]
+        <span class="string">"\n\na,b\n\n\nx,y\n\n\nm,n\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>], [<span class="string">"m"</span>, <span class="string">"n"</span>]]
     );
-    <span class="macro">parses_to!</span>(empty_lines_crlf, <span class="string">&quot;\r\n\r\n\r\n\r\n&quot;</span>, <span class="macro">csv!</span>[]);
+    <span class="macro">parses_to!</span>(empty_lines_crlf, <span class="string">"\r\n\r\n\r\n\r\n"</span>, <span class="macro">csv!</span>[]);
     <span class="macro">parses_to!</span>(
         empty_lines_interspersed_crlf,
-        <span class="string">&quot;\r\n\r\na,b\r\n\r\n\r\nx,y\r\n\r\n\r\nm,n\r\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>], [<span class="string">&quot;m&quot;</span>, <span class="string">&quot;n&quot;</span>]]
+        <span class="string">"\r\n\r\na,b\r\n\r\n\r\nx,y\r\n\r\n\r\nm,n\r\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>], [<span class="string">"m"</span>, <span class="string">"n"</span>]]
     );
-    <span class="macro">parses_to!</span>(empty_lines_mixed, <span class="string">&quot;\r\n\n\r\n\n&quot;</span>, <span class="macro">csv!</span>[]);
+    <span class="macro">parses_to!</span>(empty_lines_mixed, <span class="string">"\r\n\n\r\n\n"</span>, <span class="macro">csv!</span>[]);
     <span class="macro">parses_to!</span>(
         empty_lines_interspersed_mixed,
-        <span class="string">&quot;\n\r\na,b\r\n\n\r\nx,y\r\n\n\r\nm,n\r\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>], [<span class="string">&quot;m&quot;</span>, <span class="string">&quot;n&quot;</span>]]
+        <span class="string">"\n\r\na,b\r\n\n\r\nx,y\r\n\n\r\nm,n\r\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>], [<span class="string">"m"</span>, <span class="string">"n"</span>]]
     );
-    <span class="macro">parses_to!</span>(empty_lines_cr, <span class="string">&quot;\r\r\r\r&quot;</span>, <span class="macro">csv!</span>[]);
+    <span class="macro">parses_to!</span>(empty_lines_cr, <span class="string">"\r\r\r\r"</span>, <span class="macro">csv!</span>[]);
     <span class="macro">parses_to!</span>(
         empty_lines_interspersed_cr,
-        <span class="string">&quot;\r\ra,b\r\r\rx,y\r\r\rm,n\r&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>], [<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>], [<span class="string">&quot;m&quot;</span>, <span class="string">&quot;n&quot;</span>]]
+        <span class="string">"\r\ra,b\r\r\rx,y\r\r\rm,n\r"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>], [<span class="string">"x"</span>, <span class="string">"y"</span>], [<span class="string">"m"</span>, <span class="string">"n"</span>]]
     );
 
     <span class="macro">parses_to!</span>(
         term_weird,
-        <span class="string">&quot;zza,bzc,dzz&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>], [<span class="string">&quot;c&quot;</span>, <span class="string">&quot;d&quot;</span>]],
+        <span class="string">"zza,bzc,dzz"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>], [<span class="string">"c"</span>, <span class="string">"d"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.terminator(Terminator::Any(<span class="string">b&#39;z&#39;</span>));
+            b.terminator(Terminator::Any(<span class="string">b'z'</span>));
         }
     );
 
     <span class="macro">parses_to!</span>(
         ascii_delimited,
-        <span class="string">&quot;a\x1fb\x1ec\x1fd&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>], [<span class="string">&quot;c&quot;</span>, <span class="string">&quot;d&quot;</span>]],
+        <span class="string">"a\x1fb\x1ec\x1fd"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>], [<span class="string">"c"</span>, <span class="string">"d"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
             b.ascii();
         }
     );
 
-    <span class="macro">parses_to!</span>(bom_at_start, <span class="string">&quot;\u{feff}a&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>]]);
-    <span class="macro">parses_to!</span>(bom_in_field, <span class="string">&quot;a\u{feff}&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a\u{feff}&quot;</span>]]);
-    <span class="macro">parses_to!</span>(bom_at_field_start, <span class="string">&quot;a,\u{feff}b&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\u{feff}b&quot;</span>]]);
+    <span class="macro">parses_to!</span>(bom_at_start, <span class="string">"\u{feff}a"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>]]);
+    <span class="macro">parses_to!</span>(bom_in_field, <span class="string">"a\u{feff}"</span>, <span class="macro">csv!</span>[[<span class="string">"a\u{feff}"</span>]]);
+    <span class="macro">parses_to!</span>(bom_at_field_start, <span class="string">"a,\u{feff}b"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"\u{feff}b"</span>]]);
 
-    <span class="macro">parses_to!</span>(quote_empty, <span class="string">&quot;\&quot;\&quot;&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;&quot;</span>]]);
-    <span class="macro">parses_to!</span>(quote_lf, <span class="string">&quot;\&quot;\&quot;\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;&quot;</span>]]);
-    <span class="macro">parses_to!</span>(quote_space, <span class="string">&quot;\&quot; \&quot;&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot; &quot;</span>]]);
-    <span class="macro">parses_to!</span>(quote_inner_space, <span class="string">&quot;\&quot; a \&quot;&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot; a &quot;</span>]]);
-    <span class="macro">parses_to!</span>(quote_outer_space, <span class="string">&quot;  \&quot;a\&quot;  &quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;  \&quot;a\&quot;  &quot;</span>]]);
+    <span class="macro">parses_to!</span>(quote_empty, <span class="string">"\"\""</span>, <span class="macro">csv!</span>[[<span class="string">""</span>]]);
+    <span class="macro">parses_to!</span>(quote_lf, <span class="string">"\"\"\n"</span>, <span class="macro">csv!</span>[[<span class="string">""</span>]]);
+    <span class="macro">parses_to!</span>(quote_space, <span class="string">"\" \""</span>, <span class="macro">csv!</span>[[<span class="string">" "</span>]]);
+    <span class="macro">parses_to!</span>(quote_inner_space, <span class="string">"\" a \""</span>, <span class="macro">csv!</span>[[<span class="string">" a "</span>]]);
+    <span class="macro">parses_to!</span>(quote_outer_space, <span class="string">"  \"a\"  "</span>, <span class="macro">csv!</span>[[<span class="string">"  \"a\"  "</span>]]);
 
-    <span class="macro">parses_to!</span>(quote_change, <span class="string">&quot;zaz&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>]], |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-        b.quote(<span class="string">b&#39;z&#39;</span>);
+    <span class="macro">parses_to!</span>(quote_change, <span class="string">"zaz"</span>, <span class="macro">csv!</span>[[<span class="string">"a"</span>]], |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
+        b.quote(<span class="string">b'z'</span>);
     });
 
     <span class="comment">// This one is pretty hokey.
-    // I don&#39;t really know what the &quot;right&quot; behavior is.
+    // I don't really know what the "right" behavior is.
     </span><span class="macro">parses_to!</span>(
         quote_delimiter,
-        <span class="string">&quot;,a,,b&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a,b&quot;</span>]],
+        <span class="string">",a,,b"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a,b"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.quote(<span class="string">b&#39;,&#39;</span>);
+            b.quote(<span class="string">b','</span>);
         }
     );
 
-    <span class="macro">parses_to!</span>(quote_no_escapes, <span class="string">r#&quot;&quot;a\&quot;b&quot;&quot;#</span>, <span class="macro">csv!</span>[[<span class="string">r#&quot;a\b&quot;&quot;#</span>]]);
+    <span class="macro">parses_to!</span>(quote_no_escapes, <span class="string">r#""a\"b""#</span>, <span class="macro">csv!</span>[[<span class="string">r#"a\b""#</span>]]);
     <span class="macro">parses_to!</span>(
         quote_escapes_no_double,
-        <span class="string">r#&quot;&quot;a&quot;&quot;b&quot;&quot;#</span>,
-        <span class="macro">csv!</span>[[<span class="string">r#&quot;a&quot;b&quot;&quot;#</span>]],
+        <span class="string">r#""a""b""#</span>,
+        <span class="macro">csv!</span>[[<span class="string">r#"a"b""#</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
             b.double_quote(<span class="bool-val">false</span>);
         }
     );
     <span class="macro">parses_to!</span>(
         quote_escapes,
-        <span class="string">r#&quot;&quot;a\&quot;b&quot;&quot;#</span>,
-        <span class="macro">csv!</span>[[<span class="string">r#&quot;a&quot;b&quot;#</span>]],
+        <span class="string">r#""a\"b""#</span>,
+        <span class="macro">csv!</span>[[<span class="string">r#"a"b"#</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.escape(<span class="prelude-val">Some</span>(<span class="string">b&#39;\\&#39;</span>));
+            b.escape(<span class="prelude-val">Some</span>(<span class="string">b'\\'</span>));
         }
     );
     <span class="macro">parses_to!</span>(
         quote_escapes_change,
-        <span class="string">r#&quot;&quot;az&quot;b&quot;&quot;#</span>,
-        <span class="macro">csv!</span>[[<span class="string">r#&quot;a&quot;b&quot;#</span>]],
+        <span class="string">r#""az"b""#</span>,
+        <span class="macro">csv!</span>[[<span class="string">r#"a"b"#</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.escape(<span class="prelude-val">Some</span>(<span class="string">b&#39;z&#39;</span>));
+            b.escape(<span class="prelude-val">Some</span>(<span class="string">b'z'</span>));
         }
     );
 
     <span class="macro">parses_to!</span>(
         quote_escapes_with_comma,
-        <span class="string">r#&quot;&quot;\&quot;A,B\&quot;&quot;&quot;#</span>,
-        <span class="macro">csv!</span>[[<span class="string">r#&quot;&quot;A,B&quot;&quot;#</span>]],
+        <span class="string">r#""\"A,B\"""#</span>,
+        <span class="macro">csv!</span>[[<span class="string">r#""A,B""#</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.escape(<span class="prelude-val">Some</span>(<span class="string">b&#39;\\&#39;</span>)).double_quote(<span class="bool-val">false</span>);
+            b.escape(<span class="prelude-val">Some</span>(<span class="string">b'\\'</span>)).double_quote(<span class="bool-val">false</span>);
         }
     );
 
     <span class="macro">parses_to!</span>(
         quoting_disabled,
-        <span class="string">r#&quot;&quot;abc,foo&quot;&quot;#</span>,
-        <span class="macro">csv!</span>[[<span class="string">r#&quot;&quot;abc&quot;#</span>, <span class="string">r#&quot;foo&quot;&quot;#</span>]],
+        <span class="string">r#""abc,foo""#</span>,
+        <span class="macro">csv!</span>[[<span class="string">r#""abc"#</span>, <span class="string">r#"foo""#</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
             b.quoting(<span class="bool-val">false</span>);
         }
@@ -3672,62 +3673,62 @@
 
     <span class="macro">parses_to!</span>(
         delimiter_tabs,
-        <span class="string">&quot;a\tb&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>]],
+        <span class="string">"a\tb"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.delimiter(<span class="string">b&#39;\t&#39;</span>);
+            b.delimiter(<span class="string">b'\t'</span>);
         }
     );
     <span class="macro">parses_to!</span>(
         delimiter_weird,
-        <span class="string">&quot;azb&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>]],
+        <span class="string">"azb"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"a"</span>, <span class="string">"b"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.delimiter(<span class="string">b&#39;z&#39;</span>);
+            b.delimiter(<span class="string">b'z'</span>);
         }
     );
 
-    <span class="macro">parses_to!</span>(extra_record_crlf_1, <span class="string">&quot;foo\n1\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;foo&quot;</span>], [<span class="string">&quot;1&quot;</span>]]);
-    <span class="macro">parses_to!</span>(extra_record_crlf_2, <span class="string">&quot;foo\r\n1\r\n&quot;</span>, <span class="macro">csv!</span>[[<span class="string">&quot;foo&quot;</span>], [<span class="string">&quot;1&quot;</span>]]);
+    <span class="macro">parses_to!</span>(extra_record_crlf_1, <span class="string">"foo\n1\n"</span>, <span class="macro">csv!</span>[[<span class="string">"foo"</span>], [<span class="string">"1"</span>]]);
+    <span class="macro">parses_to!</span>(extra_record_crlf_2, <span class="string">"foo\r\n1\r\n"</span>, <span class="macro">csv!</span>[[<span class="string">"foo"</span>], [<span class="string">"1"</span>]]);
 
     <span class="macro">parses_to!</span>(
         comment_1,
-        <span class="string">&quot;foo\n# hi\nbar\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;foo&quot;</span>], [<span class="string">&quot;bar&quot;</span>]],
+        <span class="string">"foo\n# hi\nbar\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"foo"</span>], [<span class="string">"bar"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.comment(<span class="prelude-val">Some</span>(<span class="string">b&#39;#&#39;</span>));
+            b.comment(<span class="prelude-val">Some</span>(<span class="string">b'#'</span>));
         }
     );
     <span class="macro">parses_to!</span>(
         comment_2,
-        <span class="string">&quot;foo\n # hi\nbar\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;foo&quot;</span>], [<span class="string">&quot; # hi&quot;</span>], [<span class="string">&quot;bar&quot;</span>]],
+        <span class="string">"foo\n # hi\nbar\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"foo"</span>], [<span class="string">" # hi"</span>], [<span class="string">"bar"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.comment(<span class="prelude-val">Some</span>(<span class="string">b&#39;#&#39;</span>));
+            b.comment(<span class="prelude-val">Some</span>(<span class="string">b'#'</span>));
         }
     );
     <span class="macro">parses_to!</span>(
         comment_3,
-        <span class="string">&quot;foo\n# hi\nbar\n&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;foo&quot;</span>], [<span class="string">&quot;# hi&quot;</span>], [<span class="string">&quot;bar&quot;</span>]],
+        <span class="string">"foo\n# hi\nbar\n"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"foo"</span>], [<span class="string">"# hi"</span>], [<span class="string">"bar"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.comment(<span class="prelude-val">Some</span>(<span class="string">b&#39;\n&#39;</span>));
+            b.comment(<span class="prelude-val">Some</span>(<span class="string">b'\n'</span>));
         }
     );
     <span class="macro">parses_to!</span>(
         comment_4,
-        <span class="string">&quot;foo,b#ar,baz&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;b#ar&quot;</span>, <span class="string">&quot;baz&quot;</span>]],
+        <span class="string">"foo,b#ar,baz"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"foo"</span>, <span class="string">"b#ar"</span>, <span class="string">"baz"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.comment(<span class="prelude-val">Some</span>(<span class="string">b&#39;#&#39;</span>));
+            b.comment(<span class="prelude-val">Some</span>(<span class="string">b'#'</span>));
         }
     );
     <span class="macro">parses_to!</span>(
         comment_5,
-        <span class="string">&quot;foo,#bar,baz&quot;</span>,
-        <span class="macro">csv!</span>[[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;#bar&quot;</span>, <span class="string">&quot;baz&quot;</span>]],
+        <span class="string">"foo,#bar,baz"</span>,
+        <span class="macro">csv!</span>[[<span class="string">"foo"</span>, <span class="string">"#bar"</span>, <span class="string">"baz"</span>]],
         |b: <span class="kw-2">&amp;mut </span>ReaderBuilder| {
-            b.comment(<span class="prelude-val">Some</span>(<span class="string">b&#39;#&#39;</span>));
+            b.comment(<span class="prelude-val">Some</span>(<span class="string">b'#'</span>));
         }
     );
 
@@ -3759,7 +3760,7 @@
         <span class="kw">use </span><span class="kw">crate</span>::ReadFieldResult::<span class="kw-2">*</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = Reader::new();
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot; &quot;</span>), <span class="kw-2">&amp;mut </span>[<span class="number">0</span>], <span class="number">1</span>, <span class="number">1</span>, InputEmpty);
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">" "</span>), <span class="kw-2">&amp;mut </span>[<span class="number">0</span>], <span class="number">1</span>, <span class="number">1</span>, InputEmpty);
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;mut </span>[<span class="number">0</span>], <span class="number">0</span>, <span class="number">0</span>, Field { record_end: <span class="bool-val">true </span>});
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;mut </span>[<span class="number">0</span>], <span class="number">0</span>, <span class="number">0</span>, End);
     }
@@ -3770,7 +3771,7 @@
         <span class="kw">use </span><span class="kw">crate</span>::ReadFieldResult::<span class="kw-2">*</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = Reader::new();
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;,&quot;</span>), <span class="kw-2">&amp;mut </span>[<span class="number">0</span>], <span class="number">1</span>, <span class="number">0</span>, Field { record_end: <span class="bool-val">false </span>});
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">","</span>), <span class="kw-2">&amp;mut </span>[<span class="number">0</span>], <span class="number">1</span>, <span class="number">0</span>, Field { record_end: <span class="bool-val">false </span>});
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;mut </span>[<span class="number">0</span>], <span class="number">0</span>, <span class="number">0</span>, Field { record_end: <span class="bool-val">true </span>});
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;mut </span>[<span class="number">0</span>], <span class="number">0</span>, <span class="number">0</span>, End);
     }
@@ -3781,24 +3782,24 @@
     </span><span class="kw">fn </span>stream_output_chunks() {
         <span class="kw">use </span><span class="kw">crate</span>::ReadFieldResult::<span class="kw-2">*</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">&quot;fooquux&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">"fooquux"</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">2</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = Reader::new();
 
         <span class="macro">assert_read!</span>(rdr, inp, out, <span class="number">2</span>, <span class="number">2</span>, OutputFull);
-        <span class="macro">assert_eq!</span>(out, b(<span class="string">&quot;fo&quot;</span>));
+        <span class="macro">assert_eq!</span>(out, b(<span class="string">"fo"</span>));
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">2</span>..];
 
         <span class="macro">assert_read!</span>(rdr, inp, out, <span class="number">2</span>, <span class="number">2</span>, OutputFull);
-        <span class="macro">assert_eq!</span>(out, b(<span class="string">&quot;oq&quot;</span>));
+        <span class="macro">assert_eq!</span>(out, b(<span class="string">"oq"</span>));
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">2</span>..];
 
         <span class="macro">assert_read!</span>(rdr, inp, out, <span class="number">2</span>, <span class="number">2</span>, OutputFull);
-        <span class="macro">assert_eq!</span>(out, b(<span class="string">&quot;uu&quot;</span>));
+        <span class="macro">assert_eq!</span>(out, b(<span class="string">"uu"</span>));
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">2</span>..];
 
         <span class="macro">assert_read!</span>(rdr, inp, out, <span class="number">1</span>, <span class="number">1</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">1</span>], b(<span class="string">&quot;x&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">1</span>], b(<span class="string">"x"</span>));
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">1</span>..];
         <span class="macro">assert!</span>(inp.is_empty());
 
@@ -3815,17 +3816,17 @@
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">10</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = Reader::new();
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;fo&quot;</span>), out, <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">2</span>], b(<span class="string">&quot;fo&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"fo"</span>), out, <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">2</span>], b(<span class="string">"fo"</span>));
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;oq&quot;</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">2</span>..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">4</span>], b(<span class="string">&quot;fooq&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"oq"</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">2</span>..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">4</span>], b(<span class="string">"fooq"</span>));
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;uu&quot;</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">4</span>..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">6</span>], b(<span class="string">&quot;fooquu&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"uu"</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">4</span>..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">6</span>], b(<span class="string">"fooquu"</span>));
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;x&quot;</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">6</span>..], <span class="number">1</span>, <span class="number">1</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">7</span>], b(<span class="string">&quot;fooquux&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"x"</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">6</span>..], <span class="number">1</span>, <span class="number">1</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">7</span>], b(<span class="string">"fooquux"</span>));
 
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], out, <span class="number">0</span>, <span class="number">0</span>, Field { record_end: <span class="bool-val">true </span>});
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], out, <span class="number">0</span>, <span class="number">0</span>, End);
@@ -3839,11 +3840,11 @@
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">10</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = Reader::new();
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;\&quot;fo\&quot;&quot;</span>), out, <span class="number">4</span>, <span class="number">2</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">2</span>], b(<span class="string">&quot;fo&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"\"fo\""</span>), out, <span class="number">4</span>, <span class="number">2</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">2</span>], b(<span class="string">"fo"</span>));
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;\&quot;o&quot;</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">2</span>..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">4</span>], b(<span class="string">&quot;fo\&quot;o&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"\"o"</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">2</span>..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">4</span>], b(<span class="string">"fo\"o"</span>));
 
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], out, <span class="number">0</span>, <span class="number">0</span>, Field { record_end: <span class="bool-val">true </span>});
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], out, <span class="number">0</span>, <span class="number">0</span>, End);
@@ -3856,19 +3857,19 @@
 
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">10</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>builder = ReaderBuilder::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>rdr = builder.escape(<span class="prelude-val">Some</span>(<span class="string">b&#39;\\&#39;</span>)).build();
+        <span class="kw">let </span><span class="kw-2">mut </span>rdr = builder.escape(<span class="prelude-val">Some</span>(<span class="string">b'\\'</span>)).build();
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;\&quot;fo\\&quot;</span>), out, <span class="number">4</span>, <span class="number">2</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">2</span>], b(<span class="string">&quot;fo&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"\"fo\\"</span>), out, <span class="number">4</span>, <span class="number">2</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">2</span>], b(<span class="string">"fo"</span>));
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;\&quot;o&quot;</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">2</span>..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">4</span>], b(<span class="string">&quot;fo\&quot;o&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"\"o"</span>), <span class="kw-2">&amp;mut </span>out[<span class="number">2</span>..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">4</span>], b(<span class="string">"fo\"o"</span>));
 
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], out, <span class="number">0</span>, <span class="number">0</span>, Field { record_end: <span class="bool-val">true </span>});
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], out, <span class="number">0</span>, <span class="number">0</span>, End);
     }
 
-    <span class="comment">// Test that empty output buffers don&#39;t wreak havoc.
+    <span class="comment">// Test that empty output buffers don't wreak havoc.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>stream_empty_output() {
         <span class="kw">use </span><span class="kw">crate</span>::ReadFieldResult::<span class="kw-2">*</span>;
@@ -3878,18 +3879,18 @@
 
         <span class="macro">assert_read!</span>(
             rdr,
-            b(<span class="string">&quot;foo,bar&quot;</span>),
+            b(<span class="string">"foo,bar"</span>),
             out,
             <span class="number">4</span>,
             <span class="number">3</span>,
             Field { record_end: <span class="bool-val">false </span>}
         );
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">3</span>], b(<span class="string">&quot;foo&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">3</span>], b(<span class="string">"foo"</span>));
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;bar&quot;</span>), <span class="kw-2">&amp;mut </span>[], <span class="number">0</span>, <span class="number">0</span>, OutputFull);
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"bar"</span>), <span class="kw-2">&amp;mut </span>[], <span class="number">0</span>, <span class="number">0</span>, OutputFull);
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;bar&quot;</span>), out, <span class="number">3</span>, <span class="number">3</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">3</span>], b(<span class="string">&quot;bar&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"bar"</span>), out, <span class="number">3</span>, <span class="number">3</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">3</span>], b(<span class="string">"bar"</span>));
 
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], out, <span class="number">0</span>, <span class="number">0</span>, Field { record_end: <span class="bool-val">true </span>});
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], out, <span class="number">0</span>, <span class="number">0</span>, End);
@@ -3904,20 +3905,20 @@
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">10</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = Reader::new();
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;\&quot;foo&quot;</span>), out, <span class="number">4</span>, <span class="number">3</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">3</span>], b(<span class="string">&quot;foo&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"\"foo"</span>), out, <span class="number">4</span>, <span class="number">3</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">3</span>], b(<span class="string">"foo"</span>));
 
         <span class="comment">// Without reseting the parser state, the reader will remember that
-        // we&#39;re in a quoted field, and therefore interpret the leading double
+        // we're in a quoted field, and therefore interpret the leading double
         // quotes below as a single quote and the trailing quote as a matching
         // terminator. With the reset, however, the parser forgets the quoted
         // field and treats the leading double quotes as a syntax quirk and
         // drops them, in addition to hanging on to the trailing unmatched
-        // quote. (Matches Python&#39;s behavior.)
+        // quote. (Matches Python's behavior.)
         </span>rdr.reset();
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;\&quot;\&quot;bar\&quot;&quot;</span>), out, <span class="number">6</span>, <span class="number">4</span>, InputEmpty);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">4</span>], b(<span class="string">&quot;bar\&quot;&quot;</span>));
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"\"\"bar\""</span>), out, <span class="number">6</span>, <span class="number">4</span>, InputEmpty);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out[..<span class="number">4</span>], b(<span class="string">"bar\""</span>));
     }
 
     <span class="comment">// Test the line number reporting is correct.
@@ -3930,13 +3931,13 @@
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, rdr.line());
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;\n\n\n\n&quot;</span>), out, <span class="number">4</span>, <span class="number">0</span>, InputEmpty);
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"\n\n\n\n"</span>), out, <span class="number">4</span>, <span class="number">0</span>, InputEmpty);
         <span class="macro">assert_eq!</span>(<span class="number">5</span>, rdr.line());
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;foo,&quot;</span>), out, <span class="number">4</span>, <span class="number">3</span>, Field { record_end: <span class="bool-val">false </span>});
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"foo,"</span>), out, <span class="number">4</span>, <span class="number">3</span>, Field { record_end: <span class="bool-val">false </span>});
         <span class="macro">assert_eq!</span>(<span class="number">5</span>, rdr.line());
 
-        <span class="macro">assert_read!</span>(rdr, b(<span class="string">&quot;bar\n&quot;</span>), out, <span class="number">4</span>, <span class="number">3</span>, Field { record_end: <span class="bool-val">true </span>});
+        <span class="macro">assert_read!</span>(rdr, b(<span class="string">"bar\n"</span>), out, <span class="number">4</span>, <span class="number">3</span>, Field { record_end: <span class="bool-val">true </span>});
         <span class="macro">assert_eq!</span>(<span class="number">6</span>, rdr.line());
 
         <span class="macro">assert_read!</span>(rdr, <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;mut </span>[<span class="number">0</span>], <span class="number">0</span>, <span class="number">0</span>, End);
@@ -3951,10 +3952,10 @@
         ) =&gt; {{
             <span class="kw">let </span>(res, nin, nout, nend) =
                 <span class="macro-nonterminal">$rdr</span>.read_record(<span class="macro-nonterminal">$input</span>, <span class="macro-nonterminal">$output</span>, <span class="macro-nonterminal">$ends</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_res</span>, res, <span class="string">&quot;result&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_in</span>, nin, <span class="string">&quot;input&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_out</span>, nout, <span class="string">&quot;output&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_end</span>, nend, <span class="string">&quot;ends&quot;</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_res</span>, res, <span class="string">"result"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_in</span>, nin, <span class="string">"input"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_out</span>, nout, <span class="string">"output"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_end</span>, nend, <span class="string">"ends"</span>);
         }};
     }
 
@@ -3963,7 +3964,7 @@
     </span><span class="kw">fn </span>stream_record() {
         <span class="kw">use </span><span class="kw">crate</span>::ReadRecordResult::<span class="kw-2">*</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">&quot;foo,bar\nbaz&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">"foo,bar\nbaz"</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
         <span class="kw">let </span>ends = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">10</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = Reader::new();
@@ -3988,7 +3989,7 @@
     </span><span class="kw">fn </span>stream_record_last_end_output_full() {
         <span class="kw">use </span><span class="kw">crate</span>::ReadRecordResult::<span class="kw-2">*</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">&quot;foo,bar\nbaz&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">"foo,bar\nbaz"</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
         <span class="kw">let </span>ends = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">10</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = Reader::new();

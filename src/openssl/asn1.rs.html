@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.63/src/asn1.rs`."><title>asn1.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/asn1.rs`."><title>asn1.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -978,10 +979,10 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Asn1GeneralizedTimeRef {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>mem_bio = <span class="kw">match </span>MemBio::new() {
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span>f.write_str(<span class="string">&quot;error&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span>f.write_str(<span class="string">"error"</span>),
                 <span class="prelude-val">Ok</span>(m) =&gt; m,
             };
             <span class="kw">let </span>print_result = cvt(ffi::ASN1_GENERALIZEDTIME_print(
@@ -989,7 +990,7 @@
                 <span class="self">self</span>.as_ptr(),
             ));
             <span class="kw">match </span>print_result {
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;error&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">"error"</span>),
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; f.write_str(str::from_utf8_unchecked(mem_bio.get_buf())),
             }
         }
@@ -1159,7 +1160,7 @@
 }
 
 <span class="attr">#[cfg(any(ossl102, boringssl))]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialEq&lt;Asn1Time&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Asn1TimeRef {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PartialEq&lt;Asn1Time&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>Asn1TimeRef {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Asn1Time) -&gt; bool {
         <span class="self">self</span>.diff(other)
             .map(|t| t.days == <span class="number">0 </span>&amp;&amp; t.secs == <span class="number">0</span>)
@@ -1182,22 +1183,22 @@
 }
 
 <span class="attr">#[cfg(any(ossl102, boringssl))]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialOrd&lt;Asn1Time&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Asn1TimeRef {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PartialOrd&lt;Asn1Time&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>Asn1TimeRef {
     <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Asn1Time) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
         <span class="self">self</span>.compare(other).ok()
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Asn1TimeRef {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>mem_bio = <span class="kw">match </span>MemBio::new() {
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span>f.write_str(<span class="string">&quot;error&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span>f.write_str(<span class="string">"error"</span>),
                 <span class="prelude-val">Ok</span>(m) =&gt; m,
             };
             <span class="kw">let </span>print_result = cvt(ffi::ASN1_TIME_print(mem_bio.as_ptr(), <span class="self">self</span>.as_ptr()));
             <span class="kw">match </span>print_result {
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;error&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">"error"</span>),
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; f.write_str(str::from_utf8_unchecked(mem_bio.get_buf())),
             }
         }
@@ -1205,7 +1206,7 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Asn1TimeRef {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.write_str(<span class="kw-2">&amp;</span><span class="self">self</span>.to_string())
     }
 }
@@ -1297,8 +1298,8 @@
 }
 
 <span class="attr">#[cfg(any(ossl102, boringssl))]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Asn1TimeRef&gt; <span class="kw">for </span>Asn1Time {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>Asn1TimeRef) -&gt; bool {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Asn1TimeRef&gt; <span class="kw">for </span>Asn1Time {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">'a </span>Asn1TimeRef) -&gt; bool {
         <span class="self">self</span>.diff(other)
             .map(|t| t.days == <span class="number">0 </span>&amp;&amp; t.secs == <span class="number">0</span>)
             .unwrap_or(<span class="bool-val">false</span>)
@@ -1320,8 +1321,8 @@
 }
 
 <span class="attr">#[cfg(any(ossl102, boringssl))]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialOrd&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Asn1TimeRef&gt; <span class="kw">for </span>Asn1Time {
-    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>Asn1TimeRef) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PartialOrd&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Asn1TimeRef&gt; <span class="kw">for </span>Asn1Time {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">'a </span>Asn1TimeRef) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
         <span class="self">self</span>.compare(other).ok()
     }
 }
@@ -1333,7 +1334,7 @@
     ///
     /// Almost all ASN.1 types in OpenSSL are represented by ASN1_STRING
     /// structures.  This implementation uses [ASN1_STRING-to_UTF8] to preserve
-    /// compatibility with Rust&#39;s String.
+    /// compatibility with Rust's String.
     ///
     /// [ASN1_STRING-to_UTF8]: https://www.openssl.org/docs/manmaster/crypto/ASN1_STRING_to_UTF8.html
     </span><span class="kw">pub struct </span>Asn1String;
@@ -1384,10 +1385,10 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Asn1StringRef {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self</span>.as_utf8() {
             <span class="prelude-val">Ok</span>(openssl_string) =&gt; openssl_string.fmt(fmt),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; fmt.write_str(<span class="string">&quot;error&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; fmt.write_str(<span class="string">"error"</span>),
         }
     }
 }
@@ -1442,7 +1443,7 @@
 
 <span class="kw">impl </span>Asn1IntegerRef {
     <span class="attr">#[allow(missing_docs, clippy::unnecessary_cast)]
-    #[deprecated(since = <span class="string">&quot;0.10.6&quot;</span>, note = <span class="string">&quot;use to_bn instead&quot;</span>)]
+    #[deprecated(since = <span class="string">"0.10.6"</span>, note = <span class="string">"use to_bn instead"</span>)]
     </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64 {
         <span class="kw">unsafe </span>{ ffi::ASN1_INTEGER_get(<span class="self">self</span>.as_ptr()) <span class="kw">as </span>i64 }
     }
@@ -1573,7 +1574,7 @@
     /// Represents an ASN.1 Object.  Typically, NIDs, or numeric identifiers
     /// are stored as a table within the [`Nid`] module.  These constants are
     /// used to determine attributes of a certificate, such as mapping the
-    /// attribute &quot;CommonName&quot; to &quot;CN&quot; which is represented as the OID of 13.
+    /// attribute "CommonName" to "CN" which is represented as the OID of 13.
     /// This attribute is a constant in the [`nid::COMMONNAME`].
     ///
     /// OpenSSL documentation at [`OBJ_nid2obj`]
@@ -1625,7 +1626,7 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Asn1ObjectRef {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0</span>; <span class="number">80</span>];
             <span class="kw">let </span>len = ffi::OBJ_obj2txt(
@@ -1635,7 +1636,7 @@
                 <span class="number">0</span>,
             );
             <span class="kw">match </span>str::from_utf8(<span class="kw-2">&amp;</span>buf[..len <span class="kw">as </span>usize]) {
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; fmt.write_str(<span class="string">&quot;error&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; fmt.write_str(<span class="string">"error"</span>),
                 <span class="prelude-val">Ok</span>(s) =&gt; fmt.write_str(s),
             }
         }
@@ -1643,7 +1644,7 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Asn1ObjectRef {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt.write_str(<span class="self">self</span>.to_string().as_str())
     }
 }
@@ -1700,31 +1701,31 @@
             <span class="macro">assert_eq!</span>(large.to_bn().unwrap(), bn);
         }
 
-        roundtrip(BigNum::from_dec_str(<span class="string">&quot;1000000000000000000000000000000000&quot;</span>).unwrap());
-        roundtrip(-BigNum::from_dec_str(<span class="string">&quot;1000000000000000000000000000000000&quot;</span>).unwrap());
+        roundtrip(BigNum::from_dec_str(<span class="string">"1000000000000000000000000000000000"</span>).unwrap());
+        roundtrip(-BigNum::from_dec_str(<span class="string">"1000000000000000000000000000000000"</span>).unwrap());
         roundtrip(BigNum::from_u32(<span class="number">1234</span>).unwrap());
         roundtrip(-BigNum::from_u32(<span class="number">1234</span>).unwrap());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>time_from_str() {
-        Asn1Time::from_str(<span class="string">&quot;99991231235959Z&quot;</span>).unwrap();
+        Asn1Time::from_str(<span class="string">"99991231235959Z"</span>).unwrap();
         <span class="attr">#[cfg(ossl111)]
-        </span>Asn1Time::from_str_x509(<span class="string">&quot;99991231235959Z&quot;</span>).unwrap();
+        </span>Asn1Time::from_str_x509(<span class="string">"99991231235959Z"</span>).unwrap();
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>time_from_unix() {
         <span class="kw">let </span>t = Asn1Time::from_unix(<span class="number">0</span>).unwrap();
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;Jan  1 00:00:00 1970 GMT&quot;</span>, t.to_string());
+        <span class="macro">assert_eq!</span>(<span class="string">"Jan  1 00:00:00 1970 GMT"</span>, t.to_string());
     }
 
     <span class="attr">#[test]
     #[cfg(any(ossl102, boringssl))]
     </span><span class="kw">fn </span>time_eq() {
-        <span class="kw">let </span>a = Asn1Time::from_str(<span class="string">&quot;99991231235959Z&quot;</span>).unwrap();
-        <span class="kw">let </span>b = Asn1Time::from_str(<span class="string">&quot;99991231235959Z&quot;</span>).unwrap();
-        <span class="kw">let </span>c = Asn1Time::from_str(<span class="string">&quot;99991231235958Z&quot;</span>).unwrap();
+        <span class="kw">let </span>a = Asn1Time::from_str(<span class="string">"99991231235959Z"</span>).unwrap();
+        <span class="kw">let </span>b = Asn1Time::from_str(<span class="string">"99991231235959Z"</span>).unwrap();
+        <span class="kw">let </span>c = Asn1Time::from_str(<span class="string">"99991231235958Z"</span>).unwrap();
         <span class="kw">let </span>a_ref = a.as_ref();
         <span class="kw">let </span>b_ref = b.as_ref();
         <span class="kw">let </span>c_ref = c.as_ref();
@@ -1741,9 +1742,9 @@
     <span class="attr">#[test]
     #[cfg(any(ossl102, boringssl))]
     </span><span class="kw">fn </span>time_ord() {
-        <span class="kw">let </span>a = Asn1Time::from_str(<span class="string">&quot;99991231235959Z&quot;</span>).unwrap();
-        <span class="kw">let </span>b = Asn1Time::from_str(<span class="string">&quot;99991231235959Z&quot;</span>).unwrap();
-        <span class="kw">let </span>c = Asn1Time::from_str(<span class="string">&quot;99991231235958Z&quot;</span>).unwrap();
+        <span class="kw">let </span>a = Asn1Time::from_str(<span class="string">"99991231235959Z"</span>).unwrap();
+        <span class="kw">let </span>b = Asn1Time::from_str(<span class="string">"99991231235959Z"</span>).unwrap();
+        <span class="kw">let </span>c = Asn1Time::from_str(<span class="string">"99991231235958Z"</span>).unwrap();
         <span class="kw">let </span>a_ref = a.as_ref();
         <span class="kw">let </span>b_ref = b.as_ref();
         <span class="kw">let </span>c_ref = c.as_ref();
@@ -1770,7 +1771,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>integer_to_owned() {
-        <span class="kw">let </span>a = Asn1Integer::from_bn(<span class="kw-2">&amp;</span>BigNum::from_dec_str(<span class="string">&quot;42&quot;</span>).unwrap()).unwrap();
+        <span class="kw">let </span>a = Asn1Integer::from_bn(<span class="kw-2">&amp;</span>BigNum::from_dec_str(<span class="string">"42"</span>).unwrap()).unwrap();
         <span class="kw">let </span>b = a.to_owned().unwrap();
         <span class="macro">assert_eq!</span>(
             a.to_bn().unwrap().to_dec_str().unwrap().to_string(),
@@ -1781,9 +1782,9 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>integer_cmp() {
-        <span class="kw">let </span>a = Asn1Integer::from_bn(<span class="kw-2">&amp;</span>BigNum::from_dec_str(<span class="string">&quot;42&quot;</span>).unwrap()).unwrap();
-        <span class="kw">let </span>b = Asn1Integer::from_bn(<span class="kw-2">&amp;</span>BigNum::from_dec_str(<span class="string">&quot;42&quot;</span>).unwrap()).unwrap();
-        <span class="kw">let </span>c = Asn1Integer::from_bn(<span class="kw-2">&amp;</span>BigNum::from_dec_str(<span class="string">&quot;43&quot;</span>).unwrap()).unwrap();
+        <span class="kw">let </span>a = Asn1Integer::from_bn(<span class="kw-2">&amp;</span>BigNum::from_dec_str(<span class="string">"42"</span>).unwrap()).unwrap();
+        <span class="kw">let </span>b = Asn1Integer::from_bn(<span class="kw-2">&amp;</span>BigNum::from_dec_str(<span class="string">"42"</span>).unwrap()).unwrap();
+        <span class="kw">let </span>c = Asn1Integer::from_bn(<span class="kw-2">&amp;</span>BigNum::from_dec_str(<span class="string">"43"</span>).unwrap()).unwrap();
         <span class="macro">assert!</span>(a == b);
         <span class="macro">assert!</span>(a != c);
         <span class="macro">assert!</span>(a &lt; c);
@@ -1792,21 +1793,21 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>object_from_str() {
-        <span class="kw">let </span>object = Asn1Object::from_str(<span class="string">&quot;2.16.840.1.101.3.4.2.1&quot;</span>).unwrap();
+        <span class="kw">let </span>object = Asn1Object::from_str(<span class="string">"2.16.840.1.101.3.4.2.1"</span>).unwrap();
         <span class="macro">assert_eq!</span>(object.nid(), Nid::SHA256);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>object_from_str_with_invalid_input() {
-        Asn1Object::from_str(<span class="string">&quot;NOT AN OID&quot;</span>)
+        Asn1Object::from_str(<span class="string">"NOT AN OID"</span>)
             .map(|object| object.to_string())
-            .expect_err(<span class="string">&quot;parsing invalid OID should fail&quot;</span>);
+            .expect_err(<span class="string">"parsing invalid OID should fail"</span>);
     }
 
     <span class="attr">#[test]
     #[cfg(ossl111)]
     </span><span class="kw">fn </span>object_to_slice() {
-        <span class="kw">let </span>object = Asn1Object::from_str(<span class="string">&quot;2.16.840.1.101.3.4.2.1&quot;</span>).unwrap();
+        <span class="kw">let </span>object = Asn1Object::from_str(<span class="string">"2.16.840.1.101.3.4.2.1"</span>).unwrap();
         <span class="macro">assert_eq!</span>(
             object.as_slice(),
             <span class="kw-2">&amp;</span>[<span class="number">0x60</span>, <span class="number">0x86</span>, <span class="number">0x48</span>, <span class="number">0x01</span>, <span class="number">0x65</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x02</span>, <span class="number">0x01</span>],
@@ -1815,8 +1816,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>asn1_octet_string() {
-        <span class="kw">let </span>octet_string = Asn1OctetString::new_from_bytes(<span class="string">b&quot;hello world&quot;</span>).unwrap();
-        <span class="macro">assert_eq!</span>(octet_string.as_slice(), <span class="string">b&quot;hello world&quot;</span>);
+        <span class="kw">let </span>octet_string = Asn1OctetString::new_from_bytes(<span class="string">b"hello world"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(octet_string.as_slice(), <span class="string">b"hello world"</span>);
         <span class="macro">assert_eq!</span>(octet_string.len(), <span class="number">11</span>);
     }
 }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlformat-0.2.3/src/formatter.rs`."><title>formatter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlformat" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlformat-0.2.3/src/formatter.rs`."><title>formatter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlformat" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -277,7 +278,7 @@
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::borrow::Cow;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>format(tokens: <span class="kw-2">&amp;</span>[Token&lt;<span class="lifetime">&#39;_</span>&gt;], params: <span class="kw-2">&amp;</span>QueryParams, options: FormatOptions) -&gt; String {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>format(tokens: <span class="kw-2">&amp;</span>[Token&lt;<span class="lifetime">'_</span>&gt;], params: <span class="kw-2">&amp;</span>QueryParams, options: FormatOptions) -&gt; String {
     <span class="kw">let </span><span class="kw-2">mut </span>formatter = Formatter::new(tokens, params, options);
     <span class="kw">let </span><span class="kw-2">mut </span>formatted_query = String::new();
     <span class="kw">for </span>(index, token) <span class="kw">in </span>tokens.iter().enumerate() {
@@ -307,13 +308,13 @@
             formatter.format_closing_parentheses(token, <span class="kw-2">&amp;mut </span>formatted_query);
         } <span class="kw">else if </span>token.kind == TokenKind::Placeholder {
             formatter.format_placeholder(token, <span class="kw-2">&amp;mut </span>formatted_query);
-        } <span class="kw">else if </span>token.value == <span class="string">&quot;,&quot; </span>{
+        } <span class="kw">else if </span>token.value == <span class="string">"," </span>{
             formatter.format_comma(token, <span class="kw-2">&amp;mut </span>formatted_query);
-        } <span class="kw">else if </span>token.value == <span class="string">&quot;:&quot; </span>{
+        } <span class="kw">else if </span>token.value == <span class="string">":" </span>{
             formatter.format_with_space_after(token, <span class="kw-2">&amp;mut </span>formatted_query);
-        } <span class="kw">else if </span>token.value == <span class="string">&quot;.&quot; </span>{
+        } <span class="kw">else if </span>token.value == <span class="string">"." </span>{
             formatter.format_without_spaces(token, <span class="kw-2">&amp;mut </span>formatted_query);
-        } <span class="kw">else if </span>token.value == <span class="string">&quot;;&quot; </span>{
+        } <span class="kw">else if </span>token.value == <span class="string">";" </span>{
             formatter.format_query_separator(token, <span class="kw-2">&amp;mut </span>formatted_query);
         } <span class="kw">else </span>{
             formatter.format_with_spaces(token, <span class="kw-2">&amp;mut </span>formatted_query);
@@ -322,18 +323,18 @@
     formatted_query.trim().to_string()
 }
 
-<span class="kw">struct </span>Formatter&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">struct </span>Formatter&lt;<span class="lifetime">'a</span>&gt; {
     index: usize,
-    previous_reserved_word: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Token&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-    tokens: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Token&lt;<span class="lifetime">&#39;a</span>&gt;],
-    params: Params&lt;<span class="lifetime">&#39;a</span>&gt;,
+    previous_reserved_word: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Token&lt;<span class="lifetime">'a</span>&gt;&gt;,
+    tokens: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Token&lt;<span class="lifetime">'a</span>&gt;],
+    params: Params&lt;<span class="lifetime">'a</span>&gt;,
     options: FormatOptions,
     indentation: Indentation,
     inline_block: InlineBlock,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Formatter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(tokens: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Token&lt;<span class="lifetime">&#39;a</span>&gt;], params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>QueryParams, options: FormatOptions) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Formatter&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>new(tokens: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Token&lt;<span class="lifetime">'a</span>&gt;], params: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>QueryParams, options: FormatOptions) -&gt; <span class="self">Self </span>{
         Formatter {
             index: <span class="number">0</span>,
             previous_reserved_word: <span class="prelude-val">None</span>,
@@ -345,18 +346,18 @@
         }
     }
 
-    <span class="kw">fn </span>format_line_comment(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_line_comment(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         query.push_str(token.value);
         <span class="self">self</span>.add_new_line(query);
     }
 
-    <span class="kw">fn </span>format_block_comment(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_block_comment(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="self">self</span>.add_new_line(query);
         query.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.indent_comment(token.value));
         <span class="self">self</span>.add_new_line(query);
     }
 
-    <span class="kw">fn </span>format_top_level_reserved_word(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_top_level_reserved_word(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="self">self</span>.indentation.decrease_top_level();
         <span class="self">self</span>.add_new_line(query);
         <span class="self">self</span>.indentation.increase_top_level();
@@ -364,31 +365,31 @@
         <span class="self">self</span>.add_new_line(query);
     }
 
-    <span class="kw">fn </span>format_top_level_reserved_word_no_indent(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_top_level_reserved_word_no_indent(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="self">self</span>.indentation.decrease_top_level();
         <span class="self">self</span>.add_new_line(query);
         query.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.equalize_whitespace(<span class="kw-2">&amp;</span><span class="self">self</span>.format_reserved_word(token.value)));
         <span class="self">self</span>.add_new_line(query);
     }
 
-    <span class="kw">fn </span>format_newline_reserved_word(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_newline_reserved_word(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="self">self</span>.add_new_line(query);
         query.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.equalize_whitespace(<span class="kw-2">&amp;</span><span class="self">self</span>.format_reserved_word(token.value)));
-        query.push(<span class="string">&#39; &#39;</span>);
+        query.push(<span class="string">' '</span>);
     }
 
-    <span class="kw">fn </span>format_with_spaces(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_with_spaces(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="kw">let </span>value = <span class="kw">if </span>token.kind == TokenKind::Reserved {
             <span class="self">self</span>.format_reserved_word(token.value)
         } <span class="kw">else </span>{
             Cow::Borrowed(token.value)
         };
         query.push_str(<span class="kw-2">&amp;</span>value);
-        query.push(<span class="string">&#39; &#39;</span>);
+        query.push(<span class="string">' '</span>);
     }
 
     <span class="comment">// Opening parentheses increase the block indent level and start a new line
-    </span><span class="kw">fn </span>format_opening_parentheses(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    </span><span class="kw">fn </span>format_opening_parentheses(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="kw">const </span>PRESERVE_WHITESPACE_FOR: <span class="kw-2">&amp;</span>[TokenKind] = <span class="kw-2">&amp;</span>[
             TokenKind::Whitespace,
             TokenKind::OpenParen,
@@ -418,7 +419,7 @@
     }
 
     <span class="comment">// Closing parentheses decrease the block indent level
-    </span><span class="kw">fn </span>format_closing_parentheses(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    </span><span class="kw">fn </span>format_closing_parentheses(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="kw">let </span><span class="kw-2">mut </span>token = token.clone();
         <span class="kw">let </span>value = <span class="kw">if </span><span class="self">self</span>.options.uppercase {
             token.value.to_uppercase()
@@ -437,23 +438,23 @@
         }
     }
 
-    <span class="kw">fn </span>format_placeholder(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Token&lt;<span class="lifetime">&#39;a</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_placeholder(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Token&lt;<span class="lifetime">'a</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         query.push_str(<span class="self">self</span>.params.get(token));
-        query.push(<span class="string">&#39; &#39;</span>);
+        query.push(<span class="string">' '</span>);
     }
 
-    <span class="comment">// Commas start a new line (unless within inline parentheses or SQL &quot;LIMIT&quot; clause)
-    </span><span class="kw">fn </span>format_comma(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="comment">// Commas start a new line (unless within inline parentheses or SQL "LIMIT" clause)
+    </span><span class="kw">fn </span>format_comma(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="self">self</span>.trim_spaces_end(query);
         query.push_str(token.value);
-        query.push(<span class="string">&#39; &#39;</span>);
+        query.push(<span class="string">' '</span>);
 
         <span class="kw">if </span><span class="self">self</span>.inline_block.is_active() {
             <span class="kw">return</span>;
         }
         <span class="kw">if </span><span class="self">self
             </span>.previous_reserved_word
-            .map(|word| word.value.to_lowercase() == <span class="string">&quot;limit&quot;</span>)
+            .map(|word| word.value.to_lowercase() == <span class="string">"limit"</span>)
             .unwrap_or(<span class="bool-val">false</span>)
         {
             <span class="kw">return</span>;
@@ -461,61 +462,61 @@
         <span class="self">self</span>.add_new_line(query);
     }
 
-    <span class="kw">fn </span>format_with_space_after(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_with_space_after(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="self">self</span>.trim_spaces_end(query);
         query.push_str(token.value);
-        query.push(<span class="string">&#39; &#39;</span>);
+        query.push(<span class="string">' '</span>);
     }
 
-    <span class="kw">fn </span>format_without_spaces(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_without_spaces(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="self">self</span>.trim_spaces_end(query);
         query.push_str(token.value);
     }
 
-    <span class="kw">fn </span>format_query_separator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">fn </span>format_query_separator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="self">self</span>.indentation.reset_indentation();
         <span class="self">self</span>.trim_spaces_end(query);
         query.push_str(token.value);
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="self">self</span>.options.lines_between_queries {
-            query.push(<span class="string">&#39;\n&#39;</span>);
+            query.push(<span class="string">'\n'</span>);
         }
     }
 
     <span class="kw">fn </span>add_new_line(<span class="kw-2">&amp;</span><span class="self">self</span>, query: <span class="kw-2">&amp;mut </span>String) {
         <span class="self">self</span>.trim_spaces_end(query);
-        <span class="kw">if </span>!query.ends_with(<span class="string">&#39;\n&#39;</span>) {
-            query.push(<span class="string">&#39;\n&#39;</span>);
+        <span class="kw">if </span>!query.ends_with(<span class="string">'\n'</span>) {
+            query.push(<span class="string">'\n'</span>);
         }
         query.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.indentation.get_indent());
     }
 
     <span class="kw">fn </span>trim_spaces_end(<span class="kw-2">&amp;</span><span class="self">self</span>, query: <span class="kw-2">&amp;mut </span>String) {
-        query.truncate(query.trim_end_matches(|c| c == <span class="string">&#39; &#39; </span>|| c == <span class="string">&#39;\t&#39;</span>).len());
+        query.truncate(query.trim_end_matches(|c| c == <span class="string">' ' </span>|| c == <span class="string">'\t'</span>).len());
     }
 
     <span class="kw">fn </span>indent_comment(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>str) -&gt; String {
         token
-            .split(<span class="string">&#39;\n&#39;</span>)
+            .split(<span class="string">'\n'</span>)
             .enumerate()
             .map(|(i, line)| {
                 <span class="kw">if </span>i == <span class="number">0 </span>{
                     <span class="kw">return </span>line.to_string();
                 }
-                <span class="kw">if </span>!line.starts_with(|c| c == <span class="string">&#39; &#39; </span>|| c == <span class="string">&#39;\t&#39;</span>) {
+                <span class="kw">if </span>!line.starts_with(|c| c == <span class="string">' ' </span>|| c == <span class="string">'\t'</span>) {
                     <span class="kw">return </span>line.to_string();
                 }
                 <span class="macro">format!</span>(
-                    <span class="string">&quot;{} {}&quot;</span>,
+                    <span class="string">"{} {}"</span>,
                     <span class="self">self</span>.indentation.get_indent(),
                     line.chars()
-                        .skip_while(|<span class="kw-2">&amp;</span>c| c == <span class="string">&#39; &#39; </span>|| c == <span class="string">&#39;\t&#39;</span>)
+                        .skip_while(|<span class="kw-2">&amp;</span>c| c == <span class="string">' ' </span>|| c == <span class="string">'\t'</span>)
                         .collect::&lt;String&gt;()
                 )
             })
-            .join(<span class="string">&quot;\n&quot;</span>)
+            .join(<span class="string">"\n"</span>)
     }
 
-    <span class="kw">fn </span>format_reserved_word&lt;<span class="lifetime">&#39;t</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span>str) -&gt; Cow&lt;<span class="lifetime">&#39;t</span>, str&gt; {
+    <span class="kw">fn </span>format_reserved_word&lt;<span class="lifetime">'t</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="kw-2">&amp;</span><span class="lifetime">'t </span>str) -&gt; Cow&lt;<span class="lifetime">'t</span>, str&gt; {
         <span class="kw">if </span><span class="self">self</span>.options.uppercase {
             Cow::Owned(token.to_uppercase())
         } <span class="kw">else </span>{
@@ -528,10 +529,10 @@
         token
             .split(char::is_whitespace)
             .filter(|s| !s.is_empty())
-            .join(<span class="string">&quot; &quot;</span>)
+            .join(<span class="string">" "</span>)
     }
 
-    <span class="kw">fn </span>previous_token(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    <span class="kw">fn </span>previous_token(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Token&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">let </span>index = <span class="self">self</span>.index.checked_sub(<span class="number">1</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(index) = index {
             <span class="self">self</span>.tokens.get(index)

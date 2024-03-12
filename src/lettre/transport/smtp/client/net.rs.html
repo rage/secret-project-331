@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/client/net.rs`."><title>net.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/client/net.rs`."><title>net.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -395,7 +396,7 @@
 <a href="#395" id="395">395</a>
 <a href="#396" id="396">396</a>
 <a href="#397" id="397">397</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
 </span><span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::{
     io::{<span class="self">self</span>, Read, Write},
@@ -404,15 +405,15 @@
     time::Duration,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
 </span><span class="kw">use </span>boring::ssl::SslStream;
-<span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
 </span><span class="kw">use </span>native_tls::TlsStream;
-<span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
 </span><span class="kw">use </span>rustls::{pki_types::ServerName, ClientConnection, StreamOwned};
 <span class="kw">use </span>socket2::{Domain, Protocol, Type};
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
 </span><span class="kw">use </span><span class="kw">super</span>::InnerTlsParameters;
 <span class="kw">use </span><span class="kw">super</span>::TlsParameters;
 <span class="kw">use </span><span class="kw">crate</span>::transport::smtp::{error, Error};
@@ -424,44 +425,44 @@
 
 <span class="doccomment">/// Represents the different types of underlying network streams
 </span><span class="comment">// usually only one TLS backend at a time is going to be enabled,
-// so clippy::large_enum_variant doesn&#39;t make sense here
+// so clippy::large_enum_variant doesn't make sense here
 </span><span class="attr">#[allow(clippy::large_enum_variant)]
 </span><span class="kw">enum </span>InnerNetworkStream {
     <span class="doccomment">/// Plain TCP stream
     </span>Tcp(TcpStream),
     <span class="doccomment">/// Encrypted TCP stream
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
     </span>NativeTls(TlsStream&lt;TcpStream&gt;),
     <span class="doccomment">/// Encrypted TCP stream
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
     </span>RustlsTls(StreamOwned&lt;ClientConnection, TcpStream&gt;),
-    <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
     </span>BoringTls(SslStream&lt;TcpStream&gt;),
-    <span class="doccomment">/// Can&#39;t be built
+    <span class="doccomment">/// Can't be built
     </span><span class="prelude-val">None</span>,
 }
 
 <span class="kw">impl </span>NetworkStream {
     <span class="kw">fn </span>new(inner: InnerNetworkStream) -&gt; <span class="self">Self </span>{
         <span class="kw">if let </span>InnerNetworkStream::None = inner {
-            <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
+            <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"InnerNetworkStream::None must never be built"</span>);
         }
 
         NetworkStream { inner }
     }
 
-    <span class="doccomment">/// Returns peer&#39;s address
+    <span class="doccomment">/// Returns peer's address
     </span><span class="kw">pub fn </span>peer_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;SocketAddr&gt; {
         <span class="kw">match </span><span class="self">self</span>.inner {
             InnerNetworkStream::Tcp(<span class="kw-2">ref </span>s) =&gt; s.peer_addr(),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerNetworkStream::NativeTls(<span class="kw-2">ref </span>s) =&gt; s.get_ref().peer_addr(),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerNetworkStream::RustlsTls(<span class="kw-2">ref </span>s) =&gt; s.get_ref().peer_addr(),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerNetworkStream::BoringTls(<span class="kw-2">ref </span>s) =&gt; s.get_ref().peer_addr(),
             InnerNetworkStream::None =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"InnerNetworkStream::None must never be built"</span>);
                 <span class="prelude-val">Ok</span>(SocketAddr::V4(SocketAddrV4::new(
                     Ipv4Addr::new(<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>),
                     <span class="number">80</span>,
@@ -474,14 +475,14 @@
     </span><span class="kw">pub fn </span>shutdown(<span class="kw-2">&amp;</span><span class="self">self</span>, how: Shutdown) -&gt; io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self</span>.inner {
             InnerNetworkStream::Tcp(<span class="kw-2">ref </span>s) =&gt; s.shutdown(how),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerNetworkStream::NativeTls(<span class="kw-2">ref </span>s) =&gt; s.get_ref().shutdown(how),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerNetworkStream::RustlsTls(<span class="kw-2">ref </span>s) =&gt; s.get_ref().shutdown(how),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerNetworkStream::BoringTls(<span class="kw-2">ref </span>s) =&gt; s.get_ref().shutdown(how),
             InnerNetworkStream::None =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"InnerNetworkStream::None must never be built"</span>);
                 <span class="prelude-val">Ok</span>(())
             }
         }
@@ -529,7 +530,7 @@
 
             <span class="prelude-val">Err</span>(<span class="kw">match </span>last_err {
                 <span class="prelude-val">Some</span>(last_err) =&gt; error::connection(last_err),
-                <span class="prelude-val">None </span>=&gt; error::connection(<span class="string">&quot;could not resolve to any address&quot;</span>),
+                <span class="prelude-val">None </span>=&gt; error::connection(<span class="string">"could not resolve to any address"</span>),
             })
         }
 
@@ -544,16 +545,16 @@
     <span class="kw">pub fn </span>upgrade_tls(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tls_parameters: <span class="kw-2">&amp;</span>TlsParameters) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.inner {
             <span class="attr">#[cfg(not(any(
-                feature = <span class="string">&quot;native-tls&quot;</span>,
-                feature = <span class="string">&quot;rustls-tls&quot;</span>,
-                feature = <span class="string">&quot;boring-tls&quot;
+                feature = <span class="string">"native-tls"</span>,
+                feature = <span class="string">"rustls-tls"</span>,
+                feature = <span class="string">"boring-tls"
             </span>)))]
             </span>InnerNetworkStream::Tcp(<span class="kw">_</span>) =&gt; {
                 <span class="kw">let _ </span>= tls_parameters;
-                <span class="macro">panic!</span>(<span class="string">&quot;Trying to upgrade an NetworkStream without having enabled either the native-tls or the rustls-tls feature&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"Trying to upgrade an NetworkStream without having enabled either the native-tls or the rustls-tls feature"</span>);
             }
 
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
             </span>InnerNetworkStream::Tcp(<span class="kw">_</span>) =&gt; {
                 <span class="comment">// get owned TcpStream
                 </span><span class="kw">let </span>tcp_stream = mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner, InnerNetworkStream::None);
@@ -569,29 +570,29 @@
         }
     }
 
-    <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     </span><span class="kw">fn </span>upgrade_tls_impl(
         tcp_stream: TcpStream,
         tls_parameters: <span class="kw-2">&amp;</span>TlsParameters,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InnerNetworkStream, Error&gt; {
         <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="kw-2">&amp;</span>tls_parameters.connector {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerTlsParameters::NativeTls(connector) =&gt; {
                 <span class="kw">let </span>stream = connector
                     .connect(tls_parameters.domain(), tcp_stream)
                     .map_err(error::connection)<span class="question-mark">?</span>;
                 InnerNetworkStream::NativeTls(stream)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerTlsParameters::RustlsTls(connector) =&gt; {
                 <span class="kw">let </span>domain = ServerName::try_from(tls_parameters.domain())
-                    .map_err(|<span class="kw">_</span>| error::connection(<span class="string">&quot;domain isn&#39;t a valid DNS name&quot;</span>))<span class="question-mark">?</span>;
+                    .map_err(|<span class="kw">_</span>| error::connection(<span class="string">"domain isn't a valid DNS name"</span>))<span class="question-mark">?</span>;
                 <span class="kw">let </span>connection = ClientConnection::new(Arc::clone(connector), domain.to_owned())
                     .map_err(error::connection)<span class="question-mark">?</span>;
                 <span class="kw">let </span>stream = StreamOwned::new(connection, tcp_stream);
                 InnerNetworkStream::RustlsTls(stream)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerTlsParameters::BoringTls(connector) =&gt; {
                 <span class="kw">let </span>stream = connector
                     .configure()
@@ -607,31 +608,31 @@
     <span class="kw">pub fn </span>is_encrypted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">match </span><span class="self">self</span>.inner {
             InnerNetworkStream::Tcp(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerNetworkStream::NativeTls(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerNetworkStream::RustlsTls(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerNetworkStream::BoringTls(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
             InnerNetworkStream::None =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"InnerNetworkStream::None must never be built"</span>);
                 <span class="bool-val">false
             </span>}
         }
     }
 
-    <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     </span><span class="kw">pub fn </span>peer_certificate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.inner {
-            InnerNetworkStream::Tcp(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(error::client(<span class="string">&quot;Connection is not encrypted&quot;</span>)),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            InnerNetworkStream::Tcp(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(error::client(<span class="string">"Connection is not encrypted"</span>)),
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerNetworkStream::NativeTls(stream) =&gt; <span class="prelude-val">Ok</span>(stream
                 .peer_certificate()
                 .map_err(error::tls)<span class="question-mark">?
                 </span>.unwrap()
                 .to_der()
                 .map_err(error::tls)<span class="question-mark">?</span>),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerNetworkStream::RustlsTls(stream) =&gt; <span class="prelude-val">Ok</span>(stream
                 .conn
                 .peer_certificates()
@@ -639,34 +640,34 @@
                 .first()
                 .unwrap()
                 .to_vec()),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerNetworkStream::BoringTls(stream) =&gt; <span class="prelude-val">Ok</span>(stream
                 .ssl()
                 .peer_certificate()
                 .unwrap()
                 .to_der()
                 .map_err(error::tls)<span class="question-mark">?</span>),
-            InnerNetworkStream::None =&gt; <span class="macro">panic!</span>(<span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>),
+            InnerNetworkStream::None =&gt; <span class="macro">panic!</span>(<span class="string">"InnerNetworkStream::None must never be built"</span>),
         }
     }
 
     <span class="kw">pub fn </span>set_read_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, duration: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self</span>.inner {
             InnerNetworkStream::Tcp(<span class="kw-2">ref mut </span>stream) =&gt; stream.set_read_timeout(duration),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerNetworkStream::NativeTls(<span class="kw-2">ref mut </span>stream) =&gt; {
                 stream.get_ref().set_read_timeout(duration)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerNetworkStream::RustlsTls(<span class="kw-2">ref mut </span>stream) =&gt; {
                 stream.get_ref().set_read_timeout(duration)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerNetworkStream::BoringTls(<span class="kw-2">ref mut </span>stream) =&gt; {
                 stream.get_ref().set_read_timeout(duration)
             }
             InnerNetworkStream::None =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"InnerNetworkStream::None must never be built"</span>);
                 <span class="prelude-val">Ok</span>(())
             }
         }
@@ -677,20 +678,20 @@
         <span class="kw">match </span><span class="self">self</span>.inner {
             InnerNetworkStream::Tcp(<span class="kw-2">ref mut </span>stream) =&gt; stream.set_write_timeout(duration),
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerNetworkStream::NativeTls(<span class="kw-2">ref mut </span>stream) =&gt; {
                 stream.get_ref().set_write_timeout(duration)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerNetworkStream::RustlsTls(<span class="kw-2">ref mut </span>stream) =&gt; {
                 stream.get_ref().set_write_timeout(duration)
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerNetworkStream::BoringTls(<span class="kw-2">ref mut </span>stream) =&gt; {
                 stream.get_ref().set_write_timeout(duration)
             }
             InnerNetworkStream::None =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"InnerNetworkStream::None must never be built"</span>);
                 <span class="prelude-val">Ok</span>(())
             }
         }
@@ -701,14 +702,14 @@
     <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">match </span><span class="self">self</span>.inner {
             InnerNetworkStream::Tcp(<span class="kw-2">ref mut </span>s) =&gt; s.read(buf),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerNetworkStream::NativeTls(<span class="kw-2">ref mut </span>s) =&gt; s.read(buf),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerNetworkStream::RustlsTls(<span class="kw-2">ref mut </span>s) =&gt; s.read(buf),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerNetworkStream::BoringTls(<span class="kw-2">ref mut </span>s) =&gt; s.read(buf),
             InnerNetworkStream::None =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"InnerNetworkStream::None must never be built"</span>);
                 <span class="prelude-val">Ok</span>(<span class="number">0</span>)
             }
         }
@@ -719,14 +720,14 @@
     <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">match </span><span class="self">self</span>.inner {
             InnerNetworkStream::Tcp(<span class="kw-2">ref mut </span>s) =&gt; s.write(buf),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerNetworkStream::NativeTls(<span class="kw-2">ref mut </span>s) =&gt; s.write(buf),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerNetworkStream::RustlsTls(<span class="kw-2">ref mut </span>s) =&gt; s.write(buf),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerNetworkStream::BoringTls(<span class="kw-2">ref mut </span>s) =&gt; s.write(buf),
             InnerNetworkStream::None =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"InnerNetworkStream::None must never be built"</span>);
                 <span class="prelude-val">Ok</span>(<span class="number">0</span>)
             }
         }
@@ -735,14 +736,14 @@
     <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self</span>.inner {
             InnerNetworkStream::Tcp(<span class="kw-2">ref mut </span>s) =&gt; s.flush(),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>InnerNetworkStream::NativeTls(<span class="kw-2">ref mut </span>s) =&gt; s.flush(),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>InnerNetworkStream::RustlsTls(<span class="kw-2">ref mut </span>s) =&gt; s.flush(),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>InnerNetworkStream::BoringTls(<span class="kw-2">ref mut </span>s) =&gt; s.flush(),
             InnerNetworkStream::None =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"InnerNetworkStream::None must never be built"</span>);
                 <span class="prelude-val">Ok</span>(())
             }
         }

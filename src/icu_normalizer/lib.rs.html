@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_normalizer-1.4.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_normalizer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_normalizer-1.4.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_normalizer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2748,7 +2749,7 @@
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
 // https://github.com/unicode-org/icu4x/blob/main/docs/process/boilerplate.md#library-annotations
-</span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">&quot;std&quot;</span>)), no_std)]
+</span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">"std"</span>)), no_std)]
 #![cfg_attr(
     not(test),
     deny(
@@ -2807,7 +2808,7 @@
 //! As a difference with ICU4C, the composing normalizer has only the simplest possible
 //! passthrough (only one inversion list lookup per character in the best case) and the full
 //! decompose-then-canonically-compose behavior, whereas ICU4C has other paths between these
-//! extremes. The ICU4X collator doesn&#39;t make use of the FCD concept at all in order to avoid
+//! extremes. The ICU4X collator doesn't make use of the FCD concept at all in order to avoid
 //! doing the work of checking whether the FCD condition holds.
 
 </span><span class="kw">extern crate </span>alloc;
@@ -2824,7 +2825,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::provider::CanonicalDecompositionDataV1Marker;
 <span class="kw">use </span><span class="kw">crate</span>::provider::CompatibilityDecompositionSupplementV1Marker;
 <span class="kw">use </span><span class="kw">crate</span>::provider::DecompositionDataV1;
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::provider::Uts46DecompositionSupplementV1Marker;
 <span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>alloc::vec::Vec;
@@ -2851,7 +2852,7 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">enum </span>SupplementPayloadHolder {
     Compatibility(DataPayload&lt;CompatibilityDecompositionSupplementV1Marker&gt;),
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>Uts46(DataPayload&lt;Uts46DecompositionSupplementV1Marker&gt;),
 }
 
@@ -2859,7 +2860,7 @@
     <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DecompositionSupplementV1 {
         <span class="kw">match </span><span class="self">self </span>{
             SupplementPayloadHolder::Compatibility(d) =&gt; d.get(),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>SupplementPayloadHolder::Uts46(d) =&gt; d.get(),
         }
     }
@@ -2869,7 +2870,7 @@
 /// Since a typical UTF-16 iteration advances over a 2-byte BMP
 /// character, this means two memory pages.
 /// Intel Core i7-4770 had the best results between 2 and 4 pages
-/// when testing powers of two. Apple M1 didn&#39;t seem to care
+/// when testing powers of two. Apple M1 didn't seem to care
 /// about 1, 2, 4, or 8 pages.
 ///
 /// Curiously, the `str` case does not appear to benefit from
@@ -2890,7 +2891,7 @@
 <span class="doccomment">/// `u16` version of the previous marker value.
 </span><span class="kw">const </span>SPECIAL_NON_STARTER_DECOMPOSITION_MARKER_U16: u16 = <span class="number">2</span>;
 
-<span class="doccomment">/// Marker that a complex decomposition isn&#39;t round-trippable
+<span class="doccomment">/// Marker that a complex decomposition isn't round-trippable
 /// under re-composition.
 </span><span class="kw">const </span>NON_ROUND_TRIP_MARKER: u16 = <span class="number">1</span>;
 
@@ -3008,7 +3009,7 @@
 }
 
 <span class="doccomment">/// Performs canonical composition (including Hangul) on a pair of
-/// characters or returns `None` if these characters don&#39;t compose.
+/// characters or returns `None` if these characters don't compose.
 /// Composition exclusions are taken into account.
 </span><span class="attr">#[inline]
 </span><span class="kw">fn </span>compose(iter: Char16TrieIterator, starter: char, second: char) -&gt; <span class="prelude-ty">Option</span>&lt;char&gt; {
@@ -3025,7 +3026,7 @@
         }
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
-    <span class="kw">if </span>in_inclusive_range(second, <span class="string">&#39;\u{11A8}&#39;</span>, <span class="string">&#39;\u{11C2}&#39;</span>) {
+    <span class="kw">if </span>in_inclusive_range(second, <span class="string">'\u{11A8}'</span>, <span class="string">'\u{11C2}'</span>) {
         <span class="kw">let </span>lv = u32::from(starter).wrapping_sub(HANGUL_S_BASE);
         <span class="kw">if </span>lv &lt; HANGUL_S_COUNT &amp;&amp; lv % HANGUL_T_COUNT == <span class="number">0 </span>{
             <span class="kw">let </span>lvt = lv + (u32::from(second) - HANGUL_T_BASE);
@@ -3037,12 +3038,12 @@
 </span>}
 
 <span class="doccomment">/// Performs (non-Hangul) canonical composition on a pair of characters
-/// or returns `None` if these characters don&#39;t compose. Composition
+/// or returns `None` if these characters don't compose. Composition
 /// exclusions are taken into account.
 </span><span class="kw">fn </span>compose_non_hangul(<span class="kw-2">mut </span>iter: Char16TrieIterator, starter: char, second: char) -&gt; <span class="prelude-ty">Option</span>&lt;char&gt; {
     <span class="comment">// To make the trie smaller, the pairs are stored second character first.
-    // Given how this method is used in ways where it&#39;s known that `second`
-    // is or isn&#39;t a starter. We could potentially split the trie into two
+    // Given how this method is used in ways where it's known that `second`
+    // is or isn't a starter. We could potentially split the trie into two
     // tries depending on whether `second` is a starter.
     </span><span class="kw">match </span>iter.next(second) {
         TrieResult::NoMatch =&gt; <span class="prelude-val">None</span>,
@@ -3148,11 +3149,11 @@
             <span class="comment">// Nukta
             </span><span class="kw">return </span><span class="bool-val">false</span>;
         }
-        <span class="kw">if </span>in_inclusive_range(<span class="self">self</span>.character, <span class="string">&#39;\u{FB1D}&#39;</span>, <span class="string">&#39;\u{FB4E}&#39;</span>) {
+        <span class="kw">if </span>in_inclusive_range(<span class="self">self</span>.character, <span class="string">'\u{FB1D}'</span>, <span class="string">'\u{FB4E}'</span>) {
             <span class="comment">// Hebrew presentation forms
             </span><span class="kw">return </span><span class="bool-val">false</span>;
         }
-        <span class="kw">if </span>in_inclusive_range(<span class="self">self</span>.character, <span class="string">&#39;\u{1F71}&#39;</span>, <span class="string">&#39;\u{1FFB}&#39;</span>) {
+        <span class="kw">if </span>in_inclusive_range(<span class="self">self</span>.character, <span class="string">'\u{1F71}'</span>, <span class="string">'\u{1FFB}'</span>) {
             <span class="comment">// Polytonic Greek with oxia
             </span><span class="kw">return </span><span class="bool-val">false</span>;
         }
@@ -3182,7 +3183,7 @@
 /// instance on which it is intended to be set
 /// and not on a temporary copy.
 ///
-/// Note that 0xFF is won&#39;t be assigned to an actual
+/// Note that 0xFF is won't be assigned to an actual
 /// canonical combining class per definition D104
 /// in The Unicode Standard.
 </span><span class="comment">//
@@ -3229,9 +3230,9 @@
 <span class="comment">// This function exists as a borrow check helper.
 </span><span class="attr">#[inline(always)]
 </span><span class="kw">fn </span>sort_slice_by_ccc(slice: <span class="kw-2">&amp;mut </span>[CharacterAndClass], trie: <span class="kw-2">&amp;</span>CodePointTrie&lt;u32&gt;) {
-    <span class="comment">// We don&#39;t look up the canonical combining class for starters
+    <span class="comment">// We don't look up the canonical combining class for starters
     // of for single combining characters between starters. When
-    // there&#39;s more than one combining character between starters,
+    // there's more than one combining character between starters,
     // we look up the canonical combining class for each character
     // exactly once.
     </span><span class="kw">if </span>slice.len() &lt; <span class="number">2 </span>{
@@ -3246,7 +3247,7 @@
 <span class="doccomment">/// An iterator adaptor that turns an `Iterator` over `char` into
 /// a lazily-decomposed `char` sequence.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Decomposition&lt;<span class="lifetime">&#39;data</span>, I&gt;
+</span><span class="kw">pub struct </span>Decomposition&lt;<span class="lifetime">'data</span>, I&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = char&gt;,
 {
@@ -3261,12 +3262,12 @@
     // However, when `Decomposition` appears inside a `Composition`, this
     // may become a non-starter before `decomposing_next()` is called.
     </span>pending: <span class="prelude-ty">Option</span>&lt;CharacterAndTrieValue&gt;, <span class="comment">// None at end of stream
-    </span>trie: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>CodePointTrie&lt;<span class="lifetime">&#39;data</span>, u32&gt;,
-    supplementary_trie: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>CodePointTrie&lt;<span class="lifetime">&#39;data</span>, u32&gt;&gt;,
-    scalars16: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;u16&gt;,
-    scalars24: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;char&gt;,
-    supplementary_scalars16: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;u16&gt;,
-    supplementary_scalars24: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;char&gt;,
+    </span>trie: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>CodePointTrie&lt;<span class="lifetime">'data</span>, u32&gt;,
+    supplementary_trie: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>CodePointTrie&lt;<span class="lifetime">'data</span>, u32&gt;&gt;,
+    scalars16: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u16&gt;,
+    scalars24: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;char&gt;,
+    supplementary_scalars16: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u16&gt;,
+    supplementary_scalars24: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;char&gt;,
     half_width_voicing_marks_become_non_starters: bool,
     <span class="doccomment">/// The lowest character for which either of the following does
     /// not hold:
@@ -3275,7 +3276,7 @@
     </span>decomposition_passthrough_bound: u32, <span class="comment">// never above 0xC0
 </span>}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, I&gt; Decomposition&lt;<span class="lifetime">&#39;data</span>, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, I&gt; Decomposition&lt;<span class="lifetime">'data</span>, I&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = char&gt;,
 {
@@ -3284,15 +3285,15 @@
     /// supplementary data.
     ///
     /// Use `DecomposingNormalizer::normalize_iter()` instead unless
-    /// there&#39;s a good reason to use this constructor directly.
+    /// there's a good reason to use this constructor directly.
     ///
     /// Public but hidden in order to be able to use this from the
     /// collator.
     </span><span class="attr">#[doc(hidden)]
     </span><span class="kw">pub fn </span>new(
         delegate: I,
-        decompositions: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>DecompositionDataV1,
-        tables: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>DecompositionTablesV1,
+        decompositions: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionDataV1,
+        tables: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionTablesV1,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new_with_supplements(delegate, decompositions, <span class="prelude-val">None</span>, tables, <span class="prelude-val">None</span>, <span class="number">0xC0</span>)
     }
@@ -3302,13 +3303,13 @@
     /// supplementary data.
     ///
     /// Use `DecomposingNormalizer::normalize_iter()` instead unless
-    /// there&#39;s a good reason to use this constructor directly.
+    /// there's a good reason to use this constructor directly.
     </span><span class="kw">fn </span>new_with_supplements(
         delegate: I,
-        decompositions: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>DecompositionDataV1,
-        supplementary_decompositions: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>DecompositionSupplementV1&gt;,
-        tables: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>DecompositionTablesV1,
-        supplementary_tables: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>DecompositionTablesV1&gt;,
+        decompositions: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionDataV1,
+        supplementary_decompositions: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionSupplementV1&gt;,
+        tables: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionTablesV1,
+        supplementary_tables: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionTablesV1&gt;,
         decomposition_passthrough_bound: u8,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>half_width_voicing_marks_become_non_starters =
@@ -3323,7 +3324,7 @@
             </span>buffer_pos: <span class="number">0</span>,
             <span class="comment">// Initialize with a placeholder starter in case
             // the real stream starts with a non-starter.
-            </span>pending: <span class="prelude-val">Some</span>(CharacterAndTrieValue::new(<span class="string">&#39;\u{FFFF}&#39;</span>, <span class="number">0</span>)),
+            </span>pending: <span class="prelude-val">Some</span>(CharacterAndTrieValue::new(<span class="string">'\u{FFFF}'</span>, <span class="number">0</span>)),
             trie: <span class="kw-2">&amp;</span>decompositions.trie,
             supplementary_trie: supplementary_decompositions.map(|s| <span class="kw-2">&amp;</span>s.trie),
             scalars16: <span class="kw-2">&amp;</span>tables.scalars16,
@@ -3380,7 +3381,7 @@
                     CharacterAndTrieValue::new(ch, trie_value),
                 ));
                 i += <span class="number">1</span>;
-                <span class="comment">// Half-width kana and iota subscript don&#39;t occur in the tails
+                <span class="comment">// Half-width kana and iota subscript don't occur in the tails
                 // of these multicharacter decompositions.
                 </span><span class="kw">if </span>!decomposition_starts_with_non_starter(trie_value) {
                     combining_start = i;
@@ -3419,7 +3420,7 @@
                     CharacterAndTrieValue::new(ch, trie_value),
                 ));
                 i += <span class="number">1</span>;
-                <span class="comment">// Half-width kana and iota subscript don&#39;t occur in the tails
+                <span class="comment">// Half-width kana and iota subscript don't occur in the tails
                 // of these multicharacter decompositions.
                 </span><span class="kw">if </span>!decomposition_starts_with_non_starter(trie_value) {
                     combining_start = i;
@@ -3450,9 +3451,9 @@
         <span class="kw">if </span>voicing_mark &lt;= <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.half_width_voicing_marks_become_non_starters {
             <span class="kw">return </span><span class="prelude-val">Some</span>(CharacterAndTrieValue::new(
                 <span class="kw">if </span>voicing_mark == <span class="number">0 </span>{
-                    <span class="string">&#39;\u{3099}&#39;
+                    <span class="string">'\u{3099}'
                 </span>} <span class="kw">else </span>{
-                    <span class="string">&#39;\u{309A}&#39;
+                    <span class="string">'\u{309A}'
                 </span>},
                 <span class="number">0xD800 </span>| u32::from(CanonicalCombiningClass::KanaVoicing.<span class="number">0</span>),
             ));
@@ -3513,7 +3514,7 @@
                         <span class="kw">if </span>lead != FDFA_MARKER {
                             <span class="macro">debug_assert_ne!</span>(
                                 lead, SPECIAL_NON_STARTER_DECOMPOSITION_MARKER_U16,
-                                <span class="string">&quot;Should not reach this point with non-starter marker&quot;
+                                <span class="string">"Should not reach this point with non-starter marker"
                             </span>);
                             <span class="comment">// Decomposition into one BMP character
                             </span><span class="kw">let </span>starter = char_from_u16(lead);
@@ -3527,7 +3528,7 @@
                                     core::char::from_u32_unchecked(u32::from(u))
                                 })
                             }));
-                            (<span class="string">&#39;\u{0635}&#39;</span>, <span class="number">17</span>)
+                            (<span class="string">'\u{0635}'</span>, <span class="number">17</span>)
                         }
                     } <span class="kw">else </span>{
                         <span class="comment">// Complex decomposition
@@ -3601,7 +3602,7 @@
                 }
             }
         };
-        <span class="comment">// Either we&#39;re inside `Composition` or `self.pending.is_none()`.
+        <span class="comment">// Either we're inside `Composition` or `self.pending.is_none()`.
 
         </span><span class="self">self</span>.gather_and_sort_combining(combining_start);
         starter
@@ -3619,49 +3620,49 @@
             ) {
                 <span class="comment">// The Tibetan special cases are starters that decompose into non-starters.
                 </span><span class="kw">let </span>mapped = <span class="kw">match </span>ch_and_trie_val.character {
-                    <span class="string">&#39;\u{0340}&#39; </span>=&gt; {
+                    <span class="string">'\u{0340}' </span>=&gt; {
                         <span class="comment">// COMBINING GRAVE TONE MARK
-                        </span>CharacterAndClass::new(<span class="string">&#39;\u{0300}&#39;</span>, CanonicalCombiningClass::Above)
+                        </span>CharacterAndClass::new(<span class="string">'\u{0300}'</span>, CanonicalCombiningClass::Above)
                     }
-                    <span class="string">&#39;\u{0341}&#39; </span>=&gt; {
+                    <span class="string">'\u{0341}' </span>=&gt; {
                         <span class="comment">// COMBINING ACUTE TONE MARK
-                        </span>CharacterAndClass::new(<span class="string">&#39;\u{0301}&#39;</span>, CanonicalCombiningClass::Above)
+                        </span>CharacterAndClass::new(<span class="string">'\u{0301}'</span>, CanonicalCombiningClass::Above)
                     }
-                    <span class="string">&#39;\u{0343}&#39; </span>=&gt; {
+                    <span class="string">'\u{0343}' </span>=&gt; {
                         <span class="comment">// COMBINING GREEK KORONIS
-                        </span>CharacterAndClass::new(<span class="string">&#39;\u{0313}&#39;</span>, CanonicalCombiningClass::Above)
+                        </span>CharacterAndClass::new(<span class="string">'\u{0313}'</span>, CanonicalCombiningClass::Above)
                     }
-                    <span class="string">&#39;\u{0344}&#39; </span>=&gt; {
+                    <span class="string">'\u{0344}' </span>=&gt; {
                         <span class="comment">// COMBINING GREEK DIALYTIKA TONOS
                         </span><span class="self">self</span>.buffer.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0308}&#39;</span>,
+                            <span class="string">'\u{0308}'</span>,
                             CanonicalCombiningClass::Above,
                         ));
-                        CharacterAndClass::new(<span class="string">&#39;\u{0301}&#39;</span>, CanonicalCombiningClass::Above)
+                        CharacterAndClass::new(<span class="string">'\u{0301}'</span>, CanonicalCombiningClass::Above)
                     }
-                    <span class="string">&#39;\u{0F73}&#39; </span>=&gt; {
+                    <span class="string">'\u{0F73}' </span>=&gt; {
                         <span class="comment">// TIBETAN VOWEL SIGN II
                         </span><span class="self">self</span>.buffer.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0F71}&#39;</span>,
+                            <span class="string">'\u{0F71}'</span>,
                             CanonicalCombiningClass::CCC129,
                         ));
-                        CharacterAndClass::new(<span class="string">&#39;\u{0F72}&#39;</span>, CanonicalCombiningClass::CCC130)
+                        CharacterAndClass::new(<span class="string">'\u{0F72}'</span>, CanonicalCombiningClass::CCC130)
                     }
-                    <span class="string">&#39;\u{0F75}&#39; </span>=&gt; {
+                    <span class="string">'\u{0F75}' </span>=&gt; {
                         <span class="comment">// TIBETAN VOWEL SIGN UU
                         </span><span class="self">self</span>.buffer.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0F71}&#39;</span>,
+                            <span class="string">'\u{0F71}'</span>,
                             CanonicalCombiningClass::CCC129,
                         ));
-                        CharacterAndClass::new(<span class="string">&#39;\u{0F74}&#39;</span>, CanonicalCombiningClass::CCC132)
+                        CharacterAndClass::new(<span class="string">'\u{0F74}'</span>, CanonicalCombiningClass::CCC132)
                     }
-                    <span class="string">&#39;\u{0F81}&#39; </span>=&gt; {
+                    <span class="string">'\u{0F81}' </span>=&gt; {
                         <span class="comment">// TIBETAN VOWEL SIGN REVERSED II
                         </span><span class="self">self</span>.buffer.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0F71}&#39;</span>,
+                            <span class="string">'\u{0F71}'</span>,
                             CanonicalCombiningClass::CCC129,
                         ));
-                        CharacterAndClass::new(<span class="string">&#39;\u{0F80}&#39;</span>, CanonicalCombiningClass::CCC130)
+                        CharacterAndClass::new(<span class="string">'\u{0F80}'</span>, CanonicalCombiningClass::CCC130)
                     }
                     <span class="kw">_ </span>=&gt; {
                         <span class="comment">// GIGO case
@@ -3675,14 +3676,14 @@
                 <span class="kw">break</span>;
             }
         }
-        <span class="comment">// Slicing succeeds by construction; we&#39;ve always ensured that `combining_start`
+        <span class="comment">// Slicing succeeds by construction; we've always ensured that `combining_start`
         // is in permissible range.
         </span><span class="attr">#[allow(clippy::indexing_slicing)]
         </span>sort_slice_by_ccc(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer[combining_start..], <span class="self">self</span>.trie);
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, I&gt; Iterator <span class="kw">for </span>Decomposition&lt;<span class="lifetime">&#39;data</span>, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, I&gt; Iterator <span class="kw">for </span>Decomposition&lt;<span class="lifetime">'data</span>, I&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = char&gt;,
 {
@@ -3706,16 +3707,16 @@
 <span class="doccomment">/// An iterator adaptor that turns an `Iterator` over `char` into
 /// a lazily-decomposed and then canonically composed `char` sequence.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Composition&lt;<span class="lifetime">&#39;data</span>, I&gt;
+</span><span class="kw">pub struct </span>Composition&lt;<span class="lifetime">'data</span>, I&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = char&gt;,
 {
     <span class="doccomment">/// The decomposing part of the normalizer than operates before
     /// the canonical composition is performed on its output.
-    </span>decomposition: Decomposition&lt;<span class="lifetime">&#39;data</span>, I&gt;,
+    </span>decomposition: Decomposition&lt;<span class="lifetime">'data</span>, I&gt;,
     <span class="doccomment">/// Non-Hangul canonical composition data.
-    </span>canonical_compositions: Char16Trie&lt;<span class="lifetime">&#39;data</span>&gt;,
-    <span class="doccomment">/// To make `next()` yield in cases where there&#39;s a non-composing
+    </span>canonical_compositions: Char16Trie&lt;<span class="lifetime">'data</span>&gt;,
+    <span class="doccomment">/// To make `next()` yield in cases where there's a non-composing
     /// starter in the decomposition buffer, we put it here to let it
     /// wait for the next `next()` call (or a jump forward within the
     /// `next()` call).
@@ -3728,13 +3729,13 @@
     </span>composition_passthrough_bound: u32,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, I&gt; Composition&lt;<span class="lifetime">&#39;data</span>, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, I&gt; Composition&lt;<span class="lifetime">'data</span>, I&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = char&gt;,
 {
     <span class="kw">fn </span>new(
-        decomposition: Decomposition&lt;<span class="lifetime">&#39;data</span>, I&gt;,
-        canonical_compositions: Char16Trie&lt;<span class="lifetime">&#39;data</span>&gt;,
+        decomposition: Decomposition&lt;<span class="lifetime">'data</span>, I&gt;,
+        canonical_compositions: Char16Trie&lt;<span class="lifetime">'data</span>&gt;,
         composition_passthrough_bound: u16,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -3746,7 +3747,7 @@
     }
 
     <span class="doccomment">/// Performs canonical composition (including Hangul) on a pair of
-    /// characters or returns `None` if these characters don&#39;t compose.
+    /// characters or returns `None` if these characters don't compose.
     /// Composition exclusions are taken into account.
     </span><span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>compose(<span class="kw-2">&amp;</span><span class="self">self</span>, starter: char, second: char) -&gt; <span class="prelude-ty">Option</span>&lt;char&gt; {
@@ -3754,7 +3755,7 @@
     }
 
     <span class="doccomment">/// Performs (non-Hangul) canonical composition on a pair of characters
-    /// or returns `None` if these characters don&#39;t compose. Composition
+    /// or returns `None` if these characters don't compose. Composition
     /// exclusions are taken into account.
     </span><span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>compose_non_hangul(<span class="kw-2">&amp;</span><span class="self">self</span>, starter: char, second: char) -&gt; <span class="prelude-ty">Option</span>&lt;char&gt; {
@@ -3762,7 +3763,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, I&gt; Iterator <span class="kw">for </span>Composition&lt;<span class="lifetime">&#39;data</span>, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, I&gt; Iterator <span class="kw">for </span>Composition&lt;<span class="lifetime">'data</span>, I&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = char&gt;,
 {
@@ -3770,7 +3771,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;char&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>undecomposed_starter = CharacterAndTrieValue::new(<span class="string">&#39;\u{0}&#39;</span>, <span class="number">0</span>); <span class="comment">// The compiler can&#39;t figure out that this gets overwritten before use.
+        <span class="kw">let </span><span class="kw-2">mut </span>undecomposed_starter = CharacterAndTrieValue::new(<span class="string">'\u{0}'</span>, <span class="number">0</span>); <span class="comment">// The compiler can't figure out that this gets overwritten before use.
         </span><span class="kw">if </span><span class="self">self</span>.unprocessed_starter.is_none() {
             <span class="comment">// The loop is only broken out of as goto forward
             </span><span class="attr">#[allow(clippy::never_loop)]
@@ -3825,7 +3826,7 @@
                 <span class="kw">break</span>; <span class="comment">// Not actually looping
             </span>}
         }
-        <span class="kw">let </span><span class="kw-2">mut </span>starter = <span class="string">&#39;\u{0}&#39;</span>; <span class="comment">// The compiler can&#39;t figure out this gets overwritten before use.
+        <span class="kw">let </span><span class="kw-2">mut </span>starter = <span class="string">'\u{0}'</span>; <span class="comment">// The compiler can't figure out this gets overwritten before use.
 
         // The point of having this boolean is to have only one call site to
         // `self.decomposition.decomposing_next`, which is hopefully beneficial for
@@ -3833,8 +3834,8 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>attempt_composition = <span class="bool-val">false</span>;
         <span class="kw">loop </span>{
             <span class="kw">if let </span><span class="prelude-val">Some</span>(unprocessed) = <span class="self">self</span>.unprocessed_starter.take() {
-                <span class="macro">debug_assert_eq!</span>(undecomposed_starter, CharacterAndTrieValue::new(<span class="string">&#39;\u{0}&#39;</span>, <span class="number">0</span>));
-                <span class="macro">debug_assert_eq!</span>(starter, <span class="string">&#39;\u{0}&#39;</span>);
+                <span class="macro">debug_assert_eq!</span>(undecomposed_starter, CharacterAndTrieValue::new(<span class="string">'\u{0}'</span>, <span class="number">0</span>));
+                <span class="macro">debug_assert_eq!</span>(starter, <span class="string">'\u{0}'</span>);
                 starter = unprocessed;
             } <span class="kw">else </span>{
                 <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.decomposition.buffer_pos, <span class="number">0</span>);
@@ -3844,14 +3845,14 @@
                 } <span class="kw">else if let </span><span class="prelude-val">Some</span>(composed) = <span class="self">self</span>.compose(starter, next_starter) {
                     starter = composed;
                 } <span class="kw">else </span>{
-                    <span class="comment">// This is our yield point. We&#39;ll pick this up above in the
+                    <span class="comment">// This is our yield point. We'll pick this up above in the
                     // next call to `next()`.
                     </span><span class="self">self</span>.unprocessed_starter = <span class="prelude-val">Some</span>(next_starter);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(starter);
                 }
             }
             <span class="comment">// We first loop by index to avoid moving the contents of `buffer`, but
-            // if there&#39;s a discontiguous match, we&#39;ll start modifying `buffer` instead.
+            // if there's a discontiguous match, we'll start modifying `buffer` instead.
             </span><span class="kw">loop </span>{
                 <span class="kw">let </span>(character, ccc) = <span class="kw">if let </span><span class="prelude-val">Some</span>((character, ccc)) = <span class="self">self
                     </span>.decomposition
@@ -3924,19 +3925,19 @@
                 // by `self.decomposing_next()`. We do this set lookup here in order
                 // to get an opportunity to go back to the fast track.
                 // Note that this check has to happen _after_ checking that `pending`
-                // holds a character, because this flag isn&#39;t defined to be meaningful
-                // when `pending` isn&#39;t holding a character.
+                // holds a character, because this flag isn't defined to be meaningful
+                // when `pending` isn't holding a character.
                 </span><span class="kw">let </span>pending = <span class="self">self</span>.decomposition.pending.as_ref().unwrap();
                 <span class="kw">if </span>u32::from(pending.character) &lt; <span class="self">self</span>.composition_passthrough_bound
                     || !pending.can_combine_backwards()
                 {
-                    <span class="comment">// Won&#39;t combine backwards anyway.
+                    <span class="comment">// Won't combine backwards anyway.
                     </span><span class="kw">return </span><span class="prelude-val">Some</span>(starter);
                 }
                 <span class="comment">// Consume what we peeked. `unwrap` OK, because we checked `is_some()`
                 // above.
                 </span>undecomposed_starter = <span class="self">self</span>.decomposition.pending.take().unwrap();
-                <span class="comment">// The following line is OK, because we&#39;re about to loop back
+                <span class="comment">// The following line is OK, because we're about to loop back
                 // to `self.decomposition.decomposing_next(c);`, which will
                 // restore the between-`next()`-calls invariant of `pending`
                 // before this function returns.
@@ -3980,7 +3981,7 @@
 
             <span class="comment">// Try to get the compiler to hoist the bound to a register.
             </span><span class="kw">let </span><span class="macro-nonterminal">$composition_passthrough_bound </span>= <span class="macro-nonterminal">$composition</span>.composition_passthrough_bound;
-            <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
+            <span class="lifetime">'outer</span>: <span class="kw">loop </span>{
                 <span class="macro">debug_assert_eq!</span>(<span class="macro-nonterminal">$composition</span>.decomposition.buffer_pos, <span class="number">0</span>);
                 <span class="kw">let </span><span class="kw-2">mut </span><span class="macro-nonterminal">$undecomposed_starter </span>=
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(pending) = <span class="macro-nonterminal">$composition</span>.decomposition.pending.take() {
@@ -3994,7 +3995,7 @@
                 </span><span class="kw">if </span>u32::from(<span class="macro-nonterminal">$undecomposed_starter</span>.character) &lt; <span class="macro-nonterminal">$composition_passthrough_bound </span>||
                     <span class="macro-nonterminal">$undecomposed_starter</span>.potential_passthrough()
                 {
-                    <span class="comment">// We don&#39;t know if a `REPLACEMENT_CHARACTER` occurred in the slice or
+                    <span class="comment">// We don't know if a `REPLACEMENT_CHARACTER` occurred in the slice or
                     // was returned in response to an error by the iterator. Assume the
                     // latter for correctness even though it pessimizes the former.
                     </span><span class="kw">if </span><span class="macro-nonterminal">$always_valid_utf </span>|| <span class="macro-nonterminal">$undecomposed_starter</span>.character != REPLACEMENT_CHARACTER {
@@ -4011,9 +4012,9 @@
                 </span><span class="kw">let </span><span class="kw-2">mut </span>starter = <span class="macro-nonterminal">$composition
                     </span>.decomposition
                     .decomposing_next(<span class="macro-nonterminal">$undecomposed_starter</span>);
-                <span class="lifetime">&#39;bufferloop</span>: <span class="kw">loop </span>{
+                <span class="lifetime">'bufferloop</span>: <span class="kw">loop </span>{
                     <span class="comment">// We first loop by index to avoid moving the contents of `buffer`, but
-                    // if there&#39;s a discontiguous match, we&#39;ll start modifying `buffer` instead.
+                    // if there's a discontiguous match, we'll start modifying `buffer` instead.
                     </span><span class="kw">loop </span>{
                         <span class="kw">let </span>(character, ccc) = <span class="kw">if let </span><span class="prelude-val">Some</span>((character, ccc)) = <span class="macro-nonterminal">$composition
                             </span>.decomposition
@@ -4035,13 +4036,13 @@
                         <span class="kw">let </span><span class="kw-2">mut </span>most_recent_skipped_ccc = ccc;
                         <span class="kw">if </span>most_recent_skipped_ccc == CanonicalCombiningClass::NotReordered {
                             <span class="comment">// We failed to compose a starter. Discontiguous match not allowed.
-                            // Write the current `starter` we&#39;ve been composing, make the unmatched
-                            // starter in the buffer the new `starter` (we know it&#39;s been decomposed)
+                            // Write the current `starter` we've been composing, make the unmatched
+                            // starter in the buffer the new `starter` (we know it's been decomposed)
                             // and process the rest of the buffer with that as the starter.
                             </span><span class="macro-nonterminal">$sink</span>.write_char(starter)<span class="question-mark">?</span>;
                             starter = character;
                             <span class="macro-nonterminal">$composition</span>.decomposition.buffer_pos += <span class="number">1</span>;
-                            <span class="kw">continue </span><span class="lifetime">&#39;bufferloop</span>;
+                            <span class="kw">continue </span><span class="lifetime">'bufferloop</span>;
                         } <span class="kw">else </span>{
                             {
                                 <span class="kw">let _ </span>= <span class="macro-nonterminal">$composition
@@ -4070,7 +4071,7 @@
                                     <span class="macro">debug_assert_eq!</span>(starter, removed.character());
                                 }
                                 <span class="macro">debug_assert_eq!</span>(<span class="macro-nonterminal">$composition</span>.decomposition.buffer_pos, <span class="number">0</span>);
-                                <span class="kw">continue </span><span class="lifetime">&#39;bufferloop</span>;
+                                <span class="kw">continue </span><span class="lifetime">'bufferloop</span>;
                             }
                             <span class="macro">debug_assert!</span>(ccc &gt;= most_recent_skipped_ccc);
                             <span class="kw">if </span>ccc != most_recent_skipped_ccc {
@@ -4097,8 +4098,8 @@
                         <span class="kw">for </span>cc <span class="kw">in </span><span class="macro-nonterminal">$composition</span>.decomposition.buffer.drain(..) {
                             <span class="macro-nonterminal">$sink</span>.write_char(cc.character())<span class="question-mark">?</span>;
                         }
-                        <span class="comment">// We had non-empty buffer, so can&#39;t compose with upcoming.
-                        </span><span class="kw">continue </span><span class="lifetime">&#39;outer</span>;
+                        <span class="comment">// We had non-empty buffer, so can't compose with upcoming.
+                        </span><span class="kw">continue </span><span class="lifetime">'outer</span>;
                     }
                     <span class="comment">// Now we need to check if composition with an upcoming starter is possible.
                     </span><span class="kw">if </span><span class="macro-nonterminal">$composition</span>.decomposition.pending.is_some() {
@@ -4107,15 +4108,15 @@
                         // by `composition.decomposing_next()`. We do this set lookup here in order
                         // to get an opportunity to go back to the fast track.
                         // Note that this check has to happen _after_ checking that `pending`
-                        // holds a character, because this flag isn&#39;t defined to be meaningful
-                        // when `pending` isn&#39;t holding a character.
+                        // holds a character, because this flag isn't defined to be meaningful
+                        // when `pending` isn't holding a character.
                         </span><span class="kw">let </span>pending = <span class="macro-nonterminal">$composition</span>.decomposition.pending.as_ref().unwrap();
                         <span class="kw">if </span>u32::from(pending.character) &lt; <span class="macro-nonterminal">$composition</span>.composition_passthrough_bound
                             || !pending.can_combine_backwards()
                         {
-                            <span class="comment">// Won&#39;t combine backwards anyway.
+                            <span class="comment">// Won't combine backwards anyway.
                             </span><span class="macro-nonterminal">$sink</span>.write_char(starter)<span class="question-mark">?</span>;
-                            <span class="kw">continue </span><span class="lifetime">&#39;outer</span>;
+                            <span class="kw">continue </span><span class="lifetime">'outer</span>;
                         }
                         <span class="kw">let </span>pending_starter = <span class="macro-nonterminal">$composition</span>.decomposition.pending.take().unwrap();
                         <span class="kw">let </span>decomposed = <span class="macro-nonterminal">$composition</span>.decomposition.decomposing_next(pending_starter);
@@ -4125,12 +4126,12 @@
                             <span class="macro-nonterminal">$sink</span>.write_char(starter)<span class="question-mark">?</span>;
                             starter = decomposed;
                         }
-                        <span class="kw">continue </span><span class="lifetime">&#39;bufferloop</span>;
+                        <span class="kw">continue </span><span class="lifetime">'bufferloop</span>;
                     }
                     <span class="comment">// End of input
                     </span><span class="macro-nonterminal">$sink</span>.write_char(starter)<span class="question-mark">?</span>;
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-                } <span class="comment">// &#39;bufferloop
+                } <span class="comment">// 'bufferloop
             </span>}
         }
     };
@@ -4178,7 +4179,7 @@
                 // not a data issue.
                 </span><span class="attr">#[allow(clippy::indexing_slicing)]
                 </span><span class="kw">if </span><span class="macro-nonterminal">$undecomposed_starter</span>.starter_and_decomposes_to_self() {
-                    <span class="comment">// Don&#39;t bother including `undecomposed_starter` in a contiguous buffer
+                    <span class="comment">// Don't bother including `undecomposed_starter` in a contiguous buffer
                     // write: Just write it right away:
                     </span><span class="macro-nonterminal">$sink</span>.write_char(<span class="macro-nonterminal">$undecomposed_starter</span>.character)<span class="question-mark">?</span>;
 
@@ -4274,7 +4275,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new_nfd() -&gt; <span class="self">Self </span>{
         <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
             <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
@@ -4284,7 +4285,7 @@
                     .scalars24
                     .const_len()
                 &lt;= <span class="number">0xFFF</span>,
-            <span class="string">&quot;NormalizerError::FutureExtension&quot;
+            <span class="string">"NormalizerError::FutureExtension"
         </span>);
 
         DecomposingNormalizer {
@@ -4352,7 +4353,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new_nfkd() -&gt; <span class="self">Self </span>{
         <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
             <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
@@ -4368,12 +4369,12 @@
                     .scalars24
                     .const_len()
                 &lt;= <span class="number">0xFFF</span>,
-            <span class="string">&quot;NormalizerError::FutureExtension&quot;
+            <span class="string">"NormalizerError::FutureExtension"
         </span>);
 
         <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
             <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFKD_V1.passthrough_cap &lt;= <span class="number">0x0300</span>,
-            <span class="string">&quot;NormalizerError::ValidationError&quot;
+            <span class="string">"NormalizerError::ValidationError"
         </span>);
 
         <span class="kw">let </span>decomposition_capped =
@@ -4475,7 +4476,7 @@
     }
 
     <span class="attr">#[doc(hidden)]
-    #[cfg(all(feature = <span class="string">&quot;experimental&quot;</span>, feature = <span class="string">&quot;compiled_data&quot;</span>))]
+    #[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"compiled_data"</span>))]
     </span><span class="kw">pub const fn </span>new_uts46_decomposed_without_ignored_and_disallowed() -&gt; <span class="self">Self </span>{
         <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
             <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
@@ -4491,12 +4492,12 @@
                     .scalars24
                     .const_len()
                 &lt;= <span class="number">0xFFF</span>,
-            <span class="string">&quot;NormalizerError::FutureExtension&quot;
+            <span class="string">"NormalizerError::FutureExtension"
         </span>);
 
         <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
             <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_UTS46D_V1.passthrough_cap &lt;= <span class="number">0x0300</span>,
-            <span class="string">&quot;NormalizerError::ValidationError&quot;
+            <span class="string">"NormalizerError::ValidationError"
         </span>);
 
         <span class="kw">let </span>decomposition_capped =
@@ -4535,12 +4536,12 @@
     <span class="doccomment">/// UTS 46 decomposed constructor (testing only)
     ///
     /// This is a special building block normalization for IDNA. It is the decomposed counterpart of
-    /// ICU4C&#39;s UTS 46 normalization with two exceptions: characters that UTS 46 disallows and
+    /// ICU4C's UTS 46 normalization with two exceptions: characters that UTS 46 disallows and
     /// ICU4C maps to U+FFFD and characters that UTS 46 maps to the empty string normalize as in
     /// NFD in this normalization. In both cases, the previous UTS 46 processing before using
     /// normalization is expected to deal with these characters. Making the disallowed characters
     /// behave like this is beneficial to data size, and this normalizer implementation cannot
-    /// deal with a character normalizing to the empty string, which doesn&#39;t happen in NFD or
+    /// deal with a character normalizing to the empty string, which doesn't happen in NFD or
     /// NFKD as of Unicode 14.
     ///
     /// Warning: In this normalization, U+0345 COMBINING GREEK YPOGEGRAMMENI exhibits a behavior
@@ -4552,7 +4553,7 @@
     ///
     /// Public for testing only.
     </span><span class="attr">#[doc(hidden)]
-    #[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    #[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>try_new_uts46_decomposed_without_ignored_and_disallowed_unstable&lt;D&gt;(
         provider: <span class="kw-2">&amp;</span>D,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
@@ -4637,18 +4638,18 @@
             </span>} <span class="kw">else </span>{
                 decomposition_passthrough_bound.min(<span class="number">0x80</span>) <span class="kw">as </span>u8
             };
-            <span class="comment">// The attribute belongs on an inner statement, but Rust doesn&#39;t allow it there.
+            <span class="comment">// The attribute belongs on an inner statement, but Rust doesn't allow it there.
             </span><span class="attr">#[allow(clippy::unwrap_used)]
-            </span><span class="lifetime">&#39;fast</span>: <span class="kw">loop </span>{
+            </span><span class="lifetime">'fast</span>: <span class="kw">loop </span>{
                 <span class="kw">let </span><span class="kw-2">mut </span>code_unit_iter = decomposition.delegate.as_str().as_bytes().iter();
-                <span class="lifetime">&#39;fastest</span>: <span class="kw">loop </span>{
+                <span class="lifetime">'fastest</span>: <span class="kw">loop </span>{
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>upcoming_byte) = code_unit_iter.next() {
                         <span class="kw">if </span>upcoming_byte &lt; decomposition_passthrough_byte_bound {
                             <span class="comment">// Fast-track succeeded!
-                            </span><span class="kw">continue </span><span class="lifetime">&#39;fastest</span>;
+                            </span><span class="kw">continue </span><span class="lifetime">'fastest</span>;
                         }
                         decomposition.delegate = pending_slice[pending_slice.len() - code_unit_iter.as_slice().len() - <span class="number">1</span>..].chars();
-                        <span class="kw">break </span><span class="lifetime">&#39;fastest</span>;
+                        <span class="kw">break </span><span class="lifetime">'fastest</span>;
                     }
                     <span class="comment">// End of stream
                     </span>sink.write_str(pending_slice)<span class="question-mark">?</span>;
@@ -4660,14 +4661,14 @@
                 </span><span class="kw">let </span>upcoming = decomposition.delegate.next().unwrap();
                 <span class="kw">let </span>upcoming_with_trie_value = decomposition.attach_trie_value(upcoming);
                 <span class="kw">if </span>upcoming_with_trie_value.starter_and_decomposes_to_self() {
-                    <span class="kw">continue </span><span class="lifetime">&#39;fast</span>;
+                    <span class="kw">continue </span><span class="lifetime">'fast</span>;
                 }
                 <span class="kw">let </span>consumed_so_far_slice = <span class="kw-2">&amp;</span>pending_slice[..pending_slice.len()
                     - decomposition.delegate.as_str().len()
                     - upcoming.len_utf8()];
                 sink.write_str(consumed_so_far_slice)<span class="question-mark">?</span>;
 
-                <span class="comment">// Now let&#39;s figure out if we got a starter or a non-starter.
+                <span class="comment">// Now let's figure out if we got a starter or a non-starter.
                 </span><span class="kw">if </span>decomposition_starts_with_non_starter(
                     upcoming_with_trie_value.trie_val,
                 ) {
@@ -4675,11 +4676,11 @@
                     // one of the rare decomposing ones.
                     </span>decomposition.pending = <span class="prelude-val">Some</span>(upcoming_with_trie_value);
                     decomposition.gather_and_sort_combining(<span class="number">0</span>);
-                    <span class="kw">continue </span><span class="lifetime">&#39;outer</span>;
+                    <span class="kw">continue </span><span class="lifetime">'outer</span>;
                 }
                 undecomposed_starter = upcoming_with_trie_value;
                 <span class="macro">debug_assert!</span>(decomposition.pending.is_none());
-                <span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                <span class="kw">break </span><span class="lifetime">'fast</span>;
             }
         },
         text,
@@ -4688,7 +4689,7 @@
         decomposition_passthrough_bound,
         undecomposed_starter,
         pending_slice,
-        <span class="lifetime">&#39;outer</span>,
+        <span class="lifetime">'outer</span>,
     );
 
     <span class="macro">decomposing_normalize_to!</span>(
@@ -4705,17 +4706,17 @@
         as_slice,
         {
             <span class="kw">let </span>decomposition_passthrough_byte_bound = decomposition_passthrough_bound.min(<span class="number">0x80</span>) <span class="kw">as </span>u8;
-            <span class="comment">// The attribute belongs on an inner statement, but Rust doesn&#39;t allow it there.
+            <span class="comment">// The attribute belongs on an inner statement, but Rust doesn't allow it there.
             </span><span class="attr">#[allow(clippy::unwrap_used)]
-            </span><span class="lifetime">&#39;fast</span>: <span class="kw">loop </span>{
+            </span><span class="lifetime">'fast</span>: <span class="kw">loop </span>{
                 <span class="kw">let </span><span class="kw-2">mut </span>code_unit_iter = decomposition.delegate.as_slice().iter();
-                <span class="lifetime">&#39;fastest</span>: <span class="kw">loop </span>{
+                <span class="lifetime">'fastest</span>: <span class="kw">loop </span>{
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>upcoming_byte) = code_unit_iter.next() {
                         <span class="kw">if </span>upcoming_byte &lt; decomposition_passthrough_byte_bound {
                             <span class="comment">// Fast-track succeeded!
-                            </span><span class="kw">continue </span><span class="lifetime">&#39;fastest</span>;
+                            </span><span class="kw">continue </span><span class="lifetime">'fastest</span>;
                         }
-                        <span class="kw">break </span><span class="lifetime">&#39;fastest</span>;
+                        <span class="kw">break </span><span class="lifetime">'fastest</span>;
                     }
                     <span class="comment">// End of stream
                     </span>sink.write_str(<span class="kw">unsafe </span>{ from_utf8_unchecked(pending_slice) })<span class="question-mark">?</span>;
@@ -4729,11 +4730,11 @@
                 <span class="kw">let </span>upcoming_with_trie_value = decomposition.attach_trie_value(upcoming);
                 <span class="kw">if </span>upcoming_with_trie_value.starter_and_decomposes_to_self() {
                     <span class="kw">if </span>upcoming != REPLACEMENT_CHARACTER {
-                        <span class="kw">continue </span><span class="lifetime">&#39;fast</span>;
+                        <span class="kw">continue </span><span class="lifetime">'fast</span>;
                     }
                     <span class="comment">// We might have an error, so fall out of the fast path.
 
-                    // Since the U+FFFD might signify an error, we can&#39;t
+                    // Since the U+FFFD might signify an error, we can't
                     // assume `upcoming.len_utf8()` for the backoff length.
                     </span><span class="kw">let </span><span class="kw-2">mut </span>consumed_so_far = pending_slice[..pending_slice.len() - decomposition.delegate.as_slice().len()].chars();
                     <span class="kw">let </span>back = consumed_so_far.next_back();
@@ -4742,18 +4743,18 @@
                     sink.write_str(<span class="kw">unsafe</span>{from_utf8_unchecked(consumed_so_far_slice)})<span class="question-mark">?</span>;
 
                     <span class="comment">// We could call `gather_and_sort_combining` here and
-                    // `continue &#39;outer`, but this should be better for code
+                    // `continue 'outer`, but this should be better for code
                     // size.
                     </span>undecomposed_starter = upcoming_with_trie_value;
                     <span class="macro">debug_assert!</span>(decomposition.pending.is_none());
-                    <span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                    <span class="kw">break </span><span class="lifetime">'fast</span>;
                 }
                 <span class="kw">let </span>consumed_so_far_slice = <span class="kw-2">&amp;</span>pending_slice[..pending_slice.len()
                     - decomposition.delegate.as_slice().len()
                     - upcoming.len_utf8()];
                 sink.write_str(<span class="kw">unsafe</span>{from_utf8_unchecked(consumed_so_far_slice)})<span class="question-mark">?</span>;
 
-                <span class="comment">// Now let&#39;s figure out if we got a starter or a non-starter.
+                <span class="comment">// Now let's figure out if we got a starter or a non-starter.
                 </span><span class="kw">if </span>decomposition_starts_with_non_starter(
                     upcoming_with_trie_value.trie_val,
                 ) {
@@ -4761,11 +4762,11 @@
                     // one of the rare decomposing ones.
                     </span>decomposition.pending = <span class="prelude-val">Some</span>(upcoming_with_trie_value);
                     decomposition.gather_and_sort_combining(<span class="number">0</span>);
-                    <span class="kw">continue </span><span class="lifetime">&#39;outer</span>;
+                    <span class="kw">continue </span><span class="lifetime">'outer</span>;
                 }
                 undecomposed_starter = upcoming_with_trie_value;
                 <span class="macro">debug_assert!</span>(decomposition.pending.is_none());
-                <span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                <span class="kw">break </span><span class="lifetime">'fast</span>;
             }
         },
         text,
@@ -4774,7 +4775,7 @@
         decomposition_passthrough_bound,
         undecomposed_starter,
         pending_slice,
-        <span class="lifetime">&#39;outer</span>,
+        <span class="lifetime">'outer</span>,
     );
 
     <span class="macro">decomposing_normalize_to!</span>(
@@ -4797,20 +4798,20 @@
             // the flush starts reading from too far behind compared to the hot
             // recently-read memory.
             </span><span class="kw">let </span><span class="kw-2">mut </span>counter = UTF16_FAST_PATH_FLUSH_THRESHOLD;
-            <span class="lifetime">&#39;fast</span>: <span class="kw">loop </span>{
+            <span class="lifetime">'fast</span>: <span class="kw">loop </span>{
                 counter -= <span class="number">1</span>;
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>upcoming_code_unit) = code_unit_iter.next() {
                     <span class="kw">let </span><span class="kw-2">mut </span>upcoming32 = u32::from(upcoming_code_unit);
                     <span class="kw">if </span>upcoming32 &lt; decomposition_passthrough_bound &amp;&amp; counter != <span class="number">0 </span>{
-                        <span class="kw">continue </span><span class="lifetime">&#39;fast</span>;
+                        <span class="kw">continue </span><span class="lifetime">'fast</span>;
                     }
                     <span class="comment">// The loop is only broken out of as goto forward
                     </span><span class="attr">#[allow(clippy::never_loop)]
-                    </span><span class="lifetime">&#39;surrogateloop</span>: <span class="kw">loop </span>{
+                    </span><span class="lifetime">'surrogateloop</span>: <span class="kw">loop </span>{
                         <span class="kw">let </span>surrogate_base = upcoming32.wrapping_sub(<span class="number">0xD800</span>);
                         <span class="kw">if </span>surrogate_base &gt; (<span class="number">0xDFFF </span>- <span class="number">0xD800</span>) {
                             <span class="comment">// Not surrogate
-                            </span><span class="kw">break </span><span class="lifetime">&#39;surrogateloop</span>;
+                            </span><span class="kw">break </span><span class="lifetime">'surrogateloop</span>;
                         }
                         <span class="kw">if </span>surrogate_base &lt;= (<span class="number">0xDBFF </span>- <span class="number">0xD800</span>) {
                             <span class="kw">let </span>iter_backup = code_unit_iter.clone();
@@ -4818,7 +4819,7 @@
                                 <span class="kw">if </span>in_inclusive_range16(low, <span class="number">0xDC00</span>, <span class="number">0xDFFF</span>) {
                                     upcoming32 = (upcoming32 &lt;&lt; <span class="number">10</span>) + u32::from(low)
                                         - (((<span class="number">0xD800u32 </span>&lt;&lt; <span class="number">10</span>) - <span class="number">0x10000u32</span>) + <span class="number">0xDC00u32</span>);
-                                    <span class="kw">break </span><span class="lifetime">&#39;surrogateloop</span>;
+                                    <span class="kw">break </span><span class="lifetime">'surrogateloop</span>;
                                 } <span class="kw">else </span>{
                                     code_unit_iter = iter_backup;
                                 }
@@ -4831,23 +4832,23 @@
                         undecomposed_starter =
                             CharacterAndTrieValue::new(REPLACEMENT_CHARACTER, <span class="number">0</span>);
                         <span class="macro">debug_assert!</span>(decomposition.pending.is_none());
-                        <span class="comment">// We could instead call `gather_and_sort_combining` and `continue &#39;outer`, but
+                        <span class="comment">// We could instead call `gather_and_sort_combining` and `continue 'outer`, but
                         // assuming this is better for code size.
-                        </span><span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                        </span><span class="kw">break </span><span class="lifetime">'fast</span>;
                     }
                     <span class="comment">// Not unpaired surrogate
                     </span><span class="kw">let </span>upcoming = <span class="kw">unsafe </span>{ char::from_u32_unchecked(upcoming32) };
                     <span class="kw">let </span>upcoming_with_trie_value =
                         decomposition.attach_trie_value(upcoming);
                     <span class="kw">if </span>upcoming_with_trie_value.starter_and_decomposes_to_self() &amp;&amp; counter != <span class="number">0 </span>{
-                        <span class="kw">continue </span><span class="lifetime">&#39;fast</span>;
+                        <span class="kw">continue </span><span class="lifetime">'fast</span>;
                     }
                     <span class="kw">let </span>consumed_so_far_slice = <span class="kw-2">&amp;</span>pending_slice[..pending_slice.len()
                         - code_unit_iter.as_slice().len()
                         - upcoming.len_utf16()];
                     sink.write_slice(consumed_so_far_slice)<span class="question-mark">?</span>;
 
-                    <span class="comment">// Now let&#39;s figure out if we got a starter or a non-starter.
+                    <span class="comment">// Now let's figure out if we got a starter or a non-starter.
                     </span><span class="kw">if </span>decomposition_starts_with_non_starter(
                         upcoming_with_trie_value.trie_val,
                     ) {
@@ -4857,11 +4858,11 @@
                         // one of the rare decomposing ones.
                         </span>decomposition.pending = <span class="prelude-val">Some</span>(upcoming_with_trie_value);
                         decomposition.gather_and_sort_combining(<span class="number">0</span>);
-                        <span class="kw">continue </span><span class="lifetime">&#39;outer</span>;
+                        <span class="kw">continue </span><span class="lifetime">'outer</span>;
                     }
                     undecomposed_starter = upcoming_with_trie_value;
                     <span class="macro">debug_assert!</span>(decomposition.pending.is_none());
-                    <span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                    <span class="kw">break </span><span class="lifetime">'fast</span>;
                 }
                 <span class="comment">// End of stream
                 </span>sink.write_slice(pending_slice)<span class="question-mark">?</span>;
@@ -4876,7 +4877,7 @@
         decomposition_passthrough_bound,
         undecomposed_starter,
         pending_slice,
-        <span class="lifetime">&#39;outer</span>,
+        <span class="lifetime">'outer</span>,
     );
 }
 
@@ -4893,7 +4894,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new_nfc() -&gt; <span class="self">Self </span>{
         ComposingNormalizer {
             decomposing_normalizer: DecomposingNormalizer::new_nfd(),
@@ -4941,7 +4942,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new_nfkc() -&gt; <span class="self">Self </span>{
         ComposingNormalizer {
             decomposing_normalizer: DecomposingNormalizer::new_nfkd(),
@@ -4987,7 +4988,7 @@
     }
 
     <span class="doccomment">/// See [`Self::try_new_uts46_without_ignored_and_disallowed_unstable`].
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;experimental&quot;</span>, feature = <span class="string">&quot;compiled_data&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"compiled_data"</span>))]
     </span><span class="kw">pub const fn </span>new_uts46_without_ignored_and_disallowed() -&gt; <span class="self">Self </span>{
         ComposingNormalizer {
             decomposing_normalizer:
@@ -5002,15 +5003,15 @@
     ///
     /// This is a special building block normalization for IDNA that implements parts of the Map
     /// step and the following Normalize step. The caller is responsible for performing the
-    /// &quot;disallowed&quot;, &quot;ignored&quot;, and &quot;deviation&quot; parts of the Map step before passing data to
-    /// this normalizer such that disallowed and ignored characters aren&#39;t passed to this
+    /// "disallowed", "ignored", and "deviation" parts of the Map step before passing data to
+    /// this normalizer such that disallowed and ignored characters aren't passed to this
     /// normalizer.
     ///
-    /// This is ICU4C&#39;s UTS 46 normalization with two exceptions: characters that UTS 46 disallows
+    /// This is ICU4C's UTS 46 normalization with two exceptions: characters that UTS 46 disallows
     /// and ICU4C maps to U+FFFD and characters that UTS 46 maps to the empty string normalize as
     /// in NFC in this normalization. Making the disallowed characters behave like this is beneficial
     /// to data size, and this normalizer implementation cannot deal with a character normalizing
-    /// to the empty string, which doesn&#39;t happen in NFC or NFKC as of Unicode 14.
+    /// to the empty string, which doesn't happen in NFC or NFKC as of Unicode 14.
     ///
     /// Warning: In this normalization, U+0345 COMBINING GREEK YPOGEGRAMMENI exhibits a behavior
     /// that no character in Unicode exhibits in NFD, NFKD, NFC, or NFKC: Case folding turns
@@ -5022,13 +5023,13 @@
     /// NOTE: This method remains experimental until suitability of this feature as part of
     /// IDNA processing has been demonstrated.
     ///
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
+    /// &lt;div class="stab unstable"&gt;
     /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. It can be enabled with the &quot;experimental&quot; Cargo feature
+    /// including in SemVer minor releases. It can be enabled with the "experimental" Cargo feature
     /// of the icu meta-crate. Use with caution.
-    /// &lt;a href=&quot;https://github.com/unicode-org/icu4x/issues/2614&quot;&gt;#2614&lt;/a&gt;
+    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/2614"&gt;#2614&lt;/a&gt;
     /// &lt;/div&gt;
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>try_new_uts46_without_ignored_and_disallowed_unstable&lt;D&gt;(
         provider: <span class="kw-2">&amp;</span>D,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
@@ -5090,7 +5091,7 @@
         <span class="bool-val">true</span>,
         as_str,
         {
-            <span class="comment">// Let&#39;s hope LICM hoists this outside `&#39;outer`.
+            <span class="comment">// Let's hope LICM hoists this outside `'outer`.
             </span><span class="kw">let </span>composition_passthrough_byte_bound = <span class="kw">if </span>composition_passthrough_bound == <span class="number">0x300 </span>{
                 <span class="number">0xCCu8
             </span>} <span class="kw">else </span>{
@@ -5103,20 +5104,20 @@
             // simple as possible (and potentially as peel-hoistable as possible).
             // Furthermore, this reduces `unwrap()` later.
             </span><span class="kw">let </span><span class="kw-2">mut </span>undecomposed_starter_valid = <span class="bool-val">true</span>;
-            <span class="comment">// Annotation belongs really on inner statements, but Rust doesn&#39;t
+            <span class="comment">// Annotation belongs really on inner statements, but Rust doesn't
             // allow it there.
             </span><span class="attr">#[allow(clippy::unwrap_used)]
-            </span><span class="lifetime">&#39;fast</span>: <span class="kw">loop </span>{
+            </span><span class="lifetime">'fast</span>: <span class="kw">loop </span>{
                 <span class="kw">let </span><span class="kw-2">mut </span>code_unit_iter = composition.decomposition.delegate.as_str().as_bytes().iter();
-                <span class="lifetime">&#39;fastest</span>: <span class="kw">loop </span>{
+                <span class="lifetime">'fastest</span>: <span class="kw">loop </span>{
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>upcoming_byte) = code_unit_iter.next() {
                         <span class="kw">if </span>upcoming_byte &lt; composition_passthrough_byte_bound {
                             <span class="comment">// Fast-track succeeded!
                             </span>undecomposed_starter_valid = <span class="bool-val">false</span>;
-                            <span class="kw">continue </span><span class="lifetime">&#39;fastest</span>;
+                            <span class="kw">continue </span><span class="lifetime">'fastest</span>;
                         }
                         composition.decomposition.delegate = pending_slice[pending_slice.len() - code_unit_iter.as_slice().len() - <span class="number">1</span>..].chars();
-                        <span class="kw">break </span><span class="lifetime">&#39;fastest</span>;
+                        <span class="kw">break </span><span class="lifetime">'fastest</span>;
                     }
                     <span class="comment">// End of stream
                     </span>sink.write_str(pending_slice)<span class="question-mark">?</span>;
@@ -5127,28 +5128,28 @@
                 </span><span class="kw">let </span>upcoming = composition.decomposition.delegate.next().unwrap();
                 <span class="kw">let </span>upcoming_with_trie_value = composition.decomposition.attach_trie_value(upcoming);
                 <span class="kw">if </span>upcoming_with_trie_value.potential_passthrough_and_cannot_combine_backwards() {
-                    <span class="comment">// Can&#39;t combine backwards, hence a plain (non-backwards-combining)
+                    <span class="comment">// Can't combine backwards, hence a plain (non-backwards-combining)
                     // starter albeit past `composition_passthrough_bound`
 
                     // Fast-track succeeded!
                     </span>undecomposed_starter = upcoming_with_trie_value;
                     undecomposed_starter_valid = <span class="bool-val">true</span>;
-                    <span class="kw">continue </span><span class="lifetime">&#39;fast</span>;
+                    <span class="kw">continue </span><span class="lifetime">'fast</span>;
                 }
                 <span class="comment">// We need to fall off the fast path.
                 </span>composition.decomposition.pending = <span class="prelude-val">Some</span>(upcoming_with_trie_value);
                 <span class="kw">let </span>consumed_so_far_slice = <span class="kw">if </span>undecomposed_starter_valid {
                     <span class="kw-2">&amp;</span>pending_slice[..pending_slice.len() - composition.decomposition.delegate.as_str().len() - upcoming.len_utf8() - undecomposed_starter.character.len_utf8()]
                 } <span class="kw">else </span>{
-                    <span class="comment">// slicing and unwrap OK, because we&#39;ve just evidently read enough previously.
+                    <span class="comment">// slicing and unwrap OK, because we've just evidently read enough previously.
                     </span><span class="kw">let </span><span class="kw-2">mut </span>consumed_so_far = pending_slice[..pending_slice.len() - composition.decomposition.delegate.as_str().len() - upcoming.len_utf8()].chars();
-                    <span class="comment">// `unwrap` OK, because we&#39;ve previously manage to read the previous character
+                    <span class="comment">// `unwrap` OK, because we've previously manage to read the previous character
                     </span>undecomposed_starter = composition.decomposition.attach_trie_value(consumed_so_far.next_back().unwrap());
                     undecomposed_starter_valid = <span class="bool-val">true</span>;
                     consumed_so_far.as_str()
                 };
                 sink.write_str(consumed_so_far_slice)<span class="question-mark">?</span>;
-                <span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                <span class="kw">break </span><span class="lifetime">'fast</span>;
             }
             <span class="macro">debug_assert!</span>(undecomposed_starter_valid);
         },
@@ -5179,19 +5180,19 @@
             // simple as possible (and potentially as peel-hoistable as possible).
             // Furthermore, this reduces `unwrap()` later.
             </span><span class="kw">let </span><span class="kw-2">mut </span>undecomposed_starter_valid = <span class="bool-val">true</span>;
-            <span class="lifetime">&#39;fast</span>: <span class="kw">loop </span>{
+            <span class="lifetime">'fast</span>: <span class="kw">loop </span>{
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(upcoming) = composition.decomposition.delegate.next() {
                     <span class="kw">if </span>u32::from(upcoming) &lt; composition_passthrough_bound {
                         <span class="comment">// Fast-track succeeded!
                         </span>undecomposed_starter_valid = <span class="bool-val">false</span>;
-                        <span class="kw">continue </span><span class="lifetime">&#39;fast</span>;
+                        <span class="kw">continue </span><span class="lifetime">'fast</span>;
                     }
                     <span class="comment">// TODO(#2006): Annotate as unlikely
                     </span><span class="kw">if </span>upcoming == REPLACEMENT_CHARACTER {
-                        <span class="comment">// Can&#39;t tell if this is an error or a literal U+FFFD in
+                        <span class="comment">// Can't tell if this is an error or a literal U+FFFD in
                         // the input. Assuming the former to be sure.
 
-                        // Since the U+FFFD might signify an error, we can&#39;t
+                        // Since the U+FFFD might signify an error, we can't
                         // assume `upcoming.len_utf8()` for the backoff length.
                         </span><span class="kw">let </span><span class="kw-2">mut </span>consumed_so_far = pending_slice[..pending_slice.len() - composition.decomposition.delegate.as_slice().len()].chars();
                         <span class="kw">let </span>back = consumed_so_far.next_back();
@@ -5201,35 +5202,35 @@
                         undecomposed_starter = CharacterAndTrieValue::new(REPLACEMENT_CHARACTER, <span class="number">0</span>);
                         undecomposed_starter_valid = <span class="bool-val">true</span>;
                         composition.decomposition.pending = <span class="prelude-val">None</span>;
-                        <span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                        <span class="kw">break </span><span class="lifetime">'fast</span>;
                     }
                     <span class="kw">let </span>upcoming_with_trie_value = composition.decomposition.attach_trie_value(upcoming);
                     <span class="kw">if </span>upcoming_with_trie_value.potential_passthrough_and_cannot_combine_backwards() {
-                        <span class="comment">// Can&#39;t combine backwards, hence a plain (non-backwards-combining)
+                        <span class="comment">// Can't combine backwards, hence a plain (non-backwards-combining)
                         // starter albeit past `composition_passthrough_bound`
 
                         // Fast-track succeeded!
                         </span>undecomposed_starter = upcoming_with_trie_value;
                         undecomposed_starter_valid = <span class="bool-val">true</span>;
-                        <span class="kw">continue </span><span class="lifetime">&#39;fast</span>;
+                        <span class="kw">continue </span><span class="lifetime">'fast</span>;
                     }
                     <span class="comment">// We need to fall off the fast path.
                     </span>composition.decomposition.pending = <span class="prelude-val">Some</span>(upcoming_with_trie_value);
-                    <span class="comment">// Annotation belongs really on inner statement, but Rust doesn&#39;t
+                    <span class="comment">// Annotation belongs really on inner statement, but Rust doesn't
                     // allow it there.
                     </span><span class="attr">#[allow(clippy::unwrap_used)]
                     </span><span class="kw">let </span>consumed_so_far_slice = <span class="kw">if </span>undecomposed_starter_valid {
                         <span class="kw-2">&amp;</span>pending_slice[..pending_slice.len() - composition.decomposition.delegate.as_slice().len() - upcoming.len_utf8() - undecomposed_starter.character.len_utf8()]
                     } <span class="kw">else </span>{
-                        <span class="comment">// slicing and unwrap OK, because we&#39;ve just evidently read enough previously.
+                        <span class="comment">// slicing and unwrap OK, because we've just evidently read enough previously.
                         </span><span class="kw">let </span><span class="kw-2">mut </span>consumed_so_far = pending_slice[..pending_slice.len() - composition.decomposition.delegate.as_slice().len() - upcoming.len_utf8()].chars();
-                        <span class="comment">// `unwrap` OK, because we&#39;ve previously manage to read the previous character
+                        <span class="comment">// `unwrap` OK, because we've previously manage to read the previous character
                         </span>undecomposed_starter = composition.decomposition.attach_trie_value(consumed_so_far.next_back().unwrap());
                         undecomposed_starter_valid = <span class="bool-val">true</span>;
                         consumed_so_far.as_slice()
                     };
                     sink.write_str(<span class="kw">unsafe </span>{ from_utf8_unchecked(consumed_so_far_slice)})<span class="question-mark">?</span>;
-                    <span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                    <span class="kw">break </span><span class="lifetime">'fast</span>;
                 }
                 <span class="comment">// End of stream
                 </span>sink.write_str(<span class="kw">unsafe </span>{from_utf8_unchecked(pending_slice) })<span class="question-mark">?</span>;
@@ -5277,7 +5278,7 @@
             // `undecomposed_starter_valid` from the tightest loop. Writing to it
             // from there destroys performance.
             </span><span class="kw">let </span><span class="kw-2">mut </span>counter_reference = counter - <span class="number">1</span>;
-            <span class="lifetime">&#39;fast</span>: <span class="kw">loop </span>{
+            <span class="lifetime">'fast</span>: <span class="kw">loop </span>{
                 counter -= <span class="number">1</span>;
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>upcoming_code_unit) = code_unit_iter.next() {
                     upcoming32 = u32::from(upcoming_code_unit); <span class="comment">// may be surrogate
@@ -5286,19 +5287,19 @@
                         // `composition_passthrough_bound` cannot be higher than
                         // U+0300.
                         // Fast-track succeeded!
-                        </span><span class="kw">continue </span><span class="lifetime">&#39;fast</span>;
+                        </span><span class="kw">continue </span><span class="lifetime">'fast</span>;
                     }
-                    <span class="comment">// if `counter` equals `counter_reference`, the `continue &#39;fast`
+                    <span class="comment">// if `counter` equals `counter_reference`, the `continue 'fast`
                     // line above has not executed and `undecomposed_starter` is still
                     // valid.
                     </span>undecomposed_starter_valid = counter == counter_reference;
                     <span class="comment">// The loop is only broken out of as goto forward
                     </span><span class="attr">#[allow(clippy::never_loop)]
-                    </span><span class="lifetime">&#39;surrogateloop</span>: <span class="kw">loop </span>{
+                    </span><span class="lifetime">'surrogateloop</span>: <span class="kw">loop </span>{
                         <span class="kw">let </span>surrogate_base = upcoming32.wrapping_sub(<span class="number">0xD800</span>);
                         <span class="kw">if </span>surrogate_base &gt; (<span class="number">0xDFFF </span>- <span class="number">0xD800</span>) {
                             <span class="comment">// Not surrogate
-                            </span><span class="kw">break </span><span class="lifetime">&#39;surrogateloop</span>;
+                            </span><span class="kw">break </span><span class="lifetime">'surrogateloop</span>;
                         }
                         <span class="kw">if </span>surrogate_base &lt;= (<span class="number">0xDBFF </span>- <span class="number">0xD800</span>) {
                             <span class="kw">let </span>iter_backup = code_unit_iter.clone();
@@ -5306,7 +5307,7 @@
                                 <span class="kw">if </span>in_inclusive_range16(low, <span class="number">0xDC00</span>, <span class="number">0xDFFF</span>) {
                                     upcoming32 = (upcoming32 &lt;&lt; <span class="number">10</span>) + u32::from(low)
                                         - (((<span class="number">0xD800u32 </span>&lt;&lt; <span class="number">10</span>) - <span class="number">0x10000u32</span>) + <span class="number">0xDC00u32</span>);
-                                    <span class="kw">break </span><span class="lifetime">&#39;surrogateloop</span>;
+                                    <span class="kw">break </span><span class="lifetime">'surrogateloop</span>;
                                 } <span class="kw">else </span>{
                                     code_unit_iter = iter_backup;
                                 }
@@ -5318,13 +5319,13 @@
                         undecomposed_starter = CharacterAndTrieValue::new(REPLACEMENT_CHARACTER, <span class="number">0</span>);
                         undecomposed_starter_valid = <span class="bool-val">true</span>;
                         composition.decomposition.pending = <span class="prelude-val">None</span>;
-                        <span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                        <span class="kw">break </span><span class="lifetime">'fast</span>;
                     }
                     <span class="comment">// Not unpaired surrogate
                     </span><span class="kw">let </span>upcoming = <span class="kw">unsafe </span>{ char::from_u32_unchecked(upcoming32) };
                     <span class="kw">let </span>upcoming_with_trie_value = composition.decomposition.attach_trie_value(upcoming);
                     <span class="kw">if </span>upcoming_with_trie_value.potential_passthrough_and_cannot_combine_backwards() &amp;&amp; counter != <span class="number">0 </span>{
-                        <span class="comment">// Can&#39;t combine backwards, hence a plain (non-backwards-combining)
+                        <span class="comment">// Can't combine backwards, hence a plain (non-backwards-combining)
                         // starter albeit past `composition_passthrough_bound`
 
                         // Fast-track succeeded!
@@ -5334,25 +5335,25 @@
                         // compared to commenting out this assignment to
                         // `counter_reference`.
                         </span>counter_reference = counter - <span class="number">1</span>;
-                        <span class="kw">continue </span><span class="lifetime">&#39;fast</span>;
+                        <span class="kw">continue </span><span class="lifetime">'fast</span>;
                     }
                     <span class="comment">// We need to fall off the fast path.
                     </span>composition.decomposition.pending = <span class="prelude-val">Some</span>(upcoming_with_trie_value);
-                    <span class="comment">// Annotation belongs really on inner statement, but Rust doesn&#39;t
+                    <span class="comment">// Annotation belongs really on inner statement, but Rust doesn't
                     // allow it there.
                     </span><span class="attr">#[allow(clippy::unwrap_used)]
                     </span><span class="kw">let </span>consumed_so_far_slice = <span class="kw">if </span>undecomposed_starter_valid {
                         <span class="kw-2">&amp;</span>pending_slice[..pending_slice.len() - code_unit_iter.as_slice().len() - upcoming.len_utf16() - undecomposed_starter.character.len_utf16()]
                     } <span class="kw">else </span>{
-                        <span class="comment">// slicing and unwrap OK, because we&#39;ve just evidently read enough previously.
+                        <span class="comment">// slicing and unwrap OK, because we've just evidently read enough previously.
                         </span><span class="kw">let </span><span class="kw-2">mut </span>consumed_so_far = pending_slice[..pending_slice.len() - code_unit_iter.as_slice().len() - upcoming.len_utf16()].chars();
-                        <span class="comment">// `unwrap` OK, because we&#39;ve previously manage to read the previous character
+                        <span class="comment">// `unwrap` OK, because we've previously manage to read the previous character
                         </span>undecomposed_starter = composition.decomposition.attach_trie_value(consumed_so_far.next_back().unwrap());
                         undecomposed_starter_valid = <span class="bool-val">true</span>;
                         consumed_so_far.as_slice()
                     };
                     sink.write_slice(consumed_so_far_slice)<span class="question-mark">?</span>;
-                    <span class="kw">break </span><span class="lifetime">&#39;fast</span>;
+                    <span class="kw">break </span><span class="lifetime">'fast</span>;
                 }
                 <span class="comment">// End of stream
                 </span>sink.write_slice(pending_slice)<span class="question-mark">?</span>;
@@ -5372,12 +5373,12 @@
     );
 }
 
-<span class="kw">struct </span>IsNormalizedSinkUtf16&lt;<span class="lifetime">&#39;a</span>&gt; {
-    expect: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u16],
+<span class="kw">struct </span>IsNormalizedSinkUtf16&lt;<span class="lifetime">'a</span>&gt; {
+    expect: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u16],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IsNormalizedSinkUtf16&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u16]) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; IsNormalizedSinkUtf16&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u16]) -&gt; <span class="self">Self </span>{
         IsNormalizedSinkUtf16 { expect: slice }
     }
     <span class="kw">pub fn </span>finished(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -5385,9 +5386,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Write16 <span class="kw">for </span>IsNormalizedSinkUtf16&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Write16 <span class="kw">for </span>IsNormalizedSinkUtf16&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>write_slice(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>[u16]) -&gt; core::fmt::Result {
-        <span class="comment">// We know that if we get a slice, it&#39;s a pass-through,
+        <span class="comment">// We know that if we get a slice, it's a pass-through,
         // so we can compare addresses. Indexing is OK, because
         // an indexing failure would be a code bug rather than
         // an input or data issue.
@@ -5411,12 +5412,12 @@
     }
 }
 
-<span class="kw">struct </span>IsNormalizedSinkUtf8&lt;<span class="lifetime">&#39;a</span>&gt; {
-    expect: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+<span class="kw">struct </span>IsNormalizedSinkUtf8&lt;<span class="lifetime">'a</span>&gt; {
+    expect: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IsNormalizedSinkUtf8&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; IsNormalizedSinkUtf8&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         IsNormalizedSinkUtf8 { expect: slice }
     }
     <span class="kw">pub fn </span>finished(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -5424,9 +5425,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; core::fmt::Write <span class="kw">for </span>IsNormalizedSinkUtf8&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; core::fmt::Write <span class="kw">for </span>IsNormalizedSinkUtf8&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; core::fmt::Result {
-        <span class="comment">// We know that if we get a slice, it&#39;s a pass-through,
+        <span class="comment">// We know that if we get a slice, it's a pass-through,
         // so we can compare addresses. Indexing is OK, because
         // an indexing failure would be a code bug rather than
         // an input or data issue.
@@ -5450,12 +5451,12 @@
     }
 }
 
-<span class="kw">struct </span>IsNormalizedSinkStr&lt;<span class="lifetime">&#39;a</span>&gt; {
-    expect: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+<span class="kw">struct </span>IsNormalizedSinkStr&lt;<span class="lifetime">'a</span>&gt; {
+    expect: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IsNormalizedSinkStr&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; IsNormalizedSinkStr&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         IsNormalizedSinkStr { expect: slice }
     }
     <span class="kw">pub fn </span>finished(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -5463,9 +5464,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; core::fmt::Write <span class="kw">for </span>IsNormalizedSinkStr&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; core::fmt::Write <span class="kw">for </span>IsNormalizedSinkStr&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; core::fmt::Result {
-        <span class="comment">// We know that if we get a slice, it&#39;s a pass-through,
+        <span class="comment">// We know that if we get a slice, it's a pass-through,
         // so we can compare addresses. Indexing is OK, because
         // an indexing failure would be a code bug rather than
         // an input or data issue.

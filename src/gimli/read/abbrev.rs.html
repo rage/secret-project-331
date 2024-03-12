@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/abbrev.rs`."><title>abbrev.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/abbrev.rs`."><title>abbrev.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1118,21 +1119,21 @@
 };
 
 <span class="doccomment">/// The `DebugAbbrev` struct represents the abbreviations describing
-/// `DebuggingInformationEntry`s&#39; attribute names and forms found in the
+/// `DebuggingInformationEntry`s' attribute names and forms found in the
 /// `.debug_abbrev` section.
 </span><span class="attr">#[derive(Debug, Default, Clone, Copy)]
 </span><span class="kw">pub struct </span>DebugAbbrev&lt;R&gt; {
     debug_abbrev_section: R,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, Endian&gt; DebugAbbrev&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>, Endian&gt; DebugAbbrev&lt;EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;
 <span class="kw">where
     </span>Endian: Endianity,
 {
     <span class="doccomment">/// Construct a new `DebugAbbrev` instance from the data in the `.debug_abbrev`
     /// section.
     ///
-    /// It is the caller&#39;s responsibility to read the `.debug_abbrev` section and
+    /// It is the caller's responsibility to read the `.debug_abbrev` section and
     /// present it as a `&amp;[u8]` slice. That means using some ELF loader on
     /// Linux, a Mach-O loader on macOS, etc.
     ///
@@ -1143,7 +1144,7 @@
     /// # let read_debug_abbrev_section_somehow = || &amp;buf;
     /// let debug_abbrev = DebugAbbrev::new(read_debug_abbrev_section_somehow(), LittleEndian);
     /// ```
-    </span><span class="kw">pub fn </span>new(debug_abbrev_section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8], endian: Endian) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(debug_abbrev_section: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8], endian: Endian) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::from(EndianSlice::new(debug_abbrev_section, endian))
     }
 }
@@ -1172,16 +1173,16 @@
     ///
     /// ```rust,no_run
     /// # let load_section = || unimplemented!();
-    /// // Read the DWARF section into a `Vec` with whatever object loader you&#39;re using.
+    /// // Read the DWARF section into a `Vec` with whatever object loader you're using.
     /// let owned_section: gimli::DebugAbbrev&lt;Vec&lt;u8&gt;&gt; = load_section();
     /// // Create a reference to the DWARF section.
     /// let section = owned_section.borrow(|section| {
     ///     gimli::EndianSlice::new(&amp;section, gimli::LittleEndian)
     /// });
     /// ```
-    </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">&#39;a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugAbbrev&lt;R&gt;
+    </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">'a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugAbbrev&lt;R&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T) -&gt; R,
+        </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; R,
     {
         borrow(<span class="kw-2">&amp;</span><span class="self">self</span>.debug_abbrev_section).into()
     }
@@ -1333,14 +1334,14 @@
     ///
     /// Returns `Ok` if it is the first abbreviation in the set with its code,
     /// `Err` if the code is a duplicate and there already exists an
-    /// abbreviation in the set with the given abbreviation&#39;s code.
+    /// abbreviation in the set with the given abbreviation's code.
     </span><span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, abbrev: Abbreviation) -&gt; ::core::result::Result&lt;(), ()&gt; {
         <span class="kw">let </span>code_usize = abbrev.code <span class="kw">as </span>usize;
         <span class="kw">if </span>code_usize <span class="kw">as </span>u64 == abbrev.code {
             <span class="comment">// Optimize for sequential abbreviation codes by storing them
-            // in a Vec, as long as the map doesn&#39;t already contain them.
+            // in a Vec, as long as the map doesn't already contain them.
             // A potential further optimization would be to allow some
-            // holes in the Vec, but there&#39;s no need for that yet.
+            // holes in the Vec, but there's no need for that yet.
             </span><span class="kw">if </span>code_usize - <span class="number">1 </span>&lt; <span class="self">self</span>.vec.len() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(());
             } <span class="kw">else if </span>code_usize - <span class="number">1 </span>== <span class="self">self</span>.vec.len() {
@@ -1388,7 +1389,7 @@
     }
 }
 
-<span class="doccomment">/// An abbreviation describes the shape of a `DebuggingInformationEntry`&#39;s type:
+<span class="doccomment">/// An abbreviation describes the shape of a `DebuggingInformationEntry`'s type:
 /// its code, tag type, whether it has children, and its set of attributes.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>Abbreviation {
@@ -1419,31 +1420,31 @@
         }
     }
 
-    <span class="doccomment">/// Get this abbreviation&#39;s code.
+    <span class="doccomment">/// Get this abbreviation's code.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.code
     }
 
-    <span class="doccomment">/// Get this abbreviation&#39;s tag.
+    <span class="doccomment">/// Get this abbreviation's tag.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>tag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; constants::DwTag {
         <span class="self">self</span>.tag
     }
 
-    <span class="doccomment">/// Return true if this abbreviation&#39;s type has children, false otherwise.
+    <span class="doccomment">/// Return true if this abbreviation's type has children, false otherwise.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>has_children(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.has_children == constants::DW_CHILDREN_yes
     }
 
-    <span class="doccomment">/// Get this abbreviation&#39;s attributes.
+    <span class="doccomment">/// Get this abbreviation's attributes.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>attributes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[AttributeSpecification] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.attributes[..]
     }
 
-    <span class="doccomment">/// Parse an abbreviation&#39;s tag.
+    <span class="doccomment">/// Parse an abbreviation's tag.
     </span><span class="kw">fn </span>parse_tag&lt;R: Reader&gt;(input: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Result</span>&lt;constants::DwTag&gt; {
         <span class="kw">let </span>val = input.read_uleb128_u16()<span class="question-mark">?</span>;
         <span class="kw">if </span>val == <span class="number">0 </span>{
@@ -1453,7 +1454,7 @@
         }
     }
 
-    <span class="doccomment">/// Parse an abbreviation&#39;s &quot;does the type have children?&quot; byte.
+    <span class="doccomment">/// Parse an abbreviation's "does the type have children?" byte.
     </span><span class="kw">fn </span>parse_has_children&lt;R: Reader&gt;(input: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Result</span>&lt;constants::DwChildren&gt; {
         <span class="kw">let </span>val = input.read_u8()<span class="question-mark">?</span>;
         <span class="kw">let </span>val = constants::DwChildren(val);
@@ -1537,7 +1538,7 @@
 }
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>Attributes {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         (<span class="kw-2">**</span><span class="self">self</span>).fmt(f)
     }
 }
@@ -1608,19 +1609,19 @@
         }
     }
 
-    <span class="doccomment">/// Get the attribute&#39;s name.
+    <span class="doccomment">/// Get the attribute's name.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; constants::DwAt {
         <span class="self">self</span>.name
     }
 
-    <span class="doccomment">/// Get the attribute&#39;s form.
+    <span class="doccomment">/// Get the attribute's form.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>form(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; constants::DwForm {
         <span class="self">self</span>.form
     }
 
-    <span class="doccomment">/// Get the attribute&#39;s implicit const value.
+    <span class="doccomment">/// Get the attribute's implicit const value.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>implicit_const_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
         <span class="kw">if </span><span class="self">self</span>.form == constants::DW_FORM_implicit_const {
@@ -1638,7 +1639,7 @@
         get_attribute_size(<span class="self">self</span>.form, header.encoding()).map(usize::from)
     }
 
-    <span class="doccomment">/// Parse an attribute&#39;s form.
+    <span class="doccomment">/// Parse an attribute's form.
     </span><span class="kw">fn </span>parse_form&lt;R: Reader&gt;(input: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Result</span>&lt;constants::DwForm&gt; {
         <span class="kw">let </span>val = input.read_uleb128_u16()<span class="question-mark">?</span>;
         <span class="kw">if </span>val == <span class="number">0 </span>{
@@ -1737,7 +1738,7 @@
         | constants::DW_FORM_udata
         | constants::DW_FORM_indirect =&gt; <span class="prelude-val">None</span>,
 
-        <span class="comment">// We don&#39;t know the size of unknown forms.
+        <span class="comment">// We don't know the size of unknown forms.
         </span><span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
 }
@@ -1749,7 +1750,7 @@
     <span class="kw">use </span><span class="kw">crate</span>::endianity::LittleEndian;
     <span class="kw">use </span><span class="kw">crate</span>::read::{EndianSlice, Error};
     <span class="kw">use </span><span class="kw">crate</span>::test_util::GimliSectionMethods;
-    <span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
+    <span class="attr">#[cfg(target_pointer_width = <span class="string">"32"</span>)]
     </span><span class="kw">use </span>core::u32;
     <span class="kw">use </span>test_assembler::Section;
 
@@ -1839,7 +1840,7 @@
         <span class="kw">let </span>debug_abbrev_offset = DebugAbbrevOffset(extra_start.len());
         <span class="kw">let </span>abbrevs = debug_abbrev
             .abbreviations(debug_abbrev_offset)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
         <span class="macro">assert_eq!</span>(abbrevs.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>abbrev1));
         <span class="macro">assert_eq!</span>(abbrevs.get(<span class="number">2</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>abbrev2));
     }
@@ -1911,7 +1912,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"32"</span>)]
     </span><span class="kw">fn </span>test_abbreviations_insert_32() {
         <span class="kw">fn </span>abbrev(code: u64) -&gt; Abbreviation {
             Abbreviation::new(
@@ -1988,7 +1989,7 @@
             .into(),
         );
 
-        <span class="kw">let </span>abbrevs = Abbreviations::parse(rest).expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+        <span class="kw">let </span>abbrevs = Abbreviations::parse(rest).expect(<span class="string">"Should parse abbreviations"</span>);
         <span class="macro">assert_eq!</span>(abbrevs.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>abbrev1));
         <span class="macro">assert_eq!</span>(abbrevs.get(<span class="number">2</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>abbrev2));
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
@@ -2014,7 +2015,7 @@
 
         <span class="kw">match </span>Abbreviations::parse(buf) {
             <span class="prelude-val">Err</span>(Error::DuplicateAbbreviationCode) =&gt; {}
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -2022,7 +2023,7 @@
     </span><span class="kw">fn </span>test_parse_abbreviation_tag_ok() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>];
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
-        <span class="kw">let </span>tag = Abbreviation::parse_tag(rest).expect(<span class="string">&quot;Should parse tag&quot;</span>);
+        <span class="kw">let </span>tag = Abbreviation::parse_tag(rest).expect(<span class="string">"Should parse tag"</span>);
         <span class="macro">assert_eq!</span>(tag, constants::DW_TAG_array_type);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>buf[<span class="number">1</span>..], LittleEndian));
     }
@@ -2033,7 +2034,7 @@
         <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
         <span class="kw">match </span>Abbreviation::parse_tag(buf) {
             <span class="prelude-val">Err</span>(Error::AbbreviationTagZero) =&gt; {}
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -2041,13 +2042,13 @@
     </span><span class="kw">fn </span>test_parse_abbreviation_has_children() {
         <span class="kw">let </span>buf = [<span class="number">0x00</span>, <span class="number">0x01</span>, <span class="number">0x02</span>];
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
-        <span class="kw">let </span>val = Abbreviation::parse_has_children(rest).expect(<span class="string">&quot;Should parse children&quot;</span>);
+        <span class="kw">let </span>val = Abbreviation::parse_has_children(rest).expect(<span class="string">"Should parse children"</span>);
         <span class="macro">assert_eq!</span>(val, constants::DW_CHILDREN_no);
-        <span class="kw">let </span>val = Abbreviation::parse_has_children(rest).expect(<span class="string">&quot;Should parse children&quot;</span>);
+        <span class="kw">let </span>val = Abbreviation::parse_has_children(rest).expect(<span class="string">"Should parse children"</span>);
         <span class="macro">assert_eq!</span>(val, constants::DW_CHILDREN_yes);
         <span class="kw">match </span>Abbreviation::parse_has_children(rest) {
             <span class="prelude-val">Err</span>(Error::BadHasChildren) =&gt; {}
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -2075,7 +2076,7 @@
             .into(),
         ));
 
-        <span class="kw">let </span>abbrev = Abbreviation::parse(rest).expect(<span class="string">&quot;Should parse abbreviation&quot;</span>);
+        <span class="kw">let </span>abbrev = Abbreviation::parse(rest).expect(<span class="string">"Should parse abbreviation"</span>);
         <span class="macro">assert_eq!</span>(abbrev, expect);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
     }
@@ -2104,7 +2105,7 @@
             .into(),
         ));
 
-        <span class="kw">let </span>abbrev = Abbreviation::parse(rest).expect(<span class="string">&quot;Should parse abbreviation&quot;</span>);
+        <span class="kw">let </span>abbrev = Abbreviation::parse(rest).expect(<span class="string">"Should parse abbreviation"</span>);
         <span class="macro">assert_eq!</span>(abbrev, expect);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
     }
@@ -2120,7 +2121,7 @@
 
         <span class="kw">match </span>Abbreviation::parse(buf) {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; {}
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         }
     }
 
@@ -2134,7 +2135,7 @@
             .unwrap();
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;*</span>buf, LittleEndian);
 
-        <span class="kw">let </span>abbrev = Abbreviation::parse(rest).expect(<span class="string">&quot;Should parse null abbreviation&quot;</span>);
+        <span class="kw">let </span>abbrev = Abbreviation::parse(rest).expect(<span class="string">"Should parse null abbreviation"</span>);
         <span class="macro">assert!</span>(abbrev.is_none());
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
     }
@@ -2143,7 +2144,7 @@
     </span><span class="kw">fn </span>test_parse_attribute_form_ok() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>];
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
-        <span class="kw">let </span>tag = AttributeSpecification::parse_form(rest).expect(<span class="string">&quot;Should parse form&quot;</span>);
+        <span class="kw">let </span>tag = AttributeSpecification::parse_form(rest).expect(<span class="string">"Should parse form"</span>);
         <span class="macro">assert_eq!</span>(tag, constants::DW_FORM_addr);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>buf[<span class="number">1</span>..], LittleEndian));
     }
@@ -2154,7 +2155,7 @@
         <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
         <span class="kw">match </span>AttributeSpecification::parse_form(buf) {
             <span class="prelude-val">Err</span>(Error::AttributeFormZero) =&gt; {}
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -2163,7 +2164,7 @@
         <span class="kw">let </span>buf = [<span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x01</span>];
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
         <span class="kw">let </span>attr =
-            AttributeSpecification::parse(rest).expect(<span class="string">&quot;Should parse null attribute specification&quot;</span>);
+            AttributeSpecification::parse(rest).expect(<span class="string">"Should parse null attribute specification"</span>);
         <span class="macro">assert!</span>(attr.is_none());
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>buf[<span class="number">2</span>..], LittleEndian));
     }
@@ -2174,7 +2175,7 @@
         <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
         <span class="kw">match </span>AttributeSpecification::parse(buf) {
             <span class="prelude-val">Err</span>(Error::ExpectedZero) =&gt; {}
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -2184,7 +2185,7 @@
         <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
         <span class="kw">match </span>AttributeSpecification::parse(buf) {
             <span class="prelude-val">Err</span>(Error::AttributeFormZero) =&gt; {}
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 

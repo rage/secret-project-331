@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/message/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/message/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -806,12 +807,12 @@
 //! # use std::error::Error;
 //! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 //! let m = Message::builder()
-//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
-//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
-//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
-//!     .subject(&quot;Happy new year&quot;)
+//!     .from("NoBody &lt;nobody@domain.tld&gt;".parse()?)
+//!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
+//!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
+//!     .subject("Happy new year")
 //!     .header(ContentType::TEXT_PLAIN)
-//!     .body(String::from(&quot;Be happy!&quot;))?;
+//!     .body(String::from("Be happy!"))?;
 //! # Ok(())
 //! # }
 //! ```
@@ -849,13 +850,13 @@
 //!
 //! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 //! let m = Message::builder()
-//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
-//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
-//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
-//!     .subject(&quot;Happy new year&quot;)
+//!     .from("NoBody &lt;nobody@domain.tld&gt;".parse()?)
+//!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
+//!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
+//!     .subject("Happy new year")
 //!     .multipart(MultiPart::alternative_plain_html(
-//!         String::from(&quot;Hello, world! :)&quot;),
-//!         String::from(&quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=\&quot;cid:123\&quot;&gt;&lt;/p&gt;&quot;),
+//!         String::from("Hello, world! :)"),
+//!         String::from("&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=\"cid:123\"&gt;&lt;/p&gt;"),
 //!     ))?;
 //! # Ok(())
 //! # }
@@ -872,7 +873,7 @@
 //! Subject: Happy new year
 //! MIME-Version: 1.0
 //! Date: Sat, 12 Dec 2020 16:33:19 GMT
-//! Content-Type: multipart/alternative; boundary=&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;
+//! Content-Type: multipart/alternative; boundary="0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1"
 //!
 //! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
 //! Content-Type: text/plain; charset=utf8
@@ -883,7 +884,7 @@
 //! Content-Type: text/html; charset=utf8
 //! Content-Transfer-Encoding: 7bit
 //!
-//! &lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=&quot;cid:123&quot;&gt;&lt;/p&gt;
+//! &lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src="cid:123"&gt;&lt;/p&gt;
 //! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--
 //! ```
 //! &lt;/details&gt;
@@ -900,7 +901,7 @@
 //! use lettre::message::{header, Attachment, Body, Message, MultiPart, SinglePart};
 //!
 //! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-//! let image = fs::read(&quot;docs/lettre.png&quot;)?;
+//! let image = fs::read("docs/lettre.png")?;
 //! // this image_body can be cloned and reused between emails.
 //! // since `Body` holds a pre-encoded body, reusing it means avoiding having
 //! // to re-encode the same body for every email (this clearly only applies
@@ -908,29 +909,29 @@
 //! let image_body = Body::new(image);
 //!
 //! let m = Message::builder()
-//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
-//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
-//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
-//!     .subject(&quot;Happy new year&quot;)
+//!     .from("NoBody &lt;nobody@domain.tld&gt;".parse()?)
+//!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
+//!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
+//!     .subject("Happy new year")
 //!     .multipart(
 //!         MultiPart::mixed()
 //!             .multipart(
 //!                 MultiPart::alternative()
-//!                     .singlepart(SinglePart::plain(String::from(&quot;Hello, world! :)&quot;)))
+//!                     .singlepart(SinglePart::plain(String::from("Hello, world! :)")))
 //!                     .multipart(
 //!                         MultiPart::related()
 //!                             .singlepart(SinglePart::html(String::from(
-//!                                 &quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;&quot;,
+//!                                 "&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;",
 //!                             )))
 //!                             .singlepart(
-//!                                 Attachment::new_inline(String::from(&quot;123&quot;))
-//!                                     .body(image_body, &quot;image/png&quot;.parse().unwrap()),
+//!                                 Attachment::new_inline(String::from("123"))
+//!                                     .body(image_body, "image/png".parse().unwrap()),
 //!                             ),
 //!                     ),
 //!             )
-//!             .singlepart(Attachment::new(String::from(&quot;example.rs&quot;)).body(
-//!                 String::from(&quot;fn main() { println!(\&quot;Hello, World!\&quot;) }&quot;),
-//!                 &quot;text/plain&quot;.parse().unwrap(),
+//!             .singlepart(Attachment::new(String::from("example.rs")).body(
+//!                 String::from("fn main() { println!(\"Hello, World!\") }"),
+//!                 "text/plain".parse().unwrap(),
 //!             )),
 //!     )?;
 //! # Ok(())
@@ -948,10 +949,10 @@
 //! Subject: Happy new year
 //! MIME-Version: 1.0
 //! Date: Sat, 12 Dec 2020 16:30:45 GMT
-//! Content-Type: multipart/mixed; boundary=&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;
+//! Content-Type: multipart/mixed; boundary="0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1"
 //!
 //! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
-//! Content-Type: multipart/alternative; boundary=&quot;EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk&quot;
+//! Content-Type: multipart/alternative; boundary="EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk"
 //!
 //! --EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk
 //! Content-Type: text/plain; charset=utf8
@@ -959,7 +960,7 @@
 //!
 //! Hello, world! :)
 //! --EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk
-//! Content-Type: multipart/related; boundary=&quot;eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr&quot;
+//! Content-Type: multipart/related; boundary="eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr"
 //!
 //! --eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr
 //! Content-Type: text/html; charset=utf8
@@ -977,10 +978,10 @@
 //! --EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk--
 //! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
 //! Content-Type: text/plain; charset=utf8
-//! Content-Disposition: attachment; filename=&quot;example.rs&quot;
+//! Content-Disposition: attachment; filename="example.rs"
 //! Content-Transfer-Encoding: 7bit
 //!
-//! fn main() { println!(&quot;Hello, World!&quot;) }
+//! fn main() { println!("Hello, World!") }
 //! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--
 //! ```
 //! &lt;/details&gt;
@@ -989,14 +990,14 @@
 
 <span class="kw">pub use </span>attachment::Attachment;
 <span class="kw">pub use </span>body::{Body, IntoBody, MaybeString};
-<span class="attr">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"dkim"</span>)]
 </span><span class="kw">pub use </span>dkim::<span class="kw-2">*</span>;
 <span class="kw">pub use </span>mailbox::<span class="kw-2">*</span>;
 <span class="kw">pub use </span>mimebody::<span class="kw-2">*</span>;
 
 <span class="kw">mod </span>attachment;
 <span class="kw">mod </span>body;
-<span class="attr">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"dkim"</span>)]
 </span><span class="kw">pub mod </span>dkim;
 <span class="kw">pub mod </span>header;
 <span class="kw">mod </span>mailbox;
@@ -1008,7 +1009,7 @@
     Error <span class="kw">as </span>EmailError,
 };
 
-<span class="kw">const </span>DEFAULT_MESSAGE_ID_DOMAIN: <span class="kw-2">&amp;</span>str = <span class="string">&quot;localhost&quot;</span>;
+<span class="kw">const </span>DEFAULT_MESSAGE_ID_DOMAIN: <span class="kw-2">&amp;</span>str = <span class="string">"localhost"</span>;
 
 <span class="doccomment">/// Something that can be formatted as an email message
 </span><span class="kw">trait </span>EmailFormat {
@@ -1128,17 +1129,17 @@
         <span class="kw">match </span>id {
             <span class="prelude-val">Some</span>(i) =&gt; <span class="self">self</span>.header(header::MessageId::from(i)),
             <span class="prelude-val">None </span>=&gt; {
-                <span class="attr">#[cfg(feature = <span class="string">&quot;hostname&quot;</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"hostname"</span>)]
                 </span><span class="kw">let </span>hostname = hostname::get()
                     .map_err(|<span class="kw">_</span>| ())
                     .and_then(|s| s.into_string().map_err(|<span class="kw">_</span>| ()))
                     .unwrap_or_else(|<span class="kw">_</span>| DEFAULT_MESSAGE_ID_DOMAIN.to_owned());
-                <span class="attr">#[cfg(not(feature = <span class="string">&quot;hostname&quot;</span>))]
+                <span class="attr">#[cfg(not(feature = <span class="string">"hostname"</span>))]
                 </span><span class="kw">let </span>hostname = DEFAULT_MESSAGE_ID_DOMAIN.to_owned();
 
                 <span class="self">self</span>.header(header::MessageId::from(
                     <span class="comment">// https://tools.ietf.org/html/rfc5322#section-3.6.4
-                    </span><span class="macro">format!</span>(<span class="string">&quot;&lt;{}@{}&gt;&quot;</span>, make_message_id(), hostname),
+                    </span><span class="macro">format!</span>(<span class="string">"&lt;{}@{}&gt;"</span>, make_message_id(), hostname),
                 ))
             }
         }
@@ -1178,7 +1179,7 @@
     /// By default, the `Bcc` header is removed from the email after
     /// using it to generate the message envelope. In some cases though,
     /// like when saving the email as an `.eml`, or sending through
-    /// some transports (like the Gmail API) that don&#39;t take a separate
+    /// some transports (like the Gmail API) that don't take a separate
     /// envelope value, it becomes necessary to keep the `Bcc` header.
     ///
     /// Calling this method overrides the default behavior.
@@ -1265,7 +1266,7 @@
 }
 
 <span class="doccomment">/// Email message which can be formatted
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;builder&quot;</span>)))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"builder"</span>)))]
 #[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>Message {
     headers: Headers,
@@ -1307,7 +1308,7 @@
         out
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"dkim"</span>)]
     </span><span class="doccomment">/// Format body for signing
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>body_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
@@ -1315,7 +1316,7 @@
             MessageBody::Mime(p) =&gt; p.format_body(<span class="kw-2">&amp;mut </span>out),
             MessageBody::Raw(r) =&gt; out.extend_from_slice(r),
         };
-        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+        out.extend_from_slice(<span class="string">b"\r\n"</span>);
         out
     }
 
@@ -1329,13 +1330,13 @@
     /// };
     ///
     /// let mut message = Message::builder()
-    ///     .from(&quot;Alice &lt;alice@example.org&gt;&quot;.parse().unwrap())
-    ///     .reply_to(&quot;Bob &lt;bob@example.org&gt;&quot;.parse().unwrap())
-    ///     .to(&quot;Carla &lt;carla@example.net&gt;&quot;.parse().unwrap())
-    ///     .subject(&quot;Hello&quot;)
-    ///     .body(&quot;Hi there, it&#39;s a test email, with utf-8 chars ë!\n\n\n&quot;.to_owned())
+    ///     .from("Alice &lt;alice@example.org&gt;".parse().unwrap())
+    ///     .reply_to("Bob &lt;bob@example.org&gt;".parse().unwrap())
+    ///     .to("Carla &lt;carla@example.net&gt;".parse().unwrap())
+    ///     .subject("Hello")
+    ///     .body("Hi there, it's a test email, with utf-8 chars ë!\n\n\n".to_owned())
     ///     .unwrap();
-    /// let key = &quot;-----BEGIN RSA PRIVATE KEY-----
+    /// let key = "-----BEGIN RSA PRIVATE KEY-----
     /// MIIEowIBAAKCAQEAt2gawjoybf0mAz0mSX0cq1ah5F9cPazZdCwLnFBhRufxaZB8
     /// NLTdc9xfPIOK8l/xGrN7Nd63J4cTATqZukumczkA46O8YKHwa53pNT6NYwCNtDUL
     /// eBu+7xUW18GmDzkIFkxGO2R5kkTeWPlKvKpEiicIMfl0OmyW/fI3AbtM7e/gmqQ4
@@ -1361,19 +1362,19 @@
     /// fWKRAoGBALFCStBXvdMptjq4APUzAdJ0vytZzXkOZHxgmc+R0fQn22OiW0huW6iX
     /// JcaBbL6ZSBIMA3AdaIjtvNRiomueHqh0GspTgOeCE2585TSFnw6vEOJ8RlR4A0Mw
     /// I45fbR4l+3D/30WMfZlM6bzZbwPXEnr2s1mirmuQpjumY9wLhK25
-    /// -----END RSA PRIVATE KEY-----&quot;;
+    /// -----END RSA PRIVATE KEY-----";
     /// let signing_key = DkimSigningKey::new(key, DkimSigningAlgorithm::Rsa).unwrap();
     /// message.sign(&amp;DkimConfig::default_config(
-    ///     &quot;dkimtest&quot;.to_owned(),
-    ///     &quot;example.org&quot;.to_owned(),
+    ///     "dkimtest".to_owned(),
+    ///     "example.org".to_owned(),
     ///     signing_key,
     /// ));
     /// println!(
-    ///     &quot;message: {}&quot;,
+    ///     "message: {}",
     ///     std::str::from_utf8(&amp;message.formatted()).unwrap()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"dkim"</span>)]
     </span><span class="kw">pub fn </span>sign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dkim_config: <span class="kw-2">&amp;</span>DkimConfig) {
         dkim_sign(<span class="self">self</span>, dkim_config);
     }
@@ -1381,13 +1382,13 @@
 
 <span class="kw">impl </span>EmailFormat <span class="kw">for </span>Message {
     <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
-        <span class="macro">write!</span>(out, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.headers)
-            .expect(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
+        <span class="macro">write!</span>(out, <span class="string">"{}"</span>, <span class="self">self</span>.headers)
+            .expect(<span class="string">"A Write implementation panicked while formatting headers"</span>);
 
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.body {
             MessageBody::Mime(p) =&gt; p.format(out),
             MessageBody::Raw(r) =&gt; {
-                out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+                out.extend_from_slice(<span class="string">b"\r\n"</span>);
                 out.extend_from_slice(r)
             }
         }
@@ -1417,25 +1418,25 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>email_missing_originator() {
         <span class="macro">assert!</span>(Message::builder()
-            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .body(String::from(<span class="string">"Happy new year!"</span>))
             .is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>email_minimal_message() {
         <span class="macro">assert!</span>(Message::builder()
-            .from(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.parse().unwrap())
-            .to(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.parse().unwrap())
-            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .from(<span class="string">"NoBody &lt;nobody@domain.tld&gt;"</span>.parse().unwrap())
+            .to(<span class="string">"NoBody &lt;nobody@domain.tld&gt;"</span>.parse().unwrap())
+            .body(String::from(<span class="string">"Happy new year!"</span>))
             .is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>email_missing_sender() {
         <span class="macro">assert!</span>(Message::builder()
-            .from(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.parse().unwrap())
-            .from(<span class="string">&quot;AnyBody &lt;anybody@domain.tld&gt;&quot;</span>.parse().unwrap())
-            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .from(<span class="string">"NoBody &lt;nobody@domain.tld&gt;"</span>.parse().unwrap())
+            .from(<span class="string">"AnyBody &lt;anybody@domain.tld&gt;"</span>.parse().unwrap())
+            .body(String::from(<span class="string">"Happy new year!"</span>))
             .is_err());
     }
 
@@ -1446,31 +1447,31 @@
 
         <span class="kw">let </span>email = Message::builder()
             .date(date)
-            .bcc(<span class="string">&quot;hidden@example.com&quot;</span>.parse().unwrap())
+            .bcc(<span class="string">"hidden@example.com"</span>.parse().unwrap())
             .header(header::From(
                 <span class="macro">vec!</span>[Mailbox::new(
-                    <span class="prelude-val">Some</span>(<span class="string">&quot;Каи&quot;</span>.into()),
-                    <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap(),
+                    <span class="prelude-val">Some</span>(<span class="string">"Каи"</span>.into()),
+                    <span class="string">"kayo@example.com"</span>.parse().unwrap(),
                 )]
                 .into(),
             ))
             .header(header::To(
-                <span class="macro">vec!</span>[<span class="string">&quot;Pony O.P. &lt;pony@domain.tld&gt;&quot;</span>.parse().unwrap()].into(),
+                <span class="macro">vec!</span>[<span class="string">"Pony O.P. &lt;pony@domain.tld&gt;"</span>.parse().unwrap()].into(),
             ))
-            .header(header::Subject::from(String::from(<span class="string">&quot;яңа ел белән!&quot;</span>)))
-            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .header(header::Subject::from(String::from(<span class="string">"яңа ел белән!"</span>)))
+            .body(String::from(<span class="string">"Happy new year!"</span>))
             .unwrap();
 
         <span class="macro">assert_eq!</span>(
             String::from_utf8(email.formatted()).unwrap(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Date: Tue, 15 Nov 1994 08:12:31 +0000\r\n&quot;</span>,
-                <span class="string">&quot;From: =?utf-8?b?0JrQsNC4?= &lt;kayo@example.com&gt;\r\n&quot;</span>,
-                <span class="string">&quot;To: \&quot;Pony O.P.\&quot; &lt;pony@domain.tld&gt;\r\n&quot;</span>,
-                <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvSE=?=\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Happy new year!&quot;
+                <span class="string">"Date: Tue, 15 Nov 1994 08:12:31 +0000\r\n"</span>,
+                <span class="string">"From: =?utf-8?b?0JrQsNC4?= &lt;kayo@example.com&gt;\r\n"</span>,
+                <span class="string">"To: \"Pony O.P.\" &lt;pony@domain.tld&gt;\r\n"</span>,
+                <span class="string">"Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvSE=?=\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: 7bit\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"Happy new year!"
             </span>)
         );
     }
@@ -1482,33 +1483,33 @@
 
         <span class="kw">let </span>email = Message::builder()
             .date(date)
-            .bcc(<span class="string">&quot;hidden@example.com&quot;</span>.parse().unwrap())
+            .bcc(<span class="string">"hidden@example.com"</span>.parse().unwrap())
             .keep_bcc()
             .header(header::From(
                 <span class="macro">vec!</span>[Mailbox::new(
-                    <span class="prelude-val">Some</span>(<span class="string">&quot;Каи&quot;</span>.into()),
-                    <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap(),
+                    <span class="prelude-val">Some</span>(<span class="string">"Каи"</span>.into()),
+                    <span class="string">"kayo@example.com"</span>.parse().unwrap(),
                 )]
                 .into(),
             ))
             .header(header::To(
-                <span class="macro">vec!</span>[<span class="string">&quot;Pony O.P. &lt;pony@domain.tld&gt;&quot;</span>.parse().unwrap()].into(),
+                <span class="macro">vec!</span>[<span class="string">"Pony O.P. &lt;pony@domain.tld&gt;"</span>.parse().unwrap()].into(),
             ))
-            .header(header::Subject::from(String::from(<span class="string">&quot;яңа ел белән!&quot;</span>)))
-            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .header(header::Subject::from(String::from(<span class="string">"яңа ел белән!"</span>)))
+            .body(String::from(<span class="string">"Happy new year!"</span>))
             .unwrap();
 
         <span class="macro">assert_eq!</span>(
             String::from_utf8(email.formatted()).unwrap(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Date: Tue, 15 Nov 1994 08:12:31 +0000\r\n&quot;</span>,
-                <span class="string">&quot;Bcc: hidden@example.com\r\n&quot;</span>,
-                <span class="string">&quot;From: =?utf-8?b?0JrQsNC4?= &lt;kayo@example.com&gt;\r\n&quot;</span>,
-                <span class="string">&quot;To: \&quot;Pony O.P.\&quot; &lt;pony@domain.tld&gt;\r\n&quot;</span>,
-                <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvSE=?=\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Happy new year!&quot;
+                <span class="string">"Date: Tue, 15 Nov 1994 08:12:31 +0000\r\n"</span>,
+                <span class="string">"Bcc: hidden@example.com\r\n"</span>,
+                <span class="string">"From: =?utf-8?b?0JrQsNC4?= &lt;kayo@example.com&gt;\r\n"</span>,
+                <span class="string">"To: \"Pony O.P.\" &lt;pony@domain.tld&gt;\r\n"</span>,
+                <span class="string">"Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvSE=?=\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: 7bit\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"Happy new year!"
             </span>)
         );
     }
@@ -1517,34 +1518,34 @@
     </span><span class="kw">fn </span>email_with_png() {
         <span class="comment">// Tue, 15 Nov 1994 08:12:31 GMT
         </span><span class="kw">let </span>date = SystemTime::UNIX_EPOCH + Duration::from_secs(<span class="number">784887151</span>);
-        <span class="kw">let </span>img = std::fs::read(<span class="string">&quot;./docs/lettre.png&quot;</span>).unwrap();
+        <span class="kw">let </span>img = std::fs::read(<span class="string">"./docs/lettre.png"</span>).unwrap();
         <span class="kw">let </span>m = Message::builder()
             .date(date)
-            .from(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.parse().unwrap())
-            .reply_to(<span class="string">&quot;Yuin &lt;yuin@domain.tld&gt;&quot;</span>.parse().unwrap())
-            .to(<span class="string">&quot;Hei &lt;hei@domain.tld&gt;&quot;</span>.parse().unwrap())
-            .subject(<span class="string">&quot;Happy new year&quot;</span>)
+            .from(<span class="string">"NoBody &lt;nobody@domain.tld&gt;"</span>.parse().unwrap())
+            .reply_to(<span class="string">"Yuin &lt;yuin@domain.tld&gt;"</span>.parse().unwrap())
+            .to(<span class="string">"Hei &lt;hei@domain.tld&gt;"</span>.parse().unwrap())
+            .subject(<span class="string">"Happy new year"</span>)
             .multipart(
                 MultiPart::related()
                     .singlepart(
                         SinglePart::builder()
                             .header(header::ContentType::TEXT_HTML)
                             .body(String::from(
-                                <span class="string">&quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;&quot;</span>,
+                                <span class="string">"&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;"</span>,
                             )),
                     )
                     .singlepart(
                         SinglePart::builder()
-                            .header(header::ContentType::parse(<span class="string">&quot;image/png&quot;</span>).unwrap())
+                            .header(header::ContentType::parse(<span class="string">"image/png"</span>).unwrap())
                             .header(header::ContentDisposition::inline())
-                            .header(header::ContentId::from(String::from(<span class="string">&quot;&lt;123&gt;&quot;</span>)))
+                            .header(header::ContentId::from(String::from(<span class="string">"&lt;123&gt;"</span>)))
                             .body(img),
                     ),
             )
             .unwrap();
 
         <span class="kw">let </span>output = String::from_utf8(m.formatted()).unwrap();
-        <span class="kw">let </span>file_expected = std::fs::read(<span class="string">&quot;./testdata/email_with_png.eml&quot;</span>).unwrap();
+        <span class="kw">let </span>file_expected = std::fs::read(<span class="string">"./testdata/email_with_png.eml"</span>).unwrap();
         <span class="kw">let </span>expected = String::from_utf8(file_expected).unwrap();
 
         <span class="kw">for </span>(i, line) <span class="kw">in </span>output.lines().zip(expected.lines()).enumerate() {

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_list-1.4.0/src/provider/serde_dfa.rs`."><title>serde_dfa.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_list" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_list-1.4.0/src/provider/serde_dfa.rs`."><title>serde_dfa.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_list" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -254,36 +255,36 @@
 /// [`serde::Deserialize`] directly, as binary deserialization is not supported in big-endian
 /// platforms. `Self::maybe_deserialize` can be used to deserialize to `Option&lt;SerdeDFA&gt;`.
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[derive(Clone, Debug, yoke::Yokeable, zerofrom::ZeroFrom)]
-</span><span class="kw">pub struct </span>SerdeDFA&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub struct </span>SerdeDFA&lt;<span class="lifetime">'data</span>&gt; {
     <span class="comment">// Safety: These always represent a valid DFA (DFA::from_bytes(dfa_bytes).is_ok())
-    </span>dfa_bytes: Cow&lt;<span class="lifetime">&#39;data</span>, [u8]&gt;,
-    pattern: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;data</span>, str&gt;&gt;,
+    </span>dfa_bytes: Cow&lt;<span class="lifetime">'data</span>, [u8]&gt;,
+    pattern: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'data</span>, str&gt;&gt;,
 }
 
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>SerdeDFA&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>SerdeDFA&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.dfa_bytes == other.dfa_bytes
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
-</span><span class="kw">impl </span>databake::Bake <span class="kw">for </span>SerdeDFA&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
+</span><span class="kw">impl </span>databake::Bake <span class="kw">for </span>SerdeDFA&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>bake(<span class="kw-2">&amp;</span><span class="self">self</span>, env: <span class="kw-2">&amp;</span>databake::CrateEnv) -&gt; databake::TokenStream {
-        env.insert(<span class="string">&quot;icu_list&quot;</span>);
+        env.insert(<span class="string">"icu_list"</span>);
         <span class="kw">let </span>le_bytes = databake::Bake::bake(<span class="kw-2">&amp;</span><span class="self">self</span>.deref().to_bytes_little_endian().as_slice(), env);
         <span class="kw">let </span>be_bytes = databake::Bake::bake(<span class="kw-2">&amp;</span><span class="self">self</span>.deref().to_bytes_big_endian().as_slice(), env);
-        <span class="comment">// Safe because of `to_bytes_little_endian`/`to_bytes_big_endian`&#39;s invariant: They produce
+        <span class="comment">// Safe because of `to_bytes_little_endian`/`to_bytes_big_endian`'s invariant: They produce
         // valid DFA representations, and we consume them correctly taking care of the endianness of the target platform.
         </span><span class="macro">databake::quote! </span>{
             <span class="kw">unsafe </span>{
                 icu_list::provider::SerdeDFA::from_dfa_bytes_unchecked(
-                    <span class="kw">if </span><span class="macro">cfg!</span>(target_endian = <span class="string">&quot;little&quot;</span>) {
+                    <span class="kw">if </span><span class="macro">cfg!</span>(target_endian = <span class="string">"little"</span>) {
                         #le_bytes
                     } <span class="kw">else </span>{
                         #be_bytes
@@ -294,8 +295,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
-</span><span class="kw">impl </span>serde::Serialize <span class="kw">for </span>SerdeDFA&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
+</span><span class="kw">impl </span>serde::Serialize <span class="kw">for </span>SerdeDFA&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
         </span>S: serde::ser::Serializer,
@@ -307,7 +308,7 @@
                 .unwrap_or_else(|| {
                     <span class="kw">use </span>serde::ser::Error;
                     <span class="prelude-val">Err</span>(S::Error::custom(
-                        <span class="string">&quot;cannot serialize a deserialized bincode SerdeDFA to JSON&quot;</span>,
+                        <span class="string">"cannot serialize a deserialized bincode SerdeDFA to JSON"</span>,
                     ))
                 })
         } <span class="kw">else </span>{
@@ -316,20 +317,20 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; SerdeDFA&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; SerdeDFA&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Deserializes to `Option&lt;Self&gt;`. Will return `None` for non-human-readable serialization
     /// formats on big-endian systems, as `regex_automata` serialization is endian-sensitive.
-    </span><span class="kw">pub fn </span>maybe_deserialize&lt;<span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>, D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;, D::Error&gt;
+    </span><span class="kw">pub fn </span>maybe_deserialize&lt;<span class="lifetime">'de</span>: <span class="lifetime">'data</span>, D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::de::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::de::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">use </span>icu_provider::serde::borrow_de_utils::CowBytesWrap;
         <span class="kw">use </span>serde::Deserialize;
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;serde_human&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde_human"</span>)]
         </span><span class="kw">if </span>deserializer.is_human_readable() {
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+            <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
             </span><span class="kw">use </span>alloc::string::ToString;
             <span class="kw">use </span>serde::de::Error;
             <span class="kw">return </span>SerdeDFA::new(Cow::&lt;str&gt;::deserialize(deserializer)<span class="question-mark">?</span>)
@@ -337,16 +338,16 @@
                 .map_err(|e| D::Error::custom(e.to_string()));
         }
 
-        <span class="kw">let </span>dfa_bytes = &lt;CowBytesWrap&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::deserialize(deserializer)<span class="question-mark">?</span>.<span class="number">0</span>;
+        <span class="kw">let </span>dfa_bytes = &lt;CowBytesWrap&lt;<span class="lifetime">'de</span>&gt;&gt;::deserialize(deserializer)<span class="question-mark">?</span>.<span class="number">0</span>;
 
-        <span class="kw">if </span><span class="macro">cfg!</span>(target_endian = <span class="string">&quot;big&quot;</span>) {
+        <span class="kw">if </span><span class="macro">cfg!</span>(target_endian = <span class="string">"big"</span>) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
         <span class="comment">// Verify safety invariant
         </span>DFA::from_bytes(<span class="kw-2">&amp;</span>dfa_bytes).map_err(|e| {
             <span class="kw">use </span>serde::de::Error;
-            D::Error::custom(<span class="macro">alloc::format!</span>(<span class="string">&quot;Invalid DFA bytes: {e}&quot;</span>))
+            D::Error::custom(<span class="macro">alloc::format!</span>(<span class="string">"Invalid DFA bytes: {e}"</span>))
         })<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(SerdeDFA {
@@ -356,13 +357,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; SerdeDFA&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; SerdeDFA&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Creates a `SerdeDFA` from raw bytes. Used internally by databake.
     ///
     /// # Safety
     ///
     /// `dfa_bytes` has to be a valid DFA (regex_automata::dfa::sparse::DFA::from_bytes(dfa_bytes).is_ok())
-    </span><span class="kw">pub const unsafe fn </span>from_dfa_bytes_unchecked(dfa_bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const unsafe fn </span>from_dfa_bytes_unchecked(dfa_bytes: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             dfa_bytes: Cow::Borrowed(dfa_bytes),
             pattern: <span class="prelude-val">None</span>,
@@ -370,8 +371,8 @@
     }
 
     <span class="doccomment">/// Creates a `SerdeDFA` from a regex.
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;datagen&quot;</span>, feature = <span class="string">&quot;serde_human&quot;</span>,))]
-    </span><span class="kw">pub fn </span>new(pattern: Cow&lt;<span class="lifetime">&#39;data</span>, str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, icu_provider::DataError&gt; {
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"serde_human"</span>,))]
+    </span><span class="kw">pub fn </span>new(pattern: Cow&lt;<span class="lifetime">'data</span>, str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, icu_provider::DataError&gt; {
         <span class="kw">use </span>regex_automata::{
             dfa::dense::{Builder, Config},
             SyntaxConfig,
@@ -383,11 +384,11 @@
             .configure(Config::new().anchored(<span class="bool-val">true</span>).minimize(<span class="bool-val">true</span>))
             .build(<span class="kw-2">&amp;</span>pattern)
             .map_err(|<span class="kw">_</span>| {
-                icu_provider::DataError::custom(<span class="string">&quot;Cannot build DFA&quot;</span>).with_display_context(<span class="kw-2">&amp;</span>pattern)
+                icu_provider::DataError::custom(<span class="string">"Cannot build DFA"</span>).with_display_context(<span class="kw-2">&amp;</span>pattern)
             })<span class="question-mark">?
             </span>.to_sparse()
             .map_err(|<span class="kw">_</span>| {
-                icu_provider::DataError::custom(<span class="string">&quot;Cannot sparsify DFA&quot;</span>)
+                icu_provider::DataError::custom(<span class="string">"Cannot sparsify DFA"</span>)
                     .with_display_context(<span class="kw-2">&amp;</span>pattern)
             })<span class="question-mark">?</span>;
 
@@ -399,13 +400,13 @@
 
     <span class="doccomment">/// Returns the represented [`DFA`]
     </span><span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// by invariant
-    </span><span class="kw">pub fn </span>deref(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">self</span>) -&gt; DFA&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>deref(<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">self</span>) -&gt; DFA&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="comment">// Safe due to struct invariant.
         </span><span class="kw">unsafe </span>{ DFA::from_bytes_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.dfa_bytes).unwrap().<span class="number">0 </span>}
     }
 }
 
-<span class="attr">#[cfg(all(test, feature = <span class="string">&quot;datagen&quot;</span>))]
+<span class="attr">#[cfg(all(test, feature = <span class="string">"datagen"</span>))]
 </span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -413,31 +414,31 @@
     </span><span class="kw">fn </span>test_serde_dfa() {
         <span class="kw">use </span>regex_automata::dfa::Automaton;
 
-        <span class="kw">let </span>matcher = SerdeDFA::new(Cow::Borrowed(<span class="string">&quot;abc&quot;</span>)).unwrap();
+        <span class="kw">let </span>matcher = SerdeDFA::new(Cow::Borrowed(<span class="string">"abc"</span>)).unwrap();
 
-        <span class="macro">assert!</span>(matcher.deref().find_earliest_fwd(<span class="string">b&quot;ab&quot;</span>).unwrap().is_none());
-        <span class="macro">assert!</span>(matcher.deref().find_earliest_fwd(<span class="string">b&quot;abc&quot;</span>).unwrap().is_some());
+        <span class="macro">assert!</span>(matcher.deref().find_earliest_fwd(<span class="string">b"ab"</span>).unwrap().is_none());
+        <span class="macro">assert!</span>(matcher.deref().find_earliest_fwd(<span class="string">b"abc"</span>).unwrap().is_some());
         <span class="macro">assert!</span>(matcher
             .deref()
-            .find_earliest_fwd(<span class="string">b&quot;abcde&quot;</span>)
+            .find_earliest_fwd(<span class="string">b"abcde"</span>)
             .unwrap()
             .is_some());
         <span class="macro">assert!</span>(matcher
             .deref()
-            .find_earliest_fwd(<span class="string">b&quot; abcde&quot;</span>)
+            .find_earliest_fwd(<span class="string">b" abcde"</span>)
             .unwrap()
             .is_none());
     }
 
     <span class="attr">#[derive(serde::Deserialize)]
-    </span><span class="kw">struct </span>OptionSerdeDFA&lt;<span class="lifetime">&#39;data</span>&gt;(
-        <span class="attr">#[serde(borrow, deserialize_with = <span class="string">&quot;SerdeDFA::maybe_deserialize&quot;</span>)] </span><span class="prelude-ty">Option</span>&lt;SerdeDFA&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
+    </span><span class="kw">struct </span>OptionSerdeDFA&lt;<span class="lifetime">'data</span>&gt;(
+        <span class="attr">#[serde(borrow, deserialize_with = <span class="string">"SerdeDFA::maybe_deserialize"</span>)] </span><span class="prelude-ty">Option</span>&lt;SerdeDFA&lt;<span class="lifetime">'data</span>&gt;&gt;,
     );
 
     <span class="attr">#[test]
-    #[cfg(target_endian = <span class="string">&quot;little&quot;</span>)]
+    #[cfg(target_endian = <span class="string">"little"</span>)]
     </span><span class="kw">fn </span>test_postcard_serialization() {
-        <span class="kw">let </span>matcher = SerdeDFA::new(Cow::Borrowed(<span class="string">&quot;abc*&quot;</span>)).unwrap();
+        <span class="kw">let </span>matcher = SerdeDFA::new(Cow::Borrowed(<span class="string">"abc*"</span>)).unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>bytes = postcard::to_stdvec(<span class="kw-2">&amp;</span>matcher).unwrap();
         <span class="macro">assert_eq!</span>(
@@ -460,27 +461,27 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;serde_human&quot;</span>)]
+    #[cfg(feature = <span class="string">"serde_human"</span>)]
     </span><span class="kw">fn </span>test_json_serialization() {
-        <span class="kw">let </span>matcher = SerdeDFA::new(Cow::Borrowed(<span class="string">&quot;abc*&quot;</span>)).unwrap();
+        <span class="kw">let </span>matcher = SerdeDFA::new(Cow::Borrowed(<span class="string">"abc*"</span>)).unwrap();
 
         <span class="kw">let </span>json = serde_json::to_string(<span class="kw-2">&amp;</span>matcher).unwrap();
         <span class="macro">assert_eq!</span>(
             serde_json::from_str::&lt;OptionSerdeDFA&gt;(<span class="kw-2">&amp;</span>json).unwrap().<span class="number">0</span>,
             <span class="prelude-val">Some</span>(matcher)
         );
-        <span class="macro">assert!</span>(serde_json::from_str::&lt;OptionSerdeDFA&gt;(<span class="string">&quot;.*[&quot;</span>).is_err());
+        <span class="macro">assert!</span>(serde_json::from_str::&lt;OptionSerdeDFA&gt;(<span class="string">".*["</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>databake() {
-        <span class="comment">// This is the DFA for &quot;.*&quot;
+        <span class="comment">// This is the DFA for ".*"
         </span><span class="macro">databake::test_bake!</span>(
             SerdeDFA,
-            <span class="kw">const</span>: <span class="kw">unsafe </span>{ <span class="kw">crate</span>::provider::SerdeDFA::from_dfa_bytes_unchecked(<span class="kw">if </span><span class="macro">cfg!</span>(target_endian = <span class="string">&quot;little&quot;</span>) {
-                <span class="string">b&quot;rust-regex-automata-dfa-sparse\0\0\xFF\xFE\0\0\x02\0\0\0\0\0\0\0\x0E\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x06\x06\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x08\t\t\t\t\t\t\t\t\t\t\t\t\n\x0B\x0B\x0C\r\r\r\x0E\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x98\x01\0\0\x01\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x0E\x80\0\0\x01\x01\x02\x02\x03\x06\x07\x07\x08\x08\t\t\n\n\x0B\x0B\x0C\x0C\r\r\x0E\x0E\x0F\x0F\0\0\x12\0\0\0q\0\0\0\x12\0\0\0q\0\0\0\x82\0\0\0\x99\0\0\0\xB0\0\0\0\xC7\0\0\0\xB0\0\0\0\xDE\0\0\0\xF5\0\0\0\x0C\x01\0\0q\0\0\0q\0\0\0\x01\0\0\0\0\0\0\0\0\x01\x80\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0#\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x05\x05\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x04\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x04\x05\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x03\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x0E\0\0\0\x01\x01\x02\x02\x03\x06\x07\x07\x08\x08\t\t\n\n\x0B\x0B\x0C\x0C\r\r\x0E\x0E\x0F\x0F\0\0\x12\0\0\0q\0\0\0\x12\0\0\0q\0\0\0\x82\0\0\0\x99\0\0\0\xB0\0\0\0\xC7\0\0\0\xB0\0\0\0\xDE\0\0\0\xF5\0\0\0\x0C\x01\0\0q\0\0\0q\0\0\0\0\x02\0\x03\x05\0\0\x89\x01\0\0\0\0\0\0\0\x02\0\x03\x05\0\0#\x01\0\0\0\0\0\0\0\x04\0\0\0\0\0\0\0#\x01\0\0#\x01\0\0#\x01\0\0#\x01\0\0#\x01\0\0\t\0\0\0\x12\0\0\0\x0C\x01\0\0\0\0\0\0\0\0\0\0#\x01\0\0#\x01\0\0&quot;
+            <span class="kw">const</span>: <span class="kw">unsafe </span>{ <span class="kw">crate</span>::provider::SerdeDFA::from_dfa_bytes_unchecked(<span class="kw">if </span><span class="macro">cfg!</span>(target_endian = <span class="string">"little"</span>) {
+                <span class="string">b"rust-regex-automata-dfa-sparse\0\0\xFF\xFE\0\0\x02\0\0\0\0\0\0\0\x0E\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x06\x06\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x08\t\t\t\t\t\t\t\t\t\t\t\t\n\x0B\x0B\x0C\r\r\r\x0E\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x98\x01\0\0\x01\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x0E\x80\0\0\x01\x01\x02\x02\x03\x06\x07\x07\x08\x08\t\t\n\n\x0B\x0B\x0C\x0C\r\r\x0E\x0E\x0F\x0F\0\0\x12\0\0\0q\0\0\0\x12\0\0\0q\0\0\0\x82\0\0\0\x99\0\0\0\xB0\0\0\0\xC7\0\0\0\xB0\0\0\0\xDE\0\0\0\xF5\0\0\0\x0C\x01\0\0q\0\0\0q\0\0\0\x01\0\0\0\0\0\0\0\0\x01\x80\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0#\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x05\x05\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x04\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x04\x05\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x03\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x0E\0\0\0\x01\x01\x02\x02\x03\x06\x07\x07\x08\x08\t\t\n\n\x0B\x0B\x0C\x0C\r\r\x0E\x0E\x0F\x0F\0\0\x12\0\0\0q\0\0\0\x12\0\0\0q\0\0\0\x82\0\0\0\x99\0\0\0\xB0\0\0\0\xC7\0\0\0\xB0\0\0\0\xDE\0\0\0\xF5\0\0\0\x0C\x01\0\0q\0\0\0q\0\0\0\0\x02\0\x03\x05\0\0\x89\x01\0\0\0\0\0\0\0\x02\0\x03\x05\0\0#\x01\0\0\0\0\0\0\0\x04\0\0\0\0\0\0\0#\x01\0\0#\x01\0\0#\x01\0\0#\x01\0\0#\x01\0\0\t\0\0\0\x12\0\0\0\x0C\x01\0\0\0\0\0\0\0\0\0\0#\x01\0\0#\x01\0\0"
             </span>} <span class="kw">else </span>{
-                <span class="string">b&quot;rust-regex-automata-dfa-sparse\0\0\0\0\xFE\xFF\0\0\0\x02\0\0\0\0\0\0\0\x0E\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\x01\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x06\x06\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x08\t\t\t\t\t\t\t\t\t\t\t\t\n\x0B\x0B\x0C\r\r\r\x0E\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\0\0\x01\x98\x01\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x0E\x80\0\0\x01\x01\x02\x02\x03\x06\x07\x07\x08\x08\t\t\n\n\x0B\x0B\x0C\x0C\r\r\x0E\x0E\x0F\x0F\0\0\x12\0\0\0q\0\0\0\x12\0\0\0q\0\0\0\x82\0\0\0\x99\0\0\0\xB0\0\0\0\xC7\0\0\0\xB0\0\0\0\xDE\0\0\0\xF5\0\0\0\x0C\x01\0\0q\0\0\0q\0\0\0\x01\0\0\0\0\0\0\0\0\x01\x80\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0#\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x05\x05\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x04\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x04\x05\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x03\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x0E\0\0\0\x01\x01\x02\x02\x03\x06\x07\x07\x08\x08\t\t\n\n\x0B\x0B\x0C\x0C\r\r\x0E\x0E\x0F\x0F\0\0\x12\0\0\0q\0\0\0\x12\0\0\0q\0\0\0\x82\0\0\0\x99\0\0\0\xB0\0\0\0\xC7\0\0\0\xB0\0\0\0\xDE\0\0\0\xF5\0\0\0\x0C\x01\0\0q\0\0\0q\0\0\0\0\x02\0\x03\x05\0\0\x89\x01\0\0\0\0\0\0\0\x02\0\x03\x05\0\0#\x01\0\0\0\0\0\0\0\0\0\0\x04\0\0\0\0#\x01\0\0#\x01\0\0#\x01\0\0#\x01\0\0\0\0\x01#\0\0\0\t\0\0\0\x12\0\0\x01\x0C\0\0\0\0\0\0\0\0\0\0\x01#\0\0\x01#&quot;
+                <span class="string">b"rust-regex-automata-dfa-sparse\0\0\0\0\xFE\xFF\0\0\0\x02\0\0\0\0\0\0\0\x0E\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\x01\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x02\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x05\x06\x06\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x08\t\t\t\t\t\t\t\t\t\t\t\t\n\x0B\x0B\x0C\r\r\r\x0E\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\0\0\x01\x98\x01\0\0\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x0E\x80\0\0\x01\x01\x02\x02\x03\x06\x07\x07\x08\x08\t\t\n\n\x0B\x0B\x0C\x0C\r\r\x0E\x0E\x0F\x0F\0\0\x12\0\0\0q\0\0\0\x12\0\0\0q\0\0\0\x82\0\0\0\x99\0\0\0\xB0\0\0\0\xC7\0\0\0\xB0\0\0\0\xDE\0\0\0\xF5\0\0\0\x0C\x01\0\0q\0\0\0q\0\0\0\x01\0\0\0\0\0\0\0\0\x01\x80\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0#\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x05\x05\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x04\0\0\x89\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x04\x05\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x05\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x02\x80\x03\x03\0\0z\x01\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\0\x0E\0\0\0\x01\x01\x02\x02\x03\x06\x07\x07\x08\x08\t\t\n\n\x0B\x0B\x0C\x0C\r\r\x0E\x0E\x0F\x0F\0\0\x12\0\0\0q\0\0\0\x12\0\0\0q\0\0\0\x82\0\0\0\x99\0\0\0\xB0\0\0\0\xC7\0\0\0\xB0\0\0\0\xDE\0\0\0\xF5\0\0\0\x0C\x01\0\0q\0\0\0q\0\0\0\0\x02\0\x03\x05\0\0\x89\x01\0\0\0\0\0\0\0\x02\0\x03\x05\0\0#\x01\0\0\0\0\0\0\0\0\0\0\x04\0\0\0\0#\x01\0\0#\x01\0\0#\x01\0\0#\x01\0\0\0\0\x01#\0\0\0\t\0\0\0\x12\0\0\x01\x0C\0\0\0\0\0\0\0\0\0\0\x01#\0\0\x01#"
             </span>})},
             icu_list
         );

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/query/output.rs`."><title>output.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/query/output.rs`."><title>output.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -371,10 +372,10 @@
     }
 }
 
-<span class="kw">struct </span>DisplayColumn&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">struct </span>DisplayColumn&lt;<span class="lifetime">'a</span>&gt; {
     <span class="comment">// zero-based index, converted to 1-based number
     </span>idx: usize,
-    name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
 }
 
 <span class="kw">struct </span>ColumnDecl {
@@ -400,9 +401,9 @@
     <span class="prelude-val">None</span>,
 }
 
-<span class="kw">impl </span>Display <span class="kw">for </span>DisplayColumn&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Display <span class="kw">for </span>DisplayColumn&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;column #{} ({:?})&quot;</span>, <span class="self">self</span>.idx + <span class="number">1</span>, <span class="self">self</span>.name)
+        <span class="macro">write!</span>(f, <span class="string">"column #{} ({:?})"</span>, <span class="self">self</span>.idx + <span class="number">1</span>, <span class="self">self</span>.name)
     }
 }
 
@@ -417,7 +418,7 @@
 
     <span class="comment">// add raw prefix to all identifiers
     </span><span class="kw">let </span>decl = ColumnDecl::parse(<span class="kw-2">&amp;</span>column.name())
-        .map_err(|e| <span class="macro">format!</span>(<span class="string">&quot;column name {:?} is invalid: {}&quot;</span>, column.name(), e))<span class="question-mark">?</span>;
+        .map_err(|e| <span class="macro">format!</span>(<span class="string">"column name {:?} is invalid: {}"</span>, column.name(), e))<span class="question-mark">?</span>;
 
     <span class="kw">let </span>ColumnOverride { nullability, type_ } = decl.r#override;
 
@@ -446,9 +447,9 @@
     };
 
     <span class="prelude-val">Ok</span>(RustColumn {
-        <span class="comment">// prefix the variable name we use in `quote_query_as!()` so it doesn&#39;t conflict
+        <span class="comment">// prefix the variable name we use in `quote_query_as!()` so it doesn't conflict
         // https://github.com/launchbadge/sqlx/issues/1322
-        </span>var_name: <span class="macro">quote::format_ident!</span>(<span class="string">&quot;sqlx_query_as_{}&quot;</span>, decl.ident),
+        </span>var_name: <span class="macro">quote::format_ident!</span>(<span class="string">"sqlx_query_as_{}"</span>, decl.ident),
         ident: decl.ident,
         type_,
     })
@@ -473,8 +474,8 @@
                 <span class="comment">// we guarantee the type is valid so we can skip the runtime check
                 </span>(<span class="bool-val">true</span>, ColumnType::Exact(type_)) =&gt; <span class="macro">quote! </span>{
                     <span class="comment">// binding to a `let` avoids confusing errors about
-                    // &quot;try expression alternatives have incompatible types&quot;
-                    // it doesn&#39;t seem to hurt inference in the other branches
+                    // "try expression alternatives have incompatible types"
+                    // it doesn't seem to hurt inference in the other branches
                     </span><span class="kw">let </span>#var_name = row.try_get_unchecked::&lt;#type_, <span class="kw">_</span>&gt;(#i)<span class="question-mark">?</span>.into();
                 },
                 <span class="comment">// type was overridden to be a wildcard so we fallback to the runtime check
@@ -482,7 +483,7 @@
                 (<span class="bool-val">true</span>, ColumnType::OptWildcard) =&gt; {
                     <span class="macro">quote! </span>( <span class="kw">let </span>#var_name = row.try_get::&lt;::std::option::Option&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;(#i)<span class="question-mark">?</span>; )
                 }
-                <span class="comment">// macro is the `_unchecked!()` variant so this will die in decoding if it&#39;s wrong
+                <span class="comment">// macro is the `_unchecked!()` variant so this will die in decoding if it's wrong
                 </span>(<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; <span class="macro">quote!</span>( <span class="kw">let </span>#var_name = row.try_get_unchecked(#i)<span class="question-mark">?</span>; ),
             }
         },
@@ -523,7 +524,7 @@
     <span class="kw">if </span>columns.len() != <span class="number">1 </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new(
             input.src_span,
-            <span class="macro">format!</span>(<span class="string">&quot;expected exactly 1 column, got {}&quot;</span>, columns.len()),
+            <span class="macro">format!</span>(<span class="string">"expected exactly 1 column, got {}"</span>, columns.len()),
         )
         .into());
     }
@@ -558,7 +559,7 @@
             <span class="kw">let </span>message =
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(feature_gate) = &lt;DB <span class="kw">as </span>DatabaseExt&gt;::get_feature_gate(<span class="kw-2">&amp;</span>type_info) {
                     <span class="macro">format!</span>(
-                        <span class="string">&quot;optional sqlx feature `{feat}` required for type {ty} of {col}&quot;</span>,
+                        <span class="string">"optional sqlx feature `{feat}` required for type {ty} of {col}"</span>,
                         ty = <span class="kw-2">&amp;</span>type_info,
                         feat = feature_gate,
                         col = DisplayColumn {
@@ -568,7 +569,7 @@
                     )
                 } <span class="kw">else </span>{
                     <span class="macro">format!</span>(
-                        <span class="string">&quot;unsupported type {ty} of {col}&quot;</span>,
+                        <span class="string">"unsupported type {ty} of {col}"</span>,
                         ty = type_info,
                         col = DisplayColumn {
                             idx: i,
@@ -587,12 +588,12 @@
         <span class="comment">// find the end of the identifier because we want to use our own logic to parse it
         // if we tried to feed this into `syn::parse_str()` we might get an un-great error
         // for some kinds of invalid identifiers
-        </span><span class="kw">let </span>(ident, remainder) = <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = col_name.find(<span class="kw-2">&amp;</span>[<span class="string">&#39;:&#39;</span>, <span class="string">&#39;!&#39;</span>, <span class="string">&#39;?&#39;</span>][..]) {
+        </span><span class="kw">let </span>(ident, remainder) = <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = col_name.find(<span class="kw-2">&amp;</span>[<span class="string">':'</span>, <span class="string">'!'</span>, <span class="string">'?'</span>][..]) {
             <span class="kw">let </span>(ident, remainder) = col_name.split_at(i);
 
             (parse_ident(ident)<span class="question-mark">?</span>, remainder)
         } <span class="kw">else </span>{
-            (parse_ident(col_name)<span class="question-mark">?</span>, <span class="string">&quot;&quot;</span>)
+            (parse_ident(col_name)<span class="question-mark">?</span>, <span class="string">""</span>)
         };
 
         <span class="prelude-val">Ok</span>(ColumnDecl {
@@ -644,20 +645,20 @@
 }
 
 <span class="kw">fn </span>parse_ident(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Ident&gt; {
-    <span class="comment">// workaround for the following issue (it&#39;s semi-fixed but still spits out extra diagnostics)
+    <span class="comment">// workaround for the following issue (it's semi-fixed but still spits out extra diagnostics)
     // https://github.com/dtolnay/syn/issues/749#issuecomment-575451318
 
     </span><span class="kw">let </span>is_valid_ident = !name.is_empty()
-        &amp;&amp; name.starts_with(|c: char| c.is_alphabetic() || c == <span class="string">&#39;_&#39;</span>)
-        &amp;&amp; name.chars().all(|c| c.is_alphanumeric() || c == <span class="string">&#39;_&#39;</span>);
+        &amp;&amp; name.starts_with(|c: char| c.is_alphabetic() || c == <span class="string">'_'</span>)
+        &amp;&amp; name.chars().all(|c| c.is_alphanumeric() || c == <span class="string">'_'</span>);
 
     <span class="kw">if </span>is_valid_ident {
-        <span class="kw">let </span>ident = String::from(<span class="string">&quot;r#&quot;</span>) + name;
+        <span class="kw">let </span>ident = String::from(<span class="string">"r#"</span>) + name;
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(ident) = syn::parse_str(<span class="kw-2">&amp;</span>ident) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(ident);
         }
     }
 
-    <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;{name:?} is not a valid Rust identifier&quot;</span>).into())
+    <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"{name:?} is not a valid Rust identifier"</span>).into())
 }
 </code></pre></div></section></main></body></html>

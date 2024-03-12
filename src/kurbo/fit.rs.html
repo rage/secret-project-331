@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/fit.rs`."><title>fit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/fit.rs`."><title>fit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -670,7 +671,7 @@
     Affine, BezPath, CubicBez, ParamCurve, ParamCurveArclen, Point, Vec2,
 };
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::common::FloatFuncs;
 
 <span class="doccomment">/// The source curve for curve fitting.
@@ -723,7 +724,7 @@
     /// to derive the moments needed for curve fitting.
     ///
     /// A default implementation is proved which does quadrature integration
-    /// with Green&#39;s theorem, in terms of samples evaulated with
+    /// with Green's theorem, in terms of samples evaulated with
     /// [`sample_pt_deriv`].
     ///
     /// [`sample_pt_deriv`]: ParamCurveFit::sample_pt_deriv
@@ -795,7 +796,7 @@
 
 <span class="doccomment">/// Generate a Bézier path that fits the source curve.
 ///
-/// This function is still experimental and the signature might change; it&#39;s possible
+/// This function is still experimental and the signature might change; it's possible
 /// it might become a method on the [`ParamCurveFit`] trait.
 ///
 /// This function recursively subdivides the curve in half by the parameter when the
@@ -848,7 +849,7 @@
     samples: ArrayVec&lt;CurveFitSample, N_SAMPLE&gt;,
     arcparams: ArrayVec&lt;f64, N_SAMPLE&gt;,
     range: Range&lt;f64&gt;,
-    <span class="doccomment">/// A &quot;spicy&quot; curve is one with potentially extreme curvature variation,
+    <span class="doccomment">/// A "spicy" curve is one with potentially extreme curvature variation,
     /// so use arc length measurement for better accuracy.
     </span>spicy: bool,
 }
@@ -1048,7 +1049,7 @@
 
 <span class="doccomment">/// Returns curves matching area and moment, given unit chord.
 </span><span class="kw">fn </span>cubic_fit(th0: f64, th1: f64, area: f64, mx: f64) -&gt; ArrayVec&lt;(CubicBez, f64, f64), <span class="number">4</span>&gt; {
-    <span class="comment">// Note: maybe we want to take unit vectors instead of angle? Shouldn&#39;t
+    <span class="comment">// Note: maybe we want to take unit vectors instead of angle? Shouldn't
     // matter much either way though.
     </span><span class="kw">let </span>(s0, c0) = th0.sin_cos();
     <span class="kw">let </span>(s1, c1) = th1.sin_cos();
@@ -1076,7 +1077,7 @@
             * s1
             - <span class="number">75. </span>* c1 * c1 * area * area * s0);
     <span class="kw">let </span>a0 = <span class="number">80. </span>* s1 * (<span class="number">42. </span>* s1 * mx - <span class="number">25. </span>* area * (s1 - c1 * area));
-    <span class="comment">// TODO: &quot;roots&quot; is not a good name for this variable, as it also contains
+    <span class="comment">// TODO: "roots" is not a good name for this variable, as it also contains
     // the real part of complex conjugate pairs.
     </span><span class="kw">let </span><span class="kw-2">mut </span>roots = ArrayVec::&lt;f64, <span class="number">4</span>&gt;::new();
     <span class="kw">const </span>EPS: f64 = <span class="number">1e-12</span>;
@@ -1137,7 +1138,7 @@
 
 <span class="doccomment">/// Generate a highly optimized Bézier path that fits the source curve.
 ///
-/// This function is still experimental and the signature might change; it&#39;s possible
+/// This function is still experimental and the signature might change; it's possible
 /// it might become a method on the [`ParamCurveFit`] trait.
 ///
 /// This function is considerably slower than [`fit_to_bezpath`], as it computes
@@ -1165,7 +1166,7 @@
 
 <span class="doccomment">/// Fit a range without cusps.
 ///
-/// On Ok return, range has been added to the path. On Err return, report a cusp (and don&#39;t
+/// On Ok return, range has been added to the path. On Err return, report a cusp (and don't
 /// mutate path).
 </span><span class="kw">fn </span>fit_to_bezpath_opt_inner(
     source: <span class="kw-2">&amp;</span><span class="kw">impl </span>ParamCurveFit,
@@ -1213,7 +1214,7 @@
         <span class="prelude-val">Ok</span>(x) =&gt; x,
         <span class="prelude-val">Err</span>(t) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(t),
     };
-    <span class="comment">//println!(&quot;got fit with n={}, err={}&quot;, n, x);
+    <span class="comment">//println!("got fit with n={}, err={}", n, x);
     </span><span class="kw">let </span>path_len = path.elements().len();
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..n {
         <span class="kw">let </span>t1 = <span class="kw">if </span>i &lt; n - <span class="number">1 </span>{

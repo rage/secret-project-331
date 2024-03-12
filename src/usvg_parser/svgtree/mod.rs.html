@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/svgtree/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/svgtree/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1073,16 +1074,16 @@
 ///
 /// Contains only element and text nodes.
 /// Text nodes are present only inside the `text` element.
-</span><span class="kw">pub struct </span>Document&lt;<span class="lifetime">&#39;input</span>&gt; {
+</span><span class="kw">pub struct </span>Document&lt;<span class="lifetime">'input</span>&gt; {
     nodes: Vec&lt;NodeData&gt;,
-    attrs: Vec&lt;Attribute&lt;<span class="lifetime">&#39;input</span>&gt;&gt;,
+    attrs: Vec&lt;Attribute&lt;<span class="lifetime">'input</span>&gt;&gt;,
     links: HashMap&lt;String, NodeId&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>&gt; Document&lt;<span class="lifetime">&#39;input</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>&gt; Document&lt;<span class="lifetime">'input</span>&gt; {
     <span class="doccomment">/// Returns the root node.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>root&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">pub fn </span>root&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
         SvgNode {
             id: NodeId::new(<span class="number">0</span>),
             d: <span class="kw-2">&amp;</span><span class="self">self</span>.nodes[<span class="number">0</span>],
@@ -1092,31 +1093,31 @@
 
     <span class="doccomment">/// Returns the root element.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>root_element&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">pub fn </span>root_element&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
         <span class="comment">// `unwrap` is safe, because `Document` is guarantee to have at least one element.
         </span><span class="self">self</span>.root().first_element_child().unwrap()
     }
 
-    <span class="doccomment">/// Returns an iterator over document&#39;s descendant nodes.
+    <span class="doccomment">/// Returns an iterator over document's descendant nodes.
     ///
     /// Shorthand for `doc.root().descendants()`.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>descendants&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; Descendants&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">pub fn </span>descendants&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; Descendants&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
         <span class="self">self</span>.root().descendants()
     }
 
     <span class="doccomment">/// Returns an element by ID.
     ///
     /// Unlike the [`Descendants`] iterator, this is just a HashMap lookup.
-    /// Meaning it&#39;s way faster.
+    /// Meaning it's way faster.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>element_by_id&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>element_by_id&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt; {
         <span class="kw">let </span>node_id = <span class="self">self</span>.links.get(id)<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="self">self</span>.get(<span class="kw-2">*</span>node_id))
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>get&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, id: NodeId) -&gt; SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">fn </span>get&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, id: NodeId) -&gt; SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
         SvgNode {
             id,
             d: <span class="kw-2">&amp;</span><span class="self">self</span>.nodes[id.get_usize()],
@@ -1125,19 +1126,19 @@
     }
 }
 
-<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>Document&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>Document&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.root().has_children() {
-            <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;Document []&quot;</span>);
+            <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">"Document []"</span>);
         }
 
         <span class="macro">macro_rules! </span>writeln_indented {
             (<span class="macro-nonterminal">$depth</span>:expr, <span class="macro-nonterminal">$f</span>:expr, <span class="macro-nonterminal">$fmt</span>:expr) =&gt; {
-                <span class="kw">for _ in </span><span class="number">0</span>..<span class="macro-nonterminal">$depth </span>{ <span class="macro">write!</span>(<span class="macro-nonterminal">$f</span>, <span class="string">&quot;    &quot;</span>)<span class="question-mark">?</span>; }
+                <span class="kw">for _ in </span><span class="number">0</span>..<span class="macro-nonterminal">$depth </span>{ <span class="macro">write!</span>(<span class="macro-nonterminal">$f</span>, <span class="string">"    "</span>)<span class="question-mark">?</span>; }
                 <span class="macro">writeln!</span>(<span class="macro-nonterminal">$f</span>, <span class="macro-nonterminal">$fmt</span>)<span class="question-mark">?</span>;
             };
             (<span class="macro-nonterminal">$depth</span>:expr, <span class="macro-nonterminal">$f</span>:expr, <span class="macro-nonterminal">$fmt</span>:expr, $(<span class="macro-nonterminal">$arg</span>:tt)<span class="kw-2">*</span>) =&gt; {
-                <span class="kw">for _ in </span><span class="number">0</span>..<span class="macro-nonterminal">$depth </span>{ <span class="macro">write!</span>(<span class="macro-nonterminal">$f</span>, <span class="string">&quot;    &quot;</span>)<span class="question-mark">?</span>; }
+                <span class="kw">for _ in </span><span class="number">0</span>..<span class="macro-nonterminal">$depth </span>{ <span class="macro">write!</span>(<span class="macro-nonterminal">$f</span>, <span class="string">"    "</span>)<span class="question-mark">?</span>; }
                 <span class="macro">writeln!</span>(<span class="macro-nonterminal">$f</span>, <span class="macro-nonterminal">$fmt</span>, $(<span class="macro-nonterminal">$arg</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>;
             };
         }
@@ -1149,35 +1150,35 @@
         ) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
             <span class="kw">for </span>child <span class="kw">in </span>parent.children() {
                 <span class="kw">if </span>child.is_element() {
-                    <span class="macro">writeln_indented!</span>(depth, f, <span class="string">&quot;Element {{&quot;</span>);
-                    <span class="macro">writeln_indented!</span>(depth, f, <span class="string">&quot;    tag_name: {:?}&quot;</span>, child.tag_name());
+                    <span class="macro">writeln_indented!</span>(depth, f, <span class="string">"Element {{"</span>);
+                    <span class="macro">writeln_indented!</span>(depth, f, <span class="string">"    tag_name: {:?}"</span>, child.tag_name());
 
                     <span class="kw">if </span>!child.attributes().is_empty() {
-                        <span class="macro">writeln_indented!</span>(depth + <span class="number">1</span>, f, <span class="string">&quot;attributes: [&quot;</span>);
+                        <span class="macro">writeln_indented!</span>(depth + <span class="number">1</span>, f, <span class="string">"attributes: ["</span>);
                         <span class="kw">for </span>attr <span class="kw">in </span>child.attributes() {
-                            <span class="macro">writeln_indented!</span>(depth + <span class="number">2</span>, f, <span class="string">&quot;{:?}&quot;</span>, attr);
+                            <span class="macro">writeln_indented!</span>(depth + <span class="number">2</span>, f, <span class="string">"{:?}"</span>, attr);
                         }
-                        <span class="macro">writeln_indented!</span>(depth + <span class="number">1</span>, f, <span class="string">&quot;]&quot;</span>);
+                        <span class="macro">writeln_indented!</span>(depth + <span class="number">1</span>, f, <span class="string">"]"</span>);
                     }
 
                     <span class="kw">if </span>child.has_children() {
-                        <span class="macro">writeln_indented!</span>(depth, f, <span class="string">&quot;    children: [&quot;</span>);
+                        <span class="macro">writeln_indented!</span>(depth, f, <span class="string">"    children: ["</span>);
                         print_children(child, depth + <span class="number">2</span>, f)<span class="question-mark">?</span>;
-                        <span class="macro">writeln_indented!</span>(depth, f, <span class="string">&quot;    ]&quot;</span>);
+                        <span class="macro">writeln_indented!</span>(depth, f, <span class="string">"    ]"</span>);
                     }
 
-                    <span class="macro">writeln_indented!</span>(depth, f, <span class="string">&quot;}}&quot;</span>);
+                    <span class="macro">writeln_indented!</span>(depth, f, <span class="string">"}}"</span>);
                 } <span class="kw">else </span>{
-                    <span class="macro">writeln_indented!</span>(depth, f, <span class="string">&quot;{:?}&quot;</span>, child);
+                    <span class="macro">writeln_indented!</span>(depth, f, <span class="string">"{:?}"</span>, child);
                 }
             }
 
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;Document [&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"Document ["</span>)<span class="question-mark">?</span>;
         print_children(<span class="self">self</span>.root(), <span class="number">1</span>, f)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;]&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"]"</span>)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -1251,18 +1252,18 @@
 
 <span class="doccomment">/// An attribute.
 </span><span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>Attribute&lt;<span class="lifetime">&#39;input</span>&gt; {
-    <span class="doccomment">/// Attribute&#39;s name.
+</span><span class="kw">pub struct </span>Attribute&lt;<span class="lifetime">'input</span>&gt; {
+    <span class="doccomment">/// Attribute's name.
     </span><span class="kw">pub </span>name: AId,
-    <span class="doccomment">/// Attribute&#39;s value.
-    </span><span class="kw">pub </span>value: roxmltree::StringStorage&lt;<span class="lifetime">&#39;input</span>&gt;,
+    <span class="doccomment">/// Attribute's value.
+    </span><span class="kw">pub </span>value: roxmltree::StringStorage&lt;<span class="lifetime">'input</span>&gt;,
 }
 
-<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>Attribute&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>Attribute&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;Attribute {{ name: {:?}, value: {} }}&quot;</span>,
+            <span class="string">"Attribute {{ name: {:?}, value: {} }}"</span>,
             <span class="self">self</span>.name, <span class="self">self</span>.value
         )
     }
@@ -1270,22 +1271,22 @@
 
 <span class="doccomment">/// An SVG node.
 </span><span class="attr">#[derive(Clone, Copy)]
-</span><span class="kw">pub struct </span>SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; {
     id: NodeId,
-    doc: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
-    d: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeData,
+    doc: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Document&lt;<span class="lifetime">'input</span>&gt;,
+    d: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeData,
 }
 
-<span class="kw">impl </span>Eq <span class="kw">for </span>SvgNode&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt; {}
+<span class="kw">impl </span>Eq <span class="kw">for </span>SvgNode&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt; {}
 
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>SvgNode&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>SvgNode&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.id == other.id &amp;&amp; std::ptr::eq(<span class="self">self</span>.doc, other.doc) &amp;&amp; std::ptr::eq(<span class="self">self</span>.d, other.d)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NodeId {
         <span class="self">self</span>.id
@@ -1303,13 +1304,13 @@
         <span class="macro">matches!</span>(<span class="self">self</span>.d.kind, NodeKind::Text(<span class="kw">_</span>))
     }
 
-    <span class="doccomment">/// Returns node&#39;s document.
+    <span class="doccomment">/// Returns node's document.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>document(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Document&lt;<span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">pub fn </span>document(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Document&lt;<span class="lifetime">'input</span>&gt; {
         <span class="self">self</span>.doc
     }
 
-    <span class="doccomment">/// Returns element&#39;s tag name, unless the current node is text.
+    <span class="doccomment">/// Returns element's tag name, unless the current node is text.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>tag_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;EId&gt; {
         <span class="kw">match </span><span class="self">self</span>.d.kind {
@@ -1317,16 +1318,16 @@
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
-    <span class="doccomment">/// Returns element&#39;s `id` attribute value.
+    <span class="doccomment">/// Returns element's `id` attribute value.
     ///
     /// Returns an empty string otherwise.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>element_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
-        <span class="self">self</span>.attribute(AId::Id).unwrap_or(<span class="string">&quot;&quot;</span>)
+    </span><span class="kw">pub fn </span>element_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
+        <span class="self">self</span>.attribute(AId::Id).unwrap_or(<span class="string">""</span>)
     }
 
     <span class="doccomment">/// Returns an attribute value.
-    </span><span class="kw">pub fn </span>attribute&lt;T: FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+    </span><span class="kw">pub fn </span>attribute&lt;T: FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
         <span class="kw">let </span>value = <span class="self">self
             </span>.attributes()
             .iter()
@@ -1336,7 +1337,7 @@
             <span class="prelude-val">Some</span>(v) =&gt; <span class="prelude-val">Some</span>(v),
             <span class="prelude-val">None </span>=&gt; {
                 <span class="comment">// TODO: show position in XML
-                </span><span class="macro">log::warn!</span>(<span class="string">&quot;Failed to parse {} value: &#39;{}&#39;.&quot;</span>, aid, value);
+                </span><span class="macro">log::warn!</span>(<span class="string">"Failed to parse {} value: '{}'."</span>, aid, value);
                 <span class="prelude-val">None
             </span>}
         }
@@ -1344,8 +1345,8 @@
 
     <span class="doccomment">/// Returns an attribute value.
     ///
-    /// Same as `SvgNode::attribute`, but doesn&#39;t show a warning.
-    </span><span class="kw">pub fn </span>try_attribute&lt;T: FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+    /// Same as `SvgNode::attribute`, but doesn't show a warning.
+    </span><span class="kw">pub fn </span>try_attribute&lt;T: FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
         <span class="kw">let </span>value = <span class="self">self
             </span>.attributes()
             .iter()
@@ -1355,7 +1356,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>node_attribute(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt; {
+    </span><span class="kw">fn </span>node_attribute(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt; {
         <span class="kw">let </span>value = <span class="self">self</span>.attribute(aid)<span class="question-mark">?</span>;
         <span class="kw">let </span>id = <span class="kw">if </span>aid == AId::Href {
             svgtypes::IRI::from_str(value).ok().map(|v| v.<span class="number">0</span>)
@@ -1372,9 +1373,9 @@
         <span class="self">self</span>.attributes().iter().any(|a| a.name == aid)
     }
 
-    <span class="doccomment">/// Returns a list of all element&#39;s attributes.
+    <span class="doccomment">/// Returns a list of all element's attributes.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>attributes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Attribute&lt;<span class="lifetime">&#39;input</span>&gt;] {
+    </span><span class="kw">pub fn </span>attributes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Attribute&lt;<span class="lifetime">'input</span>&gt;] {
         <span class="kw">match </span><span class="self">self</span>.d.kind {
             NodeKind::Element { <span class="kw-2">ref </span>attributes, .. } =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.doc.attrs[attributes.to_urange()],
             <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>[],
@@ -1399,11 +1400,11 @@
     ///
     /// For non-inheritable attributes checks only the current node and the parent one.
     /// As per SVG spec.
-    </span><span class="kw">pub fn </span>find_attribute&lt;T: FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+    </span><span class="kw">pub fn </span>find_attribute&lt;T: FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
         <span class="self">self</span>.find_attribute_impl(aid)<span class="question-mark">?</span>.attribute(aid)
     }
 
-    <span class="kw">fn </span>find_attribute_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt; {
+    <span class="kw">fn </span>find_attribute_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, aid: AId) -&gt; <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt; {
         <span class="kw">if </span>aid.is_inheritable() {
             <span class="kw">for </span>n <span class="kw">in </span><span class="self">self</span>.ancestors() {
                 <span class="kw">if </span>n.has_attribute(aid) {
@@ -1427,21 +1428,21 @@
         }
     }
 
-    <span class="doccomment">/// Returns node&#39;s text data.
+    <span class="doccomment">/// Returns node's text data.
     ///
     /// For text nodes returns its content. For elements returns the first child node text.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>text(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+    </span><span class="kw">pub fn </span>text(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
         <span class="kw">match </span><span class="self">self</span>.d.kind {
             NodeKind::Element { .. } =&gt; <span class="kw">match </span><span class="self">self</span>.first_child() {
                 <span class="prelude-val">Some</span>(child) <span class="kw">if </span>child.is_text() =&gt; <span class="kw">match </span><span class="self">self</span>.doc.nodes[child.id.get_usize()].kind {
                     NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; text,
-                    <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>,
+                    <span class="kw">_ </span>=&gt; <span class="string">""</span>,
                 },
-                <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>,
+                <span class="kw">_ </span>=&gt; <span class="string">""</span>,
             },
             NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; text,
-            <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>,
+            <span class="kw">_ </span>=&gt; <span class="string">""</span>,
         }
     }
 
@@ -1489,13 +1490,13 @@
 
     <span class="doccomment">/// Returns an iterator over ancestor nodes starting at this node.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>ancestors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ancestors&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">pub fn </span>ancestors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ancestors&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
         Ancestors(<span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="self">self</span>))
     }
 
     <span class="doccomment">/// Returns an iterator over children nodes.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>children(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Children&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">pub fn </span>children(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Children&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
         Children {
             front: <span class="self">self</span>.first_child(),
             back: <span class="self">self</span>.last_child(),
@@ -1504,7 +1505,7 @@
 
     <span class="doccomment">/// Returns an iterator which traverses the subtree starting at this node.
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>traverse(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Traverse&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">fn </span>traverse(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Traverse&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
         Traverse {
             root: <span class="kw-2">*</span><span class="self">self</span>,
             edge: <span class="prelude-val">None</span>,
@@ -1513,13 +1514,13 @@
 
     <span class="doccomment">/// Returns an iterator over this node and its descendants.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>descendants(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Descendants&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">pub fn </span>descendants(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Descendants&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
         Descendants(<span class="self">self</span>.traverse())
     }
 
     <span class="doccomment">/// Returns an iterator over elements linked via `xlink:href`.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>href_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HrefIter&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+    </span><span class="kw">pub fn </span>href_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HrefIter&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
         HrefIter {
             doc: <span class="self">self</span>.document(),
             origin: <span class="self">self</span>.id(),
@@ -1530,29 +1531,29 @@
     }
 }
 
-<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>SvgNode&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>SvgNode&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
         <span class="kw">match </span><span class="self">self</span>.d.kind {
-            NodeKind::Root =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Root&quot;</span>),
+            NodeKind::Root =&gt; <span class="macro">write!</span>(f, <span class="string">"Root"</span>),
             NodeKind::Element { .. } =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;Element {{ tag_name: {:?}, attributes: {:?} }}&quot;</span>,
+                    <span class="string">"Element {{ tag_name: {:?}, attributes: {:?} }}"</span>,
                     <span class="self">self</span>.tag_name(),
                     <span class="self">self</span>.attributes()
                 )
             }
-            NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Text({:?})&quot;</span>, text),
+            NodeKind::Text(<span class="kw-2">ref </span>text) =&gt; <span class="macro">write!</span>(f, <span class="string">"Text({:?})"</span>, text),
         }
     }
 }
 
 <span class="doccomment">/// An iterator over ancestor nodes.
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>Ancestors&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(<span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt;);
+</span><span class="kw">pub struct </span>Ancestors&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt;(<span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt;);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Ancestors&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
-    <span class="kw">type </span>Item = SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>Ancestors&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
+    <span class="kw">type </span>Item = SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -1564,13 +1565,13 @@
 
 <span class="doccomment">/// An iterator over children nodes.
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>Children&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; {
-    front: <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt;,
-    back: <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt;,
+</span><span class="kw">pub struct </span>Children&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; {
+    front: <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt;,
+    back: <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Children&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
-    <span class="kw">type </span>Item = SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>Children&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
+    <span class="kw">type </span>Item = SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let </span>node = <span class="self">self</span>.front.take();
@@ -1584,19 +1585,19 @@
 }
 
 <span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
-</span><span class="kw">enum </span>Edge&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; {
-    Open(SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;),
-    Close(SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;),
+</span><span class="kw">enum </span>Edge&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; {
+    Open(SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;),
+    Close(SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;),
 }
 
 <span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">struct </span>Traverse&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; {
-    root: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
-    edge: <span class="prelude-ty">Option</span>&lt;Edge&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt;,
+</span><span class="kw">struct </span>Traverse&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; {
+    root: SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;,
+    edge: <span class="prelude-ty">Option</span>&lt;Edge&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Traverse&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
-    <span class="kw">type </span>Item = Edge&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>Traverse&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
+    <span class="kw">type </span>Item = Edge&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">match </span><span class="self">self</span>.edge {
@@ -1626,10 +1627,10 @@
 
 <span class="doccomment">/// A descendants iterator.
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>Descendants&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(Traverse&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;);
+</span><span class="kw">pub struct </span>Descendants&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt;(Traverse&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Descendants&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
-    <span class="kw">type </span>Item = SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>Descendants&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
+    <span class="kw">type </span>Item = SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -1645,16 +1646,16 @@
 
 <span class="doccomment">/// An iterator over `xlink:href` references.
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>HrefIter&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; {
-    doc: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
+</span><span class="kw">pub struct </span>HrefIter&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; {
+    doc: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Document&lt;<span class="lifetime">'input</span>&gt;,
     origin: NodeId,
     curr: NodeId,
     is_first: bool,
     is_finished: bool,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>HrefIter&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
-    <span class="kw">type </span>Item = SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>HrefIter&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
+    <span class="kw">type </span>Item = SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_finished {
@@ -1669,7 +1670,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(link) = <span class="self">self</span>.doc.get(<span class="self">self</span>.curr).node_attribute(AId::Href) {
             <span class="kw">if </span>link.id() == <span class="self">self</span>.curr || link.id() == <span class="self">self</span>.origin {
                 <span class="macro">log::warn!</span>(
-                    <span class="string">&quot;Element &#39;#{}&#39; cannot reference itself via &#39;xlink:href&#39;.&quot;</span>,
+                    <span class="string">"Element '#{}' cannot reference itself via 'xlink:href'."</span>,
                     <span class="self">self</span>.doc.get(<span class="self">self</span>.origin).element_id()
                 );
                 <span class="self">self</span>.is_finished = <span class="bool-val">true</span>;
@@ -1878,33 +1879,33 @@
 
 <span class="comment">// TODO: is there a way yo make it less ugly? Too many lifetimes.
 </span><span class="doccomment">/// A trait for parsing attribute values.
-</span><span class="kw">pub trait </span>FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;: Sized {
+</span><span class="kw">pub trait </span>FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt;: Sized {
     <span class="doccomment">/// Parses an attribute value.
     ///
     /// When `None` is returned, the attribute value will be logged as a parsing failure.
-    </span><span class="kw">fn </span>parse(node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;, aid: AId, value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;;
+    </span><span class="kw">fn </span>parse(node: SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;, aid: AId, value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
-    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
+    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Some</span>(value)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>f32 {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>f32 {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         svgtypes::Number::from_str(value).ok().map(|v| v.<span class="number">0 </span><span class="kw">as </span>f32)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>svgtypes::Length {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>svgtypes::Length {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         svgtypes::Length::from_str(value).ok()
     }
 }
 
 <span class="comment">// TODO: to svgtypes?
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::Opacity {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>usvg_tree::Opacity {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>length = svgtypes::Length::from_str(value).ok()<span class="question-mark">?</span>;
         <span class="kw">if </span>length.unit == svgtypes::LengthUnit::Percent {
@@ -1919,7 +1920,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::Transform {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>usvg_tree::Transform {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>ts = <span class="kw">match </span>svgtypes::Transform::from_str(value) {
             <span class="prelude-val">Ok</span>(v) =&gt; v,
@@ -1943,65 +1944,65 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>svgtypes::TransformOrigin {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>svgtypes::TransformOrigin {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">Self</span>::from_str(value).ok()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>svgtypes::ViewBox {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>svgtypes::ViewBox {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">Self</span>::from_str(value).ok()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::Units {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>usvg_tree::Units {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
-            <span class="string">&quot;userSpaceOnUse&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Units::UserSpaceOnUse),
-            <span class="string">&quot;objectBoundingBox&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Units::ObjectBoundingBox),
+            <span class="string">"userSpaceOnUse" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Units::UserSpaceOnUse),
+            <span class="string">"objectBoundingBox" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Units::ObjectBoundingBox),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>svgtypes::AspectRatio {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>svgtypes::AspectRatio {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">Self</span>::from_str(value).ok()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>svgtypes::PaintOrder {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>svgtypes::PaintOrder {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">Self</span>::from_str(value).ok()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>svgtypes::Color {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>svgtypes::Color {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">Self</span>::from_str(value).ok()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>svgtypes::Angle {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>svgtypes::Angle {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">Self</span>::from_str(value).ok()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>svgtypes::EnableBackground {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>svgtypes::EnableBackground {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">Self</span>::from_str(value).ok()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>svgtypes::Paint&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>svgtypes::Paint&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">Self</span>::from_str(value).ok()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>Vec&lt;f32&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>Vec&lt;f32&gt; {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>list = Vec::new();
         <span class="kw">for </span>n <span class="kw">in </span>svgtypes::NumberListParser::from(value) {
@@ -2012,7 +2013,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>Vec&lt;svgtypes::Length&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>Vec&lt;svgtypes::Length&gt; {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>list = Vec::new();
         <span class="kw">for </span>n <span class="kw">in </span>svgtypes::LengthListParser::from(value) {
@@ -2023,86 +2024,86 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::Visibility {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>usvg_tree::Visibility {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
-            <span class="string">&quot;visible&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Visibility::Visible),
-            <span class="string">&quot;hidden&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Visibility::Hidden),
-            <span class="string">&quot;collapse&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Visibility::Collapse),
+            <span class="string">"visible" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Visibility::Visible),
+            <span class="string">"hidden" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Visibility::Hidden),
+            <span class="string">"collapse" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::Visibility::Collapse),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::SpreadMethod {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>usvg_tree::SpreadMethod {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
-            <span class="string">&quot;pad&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::SpreadMethod::Pad),
-            <span class="string">&quot;reflect&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::SpreadMethod::Reflect),
-            <span class="string">&quot;repeat&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::SpreadMethod::Repeat),
+            <span class="string">"pad" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::SpreadMethod::Pad),
+            <span class="string">"reflect" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::SpreadMethod::Reflect),
+            <span class="string">"repeat" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::SpreadMethod::Repeat),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::ShapeRendering {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>usvg_tree::ShapeRendering {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
-            <span class="string">&quot;optimizeSpeed&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ShapeRendering::OptimizeSpeed),
-            <span class="string">&quot;crispEdges&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ShapeRendering::CrispEdges),
-            <span class="string">&quot;auto&quot; </span>| <span class="string">&quot;geometricPrecision&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ShapeRendering::GeometricPrecision),
+            <span class="string">"optimizeSpeed" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ShapeRendering::OptimizeSpeed),
+            <span class="string">"crispEdges" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ShapeRendering::CrispEdges),
+            <span class="string">"auto" </span>| <span class="string">"geometricPrecision" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ShapeRendering::GeometricPrecision),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::TextRendering {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>usvg_tree::TextRendering {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
-            <span class="string">&quot;optimizeSpeed&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::TextRendering::OptimizeSpeed),
-            <span class="string">&quot;auto&quot; </span>| <span class="string">&quot;optimizeLegibility&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::TextRendering::OptimizeLegibility),
-            <span class="string">&quot;geometricPrecision&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::TextRendering::GeometricPrecision),
+            <span class="string">"optimizeSpeed" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::TextRendering::OptimizeSpeed),
+            <span class="string">"auto" </span>| <span class="string">"optimizeLegibility" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::TextRendering::OptimizeLegibility),
+            <span class="string">"geometricPrecision" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::TextRendering::GeometricPrecision),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::ImageRendering {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>usvg_tree::ImageRendering {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
-            <span class="string">&quot;auto&quot; </span>| <span class="string">&quot;optimizeQuality&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ImageRendering::OptimizeQuality),
-            <span class="string">&quot;optimizeSpeed&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ImageRendering::OptimizeSpeed),
+            <span class="string">"auto" </span>| <span class="string">"optimizeQuality" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ImageRendering::OptimizeQuality),
+            <span class="string">"optimizeSpeed" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::ImageRendering::OptimizeSpeed),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::BlendMode {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>usvg_tree::BlendMode {
     <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
-            <span class="string">&quot;normal&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Normal),
-            <span class="string">&quot;multiply&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Multiply),
-            <span class="string">&quot;screen&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Screen),
-            <span class="string">&quot;overlay&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Overlay),
-            <span class="string">&quot;darken&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Darken),
-            <span class="string">&quot;lighten&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Lighten),
-            <span class="string">&quot;color-dodge&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::ColorDodge),
-            <span class="string">&quot;color-burn&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::ColorBurn),
-            <span class="string">&quot;hard-light&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::HardLight),
-            <span class="string">&quot;soft-light&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::SoftLight),
-            <span class="string">&quot;difference&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Difference),
-            <span class="string">&quot;exclusion&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Exclusion),
-            <span class="string">&quot;hue&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Hue),
-            <span class="string">&quot;saturation&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Saturation),
-            <span class="string">&quot;color&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Color),
-            <span class="string">&quot;luminosity&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Luminosity),
+            <span class="string">"normal" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Normal),
+            <span class="string">"multiply" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Multiply),
+            <span class="string">"screen" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Screen),
+            <span class="string">"overlay" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Overlay),
+            <span class="string">"darken" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Darken),
+            <span class="string">"lighten" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Lighten),
+            <span class="string">"color-dodge" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::ColorDodge),
+            <span class="string">"color-burn" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::ColorBurn),
+            <span class="string">"hard-light" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::HardLight),
+            <span class="string">"soft-light" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::SoftLight),
+            <span class="string">"difference" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Difference),
+            <span class="string">"exclusion" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Exclusion),
+            <span class="string">"hue" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Hue),
+            <span class="string">"saturation" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Saturation),
+            <span class="string">"color" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Color),
+            <span class="string">"luminosity" </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::BlendMode::Luminosity),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
-    <span class="kw">fn </span>parse(node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;, aid: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt; FromValue&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; <span class="kw">for </span>SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt; {
+    <span class="kw">fn </span>parse(node: SvgNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;, aid: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>id = <span class="kw">if </span>aid == AId::Href {
             svgtypes::IRI::from_str(value).ok().map(|v| v.<span class="number">0</span>)
         } <span class="kw">else </span>{

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/any/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/any/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -710,18 +711,18 @@
 /// );
 ///
 /// let dtf = DateTimeFormatter::try_new(
-///     &amp;locale!(&quot;en-u-ca-gregory&quot;).into(),
+///     &amp;locale!("en-u-ca-gregory").into(),
 ///     options.into(),
 /// )
-/// .expect(&quot;Failed to create DateTimeFormatter instance.&quot;);
+/// .expect("Failed to create DateTimeFormatter instance.");
 ///
 /// let datetime = DateTime::try_new_iso_datetime(2020, 9, 1, 12, 34, 28)
-///     .expect(&quot;Failed to construct DateTime.&quot;);
+///     .expect("Failed to construct DateTime.");
 /// let any_datetime = datetime.to_any();
 ///
 /// assert_writeable_eq!(
-///     dtf.format(&amp;any_datetime).expect(&quot;Calendars should match&quot;),
-///     &quot;Sep 1, 2020, 12:34 PM&quot;
+///     dtf.format(&amp;any_datetime).expect("Calendars should match"),
+///     "Sep 1, 2020, 12:34 PM"
 /// );
 /// ```
 ///
@@ -737,37 +738,37 @@
 /// # use std::rc::Rc;
 /// # use std::convert::TryInto;
 ///
-/// let locale = locale!(&quot;en-u-ca-japanese&quot;).into(); // English with the Japanese calendar
+/// let locale = locale!("en-u-ca-japanese").into(); // English with the Japanese calendar
 ///
 /// let calendar = AnyCalendar::new_for_locale(&amp;locale);
 /// let calendar = Rc::new(calendar); // Avoid cloning it
 ///
 ///
 /// // manually construct a datetime in this calendar
-/// let manual_time = Time::try_new(12, 33, 12, 0).expect(&quot;failed to construct Time&quot;);
+/// let manual_time = Time::try_new(12, 33, 12, 0).expect("failed to construct Time");
 /// // construct from era code, year, month code, day, time, and a calendar
 /// // This is March 28, 15 Heisei
-/// let manual_datetime = DateTime::try_new_from_codes(&quot;heisei&quot;.parse().unwrap(), 15, &quot;M03&quot;.parse().unwrap(), 28,
+/// let manual_datetime = DateTime::try_new_from_codes("heisei".parse().unwrap(), 15, "M03".parse().unwrap(), 28,
 ///                                                manual_time, calendar.clone())
-///                     .expect(&quot;Failed to construct DateTime manually&quot;);
+///                     .expect("Failed to construct DateTime manually");
 ///
 ///
 /// // construct another datetime by converting from ISO
 /// let iso_datetime = DateTime::try_new_iso_datetime(2020, 9, 1, 12, 34, 28)
-///     .expect(&quot;Failed to construct ISO DateTime.&quot;);
+///     .expect("Failed to construct ISO DateTime.");
 /// let iso_converted = iso_datetime.to_calendar(calendar);
 ///
 ///
 /// let options = length::Bag::from_date_time_style(length::Date::Medium, length::Time::Short);
 ///
 /// let dtf = DateTimeFormatter::try_new(&amp;locale, options.into())
-///     .expect(&quot;Failed to create DateTimeFormatter instance.&quot;);
+///     .expect("Failed to create DateTimeFormatter instance.");
 ///
-/// let manual_value = dtf.format(&amp;manual_datetime).expect(&quot;Calendars should match&quot;);
-/// assert_writeable_eq!(manual_value, &quot;Mar 28, 15 Heisei, 12:33 PM&quot;);
+/// let manual_value = dtf.format(&amp;manual_datetime).expect("Calendars should match");
+/// assert_writeable_eq!(manual_value, "Mar 28, 15 Heisei, 12:33 PM");
 ///
-/// let converted_value = dtf.format(&amp;iso_converted).expect(&quot;Calendars should match&quot;);
-/// assert_writeable_eq!(converted_value, &quot;Sep 1, 2 Reiwa, 12:34 PM&quot;);
+/// let converted_value = dtf.format(&amp;iso_converted).expect("Calendars should match");
+/// assert_writeable_eq!(converted_value, "Sep 1, 2 Reiwa, 12:34 PM");
 /// ```
 ///
 /// This model replicates that of `ICU` and `ECMA402`.
@@ -800,24 +801,24 @@
     ///     length::Date::Medium,
     ///     length::Time::Short,
     /// );
-    /// let locale = locale!(&quot;en-u-ca-gregory&quot;);
+    /// let locale = locale!("en-u-ca-gregory");
     ///
     /// let dtf = DateTimeFormatter::try_new(&amp;locale.into(), options.into())
-    ///     .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
+    ///     .expect("Failed to create TypedDateTimeFormatter instance.");
     ///
     /// let datetime = DateTime::try_new_iso_datetime(2020, 9, 1, 12, 34, 28)
-    ///     .expect(&quot;Failed to construct DateTime.&quot;);
+    ///     .expect("Failed to construct DateTime.");
     /// let any_datetime = datetime.to_any();
     ///
     /// assert_writeable_eq!(
-    ///     dtf.format(&amp;any_datetime).expect(&quot;Calendars should match&quot;),
-    ///     &quot;Sep 1, 2020, 12:34 PM&quot;
+    ///     dtf.format(&amp;any_datetime).expect("Calendars should match"),
+    ///     "Sep 1, 2020, 12:34 PM"
     /// );
     /// ```
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     #[inline]
     </span><span class="kw">pub fn </span>try_new(
         locale: <span class="kw-2">&amp;</span>DataLocale,
@@ -862,7 +863,7 @@
 
     <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(BUFFER, <span class="self">Self</span>::try_new)]
     #[inline]
-    #[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    #[cfg(feature = <span class="string">"serde"</span>)]
     </span><span class="kw">pub fn </span>try_new_with_buffer_provider(
         provider: <span class="kw-2">&amp;</span><span class="kw">impl </span>BufferProvider,
         locale: <span class="kw-2">&amp;</span>DataLocale,
@@ -873,7 +874,7 @@
     }
 
     <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::try_new_experimental)]
-    #[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    #[cfg(feature = <span class="string">"experimental"</span>)]
     #[inline(never)]
     </span><span class="kw">pub fn </span>try_new_experimental_unstable&lt;P&gt;(
         provider: <span class="kw-2">&amp;</span>P,
@@ -945,11 +946,11 @@
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
     ///
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
+    /// &lt;div class="stab unstable"&gt;
     /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. It can be enabled with the &quot;experimental&quot; Cargo feature
+    /// including in SemVer minor releases. It can be enabled with the "experimental" Cargo feature
     /// of the icu meta-crate. Use with caution.
-    /// &lt;a href=&quot;https://github.com/unicode-org/icu4x/issues/1317&quot;&gt;#1317&lt;/a&gt;
+    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/1317"&gt;#1317&lt;/a&gt;
     /// &lt;/div&gt;
     ///
     /// # Examples
@@ -968,22 +969,22 @@
     /// options.month = Some(components::Month::Long);
     ///
     /// let dtf = DateTimeFormatter::try_new_experimental(
-    ///     &amp;locale!(&quot;en-u-ca-gregory&quot;).into(),
+    ///     &amp;locale!("en-u-ca-gregory").into(),
     ///     options.into(),
     /// )
-    /// .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
+    /// .expect("Failed to create TypedDateTimeFormatter instance.");
     ///
     /// let datetime = DateTime::try_new_iso_datetime(2020, 9, 1, 12, 34, 28)
-    ///     .expect(&quot;Failed to construct DateTime.&quot;);
+    ///     .expect("Failed to construct DateTime.");
     /// let any_datetime = datetime.to_any();
     ///
     /// assert_writeable_eq!(
-    ///     dtf.format(&amp;any_datetime).expect(&quot;Calendars should match&quot;),
-    ///     &quot;September 2020&quot;
+    ///     dtf.format(&amp;any_datetime).expect("Calendars should match"),
+    ///     "September 2020"
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg(feature = <span class="string">"compiled_data"</span>)]
     #[inline(never)]
     </span><span class="kw">pub fn </span>try_new_experimental(
         locale: <span class="kw-2">&amp;</span>DataLocale,
@@ -1096,26 +1097,26 @@
     /// use writeable::assert_writeable_eq;
     ///
     /// let length = length::Date::Medium;
-    /// let locale = locale!(&quot;en-u-ca-gregory&quot;);
+    /// let locale = locale!("en-u-ca-gregory");
     ///
     /// let df = DateFormatter::try_new_with_length(&amp;locale.into(), length)
-    ///     .expect(&quot;Failed to create TypedDateFormatter instance.&quot;);
+    ///     .expect("Failed to create TypedDateFormatter instance.");
     ///
     /// let tf = TimeFormatter::try_new_with_length(
-    ///     &amp;locale!(&quot;en&quot;).into(),
+    ///     &amp;locale!("en").into(),
     ///     length::Time::Short,
     /// )
-    /// .expect(&quot;Failed to create TimeFormatter instance.&quot;);
+    /// .expect("Failed to create TimeFormatter instance.");
     ///
     /// let dtf = DateTimeFormatter::try_from_date_and_time(df, tf).unwrap();
     ///
     /// let datetime = DateTime::try_new_iso_datetime(2020, 9, 1, 12, 34, 28)
-    ///     .expect(&quot;Failed to construct DateTime.&quot;);
+    ///     .expect("Failed to construct DateTime.");
     /// let any_datetime = datetime.to_any();
     ///
     /// assert_writeable_eq!(
-    ///     dtf.format(&amp;any_datetime).expect(&quot;Calendars should match&quot;),
-    ///     &quot;Sep 1, 2020, 12:34 PM&quot;
+    ///     dtf.format(&amp;any_datetime).expect("Calendars should match"),
+    ///     "Sep 1, 2020, 12:34 PM"
     /// );
     /// ```
     ///
@@ -1139,7 +1140,7 @@
     /// AnyCalendar. Please convert dates before passing them in if necessary. This function
     /// will automatically convert and format dates that are associated with the ISO calendar.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>format&lt;<span class="lifetime">&#39;l</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;FormattedDateTime&lt;<span class="lifetime">&#39;l</span>&gt;, DateTimeError&gt;
+    </span><span class="kw">pub fn </span>format&lt;<span class="lifetime">'l</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;FormattedDateTime&lt;<span class="lifetime">'l</span>&gt;, DateTimeError&gt;
     <span class="kw">where
         </span>T: DateTimeInput&lt;Calendar = AnyCalendar&gt;,
     {
@@ -1170,11 +1171,11 @@
     ///
     /// ✨ *Enabled with the `experimental` Cargo feature.*
     ///
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
+    /// &lt;div class="stab unstable"&gt;
     /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. It can be enabled with the &quot;experimental&quot; Cargo feature
+    /// including in SemVer minor releases. It can be enabled with the "experimental" Cargo feature
     /// of the icu meta-crate. Use with caution.
-    /// &lt;a href=&quot;https://github.com/unicode-org/icu4x/issues/1317&quot;&gt;#1317&lt;/a&gt;
+    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/1317"&gt;#1317&lt;/a&gt;
     /// &lt;/div&gt;
     ///
     /// # Examples
@@ -1191,8 +1192,8 @@
     /// let options = length::Bag::from_date_style(length::Date::Medium).into();
     ///
     /// let dtf =
-    ///     DateTimeFormatter::try_new(&amp;locale!(&quot;en-u-ca-gregory&quot;).into(), options)
-    ///         .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
+    ///     DateTimeFormatter::try_new(&amp;locale!("en-u-ca-gregory").into(), options)
+    ///         .expect("Failed to create TypedDateTimeFormatter instance.");
     ///
     /// let mut expected_components_bag = components::Bag::default();
     /// expected_components_bag.year = Some(components::Year::Numeric);
@@ -1201,7 +1202,7 @@
     ///
     /// assert_eq!(dtf.resolve_components(), expected_components_bag);
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>resolve_components(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::options::components::Bag {
         <span class="self">self</span>.<span class="number">0</span>.resolve_components()
     }
@@ -1209,11 +1210,11 @@
     <span class="doccomment">/// Converts a date to the correct calendar if necessary
     ///
     /// Returns `Err` if the date is not ISO or compatible with the current calendar, returns `Ok(None)`
-    /// if the date is compatible with the current calendar and doesn&#39;t need conversion
-    </span><span class="kw">fn </span>convert_if_necessary&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+    /// if the date is compatible with the current calendar and doesn't need conversion
+    </span><span class="kw">fn </span>convert_if_necessary&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         value: <span class="kw-2">&amp;</span><span class="kw">impl </span>DateTimeInput&lt;Calendar = AnyCalendar&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;DateTime&lt;icu_calendar::Ref&lt;<span class="lifetime">&#39;a</span>, AnyCalendar&gt;&gt;&gt;, DateTimeError&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;DateTime&lt;icu_calendar::Ref&lt;<span class="lifetime">'a</span>, AnyCalendar&gt;&gt;&gt;, DateTimeError&gt; {
         <span class="kw">let </span>this_calendar = <span class="self">self</span>.<span class="number">1</span>.kind();
         <span class="kw">let </span>date_calendar = value.any_calendar_kind();
 
@@ -1251,40 +1252,40 @@
 
         <span class="kw">let </span>dtf = DateTimeFormatter::try_new(<span class="kw-2">&amp;</span>locale.into(), options.into()).unwrap();
         <span class="macro">writeable::assert_writeable_eq!</span>(
-            dtf.format(datetime).expect(<span class="string">&quot;Calendars should match&quot;</span>),
+            dtf.format(datetime).expect(<span class="string">"Calendars should match"</span>),
             expected
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_fallback() {
-        <span class="comment">// We can rely on the code&#39;s ability to convert ISO datetimes
+        <span class="comment">// We can rely on the code's ability to convert ISO datetimes
         </span><span class="kw">let </span>datetime = DateTime::try_new_iso_datetime(<span class="number">2022</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">12</span>, <span class="number">33</span>, <span class="number">44</span>).unwrap();
         <span class="kw">let </span>datetime = datetime.to_any();
         <span class="comment">// fr with unspecified and nonsense calendars falls back to gregorian
-        </span>test_format(<span class="kw-2">&amp;</span>datetime, <span class="macro">locale!</span>(<span class="string">&quot;fr&quot;</span>), <span class="string">&quot;5 avril 2022, 12:33&quot;</span>);
+        </span>test_format(<span class="kw-2">&amp;</span>datetime, <span class="macro">locale!</span>(<span class="string">"fr"</span>), <span class="string">"5 avril 2022, 12:33"</span>);
         test_format(
             <span class="kw-2">&amp;</span>datetime,
-            <span class="macro">locale!</span>(<span class="string">&quot;fr-u-ca-blahblah&quot;</span>),
-            <span class="string">&quot;5 avril 2022, 12:33&quot;</span>,
+            <span class="macro">locale!</span>(<span class="string">"fr-u-ca-blahblah"</span>),
+            <span class="string">"5 avril 2022, 12:33"</span>,
         );
         <span class="comment">// thai falls back to buddhist
         </span>test_format(
             <span class="kw-2">&amp;</span>datetime,
-            <span class="macro">locale!</span>(<span class="string">&quot;th-u-ca-buddhist&quot;</span>),
-            <span class="string">&quot;5 เมษายน 2565 12:33&quot;</span>,
+            <span class="macro">locale!</span>(<span class="string">"th-u-ca-buddhist"</span>),
+            <span class="string">"5 เมษายน 2565 12:33"</span>,
         );
-        test_format(<span class="kw-2">&amp;</span>datetime, <span class="macro">locale!</span>(<span class="string">&quot;th&quot;</span>), <span class="string">&quot;5 เมษายน 2565 12:33&quot;</span>);
+        test_format(<span class="kw-2">&amp;</span>datetime, <span class="macro">locale!</span>(<span class="string">"th"</span>), <span class="string">"5 เมษายน 2565 12:33"</span>);
         <span class="comment">// except when overridden
         </span>test_format(
             <span class="kw-2">&amp;</span>datetime,
-            <span class="macro">locale!</span>(<span class="string">&quot;th-u-ca-gregory&quot;</span>),
-            <span class="string">&quot;5 เมษายน ค.ศ. 2022 12:33&quot;</span>,
+            <span class="macro">locale!</span>(<span class="string">"th-u-ca-gregory"</span>),
+            <span class="string">"5 เมษายน ค.ศ. 2022 12:33"</span>,
         );
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    #[cfg(feature = <span class="string">"serde"</span>)]
     </span><span class="kw">fn </span>works_with_default_options() {
         <span class="macro">assert_eq!</span>(
             DateTimeFormatter::try_new(Default::default(), Default::default(),)
@@ -1295,13 +1296,13 @@
                         .to_any()
                 )
                 .unwrap(),
-            <span class="string">&quot;2022 M09 20 00:00:00&quot;
+            <span class="string">"2022 M09 20 00:00:00"
         </span>);
     }
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">fn </span>buffer_constructor() {
     <span class="kw">use </span>icu::calendar::DateTime;
     <span class="kw">use </span>icu::datetime::{options::length, DateTimeFormatter};
@@ -1309,13 +1310,13 @@
     <span class="kw">use </span>writeable::assert_writeable_eq;
 
     <span class="kw">let </span>provider = icu_provider_blob::BlobDataProvider::try_new_from_static_blob(<span class="macro">include_bytes!</span>(
-        <span class="string">&quot;../../tests/data/blob.postcard&quot;
+        <span class="string">"../../tests/data/blob.postcard"
     </span>))
     .unwrap();
 
     <span class="kw">let </span>dtf = DateTimeFormatter::try_new_with_buffer_provider(
         <span class="kw-2">&amp;</span>provider,
-        <span class="kw-2">&amp;</span><span class="macro">locale!</span>(<span class="string">&quot;en&quot;</span>).into(),
+        <span class="kw-2">&amp;</span><span class="macro">locale!</span>(<span class="string">"en"</span>).into(),
         length::Bag::from_date_time_style(length::Date::Medium, length::Time::Short).into(),
     )
     .unwrap();
@@ -1326,8 +1327,8 @@
                 .unwrap()
                 .to_any()
         )
-        .expect(<span class="string">&quot;Calendars should match&quot;</span>),
-        <span class="string">&quot;Sep 1, 2020, 12:34 PM&quot;
+        .expect(<span class="string">"Calendars should match"</span>),
+        <span class="string">"Sep 1, 2020, 12:34 PM"
     </span>);
 }
 </code></pre></div></section></main></body></html>

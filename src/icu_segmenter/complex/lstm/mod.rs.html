@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.4.0/src/complex/lstm/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.4.0/src/complex/lstm/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -415,13 +416,13 @@
 
 <span class="comment">// A word break iterator using LSTM model. Input string have to be same language.
 
-</span><span class="kw">struct </span>LstmSegmenterIterator&lt;<span class="lifetime">&#39;s</span>&gt; {
-    input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>str,
+</span><span class="kw">struct </span>LstmSegmenterIterator&lt;<span class="lifetime">'s</span>&gt; {
+    input: <span class="kw-2">&amp;</span><span class="lifetime">'s </span>str,
     pos_utf8: usize,
-    bies: BiesIterator&lt;<span class="lifetime">&#39;s</span>&gt;,
+    bies: BiesIterator&lt;<span class="lifetime">'s</span>&gt;,
 }
 
-<span class="kw">impl </span>Iterator <span class="kw">for </span>LstmSegmenterIterator&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Iterator <span class="kw">for </span>LstmSegmenterIterator&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">type </span>Item = usize;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -436,12 +437,12 @@
     }
 }
 
-<span class="kw">struct </span>LstmSegmenterIteratorUtf16&lt;<span class="lifetime">&#39;s</span>&gt; {
-    bies: BiesIterator&lt;<span class="lifetime">&#39;s</span>&gt;,
+<span class="kw">struct </span>LstmSegmenterIteratorUtf16&lt;<span class="lifetime">'s</span>&gt; {
+    bies: BiesIterator&lt;<span class="lifetime">'s</span>&gt;,
     pos: usize,
 }
 
-<span class="kw">impl </span>Iterator <span class="kw">for </span>LstmSegmenterIteratorUtf16&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Iterator <span class="kw">for </span>LstmSegmenterIteratorUtf16&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">type </span>Item = usize;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -454,24 +455,24 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>LstmSegmenter&lt;<span class="lifetime">&#39;l</span>&gt; {
-    dic: ZeroMapBorrowed&lt;<span class="lifetime">&#39;l</span>, UnvalidatedStr, u16&gt;,
-    embedding: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">2</span>&gt;,
-    fw_w: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">3</span>&gt;,
-    fw_u: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">3</span>&gt;,
-    fw_b: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">2</span>&gt;,
-    bw_w: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">3</span>&gt;,
-    bw_u: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">3</span>&gt;,
-    bw_b: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">2</span>&gt;,
-    timew_fw: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">2</span>&gt;,
-    timew_bw: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">2</span>&gt;,
-    time_b: MatrixZero&lt;<span class="lifetime">&#39;l</span>, <span class="number">1</span>&gt;,
-    grapheme: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>RuleBreakDataV1&lt;<span class="lifetime">&#39;l</span>&gt;&gt;,
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>LstmSegmenter&lt;<span class="lifetime">'l</span>&gt; {
+    dic: ZeroMapBorrowed&lt;<span class="lifetime">'l</span>, UnvalidatedStr, u16&gt;,
+    embedding: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">2</span>&gt;,
+    fw_w: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">3</span>&gt;,
+    fw_u: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">3</span>&gt;,
+    fw_b: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">2</span>&gt;,
+    bw_w: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">3</span>&gt;,
+    bw_u: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">3</span>&gt;,
+    bw_b: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">2</span>&gt;,
+    timew_fw: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">2</span>&gt;,
+    timew_bw: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">2</span>&gt;,
+    time_b: MatrixZero&lt;<span class="lifetime">'l</span>, <span class="number">1</span>&gt;,
+    grapheme: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'l </span>RuleBreakDataV1&lt;<span class="lifetime">'l</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>&gt; LstmSegmenter&lt;<span class="lifetime">&#39;l</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>&gt; LstmSegmenter&lt;<span class="lifetime">'l</span>&gt; {
     <span class="doccomment">/// Returns `Err` if grapheme data is required but not present
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(lstm: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>LstmDataV1&lt;<span class="lifetime">&#39;l</span>&gt;, grapheme: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>RuleBreakDataV1&lt;<span class="lifetime">&#39;l</span>&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(lstm: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>LstmDataV1&lt;<span class="lifetime">'l</span>&gt;, grapheme: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>RuleBreakDataV1&lt;<span class="lifetime">'l</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>LstmDataV1::Float32(lstm) = lstm;
         <span class="kw">let </span>time_w = MatrixZero::from(<span class="kw-2">&amp;</span>lstm.time_w);
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// shape (2, 4, hunits)
@@ -495,12 +496,12 @@
     }
 
     <span class="doccomment">/// Create an LSTM based break iterator for an `str` (a UTF-8 string).
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>segment_str(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>str) -&gt; <span class="kw">impl </span>Iterator&lt;Item = usize&gt; + <span class="lifetime">&#39;l </span>{
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>segment_str(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>str) -&gt; <span class="kw">impl </span>Iterator&lt;Item = usize&gt; + <span class="lifetime">'l </span>{
         <span class="self">self</span>.segment_str_p(input)
     }
 
-    <span class="comment">// For unit testing as we cannot inspect the opaque type&#39;s bies
-    </span><span class="kw">fn </span>segment_str_p(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>str) -&gt; LstmSegmenterIterator&lt;<span class="lifetime">&#39;l</span>&gt; {
+    <span class="comment">// For unit testing as we cannot inspect the opaque type's bies
+    </span><span class="kw">fn </span>segment_str_p(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>str) -&gt; LstmSegmenterIterator&lt;<span class="lifetime">'l</span>&gt; {
         <span class="kw">let </span>input_seq = <span class="kw">if let </span><span class="prelude-val">Some</span>(grapheme) = <span class="self">self</span>.grapheme {
             GraphemeClusterSegmenter::new_and_segment_str(input, grapheme)
                 .collect::&lt;Vec&lt;usize&gt;&gt;()
@@ -540,7 +541,7 @@
     }
 
     <span class="doccomment">/// Create an LSTM based break iterator for a UTF-16 string.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>segment_utf16(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u16]) -&gt; <span class="kw">impl </span>Iterator&lt;Item = usize&gt; + <span class="lifetime">&#39;l </span>{
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>segment_utf16(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u16]) -&gt; <span class="kw">impl </span>Iterator&lt;Item = usize&gt; + <span class="lifetime">'l </span>{
         <span class="kw">let </span>input_seq = <span class="kw">if let </span><span class="prelude-val">Some</span>(grapheme) = <span class="self">self</span>.grapheme {
             GraphemeClusterSegmenter::new_and_segment_utf16(input, grapheme)
                 .collect::&lt;Vec&lt;usize&gt;&gt;()
@@ -590,18 +591,18 @@
     }
 }
 
-<span class="kw">struct </span>BiesIterator&lt;<span class="lifetime">&#39;l</span>&gt; {
-    segmenter: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>LstmSegmenter&lt;<span class="lifetime">&#39;l</span>&gt;,
+<span class="kw">struct </span>BiesIterator&lt;<span class="lifetime">'l</span>&gt; {
+    segmenter: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>LstmSegmenter&lt;<span class="lifetime">'l</span>&gt;,
     input_seq: core::iter::Enumerate&lt;alloc::vec::IntoIter&lt;u16&gt;&gt;,
     h_bw: MatrixOwned&lt;<span class="number">2</span>&gt;,
     curr_fw: MatrixOwned&lt;<span class="number">1</span>&gt;,
     c_fw: MatrixOwned&lt;<span class="number">1</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>&gt; BiesIterator&lt;<span class="lifetime">&#39;l</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>&gt; BiesIterator&lt;<span class="lifetime">'l</span>&gt; {
     <span class="comment">// input_seq is a sequence of id numbers that represents grapheme clusters or code points in the input line. These ids are used later
     // in the embedding layer of the model.
-    </span><span class="kw">fn </span>new(segmenter: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>LstmSegmenter&lt;<span class="lifetime">&#39;l</span>&gt;, input_seq: Vec&lt;u16&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>new(segmenter: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>LstmSegmenter&lt;<span class="lifetime">'l</span>&gt;, input_seq: Vec&lt;u16&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>hunits = segmenter.fw_u.dim().<span class="number">1</span>;
 
         <span class="comment">// Backward LSTM
@@ -632,13 +633,13 @@
     }
 }
 
-<span class="kw">impl </span>ExactSizeIterator <span class="kw">for </span>BiesIterator&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>ExactSizeIterator <span class="kw">for </span>BiesIterator&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.input_seq.len()
     }
 }
 
-<span class="kw">impl </span>Iterator <span class="kw">for </span>BiesIterator&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Iterator <span class="kw">for </span>BiesIterator&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">type </span>Item = bool;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -668,21 +669,21 @@
         curr_est.add_dot_2d(curr_bw, <span class="self">self</span>.segmenter.timew_bw);
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// both shape (4)
         </span>curr_est.add(<span class="self">self</span>.segmenter.time_b).unwrap();
-        <span class="comment">// For correct BIES weight calculation we&#39;d now have to apply softmax, however
-        // we&#39;re only doing a naive argmax, so a monotonic function doesn&#39;t make a difference.
+        <span class="comment">// For correct BIES weight calculation we'd now have to apply softmax, however
+        // we're only doing a naive argmax, so a monotonic function doesn't make a difference.
 
         </span><span class="prelude-val">Some</span>(weights[<span class="number">2</span>] &gt; weights[<span class="number">0</span>] &amp;&amp; weights[<span class="number">2</span>] &gt; weights[<span class="number">1</span>] &amp;&amp; weights[<span class="number">2</span>] &gt; weights[<span class="number">3</span>])
     }
 }
 
 <span class="doccomment">/// `compute_hc1` implemens the evaluation of one LSTM layer.
-</span><span class="kw">fn </span>compute_hc&lt;<span class="lifetime">&#39;a</span>&gt;(
-    x_t: MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">1</span>&gt;,
-    <span class="kw-2">mut </span>h_tm1: MatrixBorrowedMut&lt;<span class="lifetime">&#39;a</span>, <span class="number">1</span>&gt;,
-    <span class="kw-2">mut </span>c_tm1: MatrixBorrowedMut&lt;<span class="lifetime">&#39;a</span>, <span class="number">1</span>&gt;,
-    w: MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">3</span>&gt;,
-    u: MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">3</span>&gt;,
-    b: MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">2</span>&gt;,
+</span><span class="kw">fn </span>compute_hc&lt;<span class="lifetime">'a</span>&gt;(
+    x_t: MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">1</span>&gt;,
+    <span class="kw-2">mut </span>h_tm1: MatrixBorrowedMut&lt;<span class="lifetime">'a</span>, <span class="number">1</span>&gt;,
+    <span class="kw-2">mut </span>c_tm1: MatrixBorrowedMut&lt;<span class="lifetime">'a</span>, <span class="number">1</span>&gt;,
+    w: MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">3</span>&gt;,
+    u: MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">3</span>&gt;,
+    b: MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">2</span>&gt;,
 ) {
     <span class="attr">#[cfg(debug_assertions)]
     </span>{
@@ -750,16 +751,16 @@
     }
 
     <span class="kw">fn </span>load_test_text(filename: <span class="kw-2">&amp;</span>str) -&gt; TestTextData {
-        <span class="kw">let </span>file = File::open(filename).expect(<span class="string">&quot;File should be present&quot;</span>);
+        <span class="kw">let </span>file = File::open(filename).expect(<span class="string">"File should be present"</span>);
         <span class="kw">let </span>reader = BufReader::new(file);
-        serde_json::from_reader(reader).expect(<span class="string">&quot;JSON syntax error&quot;</span>)
+        serde_json::from_reader(reader).expect(<span class="string">"JSON syntax error"</span>)
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>segment_file_by_lstm() {
         <span class="kw">let </span>lstm: DataPayload&lt;LstmForWordLineAutoV1Marker&gt; = <span class="kw">crate</span>::provider::Baked
             .load(DataRequest {
-                locale: <span class="kw-2">&amp;</span><span class="macro">locale!</span>(<span class="string">&quot;th&quot;</span>).into(),
+                locale: <span class="kw-2">&amp;</span><span class="macro">locale!</span>(<span class="string">"th"</span>).into(),
                 metadata: Default::default(),
             })
             .unwrap()
@@ -772,11 +773,11 @@
 
         <span class="comment">// Importing the test data
         </span><span class="kw">let </span>test_text_data = load_test_text(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-            <span class="string">&quot;tests/testdata/test_text_{}.json&quot;</span>,
+            <span class="string">"tests/testdata/test_text_{}.json"</span>,
             <span class="kw">if </span>lstm.grapheme.is_some() {
-                <span class="string">&quot;grapheme&quot;
+                <span class="string">"grapheme"
             </span>} <span class="kw">else </span>{
-                <span class="string">&quot;codepoints&quot;
+                <span class="string">"codepoints"
             </span>}
         ));
         <span class="kw">let </span>test_text = TestText {
@@ -788,15 +789,15 @@
             <span class="kw">let </span>lstm_output = lstm
                 .segment_str_p(<span class="kw-2">&amp;</span>test_case.unseg)
                 .bies
-                .map(|is_e| <span class="kw">if </span>is_e { <span class="string">&#39;e&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;?&#39; </span>})
+                .map(|is_e| <span class="kw">if </span>is_e { <span class="string">'e' </span>} <span class="kw">else </span>{ <span class="string">'?' </span>})
                 .collect::&lt;String&gt;();
-            <span class="macro">println!</span>(<span class="string">&quot;Test case      : {}&quot;</span>, test_case.unseg);
-            <span class="macro">println!</span>(<span class="string">&quot;Expected bies  : {}&quot;</span>, test_case.expected_bies);
-            <span class="macro">println!</span>(<span class="string">&quot;Estimated bies : {lstm_output}&quot;</span>);
-            <span class="macro">println!</span>(<span class="string">&quot;True bies      : {}&quot;</span>, test_case.true_bies);
-            <span class="macro">println!</span>(<span class="string">&quot;****************************************************&quot;</span>);
+            <span class="macro">println!</span>(<span class="string">"Test case      : {}"</span>, test_case.unseg);
+            <span class="macro">println!</span>(<span class="string">"Expected bies  : {}"</span>, test_case.expected_bies);
+            <span class="macro">println!</span>(<span class="string">"Estimated bies : {lstm_output}"</span>);
+            <span class="macro">println!</span>(<span class="string">"True bies      : {}"</span>, test_case.true_bies);
+            <span class="macro">println!</span>(<span class="string">"****************************************************"</span>);
             <span class="macro">assert_eq!</span>(
-                test_case.expected_bies.replace([<span class="string">&#39;b&#39;</span>, <span class="string">&#39;i&#39;</span>, <span class="string">&#39;s&#39;</span>], <span class="string">&quot;?&quot;</span>),
+                test_case.expected_bies.replace([<span class="string">'b'</span>, <span class="string">'i'</span>, <span class="string">'s'</span>], <span class="string">"?"</span>),
                 lstm_output
             );
         }

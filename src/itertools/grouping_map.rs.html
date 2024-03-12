@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.12.1/src/grouping_map.rs`."><title>grouping_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.12.1/src/grouping_map.rs`."><title>grouping_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -600,7 +601,7 @@
 <a href="#600" id="600">600</a>
 <a href="#601" id="601">601</a>
 <a href="#602" id="602">602</a>
-</pre></div><pre class="rust"><code><span class="attr">#![cfg(feature = <span class="string">&quot;use_std&quot;</span>)]
+</pre></div><pre class="rust"><code><span class="attr">#![cfg(feature = <span class="string">"use_std"</span>)]
 
 </span><span class="kw">use </span><span class="kw">crate</span>::MinMaxResult;
 <span class="kw">use </span>std::cmp::Ordering;
@@ -656,7 +657,7 @@
 ///
 /// No method on this struct performs temporary allocations.
 </span><span class="attr">#[derive(Clone, Debug)]
-#[must_use = <span class="string">&quot;GroupingMap is lazy and do nothing unless consumed&quot;</span>]
+#[must_use = <span class="string">"GroupingMap is lazy and do nothing unless consumed"</span>]
 </span><span class="kw">pub struct </span>GroupingMap&lt;I&gt; {
     iter: I,
 }
@@ -667,7 +668,7 @@
     K: Hash + Eq,
 {
     <span class="doccomment">/// This is the generic way to perform any operation on a `GroupingMap`.
-    /// It&#39;s suggested to use this method only to implement custom operations
+    /// It's suggested to use this method only to implement custom operations
     /// when the already provided ones are not enough.
     ///
     /// Groups elements from the `GroupingMap` source by key and applies `operation` to the elements
@@ -683,8 +684,8 @@
     /// otherwise the previous accumulation is discarded.
     ///
     /// Return a `HashMap` associating the key of each group with the result of aggregation of
-    /// that group&#39;s elements. If the aggregation of the last element of a group discards the
-    /// accumulator then there won&#39;t be an entry associated to that group&#39;s key.
+    /// that group's elements. If the aggregation of the last element of a group discards the
+    /// accumulator then there won't be an entry associated to that group's key.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -733,7 +734,7 @@
     ///  - a reference to the key of the group this element belongs to;
     ///  - the element from the source being accumulated.
     ///
-    /// Return a `HashMap` associating the key of each group with the result of folding that group&#39;s elements.
+    /// Return a `HashMap` associating the key of each group with the result of folding that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -777,7 +778,7 @@
     ///  - a reference to the key of the group this element belongs to;
     ///  - the element from the source being accumulated.
     ///
-    /// Return a `HashMap` associating the key of each group with the result of folding that group&#39;s elements.
+    /// Return a `HashMap` associating the key of each group with the result of folding that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -810,7 +811,7 @@
     ///  - a reference to the key of the group this element belongs to;
     ///  - the element from the source being accumulated.
     ///
-    /// Return a `HashMap` associating the key of each group with the result of folding that group&#39;s elements.
+    /// Return a `HashMap` associating the key of each group with the result of folding that group's elements.
     ///
     /// [`fold`]: GroupingMap::fold
     ///
@@ -841,7 +842,7 @@
     <span class="doccomment">/// Groups elements from the `GroupingMap` source by key and collects the elements of each group in
     /// an instance of `C`. The iteration order is preserved when inserting elements.
     ///
-    /// Return a `HashMap` associating the key of each group with the collection containing that group&#39;s elements.
+    /// Return a `HashMap` associating the key of each group with the collection containing that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -876,7 +877,7 @@
     ///
     /// If several elements are equally maximum, the last element is picked.
     ///
-    /// Returns a `HashMap` associating the key of each group with the maximum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the maximum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -902,7 +903,7 @@
     ///
     /// If several elements are equally maximum, the last element is picked.
     ///
-    /// Returns a `HashMap` associating the key of each group with the maximum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the maximum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -931,7 +932,7 @@
     ///
     /// If several elements are equally maximum, the last element is picked.
     ///
-    /// Returns a `HashMap` associating the key of each group with the maximum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the maximum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -957,7 +958,7 @@
     ///
     /// If several elements are equally minimum, the first element is picked.
     ///
-    /// Returns a `HashMap` associating the key of each group with the minimum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the minimum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -983,7 +984,7 @@
     ///
     /// If several elements are equally minimum, the first element is picked.
     ///
-    /// Returns a `HashMap` associating the key of each group with the minimum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the minimum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -1012,7 +1013,7 @@
     ///
     /// If several elements are equally minimum, the first element is picked.
     ///
-    /// Returns a `HashMap` associating the key of each group with the minimum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the minimum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -1044,9 +1045,9 @@
     ///
     /// Differences from the non grouping version:
     /// - It never produces a `MinMaxResult::NoElements`
-    /// - It doesn&#39;t have any speedup
+    /// - It doesn't have any speedup
     ///
-    /// Returns a `HashMap` associating the key of each group with the minimum and maximum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the minimum and maximum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -1076,7 +1077,7 @@
     ///
     /// It has the same differences from the non-grouping version as `minmax`.
     ///
-    /// Returns a `HashMap` associating the key of each group with the minimum and maximum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the minimum and maximum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -1127,7 +1128,7 @@
     ///
     /// It has the same differences from the non-grouping version as `minmax`.
     ///
-    /// Returns a `HashMap` associating the key of each group with the minimum and maximum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the minimum and maximum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -1153,9 +1154,9 @@
     <span class="doccomment">/// Groups elements from the `GroupingMap` source by key and sums them.
     ///
     /// This is just a shorthand for `self.fold_first(|acc, _, val| acc + val)`.
-    /// It is more limited than `Iterator::sum` since it doesn&#39;t use the `Sum` trait.
+    /// It is more limited than `Iterator::sum` since it doesn't use the `Sum` trait.
     ///
-    /// Returns a `HashMap` associating the key of each group with the sum of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the sum of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;
@@ -1179,9 +1180,9 @@
     <span class="doccomment">/// Groups elements from the `GroupingMap` source by key and multiply them.
     ///
     /// This is just a shorthand for `self.fold_first(|acc, _, val| acc * val)`.
-    /// It is more limited than `Iterator::product` since it doesn&#39;t use the `Product` trait.
+    /// It is more limited than `Iterator::product` since it doesn't use the `Product` trait.
     ///
-    /// Returns a `HashMap` associating the key of each group with the product of that group&#39;s elements.
+    /// Returns a `HashMap` associating the key of each group with the product of that group's elements.
     ///
     /// ```
     /// use itertools::Itertools;

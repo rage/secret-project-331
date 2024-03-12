@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/entity.rs`."><title>entity.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/entity.rs`."><title>entity.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -303,13 +304,13 @@
 ///
 /// An entity tag consists of a string enclosed by two literal double quotes.
 /// Preceding the first double quote is an optional weakness indicator,
-/// which always looks like `W/`. Examples for valid tags are `&quot;xyzzy&quot;` and
-/// `W/&quot;xyzzy&quot;`.
+/// which always looks like `W/`. Examples for valid tags are `"xyzzy"` and
+/// `W/"xyzzy"`.
 ///
 /// # ABNF
 /// ```plain
 /// entity-tag = [ weak ] opaque-tag
-/// weak       = %x57.2F ; &quot;W/&quot;, case-sensitive
+/// weak       = %x57.2F ; "W/", case-sensitive
 /// opaque-tag = DQUOTE *etagc DQUOTE
 /// etagc      = %x21 / %x23-7E / obs-text
 ///            ; VCHAR except double quotes, plus obs-text
@@ -325,10 +326,10 @@
 ///
 /// | `ETag 1`| `ETag 2`| Strong Comparison | Weak Comparison |
 /// |---------|---------|-------------------|-----------------|
-/// | `W/&quot;1&quot;` | `W/&quot;1&quot;` | no match          | match           |
-/// | `W/&quot;1&quot;` | `W/&quot;2&quot;` | no match          | no match        |
-/// | `W/&quot;1&quot;` | `&quot;1&quot;`   | no match          | match           |
-/// | `&quot;1&quot;`   | `&quot;1&quot;`   | match             | match           |
+/// | `W/"1"` | `W/"1"` | no match          | match           |
+/// | `W/"1"` | `W/"2"` | no match          | no match        |
+/// | `W/"1"` | `"1"`   | no match          | match           |
+/// | `"1"`   | `"1"`   | match             | match           |
 ///
 /// [RFC 7232 §2.3](https://datatracker.ietf.org/doc/html/rfc7232#section-2.3)
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
@@ -346,7 +347,7 @@
     /// # Panics
     /// If the tag contains invalid characters.
     </span><span class="kw">pub fn </span>new(weak: bool, tag: String) -&gt; EntityTag {
-        <span class="macro">assert!</span>(check_slice_validity(<span class="kw-2">&amp;</span>tag), <span class="string">&quot;Invalid tag: {:?}&quot;</span>, tag);
+        <span class="macro">assert!</span>(check_slice_validity(<span class="kw-2">&amp;</span>tag), <span class="string">"Invalid tag: {:?}"</span>, tag);
         EntityTag { weak, tag }
     }
 
@@ -358,7 +359,7 @@
         EntityTag::new(<span class="bool-val">true</span>, tag)
     }
 
-    <span class="attr">#[deprecated(since = <span class="string">&quot;3.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `new_weak`.&quot;</span>)]
+    <span class="attr">#[deprecated(since = <span class="string">"3.0.0"</span>, note = <span class="string">"Renamed to `new_weak`."</span>)]
     </span><span class="kw">pub fn </span>weak(tag: String) -&gt; EntityTag {
         <span class="self">Self</span>::new_weak(tag)
     }
@@ -371,7 +372,7 @@
         EntityTag::new(<span class="bool-val">false</span>, tag)
     }
 
-    <span class="attr">#[deprecated(since = <span class="string">&quot;3.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `new_strong`.&quot;</span>)]
+    <span class="attr">#[deprecated(since = <span class="string">"3.0.0"</span>, note = <span class="string">"Renamed to `new_strong`."</span>)]
     </span><span class="kw">pub fn </span>strong(tag: String) -&gt; EntityTag {
         <span class="self">Self</span>::new_strong(tag)
     }
@@ -387,7 +388,7 @@
     /// If the tag contains invalid characters.
     </span><span class="kw">pub fn </span>set_tag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tag: <span class="kw">impl </span>Into&lt;String&gt;) {
         <span class="kw">let </span>tag = tag.into();
-        <span class="macro">assert!</span>(check_slice_validity(<span class="kw-2">&amp;</span>tag), <span class="string">&quot;Invalid tag: {:?}&quot;</span>, tag);
+        <span class="macro">assert!</span>(check_slice_validity(<span class="kw-2">&amp;</span>tag), <span class="string">"Invalid tag: {:?}"</span>, tag);
         <span class="self">self</span>.tag = tag
     }
 
@@ -398,7 +399,7 @@
     }
 
     <span class="doccomment">/// For weak comparison two entity-tags are equivalent if their opaque-tags match
-    /// character-by-character, regardless of either or both being tagged as &quot;weak&quot;.
+    /// character-by-character, regardless of either or both being tagged as "weak".
     </span><span class="kw">pub fn </span>weak_eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>EntityTag) -&gt; bool {
         <span class="self">self</span>.tag == other.tag
     }
@@ -415,11 +416,11 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>EntityTag {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span><span class="self">self</span>.weak {
-            <span class="macro">write!</span>(f, <span class="string">&quot;W/\&quot;{}\&quot;&quot;</span>, <span class="self">self</span>.tag)
+            <span class="macro">write!</span>(f, <span class="string">"W/\"{}\""</span>, <span class="self">self</span>.tag)
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, <span class="self">self</span>.tag)
+            <span class="macro">write!</span>(f, <span class="string">"\"{}\""</span>, <span class="self">self</span>.tag)
         }
     }
 }
@@ -429,12 +430,12 @@
 
     <span class="kw">fn </span>from_str(slice: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;EntityTag, <span class="kw">crate</span>::error::ParseError&gt; {
         <span class="kw">let </span>length = slice.len();
-        <span class="comment">// Early exits if it doesn&#39;t terminate in a DQUOTE.
-        </span><span class="kw">if </span>!slice.ends_with(<span class="string">&#39;&quot;&#39;</span>) || slice.len() &lt; <span class="number">2 </span>{
+        <span class="comment">// Early exits if it doesn't terminate in a DQUOTE.
+        </span><span class="kw">if </span>!slice.ends_with(<span class="string">'"'</span>) || slice.len() &lt; <span class="number">2 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::ParseError::Header);
         }
         <span class="comment">// The etag is weak if its first char is not a DQUOTE.
-        </span><span class="kw">if </span>slice.len() &gt;= <span class="number">2 </span>&amp;&amp; slice.starts_with(<span class="string">&#39;&quot;&#39;</span>) &amp;&amp; check_slice_validity(<span class="kw-2">&amp;</span>slice[<span class="number">1</span>..length - <span class="number">1</span>])
+        </span><span class="kw">if </span>slice.len() &gt;= <span class="number">2 </span>&amp;&amp; slice.starts_with(<span class="string">'"'</span>) &amp;&amp; check_slice_validity(<span class="kw-2">&amp;</span>slice[<span class="number">1</span>..length - <span class="number">1</span>])
         {
             <span class="comment">// No need to check if the last char is a DQUOTE,
             // we already did that above.
@@ -443,7 +444,7 @@
                 tag: slice[<span class="number">1</span>..length - <span class="number">1</span>].to_owned(),
             });
         } <span class="kw">else if </span>slice.len() &gt;= <span class="number">4
-            </span>&amp;&amp; slice.starts_with(<span class="string">&quot;W/\&quot;&quot;</span>)
+            </span>&amp;&amp; slice.starts_with(<span class="string">"W/\""</span>)
             &amp;&amp; check_slice_validity(<span class="kw-2">&amp;</span>slice[<span class="number">3</span>..length - <span class="number">1</span>])
         {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(EntityTag {
@@ -460,7 +461,7 @@
 
     <span class="kw">fn </span>try_into_value(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HeaderValue, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>wrt = Writer::new();
-        <span class="macro">write!</span>(wrt, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>).unwrap();
+        <span class="macro">write!</span>(wrt, <span class="string">"{}"</span>, <span class="self">self</span>).unwrap();
         HeaderValue::from_maybe_shared(wrt.take())
     }
 }
@@ -473,89 +474,89 @@
     </span><span class="kw">fn </span>test_etag_parse_success() {
         <span class="comment">// Expected success
         </span><span class="macro">assert_eq!</span>(
-            <span class="string">&quot;\&quot;foobar\&quot;&quot;</span>.parse::&lt;EntityTag&gt;().unwrap(),
-            EntityTag::new_strong(<span class="string">&quot;foobar&quot;</span>.to_owned())
+            <span class="string">"\"foobar\""</span>.parse::&lt;EntityTag&gt;().unwrap(),
+            EntityTag::new_strong(<span class="string">"foobar"</span>.to_owned())
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;\&quot;\&quot;&quot;</span>.parse::&lt;EntityTag&gt;().unwrap(),
-            EntityTag::new_strong(<span class="string">&quot;&quot;</span>.to_owned())
+            <span class="string">"\"\""</span>.parse::&lt;EntityTag&gt;().unwrap(),
+            EntityTag::new_strong(<span class="string">""</span>.to_owned())
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;W/\&quot;weaktag\&quot;&quot;</span>.parse::&lt;EntityTag&gt;().unwrap(),
-            EntityTag::new_weak(<span class="string">&quot;weaktag&quot;</span>.to_owned())
+            <span class="string">"W/\"weaktag\""</span>.parse::&lt;EntityTag&gt;().unwrap(),
+            EntityTag::new_weak(<span class="string">"weaktag"</span>.to_owned())
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;W/\&quot;\x65\x62\&quot;&quot;</span>.parse::&lt;EntityTag&gt;().unwrap(),
-            EntityTag::new_weak(<span class="string">&quot;\x65\x62&quot;</span>.to_owned())
+            <span class="string">"W/\"\x65\x62\""</span>.parse::&lt;EntityTag&gt;().unwrap(),
+            EntityTag::new_weak(<span class="string">"\x65\x62"</span>.to_owned())
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;W/\&quot;\&quot;&quot;</span>.parse::&lt;EntityTag&gt;().unwrap(),
-            EntityTag::new_weak(<span class="string">&quot;&quot;</span>.to_owned())
+            <span class="string">"W/\"\""</span>.parse::&lt;EntityTag&gt;().unwrap(),
+            EntityTag::new_weak(<span class="string">""</span>.to_owned())
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_etag_parse_failures() {
         <span class="comment">// Expected failures
-        </span><span class="macro">assert!</span>(<span class="string">&quot;no-dquotes&quot;</span>.parse::&lt;EntityTag&gt;().is_err());
-        <span class="macro">assert!</span>(<span class="string">&quot;w/\&quot;the-first-w-is-case-sensitive\&quot;&quot;
+        </span><span class="macro">assert!</span>(<span class="string">"no-dquotes"</span>.parse::&lt;EntityTag&gt;().is_err());
+        <span class="macro">assert!</span>(<span class="string">"w/\"the-first-w-is-case-sensitive\""
             </span>.parse::&lt;EntityTag&gt;()
             .is_err());
-        <span class="macro">assert!</span>(<span class="string">&quot;&quot;</span>.parse::&lt;EntityTag&gt;().is_err());
-        <span class="macro">assert!</span>(<span class="string">&quot;\&quot;unmatched-dquotes1&quot;</span>.parse::&lt;EntityTag&gt;().is_err());
-        <span class="macro">assert!</span>(<span class="string">&quot;unmatched-dquotes2\&quot;&quot;</span>.parse::&lt;EntityTag&gt;().is_err());
-        <span class="macro">assert!</span>(<span class="string">&quot;matched-\&quot;dquotes\&quot;&quot;</span>.parse::&lt;EntityTag&gt;().is_err());
+        <span class="macro">assert!</span>(<span class="string">""</span>.parse::&lt;EntityTag&gt;().is_err());
+        <span class="macro">assert!</span>(<span class="string">"\"unmatched-dquotes1"</span>.parse::&lt;EntityTag&gt;().is_err());
+        <span class="macro">assert!</span>(<span class="string">"unmatched-dquotes2\""</span>.parse::&lt;EntityTag&gt;().is_err());
+        <span class="macro">assert!</span>(<span class="string">"matched-\"dquotes\""</span>.parse::&lt;EntityTag&gt;().is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_etag_fmt() {
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, EntityTag::new_strong(<span class="string">&quot;foobar&quot;</span>.to_owned())),
-            <span class="string">&quot;\&quot;foobar\&quot;&quot;
+            <span class="macro">format!</span>(<span class="string">"{}"</span>, EntityTag::new_strong(<span class="string">"foobar"</span>.to_owned())),
+            <span class="string">"\"foobar\""
         </span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, EntityTag::new_strong(<span class="string">&quot;&quot;</span>.to_owned())), <span class="string">&quot;\&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, EntityTag::new_strong(<span class="string">""</span>.to_owned())), <span class="string">"\"\""</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, EntityTag::new_weak(<span class="string">&quot;weak-etag&quot;</span>.to_owned())),
-            <span class="string">&quot;W/\&quot;weak-etag\&quot;&quot;
+            <span class="macro">format!</span>(<span class="string">"{}"</span>, EntityTag::new_weak(<span class="string">"weak-etag"</span>.to_owned())),
+            <span class="string">"W/\"weak-etag\""
         </span>);
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, EntityTag::new_weak(<span class="string">&quot;\u{0065}&quot;</span>.to_owned())),
-            <span class="string">&quot;W/\&quot;\x65\&quot;&quot;
+            <span class="macro">format!</span>(<span class="string">"{}"</span>, EntityTag::new_weak(<span class="string">"\u{0065}"</span>.to_owned())),
+            <span class="string">"W/\"\x65\""
         </span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, EntityTag::new_weak(<span class="string">&quot;&quot;</span>.to_owned())), <span class="string">&quot;W/\&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, EntityTag::new_weak(<span class="string">""</span>.to_owned())), <span class="string">"W/\"\""</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_cmp() {
         <span class="comment">// | ETag 1  | ETag 2  | Strong Comparison | Weak Comparison |
         // |---------|---------|-------------------|-----------------|
-        // | `W/&quot;1&quot;` | `W/&quot;1&quot;` | no match          | match           |
-        // | `W/&quot;1&quot;` | `W/&quot;2&quot;` | no match          | no match        |
-        // | `W/&quot;1&quot;` | `&quot;1&quot;`   | no match          | match           |
-        // | `&quot;1&quot;`   | `&quot;1&quot;`   | match             | match           |
-        </span><span class="kw">let </span><span class="kw-2">mut </span>etag1 = EntityTag::new_weak(<span class="string">&quot;1&quot;</span>.to_owned());
-        <span class="kw">let </span><span class="kw-2">mut </span>etag2 = EntityTag::new_weak(<span class="string">&quot;1&quot;</span>.to_owned());
+        // | `W/"1"` | `W/"1"` | no match          | match           |
+        // | `W/"1"` | `W/"2"` | no match          | no match        |
+        // | `W/"1"` | `"1"`   | no match          | match           |
+        // | `"1"`   | `"1"`   | match             | match           |
+        </span><span class="kw">let </span><span class="kw-2">mut </span>etag1 = EntityTag::new_weak(<span class="string">"1"</span>.to_owned());
+        <span class="kw">let </span><span class="kw-2">mut </span>etag2 = EntityTag::new_weak(<span class="string">"1"</span>.to_owned());
         <span class="macro">assert!</span>(!etag1.strong_eq(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(etag1.weak_eq(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(etag1.strong_ne(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(!etag1.weak_ne(<span class="kw-2">&amp;</span>etag2));
 
-        etag1 = EntityTag::new_weak(<span class="string">&quot;1&quot;</span>.to_owned());
-        etag2 = EntityTag::new_weak(<span class="string">&quot;2&quot;</span>.to_owned());
+        etag1 = EntityTag::new_weak(<span class="string">"1"</span>.to_owned());
+        etag2 = EntityTag::new_weak(<span class="string">"2"</span>.to_owned());
         <span class="macro">assert!</span>(!etag1.strong_eq(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(!etag1.weak_eq(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(etag1.strong_ne(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(etag1.weak_ne(<span class="kw-2">&amp;</span>etag2));
 
-        etag1 = EntityTag::new_weak(<span class="string">&quot;1&quot;</span>.to_owned());
-        etag2 = EntityTag::new_strong(<span class="string">&quot;1&quot;</span>.to_owned());
+        etag1 = EntityTag::new_weak(<span class="string">"1"</span>.to_owned());
+        etag2 = EntityTag::new_strong(<span class="string">"1"</span>.to_owned());
         <span class="macro">assert!</span>(!etag1.strong_eq(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(etag1.weak_eq(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(etag1.strong_ne(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(!etag1.weak_ne(<span class="kw-2">&amp;</span>etag2));
 
-        etag1 = EntityTag::new_strong(<span class="string">&quot;1&quot;</span>.to_owned());
-        etag2 = EntityTag::new_strong(<span class="string">&quot;1&quot;</span>.to_owned());
+        etag1 = EntityTag::new_strong(<span class="string">"1"</span>.to_owned());
+        etag2 = EntityTag::new_strong(<span class="string">"1"</span>.to_owned());
         <span class="macro">assert!</span>(etag1.strong_eq(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(etag1.weak_eq(<span class="kw-2">&amp;</span>etag2));
         <span class="macro">assert!</span>(!etag1.strong_ne(<span class="kw-2">&amp;</span>etag2));

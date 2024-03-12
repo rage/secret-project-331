@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/http_message.rs`."><title>http_message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/http_message.rs`."><title>http_message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -255,10 +256,10 @@
     </span><span class="kw">fn </span>take_payload(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Payload&lt;<span class="self">Self</span>::Stream&gt;;
 
     <span class="doccomment">/// Returns a reference to the request-local data/extensions container.
-    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt;;
+    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, Extensions&gt;;
 
     <span class="doccomment">/// Returns a mutable reference to the request-local data/extensions container.
-    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt;;
+    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, Extensions&gt;;
 
     <span class="doccomment">/// Get a header.
     </span><span class="attr">#[doc(hidden)]
@@ -278,18 +279,18 @@
     </span><span class="kw">fn </span>content_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(content_type) = <span class="self">self</span>.headers().get(header::CONTENT_TYPE) {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(content_type) = content_type.to_str() {
-                <span class="kw">return </span>content_type.split(<span class="string">&#39;;&#39;</span>).next().unwrap().trim();
+                <span class="kw">return </span>content_type.split(<span class="string">';'</span>).next().unwrap().trim();
             }
         }
-        <span class="string">&quot;&quot;
+        <span class="string">""
     </span>}
 
     <span class="doccomment">/// Get content type encoding.
     ///
     /// UTF-8 is used by default, If request charset is not set.
-    </span><span class="kw">fn </span>encoding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Encoding, ContentTypeError&gt; {
+    </span><span class="kw">fn </span>encoding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Encoding, ContentTypeError&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(mime_type) = <span class="self">self</span>.mime_type()<span class="question-mark">? </span>{
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(charset) = mime_type.get_param(<span class="string">&quot;charset&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(charset) = mime_type.get_param(<span class="string">"charset"</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(enc) = Encoding::for_label_no_replacement(charset.as_str().as_bytes()) {
                     <span class="prelude-val">Ok</span>(enc)
                 } <span class="kw">else </span>{
@@ -322,7 +323,7 @@
     </span><span class="kw">fn </span>chunked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool, ParseError&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(encodings) = <span class="self">self</span>.headers().get(header::TRANSFER_ENCODING) {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = encodings.to_str() {
-                <span class="prelude-val">Ok</span>(s.to_lowercase().contains(<span class="string">&quot;chunked&quot;</span>))
+                <span class="prelude-val">Ok</span>(s.to_lowercase().contains(<span class="string">"chunked"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Err</span>(ParseError::Header)
             }
@@ -332,7 +333,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; HttpMessage <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; HttpMessage <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>T
 <span class="kw">where
     </span>T: HttpMessage,
 {
@@ -347,13 +348,13 @@
         (<span class="kw-2">**</span><span class="self">self</span>).take_payload()
     }
 
-    <span class="doccomment">/// Request&#39;s extensions container
-    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    <span class="doccomment">/// Request's extensions container
+    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         (<span class="kw-2">**</span><span class="self">self</span>).extensions()
     }
 
-    <span class="doccomment">/// Mutable reference to a the request&#39;s extensions container
-    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    <span class="doccomment">/// Mutable reference to a the request's extensions container
+    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         (<span class="kw-2">**</span><span class="self">self</span>).extensions_mut()
     }
 }
@@ -369,27 +370,27 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_content_type() {
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;text/plain&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"text/plain"</span>))
             .finish();
-        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;text/plain&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">"text/plain"</span>);
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=utf-8&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"application/json; charset=utf-8"</span>))
             .finish();
-        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;application/json&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">"application/json"</span>);
         <span class="kw">let </span>req = TestRequest::default().finish();
-        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">""</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_mime_type() {
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"application/json"</span>))
             .finish();
         <span class="macro">assert_eq!</span>(req.mime_type().unwrap(), <span class="prelude-val">Some</span>(mime::APPLICATION_JSON));
         <span class="kw">let </span>req = TestRequest::default().finish();
         <span class="macro">assert_eq!</span>(req.mime_type().unwrap(), <span class="prelude-val">None</span>);
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=utf-8&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"application/json; charset=utf-8"</span>))
             .finish();
         <span class="kw">let </span>mt = req.mime_type().unwrap().unwrap();
         <span class="macro">assert_eq!</span>(mt.get_param(mime::CHARSET), <span class="prelude-val">Some</span>(mime::UTF_8));
@@ -400,7 +401,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_mime_type_error() {
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;applicationadfadsfasdflknadsfklnadsfjson&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"applicationadfadsfasdflknadsfklnadsfjson"</span>))
             .finish();
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>(ContentTypeError::ParseError), req.mime_type());
     }
@@ -411,12 +412,12 @@
         <span class="macro">assert_eq!</span>(UTF_8.name(), req.encoding().unwrap().name());
 
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"application/json"</span>))
             .finish();
         <span class="macro">assert_eq!</span>(UTF_8.name(), req.encoding().unwrap().name());
 
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=ISO-8859-2&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"application/json; charset=ISO-8859-2"</span>))
             .finish();
         <span class="macro">assert_eq!</span>(ISO_8859_2, req.encoding().unwrap());
     }
@@ -424,12 +425,12 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_encoding_error() {
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;applicatjson&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"applicatjson"</span>))
             .finish();
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(ContentTypeError::ParseError), req.encoding().err());
 
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=kkkttktk&quot;</span>))
+            .insert_header((<span class="string">"content-type"</span>, <span class="string">"application/json; charset=kkkttktk"</span>))
             .finish();
         <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Some</span>(ContentTypeError::UnknownEncoding),
@@ -443,14 +444,14 @@
         <span class="macro">assert!</span>(!req.chunked().unwrap());
 
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((header::TRANSFER_ENCODING, <span class="string">&quot;chunked&quot;</span>))
+            .insert_header((header::TRANSFER_ENCODING, <span class="string">"chunked"</span>))
             .finish();
         <span class="macro">assert!</span>(req.chunked().unwrap());
 
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::TRANSFER_ENCODING,
-                Bytes::from_static(<span class="string">b&quot;some va\xadscc\xacas0xsdasdlue&quot;</span>),
+                Bytes::from_static(<span class="string">b"some va\xadscc\xacas0xsdasdlue"</span>),
             ))
             .finish();
         <span class="macro">assert!</span>(req.chunked().is_err());

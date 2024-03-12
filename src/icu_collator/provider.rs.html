@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collator-1.4.0/src/provider.rs`."><title>provider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collator-1.4.0/src/provider.rs`."><title>provider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -496,7 +497,7 @@
 
 </span><span class="doccomment">//! 🚧 \[Unstable\] Data provider struct definitions for this ICU4X component.
 //!
-//! &lt;div class=&quot;stab unstable&quot;&gt;
+//! &lt;div class="stab unstable"&gt;
 //! 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 //! including in SemVer minor releases. While the serde representation of data structs is guaranteed
 //! to be stable, their Rust representation might not be. Use with caution.
@@ -527,18 +528,18 @@
 <span class="kw">use </span><span class="kw">super</span>::CaseFirst;
 <span class="kw">use </span><span class="kw">super</span>::MaxVariable;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 #[derive(Debug)]
 </span><span class="doccomment">/// Baked data
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. In particular, the `DataProvider` implementations are only
-/// guaranteed to match with this version&#39;s `*_unstable` providers. Use with caution.
+/// guaranteed to match with this version's `*_unstable` providers. Use with caution.
 /// &lt;/div&gt;
 </span><span class="kw">pub struct </span>Baked;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 </span><span class="kw">const _</span>: () = {
     <span class="kw">pub mod </span>icu {
         <span class="kw">pub use crate as </span>collator;
@@ -554,7 +555,7 @@
     <span class="macro">icu_collator_data::impl_collator_reord_v1!</span>(Baked);
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
 </span><span class="doccomment">/// The latest minimum set of keys required by this component.
 </span><span class="kw">pub const </span>KEYS: <span class="kw-2">&amp;</span>[DataKey] = <span class="kw-2">&amp;</span>[
     CollationDataV1Marker::KEY,
@@ -596,44 +597,44 @@
 
 <span class="doccomment">/// The main collation data either for the root or for a tailoring
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[icu_provider::data_struct(marker(
     CollationDataV1Marker,
-    <span class="string">&quot;collator/data@1&quot;</span>,
-    extension_key = <span class="string">&quot;co&quot;</span>,
-    fallback_by = <span class="string">&quot;collation&quot;</span>,
-    fallback_supplement = <span class="string">&quot;collation&quot;
+    <span class="string">"collator/data@1"</span>,
+    extension_key = <span class="string">"co"</span>,
+    fallback_by = <span class="string">"collation"</span>,
+    fallback_supplement = <span class="string">"collation"
 </span>))]
 #[derive(Debug, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
-</span><span class="kw">pub struct </span>CollationDataV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
+</span><span class="kw">pub struct </span>CollationDataV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Mapping from `char` to `CollationElement32` (represented
     /// as its `u32` bits).
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>trie: CodePointTrie&lt;<span class="lifetime">&#39;data</span>, u32&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>trie: CodePointTrie&lt;<span class="lifetime">'data</span>, u32&gt;,
     <span class="doccomment">/// `CollationElement`s used in expansions and offset CE32s
     /// (represented as their `u64` bits)
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>ces: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u64&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>ces: ZeroVec&lt;<span class="lifetime">'data</span>, u64&gt;,
     <span class="doccomment">/// `CollationElement32`s used in expansions and as defaults
     /// for digits when the numeric mode is not in use
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>ce32s: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u32&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>ce32s: ZeroVec&lt;<span class="lifetime">'data</span>, u32&gt;,
     <span class="doccomment">/// Defaults and tries for prefix and contraction matching
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>contexts: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u16&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>contexts: ZeroVec&lt;<span class="lifetime">'data</span>, u16&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; CollationDataV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; CollationDataV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ce32_for_char(<span class="kw-2">&amp;</span><span class="self">self</span>, c: char) -&gt; CollationElement32 {
         CollationElement32::new(<span class="self">self</span>.trie.get32(c <span class="kw">as </span>u32))
     }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_ce32(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">self</span>, index: usize) -&gt; CollationElement32 {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_ce32(<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">self</span>, index: usize) -&gt; CollationElement32 {
         CollationElement32::new(<span class="kw">if let </span><span class="prelude-val">Some</span>(u) = <span class="self">self</span>.ce32s.get(index) {
             u
         } <span class="kw">else </span>{
@@ -642,7 +643,7 @@
             FFFD_CE32_VALUE
         })
     }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_ce32s(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">self</span>, index: usize, len: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;u32&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_ce32s(<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">self</span>, index: usize, len: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u32&gt; {
         <span class="kw">if </span>len &gt; <span class="number">0 </span>{
             <span class="kw">if let </span><span class="prelude-val">Some</span>(slice) = <span class="self">self</span>.ce32s.get_subslice(index..index + len) {
                 <span class="kw">return </span>slice;
@@ -652,7 +653,7 @@
         </span><span class="macro">debug_assert!</span>(<span class="bool-val">false</span>);
         SINGLE_U32
     }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_ces(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">self</span>, index: usize, len: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;u64&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_ces(<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">self</span>, index: usize, len: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u64&gt; {
         <span class="kw">if </span>len &gt; <span class="number">0 </span>{
             <span class="kw">if let </span><span class="prelude-val">Some</span>(slice) = <span class="self">self</span>.ces.get_subslice(index..index + len) {
                 <span class="kw">return </span>slice;
@@ -663,9 +664,9 @@
         SINGLE_U64
     }
     <span class="kw">fn </span>get_default_and_trie_impl(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">self</span>,
+        <span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">self</span>,
         index: usize,
-    ) -&gt; (CollationElement32, <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;u16&gt;) {
+    ) -&gt; (CollationElement32, <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u16&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(slice) = <span class="self">self</span>.contexts.get_subslice(index..<span class="self">self</span>.contexts.len()) {
             <span class="attr">#[allow(clippy::unwrap_used)]
             </span><span class="kw">if </span>slice.len() &gt;= <span class="number">2 </span>{
@@ -684,13 +685,13 @@
         (FFFD_CE32, EMPTY_U16)
     }
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_default_and_trie(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">self</span>,
+        <span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">self</span>,
         index: usize,
-    ) -&gt; (CollationElement32, Char16TrieIterator&lt;<span class="lifetime">&#39;data</span>&gt;) {
+    ) -&gt; (CollationElement32, Char16TrieIterator&lt;<span class="lifetime">'data</span>&gt;) {
         <span class="kw">let </span>(ce32, trie) = <span class="self">self</span>.get_default_and_trie_impl(index);
         (ce32, Char16TrieIterator::new(trie))
     }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_default(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">self</span>, index: usize) -&gt; CollationElement32 {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_default(<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">self</span>, index: usize) -&gt; CollationElement32 {
         <span class="kw">let </span>(ce32, <span class="kw">_</span>) = <span class="self">self</span>.get_default_and_trie_impl(index);
         ce32
     }
@@ -712,79 +713,79 @@
 
 <span class="doccomment">/// Secondary weights for the start of the Combining Diacritics block.
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[icu_provider::data_struct(marker(
     CollationDiacriticsV1Marker,
-    <span class="string">&quot;collator/dia@1&quot;</span>,
-    extension_key = <span class="string">&quot;co&quot;</span>,
-    fallback_by = <span class="string">&quot;collation&quot;</span>,
-    fallback_supplement = <span class="string">&quot;collation&quot;</span>,
+    <span class="string">"collator/dia@1"</span>,
+    extension_key = <span class="string">"co"</span>,
+    fallback_by = <span class="string">"collation"</span>,
+    fallback_supplement = <span class="string">"collation"</span>,
 ))]
 #[derive(Debug, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
-</span><span class="kw">pub struct </span>CollationDiacriticsV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
+</span><span class="kw">pub struct </span>CollationDiacriticsV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Secondary weights for characters starting from U+0300 up
     /// to but not including U+034F. May be shorter than that;
     /// zero-length when a tailoring opts out of using this
     /// feature altogether.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>secondaries: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u16&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>secondaries: ZeroVec&lt;<span class="lifetime">'data</span>, u16&gt;,
 }
 
 <span class="doccomment">/// `CollationElement32`s for the Hangul Jamo Unicode Block
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
-</span><span class="attr">#[icu_provider::data_struct(marker(CollationJamoV1Marker, <span class="string">&quot;collator/jamo@1&quot;</span>, singleton))]
+</span><span class="attr">#[icu_provider::data_struct(marker(CollationJamoV1Marker, <span class="string">"collator/jamo@1"</span>, singleton))]
 #[derive(Debug, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
-</span><span class="kw">pub struct </span>CollationJamoV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
+</span><span class="kw">pub struct </span>CollationJamoV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// `CollationElement32`s (as `u32`s) for the Hangul Jamo Unicode Block.
     /// The length must be equal to the size of the block (256).
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>ce32s: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u32&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>ce32s: ZeroVec&lt;<span class="lifetime">'data</span>, u32&gt;,
 }
 
 <span class="doccomment">/// Script reordering data
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[icu_provider::data_struct(marker(
     CollationReorderingV1Marker,
-    <span class="string">&quot;collator/reord@1&quot;</span>,
-    extension_key = <span class="string">&quot;co&quot;</span>,
-    fallback_by = <span class="string">&quot;collation&quot;</span>,
-    fallback_supplement = <span class="string">&quot;collation&quot;
+    <span class="string">"collator/reord@1"</span>,
+    extension_key = <span class="string">"co"</span>,
+    fallback_by = <span class="string">"collation"</span>,
+    fallback_supplement = <span class="string">"collation"
 </span>))]
 #[derive(Debug, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
-</span><span class="kw">pub struct </span>CollationReorderingV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
+</span><span class="kw">pub struct </span>CollationReorderingV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Limit of last reordered range. 0 if no reordering or no split bytes.
     ///
-    /// Comment from ICU4C&#39;s `collationsettings.h`
+    /// Comment from ICU4C's `collationsettings.h`
     </span><span class="kw">pub </span>min_high_no_reorder: u32,
     <span class="doccomment">/// 256-byte table for reordering permutation of primary lead
     /// bytes; NULL if no reordering. A 0 entry at a non-zero index means
-    /// that the primary lead byte is &quot;split&quot; (there are different offsets
+    /// that the primary lead byte is "split" (there are different offsets
     /// for primaries that share that lead byte) and the reordering offset
     /// must be determined via the reorderRanges.
     ///
-    /// Comment from ICU4C&#39;s `collationsettings.h`
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>reorder_table: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u8&gt;, <span class="comment">// len always 256
+    /// Comment from ICU4C's `collationsettings.h`
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>reorder_table: ZeroVec&lt;<span class="lifetime">'data</span>, u8&gt;, <span class="comment">// len always 256
     </span><span class="doccomment">/// Primary-weight ranges for script reordering, to be used by
     /// reorder(p) for split-reordered primary lead bytes.
     ///
@@ -804,13 +805,13 @@
     /// by reorder(p) via the reorderTable. If there are no
     /// split-reordered lead bytes, then no ranges are needed.
     ///
-    /// Comment from ICU4C&#39;s `collationsettings.h`; names refer to
+    /// Comment from ICU4C's `collationsettings.h`; names refer to
     /// ICU4C.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>reorder_ranges: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u32&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>reorder_ranges: ZeroVec&lt;<span class="lifetime">'data</span>, u32&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; CollationReorderingV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; CollationReorderingV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reorder(<span class="kw-2">&amp;</span><span class="self">self</span>, primary: u32) -&gt; u32 {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(b) = <span class="self">self</span>.reorder_table.get((primary &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>usize) {
             <span class="kw">if </span>b != <span class="number">0 </span>|| primary &lt;= NO_CE_PRIMARY {
@@ -846,29 +847,29 @@
 /// about explicitly has an data entry at least for this
 /// struct.
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[icu_provider::data_struct(marker(
     CollationMetadataV1Marker,
-    <span class="string">&quot;collator/meta@1&quot;</span>,
-    extension_key = <span class="string">&quot;co&quot;</span>,
-    fallback_by = <span class="string">&quot;collation&quot;</span>,
-    fallback_supplement = <span class="string">&quot;collation&quot;
+    <span class="string">"collator/meta@1"</span>,
+    extension_key = <span class="string">"co"</span>,
+    fallback_by = <span class="string">"collation"</span>,
+    fallback_supplement = <span class="string">"collation"
 </span>))]
 #[derive(Debug, PartialEq, Clone, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
 </span><span class="kw">pub struct </span>CollationMetadataV1 {
     <span class="doccomment">/// See the mask constants in the `impl` block for the
     /// bit layout. The other bits are ignored: They could
     /// be from the future if their semantics such that
     /// old code may ignore them.
     ///
-    /// Note: At present, it&#39;s bogus for the bit for &quot;upper
-    /// first&quot; to be set if &quot;case first&quot; isn&#39;t also set.
+    /// Note: At present, it's bogus for the bit for "upper
+    /// first" to be set if "case first" isn't also set.
     /// However, the methods handle this case gracefully,
     /// so there is no need for invariant validation.
     </span><span class="kw">pub </span>bits: u32,
@@ -942,31 +943,31 @@
 
 <span class="doccomment">/// Special primaries associated with the root collation
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[icu_provider::data_struct(marker(
     CollationSpecialPrimariesV1Marker,
-    <span class="string">&quot;collator/prim@1&quot;</span>,
+    <span class="string">"collator/prim@1"</span>,
     singleton
 ))]
 #[derive(Debug, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
-</span><span class="kw">pub struct </span>CollationSpecialPrimariesV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_collator::provider))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
+</span><span class="kw">pub struct </span>CollationSpecialPrimariesV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// The primaries corresponding to `MaxVariable`
     /// character classes packed so that each fits in
     /// 16 bits. Length must match the number of enum
     /// variants in `MaxVariable`, currently 4.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>last_primaries: ZeroVec&lt;<span class="lifetime">&#39;data</span>, u16&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>last_primaries: ZeroVec&lt;<span class="lifetime">'data</span>, u16&gt;,
     <span class="doccomment">/// The high 8 bits of the numeric primary
     </span><span class="kw">pub </span>numeric_primary: u8,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; CollationSpecialPrimariesV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; CollationSpecialPrimariesV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="attr">#[allow(clippy::unwrap_used)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>last_primary_for_group(<span class="kw-2">&amp;</span><span class="self">self</span>, max_variable: MaxVariable) -&gt; u32 {
         <span class="comment">// `unwrap` is OK, because `Collator::try_new` validates the length.

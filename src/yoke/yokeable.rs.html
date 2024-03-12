@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-0.7.3/src/yokeable.rs`."><title>yokeable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-0.7.3/src/yokeable.rs`."><title>yokeable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -327,39 +328,39 @@
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::borrow::{Cow, ToOwned};
 <span class="kw">use </span>core::mem;
 
-<span class="doccomment">/// The `Yokeable&lt;&#39;a&gt;` trait is implemented on the `&#39;static` version of any zero-copy type; for
-/// example, `Cow&lt;&#39;static, T&gt;` implements `Yokeable&lt;&#39;a&gt;` (for all `&#39;a`). One can use
-/// `Yokeable::Output` on this trait to obtain the &quot;lifetime&#39;d&quot; value of the `Cow&lt;&#39;static, T&gt;`,
-/// e.g. `&lt;Cow&lt;&#39;static, T&gt; as Yokeable&lt;&#39;a&gt;&#39;&gt;::Output` is `Cow&lt;&#39;a, T&gt;`.
+<span class="doccomment">/// The `Yokeable&lt;'a&gt;` trait is implemented on the `'static` version of any zero-copy type; for
+/// example, `Cow&lt;'static, T&gt;` implements `Yokeable&lt;'a&gt;` (for all `'a`). One can use
+/// `Yokeable::Output` on this trait to obtain the "lifetime'd" value of the `Cow&lt;'static, T&gt;`,
+/// e.g. `&lt;Cow&lt;'static, T&gt; as Yokeable&lt;'a&gt;'&gt;::Output` is `Cow&lt;'a, T&gt;`.
 ///
 /// A [`Yokeable`] type is essentially one with a covariant lifetime parameter,
 /// matched to the parameter in the trait definition. The trait allows one to cast
-/// the covariant lifetime to and from `&#39;static`.
+/// the covariant lifetime to and from `'static`.
 ///
 /// **Most of the time, if you need to implement [`Yokeable`], you should be able to use the safe
 /// [`#[derive(Yokeable)]`](yoke_derive::Yokeable) custom derive.**
 ///
 /// While Rust does not yet have GAT syntax, for the purpose of this documentation
-/// we shall refer to &quot;`Self` with a lifetime `&#39;a`&quot; with the syntax `Self&lt;&#39;a&gt;`.
-/// Self&lt;&#39;static&gt; is a stand-in for the HKT Self&lt;&#39;_&gt;: lifetime -&gt; type.
+/// we shall refer to "`Self` with a lifetime `'a`" with the syntax `Self&lt;'a&gt;`.
+/// Self&lt;'static&gt; is a stand-in for the HKT Self&lt;'_&gt;: lifetime -&gt; type.
 ///
-/// With this terminology, [`Yokeable`]  exposes ways to cast between `Self&lt;&#39;static&gt;` and `Self&lt;&#39;a&gt;` generically.
-/// This is useful for turning covariant lifetimes to _dynamic_ lifetimes, where `&#39;static` is
-/// used as a way to &quot;erase&quot; the lifetime.
+/// With this terminology, [`Yokeable`]  exposes ways to cast between `Self&lt;'static&gt;` and `Self&lt;'a&gt;` generically.
+/// This is useful for turning covariant lifetimes to _dynamic_ lifetimes, where `'static` is
+/// used as a way to "erase" the lifetime.
 ///
 /// # Safety
 ///
 /// This trait is safe to implement on types with a _covariant_ lifetime parameter, i.e. one where
-/// [`Self::transform()`]&#39;s body can simply be `{ self }`. This will occur when the lifetime
+/// [`Self::transform()`]'s body can simply be `{ self }`. This will occur when the lifetime
 /// parameter is used within references, but not in the arguments of function pointers or in mutable
 /// positions (either in `&amp;mut` or via interior mutability)
 ///
-/// This trait must be implemented on the `&#39;static` version of such a type, e.g. one should
-/// implement `Yokeable&lt;&#39;a&gt;` (for all `&#39;a`) on `Cow&lt;&#39;static, T&gt;`.
+/// This trait must be implemented on the `'static` version of such a type, e.g. one should
+/// implement `Yokeable&lt;'a&gt;` (for all `'a`) on `Cow&lt;'static, T&gt;`.
 ///
 /// There are further constraints on implementation safety on individual methods.
 ///
@@ -379,68 +380,68 @@
 /// # use yoke::Yokeable;
 /// # use std::borrow::Cow;
 /// # use std::{mem, ptr};
-/// struct Bar&lt;&#39;a&gt; {
-///     numbers: Cow&lt;&#39;a, [u8]&gt;,
-///     string: Cow&lt;&#39;a, str&gt;,
+/// struct Bar&lt;'a&gt; {
+///     numbers: Cow&lt;'a, [u8]&gt;,
+///     string: Cow&lt;'a, str&gt;,
 ///     owned: Vec&lt;u8&gt;,
 /// }
 ///
-/// unsafe impl&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt; for Bar&lt;&#39;static&gt; {
-///     type Output = Bar&lt;&#39;a&gt;;
-///     fn transform(&amp;&#39;a self) -&gt; &amp;&#39;a Bar&lt;&#39;a&gt; {
+/// unsafe impl&lt;'a&gt; Yokeable&lt;'a&gt; for Bar&lt;'static&gt; {
+///     type Output = Bar&lt;'a&gt;;
+///     fn transform(&amp;'a self) -&gt; &amp;'a Bar&lt;'a&gt; {
 ///         // covariant lifetime cast, can be done safely
 ///         self
 ///     }
 ///
-///     fn transform_owned(self) -&gt; Bar&lt;&#39;a&gt; {
+///     fn transform_owned(self) -&gt; Bar&lt;'a&gt; {
 ///         // covariant lifetime cast, can be done safely
 ///         self
 ///     }
 ///
-///     unsafe fn make(from: Bar&lt;&#39;a&gt;) -&gt; Self {
-///         // We&#39;re just doing mem::transmute() here, however Rust is
-///         // not smart enough to realize that Bar&lt;&#39;a&gt; and Bar&lt;&#39;static&gt; are of
+///     unsafe fn make(from: Bar&lt;'a&gt;) -&gt; Self {
+///         // We're just doing mem::transmute() here, however Rust is
+///         // not smart enough to realize that Bar&lt;'a&gt; and Bar&lt;'static&gt; are of
 ///         // the same size, so instead we use transmute_copy
 ///
 ///         // This assert will be optimized out, but is included for additional
 ///         // peace of mind as we are using transmute_copy
-///         debug_assert!(mem::size_of::&lt;Bar&lt;&#39;a&gt;&gt;() == mem::size_of::&lt;Self&gt;());
+///         debug_assert!(mem::size_of::&lt;Bar&lt;'a&gt;&gt;() == mem::size_of::&lt;Self&gt;());
 ///         let ptr: *const Self = (&amp;from as *const Self::Output).cast();
 ///         mem::forget(from);
 ///         ptr::read(ptr)
 ///     }
 ///
-///     fn transform_mut&lt;F&gt;(&amp;&#39;a mut self, f: F)
+///     fn transform_mut&lt;F&gt;(&amp;'a mut self, f: F)
 ///     where
-///         F: &#39;static + FnOnce(&amp;&#39;a mut Self::Output),
+///         F: 'static + FnOnce(&amp;'a mut Self::Output),
 ///     {
 ///         unsafe { f(mem::transmute::&lt;&amp;mut Self, &amp;mut Self::Output&gt;(self)) }
 ///     }
 /// }
 /// ```
-</span><span class="kw">pub unsafe trait </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;: <span class="lifetime">&#39;static </span>{
-    <span class="doccomment">/// This type MUST be `Self` with the `&#39;static` replaced with `&#39;a`, i.e. `Self&lt;&#39;a&gt;`
-    </span><span class="kw">type </span>Output: <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub unsafe trait </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;: <span class="lifetime">'static </span>{
+    <span class="doccomment">/// This type MUST be `Self` with the `'static` replaced with `'a`, i.e. `Self&lt;'a&gt;`
+    </span><span class="kw">type </span>Output: <span class="lifetime">'a</span>;
 
-    <span class="doccomment">/// This method must cast `self` between `&amp;&#39;a Self&lt;&#39;static&gt;` and `&amp;&#39;a Self&lt;&#39;a&gt;`.
+    <span class="doccomment">/// This method must cast `self` between `&amp;'a Self&lt;'static&gt;` and `&amp;'a Self&lt;'a&gt;`.
     ///
     /// # Implementation safety
     ///
     /// If the invariants of [`Yokeable`] are being satisfied, the body of this method
-    /// should simply be `{ self }`, though it&#39;s acceptable to include additional assertions
+    /// should simply be `{ self }`, though it's acceptable to include additional assertions
     /// if desired.
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output;
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output;
 
-    <span class="doccomment">/// This method must cast `self` between `Self&lt;&#39;static&gt;` and `Self&lt;&#39;a&gt;`.
+    <span class="doccomment">/// This method must cast `self` between `Self&lt;'static&gt;` and `Self&lt;'a&gt;`.
     ///
     /// # Implementation safety
     ///
     /// If the invariants of [`Yokeable`] are being satisfied, the body of this method
-    /// should simply be `{ self }`, though it&#39;s acceptable to include additional assertions
+    /// should simply be `{ self }`, though it's acceptable to include additional assertions
     /// if desired.
     </span><span class="kw">fn </span>transform_owned(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output;
 
-    <span class="doccomment">/// This method can be used to cast away `Self&lt;&#39;a&gt;`&#39;s lifetime.
+    <span class="doccomment">/// This method can be used to cast away `Self&lt;'a&gt;`'s lifetime.
     ///
     /// # Safety
     ///
@@ -449,16 +450,16 @@
     /// # Implementation safety
     ///
     /// A safe implementation of this method must be equivalent to a transmute between
-    /// `Self&lt;&#39;a&gt;` and `Self&lt;&#39;static&gt;`
+    /// `Self&lt;'a&gt;` and `Self&lt;'static&gt;`
     </span><span class="kw">unsafe fn </span>make(from: <span class="self">Self</span>::Output) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// This method must cast `self` between `&amp;&#39;a mut Self&lt;&#39;static&gt;` and `&amp;&#39;a mut Self&lt;&#39;a&gt;`,
+    <span class="doccomment">/// This method must cast `self` between `&amp;'a mut Self&lt;'static&gt;` and `&amp;'a mut Self&lt;'a&gt;`,
     /// and pass it to `f`.
     ///
     /// # Implementation safety
     ///
     /// A safe implementation of this method must be equivalent to a pointer cast/transmute between
-    /// `&amp;mut Self&lt;&#39;a&gt;` and `&amp;mut Self&lt;&#39;static&gt;` being passed to `f`
+    /// `&amp;mut Self&lt;'a&gt;` and `&amp;mut Self&lt;'static&gt;` being passed to `f`
     ///
     /// # Why is this safe?
     ///
@@ -467,66 +468,66 @@
     /// The reason behind this is that while _reading_ a covariant lifetime that has been cast to a shorter
     /// one is always safe (this is roughly the definition of a covariant lifetime), writing
     /// may not necessarily be safe since you could write a smaller reference to it. For example,
-    /// the following code is unsound because it manages to stuff a `&#39;a` lifetime into a `Cow&lt;&#39;static&gt;`
+    /// the following code is unsound because it manages to stuff a `'a` lifetime into a `Cow&lt;'static&gt;`
     ///
     /// ```rust,compile_fail
     /// # use std::borrow::Cow;
     /// # use yoke::Yokeable;
     /// struct Foo {
     ///     str: String,
-    ///     cow: Cow&lt;&#39;static, str&gt;,
+    ///     cow: Cow&lt;'static, str&gt;,
     /// }
     ///
-    /// fn unsound&lt;&#39;a&gt;(foo: &amp;&#39;a mut Foo) {
+    /// fn unsound&lt;'a&gt;(foo: &amp;'a mut Foo) {
     ///     let a: &amp;str = &amp;foo.str;
     ///     foo.cow.transform_mut(|cow| *cow = Cow::Borrowed(a));
     /// }
     /// ```
     ///
-    /// However, this code will not compile because [`Yokeable::transform_mut()`] requires `F: &#39;static`.
-    /// This enforces that while `F` may mutate `Self&lt;&#39;a&gt;`, it can only mutate it in a way that does
+    /// However, this code will not compile because [`Yokeable::transform_mut()`] requires `F: 'static`.
+    /// This enforces that while `F` may mutate `Self&lt;'a&gt;`, it can only mutate it in a way that does
     /// not insert additional references. For example, `F` may call `to_owned()` on a `Cow` and mutate it,
     /// but it cannot insert a new _borrowed_ reference because it has nowhere to borrow _from_ --
-    /// `f` does not contain any borrowed references, and while we give it `Self&lt;&#39;a&gt;` (which contains borrowed
+    /// `f` does not contain any borrowed references, and while we give it `Self&lt;'a&gt;` (which contains borrowed
     /// data), that borrowed data is known to be valid
     ///
-    /// Note that the `for&lt;&#39;b&gt;` is also necessary, otherwise the following code would compile:
+    /// Note that the `for&lt;'b&gt;` is also necessary, otherwise the following code would compile:
     ///
     /// ```rust,compile_fail
     /// # use std::borrow::Cow;
     /// # use yoke::Yokeable;
     /// # use std::mem;
     /// #
-    /// // also safely implements Yokeable&lt;&#39;a&gt;
-    /// struct Bar&lt;&#39;a&gt; {
+    /// // also safely implements Yokeable&lt;'a&gt;
+    /// struct Bar&lt;'a&gt; {
     ///     num: u8,
-    ///     cow: Cow&lt;&#39;a, u8&gt;,
+    ///     cow: Cow&lt;'a, u8&gt;,
     /// }
     ///
-    /// fn unsound&lt;&#39;a&gt;(bar: &amp;&#39;a mut Bar&lt;&#39;static&gt;) {
+    /// fn unsound&lt;'a&gt;(bar: &amp;'a mut Bar&lt;'static&gt;) {
     ///     bar.transform_mut(move |bar| bar.cow = Cow::Borrowed(&amp;bar.num));
     /// }
     /// #
-    /// # unsafe impl&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt; for Bar&lt;&#39;static&gt; {
-    /// #     type Output = Bar&lt;&#39;a&gt;;
-    /// #     fn transform(&amp;&#39;a self) -&gt; &amp;&#39;a Bar&lt;&#39;a&gt; {
+    /// # unsafe impl&lt;'a&gt; Yokeable&lt;'a&gt; for Bar&lt;'static&gt; {
+    /// #     type Output = Bar&lt;'a&gt;;
+    /// #     fn transform(&amp;'a self) -&gt; &amp;'a Bar&lt;'a&gt; {
     /// #         self
     /// #     }
     /// #
-    /// #     fn transform_owned(self) -&gt; Bar&lt;&#39;a&gt; {
+    /// #     fn transform_owned(self) -&gt; Bar&lt;'a&gt; {
     /// #         // covariant lifetime cast, can be done safely
     /// #         self
     /// #     }
     /// #
-    /// #     unsafe fn make(from: Bar&lt;&#39;a&gt;) -&gt; Self {
+    /// #     unsafe fn make(from: Bar&lt;'a&gt;) -&gt; Self {
     /// #         let ret = mem::transmute_copy(&amp;from);
     /// #         mem::forget(from);
     /// #         ret
     /// #     }
     /// #
-    /// #     fn transform_mut&lt;F&gt;(&amp;&#39;a mut self, f: F)
+    /// #     fn transform_mut&lt;F&gt;(&amp;'a mut self, f: F)
     /// #     where
-    /// #         F: &#39;static + FnOnce(&amp;&#39;a mut Self::Output),
+    /// #         F: 'static + FnOnce(&amp;'a mut Self::Output),
     /// #     {
     /// #         unsafe { f(mem::transmute(self)) }
     /// #     }
@@ -536,8 +537,8 @@
     /// which is unsound because `bar` could be moved later, and we do not want to be able to
     /// self-insert references to it.
     ///
-    /// The `for&lt;&#39;b&gt;` enforces this by stopping the author of the closure from matching up the input
-    /// `&amp;&#39;b Self::Output` lifetime with `&#39;a` and borrowing directly from it.
+    /// The `for&lt;'b&gt;` enforces this by stopping the author of the closure from matching up the input
+    /// `&amp;'b Self::Output` lifetime with `'a` and borrowing directly from it.
     ///
     /// Thus the only types of mutations allowed are ones that move around already-borrowed data, or
     /// introduce new owned data:
@@ -547,92 +548,92 @@
     /// # use yoke::Yokeable;
     /// struct Foo {
     ///     str: String,
-    ///     cow: Cow&lt;&#39;static, str&gt;,
+    ///     cow: Cow&lt;'static, str&gt;,
     /// }
     ///
-    /// fn sound&lt;&#39;a&gt;(foo: &amp;&#39;a mut Foo) {
-    ///     foo.cow.transform_mut(move |cow| cow.to_mut().push(&#39;a&#39;));
+    /// fn sound&lt;'a&gt;(foo: &amp;'a mut Foo) {
+    ///     foo.cow.transform_mut(move |cow| cow.to_mut().push('a'));
     /// }
     /// ```
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
         </span><span class="comment">// be VERY CAREFUL changing this signature, it is very nuanced (see above)
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output);
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output);
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;static </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Cow&lt;<span class="lifetime">&#39;static</span>, T&gt;
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, T: <span class="lifetime">'static </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Cow&lt;<span class="lifetime">'static</span>, T&gt;
 <span class="kw">where
     </span>&lt;T <span class="kw">as </span>ToOwned&gt;::Owned: Sized,
 {
-    <span class="kw">type </span>Output = Cow&lt;<span class="lifetime">&#39;a</span>, T&gt;;
+    <span class="kw">type </span>Output = Cow&lt;<span class="lifetime">'a</span>, T&gt;;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Cow&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-        <span class="comment">// Doesn&#39;t need unsafe: `&#39;a` is covariant so this lifetime cast is always safe
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Cow&lt;<span class="lifetime">'a</span>, T&gt; {
+        <span class="comment">// Doesn't need unsafe: `'a` is covariant so this lifetime cast is always safe
         </span><span class="self">self
     </span>}
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_owned(<span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-        <span class="comment">// Doesn&#39;t need unsafe: `&#39;a` is covariant so this lifetime cast is always safe
+    </span><span class="kw">fn </span>transform_owned(<span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">'a</span>, T&gt; {
+        <span class="comment">// Doesn't need unsafe: `'a` is covariant so this lifetime cast is always safe
         </span><span class="self">self
     </span>}
     <span class="attr">#[inline]
-    </span><span class="kw">unsafe fn </span>make(from: Cow&lt;<span class="lifetime">&#39;a</span>, T&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">unsafe fn </span>make(from: Cow&lt;<span class="lifetime">'a</span>, T&gt;) -&gt; <span class="self">Self </span>{
         <span class="comment">// i hate this
-        // unfortunately Rust doesn&#39;t think `mem::transmute` is possible since it&#39;s not sure the sizes
+        // unfortunately Rust doesn't think `mem::transmute` is possible since it's not sure the sizes
         // are the same
-        </span><span class="macro">debug_assert!</span>(mem::size_of::&lt;Cow&lt;<span class="lifetime">&#39;a</span>, T&gt;&gt;() == mem::size_of::&lt;<span class="self">Self</span>&gt;());
+        </span><span class="macro">debug_assert!</span>(mem::size_of::&lt;Cow&lt;<span class="lifetime">'a</span>, T&gt;&gt;() == mem::size_of::&lt;<span class="self">Self</span>&gt;());
         <span class="kw">let </span>ptr: <span class="kw-2">*const </span><span class="self">Self </span>= (<span class="kw-2">&amp;</span>from <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>::Output).cast();
         mem::forget(from);
         core::ptr::read(ptr)
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
         <span class="comment">// Cast away the lifetime of Self
-        </span><span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
+        </span><span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
     }
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;static </span>+ <span class="question-mark">?</span>Sized&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>T {
-    <span class="kw">type </span>Output = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, T: <span class="lifetime">'static </span>+ <span class="question-mark">?</span>Sized&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'static </span>T {
+    <span class="kw">type </span>Output = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T {
-        <span class="comment">// Doesn&#39;t need unsafe: `&#39;a` is covariant so this lifetime cast is always safe
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>T {
+        <span class="comment">// Doesn't need unsafe: `'a` is covariant so this lifetime cast is always safe
         </span><span class="self">self
     </span>}
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_owned(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T {
-        <span class="comment">// Doesn&#39;t need unsafe: `&#39;a` is covariant so this lifetime cast is always safe
+    </span><span class="kw">fn </span>transform_owned(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T {
+        <span class="comment">// Doesn't need unsafe: `'a` is covariant so this lifetime cast is always safe
         </span><span class="self">self
     </span>}
     <span class="attr">#[inline]
-    </span><span class="kw">unsafe fn </span>make(from: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">unsafe fn </span>make(from: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; <span class="self">Self </span>{
         mem::transmute(from)
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
         <span class="comment">// Cast away the lifetime of Self
-        </span><span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
+        </span><span class="kw">unsafe </span>{ f(mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;static</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>alloc::vec::Vec&lt;T&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, T: <span class="lifetime">'static</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>alloc::vec::Vec&lt;T&gt; {
     <span class="kw">type </span>Output = alloc::vec::Vec&lt;T&gt;;
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>alloc::vec::Vec&lt;T&gt; {
-        <span class="comment">// Doesn&#39;t need unsafe: `&#39;a` is covariant so this lifetime cast is always safe
+    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>alloc::vec::Vec&lt;T&gt; {
+        <span class="comment">// Doesn't need unsafe: `'a` is covariant so this lifetime cast is always safe
         </span><span class="self">self
     </span>}
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>transform_owned(<span class="self">self</span>) -&gt; alloc::vec::Vec&lt;T&gt; {
-        <span class="comment">// Doesn&#39;t need unsafe: `&#39;a` is covariant so this lifetime cast is always safe
+        <span class="comment">// Doesn't need unsafe: `'a` is covariant so this lifetime cast is always safe
         </span><span class="self">self
     </span>}
     <span class="attr">#[inline]
@@ -640,11 +641,11 @@
         from
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output),
     {
-        <span class="comment">// Doesn&#39;t need unsafe: `&#39;a` is covariant so this lifetime cast is always safe
+        <span class="comment">// Doesn't need unsafe: `'a` is covariant so this lifetime cast is always safe
         </span>f(<span class="self">self</span>)
     }
 }

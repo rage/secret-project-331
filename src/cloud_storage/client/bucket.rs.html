@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/client/bucket.rs`."><title>bucket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/client/bucket.rs`."><title>bucket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -376,12 +377,12 @@
 
 <span class="doccomment">/// Operations on [`Bucket`]()s.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>BucketClient&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">super</span>::Client);
+</span><span class="kw">pub struct </span>BucketClient&lt;<span class="lifetime">'a</span>&gt;(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">super</span>::Client);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BucketClient&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; BucketClient&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates a new `Bucket`. There are many options that you can provide for creating a new
     /// bucket, so the `NewBucket` resource contains all of them. Note that `NewBucket` implements
-    /// `Default`, so you don&#39;t have to specify the fields you&#39;re not using. And error is returned
+    /// `Default`, so you don't have to specify the fields you're not using. And error is returned
     /// if that bucket name is already taken.
     /// ### Example
     /// ```
@@ -393,7 +394,7 @@
     ///
     /// let client = Client::default();
     /// let new_bucket = NewBucket {
-    ///    name: &quot;cloud-storage-rs-doc-1&quot;.to_string(), // this is the only mandatory field
+    ///    name: "cloud-storage-rs-doc-1".to_string(), // this is the only mandatory field
     ///    location: Location::Multi(MultiRegion::Eu),
     ///    ..Default::default()
     /// };
@@ -403,9 +404,9 @@
     /// # }
     /// ```
     </span><span class="kw">pub async fn </span>create(<span class="kw-2">&amp;</span><span class="self">self</span>, new_bucket: <span class="kw-2">&amp;</span>NewBucket) -&gt; <span class="kw">crate</span>::Result&lt;Bucket&gt; {
-        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="kw">crate</span>::BASE_URL);
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/b/"</span>, <span class="kw">crate</span>::BASE_URL);
         <span class="kw">let </span>project = <span class="kw-2">&amp;</span><span class="kw">crate</span>::SERVICE_ACCOUNT.project_id;
-        <span class="kw">let </span>query = [(<span class="string">&quot;project&quot;</span>, project)];
+        <span class="kw">let </span>query = [(<span class="string">"project"</span>, project)];
         <span class="kw">let </span>result: GoogleResponse&lt;Bucket&gt; = <span class="self">self
             </span>.<span class="number">0
             </span>.client
@@ -441,9 +442,9 @@
     /// # }
     /// ```
     </span><span class="kw">pub async fn </span>list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;Bucket&gt;&gt; {
-        <span class="kw">let </span>url = <span class="macro">dbg!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="kw">crate</span>::BASE_URL));
+        <span class="kw">let </span>url = <span class="macro">dbg!</span>(<span class="macro">format!</span>(<span class="string">"{}/b/"</span>, <span class="kw">crate</span>::BASE_URL));
         <span class="kw">let </span>project = <span class="kw-2">&amp;</span><span class="kw">crate</span>::SERVICE_ACCOUNT.project_id;
-        <span class="kw">let </span>query = [(<span class="string">&quot;project&quot;</span>, project)];
+        <span class="kw">let </span>query = [(<span class="string">"project"</span>, project)];
         <span class="macro">dbg!</span>(
             <span class="self">self</span>.<span class="number">0
                 </span>.client
@@ -482,18 +483,18 @@
     /// let client = Client::default();
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;cloud-storage-rs-doc-2&quot;.to_string(),
+    /// #   name: "cloud-storage-rs-doc-2".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = client.bucket().create(&amp;new_bucket).await?;
     ///
-    /// let bucket = client.bucket().read(&quot;cloud-storage-rs-doc-2&quot;).await?;
+    /// let bucket = client.bucket().read("cloud-storage-rs-doc-2").await?;
     /// # client.bucket().delete(bucket).await?;
     /// # Ok(())
     /// # }
     /// ```
     </span><span class="kw">pub async fn </span>read(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Bucket&gt; {
-        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(name),);
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/b/{}"</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(name),);
         <span class="kw">let </span>result: GoogleResponse&lt;Bucket&gt; = <span class="self">self
             </span>.<span class="number">0
             </span>.client
@@ -521,12 +522,12 @@
     /// let client = Client::default();
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;cloud-storage-rs-doc-3&quot;.to_string(),
+    /// #   name: "cloud-storage-rs-doc-3".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = client.bucket().create(&amp;new_bucket).await?;
     ///
-    /// let mut bucket = client.bucket().read(&quot;cloud-storage-rs-doc-3&quot;).await?;
+    /// let mut bucket = client.bucket().read("cloud-storage-rs-doc-3").await?;
     /// bucket.retention_policy = Some(RetentionPolicy {
     ///     retention_period: 50,
     ///     effective_time: chrono::Utc::now() + chrono::Duration::seconds(50),
@@ -538,7 +539,7 @@
     /// # }
     /// ```
     </span><span class="kw">pub async fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>, bucket: <span class="kw-2">&amp;</span>Bucket) -&gt; <span class="kw">crate</span>::Result&lt;Bucket&gt; {
-        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name),);
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/b/{}"</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name),);
         <span class="kw">let </span>result: GoogleResponse&lt;Bucket&gt; = <span class="self">self
             </span>.<span class="number">0
             </span>.client
@@ -556,7 +557,7 @@
     }
 
     <span class="doccomment">/// Delete an existing `Bucket`. This permanently removes a bucket from Google Cloud Storage.
-    /// An error is returned when you don&#39;t have sufficient permissions, or when the
+    /// An error is returned when you don't have sufficient permissions, or when the
     /// `retention_policy` prevents you from deleting your Bucket.
     /// ### Example
     /// ```no_run
@@ -568,18 +569,18 @@
     /// let client = Client::default();
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;unnecessary-bucket&quot;.to_string(),
+    /// #   name: "unnecessary-bucket".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = client.bucket().create(&amp;new_bucket).await?;
     ///
-    /// let bucket = client.bucket().read(&quot;unnecessary-bucket&quot;).await?;
+    /// let bucket = client.bucket().read("unnecessary-bucket").await?;
     /// client.bucket().delete(bucket).await?;
     /// # Ok(())
     /// # }
     /// ```
     </span><span class="kw">pub async fn </span>delete(<span class="kw-2">&amp;</span><span class="self">self</span>, bucket: Bucket) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name));
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/b/{}"</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name));
         <span class="kw">let </span>response = <span class="self">self
             </span>.<span class="number">0
             </span>.client
@@ -605,19 +606,19 @@
     /// let client = Client::default();
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;cloud-storage-rs-doc-4&quot;.to_string(),
+    /// #   name: "cloud-storage-rs-doc-4".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = client.bucket().create(&amp;new_bucket).await?;
     ///
-    /// let bucket = client.bucket().read(&quot;cloud-storage-rs-doc-4&quot;).await?;
+    /// let bucket = client.bucket().read("cloud-storage-rs-doc-4").await?;
     /// let policy = client.bucket().get_iam_policy(&amp;bucket).await?;
     /// # client.bucket().delete(bucket).await?;
     /// # Ok(())
     /// # }
     /// ```
     </span><span class="kw">pub async fn </span>get_iam_policy(<span class="kw-2">&amp;</span><span class="self">self</span>, bucket: <span class="kw-2">&amp;</span>Bucket) -&gt; <span class="kw">crate</span>::Result&lt;IamPolicy&gt; {
-        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name));
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/b/{}/iam"</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name));
         <span class="kw">let </span>result: GoogleResponse&lt;IamPolicy&gt; = <span class="self">self
             </span>.<span class="number">0
             </span>.client
@@ -645,18 +646,18 @@
     /// let client = Client::default();
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;cloud-storage-rs-doc-5&quot;.to_string(),
+    /// #   name: "cloud-storage-rs-doc-5".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = client.bucket().create(&amp;new_bucket).await?;
     ///
-    /// let bucket = client.bucket().read(&quot;cloud-storage-rs-doc-5&quot;).await?;
+    /// let bucket = client.bucket().read("cloud-storage-rs-doc-5").await?;
     /// let iam_policy = IamPolicy {
     ///     version: 1,
     ///     bindings: vec![
     ///         Binding {
     ///             role: IamRole::Standard(StandardIamRole::ObjectViewer),
-    ///             members: vec![&quot;allUsers&quot;.to_string()],
+    ///             members: vec!["allUsers".to_string()],
     ///             condition: None,
     ///         }
     ///     ],
@@ -672,7 +673,7 @@
         bucket: <span class="kw-2">&amp;</span>Bucket,
         iam: <span class="kw-2">&amp;</span>IamPolicy,
     ) -&gt; <span class="kw">crate</span>::Result&lt;IamPolicy&gt; {
-        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name));
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/b/{}/iam"</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name));
         <span class="kw">let </span>result: GoogleResponse&lt;IamPolicy&gt; = <span class="self">self
             </span>.<span class="number">0
             </span>.client
@@ -698,8 +699,8 @@
     /// use cloud_storage::Bucket;
     ///
     /// let client = Client::default();
-    /// let bucket = client.bucket().read(&quot;my-bucket&quot;).await?;
-    /// client.bucket().test_iam_permission(&amp;bucket, &quot;storage.buckets.get&quot;).await?;
+    /// let bucket = client.bucket().read("my-bucket").await?;
+    /// client.bucket().test_iam_permission(&amp;bucket, "storage.buckets.get").await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -708,13 +709,13 @@
         bucket: <span class="kw-2">&amp;</span>Bucket,
         permission: <span class="kw-2">&amp;</span>str,
     ) -&gt; <span class="kw">crate</span>::Result&lt;TestIamPermission&gt; {
-        <span class="kw">if </span>permission == <span class="string">&quot;storage.buckets.list&quot; </span>|| permission == <span class="string">&quot;storage.buckets.create&quot; </span>{
+        <span class="kw">if </span>permission == <span class="string">"storage.buckets.list" </span>|| permission == <span class="string">"storage.buckets.create" </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new(
-                <span class="string">&quot;tested permission must not be `storage.buckets.list` or `storage.buckets.create`&quot;</span>,
+                <span class="string">"tested permission must not be `storage.buckets.list` or `storage.buckets.create`"</span>,
             ));
         }
         <span class="kw">let </span>url = <span class="macro">format!</span>(
-            <span class="string">&quot;{}/b/{}/iam/testPermissions&quot;</span>,
+            <span class="string">"{}/b/{}/iam/testPermissions"</span>,
             <span class="kw">crate</span>::BASE_URL,
             percent_encode(<span class="kw-2">&amp;</span>bucket.name)
         );
@@ -723,7 +724,7 @@
             </span>.client
             .get(<span class="kw-2">&amp;</span>url)
             .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
-            .query(<span class="kw-2">&amp;</span>[(<span class="string">&quot;permissions&quot;</span>, permission)])
+            .query(<span class="kw-2">&amp;</span>[(<span class="string">"permissions"</span>, permission)])
             .send()
             .<span class="kw">await</span><span class="question-mark">?
             </span>.json()

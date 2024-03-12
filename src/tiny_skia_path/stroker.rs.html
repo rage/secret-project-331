@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-path-0.11.4/src/stroker.rs`."><title>stroker.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-path-0.11.4/src/stroker.rs`."><title>stroker.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2220,21 +2221,21 @@
 <span class="kw">use </span><span class="kw">crate</span>::path_geometry;
 <span class="kw">use </span><span class="kw">crate</span>::scalar::{Scalar, SCALAR_NEARLY_ZERO, SCALAR_ROOT_2_OVER_2};
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), feature = <span class="string">&quot;no-std-float&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"no-std-float"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::NoStdFloat;
 
-<span class="kw">struct </span>SwappableBuilders&lt;<span class="lifetime">&#39;a</span>&gt; {
-    inner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>PathBuilder,
-    outer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>PathBuilder,
+<span class="kw">struct </span>SwappableBuilders&lt;<span class="lifetime">'a</span>&gt; {
+    inner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>PathBuilder,
+    outer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>PathBuilder,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SwappableBuilders&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SwappableBuilders&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// Skia swaps pointers to inner and outer builders during joining,
         // but not builders itself. So a simple `core::mem::swap` will produce invalid results.
         // And if we try to use use `core::mem::swap` on references, like below,
         // borrow checker will be unhappy.
-        // That&#39;s why we need this wrapper. Maybe there is a better solution.
+        // That's why we need this wrapper. Maybe there is a better solution.
         </span>core::mem::swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner, <span class="kw-2">&amp;mut </span><span class="self">self</span>.outer);
     }
 }
@@ -2485,7 +2486,7 @@
 
     <span class="doccomment">/// Computes a resolution scale.
     ///
-    /// Resolution scale is the &quot;intended&quot; resolution for the output. Default is 1.0.
+    /// Resolution scale is the "intended" resolution for the output. Default is 1.0.
     ///
     /// Larger values (res &gt; 1) indicate that the result should be more precise, since it will
     /// be zoomed up, and small errors will be magnified.
@@ -2549,7 +2550,7 @@
         }
 
         <span class="self">self</span>.res_scale = res_scale;
-        <span class="comment">// The &#39;4&#39; below matches the fill scan converter&#39;s error term.
+        <span class="comment">// The '4' below matches the fill scan converter's error term.
         </span><span class="self">self</span>.inv_res_scale = (res_scale * <span class="number">4.0</span>).invert();
         <span class="self">self</span>.inv_res_scale_squared = <span class="self">self</span>.inv_res_scale.sqr();
 
@@ -2573,10 +2574,10 @@
         <span class="self">self</span>.joiner = join_factory(line_join);
 
         <span class="comment">// Need some estimate of how large our final result (fOuter)
-        // and our per-contour temp (fInner) will be, so we don&#39;t spend
+        // and our per-contour temp (fInner) will be, so we don't spend
         // extra time repeatedly growing these arrays.
         //
-        // 1x for inner == &#39;wag&#39; (worst contour length would be better guess)
+        // 1x for inner == 'wag' (worst contour length would be better guess)
         </span><span class="self">self</span>.inner.clear();
         <span class="self">self</span>.inner.reserve(path.verbs.len(), path.points.len());
 
@@ -2877,12 +2878,12 @@
         }
 
         <span class="kw">if </span>!quad_points.quad[<span class="number">2</span>].x.is_finite() || !quad_points.quad[<span class="number">2</span>].x.is_finite() {
-            <span class="kw">return </span><span class="bool-val">false</span>; <span class="comment">// just abort if projected quad isn&#39;t representable
+            <span class="kw">return </span><span class="bool-val">false</span>; <span class="comment">// just abort if projected quad isn't representable
         </span>}
 
         <span class="self">self</span>.recursion_depth += <span class="number">1</span>;
         <span class="kw">if </span><span class="self">self</span>.recursion_depth &gt; RECURSIVE_LIMITS[<span class="self">self</span>.found_tangents <span class="kw">as </span>usize] {
-            <span class="kw">return </span><span class="bool-val">false</span>; <span class="comment">// just abort if projected quad isn&#39;t representable
+            <span class="kw">return </span><span class="bool-val">false</span>; <span class="comment">// just abort if projected quad isn't representable
         </span>}
 
         <span class="kw">let </span><span class="kw-2">mut </span>half = QuadConstruct::default();
@@ -3024,7 +3025,7 @@
         <span class="self">self</span>.stroke_close_enough(<span class="kw-2">&amp;</span>quad_points.quad.clone(), <span class="kw-2">&amp;</span>[ray0, ray1], quad_points)
     }
 
-    <span class="comment">// Given a cubic and a t range, find the start and end if they haven&#39;t been found already.
+    <span class="comment">// Given a cubic and a t range, find the start and end if they haven't been found already.
     </span><span class="kw">fn </span>cubic_quad_ends(<span class="kw-2">&amp;</span><span class="self">self</span>, cubic: <span class="kw-2">&amp;</span>[Point; <span class="number">4</span>], quad_points: <span class="kw-2">&amp;mut </span>QuadConstruct) {
         <span class="kw">if </span>!quad_points.start_set {
             <span class="kw">let </span><span class="kw-2">mut </span>cubic_start_pt = Point::zero();
@@ -3226,7 +3227,7 @@
 
         <span class="self">self</span>.recursion_depth += <span class="number">1</span>;
         <span class="kw">if </span><span class="self">self</span>.recursion_depth &gt; RECURSIVE_LIMITS[QUAD_RECURSIVE_LIMIT] {
-            <span class="kw">return </span><span class="bool-val">false</span>; <span class="comment">// just abort if projected quad isn&#39;t representable
+            <span class="kw">return </span><span class="bool-val">false</span>; <span class="comment">// just abort if projected quad isn't representable
         </span>}
 
         <span class="kw">let </span><span class="kw-2">mut </span>half = QuadConstruct::default();
@@ -3357,7 +3358,7 @@
             <span class="kw">return </span>ResultType::Quad;
         }
 
-        <span class="comment">// measure the distance to quad&#39;s bounds (quick reject)
+        <span class="comment">// measure the distance to quad's bounds (quick reject)
         // an alternative : look for point in triangle
         </span><span class="kw">if </span>!pt_in_quad_bounds(stroke, ray[<span class="number">0</span>], <span class="self">self</span>.inv_res_scale) {
             <span class="comment">// if far, subdivide
@@ -3374,7 +3375,7 @@
         <span class="kw">let </span>quad_pt = path_geometry::eval_quad_at(stroke, roots[<span class="number">0</span>].to_normalized());
         <span class="kw">let </span>error = <span class="self">self</span>.inv_res_scale * (<span class="number">1.0 </span>- (roots[<span class="number">0</span>].get() - <span class="number">0.5</span>).abs() * <span class="number">2.0</span>);
         <span class="kw">if </span>points_within_dist(ray[<span class="number">0</span>], quad_pt, error) {
-            <span class="comment">// if the difference is small, we&#39;re done
+            <span class="comment">// if the difference is small, we're done
             </span><span class="kw">if </span>sharp_angle(<span class="kw-2">&amp;</span>quad_points.quad) {
                 <span class="kw">return </span>ResultType::Split;
             }
@@ -3388,7 +3389,7 @@
 
     <span class="comment">// Find the intersection of the stroke tangents to construct a stroke quad.
     // Return whether the stroke is a degenerate (a line), a quad, or must be split.
-    // Optionally compute the quad&#39;s control point.
+    // Optionally compute the quad's control point.
     </span><span class="kw">fn </span>intersect_ray(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         intersect_ray_type: IntersectRayType,
@@ -3584,9 +3585,9 @@
 
 <span class="kw">fn </span>handle_inner_join(pivot: Point, after: Point, inner: <span class="kw-2">&amp;mut </span>PathBuilder) {
     <span class="comment">// In the degenerate case that the stroke radius is larger than our segments
-    // just connecting the two inner segments may &quot;show through&quot; as a funny
+    // just connecting the two inner segments may "show through" as a funny
     // diagonal. To pseudo-fix this, we go through the pivot point. This adds
-    // an extra point/edge, but I can&#39;t see a cheap way to know when this is
+    // an extra point/edge, but I can't see a cheap way to know when this is
     // not needed :(
     </span>inner.line_to(pivot.x, pivot.y);
 
@@ -3796,7 +3797,7 @@
         handle_inner_join(pivot, after, builders.inner);
     }
 
-    <span class="comment">// negate the dot since we&#39;re using normals instead of tangents
+    <span class="comment">// negate the dot since we're using normals instead of tangents
     </span><span class="kw">let </span>dot_prod = before_unit_normal.dot(after_unit_normal);
     <span class="kw">let </span>angle_type = dot_to_angle_type(dot_prod);
     <span class="kw">let </span><span class="kw-2">mut </span>before = before_unit_normal;
@@ -3833,7 +3834,7 @@
     }
 
     <span class="comment">// Before we enter the world of square-roots and divides,
-    // check if we&#39;re trying to join an upright right angle
+    // check if we're trying to join an upright right angle
     // (common case for stroking rectangles). If so, special case
     // that (for speed an accuracy).
     // Note: we only need to check one normal if dot==0
@@ -4079,11 +4080,11 @@
 }
 
 <span class="comment">// Intersect the line with the quad and return the t values on the quad where the line crosses.
-</span><span class="kw">fn </span>intersect_quad_ray&lt;<span class="lifetime">&#39;a</span>&gt;(
+</span><span class="kw">fn </span>intersect_quad_ray&lt;<span class="lifetime">'a</span>&gt;(
     line: <span class="kw-2">&amp;</span>[Point; <span class="number">2</span>],
     quad: <span class="kw-2">&amp;</span>[Point; <span class="number">3</span>],
-    roots: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[NormalizedF32Exclusive; <span class="number">3</span>],
-) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[NormalizedF32Exclusive] {
+    roots: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[NormalizedF32Exclusive; <span class="number">3</span>],
+) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[NormalizedF32Exclusive] {
     <span class="kw">let </span>vec = line[<span class="number">1</span>] - line[<span class="number">0</span>];
     <span class="kw">let </span><span class="kw-2">mut </span>r = [<span class="number">0.0</span>; <span class="number">3</span>];
     <span class="kw">for </span>n <span class="kw">in </span><span class="number">0</span>..<span class="number">3 </span>{

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/map/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/map/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -685,55 +686,55 @@
 /// use zerovec::ZeroMap;
 ///
 /// #[derive(serde::Serialize, serde::Deserialize)]
-/// struct Data&lt;&#39;a&gt; {
+/// struct Data&lt;'a&gt; {
 ///     #[serde(borrow)]
-///     map: ZeroMap&lt;&#39;a, u32, str&gt;,
+///     map: ZeroMap&lt;'a, u32, str&gt;,
 /// }
 ///
 /// let mut map = ZeroMap::new();
-/// map.insert(&amp;1, &quot;one&quot;);
-/// map.insert(&amp;2, &quot;two&quot;);
-/// map.insert(&amp;4, &quot;four&quot;);
+/// map.insert(&amp;1, "one");
+/// map.insert(&amp;2, "two");
+/// map.insert(&amp;4, "four");
 ///
 /// let data = Data { map };
 ///
 /// let bincode_bytes =
-///     bincode::serialize(&amp;data).expect(&quot;Serialization should be successful&quot;);
+///     bincode::serialize(&amp;data).expect("Serialization should be successful");
 ///
 /// // Will deserialize without any allocations
 /// let deserialized: Data = bincode::deserialize(&amp;bincode_bytes)
-///     .expect(&quot;Deserialization should be successful&quot;);
+///     .expect("Deserialization should be successful");
 ///
-/// assert_eq!(data.map.get(&amp;1), Some(&quot;one&quot;));
-/// assert_eq!(data.map.get(&amp;2), Some(&quot;two&quot;));
+/// assert_eq!(data.map.get(&amp;1), Some("one"));
+/// assert_eq!(data.map.get(&amp;2), Some("two"));
 /// ```
 ///
 /// [`VarZeroVec`]: crate::VarZeroVec
 </span><span class="comment">// ZeroMap has only one invariant: keys.len() == values.len()
 // It is also expected that the keys are sorted, but this is not an invariant. See #1433
-</span><span class="kw">pub struct </span>ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+</span><span class="kw">pub struct </span>ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">pub</span>(<span class="kw">crate</span>) keys: K::Container,
     <span class="kw">pub</span>(<span class="kw">crate</span>) values: V::Container,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Default <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Default <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
 {
     <span class="doccomment">/// Creates a new, empty `ZeroMap&lt;K, V&gt;`.
     ///
@@ -766,7 +767,7 @@
     }
 
     <span class="doccomment">/// Obtain a borrowed version of this map
-    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; ZeroMapBorrowed&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; ZeroMapBorrowed&lt;<span class="lifetime">'a</span>, K, V&gt; {
         ZeroMapBorrowed {
             keys: <span class="self">self</span>.keys.zvl_as_borrowed(),
             values: <span class="self">self</span>.values.zvl_as_borrowed(),
@@ -798,10 +799,10 @@
         <span class="self">self</span>.values.zvl_reserve(additional);
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
 {
     <span class="doccomment">/// Get the value associated with `key`, if it exists.
     ///
@@ -813,9 +814,9 @@
     /// use zerovec::ZeroMap;
     ///
     /// let mut map = ZeroMap::new();
-    /// map.insert(&amp;1, &quot;one&quot;);
-    /// map.insert(&amp;2, &quot;two&quot;);
-    /// assert_eq!(map.get(&amp;1), Some(&quot;one&quot;));
+    /// map.insert(&amp;1, "one");
+    /// map.insert(&amp;2, "two");
+    /// assert_eq!(map.get(&amp;1), Some("one"));
     /// assert_eq!(map.get(&amp;3), None);
     /// ```
     </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V::GetType&gt; {
@@ -829,9 +830,9 @@
     /// use zerovec::ZeroMap;
     ///
     /// let mut map = ZeroMap::new();
-    /// map.insert(&amp;1, &quot;one&quot;);
-    /// map.insert(&amp;2, &quot;two&quot;);
-    /// assert_eq!(map.get_by(|probe| probe.cmp(&amp;1)), Some(&quot;one&quot;));
+    /// map.insert(&amp;1, "one");
+    /// map.insert(&amp;2, "two");
+    /// assert_eq!(map.get_by(|probe| probe.cmp(&amp;1)), Some("one"));
     /// assert_eq!(map.get_by(|probe| probe.cmp(&amp;3)), None);
     /// ```
     </span><span class="kw">pub fn </span>get_by(<span class="kw-2">&amp;</span><span class="self">self</span>, predicate: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span>K) -&gt; Ordering) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V::GetType&gt; {
@@ -845,8 +846,8 @@
     /// use zerovec::ZeroMap;
     ///
     /// let mut map = ZeroMap::new();
-    /// map.insert(&amp;1, &quot;one&quot;);
-    /// map.insert(&amp;2, &quot;two&quot;);
+    /// map.insert(&amp;1, "one");
+    /// map.insert(&amp;2, "two");
     /// assert!(map.contains_key(&amp;1));
     /// assert!(!map.contains_key(&amp;3));
     /// ```
@@ -860,9 +861,9 @@
     /// use zerovec::ZeroMap;
     ///
     /// let mut map = ZeroMap::new();
-    /// map.insert(&amp;1, &quot;one&quot;);
-    /// map.insert(&amp;2, &quot;two&quot;);
-    /// assert_eq!(map.get(&amp;1), Some(&quot;one&quot;));
+    /// map.insert(&amp;1, "one");
+    /// map.insert(&amp;2, "two");
+    /// assert_eq!(map.get(&amp;1), Some("one"));
     /// assert_eq!(map.get(&amp;3), None);
     /// ```
     </span><span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K, value: <span class="kw-2">&amp;</span>V) -&gt; <span class="prelude-ty">Option</span>&lt;V::OwnedType&gt; {
@@ -882,9 +883,9 @@
     /// use zerovec::ZeroMap;
     ///
     /// let mut map = ZeroMap::new();
-    /// map.insert(&amp;1, &quot;one&quot;);
-    /// map.insert(&amp;2, &quot;two&quot;);
-    /// assert_eq!(map.remove(&amp;1), Some(&quot;one&quot;.to_owned().into_boxed_str()));
+    /// map.insert(&amp;1, "one");
+    /// map.insert(&amp;2, "two");
+    /// assert_eq!(map.remove(&amp;1), Some("one".to_owned().into_boxed_str()));
     /// assert_eq!(map.get(&amp;1), None);
     /// ```
     </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;V::OwnedType&gt; {
@@ -900,25 +901,25 @@
     /// use zerovec::ZeroMap;
     ///
     /// let mut map = ZeroMap::new();
-    /// assert!(map.try_append(&amp;1, &quot;uno&quot;).is_none());
-    /// assert!(map.try_append(&amp;3, &quot;tres&quot;).is_none());
+    /// assert!(map.try_append(&amp;1, "uno").is_none());
+    /// assert!(map.try_append(&amp;3, "tres").is_none());
     ///
-    /// let unsuccessful = map.try_append(&amp;3, &quot;tres-updated&quot;);
-    /// assert!(unsuccessful.is_some(), &quot;append duplicate of last key&quot;);
+    /// let unsuccessful = map.try_append(&amp;3, "tres-updated");
+    /// assert!(unsuccessful.is_some(), "append duplicate of last key");
     ///
-    /// let unsuccessful = map.try_append(&amp;2, &quot;dos&quot;);
-    /// assert!(unsuccessful.is_some(), &quot;append out of order&quot;);
+    /// let unsuccessful = map.try_append(&amp;2, "dos");
+    /// assert!(unsuccessful.is_some(), "append out of order");
     ///
-    /// assert_eq!(map.get(&amp;1), Some(&quot;uno&quot;));
+    /// assert_eq!(map.get(&amp;1), Some("uno"));
     ///
     /// // contains the original value for the key: 3
-    /// assert_eq!(map.get(&amp;3), Some(&quot;tres&quot;));
+    /// assert_eq!(map.get(&amp;3), Some("tres"));
     ///
-    /// // not appended since it wasn&#39;t in order
+    /// // not appended since it wasn't in order
     /// assert_eq!(map.get(&amp;2), None);
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>try_append&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>K, value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>V) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>V)&gt; {
+    </span><span class="kw">pub fn </span>try_append&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>K, value: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>V) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'b </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'b </span>V)&gt; {
         <span class="kw">if </span><span class="self">self</span>.keys.zvl_len() != <span class="number">0 </span>{
             <span class="kw">if let </span><span class="prelude-val">Some</span>(last) = <span class="self">self</span>.keys.zvl_get(<span class="self">self</span>.keys.zvl_len() - <span class="number">1</span>) {
                 <span class="kw">if </span>K::Container::t_cmp_get(key, last) != Ordering::Greater {
@@ -933,18 +934,18 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
 {
     <span class="doccomment">/// Produce an ordered iterator over key-value pairs
-    </span><span class="kw">pub fn </span>iter&lt;<span class="lifetime">&#39;b</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>iter&lt;<span class="lifetime">'b</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="self">self</span>,
     ) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;
         Item = (
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::GetType,
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::GetType,
+            <span class="kw-2">&amp;</span><span class="lifetime">'b </span>&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::GetType,
+            <span class="kw-2">&amp;</span><span class="lifetime">'b </span>&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::GetType,
         ),
     &gt; {
         (<span class="number">0</span>..<span class="self">self</span>.keys.zvl_len()).map(<span class="kw">move </span>|idx| {
@@ -958,26 +959,26 @@
     }
 
     <span class="doccomment">/// Produce an ordered iterator over keys
-    </span><span class="kw">pub fn </span>iter_keys&lt;<span class="lifetime">&#39;b</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">self</span>,
-    ) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::GetType&gt; {
+    </span><span class="kw">pub fn </span>iter_keys&lt;<span class="lifetime">'b</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="self">self</span>,
+    ) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'b </span>&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::GetType&gt; {
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// idx is in-range
         </span>(<span class="number">0</span>..<span class="self">self</span>.keys.zvl_len()).map(<span class="kw">move </span>|idx| <span class="self">self</span>.keys.zvl_get(idx).unwrap())
     }
 
     <span class="doccomment">/// Produce an iterator over values, ordered by keys
-    </span><span class="kw">pub fn </span>iter_values&lt;<span class="lifetime">&#39;b</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">self</span>,
-    ) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::GetType&gt; {
+    </span><span class="kw">pub fn </span>iter_values&lt;<span class="lifetime">'b</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="self">self</span>,
+    ) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'b </span>&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::GetType&gt; {
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// idx is in-range
         </span>(<span class="number">0</span>..<span class="self">self</span>.values.zvl_len()).map(<span class="kw">move </span>|idx| <span class="self">self</span>.values.zvl_get(idx).unwrap())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = ZeroVec&lt;<span class="lifetime">&#39;a</span>, K&gt;&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = ZeroVec&lt;<span class="lifetime">'a</span>, K&gt;&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
     K: AsULE,
 {
     <span class="doccomment">/// Cast a `ZeroMap&lt;K, V&gt;` to `ZeroMap&lt;P, V&gt;` where `K` and `P` are [`AsULE`] types
@@ -986,9 +987,9 @@
     /// # Unchecked Invariants
     ///
     /// If `K` and `P` have different ordering semantics, unexpected behavior may occur.
-    </span><span class="kw">pub fn </span>cast_zv_k_unchecked&lt;P&gt;(<span class="self">self</span>) -&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, P, V&gt;
+    </span><span class="kw">pub fn </span>cast_zv_k_unchecked&lt;P&gt;(<span class="self">self</span>) -&gt; ZeroMap&lt;<span class="lifetime">'a</span>, P, V&gt;
     <span class="kw">where
-        </span>P: AsULE&lt;ULE = K::ULE&gt; + ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = ZeroVec&lt;<span class="lifetime">&#39;a</span>, P&gt;&gt; + <span class="question-mark">?</span>Sized,
+        </span>P: AsULE&lt;ULE = K::ULE&gt; + ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = ZeroVec&lt;<span class="lifetime">'a</span>, P&gt;&gt; + <span class="question-mark">?</span>Sized,
     {
         ZeroMap {
             keys: <span class="self">self</span>.keys.cast(),
@@ -1006,9 +1007,9 @@
     /// # Panics
     ///
     /// Panics if `K::ULE` and `P::ULE` are not the same size.
-    </span><span class="kw">pub fn </span>try_convert_zv_k_unchecked&lt;P&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ZeroMap&lt;<span class="lifetime">&#39;a</span>, P, V&gt;, ZeroVecError&gt;
+    </span><span class="kw">pub fn </span>try_convert_zv_k_unchecked&lt;P&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ZeroMap&lt;<span class="lifetime">'a</span>, P, V&gt;, ZeroVecError&gt;
     <span class="kw">where
-        </span>P: AsULE + ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = ZeroVec&lt;<span class="lifetime">&#39;a</span>, P&gt;&gt; + <span class="question-mark">?</span>Sized,
+        </span>P: AsULE + ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = ZeroVec&lt;<span class="lifetime">'a</span>, P&gt;&gt; + <span class="question-mark">?</span>Sized,
     {
         <span class="prelude-val">Ok</span>(ZeroMap {
             keys: <span class="self">self</span>.keys.try_into_converted()<span class="question-mark">?</span>,
@@ -1017,10 +1018,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = ZeroVec&lt;<span class="lifetime">&#39;a</span>, V&gt;&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = ZeroVec&lt;<span class="lifetime">'a</span>, V&gt;&gt; + <span class="question-mark">?</span>Sized,
     V: AsULE,
 {
     <span class="doccomment">/// Cast a `ZeroMap&lt;K, V&gt;` to `ZeroMap&lt;K, P&gt;` where `V` and `P` are [`AsULE`] types
@@ -1029,9 +1030,9 @@
     /// # Unchecked Invariants
     ///
     /// If `V` and `P` have different ordering semantics, unexpected behavior may occur.
-    </span><span class="kw">pub fn </span>cast_zv_v_unchecked&lt;P&gt;(<span class="self">self</span>) -&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, P&gt;
+    </span><span class="kw">pub fn </span>cast_zv_v_unchecked&lt;P&gt;(<span class="self">self</span>) -&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, P&gt;
     <span class="kw">where
-        </span>P: AsULE&lt;ULE = V::ULE&gt; + ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = ZeroVec&lt;<span class="lifetime">&#39;a</span>, P&gt;&gt; + <span class="question-mark">?</span>Sized,
+        </span>P: AsULE&lt;ULE = V::ULE&gt; + ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = ZeroVec&lt;<span class="lifetime">'a</span>, P&gt;&gt; + <span class="question-mark">?</span>Sized,
     {
         ZeroMap {
             keys: <span class="self">self</span>.keys,
@@ -1049,9 +1050,9 @@
     /// # Panics
     ///
     /// Panics if `V::ULE` and `P::ULE` are not the same size.
-    </span><span class="kw">pub fn </span>try_convert_zv_v_unchecked&lt;P&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, P&gt;, ZeroVecError&gt;
+    </span><span class="kw">pub fn </span>try_convert_zv_v_unchecked&lt;P&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ZeroMap&lt;<span class="lifetime">'a</span>, K, P&gt;, ZeroVecError&gt;
     <span class="kw">where
-        </span>P: AsULE + ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = ZeroVec&lt;<span class="lifetime">&#39;a</span>, P&gt;&gt; + <span class="question-mark">?</span>Sized,
+        </span>P: AsULE + ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = ZeroVec&lt;<span class="lifetime">'a</span>, P&gt;&gt; + <span class="question-mark">?</span>Sized,
     {
         <span class="prelude-val">Ok</span>(ZeroMap {
             keys: <span class="self">self</span>.keys,
@@ -1060,10 +1061,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = VarZeroVec&lt;<span class="lifetime">&#39;a</span>, V&gt;&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = VarZeroVec&lt;<span class="lifetime">'a</span>, V&gt;&gt; + <span class="question-mark">?</span>Sized,
     V: VarULE,
 {
     <span class="doccomment">/// Same as `insert()`, but allows using [EncodeAsVarULE](crate::ule::EncodeAsVarULE)
@@ -1075,9 +1076,9 @@
     ///
     /// #[zerovec::make_varule(PersonULE)]
     /// #[derive(Clone, Eq, PartialEq, Ord, PartialOrd)]
-    /// struct Person&lt;&#39;a&gt; {
+    /// struct Person&lt;'a&gt; {
     ///     age: u8,
-    ///     name: Cow&lt;&#39;a, str&gt;,
+    ///     name: Cow&lt;'a, str&gt;,
     /// }
     ///
     /// let mut map: ZeroMap&lt;u32, PersonULE&gt; = ZeroMap::new();
@@ -1085,17 +1086,17 @@
     ///     &amp;1,
     ///     &amp;Person {
     ///         age: 20,
-    ///         name: &quot;Joseph&quot;.into(),
+    ///         name: "Joseph".into(),
     ///     },
     /// );
     /// map.insert_var_v(
     ///     &amp;1,
     ///     &amp;Person {
     ///         age: 35,
-    ///         name: &quot;Carla&quot;.into(),
+    ///         name: "Carla".into(),
     ///     },
     /// );
-    /// assert_eq!(&amp;map.get(&amp;1).unwrap().name, &quot;Carla&quot;);
+    /// assert_eq!(&amp;map.get(&amp;1).unwrap().name, "Carla");
     /// assert!(map.get(&amp;3).is_none());
     /// ```
     </span><span class="kw">pub fn </span>insert_var_v&lt;VE: EncodeAsVarULE&lt;V&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K, value: <span class="kw-2">&amp;</span>VE) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;V&gt;&gt; {
@@ -1118,10 +1119,10 @@
     // though we might be able to do it in the future if we add a trait for cross-Ord requirements
 </span>}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
     V: Copy,
 {
     <span class="doccomment">/// For cases when `V` is fixed-size, obtain a direct copy of `V` instead of `V::ULE`.
@@ -1132,9 +1133,9 @@
     /// use zerovec::ZeroMap;
     ///
     /// let mut map = ZeroMap::new();
-    /// map.insert(&amp;1, &amp;&#39;a&#39;);
-    /// map.insert(&amp;2, &amp;&#39;b&#39;);
-    /// assert_eq!(map.get_copied(&amp;1), Some(&#39;a&#39;));
+    /// map.insert(&amp;1, &amp;'a');
+    /// map.insert(&amp;2, &amp;'b');
+    /// assert_eq!(map.get_copied(&amp;1), Some('a'));
     /// assert_eq!(map.get_copied(&amp;3), None);
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>get_copied(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt; {
@@ -1153,9 +1154,9 @@
     /// use zerovec::ZeroMap;
     ///
     /// let mut map = ZeroMap::new();
-    /// map.insert(&amp;1, &amp;&#39;a&#39;);
-    /// map.insert(&amp;2, &amp;&#39;b&#39;);
-    /// assert_eq!(map.get_copied_by(|probe| probe.cmp(&amp;1)), Some(&#39;a&#39;));
+    /// map.insert(&amp;1, &amp;'a');
+    /// map.insert(&amp;2, &amp;'b');
+    /// assert_eq!(map.get_copied_by(|probe| probe.cmp(&amp;1)), Some('a'));
     /// assert_eq!(map.get_copied_by(|probe| probe.cmp(&amp;3)), None);
     /// ```
     </span><span class="attr">#[inline]
@@ -1173,17 +1174,17 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = ZeroVec&lt;<span class="lifetime">&#39;a</span>, V&gt;&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = ZeroVec&lt;<span class="lifetime">'a</span>, V&gt;&gt; + <span class="question-mark">?</span>Sized,
     V: AsULE + Copy,
 {
     <span class="doccomment">/// Similar to [`Self::iter()`] except it returns a direct copy of the values instead of references
     /// to `V::ULE`, in cases when `V` is fixed-size
-    </span><span class="kw">pub fn </span>iter_copied_values&lt;<span class="lifetime">&#39;b</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">self</span>,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::GetType, V)&gt; {
+    </span><span class="kw">pub fn </span>iter_copied_values&lt;<span class="lifetime">'b</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="self">self</span>,
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'b </span>&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::GetType, V)&gt; {
         (<span class="number">0</span>..<span class="self">self</span>.keys.zvl_len()).map(<span class="kw">move </span>|idx| {
             (
                 <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// idx in 0..keys.zvl_len()
@@ -1195,17 +1196,17 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = ZeroVec&lt;<span class="lifetime">&#39;a</span>, K&gt;&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>, Container = ZeroVec&lt;<span class="lifetime">&#39;a</span>, V&gt;&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = ZeroVec&lt;<span class="lifetime">'a</span>, K&gt;&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>, Container = ZeroVec&lt;<span class="lifetime">'a</span>, V&gt;&gt; + <span class="question-mark">?</span>Sized,
     K: AsULE + Copy,
     V: AsULE + Copy,
 {
     <span class="doccomment">/// Similar to [`Self::iter()`] except it returns a direct copy of the keys values instead of references
     /// to `K::ULE` and `V::ULE`, in cases when `K` and `V` are fixed-size
     </span><span class="attr">#[allow(clippy::needless_lifetimes)] </span><span class="comment">// Lifetime is necessary in impl Trait
-    </span><span class="kw">pub fn </span>iter_copied&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (K, V)&gt; + <span class="lifetime">&#39;b </span>{
+    </span><span class="kw">pub fn </span>iter_copied&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (K, V)&gt; + <span class="lifetime">'b </span>{
         <span class="kw">let </span>keys = <span class="kw-2">&amp;</span><span class="self">self</span>.keys;
         <span class="kw">let </span>values = <span class="kw-2">&amp;</span><span class="self">self</span>.values;
         (<span class="number">0</span>..keys.len()).map(<span class="kw">move </span>|idx| {
@@ -1219,14 +1220,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; From&lt;ZeroMapBorrowed&lt;<span class="lifetime">&#39;a</span>, K, V&gt;&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; From&lt;ZeroMapBorrowed&lt;<span class="lifetime">'a</span>, K, V&gt;&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;,
     K: <span class="question-mark">?</span>Sized,
     V: <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">fn </span>from(other: ZeroMapBorrowed&lt;<span class="lifetime">&#39;a</span>, K, V&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>from(other: ZeroMapBorrowed&lt;<span class="lifetime">'a</span>, K, V&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             keys: K::Container::zvl_from_borrowed(other.keys),
             values: V::Container::zvl_from_borrowed(other.values),
@@ -1234,42 +1235,42 @@
     }
 }
 
-<span class="comment">// We can&#39;t use the default PartialEq because ZeroMap is invariant
+<span class="comment">// We can't use the default PartialEq because ZeroMap is invariant
 // so otherwise rustc will not automatically allow you to compare ZeroMaps
 // with different lifetimes
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, K, V&gt; PartialEq&lt;ZeroMap&lt;<span class="lifetime">&#39;b</span>, K, V&gt;&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, K, V&gt; PartialEq&lt;ZeroMap&lt;<span class="lifetime">'b</span>, K, V&gt;&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;c</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;c</span>&gt; + <span class="question-mark">?</span>Sized,
-    &lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Container: PartialEq&lt;&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt;&gt;::Container&gt;,
-    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Container: PartialEq&lt;&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;b</span>&gt;&gt;::Container&gt;,
+    </span>K: <span class="kw">for</span>&lt;<span class="lifetime">'c</span>&gt; ZeroMapKV&lt;<span class="lifetime">'c</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: <span class="kw">for</span>&lt;<span class="lifetime">'c</span>&gt; ZeroMapKV&lt;<span class="lifetime">'c</span>&gt; + <span class="question-mark">?</span>Sized,
+    &lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::Container: PartialEq&lt;&lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'b</span>&gt;&gt;::Container&gt;,
+    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::Container: PartialEq&lt;&lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'b</span>&gt;&gt;::Container&gt;,
 {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>ZeroMap&lt;<span class="lifetime">&#39;b</span>, K, V&gt;) -&gt; bool {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>ZeroMap&lt;<span class="lifetime">'b</span>, K, V&gt;) -&gt; bool {
         <span class="self">self</span>.keys.eq(<span class="kw-2">&amp;</span>other.keys) &amp;&amp; <span class="self">self</span>.values.eq(<span class="kw-2">&amp;</span>other.values)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; fmt::Debug <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; fmt::Debug <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    &lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Container: fmt::Debug,
-    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Container: fmt::Debug,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    &lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::Container: fmt::Debug,
+    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::Container: fmt::Debug,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
-        f.debug_struct(<span class="string">&quot;ZeroMap&quot;</span>)
-            .field(<span class="string">&quot;keys&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.keys)
-            .field(<span class="string">&quot;values&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.values)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+        f.debug_struct(<span class="string">"ZeroMap"</span>)
+            .field(<span class="string">"keys"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.keys)
+            .field(<span class="string">"values"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.values)
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Clone <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Clone <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    &lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Container: Clone,
-    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Container: Clone,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    &lt;K <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::Container: Clone,
+    &lt;V <span class="kw">as </span>ZeroMapKV&lt;<span class="lifetime">'a</span>&gt;&gt;::Container: Clone,
 {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -1279,12 +1280,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, A, B, K, V&gt; FromIterator&lt;(A, B)&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, A, B, K, V&gt; FromIterator&lt;(A, B)&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
     </span>A: Borrow&lt;K&gt;,
     B: Borrow&lt;V&gt;,
-    K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">fn </span>from_iter&lt;T&gt;(iter: T) -&gt; <span class="self">Self
     </span><span class="kw">where

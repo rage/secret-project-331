@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/responses/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/responses/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -451,17 +452,17 @@
 /// # actix_rt::System::new().block_on(async {
 /// let mut res: Response&lt;_&gt; = Response::build(StatusCode::OK)
 ///     .content_type(mime::APPLICATION_JSON)
-///     .insert_header((header::SERVER, &quot;my-app/1.0&quot;))
-///     .append_header((header::SET_COOKIE, &quot;a=1&quot;))
-///     .append_header((header::SET_COOKIE, &quot;b=2&quot;))
-///     .body(&quot;1234&quot;);
+///     .insert_header((header::SERVER, "my-app/1.0"))
+///     .append_header((header::SET_COOKIE, "a=1"))
+///     .append_header((header::SET_COOKIE, "b=2"))
+///     .body("1234");
 ///
 /// assert_eq!(res.status(), StatusCode::OK);
 ///
-/// assert!(res.headers().contains_key(&quot;server&quot;));
-/// assert_eq!(res.headers().get_all(&quot;set-cookie&quot;).count(), 2);
+/// assert!(res.headers().contains_key("server"));
+/// assert_eq!(res.headers().get_all("set-cookie").count(), 2);
 ///
-/// assert_eq!(body::to_bytes(res.into_body()).await.unwrap(), &amp;b&quot;1234&quot;[..]);
+/// assert_eq!(body::to_bytes(res.into_body()).await.unwrap(), &amp;b"1234"[..]);
 /// # })
 /// ```
 </span><span class="kw">pub struct </span>ResponseBuilder {
@@ -510,11 +511,11 @@
     ///
     /// let res = ResponseBuilder::default()
     ///     .insert_header((header::CONTENT_TYPE, mime::APPLICATION_JSON))
-    ///     .insert_header((&quot;X-TEST&quot;, &quot;value&quot;))
+    ///     .insert_header(("X-TEST", "value"))
     ///     .finish();
     ///
-    /// assert!(res.headers().contains_key(&quot;content-type&quot;));
-    /// assert!(res.headers().contains_key(&quot;x-test&quot;));
+    /// assert!(res.headers().contains_key("content-type"));
+    /// assert!(res.headers().contains_key("x-test"));
     /// ```
     </span><span class="kw">pub fn </span>insert_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parts) = <span class="self">self</span>.inner() {
@@ -537,12 +538,12 @@
     ///
     /// let res = ResponseBuilder::default()
     ///     .append_header((header::CONTENT_TYPE, mime::APPLICATION_JSON))
-    ///     .append_header((&quot;X-TEST&quot;, &quot;value1&quot;))
-    ///     .append_header((&quot;X-TEST&quot;, &quot;value2&quot;))
+    ///     .append_header(("X-TEST", "value1"))
+    ///     .append_header(("X-TEST", "value2"))
     ///     .finish();
     ///
-    /// assert_eq!(res.headers().get_all(&quot;content-type&quot;).count(), 1);
-    /// assert_eq!(res.headers().get_all(&quot;x-test&quot;).count(), 2);
+    /// assert_eq!(res.headers().get_all("content-type").count(), 1);
+    /// assert_eq!(res.headers().get_all("x-test").count(), 2);
     /// ```
     </span><span class="kw">pub fn </span>append_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parts) = <span class="self">self</span>.inner() {
@@ -557,7 +558,7 @@
 
     <span class="doccomment">/// Set the custom reason for the response.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>reason(<span class="kw-2">&amp;mut </span><span class="self">self</span>, reason: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>reason(<span class="kw-2">&amp;mut </span><span class="self">self</span>, reason: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parts) = <span class="self">self</span>.inner() {
             parts.reason = <span class="prelude-val">Some</span>(reason);
         }
@@ -633,7 +634,7 @@
     /// This `ResponseBuilder` will be left in a useless state.
     </span><span class="kw">pub fn </span>body&lt;B&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, body: B) -&gt; Response&lt;EitherBody&lt;B&gt;&gt;
     <span class="kw">where
-        </span>B: MessageBody + <span class="lifetime">&#39;static</span>,
+        </span>B: MessageBody + <span class="lifetime">'static</span>,
     {
         <span class="kw">match </span><span class="self">self</span>.message_body(body) {
             <span class="prelude-val">Ok</span>(res) =&gt; res.map_body(|<span class="kw">_</span>, body| EitherBody::left(body)),
@@ -649,7 +650,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new_http().with_cause(err));
         }
 
-        <span class="kw">let </span>head = <span class="self">self</span>.head.take().expect(<span class="string">&quot;cannot reuse response builder&quot;</span>);
+        <span class="kw">let </span>head = <span class="self">self</span>.head.take().expect(<span class="string">"cannot reuse response builder"</span>);
 
         <span class="prelude-val">Ok</span>(Response {
             head,
@@ -701,8 +702,8 @@
 }
 
 <span class="doccomment">/// Convert `ResponseHead` to a `ResponseBuilder`
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ResponseHead&gt; <span class="kw">for </span>ResponseBuilder {
-    <span class="kw">fn </span>from(head: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ResponseHead) -&gt; ResponseBuilder {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ResponseHead&gt; <span class="kw">for </span>ResponseBuilder {
+    <span class="kw">fn </span>from(head: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ResponseHead) -&gt; ResponseBuilder {
         <span class="kw">let </span><span class="kw-2">mut </span>msg = BoxedResponseHead::new(head.status);
         msg.version = head.version;
         msg.reason = head.reason;
@@ -721,19 +722,19 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ResponseBuilder {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span>head = <span class="self">self</span>.head.as_ref().unwrap();
 
         <span class="kw">let </span>res = <span class="macro">writeln!</span>(
             f,
-            <span class="string">&quot;\nResponseBuilder {:?} {}{}&quot;</span>,
+            <span class="string">"\nResponseBuilder {:?} {}{}"</span>,
             head.version,
             head.status,
-            head.reason.unwrap_or(<span class="string">&quot;&quot;</span>),
+            head.reason.unwrap_or(<span class="string">""</span>),
         );
-        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;  headers:&quot;</span>);
+        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">"  headers:"</span>);
         <span class="kw">for </span>(key, val) <span class="kw">in </span>head.headers.iter() {
-            <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;    {:?}: {:?}&quot;</span>, key, val);
+            <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">"    {:?}: {:?}"</span>, key, val);
         }
         res
     }
@@ -749,7 +750,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_basic_builder() {
         <span class="kw">let </span>resp = Response::build(StatusCode::OK)
-            .insert_header((<span class="string">&quot;X-TEST&quot;</span>, <span class="string">&quot;value&quot;</span>))
+            .insert_header((<span class="string">"X-TEST"</span>, <span class="string">"value"</span>))
             .finish();
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
     }
@@ -757,12 +758,12 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_upgrade() {
         <span class="kw">let </span>resp = Response::build(StatusCode::OK)
-            .upgrade(<span class="string">&quot;websocket&quot;</span>)
+            .upgrade(<span class="string">"websocket"</span>)
             .finish();
         <span class="macro">assert!</span>(resp.upgrade());
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::UPGRADE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>)
+            HeaderValue::from_static(<span class="string">"websocket"</span>)
         );
     }
 
@@ -775,46 +776,46 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_content_type() {
         <span class="kw">let </span>resp = Response::build(StatusCode::OK)
-            .content_type(<span class="string">&quot;text/plain&quot;</span>)
+            .content_type(<span class="string">"text/plain"</span>)
             .body(Bytes::new());
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;text/plain&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"text/plain"</span>);
 
         <span class="kw">let </span>resp = Response::build(StatusCode::OK)
             .content_type(mime::APPLICATION_JAVASCRIPT_UTF_8)
             .body(Bytes::new());
         <span class="macro">assert_eq!</span>(
             resp.headers().get(CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;application/javascript; charset=utf-8&quot;
+            <span class="string">"application/javascript; charset=utf-8"
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_into_builder() {
-        <span class="kw">let </span><span class="kw-2">mut </span>resp: Response&lt;<span class="kw">_</span>&gt; = <span class="string">&quot;test&quot;</span>.into();
+        <span class="kw">let </span><span class="kw-2">mut </span>resp: Response&lt;<span class="kw">_</span>&gt; = <span class="string">"test"</span>.into();
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
 
         resp.headers_mut().insert(
-            HeaderName::from_static(<span class="string">&quot;cookie&quot;</span>),
-            HeaderValue::from_static(<span class="string">&quot;cookie1=val100&quot;</span>),
+            HeaderName::from_static(<span class="string">"cookie"</span>),
+            HeaderValue::from_static(<span class="string">"cookie1=val100"</span>),
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>builder: ResponseBuilder = resp.into();
         <span class="kw">let </span>resp = builder.status(StatusCode::BAD_REQUEST).finish();
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
 
-        <span class="kw">let </span>cookie = resp.headers().get_all(<span class="string">&quot;Cookie&quot;</span>).next().unwrap();
-        <span class="macro">assert_eq!</span>(cookie.to_str().unwrap(), <span class="string">&quot;cookie1=val100&quot;</span>);
+        <span class="kw">let </span>cookie = resp.headers().get_all(<span class="string">"Cookie"</span>).next().unwrap();
+        <span class="macro">assert_eq!</span>(cookie.to_str().unwrap(), <span class="string">"cookie1=val100"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>response_builder_header_insert_kv() {
         <span class="kw">let </span><span class="kw-2">mut </span>res = Response::build(StatusCode::OK);
-        res.insert_header((<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/octet-stream&quot;</span>));
+        res.insert_header((<span class="string">"Content-Type"</span>, <span class="string">"application/octet-stream"</span>));
         <span class="kw">let </span>res = res.finish();
 
         <span class="macro">assert_eq!</span>(
-            res.headers().get(<span class="string">&quot;Content-Type&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>))
+            res.headers().get(<span class="string">"Content-Type"</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/octet-stream"</span>))
         );
     }
 
@@ -825,22 +826,22 @@
         <span class="kw">let </span>res = res.finish();
 
         <span class="macro">assert_eq!</span>(
-            res.headers().get(<span class="string">&quot;Content-Type&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>))
+            res.headers().get(<span class="string">"Content-Type"</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/octet-stream"</span>))
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>response_builder_header_append_kv() {
         <span class="kw">let </span><span class="kw-2">mut </span>res = Response::build(StatusCode::OK);
-        res.append_header((<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/octet-stream&quot;</span>));
-        res.append_header((<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json&quot;</span>));
+        res.append_header((<span class="string">"Content-Type"</span>, <span class="string">"application/octet-stream"</span>));
+        res.append_header((<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>));
         <span class="kw">let </span>res = res.finish();
 
-        <span class="kw">let </span>headers: Vec&lt;<span class="kw">_</span>&gt; = res.headers().get_all(<span class="string">&quot;Content-Type&quot;</span>).cloned().collect();
+        <span class="kw">let </span>headers: Vec&lt;<span class="kw">_</span>&gt; = res.headers().get_all(<span class="string">"Content-Type"</span>).cloned().collect();
         <span class="macro">assert_eq!</span>(headers.len(), <span class="number">2</span>);
-        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)));
-        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>)));
+        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/octet-stream"</span>)));
+        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/json"</span>)));
     }
 
     <span class="attr">#[test]
@@ -850,10 +851,10 @@
         res.append_header((header::CONTENT_TYPE, mime::APPLICATION_JSON));
         <span class="kw">let </span>res = res.finish();
 
-        <span class="kw">let </span>headers: Vec&lt;<span class="kw">_</span>&gt; = res.headers().get_all(<span class="string">&quot;Content-Type&quot;</span>).cloned().collect();
+        <span class="kw">let </span>headers: Vec&lt;<span class="kw">_</span>&gt; = res.headers().get_all(<span class="string">"Content-Type"</span>).cloned().collect();
         <span class="macro">assert_eq!</span>(headers.len(), <span class="number">2</span>);
-        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)));
-        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>)));
+        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/octet-stream"</span>)));
+        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/json"</span>)));
     }
 }
 </code></pre></div></section></main></body></html>

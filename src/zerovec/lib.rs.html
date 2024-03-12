@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -571,17 +572,17 @@
 //!
 //! This crate has four main types:
 //!
-//! - [`ZeroVec&lt;&#39;a, T&gt;`] (and [`ZeroSlice&lt;T&gt;`](ZeroSlice)) for fixed-width types like `u32`
-//! - [`VarZeroVec&lt;&#39;a, T&gt;`] (and [`VarZeroSlice&lt;T&gt;`](ZeroSlice)) for variable-width types like `str`
-//! - [`ZeroMap&lt;&#39;a, K, V&gt;`] to map from `K` to `V`
-//! - [`ZeroMap2d&lt;&#39;a, K0, K1, V&gt;`] to map from the pair `(K0, K1)` to `V`
+//! - [`ZeroVec&lt;'a, T&gt;`] (and [`ZeroSlice&lt;T&gt;`](ZeroSlice)) for fixed-width types like `u32`
+//! - [`VarZeroVec&lt;'a, T&gt;`] (and [`VarZeroSlice&lt;T&gt;`](ZeroSlice)) for variable-width types like `str`
+//! - [`ZeroMap&lt;'a, K, V&gt;`] to map from `K` to `V`
+//! - [`ZeroMap2d&lt;'a, K0, K1, V&gt;`] to map from the pair `(K0, K1)` to `V`
 //!
 //! The first two are intended as close-to-drop-in replacements for `Vec&lt;T&gt;` in Serde structs. The third and fourth are
 //! intended as a replacement for `HashMap` or [`LiteMap`](docs.rs/litemap). When used with Serde derives, **be sure to apply
-//! `#[serde(borrow)]` to these types**, same as one would for [`Cow&lt;&#39;a, T&gt;`].
+//! `#[serde(borrow)]` to these types**, same as one would for [`Cow&lt;'a, T&gt;`].
 //!
-//! [`ZeroVec&lt;&#39;a, T&gt;`], [`VarZeroVec&lt;&#39;a, T&gt;`], [`ZeroMap&lt;&#39;a, K, V&gt;`], and [`ZeroMap2d&lt;&#39;a, K0, K1, V&gt;`] all behave like
-//! [`Cow&lt;&#39;a, T&gt;`] in that they abstract over either borrowed or owned data. When performing deserialization
+//! [`ZeroVec&lt;'a, T&gt;`], [`VarZeroVec&lt;'a, T&gt;`], [`ZeroMap&lt;'a, K, V&gt;`], and [`ZeroMap2d&lt;'a, K0, K1, V&gt;`] all behave like
+//! [`Cow&lt;'a, T&gt;`] in that they abstract over either borrowed or owned data. When performing deserialization
 //! from human-readable formats (like `json` and `xml`), typically these types will allocate and fully own their data, whereas if deserializing
 //! from binary formats like `bincode` and `postcard`, these types will borrow data directly from the buffer being deserialized from,
 //! avoiding allocations and only performing validity checks. As such, this crate can be pretty fast (see [below](#Performance) for more information)
@@ -593,62 +594,62 @@
 //! # Cargo features
 //!
 //! This crate has several optional Cargo features:
-//!  -  `serde`: Allows serializing and deserializing `zerovec`&#39;s abstractions via [`serde`](https://docs.rs/serde)
+//!  -  `serde`: Allows serializing and deserializing `zerovec`'s abstractions via [`serde`](https://docs.rs/serde)
 //!  -   `yoke`: Enables implementations of `Yokeable` from the [`yoke`](https://docs.rs/yoke/) crate, which is also useful
 //!              in situations involving a lot of zero-copy deserialization.
 //!  - `derive`: Makes it easier to use custom types in these collections by providing the [`#[make_ule]`](crate::make_ule) and
 //!     [`#[make_varule]`](crate::make_varule) proc macros, which generate appropriate [`ULE`](crate::ule::ULE) and
-//!     [`VarULE`](crate::ule::VarULE)-conformant types for a given &quot;normal&quot; type.
+//!     [`VarULE`](crate::ule::VarULE)-conformant types for a given "normal" type.
 //!  - `std`: Enabled `std::Error` implementations for error types. This crate is by default `no_std` with a dependency on `alloc`.
 //!
-//! [`ZeroVec&lt;&#39;a, T&gt;`]: ZeroVec
-//! [`VarZeroVec&lt;&#39;a, T&gt;`]: VarZeroVec
-//! [`ZeroMap&lt;&#39;a, K, V&gt;`]: ZeroMap
-//! [`ZeroMap2d&lt;&#39;a, K0, K1, V&gt;`]: ZeroMap2d
-//! [`Cow&lt;&#39;a, T&gt;`]: alloc::borrow::Cow
+//! [`ZeroVec&lt;'a, T&gt;`]: ZeroVec
+//! [`VarZeroVec&lt;'a, T&gt;`]: VarZeroVec
+//! [`ZeroMap&lt;'a, K, V&gt;`]: ZeroMap
+//! [`ZeroMap2d&lt;'a, K0, K1, V&gt;`]: ZeroMap2d
+//! [`Cow&lt;'a, T&gt;`]: alloc::borrow::Cow
 //!
 //! # Examples
 //!
 //! Serialize and deserialize a struct with ZeroVec and VarZeroVec with Bincode:
 //!
 //! ```
-//! # #[cfg(feature = &quot;serde&quot;)] {
+//! # #[cfg(feature = "serde")] {
 //! use zerovec::{VarZeroVec, ZeroVec};
 //!
-//! // This example requires the &quot;serde&quot; feature
+//! // This example requires the "serde" feature
 //! #[derive(serde::Serialize, serde::Deserialize)]
-//! pub struct DataStruct&lt;&#39;data&gt; {
+//! pub struct DataStruct&lt;'data&gt; {
 //!     #[serde(borrow)]
-//!     nums: ZeroVec&lt;&#39;data, u32&gt;,
+//!     nums: ZeroVec&lt;'data, u32&gt;,
 //!     #[serde(borrow)]
-//!     chars: ZeroVec&lt;&#39;data, char&gt;,
+//!     chars: ZeroVec&lt;'data, char&gt;,
 //!     #[serde(borrow)]
-//!     strs: VarZeroVec&lt;&#39;data, str&gt;,
+//!     strs: VarZeroVec&lt;'data, str&gt;,
 //! }
 //!
 //! let data = DataStruct {
 //!     nums: ZeroVec::from_slice_or_alloc(&amp;[211, 281, 421, 461]),
-//!     chars: ZeroVec::alloc_from_slice(&amp;[&#39;ö&#39;, &#39;冇&#39;, &#39;म&#39;]),
-//!     strs: VarZeroVec::from(&amp;[&quot;hello&quot;, &quot;world&quot;]),
+//!     chars: ZeroVec::alloc_from_slice(&amp;['ö', '冇', 'म']),
+//!     strs: VarZeroVec::from(&amp;["hello", "world"]),
 //! };
 //! let bincode_bytes =
-//!     bincode::serialize(&amp;data).expect(&quot;Serialization should be successful&quot;);
+//!     bincode::serialize(&amp;data).expect("Serialization should be successful");
 //! assert_eq!(bincode_bytes.len(), 67);
 //!
 //! let deserialized: DataStruct = bincode::deserialize(&amp;bincode_bytes)
-//!     .expect(&quot;Deserialization should be successful&quot;);
+//!     .expect("Deserialization should be successful");
 //! assert_eq!(deserialized.nums.first(), Some(211));
-//! assert_eq!(deserialized.chars.get(1), Some(&#39;冇&#39;));
-//! assert_eq!(deserialized.strs.get(1), Some(&quot;world&quot;));
+//! assert_eq!(deserialized.chars.get(1), Some('冇'));
+//! assert_eq!(deserialized.strs.get(1), Some("world"));
 //! // The deserialization will not have allocated anything
 //! assert!(!deserialized.nums.is_owned());
-//! # } // feature = &quot;serde&quot;
+//! # } // feature = "serde"
 //! ```
 //!
 //! Use custom types inside of ZeroVec:
 //!
 //! ```rust
-//! # #[cfg(all(feature = &quot;serde&quot;, feature = &quot;derive&quot;))] {
+//! # #[cfg(all(feature = "serde", feature = "derive"))] {
 //! use zerovec::{ZeroVec, VarZeroVec, ZeroMap};
 //! use std::borrow::Cow;
 //! use zerovec::ule::encode_varule_to_box;
@@ -666,34 +667,34 @@
 //! #[zerovec::make_varule(PersonULE)]
 //! #[zerovec::derive(Serialize, Deserialize)] // add Serde impls to PersonULE
 //! #[derive(Clone, PartialEq, Eq, Ord, PartialOrd, serde::Serialize, serde::Deserialize)]
-//! struct Person&lt;&#39;a&gt; {
+//! struct Person&lt;'a&gt; {
 //!     birthday: Date,
 //!     favorite_character: char,
 //!     #[serde(borrow)]
-//!     name: Cow&lt;&#39;a, str&gt;,
+//!     name: Cow&lt;'a, str&gt;,
 //! }
 //!
 //! #[derive(serde::Serialize, serde::Deserialize)]
-//! struct Data&lt;&#39;a&gt; {
+//! struct Data&lt;'a&gt; {
 //!     #[serde(borrow)]
-//!     important_dates: ZeroVec&lt;&#39;a, Date&gt;,
+//!     important_dates: ZeroVec&lt;'a, Date&gt;,
 //!     // note: VarZeroVec always must reference the ULE type directly
 //!     #[serde(borrow)]
-//!     important_people: VarZeroVec&lt;&#39;a, PersonULE&gt;,
+//!     important_people: VarZeroVec&lt;'a, PersonULE&gt;,
 //!     #[serde(borrow)]
-//!     birthdays_to_people: ZeroMap&lt;&#39;a, Date, PersonULE&gt;
+//!     birthdays_to_people: ZeroMap&lt;'a, Date, PersonULE&gt;
 //! }
 //!
 //!
 //! let person1 = Person {
 //!     birthday: Date { y: 1990, m: 9, d: 7},
-//!     favorite_character: &#39;π&#39;,
-//!     name: Cow::from(&quot;Kate&quot;)
+//!     favorite_character: 'π',
+//!     name: Cow::from("Kate")
 //! };
 //! let person2 = Person {
 //!     birthday: Date { y: 1960, m: 5, d: 25},
-//!     favorite_character: &#39;冇&#39;,
-//!     name: Cow::from(&quot;Jesse&quot;)
+//!     favorite_character: '冇',
+//!     name: Cow::from("Jesse")
 //! };
 //!
 //! let important_dates = ZeroVec::alloc_from_slice(&amp;[Date { y: 1943, m: 3, d: 20}, Date { y: 1976, m: 8, d: 2}, Date { y: 1998, m: 2, d: 15}]);
@@ -706,16 +707,16 @@
 //! let data = Data { important_dates, important_people, birthdays_to_people };
 //!
 //! let bincode_bytes = bincode::serialize(&amp;data)
-//!     .expect(&quot;Serialization should be successful&quot;);
+//!     .expect("Serialization should be successful");
 //! assert_eq!(bincode_bytes.len(), 168);
 //!
 //! let deserialized: Data = bincode::deserialize(&amp;bincode_bytes)
-//!     .expect(&quot;Deserialization should be successful&quot;);
+//!     .expect("Deserialization should be successful");
 //!
 //! assert_eq!(deserialized.important_dates.get(0).unwrap().y, 1943);
-//! assert_eq!(&amp;deserialized.important_people.get(1).unwrap().name, &quot;Jesse&quot;);
-//! assert_eq!(&amp;deserialized.important_people.get(0).unwrap().name, &quot;Kate&quot;);
-//! assert_eq!(&amp;deserialized.birthdays_to_people.get(&amp;person1.birthday).unwrap().name, &quot;Kate&quot;);
+//! assert_eq!(&amp;deserialized.important_people.get(1).unwrap().name, "Jesse");
+//! assert_eq!(&amp;deserialized.important_people.get(0).unwrap().name, "Kate");
+//! assert_eq!(&amp;deserialized.birthdays_to_people.get(&amp;person1.birthday).unwrap().name, "Kate");
 //!
 //! } // feature = serde and derive
 //! ```
@@ -752,7 +753,7 @@
 //! is appended for baseline comparisons, e.g. `zeromap/lookup/small/hashmap`.
 
 </span><span class="comment">// https://github.com/unicode-org/icu4x/blob/main/docs/process/boilerplate.md#library-annotations
-</span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">&quot;std&quot;</span>)), no_std)]
+</span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">"std"</span>)), no_std)]
 #![cfg_attr(
     not(test),
     deny(
@@ -773,7 +774,7 @@
 
 <span class="kw">mod </span>error;
 <span class="kw">mod </span>flexzerovec;
-<span class="attr">#[cfg(feature = <span class="string">&quot;hashmap&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"hashmap"</span>)]
 </span><span class="kw">pub mod </span>hashmap;
 <span class="kw">mod </span>map;
 <span class="kw">mod </span>map2d;
@@ -786,12 +787,12 @@
 // to show up in the right spot in the docs
 </span><span class="kw">pub mod </span>ule;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;yoke&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"yoke"</span>)]
 </span><span class="kw">mod </span>yoke_impls;
 <span class="kw">mod </span>zerofrom_impls;
 
 <span class="kw">pub use </span><span class="kw">crate</span>::error::ZeroVecError;
-<span class="attr">#[cfg(feature = <span class="string">&quot;hashmap&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"hashmap"</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::hashmap::ZeroHashMap;
 <span class="kw">pub use </span><span class="kw">crate</span>::map::map::ZeroMap;
 <span class="kw">pub use </span><span class="kw">crate</span>::map2d::map::ZeroMap2d;
@@ -806,7 +807,7 @@
 
     <span class="kw">pub use </span>alloc::boxed;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
     </span><span class="kw">pub use </span>serde;
 }
 
@@ -918,9 +919,9 @@
 /// }
 ///
 /// #[derive(serde::Serialize, serde::Deserialize)]
-/// struct Dates&lt;&#39;a&gt; {
+/// struct Dates&lt;'a&gt; {
 ///     #[serde(borrow)]
-///     dates: ZeroVec&lt;&#39;a, Date&gt;,
+///     dates: ZeroVec&lt;'a, Date&gt;,
 /// }
 ///
 /// let dates = Dates {
@@ -944,23 +945,23 @@
 /// };
 ///
 /// let bincode_bytes =
-///     bincode::serialize(&amp;dates).expect(&quot;Serialization should be successful&quot;);
+///     bincode::serialize(&amp;dates).expect("Serialization should be successful");
 ///
 /// // Will deserialize without allocations
 /// let deserialized: Dates = bincode::deserialize(&amp;bincode_bytes)
-///     .expect(&quot;Deserialization should be successful&quot;);
+///     .expect("Deserialization should be successful");
 ///
 /// assert_eq!(deserialized.dates.get(1).unwrap().y, 1970);
 /// assert_eq!(deserialized.dates.get(2).unwrap().d, 13);
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;derive&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"derive"</span>)]
 </span><span class="kw">pub use </span>zerovec_derive::make_ule;
 
 <span class="doccomment">/// Generate a corresponding [`VarULE`] type and the relevant [`EncodeAsVarULE`]/[`zerofrom::ZeroFrom`]
 /// implementations for this type
 ///
 /// This can be attached to structs containing only [`AsULE`] types with the last fields being
-/// [`Cow&lt;&#39;a, str&gt;`](alloc::borrow::Cow), [`ZeroSlice`], or [`VarZeroSlice`]. If there is more than one such field, it will be represented
+/// [`Cow&lt;'a, str&gt;`](alloc::borrow::Cow), [`ZeroSlice`], or [`VarZeroSlice`]. If there is more than one such field, it will be represented
 /// using [`MultiFieldsULE`](crate::ule::MultiFieldsULE) and getters will be generated. Other VarULE fields will be detected if they are
 /// tagged with `#[zerovec::varule(NameOfVarULETy)]`.
 ///
@@ -1022,18 +1023,18 @@
 /// #[zerovec::make_varule(PersonULE)]
 /// #[zerovec::derive(Serialize, Deserialize)]
 /// #[derive(Clone, PartialEq, Eq, Ord, PartialOrd, serde::Serialize, serde::Deserialize)]
-/// struct Person&lt;&#39;a&gt; {
+/// struct Person&lt;'a&gt; {
 ///     birthday: Date,
 ///     favorite_character: char,
 ///     #[serde(borrow)]
-///     name: Cow&lt;&#39;a, str&gt;,
+///     name: Cow&lt;'a, str&gt;,
 /// }
 ///
 /// #[derive(serde::Serialize, serde::Deserialize)]
-/// struct Data&lt;&#39;a&gt; {
+/// struct Data&lt;'a&gt; {
 ///     // note: VarZeroVec always must reference the ULE type directly
 ///     #[serde(borrow)]
-///     important_people: VarZeroVec&lt;&#39;a, PersonULE&gt;,
+///     important_people: VarZeroVec&lt;'a, PersonULE&gt;,
 /// }
 ///
 /// let person1 = Person {
@@ -1042,8 +1043,8 @@
 ///         m: 9,
 ///         d: 7,
 ///     },
-///     favorite_character: &#39;π&#39;,
-///     name: Cow::from(&quot;Kate&quot;),
+///     favorite_character: 'π',
+///     name: Cow::from("Kate"),
 /// };
 /// let person2 = Person {
 ///     birthday: Date {
@@ -1051,30 +1052,30 @@
 ///         m: 5,
 ///         d: 25,
 ///     },
-///     favorite_character: &#39;冇&#39;,
-///     name: Cow::from(&quot;Jesse&quot;),
+///     favorite_character: '冇',
+///     name: Cow::from("Jesse"),
 /// };
 ///
 /// let important_people = VarZeroVec::from(&amp;[person1, person2]);
 /// let data = Data { important_people };
 ///
-/// let bincode_bytes = bincode::serialize(&amp;data).expect(&quot;Serialization should be successful&quot;);
+/// let bincode_bytes = bincode::serialize(&amp;data).expect("Serialization should be successful");
 ///
 /// // Will deserialize without allocations
 /// let deserialized: Data =
-///     bincode::deserialize(&amp;bincode_bytes).expect(&quot;Deserialization should be successful&quot;);
+///     bincode::deserialize(&amp;bincode_bytes).expect("Deserialization should be successful");
 ///
-/// assert_eq!(&amp;deserialized.important_people.get(1).unwrap().name, &quot;Jesse&quot;);
-/// assert_eq!(&amp;deserialized.important_people.get(0).unwrap().name, &quot;Kate&quot;);
+/// assert_eq!(&amp;deserialized.important_people.get(1).unwrap().name, "Jesse");
+/// assert_eq!(&amp;deserialized.important_people.get(0).unwrap().name, "Kate");
 ///
-/// // Since VarZeroVec produces PersonULE types, it&#39;s convenient to use ZeroFrom
+/// // Since VarZeroVec produces PersonULE types, it's convenient to use ZeroFrom
 /// // to recoup Person values in a zero-copy way
 /// let person_converted: Person =
 ///     ZeroFrom::zero_from(deserialized.important_people.get(1).unwrap());
-/// assert_eq!(person_converted.name, &quot;Jesse&quot;);
+/// assert_eq!(person_converted.name, "Jesse");
 /// assert_eq!(person_converted.birthday.y, 1960);
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;derive&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"derive"</span>)]
 </span><span class="kw">pub use </span>zerovec_derive::make_varule;
 
 <span class="attr">#[cfg(test)]
@@ -1088,7 +1089,7 @@
         (<span class="macro-nonterminal">$sizes</span>:pat, <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">path</span>) =&gt; {
             <span class="macro">assert!</span>(
                 <span class="macro">matches!</span>(size_of::&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>&gt;(), <span class="macro-nonterminal">$sizes</span>),
-                <span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">&quot; is of size {}&quot;</span>),
+                <span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">" is of size {}"</span>),
                 <span class="macro-nonterminal">size_of</span>::&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>&gt;()
             );
         };

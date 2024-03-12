@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["enable_caching","get_extensions","get_search_path","reset_search_path","set_extensions","set_search_path","set_verify_owner_validation","strict_hash_verification","strict_object_creation"]};
+window.SIDEBAR_ITEMS = {"fn":["enable_caching","get_extensions","get_search_path","reset_search_path","set_extensions","set_search_path","set_ssl_cert_dir","set_ssl_cert_file","set_verify_owner_validation","strict_hash_verification","strict_object_creation"]};

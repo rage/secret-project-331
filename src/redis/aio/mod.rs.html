@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/aio/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/aio/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -166,29 +167,29 @@
 <span class="kw">use </span>std::pin::Pin;
 
 <span class="doccomment">/// Enables the async_std compatibility
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;async-std-comp&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;async-std-comp&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"async-std-comp"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"async-std-comp"</span>)))]
 </span><span class="kw">pub mod </span>async_std;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;tls-rustls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"tls-rustls"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::tls::TlsConnParams;
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;tls-native-tls&quot;</span>, not(feature = <span class="string">&quot;tls-rustls&quot;</span>)))]
+<span class="attr">#[cfg(all(feature = <span class="string">"tls-native-tls"</span>, not(feature = <span class="string">"tls-rustls"</span>)))]
 </span><span class="kw">use </span><span class="kw">crate</span>::connection::TlsConnParams;
 
 <span class="doccomment">/// Enables the tokio compatibility
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;tokio-comp&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio-comp&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"tokio-comp"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"tokio-comp"</span>)))]
 </span><span class="kw">pub mod </span>tokio;
 
 <span class="doccomment">/// Represents the ability of connecting via TCP or via Unix socket
 </span><span class="attr">#[async_trait]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>RedisRuntime: AsyncStream + Send + Sync + Sized + <span class="lifetime">&#39;static </span>{
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>RedisRuntime: AsyncStream + Send + Sync + Sized + <span class="lifetime">'static </span>{
     <span class="doccomment">/// Performs a TCP connection
     </span><span class="kw">async fn </span>connect_tcp(socket_addr: SocketAddr) -&gt; RedisResult&lt;<span class="self">Self</span>&gt;;
 
     <span class="comment">// Performs a TCP TLS connection
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;tls-native-tls&quot;</span>, feature = <span class="string">&quot;tls-rustls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"tls-native-tls"</span>, feature = <span class="string">"tls-rustls"</span>))]
     </span><span class="kw">async fn </span>connect_tcp_tls(
         hostname: <span class="kw-2">&amp;</span>str,
         socket_addr: SocketAddr,
@@ -200,7 +201,7 @@
     </span><span class="attr">#[cfg(unix)]
     </span><span class="kw">async fn </span>connect_unix(path: <span class="kw-2">&amp;</span>Path) -&gt; RedisResult&lt;<span class="self">Self</span>&gt;;
 
-    <span class="kw">fn </span>spawn(f: <span class="kw">impl </span>Future&lt;Output = ()&gt; + Send + <span class="lifetime">&#39;static</span>);
+    <span class="kw">fn </span>spawn(f: <span class="kw">impl </span>Future&lt;Output = ()&gt; + Send + <span class="lifetime">'static</span>);
 
     <span class="kw">fn </span>boxed(<span class="self">self</span>) -&gt; Pin&lt;Box&lt;<span class="kw">dyn </span>AsyncStream + Send + Sync&gt;&gt; {
         Box::pin(<span class="self">self</span>)
@@ -215,20 +216,20 @@
 </span><span class="kw">pub trait </span>ConnectionLike {
     <span class="doccomment">/// Sends an already encoded (packed) command into the TCP socket and
     /// reads the single response from it.
-    </span><span class="kw">fn </span>req_packed_command&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, cmd: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Cmd) -&gt; RedisFuture&lt;<span class="lifetime">&#39;a</span>, Value&gt;;
+    </span><span class="kw">fn </span>req_packed_command&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, cmd: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Cmd) -&gt; RedisFuture&lt;<span class="lifetime">'a</span>, Value&gt;;
 
     <span class="doccomment">/// Sends multiple already encoded (packed) command into the TCP socket
     /// and reads `count` responses from it.  This is used to implement
     /// pipelining.
-    </span><span class="kw">fn </span>req_packed_commands&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>,
-        cmd: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">crate</span>::Pipeline,
+    </span><span class="kw">fn </span>req_packed_commands&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>,
+        cmd: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">crate</span>::Pipeline,
         offset: usize,
         count: usize,
-    ) -&gt; RedisFuture&lt;<span class="lifetime">&#39;a</span>, Vec&lt;Value&gt;&gt;;
+    ) -&gt; RedisFuture&lt;<span class="lifetime">'a</span>, Vec&lt;Value&gt;&gt;;
 
     <span class="doccomment">/// Returns the database this connection is bound to.  Note that this
-    /// information might be unreliable because it&#39;s initially cached and
+    /// information might be unreliable because it's initially cached and
     /// also might be incorrect if the connection like object is not
     /// actually connected.
     </span><span class="kw">fn </span>get_db(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64;
@@ -240,7 +241,7 @@
     </span>C: ConnectionLike,
 {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(password) = <span class="kw-2">&amp;</span>connection_info.password {
-        <span class="kw">let </span><span class="kw-2">mut </span>command = cmd(<span class="string">&quot;AUTH&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>command = cmd(<span class="string">"AUTH"</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(username) = <span class="kw-2">&amp;</span>connection_info.username {
             command.arg(username);
         }
@@ -249,23 +250,23 @@
             <span class="prelude-val">Err</span>(e) =&gt; {
                 <span class="kw">let </span>err_msg = e.detail().ok_or((
                     ErrorKind::AuthenticationFailed,
-                    <span class="string">&quot;Password authentication failed&quot;</span>,
+                    <span class="string">"Password authentication failed"</span>,
                 ))<span class="question-mark">?</span>;
 
-                <span class="kw">if </span>!err_msg.contains(<span class="string">&quot;wrong number of arguments for &#39;auth&#39; command&quot;</span>) {
+                <span class="kw">if </span>!err_msg.contains(<span class="string">"wrong number of arguments for 'auth' command"</span>) {
                     <span class="macro">fail!</span>((
                         ErrorKind::AuthenticationFailed,
-                        <span class="string">&quot;Password authentication failed&quot;</span>,
+                        <span class="string">"Password authentication failed"</span>,
                     ));
                 }
 
-                <span class="kw">let </span><span class="kw-2">mut </span>command = cmd(<span class="string">&quot;AUTH&quot;</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>command = cmd(<span class="string">"AUTH"</span>);
                 <span class="kw">match </span>command.arg(password).query_async(con).<span class="kw">await </span>{
                     <span class="prelude-val">Ok</span>(Value::Okay) =&gt; (),
                     <span class="kw">_ </span>=&gt; {
                         <span class="macro">fail!</span>((
                             ErrorKind::AuthenticationFailed,
-                            <span class="string">&quot;Password authentication failed&quot;
+                            <span class="string">"Password authentication failed"
                         </span>));
                     }
                 }
@@ -273,23 +274,23 @@
             <span class="kw">_ </span>=&gt; {
                 <span class="macro">fail!</span>((
                     ErrorKind::AuthenticationFailed,
-                    <span class="string">&quot;Password authentication failed&quot;
+                    <span class="string">"Password authentication failed"
                 </span>));
             }
         }
     }
 
     <span class="kw">if </span>connection_info.db != <span class="number">0 </span>{
-        <span class="kw">match </span>cmd(<span class="string">&quot;SELECT&quot;</span>).arg(connection_info.db).query_async(con).<span class="kw">await </span>{
+        <span class="kw">match </span>cmd(<span class="string">"SELECT"</span>).arg(connection_info.db).query_async(con).<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(Value::Okay) =&gt; (),
             <span class="kw">_ </span>=&gt; <span class="macro">fail!</span>((
                 ErrorKind::ResponseError,
-                <span class="string">&quot;Redis server refused to switch database&quot;
+                <span class="string">"Redis server refused to switch database"
             </span>)),
         }
     }
 
-    <span class="comment">// result is ignored, as per the command&#39;s instructions.
+    <span class="comment">// result is ignored, as per the command's instructions.
     // https://redis.io/commands/client-setinfo/
     </span><span class="kw">let _</span>: RedisResult&lt;()&gt; = <span class="kw">crate</span>::connection::client_set_info_pipeline()
         .query_async(con)
@@ -302,9 +303,9 @@
 <span class="kw">pub use </span>connection::<span class="kw-2">*</span>;
 <span class="kw">mod </span>multiplexed_connection;
 <span class="kw">pub use </span>multiplexed_connection::<span class="kw-2">*</span>;
-<span class="attr">#[cfg(feature = <span class="string">&quot;connection-manager&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"connection-manager"</span>)]
 </span><span class="kw">mod </span>connection_manager;
-<span class="attr">#[cfg(feature = <span class="string">&quot;connection-manager&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"connection-manager"</span>)]
 </span><span class="kw">pub use </span>connection_manager::<span class="kw-2">*</span>;
 <span class="kw">mod </span>runtime;
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span>runtime::<span class="kw-2">*</span>;

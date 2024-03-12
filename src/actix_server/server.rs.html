@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.3.0/src/server.rs`."><title>server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_server/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_server"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.3.0/src/server.rs`."><title>server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_server/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_server"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -453,10 +454,10 @@
 ///
 /// #[actix_rt::main]
 /// async fn main() -&gt; io::Result&lt;()&gt; {
-///     let bind_addr = (&quot;127.0.0.1&quot;, 8080);
+///     let bind_addr = ("127.0.0.1", 8080);
 ///
 ///     Server::build()
-///         .bind(&quot;echo&quot;, bind_addr, move || {
+///         .bind("echo", bind_addr, move || {
 ///             fn_service(move |mut stream: TcpStream| {
 ///                 async move {
 ///                     let mut size = 0;
@@ -474,7 +475,7 @@
 ///                             }
 ///
 ///                             Err(err) =&gt; {
-///                                 eprintln!(&quot;Stream Error: {:?}&quot;, err);
+///                                 eprintln!("Stream Error: {:?}", err);
 ///                                 return Err(());
 ///                             }
 ///                         }
@@ -483,16 +484,16 @@
 ///                     Ok(())
 ///                 }
 ///             })
-///             .map_err(|err| eprintln!(&quot;Service Error: {:?}&quot;, err))
+///             .map_err(|err| eprintln!("Service Error: {:?}", err))
 ///         })?
 ///         .run()
 ///         .await
 /// }
 /// ```
-</span><span class="attr">#[must_use = <span class="string">&quot;Server does nothing unless you `.await` or poll it&quot;</span>]
+</span><span class="attr">#[must_use = <span class="string">"Server does nothing unless you `.await` or poll it"</span>]
 </span><span class="kw">pub struct </span>Server {
     handle: ServerHandle,
-    fut: BoxFuture&lt;<span class="lifetime">&#39;static</span>, io::Result&lt;()&gt;&gt;,
+    fut: BoxFuture&lt;<span class="lifetime">'static</span>, io::Result&lt;()&gt;&gt;,
 }
 
 <span class="kw">impl </span>Server {
@@ -508,7 +509,7 @@
         }
     }
 
-    <span class="doccomment">/// Get a `Server` handle that can be used issue commands and change it&#39;s state.
+    <span class="doccomment">/// Get a `Server` handle that can be used issue commands and change it's state.
     ///
     /// See [ServerHandle](ServerHandle) for usage.
     </span><span class="kw">pub fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ServerHandle {
@@ -520,7 +521,7 @@
     <span class="kw">type </span>Output = io::Result&lt;()&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         Pin::new(<span class="kw-2">&amp;mut </span>Pin::into_inner(<span class="self">self</span>).fut).poll(cx)
     }
 }
@@ -561,14 +562,14 @@
         <span class="kw">let </span>is_tokio = tokio::runtime::Handle::try_current().is_ok();
 
         <span class="kw">match </span>(is_actix, is_tokio) {
-            (<span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; <span class="macro">info!</span>(<span class="string">&quot;Actix runtime found; starting in Actix runtime&quot;</span>),
-            (<span class="kw">_</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">info!</span>(<span class="string">&quot;Tokio runtime found; starting in existing Tokio runtime&quot;</span>),
-            (<span class="kw">_</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Actix or Tokio runtime not found; halting&quot;</span>),
+            (<span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; <span class="macro">info!</span>(<span class="string">"Actix runtime found; starting in Actix runtime"</span>),
+            (<span class="kw">_</span>, <span class="bool-val">true</span>) =&gt; <span class="macro">info!</span>(<span class="string">"Tokio runtime found; starting in existing Tokio runtime"</span>),
+            (<span class="kw">_</span>, <span class="bool-val">false</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Actix or Tokio runtime not found; halting"</span>),
         }
 
         <span class="kw">for </span>(<span class="kw">_</span>, name, lst) <span class="kw">in </span><span class="kw-2">&amp;</span>builder.sockets {
             <span class="macro">info!</span>(
-                <span class="string">r#&quot;starting service: &quot;{}&quot;, workers: {}, listening on: {}&quot;#</span>,
+                <span class="string">r#"starting service: "{}", workers: {}, listening on: {}"#</span>,
                 name,
                 builder.threads,
                 lst.local_addr()
@@ -635,7 +636,7 @@
                     .take()
                     .unwrap()
                     .join()
-                    .expect(<span class="string">&quot;Accept thread must not panic in any case&quot;</span>);
+                    .expect(<span class="string">"Accept thread must not panic in any case"</span>);
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(tx) = completion {
                     <span class="kw">let _ </span>= tx.send(());
@@ -651,7 +652,7 @@
                 <span class="comment">// TODO: maybe just return with warning log if not found ?
                 </span><span class="macro">assert!</span>(<span class="self">self</span>.worker_handles.iter().any(|wrk| wrk.idx == idx));
 
-                <span class="macro">error!</span>(<span class="string">&quot;worker {} has died; restarting&quot;</span>, idx);
+                <span class="macro">error!</span>(<span class="string">"worker {} has died; restarting"</span>, idx);
 
                 <span class="kw">let </span>factories = <span class="self">self
                     </span>.services
@@ -675,7 +676,7 @@
                         <span class="self">self</span>.waker_queue.wake(WakerInterest::Worker(handle_accept));
                     }
 
-                    <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">error!</span>(<span class="string">&quot;can not restart worker {}: {}&quot;</span>, idx, err),
+                    <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">error!</span>(<span class="string">"can not restart worker {}: {}"</span>, idx, err),
                 };
             }
         }
@@ -684,7 +685,7 @@
     <span class="kw">fn </span>map_signal(signal: SignalKind) -&gt; ServerCommand {
         <span class="kw">match </span>signal {
             SignalKind::Int =&gt; {
-                <span class="macro">info!</span>(<span class="string">&quot;SIGINT received; starting forced shutdown&quot;</span>);
+                <span class="macro">info!</span>(<span class="string">"SIGINT received; starting forced shutdown"</span>);
                 ServerCommand::Stop {
                     graceful: <span class="bool-val">false</span>,
                     completion: <span class="prelude-val">None</span>,
@@ -693,7 +694,7 @@
             }
 
             SignalKind::Term =&gt; {
-                <span class="macro">info!</span>(<span class="string">&quot;SIGTERM received; starting graceful shutdown&quot;</span>);
+                <span class="macro">info!</span>(<span class="string">"SIGTERM received; starting graceful shutdown"</span>);
                 ServerCommand::Stop {
                     graceful: <span class="bool-val">true</span>,
                     completion: <span class="prelude-val">None</span>,
@@ -702,7 +703,7 @@
             }
 
             SignalKind::Quit =&gt; {
-                <span class="macro">info!</span>(<span class="string">&quot;SIGQUIT received; starting forced shutdown&quot;</span>);
+                <span class="macro">info!</span>(<span class="string">"SIGQUIT received; starting forced shutdown"</span>);
                 ServerCommand::Stop {
                     graceful: <span class="bool-val">false</span>,
                     completion: <span class="prelude-val">None</span>,
@@ -721,7 +722,7 @@
 <span class="kw">impl </span>Stream <span class="kw">for </span>ServerEventMultiplexer {
     <span class="kw">type </span>Item = ServerCommand;
 
-    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
         <span class="kw">let </span>this = Pin::into_inner(<span class="self">self</span>);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(signal_fut) = <span class="kw-2">&amp;mut </span>this.signal_fut {

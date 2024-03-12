@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `certificates/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_certificates" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `certificates/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_certificates" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -467,7 +468,7 @@ Generates a certificate as a png.
     </span>.map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            <span class="string">&quot;Certificate configuration not found&quot;</span>.to_string(),
+            <span class="string">"Certificate configuration not found"</span>.to_string(),
             <span class="prelude-val">Some</span>(original_error.into()),
         )
     })<span class="question-mark">?</span>;
@@ -485,11 +486,11 @@ Generates a certificate as a png.
 
     <span class="kw">let </span>fontdb = font_loader::get_font_database_with_fonts(<span class="kw-2">&amp;mut *</span>conn, file_store).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>url = <span class="kw">if </span>debug {
-        <span class="string">&quot;https://courses.mooc.fi/certificates/validate/debug&quot;</span>.to_string()
+        <span class="string">"https://courses.mooc.fi/certificates/validate/debug"</span>.to_string()
     } <span class="kw">else </span>{
         <span class="macro">format!</span>(
             <span class="comment">// TODO: use base url here
-            </span><span class="string">&quot;https://courses.mooc.fi/certificates/validate/{}&quot;</span>,
+            </span><span class="string">"https://courses.mooc.fi/certificates/validate/{}"</span>,
             certificate.verification_id
         )
     };
@@ -551,7 +552,7 @@ Generates a certificate as a png.
 ) -&gt; UtilResult&lt;Vec&lt;u8&gt;&gt; {
     <span class="kw">let </span>start_setup = Instant::now();
     <span class="kw">let </span>opt = usvg::Options {
-        font_family: <span class="string">&quot;Lato&quot;</span>.to_string(),
+        font_family: <span class="string">"Lato"</span>.to_string(),
         dpi: <span class="number">600.0</span>,
         image_rendering: usvg::ImageRendering::OptimizeQuality,
         shape_rendering: usvg::ShapeRendering::GeometricPrecision,
@@ -563,17 +564,17 @@ Generates a certificate as a png.
         .ok_or_else(|| {
         UtilError::new(
             UtilErrorType::Other,
-            <span class="string">&quot;Could not create a pixmap&quot;</span>.to_string(),
+            <span class="string">"Could not create a pixmap"</span>.to_string(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;Setup time {:?}&quot;</span>, start_setup.elapsed());
+    <span class="macro">info!</span>(<span class="string">"Setup time {:?}"</span>, start_setup.elapsed());
     <span class="kw">let </span>parse_background_svg_start = Instant::now();
     <span class="kw">let </span>tree = {
         <span class="kw">let </span><span class="kw-2">mut </span>tree = usvg::Tree::from_data(background_svg, <span class="kw-2">&amp;</span>opt).map_err(|original_error| {
             UtilError::new(
                 UtilErrorType::Other,
-                <span class="string">&quot;Could not parse background svg&quot;</span>.to_string(),
+                <span class="string">"Could not parse background svg"</span>.to_string(),
                 <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
@@ -587,18 +588,18 @@ Generates a certificate as a png.
     };
 
     <span class="macro">info!</span>(
-        <span class="string">&quot;Parse background svg time {:?}&quot;</span>,
+        <span class="string">"Parse background svg time {:?}"</span>,
         parse_background_svg_start.elapsed()
     );
 
     <span class="kw">let </span>start_render_background = Instant::now();
     <span class="comment">// Scaling the background to the paper size, if the aspect ratio is wrong (for example if it does not follow the aspect ratio of A4 paper size), the background will get stretched.
-    // If that&#39;s the case, the you should fix the background svg.
+    // If that's the case, the you should fix the background svg.
     </span><span class="kw">let </span>background_size = tree.size.to_int_size();
     <span class="kw">let </span>x_scale = paper_size.width_px() <span class="kw">as </span>f32 / background_size.width() <span class="kw">as </span>f32;
     <span class="kw">let </span>y_scale = paper_size.height_px() <span class="kw">as </span>f32 / background_size.height() <span class="kw">as </span>f32;
     <span class="macro">info!</span>(
-        <span class="string">&quot;Background size {:?}, paper size: {:?}, x_scale: {}, y_scale: {}&quot;</span>,
+        <span class="string">"Background size {:?}, paper size: {:?}, x_scale: {}, y_scale: {}"</span>,
         background_size, paper_size, x_scale, y_scale
     );
     resvg::render(
@@ -608,19 +609,19 @@ Generates a certificate as a png.
     );
 
     <span class="macro">info!</span>(
-        <span class="string">&quot;Render background time {:?}&quot;</span>,
+        <span class="string">"Render background time {:?}"</span>,
         start_render_background.elapsed()
     );
 
     <span class="kw">let </span>text_svg_data = generate_text_svg(texts, debug_show_anchoring_points, paper_size)<span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, String::from_utf8_lossy(<span class="kw-2">&amp;</span>text_svg_data));
+    <span class="macro">info!</span>(<span class="string">"{}"</span>, String::from_utf8_lossy(<span class="kw-2">&amp;</span>text_svg_data));
     <span class="kw">let </span>parse_text_svg_start = Instant::now();
     <span class="kw">let </span>text_tree = {
         <span class="kw">let </span><span class="kw-2">mut </span>text_tree =
             usvg::Tree::from_data(<span class="kw-2">&amp;</span>text_svg_data, <span class="kw-2">&amp;</span>opt).map_err(|original_error| {
                 UtilError::new(
                     UtilErrorType::Other,
-                    <span class="string">&quot;Could not parse text svg&quot;</span>.to_string(),
+                    <span class="string">"Could not parse text svg"</span>.to_string(),
                     <span class="prelude-val">Some</span>(original_error.into()),
                 )
             })<span class="question-mark">?</span>;
@@ -633,7 +634,7 @@ Generates a certificate as a png.
         text_tree
     };
 
-    <span class="macro">info!</span>(<span class="string">&quot;Parse text svg time {:?}&quot;</span>, parse_text_svg_start.elapsed());
+    <span class="macro">info!</span>(<span class="string">"Parse text svg time {:?}"</span>, parse_text_svg_start.elapsed());
 
     <span class="kw">let </span>render_text_start = Instant::now();
     resvg::render(
@@ -641,7 +642,7 @@ Generates a certificate as a png.
         tiny_skia::Transform::default(),
         <span class="kw-2">&amp;mut </span>pixmap.as_mut(),
     );
-    <span class="macro">info!</span>(<span class="string">&quot;Render text time {:?}&quot;</span>, render_text_start.elapsed());
+    <span class="macro">info!</span>(<span class="string">"Render text time {:?}"</span>, render_text_start.elapsed());
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(overlay_svg) = overlay_svg {
         <span class="kw">let </span>start_render_overlay = Instant::now();
@@ -650,7 +651,7 @@ Generates a certificate as a png.
                 usvg::Tree::from_data(overlay_svg, <span class="kw-2">&amp;</span>opt).map_err(|original_error| {
                     UtilError::new(
                         UtilErrorType::Other,
-                        <span class="string">&quot;Could not parse overlay svg&quot;</span>.to_string(),
+                        <span class="string">"Could not parse overlay svg"</span>.to_string(),
                         <span class="prelude-val">Some</span>(original_error.into()),
                     )
                 })<span class="question-mark">?</span>;
@@ -669,18 +670,18 @@ Generates a certificate as a png.
             <span class="kw-2">&amp;mut </span>pixmap.as_mut(),
         );
 
-        <span class="macro">info!</span>(<span class="string">&quot;Overlay time {:?}&quot;</span>, start_render_overlay.elapsed());
+        <span class="macro">info!</span>(<span class="string">"Overlay time {:?}"</span>, start_render_overlay.elapsed());
     }
 
     <span class="kw">let </span>save_png_start = Instant::now();
     <span class="kw">let </span>png = pixmap.encode_png().map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            <span class="string">&quot;Could convert pixmap to png&quot;</span>.to_string(),
+            <span class="string">"Could convert pixmap to png"</span>.to_string(),
             <span class="prelude-val">Some</span>(original_error.into()),
         )
     })<span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;Save png time {:?}&quot;</span>, save_png_start.elapsed());
+    <span class="macro">info!</span>(<span class="string">"Save png time {:?}"</span>, save_png_start.elapsed());
     <span class="prelude-val">Ok</span>(png)
 }
 
@@ -694,7 +695,7 @@ Generates a certificate as a png.
     <span class="kw">let </span>locale = locale.parse::&lt;Locale&gt;().map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            <span class="string">&quot;Could not parse locale&quot;</span>.to_string(),
+            <span class="string">"Could not parse locale"</span>.to_string(),
             <span class="prelude-val">Some</span>(original_error.into()),
         )
     })<span class="question-mark">?</span>;
@@ -706,7 +707,7 @@ Generates a certificate as a png.
     .map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            <span class="string">&quot;Failed to create TypedDateTimeFormatter instance.&quot;</span>.to_string(),
+            <span class="string">"Failed to create TypedDateTimeFormatter instance."</span>.to_string(),
             <span class="prelude-val">Some</span>(original_error.into()),
         )
     })<span class="question-mark">?</span>;
@@ -722,7 +723,7 @@ Generates a certificate as a png.
     .map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            <span class="string">&quot;Failed to parse date.&quot;</span>.to_string(),
+            <span class="string">"Failed to parse date."</span>.to_string(),
             <span class="prelude-val">Some</span>(original_error.into()),
         )
     })<span class="question-mark">?</span>;
@@ -744,12 +745,12 @@ Generates a certificate as a png.
 <span class="kw">impl </span>Default <span class="kw">for </span>TextToRender {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            font_family: <span class="string">&quot;Lato&quot;</span>.to_string(),
-            font_size: <span class="string">&quot;150px&quot;</span>.to_string(),
-            text_color: <span class="string">&quot;black&quot;</span>.to_string(),
-            x_pos: <span class="string">&quot;50%&quot;</span>.to_string(),
-            y_pos: <span class="string">&quot;50%&quot;</span>.to_string(),
-            text: <span class="string">&quot;Example text&quot;</span>.to_string(),
+            font_family: <span class="string">"Lato"</span>.to_string(),
+            font_size: <span class="string">"150px"</span>.to_string(),
+            text_color: <span class="string">"black"</span>.to_string(),
+            x_pos: <span class="string">"50%"</span>.to_string(),
+            y_pos: <span class="string">"50%"</span>.to_string(),
+            text: <span class="string">"Example text"</span>.to_string(),
             text_anchor: CertificateTextAnchor::Middle,
         }
     }
@@ -762,56 +763,56 @@ Generates a certificate as a png.
 ) -&gt; UtilResult&lt;Vec&lt;u8&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>writer = Writer::new(Cursor::new(Vec::new()));
     writer
-        .create_element(<span class="string">&quot;svg&quot;</span>)
-        .with_attribute((<span class="string">&quot;width&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, paper_size.width_px()).as_str()))
-        .with_attribute((<span class="string">&quot;height&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, paper_size.height_px()).as_str()))
-        .with_attribute((<span class="string">&quot;xmlns&quot;</span>, <span class="string">&quot;http://www.w3.org/2000/svg&quot;</span>))
+        .create_element(<span class="string">"svg"</span>)
+        .with_attribute((<span class="string">"width"</span>, <span class="macro">format!</span>(<span class="string">"{}px"</span>, paper_size.width_px()).as_str()))
+        .with_attribute((<span class="string">"height"</span>, <span class="macro">format!</span>(<span class="string">"{}px"</span>, paper_size.height_px()).as_str()))
+        .with_attribute((<span class="string">"xmlns"</span>, <span class="string">"http://www.w3.org/2000/svg"</span>))
         .write_inner_content(|writer| {
             <span class="kw">for </span>text <span class="kw">in </span>texts {
                 writer
-                    .create_element(<span class="string">&quot;text&quot;</span>)
-                    .with_attribute((<span class="string">&quot;x&quot;</span>, text.x_pos.as_str()))
-                    .with_attribute((<span class="string">&quot;y&quot;</span>, text.y_pos.as_str()))
+                    .create_element(<span class="string">"text"</span>)
+                    .with_attribute((<span class="string">"x"</span>, text.x_pos.as_str()))
+                    .with_attribute((<span class="string">"y"</span>, text.y_pos.as_str()))
                     .with_attribute((
-                        <span class="string">&quot;style&quot;</span>,
+                        <span class="string">"style"</span>,
                         <span class="macro">format!</span>(
-                            <span class="string">&quot;font-size: {}; font-family: {}; fill: {}; font-weight: 400;&quot;</span>,
+                            <span class="string">"font-size: {}; font-family: {}; fill: {}; font-weight: 400;"</span>,
                             text.font_size, text.font_family, text.text_color
                         )
                         .as_str(),
                     ))
-                    .with_attribute((<span class="string">&quot;text-anchor&quot;</span>, text.text_anchor.to_string().as_str()))
+                    .with_attribute((<span class="string">"text-anchor"</span>, text.text_anchor.to_string().as_str()))
                     .write_text_content(BytesText::from_escaped(<span class="kw-2">&amp;</span>text.text))
                     .map_err(|_original_error| {
-                        <span class="comment">// Might not be optimal but that&#39;s the Error type of the closure that comes from the library and we don&#39;t want to unwrap here and potentially crash the process.
-                        </span>quick_xml::Error::UnexpectedToken(<span class="string">&quot;Could not write text to svg&quot;</span>.to_string())
+                        <span class="comment">// Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
+                        </span>quick_xml::Error::UnexpectedToken(<span class="string">"Could not write text to svg"</span>.to_string())
                     })<span class="question-mark">?</span>;
 
                 <span class="kw">if </span>debug_show_anchoring_points {
                     writer
-                        .create_element(<span class="string">&quot;circle&quot;</span>)
-                        .with_attribute((<span class="string">&quot;cx&quot;</span>, text.x_pos.as_str()))
-                        .with_attribute((<span class="string">&quot;cy&quot;</span>, text.y_pos.as_str()))
-                        .with_attribute((<span class="string">&quot;r&quot;</span>, <span class="string">&quot;5&quot;</span>))
-                        .with_attribute((<span class="string">&quot;fill&quot;</span>, <span class="string">&quot;#da2e2e&quot;</span>))
+                        .create_element(<span class="string">"circle"</span>)
+                        .with_attribute((<span class="string">"cx"</span>, text.x_pos.as_str()))
+                        .with_attribute((<span class="string">"cy"</span>, text.y_pos.as_str()))
+                        .with_attribute((<span class="string">"r"</span>, <span class="string">"5"</span>))
+                        .with_attribute((<span class="string">"fill"</span>, <span class="string">"#da2e2e"</span>))
                         .write_empty()
                         .map_err(|_original_error| {
-                            <span class="comment">// Might not be optimal but that&#39;s the Error type of the closure that comes from the library and we don&#39;t want to unwrap here and potentially crash the process.
+                            <span class="comment">// Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
                             </span>quick_xml::Error::UnexpectedToken(
-                                <span class="string">&quot;Could not write debug point to svg&quot;</span>.to_string(),
+                                <span class="string">"Could not write debug point to svg"</span>.to_string(),
                             )
                         })<span class="question-mark">?</span>;
                     writer
-                        .create_element(<span class="string">&quot;circle&quot;</span>)
-                        .with_attribute((<span class="string">&quot;cx&quot;</span>, text.x_pos.as_str()))
-                        .with_attribute((<span class="string">&quot;cy&quot;</span>, text.y_pos.as_str()))
-                        .with_attribute((<span class="string">&quot;r&quot;</span>, <span class="string">&quot;3&quot;</span>))
-                        .with_attribute((<span class="string">&quot;fill&quot;</span>, <span class="string">&quot;#ff9b9b&quot;</span>))
+                        .create_element(<span class="string">"circle"</span>)
+                        .with_attribute((<span class="string">"cx"</span>, text.x_pos.as_str()))
+                        .with_attribute((<span class="string">"cy"</span>, text.y_pos.as_str()))
+                        .with_attribute((<span class="string">"r"</span>, <span class="string">"3"</span>))
+                        .with_attribute((<span class="string">"fill"</span>, <span class="string">"#ff9b9b"</span>))
                         .write_empty()
                         .map_err(|_original_error| {
-                            <span class="comment">// Might not be optimal but that&#39;s the Error type of the closure that comes from the library and we don&#39;t want to unwrap here and potentially crash the process.
+                            <span class="comment">// Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
                             </span>quick_xml::Error::UnexpectedToken(
-                                <span class="string">&quot;Could not write debug point to svg&quot;</span>.to_string(),
+                                <span class="string">"Could not write debug point to svg"</span>.to_string(),
                             )
                         })<span class="question-mark">?</span>;
                 }
@@ -821,7 +822,7 @@ Generates a certificate as a png.
         .map_err(|original_error: anyhow::Error| {
             UtilError::new(
                 UtilErrorType::Other,
-                <span class="string">&quot;Could not write text svg&quot;</span>.to_string(),
+                <span class="string">"Could not write text svg"</span>.to_string(),
                 <span class="prelude-val">Some</span>(original_error),
             )
         })<span class="question-mark">?</span>;

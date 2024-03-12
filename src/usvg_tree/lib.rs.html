@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-tree-0.38.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_tree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-tree-0.38.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_tree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1750,14 +1751,14 @@
 
 <span class="comment">// TODO: remove?
 </span><span class="kw">impl </span>std::str::FromStr <span class="kw">for </span>ShapeRendering {
-    <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         <span class="kw">match </span>s {
-            <span class="string">&quot;optimizeSpeed&quot; </span>=&gt; <span class="prelude-val">Ok</span>(ShapeRendering::OptimizeSpeed),
-            <span class="string">&quot;crispEdges&quot; </span>=&gt; <span class="prelude-val">Ok</span>(ShapeRendering::CrispEdges),
-            <span class="string">&quot;geometricPrecision&quot; </span>=&gt; <span class="prelude-val">Ok</span>(ShapeRendering::GeometricPrecision),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;invalid&quot;</span>),
+            <span class="string">"optimizeSpeed" </span>=&gt; <span class="prelude-val">Ok</span>(ShapeRendering::OptimizeSpeed),
+            <span class="string">"crispEdges" </span>=&gt; <span class="prelude-val">Ok</span>(ShapeRendering::CrispEdges),
+            <span class="string">"geometricPrecision" </span>=&gt; <span class="prelude-val">Ok</span>(ShapeRendering::GeometricPrecision),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"invalid"</span>),
         }
     }
 }
@@ -1780,14 +1781,14 @@
 }
 
 <span class="kw">impl </span>std::str::FromStr <span class="kw">for </span>TextRendering {
-    <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         <span class="kw">match </span>s {
-            <span class="string">&quot;optimizeSpeed&quot; </span>=&gt; <span class="prelude-val">Ok</span>(TextRendering::OptimizeSpeed),
-            <span class="string">&quot;optimizeLegibility&quot; </span>=&gt; <span class="prelude-val">Ok</span>(TextRendering::OptimizeLegibility),
-            <span class="string">&quot;geometricPrecision&quot; </span>=&gt; <span class="prelude-val">Ok</span>(TextRendering::GeometricPrecision),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;invalid&quot;</span>),
+            <span class="string">"optimizeSpeed" </span>=&gt; <span class="prelude-val">Ok</span>(TextRendering::OptimizeSpeed),
+            <span class="string">"optimizeLegibility" </span>=&gt; <span class="prelude-val">Ok</span>(TextRendering::OptimizeLegibility),
+            <span class="string">"geometricPrecision" </span>=&gt; <span class="prelude-val">Ok</span>(TextRendering::GeometricPrecision),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"invalid"</span>),
         }
     }
 }
@@ -1809,13 +1810,13 @@
 }
 
 <span class="kw">impl </span>std::str::FromStr <span class="kw">for </span>ImageRendering {
-    <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         <span class="kw">match </span>s {
-            <span class="string">&quot;optimizeQuality&quot; </span>=&gt; <span class="prelude-val">Ok</span>(ImageRendering::OptimizeQuality),
-            <span class="string">&quot;optimizeSpeed&quot; </span>=&gt; <span class="prelude-val">Ok</span>(ImageRendering::OptimizeSpeed),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;invalid&quot;</span>),
+            <span class="string">"optimizeQuality" </span>=&gt; <span class="prelude-val">Ok</span>(ImageRendering::OptimizeQuality),
+            <span class="string">"optimizeSpeed" </span>=&gt; <span class="prelude-val">Ok</span>(ImageRendering::OptimizeSpeed),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"invalid"</span>),
         }
     }
 }
@@ -1870,10 +1871,10 @@
 <span class="doccomment">/// A generic gradient.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>BaseGradient {
-    <span class="doccomment">/// Element&#39;s ID.
+    <span class="doccomment">/// Element's ID.
     ///
     /// Taken from the SVG itself.
-    /// Used only during SVG writing. `resvg` doesn&#39;t rely on this property.
+    /// Used only during SVG writing. `resvg` doesn't rely on this property.
     </span><span class="kw">pub </span>id: String,
 
     <span class="doccomment">/// Coordinate system units.
@@ -1945,7 +1946,7 @@
 <span class="doccomment">/// An alias to `NormalizedF32`.
 </span><span class="kw">pub type </span>StopOffset = NormalizedF32;
 
-<span class="doccomment">/// Gradient&#39;s stop element.
+<span class="doccomment">/// Gradient's stop element.
 ///
 /// `stop` element in SVG.
 </span><span class="attr">#[derive(Clone, Copy, Debug)]
@@ -1971,10 +1972,10 @@
 /// `pattern` element in SVG.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>Pattern {
-    <span class="doccomment">/// Element&#39;s ID.
+    <span class="doccomment">/// Element's ID.
     ///
     /// Taken from the SVG itself.
-    /// Used only during SVG writing. `resvg` doesn&#39;t rely on this property.
+    /// Used only during SVG writing. `resvg` doesn't rely on this property.
     </span><span class="kw">pub </span>id: String,
 
     <span class="doccomment">/// Coordinate system units.
@@ -2271,10 +2272,10 @@
 /// `clipPath` element in SVG.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>ClipPath {
-    <span class="doccomment">/// Element&#39;s ID.
+    <span class="doccomment">/// Element's ID.
     ///
     /// Taken from the SVG itself.
-    /// Used only during SVG writing. `resvg` doesn&#39;t rely on this property.
+    /// Used only during SVG writing. `resvg` doesn't rely on this property.
     </span><span class="kw">pub </span>id: String,
 
     <span class="doccomment">/// Coordinate system units.
@@ -2331,10 +2332,10 @@
 /// `mask` element in SVG.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>Mask {
-    <span class="doccomment">/// Element&#39;s ID.
+    <span class="doccomment">/// Element's ID.
     ///
     /// Taken from the SVG itself.
-    /// Used only during SVG writing. `resvg` doesn&#39;t rely on this property.
+    /// Used only during SVG writing. `resvg` doesn't rely on this property.
     </span><span class="kw">pub </span>id: String,
 
     <span class="doccomment">/// Coordinate system units.
@@ -2369,7 +2370,7 @@
 <span class="doccomment">/// An alias for a shared `Mask`.
 </span><span class="kw">pub type </span>SharedMask = Rc&lt;RefCell&lt;Mask&gt;&gt;;
 
-<span class="doccomment">/// Node&#39;s kind.
+<span class="doccomment">/// Node's kind.
 </span><span class="attr">#[allow(missing_docs)]
 #[derive(Clone, Debug)]
 </span><span class="kw">pub enum </span>Node {
@@ -2380,7 +2381,7 @@
 }
 
 <span class="kw">impl </span>Node {
-    <span class="doccomment">/// Returns node&#39;s ID.
+    <span class="doccomment">/// Returns node's ID.
     </span><span class="kw">pub fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="self">self </span>{
             Node::Group(<span class="kw-2">ref </span>e) =&gt; e.id.as_str(),
@@ -2390,9 +2391,9 @@
         }
     }
 
-    <span class="doccomment">/// Returns node&#39;s absolute transform.
+    <span class="doccomment">/// Returns node's absolute transform.
     ///
-    /// If a current node doesn&#39;t support transformation - a default
+    /// If a current node doesn't support transformation - a default
     /// transform will be returned.
     ///
     /// This method is cheap since absolute transforms are already resolved.
@@ -2405,7 +2406,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns node&#39;s bounding box in object coordinates, if any.
+    <span class="doccomment">/// Returns node's bounding box in object coordinates, if any.
     ///
     /// This method is cheap since bounding boxes are already calculated.
     </span><span class="kw">pub fn </span>bounding_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Rect&gt; {
@@ -2417,14 +2418,14 @@
         }
     }
 
-    <span class="doccomment">/// Returns node&#39;s bounding box in canvas coordinates, if any.
+    <span class="doccomment">/// Returns node's bounding box in canvas coordinates, if any.
     ///
     /// This method is cheap since bounding boxes are already calculated.
     </span><span class="kw">pub fn </span>abs_bounding_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Rect&gt; {
         <span class="self">self</span>.bounding_box()<span class="question-mark">?</span>.transform(<span class="self">self</span>.abs_transform())
     }
 
-    <span class="doccomment">/// Returns node&#39;s bounding box, including stroke, in object coordinates, if any.
+    <span class="doccomment">/// Returns node's bounding box, including stroke, in object coordinates, if any.
     ///
     /// This method is cheap since bounding boxes are already calculated.
     </span><span class="kw">pub fn </span>stroke_bounding_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt; {
@@ -2437,7 +2438,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns node&#39;s bounding box, including stroke, in canvas coordinates, if any.
+    <span class="doccomment">/// Returns node's bounding box, including stroke, in canvas coordinates, if any.
     ///
     /// This method is cheap since bounding boxes are already calculated.
     </span><span class="kw">pub fn </span>abs_stroke_bounding_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt; {
@@ -2449,7 +2450,7 @@
     /// The [`Tree::root`](Tree::root) field contain only render-able SVG elements.
     /// But some elements, specifically clip paths, masks, patterns and feImage
     /// can store their own SVG subtrees.
-    /// And while one can access them manually, it&#39;s pretty verbose.
+    /// And while one can access them manually, it's pretty verbose.
     /// This methods allows looping over _all_ SVG elements present in the `Tree`.
     ///
     /// # Example
@@ -2492,32 +2493,32 @@
 
 <span class="doccomment">/// A group container.
 ///
-/// The preprocessor will remove all groups that don&#39;t impact rendering.
+/// The preprocessor will remove all groups that don't impact rendering.
 /// Those that left is just an indicator that a new canvas should be created.
 ///
 /// `g` element in SVG.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>Group {
-    <span class="doccomment">/// Element&#39;s ID.
+    <span class="doccomment">/// Element's ID.
     ///
     /// Taken from the SVG itself.
-    /// Isn&#39;t automatically generated.
+    /// Isn't automatically generated.
     /// Can be empty.
     </span><span class="kw">pub </span>id: String,
 
-    <span class="doccomment">/// Element&#39;s transform.
+    <span class="doccomment">/// Element's transform.
     ///
     /// This is a relative transform. The one that is set via the `transform` attribute in SVG.
     </span><span class="kw">pub </span>transform: Transform,
 
-    <span class="doccomment">/// Element&#39;s absolute transform.
+    <span class="doccomment">/// Element's absolute transform.
     ///
     /// Contains all ancestors transforms.
     ///
     /// Will be set after calling `usvg::Tree::postprocess`.
     ///
     /// Note that subroots, like clipPaths, masks and patterns, have their own root transform,
-    /// which isn&#39;t affected by the node that references this subroot.
+    /// which isn't affected by the node that references this subroot.
     </span><span class="kw">pub </span>abs_transform: Transform,
 
     <span class="doccomment">/// Group opacity.
@@ -2536,30 +2537,30 @@
     /// `isolation` in SVG.
     </span><span class="kw">pub </span>isolate: bool,
 
-    <span class="doccomment">/// Element&#39;s clip path.
+    <span class="doccomment">/// Element's clip path.
     </span><span class="kw">pub </span>clip_path: <span class="prelude-ty">Option</span>&lt;SharedClipPath&gt;,
 
-    <span class="doccomment">/// Element&#39;s mask.
+    <span class="doccomment">/// Element's mask.
     </span><span class="kw">pub </span>mask: <span class="prelude-ty">Option</span>&lt;SharedMask&gt;,
 
-    <span class="doccomment">/// Element&#39;s filters.
+    <span class="doccomment">/// Element's filters.
     </span><span class="kw">pub </span>filters: Vec&lt;filter::SharedFilter&gt;,
 
-    <span class="doccomment">/// Element&#39;s object bounding box.
+    <span class="doccomment">/// Element's object bounding box.
     ///
-    /// `objectBoundingBox` in SVG terms. Meaning it doesn&#39;t affected by parent transforms.
+    /// `objectBoundingBox` in SVG terms. Meaning it doesn't affected by parent transforms.
     ///
     /// Can be set to `None` in case of an empty group.
     ///
     /// Will be set after calling `usvg::Tree::postprocess`.
     </span><span class="kw">pub </span>bounding_box: <span class="prelude-ty">Option</span>&lt;Rect&gt;,
 
-    <span class="doccomment">/// Element&#39;s object bounding box including stroke.
+    <span class="doccomment">/// Element's object bounding box including stroke.
     ///
     /// Similar to `bounding_box`, but includes stroke.
     </span><span class="kw">pub </span>stroke_bounding_box: <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt;,
 
-    <span class="doccomment">/// Element&#39;s &quot;layer&quot; bounding box in object units.
+    <span class="doccomment">/// Element's "layer" bounding box in object units.
     ///
     /// Conceptually, this is `stroke_bounding_box` expanded and/or clipped
     /// by `filters_bounding_box`, but also including all the children.
@@ -2574,7 +2575,7 @@
     /// Will be set after calling `usvg::Tree::postprocess`.
     </span><span class="kw">pub </span>layer_bounding_box: <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt;,
 
-    <span class="doccomment">/// Group&#39;s children.
+    <span class="doccomment">/// Group's children.
     </span><span class="kw">pub </span>children: Vec&lt;Node&gt;,
 }
 
@@ -2614,12 +2615,12 @@
         !<span class="self">self</span>.children.is_empty()
     }
 
-    <span class="doccomment">/// Returns node&#39;s bounding box in canvas coordinates.
+    <span class="doccomment">/// Returns node's bounding box in canvas coordinates.
     </span><span class="kw">pub fn </span>abs_bounding_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Rect&gt; {
         <span class="self">self</span>.bounding_box<span class="question-mark">?</span>.transform(<span class="self">self</span>.abs_transform)
     }
 
-    <span class="doccomment">/// Calculates a node&#39;s filter bounding box.
+    <span class="doccomment">/// Calculates a node's filter bounding box.
     ///
     /// Filters with `objectBoundingBox` and missing or zero `bounding_box` would be ignored.
     ///
@@ -2628,7 +2629,7 @@
     ///
     /// Returns `None` when then group has no filters.
     ///
-    /// This function is very fast, that&#39;s why we do not store this bbox as a `Group` field.
+    /// This function is very fast, that's why we do not store this bbox as a `Group` field.
     </span><span class="kw">pub fn </span>filters_bounding_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>full_region = BBox::default();
 
@@ -2651,7 +2652,7 @@
         full_region.to_non_zero_rect()
     }
 
-    <span class="doccomment">/// Calculates a node&#39;s filter bounding box in canvas coordinates.
+    <span class="doccomment">/// Calculates a node's filter bounding box in canvas coordinates.
     </span><span class="kw">pub fn </span>abs_filters_bounding_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt; {
         <span class="self">self</span>.filters_bounding_box()<span class="question-mark">?</span>.transform(<span class="self">self</span>.abs_transform)
     }
@@ -2735,10 +2736,10 @@
 <span class="doccomment">/// A path element.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>Path {
-    <span class="doccomment">/// Element&#39;s ID.
+    <span class="doccomment">/// Element's ID.
     ///
     /// Taken from the SVG itself.
-    /// Isn&#39;t automatically generated.
+    /// Isn't automatically generated.
     /// Can be empty.
     </span><span class="kw">pub </span>id: String,
 
@@ -2754,7 +2755,7 @@
     <span class="doccomment">/// Fill and stroke paint order.
     ///
     /// Since markers will be replaced with regular nodes automatically,
-    /// `usvg` doesn&#39;t provide the `markers` order type. It&#39;s was already done.
+    /// `usvg` doesn't provide the `markers` order type. It's was already done.
     ///
     /// `paint-order` in SVG.
     </span><span class="kw">pub </span>paint_order: PaintOrder,
@@ -2769,7 +2770,7 @@
     /// All segments are in absolute coordinates.
     </span><span class="kw">pub </span>data: Rc&lt;tiny_skia_path::Path&gt;,
 
-    <span class="doccomment">/// Element&#39;s absolute transform.
+    <span class="doccomment">/// Element's absolute transform.
     ///
     /// Contains all ancestors transforms.
     ///
@@ -2779,14 +2780,14 @@
     /// The SVG one would be set only on groups.
     </span><span class="kw">pub </span>abs_transform: Transform,
 
-    <span class="doccomment">/// Element&#39;s object bounding box.
+    <span class="doccomment">/// Element's object bounding box.
     ///
-    /// `objectBoundingBox` in SVG terms. Meaning it doesn&#39;t affected by parent transforms.
+    /// `objectBoundingBox` in SVG terms. Meaning it doesn't affected by parent transforms.
     ///
     /// Will be set after calling `usvg::Tree::postprocess`.
     </span><span class="kw">pub </span>bounding_box: <span class="prelude-ty">Option</span>&lt;Rect&gt;,
 
-    <span class="doccomment">/// Element&#39;s object bounding box including stroke.
+    <span class="doccomment">/// Element's object bounding box including stroke.
     ///
     /// Similar to `bounding_box`, but includes stroke.
     ///
@@ -2811,7 +2812,7 @@
         }
     }
 
-    <span class="doccomment">/// Calculates and sets path&#39;s stroke bounding box.
+    <span class="doccomment">/// Calculates and sets path's stroke bounding box.
     ///
     /// This operation is expensive.
     </span><span class="kw">pub fn </span>calculate_stroke_bounding_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt; {
@@ -2867,10 +2868,10 @@
 <span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>ImageKind {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            ImageKind::JPEG(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;ImageKind::JPEG(..)&quot;</span>),
-            ImageKind::PNG(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;ImageKind::PNG(..)&quot;</span>),
-            ImageKind::GIF(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;ImageKind::GIF(..)&quot;</span>),
-            ImageKind::SVG(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;ImageKind::SVG(..)&quot;</span>),
+            ImageKind::JPEG(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">"ImageKind::JPEG(..)"</span>),
+            ImageKind::PNG(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">"ImageKind::PNG(..)"</span>),
+            ImageKind::GIF(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">"ImageKind::GIF(..)"</span>),
+            ImageKind::SVG(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">"ImageKind::SVG(..)"</span>),
         }
     }
 }
@@ -2880,10 +2881,10 @@
 /// `image` element in SVG.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>Image {
-    <span class="doccomment">/// Element&#39;s ID.
+    <span class="doccomment">/// Element's ID.
     ///
     /// Taken from the SVG itself.
-    /// Isn&#39;t automatically generated.
+    /// Isn't automatically generated.
     /// Can be empty.
     </span><span class="kw">pub </span>id: String,
 
@@ -2904,7 +2905,7 @@
     <span class="doccomment">/// Image data.
     </span><span class="kw">pub </span>kind: ImageKind,
 
-    <span class="doccomment">/// Element&#39;s absolute transform.
+    <span class="doccomment">/// Element's absolute transform.
     ///
     /// Contains all ancestors transforms.
     ///
@@ -2914,9 +2915,9 @@
     /// The SVG one would be set only on groups.
     </span><span class="kw">pub </span>abs_transform: Transform,
 
-    <span class="doccomment">/// Element&#39;s object bounding box.
+    <span class="doccomment">/// Element's object bounding box.
     ///
-    /// `objectBoundingBox` in SVG terms. Meaning it doesn&#39;t affected by parent transforms.
+    /// `objectBoundingBox` in SVG terms. Meaning it doesn't affected by parent transforms.
     ///
     /// Will be set after calling `usvg::Tree::postprocess`.
     </span><span class="kw">pub </span>bounding_box: <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt;,
@@ -2977,28 +2978,28 @@
 
     <span class="doccomment">/// Calls a closure for each [`Paint`] in the tree.
     ///
-    /// Doesn&#39;t guarantee to have unique paint servers. A caller must deduplicate them manually.
+    /// Doesn't guarantee to have unique paint servers. A caller must deduplicate them manually.
     </span><span class="kw">pub fn </span>paint_servers&lt;F: FnMut(<span class="kw-2">&amp;</span>Paint)&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) {
         loop_over_paint_servers(<span class="kw-2">&amp;</span><span class="self">self</span>.root, <span class="kw-2">&amp;mut </span>f)
     }
 
     <span class="doccomment">/// Calls a closure for each [`ClipPath`] in the tree.
     ///
-    /// Doesn&#39;t guarantee to have unique clip paths. A caller must deduplicate them manually.
+    /// Doesn't guarantee to have unique clip paths. A caller must deduplicate them manually.
     </span><span class="kw">pub fn </span>clip_paths&lt;F: FnMut(SharedClipPath)&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) {
         loop_over_clip_paths(<span class="kw-2">&amp;</span><span class="self">self</span>.root, <span class="kw-2">&amp;mut </span>f)
     }
 
     <span class="doccomment">/// Calls a closure for each [`Mask`] in the tree.
     ///
-    /// Doesn&#39;t guarantee to have unique masks. A caller must deduplicate them manually.
+    /// Doesn't guarantee to have unique masks. A caller must deduplicate them manually.
     </span><span class="kw">pub fn </span>masks&lt;F: FnMut(SharedMask)&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) {
         loop_over_masks(<span class="kw-2">&amp;</span><span class="self">self</span>.root, <span class="kw-2">&amp;mut </span>f)
     }
 
     <span class="doccomment">/// Calls a closure for each [`Filter`](filter::Filter) in the tree.
     ///
-    /// Doesn&#39;t guarantee to have unique filters. A caller must deduplicate them manually.
+    /// Doesn't guarantee to have unique filters. A caller must deduplicate them manually.
     </span><span class="kw">pub fn </span>filters&lt;F: FnMut(filter::SharedFilter)&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) {
         loop_over_filters(<span class="kw-2">&amp;</span><span class="self">self</span>.root, <span class="kw-2">&amp;mut </span>f)
     }
@@ -3018,7 +3019,7 @@
     }
 }
 
-<span class="kw">fn </span>node_by_id&lt;<span class="lifetime">&#39;a</span>&gt;(parent: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Group, id: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Node&gt; {
+<span class="kw">fn </span>node_by_id&lt;<span class="lifetime">'a</span>&gt;(parent: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Group, id: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Node&gt; {
     <span class="kw">for </span>child <span class="kw">in </span><span class="kw-2">&amp;</span>parent.children {
         <span class="kw">if </span>child.id() == id {
             <span class="kw">return </span><span class="prelude-val">Some</span>(child);
@@ -3182,7 +3183,7 @@
                 Node::Text(<span class="kw-2">ref mut </span>text) =&gt; text.abs_transform = transform,
             }
 
-            <span class="comment">// Yes, subroots are not affected by the node&#39;s transform.
+            <span class="comment">// Yes, subroots are not affected by the node's transform.
             </span>node.subroots_mut(|root| root.calculate_abs_transforms(Transform::identity()));
         }
     }
@@ -3211,7 +3212,7 @@
                 </span>Node::Text(<span class="kw">_</span>) =&gt; {}
             }
 
-            <span class="comment">// Yes, subroots are not affected by the node&#39;s transform.
+            <span class="comment">// Yes, subroots are not affected by the node's transform.
             </span>node.subroots_mut(|root| root.calculate_bounding_boxes());
         }
 

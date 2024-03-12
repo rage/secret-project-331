@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/quoted_printable-0.5.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="quoted_printable" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/quoted_printable-0.5.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="quoted_printable" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -827,30 +828,30 @@
 </pre></div><pre class="rust"><code><span class="attr">#![forbid(unsafe_code)]
 #![no_std]
 
-#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">extern crate </span>alloc;
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">extern crate </span>std;
 
 <span class="kw">mod </span>lib {
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">pub use </span>alloc::fmt;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub use </span>std::fmt;
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">pub use </span>alloc::vec::Vec;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub use </span>std::vec::Vec;
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">pub use </span>alloc::string::String;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub use </span>std::string::String;
 }
 
 <span class="kw">static </span>HEX_CHARS: <span class="kw-2">&amp;</span>[char] = <span class="kw-2">&amp;</span>[
-    <span class="string">&#39;0&#39;</span>, <span class="string">&#39;1&#39;</span>, <span class="string">&#39;2&#39;</span>, <span class="string">&#39;3&#39;</span>, <span class="string">&#39;4&#39;</span>, <span class="string">&#39;5&#39;</span>, <span class="string">&#39;6&#39;</span>, <span class="string">&#39;7&#39;</span>, <span class="string">&#39;8&#39;</span>, <span class="string">&#39;9&#39;</span>, <span class="string">&#39;A&#39;</span>, <span class="string">&#39;B&#39;</span>, <span class="string">&#39;C&#39;</span>, <span class="string">&#39;D&#39;</span>, <span class="string">&#39;E&#39;</span>, <span class="string">&#39;F&#39;</span>,
+    <span class="string">'0'</span>, <span class="string">'1'</span>, <span class="string">'2'</span>, <span class="string">'3'</span>, <span class="string">'4'</span>, <span class="string">'5'</span>, <span class="string">'6'</span>, <span class="string">'7'</span>, <span class="string">'8'</span>, <span class="string">'9'</span>, <span class="string">'A'</span>, <span class="string">'B'</span>, <span class="string">'C'</span>, <span class="string">'D'</span>, <span class="string">'E'</span>, <span class="string">'F'</span>,
 ];
 
 <span class="doccomment">/// A flag that allows control over the decoding strictness.
@@ -867,7 +868,7 @@
 <span class="doccomment">/// A flag that controls how to treat the input when encoding.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 </span><span class="kw">pub enum </span>InputMode {
-    <span class="doccomment">/// Treat the input as text, and don&#39;t encode CRLF pairs.
+    <span class="doccomment">/// Treat the input as text, and don't encode CRLF pairs.
     </span>Text,
     <span class="doccomment">/// Treat the input as binary, and encode all CRLF pairs.
     </span>Binary,
@@ -921,14 +922,14 @@
     <span class="doccomment">/// Lines where found in the input that exceeded 76 bytes in length, excluding
     /// the terminating CRLF.
     </span>LineTooLong,
-    <span class="doccomment">/// An &#39;=&#39; character was found in the input without the proper number of
-    /// hex-characters following it. This includes &#39;=&#39; characters followed
+    <span class="doccomment">/// An '=' character was found in the input without the proper number of
+    /// hex-characters following it. This includes '=' characters followed
     /// by a single character and then the CRLF pair, for example.
     </span>IncompleteHexOctet,
-    <span class="doccomment">/// An &#39;=&#39; character was found with two following characters, but they were
-    /// not hex characters. &#39;=Hi&#39; for example would be an invalid encoding.
+    <span class="doccomment">/// An '=' character was found with two following characters, but they were
+    /// not hex characters. '=Hi' for example would be an invalid encoding.
     </span>InvalidHexOctet,
-    <span class="doccomment">/// An &#39;=&#39; character was found with two following hex characters, but the
+    <span class="doccomment">/// An '=' character was found with two following hex characters, but the
     /// hex characters were lowercase rather than uppercase. The spec explicitly
     /// requires uppercase hex to be used, so this is considered an error.
     </span>LowercaseHexOctet,
@@ -940,38 +941,38 @@
             QuotedPrintableError::InvalidByte =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;A unallowed byte was found in the quoted-printable input&quot;
+                    <span class="string">"A unallowed byte was found in the quoted-printable input"
                 </span>)
             }
             QuotedPrintableError::LineTooLong =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;A line length in the quoted-printed input exceeded 76 bytes&quot;
+                    <span class="string">"A line length in the quoted-printed input exceeded 76 bytes"
                 </span>)
             }
             QuotedPrintableError::IncompleteHexOctet =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;A &#39;=&#39; followed by only one character was found in the input&quot;
+                    <span class="string">"A '=' followed by only one character was found in the input"
                 </span>)
             }
             QuotedPrintableError::InvalidHexOctet =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;A &#39;=&#39; followed by non-hex characters was found in the input&quot;
+                    <span class="string">"A '=' followed by non-hex characters was found in the input"
                 </span>)
             }
             QuotedPrintableError::LowercaseHexOctet =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;A &#39;=&#39; was followed by lowercase hex characters&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"A '=' was followed by lowercase hex characters"</span>)
             }
         }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>QuotedPrintableError {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="string">&quot;invalid quoted-printable input&quot;
+        <span class="string">"invalid quoted-printable input"
     </span>}
 
     <span class="kw">fn </span>cause(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>std::error::Error&gt; {
@@ -1003,8 +1004,8 @@
 ///
 /// ```
 ///     use quoted_printable::{decode, ParseMode};
-///     let decoded = decode(&quot;hello=3Dworld=0D=0A&quot;.as_bytes(), ParseMode::Robust).unwrap();
-///     assert_eq!(&quot;hello=world\r\n&quot;, String::from_utf8(decoded).unwrap());
+///     let decoded = decode("hello=3Dworld=0D=0A".as_bytes(), ParseMode::Robust).unwrap();
+///     assert_eq!("hello=world\r\n", String::from_utf8(decoded).unwrap());
 /// ```
 ///
 /// # Errors
@@ -1015,7 +1016,7 @@
 /// then it will attempt to gracefully handle any errors that arise. This might
 /// result in input bytes being stripped out and ignored in some cases. Refer
 /// to IETF RFC 2045, section 6.7 for details on what constitutes valid and
-/// invalid input, and what a &quot;robust&quot; implementation would do in the face of
+/// invalid input, and what a "robust" implementation would do in the face of
 /// invalid input.
 </span><span class="attr">#[inline(always)]
 </span><span class="kw">pub fn </span>decode_with_options&lt;R: AsRef&lt;[u8]&gt;&gt;(
@@ -1029,7 +1030,7 @@
     <span class="kw">let </span>filtered = input
         .into_iter()
         .filter_map(|<span class="kw-2">&amp;</span>c| <span class="kw">match </span>c {
-            <span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39;\r&#39; </span>| <span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39; &#39;</span>..=<span class="string">b&#39;~&#39; </span>=&gt; <span class="prelude-val">Some</span>(c <span class="kw">as </span>char),
+            <span class="string">b'\t' </span>| <span class="string">b'\r' </span>| <span class="string">b'\n' </span>| <span class="string">b' '</span>..=<span class="string">b'~' </span>=&gt; <span class="prelude-val">Some</span>(c <span class="kw">as </span>char),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         })
         .collect::&lt;lib::String&gt;();
@@ -1055,8 +1056,8 @@
         }
 
         <span class="kw">if </span>add_line_break == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
-            decoded.push(<span class="string">b&#39;\r&#39;</span>);
-            decoded.push(<span class="string">b&#39;\n&#39;</span>);
+            decoded.push(<span class="string">b'\r'</span>);
+            decoded.push(<span class="string">b'\n'</span>);
             add_line_break = <span class="prelude-val">Some</span>(<span class="bool-val">false</span>);
         }
 
@@ -1069,7 +1070,7 @@
                 }
             };
 
-            <span class="kw">if </span>byte == <span class="string">b&#39;=&#39; </span>{
+            <span class="kw">if </span>byte == <span class="string">b'=' </span>{
                 <span class="kw">let </span>upper = <span class="kw">match </span>bytes.next() {
                     <span class="prelude-val">Some</span>(v) =&gt; v,
                     <span class="prelude-val">None </span>=&gt; <span class="kw">break</span>,
@@ -1113,13 +1114,13 @@
         }
     }
 
-    <span class="kw">if </span>filtered.ends_with(<span class="string">&#39;\n&#39;</span>) {
+    <span class="kw">if </span>filtered.ends_with(<span class="string">'\n'</span>) {
         <span class="comment">// the filtered.lines() call above ignores trailing newlines instead
         // of returning an empty string in the last element. So if there was
-        // a trailing newline, let&#39;s tack on the CRLF to carry that through
+        // a trailing newline, let's tack on the CRLF to carry that through
         // the decoder.
-        </span>decoded.push(<span class="string">b&#39;\r&#39;</span>);
-        decoded.push(<span class="string">b&#39;\n&#39;</span>);
+        </span>decoded.push(<span class="string">b'\r'</span>);
+        decoded.push(<span class="string">b'\n'</span>);
     }
 
     <span class="prelude-val">Ok</span>(decoded)
@@ -1134,14 +1135,14 @@
 ) {
     <span class="kw">if </span><span class="kw-2">*</span>bytes_on_line + to_append.len() &gt; limit {
         <span class="kw">if </span><span class="kw-2">*</span>bytes_on_line == limit {
-            <span class="comment">// We&#39;re already at the max length, so inserting the &#39;=&#39; in the soft
+            <span class="comment">// We're already at the max length, so inserting the '=' in the soft
             // line break would put us over. Instead, we insert the soft line
             // break at the backup pos, which is just before the last thing
             // appended.
             </span><span class="kw-2">*</span>bytes_on_line = result.len() - <span class="kw-2">*</span>backup_pos;
-            result.insert_str(<span class="kw-2">*</span>backup_pos, <span class="string">&quot;=\r\n&quot;</span>);
+            result.insert_str(<span class="kw-2">*</span>backup_pos, <span class="string">"=\r\n"</span>);
         } <span class="kw">else </span>{
-            result.push_str(<span class="string">&quot;=\r\n&quot;</span>);
+            result.push_str(<span class="string">"=\r\n"</span>);
             <span class="kw-2">*</span>bytes_on_line = <span class="number">0</span>;
         }
     }
@@ -1157,22 +1158,22 @@
     backup_pos: <span class="kw-2">&amp;mut </span>usize,
 ) {
     <span class="comment">// If the last character before a CRLF was a space or tab, then encode it
-    // since &quot;Octets with values of 9 and 32 ... MUST NOT be so represented
-    // at the end of an encoded line.&quot; We can just pop it off the end of the
+    // since "Octets with values of 9 and 32 ... MUST NOT be so represented
+    // at the end of an encoded line." We can just pop it off the end of the
     // result and append the encoded version. The encoded version may end up
     // getting bumped to a new line, but in that case we know that the soft
-    // line break &#39;=&#39; will always fit because we&#39;re removing one char before
+    // line break '=' will always fit because we're removing one char before
     // calling append.
     </span><span class="kw">match </span>result.chars().last() {
-        <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>) =&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">' '</span>) =&gt; {
             <span class="kw-2">*</span>bytes_on_line -= <span class="number">1</span>;
             result.pop();
-            append(result, <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;2&#39;</span>, <span class="string">&#39;0&#39;</span>], bytes_on_line, limit, backup_pos);
+            append(result, <span class="kw-2">&amp;</span>[<span class="string">'='</span>, <span class="string">'2'</span>, <span class="string">'0'</span>], bytes_on_line, limit, backup_pos);
         }
-        <span class="prelude-val">Some</span>(<span class="string">&#39;\t&#39;</span>) =&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">'\t'</span>) =&gt; {
             <span class="kw-2">*</span>bytes_on_line -= <span class="number">1</span>;
             result.pop();
-            append(result, <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;9&#39;</span>], bytes_on_line, limit, backup_pos);
+            append(result, <span class="kw-2">&amp;</span>[<span class="string">'='</span>, <span class="string">'0'</span>, <span class="string">'9'</span>], bytes_on_line, limit, backup_pos);
         }
         <span class="kw">_ </span>=&gt; (),
     };
@@ -1189,8 +1190,8 @@
 ///
 /// ```
 ///     use quoted_printable::encode;
-///     let encoded = encode(&quot;hello, \u{20ac} zone!&quot;);
-///     assert_eq!(&quot;hello, =E2=82=AC zone!&quot;, String::from_utf8(encoded).unwrap());
+///     let encoded = encode("hello, \u{20ac} zone!");
+///     assert_eq!("hello, =E2=82=AC zone!", String::from_utf8(encoded).unwrap());
 /// ```
 </span><span class="attr">#[inline(always)]
 </span><span class="kw">pub fn </span>encode&lt;R: AsRef&lt;[u8]&gt;&gt;(input: R) -&gt; lib::Vec&lt;u8&gt; {
@@ -1212,8 +1213,8 @@
 ///
 /// ```
 ///     use quoted_printable::encode_binary;
-///     let encoded = encode_binary(&quot;hello, \u{20ac} zone!\r\n&quot;);
-///     assert_eq!(&quot;hello, =E2=82=AC zone!=0D=0A&quot;, String::from_utf8(encoded).unwrap());
+///     let encoded = encode_binary("hello, \u{20ac} zone!\r\n");
+///     assert_eq!("hello, =E2=82=AC zone!=0D=0A", String::from_utf8(encoded).unwrap());
 /// ```
 </span><span class="attr">#[inline(always)]
 </span><span class="kw">pub fn </span>encode_binary&lt;R: AsRef&lt;[u8]&gt;&gt;(input: R) -&gt; lib::Vec&lt;u8&gt; {
@@ -1234,24 +1235,24 @@
 
     <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>byte) = it.next() {
         <span class="kw">if </span>was_cr {
-            <span class="kw">if </span>byte == <span class="string">b&#39;\n&#39; </span>{
+            <span class="kw">if </span>byte == <span class="string">b'\n' </span>{
                 encode_trailing_space_tab(<span class="kw-2">&amp;mut </span>result, <span class="kw-2">&amp;mut </span>on_line, limit, <span class="kw-2">&amp;mut </span>backup_pos);
                 <span class="kw">match </span>options.input_mode {
                     InputMode::Text =&gt; {
-                        result.push_str(<span class="string">&quot;\r\n&quot;</span>);
+                        result.push_str(<span class="string">"\r\n"</span>);
                         on_line = <span class="number">0</span>;
                     }
                     InputMode::Binary =&gt; {
                         append(
                             <span class="kw-2">&amp;mut </span>result,
-                            <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;D&#39;</span>],
+                            <span class="kw-2">&amp;</span>[<span class="string">'='</span>, <span class="string">'0'</span>, <span class="string">'D'</span>],
                             <span class="kw-2">&amp;mut </span>on_line,
                             limit,
                             <span class="kw-2">&amp;mut </span>backup_pos,
                         );
                         append(
                             <span class="kw-2">&amp;mut </span>result,
-                            <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;A&#39;</span>],
+                            <span class="kw-2">&amp;</span>[<span class="string">'='</span>, <span class="string">'0'</span>, <span class="string">'A'</span>],
                             <span class="kw-2">&amp;mut </span>on_line,
                             limit,
                             <span class="kw-2">&amp;mut </span>backup_pos,
@@ -1261,17 +1262,17 @@
                 was_cr = <span class="bool-val">false</span>;
                 <span class="kw">continue</span>;
             }
-            <span class="comment">// encode the CR (&#39;\r&#39;) we skipped over before
+            <span class="comment">// encode the CR ('\r') we skipped over before
             </span>append(
                 <span class="kw-2">&amp;mut </span>result,
-                <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;D&#39;</span>],
+                <span class="kw-2">&amp;</span>[<span class="string">'='</span>, <span class="string">'0'</span>, <span class="string">'D'</span>],
                 <span class="kw-2">&amp;mut </span>on_line,
                 limit,
                 <span class="kw-2">&amp;mut </span>backup_pos,
             );
         }
-        <span class="kw">if </span>byte == <span class="string">b&#39;\r&#39; </span>{
-            <span class="comment">// remember we had a CR (&#39;\r&#39;) but do not encode it yet
+        <span class="kw">if </span>byte == <span class="string">b'\r' </span>{
+            <span class="comment">// remember we had a CR ('\r') but do not encode it yet
             </span>was_cr = <span class="bool-val">true</span>;
             <span class="kw">continue</span>;
         } <span class="kw">else </span>{
@@ -1280,11 +1281,11 @@
         encode_byte(<span class="kw-2">&amp;mut </span>result, byte, <span class="kw-2">&amp;mut </span>on_line, limit, <span class="kw-2">&amp;mut </span>backup_pos);
     }
 
-    <span class="comment">// we haven&#39;t yet encoded the last CR (&#39;\r&#39;) so do it now
+    <span class="comment">// we haven't yet encoded the last CR ('\r') so do it now
     </span><span class="kw">if </span>was_cr {
         append(
             <span class="kw-2">&amp;mut </span>result,
-            <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;D&#39;</span>],
+            <span class="kw-2">&amp;</span>[<span class="string">'='</span>, <span class="string">'0'</span>, <span class="string">'D'</span>],
             <span class="kw-2">&amp;mut </span>on_line,
             limit,
             <span class="kw-2">&amp;mut </span>backup_pos,
@@ -1309,8 +1310,8 @@
 ///
 /// ```
 ///     use quoted_printable::encode_to_str;
-///     let encoded = encode_to_str(&quot;hello, \u{20ac} zone!&quot;);
-///     assert_eq!(&quot;hello, =E2=82=AC zone!&quot;, encoded);
+///     let encoded = encode_to_str("hello, \u{20ac} zone!");
+///     assert_eq!("hello, =E2=82=AC zone!", encoded);
 /// ```
 </span><span class="attr">#[inline(always)]
 </span><span class="kw">pub fn </span>encode_to_str&lt;R: AsRef&lt;[u8]&gt;&gt;(input: R) -&gt; lib::String {
@@ -1333,8 +1334,8 @@
 ///
 /// ```
 ///     use quoted_printable::encode_binary_to_str;
-///     let encoded = encode_binary_to_str(&quot;hello, \u{20ac} zone!\r\n&quot;);
-///     assert_eq!(&quot;hello, =E2=82=AC zone!=0D=0A&quot;, encoded);
+///     let encoded = encode_binary_to_str("hello, \u{20ac} zone!\r\n");
+///     assert_eq!("hello, =E2=82=AC zone!=0D=0A", encoded);
 /// ```
 </span><span class="attr">#[inline(always)]
 </span><span class="kw">pub fn </span>encode_binary_to_str&lt;R: AsRef&lt;[u8]&gt;&gt;(input: R) -&gt; lib::String {
@@ -1355,8 +1356,8 @@
 ///
 /// ```
 ///     use quoted_printable::{encode_with_options, Options};
-///     let encoded = encode_with_options(&quot;hello, \u{20ac} zone!&quot;, Options::default());
-///     assert_eq!(&quot;hello, =E2=82=AC zone!&quot;, encoded);
+///     let encoded = encode_with_options("hello, \u{20ac} zone!", Options::default());
+///     assert_eq!("hello, =E2=82=AC zone!", encoded);
 /// ```
 </span><span class="attr">#[inline(always)]
 </span><span class="kw">pub fn </span>encode_with_options&lt;R: AsRef&lt;[u8]&gt;&gt;(input: R, options: Options) -&gt; lib::String {
@@ -1372,8 +1373,8 @@
     backup_pos: <span class="kw-2">&amp;mut </span>usize,
 ) {
     <span class="kw">match </span>to_append {
-        <span class="string">b&#39;=&#39; </span>=&gt; append(result, <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;3&#39;</span>, <span class="string">&#39;D&#39;</span>], on_line, limit, backup_pos),
-        <span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39; &#39;</span>..=<span class="string">b&#39;~&#39; </span>=&gt; append(result, <span class="kw-2">&amp;</span>[char::from(to_append)], on_line, limit, backup_pos),
+        <span class="string">b'=' </span>=&gt; append(result, <span class="kw-2">&amp;</span>[<span class="string">'='</span>, <span class="string">'3'</span>, <span class="string">'D'</span>], on_line, limit, backup_pos),
+        <span class="string">b'\t' </span>| <span class="string">b' '</span>..=<span class="string">b'~' </span>=&gt; append(result, <span class="kw-2">&amp;</span>[char::from(to_append)], on_line, limit, backup_pos),
         <span class="kw">_ </span>=&gt; append(
             result,
             <span class="kw-2">&amp;</span>hex_encode_byte(to_append),
@@ -1387,7 +1388,7 @@
 <span class="attr">#[inline(always)]
 </span><span class="kw">fn </span>hex_encode_byte(byte: u8) -&gt; [char; <span class="number">3</span>] {
     [
-        <span class="string">&#39;=&#39;</span>,
+        <span class="string">'='</span>,
         lower_nibble_to_hex(byte &gt;&gt; <span class="number">4</span>),
         lower_nibble_to_hex(byte),
     ]
@@ -1405,15 +1406,15 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_decode() {
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;hello world&quot;</span>,
-            lib::String::from_utf8(decode(<span class="string">&quot;hello world&quot;</span>, ParseMode::Strict).unwrap()).unwrap()
+            <span class="string">"hello world"</span>,
+            lib::String::from_utf8(decode(<span class="string">"hello world"</span>, ParseMode::Strict).unwrap()).unwrap()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;Now&#39;s the time for all folk to come to the aid of their country.&quot;</span>,
+            <span class="string">"Now's the time for all folk to come to the aid of their country."</span>,
             lib::String::from_utf8(
                 decode(
-                    <span class="string">&quot;Now&#39;s the time =\r\nfor all folk to come=\r\n \
-                                                 to the aid of their country.&quot;</span>,
+                    <span class="string">"Now's the time =\r\nfor all folk to come=\r\n \
+                                                 to the aid of their country."</span>,
                     ParseMode::Strict,
                 )
                 .unwrap(),
@@ -1421,29 +1422,29 @@
             .unwrap()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;\r\nhello=world&quot;</span>,
-            lib::String::from_utf8(decode(<span class="string">&quot;=0D=0Ahello=3Dworld&quot;</span>, ParseMode::Strict).unwrap())
+            <span class="string">"\r\nhello=world"</span>,
+            lib::String::from_utf8(decode(<span class="string">"=0D=0Ahello=3Dworld"</span>, ParseMode::Strict).unwrap())
                 .unwrap()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;hello world\r\ngoodbye world&quot;</span>,
+            <span class="string">"hello world\r\ngoodbye world"</span>,
             lib::String::from_utf8(
-                decode(<span class="string">&quot;hello world\r\ngoodbye world&quot;</span>, ParseMode::Strict).unwrap(),
+                decode(<span class="string">"hello world\r\ngoodbye world"</span>, ParseMode::Strict).unwrap(),
             )
             .unwrap()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;hello world\r\ngoodbye world&quot;</span>,
+            <span class="string">"hello world\r\ngoodbye world"</span>,
             lib::String::from_utf8(
-                decode(<span class="string">&quot;hello world   \r\ngoodbye world   &quot;</span>, ParseMode::Strict).unwrap(),
+                decode(<span class="string">"hello world   \r\ngoodbye world   "</span>, ParseMode::Strict).unwrap(),
             )
             .unwrap()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;hello world\r\ngoodbye world x&quot;</span>,
+            <span class="string">"hello world\r\ngoodbye world x"</span>,
             lib::String::from_utf8(
                 decode(
-                    <span class="string">&quot;hello world   \r\ngoodbye world =  \r\nx&quot;</span>,
+                    <span class="string">"hello world   \r\ngoodbye world =  \r\nx"</span>,
                     ParseMode::Strict,
                 )
                 .unwrap(),
@@ -1451,49 +1452,49 @@
             .unwrap()
         );
 
-        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">&quot;hello world=x&quot;</span>, ParseMode::Strict).is_err());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">"hello world=x"</span>, ParseMode::Strict).is_err());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;hello world=x&quot;</span>,
-            lib::String::from_utf8(decode(<span class="string">&quot;hello world=x&quot;</span>, ParseMode::Robust).unwrap()).unwrap()
+            <span class="string">"hello world=x"</span>,
+            lib::String::from_utf8(decode(<span class="string">"hello world=x"</span>, ParseMode::Robust).unwrap()).unwrap()
         );
 
-        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">&quot;hello =world=&quot;</span>, ParseMode::Strict).is_err());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">"hello =world="</span>, ParseMode::Strict).is_err());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;hello =world&quot;</span>,
-            lib::String::from_utf8(decode(<span class="string">&quot;hello =world=&quot;</span>, ParseMode::Robust).unwrap()).unwrap()
+            <span class="string">"hello =world"</span>,
+            lib::String::from_utf8(decode(<span class="string">"hello =world="</span>, ParseMode::Robust).unwrap()).unwrap()
         );
 
-        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">&quot;hello world=3d&quot;</span>, ParseMode::Strict).is_err());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">"hello world=3d"</span>, ParseMode::Strict).is_err());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;hello world=&quot;</span>,
-            lib::String::from_utf8(decode(<span class="string">&quot;hello world=3d&quot;</span>, ParseMode::Robust).unwrap()).unwrap()
+            <span class="string">"hello world="</span>,
+            lib::String::from_utf8(decode(<span class="string">"hello world=3d"</span>, ParseMode::Robust).unwrap()).unwrap()
         );
 
-        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">&quot;hello world=3m&quot;</span>, ParseMode::Strict).is_err());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">"hello world=3m"</span>, ParseMode::Strict).is_err());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;hello world=3m&quot;</span>,
-            lib::String::from_utf8(decode(<span class="string">&quot;hello world=3m&quot;</span>, ParseMode::Robust).unwrap()).unwrap()
+            <span class="string">"hello world=3m"</span>,
+            lib::String::from_utf8(decode(<span class="string">"hello world=3m"</span>, ParseMode::Robust).unwrap()).unwrap()
         );
 
-        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">&quot;hello\u{FF}world&quot;</span>, ParseMode::Strict).is_err());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, decode(<span class="string">"hello\u{FF}world"</span>, ParseMode::Strict).is_err());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;helloworld&quot;</span>,
-            lib::String::from_utf8(decode(<span class="string">&quot;hello\u{FF}world&quot;</span>, ParseMode::Robust).unwrap()).unwrap()
+            <span class="string">"helloworld"</span>,
+            lib::String::from_utf8(decode(<span class="string">"hello\u{FF}world"</span>, ParseMode::Robust).unwrap()).unwrap()
         );
 
         <span class="macro">assert_eq!</span>(
             <span class="bool-val">true</span>,
             decode(
-                <span class="string">&quot;12345678901234567890123456789012345678901234567890123456789012345678901234567&quot;</span>,
+                <span class="string">"12345678901234567890123456789012345678901234567890123456789012345678901234567"</span>,
                 ParseMode::Strict,
             )
             .is_err()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;12345678901234567890123456789012345678901234567890123456789012345678901234567&quot;</span>,
+            <span class="string">"12345678901234567890123456789012345678901234567890123456789012345678901234567"</span>,
             lib::String::from_utf8(
                 decode(
-                    <span class="string">&quot;12345678901234567890123456789012345678901234567890123456789012345678901234567&quot;</span>,
+                    <span class="string">"12345678901234567890123456789012345678901234567890123456789012345678901234567"</span>,
                     ParseMode::Robust,
                 )
                 .unwrap(),
@@ -1501,10 +1502,10 @@
             .unwrap()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;1234567890123456789012345678901234567890123456789012345678901234567890123456&quot;</span>,
+            <span class="string">"1234567890123456789012345678901234567890123456789012345678901234567890123456"</span>,
             lib::String::from_utf8(
                 decode(
-                    <span class="string">&quot;1234567890123456789012345678901234567890123456789012345678901234567890123456&quot;</span>,
+                    <span class="string">"1234567890123456789012345678901234567890123456789012345678901234567890123456"</span>,
                     ParseMode::Strict,
                 )
                 .unwrap(),
@@ -1515,108 +1516,108 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_encode() {
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;hello, world!&quot;</span>, encode_to_str(<span class="string">&quot;hello, world!&quot;</span>.as_bytes()));
+        <span class="macro">assert_eq!</span>(<span class="string">"hello, world!"</span>, encode_to_str(<span class="string">"hello, world!"</span>.as_bytes()));
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;hello,=0Cworld!&quot;</span>,
-            encode_to_str(<span class="string">&quot;hello,\u{c}world!&quot;</span>.as_bytes())
+            <span class="string">"hello,=0Cworld!"</span>,
+            encode_to_str(<span class="string">"hello,\u{c}world!"</span>.as_bytes())
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;this=00is=C3=BFa=3Dlong=0Dstring=0Athat gets wrapped and stuff, \
-                    woohoo!=C3=\r\n=89&quot;</span>,
+            <span class="string">"this=00is=C3=BFa=3Dlong=0Dstring=0Athat gets wrapped and stuff, \
+                    woohoo!=C3=\r\n=89"</span>,
             encode_to_str(
-                <span class="string">&quot;this\u{0}is\u{FF}a=long\rstring\nthat gets \
-                                             wrapped and stuff, woohoo!\u{c9}&quot;</span>,
+                <span class="string">"this\u{0}is\u{FF}a=long\rstring\nthat gets \
+                                             wrapped and stuff, woohoo!\u{c9}"</span>,
             )
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;this=00is=C3=BFa=3Dlong=0Dstring=0Athat just fits in a line,   woohoo!=C3=89&quot;</span>,
+            <span class="string">"this=00is=C3=BFa=3Dlong=0Dstring=0Athat just fits in a line,   woohoo!=C3=89"</span>,
             encode_to_str(
-                <span class="string">&quot;this\u{0}is\u{FF}a=long\rstring\nthat just fits \
-                                             in a line,   woohoo!\u{c9}&quot;</span>,
+                <span class="string">"this\u{0}is\u{FF}a=long\rstring\nthat just fits \
+                                             in a line,   woohoo!\u{c9}"</span>,
             )
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;this=20\r\nhas linebreaks\r\n built right in.&quot;</span>,
-            encode_to_str(<span class="string">&quot;this \r\nhas linebreaks\r\n built right in.&quot;</span>)
+            <span class="string">"this=20\r\nhas linebreaks\r\n built right in."</span>,
+            encode_to_str(<span class="string">"this \r\nhas linebreaks\r\n built right in."</span>)
         );
         <span class="comment">// Test that soft line breaks get inserted at the right place
         </span><span class="macro">assert_eq!</span>(
-            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY&quot;</span>,
+            <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY"</span>,
             encode_to_str(
-                <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY&quot;</span>,
+                <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY"</span>,
             )
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\nXY&quot;</span>,
+            <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\nXY"</span>,
             encode_to_str(
-                <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY&quot;</span>,
+                <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY"</span>,
             )
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\nXXY&quot;</span>,
+            <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\nXXY"</span>,
             encode_to_str(
-                <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY&quot;</span>,
+                <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY"</span>,
             )
         );
-        <span class="comment">// Test that soft line breaks don&#39;t break up an encoded octet
+        <span class="comment">// Test that soft line breaks don't break up an encoded octet
         </span><span class="macro">assert_eq!</span>(
-            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=00Y&quot;</span>,
+            <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=00Y"</span>,
             encode_to_str(
-                <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\u{0}Y&quot;</span>,
+                <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\u{0}Y"</span>,
             )
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=00Y&quot;</span>,
+            <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=00Y"</span>,
             encode_to_str(
-                <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\u{0}Y&quot;</span>,
+                <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\u{0}Y"</span>,
             )
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=00Y&quot;</span>,
+            <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=00Y"</span>,
             encode_to_str(
-                <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\u{0}Y&quot;</span>,
+                <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\u{0}Y"</span>,
             )
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=00Y&quot;</span>,
+            <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=00Y"</span>,
             encode_to_str(
-                <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\u{0}Y&quot;</span>,
+                <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\u{0}Y"</span>,
             )
         );
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;=0D=3D&quot;</span>, encode_to_str(<span class="string">&quot;\r=&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;=0D\r\n&quot;</span>, encode_to_str(<span class="string">&quot;\r\r\n&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;a=0D\r\nb&quot;</span>, encode_to_str(<span class="string">&quot;a\r\r\nb&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;=0D&quot;</span>, encode_to_str(<span class="string">&quot;\r&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;=0D=0D&quot;</span>, encode_to_str(<span class="string">&quot;\r\r&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;\r\n&quot;</span>, encode_to_str(<span class="string">&quot;\r\n&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">"=0D=3D"</span>, encode_to_str(<span class="string">"\r="</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">"=0D\r\n"</span>, encode_to_str(<span class="string">"\r\r\n"</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">"a=0D\r\nb"</span>, encode_to_str(<span class="string">"a\r\r\nb"</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">"=0D"</span>, encode_to_str(<span class="string">"\r"</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">"=0D=0D"</span>, encode_to_str(<span class="string">"\r\r"</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">"\r\n"</span>, encode_to_str(<span class="string">"\r\n"</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;trailing spaces =20&quot;</span>, encode_to_str(<span class="string">&quot;trailing spaces  &quot;</span>),);
+        <span class="macro">assert_eq!</span>(<span class="string">"trailing spaces =20"</span>, encode_to_str(<span class="string">"trailing spaces  "</span>),);
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;trailing spaces and crlf =20\r\n&quot;</span>,
-            encode_to_str(<span class="string">&quot;trailing spaces and crlf  \r\n&quot;</span>),
+            <span class="string">"trailing spaces and crlf =20\r\n"</span>,
+            encode_to_str(<span class="string">"trailing spaces and crlf  \r\n"</span>),
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=09&quot;</span>,
+            <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=09"</span>,
             encode_to_str(
-                <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\t&quot;
+                <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\t"
             </span>),
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=20\r\n&quot;</span>,
-            encode_to_str(<span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \r\n&quot;</span>),
+            <span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=20\r\n"</span>,
+            encode_to_str(<span class="string">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \r\n"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_lower_nibble_to_hex() {
         <span class="kw">let </span>test_data: <span class="kw-2">&amp;</span>[(u8, char, char)] = <span class="kw-2">&amp;</span>[
-            (<span class="number">0</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;0&#39;</span>),
-            (<span class="number">1</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;1&#39;</span>),
-            (<span class="number">9</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;9&#39;</span>),
-            (<span class="number">10</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;A&#39;</span>),
-            (<span class="number">15</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;F&#39;</span>),
-            (<span class="number">16</span>, <span class="string">&#39;1&#39;</span>, <span class="string">&#39;0&#39;</span>),
-            (<span class="number">255</span>, <span class="string">&#39;F&#39;</span>, <span class="string">&#39;F&#39;</span>),
+            (<span class="number">0</span>, <span class="string">'0'</span>, <span class="string">'0'</span>),
+            (<span class="number">1</span>, <span class="string">'0'</span>, <span class="string">'1'</span>),
+            (<span class="number">9</span>, <span class="string">'0'</span>, <span class="string">'9'</span>),
+            (<span class="number">10</span>, <span class="string">'0'</span>, <span class="string">'A'</span>),
+            (<span class="number">15</span>, <span class="string">'0'</span>, <span class="string">'F'</span>),
+            (<span class="number">16</span>, <span class="string">'1'</span>, <span class="string">'0'</span>),
+            (<span class="number">255</span>, <span class="string">'F'</span>, <span class="string">'F'</span>),
         ];
 
         <span class="kw">for </span><span class="kw-2">&amp;</span>(nr, high, low) <span class="kw">in </span>test_data.iter() {
@@ -1630,7 +1631,7 @@
     <span class="comment">// from https://github.com/staktrace/quoted-printable/issues/13
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>test_qp_rt() {
-        <span class="kw">let </span>s = <span class="string">b&quot;foo\r\n&quot;</span>;
+        <span class="kw">let </span>s = <span class="string">b"foo\r\n"</span>;
         <span class="kw">let </span>qp = encode_to_str(s);
         <span class="kw">let </span>rt = decode(<span class="kw-2">&amp;</span>qp, ParseMode::Strict).unwrap();
         <span class="macro">assert_eq!</span>(s.as_slice(), rt.as_slice());
@@ -1638,15 +1639,15 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_binary() {
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;foo=0D=0A&quot;</span>, encode_binary_to_str(<span class="string">&quot;foo\r\n&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">"foo=0D=0A"</span>, encode_binary_to_str(<span class="string">"foo\r\n"</span>));
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;foo\r\n&quot;</span>,
-            lib::String::from_utf8(decode(<span class="string">&quot;foo=0D=0A&quot;</span>, ParseMode::Strict).unwrap()).unwrap()
+            <span class="string">"foo\r\n"</span>,
+            lib::String::from_utf8(decode(<span class="string">"foo=0D=0A"</span>, ParseMode::Strict).unwrap()).unwrap()
         );
 
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=\r\n=0A=0D=0A=0D=0A&quot;</span>,
-            encode_binary_to_str(<span class="string">&quot;\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n&quot;</span>)
+            <span class="string">"=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=0A=0D=\r\n=0A=0D=0A=0D=0A"</span>,
+            encode_binary_to_str(<span class="string">"\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n"</span>)
         );
     }
 }

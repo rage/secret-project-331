@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/xmlwriter-0.1.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="xmlwriter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/xmlwriter-0.1.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="xmlwriter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -626,26 +627,26 @@ let opt = Options {
 };
 
 let mut w = XmlWriter::new(opt);
-w.start_element(&quot;svg&quot;);
-w.write_attribute(&quot;xmlns&quot;, &quot;http://www.w3.org/2000/svg&quot;);
-w.write_attribute_fmt(&quot;viewBox&quot;, format_args!(&quot;{} {} {} {}&quot;, 0, 0, 128, 128));
-w.start_element(&quot;text&quot;);
+w.start_element("svg");
+w.write_attribute("xmlns", "http://www.w3.org/2000/svg");
+w.write_attribute_fmt("viewBox", format_args!("{} {} {} {}", 0, 0, 128, 128));
+w.start_element("text");
 // We can write any object that implements `fmt::Display`.
-w.write_attribute(&quot;x&quot;, &amp;10);
-w.write_attribute(&quot;y&quot;, &amp;20);
-w.write_text_fmt(format_args!(&quot;length is {}&quot;, 5));
+w.write_attribute("x", &amp;10);
+w.write_attribute("y", &amp;20);
+w.write_text_fmt(format_args!("length is {}", 5));
 
 assert_eq!(w.end_document(),
-&quot;&lt;svg xmlns=&#39;http://www.w3.org/2000/svg&#39; viewBox=&#39;0 0 128 128&#39;&gt;
-    &lt;text x=&#39;10&#39; y=&#39;20&#39;&gt;
+"&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'&gt;
+    &lt;text x='10' y='20'&gt;
         length is 5
     &lt;/text&gt;
 &lt;/svg&gt;
-&quot;);
+");
 ```
 */
 
-</span><span class="attr">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/xmlwriter/0.1.0&quot;</span>)]
+</span><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/xmlwriter/0.1.0"</span>)]
 
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
@@ -678,13 +679,13 @@ assert_eq!(w.end_document(),
     /// Before:
     ///
     /// ```text
-    /// &lt;rect fill=&quot;red&quot;/&gt;
+    /// &lt;rect fill="red"/&gt;
     /// ```
     ///
     /// After:
     ///
     /// ```text
-    /// &lt;rect fill=&#39;red&#39;/&gt;
+    /// &lt;rect fill='red'/&gt;
     /// ```
     ///
     /// Default: disabled
@@ -699,14 +700,14 @@ assert_eq!(w.end_document(),
     ///
     /// ```text
     /// &lt;svg&gt;
-    ///     &lt;rect fill=&quot;red&quot;/&gt;
+    ///     &lt;rect fill="red"/&gt;
     /// &lt;/svg&gt;
     /// ```
     ///
     /// After:
     ///
     /// ```text
-    /// &lt;svg&gt;&lt;rect fill=&quot;red&quot;/&gt;&lt;/svg&gt;
+    /// &lt;svg&gt;&lt;rect fill="red"/&gt;&lt;/svg&gt;
     /// ```
     ///
     /// Default: 4 spaces
@@ -722,7 +723,7 @@ assert_eq!(w.end_document(),
     ///
     /// ```text
     /// &lt;svg&gt;
-    ///     &lt;rect fill=&quot;red&quot; stroke=&quot;black&quot;/&gt;
+    ///     &lt;rect fill="red" stroke="black"/&gt;
     /// &lt;/svg&gt;
     /// ```
     ///
@@ -731,8 +732,8 @@ assert_eq!(w.end_document(),
     /// ```text
     /// &lt;svg&gt;
     ///     &lt;rect
-    ///       fill=&quot;red&quot;
-    ///       stroke=&quot;black&quot;/&gt;
+    ///       fill="red"
+    ///       stroke="black"/&gt;
     /// &lt;/svg&gt;
     /// ```
     ///
@@ -800,7 +801,7 @@ assert_eq!(w.end_document(),
 
     <span class="doccomment">/// Writes an XML declaration.
     ///
-    /// `&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;`
+    /// `&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;`
     ///
     /// # Panics
     ///
@@ -808,25 +809,25 @@ assert_eq!(w.end_document(),
     </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>write_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if </span><span class="self">self</span>.state != State::Empty {
-            <span class="macro">panic!</span>(<span class="string">&quot;declaration was already written&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"declaration was already written"</span>);
         }
 
         <span class="comment">// Pretend that we are writing an element.
         </span><span class="self">self</span>.state = State::Attributes;
 
-        <span class="comment">// &lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39; standalone=&#39;yes&#39;?&gt;
-        </span><span class="self">self</span>.push_str(<span class="string">&quot;&lt;?xml&quot;</span>);
-        <span class="self">self</span>.write_attribute(<span class="string">&quot;version&quot;</span>, <span class="string">&quot;1.0&quot;</span>);
-        <span class="self">self</span>.write_attribute(<span class="string">&quot;encoding&quot;</span>, <span class="string">&quot;UTF-8&quot;</span>);
-        <span class="self">self</span>.write_attribute(<span class="string">&quot;standalone&quot;</span>, <span class="string">&quot;no&quot;</span>);
-        <span class="self">self</span>.push_str(<span class="string">&quot;?&gt;&quot;</span>);
+        <span class="comment">// &lt;?xml version='1.0' encoding='UTF-8' standalone='yes'?&gt;
+        </span><span class="self">self</span>.push_str(<span class="string">"&lt;?xml"</span>);
+        <span class="self">self</span>.write_attribute(<span class="string">"version"</span>, <span class="string">"1.0"</span>);
+        <span class="self">self</span>.write_attribute(<span class="string">"encoding"</span>, <span class="string">"UTF-8"</span>);
+        <span class="self">self</span>.write_attribute(<span class="string">"standalone"</span>, <span class="string">"no"</span>);
+        <span class="self">self</span>.push_str(<span class="string">"?&gt;"</span>);
 
         <span class="self">self</span>.state = State::Document;
     }
 
     <span class="doccomment">/// Writes a comment string.
     </span><span class="kw">pub fn </span>write_comment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, text: <span class="kw-2">&amp;</span>str) {
-        <span class="self">self</span>.write_comment_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, text));
+        <span class="self">self</span>.write_comment_fmt(<span class="macro">format_args!</span>(<span class="string">"{}"</span>, text));
     }
 
     <span class="doccomment">/// Writes a formatted comment.
@@ -843,9 +844,9 @@ assert_eq!(w.end_document(),
         <span class="self">self</span>.write_node_indent();
 
         <span class="comment">// &lt;!--text--&gt;
-        </span><span class="self">self</span>.push_str(<span class="string">&quot;&lt;!--&quot;</span>);
+        </span><span class="self">self</span>.push_str(<span class="string">"&lt;!--"</span>);
         <span class="self">self</span>.buf.write_fmt(fmt).unwrap(); <span class="comment">// TODO: check content
-        </span><span class="self">self</span>.push_str(<span class="string">&quot;--&gt;&quot;</span>);
+        </span><span class="self">self</span>.push_str(<span class="string">"--&gt;"</span>);
 
         <span class="kw">if </span><span class="self">self</span>.state == State::Attributes {
             <span class="self">self</span>.depth_stack.push(DepthData {
@@ -874,7 +875,7 @@ assert_eq!(w.end_document(),
             <span class="self">self</span>.write_node_indent();
         }
 
-        <span class="self">self</span>.push_byte(<span class="string">b&#39;&lt;&#39;</span>);
+        <span class="self">self</span>.push_byte(<span class="string">b'&lt;'</span>);
         <span class="kw">let </span>start = <span class="self">self</span>.buf.len();
         <span class="self">self</span>.push_str(name);
 
@@ -901,13 +902,13 @@ assert_eq!(w.end_document(),
     /// use xmlwriter::*;
     ///
     /// let mut w = XmlWriter::new(Options::default());
-    /// w.start_element(&quot;svg&quot;);
-    /// w.write_attribute(&quot;x&quot;, &quot;5&quot;);
-    /// w.write_attribute(&quot;y&quot;, &amp;5);
-    /// assert_eq!(w.end_document(), &quot;&lt;svg x=\&quot;5\&quot; y=\&quot;5\&quot;/&gt;\n&quot;);
+    /// w.start_element("svg");
+    /// w.write_attribute("x", "5");
+    /// w.write_attribute("y", &amp;5);
+    /// assert_eq!(w.end_document(), "&lt;svg x=\"5\" y=\"5\"/&gt;\n");
     /// ```
     </span><span class="kw">pub fn </span>write_attribute&lt;V: Display + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span>V) {
-        <span class="self">self</span>.write_attribute_fmt(name, <span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, value));
+        <span class="self">self</span>.write_attribute_fmt(name, <span class="macro">format_args!</span>(<span class="string">"{}"</span>, value));
     }
 
     <span class="doccomment">/// Writes a formatted attribute value.
@@ -925,14 +926,14 @@ assert_eq!(w.end_document(),
     /// use xmlwriter::*;
     ///
     /// let mut w = XmlWriter::new(Options::default());
-    /// w.start_element(&quot;rect&quot;);
-    /// w.write_attribute_fmt(&quot;fill&quot;, format_args!(&quot;url(#{})&quot;, &quot;gradient&quot;));
-    /// assert_eq!(w.end_document(), &quot;&lt;rect fill=\&quot;url(#gradient)\&quot;/&gt;\n&quot;);
+    /// w.start_element("rect");
+    /// w.write_attribute_fmt("fill", format_args!("url(#{})", "gradient"));
+    /// assert_eq!(w.end_document(), "&lt;rect fill=\"url(#gradient)\"/&gt;\n");
     /// ```
     </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>write_attribute_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, fmt: fmt::Arguments) {
         <span class="kw">if </span><span class="self">self</span>.state != State::Attributes {
-            <span class="macro">panic!</span>(<span class="string">&quot;must be called after start_element()&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"must be called after start_element()"</span>);
         }
 
         <span class="self">self</span>.write_attribute_prefix(name);
@@ -960,16 +961,16 @@ assert_eq!(w.end_document(),
     /// use xmlwriter::*;
     ///
     /// let mut w = XmlWriter::new(Options::default());
-    /// w.start_element(&quot;path&quot;);
-    /// w.write_attribute_raw(&quot;d&quot;, |buf| buf.extend_from_slice(b&quot;M 10 20 L 30 40&quot;));
-    /// assert_eq!(w.end_document(), &quot;&lt;path d=\&quot;M 10 20 L 30 40\&quot;/&gt;\n&quot;);
+    /// w.start_element("path");
+    /// w.write_attribute_raw("d", |buf| buf.extend_from_slice(b"M 10 20 L 30 40"));
+    /// assert_eq!(w.end_document(), "&lt;path d=\"M 10 20 L 30 40\"/&gt;\n");
     /// ```
     </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>write_attribute_raw&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, f: F)
         <span class="kw">where </span>F: FnOnce(<span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;)
     {
         <span class="kw">if </span><span class="self">self</span>.state != State::Attributes {
-            <span class="macro">panic!</span>(<span class="string">&quot;must be called after start_element()&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"must be called after start_element()"</span>);
         }
 
         <span class="self">self</span>.write_attribute_prefix(name);
@@ -982,9 +983,9 @@ assert_eq!(w.end_document(),
     <span class="attr">#[inline(never)]
     </span><span class="kw">fn </span>write_attribute_prefix(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) {
         <span class="kw">if </span><span class="self">self</span>.opt.attributes_indent == Indent::None {
-            <span class="self">self</span>.push_byte(<span class="string">b&#39; &#39;</span>);
+            <span class="self">self</span>.push_byte(<span class="string">b' '</span>);
         } <span class="kw">else </span>{
-            <span class="self">self</span>.push_byte(<span class="string">b&#39;\n&#39;</span>);
+            <span class="self">self</span>.push_byte(<span class="string">b'\n'</span>);
 
             <span class="kw">let </span>depth = <span class="self">self</span>.depth_stack.len();
             <span class="kw">if </span>depth &gt; <span class="number">0 </span>{
@@ -995,20 +996,20 @@ assert_eq!(w.end_document(),
         }
 
         <span class="self">self</span>.push_str(name);
-        <span class="self">self</span>.push_byte(<span class="string">b&#39;=&#39;</span>);
+        <span class="self">self</span>.push_byte(<span class="string">b'='</span>);
         <span class="self">self</span>.write_quote();
     }
 
     <span class="doccomment">/// Escapes the attribute value string.
     ///
-    /// - &quot; -&gt; &amp;quot;
-    /// - &#39; -&gt; &amp;apos;
+    /// - " -&gt; &amp;quot;
+    /// - ' -&gt; &amp;apos;
     </span><span class="attr">#[inline(never)]
     </span><span class="kw">fn </span>escape_attribute_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>start: usize) {
-        <span class="kw">let </span>quote = <span class="kw">if </span><span class="self">self</span>.opt.use_single_quote { <span class="string">b&#39;\&#39;&#39; </span>} <span class="kw">else </span>{ <span class="string">b&#39;&quot;&#39; </span>};
+        <span class="kw">let </span>quote = <span class="kw">if </span><span class="self">self</span>.opt.use_single_quote { <span class="string">b'\'' </span>} <span class="kw">else </span>{ <span class="string">b'"' </span>};
         <span class="kw">while let </span><span class="prelude-val">Some</span>(idx) = <span class="self">self</span>.buf[start..].iter().position(|c| <span class="kw-2">*</span>c == quote) {
             <span class="kw">let </span>i = start + idx;
-            <span class="kw">let </span>s = <span class="kw">if </span><span class="self">self</span>.opt.use_single_quote { <span class="string">b&quot;&amp;apos;&quot; </span>} <span class="kw">else </span>{ <span class="string">b&quot;&amp;quot;&quot; </span>};
+            <span class="kw">let </span>s = <span class="kw">if </span><span class="self">self</span>.opt.use_single_quote { <span class="string">b"&amp;apos;" </span>} <span class="kw">else </span>{ <span class="string">b"&amp;quot;" </span>};
             <span class="self">self</span>.buf.splice(i..i+<span class="number">1</span>, s.iter().cloned());
             start = i + <span class="number">6</span>;
         }
@@ -1027,23 +1028,23 @@ assert_eq!(w.end_document(),
     /// use xmlwriter::*;
     ///
     /// let mut w = XmlWriter::new(Options::default());
-    /// w.start_element(&quot;html&quot;);
-    /// w.start_element(&quot;p&quot;);
-    /// w.write_text(&quot;text&quot;);
+    /// w.start_element("html");
+    /// w.start_element("p");
+    /// w.write_text("text");
     /// w.end_element();
-    /// w.start_element(&quot;p&quot;);
+    /// w.start_element("p");
     /// w.set_preserve_whitespaces(true);
-    /// w.write_text(&quot;text&quot;);
+    /// w.write_text("text");
     /// w.end_element();
     /// w.set_preserve_whitespaces(false);
     /// assert_eq!(w.end_document(),
-    /// &quot;&lt;html&gt;
+    /// "&lt;html&gt;
     ///     &lt;p&gt;
     ///         text
     ///     &lt;/p&gt;
     ///     &lt;p&gt;text&lt;/p&gt;
     /// &lt;/html&gt;
-    /// &quot;);
+    /// ");
     /// ```
     </span><span class="kw">pub fn </span>set_preserve_whitespaces(<span class="kw-2">&amp;mut </span><span class="self">self</span>, preserve: bool) {
         <span class="self">self</span>.preserve_whitespaces = preserve;
@@ -1053,7 +1054,7 @@ assert_eq!(w.end_document(),
     ///
     /// See `write_text_fmt()` for details.
     </span><span class="kw">pub fn </span>write_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>, text: <span class="kw-2">&amp;</span>str) {
-        <span class="self">self</span>.write_text_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, text));
+        <span class="self">self</span>.write_text_fmt(<span class="macro">format_args!</span>(<span class="string">"{}"</span>, text));
     }
 
     <span class="doccomment">/// Writes a formatted text node.
@@ -1066,7 +1067,7 @@ assert_eq!(w.end_document(),
     </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>write_text_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: fmt::Arguments) {
         <span class="kw">if </span><span class="self">self</span>.state == State::Empty || <span class="self">self</span>.depth_stack.is_empty() {
-            <span class="macro">panic!</span>(<span class="string">&quot;must be called after start_element()&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"must be called after start_element()"</span>);
         }
 
         <span class="kw">if </span><span class="self">self</span>.state == State::Attributes {
@@ -1094,9 +1095,9 @@ assert_eq!(w.end_document(),
     }
 
     <span class="kw">fn </span>escape_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>start: usize) {
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(idx) = <span class="self">self</span>.buf[start..].iter().position(|c| <span class="kw-2">*</span>c == <span class="string">b&#39;&lt;&#39;</span>) {
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(idx) = <span class="self">self</span>.buf[start..].iter().position(|c| <span class="kw-2">*</span>c == <span class="string">b'&lt;'</span>) {
             <span class="kw">let </span>i = start + idx;
-            <span class="self">self</span>.buf.splice(i..i+<span class="number">1</span>, <span class="string">b&quot;&amp;lt;&quot;</span>.iter().cloned());
+            <span class="self">self</span>.buf.splice(i..i+<span class="number">1</span>, <span class="string">b"&amp;lt;"</span>.iter().cloned());
             start = i + <span class="number">4</span>;
         }
     }
@@ -1111,15 +1112,15 @@ assert_eq!(w.end_document(),
                     <span class="self">self</span>.write_node_indent();
                 }
 
-                <span class="self">self</span>.push_str(<span class="string">&quot;&lt;/&quot;</span>);
+                <span class="self">self</span>.push_str(<span class="string">"&lt;/"</span>);
 
                 <span class="kw">for </span>i <span class="kw">in </span>depth.range {
                     <span class="self">self</span>.push_byte(<span class="self">self</span>.buf[i]);
                 }
 
-                <span class="self">self</span>.push_byte(<span class="string">b&#39;&gt;&#39;</span>);
+                <span class="self">self</span>.push_byte(<span class="string">b'&gt;'</span>);
             } <span class="kw">else </span>{
-                <span class="self">self</span>.push_str(<span class="string">&quot;/&gt;&quot;</span>);
+                <span class="self">self</span>.push_str(<span class="string">"/&gt;"</span>);
             }
         }
 
@@ -1134,16 +1135,16 @@ assert_eq!(w.end_document(),
     /// use xmlwriter::*;
     ///
     /// let mut w = XmlWriter::new(Options::default());
-    /// w.start_element(&quot;svg&quot;);
-    /// w.start_element(&quot;g&quot;);
-    /// w.start_element(&quot;rect&quot;);
+    /// w.start_element("svg");
+    /// w.start_element("g");
+    /// w.start_element("rect");
     /// assert_eq!(w.end_document(),
-    /// &quot;&lt;svg&gt;
+    /// "&lt;svg&gt;
     ///     &lt;g&gt;
     ///         &lt;rect/&gt;
     ///     &lt;/g&gt;
     /// &lt;/svg&gt;
-    /// &quot;);
+    /// ");
     /// ```
     </span><span class="kw">pub fn </span>end_document(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; String {
         <span class="kw">while </span>!<span class="self">self</span>.depth_stack.is_empty() {
@@ -1169,7 +1170,7 @@ assert_eq!(w.end_document(),
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>get_quote_char(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        <span class="kw">if </span><span class="self">self</span>.opt.use_single_quote { <span class="string">b&#39;\&#39;&#39; </span>} <span class="kw">else </span>{ <span class="string">b&#39;&quot;&#39; </span>}
+        <span class="kw">if </span><span class="self">self</span>.opt.use_single_quote { <span class="string">b'\'' </span>} <span class="kw">else </span>{ <span class="string">b'"' </span>}
     }
 
     <span class="attr">#[inline]
@@ -1180,7 +1181,7 @@ assert_eq!(w.end_document(),
     <span class="kw">fn </span>write_open_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(depth) = <span class="self">self</span>.depth_stack.last_mut() {
             depth.has_children = <span class="bool-val">true</span>;
-            <span class="self">self</span>.push_byte(<span class="string">b&#39;&gt;&#39;</span>);
+            <span class="self">self</span>.push_byte(<span class="string">b'&gt;'</span>);
 
             <span class="self">self</span>.state = State::Document;
         }
@@ -1200,17 +1201,17 @@ assert_eq!(w.end_document(),
                 Indent::None =&gt; {}
                 Indent::Spaces(n) =&gt; {
                     <span class="kw">for _ in </span><span class="number">0</span>..n {
-                        <span class="self">self</span>.push_byte(<span class="string">b&#39; &#39;</span>);
+                        <span class="self">self</span>.push_byte(<span class="string">b' '</span>);
                     }
                 }
-                Indent::Tabs =&gt; <span class="self">self</span>.push_byte(<span class="string">b&#39;\t&#39;</span>),
+                Indent::Tabs =&gt; <span class="self">self</span>.push_byte(<span class="string">b'\t'</span>),
             }
         }
     }
 
     <span class="kw">fn </span>write_new_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if </span><span class="self">self</span>.opt.indent != Indent::None &amp;&amp; !<span class="self">self</span>.preserve_whitespaces {
-            <span class="self">self</span>.push_byte(<span class="string">b&#39;\n&#39;</span>);
+            <span class="self">self</span>.push_byte(<span class="string">b'\n'</span>);
         }
     }
 }

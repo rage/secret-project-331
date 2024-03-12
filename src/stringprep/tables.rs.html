@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stringprep-0.1.4/src/tables.rs`."><title>tables.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="stringprep" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stringprep-0.1.4/src/tables.rs`."><title>tables.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="stringprep" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -276,33 +277,33 @@
 </span><span class="kw">pub fn </span>commonly_mapped_to_nothing(c: char) -&gt; bool {
     <span class="macro">matches!</span>(
         c,
-        <span class="string">&#39;\u{00AD}&#39;
-            </span>| <span class="string">&#39;\u{034F}&#39;
-            </span>| <span class="string">&#39;\u{1806}&#39;
-            </span>| <span class="string">&#39;\u{180B}&#39;
-            </span>| <span class="string">&#39;\u{180C}&#39;
-            </span>| <span class="string">&#39;\u{180D}&#39;
-            </span>| <span class="string">&#39;\u{200B}&#39;
-            </span>| <span class="string">&#39;\u{200C}&#39;
-            </span>| <span class="string">&#39;\u{200D}&#39;
-            </span>| <span class="string">&#39;\u{2060}&#39;
-            </span>| <span class="string">&#39;\u{FE00}&#39;
-            </span>| <span class="string">&#39;\u{FE01}&#39;
-            </span>| <span class="string">&#39;\u{FE02}&#39;
-            </span>| <span class="string">&#39;\u{FE03}&#39;
-            </span>| <span class="string">&#39;\u{FE04}&#39;
-            </span>| <span class="string">&#39;\u{FE05}&#39;
-            </span>| <span class="string">&#39;\u{FE06}&#39;
-            </span>| <span class="string">&#39;\u{FE07}&#39;
-            </span>| <span class="string">&#39;\u{FE08}&#39;
-            </span>| <span class="string">&#39;\u{FE09}&#39;
-            </span>| <span class="string">&#39;\u{FE0A}&#39;
-            </span>| <span class="string">&#39;\u{FE0B}&#39;
-            </span>| <span class="string">&#39;\u{FE0C}&#39;
-            </span>| <span class="string">&#39;\u{FE0D}&#39;
-            </span>| <span class="string">&#39;\u{FE0E}&#39;
-            </span>| <span class="string">&#39;\u{FE0F}&#39;
-            </span>| <span class="string">&#39;\u{FEFF}&#39;
+        <span class="string">'\u{00AD}'
+            </span>| <span class="string">'\u{034F}'
+            </span>| <span class="string">'\u{1806}'
+            </span>| <span class="string">'\u{180B}'
+            </span>| <span class="string">'\u{180C}'
+            </span>| <span class="string">'\u{180D}'
+            </span>| <span class="string">'\u{200B}'
+            </span>| <span class="string">'\u{200C}'
+            </span>| <span class="string">'\u{200D}'
+            </span>| <span class="string">'\u{2060}'
+            </span>| <span class="string">'\u{FE00}'
+            </span>| <span class="string">'\u{FE01}'
+            </span>| <span class="string">'\u{FE02}'
+            </span>| <span class="string">'\u{FE03}'
+            </span>| <span class="string">'\u{FE04}'
+            </span>| <span class="string">'\u{FE05}'
+            </span>| <span class="string">'\u{FE06}'
+            </span>| <span class="string">'\u{FE07}'
+            </span>| <span class="string">'\u{FE08}'
+            </span>| <span class="string">'\u{FE09}'
+            </span>| <span class="string">'\u{FE0A}'
+            </span>| <span class="string">'\u{FE0B}'
+            </span>| <span class="string">'\u{FE0C}'
+            </span>| <span class="string">'\u{FE0D}'
+            </span>| <span class="string">'\u{FE0E}'
+            </span>| <span class="string">'\u{FE0F}'
+            </span>| <span class="string">'\u{FEFF}'
     </span>)
 }
 
@@ -316,7 +317,7 @@
 }
 
 <span class="kw">enum </span>FoldInner {
-    Chars(Chars&lt;<span class="lifetime">&#39;static</span>&gt;),
+    Chars(Chars&lt;<span class="lifetime">'static</span>&gt;),
     Char(<span class="prelude-ty">Option</span>&lt;char&gt;),
 }
 
@@ -336,83 +337,83 @@
 
 <span class="doccomment">/// C.1.1 ASCII space characters
 </span><span class="kw">pub fn </span>ascii_space_character(c: char) -&gt; bool {
-    c == <span class="string">&#39; &#39;
+    c == <span class="string">' '
 </span>}
 
 <span class="doccomment">/// C.1.2 Non-ASCII space characters
 </span><span class="kw">pub fn </span>non_ascii_space_character(c: char) -&gt; bool {
     <span class="macro">matches!</span>(
         c,
-        <span class="string">&#39;\u{00A0}&#39;
-            </span>| <span class="string">&#39;\u{1680}&#39;
-            </span>| <span class="string">&#39;\u{2000}&#39;
-            </span>| <span class="string">&#39;\u{2001}&#39;
-            </span>| <span class="string">&#39;\u{2002}&#39;
-            </span>| <span class="string">&#39;\u{2003}&#39;
-            </span>| <span class="string">&#39;\u{2004}&#39;
-            </span>| <span class="string">&#39;\u{2005}&#39;
-            </span>| <span class="string">&#39;\u{2006}&#39;
-            </span>| <span class="string">&#39;\u{2007}&#39;
-            </span>| <span class="string">&#39;\u{2008}&#39;
-            </span>| <span class="string">&#39;\u{2009}&#39;
-            </span>| <span class="string">&#39;\u{200A}&#39;
-            </span>| <span class="string">&#39;\u{200B}&#39;
-            </span>| <span class="string">&#39;\u{202F}&#39;
-            </span>| <span class="string">&#39;\u{205F}&#39;
-            </span>| <span class="string">&#39;\u{3000}&#39;
+        <span class="string">'\u{00A0}'
+            </span>| <span class="string">'\u{1680}'
+            </span>| <span class="string">'\u{2000}'
+            </span>| <span class="string">'\u{2001}'
+            </span>| <span class="string">'\u{2002}'
+            </span>| <span class="string">'\u{2003}'
+            </span>| <span class="string">'\u{2004}'
+            </span>| <span class="string">'\u{2005}'
+            </span>| <span class="string">'\u{2006}'
+            </span>| <span class="string">'\u{2007}'
+            </span>| <span class="string">'\u{2008}'
+            </span>| <span class="string">'\u{2009}'
+            </span>| <span class="string">'\u{200A}'
+            </span>| <span class="string">'\u{200B}'
+            </span>| <span class="string">'\u{202F}'
+            </span>| <span class="string">'\u{205F}'
+            </span>| <span class="string">'\u{3000}'
     </span>)
 }
 
 <span class="doccomment">/// C.2.1 ASCII control characters
 </span><span class="kw">pub fn </span>ascii_control_character(c: char) -&gt; bool {
-    <span class="macro">matches!</span>(c, <span class="string">&#39;\u{0000}&#39;</span>..=<span class="string">&#39;\u{001F}&#39; </span>| <span class="string">&#39;\u{007F}&#39;</span>)
+    <span class="macro">matches!</span>(c, <span class="string">'\u{0000}'</span>..=<span class="string">'\u{001F}' </span>| <span class="string">'\u{007F}'</span>)
 }
 
 <span class="doccomment">/// C.2.2 Non-ASCII control characters
 </span><span class="kw">pub fn </span>non_ascii_control_character(c: char) -&gt; bool {
-    <span class="macro">matches!</span>(c, <span class="string">&#39;\u{0080}&#39;</span>..=<span class="string">&#39;\u{009F}&#39;
-        </span>| <span class="string">&#39;\u{06DD}&#39;
-        </span>| <span class="string">&#39;\u{070F}&#39;
-        </span>| <span class="string">&#39;\u{180E}&#39;
-        </span>| <span class="string">&#39;\u{200C}&#39;
-        </span>| <span class="string">&#39;\u{200D}&#39;
-        </span>| <span class="string">&#39;\u{2028}&#39;
-        </span>| <span class="string">&#39;\u{2029}&#39;
-        </span>| <span class="string">&#39;\u{2060}&#39;
-        </span>| <span class="string">&#39;\u{2061}&#39;
-        </span>| <span class="string">&#39;\u{2062}&#39;
-        </span>| <span class="string">&#39;\u{2063}&#39;
-        </span>| <span class="string">&#39;\u{206A}&#39;</span>..=<span class="string">&#39;\u{206F}&#39;
-        </span>| <span class="string">&#39;\u{FEFF}&#39;
-        </span>| <span class="string">&#39;\u{FFF9}&#39;</span>..=<span class="string">&#39;\u{FFFC}&#39;
-        </span>| <span class="string">&#39;\u{1D173}&#39;</span>..=<span class="string">&#39;\u{1D17A}&#39;</span>)
+    <span class="macro">matches!</span>(c, <span class="string">'\u{0080}'</span>..=<span class="string">'\u{009F}'
+        </span>| <span class="string">'\u{06DD}'
+        </span>| <span class="string">'\u{070F}'
+        </span>| <span class="string">'\u{180E}'
+        </span>| <span class="string">'\u{200C}'
+        </span>| <span class="string">'\u{200D}'
+        </span>| <span class="string">'\u{2028}'
+        </span>| <span class="string">'\u{2029}'
+        </span>| <span class="string">'\u{2060}'
+        </span>| <span class="string">'\u{2061}'
+        </span>| <span class="string">'\u{2062}'
+        </span>| <span class="string">'\u{2063}'
+        </span>| <span class="string">'\u{206A}'</span>..=<span class="string">'\u{206F}'
+        </span>| <span class="string">'\u{FEFF}'
+        </span>| <span class="string">'\u{FFF9}'</span>..=<span class="string">'\u{FFFC}'
+        </span>| <span class="string">'\u{1D173}'</span>..=<span class="string">'\u{1D17A}'</span>)
 }
 
 <span class="doccomment">/// C.3 Private use
 </span><span class="kw">pub fn </span>private_use(c: char) -&gt; bool {
-    <span class="macro">matches!</span>(c, <span class="string">&#39;\u{E000}&#39;</span>..=<span class="string">&#39;\u{F8FF}&#39; </span>| <span class="string">&#39;\u{F0000}&#39;</span>..=<span class="string">&#39;\u{FFFFD}&#39; </span>| <span class="string">&#39;\u{100000}&#39;</span>..=<span class="string">&#39;\u{10FFFD}&#39;</span>)
+    <span class="macro">matches!</span>(c, <span class="string">'\u{E000}'</span>..=<span class="string">'\u{F8FF}' </span>| <span class="string">'\u{F0000}'</span>..=<span class="string">'\u{FFFFD}' </span>| <span class="string">'\u{100000}'</span>..=<span class="string">'\u{10FFFD}'</span>)
 }
 
 <span class="doccomment">/// C.4 Non-character code points
 </span><span class="kw">pub fn </span>non_character_code_point(c: char) -&gt; bool {
-    <span class="macro">matches!</span>(c, <span class="string">&#39;\u{FDD0}&#39;</span>..=<span class="string">&#39;\u{FDEF}&#39;
-        </span>| <span class="string">&#39;\u{FFFE}&#39;</span>..=<span class="string">&#39;\u{FFFF}&#39;
-        </span>| <span class="string">&#39;\u{1FFFE}&#39;</span>..=<span class="string">&#39;\u{1FFFF}&#39;
-        </span>| <span class="string">&#39;\u{2FFFE}&#39;</span>..=<span class="string">&#39;\u{2FFFF}&#39;
-        </span>| <span class="string">&#39;\u{3FFFE}&#39;</span>..=<span class="string">&#39;\u{3FFFF}&#39;
-        </span>| <span class="string">&#39;\u{4FFFE}&#39;</span>..=<span class="string">&#39;\u{4FFFF}&#39;
-        </span>| <span class="string">&#39;\u{5FFFE}&#39;</span>..=<span class="string">&#39;\u{5FFFF}&#39;
-        </span>| <span class="string">&#39;\u{6FFFE}&#39;</span>..=<span class="string">&#39;\u{6FFFF}&#39;
-        </span>| <span class="string">&#39;\u{7FFFE}&#39;</span>..=<span class="string">&#39;\u{7FFFF}&#39;
-        </span>| <span class="string">&#39;\u{8FFFE}&#39;</span>..=<span class="string">&#39;\u{8FFFF}&#39;
-        </span>| <span class="string">&#39;\u{9FFFE}&#39;</span>..=<span class="string">&#39;\u{9FFFF}&#39;
-        </span>| <span class="string">&#39;\u{AFFFE}&#39;</span>..=<span class="string">&#39;\u{AFFFF}&#39;
-        </span>| <span class="string">&#39;\u{BFFFE}&#39;</span>..=<span class="string">&#39;\u{BFFFF}&#39;
-        </span>| <span class="string">&#39;\u{CFFFE}&#39;</span>..=<span class="string">&#39;\u{CFFFF}&#39;
-        </span>| <span class="string">&#39;\u{DFFFE}&#39;</span>..=<span class="string">&#39;\u{DFFFF}&#39;
-        </span>| <span class="string">&#39;\u{EFFFE}&#39;</span>..=<span class="string">&#39;\u{EFFFF}&#39;
-        </span>| <span class="string">&#39;\u{FFFFE}&#39;</span>..=<span class="string">&#39;\u{FFFFF}&#39;
-        </span>| <span class="string">&#39;\u{10FFFE}&#39;</span>..=<span class="string">&#39;\u{10FFFF}&#39;</span>)
+    <span class="macro">matches!</span>(c, <span class="string">'\u{FDD0}'</span>..=<span class="string">'\u{FDEF}'
+        </span>| <span class="string">'\u{FFFE}'</span>..=<span class="string">'\u{FFFF}'
+        </span>| <span class="string">'\u{1FFFE}'</span>..=<span class="string">'\u{1FFFF}'
+        </span>| <span class="string">'\u{2FFFE}'</span>..=<span class="string">'\u{2FFFF}'
+        </span>| <span class="string">'\u{3FFFE}'</span>..=<span class="string">'\u{3FFFF}'
+        </span>| <span class="string">'\u{4FFFE}'</span>..=<span class="string">'\u{4FFFF}'
+        </span>| <span class="string">'\u{5FFFE}'</span>..=<span class="string">'\u{5FFFF}'
+        </span>| <span class="string">'\u{6FFFE}'</span>..=<span class="string">'\u{6FFFF}'
+        </span>| <span class="string">'\u{7FFFE}'</span>..=<span class="string">'\u{7FFFF}'
+        </span>| <span class="string">'\u{8FFFE}'</span>..=<span class="string">'\u{8FFFF}'
+        </span>| <span class="string">'\u{9FFFE}'</span>..=<span class="string">'\u{9FFFF}'
+        </span>| <span class="string">'\u{AFFFE}'</span>..=<span class="string">'\u{AFFFF}'
+        </span>| <span class="string">'\u{BFFFE}'</span>..=<span class="string">'\u{BFFFF}'
+        </span>| <span class="string">'\u{CFFFE}'</span>..=<span class="string">'\u{CFFFF}'
+        </span>| <span class="string">'\u{DFFFE}'</span>..=<span class="string">'\u{DFFFF}'
+        </span>| <span class="string">'\u{EFFFE}'</span>..=<span class="string">'\u{EFFFF}'
+        </span>| <span class="string">'\u{FFFFE}'</span>..=<span class="string">'\u{FFFFF}'
+        </span>| <span class="string">'\u{10FFFE}'</span>..=<span class="string">'\u{10FFFF}'</span>)
 }
 
 <span class="doccomment">/// C.5 Surrogate codes
@@ -420,7 +421,7 @@
 </span><span class="kw">pub fn </span>surrogate_code(c: char) -&gt; bool {
     <span class="kw">match </span>c {
         <span class="comment">// forbidden by rust
-        /*&#39;\u{D800}&#39;..=&#39;\u{DFFF}&#39; =&gt; true,*/
+        /*'\u{D800}'..='\u{DFFF}' =&gt; true,*/
         </span><span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
     }
 }
@@ -429,48 +430,48 @@
 </span><span class="kw">pub fn </span>inappropriate_for_plain_text(c: char) -&gt; bool {
     <span class="macro">matches!</span>(
         c,
-        <span class="string">&#39;\u{FFF9}&#39; </span>| <span class="string">&#39;\u{FFFA}&#39; </span>| <span class="string">&#39;\u{FFFB}&#39; </span>| <span class="string">&#39;\u{FFFC}&#39; </span>| <span class="string">&#39;\u{FFFD}&#39;
+        <span class="string">'\u{FFF9}' </span>| <span class="string">'\u{FFFA}' </span>| <span class="string">'\u{FFFB}' </span>| <span class="string">'\u{FFFC}' </span>| <span class="string">'\u{FFFD}'
     </span>)
 }
 
 <span class="doccomment">/// C.7 Inappropriate for canonical representation
 </span><span class="kw">pub fn </span>inappropriate_for_canonical_representation(c: char) -&gt; bool {
-    <span class="macro">matches!</span>(c, <span class="string">&#39;\u{2FF0}&#39;</span>..=<span class="string">&#39;\u{2FFB}&#39;</span>)
+    <span class="macro">matches!</span>(c, <span class="string">'\u{2FF0}'</span>..=<span class="string">'\u{2FFB}'</span>)
 }
 
 <span class="doccomment">/// C.8 Change display properties or are deprecated
 </span><span class="kw">pub fn </span>change_display_properties_or_deprecated(c: char) -&gt; bool {
     <span class="macro">matches!</span>(
         c,
-        <span class="string">&#39;\u{0340}&#39;
-            </span>| <span class="string">&#39;\u{0341}&#39;
-            </span>| <span class="string">&#39;\u{200E}&#39;
-            </span>| <span class="string">&#39;\u{200F}&#39;
-            </span>| <span class="string">&#39;\u{202A}&#39;
-            </span>| <span class="string">&#39;\u{202B}&#39;
-            </span>| <span class="string">&#39;\u{202C}&#39;
-            </span>| <span class="string">&#39;\u{202D}&#39;
-            </span>| <span class="string">&#39;\u{202E}&#39;
-            </span>| <span class="string">&#39;\u{206A}&#39;
-            </span>| <span class="string">&#39;\u{206B}&#39;
-            </span>| <span class="string">&#39;\u{206C}&#39;
-            </span>| <span class="string">&#39;\u{206D}&#39;
-            </span>| <span class="string">&#39;\u{206E}&#39;
-            </span>| <span class="string">&#39;\u{206F}&#39;
+        <span class="string">'\u{0340}'
+            </span>| <span class="string">'\u{0341}'
+            </span>| <span class="string">'\u{200E}'
+            </span>| <span class="string">'\u{200F}'
+            </span>| <span class="string">'\u{202A}'
+            </span>| <span class="string">'\u{202B}'
+            </span>| <span class="string">'\u{202C}'
+            </span>| <span class="string">'\u{202D}'
+            </span>| <span class="string">'\u{202E}'
+            </span>| <span class="string">'\u{206A}'
+            </span>| <span class="string">'\u{206B}'
+            </span>| <span class="string">'\u{206C}'
+            </span>| <span class="string">'\u{206D}'
+            </span>| <span class="string">'\u{206E}'
+            </span>| <span class="string">'\u{206F}'
     </span>)
 }
 
 <span class="doccomment">/// C.9 Tagging characters
 </span><span class="kw">pub fn </span>tagging_character(c: char) -&gt; bool {
-    <span class="macro">matches!</span>(c, <span class="string">&#39;\u{E0001}&#39; </span>| <span class="string">&#39;\u{E0020}&#39;</span>..=<span class="string">&#39;\u{E007F}&#39;</span>)
+    <span class="macro">matches!</span>(c, <span class="string">'\u{E0001}' </span>| <span class="string">'\u{E0020}'</span>..=<span class="string">'\u{E007F}'</span>)
 }
 
-<span class="doccomment">/// D.1 Characters with bidirectional property &quot;R&quot; or &quot;AL&quot;
+<span class="doccomment">/// D.1 Characters with bidirectional property "R" or "AL"
 </span><span class="kw">pub fn </span>bidi_r_or_al(c: char) -&gt; bool {
     <span class="macro">matches!</span>(bidi_class(c), BidiClass::R | BidiClass::AL)
 }
 
-<span class="doccomment">/// D.2 Characters with bidirectional property &quot;L&quot;
+<span class="doccomment">/// D.2 Characters with bidirectional property "L"
 </span><span class="kw">pub fn </span>bidi_l(c: char) -&gt; bool {
     <span class="macro">matches!</span>(bidi_class(c), BidiClass::L)
 }
@@ -479,15 +480,15 @@
 /// [ITU-T Recommendation X.520 (2019)](https://www.itu.int/rec/T-REC-X.520-201910-I/en).
 </span><span class="kw">pub fn </span>x520_mapped_to_nothing(c: char) -&gt; bool {
     <span class="kw">match </span>c {
-        <span class="string">&#39;\u{00AD}&#39;
-        </span>| <span class="string">&#39;\u{1806}&#39;
-        </span>| <span class="string">&#39;\u{034F}&#39;
-        </span>| <span class="string">&#39;\u{180B}&#39;</span>..=<span class="string">&#39;\u{180D}&#39;
-        </span>| <span class="string">&#39;\u{FE00}&#39;</span>..=<span class="string">&#39;\u{FE0F}&#39;
-        </span>| <span class="string">&#39;\u{FFFC}&#39;
-        </span>| <span class="string">&#39;\u{200B}&#39; </span>=&gt; <span class="bool-val">true</span>,
+        <span class="string">'\u{00AD}'
+        </span>| <span class="string">'\u{1806}'
+        </span>| <span class="string">'\u{034F}'
+        </span>| <span class="string">'\u{180B}'</span>..=<span class="string">'\u{180D}'
+        </span>| <span class="string">'\u{FE00}'</span>..=<span class="string">'\u{FE0F}'
+        </span>| <span class="string">'\u{FFFC}'
+        </span>| <span class="string">'\u{200B}' </span>=&gt; <span class="bool-val">true</span>,
         <span class="comment">// Technically control characters, but mapped to whitespace in X.520.
-        </span><span class="string">&#39;\u{09}&#39; </span>| <span class="string">&#39;\u{0A}&#39;</span>..=<span class="string">&#39;\u{0D}&#39; </span>| <span class="string">&#39;\u{85}&#39; </span>=&gt; <span class="bool-val">false</span>,
+        </span><span class="string">'\u{09}' </span>| <span class="string">'\u{0A}'</span>..=<span class="string">'\u{0D}' </span>| <span class="string">'\u{85}' </span>=&gt; <span class="bool-val">false</span>,
         <span class="kw">_ </span>=&gt; c.is_control(),
     }
 }
@@ -496,7 +497,7 @@
 /// [ITU-T Recommendation X.520 (2019)](https://www.itu.int/rec/T-REC-X.520-201910-I/en).
 </span><span class="kw">pub fn </span>x520_mapped_to_space(c: char) -&gt; bool {
     <span class="kw">match </span>c {
-        <span class="string">&#39;\u{09}&#39; </span>| <span class="string">&#39;\u{0A}&#39;</span>..=<span class="string">&#39;\u{0D}&#39; </span>| <span class="string">&#39;\u{85}&#39; </span>=&gt; <span class="bool-val">true</span>,
+        <span class="string">'\u{09}' </span>| <span class="string">'\u{0A}'</span>..=<span class="string">'\u{0D}' </span>| <span class="string">'\u{85}' </span>=&gt; <span class="bool-val">true</span>,
         <span class="kw">_ </span>=&gt; c.is_separator(),
     }
 }

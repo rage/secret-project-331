@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/switch.rs`."><title>switch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/switch.rs`."><title>switch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -141,37 +142,37 @@
 
 <span class="comment">// Full list can be found here: https://www.w3.org/TR/SVG11/feature.html
 </span><span class="kw">static </span>FEATURES: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str] = <span class="kw-2">&amp;</span>[
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#SVGDOM-static&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#SVG-static&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#CoreAttribute&quot;</span>, <span class="comment">// no xml:base and xml:lang
-    </span><span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Structure&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#BasicStructure&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#ContainerAttribute&quot;</span>, <span class="comment">// `enable-background`
-    </span><span class="string">&quot;http://www.w3.org/TR/SVG11/feature#ConditionalProcessing&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Image&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Style&quot;</span>,
-    <span class="comment">// &quot;http://www.w3.org/TR/SVG11/feature#ViewportAttribute&quot;, // `clip` and `overflow`, not yet
-    </span><span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Shape&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Text&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#BasicText&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#PaintAttribute&quot;</span>, <span class="comment">// no color-interpolation and color-rendering
-    </span><span class="string">&quot;http://www.w3.org/TR/SVG11/feature#BasicPaintAttribute&quot;</span>, <span class="comment">// no color-interpolation
-    </span><span class="string">&quot;http://www.w3.org/TR/SVG11/feature#OpacityAttribute&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#GraphicsAttribute&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#BasicGraphicsAttribute&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Marker&quot;</span>,
-    <span class="comment">// &quot;http://www.w3.org/TR/SVG11/feature#ColorProfile&quot;, // not yet
-    </span><span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Gradient&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Pattern&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Clip&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#BasicClip&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Mask&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#Filter&quot;</span>,
-    <span class="string">&quot;http://www.w3.org/TR/SVG11/feature#BasicFilter&quot;</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#SVGDOM-static"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#SVG-static"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#CoreAttribute"</span>, <span class="comment">// no xml:base and xml:lang
+    </span><span class="string">"http://www.w3.org/TR/SVG11/feature#Structure"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#BasicStructure"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#ContainerAttribute"</span>, <span class="comment">// `enable-background`
+    </span><span class="string">"http://www.w3.org/TR/SVG11/feature#ConditionalProcessing"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#Image"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#Style"</span>,
+    <span class="comment">// "http://www.w3.org/TR/SVG11/feature#ViewportAttribute", // `clip` and `overflow`, not yet
+    </span><span class="string">"http://www.w3.org/TR/SVG11/feature#Shape"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#Text"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#BasicText"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#PaintAttribute"</span>, <span class="comment">// no color-interpolation and color-rendering
+    </span><span class="string">"http://www.w3.org/TR/SVG11/feature#BasicPaintAttribute"</span>, <span class="comment">// no color-interpolation
+    </span><span class="string">"http://www.w3.org/TR/SVG11/feature#OpacityAttribute"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#GraphicsAttribute"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#BasicGraphicsAttribute"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#Marker"</span>,
+    <span class="comment">// "http://www.w3.org/TR/SVG11/feature#ColorProfile", // not yet
+    </span><span class="string">"http://www.w3.org/TR/SVG11/feature#Gradient"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#Pattern"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#Clip"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#BasicClip"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#Mask"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#Filter"</span>,
+    <span class="string">"http://www.w3.org/TR/SVG11/feature#BasicFilter"</span>,
     <span class="comment">// only xlink:href
-    </span><span class="string">&quot;http://www.w3.org/TR/SVG11/feature#XlinkAttribute&quot;</span>,
-    <span class="comment">// &quot;http://www.w3.org/TR/SVG11/feature#Font&quot;,
-    // &quot;http://www.w3.org/TR/SVG11/feature#BasicFont&quot;,
+    </span><span class="string">"http://www.w3.org/TR/SVG11/feature#XlinkAttribute"</span>,
+    <span class="comment">// "http://www.w3.org/TR/SVG11/feature#Font",
+    // "http://www.w3.org/TR/SVG11/feature#BasicFont",
 </span>];
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert(
@@ -206,13 +207,13 @@
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
 
-    <span class="comment">// &#39;The value is a list of feature strings, with the individual values separated by white space.
+    <span class="comment">// 'The value is a list of feature strings, with the individual values separated by white space.
     // Determines whether all of the named features are supported by the user agent.
     // Only feature strings defined in the Feature String appendix are allowed.
     // If all of the given features are supported, then the attribute evaluates to true;
-    // otherwise, the current element and its children are skipped and thus will not be rendered.&#39;
+    // otherwise, the current element and its children are skipped and thus will not be rendered.'
     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(features) = node.attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::RequiredFeatures) {
-        <span class="kw">for </span>feature <span class="kw">in </span>features.split(<span class="string">&#39; &#39;</span>) {
+        <span class="kw">for </span>feature <span class="kw">in </span>features.split(<span class="string">' '</span>) {
             <span class="kw">if </span>!FEATURES.contains(<span class="kw-2">&amp;</span>feature) {
                 <span class="kw">return </span><span class="bool-val">false</span>;
             }
@@ -228,27 +229,27 @@
 
 <span class="doccomment">/// SVG spec 5.8.5
 </span><span class="kw">fn </span>is_valid_sys_lang(node: SvgNode, opt: <span class="kw-2">&amp;</span>Options) -&gt; bool {
-    <span class="comment">// &#39;The attribute value is a comma-separated list of language names
-    // as defined in BCP 47.&#39;
+    <span class="comment">// 'The attribute value is a comma-separated list of language names
+    // as defined in BCP 47.'
     //
     // But we support only simple cases like `en` or `en-US`.
     // No one really uses this, especially with complex BCP 47 values.
     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(langs) = node.attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::SystemLanguage) {
         <span class="kw">let </span><span class="kw-2">mut </span>has_match = <span class="bool-val">false</span>;
-        <span class="kw">for </span>lang <span class="kw">in </span>langs.split(<span class="string">&#39;,&#39;</span>) {
+        <span class="kw">for </span>lang <span class="kw">in </span>langs.split(<span class="string">','</span>) {
             <span class="kw">let </span>lang = lang.trim();
 
-            <span class="comment">// &#39;Evaluates to `true` if one of the languages indicated by user preferences exactly
-            // equals one of the languages given in the value of this parameter.&#39;
+            <span class="comment">// 'Evaluates to `true` if one of the languages indicated by user preferences exactly
+            // equals one of the languages given in the value of this parameter.'
             </span><span class="kw">if </span>opt.languages.iter().any(|v| v == lang) {
                 has_match = <span class="bool-val">true</span>;
                 <span class="kw">break</span>;
             }
 
-            <span class="comment">// &#39;If one of the languages indicated by user preferences exactly equals a prefix
+            <span class="comment">// 'If one of the languages indicated by user preferences exactly equals a prefix
             // of one of the languages given in the value of this parameter such that
-            // the first tag character following the prefix is `-`.&#39;
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = lang.bytes().position(|c| c == <span class="string">b&#39;-&#39;</span>) {
+            // the first tag character following the prefix is `-`.'
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = lang.bytes().position(|c| c == <span class="string">b'-'</span>) {
                 <span class="kw">let </span>lang_prefix = <span class="kw-2">&amp;</span>lang[..idx];
                 <span class="kw">if </span>opt.languages.iter().any(|v| v == lang_prefix) {
                     has_match = <span class="bool-val">true</span>;

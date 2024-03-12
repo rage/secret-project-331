@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-router-0.5.2/src/path.rs`."><title>path.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_router" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_router/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_router"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-router-0.5.2/src/path.rs`."><title>path.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_router" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_router/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_router"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -274,13 +275,13 @@
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>PathItem {
-    Static(Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;),
+    Static(Cow&lt;<span class="lifetime">'static</span>, str&gt;),
     Segment(u16, u16),
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>PathItem {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Static(Cow::Borrowed(<span class="string">&quot;&quot;</span>))
+        <span class="self">Self</span>::Static(Cow::Borrowed(<span class="string">""</span>))
     }
 }
 
@@ -296,7 +297,7 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) skip: u16,
 
     <span class="doccomment">/// List of processed dynamic segments; name-&gt;value pairs.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) segments: Vec&lt;(Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;, PathItem)&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) segments: Vec&lt;(Cow&lt;<span class="lifetime">'static</span>, str&gt;, PathItem)&gt;,
 }
 
 <span class="kw">impl</span>&lt;T: ResourcePath&gt; Path&lt;T&gt; {
@@ -338,7 +339,7 @@
 
     <span class="doccomment">/// Returns unprocessed part of the path.
     </span><span class="attr">#[doc(hidden)]
-    #[deprecated(since = <span class="string">&quot;0.6.0&quot;</span>, note = <span class="string">&quot;Use `.as_str()` or `.unprocessed()`.&quot;</span>)]
+    #[deprecated(since = <span class="string">"0.6.0"</span>, note = <span class="string">"Use `.as_str()` or `.unprocessed()`."</span>)]
     #[inline]
     </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">let </span>skip = <span class="self">self</span>.skip <span class="kw">as </span>usize;
@@ -346,7 +347,7 @@
         <span class="kw">if </span>skip &lt;= path.len() {
             <span class="kw-2">&amp;</span>path[skip..]
         } <span class="kw">else </span>{
-            <span class="string">&quot;&quot;
+            <span class="string">""
         </span>}
     }
 
@@ -371,7 +372,7 @@
         <span class="self">self</span>.skip += n;
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;, value: PathItem) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;, value: PathItem) {
         <span class="kw">match </span>value {
             PathItem::Static(seg) =&gt; <span class="self">self</span>.segments.push((name.into(), PathItem::Static(seg))),
             PathItem::Segment(begin, end) =&gt; <span class="self">self</span>.segments.push((
@@ -384,8 +385,8 @@
     <span class="attr">#[doc(hidden)]
     </span><span class="kw">pub fn </span>add_static(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        name: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;,
-        value: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;,
+        name: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;,
+        value: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;,
     ) {
         <span class="self">self</span>.segments
             .push((name.into(), PathItem::Static(value.into())));
@@ -426,12 +427,12 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(s) = <span class="self">self</span>.get(key) {
             s
         } <span class="kw">else </span>{
-            <span class="string">&quot;&quot;
+            <span class="string">""
         </span>}
     }
 
     <span class="doccomment">/// Return iterator to items in parameter container.
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathIter&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathIter&lt;<span class="lifetime">'_</span>, T&gt; {
         PathIter {
             idx: <span class="number">0</span>,
             params: <span class="self">self</span>,
@@ -443,22 +444,22 @@
     /// # Errors
     ///
     /// Returns error when dynamic path segments cannot be deserialized into a `U` type.
-    </span><span class="kw">pub fn </span>load&lt;<span class="lifetime">&#39;de</span>, U: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;U, de::value::Error&gt; {
+    </span><span class="kw">pub fn </span>load&lt;<span class="lifetime">'de</span>, U: Deserialize&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;U, de::value::Error&gt; {
         Deserialize::deserialize(PathDeserializer::new(<span class="self">self</span>))
     }
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PathIter&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+</span><span class="kw">pub struct </span>PathIter&lt;<span class="lifetime">'a</span>, T&gt; {
     idx: usize,
-    params: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Path&lt;T&gt;,
+    params: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Path&lt;T&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: ResourcePath&gt; Iterator <span class="kw">for </span>PathIter&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str);
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: ResourcePath&gt; Iterator <span class="kw">for </span>PathIter&lt;<span class="lifetime">'a</span>, T&gt; {
+    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str);
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str)&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str)&gt; {
         <span class="kw">if </span><span class="self">self</span>.idx &lt; <span class="self">self</span>.params.segment_count() {
             <span class="kw">let </span>idx = <span class="self">self</span>.idx;
             <span class="kw">let </span>res = <span class="kw">match </span><span class="self">self</span>.params.segments[idx].<span class="number">1 </span>{
@@ -472,12 +473,12 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: ResourcePath&gt; Index&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>Path&lt;T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: ResourcePath&gt; Index&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>Path&lt;T&gt; {
     <span class="kw">type </span>Output = str;
 
-    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="kw-2">&amp;</span>str {
+    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="self">self</span>.get(name)
-            .expect(<span class="string">&quot;Value for parameter is not available&quot;</span>)
+            .expect(<span class="string">"Value for parameter is not available"</span>)
     }
 }
 
@@ -521,7 +522,7 @@
     <span class="attr">#[allow(clippy::needless_borrow)]
     #[test]
     </span><span class="kw">fn </span>deref_impls() {
-        <span class="kw">let </span><span class="kw-2">mut </span>foo = Path::new(<span class="string">&quot;/foo&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>foo = Path::new(<span class="string">"/foo"</span>);
         <span class="kw">let _ </span>= (<span class="kw-2">&amp;mut </span>foo).resource_path();
 
         <span class="kw">let </span>foo = RefCell::new(foo);

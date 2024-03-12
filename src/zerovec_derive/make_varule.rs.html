@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-derive-0.10.1/src/make_varule.rs`."><title>make_varule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-derive-0.10.1/src/make_varule.rs`."><title>make_varule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -817,7 +818,7 @@
     </span>{
         <span class="kw">return </span>Error::new(
             input.generics.span(),
-            <span class="string">&quot;#[make_varule] must be applied to a struct without any type or const parameters and at most one lifetime&quot;</span>,
+            <span class="string">"#[make_varule] must be applied to a struct without any type or const parameters and at most one lifetime"</span>,
         )
         .to_compile_error();
     }
@@ -834,7 +835,7 @@
         <span class="kw">if </span>lt.colon_token.is_some() || !lt.bounds.is_empty() {
             <span class="kw">return </span>Error::new(
                 input.generics.span(),
-                <span class="string">&quot;#[make_varule] must be applied to a struct without lifetime bounds&quot;</span>,
+                <span class="string">"#[make_varule] must be applied to a struct without lifetime bounds"</span>,
             )
             .to_compile_error();
         }
@@ -848,7 +849,7 @@
     <span class="kw">let </span>fields = <span class="kw">match </span>input.data {
         Data::Struct(<span class="kw-2">ref mut </span>s) =&gt; <span class="kw-2">&amp;mut </span>s.fields,
         <span class="kw">_ </span>=&gt; {
-            <span class="kw">return </span>Error::new(input.span(), <span class="string">&quot;#[make_varule] must be applied to a struct&quot;</span>)
+            <span class="kw">return </span>Error::new(input.span(), <span class="string">"#[make_varule] must be applied to a struct"</span>)
                 .to_compile_error();
         }
     };
@@ -856,7 +857,7 @@
     <span class="kw">if </span>fields.is_empty() {
         <span class="kw">return </span>Error::new(
             input.span(),
-            <span class="string">&quot;#[make_varule] must be applied to a struct with at least one field&quot;</span>,
+            <span class="string">"#[make_varule] must be applied to a struct with at least one field"</span>,
         )
         .to_compile_error();
     }
@@ -898,7 +899,7 @@
     {
         <span class="kw">return </span>Error::new(
             unsized_fields.first().unwrap().field.field.span(),
-            <span class="string">&quot;#[make_varule] requires its unsized fields to be at the end for tuple structs&quot;</span>,
+            <span class="string">"#[make_varule] requires its unsized fields to be at the end for tuple structs"</span>,
         )
         .to_compile_error();
     }
@@ -918,7 +919,7 @@
     <span class="kw">let </span>vis = <span class="kw-2">&amp;</span>input.vis;
 
     <span class="kw">let </span>doc = <span class="macro">format!</span>(
-        <span class="string">&quot;[`VarULE`](zerovec::ule::VarULE) type for [`{name}`]. See [`{name}`] for documentation.&quot;
+        <span class="string">"[`VarULE`](zerovec::ule::VarULE) type for [`{name}`]. See [`{name}`] for documentation."
     </span>);
     <span class="kw">let </span>varule_struct: DeriveInput = <span class="macro">parse_quote!</span>(
         <span class="attr">#[repr(#repr_attr)]
@@ -1002,8 +1003,8 @@
         <span class="macro">quote!</span>()
     } <span class="kw">else </span>{
         <span class="macro">quote!</span>(
-            <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; zerovec::maps::ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>#ule_name {
-                <span class="kw">type </span>Container = zerovec::VarZeroVec&lt;<span class="lifetime">&#39;a</span>, #ule_name&gt;;
+            <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; zerovec::maps::ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>#ule_name {
+                <span class="kw">type </span>Container = zerovec::VarZeroVec&lt;<span class="lifetime">'a</span>, #ule_name&gt;;
                 <span class="kw">type </span>Slice = zerovec::VarZeroSlice&lt;#ule_name&gt;;
                 <span class="kw">type </span>GetType = #ule_name;
                 <span class="kw">type </span>OwnedType = zerovec::__zerovec_internal_reexport::boxed::Box&lt;#ule_name&gt;;
@@ -1028,8 +1029,8 @@
 
     <span class="kw">let </span>maybe_de = <span class="kw">if </span>attrs.deserialize {
         <span class="macro">quote!</span>(
-            <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; #serde_path::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>zerovec::__zerovec_internal_reexport::boxed::Box&lt;#ule_name&gt; {
-                <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; <span class="kw">where </span>D: #serde_path::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt; {
+            <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; #serde_path::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>zerovec::__zerovec_internal_reexport::boxed::Box&lt;#ule_name&gt; {
+                <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; <span class="kw">where </span>D: #serde_path::Deserializer&lt;<span class="lifetime">'de</span>&gt; {
                     <span class="kw">let </span>this = &lt;#name <span class="kw">as </span>#serde_path::Deserialize&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>(zerovec::ule::encode_varule_to_box(<span class="kw-2">&amp;</span>this))
                 }
@@ -1109,7 +1110,7 @@
     } <span class="kw">else </span>{
         <span class="kw">return </span>Error::new(
             span,
-            <span class="string">&quot;Can only generate ZeroFrom impls for types with lifetimes&quot;</span>,
+            <span class="string">"Can only generate ZeroFrom impls for types with lifetimes"</span>,
         )
         .to_compile_error();
     };
@@ -1174,10 +1175,10 @@
         <span class="kw">unsafe impl </span>#maybe_lt_bound zerovec::ule::EncodeAsVarULE&lt;#ule_name&gt; <span class="kw">for </span>#name #maybe_lt_bound {
             <span class="comment">// Safety: unimplemented as the other two are implemented
             </span><span class="kw">fn </span>encode_var_ule_as_slices&lt;R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, cb: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[u8]]) -&gt; R) -&gt; R {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;other two methods implemented&quot;</span>)
+                <span class="macro">unreachable!</span>(<span class="string">"other two methods implemented"</span>)
             }
 
-            <span class="comment">// Safety: returns the total length of the ULE form by adding up the lengths of each element&#39;s ULE forms
+            <span class="comment">// Safety: returns the total length of the ULE form by adding up the lengths of each element's ULE forms
             </span><span class="kw">fn </span>encode_var_ule_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
                 #(#lengths +)* #last_encode_len
             }
@@ -1196,13 +1197,13 @@
         <span class="comment">// This second impl exists to allow for using EncodeAsVarULE without cloning
         //
         // A blanket impl cannot exist without coherence issues
-        </span><span class="kw">unsafe impl </span>#maybe_lt_bound zerovec::ule::EncodeAsVarULE&lt;#ule_name&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>#name #maybe_lt_bound {
+        </span><span class="kw">unsafe impl </span>#maybe_lt_bound zerovec::ule::EncodeAsVarULE&lt;#ule_name&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'_ </span>#name #maybe_lt_bound {
             <span class="comment">// Safety: unimplemented as the other two are implemented
             </span><span class="kw">fn </span>encode_var_ule_as_slices&lt;R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, cb: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[u8]]) -&gt; R) -&gt; R {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;other two methods implemented&quot;</span>)
+                <span class="macro">unreachable!</span>(<span class="string">"other two methods implemented"</span>)
             }
 
-            <span class="comment">// Safety: returns the total length of the ULE form by adding up the lengths of each element&#39;s ULE forms
+            <span class="comment">// Safety: returns the total length of the ULE form by adding up the lengths of each element's ULE forms
             </span><span class="kw">fn </span>encode_var_ule_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
                 (<span class="kw-2">**</span><span class="self">self</span>).encode_var_ule_len()
             }
@@ -1216,44 +1217,44 @@
 }
 
 <span class="doccomment">/// Represents a VarULE-compatible type that would typically
-/// be found behind a `Cow&lt;&#39;a, _&gt;` in the last field, and is represented
+/// be found behind a `Cow&lt;'a, _&gt;` in the last field, and is represented
 /// roughly the same in owned and borrowed versions
 </span><span class="attr">#[derive(Copy, Clone, Debug)]
-</span><span class="kw">enum </span>OwnULETy&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">enum </span>OwnULETy&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// [T] where T: AsULE&lt;ULE = Self&gt;
-    </span>Slice(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type),
+    </span>Slice(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Type),
     <span class="doccomment">/// str
     </span>Str,
 }
 
 <span class="doccomment">/// Represents the type of the last field of the struct
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">enum </span>UnsizedFieldKind&lt;<span class="lifetime">&#39;a</span>&gt; {
-    Cow(OwnULETy&lt;<span class="lifetime">&#39;a</span>&gt;),
-    ZeroVec(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type),
-    VarZeroVec(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type),
+</span><span class="kw">enum </span>UnsizedFieldKind&lt;<span class="lifetime">'a</span>&gt; {
+    Cow(OwnULETy&lt;<span class="lifetime">'a</span>&gt;),
+    ZeroVec(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Type),
+    VarZeroVec(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Type),
     <span class="doccomment">/// Custom VarULE type, and the identifier corresponding to the VarULE type
-    </span>Custom(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypePath, Ident),
+    </span>Custom(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypePath, Ident),
 
     <span class="comment">// Generally you should be using the above ones for maximum zero-copy, but these will still work
-    </span>Growable(OwnULETy&lt;<span class="lifetime">&#39;a</span>&gt;),
-    Boxed(OwnULETy&lt;<span class="lifetime">&#39;a</span>&gt;),
-    Ref(OwnULETy&lt;<span class="lifetime">&#39;a</span>&gt;),
+    </span>Growable(OwnULETy&lt;<span class="lifetime">'a</span>&gt;),
+    Boxed(OwnULETy&lt;<span class="lifetime">'a</span>&gt;),
+    Ref(OwnULETy&lt;<span class="lifetime">'a</span>&gt;),
 }
 
 <span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">struct </span>UnsizedField&lt;<span class="lifetime">&#39;a</span>&gt; {
-    kind: UnsizedFieldKind&lt;<span class="lifetime">&#39;a</span>&gt;,
-    field: FieldInfo&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">struct </span>UnsizedField&lt;<span class="lifetime">'a</span>&gt; {
+    kind: UnsizedFieldKind&lt;<span class="lifetime">'a</span>&gt;,
+    field: FieldInfo&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">struct </span>UnsizedFields&lt;<span class="lifetime">&#39;a</span>&gt; {
-    fields: Vec&lt;UnsizedField&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+<span class="kw">struct </span>UnsizedFields&lt;<span class="lifetime">'a</span>&gt; {
+    fields: Vec&lt;UnsizedField&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; UnsizedFields&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(fields: Vec&lt;UnsizedField&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
-        <span class="macro">assert!</span>(!fields.is_empty(), <span class="string">&quot;Must have at least one unsized field&quot;</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; UnsizedFields&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>new(fields: Vec&lt;UnsizedField&lt;<span class="lifetime">'a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(!fields.is_empty(), <span class="string">"Must have at least one unsized field"</span>);
         <span class="self">Self </span>{ fields }
     }
 
@@ -1374,10 +1375,10 @@
 
                 <span class="kw">let </span>field_ule_ty = field.kind.varule_ty();
                 <span class="kw">let </span>doc_name = field.field.getter_doc_name();
-                <span class="kw">let </span>doc = <span class="macro">format!</span>(<span class="string">&quot;Access the VarULE type behind {doc_name}&quot;</span>);
+                <span class="kw">let </span>doc = <span class="macro">format!</span>(<span class="string">"Access the VarULE type behind {doc_name}"</span>);
                 <span class="macro">quote!</span>(
                     <span class="attr">#[doc = #doc]
-                    </span><span class="kw">pub fn </span>#getter&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>#field_ule_ty {
+                    </span><span class="kw">pub fn </span>#getter&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>#field_ule_ty {
                         <span class="kw">unsafe </span>{
                             <span class="self">self</span>.#multi_accessor.get_field::&lt;#field_ule_ty&gt;(#i)
                         }
@@ -1412,9 +1413,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; UnsizedField&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; UnsizedField&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>new(
-        field: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Field,
+        field: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Field,
         index: usize,
         custom_varule_ident: <span class="prelude-ty">Option</span>&lt;Ident&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
@@ -1443,33 +1444,33 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; UnsizedFieldKind&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; UnsizedFieldKind&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Construct a UnsizedFieldKind for the type of a UnsizedFieldKind if possible
     </span><span class="kw">fn </span>new(
-        ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type,
+        ty: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Type,
         custom_varule_ident: <span class="prelude-ty">Option</span>&lt;Ident&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;UnsizedFieldKind&lt;<span class="lifetime">&#39;a</span>&gt;, String&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;UnsizedFieldKind&lt;<span class="lifetime">'a</span>&gt;, String&gt; {
         <span class="kw">static </span>PATH_TYPE_IDENTITY_ERROR: <span class="kw-2">&amp;</span>str =
-            <span class="string">&quot;Can only automatically detect corresponding VarULE types for path types \
-            that are Cow, ZeroVec, VarZeroVec, Box, String, or Vec&quot;</span>;
+            <span class="string">"Can only automatically detect corresponding VarULE types for path types \
+            that are Cow, ZeroVec, VarZeroVec, Box, String, or Vec"</span>;
         <span class="kw">static </span>PATH_TYPE_GENERICS_ERROR: <span class="kw-2">&amp;</span>str =
-            <span class="string">&quot;Can only automatically detect corresponding VarULE types for path \
+            <span class="string">"Can only automatically detect corresponding VarULE types for path \
             types with at most one lifetime and at most one generic parameter. VarZeroVecFormat
-            types are not currently supported&quot;</span>;
+            types are not currently supported"</span>;
         <span class="kw">match </span><span class="kw-2">*</span>ty {
-            Type::Reference(<span class="kw-2">ref </span>tyref) =&gt; OwnULETy::new(<span class="kw-2">&amp;</span>tyref.elem, <span class="string">&quot;reference&quot;</span>).map(UnsizedFieldKind::Ref),
+            Type::Reference(<span class="kw-2">ref </span>tyref) =&gt; OwnULETy::new(<span class="kw-2">&amp;</span>tyref.elem, <span class="string">"reference"</span>).map(UnsizedFieldKind::Ref),
             Type::Path(<span class="kw-2">ref </span>typath) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(custom_varule_ident) = custom_varule_ident {
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(UnsizedFieldKind::Custom(typath, custom_varule_ident));
                 }
                 <span class="kw">if </span>typath.path.segments.len() != <span class="number">1 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Can only automatically detect corresponding VarULE types for \
-                                path types with a single path segment&quot;</span>.into());
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Can only automatically detect corresponding VarULE types for \
+                                path types with a single path segment"</span>.into());
                 }
                 <span class="kw">let </span>segment = typath.path.segments.first().unwrap();
                 <span class="kw">match </span>segment.arguments {
                     PathArguments::None =&gt; {
-                        <span class="kw">if </span>segment.ident == <span class="string">&quot;String&quot; </span>{
+                        <span class="kw">if </span>segment.ident == <span class="string">"String" </span>{
                             <span class="prelude-val">Ok</span>(UnsizedFieldKind::Growable(OwnULETy::Str))
                         } <span class="kw">else </span>{
                             <span class="prelude-val">Err</span>(PATH_TYPE_IDENTITY_ERROR.into())
@@ -1492,7 +1493,7 @@
                         }
 
                         <span class="comment">// Must be exactly one generic parameter
-                        // (we&#39;ve handled the zero generics case already)
+                        // (we've handled the zero generics case already)
                         </span><span class="kw">let </span>generic = <span class="kw">if let </span><span class="prelude-val">Some</span>(g) = generic {
                             g
                         } <span class="kw">else </span>{
@@ -1503,24 +1504,24 @@
 
                         <span class="kw">if </span>lifetime.is_some() {
                             <span class="kw">match </span><span class="kw-2">&amp;*</span>ident {
-                                <span class="string">&quot;ZeroVec&quot; </span>=&gt; <span class="prelude-val">Ok</span>(UnsizedFieldKind::ZeroVec(generic)),
-                                <span class="string">&quot;VarZeroVec&quot; </span>=&gt; <span class="prelude-val">Ok</span>(UnsizedFieldKind::VarZeroVec(generic)),
-                                <span class="string">&quot;Cow&quot; </span>=&gt; OwnULETy::new(generic, <span class="string">&quot;Cow&quot;</span>).map(UnsizedFieldKind::Cow),
+                                <span class="string">"ZeroVec" </span>=&gt; <span class="prelude-val">Ok</span>(UnsizedFieldKind::ZeroVec(generic)),
+                                <span class="string">"VarZeroVec" </span>=&gt; <span class="prelude-val">Ok</span>(UnsizedFieldKind::VarZeroVec(generic)),
+                                <span class="string">"Cow" </span>=&gt; OwnULETy::new(generic, <span class="string">"Cow"</span>).map(UnsizedFieldKind::Cow),
                                 <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(PATH_TYPE_IDENTITY_ERROR.into()),
                             }
                         } <span class="kw">else </span>{
                             <span class="kw">match </span><span class="kw-2">&amp;*</span>ident {
-                                <span class="string">&quot;Vec&quot; </span>=&gt; <span class="prelude-val">Ok</span>(UnsizedFieldKind::Growable(OwnULETy::Slice(generic))),
-                                <span class="string">&quot;Box&quot; </span>=&gt; OwnULETy::new(generic, <span class="string">&quot;Box&quot;</span>).map(UnsizedFieldKind::Boxed),
+                                <span class="string">"Vec" </span>=&gt; <span class="prelude-val">Ok</span>(UnsizedFieldKind::Growable(OwnULETy::Slice(generic))),
+                                <span class="string">"Box" </span>=&gt; OwnULETy::new(generic, <span class="string">"Box"</span>).map(UnsizedFieldKind::Boxed),
                                 <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(PATH_TYPE_IDENTITY_ERROR.into()),
                             }
                         }
                     }
-                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Can only automatically detect corresponding VarULE types for path types \
-                              with none or angle bracketed generics&quot;</span>.into()),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"Can only automatically detect corresponding VarULE types for path types \
+                              with none or angle bracketed generics"</span>.into()),
                 }
             }
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Can only automatically detect corresponding VarULE types for path and reference types&quot;</span>.into()),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"Can only automatically detect corresponding VarULE types for path and reference types"</span>.into()),
         }
     }
     <span class="doccomment">/// Get the tokens for the corresponding VarULE type
@@ -1571,18 +1572,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; OwnULETy&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type, context: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; OwnULETy&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>new(ty: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Type, context: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
         <span class="kw">match </span><span class="kw-2">*</span>ty {
             Type::Slice(<span class="kw-2">ref </span>slice) =&gt; <span class="prelude-val">Ok</span>(OwnULETy::Slice(<span class="kw-2">&amp;</span>slice.elem)),
             Type::Path(<span class="kw-2">ref </span>typath) =&gt; {
-                <span class="kw">if </span>typath.path.is_ident(<span class="string">&quot;str&quot;</span>) {
+                <span class="kw">if </span>typath.path.is_ident(<span class="string">"str"</span>) {
                     <span class="prelude-val">Ok</span>(OwnULETy::Str)
                 } <span class="kw">else </span>{
-                    <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot automatically detect corresponding VarULE type for non-str path type inside a {context}&quot;</span>))
+                    <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"Cannot automatically detect corresponding VarULE type for non-str path type inside a {context}"</span>))
                 }
             }
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot automatically detect corresponding VarULE type for non-slice/path type inside a {context}&quot;</span>)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"Cannot automatically detect corresponding VarULE type for non-slice/path type inside a {context}"</span>)),
         }
     }
 

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytestring-1.3.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bytestring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytestring-1.3.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bytestring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -505,8 +506,8 @@
         <span class="self">self</span>.<span class="number">0
     </span>}
 
-    <span class="doccomment">/// Creates a new `ByteString` from a `&amp;&#39;static str`.
-    </span><span class="kw">pub const fn </span>from_static(src: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; ByteString {
+    <span class="doccomment">/// Creates a new `ByteString` from a `&amp;'static str`.
+    </span><span class="kw">pub const fn </span>from_static(src: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; ByteString {
         <span class="self">Self</span>(Bytes::from_static(src.as_bytes()))
     }
 
@@ -543,17 +544,17 @@
     ///
     /// ```
     /// # use bytestring::ByteString;
-    /// let string = ByteString::from_static(&quot; foo &quot;);
+    /// let string = ByteString::from_static(" foo ");
     /// let subset = string.trim();
     /// let substring = string.slice_ref(subset);
-    /// assert_eq!(substring, &quot;foo&quot;);
+    /// assert_eq!(substring, "foo");
     /// ```
     ///
     /// ```should_panic
     /// # use bytestring::ByteString;
     /// // panics because the given slice is not derived from the original byte string, despite
     /// // being a logical subset of the string
-    /// ByteString::from_static(&quot;foo bar&quot;).slice_ref(&quot;foo&quot;);
+    /// ByteString::from_static("foo bar").slice_ref("foo");
     /// ```
     </span><span class="kw">pub fn </span>slice_ref(<span class="kw-2">&amp;</span><span class="self">self</span>, subset: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.slice_ref(subset.as_bytes()))
@@ -708,18 +709,18 @@
 <span class="macro">array_impls!</span>(<span class="number">0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32</span>);
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ByteString {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         (<span class="kw-2">**</span><span class="self">self</span>).fmt(fmt)
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ByteString {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         (<span class="kw-2">**</span><span class="self">self</span>).fmt(fmt)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">mod </span>serde {
     <span class="kw">use </span>alloc::string::String;
 
@@ -740,11 +741,11 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ByteString {
         <span class="attr">#[inline]
         </span><span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
         <span class="kw">where
-            </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+            </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
         {
             String::deserialize(deserializer).map(ByteString::from)
         }
@@ -781,10 +782,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>eq() {
-        <span class="kw">let </span>s: ByteString = ByteString::from_static(<span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert_eq!</span>(s, <span class="kw-2">*</span><span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;test&quot;</span>.to_owned());
+        <span class="kw">let </span>s: ByteString = ByteString::from_static(<span class="string">"test"</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"test"</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="kw-2">*</span><span class="string">"test"</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"test"</span>.to_owned());
     }
 
     <span class="attr">#[test]
@@ -797,8 +798,8 @@
         <span class="kw">let </span>buf = ByteString::new();
         <span class="macro">assert!</span>(buf.as_bytes().is_empty());
 
-        <span class="kw">let </span>buf = ByteString::from(<span class="string">&quot;hello&quot;</span>);
-        <span class="macro">assert_eq!</span>(buf.as_bytes(), <span class="string">&quot;hello&quot;</span>);
+        <span class="kw">let </span>buf = ByteString::from(<span class="string">"hello"</span>);
+        <span class="macro">assert_eq!</span>(buf.as_bytes(), <span class="string">"hello"</span>);
     }
 
     <span class="attr">#[test]
@@ -806,8 +807,8 @@
         <span class="kw">let </span>buf = <span class="kw">unsafe </span>{ ByteString::from_bytes_unchecked(Bytes::new()) };
         <span class="macro">assert!</span>(buf.is_empty());
 
-        <span class="kw">let </span>buf = <span class="kw">unsafe </span>{ ByteString::from_bytes_unchecked(Bytes::from(<span class="string">&quot;hello&quot;</span>)) };
-        <span class="macro">assert_eq!</span>(buf, <span class="string">&quot;hello&quot;</span>);
+        <span class="kw">let </span>buf = <span class="kw">unsafe </span>{ ByteString::from_bytes_unchecked(Bytes::from(<span class="string">"hello"</span>)) };
+        <span class="macro">assert_eq!</span>(buf, <span class="string">"hello"</span>);
     }
 
     <span class="attr">#[test]
@@ -828,102 +829,102 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>hash() {
         <span class="kw">let </span><span class="kw-2">mut </span>hasher1 = AHasher::default();
-        <span class="string">&quot;str&quot;</span>.hash(<span class="kw-2">&amp;mut </span>hasher1);
+        <span class="string">"str"</span>.hash(<span class="kw-2">&amp;mut </span>hasher1);
 
         <span class="kw">let </span><span class="kw-2">mut </span>hasher2 = AHasher::default();
-        <span class="kw">let </span>s = ByteString::from_static(<span class="string">&quot;str&quot;</span>);
+        <span class="kw">let </span>s = ByteString::from_static(<span class="string">"str"</span>);
         s.hash(<span class="kw-2">&amp;mut </span>hasher2);
         <span class="macro">assert_eq!</span>(hasher1.finish(), hasher2.finish());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>from_string() {
-        <span class="kw">let </span>s: ByteString = <span class="string">&quot;hello&quot;</span>.to_owned().into();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>s, <span class="string">&quot;hello&quot;</span>);
+        <span class="kw">let </span>s: ByteString = <span class="string">"hello"</span>.to_owned().into();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>s, <span class="string">"hello"</span>);
         <span class="kw">let </span>t: <span class="kw-2">&amp;</span>str = s.as_ref();
-        <span class="macro">assert_eq!</span>(t, <span class="string">&quot;hello&quot;</span>);
+        <span class="macro">assert_eq!</span>(t, <span class="string">"hello"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>from_str() {
-        <span class="kw">let _</span>: ByteString = <span class="string">&quot;str&quot;</span>.into();
-        <span class="kw">let _</span>: ByteString = <span class="string">&quot;str&quot;</span>.to_owned().into_boxed_str().into();
+        <span class="kw">let _</span>: ByteString = <span class="string">"str"</span>.into();
+        <span class="kw">let _</span>: ByteString = <span class="string">"str"</span>.to_owned().into_boxed_str().into();
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>to_string() {
-        <span class="kw">let </span>buf = ByteString::from(<span class="string">&quot;foo&quot;</span>);
-        <span class="macro">assert_eq!</span>(String::from(buf), <span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>buf = ByteString::from(<span class="string">"foo"</span>);
+        <span class="macro">assert_eq!</span>(String::from(buf), <span class="string">"foo"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>from_static_str() {
-        <span class="kw">static </span>_S: ByteString = ByteString::from_static(<span class="string">&quot;hello&quot;</span>);
-        <span class="kw">let _ </span>= ByteString::from_static(<span class="string">&quot;str&quot;</span>);
+        <span class="kw">static </span>_S: ByteString = ByteString::from_static(<span class="string">"hello"</span>);
+        <span class="kw">let _ </span>= ByteString::from_static(<span class="string">"str"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_slice() {
-        <span class="kw">let _ </span>= ByteString::try_from(<span class="string">b&quot;nice bytes&quot;</span>).unwrap();
+        <span class="kw">let _ </span>= ByteString::try_from(<span class="string">b"nice bytes"</span>).unwrap();
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_array() {
         <span class="macro">assert_eq!</span>(
-            ByteString::try_from([<span class="string">b&#39;h&#39;</span>, <span class="string">b&#39;i&#39;</span>]).unwrap(),
-            ByteString::from_static(<span class="string">&quot;hi&quot;</span>)
+            ByteString::try_from([<span class="string">b'h'</span>, <span class="string">b'i'</span>]).unwrap(),
+            ByteString::from_static(<span class="string">"hi"</span>)
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_vec() {
-        <span class="kw">let _ </span>= ByteString::try_from(<span class="macro">vec!</span>[<span class="string">b&#39;f&#39;</span>, <span class="string">b&#39;o&#39;</span>, <span class="string">b&#39;o&#39;</span>]).unwrap();
+        <span class="kw">let _ </span>= ByteString::try_from(<span class="macro">vec!</span>[<span class="string">b'f'</span>, <span class="string">b'o'</span>, <span class="string">b'o'</span>]).unwrap();
         ByteString::try_from(<span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">159</span>, <span class="number">146</span>, <span class="number">150</span>]).unwrap_err();
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_bytes() {
-        <span class="kw">let _ </span>= ByteString::try_from(Bytes::from_static(<span class="string">b&quot;nice bytes&quot;</span>)).unwrap();
+        <span class="kw">let _ </span>= ByteString::try_from(Bytes::from_static(<span class="string">b"nice bytes"</span>)).unwrap();
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_bytes_mut() {
-        <span class="kw">let _ </span>= ByteString::try_from(bytes::BytesMut::from(<span class="kw-2">&amp;</span><span class="string">b&quot;nice bytes&quot;</span>[..])).unwrap();
+        <span class="kw">let _ </span>= ByteString::try_from(bytes::BytesMut::from(<span class="kw-2">&amp;</span><span class="string">b"nice bytes"</span>[..])).unwrap();
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>display() {
-        <span class="kw">let </span>buf = ByteString::from(<span class="string">&quot;bar&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{buf}&quot;</span>), <span class="string">&quot;bar&quot;</span>);
+        <span class="kw">let </span>buf = ByteString::from(<span class="string">"bar"</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{buf}"</span>), <span class="string">"bar"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>debug() {
-        <span class="kw">let </span>buf = ByteString::from(<span class="string">&quot;baz&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{buf:?}&quot;</span>), <span class="string">r#&quot;&quot;baz&quot;&quot;#</span>);
+        <span class="kw">let </span>buf = ByteString::from(<span class="string">"baz"</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{buf:?}"</span>), <span class="string">r#""baz""#</span>);
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
     #[test]
     </span><span class="kw">fn </span>serialize() {
-        <span class="kw">let </span>s: ByteString = serde_json::from_str(<span class="string">r#&quot;&quot;nice bytes&quot;&quot;#</span>).unwrap();
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;nice bytes&quot;</span>);
+        <span class="kw">let </span>s: ByteString = serde_json::from_str(<span class="string">r#""nice bytes""#</span>).unwrap();
+        <span class="macro">assert_eq!</span>(s, <span class="string">"nice bytes"</span>);
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
     #[test]
     </span><span class="kw">fn </span>deserialize() {
-        <span class="kw">let </span>s = serde_json::to_string(<span class="kw-2">&amp;</span>ByteString::from_static(<span class="string">&quot;nice bytes&quot;</span>)).unwrap();
-        <span class="macro">assert_eq!</span>(s, <span class="string">r#&quot;&quot;nice bytes&quot;&quot;#</span>);
+        <span class="kw">let </span>s = serde_json::to_string(<span class="kw-2">&amp;</span>ByteString::from_static(<span class="string">"nice bytes"</span>)).unwrap();
+        <span class="macro">assert_eq!</span>(s, <span class="string">r#""nice bytes""#</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>slice_ref() {
-        <span class="kw">let </span>string = ByteString::from_static(<span class="string">&quot; foo &quot;</span>);
+        <span class="kw">let </span>string = ByteString::from_static(<span class="string">" foo "</span>);
         <span class="kw">let </span>subset = string.trim();
         <span class="comment">// subset is derived from original byte string
         </span><span class="kw">let </span>substring = string.slice_ref(subset);
-        <span class="macro">assert_eq!</span>(substring, <span class="string">&quot;foo&quot;</span>);
+        <span class="macro">assert_eq!</span>(substring, <span class="string">"foo"</span>);
     }
 
     <span class="attr">#[test]
@@ -931,7 +932,7 @@
     </span><span class="kw">fn </span>slice_ref_catches_not_a_subset() {
         <span class="comment">// panics because the given slice is not derived from the original byte string, despite
         // being a logical subset of the string
-        </span>ByteString::from_static(<span class="string">&quot;foo bar&quot;</span>).slice_ref(<span class="string">&quot;foo&quot;</span>);
+        </span>ByteString::from_static(<span class="string">"foo bar"</span>).slice_ref(<span class="string">"foo"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

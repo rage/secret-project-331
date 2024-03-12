@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_task_gradings.rs`."><title>exercise_task_gradings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_task_gradings.rs`."><title>exercise_task_gradings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -613,7 +614,7 @@
 };
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseTaskGrading {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -636,27 +637,27 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
-</span><span class="kw">pub struct </span>ExerciseTaskGradingRequest&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>grading_update_url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>exercise_spec: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
-    <span class="kw">pub </span>submission_data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+</span><span class="kw">pub struct </span>ExerciseTaskGradingRequest&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub </span>grading_update_url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>exercise_spec: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+    <span class="kw">pub </span>submission_data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseTaskGradingResult {
     <span class="kw">pub </span>grading_progress: GradingProgress,
     <span class="kw">pub </span>score_given: f32,
     <span class="kw">pub </span>score_maximum: i32,
     <span class="kw">pub </span>feedback_text: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>feedback_json: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)] </span><span class="comment">// Allows us to omit the field in typescript
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)] </span><span class="comment">// Allows us to omit the field in typescript
     </span><span class="kw">pub </span>set_user_variables: <span class="prelude-ty">Option</span>&lt;HashMap&lt;String, serde_json::Value&gt;&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-#[sqlx(type_name = <span class="string">&quot;user_points_update_strategy&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">"user_points_update_strategy"</span>, rename_all = <span class="string">"kebab-case"</span>)]
 </span><span class="kw">pub enum </span>UserPointsUpdateStrategy {
     CanAddPointsButCannotRemovePoints,
     CanAddPointsAndCanRemovePoints,
@@ -671,7 +672,7 @@
     exercise_task_id: Uuid,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exercise_task_gradings (
     id,
     exercise_task_submission_id,
@@ -681,7 +682,7 @@ INSERT INTO exercise_task_gradings (
   )
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id
-        &quot;</span>,
+        "</span>,
         pkey_policy.into_uuid(),
         submission_id,
         course_id,
@@ -696,7 +697,7 @@ RETURNING id
 <span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;ExerciseTaskGrading&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseTaskGrading,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -707,7 +708,7 @@ SELECT id,
   exercise_task_id,
   grading_priority,
   score_given,
-  grading_progress as &quot;grading_progress: _&quot;,
+  grading_progress as "grading_progress: _",
   unscaled_score_maximum,
   unscaled_score_given,
   grading_started_at,
@@ -717,7 +718,7 @@ SELECT id,
   deleted_at
 FROM exercise_task_gradings
 WHERE id = $1
-&quot;#</span>,
+"#</span>,
         id
     )
     .fetch_one(conn)
@@ -731,7 +732,7 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExerciseTaskGrading&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseTaskGrading,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -742,7 +743,7 @@ SELECT id,
   exercise_task_id,
   grading_priority,
   score_given,
-  grading_progress as &quot;grading_progress: _&quot;,
+  grading_progress as "grading_progress: _",
   unscaled_score_maximum,
   unscaled_score_given,
   grading_started_at,
@@ -753,7 +754,7 @@ SELECT id,
 FROM exercise_task_gradings
 WHERE exercise_task_submission_id = $1
   AND deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         exercise_task_submission_id,
     )
     .fetch_optional(conn)
@@ -766,14 +767,14 @@ WHERE exercise_task_submission_id = $1
     exercise_slide_submission_id: <span class="kw-2">&amp;</span>Uuid,
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;f32&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT SUM(COALESCE(etg.score_given, 0))::real
 FROM exercise_task_gradings etg
   JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
 WHERE ets.exercise_slide_submission_id = $1
   AND etg.deleted_at IS NULL
   AND ets.deleted_at IS NULL
-        &quot;</span>,
+        "</span>,
         exercise_slide_submission_id
     )
     .fetch_one(conn)
@@ -787,15 +788,15 @@ WHERE ets.exercise_slide_submission_id = $1
     exercise_slide_submission_id: <span class="kw-2">&amp;</span>Uuid,
 ) -&gt; ModelResult&lt;GradingProgress&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
-SELECT etg.grading_progress as &quot;grading_progress: GradingProgress&quot;
+        <span class="string">r#"
+SELECT etg.grading_progress as "grading_progress: GradingProgress"
 FROM exercise_task_gradings etg
   JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
 WHERE ets.exercise_slide_submission_id = $1
   AND etg.deleted_at IS NULL
   AND ets.deleted_at IS NULL
 LIMIT 1
-    &quot;#</span>,
+    "#</span>,
         exercise_slide_submission_id
     )
     .fetch_one(conn)
@@ -805,11 +806,11 @@ LIMIT 1
 
 <span class="kw">pub async fn </span>get_course_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;Uuid&gt;&gt; {
     <span class="kw">let </span>course_id = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT course_id
 from exercise_task_gradings
 where id = $1
-        &quot;</span>,
+        "</span>,
         id
     )
     .fetch_one(conn)
@@ -823,12 +824,12 @@ where id = $1
     id: Uuid,
 ) -&gt; ModelResult&lt;CourseOrExamId&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT course_id,
   exam_id
 from exercise_task_gradings
 where id = $1
-&quot;</span>,
+"</span>,
         id
     )
     .fetch_one(conn)
@@ -843,7 +844,7 @@ where id = $1
 ) -&gt; ModelResult&lt;ExerciseTaskGrading&gt; {
     <span class="kw">let </span>grading = <span class="macro">sqlx::query_as!</span>(
         ExerciseTaskGrading,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 INSERT INTO exercise_task_gradings(
     exercise_task_submission_id,
     course_id,
@@ -863,7 +864,7 @@ RETURNING id,
   exercise_task_id,
   grading_priority,
   score_given,
-  grading_progress as &quot;grading_progress: _&quot;,
+  grading_progress as "grading_progress: _",
   unscaled_score_given,
   unscaled_score_maximum,
   grading_started_at,
@@ -871,7 +872,7 @@ RETURNING id,
   feedback_json,
   feedback_text,
   deleted_at
-&quot;#</span>,
+"#</span>,
         submission.id,
         exercise.course_id,
         exercise.exam_id,
@@ -889,11 +890,11 @@ RETURNING id,
     grading_progress: GradingProgress,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE exercise_task_gradings
 SET grading_progress = $1
 WHERE id = $2
-&quot;</span>,
+"</span>,
         grading_progress <span class="kw">as </span>GradingProgress,
         id
     )
@@ -910,12 +911,12 @@ WHERE id = $2
     exercise: <span class="kw-2">&amp;</span>Exercise,
     grading: <span class="kw-2">&amp;</span>ExerciseTaskGrading,
     user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
     send_grading_request: <span class="kw">impl </span>Fn(
         Url,
         <span class="kw-2">&amp;</span>ExerciseTask,
         <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
 ) -&gt; ModelResult&lt;ExerciseTaskGrading&gt; {
     <span class="kw">let </span>exercise_service_info =
         get_service_info_by_exercise_type(conn, <span class="kw-2">&amp;</span>exercise_task.exercise_type, fetch_service_info)
@@ -959,7 +960,7 @@ WHERE id = $2
             </span>.len() <span class="kw">as </span>f32;
     <span class="kw">let </span>correctness_coefficient =
         grading_result.score_given / (grading_result.score_maximum <span class="kw">as </span>f32);
-    <span class="comment">// ensure the score doesn&#39;t go over the maximum
+    <span class="comment">// ensure the score doesn't go over the maximum
     </span><span class="kw">let </span>score_given_with_all_decimals = f32::min(
         (exercise.score_maximum <span class="kw">as </span>f32) * correctness_coefficient / exercise_task_count,
         exercise.score_maximum <span class="kw">as </span>f32 / exercise_task_count,
@@ -968,7 +969,7 @@ WHERE id = $2
     </span><span class="kw">let </span>score_given_rounded = f32_to_two_decimals(score_given_with_all_decimals);
     <span class="kw">let </span>grading = <span class="macro">sqlx::query_as!</span>(
         ExerciseTaskGrading,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE exercise_task_gradings
 SET grading_progress = $2,
   unscaled_score_given = $3,
@@ -988,7 +989,7 @@ RETURNING id,
   exercise_task_id,
   grading_priority,
   score_given,
-  grading_progress as &quot;grading_progress: _&quot;,
+  grading_progress as "grading_progress: _",
   unscaled_score_given,
   unscaled_score_maximum,
   grading_started_at,
@@ -996,7 +997,7 @@ RETURNING id,
   feedback_json,
   feedback_text,
   deleted_at
-&quot;#</span>,
+"#</span>,
         grading.id,
         grading_result.grading_progress <span class="kw">as </span>GradingProgress,
         grading_result.score_given,
@@ -1027,7 +1028,7 @@ RETURNING id,
             </span>.ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::Generic,
-                    <span class="string">&quot;User has grading for exam but no enrollment&quot;</span>.to_string(),
+                    <span class="string">"User has grading for exam but no enrollment"</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
@@ -1051,7 +1052,7 @@ RETURNING id,
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseTaskGrading&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseTaskGrading,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
 created_at,
 updated_at,
@@ -1062,7 +1063,7 @@ exercise_id,
 exercise_task_id,
 grading_priority,
 score_given,
-grading_progress as &quot;grading_progress: _&quot;,
+grading_progress as "grading_progress: _",
 unscaled_score_given,
 unscaled_score_maximum,
 grading_started_at,
@@ -1077,7 +1078,7 @@ WHERE deleted_at IS NULL
     FROM exercise_task_submissions
     WHERE exercise_slide_submission_id = $1
   )
-&quot;#</span>,
+"#</span>,
         exercise_slide_submission_id
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -1091,7 +1092,7 @@ WHERE deleted_at IS NULL
 ) -&gt; ModelResult&lt;HashMap&lt;Uuid, ExerciseTaskGrading&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseTaskGrading,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -1102,7 +1103,7 @@ SELECT id,
   exercise_task_id,
   grading_priority,
   score_given,
-  grading_progress as &quot;grading_progress: _&quot;,
+  grading_progress as "grading_progress: _",
   unscaled_score_given,
   unscaled_score_maximum,
   grading_started_at,
@@ -1124,7 +1125,7 @@ WHERE deleted_at IS NULL
       AND etrs.deleted_at IS NULL
       AND etrs.regrading_id = $1
   );
-    &quot;#</span>,
+    "#</span>,
         regrading_id
     )
     .fetch_all(conn)
@@ -1146,7 +1147,7 @@ WHERE deleted_at IS NULL
 ) -&gt; ModelResult&lt;Vec&lt;CustomViewExerciseTaskGrading&gt;&gt; {
     <span class="kw">let </span>res: Vec&lt;CustomViewExerciseTaskGrading&gt; = <span class="macro">sqlx::query_as!</span>(
         CustomViewExerciseTaskGrading,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   exercise_id,
@@ -1178,7 +1179,7 @@ WHERE deleted_at IS NULL
           )
       )
   )
-      &quot;#</span>,
+      "#</span>,
         user_id,
         exercise_type,
         module_id,

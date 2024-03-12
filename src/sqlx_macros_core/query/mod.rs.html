@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/query/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/query/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -416,8 +417,8 @@
 
 <span class="attr">#[derive(Copy, Clone)]
 </span><span class="kw">pub struct </span>QueryDriver {
-    db_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-    url_schemes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+    db_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+    url_schemes: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
     expand: <span class="kw">fn</span>(QueryMacroInput, QueryDataSource) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt;,
 }
 
@@ -433,16 +434,16 @@
         }
     }
 }
-<span class="kw">pub enum </span>QueryDataSource&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub enum </span>QueryDataSource&lt;<span class="lifetime">'a</span>&gt; {
     Live {
-        database_url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        database_url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         database_url_parsed: Url,
     },
     Cached(DynQueryData),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; QueryDataSource&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>live(database_url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; QueryDataSource&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub fn </span>live(database_url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Ok</span>(QueryDataSource::Live {
             database_url,
             database_url_parsed: database_url.parse()<span class="question-mark">?</span>,
@@ -475,14 +476,14 @@
             <span class="kw">use </span>serde::Deserialize;
             <span class="kw">use </span>std::process::Command;
 
-            <span class="kw">let </span>cargo = env(<span class="string">&quot;CARGO&quot;</span>).expect(<span class="string">&quot;`CARGO` must be set&quot;</span>);
+            <span class="kw">let </span>cargo = env(<span class="string">"CARGO"</span>).expect(<span class="string">"`CARGO` must be set"</span>);
 
             <span class="kw">let </span>output = Command::new(<span class="kw-2">&amp;</span>cargo)
-                .args(<span class="kw-2">&amp;</span>[<span class="string">&quot;metadata&quot;</span>, <span class="string">&quot;--format-version=1&quot;</span>, <span class="string">&quot;--no-deps&quot;</span>])
+                .args(<span class="kw-2">&amp;</span>[<span class="string">"metadata"</span>, <span class="string">"--format-version=1"</span>, <span class="string">"--no-deps"</span>])
                 .current_dir(<span class="kw-2">&amp;</span><span class="self">self</span>.manifest_dir)
-                .env_remove(<span class="string">&quot;__CARGO_FIX_PLZ&quot;</span>)
+                .env_remove(<span class="string">"__CARGO_FIX_PLZ"</span>)
                 .output()
-                .expect(<span class="string">&quot;Could not fetch metadata&quot;</span>);
+                .expect(<span class="string">"Could not fetch metadata"</span>);
 
             <span class="attr">#[derive(Deserialize)]
             </span><span class="kw">struct </span>CargoMetadata {
@@ -490,7 +491,7 @@
             }
 
             <span class="kw">let </span>metadata: CargoMetadata =
-                serde_json::from_slice(<span class="kw-2">&amp;</span>output.stdout).expect(<span class="string">&quot;Invalid `cargo metadata` output&quot;</span>);
+                serde_json::from_slice(<span class="kw-2">&amp;</span>output.stdout).expect(<span class="string">"Invalid `cargo metadata` output"</span>);
 
             <span class="kw-2">*</span>root = <span class="prelude-val">Some</span>(metadata.workspace_root);
         }
@@ -498,22 +499,22 @@
     }
 }
 
-<span class="comment">// If we are in a workspace, lookup `workspace_root` since `CARGO_MANIFEST_DIR` won&#39;t
+<span class="comment">// If we are in a workspace, lookup `workspace_root` since `CARGO_MANIFEST_DIR` won't
 // reflect the workspace dir: https://github.com/rust-lang/cargo/issues/3946
 </span><span class="kw">static </span>METADATA: Lazy&lt;Metadata&gt; = Lazy::new(|| {
-    <span class="kw">let </span>manifest_dir: PathBuf = env(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>)
-        .expect(<span class="string">&quot;`CARGO_MANIFEST_DIR` must be set&quot;</span>)
+    <span class="kw">let </span>manifest_dir: PathBuf = env(<span class="string">"CARGO_MANIFEST_DIR"</span>)
+        .expect(<span class="string">"`CARGO_MANIFEST_DIR` must be set"</span>)
         .into();
 
     <span class="comment">// If a .env file exists at CARGO_MANIFEST_DIR, load environment variables from this,
     // otherwise fallback to default dotenv behaviour.
-    </span><span class="kw">let </span>env_path = manifest_dir.join(<span class="string">&quot;.env&quot;</span>);
+    </span><span class="kw">let </span>env_path = manifest_dir.join(<span class="string">".env"</span>);
 
     <span class="attr">#[cfg_attr(not(procmacro2_semver_exempt), allow(unused_variables))]
     </span><span class="kw">let </span>env_path = <span class="kw">if </span>env_path.exists() {
         <span class="kw">let </span>res = dotenvy::from_path(<span class="kw-2">&amp;</span>env_path);
         <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = res {
-            <span class="macro">panic!</span>(<span class="string">&quot;failed to load environment from {env_path:?}, {e}&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"failed to load environment from {env_path:?}, {e}"</span>);
         }
 
         <span class="prelude-val">Some</span>(env_path)
@@ -527,11 +528,11 @@
         proc_macro::tracked_path::path(env_path);
     }
 
-    <span class="kw">let </span>offline = env(<span class="string">&quot;SQLX_OFFLINE&quot;</span>)
-        .map(|s| s.eq_ignore_ascii_case(<span class="string">&quot;true&quot;</span>) || s == <span class="string">&quot;1&quot;</span>)
+    <span class="kw">let </span>offline = env(<span class="string">"SQLX_OFFLINE"</span>)
+        .map(|s| s.eq_ignore_ascii_case(<span class="string">"true"</span>) || s == <span class="string">"1"</span>)
         .unwrap_or(<span class="bool-val">false</span>);
 
-    <span class="kw">let </span>database_url = env(<span class="string">&quot;DATABASE_URL&quot;</span>).ok();
+    <span class="kw">let </span>database_url = env(<span class="string">"DATABASE_URL"</span>).ok();
 
     Metadata {
         manifest_dir,
@@ -541,9 +542,9 @@
     }
 });
 
-<span class="kw">pub fn </span>expand_input&lt;<span class="lifetime">&#39;a</span>&gt;(
+<span class="kw">pub fn </span>expand_input&lt;<span class="lifetime">'a</span>&gt;(
     input: QueryMacroInput,
-    drivers: <span class="kw">impl </span>IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>QueryDriver&gt;,
+    drivers: <span class="kw">impl </span>IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>QueryDriver&gt;,
 ) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
     <span class="kw">let </span>data_source = <span class="kw">match </span><span class="kw-2">&amp;*</span>METADATA {
         Metadata {
@@ -554,13 +555,13 @@
 
         Metadata { offline, .. } =&gt; {
             <span class="comment">// Try load the cached query metadata file.
-            </span><span class="kw">let </span>filename = <span class="macro">format!</span>(<span class="string">&quot;query-{}.json&quot;</span>, hash_string(<span class="kw-2">&amp;</span>input.sql));
+            </span><span class="kw">let </span>filename = <span class="macro">format!</span>(<span class="string">"query-{}.json"</span>, hash_string(<span class="kw-2">&amp;</span>input.sql));
 
             <span class="comment">// Check SQLX_OFFLINE_DIR, then local .sqlx, then workspace .sqlx.
             </span><span class="kw">let </span>dirs = [
-                env(<span class="string">&quot;SQLX_OFFLINE_DIR&quot;</span>).ok().map(PathBuf::from),
-                <span class="prelude-val">Some</span>(METADATA.manifest_dir.join(<span class="string">&quot;.sqlx&quot;</span>)),
-                <span class="prelude-val">Some</span>(METADATA.workspace_root().join(<span class="string">&quot;.sqlx&quot;</span>)),
+                env(<span class="string">"SQLX_OFFLINE_DIR"</span>).ok().map(PathBuf::from),
+                <span class="prelude-val">Some</span>(METADATA.manifest_dir.join(<span class="string">".sqlx"</span>)),
+                <span class="prelude-val">Some</span>(METADATA.workspace_root().join(<span class="string">".sqlx"</span>)),
             ];
             <span class="kw">let </span><span class="prelude-val">Some</span>(data_file_path) = dirs
                 .iter()
@@ -570,9 +571,9 @@
             <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(
                     <span class="kw">if </span><span class="kw-2">*</span>offline {
-                        <span class="string">&quot;`SQLX_OFFLINE=true` but there is no cached data for this query, run `cargo sqlx prepare` to update the query cache or unset `SQLX_OFFLINE`&quot;
+                        <span class="string">"`SQLX_OFFLINE=true` but there is no cached data for this query, run `cargo sqlx prepare` to update the query cache or unset `SQLX_OFFLINE`"
                     </span>} <span class="kw">else </span>{
-                        <span class="string">&quot;set `DATABASE_URL` to use query macros online, or run `cargo sqlx prepare` to update the query cache&quot;
+                        <span class="string">"set `DATABASE_URL` to use query macros online, or run `cargo sqlx prepare` to update the query cache"
                     </span>}.into()
                 );
             };
@@ -592,12 +593,12 @@
             database_url_parsed,
             ..
         } =&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-            <span class="string">&quot;no database driver found matching URL scheme {:?}; the corresponding Cargo feature may need to be enabled&quot;</span>, 
+            <span class="string">"no database driver found matching URL scheme {:?}; the corresponding Cargo feature may need to be enabled"</span>, 
             database_url_parsed.scheme()
         ).into()),
         QueryDataSource::Cached(data) =&gt; {
             <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-                <span class="string">&quot;found cached data for database {:?} but no matching driver; the corresponding Cargo feature may need to be enabled&quot;</span>,
+                <span class="string">"found cached data for database {:?} but no matching driver; the corresponding Cargo feature may need to be enabled"</span>,
                 data.db_name
             ).into())
         }
@@ -638,7 +639,7 @@
 <span class="kw">where
     </span>Describe&lt;DB&gt;: DescribeExt,
 {
-    <span class="comment">// validate at the minimum that our args match the query&#39;s input parameters
+    <span class="comment">// validate at the minimum that our args match the query's input parameters
     </span><span class="kw">let </span>num_parameters = <span class="kw">match </span>data.describe.parameters() {
         <span class="prelude-val">Some</span>(Either::Left(params)) =&gt; <span class="prelude-val">Some</span>(params.len()),
         <span class="prelude-val">Some</span>(Either::Right(num)) =&gt; <span class="prelude-val">Some</span>(num),
@@ -649,14 +650,14 @@
     <span class="kw">if let </span><span class="prelude-val">Some</span>(num) = num_parameters {
         <span class="kw">if </span>num != input.arg_exprs.len() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(
-                <span class="macro">format!</span>(<span class="string">&quot;expected {} parameters, got {}&quot;</span>, num, input.arg_exprs.len()).into(),
+                <span class="macro">format!</span>(<span class="string">"expected {} parameters, got {}"</span>, num, input.arg_exprs.len()).into(),
             );
         }
     }
 
     <span class="kw">let </span>args_tokens = args::quote_args(<span class="kw-2">&amp;</span>input, <span class="kw-2">&amp;</span>data.describe)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>query_args = <span class="macro">format_ident!</span>(<span class="string">&quot;query_args&quot;</span>);
+    <span class="kw">let </span>query_args = <span class="macro">format_ident!</span>(<span class="string">"query_args"</span>);
 
     <span class="kw">let </span>output = <span class="kw">if </span>data
         .describe
@@ -675,13 +676,13 @@
             RecordType::Generated =&gt; {
                 <span class="kw">let </span>columns = output::columns_to_rust::&lt;DB&gt;(<span class="kw-2">&amp;</span>data.describe)<span class="question-mark">?</span>;
 
-                <span class="kw">let </span>record_name: Type = syn::parse_str(<span class="string">&quot;Record&quot;</span>).unwrap();
+                <span class="kw">let </span>record_name: Type = syn::parse_str(<span class="string">"Record"</span>).unwrap();
 
                 <span class="kw">for </span>rust_col <span class="kw">in </span><span class="kw-2">&amp;</span>columns {
                     <span class="kw">if </span>rust_col.type_.is_wildcard() {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(
-                            <span class="string">&quot;wildcard overrides are only allowed with an explicit record type, \
-                             e.g. `query_as!()` and its variants&quot;
+                            <span class="string">"wildcard overrides are only allowed with an explicit record type, \
+                             e.g. `query_as!()` and its variants"
                                 </span>.into(),
                         );
                     }
@@ -736,26 +737,26 @@
     };
 
     <span class="comment">// Store query metadata only if offline support is enabled but the current build is online.
-    // If the build is offline, the cache is our input so it&#39;s pointless to also write data for it.
+    // If the build is offline, the cache is our input so it's pointless to also write data for it.
     </span><span class="kw">if </span>!offline {
         <span class="comment">// Only save query metadata if SQLX_OFFLINE_DIR is set manually or by `cargo sqlx prepare`.
         // Note: in a cargo workspace this path is relative to the root.
-        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(dir) = env(<span class="string">&quot;SQLX_OFFLINE_DIR&quot;</span>) {
+        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(dir) = env(<span class="string">"SQLX_OFFLINE_DIR"</span>) {
             <span class="kw">let </span>path = PathBuf::from(<span class="kw-2">&amp;</span>dir);
 
             <span class="kw">match </span>fs::metadata(<span class="kw-2">&amp;</span>path) {
                 <span class="prelude-val">Err</span>(e) =&gt; {
                     <span class="kw">if </span>e.kind() != io::ErrorKind::NotFound {
-                        <span class="comment">// Can&#39;t obtain information about .sqlx
-                        </span><span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;{e}: {dir}&quot;</span>).into());
+                        <span class="comment">// Can't obtain information about .sqlx
+                        </span><span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"{e}: {dir}"</span>).into());
                     }
-                    <span class="comment">// .sqlx doesn&#39;t exist.
-                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;sqlx offline path does not exist: {dir}&quot;</span>).into());
+                    <span class="comment">// .sqlx doesn't exist.
+                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"sqlx offline path does not exist: {dir}"</span>).into());
                 }
                 <span class="prelude-val">Ok</span>(meta) =&gt; {
                     <span class="kw">if </span>!meta.is_dir() {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-                            <span class="string">&quot;sqlx offline path exists, but is not a directory: {dir}&quot;
+                            <span class="string">"sqlx offline path exists, but is not a directory: {dir}"
                         </span>)
                         .into());
                     }

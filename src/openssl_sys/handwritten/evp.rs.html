@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-sys-0.9.99/src/./handwritten/evp.rs`."><title>evp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-sys-0.9.101/src/./handwritten/evp.rs`."><title>evp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -646,12 +647,19 @@
 <a href="#646" id="646">646</a>
 <a href="#647" id="647">647</a>
 <a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>libc::<span class="kw-2">*</span>;
 
 <span class="macro">cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(ossl300)] </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_MD_get_block_size(md: <span class="kw-2">*const </span>EVP_MD) -&gt; c_int;
             <span class="kw">pub fn </span>EVP_MD_get_size(md: <span class="kw-2">*const </span>EVP_MD) -&gt; c_int;
             <span class="kw">pub fn </span>EVP_MD_get_type(md: <span class="kw-2">*const </span>EVP_MD) -&gt; c_int;
@@ -677,7 +685,7 @@
             <span class="kw">pub fn </span>EVP_CIPHER_CTX_get_num(ctx: <span class="kw-2">*const </span>EVP_CIPHER_CTX) -&gt; c_int;
         }
     } <span class="kw">else </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_MD_block_size(md: <span class="kw-2">*const </span>EVP_MD) -&gt; c_int;
             <span class="kw">pub fn </span>EVP_MD_size(md: <span class="kw-2">*const </span>EVP_MD) -&gt; c_int;
             <span class="kw">pub fn </span>EVP_MD_type(md: <span class="kw-2">*const </span>EVP_MD) -&gt; c_int;
@@ -701,12 +709,12 @@
 
 <span class="macro">cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl382))] </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_MD_CTX_new() -&gt; <span class="kw-2">*mut </span>EVP_MD_CTX;
             <span class="kw">pub fn </span>EVP_MD_CTX_free(ctx: <span class="kw-2">*mut </span>EVP_MD_CTX);
         }
     } <span class="kw">else </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_MD_CTX_create() -&gt; <span class="kw-2">*mut </span>EVP_MD_CTX;
             <span class="kw">pub fn </span>EVP_MD_CTX_destroy(ctx: <span class="kw-2">*mut </span>EVP_MD_CTX);
         }
@@ -715,13 +723,14 @@
 
 <span class="macro">cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(ossl300)] </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_default_properties_is_fips_enabled(libctx: <span class="kw-2">*mut </span>OSSL_LIB_CTX) -&gt; c_int;
+            <span class="kw">pub fn </span>EVP_default_properties_enable_fips(libctx: <span class="kw-2">*mut </span>OSSL_LIB_CTX, enable: c_int) -&gt; c_int;
         }
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>EVP_DigestInit_ex(ctx: <span class="kw-2">*mut </span>EVP_MD_CTX, typ: <span class="kw-2">*const </span>EVP_MD, imple: <span class="kw-2">*mut </span>ENGINE)
         -&gt; c_int;
     <span class="kw">pub fn </span>EVP_DigestUpdate(ctx: <span class="kw-2">*mut </span>EVP_MD_CTX, data: <span class="kw-2">*const </span>c_void, n: size_t) -&gt; c_int;
@@ -874,12 +883,12 @@
 }
 <span class="macro">cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(ossl300)] </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_PKEY_get_size(pkey: <span class="kw-2">*const </span>EVP_PKEY) -&gt; c_int;
         }
     } <span class="kw">else </span>{
         <span class="macro">const_ptr_api! </span>{
-            <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+            <span class="kw">extern </span><span class="string">"C" </span>{
                 <span class="kw">pub fn </span>EVP_PKEY_size(pkey: <span class="attr">#[const_ptr_if(any(ossl111b, libressl280))] </span>EVP_PKEY) -&gt; c_int;
             }
         }
@@ -887,7 +896,7 @@
 }
 <span class="macro">cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl111, libressl370))] </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_DigestSign(
                 ctx: <span class="kw-2">*mut </span>EVP_MD_CTX,
                 sigret: <span class="kw-2">*mut </span>c_uchar,
@@ -907,7 +916,7 @@
     }
 }
 <span class="macro">const_ptr_api! </span>{
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>EVP_DigestVerifyFinal(
             ctx: <span class="kw-2">*mut </span>EVP_MD_CTX,
             sigret: <span class="attr">#[const_ptr_if(any(ossl102, libressl280))] </span>c_uchar,
@@ -916,7 +925,7 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>EVP_CIPHER_CTX_new() -&gt; <span class="kw-2">*mut </span>EVP_CIPHER_CTX;
     <span class="kw">pub fn </span>EVP_CIPHER_CTX_free(ctx: <span class="kw-2">*mut </span>EVP_CIPHER_CTX);
     <span class="kw">pub fn </span>EVP_CIPHER_CTX_copy(dst: <span class="kw-2">*mut </span>EVP_CIPHER_CTX, src: <span class="kw-2">*const </span>EVP_CIPHER_CTX) -&gt; c_int;
@@ -955,7 +964,7 @@
     <span class="attr">#[cfg(ossl111)]
     </span><span class="kw">pub fn </span>EVP_shake256() -&gt; <span class="kw-2">*const </span>EVP_MD;
     <span class="kw">pub fn </span>EVP_ripemd160() -&gt; <span class="kw-2">*const </span>EVP_MD;
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM3&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM3"</span>)))]
     </span><span class="kw">pub fn </span>EVP_sm3() -&gt; <span class="kw-2">*const </span>EVP_MD;
     <span class="kw">pub fn </span>EVP_des_ecb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
     <span class="kw">pub fn </span>EVP_des_ede3() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
@@ -965,7 +974,7 @@
     <span class="kw">pub fn </span>EVP_des_ede3_cfb8() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
     <span class="kw">pub fn </span>EVP_des_ede3_ofb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
     <span class="kw">pub fn </span>EVP_des_cbc() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_RC4&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_RC4"</span>))]
     </span><span class="kw">pub fn </span>EVP_rc4() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
     <span class="kw">pub fn </span>EVP_bf_ecb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
     <span class="kw">pub fn </span>EVP_bf_cbc() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
@@ -1018,71 +1027,71 @@
     </span><span class="kw">pub fn </span>EVP_aes_256_wrap() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
     <span class="attr">#[cfg(ossl110)]
     </span><span class="kw">pub fn </span>EVP_aes_256_wrap_pad() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(all(any(ossl110, libressl310), not(osslconf = <span class="string">&quot;OPENSSL_NO_CHACHA&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl110, libressl310), not(osslconf = <span class="string">"OPENSSL_NO_CHACHA"</span>)))]
     </span><span class="kw">pub fn </span>EVP_chacha20() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(all(any(ossl110, libressl360), not(osslconf = <span class="string">&quot;OPENSSL_NO_CHACHA&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl110, libressl360), not(osslconf = <span class="string">"OPENSSL_NO_CHACHA"</span>)))]
     </span><span class="kw">pub fn </span>EVP_chacha20_poly1305() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>))]
     </span><span class="kw">pub fn </span>EVP_seed_cbc() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>))]
     </span><span class="kw">pub fn </span>EVP_seed_cfb128() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>))]
     </span><span class="kw">pub fn </span>EVP_seed_ecb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>))]
     </span><span class="kw">pub fn </span>EVP_seed_ofb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
 
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>EVP_sm4_ecb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>EVP_sm4_cbc() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>EVP_sm4_cfb128() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>EVP_sm4_ofb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>EVP_sm4_ctr() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_128_cfb128() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_128_ecb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_128_cbc() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_128_ofb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_192_cfb128() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_192_ecb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_192_cbc() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_192_ofb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_256_cfb128() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_256_ecb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_256_cbc() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>EVP_camellia_256_ofb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAST&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAST"</span>))]
     </span><span class="kw">pub fn </span>EVP_cast5_cfb64() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAST&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAST"</span>))]
     </span><span class="kw">pub fn </span>EVP_cast5_ecb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAST&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAST"</span>))]
     </span><span class="kw">pub fn </span>EVP_cast5_cbc() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAST&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAST"</span>))]
     </span><span class="kw">pub fn </span>EVP_cast5_ofb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_IDEA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_IDEA"</span>))]
     </span><span class="kw">pub fn </span>EVP_idea_cfb64() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_IDEA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_IDEA"</span>))]
     </span><span class="kw">pub fn </span>EVP_idea_ecb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_IDEA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_IDEA"</span>))]
     </span><span class="kw">pub fn </span>EVP_idea_cbc() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_IDEA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_IDEA"</span>))]
     </span><span class="kw">pub fn </span>EVP_idea_ofb() -&gt; <span class="kw-2">*const </span>EVP_CIPHER;
 
     <span class="attr">#[cfg(not(ossl110))]
@@ -1094,17 +1103,17 @@
 
 <span class="macro">cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(ossl300)] </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_PKEY_get_id(pkey: <span class="kw-2">*const </span>EVP_PKEY) -&gt; c_int;
             <span class="kw">pub fn </span>EVP_PKEY_get_bits(key: <span class="kw-2">*const </span>EVP_PKEY) -&gt; c_int;
             <span class="kw">pub fn </span>EVP_PKEY_get_security_bits(key: <span class="kw-2">*const </span>EVP_PKEY) -&gt; c_int;
         }
     } <span class="kw">else </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_PKEY_id(pkey: <span class="kw-2">*const </span>EVP_PKEY) -&gt; c_int;
         }
         <span class="macro">const_ptr_api! </span>{
-            <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+            <span class="kw">extern </span><span class="string">"C" </span>{
                 <span class="kw">pub fn </span>EVP_PKEY_bits(key: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>EVP_PKEY) -&gt; c_int;
                 <span class="attr">#[cfg(any(ossl110, libressl360))]
                 </span><span class="kw">pub fn </span>EVP_PKEY_security_bits(pkey: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>EVP_PKEY) -&gt; c_int;
@@ -1112,7 +1121,7 @@
         }
     }
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>EVP_PKEY_assign(pkey: <span class="kw-2">*mut </span>EVP_PKEY, typ: c_int, key: <span class="kw-2">*mut </span>c_void) -&gt; c_int;
 
     <span class="kw">pub fn </span>EVP_PKEY_set1_RSA(k: <span class="kw-2">*mut </span>EVP_PKEY, r: <span class="kw-2">*mut </span>RSA) -&gt; c_int;
@@ -1186,6 +1195,12 @@
     <span class="attr">#[cfg(ossl300)]
     </span><span class="kw">pub fn </span>EVP_PKEY_CTX_set_signature_md(ctx: <span class="kw-2">*mut </span>EVP_PKEY_CTX, md: <span class="kw-2">*const </span>EVP_MD) -&gt; c_int;
 
+    <span class="attr">#[cfg(ossl300)]
+    </span><span class="kw">pub fn </span>EVP_PKEY_CTX_set_params(ctx: <span class="kw-2">*mut </span>EVP_PKEY_CTX, params: <span class="kw-2">*const </span>OSSL_PARAM) -&gt; c_int;
+
+    <span class="attr">#[cfg(ossl300)]
+    </span><span class="kw">pub fn </span>EVP_PKEY_CTX_get_params(ctx: <span class="kw-2">*mut </span>EVP_PKEY_CTX, params: <span class="kw-2">*mut </span>OSSL_PARAM) -&gt; c_int;
+
     <span class="kw">pub fn </span>EVP_PKEY_new_mac_key(
         type_: c_int,
         e: <span class="kw-2">*mut </span>ENGINE,
@@ -1256,14 +1271,14 @@
 }
 
 <span class="macro">const_ptr_api! </span>{
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>EVP_PKCS82PKEY(p8: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>PKCS8_PRIV_KEY_INFO) -&gt; <span class="kw-2">*mut </span>EVP_PKEY;
     }
 }
 
 <span class="macro">cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl111, libressl370))] </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>EVP_PKEY_get_raw_public_key(
                 pkey: <span class="kw-2">*const </span>EVP_PKEY,
                 ppub: <span class="kw-2">*mut </span>c_uchar,
@@ -1290,7 +1305,7 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>EVP_EncodeBlock(dst: <span class="kw-2">*mut </span>c_uchar, src: <span class="kw-2">*const </span>c_uchar, src_len: c_int) -&gt; c_int;
     <span class="kw">pub fn </span>EVP_DecodeBlock(dst: <span class="kw-2">*mut </span>c_uchar, src: <span class="kw-2">*const </span>c_uchar, src_len: c_int) -&gt; c_int;
 }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.8/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.8/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -141,9 +142,9 @@
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
-</pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">&quot;use-std&quot;</span>)), no_std)]
+</pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">"use-std"</span>)), no_std)]
 #![warn(missing_docs)]
-#![cfg_attr(not(doctest), doc = <span class="macro">include_str!</span>(<span class="string">&quot;../README.md&quot;</span>))]
+#![cfg_attr(not(doctest), doc = <span class="macro">include_str!</span>(<span class="string">"../README.md"</span>))]
 #![cfg_attr(doc_cfg, feature(doc_cfg))]
 
 </span><span class="kw">pub mod </span>accumulator;
@@ -153,7 +154,7 @@
 <span class="kw">mod </span>ser;
 <span class="kw">mod </span>varint;
 
-<span class="comment">// Still experimental! Don&#39;t make pub pub.
+<span class="comment">// Still experimental! Don't make pub pub.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>max_size;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>schema;
 
@@ -179,7 +180,7 @@
 /// This is useful for determining the maximum buffer size needed when recieving
 /// or sending a message that has been serialized.
 ///
-/// NOTE: This only covers the size of &quot;plain&quot; flavored messages, e.g. not with COBS
+/// NOTE: This only covers the size of "plain" flavored messages, e.g. not with COBS
 /// or any other Flavors applied. The overhead for these flavors must be calculated
 /// separately.
 ///
@@ -192,15 +193,15 @@
 /// which is a recursive data structure describing the schema. In the future, it is planned
 /// to provide formatting functions that emit this as a human or machine readable schema.
 ///
-/// NOTE: This only covers the schema of &quot;plain&quot; flavored messages, e.g. not with COBS
+/// NOTE: This only covers the schema of "plain" flavored messages, e.g. not with COBS
 /// or any other Flavors applied. The format of these flavors must be calculated
 /// separately.
 ///
 /// Please report any missing types, or any incorrectly calculated schemas.
 </span><span class="kw">pub mod </span>experimental {
     <span class="doccomment">/// Compile time max-serialization size calculation
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental-derive&quot;</span>)]
-    #[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">&quot;experimental-derive&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental-derive"</span>)]
+    #[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"experimental-derive"</span>)))]
     </span><span class="kw">pub mod </span>max_size {
         <span class="comment">// NOTE: This is the trait...
         </span><span class="kw">pub use </span><span class="kw">crate</span>::max_size::MaxSize;
@@ -211,8 +212,8 @@
     <span class="kw">pub use </span><span class="kw">crate</span>::ser::serialized_size;
 
     <span class="doccomment">/// Compile time Schema generation
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental-derive&quot;</span>)]
-    #[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">&quot;experimental-derive&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental-derive"</span>)]
+    #[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"experimental-derive"</span>)))]
     </span><span class="kw">pub mod </span>schema {
         <span class="comment">// NOTE: This is the trait...
         </span><span class="kw">pub use </span><span class="kw">crate</span>::schema::{NamedType, NamedValue, NamedVariant, Schema, SdmTy, Varint};
@@ -228,37 +229,37 @@
 <span class="kw">pub use </span>ser::flavors <span class="kw">as </span>ser_flavors;
 <span class="kw">pub use </span>ser::{serialize_with_flavor, serializer::Serializer, to_extend, to_slice, to_slice_cobs};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"heapless"</span>)]
 </span><span class="kw">pub use </span>ser::{to_vec, to_vec_cobs};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;embedded-io&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"embedded-io"</span>)]
 </span><span class="kw">pub use </span>ser::to_eio;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;embedded-io&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"embedded-io"</span>)]
 </span><span class="kw">pub use </span>de::from_eio;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;use-std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"use-std"</span>)]
 </span><span class="kw">pub use </span>ser::{to_io, to_stdvec, to_stdvec_cobs};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;use-std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"use-std"</span>)]
 </span><span class="kw">pub use </span>de::from_io;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">pub use </span>ser::{to_allocvec, to_allocvec_cobs};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;use-crc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"use-crc"</span>)]
 </span><span class="kw">pub use </span>{
     de::{from_bytes_crc32, take_from_bytes_crc32},
     ser::to_slice_crc32,
 };
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;use-crc&quot;</span>, feature = <span class="string">&quot;heapless&quot;</span>))]
+<span class="attr">#[cfg(all(feature = <span class="string">"use-crc"</span>, feature = <span class="string">"heapless"</span>))]
 </span><span class="kw">pub use </span>ser::to_vec_crc32;
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;use-crc&quot;</span>, feature = <span class="string">&quot;use-std&quot;</span>))]
+<span class="attr">#[cfg(all(feature = <span class="string">"use-crc"</span>, feature = <span class="string">"use-std"</span>))]
 </span><span class="kw">pub use </span>ser::to_stdvec_crc32;
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;use-crc&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))]
+<span class="attr">#[cfg(all(feature = <span class="string">"use-crc"</span>, feature = <span class="string">"alloc"</span>))]
 </span><span class="kw">pub use </span>ser::to_allocvec_crc32;
 
 <span class="attr">#[cfg(test)]

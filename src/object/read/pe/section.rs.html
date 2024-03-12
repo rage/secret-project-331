@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/pe/section.rs`."><title>section.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/pe/section.rs`."><title>section.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -452,29 +453,29 @@
 <span class="kw">use super</span>::{ImageNtHeaders, PeFile, SectionTable};
 
 <span class="doccomment">/// An iterator for the loadable sections in a [`PeFile32`](super::PeFile32).
-</span><span class="kw">pub type </span>PeSegmentIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    PeSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders32, R&gt;;
+</span><span class="kw">pub type </span>PeSegmentIterator32&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    PeSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, pe::ImageNtHeaders32, R&gt;;
 <span class="doccomment">/// An iterator for the loadable sections in a [`PeFile64`](super::PeFile64).
-</span><span class="kw">pub type </span>PeSegmentIterator64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    PeSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders64, R&gt;;
+</span><span class="kw">pub type </span>PeSegmentIterator64&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    PeSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, pe::ImageNtHeaders64, R&gt;;
 
 <span class="doccomment">/// An iterator for the loadable sections in a [`PeFile`].
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PeSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>PeSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>PeFile&lt;<span class="lifetime">&#39;data</span>, Pe, R&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) iter: slice::Iter&lt;<span class="lifetime">&#39;data</span>, pe::ImageSectionHeader&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>PeFile&lt;<span class="lifetime">'data</span>, Pe, R&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) iter: slice::Iter&lt;<span class="lifetime">'data</span>, pe::ImageSectionHeader&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt; Iterator <span class="kw">for </span>PeSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; Iterator <span class="kw">for </span>PeSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>Item = PeSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt;;
+    <span class="kw">type </span>Item = PeSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="self">self</span>.iter.next().map(|section| PeSegment {
@@ -485,36 +486,36 @@
 }
 
 <span class="doccomment">/// A loadable section in a [`PeFile32`](super::PeFile32).
-</span><span class="kw">pub type </span>PeSegment32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    PeSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders32, R&gt;;
+</span><span class="kw">pub type </span>PeSegment32&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    PeSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, pe::ImageNtHeaders32, R&gt;;
 <span class="doccomment">/// A loadable section in a [`PeFile64`](super::PeFile64).
-</span><span class="kw">pub type </span>PeSegment64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    PeSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders64, R&gt;;
+</span><span class="kw">pub type </span>PeSegment64&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    PeSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, pe::ImageNtHeaders64, R&gt;;
 
 <span class="doccomment">/// A loadable section in a [`PeFile`].
 ///
 /// Most functionality is provided by the [`ObjectSegment`] trait implementation.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PeSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>PeSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>PeFile&lt;<span class="lifetime">&#39;data</span>, Pe, R&gt;,
-    section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>pe::ImageSectionHeader,
+    file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>PeFile&lt;<span class="lifetime">'data</span>, Pe, R&gt;,
+    section: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt; read::private::Sealed <span class="kw">for </span>PeSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; read::private::Sealed <span class="kw">for </span>PeSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt; ObjectSegment&lt;<span class="lifetime">&#39;data</span>&gt; <span class="kw">for </span>PeSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; ObjectSegment&lt;<span class="lifetime">'data</span>&gt; <span class="kw">for </span>PeSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
@@ -537,11 +538,11 @@
         (u64::from(offset), u64::from(size))
     }
 
-    <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.section.pe_data(<span class="self">self</span>.file.data)
     }
 
-    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;&gt; {
+    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;&gt; {
         <span class="prelude-val">Ok</span>(read::util::data_range(
             <span class="self">self</span>.data()<span class="question-mark">?</span>,
             <span class="self">self</span>.address(),
@@ -563,7 +564,7 @@
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(
             str::from_utf8(name)
                 .ok()
-                .read_error(<span class="string">&quot;Non UTF-8 PE section name&quot;</span>)<span class="question-mark">?</span>,
+                .read_error(<span class="string">"Non UTF-8 PE section name"</span>)<span class="question-mark">?</span>,
         ))
     }
 
@@ -575,29 +576,29 @@
 }
 
 <span class="doccomment">/// An iterator for the sections in a [`PeFile32`](super::PeFile32).
-</span><span class="kw">pub type </span>PeSectionIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    PeSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders32, R&gt;;
+</span><span class="kw">pub type </span>PeSectionIterator32&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    PeSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, pe::ImageNtHeaders32, R&gt;;
 <span class="doccomment">/// An iterator for the sections in a [`PeFile64`](super::PeFile64).
-</span><span class="kw">pub type </span>PeSectionIterator64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    PeSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders64, R&gt;;
+</span><span class="kw">pub type </span>PeSectionIterator64&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    PeSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, pe::ImageNtHeaders64, R&gt;;
 
 <span class="doccomment">/// An iterator for the sections in a [`PeFile`].
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PeSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>PeSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>PeFile&lt;<span class="lifetime">&#39;data</span>, Pe, R&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) iter: iter::Enumerate&lt;slice::Iter&lt;<span class="lifetime">&#39;data</span>, pe::ImageSectionHeader&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>PeFile&lt;<span class="lifetime">'data</span>, Pe, R&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) iter: iter::Enumerate&lt;slice::Iter&lt;<span class="lifetime">'data</span>, pe::ImageSectionHeader&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt; Iterator <span class="kw">for </span>PeSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; Iterator <span class="kw">for </span>PeSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>Item = PeSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt;;
+    <span class="kw">type </span>Item = PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="self">self</span>.iter.next().map(|(index, section)| PeSection {
@@ -609,39 +610,39 @@
 }
 
 <span class="doccomment">/// A section in a [`PeFile32`](super::PeFile32).
-</span><span class="kw">pub type </span>PeSection32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    PeSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders32, R&gt;;
+</span><span class="kw">pub type </span>PeSection32&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, pe::ImageNtHeaders32, R&gt;;
 <span class="doccomment">/// A section in a [`PeFile64`](super::PeFile64).
-</span><span class="kw">pub type </span>PeSection64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    PeSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, pe::ImageNtHeaders64, R&gt;;
+</span><span class="kw">pub type </span>PeSection64&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, pe::ImageNtHeaders64, R&gt;;
 
 <span class="doccomment">/// A section in a [`PeFile`].
 ///
 /// Most functionality is provided by the [`ObjectSection`] trait implementation.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PeSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>PeFile&lt;<span class="lifetime">&#39;data</span>, Pe, R&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>PeFile&lt;<span class="lifetime">'data</span>, Pe, R&gt;,
     <span class="kw">pub</span>(<span class="kw">super</span>) index: SectionIndex,
-    <span class="kw">pub</span>(<span class="kw">super</span>) section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>pe::ImageSectionHeader,
+    <span class="kw">pub</span>(<span class="kw">super</span>) section: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt; read::private::Sealed <span class="kw">for </span>PeSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; read::private::Sealed <span class="kw">for </span>PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt; ObjectSection&lt;<span class="lifetime">&#39;data</span>&gt; <span class="kw">for </span>PeSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Pe, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; ObjectSection&lt;<span class="lifetime">'data</span>&gt; <span class="kw">for </span>PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;
 <span class="kw">where
     </span>Pe: ImageNtHeaders,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>RelocationIterator = PeRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;;
+    <span class="kw">type </span>RelocationIterator = PeRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SectionIndex {
@@ -673,11 +674,11 @@
         }
     }
 
-    <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.section.pe_data(<span class="self">self</span>.file.data)
     }
 
-    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;&gt; {
+    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;&gt; {
         <span class="prelude-val">Ok</span>(read::util::data_range(
             <span class="self">self</span>.data()<span class="question-mark">?</span>,
             <span class="self">self</span>.address(),
@@ -692,7 +693,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>compressed_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedData&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+    </span><span class="kw">fn </span>compressed_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedData&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="self">self</span>.data().map(CompressedData::none)
     }
 
@@ -706,7 +707,7 @@
         <span class="kw">let </span>name = <span class="self">self</span>.name_bytes()<span class="question-mark">?</span>;
         str::from_utf8(name)
             .ok()
-            .read_error(<span class="string">&quot;Non UTF-8 PE section name&quot;</span>)
+            .read_error(<span class="string">"Non UTF-8 PE section name"</span>)
     }
 
     <span class="attr">#[inline]
@@ -724,7 +725,7 @@
         <span class="self">self</span>.section.kind()
     }
 
-    <span class="kw">fn </span>relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PeRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt; {
+    <span class="kw">fn </span>relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PeRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; {
         PeRelocationIterator(PhantomData)
     }
 
@@ -735,7 +736,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; SectionTable&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; SectionTable&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Return the file offset of the given virtual address, and the size up
     /// to the end of the section containing it.
     ///
@@ -750,7 +751,7 @@
     /// Ignores sections with invalid data.
     ///
     /// Returns `None` if no section contains the address.
-    </span><span class="kw">pub fn </span>pe_data_at&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: R, va: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>pe_data_at&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: R, va: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.iter().find_map(|section| section.pe_data_at(data, va))
     }
 
@@ -759,17 +760,17 @@
     /// Also returns the virtual address of that section.
     ///
     /// Ignores sections with invalid data.
-    </span><span class="kw">pub fn </span>pe_data_containing&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>pe_data_containing&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
         va: u32,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], u32)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], u32)&gt; {
         <span class="self">self</span>.iter()
             .find_map(|section| section.pe_data_containing(data, va))
     }
 
     <span class="doccomment">/// Return the section that contains a given virtual address.
-    </span><span class="kw">pub fn </span>section_containing(<span class="kw-2">&amp;</span><span class="self">self</span>, va: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ImageSectionHeader&gt; {
+    </span><span class="kw">pub fn </span>section_containing(<span class="kw-2">&amp;</span><span class="self">self</span>, va: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>ImageSectionHeader&gt; {
         <span class="self">self</span>.iter().find(|section| section.contains_rva(va))
     }
 }
@@ -779,7 +780,7 @@
     ///
     /// The size of the range will be the minimum of the file size and virtual size.
     </span><span class="kw">pub fn </span>pe_file_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (u32, u32) {
-        <span class="comment">// Pointer and size will be zero for uninitialized data; we don&#39;t need to validate this.
+        <span class="comment">// Pointer and size will be zero for uninitialized data; we don't need to validate this.
         </span><span class="kw">let </span>offset = <span class="self">self</span>.pointer_to_raw_data.get(LE);
         <span class="kw">let </span>size = cmp::min(<span class="self">self</span>.virtual_size.get(LE), <span class="self">self</span>.size_of_raw_data.get(LE));
         (offset, size)
@@ -809,10 +810,10 @@
     <span class="doccomment">/// Return the section data in a PE file.
     ///
     /// The length of the data will be the minimum of the file size and virtual size.
-    </span><span class="kw">pub fn </span>pe_data&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>pe_data&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="kw">let </span>(offset, size) = <span class="self">self</span>.pe_file_range();
         data.read_bytes_at(offset.into(), size.into())
-            .read_error(<span class="string">&quot;Invalid PE section offset or size&quot;</span>)
+            .read_error(<span class="string">"Invalid PE section offset or size"</span>)
     }
 
     <span class="doccomment">/// Return the data starting at the given virtual address, up to the end of the
@@ -821,7 +822,7 @@
     /// Ignores sections with invalid data.
     ///
     /// Returns `None` if the section does not contain the address.
-    </span><span class="kw">pub fn </span>pe_data_at&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: R, va: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>pe_data_at&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: R, va: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="kw">let </span>(offset, size) = <span class="self">self</span>.pe_file_range_at(va)<span class="question-mark">?</span>;
         data.read_bytes_at(offset.into(), size.into()).ok()
     }
@@ -843,11 +844,11 @@
     /// Also returns the virtual address of that section.
     ///
     /// Ignores sections with invalid data.
-    </span><span class="kw">pub fn </span>pe_data_containing&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>pe_data_containing&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
         va: u32,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], u32)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], u32)&gt; {
         <span class="kw">let </span>section_va = <span class="self">self</span>.virtual_address.get(LE);
         <span class="kw">let </span>offset = va.checked_sub(section_va)<span class="question-mark">?</span>;
         <span class="kw">let </span>(section_offset, section_size) = <span class="self">self</span>.pe_file_range();
@@ -865,13 +866,13 @@
 
 <span class="doccomment">/// An iterator for the relocations in an [`PeSection`].
 ///
-/// This is a stub that doesn&#39;t implement any functionality.
+/// This is a stub that doesn't implement any functionality.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PeRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;(
-    PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>(), <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>(), R)&gt;,
+</span><span class="kw">pub struct </span>PeRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;(
+    PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'data </span>(), <span class="kw-2">&amp;</span><span class="lifetime">'file </span>(), R)&gt;,
 );
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt; Iterator <span class="kw">for </span>PeRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; Iterator <span class="kw">for </span>PeRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; {
     <span class="kw">type </span>Item = (u64, Relocation);
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {

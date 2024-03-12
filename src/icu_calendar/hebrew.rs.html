@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/hebrew.rs`."><title>hebrew.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/hebrew.rs`."><title>hebrew.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -632,13 +633,13 @@
 //! // `Date` type
 //! let hebrew_date =
 //!     Date::try_new_hebrew_date_with_calendar(3425, 10, 11, hebrew)
-//!         .expect(&quot;Failed to initialize hebrew Date instance.&quot;);
+//!         .expect("Failed to initialize hebrew Date instance.");
 //!
 //! // `DateTime` type
 //! let hebrew_datetime = DateTime::try_new_hebrew_datetime_with_calendar(
 //!     3425, 10, 11, 13, 1, 0, hebrew,
 //! )
-//! .expect(&quot;Failed to initialize hebrew DateTime instance.&quot;);
+//! .expect("Failed to initialize hebrew DateTime instance.");
 //!
 //! // `Date` checks
 //! assert_eq!(hebrew_date.year().number, 3425);
@@ -673,20 +674,20 @@
 ///
 /// # Era codes
 ///
-/// This calendar supports a single era code, Anno Mundi, with code `&quot;am&quot;`
+/// This calendar supports a single era code, Anno Mundi, with code `"am"`
 ///
 /// # Month codes
 ///
-/// This calendar is a lunisolar calendar and thus has a leap month. It supports codes `&quot;M01&quot;-&quot;M12&quot;`
-/// for regular months, and the leap month Adar I being coded as `&quot;M05L&quot;`.
+/// This calendar is a lunisolar calendar and thus has a leap month. It supports codes `"M01"-"M12"`
+/// for regular months, and the leap month Adar I being coded as `"M05L"`.
 ///
 /// [`FormattableMonth`] has slightly divergent behavior: because the regular month Adar is formatted
-/// as &quot;Adar II&quot; in a leap year, this calendar will produce the special code `&quot;M06L&quot;` in any [`FormattableMonth`]
+/// as "Adar II" in a leap year, this calendar will produce the special code `"M06L"` in any [`FormattableMonth`]
 /// objects it creates.
 ///
 /// [Hebrew calendar]: https://en.wikipedia.org/wiki/Hebrew_calendar
 </span><span class="attr">#[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
-#[non_exhaustive] </span><span class="comment">// we&#39;ll be adding precompiled data to this
+#[non_exhaustive] </span><span class="comment">// we'll be adding precompiled data to this
 </span><span class="kw">pub struct </span>Hebrew;
 
 <span class="doccomment">/// The inner date type used for representing [`Date`]s of [`BookHebrew`]. See [`Date`] and [`BookHebrew`] for more details.
@@ -718,7 +719,7 @@
     }
 
     <span class="kw">fn </span>days_in_provided_year(civil_year: i32) -&gt; u16 {
-        BookHebrew::days_in_book_hebrew_year(civil_year) <span class="comment">// number of days don&#39;t change between BookHebrew and Civil Hebrew
+        BookHebrew::days_in_book_hebrew_year(civil_year) <span class="comment">// number of days don't change between BookHebrew and Civil Hebrew
     </span>}
 
     <span class="kw">fn </span>is_leap_year(civil_year: i32) -&gt; bool {
@@ -745,7 +746,7 @@
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, CalendarError&gt; {
         <span class="kw">let </span>is_leap_year = <span class="self">Self</span>::is_leap_year(year);
-        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;hebrew&quot;</span>) || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;am&quot;</span>) {
+        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"hebrew"</span>) || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"am"</span>) {
             year
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownEra(era.<span class="number">0</span>, <span class="self">self</span>.debug_name()));
@@ -755,20 +756,20 @@
 
         <span class="kw">let </span>month_ordinal = <span class="kw">if </span>is_leap_year {
             <span class="kw">match </span>month_code_str {
-                <span class="string">&quot;M01&quot; </span>=&gt; <span class="number">1</span>,
-                <span class="string">&quot;M02&quot; </span>=&gt; <span class="number">2</span>,
-                <span class="string">&quot;M03&quot; </span>=&gt; <span class="number">3</span>,
-                <span class="string">&quot;M04&quot; </span>=&gt; <span class="number">4</span>,
-                <span class="string">&quot;M05&quot; </span>=&gt; <span class="number">5</span>,
-                <span class="string">&quot;M05L&quot; </span>=&gt; <span class="number">6</span>,
+                <span class="string">"M01" </span>=&gt; <span class="number">1</span>,
+                <span class="string">"M02" </span>=&gt; <span class="number">2</span>,
+                <span class="string">"M03" </span>=&gt; <span class="number">3</span>,
+                <span class="string">"M04" </span>=&gt; <span class="number">4</span>,
+                <span class="string">"M05" </span>=&gt; <span class="number">5</span>,
+                <span class="string">"M05L" </span>=&gt; <span class="number">6</span>,
                 <span class="comment">// M06L is the formatting era code used for Adar II
-                </span><span class="string">&quot;M06&quot; </span>| <span class="string">&quot;M06L&quot; </span>=&gt; <span class="number">7</span>,
-                <span class="string">&quot;M07&quot; </span>=&gt; <span class="number">8</span>,
-                <span class="string">&quot;M08&quot; </span>=&gt; <span class="number">9</span>,
-                <span class="string">&quot;M09&quot; </span>=&gt; <span class="number">10</span>,
-                <span class="string">&quot;M10&quot; </span>=&gt; <span class="number">11</span>,
-                <span class="string">&quot;M11&quot; </span>=&gt; <span class="number">12</span>,
-                <span class="string">&quot;M12&quot; </span>=&gt; <span class="number">13</span>,
+                </span><span class="string">"M06" </span>| <span class="string">"M06L" </span>=&gt; <span class="number">7</span>,
+                <span class="string">"M07" </span>=&gt; <span class="number">8</span>,
+                <span class="string">"M08" </span>=&gt; <span class="number">9</span>,
+                <span class="string">"M09" </span>=&gt; <span class="number">10</span>,
+                <span class="string">"M10" </span>=&gt; <span class="number">11</span>,
+                <span class="string">"M11" </span>=&gt; <span class="number">12</span>,
+                <span class="string">"M12" </span>=&gt; <span class="number">13</span>,
                 <span class="kw">_ </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownMonthCode(
                         month_code.<span class="number">0</span>,
@@ -778,18 +779,18 @@
             }
         } <span class="kw">else </span>{
             <span class="kw">match </span>month_code_str {
-                <span class="string">&quot;M01&quot; </span>=&gt; <span class="number">1</span>,
-                <span class="string">&quot;M02&quot; </span>=&gt; <span class="number">2</span>,
-                <span class="string">&quot;M03&quot; </span>=&gt; <span class="number">3</span>,
-                <span class="string">&quot;M04&quot; </span>=&gt; <span class="number">4</span>,
-                <span class="string">&quot;M05&quot; </span>=&gt; <span class="number">5</span>,
-                <span class="string">&quot;M06&quot; </span>=&gt; <span class="number">6</span>,
-                <span class="string">&quot;M07&quot; </span>=&gt; <span class="number">7</span>,
-                <span class="string">&quot;M08&quot; </span>=&gt; <span class="number">8</span>,
-                <span class="string">&quot;M09&quot; </span>=&gt; <span class="number">9</span>,
-                <span class="string">&quot;M10&quot; </span>=&gt; <span class="number">10</span>,
-                <span class="string">&quot;M11&quot; </span>=&gt; <span class="number">11</span>,
-                <span class="string">&quot;M12&quot; </span>=&gt; <span class="number">12</span>,
+                <span class="string">"M01" </span>=&gt; <span class="number">1</span>,
+                <span class="string">"M02" </span>=&gt; <span class="number">2</span>,
+                <span class="string">"M03" </span>=&gt; <span class="number">3</span>,
+                <span class="string">"M04" </span>=&gt; <span class="number">4</span>,
+                <span class="string">"M05" </span>=&gt; <span class="number">5</span>,
+                <span class="string">"M06" </span>=&gt; <span class="number">6</span>,
+                <span class="string">"M07" </span>=&gt; <span class="number">7</span>,
+                <span class="string">"M08" </span>=&gt; <span class="number">8</span>,
+                <span class="string">"M09" </span>=&gt; <span class="number">9</span>,
+                <span class="string">"M10" </span>=&gt; <span class="number">10</span>,
+                <span class="string">"M11" </span>=&gt; <span class="number">11</span>,
+                <span class="string">"M12" </span>=&gt; <span class="number">12</span>,
                 <span class="kw">_ </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownMonthCode(
                         month_code.<span class="number">0</span>,
@@ -839,8 +840,8 @@
         date1.<span class="number">0</span>.until(date2.<span class="number">0</span>, _largest_unit, _smallest_unit)
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;Hebrew&quot;
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        <span class="string">"Hebrew"
     </span>}
 
     <span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableYear {
@@ -859,12 +860,12 @@
             <span class="kw">if </span>ordinal == <span class="number">6 </span>{
                 <span class="kw">return </span>types::FormattableMonth {
                     ordinal: ordinal <span class="kw">as </span>u32,
-                    code: types::MonthCode(<span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M05L&quot;</span>)),
+                    code: types::MonthCode(<span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05L"</span>)),
                 };
             } <span class="kw">else if </span>ordinal == <span class="number">7 </span>{
                 <span class="kw">return </span>types::FormattableMonth {
                     ordinal: ordinal <span class="kw">as </span>u32,
-                    code: types::MonthCode(<span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M06L&quot;</span>)),
+                    code: types::MonthCode(<span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M06L"</span>)),
                 };
             }
         }
@@ -874,19 +875,19 @@
         }
 
         <span class="kw">let </span>code = <span class="kw">match </span>ordinal {
-            <span class="number">1 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M01&quot;</span>),
-            <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M02&quot;</span>),
-            <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M03&quot;</span>),
-            <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M04&quot;</span>),
-            <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M05&quot;</span>),
-            <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M06&quot;</span>),
-            <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M07&quot;</span>),
-            <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M08&quot;</span>),
-            <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M09&quot;</span>),
-            <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M10&quot;</span>),
-            <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M11&quot;</span>),
-            <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M12&quot;</span>),
-            <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;und&quot;</span>),
+            <span class="number">1 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M01"</span>),
+            <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02"</span>),
+            <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M03"</span>),
+            <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04"</span>),
+            <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05"</span>),
+            <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M06"</span>),
+            <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M07"</span>),
+            <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M08"</span>),
+            <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M09"</span>),
+            <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M10"</span>),
+            <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M11"</span>),
+            <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M12"</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"und"</span>),
         };
 
         types::FormattableMonth {
@@ -944,7 +945,7 @@
         BookHebrew::last_day_of_book_hebrew_month(book_date.year, book_date.month)
     }
 
-    <span class="comment">// &quot;Fixed&quot; is a day count representation of calendars staring from Jan 1st of year 1 of the Georgian Calendar.
+    <span class="comment">// "Fixed" is a day count representation of calendars staring from Jan 1st of year 1 of the Georgian Calendar.
     </span><span class="kw">fn </span>fixed_from_civil_hebrew(date: HebrewDateInner) -&gt; RataDie {
         <span class="kw">let </span>book_date = Hebrew::civil_to_biblical_date(date);
         BookHebrew::fixed_from_book_hebrew(book_date)
@@ -957,7 +958,7 @@
 
     <span class="kw">fn </span>year_as_hebrew(civil_year: i32) -&gt; types::FormattableYear {
         types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;hebrew&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"hebrew"</span>)),
             number: civil_year,
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">None</span>,
@@ -980,7 +981,7 @@
     ///
     /// let date_hebrew =
     ///     Date::try_new_hebrew_date_with_calendar(3425, 4, 25, hebrew)
-    ///         .expect(&quot;Failed to initialize Hebrew Date instance.&quot;);
+    ///         .expect("Failed to initialize Hebrew Date instance.");
     ///
     /// assert_eq!(date_hebrew.year().number, 3425);
     /// assert_eq!(date_hebrew.month().ordinal, 4);
@@ -1013,7 +1014,7 @@
     /// let datetime_hebrew = DateTime::try_new_hebrew_datetime_with_calendar(
     ///     4201, 10, 11, 13, 1, 0, hebrew,
     /// )
-    /// .expect(&quot;Failed to initialize Hebrew DateTime instance&quot;);
+    /// .expect("Failed to initialize Hebrew DateTime instance");
     ///
     /// assert_eq!(datetime_hebrew.date.year().number, 4201);
     /// assert_eq!(datetime_hebrew.date.month().ordinal, 10);

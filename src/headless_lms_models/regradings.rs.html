@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/regradings.rs`."><title>regradings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/regradings.rs`."><title>regradings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -291,7 +292,7 @@
 };
 
 <span class="attr">#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>Regrading {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -304,21 +305,21 @@
 }
 
 <span class="attr">#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewRegrading {
     user_points_update_strategy: UserPointsUpdateStrategy,
     exercise_task_submission_ids: Vec&lt;Uuid&gt;,
 }
 
 <span class="attr">#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>RegradingInfo {
     <span class="kw">pub </span>regrading: Regrading,
     <span class="kw">pub </span>submission_infos: Vec&lt;RegradingSubmissionInfo&gt;,
 }
 
 <span class="attr">#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>RegradingSubmissionInfo {
     <span class="kw">pub </span>exercise_task_submission_id: Uuid,
     <span class="kw">pub </span>grading_before_regrading: ExerciseTaskGrading,
@@ -330,11 +331,11 @@
     user_points_update_strategy: UserPointsUpdateStrategy,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO regradings (user_points_update_strategy)
 VALUES ($1)
 RETURNING id
-        &quot;</span>,
+        "</span>,
         user_points_update_strategy <span class="kw">as </span>UserPointsUpdateStrategy
     )
     .fetch_one(conn)
@@ -349,20 +350,20 @@ RETURNING id
     user_id: Uuid,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;Creating a new regrading.&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Creating a new regrading."</span>);
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO regradings (user_points_update_strategy, user_id)
 VALUES ($1, $2)
 RETURNING id
-        &quot;</span>,
+        "</span>,
         new_regrading.user_points_update_strategy <span class="kw">as </span>UserPointsUpdateStrategy,
         user_id
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info!</span>(
-        <span class="string">&quot;Adding {:?} exercise task submissions to the regrading.&quot;</span>,
+        <span class="string">"Adding {:?} exercise task submissions to the regrading."</span>,
         new_regrading.exercise_task_submission_ids.len()
     );
     <span class="kw">for </span>id <span class="kw">in </span>new_regrading.exercise_task_submission_ids {
@@ -372,7 +373,7 @@ RETURNING id
             .ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::PreconditionFailed,
-                    <span class="string">&quot;One of the submissions to be regraded has not been graded yet.&quot;</span>.to_string(),
+                    <span class="string">"One of the submissions to be regraded has not been graded yet."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
@@ -413,7 +414,7 @@ RETURNING id
                     .ok_or_else(|| {
                         ModelError::new(
                             ModelErrorType::Generic,
-                            <span class="string">&quot;Grading before regrading not found&quot;</span>.to_string(),
+                            <span class="string">"Grading before regrading not found"</span>.to_string(),
                             <span class="prelude-val">None</span>,
                         )
                     })<span class="question-mark">?</span>,
@@ -435,20 +436,20 @@ RETURNING id
 ) -&gt; ModelResult&lt;Vec&lt;Regrading&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         Regrading,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
   regrading_started_at,
   regrading_completed_at,
-  total_grading_progress AS &quot;total_grading_progress: _&quot;,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;,
+  total_grading_progress AS "total_grading_progress: _",
+  user_points_update_strategy AS "user_points_update_strategy: _",
   user_id
 FROM regradings
 WHERE deleted_at IS NULL
 ORDER BY regradings.created_at
 LIMIT $1 OFFSET $2;
-&quot;#</span>,
+"#</span>,
         pagination.limit(),
         pagination.offset()
     )
@@ -459,11 +460,11 @@ LIMIT $1 OFFSET $2;
 
 <span class="kw">pub async fn </span>get_all_count(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; ModelResult&lt;i64&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT COUNT(*) as count
 from regradings
 WHERE deleted_at IS NULL;
-&quot;
+"
     </span>)
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -473,18 +474,18 @@ WHERE deleted_at IS NULL;
 <span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;Regrading&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         Regrading,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   regrading_started_at,
   regrading_completed_at,
   created_at,
   updated_at,
-  total_grading_progress AS &quot;total_grading_progress: _&quot;,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;,
+  total_grading_progress AS "total_grading_progress: _",
+  user_points_update_strategy AS "user_points_update_strategy: _",
   user_id
 FROM regradings
 WHERE id = $1
-&quot;#</span>,
+"#</span>,
         id
     )
     .fetch_one(conn)
@@ -496,7 +497,7 @@ WHERE id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
 ) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE regradings
 SET regrading_started_at = CASE
     WHEN regrading_started_at IS NULL THEN now()
@@ -505,7 +506,7 @@ SET regrading_started_at = CASE
 WHERE regrading_completed_at IS NULL
   AND deleted_at IS NULL
 RETURNING id
-&quot;#
+"#
     </span>)
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?
@@ -522,11 +523,11 @@ RETURNING id
     progress: GradingProgress,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE regradings
 SET total_grading_progress = $1
 WHERE id = $2
-&quot;</span>,
+"</span>,
         progress <span class="kw">as </span>GradingProgress,
         regrading_id
     )
@@ -537,12 +538,12 @@ WHERE id = $2
 
 <span class="kw">pub async fn </span>complete_regrading(conn: <span class="kw-2">&amp;mut </span>PgConnection, regrading_id: Uuid) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE regradings
 SET regrading_completed_at = now(),
-  total_grading_progress = &#39;fully-graded&#39;
+  total_grading_progress = 'fully-graded'
 WHERE id = $1
-&quot;</span>,
+"</span>,
         regrading_id
     )
     .execute(conn)
@@ -556,11 +557,11 @@ WHERE id = $1
     error_message: <span class="kw-2">&amp;</span>str,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE regradings
 SET error_message = $1
 WHERE id = $2
-&quot;</span>,
+"</span>,
         error_message,
         regrading_id
     )

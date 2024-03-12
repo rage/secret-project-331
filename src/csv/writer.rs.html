@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1508,11 +1509,11 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = WriterBuilder::new().from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "b", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,b,c\nx,y,z\n&quot;);
+    ///     assert_eq!(data, "a,b,c\nx,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1534,9 +1535,9 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let mut wtr = WriterBuilder::new().from_path(&quot;foo.csv&quot;)?;
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     let mut wtr = WriterBuilder::new().from_path("foo.csv")?;
+    ///     wtr.write_record(&amp;["a", "b", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///     wtr.flush()?;
     ///     Ok(())
     /// }
@@ -1559,11 +1560,11 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = WriterBuilder::new().from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "b", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,b,c\nx,y,z\n&quot;);
+    ///     assert_eq!(data, "a,b,c\nx,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1573,7 +1574,7 @@
 
     <span class="doccomment">/// The field delimiter to use when writing CSV.
     ///
-    /// The default is `b&#39;,&#39;`.
+    /// The default is `b','`.
     ///
     /// # Example
     ///
@@ -1584,13 +1585,13 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = WriterBuilder::new()
-    ///         .delimiter(b&#39;;&#39;)
+    ///         .delimiter(b';')
     ///         .from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "b", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a;b;c\nx;y;z\n&quot;);
+    ///     assert_eq!(data, "a;b;c\nx;y;z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1607,7 +1608,7 @@
     /// is written.
     ///
     /// This option has no effect when using other methods to write rows. That
-    /// is, if you don&#39;t use `serialize`, then you must write your header row
+    /// is, if you don't use `serialize`, then you must write your header row
     /// explicitly if you want a header row.
     ///
     /// This is enabled by default.
@@ -1623,12 +1624,12 @@
     /// use csv::WriterBuilder;
     ///
     /// #[derive(serde::Serialize)]
-    /// struct Row&lt;&#39;a&gt; {
-    ///     city: &amp;&#39;a str,
-    ///     country: &amp;&#39;a str,
+    /// struct Row&lt;'a&gt; {
+    ///     city: &amp;'a str,
+    ///     country: &amp;'a str,
     ///     // Serde allows us to name our headers exactly,
-    ///     // even if they don&#39;t match our struct field names.
-    ///     #[serde(rename = &quot;popcount&quot;)]
+    ///     // even if they don't match our struct field names.
+    ///     #[serde(rename = "popcount")]
     ///     population: u64,
     /// }
     ///
@@ -1636,31 +1637,31 @@
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = WriterBuilder::new().from_writer(vec![]);
     ///     wtr.serialize(Row {
-    ///         city: &quot;Boston&quot;,
-    ///         country: &quot;United States&quot;,
+    ///         city: "Boston",
+    ///         country: "United States",
     ///         population: 4628910,
     ///     })?;
     ///     wtr.serialize(Row {
-    ///         city: &quot;Concord&quot;,
-    ///         country: &quot;United States&quot;,
+    ///         city: "Concord",
+    ///         country: "United States",
     ///         population: 42695,
     ///     })?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;\
+    ///     assert_eq!(data, "\
     /// city,country,popcount
     /// Boston,United States,4628910
     /// Concord,United States,42695
-    /// &quot;);
+    /// ");
     ///     Ok(())
     /// }
     /// ```
     ///
     /// # Example: without headers
     ///
-    /// This shows that serializing things that aren&#39;t structs (in this case,
-    /// a tuple struct) won&#39;t result in a header row being written. This means
-    /// you usually don&#39;t need to set `has_headers(false)` unless you
+    /// This shows that serializing things that aren't structs (in this case,
+    /// a tuple struct) won't result in a header row being written. This means
+    /// you usually don't need to set `has_headers(false)` unless you
     /// explicitly want to both write custom headers and serialize structs.
     ///
     /// ```
@@ -1670,14 +1671,14 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = WriterBuilder::new().from_writer(vec![]);
-    ///     wtr.serialize((&quot;Boston&quot;, &quot;United States&quot;, 4628910))?;
-    ///     wtr.serialize((&quot;Concord&quot;, &quot;United States&quot;, 42695))?;
+    ///     wtr.serialize(("Boston", "United States", 4628910))?;
+    ///     wtr.serialize(("Concord", "United States", 42695))?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;\
+    ///     assert_eq!(data, "\
     /// Boston,United States,4628910
     /// Concord,United States,42695
-    /// &quot;);
+    /// ");
     ///     Ok(())
     /// }
     /// ```
@@ -1705,11 +1706,11 @@
     ///     let mut wtr = WriterBuilder::new()
     ///         .flexible(true)
     ///         .from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "b"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,b\nx,y,z\n&quot;);
+    ///     assert_eq!(data, "a,b\nx,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1725,15 +1726,15 @@
     ///     let mut wtr = WriterBuilder::new()
     ///         .flexible(false)
     ///         .from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;])?;
-    ///     let err = wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;]).unwrap_err();
+    ///     wtr.write_record(&amp;["a", "b"])?;
+    ///     let err = wtr.write_record(&amp;["x", "y", "z"]).unwrap_err();
     ///     match *err.kind() {
     ///         csv::ErrorKind::UnequalLengths { expected_len, len, .. } =&gt; {
     ///             assert_eq!(expected_len, 2);
     ///             assert_eq!(len, 3);
     ///         }
     ///         ref wrong =&gt; {
-    ///             panic!(&quot;expected UnequalLengths but got {:?}&quot;, wrong);
+    ///             panic!("expected UnequalLengths but got {:?}", wrong);
     ///         }
     ///     }
     ///     Ok(())
@@ -1764,11 +1765,11 @@
     ///     let mut wtr = WriterBuilder::new()
     ///         .terminator(Terminator::CRLF)
     ///         .from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "b", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,b,c\r\nx,y,z\r\n&quot;);
+    ///     assert_eq!(data, "a,b,c\r\nx,y,z\r\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1798,11 +1799,11 @@
     ///     let mut wtr = WriterBuilder::new()
     ///         .quote_style(QuoteStyle::NonNumeric)
     ///         .from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;5&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;3.14&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "5", "c"])?;
+    ///     wtr.write_record(&amp;["3.14", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;\&quot;a\&quot;,5,\&quot;c\&quot;\n3.14,\&quot;y\&quot;,\&quot;z\&quot;\n&quot;);
+    ///     assert_eq!(data, "\"a\",5,\"c\"\n3.14,\"y\",\"z\"\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1821,11 +1822,11 @@
     ///     let mut wtr = WriterBuilder::new()
     ///         .quote_style(QuoteStyle::Never)
     ///         .from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;foo\nbar&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;g\&quot;h\&quot;i&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "foo\nbar", "c"])?;
+    ///     wtr.write_record(&amp;["g\"h\"i", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,foo\nbar,c\ng\&quot;h\&quot;i,y,z\n&quot;);
+    ///     assert_eq!(data, "a,foo\nbar,c\ng\"h\"i,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1836,7 +1837,7 @@
 
     <span class="doccomment">/// The quote character to use when writing CSV.
     ///
-    /// The default is `b&#39;&quot;&#39;`.
+    /// The default is `b'"'`.
     ///
     /// # Example
     ///
@@ -1847,13 +1848,13 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = WriterBuilder::new()
-    ///         .quote(b&#39;\&#39;&#39;)
+    ///         .quote(b'\'')
     ///         .from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;foo\nbar&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;g&#39;h&#39;i&quot;, &quot;y\&quot;y\&quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "foo\nbar", "c"])?;
+    ///     wtr.write_record(&amp;["g'h'i", "y\"y\"y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,&#39;foo\nbar&#39;,c\n&#39;g&#39;&#39;h&#39;&#39;i&#39;,y\&quot;y\&quot;y,z\n&quot;);
+    ///     assert_eq!(data, "a,'foo\nbar',c\n'g''h''i',y\"y\"y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1878,11 +1879,11 @@
     ///     let mut wtr = WriterBuilder::new()
     ///         .double_quote(false)
     ///         .from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;foo\&quot;bar&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "foo\"bar", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,\&quot;foo\\\&quot;bar\&quot;,c\nx,y,z\n&quot;);
+    ///     assert_eq!(data, "a,\"foo\\\"bar\",c\nx,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1909,13 +1910,13 @@
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = WriterBuilder::new()
     ///         .double_quote(false)
-    ///         .escape(b&#39;$&#39;)
+    ///         .escape(b'$')
     ///         .from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;foo\&quot;bar&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "foo\"bar", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,\&quot;foo$\&quot;bar\&quot;,c\nx,y,z\n&quot;);
+    ///     assert_eq!(data, "a,\"foo$\"bar\",c\nx,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1940,10 +1941,10 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr =
-    ///         WriterBuilder::new().comment(Some(b&#39;#&#39;)).from_writer(Vec::new());
-    ///     wtr.write_record(&amp;[&quot;# comment&quot;, &quot;another&quot;]).unwrap();
+    ///         WriterBuilder::new().comment(Some(b'#')).from_writer(Vec::new());
+    ///     wtr.write_record(&amp;["# comment", "another"]).unwrap();
     ///     let buf = wtr.into_inner().unwrap();
-    ///     assert_eq!(String::from_utf8(buf).unwrap(), &quot;\&quot;# comment\&quot;,another\n&quot;);
+    ///     assert_eq!(String::from_utf8(buf).unwrap(), "\"# comment\",another\n");
     ///     Ok(())
     /// }
     /// ```
@@ -1985,7 +1986,7 @@
 /// Note that the default configuration of a `Writer` uses `\n` for record
 /// terminators instead of `\r\n` as specified by RFC 4180. Use the
 /// `terminator` method on `WriterBuilder` to set the terminator to `\r\n` if
-/// it&#39;s desired.
+/// it's desired.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Writer&lt;W: io::Write&gt; {
     core: CoreWriter,
@@ -2063,9 +2064,9 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let mut wtr = Writer::from_path(&quot;foo.csv&quot;)?;
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     let mut wtr = Writer::from_path("foo.csv")?;
+    ///     wtr.write_record(&amp;["a", "b", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///     wtr.flush()?;
     ///     Ok(())
     /// }
@@ -2111,11 +2112,11 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = Writer::from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "b", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,b,c\nx,y,z\n&quot;);
+    ///     assert_eq!(data, "a,b,c\nx,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -2139,12 +2140,12 @@
     /// use csv::Writer;
     ///
     /// #[derive(serde::Serialize)]
-    /// struct Row&lt;&#39;a&gt; {
-    ///     city: &amp;&#39;a str,
-    ///     country: &amp;&#39;a str,
+    /// struct Row&lt;'a&gt; {
+    ///     city: &amp;'a str,
+    ///     country: &amp;'a str,
     ///     // Serde allows us to name our headers exactly,
-    ///     // even if they don&#39;t match our struct field names.
-    ///     #[serde(rename = &quot;popcount&quot;)]
+    ///     // even if they don't match our struct field names.
+    ///     #[serde(rename = "popcount")]
     ///     population: u64,
     /// }
     ///
@@ -2152,22 +2153,22 @@
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = Writer::from_writer(vec![]);
     ///     wtr.serialize(Row {
-    ///         city: &quot;Boston&quot;,
-    ///         country: &quot;United States&quot;,
+    ///         city: "Boston",
+    ///         country: "United States",
     ///         population: 4628910,
     ///     })?;
     ///     wtr.serialize(Row {
-    ///         city: &quot;Concord&quot;,
-    ///         country: &quot;United States&quot;,
+    ///         city: "Concord",
+    ///         country: "United States",
     ///         population: 42695,
     ///     })?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;\
+    ///     assert_eq!(data, "\
     /// city,country,popcount
     /// Boston,United States,4628910
     /// Concord,United States,42695
-    /// &quot;);
+    /// ");
     ///     Ok(())
     /// }
     /// ```
@@ -2200,9 +2201,9 @@
     /// | boolean | `bool` | `true` | `true` |
     /// | integers | `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128` | `5` | `5` |
     /// | floats | `f32`, `f64` | `3.14` | `3.14` |
-    /// | character | `char` | `&#39;☃&#39;` | `☃` |
-    /// | string | `&amp;str` | `&quot;hi&quot;` | `hi` |
-    /// | bytes | `&amp;[u8]` | `b&quot;hi&quot;[..]` | `hi` |
+    /// | character | `char` | `'☃'` | `☃` |
+    /// | string | `&amp;str` | `"hi"` | `hi` |
+    /// | bytes | `&amp;[u8]` | `b"hi"[..]` | `hi` |
     /// | option | `Option` | `None` | *empty* |
     /// | option |          | `Some(5)` | `5` |
     /// | unit | `()` | `()` | *empty* |
@@ -2236,20 +2237,20 @@
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = Writer::from_writer(vec![]);
     ///     wtr.serialize(Row {
-    ///         label: &quot;foo&quot;.to_string(),
+    ///         label: "foo".to_string(),
     ///         value: Value::Integer(3),
     ///     })?;
     ///     wtr.serialize(Row {
-    ///         label: &quot;bar&quot;.to_string(),
+    ///         label: "bar".to_string(),
     ///         value: Value::Float(3.14),
     ///     })?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;\
+    ///     assert_eq!(data, "\
     /// label,value
     /// foo,3
     /// bar,3.14
-    /// &quot;);
+    /// ");
     ///     Ok(())
     /// }
     /// ```
@@ -2297,14 +2298,14 @@
     ///         .has_headers(false)
     ///         .from_writer(vec![]);
     ///     wtr.serialize(Row {
-    ///         label: &quot;foo&quot;.to_string(),
+    ///         label: "foo".to_string(),
     ///         values: vec![1.1234, 2.5678, 3.14],
     ///     })?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;\
+    ///     assert_eq!(data, "\
     /// foo,1.1234,2.5678,3.14
-    /// &quot;);
+    /// ");
     ///     Ok(())
     /// }
     /// ```
@@ -2361,11 +2362,11 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = Writer::from_writer(vec![]);
-    ///     wtr.write_record(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])?;
-    ///     wtr.write_record(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;])?;
+    ///     wtr.write_record(&amp;["a", "b", "c"])?;
+    ///     wtr.write_record(&amp;["x", "y", "z"])?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,b,c\nx,y,z\n&quot;);
+    ///     assert_eq!(data, "a,b,c\nx,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -2402,11 +2403,11 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = Writer::from_writer(vec![]);
-    ///     wtr.write_byte_record(&amp;ByteRecord::from(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;][..]))?;
-    ///     wtr.write_byte_record(&amp;ByteRecord::from(&amp;[&quot;x&quot;, &quot;y&quot;, &quot;z&quot;][..]))?;
+    ///     wtr.write_byte_record(&amp;ByteRecord::from(&amp;["a", "b", "c"][..]))?;
+    ///     wtr.write_byte_record(&amp;ByteRecord::from(&amp;["x", "y", "z"][..]))?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,b,c\nx,y,z\n&quot;);
+    ///     assert_eq!(data, "a,b,c\nx,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -2417,7 +2418,7 @@
         }
         <span class="comment">// The idea here is to find a fast path for shuffling our record into
         // our buffer as quickly as possible. We do this because the underlying
-        // &quot;core&quot; CSV writer does a lot of book-keeping to maintain its state
+        // "core" CSV writer does a lot of book-keeping to maintain its state
         // oriented API.
         //
         // The fast path occurs when we know our record will fit in whatever
@@ -2485,17 +2486,17 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let mut wtr = Writer::from_writer(vec![]);
-    ///     wtr.write_field(&quot;a&quot;)?;
-    ///     wtr.write_field(&quot;b&quot;)?;
-    ///     wtr.write_field(&quot;c&quot;)?;
+    ///     wtr.write_field("a")?;
+    ///     wtr.write_field("b")?;
+    ///     wtr.write_field("c")?;
     ///     wtr.write_record(None::&lt;&amp;[u8]&gt;)?;
-    ///     wtr.write_field(&quot;x&quot;)?;
-    ///     wtr.write_field(&quot;y&quot;)?;
-    ///     wtr.write_field(&quot;z&quot;)?;
+    ///     wtr.write_field("x")?;
+    ///     wtr.write_field("y")?;
+    ///     wtr.write_field("z")?;
     ///     wtr.write_record(None::&lt;&amp;[u8]&gt;)?;
     ///
     ///     let data = String::from_utf8(wtr.into_inner()?)?;
-    ///     assert_eq!(data, &quot;a,b,c\nx,y,z\n&quot;);
+    ///     assert_eq!(data, "a,b,c\nx,y,z\n");
     ///     Ok(())
     /// }
     /// ```
@@ -2601,8 +2602,8 @@
         <span class="self">self</span>.check_field_count()<span class="question-mark">?</span>;
         <span class="kw">match </span><span class="self">self</span>.core.get_terminator() {
             csv_core::Terminator::CRLF =&gt; {
-                <span class="self">self</span>.buf.writable()[<span class="number">0</span>] = <span class="string">b&#39;\r&#39;</span>;
-                <span class="self">self</span>.buf.writable()[<span class="number">1</span>] = <span class="string">b&#39;\n&#39;</span>;
+                <span class="self">self</span>.buf.writable()[<span class="number">0</span>] = <span class="string">b'\r'</span>;
+                <span class="self">self</span>.buf.writable()[<span class="number">1</span>] = <span class="string">b'\n'</span>;
                 <span class="self">self</span>.buf.written(<span class="number">2</span>);
             }
             csv_core::Terminator::Any(b) =&gt; {
@@ -2637,7 +2638,7 @@
 }
 
 <span class="kw">impl </span>Buffer {
-    <span class="doccomment">/// Returns a slice of the buffer&#39;s current contents.
+    <span class="doccomment">/// Returns a slice of the buffer's current contents.
     ///
     /// The slice returned may be empty.
     </span><span class="attr">#[inline]
@@ -2685,74 +2686,74 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>one_record() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]).unwrap();
+        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]).unwrap();
 
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;a,b,c\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"a,b,c\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>one_string_record() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_record(<span class="kw-2">&amp;</span>StringRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>])).unwrap();
+        wtr.write_record(<span class="kw-2">&amp;</span>StringRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>])).unwrap();
 
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;a,b,c\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"a,b,c\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>one_byte_record() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>])).unwrap();
+        wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>])).unwrap();
 
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;a,b,c\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"a,b,c\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>raw_one_byte_record() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>])).unwrap();
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>])).unwrap();
 
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;a,b,c\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"a,b,c\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>one_empty_record() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>]).unwrap();
+        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">""</span>]).unwrap();
 
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;\&quot;\&quot;\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"\"\"\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>raw_one_empty_record() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>])).unwrap();
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">""</span>])).unwrap();
 
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;\&quot;\&quot;\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"\"\"\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>two_empty_records() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>]).unwrap();
-        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>]).unwrap();
+        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">""</span>]).unwrap();
+        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">""</span>]).unwrap();
 
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;\&quot;\&quot;\n\&quot;\&quot;\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"\"\"\n\"\"\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>raw_two_empty_records() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>])).unwrap();
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>])).unwrap();
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">""</span>])).unwrap();
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">""</span>])).unwrap();
 
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;\&quot;\&quot;\n\&quot;\&quot;\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"\"\"\n\"\"\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>unequal_records_bad() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>])).unwrap();
-        <span class="kw">let </span>err = wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>])).unwrap_err();
+        wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>])).unwrap();
+        <span class="kw">let </span>err = wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>])).unwrap_err();
         <span class="kw">match </span><span class="kw-2">*</span>err.kind() {
             ErrorKind::UnequalLengths { <span class="kw-2">ref </span>pos, expected_len, len } =&gt; {
                 <span class="macro">assert!</span>(pos.is_none());
@@ -2760,7 +2761,7 @@
                 <span class="macro">assert_eq!</span>(len, <span class="number">1</span>);
             }
             <span class="kw-2">ref </span>x =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;expected UnequalLengths error, but got &#39;{:?}&#39;&quot;</span>, x);
+                <span class="macro">panic!</span>(<span class="string">"expected UnequalLengths error, but got '{:?}'"</span>, x);
             }
         }
     }
@@ -2768,9 +2769,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>raw_unequal_records_bad() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>])).unwrap();
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>])).unwrap();
         <span class="kw">let </span>err =
-            wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>])).unwrap_err();
+            wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>])).unwrap_err();
         <span class="kw">match </span><span class="kw-2">*</span>err.kind() {
             ErrorKind::UnequalLengths { <span class="kw-2">ref </span>pos, expected_len, len } =&gt; {
                 <span class="macro">assert!</span>(pos.is_none());
@@ -2778,7 +2779,7 @@
                 <span class="macro">assert_eq!</span>(len, <span class="number">1</span>);
             }
             <span class="kw-2">ref </span>x =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;expected UnequalLengths error, but got &#39;{:?}&#39;&quot;</span>, x);
+                <span class="macro">panic!</span>(<span class="string">"expected UnequalLengths error, but got '{:?}'"</span>, x);
             }
         }
     }
@@ -2786,17 +2787,17 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>unequal_records_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().flexible(<span class="bool-val">true</span>).from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>])).unwrap();
-        wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>])).unwrap();
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;a,b,c\na\n&quot;</span>);
+        wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>])).unwrap();
+        wtr.write_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>])).unwrap();
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"a,b,c\na\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>raw_unequal_records_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().flexible(<span class="bool-val">true</span>).from_writer(<span class="macro">vec!</span>[]);
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>])).unwrap();
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>])).unwrap();
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;a,b,c\na\n&quot;</span>);
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>])).unwrap();
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>])).unwrap();
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"a,b,c\na\n"</span>);
     }
 
     <span class="attr">#[test]
@@ -2811,15 +2812,15 @@
 
         <span class="kw">impl </span>Write <span class="kw">for </span>MarkWriteAndFlush {
             <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
-                <span class="self">self</span>.<span class="number">0</span>.write(<span class="string">b&quot;&gt;&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="number">0</span>.write(<span class="string">b"&gt;"</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span>written = <span class="self">self</span>.<span class="number">0</span>.write(data)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="number">0</span>.write(<span class="string">b&quot;&lt;&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="number">0</span>.write(<span class="string">b"&lt;"</span>)<span class="question-mark">?</span>;
 
                 <span class="prelude-val">Ok</span>(written)
             }
 
             <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
-                <span class="self">self</span>.<span class="number">0</span>.write(<span class="string">b&quot;!&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="number">0</span>.write(<span class="string">b"!"</span>)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(())
             }
         }
@@ -2828,16 +2829,16 @@
         <span class="kw">let </span><span class="kw-2">mut </span>wtr =
             WriterBuilder::new().buffer_capacity(<span class="number">4</span>).from_writer(underlying);
 
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>])).unwrap();
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;c&quot;</span>, <span class="string">&quot;d&quot;</span>])).unwrap();
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>])).unwrap();
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"c"</span>, <span class="string">"d"</span>])).unwrap();
         wtr.flush().unwrap();
-        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;e&quot;</span>, <span class="string">&quot;f&quot;</span>])).unwrap();
+        wtr.write_byte_record(<span class="kw-2">&amp;</span>ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"e"</span>, <span class="string">"f"</span>])).unwrap();
 
         <span class="kw">let </span>got = wtr.into_inner().unwrap().to_str();
 
         <span class="comment">// As the buffer size is 4 we should write each record separately, and
         // flush when explicitly called and implictly in into_inner.
-        </span><span class="macro">assert_eq!</span>(got, <span class="string">&quot;&gt;a,b\n&lt;&gt;c,d\n&lt;!&gt;e,f\n&lt;!&quot;</span>);
+        </span><span class="macro">assert_eq!</span>(got, <span class="string">"&gt;a,b\n&lt;&gt;c,d\n&lt;!&gt;e,f\n&lt;!"</span>);
     }
 
     <span class="attr">#[test]
@@ -2851,7 +2852,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
         wtr.serialize(Row { foo: <span class="number">42</span>, bar: <span class="number">42.5</span>, baz: <span class="bool-val">true </span>}).unwrap();
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;foo,bar,baz\n42,42.5,true\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"foo,bar,baz\n42,42.5,true\n"</span>);
     }
 
     <span class="attr">#[test]
@@ -2866,7 +2867,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>wtr =
             WriterBuilder::new().has_headers(<span class="bool-val">false</span>).from_writer(<span class="macro">vec!</span>[]);
         wtr.serialize(Row { foo: <span class="number">42</span>, bar: <span class="number">42.5</span>, baz: <span class="bool-val">true </span>}).unwrap();
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;42,42.5,true\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"42,42.5,true\n"</span>);
     }
 
     <span class="macro">serde_if_integer128! </span>{
@@ -2886,24 +2887,24 @@
                 bar: <span class="number">42.5</span>,
                 baz: <span class="bool-val">true</span>,
             }).unwrap();
-            <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;9223372036854775808,42.5,true\n&quot;</span>);
+            <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"9223372036854775808,42.5,true\n"</span>);
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>serialize_tuple() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().from_writer(<span class="macro">vec!</span>[]);
-        wtr.serialize((<span class="bool-val">true</span>, <span class="number">1.3</span>, <span class="string">&quot;hi&quot;</span>)).unwrap();
-        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">&quot;true,1.3,hi\n&quot;</span>);
+        wtr.serialize((<span class="bool-val">true</span>, <span class="number">1.3</span>, <span class="string">"hi"</span>)).unwrap();
+        <span class="macro">assert_eq!</span>(wtr_as_string(wtr), <span class="string">"true,1.3,hi\n"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>comment_char_is_automatically_quoted() {
         <span class="kw">let </span><span class="kw-2">mut </span>wtr =
-            WriterBuilder::new().comment(<span class="prelude-val">Some</span>(<span class="string">b&#39;#&#39;</span>)).from_writer(Vec::new());
-        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;# comment&quot;</span>, <span class="string">&quot;another&quot;</span>]).unwrap();
+            WriterBuilder::new().comment(<span class="prelude-val">Some</span>(<span class="string">b'#'</span>)).from_writer(Vec::new());
+        wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"# comment"</span>, <span class="string">"another"</span>]).unwrap();
         <span class="kw">let </span>buf = wtr.into_inner().unwrap();
-        <span class="macro">assert_eq!</span>(String::from_utf8(buf).unwrap(), <span class="string">&quot;\&quot;# comment\&quot;,another\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(String::from_utf8(buf).unwrap(), <span class="string">"\"# comment\",another\n"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

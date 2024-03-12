@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/blake3-1.5.0/src/io.rs`."><title>io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blake3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/blake3-1.5.0/src/io.rs`."><title>io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blake3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -79,7 +80,7 @@
 <a href="#79" id="79">79</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Helper functions for efficient IO.
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>copy_wide(
     <span class="kw-2">mut </span>reader: <span class="kw">impl </span>std::io::Read,
     hasher: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::Hasher,
@@ -101,31 +102,31 @@
 }
 
 <span class="comment">// Mmap a file, if it looks like a good idea. Return None in cases where we know mmap will fail, or
-// if the file is short enough that mmapping isn&#39;t worth it. However, if we do try to mmap and it
+// if the file is short enough that mmapping isn't worth it. However, if we do try to mmap and it
 // fails, return the error.
 //
 // SAFETY: Mmaps are fundamentally unsafe, because you can call invariant-checking functions like
 // str::from_utf8 on them and then have them change out from under you. Letting a safe caller get
-// their hands on an mmap, or even a &amp;[u8] that&#39;s backed by an mmap, is unsound. However, because
+// their hands on an mmap, or even a &amp;[u8] that's backed by an mmap, is unsound. However, because
 // this function is crate-private, we can guarantee that all can ever happen in the event of a race
 // condition is that we either hash nonsense bytes or crash with SIGBUS or similar, neither of
 // which should risk memory corruption in a safe caller.
 //
 // PARANOIA: But a data race...is a data race...is a data race...right? Even if we know that no
-// platform in the &quot;real world&quot; is ever going to do anything other than compute the &quot;wrong answer&quot;
-// if we race on this mmap while we hash it, aren&#39;t we still supposed to feel bad about doing this?
+// platform in the "real world" is ever going to do anything other than compute the "wrong answer"
+// if we race on this mmap while we hash it, aren't we still supposed to feel bad about doing this?
 // Well, maybe. This is IO, and IO gets special carve-outs in the memory model. Consider a
 // memory-mapped register that returns random 32-bit words. (This is actually realistic if you have
-// a hardware RNG.) It&#39;s probably sound to construct a *const i32 pointing to that register and do
-// some raw pointer reads from it. Those reads should be volatile if you don&#39;t want the compiler to
-// coalesce them, but either way the compiler isn&#39;t allowed to just _go nuts_ and insert
+// a hardware RNG.) It's probably sound to construct a *const i32 pointing to that register and do
+// some raw pointer reads from it. Those reads should be volatile if you don't want the compiler to
+// coalesce them, but either way the compiler isn't allowed to just _go nuts_ and insert
 // should-never-happen branches to wipe your hard drive if two adjacent reads happen to give
-// different values. As far as I&#39;m aware, there&#39;s no such thing as a read that&#39;s allowed if it&#39;s
-// volatile but prohibited if it&#39;s not (unlike atomics). As mentioned above, it&#39;s not ok to
-// construct a safe &amp;i32 to the register if you&#39;re going to leak that reference to unknown callers.
-// But if you &quot;know what you&#39;re doing,&quot; I don&#39;t think *const i32 and &amp;i32 are fundamentally
+// different values. As far as I'm aware, there's no such thing as a read that's allowed if it's
+// volatile but prohibited if it's not (unlike atomics). As mentioned above, it's not ok to
+// construct a safe &amp;i32 to the register if you're going to leak that reference to unknown callers.
+// But if you "know what you're doing," I don't think *const i32 and &amp;i32 are fundamentally
 // different here. Feedback needed.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;mmap&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"mmap"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>maybe_mmap_file(file: <span class="kw-2">&amp;</span>std::fs::File) -&gt; std::io::Result&lt;<span class="prelude-ty">Option</span>&lt;memmap2::Mmap&gt;&gt; {
     <span class="kw">let </span>metadata = file.metadata()<span class="question-mark">?</span>;
     <span class="kw">let </span>file_size = metadata.len();
@@ -147,7 +148,7 @@
         </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     } <span class="kw">else </span>{
         <span class="comment">// Explicitly set the length of the memory map, so that filesystem
-        // changes can&#39;t race to violate the invariants we just checked.
+        // changes can't race to violate the invariants we just checked.
         </span><span class="kw">let </span>map = <span class="kw">unsafe </span>{
             memmap2::MmapOptions::new()
                 .len(file_size <span class="kw">as </span>usize)

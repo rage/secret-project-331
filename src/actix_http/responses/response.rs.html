@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/responses/response.rs`."><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/responses/response.rs`."><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -568,13 +569,13 @@
 
     <span class="doccomment">/// Returns a reference to the request-local data/extensions container.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    </span><span class="kw">pub fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         <span class="self">self</span>.extensions.borrow()
     }
 
     <span class="doccomment">/// Returns a mutable reference to the request-local data/extensions container.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>extensions_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    </span><span class="kw">pub fn </span>extensions_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         <span class="self">self</span>.extensions.borrow_mut()
     }
 
@@ -644,7 +645,7 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>map_into_boxed_body(<span class="self">self</span>) -&gt; Response&lt;BoxBody&gt;
     <span class="kw">where
-        </span>B: MessageBody + <span class="lifetime">&#39;static</span>,
+        </span>B: MessageBody + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.map_body(|<span class="kw">_</span>, body| body.boxed())
     }
@@ -660,19 +661,19 @@
 <span class="kw">where
     </span>B: MessageBody,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span>res = <span class="macro">writeln!</span>(
             f,
-            <span class="string">&quot;\nResponse {:?} {}{}&quot;</span>,
+            <span class="string">"\nResponse {:?} {}{}"</span>,
             <span class="self">self</span>.head.version,
             <span class="self">self</span>.head.status,
-            <span class="self">self</span>.head.reason.unwrap_or(<span class="string">&quot;&quot;</span>),
+            <span class="self">self</span>.head.reason.unwrap_or(<span class="string">""</span>),
         );
-        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;  headers:&quot;</span>);
+        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">"  headers:"</span>);
         <span class="kw">for </span>(key, val) <span class="kw">in </span><span class="self">self</span>.head.headers.iter() {
-            <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;    {:?}: {:?}&quot;</span>, key, val);
+            <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">"    {:?}: {:?}"</span>, key, val);
         }
-        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;  body: {:?}&quot;</span>, <span class="self">self</span>.body.size());
+        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">"  body: {:?}"</span>, <span class="self">self</span>.body.size());
         res
     }
 }
@@ -705,8 +706,8 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; <span class="kw">for </span>Response&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
-    <span class="kw">fn </span>from(val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; <span class="kw">for </span>Response&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+    <span class="kw">fn </span>from(val: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val);
         <span class="kw">let </span>mime = mime::TEXT_PLAIN_UTF_8.try_into_value().unwrap();
         res.headers_mut().insert(header::CONTENT_TYPE, mime);
@@ -714,8 +715,8 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]&gt; <span class="kw">for </span>Response&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]&gt; {
-    <span class="kw">fn </span>from(val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]) -&gt; <span class="self">Self </span>{
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8]&gt; <span class="kw">for </span>Response&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8]&gt; {
+    <span class="kw">fn </span>from(val: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val);
         <span class="kw">let </span>mime = mime::APPLICATION_OCTET_STREAM.try_into_value().unwrap();
         res.headers_mut().insert(header::CONTENT_TYPE, mime);
@@ -797,81 +798,81 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_debug() {
         <span class="kw">let </span>resp = Response::build(StatusCode::OK)
-            .append_header((COOKIE, HeaderValue::from_static(<span class="string">&quot;cookie1=value1; &quot;</span>)))
-            .append_header((COOKIE, HeaderValue::from_static(<span class="string">&quot;cookie2=value2; &quot;</span>)))
+            .append_header((COOKIE, HeaderValue::from_static(<span class="string">"cookie1=value1; "</span>)))
+            .append_header((COOKIE, HeaderValue::from_static(<span class="string">"cookie2=value2; "</span>)))
             .finish();
-        <span class="kw">let </span>dbg = <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, resp);
-        <span class="macro">assert!</span>(dbg.contains(<span class="string">&quot;Response&quot;</span>));
+        <span class="kw">let </span>dbg = <span class="macro">format!</span>(<span class="string">"{:?}"</span>, resp);
+        <span class="macro">assert!</span>(dbg.contains(<span class="string">"Response"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_into_response() {
-        <span class="kw">let </span>res = Response::from(<span class="string">&quot;test&quot;</span>);
+        <span class="kw">let </span>res = Response::from(<span class="string">"test"</span>);
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(CONTENT_TYPE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            HeaderValue::from_static(<span class="string">"text/plain; charset=utf-8"</span>)
         );
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
-        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b"test"</span>[..]);
 
-        <span class="kw">let </span>res = Response::from(<span class="string">b&quot;test&quot;</span>.as_ref());
+        <span class="kw">let </span>res = Response::from(<span class="string">b"test"</span>.as_ref());
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(CONTENT_TYPE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
+            HeaderValue::from_static(<span class="string">"application/octet-stream"</span>)
         );
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
-        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b"test"</span>[..]);
 
-        <span class="kw">let </span>res = Response::from(<span class="string">&quot;test&quot;</span>.to_owned());
+        <span class="kw">let </span>res = Response::from(<span class="string">"test"</span>.to_owned());
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(CONTENT_TYPE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            HeaderValue::from_static(<span class="string">"text/plain; charset=utf-8"</span>)
         );
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
-        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b"test"</span>[..]);
 
-        <span class="kw">let </span>res = Response::from(<span class="string">&quot;test&quot;</span>.to_owned());
+        <span class="kw">let </span>res = Response::from(<span class="string">"test"</span>.to_owned());
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(CONTENT_TYPE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            HeaderValue::from_static(<span class="string">"text/plain; charset=utf-8"</span>)
         );
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
-        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b"test"</span>[..]);
 
-        <span class="kw">let </span>b = Bytes::from_static(<span class="string">b&quot;test&quot;</span>);
+        <span class="kw">let </span>b = Bytes::from_static(<span class="string">b"test"</span>);
         <span class="kw">let </span>res = Response::from(b);
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(CONTENT_TYPE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
+            HeaderValue::from_static(<span class="string">"application/octet-stream"</span>)
         );
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
-        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b"test"</span>[..]);
 
-        <span class="kw">let </span>b = Bytes::from_static(<span class="string">b&quot;test&quot;</span>);
+        <span class="kw">let </span>b = Bytes::from_static(<span class="string">b"test"</span>);
         <span class="kw">let </span>res = Response::from(b);
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(CONTENT_TYPE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
+            HeaderValue::from_static(<span class="string">"application/octet-stream"</span>)
         );
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
-        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b"test"</span>[..]);
 
-        <span class="kw">let </span>b = BytesMut::from(<span class="string">&quot;test&quot;</span>);
+        <span class="kw">let </span>b = BytesMut::from(<span class="string">"test"</span>);
         <span class="kw">let </span>res = Response::from(b);
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(CONTENT_TYPE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
+            HeaderValue::from_static(<span class="string">"application/octet-stream"</span>)
         );
 
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
-        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b"test"</span>[..]);
     }
 }
 </code></pre></div></section></main></body></html>

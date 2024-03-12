@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/object.rs`."><title>object.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/object.rs`."><title>object.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1563,14 +1564,14 @@
 </pre></div><pre class="rust"><code><span class="kw">pub use </span><span class="kw">crate</span>::resources::bucket::Owner;
 <span class="kw">use </span><span class="kw">crate</span>::resources::object_access_control::ObjectAccessControl;
 <span class="kw">use </span>futures_util::Stream;
-<span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
 </span><span class="kw">use </span>futures_util::TryStream;
 <span class="kw">use </span>percent_encoding::{utf8_percent_encode, AsciiSet, NON_ALPHANUMERIC};
 <span class="kw">use </span>std::collections::HashMap;
 
 <span class="doccomment">/// A resource representing a file in Google Cloud Storage.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Object {
     <span class="doccomment">/// The kind of item this is. For objects, this is always `storage#object`.
     </span><span class="kw">pub </span>kind: String,
@@ -1583,12 +1584,12 @@
     <span class="doccomment">/// The name of the bucket containing this object.
     </span><span class="kw">pub </span>bucket: String,
     <span class="doccomment">/// The content generation of this object. Used for object versioning.
-    </span><span class="attr">#[serde(deserialize_with = <span class="string">&quot;crate::from_str&quot;</span>)]
+    </span><span class="attr">#[serde(deserialize_with = <span class="string">"crate::from_str"</span>)]
     </span><span class="kw">pub </span>generation: i64,
     <span class="doccomment">/// The version of the metadata for this object at this generation. Used for preconditions and
     /// for detecting changes in metadata. A metageneration number is only meaningful in the context
     /// of a particular generation of a particular object.
-    </span><span class="attr">#[serde(deserialize_with = <span class="string">&quot;crate::from_str&quot;</span>)]
+    </span><span class="attr">#[serde(deserialize_with = <span class="string">"crate::from_str"</span>)]
     </span><span class="kw">pub </span>metageneration: i64,
     <span class="doccomment">/// Content-Type of the object data. If an object is stored without a Content-Type, it is served
     /// as application/octet-stream.
@@ -1604,16 +1605,16 @@
     </span><span class="kw">pub </span>temporary_hold: <span class="prelude-ty">Option</span>&lt;bool&gt;,
     <span class="doccomment">/// Whether or not the object is subject to an event-based hold.
     </span><span class="kw">pub </span>event_based_hold: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    <span class="doccomment">/// The earliest time that the object can be deleted, based on a bucket&#39;s retention policy, in
+    <span class="doccomment">/// The earliest time that the object can be deleted, based on a bucket's retention policy, in
     /// RFC 3339 format.
     </span><span class="kw">pub </span>retention_expiration_time: <span class="prelude-ty">Option</span>&lt;chrono::DateTime&lt;chrono::Utc&gt;&gt;,
     <span class="doccomment">/// Storage class of the object.
     </span><span class="kw">pub </span>storage_class: String,
-    <span class="doccomment">/// The time at which the object&#39;s storage class was last changed. When the object is initially
+    <span class="doccomment">/// The time at which the object's storage class was last changed. When the object is initially
     /// created, it will be set to timeCreated.
     </span><span class="kw">pub </span>time_storage_class_updated: chrono::DateTime&lt;chrono::Utc&gt;,
     <span class="doccomment">/// Content-Length of the data in bytes.
-    </span><span class="attr">#[serde(deserialize_with = <span class="string">&quot;crate::from_str&quot;</span>)]
+    </span><span class="attr">#[serde(deserialize_with = <span class="string">"crate::from_str"</span>)]
     </span><span class="kw">pub </span>size: u64,
     <span class="doccomment">/// MD5 hash of the data; encoded using base64. For more information about using the MD5 hash,
     /// see Hashes and ETags: Best Practices.
@@ -1647,7 +1648,7 @@
     /// by compose operations, counting 1 for each non-composite source object and componentCount
     /// for each composite source object. Note: componentCount is included in the metadata for
     /// composite objects only.
-    </span><span class="attr">#[serde(default, deserialize_with = <span class="string">&quot;crate::from_str_opt&quot;</span>)]
+    </span><span class="attr">#[serde(default, deserialize_with = <span class="string">"crate::from_str_opt"</span>)]
     </span><span class="kw">pub </span>component_count: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     <span class="doccomment">/// HTTP 1.1 Entity tag for the object.
     </span><span class="kw">pub </span>etag: String,
@@ -1659,7 +1660,7 @@
 
 <span class="doccomment">/// Contains data about how a user might encrypt their files in Google Cloud Storage.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>CustomerEncrypton {
     <span class="doccomment">/// The encryption algorithm.
     </span><span class="kw">pub </span>encryption_algorithm: String,
@@ -1669,7 +1670,7 @@
 
 <span class="doccomment">/// The request that is supplied to perform `Object::compose`.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>ComposeRequest {
     <span class="doccomment">/// The kind of item this is. Will always be `storage#composeRequest`.
     </span><span class="kw">pub </span>kind: String,
@@ -1681,9 +1682,9 @@
 
 <span class="doccomment">/// A SourceObject represents one of the objects that is to be composed.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>SourceObject {
-    <span class="doccomment">/// The source object&#39;s name. All source objects must have the same storage class and reside in
+    <span class="doccomment">/// The source object's name. All source objects must have the same storage class and reside in
     /// the same bucket.
     </span><span class="kw">pub </span>name: String,
     <span class="doccomment">/// The generation of this object to use as the source.
@@ -1694,7 +1695,7 @@
 
 <span class="doccomment">/// Allows conditional copying of this file.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>ObjectPrecondition {
     <span class="doccomment">/// Only perform the composition if the generation of the source object that would be used
     /// matches this value. If this value and a generation are both specified, they must be the same
@@ -1707,7 +1708,7 @@
 /// reference](https://cloud.google.com/storage/docs/json_api/v1/objects/list)
 /// for more details.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, Default, Clone)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>ListRequest {
     <span class="doccomment">/// When specified, allows the `list` to operate like a directory listing by splitting the
     /// object location on this delimiter.
@@ -1756,7 +1757,7 @@
 
 <span class="doccomment">/// Acceptable values of `projection` properties to return from `Object::list` requests.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, Clone)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub enum </span>Projection {
     <span class="doccomment">/// Include all properties.
     </span>Full,
@@ -1766,19 +1767,19 @@
 
 <span class="doccomment">/// Response from `Object::list`.
 </span><span class="attr">#[derive(Debug, serde::Deserialize, Default)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>ObjectList {
     <span class="doccomment">/// The kind of item this is. For lists of objects, this is always `storage#objects`.
     </span><span class="kw">pub </span>kind: String,
 
     <span class="doccomment">/// The list of objects, ordered lexicographically by name.
-    </span><span class="attr">#[serde(default = <span class="string">&quot;Vec::new&quot;</span>)]
+    </span><span class="attr">#[serde(default = <span class="string">"Vec::new"</span>)]
     </span><span class="kw">pub </span>items: Vec&lt;Object&gt;,
 
     <span class="doccomment">/// Object name prefixes for objects that matched the listing request but were excluded
     /// from `items` because of a delimiter. Values in this list are object names up to and
     /// including the requested delimiter. Duplicate entries are omitted from this list.
-    </span><span class="attr">#[serde(default = <span class="string">&quot;Vec::new&quot;</span>)]
+    </span><span class="attr">#[serde(default = <span class="string">"Vec::new"</span>)]
     </span><span class="kw">pub </span>prefixes: Vec&lt;String&gt;,
 
     <span class="doccomment">/// The continuation token, included only if there are more items to return. Provide
@@ -1788,7 +1789,7 @@
 }
 
 <span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 #[allow(dead_code)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>RewriteResponse {
     kind: String,
@@ -1809,12 +1810,12 @@
     /// # fn read_cute_cat(_in: &amp;str) -&gt; Vec&lt;u8&gt; { vec![0, 1] }
     /// use cloud_storage::Object;
     ///
-    /// let file: Vec&lt;u8&gt; = read_cute_cat(&quot;cat.png&quot;);
-    /// Object::create(&quot;cat-photos&quot;, file, &quot;recently read cat.png&quot;, &quot;image/png&quot;).await?;
+    /// let file: Vec&lt;u8&gt; = read_cute_cat("cat.png");
+    /// Object::create("cat-photos", file, "recently read cat.png", "image/png").await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>create(
         bucket: <span class="kw-2">&amp;</span>str,
         file: Vec&lt;u8&gt;,
@@ -1831,7 +1832,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>create_sync(
         bucket: <span class="kw-2">&amp;</span>str,
         file: Vec&lt;u8&gt;,
@@ -1850,15 +1851,15 @@
     /// use cloud_storage::Object;
     ///
     /// let file = reqwest::Client::new()
-    ///     .get(&quot;https://my_domain.rs/nice_cat_photo.png&quot;)
+    ///     .get("https://my_domain.rs/nice_cat_photo.png")
     ///     .send()
     ///     .await?
     ///     .bytes_stream();
-    /// Object::create_streamed(&quot;cat-photos&quot;, file, 10, &quot;recently read cat.png&quot;, &quot;image/png&quot;).await?;
+    /// Object::create_streamed("cat-photos", file, 10, "recently read cat.png", "image/png").await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>create_streamed&lt;S&gt;(
         bucket: <span class="kw-2">&amp;</span>str,
         stream: S,
@@ -1867,7 +1868,7 @@
         mime_type: <span class="kw-2">&amp;</span>str,
     ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt;
     <span class="kw">where
-        </span>S: TryStream + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>S: TryStream + Send + Sync + <span class="lifetime">'static</span>,
         S::Error: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
         bytes::Bytes: From&lt;S::Ok&gt;,
     {
@@ -1881,8 +1882,8 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
-    </span><span class="kw">pub fn </span>create_streamed_sync&lt;R: std::io::Read + Send + <span class="lifetime">&#39;static</span>&gt;(
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
+    </span><span class="kw">pub fn </span>create_streamed_sync&lt;R: std::io::Read + Send + <span class="lifetime">'static</span>&gt;(
         bucket: <span class="kw-2">&amp;</span>str,
         <span class="kw-2">mut </span>file: R,
         length: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;u64&gt;&gt;,
@@ -1910,15 +1911,15 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::{Object, ListRequest};
     ///
-    /// let all_objects = Object::list(&quot;my_bucket&quot;, ListRequest::default()).await?;
+    /// let all_objects = Object::list("my_bucket", ListRequest::default()).await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>list(
         bucket: <span class="kw-2">&amp;</span>str,
         list_request: ListRequest,
-    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw">impl </span>Stream&lt;Item = <span class="kw">crate</span>::Result&lt;ObjectList&gt;&gt; + <span class="lifetime">&#39;_</span>&gt; {
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw">impl </span>Stream&lt;Item = <span class="kw">crate</span>::Result&lt;ObjectList&gt;&gt; + <span class="lifetime">'_</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .object()
             .list(bucket, list_request)
@@ -1929,7 +1930,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>list_sync(bucket: <span class="kw-2">&amp;</span>str, list_request: ListRequest) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;ObjectList&gt;&gt; {
         <span class="kw">use </span>futures_util::TryStreamExt;
 
@@ -1945,11 +1946,11 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::Object;
     ///
-    /// let object = Object::read(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
+    /// let object = Object::read("my_bucket", "path/to/my/file.png").await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>read(bucket: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.object().read(bucket, file_name).<span class="kw">await
     </span>}
@@ -1958,7 +1959,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>read_sync(bucket: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::read(bucket, file_name))
     }
@@ -1970,11 +1971,11 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::Object;
     ///
-    /// let bytes = Object::download(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
+    /// let bytes = Object::download("my_bucket", "path/to/my/file.png").await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>download(bucket: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;u8&gt;&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .object()
@@ -1986,7 +1987,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>download_sync(bucket: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;u8&gt;&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::download(bucket, file_name))
     }
@@ -2002,15 +2003,15 @@
     /// use std::fs::File;
     /// use std::io::{BufWriter, Write};
     ///
-    /// let mut stream = Object::download_streamed(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
-    /// let mut file = BufWriter::new(File::create(&quot;file.png&quot;).unwrap());
+    /// let mut stream = Object::download_streamed("my_bucket", "path/to/my/file.png").await?;
+    /// let mut file = BufWriter::new(File::create("file.png").unwrap());
     /// while let Some(byte) = stream.next().await {
     ///     file.write_all(&amp;[byte.unwrap()]).unwrap();
     /// }
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>download_streamed(
         bucket: <span class="kw-2">&amp;</span>str,
         file_name: <span class="kw-2">&amp;</span>str,
@@ -2028,13 +2029,13 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::Object;
     ///
-    /// let mut object = Object::read(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
-    /// object.content_type = Some(&quot;application/xml&quot;.to_string());
+    /// let mut object = Object::read("my_bucket", "path/to/my/file.png").await?;
+    /// object.content_type = Some("application/xml".to_string());
     /// object.update().await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.object().update(<span class="self">self</span>).<span class="kw">await
     </span>}
@@ -2043,7 +2044,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>update_sync(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.update())
     }
@@ -2055,11 +2056,11 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::Object;
     ///
-    /// Object::delete(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
+    /// Object::delete("my_bucket", "path/to/my/file.png").await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>delete(bucket: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.object().delete(bucket, file_name).<span class="kw">await
     </span>}
@@ -2068,7 +2069,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>delete_sync(bucket: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::delete(bucket, file_name))
     }
@@ -2080,10 +2081,10 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::object::{Object, ComposeRequest, SourceObject};
     ///
-    /// let obj1 = Object::read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
-    /// let obj2 = Object::read(&quot;my_bucket&quot;, &quot;file2&quot;).await?;
+    /// let obj1 = Object::read("my_bucket", "file1").await?;
+    /// let obj2 = Object::read("my_bucket", "file2").await?;
     /// let compose_request = ComposeRequest {
-    ///     kind: &quot;storage#composeRequest&quot;.to_string(),
+    ///     kind: "storage#composeRequest".to_string(),
     ///     source_objects: vec![
     ///         SourceObject {
     ///             name: obj1.name.clone(),
@@ -2098,12 +2099,12 @@
     ///     ],
     ///     destination: None,
     /// };
-    /// let obj3 = Object::compose(&quot;my_bucket&quot;, &amp;compose_request, &quot;test-concatted-file&quot;).await?;
+    /// let obj3 = Object::compose("my_bucket", &amp;compose_request, "test-concatted-file").await?;
     /// // obj3 is now a file with the content of obj1 and obj2 concatted together.
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>compose(
         bucket: <span class="kw-2">&amp;</span>str,
         req: <span class="kw-2">&amp;</span>ComposeRequest,
@@ -2119,7 +2120,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>compose_sync(
         bucket: <span class="kw-2">&amp;</span>str,
         req: <span class="kw-2">&amp;</span>ComposeRequest,
@@ -2135,13 +2136,13 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::object::{Object, ComposeRequest};
     ///
-    /// let obj1 = Object::read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
-    /// let obj2 = obj1.copy(&quot;my_other_bucket&quot;, &quot;file2&quot;).await?;
+    /// let obj1 = Object::read("my_bucket", "file1").await?;
+    /// let obj2 = obj1.copy("my_other_bucket", "file2").await?;
     /// // obj2 is now a copy of obj1.
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>copy(<span class="kw-2">&amp;</span><span class="self">self</span>, destination_bucket: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .object()
@@ -2153,7 +2154,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>copy_sync(<span class="kw-2">&amp;</span><span class="self">self</span>, destination_bucket: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.copy(destination_bucket, path))
     }
@@ -2172,13 +2173,13 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::object::Object;
     ///
-    /// let obj1 = Object::read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
-    /// let obj2 = obj1.rewrite(&quot;my_other_bucket&quot;, &quot;file2&quot;).await?;
+    /// let obj1 = Object::read("my_bucket", "file1").await?;
+    /// let obj2 = obj1.rewrite("my_other_bucket", "file2").await?;
     /// // obj2 is now a copy of obj1.
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>rewrite(<span class="kw-2">&amp;</span><span class="self">self</span>, destination_bucket: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .object()
@@ -2190,7 +2191,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>rewrite_sync(<span class="kw-2">&amp;</span><span class="self">self</span>, destination_bucket: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.rewrite(destination_bucket, path))
     }
@@ -2205,7 +2206,7 @@
     /// use cloud_storage::{Client, object::{Object, ComposeRequest}};
     ///
     /// let client = Client::default();
-    /// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
+    /// let obj1 = client.object().read("my_bucket", "file1").await?;
     /// let url = obj1.download_url(50)?;
     /// // url is now a url to which an unauthenticated user can make a request to download a file
     /// // for 50 seconds.
@@ -2213,7 +2214,7 @@
     /// # }
     /// ```
     </span><span class="kw">pub fn </span>download_url(<span class="kw-2">&amp;</span><span class="self">self</span>, duration: u32) -&gt; <span class="kw">crate</span>::Result&lt;String&gt; {
-        <span class="self">self</span>.sign(<span class="kw-2">&amp;</span><span class="self">self</span>.name, duration, <span class="string">&quot;GET&quot;</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>HashMap::new())
+        <span class="self">self</span>.sign(<span class="kw-2">&amp;</span><span class="self">self</span>.name, duration, <span class="string">"GET"</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>HashMap::new())
     }
 
     <span class="doccomment">/// Creates a [Signed Url](https://cloud.google.com/storage/docs/access-control/signed-urls)
@@ -2226,7 +2227,7 @@
     /// use cloud_storage::{Client, object::{Object, ComposeRequest}};
     ///
     /// let client = Client::default();
-    /// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
+    /// let obj1 = client.object().read("my_bucket", "file1").await?;
     /// let url = obj1.download_url(50)?;
     /// // url is now a url to which an unauthenticated user can make a request to download a file
     /// // for 50 seconds.
@@ -2241,7 +2242,7 @@
         <span class="self">self</span>.sign(
             <span class="kw-2">&amp;</span><span class="self">self</span>.name,
             duration,
-            <span class="string">&quot;GET&quot;</span>,
+            <span class="string">"GET"</span>,
             opts.content_disposition,
             <span class="kw-2">&amp;</span>HashMap::new(),
         )
@@ -2257,7 +2258,7 @@
     /// use cloud_storage::{Client, object::{Object, ComposeRequest}};
     ///
     /// let client = Client::default();
-    /// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
+    /// let obj1 = client.object().read("my_bucket", "file1").await?;
     /// let url = obj1.upload_url(50)?;
     /// // url is now a url to which an unauthenticated user can make a PUT request to upload a file
     /// // for 50 seconds.
@@ -2265,7 +2266,7 @@
     /// # }
     /// ```
     </span><span class="kw">pub fn </span>upload_url(<span class="kw-2">&amp;</span><span class="self">self</span>, duration: u32) -&gt; <span class="kw">crate</span>::Result&lt;String&gt; {
-        <span class="self">self</span>.sign(<span class="kw-2">&amp;</span><span class="self">self</span>.name, duration, <span class="string">&quot;PUT&quot;</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>HashMap::new())
+        <span class="self">self</span>.sign(<span class="kw-2">&amp;</span><span class="self">self</span>.name, duration, <span class="string">"PUT"</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>HashMap::new())
     }
 
     <span class="doccomment">/// Creates a [Signed Url](https://cloud.google.com/storage/docs/access-control/signed-urls)
@@ -2279,9 +2280,9 @@
     /// use std::collections::HashMap;
     ///
     /// let client = Client::default();
-    /// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
+    /// let obj1 = client.object().read("my_bucket", "file1").await?;
     /// let mut custom_metadata = HashMap::new();
-    /// custom_metadata.insert(String::from(&quot;field&quot;), String::from(&quot;value&quot;));
+    /// custom_metadata.insert(String::from("field"), String::from("value"));
     /// let (url, headers) = obj1.upload_url_with(50, custom_metadata)?;
     /// // url is now a url to which an unauthenticated user can make a PUT request to upload a file
     /// // for 50 seconds. Note that the user must also include the returned headers in the PUT request
@@ -2293,10 +2294,10 @@
         duration: u32,
         custom_metadata: HashMap&lt;String, String&gt;,
     ) -&gt; <span class="kw">crate</span>::Result&lt;(String, HashMap&lt;String, String&gt;)&gt; {
-        <span class="kw">let </span>url = <span class="self">self</span>.sign(<span class="kw-2">&amp;</span><span class="self">self</span>.name, duration, <span class="string">&quot;PUT&quot;</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>custom_metadata)<span class="question-mark">?</span>;
+        <span class="kw">let </span>url = <span class="self">self</span>.sign(<span class="kw-2">&amp;</span><span class="self">self</span>.name, duration, <span class="string">"PUT"</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>custom_metadata)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>headers = HashMap::new();
         <span class="kw">for </span>(k, v) <span class="kw">in </span>custom_metadata.iter() {
-            headers.insert(<span class="macro">format!</span>(<span class="string">&quot;x-goog-meta-{}&quot;</span>, k.to_string()), v.to_string());
+            headers.insert(<span class="macro">format!</span>(<span class="string">"x-goog-meta-{}"</span>, k.to_string()), v.to_string());
         }
         <span class="prelude-val">Ok</span>((url, headers))
     }
@@ -2305,7 +2306,7 @@
     // /// which is valid for `duration` seconds, and lets the posessor upload new file contents.
     // /// without any authentication.
     // pub fn upload_url(&amp;self, duration: u32) -&gt; crate::Result&lt;String&gt; {
-    //     self.sign(&amp;self.name, duration, &quot;POST&quot;)
+    //     self.sign(&amp;self.name, duration, "POST")
     // }
 
     </span><span class="attr">#[inline(always)]
@@ -2319,29 +2320,29 @@
     ) -&gt; <span class="kw">crate</span>::Result&lt;String&gt; {
         <span class="kw">if </span>duration &gt; <span class="number">604800 </span>{
             <span class="kw">let </span>msg = <span class="macro">format!</span>(
-                <span class="string">&quot;duration may not be greater than 604800, but was {}&quot;</span>,
+                <span class="string">"duration may not be greater than 604800, but was {}"</span>,
                 duration
             );
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Other(msg));
         }
 
         <span class="comment">// 0 Sort and construct the canonical headers
-        </span><span class="kw">let </span><span class="kw-2">mut </span>headers = <span class="macro">vec!</span>[(<span class="string">&quot;host&quot;</span>.to_string(), <span class="string">&quot;storage.googleapis.com&quot;</span>.to_string())];
+        </span><span class="kw">let </span><span class="kw-2">mut </span>headers = <span class="macro">vec!</span>[(<span class="string">"host"</span>.to_string(), <span class="string">"storage.googleapis.com"</span>.to_string())];
         <span class="comment">// Add custom metadata headers, guaranteed unique by HashMap input
         </span><span class="kw">for </span>(k, v) <span class="kw">in </span>custom_metadata.iter() {
-            headers.push((<span class="macro">format!</span>(<span class="string">&quot;x-goog-meta-{}&quot;</span>, k.to_string()), v.to_string()));
+            headers.push((<span class="macro">format!</span>(<span class="string">"x-goog-meta-{}"</span>, k.to_string()), v.to_string()));
         }
         headers.sort_unstable_by(|(k1, <span class="kw">_</span>), (k2, <span class="kw">_</span>)| k1.cmp(k2));
         <span class="kw">let </span>canonical_headers: String = headers
             .iter()
-            .map(|(k, v)| <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, k.to_lowercase(), v.to_lowercase()))
+            .map(|(k, v)| <span class="macro">format!</span>(<span class="string">"{}:{}"</span>, k.to_lowercase(), v.to_lowercase()))
             .collect::&lt;Vec&lt;String&gt;&gt;()
-            .join(<span class="string">&quot;\n&quot;</span>);
+            .join(<span class="string">"\n"</span>);
         <span class="kw">let </span>signed_headers = headers
             .iter()
             .map(|(k, <span class="kw">_</span>)| k.to_lowercase())
             .collect::&lt;Vec&lt;String&gt;&gt;()
-            .join(<span class="string">&quot;;&quot;</span>);
+            .join(<span class="string">";"</span>);
 
         <span class="comment">// 1 construct the canonical request
         </span><span class="kw">let </span>issue_date = chrono::Utc::now();
@@ -2365,12 +2366,12 @@
 
         <span class="comment">// 3 construct the string to sign
         </span><span class="kw">let </span>string_to_sign = <span class="macro">format!</span>(
-            <span class="string">&quot;{signing_algorithm}\n\
+            <span class="string">"{signing_algorithm}\n\
             {current_datetime}\n\
             {credential_scope}\n\
-            {hashed_canonical_request}&quot;</span>,
-            signing_algorithm = <span class="string">&quot;GOOG4-RSA-SHA256&quot;</span>,
-            current_datetime = issue_date.format(<span class="string">&quot;%Y%m%dT%H%M%SZ&quot;</span>),
+            {hashed_canonical_request}"</span>,
+            signing_algorithm = <span class="string">"GOOG4-RSA-SHA256"</span>,
+            current_datetime = issue_date.format(<span class="string">"%Y%m%dT%H%M%SZ"</span>),
             credential_scope = <span class="self">Self</span>::get_credential_scope(<span class="kw-2">&amp;</span>issue_date),
             hashed_canonical_request = hex_hash,
         );
@@ -2380,9 +2381,9 @@
 
         <span class="comment">// 5 construct the signed url
         </span><span class="prelude-val">Ok</span>(<span class="macro">format!</span>(
-            <span class="string">&quot;https://storage.googleapis.com{path_to_resource}?\
+            <span class="string">"https://storage.googleapis.com{path_to_resource}?\
             {query_string}&amp;\
-            X-Goog-Signature={request_signature}&quot;</span>,
+            X-Goog-Signature={request_signature}"</span>,
             path_to_resource = file_path,
             query_string = query_string,
             request_signature = signature,
@@ -2399,19 +2400,19 @@
         signed_headers: <span class="kw-2">&amp;</span>str,
     ) -&gt; String {
         <span class="macro">format!</span>(
-            <span class="string">&quot;{http_verb}\n\
+            <span class="string">"{http_verb}\n\
             {path_to_resource}\n\
             {canonical_query_string}\n\
             {canonical_headers}\n\
             \n\
             {signed_headers}\n\
-            {payload}&quot;</span>,
+            {payload}"</span>,
             http_verb = http_verb,
             path_to_resource = path,
             canonical_query_string = query_string,
             canonical_headers = headers,
             signed_headers = signed_headers,
-            payload = <span class="string">&quot;UNSIGNED-PAYLOAD&quot;</span>,
+            payload = <span class="string">"UNSIGNED-PAYLOAD"</span>,
         )
     }
 
@@ -2423,24 +2424,24 @@
         content_disposition: <span class="prelude-ty">Option</span>&lt;String&gt;,
     ) -&gt; String {
         <span class="kw">let </span>credential = <span class="macro">format!</span>(
-            <span class="string">&quot;{authorizer}/{scope}&quot;</span>,
+            <span class="string">"{authorizer}/{scope}"</span>,
             authorizer = <span class="kw">crate</span>::SERVICE_ACCOUNT.client_email,
             scope = <span class="self">Self</span>::get_credential_scope(date),
         );
         <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="macro">format!</span>(
-            <span class="string">&quot;X-Goog-Algorithm={algo}&amp;\
+            <span class="string">"X-Goog-Algorithm={algo}&amp;\
             X-Goog-Credential={cred}&amp;\
             X-Goog-Date={date}&amp;\
             X-Goog-Expires={exp}&amp;\
-            X-Goog-SignedHeaders={signed}&quot;</span>,
-            algo = <span class="string">&quot;GOOG4-RSA-SHA256&quot;</span>,
+            X-Goog-SignedHeaders={signed}"</span>,
+            algo = <span class="string">"GOOG4-RSA-SHA256"</span>,
             cred = percent_encode(<span class="kw-2">&amp;</span>credential),
-            date = date.format(<span class="string">&quot;%Y%m%dT%H%M%SZ&quot;</span>),
+            date = date.format(<span class="string">"%Y%m%dT%H%M%SZ"</span>),
             exp = exp,
             signed = percent_encode(headers),
         );
         <span class="kw">if let </span><span class="prelude-val">Some</span>(cd) = content_disposition {
-            s.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;&amp;response-content-disposition={}&quot;</span>, cd));
+            s.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"&amp;response-content-disposition={}"</span>, cd));
         }
         s
     }
@@ -2448,7 +2449,7 @@
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>path_to_resource(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>str) -&gt; String {
         <span class="macro">format!</span>(
-            <span class="string">&quot;/{bucket}/{file_path}&quot;</span>,
+            <span class="string">"/{bucket}/{file_path}"</span>,
             bucket = <span class="self">self</span>.bucket,
             file_path = percent_encode_noslash(path),
         )
@@ -2456,11 +2457,11 @@
 
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>get_credential_scope(date: <span class="kw-2">&amp;</span>chrono::DateTime&lt;chrono::Utc&gt;) -&gt; String {
-        <span class="macro">format!</span>(<span class="string">&quot;{}/henk/storage/goog4_request&quot;</span>, date.format(<span class="string">&quot;%Y%m%d&quot;</span>))
+        <span class="macro">format!</span>(<span class="string">"{}/henk/storage/goog4_request"</span>, date.format(<span class="string">"%Y%m%d"</span>))
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
 </span><span class="kw">mod </span>openssl {
     <span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>rsa_pkcs1_sha256(message: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;u8&gt;&gt; {
@@ -2478,9 +2479,9 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
 </span><span class="kw">mod </span>ring {
-    <span class="attr">#[cfg_attr(all(feature = <span class="string">&quot;ring&quot;</span>, feature = <span class="string">&quot;openssl&quot;</span>), allow(dead_code))]
+    <span class="attr">#[cfg_attr(all(feature = <span class="string">"ring"</span>, feature = <span class="string">"openssl"</span>), allow(dead_code))]
     #[inline(always)]
     </span><span class="kw">pub fn </span>rsa_pkcs1_sha256(message: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;u8&gt;&gt; {
         <span class="kw">use </span>ring::{
@@ -2496,7 +2497,7 @@
         <span class="prelude-val">Ok</span>(signature)
     }
 
-    <span class="attr">#[cfg_attr(all(feature = <span class="string">&quot;ring&quot;</span>, feature = <span class="string">&quot;openssl&quot;</span>), allow(dead_code))]
+    <span class="attr">#[cfg_attr(all(feature = <span class="string">"ring"</span>, feature = <span class="string">"openssl"</span>), allow(dead_code))]
     #[inline(always)]
     </span><span class="kw">pub fn </span>sha256(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw">impl </span>AsRef&lt;[u8]&gt; {
         <span class="kw">use </span>ring::digest::{digest, SHA256};
@@ -2505,19 +2506,19 @@
 }
 
 <span class="kw">mod </span>crypto {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
     </span><span class="kw">pub use </span><span class="kw">super</span>::openssl::<span class="kw-2">*</span>;
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;ring&quot;</span>, not(feature = <span class="string">&quot;openssl&quot;</span>)))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"ring"</span>, not(feature = <span class="string">"openssl"</span>)))]
     </span><span class="kw">pub use </span><span class="kw">super</span>::ring::<span class="kw-2">*</span>;
 }
 
 <span class="kw">const </span>ENCODE_SET: <span class="kw-2">&amp;</span>AsciiSet = <span class="kw-2">&amp;</span>NON_ALPHANUMERIC
-    .remove(<span class="string">b&#39;*&#39;</span>)
-    .remove(<span class="string">b&#39;-&#39;</span>)
-    .remove(<span class="string">b&#39;.&#39;</span>)
-    .remove(<span class="string">b&#39;_&#39;</span>);
+    .remove(<span class="string">b'*'</span>)
+    .remove(<span class="string">b'-'</span>)
+    .remove(<span class="string">b'.'</span>)
+    .remove(<span class="string">b'_'</span>);
 
-<span class="kw">const </span>NOSLASH_ENCODE_SET: <span class="kw-2">&amp;</span>AsciiSet = <span class="kw-2">&amp;</span>ENCODE_SET.remove(<span class="string">b&#39;/&#39;</span>).remove(<span class="string">b&#39;~&#39;</span>);
+<span class="kw">const </span>NOSLASH_ENCODE_SET: <span class="kw-2">&amp;</span>AsciiSet = <span class="kw-2">&amp;</span>ENCODE_SET.remove(<span class="string">b'/'</span>).remove(<span class="string">b'~'</span>);
 
 <span class="comment">// We need to be able to percent encode stuff, but without touching the slashes in filenames. To
 // this end we create an implementation that does this, without touching the slashes.
@@ -2529,7 +2530,7 @@
     utf8_percent_encode(input, ENCODE_SET).to_string()
 }
 
-<span class="attr">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>))]
+<span class="attr">#[cfg(all(test, feature = <span class="string">"global-client"</span>))]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::Error;
@@ -2538,7 +2539,7 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>create() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
-        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-create&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-create"</span>, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -2552,8 +2553,8 @@
             <span class="kw-2">&amp;</span>bucket.name,
             stream,
             <span class="number">2</span>,
-            <span class="string">&quot;test-create-streamed&quot;</span>,
-            <span class="string">&quot;text/plain&quot;</span>,
+            <span class="string">"test-create-streamed"</span>,
+            <span class="string">"text/plain"</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
@@ -2590,19 +2591,19 @@
         <span class="kw">let </span>test_bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
 
         <span class="kw">let </span>prefix_names = [
-            <span class="string">&quot;test-list-prefix/1&quot;</span>,
-            <span class="string">&quot;test-list-prefix/2&quot;</span>,
-            <span class="string">&quot;test-list-prefix/sub/1&quot;</span>,
-            <span class="string">&quot;test-list-prefix/sub/2&quot;</span>,
+            <span class="string">"test-list-prefix/1"</span>,
+            <span class="string">"test-list-prefix/2"</span>,
+            <span class="string">"test-list-prefix/sub/1"</span>,
+            <span class="string">"test-list-prefix/sub/2"</span>,
         ];
 
         <span class="kw">for </span>name <span class="kw">in </span><span class="kw-2">&amp;</span>prefix_names {
-            Object::create(<span class="kw-2">&amp;</span>test_bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            Object::create(<span class="kw-2">&amp;</span>test_bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        <span class="kw">let </span>list = flattened_list_prefix_stream(<span class="kw-2">&amp;</span>test_bucket.name, <span class="string">&quot;test-list-prefix/&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>list = flattened_list_prefix_stream(<span class="kw-2">&amp;</span>test_bucket.name, <span class="string">"test-list-prefix/"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(list.len(), <span class="number">4</span>);
-        <span class="kw">let </span>list = flattened_list_prefix_stream(<span class="kw-2">&amp;</span>test_bucket.name, <span class="string">&quot;test-list-prefix/sub&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>list = flattened_list_prefix_stream(<span class="kw-2">&amp;</span>test_bucket.name, <span class="string">"test-list-prefix/sub"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(list.len(), <span class="number">2</span>);
         <span class="prelude-val">Ok</span>(())
     }
@@ -2610,24 +2611,24 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>read() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
-        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-read&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        Object::read(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-read&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-read"</span>, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        Object::read(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-read"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>download() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
-        <span class="kw">let </span>content = <span class="string">b&quot;hello world&quot;</span>;
+        <span class="kw">let </span>content = <span class="string">b"hello world"</span>;
         Object::create(
             <span class="kw-2">&amp;</span>bucket.name,
             content.to_vec(),
-            <span class="string">&quot;test-download&quot;</span>,
-            <span class="string">&quot;application/octet-stream&quot;</span>,
+            <span class="string">"test-download"</span>,
+            <span class="string">"application/octet-stream"</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>data = Object::download(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-download&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>data = Object::download(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-download"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(data, content);
 
         <span class="prelude-val">Ok</span>(())
@@ -2636,16 +2637,16 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>download_streamed() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
-        <span class="kw">let </span>content = <span class="string">b&quot;hello world&quot;</span>;
+        <span class="kw">let </span>content = <span class="string">b"hello world"</span>;
         Object::create(
             <span class="kw-2">&amp;</span>bucket.name,
             content.to_vec(),
-            <span class="string">&quot;test-download&quot;</span>,
-            <span class="string">&quot;application/octet-stream&quot;</span>,
+            <span class="string">"test-download"</span>,
+            <span class="string">"application/octet-stream"</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>result = Object::download_streamed(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-download&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>result = Object::download_streamed(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-download"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>data = result.try_collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(data, content);
 
@@ -2659,12 +2660,12 @@
         Object::create(
             <span class="kw-2">&amp;</span>bucket.name,
             content.to_vec(),
-            <span class="string">&quot;test-download-large&quot;</span>,
-            <span class="string">&quot;application/octet-stream&quot;</span>,
+            <span class="string">"test-download-large"</span>,
+            <span class="string">"application/octet-stream"</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>result = Object::download_streamed(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-download-large&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>result = Object::download_streamed(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-download-large"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>data: Vec&lt;u8&gt; = Vec::new();
         <span class="kw">while let </span><span class="prelude-val">Some</span>(part) = result.next().<span class="kw">await </span>{
             data.push(part<span class="question-mark">?</span>);
@@ -2677,8 +2678,8 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-update&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        obj.content_type = <span class="prelude-val">Some</span>(<span class="string">&quot;application/xml&quot;</span>.to_string());
+        <span class="kw">let </span><span class="kw-2">mut </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-update"</span>, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        obj.content_type = <span class="prelude-val">Some</span>(<span class="string">"application/xml"</span>.to_string());
         obj.update().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
@@ -2686,11 +2687,11 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
-        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-delete&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-delete"</span>, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        Object::delete(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-delete&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        Object::delete(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-delete"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>list: Vec&lt;<span class="kw">_</span>&gt; = flattened_list_prefix_stream(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-delete&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>list: Vec&lt;<span class="kw">_</span>&gt; = flattened_list_prefix_stream(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-delete"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert!</span>(list.is_empty());
 
         <span class="prelude-val">Ok</span>(())
@@ -2700,17 +2701,17 @@
     </span><span class="kw">async fn </span>delete_nonexistent() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
 
-        <span class="kw">let </span>nonexistent_object = <span class="string">&quot;test-delete-nonexistent&quot;</span>;
+        <span class="kw">let </span>nonexistent_object = <span class="string">"test-delete-nonexistent"</span>;
 
         <span class="kw">let </span>delete_result = Object::delete(<span class="kw-2">&amp;</span>bucket.name, nonexistent_object).<span class="kw">await</span>;
 
         <span class="kw">if let </span><span class="prelude-val">Err</span>(Error::Google(google_error_response)) = delete_result {
             <span class="macro">assert!</span>(google_error_response.to_string().contains(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                <span class="string">&quot;No such object: {}/{}&quot;</span>,
+                <span class="string">"No such object: {}/{}"</span>,
                 bucket.name, nonexistent_object
             )));
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;Expected a Google error, instead got {:?}&quot;</span>, delete_result);
+            <span class="macro">panic!</span>(<span class="string">"Expected a Google error, instead got {:?}"</span>, delete_result);
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -2719,10 +2720,10 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>compose() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
-        <span class="kw">let </span>obj1 = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-compose-1&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>obj2 = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>], <span class="string">&quot;test-compose-2&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>obj1 = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-compose-1"</span>, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>obj2 = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>], <span class="string">"test-compose-2"</span>, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>compose_request = ComposeRequest {
-            kind: <span class="string">&quot;storage#composeRequest&quot;</span>.to_string(),
+            kind: <span class="string">"storage#composeRequest"</span>.to_string(),
             source_objects: <span class="macro">vec!</span>[
                 SourceObject {
                     name: obj1.name.clone(),
@@ -2737,7 +2738,7 @@
             ],
             destination: <span class="prelude-val">None</span>,
         };
-        <span class="kw">let </span>obj3 = Object::compose(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>compose_request, <span class="string">&quot;test-concatted-file&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>obj3 = Object::compose(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>compose_request, <span class="string">"test-concatted-file"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>url = obj3.download_url(<span class="number">100</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>content = reqwest::get(<span class="kw-2">&amp;</span>url).<span class="kw">await</span><span class="question-mark">?</span>.text().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(content.as_bytes(), <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
@@ -2747,16 +2748,16 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>copy() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
-        <span class="kw">let </span>original = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>], <span class="string">&quot;test-copy&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        original.copy(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-copy - copy&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>original = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>], <span class="string">"test-copy"</span>, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        original.copy(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-copy - copy"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>rewrite() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
-        <span class="kw">let </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-rewrite&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>obj = obj.rewrite(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-rewritten&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-rewrite"</span>, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>obj = obj.rewrite(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-rewritten"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>url = obj.download_url(<span class="number">100</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>client = reqwest::Client::default();
         <span class="kw">let </span>download = client.head(<span class="kw-2">&amp;</span>url).send().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2768,15 +2769,15 @@
     </span><span class="kw">async fn </span>test_url_encoding() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
         <span class="kw">let </span>complicated_names = [
-            <span class="string">&quot;asdf&quot;</span>,
-            <span class="string">&quot;asdf+1&quot;</span>,
-            <span class="string">&quot;asdf&amp;&amp;+1?=3,,-_()*&amp;^%$#@!`~{}[]\\|:;\&quot;&#39;&lt;&gt;,.?/äöüëß&quot;</span>,
-            <span class="string">&quot;https://www.google.com&quot;</span>,
-            <span class="string">&quot;परिक्षण फाईल&quot;</span>,
-            <span class="string">&quot;测试很重要&quot;</span>,
+            <span class="string">"asdf"</span>,
+            <span class="string">"asdf+1"</span>,
+            <span class="string">"asdf&amp;&amp;+1?=3,,-_()*&amp;^%$#@!`~{}[]\\|:;\"'&lt;&gt;,.?/äöüëß"</span>,
+            <span class="string">"https://www.google.com"</span>,
+            <span class="string">"परिक्षण फाईल"</span>,
+            <span class="string">"测试很重要"</span>,
         ];
         <span class="kw">for </span>name <span class="kw">in </span><span class="kw-2">&amp;</span>complicated_names {
-            <span class="kw">let </span>_obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>_obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let </span>obj = Object::read(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>name).<span class="kw">await</span>.unwrap();
             <span class="kw">let </span>url = obj.download_url(<span class="number">100</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span>client = reqwest::Client::default();
@@ -2790,12 +2791,12 @@
     </span><span class="kw">async fn </span>test_download_url_with() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
         <span class="kw">let </span>client = reqwest::Client::new();
-        <span class="kw">let </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-rewrite&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-rewrite"</span>, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>opts1 = <span class="kw">crate</span>::DownloadOptions::new().content_disposition(<span class="string">&quot;attachment&quot;</span>);
+        <span class="kw">let </span>opts1 = <span class="kw">crate</span>::DownloadOptions::new().content_disposition(<span class="string">"attachment"</span>);
         <span class="kw">let </span>download_url1 = obj.download_url_with(<span class="number">100</span>, opts1)<span class="question-mark">?</span>;
         <span class="kw">let </span>download1 = client.head(<span class="kw-2">&amp;</span>download_url1).send().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(download1.headers()[<span class="string">&quot;content-disposition&quot;</span>], <span class="string">&quot;attachment&quot;</span>);
+        <span class="macro">assert_eq!</span>(download1.headers()[<span class="string">"content-disposition"</span>], <span class="string">"attachment"</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -2803,8 +2804,8 @@
     </span><span class="kw">async fn </span>test_upload_url() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
         <span class="kw">let </span>client = reqwest::Client::new();
-        <span class="kw">let </span>blob_name = <span class="string">&quot;test-upload-url&quot;</span>;
-        <span class="kw">let </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], blob_name, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>blob_name = <span class="string">"test-upload-url"</span>;
+        <span class="kw">let </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], blob_name, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let </span>url = obj.upload_url(<span class="number">100</span>).unwrap();
         <span class="kw">let </span>updated_content = <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>];
@@ -2823,10 +2824,10 @@
     </span><span class="kw">async fn </span>test_upload_url_with() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
         <span class="kw">let </span>client = reqwest::Client::new();
-        <span class="kw">let </span>blob_name = <span class="string">&quot;test-upload-url&quot;</span>;
-        <span class="kw">let </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], blob_name, <span class="string">&quot;text/plain&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>blob_name = <span class="string">"test-upload-url"</span>;
+        <span class="kw">let </span>obj = Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], blob_name, <span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>custom_metadata = HashMap::new();
-        custom_metadata.insert(String::from(<span class="string">&quot;field&quot;</span>), String::from(<span class="string">&quot;value&quot;</span>));
+        custom_metadata.insert(String::from(<span class="string">"field"</span>), String::from(<span class="string">"value"</span>));
 
         <span class="kw">let </span>(url, headers) = obj.upload_url_with(<span class="number">100</span>, custom_metadata).unwrap();
         <span class="kw">let </span>updated_content = <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>];
@@ -2838,32 +2839,32 @@
         <span class="macro">assert!</span>(response.status().is_success());
         <span class="kw">let </span>updated_obj = Object::read(<span class="kw-2">&amp;</span>bucket.name, blob_name).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>obj_metadata = updated_obj.metadata.unwrap();
-        <span class="macro">assert_eq!</span>(obj_metadata.get(<span class="string">&quot;field&quot;</span>).unwrap(), <span class="string">&quot;value&quot;</span>);
+        <span class="macro">assert_eq!</span>(obj_metadata.get(<span class="string">"field"</span>).unwrap(), <span class="string">"value"</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;openssl&quot;</span>, feature = <span class="string">&quot;ring&quot;</span>))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"openssl"</span>, feature = <span class="string">"ring"</span>))]
     #[test]
     </span><span class="kw">fn </span>check_matching_crypto() {
         <span class="macro">assert_eq!</span>(
-            openssl::sha256(<span class="string">b&quot;hello&quot;</span>).as_ref(),
-            ring::sha256(<span class="string">b&quot;hello&quot;</span>).as_ref()
+            openssl::sha256(<span class="string">b"hello"</span>).as_ref(),
+            ring::sha256(<span class="string">b"hello"</span>).as_ref()
         );
 
         <span class="macro">assert_eq!</span>(
-            openssl::rsa_pkcs1_sha256(<span class="string">&quot;world&quot;</span>).unwrap(),
-            ring::rsa_pkcs1_sha256(<span class="string">&quot;world&quot;</span>).unwrap(),
+            openssl::rsa_pkcs1_sha256(<span class="string">"world"</span>).unwrap(),
+            ring::rsa_pkcs1_sha256(<span class="string">"world"</span>).unwrap(),
         );
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;sync&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"sync"</span>)]
     </span><span class="kw">mod </span>sync {
         <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>create() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
-            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-create&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
+            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-create"</span>, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
@@ -2875,8 +2876,8 @@
                 <span class="kw-2">&amp;</span>bucket.name,
                 cursor,
                 <span class="number">2</span>,
-                <span class="string">&quot;test-create-streamed&quot;</span>,
-                <span class="string">&quot;text/plain&quot;</span>,
+                <span class="string">"test-create-streamed"</span>,
+                <span class="string">"text/plain"</span>,
             )<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
@@ -2893,25 +2894,25 @@
             <span class="kw">let </span>test_bucket = <span class="kw">crate</span>::read_test_bucket_sync();
 
             <span class="kw">let </span>prefix_names = [
-                <span class="string">&quot;test-list-prefix/1&quot;</span>,
-                <span class="string">&quot;test-list-prefix/2&quot;</span>,
-                <span class="string">&quot;test-list-prefix/sub/1&quot;</span>,
-                <span class="string">&quot;test-list-prefix/sub/2&quot;</span>,
+                <span class="string">"test-list-prefix/1"</span>,
+                <span class="string">"test-list-prefix/2"</span>,
+                <span class="string">"test-list-prefix/sub/1"</span>,
+                <span class="string">"test-list-prefix/sub/2"</span>,
             ];
 
             <span class="kw">for </span>name <span class="kw">in </span><span class="kw-2">&amp;</span>prefix_names {
-                Object::create_sync(<span class="kw-2">&amp;</span>test_bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
+                Object::create_sync(<span class="kw-2">&amp;</span>test_bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
             }
 
             <span class="kw">let </span>request = ListRequest {
-                prefix: <span class="prelude-val">Some</span>(<span class="string">&quot;test-list-prefix/&quot;</span>.into()),
+                prefix: <span class="prelude-val">Some</span>(<span class="string">"test-list-prefix/"</span>.into()),
                 ..Default::default()
             };
             <span class="kw">let </span>list = Object::list_sync(<span class="kw-2">&amp;</span>test_bucket.name, request)<span class="question-mark">?</span>;
             <span class="macro">assert_eq!</span>(list[<span class="number">0</span>].items.len(), <span class="number">4</span>);
 
             <span class="kw">let </span>request = ListRequest {
-                prefix: <span class="prelude-val">Some</span>(<span class="string">&quot;test-list-prefix/sub&quot;</span>.into()),
+                prefix: <span class="prelude-val">Some</span>(<span class="string">"test-list-prefix/sub"</span>.into()),
                 ..Default::default()
             };
             <span class="kw">let </span>list = Object::list_sync(<span class="kw-2">&amp;</span>test_bucket.name, request)<span class="question-mark">?</span>;
@@ -2924,19 +2925,19 @@
             <span class="kw">let </span>test_bucket = <span class="kw">crate</span>::read_test_bucket_sync();
 
             <span class="kw">let </span>prefix_names = [
-                <span class="string">&quot;test-list-prefix/1&quot;</span>,
-                <span class="string">&quot;test-list-prefix/2&quot;</span>,
-                <span class="string">&quot;test-list-prefix/sub/1&quot;</span>,
-                <span class="string">&quot;test-list-prefix/sub/2&quot;</span>,
+                <span class="string">"test-list-prefix/1"</span>,
+                <span class="string">"test-list-prefix/2"</span>,
+                <span class="string">"test-list-prefix/sub/1"</span>,
+                <span class="string">"test-list-prefix/sub/2"</span>,
             ];
 
             <span class="kw">for </span>name <span class="kw">in </span><span class="kw-2">&amp;</span>prefix_names {
-                Object::create_sync(<span class="kw-2">&amp;</span>test_bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
+                Object::create_sync(<span class="kw-2">&amp;</span>test_bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
             }
 
             <span class="kw">let </span>request = ListRequest {
-                prefix: <span class="prelude-val">Some</span>(<span class="string">&quot;test-list-prefix/&quot;</span>.into()),
-                delimiter: <span class="prelude-val">Some</span>(<span class="string">&quot;/&quot;</span>.into()),
+                prefix: <span class="prelude-val">Some</span>(<span class="string">"test-list-prefix/"</span>.into()),
+                delimiter: <span class="prelude-val">Some</span>(<span class="string">"/"</span>.into()),
                 ..Default::default()
             };
             <span class="kw">let </span>list = Object::list_sync(<span class="kw-2">&amp;</span>test_bucket.name, request)<span class="question-mark">?</span>;
@@ -2948,23 +2949,23 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>read() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
-            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-read&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
-            Object::read_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-read&quot;</span>)<span class="question-mark">?</span>;
+            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-read"</span>, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
+            Object::read_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-read"</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>download() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
-            <span class="kw">let </span>content = <span class="string">b&quot;hello world&quot;</span>;
+            <span class="kw">let </span>content = <span class="string">b"hello world"</span>;
             Object::create_sync(
                 <span class="kw-2">&amp;</span>bucket.name,
                 content.to_vec(),
-                <span class="string">&quot;test-download&quot;</span>,
-                <span class="string">&quot;application/octet-stream&quot;</span>,
+                <span class="string">"test-download"</span>,
+                <span class="string">"application/octet-stream"</span>,
             )<span class="question-mark">?</span>;
 
-            <span class="kw">let </span>data = Object::download_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-download&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>data = Object::download_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-download"</span>)<span class="question-mark">?</span>;
             <span class="macro">assert_eq!</span>(data, content);
 
             <span class="prelude-val">Ok</span>(())
@@ -2974,8 +2975,8 @@
         </span><span class="kw">fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
             <span class="kw">let </span><span class="kw-2">mut </span>obj =
-                Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-update&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
-            obj.content_type = <span class="prelude-val">Some</span>(<span class="string">&quot;application/xml&quot;</span>.to_string());
+                Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-update"</span>, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
+            obj.content_type = <span class="prelude-val">Some</span>(<span class="string">"application/xml"</span>.to_string());
             obj.update_sync()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
@@ -2983,12 +2984,12 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
-            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-delete&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
+            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-delete"</span>, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
 
-            Object::delete_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-delete&quot;</span>)<span class="question-mark">?</span>;
+            Object::delete_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-delete"</span>)<span class="question-mark">?</span>;
 
             <span class="kw">let </span>request = ListRequest {
-                prefix: <span class="prelude-val">Some</span>(<span class="string">&quot;test-delete&quot;</span>.into()),
+                prefix: <span class="prelude-val">Some</span>(<span class="string">"test-delete"</span>.into()),
                 ..Default::default()
             };
 
@@ -3002,17 +3003,17 @@
         </span><span class="kw">fn </span>delete_nonexistent() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
 
-            <span class="kw">let </span>nonexistent_object = <span class="string">&quot;test-delete-nonexistent&quot;</span>;
+            <span class="kw">let </span>nonexistent_object = <span class="string">"test-delete-nonexistent"</span>;
 
             <span class="kw">let </span>delete_result = Object::delete_sync(<span class="kw-2">&amp;</span>bucket.name, nonexistent_object);
 
             <span class="kw">if let </span><span class="prelude-val">Err</span>(Error::Google(google_error_response)) = delete_result {
                 <span class="macro">assert!</span>(google_error_response.to_string().contains(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;No such object: {}/{}&quot;</span>,
+                    <span class="string">"No such object: {}/{}"</span>,
                     bucket.name, nonexistent_object
                 )));
             } <span class="kw">else </span>{
-                <span class="macro">panic!</span>(<span class="string">&quot;Expected a Google error, instead got {:?}&quot;</span>, delete_result);
+                <span class="macro">panic!</span>(<span class="string">"Expected a Google error, instead got {:?}"</span>, delete_result);
             }
 
             <span class="prelude-val">Ok</span>(())
@@ -3022,11 +3023,11 @@
         </span><span class="kw">fn </span>compose() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
             <span class="kw">let </span>obj1 =
-                Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-compose-1&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
+                Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-compose-1"</span>, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span>obj2 =
-                Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>], <span class="string">&quot;test-compose-2&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
+                Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>], <span class="string">"test-compose-2"</span>, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span>compose_request = ComposeRequest {
-                kind: <span class="string">&quot;storage#composeRequest&quot;</span>.to_string(),
+                kind: <span class="string">"storage#composeRequest"</span>.to_string(),
                 source_objects: <span class="macro">vec!</span>[
                     SourceObject {
                         name: obj1.name.clone(),
@@ -3041,7 +3042,7 @@
                 ],
                 destination: <span class="prelude-val">None</span>,
             };
-            <span class="kw">let </span>obj3 = Object::compose_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>compose_request, <span class="string">&quot;test-concatted-file&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>obj3 = Object::compose_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>compose_request, <span class="string">"test-concatted-file"</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span>url = obj3.download_url(<span class="number">100</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span>content = reqwest::blocking::get(<span class="kw-2">&amp;</span>url)<span class="question-mark">?</span>.text()<span class="question-mark">?</span>;
             <span class="macro">assert_eq!</span>(content.as_bytes(), <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
@@ -3052,16 +3053,16 @@
         </span><span class="kw">fn </span>copy() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
             <span class="kw">let </span>original =
-                Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>], <span class="string">&quot;test-copy&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
-            original.copy_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-copy - copy&quot;</span>)<span class="question-mark">?</span>;
+                Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>], <span class="string">"test-copy"</span>, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
+            original.copy_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-copy - copy"</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>rewrite() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
-            <span class="kw">let </span>obj = Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-rewrite&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
-            <span class="kw">let </span>obj = obj.rewrite_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-rewritten&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>obj = Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-rewrite"</span>, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>obj = obj.rewrite_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-rewritten"</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span>url = obj.download_url(<span class="number">100</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span>client = reqwest::blocking::Client::new();
             <span class="kw">let </span>download = client.head(<span class="kw-2">&amp;</span>url).send()<span class="question-mark">?</span>;
@@ -3073,15 +3074,15 @@
         </span><span class="kw">fn </span>test_url_encoding() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
             <span class="kw">let </span>complicated_names = [
-                <span class="string">&quot;asdf&quot;</span>,
-                <span class="string">&quot;asdf+1&quot;</span>,
-                <span class="string">&quot;asdf&amp;&amp;+1?=3,,-_()*&amp;^%$#@!`~{}[]\\|:;\&quot;&#39;&lt;&gt;,.?/äöüëß&quot;</span>,
-                <span class="string">&quot;https://www.google.com&quot;</span>,
-                <span class="string">&quot;परिक्षण फाईल&quot;</span>,
-                <span class="string">&quot;测试很重要&quot;</span>,
+                <span class="string">"asdf"</span>,
+                <span class="string">"asdf+1"</span>,
+                <span class="string">"asdf&amp;&amp;+1?=3,,-_()*&amp;^%$#@!`~{}[]\\|:;\"'&lt;&gt;,.?/äöüëß"</span>,
+                <span class="string">"https://www.google.com"</span>,
+                <span class="string">"परिक्षण फाईल"</span>,
+                <span class="string">"测试很重要"</span>,
             ];
             <span class="kw">for </span>name <span class="kw">in </span><span class="kw-2">&amp;</span>complicated_names {
-                <span class="kw">let </span>_obj = Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">&quot;text/plain&quot;</span>)<span class="question-mark">?</span>;
+                <span class="kw">let </span>_obj = Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], name, <span class="string">"text/plain"</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span>obj = Object::read_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>name).unwrap();
                 <span class="kw">let </span>url = obj.download_url(<span class="number">100</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span>client = reqwest::blocking::Client::new();
@@ -3093,7 +3094,7 @@
     }
 }
 
-<span class="doccomment">/// A wrapper around a downloaded object&#39;s byte stream that provides a useful `size_hint`.
+<span class="doccomment">/// A wrapper around a downloaded object's byte stream that provides a useful `size_hint`.
 </span><span class="kw">pub struct </span>SizedByteStream&lt;S: Stream&lt;Item = <span class="kw">crate</span>::Result&lt;u8&gt;&gt; + Unpin&gt; {
     size: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     bytes: S,

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/line.rs`."><title>line.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/line.rs`."><title>line.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3148,14 +3149,14 @@
     debug_line_section: R,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, Endian&gt; DebugLine&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>, Endian&gt; DebugLine&lt;EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;
 <span class="kw">where
     </span>Endian: Endianity,
 {
     <span class="doccomment">/// Construct a new `DebugLine` instance from the data in the `.debug_line`
     /// section.
     ///
-    /// It is the caller&#39;s responsibility to read the `.debug_line` section and
+    /// It is the caller's responsibility to read the `.debug_line` section and
     /// present it as a `&amp;[u8]` slice. That means using some ELF loader on
     /// Linux, a Mach-O loader on macOS, etc.
     ///
@@ -3166,7 +3167,7 @@
     /// # let read_debug_line_section_somehow = || &amp;buf;
     /// let debug_line = DebugLine::new(read_debug_line_section_somehow(), LittleEndian);
     /// ```
-    </span><span class="kw">pub fn </span>new(debug_line_section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8], endian: Endian) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(debug_line_section: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8], endian: Endian) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::from(EndianSlice::new(debug_line_section, endian))
     }
 }
@@ -3187,14 +3188,14 @@
     /// # let read_debug_line_section_somehow = || &amp;buf;
     /// let debug_line = DebugLine::new(read_debug_line_section_somehow(), LittleEndian);
     ///
-    /// // In a real example, we&#39;d grab the offset via a compilation unit
-    /// // entry&#39;s `DW_AT_stmt_list` attribute, and the address size from that
+    /// // In a real example, we'd grab the offset via a compilation unit
+    /// // entry's `DW_AT_stmt_list` attribute, and the address size from that
     /// // unit directly.
     /// let offset = DebugLineOffset(0);
     /// let address_size = 8;
     ///
     /// let program = debug_line.program(offset, address_size, None, None)
-    ///     .expect(&quot;should have found a header at that offset, and parsed it OK&quot;);
+    ///     .expect("should have found a header at that offset, and parsed it OK");
     /// ```
     </span><span class="kw">pub fn </span>program(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -3220,16 +3221,16 @@
     ///
     /// ```rust,no_run
     /// # let load_section = || unimplemented!();
-    /// // Read the DWARF section into a `Vec` with whatever object loader you&#39;re using.
+    /// // Read the DWARF section into a `Vec` with whatever object loader you're using.
     /// let owned_section: gimli::DebugLine&lt;Vec&lt;u8&gt;&gt; = load_section();
     /// // Create a reference to the DWARF section.
     /// let section = owned_section.borrow(|section| {
     ///     gimli::EndianSlice::new(&amp;section, gimli::LittleEndian)
     /// });
     /// ```
-    </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">&#39;a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugLine&lt;R&gt;
+    </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">'a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugLine&lt;R&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T) -&gt; R,
+        </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; R,
     {
         borrow(<span class="kw-2">&amp;</span><span class="self">self</span>.debug_line_section).into()
     }
@@ -3252,7 +3253,7 @@
 }
 
 <span class="doccomment">/// Deprecated. `LineNumberProgram` has been renamed to `LineProgram`.
-</span><span class="attr">#[deprecated(note = <span class="string">&quot;LineNumberProgram has been renamed to LineProgram, use that instead.&quot;</span>)]
+</span><span class="attr">#[deprecated(note = <span class="string">"LineNumberProgram has been renamed to LineProgram, use that instead."</span>)]
 </span><span class="kw">pub type </span>LineNumberProgram&lt;R, Offset&gt; = <span class="kw">dyn </span>LineProgram&lt;R, Offset&gt;;
 
 <span class="doccomment">/// A `LineProgram` provides access to a `LineProgramHeader` and
@@ -3282,7 +3283,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;program</span>, R, Offset&gt; LineProgram&lt;R, Offset&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;program </span>CompleteLineProgram&lt;R, Offset&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'program</span>, R, Offset&gt; LineProgram&lt;R, Offset&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'program </span>CompleteLineProgram&lt;R, Offset&gt;
 <span class="kw">where
     </span>R: Reader&lt;Offset = Offset&gt;,
     Offset: ReaderOffset,
@@ -3296,14 +3297,14 @@
 }
 
 <span class="doccomment">/// Deprecated. `StateMachine` has been renamed to `LineRows`.
-</span><span class="attr">#[deprecated(note = <span class="string">&quot;StateMachine has been renamed to LineRows, use that instead.&quot;</span>)]
+</span><span class="attr">#[deprecated(note = <span class="string">"StateMachine has been renamed to LineRows, use that instead."</span>)]
 </span><span class="kw">pub type </span>StateMachine&lt;R, Program, Offset&gt; = LineRows&lt;R, Program, Offset&gt;;
 
 <span class="doccomment">/// Executes a `LineProgram` to iterate over the rows in the matrix of line number information.
 ///
-/// &quot;The hypothetical machine used by a consumer of the line number information
+/// "The hypothetical machine used by a consumer of the line number information
 /// to expand the byte-coded instruction stream into a matrix of line number
-/// information.&quot; -- Section 6.2.1
+/// information." -- Section 6.2.1
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>LineRows&lt;R, Program, Offset = &lt;R <span class="kw">as </span>Reader&gt;::Offset&gt;
 <span class="kw">where
@@ -3319,8 +3320,8 @@
 <span class="kw">type </span>OneShotLineRows&lt;R, Offset = &lt;R <span class="kw">as </span>Reader&gt;::Offset&gt; =
     LineRows&lt;R, IncompleteLineProgram&lt;R, Offset&gt;, Offset&gt;;
 
-<span class="kw">type </span>ResumedLineRows&lt;<span class="lifetime">&#39;program</span>, R, Offset = &lt;R <span class="kw">as </span>Reader&gt;::Offset&gt; =
-    LineRows&lt;R, <span class="kw-2">&amp;</span><span class="lifetime">&#39;program </span>CompleteLineProgram&lt;R, Offset&gt;, Offset&gt;;
+<span class="kw">type </span>ResumedLineRows&lt;<span class="lifetime">'program</span>, R, Offset = &lt;R <span class="kw">as </span>Reader&gt;::Offset&gt; =
+    LineRows&lt;R, <span class="kw-2">&amp;</span><span class="lifetime">'program </span>CompleteLineProgram&lt;R, Offset&gt;, Offset&gt;;
 
 <span class="kw">impl</span>&lt;R, Program, Offset&gt; LineRows&lt;R, Program, Offset&gt;
 <span class="kw">where
@@ -3340,10 +3341,10 @@
         }
     }
 
-    <span class="kw">fn </span>resume&lt;<span class="lifetime">&#39;program</span>&gt;(
-        program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;program </span>CompleteLineProgram&lt;R, Offset&gt;,
+    <span class="kw">fn </span>resume&lt;<span class="lifetime">'program</span>&gt;(
+        program: <span class="kw-2">&amp;</span><span class="lifetime">'program </span>CompleteLineProgram&lt;R, Offset&gt;,
         sequence: <span class="kw-2">&amp;</span>LineSequence&lt;R&gt;,
-    ) -&gt; ResumedLineRows&lt;<span class="lifetime">&#39;program</span>, R, Offset&gt; {
+    ) -&gt; ResumedLineRows&lt;<span class="lifetime">'program</span>, R, Offset&gt; {
         <span class="kw">let </span>row = LineRow::new(program.header());
         <span class="kw">let </span>instructions = sequence.instructions.clone();
         LineRows {
@@ -3353,7 +3354,7 @@
         }
     }
 
-    <span class="doccomment">/// Get a reference to the header for this state machine&#39;s line number
+    <span class="doccomment">/// Get a reference to the header for this state machine's line number
     /// program.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>LineProgramHeader&lt;R, Offset&gt; {
@@ -3399,7 +3400,7 @@
 }
 
 <span class="doccomment">/// Deprecated. `Opcode` has been renamed to `LineInstruction`.
-</span><span class="attr">#[deprecated(note = <span class="string">&quot;Opcode has been renamed to LineInstruction, use that instead.&quot;</span>)]
+</span><span class="attr">#[deprecated(note = <span class="string">"Opcode has been renamed to LineInstruction, use that instead."</span>)]
 </span><span class="kw">pub type </span>Opcode&lt;R&gt; = LineInstruction&lt;R, &lt;R <span class="kw">as </span>Reader&gt;::Offset&gt;;
 
 <span class="doccomment">/// A parsed line number program instruction.
@@ -3434,36 +3435,36 @@
     /// &gt; op_index registers.
     </span>Special(u8),
 
-    <span class="doccomment">/// &quot;[`LineInstruction::Copy`] appends a row to the matrix using the current
+    <span class="doccomment">/// "[`LineInstruction::Copy`] appends a row to the matrix using the current
     /// values of the state machine registers. Then it sets the discriminator
     /// register to 0, and sets the basic_block, prologue_end and epilogue_begin
-    /// registers to “false.”&quot;
+    /// registers to “false.”"
     </span>Copy,
 
-    <span class="doccomment">/// &quot;The DW_LNS_advance_pc opcode takes a single unsigned LEB128 operand as
+    <span class="doccomment">/// "The DW_LNS_advance_pc opcode takes a single unsigned LEB128 operand as
     /// the operation advance and modifies the address and op_index registers
-    /// [the same as `LineInstruction::Special`]&quot;
+    /// [the same as `LineInstruction::Special`]"
     </span>AdvancePc(u64),
 
-    <span class="doccomment">/// &quot;The DW_LNS_advance_line opcode takes a single signed LEB128 operand and
-    /// adds that value to the line register of the state machine.&quot;
+    <span class="doccomment">/// "The DW_LNS_advance_line opcode takes a single signed LEB128 operand and
+    /// adds that value to the line register of the state machine."
     </span>AdvanceLine(i64),
 
-    <span class="doccomment">/// &quot;The DW_LNS_set_file opcode takes a single unsigned LEB128 operand and
-    /// stores it in the file register of the state machine.&quot;
+    <span class="doccomment">/// "The DW_LNS_set_file opcode takes a single unsigned LEB128 operand and
+    /// stores it in the file register of the state machine."
     </span>SetFile(u64),
 
-    <span class="doccomment">/// &quot;The DW_LNS_set_column opcode takes a single unsigned LEB128 operand and
-    /// stores it in the column register of the state machine.&quot;
+    <span class="doccomment">/// "The DW_LNS_set_column opcode takes a single unsigned LEB128 operand and
+    /// stores it in the column register of the state machine."
     </span>SetColumn(u64),
 
-    <span class="doccomment">/// &quot;The DW_LNS_negate_stmt opcode takes no operands. It sets the is_stmt
+    <span class="doccomment">/// "The DW_LNS_negate_stmt opcode takes no operands. It sets the is_stmt
     /// register of the state machine to the logical negation of its current
-    /// value.&quot;
+    /// value."
     </span>NegateStatement,
 
-    <span class="doccomment">/// &quot;The DW_LNS_set_basic_block opcode takes no operands. It sets the
-    /// basic_block register of the state machine to “true.”&quot;
+    <span class="doccomment">/// "The DW_LNS_set_basic_block opcode takes no operands. It sets the
+    /// basic_block register of the state machine to “true.”"
     </span>SetBasicBlock,
 
     <span class="doccomment">/// &gt; The DW_LNS_const_add_pc opcode takes no operands. It advances the
@@ -3486,15 +3487,15 @@
     /// &gt; operand by the minimum_instruction_length field of the header.
     </span>FixedAddPc(u16),
 
-    <span class="doccomment">/// &quot;[`LineInstruction::SetPrologueEnd`] sets the prologue_end register to “true”.&quot;
+    <span class="doccomment">/// "[`LineInstruction::SetPrologueEnd`] sets the prologue_end register to “true”."
     </span>SetPrologueEnd,
 
-    <span class="doccomment">/// &quot;[`LineInstruction::SetEpilogueBegin`] sets the epilogue_begin register to
-    /// “true”.&quot;
+    <span class="doccomment">/// "[`LineInstruction::SetEpilogueBegin`] sets the epilogue_begin register to
+    /// “true”."
     </span>SetEpilogueBegin,
 
-    <span class="doccomment">/// &quot;The DW_LNS_set_isa opcode takes a single unsigned LEB128 operand and
-    /// stores that value in the isa register of the state machine.&quot;
+    <span class="doccomment">/// "The DW_LNS_set_isa opcode takes a single unsigned LEB128 operand and
+    /// stores that value in the isa register of the state machine."
     </span>SetIsa(u64),
 
     <span class="doccomment">/// An unknown standard opcode with zero operands.
@@ -3526,12 +3527,12 @@
     </span>SetAddress(u64),
 
     <span class="doccomment">/// Defines a new source file in the line number program and appends it to
-    /// the line number program header&#39;s list of source files.
+    /// the line number program header's list of source files.
     </span>DefineFile(FileEntry&lt;R, Offset&gt;),
 
-    <span class="doccomment">/// &quot;The DW_LNE_set_discriminator opcode takes a single parameter, an
+    <span class="doccomment">/// "The DW_LNE_set_discriminator opcode takes a single parameter, an
     /// unsigned LEB128 integer. It sets the discriminator register to the new
-    /// value.&quot;
+    /// value."
     </span>SetDiscriminator(u64),
 
     <span class="doccomment">/// An unknown extended opcode and the slice of its unparsed operands.
@@ -3543,12 +3544,12 @@
     </span>R: Reader&lt;Offset = Offset&gt;,
     Offset: ReaderOffset,
 {
-    <span class="kw">fn </span>parse&lt;<span class="lifetime">&#39;header</span>&gt;(
-        header: <span class="kw-2">&amp;</span><span class="lifetime">&#39;header </span>LineProgramHeader&lt;R&gt;,
+    <span class="kw">fn </span>parse&lt;<span class="lifetime">'header</span>&gt;(
+        header: <span class="kw-2">&amp;</span><span class="lifetime">'header </span>LineProgramHeader&lt;R&gt;,
         input: <span class="kw-2">&amp;mut </span>R,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;LineInstruction&lt;R&gt;&gt;
     <span class="kw">where
-        </span>R: <span class="lifetime">&#39;header</span>,
+        </span>R: <span class="lifetime">'header</span>,
     {
         <span class="kw">let </span>opcode = input.read_u8()<span class="question-mark">?</span>;
         <span class="kw">if </span>opcode == <span class="number">0 </span>{
@@ -3663,53 +3664,53 @@
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; result::Result&lt;(), fmt::Error&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            LineInstruction::Special(opcode) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Special opcode {}&quot;</span>, opcode),
-            LineInstruction::Copy =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, constants::DW_LNS_copy),
+            LineInstruction::Special(opcode) =&gt; <span class="macro">write!</span>(f, <span class="string">"Special opcode {}"</span>, opcode),
+            LineInstruction::Copy =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_copy),
             LineInstruction::AdvancePc(advance) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{} by {}&quot;</span>, constants::DW_LNS_advance_pc, advance)
+                <span class="macro">write!</span>(f, <span class="string">"{} by {}"</span>, constants::DW_LNS_advance_pc, advance)
             }
             LineInstruction::AdvanceLine(increment) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{} by {}&quot;</span>, constants::DW_LNS_advance_line, increment)
+                <span class="macro">write!</span>(f, <span class="string">"{} by {}"</span>, constants::DW_LNS_advance_line, increment)
             }
             LineInstruction::SetFile(file) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{} to {}&quot;</span>, constants::DW_LNS_set_file, file)
+                <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNS_set_file, file)
             }
             LineInstruction::SetColumn(column) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{} to {}&quot;</span>, constants::DW_LNS_set_column, column)
+                <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNS_set_column, column)
             }
-            LineInstruction::NegateStatement =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, constants::DW_LNS_negate_stmt),
-            LineInstruction::SetBasicBlock =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, constants::DW_LNS_set_basic_block),
-            LineInstruction::ConstAddPc =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, constants::DW_LNS_const_add_pc),
+            LineInstruction::NegateStatement =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_negate_stmt),
+            LineInstruction::SetBasicBlock =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_set_basic_block),
+            LineInstruction::ConstAddPc =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_const_add_pc),
             LineInstruction::FixedAddPc(advance) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{} by {}&quot;</span>, constants::DW_LNS_fixed_advance_pc, advance)
+                <span class="macro">write!</span>(f, <span class="string">"{} by {}"</span>, constants::DW_LNS_fixed_advance_pc, advance)
             }
-            LineInstruction::SetPrologueEnd =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, constants::DW_LNS_set_prologue_end),
+            LineInstruction::SetPrologueEnd =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_set_prologue_end),
             LineInstruction::SetEpilogueBegin =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, constants::DW_LNS_set_epilogue_begin)
+                <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_set_epilogue_begin)
             }
-            LineInstruction::SetIsa(isa) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{} to {}&quot;</span>, constants::DW_LNS_set_isa, isa),
-            LineInstruction::UnknownStandard0(opcode) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Unknown {}&quot;</span>, opcode),
+            LineInstruction::SetIsa(isa) =&gt; <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNS_set_isa, isa),
+            LineInstruction::UnknownStandard0(opcode) =&gt; <span class="macro">write!</span>(f, <span class="string">"Unknown {}"</span>, opcode),
             LineInstruction::UnknownStandard1(opcode, arg) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;Unknown {} with operand {}&quot;</span>, opcode, arg)
+                <span class="macro">write!</span>(f, <span class="string">"Unknown {} with operand {}"</span>, opcode, arg)
             }
             LineInstruction::UnknownStandardN(opcode, <span class="kw-2">ref </span>args) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;Unknown {} with operands {:?}&quot;</span>, opcode, args)
+                <span class="macro">write!</span>(f, <span class="string">"Unknown {} with operands {:?}"</span>, opcode, args)
             }
-            LineInstruction::EndSequence =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, constants::DW_LNE_end_sequence),
+            LineInstruction::EndSequence =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNE_end_sequence),
             LineInstruction::SetAddress(address) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{} to {}&quot;</span>, constants::DW_LNE_set_address, address)
+                <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNE_set_address, address)
             }
-            LineInstruction::DefineFile(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, constants::DW_LNE_define_file),
+            LineInstruction::DefineFile(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNE_define_file),
             LineInstruction::SetDiscriminator(discr) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{} to {}&quot;</span>, constants::DW_LNE_set_discriminator, discr)
+                <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNE_set_discriminator, discr)
             }
-            LineInstruction::UnknownExtended(opcode, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Unknown {}&quot;</span>, opcode),
+            LineInstruction::UnknownExtended(opcode, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"Unknown {}"</span>, opcode),
         }
     }
 }
 
 <span class="doccomment">/// Deprecated. `OpcodesIter` has been renamed to `LineInstructions`.
-</span><span class="attr">#[deprecated(note = <span class="string">&quot;OpcodesIter has been renamed to LineInstructions, use that instead.&quot;</span>)]
+</span><span class="attr">#[deprecated(note = <span class="string">"OpcodesIter has been renamed to LineInstructions, use that instead."</span>)]
 </span><span class="kw">pub type </span>OpcodesIter&lt;R&gt; = LineInstructions&lt;R&gt;;
 
 <span class="doccomment">/// An iterator yielding parsed instructions.
@@ -3762,10 +3763,10 @@
 }
 
 <span class="doccomment">/// Deprecated. `LineNumberRow` has been renamed to `LineRow`.
-</span><span class="attr">#[deprecated(note = <span class="string">&quot;LineNumberRow has been renamed to LineRow, use that instead.&quot;</span>)]
+</span><span class="attr">#[deprecated(note = <span class="string">"LineNumberRow has been renamed to LineRow, use that instead."</span>)]
 </span><span class="kw">pub type </span>LineNumberRow = LineRow;
 
-<span class="doccomment">/// A row in the line number program&#39;s resulting matrix.
+<span class="doccomment">/// A row in the line number program's resulting matrix.
 ///
 /// Each row is a copy of the registers of the state machine, as defined in section 6.2.2.
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -3789,31 +3790,31 @@
     <span class="doccomment">/// Create a line number row in the initial state for the given program.
     </span><span class="kw">pub fn </span>new&lt;R: Reader&gt;(header: <span class="kw-2">&amp;</span>LineProgramHeader&lt;R&gt;) -&gt; <span class="self">Self </span>{
         LineRow {
-            <span class="comment">// &quot;At the beginning of each sequence within a line number program, the
-            // state of the registers is:&quot; -- Section 6.2.2
+            <span class="comment">// "At the beginning of each sequence within a line number program, the
+            // state of the registers is:" -- Section 6.2.2
             </span>tombstone: <span class="bool-val">false</span>,
             address: Wrapping(<span class="number">0</span>),
             op_index: Wrapping(<span class="number">0</span>),
             file: <span class="number">1</span>,
             line: Wrapping(<span class="number">1</span>),
             column: <span class="number">0</span>,
-            <span class="comment">// &quot;determined by default_is_stmt in the line number program header&quot;
+            <span class="comment">// "determined by default_is_stmt in the line number program header"
             </span>is_stmt: header.line_encoding.default_is_stmt,
             basic_block: <span class="bool-val">false</span>,
             end_sequence: <span class="bool-val">false</span>,
             prologue_end: <span class="bool-val">false</span>,
             epilogue_begin: <span class="bool-val">false</span>,
-            <span class="comment">// &quot;The isa value 0 specifies that the instruction set is the
+            <span class="comment">// "The isa value 0 specifies that the instruction set is the
             // architecturally determined default instruction set. This may be fixed
             // by the ABI, or it may be specified by other means, for example, by
-            // the object file description.&quot;
+            // the object file description."
             </span>isa: <span class="number">0</span>,
             discriminator: <span class="number">0</span>,
         }
     }
 
-    <span class="doccomment">/// &quot;The program-counter value corresponding to a machine instruction
-    /// generated by the compiler.&quot;
+    <span class="doccomment">/// "The program-counter value corresponding to a machine instruction
+    /// generated by the compiler."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.address.<span class="number">0
@@ -3831,8 +3832,8 @@
         <span class="self">self</span>.op_index.<span class="number">0
     </span>}
 
-    <span class="doccomment">/// &quot;An unsigned integer indicating the identity of the source file
-    /// corresponding to a machine instruction.&quot;
+    <span class="doccomment">/// "An unsigned integer indicating the identity of the source file
+    /// corresponding to a machine instruction."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>file_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.file
@@ -3840,25 +3841,25 @@
 
     <span class="doccomment">/// The source file corresponding to the current machine instruction.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>file&lt;<span class="lifetime">&#39;header</span>, R: Reader&gt;(
+    </span><span class="kw">pub fn </span>file&lt;<span class="lifetime">'header</span>, R: Reader&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        header: <span class="kw-2">&amp;</span><span class="lifetime">&#39;header </span>LineProgramHeader&lt;R&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;header </span>FileEntry&lt;R&gt;&gt; {
+        header: <span class="kw-2">&amp;</span><span class="lifetime">'header </span>LineProgramHeader&lt;R&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'header </span>FileEntry&lt;R&gt;&gt; {
         header.file(<span class="self">self</span>.file)
     }
 
-    <span class="doccomment">/// &quot;An unsigned integer indicating a source line number. Lines are numbered
+    <span class="doccomment">/// "An unsigned integer indicating a source line number. Lines are numbered
     /// beginning at 1. The compiler may emit the value 0 in cases where an
-    /// instruction cannot be attributed to any source line.&quot;
+    /// instruction cannot be attributed to any source line."
     /// Line number values of 0 are represented as `None`.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroU64&gt; {
         NonZeroU64::new(<span class="self">self</span>.line.<span class="number">0</span>)
     }
 
-    <span class="doccomment">/// &quot;An unsigned integer indicating a column number within a source
+    <span class="doccomment">/// "An unsigned integer indicating a column number within a source
     /// line. Columns are numbered beginning at 1. The value 0 is reserved to
-    /// indicate that a statement begins at the “left edge” of the line.&quot;
+    /// indicate that a statement begins at the “left edge” of the line."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>column(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ColumnType {
         NonZeroU64::new(<span class="self">self</span>.column)
@@ -3866,42 +3867,42 @@
             .unwrap_or(ColumnType::LeftEdge)
     }
 
-    <span class="doccomment">/// &quot;A boolean indicating that the current instruction is a recommended
+    <span class="doccomment">/// "A boolean indicating that the current instruction is a recommended
     /// breakpoint location. A recommended breakpoint location is intended to
     /// “represent” a line, a statement and/or a semantically distinct subpart
-    /// of a statement.&quot;
+    /// of a statement."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_stmt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_stmt
     }
 
-    <span class="doccomment">/// &quot;A boolean indicating that the current instruction is the beginning of a
-    /// basic block.&quot;
+    <span class="doccomment">/// "A boolean indicating that the current instruction is the beginning of a
+    /// basic block."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>basic_block(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.basic_block
     }
 
-    <span class="doccomment">/// &quot;A boolean indicating that the current address is that of the first byte
+    <span class="doccomment">/// "A boolean indicating that the current address is that of the first byte
     /// after the end of a sequence of target machine instructions. end_sequence
     /// terminates a sequence of lines; therefore other information in the same
-    /// row is not meaningful.&quot;
+    /// row is not meaningful."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>end_sequence(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.end_sequence
     }
 
-    <span class="doccomment">/// &quot;A boolean indicating that the current address is one (of possibly many)
+    <span class="doccomment">/// "A boolean indicating that the current address is one (of possibly many)
     /// where execution should be suspended for an entry breakpoint of a
-    /// function.&quot;
+    /// function."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>prologue_end(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.prologue_end
     }
 
-    <span class="doccomment">/// &quot;A boolean indicating that the current address is one (of possibly many)
+    <span class="doccomment">/// "A boolean indicating that the current address is one (of possibly many)
     /// where execution should be suspended for an exit breakpoint of a
-    /// function.&quot;
+    /// function."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>epilogue_begin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.epilogue_begin
@@ -3920,12 +3921,12 @@
         <span class="self">self</span>.isa
     }
 
-    <span class="doccomment">/// &quot;An unsigned integer identifying the block to which the current
+    <span class="doccomment">/// "An unsigned integer identifying the block to which the current
     /// instruction belongs. Discriminator values are assigned arbitrarily by
     /// the DWARF producer and serve to distinguish among multiple blocks that
     /// may all be associated with the same source file, line, and column. Where
     /// only one block exists for a given source position, the discriminator
-    /// value should be zero.&quot;
+    /// value should be zero."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>discriminator(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.discriminator
@@ -4134,7 +4135,7 @@
 }
 
 <span class="doccomment">/// Deprecated. `LineNumberSequence` has been renamed to `LineSequence`.
-</span><span class="attr">#[deprecated(note = <span class="string">&quot;LineNumberSequence has been renamed to LineSequence, use that instead.&quot;</span>)]
+</span><span class="attr">#[deprecated(note = <span class="string">"LineNumberSequence has been renamed to LineSequence, use that instead."</span>)]
 </span><span class="kw">pub type </span>LineNumberSequence&lt;R&gt; = LineSequence&lt;R&gt;;
 
 <span class="doccomment">/// A sequence within a line number program.  A sequence, as defined in section
@@ -4153,7 +4154,7 @@
 
 <span class="doccomment">/// Deprecated. `LineNumberProgramHeader` has been renamed to `LineProgramHeader`.
 </span><span class="attr">#[deprecated(
-    note = <span class="string">&quot;LineNumberProgramHeader has been renamed to LineProgramHeader, use that instead.&quot;
+    note = <span class="string">"LineNumberProgramHeader has been renamed to LineProgramHeader, use that instead."
 </span>)]
 </span><span class="kw">pub type </span>LineNumberProgramHeader&lt;R, Offset&gt; = LineProgramHeader&lt;R, Offset&gt;;
 
@@ -4173,16 +4174,16 @@
 
     line_encoding: LineEncoding,
 
-    <span class="doccomment">/// &quot;The number assigned to the first special opcode.&quot;
+    <span class="doccomment">/// "The number assigned to the first special opcode."
     </span>opcode_base: u8,
 
-    <span class="doccomment">/// &quot;This array specifies the number of LEB128 operands for each of the
+    <span class="doccomment">/// "This array specifies the number of LEB128 operands for each of the
     /// standard opcodes. The first element of the array corresponds to the
     /// opcode whose value is 1, and the last element corresponds to the opcode
-    /// whose value is `opcode_base - 1`.&quot;
+    /// whose value is `opcode_base - 1`."
     </span>standard_opcode_lengths: R,
 
-    <span class="doccomment">/// &quot;A sequence of directory entry format descriptions.&quot;
+    <span class="doccomment">/// "A sequence of directory entry format descriptions."
     </span>directory_entry_format: Vec&lt;FileEntryFormat&gt;,
 
     <span class="doccomment">/// &gt; Entries in this sequence describe each path that was searched for
@@ -4195,12 +4196,12 @@
     /// &gt; The last entry is followed by a single null byte.
     </span>include_directories: Vec&lt;AttributeValue&lt;R, Offset&gt;&gt;,
 
-    <span class="doccomment">/// &quot;A sequence of file entry format descriptions.&quot;
+    <span class="doccomment">/// "A sequence of file entry format descriptions."
     </span>file_name_entry_format: Vec&lt;FileEntryFormat&gt;,
 
-    <span class="doccomment">/// &quot;Entries in this sequence describe source files that contribute to the
+    <span class="doccomment">/// "Entries in this sequence describe source files that contribute to the
     /// line number information for this compilation unit or is used in other
-    /// contexts.&quot;
+    /// contexts."
     </span>file_names: Vec&lt;FileEntry&lt;R, Offset&gt;&gt;,
 
     <span class="doccomment">/// The encoded line program instructions.
@@ -4229,12 +4230,12 @@
         <span class="self">self</span>.unit_length
     }
 
-    <span class="doccomment">/// Return the encoding parameters for this header&#39;s line program.
+    <span class="doccomment">/// Return the encoding parameters for this header's line program.
     </span><span class="kw">pub fn </span>encoding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Encoding {
         <span class="self">self</span>.encoding
     }
 
-    <span class="doccomment">/// Get the version of this header&#39;s line program.
+    <span class="doccomment">/// Get the version of this header's line program.
     </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="self">self</span>.encoding.version
     }
@@ -4255,40 +4256,40 @@
         <span class="self">self</span>.encoding.format
     }
 
-    <span class="doccomment">/// Get the line encoding parameters for this header&#39;s line program.
+    <span class="doccomment">/// Get the line encoding parameters for this header's line program.
     </span><span class="kw">pub fn </span>line_encoding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LineEncoding {
         <span class="self">self</span>.line_encoding
     }
 
-    <span class="doccomment">/// Get the minimum instruction length any instruction in this header&#39;s line
+    <span class="doccomment">/// Get the minimum instruction length any instruction in this header's line
     /// program may have.
     </span><span class="kw">pub fn </span>minimum_instruction_length(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.line_encoding.minimum_instruction_length
     }
 
-    <span class="doccomment">/// Get the maximum number of operations each instruction in this header&#39;s
+    <span class="doccomment">/// Get the maximum number of operations each instruction in this header's
     /// line program may have.
     </span><span class="kw">pub fn </span>maximum_operations_per_instruction(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.line_encoding.maximum_operations_per_instruction
     }
 
-    <span class="doccomment">/// Get the default value of the `is_stmt` register for this header&#39;s line
+    <span class="doccomment">/// Get the default value of the `is_stmt` register for this header's line
     /// program.
     </span><span class="kw">pub fn </span>default_is_stmt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.line_encoding.default_is_stmt
     }
 
-    <span class="doccomment">/// Get the line base for this header&#39;s line program.
+    <span class="doccomment">/// Get the line base for this header's line program.
     </span><span class="kw">pub fn </span>line_base(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i8 {
         <span class="self">self</span>.line_encoding.line_base
     }
 
-    <span class="doccomment">/// Get the line range for this header&#39;s line program.
+    <span class="doccomment">/// Get the line range for this header's line program.
     </span><span class="kw">pub fn </span>line_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.line_encoding.line_range
     }
 
-    <span class="doccomment">/// Get opcode base for this header&#39;s line program.
+    <span class="doccomment">/// Get opcode base for this header's line program.
     </span><span class="kw">pub fn </span>opcode_base(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.opcode_base
     }
@@ -4304,9 +4305,9 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.directory_entry_format[..]
     }
 
-    <span class="doccomment">/// Get the set of include directories for this header&#39;s line program.
+    <span class="doccomment">/// Get the set of include directories for this header's line program.
     ///
-    /// For DWARF version &lt;= 4, the compilation&#39;s current directory is not included
+    /// For DWARF version &lt;= 4, the compilation's current directory is not included
     /// in the return value, but is implicitly considered to be in the set per spec.
     </span><span class="kw">pub fn </span>include_directories(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[AttributeValue&lt;R, Offset&gt;] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.include_directories[..]
@@ -4364,7 +4365,7 @@
             .any(|x| x.content_type == constants::DW_LNCT_MD5)
     }
 
-    <span class="doccomment">/// Get the list of source files that appear in this header&#39;s line program.
+    <span class="doccomment">/// Get the list of source files that appear in this header's line program.
     </span><span class="kw">pub fn </span>file_names(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[FileEntry&lt;R, Offset&gt;] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.file_names[..]
     }
@@ -4387,14 +4388,14 @@
         }
     }
 
-    <span class="doccomment">/// Get the raw, un-parsed `EndianSlice` containing this header&#39;s line number
+    <span class="doccomment">/// Get the raw, un-parsed `EndianSlice` containing this header's line number
     /// program.
     ///
     /// ```
     /// # fn foo() {
     /// use gimli::{LineProgramHeader, EndianSlice, NativeEndian};
     ///
-    /// fn get_line_number_program_header&lt;&#39;a&gt;() -&gt; LineProgramHeader&lt;EndianSlice&lt;&#39;a, NativeEndian&gt;&gt; {
+    /// fn get_line_number_program_header&lt;'a&gt;() -&gt; LineProgramHeader&lt;EndianSlice&lt;'a, NativeEndian&gt;&gt; {
     ///     // Get a line number program header from some offset in a
     ///     // `.debug_line` section...
     /// #   unimplemented!()
@@ -4402,14 +4403,14 @@
     ///
     /// let header = get_line_number_program_header();
     /// let raw_program = header.raw_program_buf();
-    /// println!(&quot;The length of the raw program in bytes is {}&quot;, raw_program.len());
+    /// println!("The length of the raw program in bytes is {}", raw_program.len());
     /// # }
     /// ```
     </span><span class="kw">pub fn </span>raw_program_buf(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; R {
         <span class="self">self</span>.program_buf.clone()
     }
 
-    <span class="doccomment">/// Iterate over the instructions in this header&#39;s line number program, parsing
+    <span class="doccomment">/// Iterate over the instructions in this header's line number program, parsing
     /// them as we go.
     </span><span class="kw">pub fn </span>instructions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LineInstructions&lt;R&gt; {
         LineInstructions {
@@ -4561,7 +4562,7 @@
 
 <span class="doccomment">/// Deprecated. `IncompleteLineNumberProgram` has been renamed to `IncompleteLineProgram`.
 </span><span class="attr">#[deprecated(
-    note = <span class="string">&quot;IncompleteLineNumberProgram has been renamed to IncompleteLineProgram, use that instead.&quot;
+    note = <span class="string">"IncompleteLineNumberProgram has been renamed to IncompleteLineProgram, use that instead."
 </span>)]
 </span><span class="kw">pub type </span>IncompleteLineNumberProgram&lt;R, Offset&gt; = IncompleteLineProgram&lt;R, Offset&gt;;
 
@@ -4600,7 +4601,7 @@
     /// # fn foo() {
     /// use gimli::{IncompleteLineProgram, EndianSlice, NativeEndian};
     ///
-    /// fn get_line_number_program&lt;&#39;a&gt;() -&gt; IncompleteLineProgram&lt;EndianSlice&lt;&#39;a, NativeEndian&gt;&gt; {
+    /// fn get_line_number_program&lt;'a&gt;() -&gt; IncompleteLineProgram&lt;EndianSlice&lt;'a, NativeEndian&gt;&gt; {
     ///     // Get a line number program from some offset in a
     ///     // `.debug_line` section...
     /// #   unimplemented!()
@@ -4608,7 +4609,7 @@
     ///
     /// let program = get_line_number_program();
     /// let (program, sequences) = program.sequences().unwrap();
-    /// println!(&quot;There are {} sequences in this line number program&quot;, sequences.len());
+    /// println!("There are {} sequences in this line number program", sequences.len());
     /// # }
     /// ```
     </span><span class="attr">#[allow(clippy::type_complexity)]
@@ -4654,7 +4655,7 @@
 
 <span class="doccomment">/// Deprecated. `CompleteLineNumberProgram` has been renamed to `CompleteLineProgram`.
 </span><span class="attr">#[deprecated(
-    note = <span class="string">&quot;CompleteLineNumberProgram has been renamed to CompleteLineProgram, use that instead.&quot;
+    note = <span class="string">"CompleteLineNumberProgram has been renamed to CompleteLineProgram, use that instead."
 </span>)]
 </span><span class="kw">pub type </span>CompleteLineNumberProgram&lt;R, Offset&gt; = CompleteLineProgram&lt;R, Offset&gt;;
 
@@ -4679,14 +4680,14 @@
     }
 
     <span class="doccomment">/// Construct a new `LineRows` for executing the subset of the line
-    /// number program identified by &#39;sequence&#39; and  generating the line information
+    /// number program identified by 'sequence' and  generating the line information
     /// matrix.
     ///
     /// ```
     /// # fn foo() {
     /// use gimli::{IncompleteLineProgram, EndianSlice, NativeEndian};
     ///
-    /// fn get_line_number_program&lt;&#39;a&gt;() -&gt; IncompleteLineProgram&lt;EndianSlice&lt;&#39;a, NativeEndian&gt;&gt; {
+    /// fn get_line_number_program&lt;'a&gt;() -&gt; IncompleteLineProgram&lt;EndianSlice&lt;'a, NativeEndian&gt;&gt; {
     ///     // Get a line number program from some offset in a
     ///     // `.debug_line` section...
     /// #   unimplemented!()
@@ -4699,15 +4700,15 @@
     /// }
     /// # }
     /// ```
-    </span><span class="kw">pub fn </span>resume_from&lt;<span class="lifetime">&#39;program</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;program </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>resume_from&lt;<span class="lifetime">'program</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'program </span><span class="self">self</span>,
         sequence: <span class="kw-2">&amp;</span>LineSequence&lt;R&gt;,
-    ) -&gt; ResumedLineRows&lt;<span class="lifetime">&#39;program</span>, R, Offset&gt; {
+    ) -&gt; ResumedLineRows&lt;<span class="lifetime">'program</span>, R, Offset&gt; {
         ResumedLineRows::resume(<span class="self">self</span>, sequence)
     }
 }
 
-<span class="doccomment">/// An entry in the `LineProgramHeader`&#39;s `file_names` set.
+<span class="doccomment">/// An entry in the `LineProgramHeader`'s `file_names` set.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>FileEntry&lt;R, Offset = &lt;R <span class="kw">as </span>Reader&gt;::Offset&gt;
 <span class="kw">where
@@ -4767,7 +4768,7 @@
         <span class="self">self</span>.directory_index
     }
 
-    <span class="doccomment">/// Get this file&#39;s directory.
+    <span class="doccomment">/// Get this file's directory.
     ///
     /// A directory index of 0 corresponds to the compilation unit directory.
     </span><span class="kw">pub fn </span>directory(<span class="kw-2">&amp;</span><span class="self">self</span>, header: <span class="kw-2">&amp;</span>LineProgramHeader&lt;R&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;AttributeValue&lt;R, Offset&gt;&gt; {
@@ -4780,8 +4781,8 @@
         <span class="self">self</span>.timestamp
     }
 
-    <span class="doccomment">/// &quot;An unsigned LEB128 number representing the time of last modification of
-    /// the file, or 0 if not available.&quot;
+    <span class="doccomment">/// "An unsigned LEB128 number representing the time of last modification of
+    /// the file, or 0 if not available."
     </span><span class="comment">// Terminology changed in DWARF version 5.
     </span><span class="attr">#[doc(hidden)]
     </span><span class="kw">pub fn </span>last_modification(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
@@ -4793,8 +4794,8 @@
         <span class="self">self</span>.size
     }
 
-    <span class="doccomment">/// &quot;An unsigned LEB128 number representing the length in bytes of the file,
-    /// or 0 if not available.&quot;
+    <span class="doccomment">/// "An unsigned LEB128 number representing the length in bytes of the file,
+    /// or 0 if not available."
     </span><span class="comment">// Terminology changed in DWARF version 5.
     </span><span class="attr">#[doc(hidden)]
     </span><span class="kw">pub fn </span>length(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
@@ -5054,7 +5055,7 @@
             </span><span class="number">0x03</span>,
             <span class="comment">// Standard opcode lengths for opcodes 1 .. opcode base - 1.
             </span><span class="number">0x01</span>, <span class="number">0x02</span>,
-            <span class="comment">// Include directories = &#39;/&#39;, &#39;i&#39;, &#39;n&#39;, &#39;c&#39;, &#39;\0&#39;, &#39;/&#39;, &#39;i&#39;, &#39;n&#39;, &#39;c&#39;, &#39;2&#39;, &#39;\0&#39;, &#39;\0&#39;
+            <span class="comment">// Include directories = '/', 'i', 'n', 'c', '\0', '/', 'i', 'n', 'c', '2', '\0', '\0'
             </span><span class="number">0x2f</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x63</span>, <span class="number">0x00</span>, <span class="number">0x2f</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x63</span>, <span class="number">0x32</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
             <span class="comment">// File names
                 // foo.rs
@@ -5084,12 +5085,12 @@
         ];
 
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
-        <span class="kw">let </span>comp_dir = EndianSlice::new(<span class="string">b&quot;/comp_dir&quot;</span>, LittleEndian);
-        <span class="kw">let </span>comp_name = EndianSlice::new(<span class="string">b&quot;/comp_name&quot;</span>, LittleEndian);
+        <span class="kw">let </span>comp_dir = EndianSlice::new(<span class="string">b"/comp_dir"</span>, LittleEndian);
+        <span class="kw">let </span>comp_name = EndianSlice::new(<span class="string">b"/comp_name"</span>, LittleEndian);
 
         <span class="kw">let </span>header =
             LineProgramHeader::parse(rest, DebugLineOffset(<span class="number">0</span>), <span class="number">4</span>, <span class="prelude-val">Some</span>(comp_dir), <span class="prelude-val">Some</span>(comp_name))
-                .expect(<span class="string">&quot;should parse header ok&quot;</span>);
+                .expect(<span class="string">"should parse header ok"</span>);
 
         <span class="macro">assert_eq!</span>(
             <span class="kw-2">*</span>rest,
@@ -5114,21 +5115,21 @@
         <span class="macro">assert_eq!</span>(header.standard_opcode_lengths().slice(), <span class="kw-2">&amp;</span>expected_lengths);
 
         <span class="kw">let </span>expected_include_directories = [
-            AttributeValue::String(EndianSlice::new(<span class="string">b&quot;/inc&quot;</span>, LittleEndian)),
-            AttributeValue::String(EndianSlice::new(<span class="string">b&quot;/inc2&quot;</span>, LittleEndian)),
+            AttributeValue::String(EndianSlice::new(<span class="string">b"/inc"</span>, LittleEndian)),
+            AttributeValue::String(EndianSlice::new(<span class="string">b"/inc2"</span>, LittleEndian)),
         ];
         <span class="macro">assert_eq!</span>(header.include_directories(), <span class="kw-2">&amp;</span>expected_include_directories);
 
         <span class="kw">let </span>expected_file_names = [
             FileEntry {
-                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;foo.rs&quot;</span>, LittleEndian)),
+                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"foo.rs"</span>, LittleEndian)),
                 directory_index: <span class="number">0</span>,
                 timestamp: <span class="number">0</span>,
                 size: <span class="number">0</span>,
                 md5: [<span class="number">0</span>; <span class="number">16</span>],
             },
             FileEntry {
-                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;bar.h&quot;</span>, LittleEndian)),
+                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"bar.h"</span>, LittleEndian)),
                 directory_index: <span class="number">1</span>,
                 timestamp: <span class="number">0</span>,
                 size: <span class="number">0</span>,
@@ -5162,7 +5163,7 @@
             </span><span class="number">0x03</span>,
             <span class="comment">// Standard opcode lengths for opcodes 1 .. opcode base - 1.
             </span><span class="number">0x01</span>, <span class="number">0x02</span>,
-            <span class="comment">// Include directories = &#39;/&#39;, &#39;i&#39;, &#39;n&#39;, &#39;c&#39;, &#39;\0&#39;, &#39;/&#39;, &#39;i&#39;, &#39;n&#39;, &#39;c&#39;, &#39;2&#39;, &#39;\0&#39;, &#39;\0&#39;
+            <span class="comment">// Include directories = '/', 'i', 'n', 'c', '\0', '/', 'i', 'n', 'c', '2', '\0', '\0'
             </span><span class="number">0x2f</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x63</span>, <span class="number">0x00</span>, <span class="number">0x2f</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x63</span>, <span class="number">0x32</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
             <span class="comment">// File names
                 // foo.rs
@@ -5195,7 +5196,7 @@
 
         <span class="kw">match </span>LineProgramHeader::parse(input, DebugLineOffset(<span class="number">0</span>), <span class="number">4</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>) {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="kw">return</span>,
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         }
     }
 
@@ -5223,7 +5224,7 @@
             </span><span class="number">0x03</span>,
             <span class="comment">// Standard opcode lengths for opcodes 1 .. opcode base - 1.
             </span><span class="number">0x01</span>, <span class="number">0x02</span>,
-            <span class="comment">// Include directories = &#39;/&#39;, &#39;i&#39;, &#39;n&#39;, &#39;c&#39;, &#39;\0&#39;, &#39;/&#39;, &#39;i&#39;, &#39;n&#39;, &#39;c&#39;, &#39;2&#39;, &#39;\0&#39;, &#39;\0&#39;
+            <span class="comment">// Include directories = '/', 'i', 'n', 'c', '\0', '/', 'i', 'n', 'c', '2', '\0', '\0'
             </span><span class="number">0x2f</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x63</span>, <span class="number">0x00</span>, <span class="number">0x2f</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x63</span>, <span class="number">0x32</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
             <span class="comment">// File names
                 // foo.rs
@@ -5256,7 +5257,7 @@
 
         <span class="kw">match </span>LineProgramHeader::parse(input, DebugLineOffset(<span class="number">0</span>), <span class="number">4</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>) {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="kw">return</span>,
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         }
     }
 
@@ -5286,14 +5287,14 @@
             standard_opcode_lengths: EndianSlice::new(STANDARD_OPCODE_LENGTHS, LittleEndian),
             file_names: <span class="macro">vec!</span>[
                 FileEntry {
-                    path_name: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;foo.c&quot;</span>, LittleEndian)),
+                    path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"foo.c"</span>, LittleEndian)),
                     directory_index: <span class="number">0</span>,
                     timestamp: <span class="number">0</span>,
                     size: <span class="number">0</span>,
                     md5: [<span class="number">0</span>; <span class="number">16</span>],
                 },
                 FileEntry {
-                    path_name: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;bar.rs&quot;</span>, LittleEndian)),
+                    path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"bar.rs"</span>, LittleEndian)),
                     directory_index: <span class="number">0</span>,
                     timestamp: <span class="number">0</span>,
                     size: <span class="number">0</span>,
@@ -5326,7 +5327,7 @@
 
             <span class="kw">let </span><span class="kw-2">mut </span>rest = input;
             <span class="kw">let </span>opcode =
-                LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">&quot;Should parse the opcode OK&quot;</span>);
+                LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">"Should parse the opcode OK"</span>);
 
             <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, <span class="kw-2">*</span>input.range_from(<span class="number">1</span>..));
             <span class="macro">assert_eq!</span>(opcode, LineInstruction::Special(i));
@@ -5354,7 +5355,7 @@
 
             <span class="kw">let </span><span class="kw-2">mut </span>rest = input;
             <span class="kw">let </span>opcode =
-                LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">&quot;Should parse the opcode OK&quot;</span>);
+                LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">"Should parse the opcode OK"</span>);
 
             <span class="macro">assert_eq!</span>(opcode, expected);
             <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, expected_rest);
@@ -5422,7 +5423,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>rest = input;
         <span class="kw">let </span>opcode =
-            LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">&quot;Should parse the opcode OK&quot;</span>);
+            LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">"Should parse the opcode OK"</span>);
 
         <span class="macro">assert_eq!</span>(
             opcode,
@@ -5444,7 +5445,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>rest = input;
         <span class="kw">let </span>opcode =
-            LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">&quot;Should parse the opcode OK&quot;</span>);
+            LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">"Should parse the opcode OK"</span>);
 
         <span class="macro">assert_eq!</span>(
             opcode,
@@ -5467,7 +5468,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>rest = input;
         <span class="kw">let </span>opcode =
-            LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">&quot;Should parse the opcode OK&quot;</span>);
+            LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">"Should parse the opcode OK"</span>);
 
         <span class="macro">assert_eq!</span>(
             opcode,
@@ -5502,7 +5503,7 @@
 
             <span class="kw">let </span><span class="kw-2">mut </span>rest = input;
             <span class="kw">let </span>opcode =
-                LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">&quot;Should parse the opcode OK&quot;</span>);
+                LineInstruction::parse(<span class="kw-2">&amp;</span>header, <span class="kw-2">&amp;mut </span>rest).expect(<span class="string">"Should parse the opcode OK"</span>);
 
             <span class="macro">assert_eq!</span>(opcode, expected);
             <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, expected_rest);
@@ -5525,8 +5526,8 @@
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>file = Vec::new();
-        <span class="comment">// &quot;foo.c&quot;
-        </span><span class="kw">let </span>path_name = [<span class="string">b&#39;f&#39;</span>, <span class="string">b&#39;o&#39;</span>, <span class="string">b&#39;o&#39;</span>, <span class="string">b&#39;.&#39;</span>, <span class="string">b&#39;c&#39;</span>, <span class="number">0</span>];
+        <span class="comment">// "foo.c"
+        </span><span class="kw">let </span>path_name = [<span class="string">b'f'</span>, <span class="string">b'o'</span>, <span class="string">b'o'</span>, <span class="string">b'.'</span>, <span class="string">b'c'</span>, <span class="number">0</span>];
         file.extend_from_slice(<span class="kw-2">&amp;</span>path_name);
         <span class="comment">// Directory index.
         </span>file.push(<span class="number">0</span>);
@@ -5539,7 +5540,7 @@
             constants::DW_LNE_define_file,
             file,
             LineInstruction::DefineFile(FileEntry {
-                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;foo.c&quot;</span>, LittleEndian)),
+                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"foo.c"</span>, LittleEndian)),
                 directory_index: <span class="number">0</span>,
                 timestamp: <span class="number">1</span>,
                 size: <span class="number">2</span>,
@@ -5559,7 +5560,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_file_entry_directory() {
-        <span class="kw">let </span>path_name = [<span class="string">b&#39;f&#39;</span>, <span class="string">b&#39;o&#39;</span>, <span class="string">b&#39;o&#39;</span>, <span class="string">b&#39;.&#39;</span>, <span class="string">b&#39;r&#39;</span>, <span class="string">b&#39;s&#39;</span>, <span class="number">0</span>];
+        <span class="kw">let </span>path_name = [<span class="string">b'f'</span>, <span class="string">b'o'</span>, <span class="string">b'o'</span>, <span class="string">b'.'</span>, <span class="string">b'r'</span>, <span class="string">b's'</span>, <span class="number">0</span>];
 
         <span class="kw">let </span><span class="kw-2">mut </span>file = FileEntry {
             path_name: AttributeValue::String(EndianSlice::new(<span class="kw-2">&amp;</span>path_name, LittleEndian)),
@@ -5571,20 +5572,20 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>header = make_test_header(EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian));
 
-        <span class="kw">let </span>dir = AttributeValue::String(EndianSlice::new(<span class="string">b&quot;dir&quot;</span>, LittleEndian));
+        <span class="kw">let </span>dir = AttributeValue::String(EndianSlice::new(<span class="string">b"dir"</span>, LittleEndian));
         header.include_directories.push(dir);
 
         <span class="macro">assert_eq!</span>(file.directory(<span class="kw-2">&amp;</span>header), <span class="prelude-val">Some</span>(dir));
 
-        <span class="comment">// Now test the compilation&#39;s current directory.
+        <span class="comment">// Now test the compilation's current directory.
         </span>file.directory_index = <span class="number">0</span>;
         <span class="macro">assert_eq!</span>(file.directory(<span class="kw-2">&amp;</span>header), <span class="prelude-val">None</span>);
     }
 
-    <span class="kw">fn </span>assert_exec_opcode&lt;<span class="lifetime">&#39;input</span>&gt;(
-        header: LineProgramHeader&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, LittleEndian&gt;&gt;,
+    <span class="kw">fn </span>assert_exec_opcode&lt;<span class="lifetime">'input</span>&gt;(
+        header: LineProgramHeader&lt;EndianSlice&lt;<span class="lifetime">'input</span>, LittleEndian&gt;&gt;,
         <span class="kw-2">mut </span>registers: LineRow,
-        opcode: LineInstruction&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, LittleEndian&gt;&gt;,
+        opcode: LineInstruction&lt;EndianSlice&lt;<span class="lifetime">'input</span>, LittleEndian&gt;&gt;,
         expected_registers: LineRow,
         expect_new_row: bool,
     ) {
@@ -5785,7 +5786,7 @@
         <span class="kw">let </span>initial_registers = LineRow::new(<span class="kw-2">&amp;</span>header);
         <span class="kw">let </span>opcode = LineInstruction::SetFile(<span class="number">100</span>);
 
-        <span class="comment">// The spec doesn&#39;t say anything about rejecting input programs
+        <span class="comment">// The spec doesn't say anything about rejecting input programs
         // that set the file register out of bounds of the actual number
         // of files that have been defined. Instead, we cross our
         // fingers and hope that one gets defined before
@@ -5990,7 +5991,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>row = LineRow::new(program.header());
 
         <span class="kw">let </span>file = FileEntry {
-            path_name: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;test.cpp&quot;</span>, LittleEndian)),
+            path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"test.cpp"</span>, LittleEndian)),
             directory_index: <span class="number">0</span>,
             timestamp: <span class="number">0</span>,
             size: <span class="number">0</span>,
@@ -6031,12 +6032,12 @@
     <span class="doccomment">/// Ensure that `LineRows&lt;R,P&gt;` is covariant wrt R.
     /// This only needs to compile.
     </span><span class="attr">#[allow(dead_code, unreachable_code, unused_variables)]
-    </span><span class="kw">fn </span>test_line_rows_variance&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>[u8])
+    </span><span class="kw">fn </span>test_line_rows_variance&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt;(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8])
     <span class="kw">where
-        </span><span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>,
+        </span><span class="lifetime">'a</span>: <span class="lifetime">'b</span>,
     {
-        <span class="kw">let </span>a: <span class="kw-2">&amp;</span>OneShotLineRows&lt;EndianSlice&lt;<span class="lifetime">&#39;a</span>, LittleEndian&gt;&gt; = <span class="macro">unimplemented!</span>();
-        <span class="kw">let _</span>: <span class="kw-2">&amp;</span>OneShotLineRows&lt;EndianSlice&lt;<span class="lifetime">&#39;b</span>, LittleEndian&gt;&gt; = a;
+        <span class="kw">let </span>a: <span class="kw-2">&amp;</span>OneShotLineRows&lt;EndianSlice&lt;<span class="lifetime">'a</span>, LittleEndian&gt;&gt; = <span class="macro">unimplemented!</span>();
+        <span class="kw">let _</span>: <span class="kw-2">&amp;</span>OneShotLineRows&lt;EndianSlice&lt;<span class="lifetime">'b</span>, LittleEndian&gt;&gt; = a;
     }
 
     <span class="attr">#[test]
@@ -6045,19 +6046,19 @@
         <span class="kw">let </span>expected_program = <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span>expected_include_directories = [
-            AttributeValue::String(EndianSlice::new(<span class="string">b&quot;dir1&quot;</span>, LittleEndian)),
-            AttributeValue::String(EndianSlice::new(<span class="string">b&quot;dir2&quot;</span>, LittleEndian)),
+            AttributeValue::String(EndianSlice::new(<span class="string">b"dir1"</span>, LittleEndian)),
+            AttributeValue::String(EndianSlice::new(<span class="string">b"dir2"</span>, LittleEndian)),
         ];
         <span class="kw">let </span>expected_file_names = [
             FileEntry {
-                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;file1&quot;</span>, LittleEndian)),
+                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"file1"</span>, LittleEndian)),
                 directory_index: <span class="number">0</span>,
                 timestamp: <span class="number">0</span>,
                 size: <span class="number">0</span>,
                 md5: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>],
             },
             FileEntry {
-                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;file2&quot;</span>, LittleEndian)),
+                path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"file2"</span>, LittleEndian)),
                 directory_index: <span class="number">1</span>,
                 timestamp: <span class="number">0</span>,
                 size: <span class="number">0</span>,
@@ -6103,8 +6104,8 @@
                 .uleb(constants::DW_FORM_string.<span class="number">0 </span><span class="kw">as </span>u64)
                 <span class="comment">// Directory count.
                 </span>.D8(<span class="number">2</span>)
-                .append_bytes(<span class="string">b&quot;dir1\0&quot;</span>)
-                .append_bytes(<span class="string">b&quot;dir2\0&quot;</span>)
+                .append_bytes(<span class="string">b"dir1\0"</span>)
+                .append_bytes(<span class="string">b"dir2\0"</span>)
                 <span class="comment">// File entry format count.
                 </span>.D8(<span class="number">3</span>)
                 .uleb(constants::DW_LNCT_path.<span class="number">0 </span><span class="kw">as </span>u64)
@@ -6115,10 +6116,10 @@
                 .uleb(constants::DW_FORM_data16.<span class="number">0 </span><span class="kw">as </span>u64)
                 <span class="comment">// File count.
                 </span>.D8(<span class="number">2</span>)
-                .append_bytes(<span class="string">b&quot;file1\0&quot;</span>)
+                .append_bytes(<span class="string">b"file1\0"</span>)
                 .D8(<span class="number">0</span>)
                 .append_bytes(<span class="kw-2">&amp;</span>expected_file_names[<span class="number">0</span>].md5)
-                .append_bytes(<span class="string">b&quot;file2\0&quot;</span>)
+                .append_bytes(<span class="string">b"file2\0"</span>)
                 .D8(<span class="number">1</span>)
                 .append_bytes(<span class="kw-2">&amp;</span>expected_file_names[<span class="number">1</span>].md5)
                 .mark(<span class="kw-2">&amp;</span>header_end)
@@ -6134,7 +6135,7 @@
             <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>section, LittleEndian);
 
             <span class="kw">let </span>header = LineProgramHeader::parse(input, DebugLineOffset(<span class="number">0</span>), <span class="number">0</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
-                .expect(<span class="string">&quot;should parse header ok&quot;</span>);
+                .expect(<span class="string">"should parse header ok"</span>);
 
             <span class="macro">assert_eq!</span>(header.raw_program_buf().slice(), expected_program);
             <span class="macro">assert_eq!</span>(input.slice(), expected_rest);
@@ -6204,7 +6205,7 @@
             </span><span class="number">0x03</span>,
             <span class="comment">// Standard opcode lengths for opcodes 1 .. opcode base - 1.
             </span><span class="number">0x01</span>, <span class="number">0x02</span>,
-            <span class="comment">// Include directories = &#39;/&#39;, &#39;i&#39;, &#39;n&#39;, &#39;c&#39;, &#39;\0&#39;, &#39;/&#39;, &#39;i&#39;, &#39;n&#39;, &#39;c&#39;, &#39;2&#39;, &#39;\0&#39;, &#39;\0&#39;
+            <span class="comment">// Include directories = '/', 'i', 'n', 'c', '\0', '/', 'i', 'n', 'c', '2', '\0', '\0'
             </span><span class="number">0x2f</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x63</span>, <span class="number">0x00</span>, <span class="number">0x2f</span>, <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x63</span>, <span class="number">0x32</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
             <span class="comment">// File names
                 // foo.rs
@@ -6247,7 +6248,7 @@
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
 
         <span class="kw">let </span>header = LineProgramHeader::parse(rest, DebugLineOffset(<span class="number">0</span>), <span class="number">4</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
-            .expect(<span class="string">&quot;should parse header ok&quot;</span>);
+            .expect(<span class="string">"should parse header ok"</span>);
         <span class="kw">let </span>program = IncompleteLineProgram { header };
 
         <span class="kw">let </span>sequences = program.sequences().unwrap().<span class="number">1</span>;

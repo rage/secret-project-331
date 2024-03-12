@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/unit.rs`."><title>unit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/unit.rs`."><title>unit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -6223,14 +6224,14 @@
     debug_info_section: R,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, Endian&gt; DebugInfo&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>, Endian&gt; DebugInfo&lt;EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;
 <span class="kw">where
     </span>Endian: Endianity,
 {
     <span class="doccomment">/// Construct a new `DebugInfo` instance from the data in the `.debug_info`
     /// section.
     ///
-    /// It is the caller&#39;s responsibility to read the `.debug_info` section and
+    /// It is the caller's responsibility to read the `.debug_info` section and
     /// present it as a `&amp;[u8]` slice. That means using some ELF loader on
     /// Linux, a Mach-O loader on macOS, etc.
     ///
@@ -6241,7 +6242,7 @@
     /// # let read_debug_info_section_somehow = || &amp;buf;
     /// let debug_info = DebugInfo::new(read_debug_info_section_somehow(), LittleEndian);
     /// ```
-    </span><span class="kw">pub fn </span>new(debug_info_section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8], endian: Endian) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(debug_info_section: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8], endian: Endian) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::from(EndianSlice::new(debug_info_section, endian))
     }
 }
@@ -6258,7 +6259,7 @@
     ///
     /// let mut iter = debug_info.units();
     /// while let Some(unit) = iter.next().unwrap() {
-    ///     println!(&quot;unit&#39;s length is {}&quot;, unit.unit_length());
+    ///     println!("unit's length is {}", unit.unit_length());
     /// }
     /// ```
     ///
@@ -6290,16 +6291,16 @@
     ///
     /// ```rust,no_run
     /// # let load_section = || unimplemented!();
-    /// // Read the DWARF section into a `Vec` with whatever object loader you&#39;re using.
+    /// // Read the DWARF section into a `Vec` with whatever object loader you're using.
     /// let owned_section: gimli::DebugInfo&lt;Vec&lt;u8&gt;&gt; = load_section();
     /// // Create a reference to the DWARF section.
     /// let section = owned_section.borrow(|section| {
     ///     gimli::EndianSlice::new(&amp;section, gimli::LittleEndian)
     /// });
     /// ```
-    </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">&#39;a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugInfo&lt;R&gt;
+    </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">'a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugInfo&lt;R&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T) -&gt; R,
+        </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; R,
     {
         borrow(<span class="kw-2">&amp;</span><span class="self">self</span>.debug_info_section).into()
     }
@@ -6352,7 +6353,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;fallible-iterator&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"fallible-iterator"</span>)]
 </span><span class="kw">impl</span>&lt;R: Reader&gt; fallible_iterator::FallibleIterator <span class="kw">for </span>DebugInfoUnitHeadersIter&lt;R&gt; {
     <span class="kw">type </span>Item = UnitHeader&lt;R&gt;;
     <span class="kw">type </span>Error = Error;
@@ -6553,8 +6554,8 @@
         <span class="self">self</span>.unit_type
     }
 
-    <span class="doccomment">/// The offset into the `.debug_abbrev` section for this compilation unit&#39;s
-    /// debugging information entries&#39; abbreviations.
+    <span class="doccomment">/// The offset into the `.debug_abbrev` section for this compilation unit's
+    /// debugging information entries' abbreviations.
     </span><span class="kw">pub fn </span>debug_abbrev_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DebugAbbrevOffset&lt;Offset&gt; {
         <span class="self">self</span>.debug_abbrev_offset
     }
@@ -6625,21 +6626,21 @@
     }
 
     <span class="doccomment">/// Read the `DebuggingInformationEntry` at the given offset.
-    </span><span class="kw">pub fn </span>entry&lt;<span class="lifetime">&#39;me</span>, <span class="lifetime">&#39;abbrev</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;me </span><span class="self">self</span>,
-        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations,
+    </span><span class="kw">pub fn </span>entry&lt;<span class="lifetime">'me</span>, <span class="lifetime">'abbrev</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'me </span><span class="self">self</span>,
+        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations,
         offset: UnitOffset&lt;Offset&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;me</span>, R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'me</span>, R&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>input = <span class="self">self</span>.range_from(offset..)<span class="question-mark">?</span>;
         <span class="kw">let </span>entry = DebuggingInformationEntry::parse(<span class="kw-2">&amp;mut </span>input, <span class="self">self</span>, abbreviations)<span class="question-mark">?</span>;
         entry.ok_or(Error::NoEntryAtGivenOffset)
     }
 
-    <span class="doccomment">/// Navigate this unit&#39;s `DebuggingInformationEntry`s.
-    </span><span class="kw">pub fn </span>entries&lt;<span class="lifetime">&#39;me</span>, <span class="lifetime">&#39;abbrev</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;me </span><span class="self">self</span>,
-        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations,
-    ) -&gt; EntriesCursor&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;me</span>, R&gt; {
+    <span class="doccomment">/// Navigate this unit's `DebuggingInformationEntry`s.
+    </span><span class="kw">pub fn </span>entries&lt;<span class="lifetime">'me</span>, <span class="lifetime">'abbrev</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'me </span><span class="self">self</span>,
+        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations,
+    ) -&gt; EntriesCursor&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'me</span>, R&gt; {
         EntriesCursor {
             unit: <span class="self">self</span>,
             input: <span class="self">self</span>.entries_buf.clone(),
@@ -6649,13 +6650,13 @@
         }
     }
 
-    <span class="doccomment">/// Navigate this compilation unit&#39;s `DebuggingInformationEntry`s
+    <span class="doccomment">/// Navigate this compilation unit's `DebuggingInformationEntry`s
     /// starting at the given offset.
-    </span><span class="kw">pub fn </span>entries_at_offset&lt;<span class="lifetime">&#39;me</span>, <span class="lifetime">&#39;abbrev</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;me </span><span class="self">self</span>,
-        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations,
+    </span><span class="kw">pub fn </span>entries_at_offset&lt;<span class="lifetime">'me</span>, <span class="lifetime">'abbrev</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'me </span><span class="self">self</span>,
+        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations,
         offset: UnitOffset&lt;Offset&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesCursor&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;me</span>, R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesCursor&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'me</span>, R&gt;&gt; {
         <span class="kw">let </span>input = <span class="self">self</span>.range_from(offset..)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(EntriesCursor {
             unit: <span class="self">self</span>,
@@ -6666,13 +6667,13 @@
         })
     }
 
-    <span class="doccomment">/// Navigate this unit&#39;s `DebuggingInformationEntry`s as a tree
+    <span class="doccomment">/// Navigate this unit's `DebuggingInformationEntry`s as a tree
     /// starting at the given offset.
-    </span><span class="kw">pub fn </span>entries_tree&lt;<span class="lifetime">&#39;me</span>, <span class="lifetime">&#39;abbrev</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;me </span><span class="self">self</span>,
-        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations,
+    </span><span class="kw">pub fn </span>entries_tree&lt;<span class="lifetime">'me</span>, <span class="lifetime">'abbrev</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'me </span><span class="self">self</span>,
+        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations,
         offset: <span class="prelude-ty">Option</span>&lt;UnitOffset&lt;Offset&gt;&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesTree&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;me</span>, R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesTree&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'me</span>, R&gt;&gt; {
         <span class="kw">let </span>input = <span class="kw">match </span>offset {
             <span class="prelude-val">Some</span>(offset) =&gt; <span class="self">self</span>.range_from(offset..)<span class="question-mark">?</span>,
             <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.entries_buf.clone(),
@@ -6681,11 +6682,11 @@
     }
 
     <span class="doccomment">/// Read the raw data that defines the Debugging Information Entries.
-    </span><span class="kw">pub fn </span>entries_raw&lt;<span class="lifetime">&#39;me</span>, <span class="lifetime">&#39;abbrev</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;me </span><span class="self">self</span>,
-        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations,
+    </span><span class="kw">pub fn </span>entries_raw&lt;<span class="lifetime">'me</span>, <span class="lifetime">'abbrev</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'me </span><span class="self">self</span>,
+        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations,
         offset: <span class="prelude-ty">Option</span>&lt;UnitOffset&lt;Offset&gt;&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesRaw&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;me</span>, R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'me</span>, R&gt;&gt; {
         <span class="kw">let </span>input = <span class="kw">match </span>offset {
             <span class="prelude-val">Some</span>(offset) =&gt; <span class="self">self</span>.range_from(offset..)<span class="question-mark">?</span>,
             <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.entries_buf.clone(),
@@ -6698,7 +6699,7 @@
         })
     }
 
-    <span class="doccomment">/// Parse this unit&#39;s abbreviations.
+    <span class="doccomment">/// Parse this unit's abbreviations.
     </span><span class="kw">pub fn </span>abbreviations(<span class="kw-2">&amp;</span><span class="self">self</span>, debug_abbrev: <span class="kw-2">&amp;</span>DebugAbbrev&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Abbreviations&gt; {
         debug_abbrev.abbreviations(<span class="self">self</span>.debug_abbrev_offset())
     }
@@ -6720,7 +6721,7 @@
     <span class="kw">let </span>abbrev_offset;
     <span class="kw">let </span>address_size;
     <span class="kw">let </span>unit_type;
-    <span class="comment">// DWARF 1 was very different, and is obsolete, so isn&#39;t supported by this
+    <span class="comment">// DWARF 1 was very different, and is obsolete, so isn't supported by this
     // reader.
     </span><span class="kw">if </span><span class="number">2 </span>&lt;= version &amp;&amp; version &lt;= <span class="number">4 </span>{
         abbrev_offset = parse_debug_abbrev_offset(<span class="kw-2">&amp;mut </span>rest, format)<span class="question-mark">?</span>;
@@ -6794,7 +6795,7 @@
 ///
 /// DIEs have a set of attributes and optionally have children DIEs as well.
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R, Offset = &lt;R <span class="kw">as </span>Reader&gt;::Offset&gt;
+</span><span class="kw">pub struct </span>DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R, Offset = &lt;R <span class="kw">as </span>Reader&gt;::Offset&gt;
 <span class="kw">where
     </span>R: Reader&lt;Offset = Offset&gt;,
     Offset: ReaderOffset,
@@ -6802,11 +6803,11 @@
     offset: UnitOffset&lt;Offset&gt;,
     attrs_slice: R,
     attrs_len: Cell&lt;<span class="prelude-ty">Option</span>&lt;Offset&gt;&gt;,
-    abbrev: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviation,
-    unit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>UnitHeader&lt;R, Offset&gt;,
+    abbrev: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviation,
+    unit: <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>UnitHeader&lt;R, Offset&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R, Offset&gt; DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R, Offset&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R, Offset&gt; DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R, Offset&gt;
 <span class="kw">where
     </span>R: Reader&lt;Offset = Offset&gt;,
     Offset: ReaderOffset,
@@ -6815,8 +6816,8 @@
     </span><span class="kw">pub fn </span>new(
         offset: UnitOffset&lt;Offset&gt;,
         attrs_slice: R,
-        abbrev: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviation,
-        unit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>UnitHeader&lt;R, Offset&gt;,
+        abbrev: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviation,
+        unit: <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>UnitHeader&lt;R, Offset&gt;,
     ) -&gt; <span class="self">Self </span>{
         DebuggingInformationEntry {
             offset,
@@ -6827,17 +6828,17 @@
         }
     }
 
-    <span class="doccomment">/// Get this entry&#39;s code.
+    <span class="doccomment">/// Get this entry's code.
     </span><span class="kw">pub fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.abbrev.code()
     }
 
-    <span class="doccomment">/// Get this entry&#39;s offset.
+    <span class="doccomment">/// Get this entry's offset.
     </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UnitOffset&lt;Offset&gt; {
         <span class="self">self</span>.offset
     }
 
-    <span class="doccomment">/// Get this entry&#39;s `DW_TAG_whatever` tag.
+    <span class="doccomment">/// Get this entry's `DW_TAG_whatever` tag.
     ///
     /// ```
     /// # use gimli::{DebugAbbrev, DebugInfo, LittleEndian};
@@ -6857,7 +6858,7 @@
     /// #
     /// #     // Abbreviation code
     /// #     0x01,
-    /// #     // Attribute of form DW_FORM_string = &quot;foo\0&quot;
+    /// #     // Attribute of form DW_FORM_string = "foo\0"
     /// #     0x66, 0x6f, 0x6f, 0x00,
     /// # ];
     /// # let debug_info = DebugInfo::new(&amp;info_buf, LittleEndian);
@@ -6889,27 +6890,27 @@
     ///
     /// match entry.tag() {
     ///     gimli::DW_TAG_subprogram =&gt;
-    ///         println!(&quot;this entry contains debug info about a function&quot;),
+    ///         println!("this entry contains debug info about a function"),
     ///     gimli::DW_TAG_inlined_subroutine =&gt;
-    ///         println!(&quot;this entry contains debug info about a particular instance of inlining&quot;),
+    ///         println!("this entry contains debug info about a particular instance of inlining"),
     ///     gimli::DW_TAG_variable =&gt;
-    ///         println!(&quot;this entry contains debug info about a local variable&quot;),
+    ///         println!("this entry contains debug info about a local variable"),
     ///     gimli::DW_TAG_formal_parameter =&gt;
-    ///         println!(&quot;this entry contains debug info about a function parameter&quot;),
+    ///         println!("this entry contains debug info about a function parameter"),
     ///     otherwise =&gt;
-    ///         println!(&quot;this entry is some other kind of data: {:?}&quot;, otherwise),
+    ///         println!("this entry is some other kind of data: {:?}", otherwise),
     /// };
     /// ```
     </span><span class="kw">pub fn </span>tag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; constants::DwTag {
         <span class="self">self</span>.abbrev.tag()
     }
 
-    <span class="doccomment">/// Return true if this entry&#39;s type can have children, false otherwise.
+    <span class="doccomment">/// Return true if this entry's type can have children, false otherwise.
     </span><span class="kw">pub fn </span>has_children(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.abbrev.has_children()
     }
 
-    <span class="doccomment">/// Iterate over this entry&#39;s set of attributes.
+    <span class="doccomment">/// Iterate over this entry's set of attributes.
     ///
     /// ```
     /// use gimli::{DebugAbbrev, DebugInfo, LittleEndian};
@@ -6932,7 +6933,7 @@
     /// #
     /// #     // Abbreviation code
     /// #     0x01,
-    /// #     // Attribute of form DW_FORM_string = &quot;foo\0&quot;
+    /// #     // Attribute of form DW_FORM_string = "foo\0"
     /// #     0x66, 0x6f, 0x6f, 0x00,
     /// # ];
     /// # let read_debug_info_section_somehow = || &amp;info_buf;
@@ -6941,8 +6942,8 @@
     /// // Get the data about the first compilation unit out of the `.debug_info`.
     ///
     /// let unit = debug_info.units().next()
-    ///     .expect(&quot;Should have at least one compilation unit&quot;)
-    ///     .expect(&quot;and it should parse ok&quot;);
+    ///     .expect("Should have at least one compilation unit")
+    ///     .expect("and it should parse ok");
     ///
     /// // Read the `.debug_abbrev` section and parse the
     /// // abbreviations for our compilation unit.
@@ -6973,21 +6974,21 @@
     ///
     /// let mut cursor = unit.entries(&amp;abbrevs);
     /// let (_, entry) = cursor.next_dfs()
-    ///     .expect(&quot;Should parse next entry&quot;)
-    ///     .expect(&quot;Should have at least one entry&quot;);
+    ///     .expect("Should parse next entry")
+    ///     .expect("Should have at least one entry");
     ///
-    /// // Finally, print the first entry&#39;s attributes.
+    /// // Finally, print the first entry's attributes.
     ///
     /// let mut attrs = entry.attrs();
     /// while let Some(attr) = attrs.next().unwrap() {
-    ///     println!(&quot;Attribute name = {:?}&quot;, attr.name());
-    ///     println!(&quot;Attribute value = {:?}&quot;, attr.value());
+    ///     println!("Attribute name = {:?}", attr.name());
+    ///     println!("Attribute value = {:?}", attr.value());
     /// }
     /// ```
     ///
     /// Can be [used with
     /// `FallibleIterator`](./index.html#using-with-fallibleiterator).
-    </span><span class="kw">pub fn </span>attrs&lt;<span class="lifetime">&#39;me</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;me </span><span class="self">self</span>) -&gt; AttrsIter&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;me</span>, <span class="lifetime">&#39;unit</span>, R&gt; {
+    </span><span class="kw">pub fn </span>attrs&lt;<span class="lifetime">'me</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'me </span><span class="self">self</span>) -&gt; AttrsIter&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'me</span>, <span class="lifetime">'unit</span>, R&gt; {
         AttrsIter {
             input: <span class="self">self</span>.attrs_slice.clone(),
             attributes: <span class="self">self</span>.abbrev.attributes(),
@@ -7053,8 +7054,8 @@
     </span><span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>parse(
         input: <span class="kw-2">&amp;mut </span>R,
-        unit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>UnitHeader&lt;R&gt;,
-        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations,
+        unit: <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>UnitHeader&lt;R&gt;,
+        abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">let </span>offset = unit.header_size() + input.offset_from(<span class="kw-2">&amp;</span>unit.entries_buf);
         <span class="kw">let </span>code = input.read_uleb128()<span class="question-mark">?</span>;
@@ -7083,7 +7084,7 @@
     </span>R: Reader&lt;Offset = Offset&gt;,
     Offset: ReaderOffset,
 {
-    <span class="doccomment">/// &quot;Refers to some location in the address space of the described program.&quot;
+    <span class="doccomment">/// "Refers to some location in the address space of the described program."
     </span>Addr(u64),
 
     <span class="doccomment">/// A slice of an arbitrary number of bytes.
@@ -7091,9 +7092,9 @@
 
     <span class="doccomment">/// A one byte constant data value. How to interpret the byte depends on context.
     ///
-    /// From section 7 of the standard: &quot;Depending on context, it may be a
+    /// From section 7 of the standard: "Depending on context, it may be a
     /// signed integer, an unsigned integer, a floating-point constant, or
-    /// anything else.&quot;
+    /// anything else."
     </span>Data1(u8),
 
     <span class="doccomment">/// A two byte constant data value. How to interpret the bytes depends on context.
@@ -7101,9 +7102,9 @@
     /// These bytes have been converted from `R::Endian`. This may need to be reversed
     /// if this was not required.
     ///
-    /// From section 7 of the standard: &quot;Depending on context, it may be a
+    /// From section 7 of the standard: "Depending on context, it may be a
     /// signed integer, an unsigned integer, a floating-point constant, or
-    /// anything else.&quot;
+    /// anything else."
     </span>Data2(u16),
 
     <span class="doccomment">/// A four byte constant data value. How to interpret the bytes depends on context.
@@ -7111,9 +7112,9 @@
     /// These bytes have been converted from `R::Endian`. This may need to be reversed
     /// if this was not required.
     ///
-    /// From section 7 of the standard: &quot;Depending on context, it may be a
+    /// From section 7 of the standard: "Depending on context, it may be a
     /// signed integer, an unsigned integer, a floating-point constant, or
-    /// anything else.&quot;
+    /// anything else."
     </span>Data4(u32),
 
     <span class="doccomment">/// An eight byte constant data value. How to interpret the bytes depends on context.
@@ -7121,9 +7122,9 @@
     /// These bytes have been converted from `R::Endian`. This may need to be reversed
     /// if this was not required.
     ///
-    /// From section 7 of the standard: &quot;Depending on context, it may be a
+    /// From section 7 of the standard: "Depending on context, it may be a
     /// signed integer, an unsigned integer, a floating-point constant, or
-    /// anything else.&quot;
+    /// anything else."
     </span>Data8(u64),
 
     <span class="doccomment">/// A signed integer constant.
@@ -7132,8 +7133,8 @@
     <span class="doccomment">/// An unsigned integer constant.
     </span>Udata(u64),
 
-    <span class="doccomment">/// &quot;The information bytes contain a DWARF expression (see Section 2.5) or
-    /// location description (see Section 2.6).&quot;
+    <span class="doccomment">/// "The information bytes contain a DWARF expression (see Section 2.5) or
+    /// location description (see Section 2.6)."
     </span>Exprloc(Expression&lt;R&gt;),
 
     <span class="doccomment">/// A boolean that indicates presence or absence of the attribute.
@@ -7262,24 +7263,24 @@
 }
 
 <span class="kw">impl</span>&lt;R: Reader&gt; Attribute&lt;R&gt; {
-    <span class="doccomment">/// Get this attribute&#39;s name.
+    <span class="doccomment">/// Get this attribute's name.
     </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; constants::DwAt {
         <span class="self">self</span>.name
     }
 
-    <span class="doccomment">/// Get this attribute&#39;s raw value.
+    <span class="doccomment">/// Get this attribute's raw value.
     </span><span class="kw">pub fn </span>raw_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AttributeValue&lt;R&gt; {
         <span class="self">self</span>.value.clone()
     }
 
-    <span class="doccomment">/// Get this attribute&#39;s normalized value.
+    <span class="doccomment">/// Get this attribute's normalized value.
     ///
     /// Attribute values can potentially be encoded in multiple equivalent forms,
     /// and may have special meaning depending on the attribute name.  This method
     /// converts the attribute value to a normalized form based on the attribute
     /// name.
     ///
-    /// See &quot;Table 7.5: Attribute encodings&quot; and &quot;Table 7.6: Attribute form encodings&quot;.
+    /// See "Table 7.5: Attribute encodings" and "Table 7.6: Attribute form encodings".
     </span><span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AttributeValue&lt;R&gt; {
         <span class="comment">// Table 7.5 shows the possible attribute classes for each name.
         // Table 7.6 shows the possible attribute classes for each form.
@@ -7291,7 +7292,7 @@
         // so for each class conversion we define a macro that matches
         // on the allowed forms for that class.
         //
-        // For some classes, we don&#39;t need to do any conversion, so their
+        // For some classes, we don't need to do any conversion, so their
         // macro is empty.  In the future we may want to fill them in to
         // provide strict checking of the forms for each class.  For now,
         // they simply provide a way to document the allowed classes for
@@ -7450,7 +7451,7 @@
                 }
             };
         }
-        <span class="comment">// This isn&#39;t a separate form but it&#39;s useful to distinguish it from a generic udata.
+        <span class="comment">// This isn't a separate form but it's useful to distinguish it from a generic udata.
         </span><span class="macro">macro_rules! </span>dwoid {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.udata_value() {
@@ -7869,51 +7870,51 @@
         <span class="self">self</span>.value.clone()
     }
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to a u8.
+    <span class="doccomment">/// Try to convert this attribute's value to a u8.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>u8_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u8&gt; {
         <span class="self">self</span>.value.u8_value()
     }
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to a u16.
+    <span class="doccomment">/// Try to convert this attribute's value to a u16.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>u16_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
         <span class="self">self</span>.value.u16_value()
     }
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to an unsigned integer.
+    <span class="doccomment">/// Try to convert this attribute's value to an unsigned integer.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>udata_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
         <span class="self">self</span>.value.udata_value()
     }
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to a signed integer.
+    <span class="doccomment">/// Try to convert this attribute's value to a signed integer.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>sdata_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
         <span class="self">self</span>.value.sdata_value()
     }
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to an offset.
+    <span class="doccomment">/// Try to convert this attribute's value to an offset.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>offset_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;R::Offset&gt; {
         <span class="self">self</span>.value.offset_value()
     }
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to an expression or location buffer.
+    <span class="doccomment">/// Try to convert this attribute's value to an expression or location buffer.
     ///
     /// Expressions and locations may be `DW_FORM_block*` or `DW_FORM_exprloc`.
-    /// The standard doesn&#39;t mention `DW_FORM_block*` as a possible form, but
+    /// The standard doesn't mention `DW_FORM_block*` as a possible form, but
     /// it is encountered in practice.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>exprloc_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&lt;R&gt;&gt; {
         <span class="self">self</span>.value.exprloc_value()
     }
 
-    <span class="doccomment">/// Try to return this attribute&#39;s value as a string slice.
+    <span class="doccomment">/// Try to return this attribute's value as a string slice.
     ///
-    /// If this attribute&#39;s value is either an inline `DW_FORM_string` string,
+    /// If this attribute's value is either an inline `DW_FORM_string` string,
     /// or a `DW_FORM_strp` reference to an offset into the `.debug_str`
-    /// section, return the attribute&#39;s string value as `Some`. Other attribute
+    /// section, return the attribute's string value as `Some`. Other attribute
     /// value forms are returned as `None`.
     ///
     /// Warning: this function does not handle all possible string forms.
@@ -7923,12 +7924,12 @@
         <span class="self">self</span>.value.string_value(debug_str)
     }
 
-    <span class="doccomment">/// Try to return this attribute&#39;s value as a string slice.
+    <span class="doccomment">/// Try to return this attribute's value as a string slice.
     ///
-    /// If this attribute&#39;s value is either an inline `DW_FORM_string` string,
+    /// If this attribute's value is either an inline `DW_FORM_string` string,
     /// or a `DW_FORM_strp` reference to an offset into the `.debug_str`
     /// section, or a `DW_FORM_strp_sup` reference to an offset into a supplementary
-    /// object file, return the attribute&#39;s string value as `Some`. Other attribute
+    /// object file, return the attribute's string value as `Some`. Other attribute
     /// value forms are returned as `None`.
     ///
     /// Warning: this function does not handle all possible string forms.
@@ -7948,7 +7949,7 @@
     </span>R: Reader&lt;Offset = Offset&gt;,
     Offset: ReaderOffset,
 {
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to a u8.
+    <span class="doccomment">/// Try to convert this attribute's value to a u8.
     </span><span class="kw">pub fn </span>u8_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u8&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.udata_value() {
             <span class="kw">if </span>value &lt;= u64::from(u8::MAX) {
@@ -7958,7 +7959,7 @@
         <span class="prelude-val">None
     </span>}
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to a u16.
+    <span class="doccomment">/// Try to convert this attribute's value to a u16.
     </span><span class="kw">pub fn </span>u16_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.udata_value() {
             <span class="kw">if </span>value &lt;= u64::from(u16::MAX) {
@@ -7968,7 +7969,7 @@
         <span class="prelude-val">None
     </span>}
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to an unsigned integer.
+    <span class="doccomment">/// Try to convert this attribute's value to an unsigned integer.
     </span><span class="kw">pub fn </span>udata_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
         <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             AttributeValue::Data1(data) =&gt; u64::from(data),
@@ -7987,7 +7988,7 @@
         })
     }
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to a signed integer.
+    <span class="doccomment">/// Try to convert this attribute's value to a signed integer.
     </span><span class="kw">pub fn </span>sdata_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
         <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             AttributeValue::Data1(data) =&gt; i64::from(data <span class="kw">as </span>i8),
@@ -8006,7 +8007,7 @@
         })
     }
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to an offset.
+    <span class="doccomment">/// Try to convert this attribute's value to an offset.
     </span><span class="kw">pub fn </span>offset_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;R::Offset&gt; {
         <span class="comment">// While offsets will be DW_FORM_data4/8 in DWARF version 2/3,
         // these have already been converted to `SecOffset.
@@ -8017,10 +8018,10 @@
         </span>}
     }
 
-    <span class="doccomment">/// Try to convert this attribute&#39;s value to an expression or location buffer.
+    <span class="doccomment">/// Try to convert this attribute's value to an expression or location buffer.
     ///
     /// Expressions and locations may be `DW_FORM_block*` or `DW_FORM_exprloc`.
-    /// The standard doesn&#39;t mention `DW_FORM_block*` as a possible form, but
+    /// The standard doesn't mention `DW_FORM_block*` as a possible form, but
     /// it is encountered in practice.
     </span><span class="kw">pub fn </span>exprloc_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&lt;R&gt;&gt; {
         <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
@@ -8030,11 +8031,11 @@
         })
     }
 
-    <span class="doccomment">/// Try to return this attribute&#39;s value as a string slice.
+    <span class="doccomment">/// Try to return this attribute's value as a string slice.
     ///
-    /// If this attribute&#39;s value is either an inline `DW_FORM_string` string,
+    /// If this attribute's value is either an inline `DW_FORM_string` string,
     /// or a `DW_FORM_strp` reference to an offset into the `.debug_str`
-    /// section, return the attribute&#39;s string value as `Some`. Other attribute
+    /// section, return the attribute's string value as `Some`. Other attribute
     /// value forms are returned as `None`.
     ///
     /// Warning: this function does not handle all possible string forms.
@@ -8047,12 +8048,12 @@
         }
     }
 
-    <span class="doccomment">/// Try to return this attribute&#39;s value as a string slice.
+    <span class="doccomment">/// Try to return this attribute's value as a string slice.
     ///
-    /// If this attribute&#39;s value is either an inline `DW_FORM_string` string,
+    /// If this attribute's value is either an inline `DW_FORM_string` string,
     /// or a `DW_FORM_strp` reference to an offset into the `.debug_str`
     /// section, or a `DW_FORM_strp_sup` reference to an offset into a supplementary
-    /// object file, return the attribute&#39;s string value as `Some`. Other attribute
+    /// object file, return the attribute's string value as `Some`. Other attribute
     /// value forms are returned as `None`.
     ///
     /// Warning: this function does not handle all possible string forms.
@@ -8204,7 +8205,7 @@
             }
             constants::DW_FORM_flag_present =&gt; {
                 <span class="comment">// FlagPresent is this weird compile time always true thing that
-                // isn&#39;t actually present in the serialized DIEs, only in the abbreviation.
+                // isn't actually present in the serialized DIEs, only in the abbreviation.
                 </span>AttributeValue::Flag(<span class="bool-val">true</span>)
             }
             constants::DW_FORM_sec_offset =&gt; {
@@ -8408,7 +8409,7 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// An iterator over a particular entry&#39;s attributes.
+<span class="doccomment">/// An iterator over a particular entry's attributes.
 ///
 /// See [the documentation for
 /// `DebuggingInformationEntry::attrs()`](./struct.DebuggingInformationEntry.html#method.attrs)
@@ -8417,13 +8418,13 @@
 /// Can be [used with
 /// `FallibleIterator`](./index.html#using-with-fallibleiterator).
 </span><span class="attr">#[derive(Clone, Copy, Debug)]
-</span><span class="kw">pub struct </span>AttrsIter&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;entry</span>, <span class="lifetime">&#39;unit</span>, R: Reader&gt; {
+</span><span class="kw">pub struct </span>AttrsIter&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'entry</span>, <span class="lifetime">'unit</span>, R: Reader&gt; {
     input: R,
-    attributes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>[AttributeSpecification],
-    entry: <span class="kw-2">&amp;</span><span class="lifetime">&#39;entry </span>DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;,
+    attributes: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>[AttributeSpecification],
+    entry: <span class="kw-2">&amp;</span><span class="lifetime">'entry </span>DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;entry</span>, <span class="lifetime">&#39;unit</span>, R: Reader&gt; AttrsIter&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;entry</span>, <span class="lifetime">&#39;unit</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'entry</span>, <span class="lifetime">'unit</span>, R: Reader&gt; AttrsIter&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'entry</span>, <span class="lifetime">'unit</span>, R&gt; {
     <span class="doccomment">/// Advance the iterator and return the next attribute.
     ///
     /// Returns `None` when iteration is finished. If an error
@@ -8433,8 +8434,8 @@
     </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Attribute&lt;R&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.attributes.is_empty() {
             <span class="comment">// Now that we have parsed all of the attributes, we know where
-            // either (1) this entry&#39;s children start, if the abbreviation says
-            // this entry has children; or (2) where this entry&#39;s siblings
+            // either (1) this entry's children start, if the abbreviation says
+            // this entry has children; or (2) where this entry's siblings
             // begin.
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(end) = <span class="self">self</span>.entry.attrs_len.get() {
                 <span class="macro">debug_assert_eq!</span>(end, <span class="self">self</span>.input.offset_from(<span class="kw-2">&amp;</span><span class="self">self</span>.entry.attrs_slice));
@@ -8462,9 +8463,9 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;fallible-iterator&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;entry</span>, <span class="lifetime">&#39;unit</span>, R: Reader&gt; fallible_iterator::FallibleIterator
-    <span class="kw">for </span>AttrsIter&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;entry</span>, <span class="lifetime">&#39;unit</span>, R&gt;
+<span class="attr">#[cfg(feature = <span class="string">"fallible-iterator"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'entry</span>, <span class="lifetime">'unit</span>, R: Reader&gt; fallible_iterator::FallibleIterator
+    <span class="kw">for </span>AttrsIter&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'entry</span>, <span class="lifetime">'unit</span>, R&gt;
 {
     <span class="kw">type </span>Item = Attribute&lt;R&gt;;
     <span class="kw">type </span>Error = Error;
@@ -8518,7 +8519,7 @@
 ///             }
 ///         }
 ///         _ =&gt; {
-///             // Skip attributes for DIEs we don&#39;t care about.
+///             // Skip attributes for DIEs we don't care about.
 ///             entries.skip_attributes(abbrev.attributes());
 ///         }
 ///     }
@@ -8527,17 +8528,17 @@
 /// # }
 /// ```
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>EntriesRaw&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;
+</span><span class="kw">pub struct </span>EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;
 <span class="kw">where
     </span>R: Reader,
 {
     input: R,
-    unit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>UnitHeader&lt;R&gt;,
-    abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations,
+    unit: <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>UnitHeader&lt;R&gt;,
+    abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations,
     depth: isize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R: Reader&gt; EntriesRaw&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R: Reader&gt; EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt; {
     <span class="doccomment">/// Return true if there is no more input.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -8565,7 +8566,7 @@
     ///
     /// Returns `Ok(None)` for null entries.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>read_abbreviation(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviation&gt;&gt; {
+    </span><span class="kw">pub fn </span>read_abbreviation(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviation&gt;&gt; {
         <span class="kw">let </span>code = <span class="self">self</span>.input.read_uleb128()<span class="question-mark">?</span>;
         <span class="kw">if </span>code == <span class="number">0 </span>{
             <span class="self">self</span>.depth -= <span class="number">1</span>;
@@ -8608,24 +8609,24 @@
 /// will return `None` if the current entry is a null entry, which signifies the
 /// end of the current tree depth.
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>EntriesCursor&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;
+</span><span class="kw">pub struct </span>EntriesCursor&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;
 <span class="kw">where
     </span>R: Reader,
 {
     input: R,
-    unit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>UnitHeader&lt;R&gt;,
-    abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations,
-    cached_current: <span class="prelude-ty">Option</span>&lt;DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;&gt;,
+    unit: <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>UnitHeader&lt;R&gt;,
+    abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations,
+    cached_current: <span class="prelude-ty">Option</span>&lt;DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;&gt;,
     delta_depth: isize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R: Reader&gt; EntriesCursor&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R: Reader&gt; EntriesCursor&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt; {
     <span class="doccomment">/// Get a reference to the entry that the cursor is currently pointing to.
     ///
     /// If the cursor is not pointing at an entry, or if the current entry is a
     /// null entry, then `None` is returned.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>current(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;&gt; {
+    </span><span class="kw">pub fn </span>current(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;&gt; {
         <span class="self">self</span>.cached_current.as_ref()
     }
 
@@ -8669,16 +8670,16 @@
     /// Upon successful movement of the cursor, return the delta traversal
     /// depth and the entry:
     ///
-    ///   * If we moved down into the previous current entry&#39;s children, we get
+    ///   * If we moved down into the previous current entry's children, we get
     ///     `Some((1, entry))`.
     ///
-    ///   * If we moved to the previous current entry&#39;s sibling, we get
+    ///   * If we moved to the previous current entry's sibling, we get
     ///     `Some((0, entry))`.
     ///
     ///   * If the previous entry does not have any siblings and we move up to
-    ///     its parent&#39;s next sibling, then we get `Some((-1, entry))`. Note that
-    ///     if the parent doesn&#39;t have a next sibling, then it could go up to the
-    ///     parent&#39;s parent&#39;s next sibling and return `Some((-2, entry))`, etc.
+    ///     its parent's next sibling, then we get `Some((-1, entry))`. Note that
+    ///     if the parent doesn't have a next sibling, then it could go up to the
+    ///     parent's parent's next sibling and return `Some((-2, entry))`, etc.
     ///
     /// If there is no next entry, then `None` is returned.
     ///
@@ -8703,21 +8704,21 @@
     /// #
     /// #     // Abbreviation code
     /// #     0x01,
-    /// #     // Attribute of form DW_FORM_string = &quot;foo\0&quot;
+    /// #     // Attribute of form DW_FORM_string = "foo\0"
     /// #     0x66, 0x6f, 0x6f, 0x00,
     /// #
     /// #       // Children
     /// #
     /// #       // Abbreviation code
     /// #       0x01,
-    /// #       // Attribute of form DW_FORM_string = &quot;foo\0&quot;
+    /// #       // Attribute of form DW_FORM_string = "foo\0"
     /// #       0x66, 0x6f, 0x6f, 0x00,
     /// #
     /// #         // Children
     /// #
     /// #         // Abbreviation code
     /// #         0x01,
-    /// #         // Attribute of form DW_FORM_string = &quot;foo\0&quot;
+    /// #         // Attribute of form DW_FORM_string = "foo\0"
     /// #         0x66, 0x6f, 0x6f, 0x00,
     /// #
     /// #           // Children
@@ -8767,7 +8768,7 @@
     ///
     /// // Traverse the DIE tree in depth-first search order.
     /// let mut depth = 0;
-    /// while let Some((delta_depth, current)) = cursor.next_dfs().expect(&quot;Should parse next dfs&quot;) {
+    /// while let Some((delta_depth, current)) = cursor.next_dfs().expect("Should parse next dfs") {
     ///     // Update depth value, and break out of the loop when we
     ///     // return to the original starting position.
     ///     depth += delta_depth;
@@ -8778,12 +8779,12 @@
     ///     first_entry_with_no_children = Some(current.clone());
     /// }
     ///
-    /// println!(&quot;The first entry with no children is {:?}&quot;,
+    /// println!("The first entry with no children is {:?}",
     ///          first_entry_with_no_children.unwrap());
     /// ```
     </span><span class="kw">pub fn </span>next_dfs(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(isize, <span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;)&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(isize, <span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;)&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>delta_depth = <span class="self">self</span>.delta_depth;
         <span class="kw">loop </span>{
             <span class="comment">// The next entry should be the one we want.
@@ -8830,21 +8831,21 @@
     /// #
     /// #     // Abbreviation code
     /// #     0x01,
-    /// #     // Attribute of form DW_FORM_string = &quot;foo\0&quot;
+    /// #     // Attribute of form DW_FORM_string = "foo\0"
     /// #     0x66, 0x6f, 0x6f, 0x00,
     /// #
     /// #       // Children
     /// #
     /// #       // Abbreviation code
     /// #       0x01,
-    /// #       // Attribute of form DW_FORM_string = &quot;foo\0&quot;
+    /// #       // Attribute of form DW_FORM_string = "foo\0"
     /// #       0x66, 0x6f, 0x6f, 0x00,
     /// #
     /// #         // Children
     /// #
     /// #         // Abbreviation code
     /// #         0x01,
-    /// #         // Attribute of form DW_FORM_string = &quot;foo\0&quot;
+    /// #         // Attribute of form DW_FORM_string = "foo\0"
     /// #         0x66, 0x6f, 0x6f, 0x00,
     /// #
     /// #           // Children
@@ -8891,26 +8892,26 @@
     /// // Move the cursor to the root.
     /// assert!(cursor.next_dfs().unwrap().is_some());
     ///
-    /// // Move the cursor to the root&#39;s first child.
+    /// // Move the cursor to the root's first child.
     /// assert!(cursor.next_dfs().unwrap().is_some());
     ///
-    /// // Iterate the root&#39;s children.
+    /// // Iterate the root's children.
     /// loop {
     ///     {
-    ///         let current = cursor.current().expect(&quot;Should be at an entry&quot;);
-    ///         println!(&quot;{:?} is a child of the root&quot;, current);
+    ///         let current = cursor.current().expect("Should be at an entry");
+    ///         println!("{:?} is a child of the root", current);
     ///     }
     ///
-    ///     if cursor.next_sibling().expect(&quot;Should parse next sibling&quot;).is_none() {
+    ///     if cursor.next_sibling().expect("Should parse next sibling").is_none() {
     ///         break;
     ///     }
     /// }
     /// ```
     </span><span class="kw">pub fn </span>next_sibling(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.current().is_none() {
-            <span class="comment">// We&#39;re already at the null for the end of the sibling list.
+            <span class="comment">// We're already at the null for the end of the sibling list.
             </span><span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
@@ -8943,7 +8944,7 @@
             }
 
             <span class="kw">if </span><span class="self">self</span>.current().is_none() {
-                <span class="comment">// A null entry means the end of a child list, so we&#39;re
+                <span class="comment">// A null entry means the end of a child list, so we're
                 // back up a level.
                 </span>depth -= <span class="number">1</span>;
             }
@@ -8992,20 +8993,20 @@
 /// }
 /// ```
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub struct </span>EntriesTree&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;
+</span><span class="kw">pub struct </span>EntriesTree&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;
 <span class="kw">where
     </span>R: Reader,
 {
     root: R,
-    unit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>UnitHeader&lt;R&gt;,
-    abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations,
+    unit: <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>UnitHeader&lt;R&gt;,
+    abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations,
     input: R,
-    entry: <span class="prelude-ty">Option</span>&lt;DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;&gt;,
+    entry: <span class="prelude-ty">Option</span>&lt;DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;&gt;,
     depth: isize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R: Reader&gt; EntriesTree&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt; {
-    <span class="kw">fn </span>new(root: R, unit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>UnitHeader&lt;R&gt;, abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviations) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R: Reader&gt; EntriesTree&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt; {
+    <span class="kw">fn </span>new(root: R, unit: <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>UnitHeader&lt;R&gt;, abbreviations: <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviations) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>input = root.clone();
         EntriesTree {
             root,
@@ -9018,7 +9019,7 @@
     }
 
     <span class="doccomment">/// Returns the root node of the tree.
-    </span><span class="kw">pub fn </span>root&lt;<span class="lifetime">&#39;me</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;me </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesTreeNode&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;me</span>, R&gt;&gt; {
+    </span><span class="kw">pub fn </span>root&lt;<span class="lifetime">'me</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'me </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesTreeNode&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'me</span>, R&gt;&gt; {
         <span class="self">self</span>.input = <span class="self">self</span>.root.clone();
         <span class="self">self</span>.entry =
             DebuggingInformationEntry::parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>.input, <span class="self">self</span>.unit, <span class="self">self</span>.abbreviations)<span class="question-mark">?</span>;
@@ -9124,22 +9125,22 @@
 /// The root node of a tree can be obtained
 /// via [`EntriesTree::root`](./struct.EntriesTree.html#method.root).
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>EntriesTreeNode&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, R: Reader&gt; {
-    tree: <span class="kw-2">&amp;</span><span class="lifetime">&#39;tree </span><span class="kw-2">mut </span>EntriesTree&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;,
+</span><span class="kw">pub struct </span>EntriesTreeNode&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, R: Reader&gt; {
+    tree: <span class="kw-2">&amp;</span><span class="lifetime">'tree </span><span class="kw-2">mut </span>EntriesTree&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;,
     depth: isize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, R: Reader&gt; EntriesTreeNode&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, R: Reader&gt; EntriesTreeNode&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, R&gt; {
     <span class="kw">fn </span>new(
-        tree: <span class="kw-2">&amp;</span><span class="lifetime">&#39;tree </span><span class="kw-2">mut </span>EntriesTree&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;,
+        tree: <span class="kw-2">&amp;</span><span class="lifetime">'tree </span><span class="kw-2">mut </span>EntriesTree&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;,
         depth: isize,
-    ) -&gt; EntriesTreeNode&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, R&gt; {
+    ) -&gt; EntriesTreeNode&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, R&gt; {
         <span class="macro">debug_assert!</span>(tree.entry.is_some());
         EntriesTreeNode { tree, depth }
     }
 
     <span class="doccomment">/// Returns the current entry in the tree.
-    </span><span class="kw">pub fn </span>entry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt; {
+    </span><span class="kw">pub fn </span>entry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt; {
         <span class="comment">// We never create a node without an entry.
         </span><span class="self">self</span>.tree.entry.as_ref().unwrap()
     }
@@ -9148,7 +9149,7 @@
     ///
     /// The current entry can no longer be accessed after creating the
     /// iterator.
-    </span><span class="kw">pub fn </span>children(<span class="self">self</span>) -&gt; EntriesTreeIter&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, R&gt; {
+    </span><span class="kw">pub fn </span>children(<span class="self">self</span>) -&gt; EntriesTreeIter&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, R&gt; {
         EntriesTreeIter::new(<span class="self">self</span>.tree, <span class="self">self</span>.depth)
     }
 }
@@ -9159,17 +9160,17 @@
 /// The items returned by this iterator are also `EntriesTreeNode`s,
 /// which allow recursive traversal of grandchildren, etc.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>EntriesTreeIter&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, R: Reader&gt; {
-    tree: <span class="kw-2">&amp;</span><span class="lifetime">&#39;tree </span><span class="kw-2">mut </span>EntriesTree&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;,
+</span><span class="kw">pub struct </span>EntriesTreeIter&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, R: Reader&gt; {
+    tree: <span class="kw-2">&amp;</span><span class="lifetime">'tree </span><span class="kw-2">mut </span>EntriesTree&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;,
     depth: isize,
     empty: bool,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, R: Reader&gt; EntriesTreeIter&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, R: Reader&gt; EntriesTreeIter&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, R&gt; {
     <span class="kw">fn </span>new(
-        tree: <span class="kw-2">&amp;</span><span class="lifetime">&#39;tree </span><span class="kw-2">mut </span>EntriesTree&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, R&gt;,
+        tree: <span class="kw-2">&amp;</span><span class="lifetime">'tree </span><span class="kw-2">mut </span>EntriesTree&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, R&gt;,
         depth: isize,
-    ) -&gt; EntriesTreeIter&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, R&gt; {
+    ) -&gt; EntriesTreeIter&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, R&gt; {
         EntriesTreeIter {
             tree,
             depth,
@@ -9180,7 +9181,7 @@
     <span class="doccomment">/// Returns an `EntriesTreeNode` for the next child entry.
     ///
     /// Returns `None` if there are no more children.
-    </span><span class="kw">pub fn </span>next&lt;<span class="lifetime">&#39;me</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;me </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;EntriesTreeNode&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;me</span>, R&gt;&gt;&gt; {
+    </span><span class="kw">pub fn </span>next&lt;<span class="lifetime">'me</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'me </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;EntriesTreeNode&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'me</span>, R&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.empty {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         } <span class="kw">else if </span><span class="self">self</span>.tree.next(<span class="self">self</span>.depth)<span class="question-mark">? </span>{
@@ -9192,13 +9193,13 @@
     }
 }
 
-<span class="doccomment">/// Parse a type unit header&#39;s unique type signature. Callers should handle
+<span class="doccomment">/// Parse a type unit header's unique type signature. Callers should handle
 /// unique-ness checking.
 </span><span class="kw">fn </span>parse_type_signature&lt;R: Reader&gt;(input: <span class="kw-2">&amp;mut </span>R) -&gt; <span class="prelude-ty">Result</span>&lt;DebugTypeSignature&gt; {
     input.read_u64().map(DebugTypeSignature)
 }
 
-<span class="doccomment">/// Parse a type unit header&#39;s type offset.
+<span class="doccomment">/// Parse a type unit header's type offset.
 </span><span class="kw">fn </span>parse_type_offset&lt;R: Reader&gt;(input: <span class="kw-2">&amp;mut </span>R, format: Format) -&gt; <span class="prelude-ty">Result</span>&lt;UnitOffset&lt;R::Offset&gt;&gt; {
     input.read_offset(format).map(UnitOffset)
 }
@@ -9210,14 +9211,14 @@
     debug_types_section: R,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, Endian&gt; DebugTypes&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>, Endian&gt; DebugTypes&lt;EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;
 <span class="kw">where
     </span>Endian: Endianity,
 {
     <span class="doccomment">/// Construct a new `DebugTypes` instance from the data in the `.debug_types`
     /// section.
     ///
-    /// It is the caller&#39;s responsibility to read the `.debug_types` section and
+    /// It is the caller's responsibility to read the `.debug_types` section and
     /// present it as a `&amp;[u8]` slice. That means using some ELF loader on
     /// Linux, a Mach-O loader on macOS, etc.
     ///
@@ -9228,7 +9229,7 @@
     /// # let read_debug_types_section_somehow = || &amp;buf;
     /// let debug_types = DebugTypes::new(read_debug_types_section_somehow(), LittleEndian);
     /// ```
-    </span><span class="kw">pub fn </span>new(debug_types_section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8], endian: Endian) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(debug_types_section: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8], endian: Endian) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::from(EndianSlice::new(debug_types_section, endian))
     }
 }
@@ -9242,16 +9243,16 @@
     ///
     /// ```rust,no_run
     /// # let load_section = || unimplemented!();
-    /// // Read the DWARF section into a `Vec` with whatever object loader you&#39;re using.
+    /// // Read the DWARF section into a `Vec` with whatever object loader you're using.
     /// let owned_section: gimli::DebugTypes&lt;Vec&lt;u8&gt;&gt; = load_section();
     /// // Create a reference to the DWARF section.
     /// let section = owned_section.borrow(|section| {
     ///     gimli::EndianSlice::new(&amp;section, gimli::LittleEndian)
     /// });
     /// ```
-    </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">&#39;a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugTypes&lt;R&gt;
+    </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">'a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugTypes&lt;R&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T) -&gt; R,
+        </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; R,
     {
         borrow(<span class="kw-2">&amp;</span><span class="self">self</span>.debug_types_section).into()
     }
@@ -9287,7 +9288,7 @@
     ///
     /// let mut iter = debug_types.units();
     /// while let Some(unit) = iter.next().unwrap() {
-    ///     println!(&quot;unit&#39;s length is {}&quot;, unit.unit_length());
+    ///     println!("unit's length is {}", unit.unit_length());
     /// }
     /// ```
     ///
@@ -9333,7 +9334,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;fallible-iterator&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"fallible-iterator"</span>)]
 </span><span class="kw">impl</span>&lt;R: Reader&gt; fallible_iterator::FallibleIterator <span class="kw">for </span>DebugTypesUnitHeadersIter&lt;R&gt; {
     <span class="kw">type </span>Item = UnitHeader&lt;R&gt;;
     <span class="kw">type </span>Error = Error;
@@ -9345,7 +9346,7 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="comment">// Tests require leb128::write.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;write&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"write"</span>)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::constants;
@@ -9364,7 +9365,7 @@
     <span class="comment">// Mixin methods for `Section` to help define binary test data.
 
     </span><span class="kw">trait </span>UnitSectionMethods {
-        <span class="kw">fn </span>unit&lt;<span class="lifetime">&#39;input</span>, E&gt;(<span class="self">self</span>, unit: <span class="kw-2">&amp;mut </span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, E&gt;&gt;) -&gt; <span class="self">Self
+        <span class="kw">fn </span>unit&lt;<span class="lifetime">'input</span>, E&gt;(<span class="self">self</span>, unit: <span class="kw-2">&amp;mut </span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'input</span>, E&gt;&gt;) -&gt; <span class="self">Self
         </span><span class="kw">where
             </span>E: Endianity;
         <span class="kw">fn </span>die&lt;F&gt;(<span class="self">self</span>, code: u64, attr: F) -&gt; <span class="self">Self
@@ -9377,7 +9378,7 @@
     }
 
     <span class="kw">impl </span>UnitSectionMethods <span class="kw">for </span>Section {
-        <span class="kw">fn </span>unit&lt;<span class="lifetime">&#39;input</span>, E&gt;(<span class="self">self</span>, unit: <span class="kw-2">&amp;mut </span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, E&gt;&gt;) -&gt; <span class="self">Self
+        <span class="kw">fn </span>unit&lt;<span class="lifetime">'input</span>, E&gt;(<span class="self">self</span>, unit: <span class="kw-2">&amp;mut </span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'input</span>, E&gt;&gt;) -&gt; <span class="self">Self
         </span><span class="kw">where
             </span>E: Endianity,
         {
@@ -9474,9 +9475,9 @@
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>test_unit_header_variance() {
         <span class="doccomment">/// This only needs to compile.
-        </span><span class="kw">fn </span>_f&lt;<span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;b</span>, E: Endianity&gt;(
-            x: UnitHeader&lt;EndianSlice&lt;<span class="lifetime">&#39;a</span>, E&gt;&gt;,
-        ) -&gt; UnitHeader&lt;EndianSlice&lt;<span class="lifetime">&#39;b</span>, E&gt;&gt; {
+        </span><span class="kw">fn </span>_f&lt;<span class="lifetime">'a</span>: <span class="lifetime">'b</span>, <span class="lifetime">'b</span>, E: Endianity&gt;(
+            x: UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'a</span>, E&gt;&gt;,
+        ) -&gt; UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'b</span>, E&gt;&gt; {
             x
         }
     }
@@ -9489,7 +9490,7 @@
 
         <span class="kw">match </span>parse_debug_abbrev_offset(buf, Format::Dwarf32) {
             <span class="prelude-val">Ok</span>(val) =&gt; <span class="macro">assert_eq!</span>(val, DebugAbbrevOffset(<span class="number">0x0403_0201</span>)),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -9500,12 +9501,12 @@
 
         <span class="kw">match </span>parse_debug_abbrev_offset(buf, Format::Dwarf32) {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_debug_abbrev_offset_64() {
         <span class="kw">let </span>section = Section::with_endian(Endian::Little).L64(<span class="number">0x0807_0605_0403_0201</span>);
         <span class="kw">let </span>buf = section.get_contents().unwrap();
@@ -9513,7 +9514,7 @@
 
         <span class="kw">match </span>parse_debug_abbrev_offset(buf, Format::Dwarf64) {
             <span class="prelude-val">Ok</span>(val) =&gt; <span class="macro">assert_eq!</span>(val, DebugAbbrevOffset(<span class="number">0x0807_0605_0403_0201</span>)),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -9524,7 +9525,7 @@
 
         <span class="kw">match </span>parse_debug_abbrev_offset(buf, Format::Dwarf64) {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -9536,7 +9537,7 @@
 
         <span class="kw">match </span>parse_debug_info_offset(buf, Format::Dwarf32) {
             <span class="prelude-val">Ok</span>(val) =&gt; <span class="macro">assert_eq!</span>(val, DebugInfoOffset(<span class="number">0x0403_0201</span>)),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -9547,12 +9548,12 @@
 
         <span class="kw">match </span>parse_debug_info_offset(buf, Format::Dwarf32) {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_debug_info_offset_64() {
         <span class="kw">let </span>section = Section::with_endian(Endian::Little).L64(<span class="number">0x0807_0605_0403_0201</span>);
         <span class="kw">let </span>buf = section.get_contents().unwrap();
@@ -9560,7 +9561,7 @@
 
         <span class="kw">match </span>parse_debug_info_offset(buf, Format::Dwarf64) {
             <span class="prelude-val">Ok</span>(val) =&gt; <span class="macro">assert_eq!</span>(val, DebugInfoOffset(<span class="number">0x0807_0605_0403_0201</span>)),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -9571,12 +9572,12 @@
 
         <span class="kw">match </span>parse_debug_info_offset(buf, Format::Dwarf64) {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_units() {
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>unit64 = UnitHeader {
@@ -9623,7 +9624,7 @@
 
         <span class="kw">match </span>parse_unit_header(rest, DebugInfoOffset(<span class="number">0</span>).into()) {
             <span class="prelude-val">Err</span>(Error::UnknownVersion(<span class="number">0xcdab</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
 
         <span class="kw">let </span>buf = [<span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x1</span>, <span class="number">0x0</span>];
@@ -9631,7 +9632,7 @@
 
         <span class="kw">match </span>parse_unit_header(rest, DebugInfoOffset(<span class="number">0</span>).into()) {
             <span class="prelude-val">Err</span>(Error::UnknownVersion(<span class="number">1</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -9642,7 +9643,7 @@
 
         <span class="kw">match </span>parse_unit_header(rest, DebugInfoOffset(<span class="number">0</span>).into()) {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -9676,7 +9677,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_unit_header_64_ok() {
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span>encoding = Encoding {
@@ -9735,7 +9736,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_v5_unit_header_64_ok() {
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span>encoding = Encoding {
@@ -9794,7 +9795,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_v5_partial_unit_header_64_ok() {
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span>encoding = Encoding {
@@ -9853,7 +9854,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_v5_skeleton_unit_header_64_ok() {
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span>encoding = Encoding {
@@ -9912,7 +9913,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_v5_split_compilation_unit_header_64_ok() {
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span>encoding = Encoding {
@@ -9951,12 +9952,12 @@
                 <span class="macro">assert_eq!</span>(rest.len(), <span class="number">1</span>);
                 <span class="macro">assert_eq!</span>(UnitOffset(<span class="number">0x7856_3412</span>), offset);
             }
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         }
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_type_offset_64_ok() {
         <span class="kw">let </span>buf = [<span class="number">0x12</span>, <span class="number">0x34</span>, <span class="number">0x56</span>, <span class="number">0x78</span>, <span class="number">0x9a</span>, <span class="number">0xbc</span>, <span class="number">0xde</span>, <span class="number">0xff</span>, <span class="number">0x00</span>];
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
@@ -9966,7 +9967,7 @@
                 <span class="macro">assert_eq!</span>(rest.len(), <span class="number">1</span>);
                 <span class="macro">assert_eq!</span>(UnitOffset(<span class="number">0xffde_bc9a_7856_3412</span>), offset);
             }
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         }
     }
 
@@ -9978,7 +9979,7 @@
 
         <span class="kw">match </span>parse_type_offset(rest, Format::Dwarf32) {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
 
@@ -10015,7 +10016,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_type_unit_header_64_ok() {
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span>encoding = Encoding {
@@ -10080,7 +10081,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_v5_type_unit_header_64_ok() {
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span>encoding = Encoding {
@@ -10145,7 +10146,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_v5_split_type_unit_header_64_ok() {
         <span class="kw">let </span>expected_rest = <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="kw">let </span>encoding = Encoding {
@@ -10247,7 +10248,7 @@
                 AttributeValue::Data8(<span class="number">0x0102_0304_0506_0708</span>),
                 AttributeValue::Udata(<span class="number">0x0102_0304_0506_0708</span>),
             ),
-            <span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
             </span>(
                 Format::Dwarf64,
                 <span class="number">2</span>,
@@ -10275,7 +10276,7 @@
                 AttributeValue::SecOffset(<span class="number">0x0102_0304</span>),
                 AttributeValue::LocationListsRef(LocationListsOffset(<span class="number">0x0102_0304</span>)),
             ),
-            <span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+            <span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
             </span>(
                 Format::Dwarf64,
                 <span class="number">4</span>,
@@ -10338,7 +10339,7 @@
             unit.encoding.version = version;
             <span class="kw">let </span>spec = AttributeSpecification::new(name, form, <span class="prelude-val">None</span>);
             <span class="kw">let </span>attribute =
-                parse_attribute(<span class="kw-2">&amp;mut </span>input, unit.encoding(), spec).expect(<span class="string">&quot;Should parse attribute&quot;</span>);
+                parse_attribute(<span class="kw-2">&amp;mut </span>input, unit.encoding(), spec).expect(<span class="string">"Should parse attribute"</span>);
             <span class="macro">assert_eq!</span>(attribute.raw_value(), expect_raw);
             <span class="macro">assert_eq!</span>(attribute.value(), expect_value);
         }
@@ -10395,7 +10396,7 @@
         address_size: u8,
         format: Format,
         endian: Endian,
-    ) -&gt; UnitHeader&lt;EndianSlice&lt;<span class="lifetime">&#39;static</span>, Endian&gt;&gt;
+    ) -&gt; UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'static</span>, Endian&gt;&gt;
     <span class="kw">where
         </span>Endian: Endianity,
     {
@@ -10414,16 +10415,16 @@
         )
     }
 
-    <span class="kw">fn </span>test_parse_attribute_unit_default() -&gt; UnitHeader&lt;EndianSlice&lt;<span class="lifetime">&#39;static</span>, LittleEndian&gt;&gt; {
+    <span class="kw">fn </span>test_parse_attribute_unit_default() -&gt; UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'static</span>, LittleEndian&gt;&gt; {
         test_parse_attribute_unit(<span class="number">4</span>, Format::Dwarf32, LittleEndian)
     }
 
-    <span class="kw">fn </span>test_parse_attribute&lt;<span class="lifetime">&#39;input</span>, Endian&gt;(
-        buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8],
+    <span class="kw">fn </span>test_parse_attribute&lt;<span class="lifetime">'input</span>, Endian&gt;(
+        buf: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8],
         len: usize,
-        unit: <span class="kw-2">&amp;</span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;,
+        unit: <span class="kw-2">&amp;</span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;,
         form: constants::DwForm,
-        value: AttributeValue&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;,
+        value: AttributeValue&lt;EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;,
     ) <span class="kw">where
         </span>Endian: Endianity,
     {
@@ -10444,7 +10445,7 @@
                 }
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Unexpected parse result = {:#?}&quot;</span>, otherwise);
+                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         };
     }
@@ -10549,7 +10550,7 @@
 
         <span class="kw">let </span>bytes_written = {
             <span class="kw">let </span><span class="kw-2">mut </span>writable = <span class="kw-2">&amp;mut </span>buf[..];
-            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">&quot;should write ok&quot;</span>)
+            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">"should write ok"</span>)
         };
 
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10564,7 +10565,7 @@
 
         <span class="kw">let </span>bytes_written = {
             <span class="kw">let </span><span class="kw-2">mut </span>writable = <span class="kw-2">&amp;mut </span>buf[..];
-            leb128::write::signed(<span class="kw-2">&amp;mut </span>writable, -<span class="number">4097</span>).expect(<span class="string">&quot;should write ok&quot;</span>)
+            leb128::write::signed(<span class="kw-2">&amp;mut </span>writable, -<span class="number">4097</span>).expect(<span class="string">"should write ok"</span>)
         };
 
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10621,7 +10622,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_attribute_sec_offset_64() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x09</span>, <span class="number">0x10</span>];
         <span class="kw">let </span>unit = test_parse_attribute_unit(<span class="number">4</span>, Format::Dwarf64, LittleEndian);
@@ -10658,7 +10659,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_attribute_ref8() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x99</span>, <span class="number">0x99</span>];
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10677,7 +10678,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_attribute_ref_sup8() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x99</span>, <span class="number">0x99</span>];
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10692,7 +10693,7 @@
 
         <span class="kw">let </span>bytes_written = {
             <span class="kw">let </span><span class="kw-2">mut </span>writable = <span class="kw-2">&amp;mut </span>buf[..];
-            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">&quot;should write ok&quot;</span>)
+            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">"should write ok"</span>)
         };
 
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10711,7 +10712,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_attribute_refaddr_64() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x99</span>, <span class="number">0x99</span>];
         <span class="kw">let </span>unit = test_parse_attribute_unit(<span class="number">4</span>, Format::Dwarf64, LittleEndian);
@@ -10731,7 +10732,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_attribute_refaddr8_version2() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x99</span>, <span class="number">0x99</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>unit = test_parse_attribute_unit(<span class="number">8</span>, Format::Dwarf32, LittleEndian);
@@ -10751,7 +10752,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_attribute_gnu_ref_alt_64() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x99</span>, <span class="number">0x99</span>];
         <span class="kw">let </span>unit = test_parse_attribute_unit(<span class="number">4</span>, Format::Dwarf64, LittleEndian);
@@ -10788,7 +10789,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_attribute_strp_64() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x99</span>, <span class="number">0x99</span>];
         <span class="kw">let </span>unit = test_parse_attribute_unit(<span class="number">4</span>, Format::Dwarf64, LittleEndian);
@@ -10807,7 +10808,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_attribute_strp_sup_64() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x99</span>, <span class="number">0x99</span>];
         <span class="kw">let </span>unit = test_parse_attribute_unit(<span class="number">4</span>, Format::Dwarf64, LittleEndian);
@@ -10826,7 +10827,7 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_parse_attribute_gnu_strp_alt_64() {
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x99</span>, <span class="number">0x99</span>];
         <span class="kw">let </span>unit = test_parse_attribute_unit(<span class="number">4</span>, Format::Dwarf64, LittleEndian);
@@ -10841,7 +10842,7 @@
 
         <span class="kw">let </span>bytes_written = {
             <span class="kw">let </span><span class="kw-2">mut </span>writable = <span class="kw-2">&amp;mut </span>buf[..];
-            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">&quot;should write ok&quot;</span>)
+            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">"should write ok"</span>)
         };
 
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10892,7 +10893,7 @@
 
         <span class="kw">let </span>bytes_written = {
             <span class="kw">let </span><span class="kw-2">mut </span>writable = <span class="kw-2">&amp;mut </span>buf[..];
-            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">&quot;should write ok&quot;</span>)
+            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">"should write ok"</span>)
         };
 
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10943,7 +10944,7 @@
 
         <span class="kw">let </span>bytes_written = {
             <span class="kw">let </span><span class="kw-2">mut </span>writable = <span class="kw-2">&amp;mut </span>buf[..];
-            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">&quot;should write ok&quot;</span>)
+            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">"should write ok"</span>)
         };
 
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10958,7 +10959,7 @@
 
         <span class="kw">let </span>bytes_written = {
             <span class="kw">let </span><span class="kw-2">mut </span>writable = <span class="kw-2">&amp;mut </span>buf[..];
-            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">&quot;should write ok&quot;</span>)
+            leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">4097</span>).expect(<span class="string">"should write ok"</span>)
         };
 
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10974,8 +10975,8 @@
         <span class="kw">let </span>bytes_written = {
             <span class="kw">let </span><span class="kw-2">mut </span>writable = <span class="kw-2">&amp;mut </span>buf[..];
             leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, constants::DW_FORM_udata.<span class="number">0</span>.into())
-                .expect(<span class="string">&quot;should write udata&quot;</span>)
-                + leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">9_999_999</span>).expect(<span class="string">&quot;should write value&quot;</span>)
+                .expect(<span class="string">"should write udata"</span>)
+                + leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, <span class="number">9_999_999</span>).expect(<span class="string">"should write value"</span>)
         };
 
         <span class="kw">let </span>unit = test_parse_attribute_unit_default();
@@ -10994,7 +10995,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0</span>; <span class="number">100</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>writable = <span class="kw-2">&amp;mut </span>buf[..];
         leb128::write::unsigned(<span class="kw-2">&amp;mut </span>writable, constants::DW_FORM_implicit_const.<span class="number">0</span>.into())
-            .expect(<span class="string">&quot;should write implicit_const&quot;</span>);
+            .expect(<span class="string">"should write implicit_const"</span>);
 
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
         <span class="kw">let </span>spec =
@@ -11037,7 +11038,7 @@
             .into(),
         );
 
-        <span class="comment">// &quot;foo&quot;, 42, 1337, 4 dangling bytes of 0xaa where children would be
+        <span class="comment">// "foo", 42, 1337, 4 dangling bytes of 0xaa where children would be
         </span><span class="kw">let </span>buf = [
             <span class="number">0x66</span>, <span class="number">0x6f</span>, <span class="number">0x6f</span>, <span class="number">0x00</span>, <span class="number">0x2a</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x39</span>, <span class="number">0x05</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0xaa</span>, <span class="number">0xaa</span>,
             <span class="number">0xaa</span>, <span class="number">0xaa</span>,
@@ -11063,12 +11064,12 @@
                     attr,
                     Attribute {
                         name: constants::DW_AT_name,
-                        value: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;foo&quot;</span>, LittleEndian)),
+                        value: AttributeValue::String(EndianSlice::new(<span class="string">b"foo"</span>, LittleEndian)),
                     }
                 );
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Unexpected parse result = {:#?}&quot;</span>, otherwise);
+                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
 
@@ -11085,7 +11086,7 @@
                 );
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Unexpected parse result = {:#?}&quot;</span>, otherwise);
+                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
 
@@ -11102,16 +11103,16 @@
                 );
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Unexpected parse result = {:#?}&quot;</span>, otherwise);
+                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
 
         <span class="macro">assert!</span>(entry.attrs_len.get().is_none());
 
-        <span class="macro">assert!</span>(attrs.next().expect(<span class="string">&quot;should parse next&quot;</span>).is_none());
+        <span class="macro">assert!</span>(attrs.next().expect(<span class="string">"should parse next"</span>).is_none());
         <span class="macro">assert!</span>(entry.attrs_len.get().is_some());
         <span class="macro">assert_eq!</span>(
-            entry.attrs_len.get().expect(<span class="string">&quot;should have entry.attrs_len&quot;</span>),
+            entry.attrs_len.get().expect(<span class="string">"should have entry.attrs_len"</span>),
             buf.len() - <span class="number">4
         </span>)
     }
@@ -11148,7 +11149,7 @@
             .into(),
         );
 
-        <span class="comment">// &quot;foo&quot;
+        <span class="comment">// "foo"
         </span><span class="kw">let </span>buf = [<span class="number">0x66</span>, <span class="number">0x6f</span>, <span class="number">0x6f</span>, <span class="number">0x00</span>];
 
         <span class="kw">let </span>entry = DebuggingInformationEntry {
@@ -11171,12 +11172,12 @@
                     attr,
                     Attribute {
                         name: constants::DW_AT_name,
-                        value: AttributeValue::String(EndianSlice::new(<span class="string">b&quot;foo&quot;</span>, LittleEndian)),
+                        value: AttributeValue::String(EndianSlice::new(<span class="string">b"foo"</span>, LittleEndian)),
                     }
                 );
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Unexpected parse result = {:#?}&quot;</span>, otherwise);
+                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
 
@@ -11200,8 +11201,8 @@
     {
         <span class="kw">let </span>value = entry
             .attr_value(constants::DW_AT_name)
-            .expect(<span class="string">&quot;Should have parsed the name attribute&quot;</span>)
-            .expect(<span class="string">&quot;Should have found the name attribute&quot;</span>);
+            .expect(<span class="string">"Should have parsed the name attribute"</span>)
+            .expect(<span class="string">"Should have found the name attribute"</span>);
 
         <span class="macro">assert_eq!</span>(
             value,
@@ -11213,7 +11214,7 @@
     <span class="kw">where
         </span>Endian: Endianity,
     {
-        <span class="kw">let </span>entry = cursor.current().expect(<span class="string">&quot;Should have an entry result&quot;</span>);
+        <span class="kw">let </span>entry = cursor.current().expect(<span class="string">"Should have an entry result"</span>);
         assert_entry_name(entry, name);
     }
 
@@ -11223,8 +11224,8 @@
     {
         cursor
             .next_entry()
-            .expect(<span class="string">&quot;Should parse next entry&quot;</span>)
-            .expect(<span class="string">&quot;Should have an entry&quot;</span>);
+            .expect(<span class="string">"Should parse next entry"</span>)
+            .expect(<span class="string">"Should have an entry"</span>);
         assert_current_name(cursor, name);
     }
 
@@ -11234,8 +11235,8 @@
     {
         cursor
             .next_entry()
-            .expect(<span class="string">&quot;Should parse next entry&quot;</span>)
-            .expect(<span class="string">&quot;Should have an entry&quot;</span>);
+            .expect(<span class="string">"Should parse next entry"</span>)
+            .expect(<span class="string">"Should have an entry"</span>);
         <span class="macro">assert!</span>(cursor.current().is_none());
     }
 
@@ -11249,8 +11250,8 @@
         {
             <span class="kw">let </span>(val, entry) = cursor
                 .next_dfs()
-                .expect(<span class="string">&quot;Should parse next dfs&quot;</span>)
-                .expect(<span class="string">&quot;Should not be done with traversal&quot;</span>);
+                .expect(<span class="string">"Should parse next dfs"</span>)
+                .expect(<span class="string">"Should not be done with traversal"</span>);
             <span class="macro">assert_eq!</span>(val, depth);
             assert_entry_name(entry, name);
         }
@@ -11264,8 +11265,8 @@
         {
             <span class="kw">let </span>entry = cursor
                 .next_sibling()
-                .expect(<span class="string">&quot;Should parse next sibling&quot;</span>)
-                .expect(<span class="string">&quot;Should not be done with traversal&quot;</span>);
+                .expect(<span class="string">"Should parse next sibling"</span>)
+                .expect(<span class="string">"Should not be done with traversal"</span>);
             assert_entry_name(entry, name);
         }
         assert_current_name(cursor, name);
@@ -11277,16 +11278,16 @@
     {
         <span class="kw">let </span>sibling_ptr = cursor
             .current()
-            .expect(<span class="string">&quot;Should have current entry&quot;</span>)
+            .expect(<span class="string">"Should have current entry"</span>)
             .attr_value(constants::DW_AT_sibling);
         <span class="kw">match </span>sibling_ptr {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(AttributeValue::UnitRef(offset))) =&gt; {
                 cursor
                     .unit
                     .range_from(offset..)
-                    .expect(<span class="string">&quot;Sibling offset should be valid&quot;</span>);
+                    .expect(<span class="string">"Sibling offset should be valid"</span>);
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Invalid sibling pointer {:?}&quot;</span>, sibling_ptr),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Invalid sibling pointer {:?}"</span>, sibling_ptr),
         }
     }
 
@@ -11303,24 +11304,24 @@
     <span class="kw">fn </span>entries_cursor_tests_debug_info_buf() -&gt; Vec&lt;u8&gt; {
         <span class="attr">#[rustfmt::skip]
         </span><span class="kw">let </span>section = Section::with_endian(Endian::Little)
-            .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;001&quot;</span>))
-                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;002&quot;</span>))
-                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;003&quot;</span>))
+            .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"001"</span>))
+                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"002"</span>))
+                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"003"</span>))
                         .die_null()
                     .die_null()
-                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;004&quot;</span>))
-                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;005&quot;</span>))
+                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"004"</span>))
+                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"005"</span>))
                         .die_null()
-                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;006&quot;</span>))
+                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"006"</span>))
                         .die_null()
                     .die_null()
-                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;007&quot;</span>))
-                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;008&quot;</span>))
-                        .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;009&quot;</span>))
+                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"007"</span>))
+                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"008"</span>))
+                        .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"009"</span>))
                             .die_null()
                         .die_null()
                     .die_null()
-                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;010&quot;</span>))
+                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"010"</span>))
                     .die_null()
                 .die_null();
         <span class="kw">let </span>entries_buf = section.get_contents().unwrap();
@@ -11346,8 +11347,8 @@
     </span><span class="kw">fn </span>test_cursor_next_entry_incomplete() {
         <span class="attr">#[rustfmt::skip]
         </span><span class="kw">let </span>section = Section::with_endian(Endian::Little)
-            .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;001&quot;</span>))
-                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;002&quot;</span>))
+            .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"001"</span>))
+                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"002"</span>))
                     .die(<span class="number">1</span>, |s| s);
         <span class="kw">let </span>entries_buf = section.get_contents().unwrap();
 
@@ -11371,28 +11372,28 @@
         <span class="kw">let </span>unit = debug_info
             .units()
             .next()
-            .expect(<span class="string">&quot;should have a unit result&quot;</span>)
-            .expect(<span class="string">&quot;and it should be ok&quot;</span>);
+            .expect(<span class="string">"should have a unit result"</span>)
+            .expect(<span class="string">"and it should be ok"</span>);
 
         <span class="kw">let </span>abbrevs_buf = <span class="kw-2">&amp;</span>entries_cursor_tests_abbrev_buf();
         <span class="kw">let </span>debug_abbrev = DebugAbbrev::new(abbrevs_buf, LittleEndian);
 
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>cursor = unit.entries(<span class="kw-2">&amp;</span>abbrevs);
 
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;001&quot;</span>);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;002&quot;</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"001"</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"002"</span>);
 
         {
             <span class="comment">// Entry code is present, but none of the attributes.
             </span>cursor
                 .next_entry()
-                .expect(<span class="string">&quot;Should parse next entry&quot;</span>)
-                .expect(<span class="string">&quot;Should have an entry&quot;</span>);
-            <span class="kw">let </span>entry = cursor.current().expect(<span class="string">&quot;Should have an entry result&quot;</span>);
+                .expect(<span class="string">"Should parse next entry"</span>)
+                .expect(<span class="string">"Should have an entry"</span>);
+            <span class="kw">let </span>entry = cursor.current().expect(<span class="string">"Should have an entry result"</span>);
             <span class="macro">assert!</span>(entry.attrs().next().is_err());
         }
 
@@ -11408,42 +11409,42 @@
         <span class="kw">let </span>unit = debug_info
             .units()
             .next()
-            .expect(<span class="string">&quot;should have a unit result&quot;</span>)
-            .expect(<span class="string">&quot;and it should be ok&quot;</span>);
+            .expect(<span class="string">"should have a unit result"</span>)
+            .expect(<span class="string">"and it should be ok"</span>);
 
         <span class="kw">let </span>abbrevs_buf = <span class="kw-2">&amp;</span>entries_cursor_tests_abbrev_buf();
         <span class="kw">let </span>debug_abbrev = DebugAbbrev::new(abbrevs_buf, LittleEndian);
 
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>cursor = unit.entries(<span class="kw-2">&amp;</span>abbrevs);
 
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;001&quot;</span>);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;002&quot;</span>);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;003&quot;</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"001"</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"002"</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"003"</span>);
         assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
         assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;004&quot;</span>);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;005&quot;</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"004"</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"005"</span>);
         assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;006&quot;</span>);
-        assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
-        assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;007&quot;</span>);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;008&quot;</span>);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;009&quot;</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"006"</span>);
         assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
         assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"007"</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"008"</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"009"</span>);
         assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;010&quot;</span>);
+        assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
+        assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"010"</span>);
         assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
         assert_next_entry_null(<span class="kw-2">&amp;mut </span>cursor);
 
         <span class="macro">assert!</span>(cursor
             .next_entry()
-            .expect(<span class="string">&quot;Should parse next entry&quot;</span>)
+            .expect(<span class="string">"Should parse next entry"</span>)
             .is_none());
         <span class="macro">assert!</span>(cursor.current().is_none());
     }
@@ -11456,30 +11457,30 @@
         <span class="kw">let </span>unit = debug_info
             .units()
             .next()
-            .expect(<span class="string">&quot;should have a unit result&quot;</span>)
-            .expect(<span class="string">&quot;and it should be ok&quot;</span>);
+            .expect(<span class="string">"should have a unit result"</span>)
+            .expect(<span class="string">"and it should be ok"</span>);
 
         <span class="kw">let </span>abbrevs_buf = <span class="kw-2">&amp;</span>entries_cursor_tests_abbrev_buf();
         <span class="kw">let </span>debug_abbrev = DebugAbbrev::new(abbrevs_buf, LittleEndian);
 
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>cursor = unit.entries(<span class="kw-2">&amp;</span>abbrevs);
 
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;001&quot;</span>, <span class="number">0</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;002&quot;</span>, <span class="number">1</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;003&quot;</span>, <span class="number">1</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;004&quot;</span>, -<span class="number">1</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;005&quot;</span>, <span class="number">1</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;006&quot;</span>, <span class="number">0</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;007&quot;</span>, -<span class="number">1</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;008&quot;</span>, <span class="number">1</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;009&quot;</span>, <span class="number">1</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;010&quot;</span>, -<span class="number">2</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"001"</span>, <span class="number">0</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"002"</span>, <span class="number">1</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"003"</span>, <span class="number">1</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"004"</span>, -<span class="number">1</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"005"</span>, <span class="number">1</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"006"</span>, <span class="number">0</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"007"</span>, -<span class="number">1</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"008"</span>, <span class="number">1</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"009"</span>, <span class="number">1</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"010"</span>, -<span class="number">2</span>);
 
-        <span class="macro">assert!</span>(cursor.next_dfs().expect(<span class="string">&quot;Should parse next dfs&quot;</span>).is_none());
+        <span class="macro">assert!</span>(cursor.next_dfs().expect(<span class="string">"Should parse next dfs"</span>).is_none());
         <span class="macro">assert!</span>(cursor.current().is_none());
     }
 
@@ -11491,35 +11492,35 @@
         <span class="kw">let </span>unit = debug_info
             .units()
             .next()
-            .expect(<span class="string">&quot;should have a unit result&quot;</span>)
-            .expect(<span class="string">&quot;and it should be ok&quot;</span>);
+            .expect(<span class="string">"should have a unit result"</span>)
+            .expect(<span class="string">"and it should be ok"</span>);
 
         <span class="kw">let </span>abbrevs_buf = <span class="kw-2">&amp;</span>entries_cursor_tests_abbrev_buf();
         <span class="kw">let </span>debug_abbrev = DebugAbbrev::new(abbrevs_buf, LittleEndian);
 
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>cursor = unit.entries(<span class="kw-2">&amp;</span>abbrevs);
 
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;001&quot;</span>, <span class="number">0</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"001"</span>, <span class="number">0</span>);
 
         <span class="comment">// Down to the first child of the root entry.
 
-        </span>assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;002&quot;</span>, <span class="number">1</span>);
+        </span>assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"002"</span>, <span class="number">1</span>);
 
         <span class="comment">// Now iterate all children of the root via `next_sibling`.
 
-        </span>assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;004&quot;</span>);
-        assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;007&quot;</span>);
-        assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;010&quot;</span>);
+        </span>assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"004"</span>);
+        assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"007"</span>);
+        assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"010"</span>);
 
         <span class="comment">// There should be no more siblings.
 
         </span><span class="macro">assert!</span>(cursor
             .next_sibling()
-            .expect(<span class="string">&quot;Should parse next sibling&quot;</span>)
+            .expect(<span class="string">"Should parse next sibling"</span>)
             .is_none());
         <span class="macro">assert!</span>(cursor.current().is_none());
     }
@@ -11532,56 +11533,56 @@
         <span class="kw">let </span>unit = debug_info
             .units()
             .next()
-            .expect(<span class="string">&quot;should have a unit result&quot;</span>)
-            .expect(<span class="string">&quot;and it should be ok&quot;</span>);
+            .expect(<span class="string">"should have a unit result"</span>)
+            .expect(<span class="string">"and it should be ok"</span>);
 
         <span class="kw">let </span>abbrevs_buf = <span class="kw-2">&amp;</span>entries_cursor_tests_abbrev_buf();
         <span class="kw">let </span>debug_abbrev = DebugAbbrev::new(abbrevs_buf, LittleEndian);
 
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>cursor = unit.entries(<span class="kw-2">&amp;</span>abbrevs);
 
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;001&quot;</span>, <span class="number">0</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"001"</span>, <span class="number">0</span>);
 
         <span class="comment">// Down to the first child of the root entry.
 
-        </span>assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;002&quot;</span>, <span class="number">1</span>);
+        </span>assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"002"</span>, <span class="number">1</span>);
 
         <span class="comment">// Get the next sibling, then iterate its children
 
-        </span>assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;004&quot;</span>);
-        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;005&quot;</span>, <span class="number">1</span>);
-        assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;006&quot;</span>);
+        </span>assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"004"</span>);
+        assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"005"</span>, <span class="number">1</span>);
+        assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"006"</span>);
         <span class="macro">assert!</span>(cursor
             .next_sibling()
-            .expect(<span class="string">&quot;Should parse next sibling&quot;</span>)
+            .expect(<span class="string">"Should parse next sibling"</span>)
             .is_none());
         <span class="macro">assert!</span>(cursor
             .next_sibling()
-            .expect(<span class="string">&quot;Should parse next sibling&quot;</span>)
+            .expect(<span class="string">"Should parse next sibling"</span>)
             .is_none());
         <span class="macro">assert!</span>(cursor
             .next_sibling()
-            .expect(<span class="string">&quot;Should parse next sibling&quot;</span>)
+            .expect(<span class="string">"Should parse next sibling"</span>)
             .is_none());
         <span class="macro">assert!</span>(cursor
             .next_sibling()
-            .expect(<span class="string">&quot;Should parse next sibling&quot;</span>)
+            .expect(<span class="string">"Should parse next sibling"</span>)
             .is_none());
 
         <span class="comment">// And we should be able to continue with the children of the root entry.
 
-        </span>assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;007&quot;</span>, -<span class="number">1</span>);
-        assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;010&quot;</span>);
+        </span>assert_next_dfs(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"007"</span>, -<span class="number">1</span>);
+        assert_next_sibling(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"010"</span>);
 
         <span class="comment">// There should be no more siblings.
 
         </span><span class="macro">assert!</span>(cursor
             .next_sibling()
-            .expect(<span class="string">&quot;Should parse next sibling&quot;</span>)
+            .expect(<span class="string">"Should parse next sibling"</span>)
             .is_none());
         <span class="macro">assert!</span>(cursor.current().is_none());
     }
@@ -11610,34 +11611,34 @@
         <span class="attr">#[rustfmt::skip]
         </span><span class="kw">let </span>section = Section::with_endian(Endian::Little)
             .mark(<span class="kw-2">&amp;</span>start)
-            .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;001&quot;</span>))
+            .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"001"</span>))
                 <span class="comment">// Valid sibling attribute.
-                </span>.die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;002&quot;</span>).D8(<span class="kw-2">&amp;</span>sibling004_ref))
+                </span>.die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"002"</span>).D8(<span class="kw-2">&amp;</span>sibling004_ref))
                     <span class="comment">// Invalid code to ensure the sibling attribute was used.
-                    </span>.die(<span class="number">10</span>, |s| s.attr_string(<span class="string">&quot;003&quot;</span>))
+                    </span>.die(<span class="number">10</span>, |s| s.attr_string(<span class="string">"003"</span>))
                         .die_null()
                     .die_null()
                 .mark(<span class="kw-2">&amp;</span>sibling004)
                 <span class="comment">// Invalid sibling attribute.
-                </span>.die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;004&quot;</span>).attr_ref1(<span class="number">255</span>))
-                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;005&quot;</span>))
+                </span>.die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"004"</span>).attr_ref1(<span class="number">255</span>))
+                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"005"</span>))
                         .die_null()
                     .die_null()
                 <span class="comment">// Sibling attribute in child only.
-                </span>.die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;006&quot;</span>))
+                </span>.die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"006"</span>))
                     <span class="comment">// Valid sibling attribute.
-                    </span>.die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;007&quot;</span>).D8(<span class="kw-2">&amp;</span>sibling009_ref))
+                    </span>.die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"007"</span>).D8(<span class="kw-2">&amp;</span>sibling009_ref))
                         <span class="comment">// Invalid code to ensure the sibling attribute was used.
-                        </span>.die(<span class="number">10</span>, |s| s.attr_string(<span class="string">&quot;008&quot;</span>))
+                        </span>.die(<span class="number">10</span>, |s| s.attr_string(<span class="string">"008"</span>))
                             .die_null()
                         .die_null()
                     .mark(<span class="kw-2">&amp;</span>sibling009)
-                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;009&quot;</span>))
+                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"009"</span>))
                         .die_null()
                     .die_null()
                 <span class="comment">// No sibling attribute.
-                </span>.die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;010&quot;</span>))
-                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;011&quot;</span>))
+                </span>.die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"010"</span>))
+                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"011"</span>))
                         .die_null()
                     .die_null()
                 .die_null();
@@ -11652,24 +11653,24 @@
     }
 
     <span class="kw">fn </span>test_cursor_next_sibling_with_ptr(cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;EndianSlice&lt;LittleEndian&gt;&gt;) {
-        assert_next_dfs(cursor, <span class="string">&quot;001&quot;</span>, <span class="number">0</span>);
+        assert_next_dfs(cursor, <span class="string">"001"</span>, <span class="number">0</span>);
 
         <span class="comment">// Down to the first child of the root.
 
-        </span>assert_next_dfs(cursor, <span class="string">&quot;002&quot;</span>, <span class="number">1</span>);
+        </span>assert_next_dfs(cursor, <span class="string">"002"</span>, <span class="number">1</span>);
 
         <span class="comment">// Now iterate all children of the root via `next_sibling`.
 
         </span>assert_valid_sibling_ptr(<span class="kw-2">&amp;</span>cursor);
-        assert_next_sibling(cursor, <span class="string">&quot;004&quot;</span>);
-        assert_next_sibling(cursor, <span class="string">&quot;006&quot;</span>);
-        assert_next_sibling(cursor, <span class="string">&quot;010&quot;</span>);
+        assert_next_sibling(cursor, <span class="string">"004"</span>);
+        assert_next_sibling(cursor, <span class="string">"006"</span>);
+        assert_next_sibling(cursor, <span class="string">"010"</span>);
 
         <span class="comment">// There should be no more siblings.
 
         </span><span class="macro">assert!</span>(cursor
             .next_sibling()
-            .expect(<span class="string">&quot;Should parse next sibling&quot;</span>)
+            .expect(<span class="string">"Should parse next sibling"</span>)
             .is_none());
         <span class="macro">assert!</span>(cursor.current().is_none());
     }
@@ -11700,15 +11701,15 @@
         <span class="kw">let </span>unit = debug_info
             .units()
             .next()
-            .expect(<span class="string">&quot;should have a unit result&quot;</span>)
-            .expect(<span class="string">&quot;and it should be ok&quot;</span>);
+            .expect(<span class="string">"should have a unit result"</span>)
+            .expect(<span class="string">"and it should be ok"</span>);
 
         <span class="kw">let </span>abbrev_buf = entries_cursor_sibling_abbrev_buf();
         <span class="kw">let </span>debug_abbrev = DebugAbbrev::new(<span class="kw-2">&amp;</span>abbrev_buf, LittleEndian);
 
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>cursor = unit.entries(<span class="kw-2">&amp;</span>abbrevs);
         test_cursor_next_sibling_with_ptr(<span class="kw-2">&amp;mut </span>cursor);
@@ -11742,15 +11743,15 @@
         <span class="kw">let </span>unit = debug_types
             .units()
             .next()
-            .expect(<span class="string">&quot;should have a unit result&quot;</span>)
-            .expect(<span class="string">&quot;and it should be ok&quot;</span>);
+            .expect(<span class="string">"should have a unit result"</span>)
+            .expect(<span class="string">"and it should be ok"</span>);
 
         <span class="kw">let </span>abbrev_buf = entries_cursor_sibling_abbrev_buf();
         <span class="kw">let </span>debug_abbrev = DebugAbbrev::new(<span class="kw-2">&amp;</span>abbrev_buf, LittleEndian);
 
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>cursor = unit.entries(<span class="kw-2">&amp;</span>abbrevs);
         test_cursor_next_sibling_with_ptr(<span class="kw-2">&amp;mut </span>cursor);
@@ -11764,26 +11765,26 @@
         <span class="kw">let </span>unit = debug_info
             .units()
             .next()
-            .expect(<span class="string">&quot;should have a unit result&quot;</span>)
-            .expect(<span class="string">&quot;and it should be ok&quot;</span>);
+            .expect(<span class="string">"should have a unit result"</span>)
+            .expect(<span class="string">"and it should be ok"</span>);
 
         <span class="kw">let </span>abbrevs_buf = <span class="kw-2">&amp;</span>entries_cursor_tests_abbrev_buf();
         <span class="kw">let </span>debug_abbrev = DebugAbbrev::new(abbrevs_buf, LittleEndian);
 
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>cursor = unit
             .entries_at_offset(<span class="kw-2">&amp;</span>abbrevs, UnitOffset(unit.header_size()))
             .unwrap();
-        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">&quot;001&quot;</span>);
+        assert_next_entry(<span class="kw-2">&amp;mut </span>cursor, <span class="string">"001"</span>);
 
         <span class="kw">let </span>cursor = unit.entries_at_offset(<span class="kw-2">&amp;</span>abbrevs, UnitOffset(<span class="number">0</span>));
         <span class="kw">match </span>cursor {
             <span class="prelude-val">Err</span>(Error::OffsetOutOfBounds) =&gt; {}
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Unexpected parse result = {:#?}&quot;</span>, otherwise);
+                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
     }
@@ -11809,30 +11810,30 @@
         <span class="attr">#[rustfmt::skip]
         </span><span class="kw">let </span>section = Section::with_endian(Endian::Little)
             .mark(<span class="kw-2">&amp;</span>start)
-            .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;root&quot;</span>))
-                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;1&quot;</span>))
-                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;1a&quot;</span>))
+            .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"root"</span>))
+                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"1"</span>))
+                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"1a"</span>))
                         .die_null()
-                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;1b&quot;</span>))
+                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"1b"</span>))
                     .die_null()
                 .mark(<span class="kw-2">&amp;</span>entry2)
-                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;2&quot;</span>))
-                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;2a&quot;</span>))
-                        .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;2a1&quot;</span>))
+                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"2"</span>))
+                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"2a"</span>))
+                        .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"2a1"</span>))
                             .die_null()
                         .die_null()
-                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;2b&quot;</span>))
-                        .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;2b1&quot;</span>))
+                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"2b"</span>))
+                        .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"2b1"</span>))
                         .die_null()
                     .die_null()
-                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;3&quot;</span>))
-                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;3a&quot;</span>))
-                        .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;3a1&quot;</span>))
-                        .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;3a2&quot;</span>))
+                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"3"</span>))
+                    .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"3a"</span>))
+                        .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"3a1"</span>))
+                        .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"3a2"</span>))
                         .die_null()
-                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;3b&quot;</span>))
+                    .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"3b"</span>))
                     .die_null()
-                .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;final&quot;</span>))
+                .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"final"</span>))
                 .die_null()
             .get_contents()
             .unwrap();
@@ -11842,18 +11843,18 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_entries_tree() {
-        <span class="kw">fn </span>assert_entry&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, Endian&gt;(
+        <span class="kw">fn </span>assert_entry&lt;<span class="lifetime">'input</span>, <span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, Endian&gt;(
             node: <span class="prelude-ty">Result</span>&lt;
-                <span class="prelude-ty">Option</span>&lt;EntriesTreeNode&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;&gt;,
+                <span class="prelude-ty">Option</span>&lt;EntriesTreeNode&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;&gt;,
             &gt;,
             name: <span class="kw-2">&amp;</span>str,
-        ) -&gt; EntriesTreeIter&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;tree</span>, EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;
+        ) -&gt; EntriesTreeIter&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, <span class="lifetime">'tree</span>, EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;
         <span class="kw">where
             </span>Endian: Endianity,
         {
             <span class="kw">let </span>node = node
-                .expect(<span class="string">&quot;Should parse entry&quot;</span>)
-                .expect(<span class="string">&quot;Should have entry&quot;</span>);
+                .expect(<span class="string">"Should parse entry"</span>)
+                .expect(<span class="string">"Should have entry"</span>);
             assert_entry_name(node.entry(), name);
             node.children()
         }
@@ -11862,7 +11863,7 @@
             <span class="kw">match </span>node {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {}
                 otherwise =&gt; {
-                    <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Unexpected parse result = {:#?}&quot;</span>, otherwise);
+                    <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
                 }
             }
         }
@@ -11895,38 +11896,38 @@
         <span class="kw">let </span>unit = debug_info
             .units()
             .next()
-            .expect(<span class="string">&quot;Should parse unit&quot;</span>)
-            .expect(<span class="string">&quot;and it should be some&quot;</span>);
+            .expect(<span class="string">"Should parse unit"</span>)
+            .expect(<span class="string">"and it should be some"</span>);
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>tree = unit
             .entries_tree(<span class="kw-2">&amp;</span>abbrevs, <span class="prelude-val">None</span>)
-            .expect(<span class="string">&quot;Should have entries tree&quot;</span>);
+            .expect(<span class="string">"Should have entries tree"</span>);
 
         <span class="comment">// Test we can restart iteration of the tree.
         </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(tree.root().map(<span class="prelude-val">Some</span>), <span class="string">&quot;root&quot;</span>);
-            assert_entry(iter.next(), <span class="string">&quot;1&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(tree.root().map(<span class="prelude-val">Some</span>), <span class="string">"root"</span>);
+            assert_entry(iter.next(), <span class="string">"1"</span>);
         }
         {
-            <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(tree.root().map(<span class="prelude-val">Some</span>), <span class="string">&quot;root&quot;</span>);
-            assert_entry(iter.next(), <span class="string">&quot;1&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(tree.root().map(<span class="prelude-val">Some</span>), <span class="string">"root"</span>);
+            assert_entry(iter.next(), <span class="string">"1"</span>);
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(tree.root().map(<span class="prelude-val">Some</span>), <span class="string">&quot;root&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(tree.root().map(<span class="prelude-val">Some</span>), <span class="string">"root"</span>);
         {
             <span class="comment">// Test iteration with children.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">&quot;1&quot;</span>);
+            </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">"1"</span>);
             {
                 <span class="comment">// Test iteration with children flag, but no children.
-                </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">&quot;1a&quot;</span>);
+                </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">"1a"</span>);
                 assert_null(iter.next());
                 assert_null(iter.next());
             }
             {
                 <span class="comment">// Test iteration without children flag.
-                </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">&quot;1b&quot;</span>);
+                </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">"1b"</span>);
                 assert_null(iter.next());
                 assert_null(iter.next());
             }
@@ -11935,77 +11936,77 @@
         }
         {
             <span class="comment">// Test skipping over children.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">&quot;2&quot;</span>);
-            assert_entry(iter.next(), <span class="string">&quot;2a&quot;</span>);
-            assert_entry(iter.next(), <span class="string">&quot;2b&quot;</span>);
+            </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">"2"</span>);
+            assert_entry(iter.next(), <span class="string">"2a"</span>);
+            assert_entry(iter.next(), <span class="string">"2b"</span>);
             assert_null(iter.next());
         }
         {
             <span class="comment">// Test skipping after partial iteration.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">&quot;3&quot;</span>);
+            </span><span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">"3"</span>);
             {
-                <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">&quot;3a&quot;</span>);
-                assert_entry(iter.next(), <span class="string">&quot;3a1&quot;</span>);
-                <span class="comment">// Parent iter should be able to skip over &quot;3a2&quot;.
+                <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(iter.next(), <span class="string">"3a"</span>);
+                assert_entry(iter.next(), <span class="string">"3a1"</span>);
+                <span class="comment">// Parent iter should be able to skip over "3a2".
             </span>}
-            assert_entry(iter.next(), <span class="string">&quot;3b&quot;</span>);
+            assert_entry(iter.next(), <span class="string">"3b"</span>);
             assert_null(iter.next());
         }
-        assert_entry(iter.next(), <span class="string">&quot;final&quot;</span>);
+        assert_entry(iter.next(), <span class="string">"final"</span>);
         assert_null(iter.next());
 
         <span class="comment">// Test starting at an offset.
         </span><span class="kw">let </span><span class="kw-2">mut </span>tree = unit
             .entries_tree(<span class="kw-2">&amp;</span>abbrevs, <span class="prelude-val">Some</span>(entry2))
-            .expect(<span class="string">&quot;Should have entries tree&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(tree.root().map(<span class="prelude-val">Some</span>), <span class="string">&quot;2&quot;</span>);
-        assert_entry(iter.next(), <span class="string">&quot;2a&quot;</span>);
-        assert_entry(iter.next(), <span class="string">&quot;2b&quot;</span>);
+            .expect(<span class="string">"Should have entries tree"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = assert_entry(tree.root().map(<span class="prelude-val">Some</span>), <span class="string">"2"</span>);
+        assert_entry(iter.next(), <span class="string">"2a"</span>);
+        assert_entry(iter.next(), <span class="string">"2b"</span>);
         assert_null(iter.next());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_entries_raw() {
-        <span class="kw">fn </span>assert_abbrev&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, Endian&gt;(
-            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;,
+        <span class="kw">fn </span>assert_abbrev&lt;<span class="lifetime">'input</span>, <span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, Endian&gt;(
+            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;,
             tag: DwTag,
-        ) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;abbrev </span>Abbreviation
+        ) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviation
         <span class="kw">where
             </span>Endian: Endianity,
         {
             <span class="kw">let </span>abbrev = entries
                 .read_abbreviation()
-                .expect(<span class="string">&quot;Should parse abbrev&quot;</span>)
-                .expect(<span class="string">&quot;Should have abbrev&quot;</span>);
+                .expect(<span class="string">"Should parse abbrev"</span>)
+                .expect(<span class="string">"Should have abbrev"</span>);
             <span class="macro">assert_eq!</span>(abbrev.tag(), tag);
             abbrev
         }
 
-        <span class="kw">fn </span>assert_null&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, Endian&gt;(
-            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;,
+        <span class="kw">fn </span>assert_null&lt;<span class="lifetime">'input</span>, <span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, Endian&gt;(
+            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;,
         ) <span class="kw">where
             </span>Endian: Endianity,
         {
             <span class="kw">match </span>entries.read_abbreviation() {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {}
                 otherwise =&gt; {
-                    <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Unexpected parse result = {:#?}&quot;</span>, otherwise);
+                    <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
                 }
             }
         }
 
-        <span class="kw">fn </span>assert_attr&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, Endian&gt;(
-            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">&#39;abbrev</span>, <span class="lifetime">&#39;unit</span>, EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;&gt;,
+        <span class="kw">fn </span>assert_attr&lt;<span class="lifetime">'input</span>, <span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, Endian&gt;(
+            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;,
             spec: <span class="prelude-ty">Option</span>&lt;AttributeSpecification&gt;,
             name: DwAt,
             value: <span class="kw-2">&amp;</span>str,
         ) <span class="kw">where
             </span>Endian: Endianity,
         {
-            <span class="kw">let </span>spec = spec.expect(<span class="string">&quot;Should have attribute specification&quot;</span>);
+            <span class="kw">let </span>spec = spec.expect(<span class="string">"Should have attribute specification"</span>);
             <span class="kw">let </span>attr = entries
                 .read_attribute(spec)
-                .expect(<span class="string">&quot;Should parse attribute&quot;</span>);
+                .expect(<span class="string">"Should parse attribute"</span>);
             <span class="macro">assert_eq!</span>(attr.name(), name);
             <span class="macro">assert_eq!</span>(
                 attr.value(),
@@ -12028,10 +12029,10 @@
 
         <span class="attr">#[rustfmt::skip]
         </span><span class="kw">let </span>section = Section::with_endian(Endian::Little)
-            .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;f1&quot;</span>).attr_string(<span class="string">&quot;l1&quot;</span>))
-                .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;v1&quot;</span>))
-                .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">&quot;v2&quot;</span>))
-                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">&quot;f2&quot;</span>).attr_string(<span class="string">&quot;l2&quot;</span>))
+            .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"f1"</span>).attr_string(<span class="string">"l1"</span>))
+                .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"v1"</span>))
+                .die(<span class="number">2</span>, |s| s.attr_string(<span class="string">"v2"</span>))
+                .die(<span class="number">1</span>, |s| s.attr_string(<span class="string">"f2"</span>).attr_string(<span class="string">"l2"</span>))
                     .die_null()
                 .die_null();
         <span class="kw">let </span>entries_buf = section.get_contents().unwrap();
@@ -12056,41 +12057,41 @@
         <span class="kw">let </span>unit = debug_info
             .units()
             .next()
-            .expect(<span class="string">&quot;should have a unit result&quot;</span>)
-            .expect(<span class="string">&quot;and it should be ok&quot;</span>);
+            .expect(<span class="string">"should have a unit result"</span>)
+            .expect(<span class="string">"and it should be ok"</span>);
 
         <span class="kw">let </span>abbrevs = unit
             .abbreviations(<span class="kw-2">&amp;</span>debug_abbrev)
-            .expect(<span class="string">&quot;Should parse abbreviations&quot;</span>);
+            .expect(<span class="string">"Should parse abbreviations"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>entries = unit
             .entries_raw(<span class="kw-2">&amp;</span>abbrevs, <span class="prelude-val">None</span>)
-            .expect(<span class="string">&quot;Should have entries&quot;</span>);
+            .expect(<span class="string">"Should have entries"</span>);
 
         <span class="macro">assert_eq!</span>(entries.next_depth(), <span class="number">0</span>);
         <span class="kw">let </span>abbrev = assert_abbrev(<span class="kw-2">&amp;mut </span>entries, DW_TAG_subprogram);
         <span class="kw">let </span><span class="kw-2">mut </span>attrs = abbrev.attributes().iter().copied();
-        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_name, <span class="string">&quot;f1&quot;</span>);
-        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_linkage_name, <span class="string">&quot;l1&quot;</span>);
+        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_name, <span class="string">"f1"</span>);
+        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_linkage_name, <span class="string">"l1"</span>);
         <span class="macro">assert!</span>(attrs.next().is_none());
 
         <span class="macro">assert_eq!</span>(entries.next_depth(), <span class="number">1</span>);
         <span class="kw">let </span>abbrev = assert_abbrev(<span class="kw-2">&amp;mut </span>entries, DW_TAG_variable);
         <span class="kw">let </span><span class="kw-2">mut </span>attrs = abbrev.attributes().iter().copied();
-        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_name, <span class="string">&quot;v1&quot;</span>);
+        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_name, <span class="string">"v1"</span>);
         <span class="macro">assert!</span>(attrs.next().is_none());
 
         <span class="macro">assert_eq!</span>(entries.next_depth(), <span class="number">1</span>);
         <span class="kw">let </span>abbrev = assert_abbrev(<span class="kw-2">&amp;mut </span>entries, DW_TAG_variable);
         <span class="kw">let </span><span class="kw-2">mut </span>attrs = abbrev.attributes().iter().copied();
-        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_name, <span class="string">&quot;v2&quot;</span>);
+        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_name, <span class="string">"v2"</span>);
         <span class="macro">assert!</span>(attrs.next().is_none());
 
         <span class="macro">assert_eq!</span>(entries.next_depth(), <span class="number">1</span>);
         <span class="kw">let </span>abbrev = assert_abbrev(<span class="kw-2">&amp;mut </span>entries, DW_TAG_subprogram);
         <span class="kw">let </span><span class="kw-2">mut </span>attrs = abbrev.attributes().iter().copied();
-        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_name, <span class="string">&quot;f2&quot;</span>);
-        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_linkage_name, <span class="string">&quot;l2&quot;</span>);
+        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_name, <span class="string">"f2"</span>);
+        assert_attr(<span class="kw-2">&amp;mut </span>entries, attrs.next(), DW_AT_linkage_name, <span class="string">"l2"</span>);
         <span class="macro">assert!</span>(attrs.next().is_none());
 
         <span class="macro">assert_eq!</span>(entries.next_depth(), <span class="number">2</span>);
@@ -12242,13 +12243,13 @@
             </span><span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="comment">// Type offset
             // DIEs
             // Abbreviation code
-            </span><span class="number">0x01</span>, <span class="comment">// Attribute of form DW_FORM_string = &quot;foo\0&quot;
+            </span><span class="number">0x01</span>, <span class="comment">// Attribute of form DW_FORM_string = "foo\0"
             </span><span class="number">0x66</span>, <span class="number">0x6f</span>, <span class="number">0x6f</span>, <span class="number">0x00</span>, <span class="comment">// Children
             // Abbreviation code
-            </span><span class="number">0x01</span>, <span class="comment">// Attribute of form DW_FORM_string = &quot;foo\0&quot;
+            </span><span class="number">0x01</span>, <span class="comment">// Attribute of form DW_FORM_string = "foo\0"
             </span><span class="number">0x66</span>, <span class="number">0x6f</span>, <span class="number">0x6f</span>, <span class="number">0x00</span>, <span class="comment">// Children
             // Abbreviation code
-            </span><span class="number">0x01</span>, <span class="comment">// Attribute of form DW_FORM_string = &quot;foo\0&quot;
+            </span><span class="number">0x01</span>, <span class="comment">// Attribute of form DW_FORM_string = "foo\0"
             </span><span class="number">0x66</span>, <span class="number">0x6f</span>, <span class="number">0x6f</span>, <span class="number">0x00</span>, <span class="comment">// Children
             </span><span class="number">0x00</span>, <span class="comment">// End of children
             </span><span class="number">0x00</span>, <span class="comment">// End of children

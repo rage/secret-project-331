@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/backtrace/libunwind.rs`."><title>libunwind.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/backtrace/libunwind.rs`."><title>libunwind.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -269,12 +270,12 @@
 </pre></div><pre class="rust"><code><span class="doccomment">//! Backtrace support using libunwind/gcc_s/etc APIs.
 //!
 //! This module contains the ability to unwind the stack using libunwind-style
-//! APIs. Note that there&#39;s a whole bunch of implementations of the
+//! APIs. Note that there's a whole bunch of implementations of the
 //! libunwind-like API, and this is just trying to be compatible with most of
 //! them all at once instead of being picky.
 //!
 //! The libunwind API is powered by `_Unwind_Backtrace` and is in practice very
-//! reliable at generating a backtrace. It&#39;s not entirely clear how it does it
+//! reliable at generating a backtrace. It's not entirely clear how it does it
 //! (frame pointers? eh_frame info? both?) but it seems to work!
 //!
 //! Most of the complexity of this module is handling the various platform
@@ -296,8 +297,8 @@
 }
 
 <span class="comment">// With a raw libunwind pointer it should only ever be access in a readonly
-// threadsafe fashion, so it&#39;s `Sync`. When sending to other threads via `Clone`
-// we always switch to a version which doesn&#39;t retain interior pointers, so we
+// threadsafe fashion, so it's `Sync`. When sending to other threads via `Clone`
+// we always switch to a version which doesn't retain interior pointers, so we
 // should be `Send` as well.
 </span><span class="kw">unsafe impl </span>Send <span class="kw">for </span>Frame {}
 <span class="kw">unsafe impl </span>Sync <span class="kw">for </span>Frame {}
@@ -323,7 +324,7 @@
             <span class="kw">return </span>symbol_address;
         }
 
-        <span class="comment">// The macOS linker emits a &quot;compact&quot; unwind table that only includes an
+        <span class="comment">// The macOS linker emits a "compact" unwind table that only includes an
         // entry for a function if that function either has an LSDA or its
         // encoding differs from that of the previous entry.  Consequently, on
         // macOS, `_Unwind_FindEnclosingFunction` is unreliable (it can return a
@@ -334,7 +335,7 @@
         //
         // Note the `skip_inner_frames.rs` test is skipped on macOS due to this
         // clause, and if this is fixed that test in theory can be run on macOS!
-        </span><span class="kw">if </span><span class="macro">cfg!</span>(target_vendor = <span class="string">&quot;apple&quot;</span>) {
+        </span><span class="kw">if </span><span class="macro">cfg!</span>(target_vendor = <span class="string">"apple"</span>) {
             <span class="self">self</span>.ip()
         } <span class="kw">else </span>{
             <span class="kw">unsafe </span>{ uw::_Unwind_FindEnclosingFunction(<span class="self">self</span>.ip()) }
@@ -360,7 +361,7 @@
 </span><span class="kw">pub unsafe fn </span>trace(<span class="kw-2">mut </span>cb: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span><span class="kw">super</span>::Frame) -&gt; bool) {
     uw::_Unwind_Backtrace(trace_fn, <span class="kw-2">&amp;mut </span>cb <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span><span class="kw-2">*mut </span><span class="kw">_</span>);
 
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>trace_fn(
+    <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>trace_fn(
         ctx: <span class="kw-2">*mut </span>uw::_Unwind_Context,
         arg: <span class="kw-2">*mut </span>c_void,
     ) -&gt; uw::_Unwind_Reason_Code {
@@ -384,7 +385,7 @@
 <span class="doccomment">/// Unwind library interface used for backtraces
 ///
 /// Note that dead code is allowed as here are just bindings
-/// iOS doesn&#39;t use all of them it but adding more
+/// iOS doesn't use all of them it but adding more
 /// platform-specific configs pollutes the code too much
 </span><span class="attr">#[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -411,9 +412,9 @@
     <span class="kw">pub enum </span>_Unwind_Context {}
 
     <span class="kw">pub type </span>_Unwind_Trace_Fn =
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>_Unwind_Context, arg: <span class="kw-2">*mut </span>c_void) -&gt; _Unwind_Reason_Code;
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>_Unwind_Context, arg: <span class="kw-2">*mut </span>c_void) -&gt; _Unwind_Reason_Code;
 
-    <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>_Unwind_Backtrace(
             trace: _Unwind_Trace_Fn,
             trace_argument: <span class="kw-2">*mut </span>c_void,
@@ -423,23 +424,23 @@
     <span class="macro">cfg_if::cfg_if! </span>{
         <span class="comment">// available since GCC 4.2.0, should be fine for our purpose
         </span><span class="kw">if </span><span class="attr">#[cfg(all(
-            not(all(target_os = <span class="string">&quot;android&quot;</span>, target_arch = <span class="string">&quot;arm&quot;</span>)),
-            not(all(target_os = <span class="string">&quot;freebsd&quot;</span>, target_arch = <span class="string">&quot;arm&quot;</span>)),
-            not(all(target_os = <span class="string">&quot;linux&quot;</span>, target_arch = <span class="string">&quot;arm&quot;</span>)),
-            not(all(target_os = <span class="string">&quot;horizon&quot;</span>, target_arch = <span class="string">&quot;arm&quot;</span>)),
-            not(all(target_os = <span class="string">&quot;vita&quot;</span>, target_arch = <span class="string">&quot;arm&quot;</span>)),
+            not(all(target_os = <span class="string">"android"</span>, target_arch = <span class="string">"arm"</span>)),
+            not(all(target_os = <span class="string">"freebsd"</span>, target_arch = <span class="string">"arm"</span>)),
+            not(all(target_os = <span class="string">"linux"</span>, target_arch = <span class="string">"arm"</span>)),
+            not(all(target_os = <span class="string">"horizon"</span>, target_arch = <span class="string">"arm"</span>)),
+            not(all(target_os = <span class="string">"vita"</span>, target_arch = <span class="string">"arm"</span>)),
         ))] </span>{
-            <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+            <span class="kw">extern </span><span class="string">"C" </span>{
                 <span class="kw">pub fn </span>_Unwind_GetIP(ctx: <span class="kw-2">*mut </span>_Unwind_Context) -&gt; libc::uintptr_t;
                 <span class="kw">pub fn </span>_Unwind_FindEnclosingFunction(pc: <span class="kw-2">*mut </span>c_void) -&gt; <span class="kw-2">*mut </span>c_void;
 
-                <span class="attr">#[cfg(not(all(target_os = <span class="string">&quot;linux&quot;</span>, target_arch = <span class="string">&quot;s390x&quot;</span>)))]
-                </span><span class="comment">// This function is a misnomer: rather than getting this frame&#39;s
-                // Canonical Frame Address (aka the caller frame&#39;s SP) it
-                // returns this frame&#39;s SP.
+                <span class="attr">#[cfg(not(all(target_os = <span class="string">"linux"</span>, target_arch = <span class="string">"s390x"</span>)))]
+                </span><span class="comment">// This function is a misnomer: rather than getting this frame's
+                // Canonical Frame Address (aka the caller frame's SP) it
+                // returns this frame's SP.
                 //
                 // https://github.com/libunwind/libunwind/blob/d32956507cf29d9b1a98a8bce53c78623908f4fe/src/unwind/GetCFA.c#L28-L35
-                </span><span class="attr">#[link_name = <span class="string">&quot;_Unwind_GetCFA&quot;</span>]
+                </span><span class="attr">#[link_name = <span class="string">"_Unwind_GetCFA"</span>]
                 </span><span class="kw">pub fn </span>get_sp(ctx: <span class="kw-2">*mut </span>_Unwind_Context) -&gt; libc::uintptr_t;
 
             }
@@ -447,9 +448,9 @@
             <span class="comment">// s390x uses a biased CFA value, therefore we need to use
             // _Unwind_GetGR to get the stack pointer register (%r15)
             // instead of relying on _Unwind_GetCFA.
-            </span><span class="attr">#[cfg(all(target_os = <span class="string">&quot;linux&quot;</span>, target_arch = <span class="string">&quot;s390x&quot;</span>))]
+            </span><span class="attr">#[cfg(all(target_os = <span class="string">"linux"</span>, target_arch = <span class="string">"s390x"</span>))]
             </span><span class="kw">pub unsafe fn </span>get_sp(ctx: <span class="kw-2">*mut </span>_Unwind_Context) -&gt; libc::uintptr_t {
-                <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+                <span class="kw">extern </span><span class="string">"C" </span>{
                     <span class="kw">pub fn </span>_Unwind_GetGR(ctx: <span class="kw-2">*mut </span>_Unwind_Context, index: libc::c_int) -&gt; libc::uintptr_t;
                 }
                 _Unwind_GetGR(ctx, <span class="number">15</span>)
@@ -487,7 +488,7 @@
             }
 
             <span class="kw">type </span>_Unwind_Word = libc::c_uint;
-            <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+            <span class="kw">extern </span><span class="string">"C" </span>{
                 <span class="kw">fn </span>_Unwind_VRS_Get(
                     ctx: <span class="kw-2">*mut </span>_Unwind_Context,
                     klass: _Unwind_VRS_RegClass,
@@ -526,7 +527,7 @@
                 val <span class="kw">as </span>libc::uintptr_t
             }
 
-            <span class="comment">// This function also doesn&#39;t exist on Android or ARM/Linux, so make it
+            <span class="comment">// This function also doesn't exist on Android or ARM/Linux, so make it
             // a no-op.
             </span><span class="kw">pub unsafe fn </span>_Unwind_FindEnclosingFunction(pc: <span class="kw-2">*mut </span>c_void) -&gt; <span class="kw-2">*mut </span>c_void {
                 pc

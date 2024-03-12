@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/submodule.rs`."><title>submodule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/submodule.rs`."><title>submodule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -483,13 +484,13 @@
 <span class="doccomment">/// A structure to represent a git [submodule][1]
 ///
 /// [1]: http://git-scm.com/book/en/Git-Tools-Submodules
-</span><span class="kw">pub struct </span>Submodule&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>Submodule&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_submodule,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;repo </span>Repository&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'repo </span>Repository&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Submodule&lt;<span class="lifetime">&#39;repo</span>&gt; {
-    <span class="doccomment">/// Get the submodule&#39;s branch.
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Submodule&lt;<span class="lifetime">'repo</span>&gt; {
+    <span class="doccomment">/// Get the submodule's branch.
     ///
     /// Returns `None` if the branch is not valid utf-8 or if the branch is not
     /// yet available.
@@ -509,7 +510,7 @@
     /// This performs the necessary `git_clone` to setup a newly-created submodule.
     </span><span class="kw">pub fn </span>clone(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>SubmoduleUpdateOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>SubmoduleUpdateOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Repository, Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>raw_opts = opts.map(|o| o.raw());
@@ -523,30 +524,30 @@
         }
     }
 
-    <span class="doccomment">/// Get the submodule&#39;s URL.
+    <span class="doccomment">/// Get the submodule's URL.
     ///
-    /// Returns `None` if the URL is not valid utf-8 or if the URL isn&#39;t present
+    /// Returns `None` if the URL is not valid utf-8 or if the URL isn't present
     </span><span class="kw">pub fn </span>url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="self">self</span>.opt_url_bytes().and_then(|b| str::from_utf8(b).ok())
     }
 
     <span class="doccomment">/// Get the URL for the submodule.
     </span><span class="attr">#[doc(hidden)]
-    #[deprecated(note = <span class="string">&quot;renamed to `opt_url_bytes`&quot;</span>)]
+    #[deprecated(note = <span class="string">"renamed to `opt_url_bytes`"</span>)]
     </span><span class="kw">pub fn </span>url_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="self">self</span>.opt_url_bytes().unwrap()
     }
 
     <span class="doccomment">/// Get the URL for the submodule.
     ///
-    /// Returns `None` if the URL isn&#39;t present
+    /// Returns `None` if the URL isn't present
     </span><span class="comment">// TODO: delete this method and fix the signature of `url_bytes` on next
     // major version bump
     </span><span class="kw">pub fn </span>opt_url_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_submodule_url(<span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the submodule&#39;s name.
+    <span class="doccomment">/// Get the submodule's name.
     ///
     /// Returns `None` if the name is not valid utf-8
     </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
@@ -577,9 +578,9 @@
 
     <span class="doccomment">/// Get the OID for the submodule in the current working directory.
     ///
-    /// This returns the OID that corresponds to looking up &#39;HEAD&#39; in the
+    /// This returns the OID that corresponds to looking up 'HEAD' in the
     /// checked out submodule. If there are pending changes in the index or
-    /// anything else, this won&#39;t notice that.
+    /// anything else, this won't notice that.
     </span><span class="kw">pub fn </span>workdir_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Oid&gt; {
         <span class="kw">unsafe </span>{ Binding::from_raw_opt(raw::git_submodule_wd_id(<span class="self">self</span>.raw)) }
     }
@@ -594,10 +595,10 @@
         SubmoduleUpdate::from_raw(<span class="kw">unsafe </span>{ raw::git_submodule_update_strategy(<span class="self">self</span>.raw) })
     }
 
-    <span class="doccomment">/// Copy submodule info into &quot;.git/config&quot; file.
+    <span class="doccomment">/// Copy submodule info into ".git/config" file.
     ///
-    /// Just like &quot;git submodule init&quot;, this copies information about the
-    /// submodule into &quot;.git/config&quot;. You can use the accessor functions above
+    /// Just like "git submodule init", this copies information about the
+    /// submodule into ".git/config". You can use the accessor functions above
     /// to alter the in-memory git_submodule object and control what is written
     /// to the config, overriding what is in .gitmodules.
     ///
@@ -646,7 +647,7 @@
     /// Call this to reread cached submodule information for this submodule if
     /// you have reason to believe that it has changed.
     ///
-    /// If `force` is `true`, then data will be reloaded even if it doesn&#39;t seem
+    /// If `force` is `true`, then data will be reloaded even if it doesn't seem
     /// out of date
     </span><span class="kw">pub fn </span>reload(<span class="kw-2">&amp;mut </span><span class="self">self</span>, force: bool) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
@@ -658,7 +659,7 @@
     <span class="doccomment">/// Copy submodule remote info into submodule repo.
     ///
     /// This copies the information about the submodules URL into the checked
-    /// out submodule config, acting like &quot;git submodule sync&quot;. This is useful
+    /// out submodule config, acting like "git submodule sync". This is useful
     /// if you have altered the URL for the submodule (or it has been altered
     /// by a fetch of upstream changes) and you need to update your local repo.
     </span><span class="kw">pub fn </span>sync(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -685,7 +686,7 @@
     /// This should be called on a submodule once you have called add setup and
     /// done the clone of the submodule. This adds the .gitmodules file and the
     /// newly cloned submodule to the index to be ready to be committed (but
-    /// doesn&#39;t actually do the commit).
+    /// doesn't actually do the commit).
     </span><span class="kw">pub fn </span>add_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_submodule_add_finalize(<span class="self">self</span>.raw));
@@ -697,7 +698,7 @@
     ///
     /// This will clone a missing submodule and check out the subrepository to
     /// the commit specified in the index of the containing repository. If
-    /// the submodule repository doesn&#39;t contain the target commit, then the
+    /// the submodule repository doesn't contain the target commit, then the
     /// submodule is fetched using the fetch options supplied in `opts`.
     ///
     /// `init` indicates if the submodule should be initialized first if it has
@@ -705,7 +706,7 @@
     </span><span class="kw">pub fn </span>update(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         init: bool,
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>SubmoduleUpdateOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>SubmoduleUpdateOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw_opts = opts.map(|o| o.raw());
@@ -719,9 +720,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Submodule&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>Submodule&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_submodule;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_submodule) -&gt; Submodule&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_submodule) -&gt; Submodule&lt;<span class="lifetime">'repo</span>&gt; {
         Submodule {
             raw,
             _marker: marker::PhantomData,
@@ -732,20 +733,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Submodule&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>Submodule&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_submodule_free(<span class="self">self</span>.raw) }
     }
 }
 
 <span class="doccomment">/// Options to update a submodule.
-</span><span class="kw">pub struct </span>SubmoduleUpdateOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
-    checkout_builder: CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt;,
-    fetch_opts: FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt;,
+</span><span class="kw">pub struct </span>SubmoduleUpdateOptions&lt;<span class="lifetime">'cb</span>&gt; {
+    checkout_builder: CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt;,
+    fetch_opts: FetchOptions&lt;<span class="lifetime">'cb</span>&gt;,
     allow_fetch: bool,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; SubmoduleUpdateOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; SubmoduleUpdateOptions&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="doccomment">/// Return default options.
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         SubmoduleUpdateOptions {
@@ -771,13 +772,13 @@
     }
 
     <span class="doccomment">/// Set checkout options.
-    </span><span class="kw">pub fn </span>checkout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>checkout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: CheckoutBuilder&lt;<span class="lifetime">'cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.checkout_builder = opts;
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Set fetch options and allow fetching.
-    </span><span class="kw">pub fn </span>fetch(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>fetch(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: FetchOptions&lt;<span class="lifetime">'cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.fetch_opts = opts;
         <span class="self">self</span>.allow_fetch = <span class="bool-val">true</span>;
         <span class="self">self
@@ -790,7 +791,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; Default <span class="kw">for </span>SubmoduleUpdateOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; Default <span class="kw">for </span>SubmoduleUpdateOptions&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
@@ -811,29 +812,29 @@
         <span class="kw">let </span>td = TempDir::new().unwrap();
         <span class="kw">let </span>repo = Repository::init(td.path()).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>s1 = repo
-            .submodule(<span class="string">&quot;/path/to/nowhere&quot;</span>, Path::new(<span class="string">&quot;foo&quot;</span>), <span class="bool-val">true</span>)
+            .submodule(<span class="string">"/path/to/nowhere"</span>, Path::new(<span class="string">"foo"</span>), <span class="bool-val">true</span>)
             .unwrap();
         s1.init(<span class="bool-val">false</span>).unwrap();
         s1.sync().unwrap();
 
         <span class="kw">let </span>s2 = repo
-            .submodule(<span class="string">&quot;/path/to/nowhere&quot;</span>, Path::new(<span class="string">&quot;bar&quot;</span>), <span class="bool-val">true</span>)
+            .submodule(<span class="string">"/path/to/nowhere"</span>, Path::new(<span class="string">"bar"</span>), <span class="bool-val">true</span>)
             .unwrap();
         drop((s1, s2));
 
         <span class="kw">let </span><span class="kw-2">mut </span>submodules = repo.submodules().unwrap();
         <span class="macro">assert_eq!</span>(submodules.len(), <span class="number">2</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>s = submodules.remove(<span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(s.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>));
-        <span class="macro">assert_eq!</span>(s.url(), <span class="prelude-val">Some</span>(<span class="string">&quot;/path/to/nowhere&quot;</span>));
+        <span class="macro">assert_eq!</span>(s.name(), <span class="prelude-val">Some</span>(<span class="string">"bar"</span>));
+        <span class="macro">assert_eq!</span>(s.url(), <span class="prelude-val">Some</span>(<span class="string">"/path/to/nowhere"</span>));
         <span class="macro">assert_eq!</span>(s.branch(), <span class="prelude-val">None</span>);
         <span class="macro">assert!</span>(s.head_id().is_none());
         <span class="macro">assert!</span>(s.index_id().is_none());
         <span class="macro">assert!</span>(s.workdir_id().is_none());
 
-        repo.find_submodule(<span class="string">&quot;bar&quot;</span>).unwrap();
+        repo.find_submodule(<span class="string">"bar"</span>).unwrap();
         s.open().unwrap();
-        <span class="macro">assert!</span>(s.path() == Path::new(<span class="string">&quot;bar&quot;</span>));
+        <span class="macro">assert!</span>(s.path() == Path::new(<span class="string">"bar"</span>));
         s.reload(<span class="bool-val">true</span>).unwrap();
     }
 
@@ -844,10 +845,10 @@
 
         <span class="kw">let </span>url = Url::from_file_path(<span class="kw-2">&amp;</span>repo1.workdir().unwrap()).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>s = repo2
-            .submodule(<span class="kw-2">&amp;</span>url.to_string(), Path::new(<span class="string">&quot;bar&quot;</span>), <span class="bool-val">true</span>)
+            .submodule(<span class="kw-2">&amp;</span>url.to_string(), Path::new(<span class="string">"bar"</span>), <span class="bool-val">true</span>)
             .unwrap();
-        <span class="macro">t!</span>(fs::remove_dir_all(td.path().join(<span class="string">&quot;bar&quot;</span>)));
-        <span class="macro">t!</span>(Repository::clone(<span class="kw-2">&amp;</span>url.to_string(), td.path().join(<span class="string">&quot;bar&quot;</span>)));
+        <span class="macro">t!</span>(fs::remove_dir_all(td.path().join(<span class="string">"bar"</span>)));
+        <span class="macro">t!</span>(Repository::clone(<span class="kw-2">&amp;</span>url.to_string(), td.path().join(<span class="string">"bar"</span>)));
         <span class="macro">t!</span>(s.add_to_index(<span class="bool-val">false</span>));
         <span class="macro">t!</span>(s.add_finalize());
     }
@@ -861,10 +862,10 @@
 
         <span class="kw">let </span>url = Url::from_file_path(<span class="kw-2">&amp;</span>repo1.workdir().unwrap()).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>s = repo2
-            .submodule(<span class="kw-2">&amp;</span>url.to_string(), Path::new(<span class="string">&quot;bar&quot;</span>), <span class="bool-val">true</span>)
+            .submodule(<span class="kw-2">&amp;</span>url.to_string(), Path::new(<span class="string">"bar"</span>), <span class="bool-val">true</span>)
             .unwrap();
-        <span class="macro">t!</span>(fs::remove_dir_all(td.path().join(<span class="string">&quot;bar&quot;</span>)));
-        <span class="macro">t!</span>(Repository::clone(<span class="kw-2">&amp;</span>url.to_string(), td.path().join(<span class="string">&quot;bar&quot;</span>)));
+        <span class="macro">t!</span>(fs::remove_dir_all(td.path().join(<span class="string">"bar"</span>)));
+        <span class="macro">t!</span>(Repository::clone(<span class="kw-2">&amp;</span>url.to_string(), td.path().join(<span class="string">"bar"</span>)));
         <span class="macro">t!</span>(s.add_to_index(<span class="bool-val">false</span>));
         <span class="macro">t!</span>(s.add_finalize());
         <span class="comment">// -----------------------------------
@@ -891,10 +892,10 @@
         <span class="kw">let </span>url1 = Url::from_file_path(<span class="kw-2">&amp;</span>repo1.workdir().unwrap()).unwrap();
         <span class="kw">let </span>url2 = Url::from_file_path(<span class="kw-2">&amp;</span>repo2.workdir().unwrap()).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>s1 = parent
-            .submodule(<span class="kw-2">&amp;</span>url1.to_string(), Path::new(<span class="string">&quot;bar&quot;</span>), <span class="bool-val">true</span>)
+            .submodule(<span class="kw-2">&amp;</span>url1.to_string(), Path::new(<span class="string">"bar"</span>), <span class="bool-val">true</span>)
             .unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>s2 = parent
-            .submodule(<span class="kw-2">&amp;</span>url2.to_string(), Path::new(<span class="string">&quot;bar2&quot;</span>), <span class="bool-val">true</span>)
+            .submodule(<span class="kw-2">&amp;</span>url2.to_string(), Path::new(<span class="string">"bar2"</span>), <span class="bool-val">true</span>)
             .unwrap();
         <span class="comment">// -----------------------------------
 
@@ -912,11 +913,11 @@
         <span class="kw">let </span>url_child = Url::from_file_path(<span class="kw-2">&amp;</span>child.workdir().unwrap()).unwrap();
         <span class="kw">let </span>url_parent = Url::from_file_path(<span class="kw-2">&amp;</span>parent.workdir().unwrap()).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>sub = parent
-            .submodule(<span class="kw-2">&amp;</span>url_child.to_string(), Path::new(<span class="string">&quot;bar&quot;</span>), <span class="bool-val">true</span>)
+            .submodule(<span class="kw-2">&amp;</span>url_child.to_string(), Path::new(<span class="string">"bar"</span>), <span class="bool-val">true</span>)
             .unwrap();
 
         <span class="comment">// -----------------------------------
-        // Let&#39;s commit the submodule for later clone
+        // Let's commit the submodule for later clone
         </span><span class="macro">t!</span>(sub.clone(<span class="prelude-val">None</span>));
         <span class="macro">t!</span>(sub.add_to_index(<span class="bool-val">true</span>));
         <span class="macro">t!</span>(sub.add_finalize());

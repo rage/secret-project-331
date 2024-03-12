@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/streams.rs`."><title>streams.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/streams.rs`."><title>streams.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -695,10 +696,10 @@
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
     {
         <span class="kw">let </span>(ch, val) = <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            StreamMaxlen::Equals(v) =&gt; (<span class="string">&quot;=&quot;</span>, v),
-            StreamMaxlen::Approx(v) =&gt; (<span class="string">&quot;~&quot;</span>, v),
+            StreamMaxlen::Equals(v) =&gt; (<span class="string">"="</span>, v),
+            StreamMaxlen::Approx(v) =&gt; (<span class="string">"~"</span>, v),
         };
-        out.write_arg(<span class="string">b&quot;MAXLEN&quot;</span>);
+        out.write_arg(<span class="string">b"MAXLEN"</span>);
         out.write_arg(ch.as_bytes());
         val.write_redis_args(out);
     }
@@ -762,22 +763,22 @@
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
     {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>ms) = <span class="self">self</span>.idle {
-            out.write_arg(<span class="string">b&quot;IDLE&quot;</span>);
-            out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{ms}&quot;</span>).as_bytes());
+            out.write_arg(<span class="string">b"IDLE"</span>);
+            out.write_arg(<span class="macro">format!</span>(<span class="string">"{ms}"</span>).as_bytes());
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>ms_time) = <span class="self">self</span>.time {
-            out.write_arg(<span class="string">b&quot;TIME&quot;</span>);
-            out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{ms_time}&quot;</span>).as_bytes());
+            out.write_arg(<span class="string">b"TIME"</span>);
+            out.write_arg(<span class="macro">format!</span>(<span class="string">"{ms_time}"</span>).as_bytes());
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>count) = <span class="self">self</span>.retry {
-            out.write_arg(<span class="string">b&quot;RETRYCOUNT&quot;</span>);
-            out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{count}&quot;</span>).as_bytes());
+            out.write_arg(<span class="string">b"RETRYCOUNT"</span>);
+            out.write_arg(<span class="macro">format!</span>(<span class="string">"{count}"</span>).as_bytes());
         }
         <span class="kw">if </span><span class="self">self</span>.force {
-            out.write_arg(<span class="string">b&quot;FORCE&quot;</span>);
+            out.write_arg(<span class="string">b"FORCE"</span>);
         }
         <span class="kw">if </span><span class="self">self</span>.justid {
-            out.write_arg(<span class="string">b&quot;JUSTID&quot;</span>);
+            out.write_arg(<span class="string">b"JUSTID"</span>);
         }
     }
 }
@@ -850,7 +851,7 @@
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
     {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>group) = <span class="self">self</span>.group {
-            out.write_arg(<span class="string">b&quot;GROUP&quot;</span>);
+            out.write_arg(<span class="string">b"GROUP"</span>);
             <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>group.<span class="number">0 </span>{
                 out.write_arg(i);
             }
@@ -860,19 +861,19 @@
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>ms) = <span class="self">self</span>.block {
-            out.write_arg(<span class="string">b&quot;BLOCK&quot;</span>);
-            out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{ms}&quot;</span>).as_bytes());
+            out.write_arg(<span class="string">b"BLOCK"</span>);
+            out.write_arg(<span class="macro">format!</span>(<span class="string">"{ms}"</span>).as_bytes());
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>n) = <span class="self">self</span>.count {
-            out.write_arg(<span class="string">b&quot;COUNT&quot;</span>);
-            out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{n}&quot;</span>).as_bytes());
+            out.write_arg(<span class="string">b"COUNT"</span>);
+            out.write_arg(<span class="macro">format!</span>(<span class="string">"{n}"</span>).as_bytes());
         }
 
         <span class="kw">if </span><span class="self">self</span>.group.is_some() {
             <span class="comment">// noack is only available w/ xreadgroup
             </span><span class="kw">if </span><span class="self">self</span>.noack == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
-                out.write_arg(<span class="string">b&quot;NOACK&quot;</span>);
+                out.write_arg(<span class="string">b"NOACK"</span>);
             }
         }
     }
@@ -891,7 +892,7 @@
 
 <span class="doccomment">/// Reply type used with [`xrange`], [`xrange_count`], [`xrange_all`], [`xrevrange`], [`xrevrange_count`], [`xrevrange_all`] commands.
 ///
-/// Represents stream entries matching a given range of `id`&#39;s.
+/// Represents stream entries matching a given range of `id`'s.
 ///
 /// [`xrange`]: ../trait.Commands.html#method.xrange
 /// [`xrange_count`]: ../trait.Commands.html#method.xrange_count
@@ -1038,7 +1039,7 @@
     </span><span class="kw">pub </span>name: String,
     <span class="doccomment">/// Number of pending messages for this specific consumer.
     </span><span class="kw">pub </span>pending: usize,
-    <span class="doccomment">/// This consumer&#39;s idle time in milliseconds.
+    <span class="doccomment">/// This consumer's idle time in milliseconds.
     </span><span class="kw">pub </span>idle: usize,
 }
 
@@ -1076,12 +1077,12 @@
     </span><span class="kw">pub </span>times_delivered: usize,
 }
 
-<span class="doccomment">/// Represents a stream `key` and its `id`&#39;s parsed from `xread` methods.
+<span class="doccomment">/// Represents a stream `key` and its `id`'s parsed from `xread` methods.
 </span><span class="attr">#[derive(Default, Debug, Clone)]
 </span><span class="kw">pub struct </span>StreamKey {
     <span class="doccomment">/// The stream `key`.
     </span><span class="kw">pub </span>key: String,
-    <span class="doccomment">/// The parsed stream `id`&#39;s.
+    <span class="doccomment">/// The parsed stream `id`'s.
     </span><span class="kw">pub </span>ids: Vec&lt;StreamId&gt;,
 }
 
@@ -1195,14 +1196,14 @@
             <span class="kw">let </span>start_id = start.ok_or_else(|| {
                 Error::new(
                     ErrorKind::Other,
-                    <span class="string">&quot;IllegalState: Non-zero pending expects start id&quot;</span>,
+                    <span class="string">"IllegalState: Non-zero pending expects start id"</span>,
                 )
             })<span class="question-mark">?</span>;
 
             <span class="kw">let </span>end_id = end.ok_or_else(|| {
                 Error::new(
                     ErrorKind::Other,
-                    <span class="string">&quot;IllegalState: Non-zero pending expects end id&quot;</span>,
+                    <span class="string">"IllegalState: Non-zero pending expects end id"</span>,
                 )
             })<span class="question-mark">?</span>;
 
@@ -1248,19 +1249,19 @@
                             }
                             <span class="kw">_ </span>=&gt; <span class="macro">fail!</span>((
                                 <span class="kw">crate</span>::types::ErrorKind::TypeError,
-                                <span class="string">&quot;Cannot parse redis data (3)&quot;
+                                <span class="string">"Cannot parse redis data (3)"
                             </span>)),
                         },
                         <span class="kw">_ </span>=&gt; <span class="macro">fail!</span>((
                             <span class="kw">crate</span>::types::ErrorKind::TypeError,
-                            <span class="string">&quot;Cannot parse redis data (2)&quot;
+                            <span class="string">"Cannot parse redis data (2)"
                         </span>)),
                     }
                 }
             }
             <span class="kw">_ </span>=&gt; <span class="macro">fail!</span>((
                 <span class="kw">crate</span>::types::ErrorKind::TypeError,
-                <span class="string">&quot;Cannot parse redis data (1)&quot;
+                <span class="string">"Cannot parse redis data (1)"
             </span>)),
         };
         <span class="prelude-val">Ok</span>(reply)
@@ -1271,22 +1272,22 @@
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>map: HashMap&lt;String, Value&gt; = from_redis_value(v)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>reply = StreamInfoStreamReply::default();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;last-generated-id&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"last-generated-id"</span>) {
             reply.last_generated_id = from_redis_value(v)<span class="question-mark">?</span>;
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;radix-tree-nodes&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"radix-tree-nodes"</span>) {
             reply.radix_tree_keys = from_redis_value(v)<span class="question-mark">?</span>;
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;groups&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"groups"</span>) {
             reply.groups = from_redis_value(v)<span class="question-mark">?</span>;
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;length&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"length"</span>) {
             reply.length = from_redis_value(v)<span class="question-mark">?</span>;
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;first-entry&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"first-entry"</span>) {
             reply.first_entry = StreamId::from_bulk_value(v)<span class="question-mark">?</span>;
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;last-entry&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"last-entry"</span>) {
             reply.last_entry = StreamId::from_bulk_value(v)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(reply)
@@ -1299,13 +1300,13 @@
         <span class="kw">let </span><span class="kw-2">mut </span>reply = StreamInfoConsumersReply::default();
         <span class="kw">for </span>map <span class="kw">in </span>consumers {
             <span class="kw">let </span><span class="kw-2">mut </span>c = StreamInfoConsumer::default();
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;name&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"name"</span>) {
                 c.name = from_redis_value(v)<span class="question-mark">?</span>;
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;pending&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"pending"</span>) {
                 c.pending = from_redis_value(v)<span class="question-mark">?</span>;
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;idle&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"idle"</span>) {
                 c.idle = from_redis_value(v)<span class="question-mark">?</span>;
             }
             reply.consumers.push(c);
@@ -1321,16 +1322,16 @@
         <span class="kw">let </span><span class="kw-2">mut </span>reply = StreamInfoGroupsReply::default();
         <span class="kw">for </span>map <span class="kw">in </span>groups {
             <span class="kw">let </span><span class="kw-2">mut </span>g = StreamInfoGroup::default();
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;name&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"name"</span>) {
                 g.name = from_redis_value(v)<span class="question-mark">?</span>;
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;pending&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"pending"</span>) {
                 g.pending = from_redis_value(v)<span class="question-mark">?</span>;
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;consumers&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"consumers"</span>) {
                 g.consumers = from_redis_value(v)<span class="question-mark">?</span>;
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">&quot;last-delivered-id&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"last-delivered-id"</span>) {
                 g.last_delivered_id = from_redis_value(v)<span class="question-mark">?</span>;
             }
             reply.groups.push(g);

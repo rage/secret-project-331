@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.4.0/src/sets.rs`."><title>sets.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.4.0/src/sets.rs`."><title>sets.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2423,7 +2424,7 @@
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ErasedSetlikeMarker;
 <span class="kw">impl </span>DataMarker <span class="kw">for </span>ErasedSetlikeMarker {
-    <span class="kw">type </span>Yokeable = PropertyCodePointSetV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+    <span class="kw">type </span>Yokeable = PropertyCodePointSetV1&lt;<span class="lifetime">'static</span>&gt;;
 }
 
 <span class="kw">impl </span>CodePointSetData {
@@ -2431,7 +2432,7 @@
     ///
     /// This owned version if returned by functions that use a runtime data provider.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointSetDataBorrowed&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointSetDataBorrowed&lt;<span class="lifetime">'_</span>&gt; {
         CodePointSetDataBorrowed {
             set: <span class="self">self</span>.data.get(),
         }
@@ -2442,13 +2443,13 @@
     /// Typically it is preferable to use getters like [`load_ascii_hex_digit()`] instead
     </span><span class="kw">pub fn </span>from_data&lt;M&gt;(data: DataPayload&lt;M&gt;) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>M: DataMarker&lt;Yokeable = PropertyCodePointSetV1&lt;<span class="lifetime">&#39;static</span>&gt;&gt;,
+        </span>M: DataMarker&lt;Yokeable = PropertyCodePointSetV1&lt;<span class="lifetime">'static</span>&gt;&gt;,
     {
         <span class="self">Self </span>{ data: data.cast() }
     }
 
     <span class="doccomment">/// Construct a new owned [`CodePointInversionList`]
-    </span><span class="kw">pub fn </span>from_code_point_inversion_list(set: CodePointInversionList&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>from_code_point_inversion_list(set: CodePointInversionList&lt;<span class="lifetime">'static</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>set = PropertyCodePointSetV1::from_code_point_inversion_list(set);
         CodePointSetData::from_data(DataPayload::&lt;ErasedSetlikeMarker&gt;::from_owned(set))
     }
@@ -2462,7 +2463,7 @@
     /// This method returns an `Option` in order to return `None` when the backing data provider
     /// cannot return a [`CodePointInversionList`], or cannot do so within the expected constant time
     /// constraint.
-    </span><span class="kw">pub fn </span>as_code_point_inversion_list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CodePointInversionList&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_code_point_inversion_list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CodePointInversionList&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="self">self</span>.data.get().as_code_point_inversion_list()
     }
 
@@ -2475,7 +2476,7 @@
     ///
     /// The performance of the conversion to this specific return type will vary
     /// depending on the data structure that is backing `self`.
-    </span><span class="kw">pub fn </span>to_code_point_inversion_list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointInversionList&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>to_code_point_inversion_list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointInversionList&lt;<span class="lifetime">'_</span>&gt; {
         <span class="self">self</span>.data.get().to_code_point_inversion_list()
     }
 }
@@ -2483,12 +2484,12 @@
 <span class="doccomment">/// A borrowed wrapper around code point set data, returned by
 /// [`CodePointSetData::as_borrowed()`]. More efficient to query.
 </span><span class="attr">#[derive(Clone, Copy, Debug)]
-</span><span class="kw">pub struct </span>CodePointSetDataBorrowed&lt;<span class="lifetime">&#39;a</span>&gt; {
-    set: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyCodePointSetV1&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>CodePointSetDataBorrowed&lt;<span class="lifetime">'a</span>&gt; {
+    set: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PropertyCodePointSetV1&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl </span>CodePointSetDataBorrowed&lt;<span class="lifetime">&#39;static</span>&gt; {
-    <span class="doccomment">/// Cheaply converts a `CodePointSetDataBorrowed&lt;&#39;static&gt;` into a `CodePointSetData`.
+<span class="kw">impl </span>CodePointSetDataBorrowed&lt;<span class="lifetime">'static</span>&gt; {
+    <span class="doccomment">/// Cheaply converts a `CodePointSetDataBorrowed&lt;'static&gt;` into a `CodePointSetData`.
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; CodePointSetData {
         CodePointSetData {
             data: DataPayload::from_static_ref(<span class="self">self</span>.set),
@@ -2496,7 +2497,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodePointSetDataBorrowed&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CodePointSetDataBorrowed&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Check if the set contains a character
     ///
     /// ```rust
@@ -2504,10 +2505,10 @@
     ///
     /// let alphabetic = sets::alphabetic();
     ///
-    /// assert!(!alphabetic.contains(&#39;3&#39;));
-    /// assert!(!alphabetic.contains(&#39;੩&#39;));  // U+0A69 GURMUKHI DIGIT THREE
-    /// assert!(alphabetic.contains(&#39;A&#39;));
-    /// assert!(alphabetic.contains(&#39;Ä&#39;));  // U+00C4 LATIN CAPITAL LETTER A WITH DIAERESIS
+    /// assert!(!alphabetic.contains('3'));
+    /// assert!(!alphabetic.contains('੩'));  // U+0A69 GURMUKHI DIGIT THREE
+    /// assert!(alphabetic.contains('A'));
+    /// assert!(alphabetic.contains('Ä'));  // U+00C4 LATIN CAPITAL LETTER A WITH DIAERESIS
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>contains(<span class="self">self</span>, ch: char) -&gt; bool {
@@ -2544,11 +2545,11 @@
     /// let alphabetic = sets::alphabetic();
     /// let mut ranges = alphabetic.iter_ranges();
     ///
-    /// assert_eq!(Some(0x0041..=0x005A), ranges.next()); // &#39;A&#39;..&#39;Z&#39;
-    /// assert_eq!(Some(0x0061..=0x007A), ranges.next()); // &#39;a&#39;..&#39;z&#39;
+    /// assert_eq!(Some(0x0041..=0x005A), ranges.next()); // 'A'..'Z'
+    /// assert_eq!(Some(0x0061..=0x007A), ranges.next()); // 'a'..'z'
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>iter_ranges(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">&#39;a </span>{
+    </span><span class="kw">pub fn </span>iter_ranges(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.set.iter_ranges()
     }
 
@@ -2567,11 +2568,11 @@
     /// let alphabetic = sets::alphabetic();
     /// let mut ranges = alphabetic.iter_ranges();
     ///
-    /// assert_eq!(Some(0x0041..=0x005A), ranges.next()); // &#39;A&#39;..&#39;Z&#39;
-    /// assert_eq!(Some(0x0061..=0x007A), ranges.next()); // &#39;a&#39;..&#39;z&#39;
+    /// assert_eq!(Some(0x0041..=0x005A), ranges.next()); // 'A'..'Z'
+    /// assert_eq!(Some(0x0061..=0x007A), ranges.next()); // 'a'..'z'
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>iter_ranges_complemented(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">&#39;a </span>{
+    </span><span class="kw">pub fn </span>iter_ranges_complemented(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.set.iter_ranges_complemented()
     }
 }
@@ -2590,7 +2591,7 @@
 <span class="attr">#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ErasedUnicodeSetlikeMarker;
 <span class="kw">impl </span>DataMarker <span class="kw">for </span>ErasedUnicodeSetlikeMarker {
-    <span class="kw">type </span>Yokeable = PropertyUnicodeSetV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+    <span class="kw">type </span>Yokeable = PropertyUnicodeSetV1&lt;<span class="lifetime">'static</span>&gt;;
 }
 
 <span class="kw">impl </span>UnicodeSetData {
@@ -2599,7 +2600,7 @@
     /// This avoids a potential small underlying cost per API call (ex: `contains()`) by consolidating it
     /// up front.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UnicodeSetDataBorrowed&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UnicodeSetDataBorrowed&lt;<span class="lifetime">'_</span>&gt; {
         UnicodeSetDataBorrowed {
             set: <span class="self">self</span>.data.get(),
         }
@@ -2610,14 +2611,14 @@
     /// Typically it is preferable to use getters instead
     </span><span class="kw">pub fn </span>from_data&lt;M&gt;(data: DataPayload&lt;M&gt;) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>M: DataMarker&lt;Yokeable = PropertyUnicodeSetV1&lt;<span class="lifetime">&#39;static</span>&gt;&gt;,
+        </span>M: DataMarker&lt;Yokeable = PropertyUnicodeSetV1&lt;<span class="lifetime">'static</span>&gt;&gt;,
     {
         <span class="self">Self </span>{ data: data.cast() }
     }
 
     <span class="doccomment">/// Construct a new owned [`CodePointInversionListAndStringList`]
     </span><span class="kw">pub fn </span>from_code_point_inversion_list_string_list(
-        set: CodePointInversionListAndStringList&lt;<span class="lifetime">&#39;static</span>&gt;,
+        set: CodePointInversionListAndStringList&lt;<span class="lifetime">'static</span>&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>set = PropertyUnicodeSetV1::from_code_point_inversion_list_string_list(set);
         UnicodeSetData::from_data(DataPayload::&lt;ErasedUnicodeSetlikeMarker&gt;::from_owned(set))
@@ -2634,7 +2635,7 @@
     /// constraint.
     </span><span class="kw">pub fn </span>as_code_point_inversion_list_string_list(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CodePointInversionListAndStringList&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CodePointInversionListAndStringList&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="self">self</span>.data.get().as_code_point_inversion_list_string_list()
     }
 
@@ -2649,7 +2650,7 @@
     /// depending on the data structure that is backing `self`.
     </span><span class="kw">pub fn </span>to_code_point_inversion_list_string_list(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) -&gt; CodePointInversionListAndStringList&lt;<span class="lifetime">&#39;_</span>&gt; {
+    ) -&gt; CodePointInversionListAndStringList&lt;<span class="lifetime">'_</span>&gt; {
         <span class="self">self</span>.data.get().to_code_point_inversion_list_string_list()
     }
 }
@@ -2657,15 +2658,15 @@
 <span class="doccomment">/// A borrowed wrapper around code point set data, returned by
 /// [`UnicodeSetData::as_borrowed()`]. More efficient to query.
 </span><span class="attr">#[derive(Clone, Copy, Debug)]
-</span><span class="kw">pub struct </span>UnicodeSetDataBorrowed&lt;<span class="lifetime">&#39;a</span>&gt; {
-    set: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyUnicodeSetV1&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>UnicodeSetDataBorrowed&lt;<span class="lifetime">'a</span>&gt; {
+    set: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PropertyUnicodeSetV1&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; UnicodeSetDataBorrowed&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; UnicodeSetDataBorrowed&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Check if the set contains the string. Strings consisting of one character
     /// are treated as a character/code point.
     ///
-    /// This matches ICU behavior for ICU&#39;s `UnicodeSet`.
+    /// This matches ICU behavior for ICU's `UnicodeSet`.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>contains(<span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="self">self</span>.set.contains(s)
@@ -2684,8 +2685,8 @@
     }
 }
 
-<span class="kw">impl </span>UnicodeSetDataBorrowed&lt;<span class="lifetime">&#39;static</span>&gt; {
-    <span class="doccomment">/// Cheaply converts a `UnicodeSetDataBorrowed&lt;&#39;static&gt;` into a `UnicodeSetData`.
+<span class="kw">impl </span>UnicodeSetDataBorrowed&lt;<span class="lifetime">'static</span>&gt; {
+    <span class="doccomment">/// Cheaply converts a `UnicodeSetDataBorrowed&lt;'static&gt;` into a `UnicodeSetData`.
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; UnicodeSetData {
         UnicodeSetData {
             data: DataPayload::from_static_ref(<span class="self">self</span>.set),
@@ -2695,7 +2696,7 @@
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>load_set_data&lt;M, P&gt;(provider: <span class="kw-2">&amp;</span>P) -&gt; <span class="prelude-ty">Result</span>&lt;CodePointSetData, PropertiesError&gt;
 <span class="kw">where
-    </span>M: KeyedDataMarker&lt;Yokeable = PropertyCodePointSetV1&lt;<span class="lifetime">&#39;static</span>&gt;&gt;,
+    </span>M: KeyedDataMarker&lt;Yokeable = PropertyCodePointSetV1&lt;<span class="lifetime">'static</span>&gt;&gt;,
     P: DataProvider&lt;M&gt; + <span class="question-mark">?</span>Sized,
 {
     <span class="prelude-val">Ok</span>(provider
@@ -2721,7 +2722,7 @@
         <span class="macro-nonterminal">$cvis</span>:vis <span class="kw">const fn </span><span class="macro-nonterminal">$constname</span>:ident() =&gt; <span class="macro-nonterminal">$singleton_name</span>:ident;
         <span class="macro-nonterminal">$vis</span>:vis <span class="kw">fn </span><span class="macro-nonterminal">$funcname</span>:ident();
     ) =&gt; {
-        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;A version of [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$constname</span>), <span class="string">&quot;()`] that uses custom data provided by a [`DataProvider`].&quot;</span>)]
+        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"A version of [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$constname</span>), <span class="string">"()`] that uses custom data provided by a [`DataProvider`]."</span>)]
         </span><span class="doccomment">///
         /// Note that this will return an owned version of the data. Functionality is available on
         /// the borrowed version, accessible through [`CodePointSetData::as_borrowed`].
@@ -2732,8 +2733,8 @@
         }
 
         $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)*
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
-        </span><span class="macro-nonterminal">$cvis </span><span class="kw">const fn </span><span class="macro-nonterminal">$constname</span>() -&gt; CodePointSetDataBorrowed&lt;<span class="lifetime">&#39;static</span>&gt; {
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+        </span><span class="macro-nonterminal">$cvis </span><span class="kw">const fn </span><span class="macro-nonterminal">$constname</span>() -&gt; CodePointSetDataBorrowed&lt;<span class="lifetime">'static</span>&gt; {
             CodePointSetDataBorrowed {
                 set: <span class="kw">crate</span>::provider::Baked::<span class="macro-nonterminal">$singleton_name</span>,
             }
@@ -2742,7 +2743,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;ASCII_Hex_Digit&quot;</span>;
+    property: <span class="string">"ASCII_Hex_Digit"</span>;
     marker: AsciiHexDigitProperty;
     keyed_data_marker: AsciiHexDigitV1Marker;
     func:
@@ -2759,17 +2760,17 @@
     ///
     /// let ascii_hex_digit = sets::ascii_hex_digit();
     ///
-    /// assert!(ascii_hex_digit.contains(&#39;3&#39;));
-    /// assert!(!ascii_hex_digit.contains(&#39;੩&#39;));  // U+0A69 GURMUKHI DIGIT THREE
-    /// assert!(ascii_hex_digit.contains(&#39;A&#39;));
-    /// assert!(!ascii_hex_digit.contains(&#39;Ä&#39;));  // U+00C4 LATIN CAPITAL LETTER A WITH DIAERESIS
+    /// assert!(ascii_hex_digit.contains('3'));
+    /// assert!(!ascii_hex_digit.contains('੩'));  // U+0A69 GURMUKHI DIGIT THREE
+    /// assert!(ascii_hex_digit.contains('A'));
+    /// assert!(!ascii_hex_digit.contains('Ä'));  // U+00C4 LATIN CAPITAL LETTER A WITH DIAERESIS
     /// ```
     </span><span class="kw">pub const fn </span>ascii_hex_digit() =&gt; SINGLETON_PROPS_AHEX_V1;
     <span class="kw">pub fn </span>load_ascii_hex_digit();
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Alnum&quot;</span>;
+    property: <span class="string">"Alnum"</span>;
     marker: AlnumProperty;
     keyed_data_marker: AlnumV1Marker;
     func:
@@ -2781,7 +2782,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Alphabetic&quot;</span>;
+    property: <span class="string">"Alphabetic"</span>;
     marker: AlphabeticProperty;
     keyed_data_marker: AlphabeticV1Marker;
     func:
@@ -2798,10 +2799,10 @@
     ///
     /// let alphabetic = sets::alphabetic();
     ///
-    /// assert!(!alphabetic.contains(&#39;3&#39;));
-    /// assert!(!alphabetic.contains(&#39;੩&#39;));  // U+0A69 GURMUKHI DIGIT THREE
-    /// assert!(alphabetic.contains(&#39;A&#39;));
-    /// assert!(alphabetic.contains(&#39;Ä&#39;));  // U+00C4 LATIN CAPITAL LETTER A WITH DIAERESIS
+    /// assert!(!alphabetic.contains('3'));
+    /// assert!(!alphabetic.contains('੩'));  // U+0A69 GURMUKHI DIGIT THREE
+    /// assert!(alphabetic.contains('A'));
+    /// assert!(alphabetic.contains('Ä'));  // U+00C4 LATIN CAPITAL LETTER A WITH DIAERESIS
     /// ```
 
     </span><span class="kw">pub const fn </span>alphabetic() =&gt; SINGLETON_PROPS_ALPHA_V1;
@@ -2809,7 +2810,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Bidi_Control&quot;</span>;
+    property: <span class="string">"Bidi_Control"</span>;
     marker: BidiControlProperty;
     keyed_data_marker: BidiControlV1Marker;
     func:
@@ -2828,7 +2829,7 @@
     /// let bidi_control = sets::bidi_control();
     ///
     /// assert!(bidi_control.contains32(0x200F));  // RIGHT-TO-LEFT MARK
-    /// assert!(!bidi_control.contains(&#39;ش&#39;));  // U+0634 ARABIC LETTER SHEEN
+    /// assert!(!bidi_control.contains('ش'));  // U+0634 ARABIC LETTER SHEEN
     /// ```
 
     </span><span class="kw">pub const fn </span>bidi_control() =&gt; SINGLETON_PROPS_BIDI_C_V1;
@@ -2836,7 +2837,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Bidi_Mirrored&quot;</span>;
+    property: <span class="string">"Bidi_Mirrored"</span>;
     marker: BidiMirroredProperty;
     keyed_data_marker: BidiMirroredV1Marker;
     func:
@@ -2853,10 +2854,10 @@
     ///
     /// let bidi_mirrored = sets::bidi_mirrored();
     ///
-    /// assert!(bidi_mirrored.contains(&#39;[&#39;));
-    /// assert!(bidi_mirrored.contains(&#39;]&#39;));
-    /// assert!(bidi_mirrored.contains(&#39;∑&#39;));  // U+2211 N-ARY SUMMATION
-    /// assert!(!bidi_mirrored.contains(&#39;ཉ&#39;));  // U+0F49 TIBETAN LETTER NYA
+    /// assert!(bidi_mirrored.contains('['));
+    /// assert!(bidi_mirrored.contains(']'));
+    /// assert!(bidi_mirrored.contains('∑'));  // U+2211 N-ARY SUMMATION
+    /// assert!(!bidi_mirrored.contains('ཉ'));  // U+0F49 TIBETAN LETTER NYA
     /// ```
 
     </span><span class="kw">pub const fn </span>bidi_mirrored() =&gt; SINGLETON_PROPS_BIDI_M_V1;
@@ -2864,7 +2865,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Blank&quot;</span>;
+    property: <span class="string">"Blank"</span>;
     marker: BlankProperty;
     keyed_data_marker: BlankV1Marker;
     func:
@@ -2875,7 +2876,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Cased&quot;</span>;
+    property: <span class="string">"Cased"</span>;
     marker: CasedProperty;
     keyed_data_marker: CasedV1Marker;
     func:
@@ -2892,8 +2893,8 @@
     ///
     /// let cased = sets::cased();
     ///
-    /// assert!(cased.contains(&#39;Ꙡ&#39;));  // U+A660 CYRILLIC CAPITAL LETTER REVERSED TSE
-    /// assert!(!cased.contains(&#39;ދ&#39;));  // U+078B THAANA LETTER DHAALU
+    /// assert!(cased.contains('Ꙡ'));  // U+A660 CYRILLIC CAPITAL LETTER REVERSED TSE
+    /// assert!(!cased.contains('ދ'));  // U+078B THAANA LETTER DHAALU
     /// ```
 
     </span><span class="kw">pub const fn </span>cased() =&gt; SINGLETON_PROPS_CASED_V1;
@@ -2901,7 +2902,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Case_Ignorable&quot;</span>;
+    property: <span class="string">"Case_Ignorable"</span>;
     marker: CaseIgnorableProperty;
     keyed_data_marker: CaseIgnorableV1Marker;
     func:
@@ -2918,8 +2919,8 @@
     ///
     /// let case_ignorable = sets::case_ignorable();
     ///
-    /// assert!(case_ignorable.contains(&#39;:&#39;));
-    /// assert!(!case_ignorable.contains(&#39;λ&#39;));  // U+03BB GREEK SMALL LETTER LAMDA
+    /// assert!(case_ignorable.contains(':'));
+    /// assert!(!case_ignorable.contains('λ'));  // U+03BB GREEK SMALL LETTER LAMDA
     /// ```
 
     </span><span class="kw">pub const fn </span>case_ignorable() =&gt; SINGLETON_PROPS_CI_V1;
@@ -2927,7 +2928,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Full_Composition_Exclusion&quot;</span>;
+    property: <span class="string">"Full_Composition_Exclusion"</span>;
     marker: FullCompositionExclusionProperty;
     keyed_data_marker: FullCompositionExclusionV1Marker;
     func:
@@ -2939,7 +2940,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Changes_When_Casefolded&quot;</span>;
+    property: <span class="string">"Changes_When_Casefolded"</span>;
     marker: ChangesWhenCasefoldedProperty;
     keyed_data_marker: ChangesWhenCasefoldedV1Marker;
     func:
@@ -2956,8 +2957,8 @@
     ///
     /// let changes_when_casefolded = sets::changes_when_casefolded();
     ///
-    /// assert!(changes_when_casefolded.contains(&#39;ß&#39;));  // U+00DF LATIN SMALL LETTER SHARP S
-    /// assert!(!changes_when_casefolded.contains(&#39;ᜉ&#39;));  // U+1709 TAGALOG LETTER PA
+    /// assert!(changes_when_casefolded.contains('ß'));  // U+00DF LATIN SMALL LETTER SHARP S
+    /// assert!(!changes_when_casefolded.contains('ᜉ'));  // U+1709 TAGALOG LETTER PA
     /// ```
 
     </span><span class="kw">pub const fn </span>changes_when_casefolded() =&gt; SINGLETON_PROPS_CWCF_V1;
@@ -2965,7 +2966,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Changes_When_Casemapped&quot;</span>;
+    property: <span class="string">"Changes_When_Casemapped"</span>;
     marker: ChangesWhenCasemappedProperty;
     keyed_data_marker: ChangesWhenCasemappedV1Marker;
     func:
@@ -2976,7 +2977,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Changes_When_NFKC_Casefolded&quot;</span>;
+    property: <span class="string">"Changes_When_NFKC_Casefolded"</span>;
     marker: ChangesWhenNfkcCasefoldedProperty;
     keyed_data_marker: ChangesWhenNfkcCasefoldedV1Marker;
     func:
@@ -2993,8 +2994,8 @@
     ///
     /// let changes_when_nfkc_casefolded = sets::changes_when_nfkc_casefolded();
     ///
-    /// assert!(changes_when_nfkc_casefolded.contains(&#39;🄵&#39;));  // U+1F135 SQUARED LATIN CAPITAL LETTER F
-    /// assert!(!changes_when_nfkc_casefolded.contains(&#39;f&#39;));
+    /// assert!(changes_when_nfkc_casefolded.contains('🄵'));  // U+1F135 SQUARED LATIN CAPITAL LETTER F
+    /// assert!(!changes_when_nfkc_casefolded.contains('f'));
     /// ```
 
     </span><span class="kw">pub const fn </span>changes_when_nfkc_casefolded() =&gt; SINGLETON_PROPS_CWKCF_V1;
@@ -3002,7 +3003,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Changes_When_Lowercased&quot;</span>;
+    property: <span class="string">"Changes_When_Lowercased"</span>;
     marker: ChangesWhenLowercasedProperty;
     keyed_data_marker: ChangesWhenLowercasedV1Marker;
     func:
@@ -3019,8 +3020,8 @@
     ///
     /// let changes_when_lowercased = sets::changes_when_lowercased();
     ///
-    /// assert!(changes_when_lowercased.contains(&#39;Ⴔ&#39;));  // U+10B4 GEORGIAN CAPITAL LETTER PHAR
-    /// assert!(!changes_when_lowercased.contains(&#39;ფ&#39;));  // U+10E4 GEORGIAN LETTER PHAR
+    /// assert!(changes_when_lowercased.contains('Ⴔ'));  // U+10B4 GEORGIAN CAPITAL LETTER PHAR
+    /// assert!(!changes_when_lowercased.contains('ფ'));  // U+10E4 GEORGIAN LETTER PHAR
     /// ```
 
     </span><span class="kw">pub const fn </span>changes_when_lowercased() =&gt; SINGLETON_PROPS_CWL_V1;
@@ -3028,7 +3029,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Changes_When_Titlecased&quot;</span>;
+    property: <span class="string">"Changes_When_Titlecased"</span>;
     marker: ChangesWhenTitlecasedProperty;
     keyed_data_marker: ChangesWhenTitlecasedV1Marker;
     func:
@@ -3045,8 +3046,8 @@
     ///
     /// let changes_when_titlecased = sets::changes_when_titlecased();
     ///
-    /// assert!(changes_when_titlecased.contains(&#39;æ&#39;));  // U+00E6 LATIN SMALL LETTER AE
-    /// assert!(!changes_when_titlecased.contains(&#39;Æ&#39;));  // U+00E6 LATIN CAPITAL LETTER AE
+    /// assert!(changes_when_titlecased.contains('æ'));  // U+00E6 LATIN SMALL LETTER AE
+    /// assert!(!changes_when_titlecased.contains('Æ'));  // U+00E6 LATIN CAPITAL LETTER AE
     /// ```
 
     </span><span class="kw">pub const fn </span>changes_when_titlecased() =&gt; SINGLETON_PROPS_CWT_V1;
@@ -3054,7 +3055,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Changes_When_Uppercased&quot;</span>;
+    property: <span class="string">"Changes_When_Uppercased"</span>;
     marker: ChangesWhenUppercasedProperty;
     keyed_data_marker: ChangesWhenUppercasedV1Marker;
     func:
@@ -3071,8 +3072,8 @@
     ///
     /// let changes_when_uppercased = sets::changes_when_uppercased();
     ///
-    /// assert!(changes_when_uppercased.contains(&#39;ւ&#39;));  // U+0582 ARMENIAN SMALL LETTER YIWN
-    /// assert!(!changes_when_uppercased.contains(&#39;Ւ&#39;));  // U+0552 ARMENIAN CAPITAL LETTER YIWN
+    /// assert!(changes_when_uppercased.contains('ւ'));  // U+0582 ARMENIAN SMALL LETTER YIWN
+    /// assert!(!changes_when_uppercased.contains('Ւ'));  // U+0552 ARMENIAN CAPITAL LETTER YIWN
     /// ```
 
     </span><span class="kw">pub const fn </span>changes_when_uppercased() =&gt; SINGLETON_PROPS_CWU_V1;
@@ -3080,7 +3081,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Dash&quot;</span>;
+    property: <span class="string">"Dash"</span>;
     marker: DashProperty;
     keyed_data_marker: DashV1Marker;
     func:
@@ -3098,9 +3099,9 @@
     ///
     /// let dash = sets::dash();
     ///
-    /// assert!(dash.contains(&#39;⸺&#39;));  // U+2E3A TWO-EM DASH
-    /// assert!(dash.contains(&#39;-&#39;));  // U+002D
-    /// assert!(!dash.contains(&#39;=&#39;));  // U+003D
+    /// assert!(dash.contains('⸺'));  // U+2E3A TWO-EM DASH
+    /// assert!(dash.contains('-'));  // U+002D
+    /// assert!(!dash.contains('='));  // U+003D
     /// ```
 
     </span><span class="kw">pub const fn </span>dash() =&gt; SINGLETON_PROPS_DASH_V1;
@@ -3108,7 +3109,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Deprecated&quot;</span>;
+    property: <span class="string">"Deprecated"</span>;
     marker: DeprecatedProperty;
     keyed_data_marker: DeprecatedV1Marker;
     func:
@@ -3126,8 +3127,8 @@
     ///
     /// let deprecated = sets::deprecated();
     ///
-    /// assert!(deprecated.contains(&#39;ឣ&#39;));  // U+17A3 KHMER INDEPENDENT VOWEL QAQ
-    /// assert!(!deprecated.contains(&#39;A&#39;));
+    /// assert!(deprecated.contains('ឣ'));  // U+17A3 KHMER INDEPENDENT VOWEL QAQ
+    /// assert!(!deprecated.contains('A'));
     /// ```
 
     </span><span class="kw">pub const fn </span>deprecated() =&gt; SINGLETON_PROPS_DEP_V1;
@@ -3135,7 +3136,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Default_Ignorable_Code_Point&quot;</span>;
+    property: <span class="string">"Default_Ignorable_Code_Point"</span>;
     marker: DefaultIgnorableCodePointProperty;
     keyed_data_marker: DefaultIgnorableCodePointV1Marker;
     func:
@@ -3156,7 +3157,7 @@
     /// let default_ignorable_code_point = sets::default_ignorable_code_point();
     ///
     /// assert!(default_ignorable_code_point.contains32(0x180B));  // MONGOLIAN FREE VARIATION SELECTOR ONE
-    /// assert!(!default_ignorable_code_point.contains(&#39;E&#39;));
+    /// assert!(!default_ignorable_code_point.contains('E'));
     /// ```
 
     </span><span class="kw">pub const fn </span>default_ignorable_code_point() =&gt; SINGLETON_PROPS_DI_V1;
@@ -3164,7 +3165,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Diacritic&quot;</span>;
+    property: <span class="string">"Diacritic"</span>;
     marker: DiacriticProperty;
     keyed_data_marker: DiacriticV1Marker;
     func:
@@ -3181,8 +3182,8 @@
     ///
     /// let diacritic = sets::diacritic();
     ///
-    /// assert!(diacritic.contains(&#39;\u{05B3}&#39;));  // HEBREW POINT HATAF QAMATS
-    /// assert!(!diacritic.contains(&#39;א&#39;));  // U+05D0 HEBREW LETTER ALEF
+    /// assert!(diacritic.contains('\u{05B3}'));  // HEBREW POINT HATAF QAMATS
+    /// assert!(!diacritic.contains('א'));  // U+05D0 HEBREW LETTER ALEF
     /// ```
 
     </span><span class="kw">pub const fn </span>diacritic() =&gt; SINGLETON_PROPS_DIA_V1;
@@ -3190,7 +3191,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Emoji_Modifier_Base&quot;</span>;
+    property: <span class="string">"Emoji_Modifier_Base"</span>;
     marker: EmojiModifierBaseProperty;
     keyed_data_marker: EmojiModifierBaseV1Marker;
     func:
@@ -3207,8 +3208,8 @@
     ///
     /// let emoji_modifier_base = sets::emoji_modifier_base();
     ///
-    /// assert!(emoji_modifier_base.contains(&#39;✊&#39;));  // U+270A RAISED FIST
-    /// assert!(!emoji_modifier_base.contains(&#39;⛰&#39;));  // U+26F0 MOUNTAIN
+    /// assert!(emoji_modifier_base.contains('✊'));  // U+270A RAISED FIST
+    /// assert!(!emoji_modifier_base.contains('⛰'));  // U+26F0 MOUNTAIN
     /// ```
 
     </span><span class="kw">pub const fn </span>emoji_modifier_base() =&gt; SINGLETON_PROPS_EBASE_V1;
@@ -3216,7 +3217,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Emoji_Component&quot;</span>;
+    property: <span class="string">"Emoji_Component"</span>;
     marker: EmojiComponentProperty;
     keyed_data_marker: EmojiComponentV1Marker;
     func:
@@ -3234,10 +3235,10 @@
     ///
     /// let emoji_component = sets::emoji_component();
     ///
-    /// assert!(emoji_component.contains(&#39;🇹&#39;));  // U+1F1F9 REGIONAL INDICATOR SYMBOL LETTER T
+    /// assert!(emoji_component.contains('🇹'));  // U+1F1F9 REGIONAL INDICATOR SYMBOL LETTER T
     /// assert!(emoji_component.contains32(0x20E3));  // COMBINING ENCLOSING KEYCAP
-    /// assert!(emoji_component.contains(&#39;7&#39;));
-    /// assert!(!emoji_component.contains(&#39;T&#39;));
+    /// assert!(emoji_component.contains('7'));
+    /// assert!(!emoji_component.contains('T'));
     /// ```
 
     </span><span class="kw">pub const fn </span>emoji_component() =&gt; SINGLETON_PROPS_ECOMP_V1;
@@ -3245,7 +3246,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Emoji_Modifier&quot;</span>;
+    property: <span class="string">"Emoji_Modifier"</span>;
     marker: EmojiModifierProperty;
     keyed_data_marker: EmojiModifierV1Marker;
     func:
@@ -3271,7 +3272,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Emoji&quot;</span>;
+    property: <span class="string">"Emoji"</span>;
     marker: EmojiProperty;
     keyed_data_marker: EmojiV1Marker;
     func:
@@ -3288,8 +3289,8 @@
     ///
     /// let emoji = sets::emoji();
     ///
-    /// assert!(emoji.contains(&#39;🔥&#39;));  // U+1F525 FIRE
-    /// assert!(!emoji.contains(&#39;V&#39;));
+    /// assert!(emoji.contains('🔥'));  // U+1F525 FIRE
+    /// assert!(!emoji.contains('V'));
     /// ```
 
     </span><span class="kw">pub const fn </span>emoji() =&gt; SINGLETON_PROPS_EMOJI_V1;
@@ -3297,7 +3298,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Emoji_Presentation&quot;</span>;
+    property: <span class="string">"Emoji_Presentation"</span>;
     marker: EmojiPresentationProperty;
     keyed_data_marker: EmojiPresentationV1Marker;
     func:
@@ -3314,8 +3315,8 @@
     ///
     /// let emoji_presentation = sets::emoji_presentation();
     ///
-    /// assert!(emoji_presentation.contains(&#39;🦬&#39;)); // U+1F9AC BISON
-    /// assert!(!emoji_presentation.contains(&#39;♻&#39;));  // U+267B BLACK UNIVERSAL RECYCLING SYMBOL
+    /// assert!(emoji_presentation.contains('🦬')); // U+1F9AC BISON
+    /// assert!(!emoji_presentation.contains('♻'));  // U+267B BLACK UNIVERSAL RECYCLING SYMBOL
     /// ```
 
     </span><span class="kw">pub const fn </span>emoji_presentation() =&gt; SINGLETON_PROPS_EPRES_V1;
@@ -3323,7 +3324,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Extender&quot;</span>;
+    property: <span class="string">"Extender"</span>;
     marker: ExtenderProperty;
     keyed_data_marker: ExtenderV1Marker;
     func:
@@ -3341,9 +3342,9 @@
     ///
     /// let extender = sets::extender();
     ///
-    /// assert!(extender.contains(&#39;ヾ&#39;));  // U+30FE KATAKANA VOICED ITERATION MARK
-    /// assert!(extender.contains(&#39;ー&#39;));  // U+30FC KATAKANA-HIRAGANA PROLONGED SOUND MARK
-    /// assert!(!extender.contains(&#39;・&#39;));  // U+30FB KATAKANA MIDDLE DOT
+    /// assert!(extender.contains('ヾ'));  // U+30FE KATAKANA VOICED ITERATION MARK
+    /// assert!(extender.contains('ー'));  // U+30FC KATAKANA-HIRAGANA PROLONGED SOUND MARK
+    /// assert!(!extender.contains('・'));  // U+30FB KATAKANA MIDDLE DOT
     /// ```
 
     </span><span class="kw">pub const fn </span>extender() =&gt; SINGLETON_PROPS_EXT_V1;
@@ -3351,7 +3352,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Extended_Pictographic&quot;</span>;
+    property: <span class="string">"Extended_Pictographic"</span>;
     marker: ExtendedPictographicProperty;
     keyed_data_marker: ExtendedPictographicV1Marker;
     func:
@@ -3369,8 +3370,8 @@
     ///
     /// let extended_pictographic = sets::extended_pictographic();
     ///
-    /// assert!(extended_pictographic.contains(&#39;🥳&#39;)); // U+1F973 FACE WITH PARTY HORN AND PARTY HAT
-    /// assert!(!extended_pictographic.contains(&#39;🇪&#39;));  // U+1F1EA REGIONAL INDICATOR SYMBOL LETTER E
+    /// assert!(extended_pictographic.contains('🥳')); // U+1F973 FACE WITH PARTY HORN AND PARTY HAT
+    /// assert!(!extended_pictographic.contains('🇪'));  // U+1F1EA REGIONAL INDICATOR SYMBOL LETTER E
     /// ```
 
     </span><span class="kw">pub const fn </span>extended_pictographic() =&gt; SINGLETON_PROPS_EXTPICT_V1;
@@ -3378,7 +3379,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Graph&quot;</span>;
+    property: <span class="string">"Graph"</span>;
     marker: GraphProperty;
     keyed_data_marker: GraphV1Marker;
     func:
@@ -3390,12 +3391,12 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Grapheme_Base&quot;</span>;
+    property: <span class="string">"Grapheme_Base"</span>;
     marker: GraphemeBaseProperty;
     keyed_data_marker: GraphemeBaseV1Marker;
     func:
     <span class="doccomment">/// Property used together with the definition of Standard Korean Syllable Block to define
-    /// &quot;Grapheme base&quot;. See D58 in Chapter 3, Conformance in the Unicode Standard.
+    /// "Grapheme base". See D58 in Chapter 3, Conformance in the Unicode Standard.
     ///
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
@@ -3408,9 +3409,9 @@
     ///
     /// let grapheme_base = sets::grapheme_base();
     ///
-    /// assert!(grapheme_base.contains(&#39;ക&#39;));  // U+0D15 MALAYALAM LETTER KA
-    /// assert!(grapheme_base.contains(&#39;\u{0D3F}&#39;));  // U+0D3F MALAYALAM VOWEL SIGN I
-    /// assert!(!grapheme_base.contains(&#39;\u{0D3E}&#39;));  // U+0D3E MALAYALAM VOWEL SIGN AA
+    /// assert!(grapheme_base.contains('ക'));  // U+0D15 MALAYALAM LETTER KA
+    /// assert!(grapheme_base.contains('\u{0D3F}'));  // U+0D3F MALAYALAM VOWEL SIGN I
+    /// assert!(!grapheme_base.contains('\u{0D3E}'));  // U+0D3E MALAYALAM VOWEL SIGN AA
     /// ```
 
     </span><span class="kw">pub const fn </span>grapheme_base() =&gt; SINGLETON_PROPS_GR_BASE_V1;
@@ -3418,11 +3419,11 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Grapheme_Extend&quot;</span>;
+    property: <span class="string">"Grapheme_Extend"</span>;
     marker: GraphemeExtendProperty;
     keyed_data_marker: GraphemeExtendV1Marker;
     func:
-    <span class="doccomment">/// Property used to define &quot;Grapheme extender&quot;. See D59 in Chapter 3, Conformance in the
+    <span class="doccomment">/// Property used to define "Grapheme extender". See D59 in Chapter 3, Conformance in the
     /// Unicode Standard.
     ///
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
@@ -3436,9 +3437,9 @@
     ///
     /// let grapheme_extend = sets::grapheme_extend();
     ///
-    /// assert!(!grapheme_extend.contains(&#39;ക&#39;));  // U+0D15 MALAYALAM LETTER KA
-    /// assert!(!grapheme_extend.contains(&#39;\u{0D3F}&#39;));  // U+0D3F MALAYALAM VOWEL SIGN I
-    /// assert!(grapheme_extend.contains(&#39;\u{0D3E}&#39;));  // U+0D3E MALAYALAM VOWEL SIGN AA
+    /// assert!(!grapheme_extend.contains('ക'));  // U+0D15 MALAYALAM LETTER KA
+    /// assert!(!grapheme_extend.contains('\u{0D3F}'));  // U+0D3F MALAYALAM VOWEL SIGN I
+    /// assert!(grapheme_extend.contains('\u{0D3E}'));  // U+0D3E MALAYALAM VOWEL SIGN AA
     /// ```
 
     </span><span class="kw">pub const fn </span>grapheme_extend() =&gt; SINGLETON_PROPS_GR_EXT_V1;
@@ -3446,7 +3447,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Grapheme_Link&quot;</span>;
+    property: <span class="string">"Grapheme_Link"</span>;
     marker: GraphemeLinkProperty;
     keyed_data_marker: GraphemeLinkV1Marker;
     func:
@@ -3458,7 +3459,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Hex_Digit&quot;</span>;
+    property: <span class="string">"Hex_Digit"</span>;
     marker: HexDigitProperty;
     keyed_data_marker: HexDigitV1Marker;
     func:
@@ -3476,12 +3477,12 @@
     ///
     /// let hex_digit = sets::hex_digit();
     ///
-    /// assert!(hex_digit.contains(&#39;0&#39;));
-    /// assert!(!hex_digit.contains(&#39;੩&#39;));  // U+0A69 GURMUKHI DIGIT THREE
-    /// assert!(hex_digit.contains(&#39;f&#39;));
-    /// assert!(hex_digit.contains(&#39;ｆ&#39;));  // U+FF46 FULLWIDTH LATIN SMALL LETTER F
-    /// assert!(hex_digit.contains(&#39;Ｆ&#39;));  // U+FF26 FULLWIDTH LATIN CAPITAL LETTER F
-    /// assert!(!hex_digit.contains(&#39;Ä&#39;));  // U+00C4 LATIN CAPITAL LETTER A WITH DIAERESIS
+    /// assert!(hex_digit.contains('0'));
+    /// assert!(!hex_digit.contains('੩'));  // U+0A69 GURMUKHI DIGIT THREE
+    /// assert!(hex_digit.contains('f'));
+    /// assert!(hex_digit.contains('ｆ'));  // U+FF46 FULLWIDTH LATIN SMALL LETTER F
+    /// assert!(hex_digit.contains('Ｆ'));  // U+FF26 FULLWIDTH LATIN CAPITAL LETTER F
+    /// assert!(!hex_digit.contains('Ä'));  // U+00C4 LATIN CAPITAL LETTER A WITH DIAERESIS
     /// ```
 
     </span><span class="kw">pub const fn </span>hex_digit() =&gt; SINGLETON_PROPS_HEX_V1;
@@ -3489,7 +3490,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Hyphen&quot;</span>;
+    property: <span class="string">"Hyphen"</span>;
     marker: HyphenProperty;
     keyed_data_marker: HyphenV1Marker;
     func:
@@ -3501,7 +3502,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Id_Continue&quot;</span>;
+    property: <span class="string">"Id_Continue"</span>;
     marker: IdContinueProperty;
     keyed_data_marker: IdContinueV1Marker;
     func:
@@ -3521,11 +3522,11 @@
     ///
     /// let id_continue = sets::id_continue();
     ///
-    /// assert!(id_continue.contains(&#39;x&#39;));
-    /// assert!(id_continue.contains(&#39;1&#39;));
-    /// assert!(id_continue.contains(&#39;_&#39;));
-    /// assert!(id_continue.contains(&#39;ߝ&#39;));  // U+07DD NKO LETTER FA
-    /// assert!(!id_continue.contains(&#39;ⓧ&#39;));  // U+24E7 CIRCLED LATIN SMALL LETTER X
+    /// assert!(id_continue.contains('x'));
+    /// assert!(id_continue.contains('1'));
+    /// assert!(id_continue.contains('_'));
+    /// assert!(id_continue.contains('ߝ'));  // U+07DD NKO LETTER FA
+    /// assert!(!id_continue.contains('ⓧ'));  // U+24E7 CIRCLED LATIN SMALL LETTER X
     /// assert!(id_continue.contains32(0xFC5E));  // ARABIC LIGATURE SHADDA WITH DAMMATAN ISOLATED FORM
     /// ```
 
@@ -3534,7 +3535,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Ideographic&quot;</span>;
+    property: <span class="string">"Ideographic"</span>;
     marker: IdeographicProperty;
     keyed_data_marker: IdeographicV1Marker;
     func:
@@ -3552,8 +3553,8 @@
     ///
     /// let ideographic = sets::ideographic();
     ///
-    /// assert!(ideographic.contains(&#39;川&#39;));  // U+5DDD CJK UNIFIED IDEOGRAPH-5DDD
-    /// assert!(!ideographic.contains(&#39;밥&#39;));  // U+BC25 HANGUL SYLLABLE BAB
+    /// assert!(ideographic.contains('川'));  // U+5DDD CJK UNIFIED IDEOGRAPH-5DDD
+    /// assert!(!ideographic.contains('밥'));  // U+BC25 HANGUL SYLLABLE BAB
     /// ```
 
     </span><span class="kw">pub const fn </span>ideographic() =&gt; SINGLETON_PROPS_IDEO_V1;
@@ -3561,7 +3562,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Id_Start&quot;</span>;
+    property: <span class="string">"Id_Start"</span>;
     marker: IdStartProperty;
     keyed_data_marker: IdStartV1Marker;
     func:
@@ -3580,11 +3581,11 @@
     ///
     /// let id_start = sets::id_start();
     ///
-    /// assert!(id_start.contains(&#39;x&#39;));
-    /// assert!(!id_start.contains(&#39;1&#39;));
-    /// assert!(!id_start.contains(&#39;_&#39;));
-    /// assert!(id_start.contains(&#39;ߝ&#39;));  // U+07DD NKO LETTER FA
-    /// assert!(!id_start.contains(&#39;ⓧ&#39;));  // U+24E7 CIRCLED LATIN SMALL LETTER X
+    /// assert!(id_start.contains('x'));
+    /// assert!(!id_start.contains('1'));
+    /// assert!(!id_start.contains('_'));
+    /// assert!(id_start.contains('ߝ'));  // U+07DD NKO LETTER FA
+    /// assert!(!id_start.contains('ⓧ'));  // U+24E7 CIRCLED LATIN SMALL LETTER X
     /// assert!(id_start.contains32(0xFC5E));  // ARABIC LIGATURE SHADDA WITH DAMMATAN ISOLATED FORM
     /// ```
 
@@ -3593,7 +3594,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Ids_Binary_Operator&quot;</span>;
+    property: <span class="string">"Ids_Binary_Operator"</span>;
     marker: IdsBinaryOperatorProperty;
     keyed_data_marker: IdsBinaryOperatorV1Marker;
     func:
@@ -3619,7 +3620,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Ids_Trinary_Operator&quot;</span>;
+    property: <span class="string">"Ids_Trinary_Operator"</span>;
     marker: IdsTrinaryOperatorProperty;
     keyed_data_marker: IdsTrinaryOperatorV1Marker;
     func:
@@ -3648,7 +3649,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Join_Control&quot;</span>;
+    property: <span class="string">"Join_Control"</span>;
     marker: JoinControlProperty;
     keyed_data_marker: JoinControlV1Marker;
     func:
@@ -3676,7 +3677,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Logical_Order_Exception&quot;</span>;
+    property: <span class="string">"Logical_Order_Exception"</span>;
     marker: LogicalOrderExceptionProperty;
     keyed_data_marker: LogicalOrderExceptionV1Marker;
     func:
@@ -3693,8 +3694,8 @@
     ///
     /// let logical_order_exception = sets::logical_order_exception();
     ///
-    /// assert!(logical_order_exception.contains(&#39;ແ&#39;));  // U+0EC1 LAO VOWEL SIGN EI
-    /// assert!(!logical_order_exception.contains(&#39;ະ&#39;));  // U+0EB0 LAO VOWEL SIGN A
+    /// assert!(logical_order_exception.contains('ແ'));  // U+0EC1 LAO VOWEL SIGN EI
+    /// assert!(!logical_order_exception.contains('ະ'));  // U+0EB0 LAO VOWEL SIGN A
     /// ```
 
     </span><span class="kw">pub const fn </span>logical_order_exception() =&gt; SINGLETON_PROPS_LOE_V1;
@@ -3702,7 +3703,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Lowercase&quot;</span>;
+    property: <span class="string">"Lowercase"</span>;
     marker: LowercaseProperty;
     keyed_data_marker: LowercaseV1Marker;
     func:
@@ -3719,8 +3720,8 @@
     ///
     /// let lowercase = sets::lowercase();
     ///
-    /// assert!(lowercase.contains(&#39;a&#39;));
-    /// assert!(!lowercase.contains(&#39;A&#39;));
+    /// assert!(lowercase.contains('a'));
+    /// assert!(!lowercase.contains('A'));
     /// ```
 
     </span><span class="kw">pub const fn </span>lowercase() =&gt; SINGLETON_PROPS_LOWER_V1;
@@ -3728,7 +3729,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Math&quot;</span>;
+    property: <span class="string">"Math"</span>;
     marker: MathProperty;
     keyed_data_marker: MathV1Marker;
     func:
@@ -3745,12 +3746,12 @@
     ///
     /// let math = sets::math();
     ///
-    /// assert!(math.contains(&#39;=&#39;));
-    /// assert!(math.contains(&#39;+&#39;));
-    /// assert!(!math.contains(&#39;-&#39;));
-    /// assert!(math.contains(&#39;−&#39;));  // U+2212 MINUS SIGN
-    /// assert!(!math.contains(&#39;/&#39;));
-    /// assert!(math.contains(&#39;∕&#39;));  // U+2215 DIVISION SLASH
+    /// assert!(math.contains('='));
+    /// assert!(math.contains('+'));
+    /// assert!(!math.contains('-'));
+    /// assert!(math.contains('−'));  // U+2212 MINUS SIGN
+    /// assert!(!math.contains('/'));
+    /// assert!(math.contains('∕'));  // U+2215 DIVISION SLASH
     /// ```
 
     </span><span class="kw">pub const fn </span>math() =&gt; SINGLETON_PROPS_MATH_V1;
@@ -3758,7 +3759,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Noncharacter_Code_Point&quot;</span>;
+    property: <span class="string">"Noncharacter_Code_Point"</span>;
     marker: NoncharacterCodePointProperty;
     keyed_data_marker: NoncharacterCodePointV1Marker;
     func:
@@ -3785,7 +3786,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;NFC_Inert&quot;</span>;
+    property: <span class="string">"NFC_Inert"</span>;
     marker: NfcInertProperty;
     keyed_data_marker: NfcInertV1Marker;
     func:
@@ -3796,7 +3797,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;NFD_Inert&quot;</span>;
+    property: <span class="string">"NFD_Inert"</span>;
     marker: NfdInertProperty;
     keyed_data_marker: NfdInertV1Marker;
     func:
@@ -3807,7 +3808,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;NFKC_Inert&quot;</span>;
+    property: <span class="string">"NFKC_Inert"</span>;
     marker: NfkcInertProperty;
     keyed_data_marker: NfkcInertV1Marker;
     func:
@@ -3818,7 +3819,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;NFKD_Inert&quot;</span>;
+    property: <span class="string">"NFKD_Inert"</span>;
     marker: NfkdInertProperty;
     keyed_data_marker: NfkdInertV1Marker;
     func:
@@ -3829,7 +3830,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Pattern_Syntax&quot;</span>;
+    property: <span class="string">"Pattern_Syntax"</span>;
     marker: PatternSyntaxProperty;
     keyed_data_marker: PatternSyntaxV1Marker;
     func:
@@ -3848,9 +3849,9 @@
     ///
     /// let pattern_syntax = sets::pattern_syntax();
     ///
-    /// assert!(pattern_syntax.contains(&#39;{&#39;));
-    /// assert!(pattern_syntax.contains(&#39;⇒&#39;));  // U+21D2 RIGHTWARDS DOUBLE ARROW
-    /// assert!(!pattern_syntax.contains(&#39;0&#39;));
+    /// assert!(pattern_syntax.contains('{'));
+    /// assert!(pattern_syntax.contains('⇒'));  // U+21D2 RIGHTWARDS DOUBLE ARROW
+    /// assert!(!pattern_syntax.contains('0'));
     /// ```
 
     </span><span class="kw">pub const fn </span>pattern_syntax() =&gt; SINGLETON_PROPS_PAT_SYN_V1;
@@ -3858,7 +3859,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Pattern_White_Space&quot;</span>;
+    property: <span class="string">"Pattern_White_Space"</span>;
     marker: PatternWhiteSpaceProperty;
     keyed_data_marker: PatternWhiteSpaceV1Marker;
     func:
@@ -3877,7 +3878,7 @@
     ///
     /// let pattern_white_space = sets::pattern_white_space();
     ///
-    /// assert!(pattern_white_space.contains(&#39; &#39;));
+    /// assert!(pattern_white_space.contains(' '));
     /// assert!(pattern_white_space.contains32(0x2029));  // PARAGRAPH SEPARATOR
     /// assert!(pattern_white_space.contains32(0x000A));  // NEW LINE
     /// assert!(!pattern_white_space.contains32(0x00A0));  // NO-BREAK SPACE
@@ -3888,7 +3889,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Prepended_Concatenation_Mark&quot;</span>;
+    property: <span class="string">"Prepended_Concatenation_Mark"</span>;
     marker: PrependedConcatenationMarkProperty;
     keyed_data_marker: PrependedConcatenationMarkV1Marker;
     func:
@@ -3900,7 +3901,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Print&quot;</span>;
+    property: <span class="string">"Print"</span>;
     marker: PrintProperty;
     keyed_data_marker: PrintV1Marker;
     func:
@@ -3912,7 +3913,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Quotation_Mark&quot;</span>;
+    property: <span class="string">"Quotation_Mark"</span>;
     marker: QuotationMarkProperty;
     keyed_data_marker: QuotationMarkV1Marker;
     func:
@@ -3929,9 +3930,9 @@
     ///
     /// let quotation_mark = sets::quotation_mark();
     ///
-    /// assert!(quotation_mark.contains(&#39;\&#39;&#39;));
-    /// assert!(quotation_mark.contains(&#39;„&#39;));  // U+201E DOUBLE LOW-9 QUOTATION MARK
-    /// assert!(!quotation_mark.contains(&#39;&lt;&#39;));
+    /// assert!(quotation_mark.contains('\''));
+    /// assert!(quotation_mark.contains('„'));  // U+201E DOUBLE LOW-9 QUOTATION MARK
+    /// assert!(!quotation_mark.contains('&lt;'));
     /// ```
 
     </span><span class="kw">pub const fn </span>quotation_mark() =&gt; SINGLETON_PROPS_QMARK_V1;
@@ -3939,7 +3940,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Radical&quot;</span>;
+    property: <span class="string">"Radical"</span>;
     marker: RadicalProperty;
     keyed_data_marker: RadicalV1Marker;
     func:
@@ -3956,8 +3957,8 @@
     ///
     /// let radical = sets::radical();
     ///
-    /// assert!(radical.contains(&#39;⺆&#39;));  // U+2E86 CJK RADICAL BOX
-    /// assert!(!radical.contains(&#39;丹&#39;));  // U+F95E CJK COMPATIBILITY IDEOGRAPH-F95E
+    /// assert!(radical.contains('⺆'));  // U+2E86 CJK RADICAL BOX
+    /// assert!(!radical.contains('丹'));  // U+F95E CJK COMPATIBILITY IDEOGRAPH-F95E
     /// ```
 
     </span><span class="kw">pub const fn </span>radical() =&gt; SINGLETON_PROPS_RADICAL_V1;
@@ -3965,7 +3966,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Regional_Indicator&quot;</span>;
+    property: <span class="string">"Regional_Indicator"</span>;
     marker: RegionalIndicatorProperty;
     keyed_data_marker: RegionalIndicatorV1Marker;
     func:
@@ -3982,9 +3983,9 @@
     ///
     /// let regional_indicator = sets::regional_indicator();
     ///
-    /// assert!(regional_indicator.contains(&#39;🇹&#39;));  // U+1F1F9 REGIONAL INDICATOR SYMBOL LETTER T
-    /// assert!(!regional_indicator.contains(&#39;Ⓣ&#39;));  // U+24C9 CIRCLED LATIN CAPITAL LETTER T
-    /// assert!(!regional_indicator.contains(&#39;T&#39;));
+    /// assert!(regional_indicator.contains('🇹'));  // U+1F1F9 REGIONAL INDICATOR SYMBOL LETTER T
+    /// assert!(!regional_indicator.contains('Ⓣ'));  // U+24C9 CIRCLED LATIN CAPITAL LETTER T
+    /// assert!(!regional_indicator.contains('T'));
     /// ```
 
     </span><span class="kw">pub const fn </span>regional_indicator() =&gt; SINGLETON_PROPS_RI_V1;
@@ -3992,11 +3993,11 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Soft_Dotted&quot;</span>;
+    property: <span class="string">"Soft_Dotted"</span>;
     marker: SoftDottedProperty;
     keyed_data_marker: SoftDottedV1Marker;
     func:
-    <span class="doccomment">/// Characters with a &quot;soft dot&quot;, like i or j. An accent placed on these characters causes
+    <span class="doccomment">/// Characters with a "soft dot", like i or j. An accent placed on these characters causes
     /// the dot to disappear.
     ///
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
@@ -4010,8 +4011,8 @@
     ///
     /// let soft_dotted = sets::soft_dotted();
     ///
-    /// assert!(soft_dotted.contains(&#39;і&#39;));  //U+0456 CYRILLIC SMALL LETTER BYELORUSSIAN-UKRAINIAN I
-    /// assert!(!soft_dotted.contains(&#39;ı&#39;));  // U+0131 LATIN SMALL LETTER DOTLESS I
+    /// assert!(soft_dotted.contains('і'));  //U+0456 CYRILLIC SMALL LETTER BYELORUSSIAN-UKRAINIAN I
+    /// assert!(!soft_dotted.contains('ı'));  // U+0131 LATIN SMALL LETTER DOTLESS I
     /// ```
 
     </span><span class="kw">pub const fn </span>soft_dotted() =&gt; SINGLETON_PROPS_SD_V1;
@@ -4019,7 +4020,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Segment_Starter&quot;</span>;
+    property: <span class="string">"Segment_Starter"</span>;
     marker: SegmentStarterProperty;
     keyed_data_marker: SegmentStarterV1Marker;
     func:
@@ -4031,7 +4032,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Case_Sensitive&quot;</span>;
+    property: <span class="string">"Case_Sensitive"</span>;
     marker: CaseSensitiveProperty;
     keyed_data_marker: CaseSensitiveV1Marker;
     func:
@@ -4043,7 +4044,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Sentence_Terminal&quot;</span>;
+    property: <span class="string">"Sentence_Terminal"</span>;
     marker: SentenceTerminalProperty;
     keyed_data_marker: SentenceTerminalV1Marker;
     func:
@@ -4060,11 +4061,11 @@
     ///
     /// let sentence_terminal = sets::sentence_terminal();
     ///
-    /// assert!(sentence_terminal.contains(&#39;.&#39;));
-    /// assert!(sentence_terminal.contains(&#39;?&#39;));
-    /// assert!(sentence_terminal.contains(&#39;᪨&#39;));  // U+1AA8 TAI THAM SIGN KAAN
-    /// assert!(!sentence_terminal.contains(&#39;,&#39;));
-    /// assert!(!sentence_terminal.contains(&#39;¿&#39;));  // U+00BF INVERTED QUESTION MARK
+    /// assert!(sentence_terminal.contains('.'));
+    /// assert!(sentence_terminal.contains('?'));
+    /// assert!(sentence_terminal.contains('᪨'));  // U+1AA8 TAI THAM SIGN KAAN
+    /// assert!(!sentence_terminal.contains(','));
+    /// assert!(!sentence_terminal.contains('¿'));  // U+00BF INVERTED QUESTION MARK
     /// ```
 
     </span><span class="kw">pub const fn </span>sentence_terminal() =&gt; SINGLETON_PROPS_STERM_V1;
@@ -4072,7 +4073,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Terminal_Punctuation&quot;</span>;
+    property: <span class="string">"Terminal_Punctuation"</span>;
     marker: TerminalPunctuationProperty;
     keyed_data_marker: TerminalPunctuationV1Marker;
     func:
@@ -4089,11 +4090,11 @@
     ///
     /// let terminal_punctuation = sets::terminal_punctuation();
     ///
-    /// assert!(terminal_punctuation.contains(&#39;.&#39;));
-    /// assert!(terminal_punctuation.contains(&#39;?&#39;));
-    /// assert!(terminal_punctuation.contains(&#39;᪨&#39;));  // U+1AA8 TAI THAM SIGN KAAN
-    /// assert!(terminal_punctuation.contains(&#39;,&#39;));
-    /// assert!(!terminal_punctuation.contains(&#39;¿&#39;));  // U+00BF INVERTED QUESTION MARK
+    /// assert!(terminal_punctuation.contains('.'));
+    /// assert!(terminal_punctuation.contains('?'));
+    /// assert!(terminal_punctuation.contains('᪨'));  // U+1AA8 TAI THAM SIGN KAAN
+    /// assert!(terminal_punctuation.contains(','));
+    /// assert!(!terminal_punctuation.contains('¿'));  // U+00BF INVERTED QUESTION MARK
     /// ```
 
     </span><span class="kw">pub const fn </span>terminal_punctuation() =&gt; SINGLETON_PROPS_TERM_V1;
@@ -4101,7 +4102,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Unified_Ideograph&quot;</span>;
+    property: <span class="string">"Unified_Ideograph"</span>;
     marker: UnifiedIdeographProperty;
     keyed_data_marker: UnifiedIdeographV1Marker;
     func:
@@ -4118,9 +4119,9 @@
     ///
     /// let unified_ideograph = sets::unified_ideograph();
     ///
-    /// assert!(unified_ideograph.contains(&#39;川&#39;));  // U+5DDD CJK UNIFIED IDEOGRAPH-5DDD
-    /// assert!(unified_ideograph.contains(&#39;木&#39;));  // U+6728 CJK UNIFIED IDEOGRAPH-6728
-    /// assert!(!unified_ideograph.contains(&#39;𛅸&#39;));  // U+1B178 NUSHU CHARACTER-1B178
+    /// assert!(unified_ideograph.contains('川'));  // U+5DDD CJK UNIFIED IDEOGRAPH-5DDD
+    /// assert!(unified_ideograph.contains('木'));  // U+6728 CJK UNIFIED IDEOGRAPH-6728
+    /// assert!(!unified_ideograph.contains('𛅸'));  // U+1B178 NUSHU CHARACTER-1B178
     /// ```
 
     </span><span class="kw">pub const fn </span>unified_ideograph() =&gt; SINGLETON_PROPS_UIDEO_V1;
@@ -4128,7 +4129,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Uppercase&quot;</span>;
+    property: <span class="string">"Uppercase"</span>;
     marker: UppercaseProperty;
     keyed_data_marker: UppercaseV1Marker;
     func:
@@ -4145,8 +4146,8 @@
     ///
     /// let uppercase = sets::uppercase();
     ///
-    /// assert!(uppercase.contains(&#39;U&#39;));
-    /// assert!(!uppercase.contains(&#39;u&#39;));
+    /// assert!(uppercase.contains('U'));
+    /// assert!(!uppercase.contains('u'));
     /// ```
 
     </span><span class="kw">pub const fn </span>uppercase() =&gt; SINGLETON_PROPS_UPPER_V1;
@@ -4154,7 +4155,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Variation_Selector&quot;</span>;
+    property: <span class="string">"Variation_Selector"</span>;
     marker: VariationSelectorProperty;
     keyed_data_marker: VariationSelectorV1Marker;
     func:
@@ -4183,12 +4184,12 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;White_Space&quot;</span>;
+    property: <span class="string">"White_Space"</span>;
     marker: WhiteSpaceProperty;
     keyed_data_marker: WhiteSpaceV1Marker;
     func:
     <span class="doccomment">/// Spaces, separator characters and other control characters which should be treated by
-    /// programming languages as &quot;white space&quot; for the purpose of parsing elements
+    /// programming languages as "white space" for the purpose of parsing elements
     ///
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
@@ -4201,7 +4202,7 @@
     ///
     /// let white_space = sets::white_space();
     ///
-    /// assert!(white_space.contains(&#39; &#39;));
+    /// assert!(white_space.contains(' '));
     /// assert!(white_space.contains32(0x000A));  // NEW LINE
     /// assert!(white_space.contains32(0x00A0));  // NO-BREAK SPACE
     /// assert!(!white_space.contains32(0x200B));  // ZERO WIDTH SPACE
@@ -4212,7 +4213,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;Xdigit&quot;</span>;
+    property: <span class="string">"Xdigit"</span>;
     marker: XdigitProperty;
     keyed_data_marker: XdigitV1Marker;
     func:
@@ -4224,7 +4225,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;XID_Continue&quot;</span>;
+    property: <span class="string">"XID_Continue"</span>;
     marker: XidContinueProperty;
     keyed_data_marker: XidContinueV1Marker;
     func:
@@ -4242,11 +4243,11 @@
     ///
     /// let xid_continue = sets::xid_continue();
     ///
-    /// assert!(xid_continue.contains(&#39;x&#39;));
-    /// assert!(xid_continue.contains(&#39;1&#39;));
-    /// assert!(xid_continue.contains(&#39;_&#39;));
-    /// assert!(xid_continue.contains(&#39;ߝ&#39;));  // U+07DD NKO LETTER FA
-    /// assert!(!xid_continue.contains(&#39;ⓧ&#39;));  // U+24E7 CIRCLED LATIN SMALL LETTER X
+    /// assert!(xid_continue.contains('x'));
+    /// assert!(xid_continue.contains('1'));
+    /// assert!(xid_continue.contains('_'));
+    /// assert!(xid_continue.contains('ߝ'));  // U+07DD NKO LETTER FA
+    /// assert!(!xid_continue.contains('ⓧ'));  // U+24E7 CIRCLED LATIN SMALL LETTER X
     /// assert!(!xid_continue.contains32(0xFC5E));  // ARABIC LIGATURE SHADDA WITH DAMMATAN ISOLATED FORM
     /// ```
 
@@ -4255,7 +4256,7 @@
 }
 
 <span class="macro">make_code_point_set_property! </span>{
-    property: <span class="string">&quot;XID_Start&quot;</span>;
+    property: <span class="string">"XID_Start"</span>;
     marker: XidStartProperty;
     keyed_data_marker: XidStartV1Marker;
     func:
@@ -4274,11 +4275,11 @@
     ///
     /// let xid_start = sets::xid_start();
     ///
-    /// assert!(xid_start.contains(&#39;x&#39;));
-    /// assert!(!xid_start.contains(&#39;1&#39;));
-    /// assert!(!xid_start.contains(&#39;_&#39;));
-    /// assert!(xid_start.contains(&#39;ߝ&#39;));  // U+07DD NKO LETTER FA
-    /// assert!(!xid_start.contains(&#39;ⓧ&#39;));  // U+24E7 CIRCLED LATIN SMALL LETTER X
+    /// assert!(xid_start.contains('x'));
+    /// assert!(!xid_start.contains('1'));
+    /// assert!(!xid_start.contains('_'));
+    /// assert!(xid_start.contains('ߝ'));  // U+07DD NKO LETTER FA
+    /// assert!(!xid_start.contains('ⓧ'));  // U+24E7 CIRCLED LATIN SMALL LETTER X
     /// assert!(!xid_start.contains32(0xFC5E));  // ARABIC LIGATURE SHADDA WITH DAMMATAN ISOLATED FORM
     /// ```
 
@@ -4303,15 +4304,15 @@
         <span class="macro-nonterminal">$cvis</span>:vis <span class="kw">const fn </span><span class="macro-nonterminal">$constname</span>:ident() =&gt; <span class="macro-nonterminal">$singleton</span>:ident;
         <span class="macro-nonterminal">$vis</span>:vis <span class="kw">fn </span><span class="macro-nonterminal">$funcname</span>:ident();
     ) =&gt; {
-        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;A version of [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$constname</span>), <span class="string">&quot;()`] that uses custom data provided by a [`DataProvider`].&quot;</span>)]
+        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"A version of [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$constname</span>), <span class="string">"()`] that uses custom data provided by a [`DataProvider`]."</span>)]
         </span><span class="macro-nonterminal">$vis </span><span class="kw">fn </span><span class="macro-nonterminal">$funcname</span>(
             provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>DataProvider&lt;<span class="macro-nonterminal">$keyed_data_marker</span>&gt; + <span class="question-mark">?</span>Sized)
         ) -&gt; <span class="prelude-ty">Result</span>&lt;UnicodeSetData, PropertiesError&gt; {
             <span class="prelude-val">Ok</span>(provider.load(Default::default()).and_then(DataResponse::take_payload).map(UnicodeSetData::from_data)<span class="question-mark">?</span>)
         }
         $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)*
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
-        </span><span class="macro-nonterminal">$cvis </span><span class="kw">const fn </span><span class="macro-nonterminal">$constname</span>() -&gt; UnicodeSetDataBorrowed&lt;<span class="lifetime">&#39;static</span>&gt; {
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+        </span><span class="macro-nonterminal">$cvis </span><span class="kw">const fn </span><span class="macro-nonterminal">$constname</span>() -&gt; UnicodeSetDataBorrowed&lt;<span class="lifetime">'static</span>&gt; {
             UnicodeSetDataBorrowed {
                 set: <span class="kw">crate</span>::provider::Baked::<span class="macro-nonterminal">$singleton
             </span>}
@@ -4320,7 +4321,7 @@
 }
 
 <span class="macro">make_unicode_set_property! </span>{
-    property: <span class="string">&quot;Basic_Emoji&quot;</span>;
+    property: <span class="string">"Basic_Emoji"</span>;
     marker: BasicEmojiProperty;
     keyed_data_marker: BasicEmojiV1Marker;
     func:
@@ -4340,11 +4341,11 @@
     /// let basic_emoji = sets::basic_emoji();
     ///
     /// assert!(!basic_emoji.contains32(0x0020));
-    /// assert!(!basic_emoji.contains_char(&#39;\n&#39;));
-    /// assert!(basic_emoji.contains_char(&#39;🦃&#39;)); // U+1F983 TURKEY
-    /// assert!(basic_emoji.contains(&quot;\u{1F983}&quot;));
-    /// assert!(basic_emoji.contains(&quot;\u{1F6E4}\u{FE0F}&quot;)); // railway track
-    /// assert!(!basic_emoji.contains(&quot;\u{0033}\u{FE0F}\u{20E3}&quot;));  // Emoji_Keycap_Sequence, keycap 3
+    /// assert!(!basic_emoji.contains_char('\n'));
+    /// assert!(basic_emoji.contains_char('🦃')); // U+1F983 TURKEY
+    /// assert!(basic_emoji.contains("\u{1F983}"));
+    /// assert!(basic_emoji.contains("\u{1F6E4}\u{FE0F}")); // railway track
+    /// assert!(!basic_emoji.contains("\u{0033}\u{FE0F}\u{20E3}"));  // Emoji_Keycap_Sequence, keycap 3
     /// ```
     </span><span class="kw">pub const fn </span>basic_emoji() =&gt; SINGLETON_PROPS_BASIC_EMOJI_V1;
     <span class="kw">pub fn </span>load_basic_emoji();
@@ -4376,7 +4377,7 @@
 /// ✨ *Enabled with the `compiled_data` Cargo feature.*
 ///
 /// [📚 Help choosing a constructor](icu_provider::constructors)
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 </span><span class="kw">pub fn </span>for_general_category_group(enum_val: GeneralCategoryGroup) -&gt; CodePointSetData {
     <span class="kw">let </span>matching_gc_ranges = maps::general_category()
         .iter_ranges()
@@ -4412,15 +4413,15 @@
 /// ```
 /// use icu::properties::sets;
 ///
-/// let emoji = sets::load_for_ecma262(&quot;Emoji&quot;).expect(&quot;loading data failed&quot;);
+/// let emoji = sets::load_for_ecma262("Emoji").expect("loading data failed");
 ///
-/// assert!(emoji.contains(&#39;🔥&#39;)); // U+1F525 FIRE
-/// assert!(!emoji.contains(&#39;V&#39;));
+/// assert!(emoji.contains('🔥')); // U+1F525 FIRE
+/// assert!(!emoji.contains('V'));
 /// ```
 ///
 /// [ecma]: https://tc39.es/ecma262/#table-binary-unicode-properties
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
-</span><span class="kw">pub fn </span>load_for_ecma262(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;CodePointSetDataBorrowed&lt;<span class="lifetime">&#39;static</span>&gt;, PropertiesError&gt; {
+</span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+</span><span class="kw">pub fn </span>load_for_ecma262(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;CodePointSetDataBorrowed&lt;<span class="lifetime">'static</span>&gt;, PropertiesError&gt; {
     <span class="kw">use </span><span class="kw">crate</span>::runtime::UnicodeProperty;
 
     <span class="kw">let </span>prop = <span class="kw">if let </span><span class="prelude-val">Some</span>(prop) = UnicodeProperty::parse_ecma262_name(name) {
@@ -4627,11 +4628,11 @@
         <span class="kw">let </span>digits_data = sets::for_general_category_group(GeneralCategoryGroup::Number);
         <span class="kw">let </span>digits = digits_data.as_borrowed();
 
-        <span class="macro">assert!</span>(digits.contains(<span class="string">&#39;5&#39;</span>));
-        <span class="macro">assert!</span>(digits.contains(<span class="string">&#39;\u{0665}&#39;</span>)); <span class="comment">// U+0665 ARABIC-INDIC DIGIT FIVE
-        </span><span class="macro">assert!</span>(digits.contains(<span class="string">&#39;\u{096b}&#39;</span>)); <span class="comment">// U+0969 DEVANAGARI DIGIT FIVE
+        <span class="macro">assert!</span>(digits.contains(<span class="string">'5'</span>));
+        <span class="macro">assert!</span>(digits.contains(<span class="string">'\u{0665}'</span>)); <span class="comment">// U+0665 ARABIC-INDIC DIGIT FIVE
+        </span><span class="macro">assert!</span>(digits.contains(<span class="string">'\u{096b}'</span>)); <span class="comment">// U+0969 DEVANAGARI DIGIT FIVE
 
-        </span><span class="macro">assert!</span>(!digits.contains(<span class="string">&#39;A&#39;</span>));
+        </span><span class="macro">assert!</span>(!digits.contains(<span class="string">'A'</span>));
     }
 
     <span class="attr">#[test]
@@ -4642,11 +4643,11 @@
         <span class="kw">let </span>thai_data = maps::script().get_set_for_value(Script::Thai);
         <span class="kw">let </span>thai = thai_data.as_borrowed();
 
-        <span class="macro">assert!</span>(thai.contains(<span class="string">&#39;\u{0e01}&#39;</span>)); <span class="comment">// U+0E01 THAI CHARACTER KO KAI
-        </span><span class="macro">assert!</span>(thai.contains(<span class="string">&#39;\u{0e50}&#39;</span>)); <span class="comment">// U+0E50 THAI DIGIT ZERO
+        <span class="macro">assert!</span>(thai.contains(<span class="string">'\u{0e01}'</span>)); <span class="comment">// U+0E01 THAI CHARACTER KO KAI
+        </span><span class="macro">assert!</span>(thai.contains(<span class="string">'\u{0e50}'</span>)); <span class="comment">// U+0E50 THAI DIGIT ZERO
 
-        </span><span class="macro">assert!</span>(!thai.contains(<span class="string">&#39;A&#39;</span>));
-        <span class="macro">assert!</span>(!thai.contains(<span class="string">&#39;\u{0e3f}&#39;</span>)); <span class="comment">// U+0E50 THAI CURRENCY SYMBOL BAHT
+        </span><span class="macro">assert!</span>(!thai.contains(<span class="string">'A'</span>));
+        <span class="macro">assert!</span>(!thai.contains(<span class="string">'\u{0e3f}'</span>)); <span class="comment">// U+0E50 THAI CURRENCY SYMBOL BAHT
     </span>}
 
     <span class="attr">#[test]
@@ -4659,7 +4660,7 @@
             <span class="kw">let </span>category_set = sets::for_general_category_group(category);
             <span class="kw">let </span>category_set = category_set
                 .as_code_point_inversion_list()
-                .expect(<span class="string">&quot;The data should be valid&quot;</span>);
+                .expect(<span class="string">"The data should be valid"</span>);
 
             <span class="kw">let </span><span class="kw-2">mut </span>builder = CodePointInversionListBuilder::new();
             <span class="kw">for </span>subcategory <span class="kw">in </span>subcategories {
@@ -4670,7 +4671,7 @@
                 }
             }
             <span class="kw">let </span>combined_set = builder.build();
-            <span class="macro">println!</span>(<span class="string">&quot;{category:?} {subcategories:?}&quot;</span>);
+            <span class="macro">println!</span>(<span class="string">"{category:?} {subcategories:?}"</span>);
             <span class="macro">assert_eq!</span>(
                 category_set.get_inversion_list_vec(),
                 combined_set.get_inversion_list_vec()
@@ -4757,7 +4758,7 @@
         <span class="macro">assert!</span>(surrogates.contains32(<span class="number">0xd900</span>));
         <span class="macro">assert!</span>(surrogates.contains32(<span class="number">0xdfff</span>));
 
-        <span class="macro">assert!</span>(!surrogates.contains(<span class="string">&#39;A&#39;</span>));
+        <span class="macro">assert!</span>(!surrogates.contains(<span class="string">'A'</span>));
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/ule/unvalidated.rs`."><title>unvalidated.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/ule/unvalidated.rs`."><title>unvalidated.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -539,8 +540,8 @@
 
 <span class="doccomment">/// A byte slice that is expected to be a UTF-8 string but does not enforce that invariant.
 ///
-/// Use this type instead of `str` if you don&#39;t need to enforce UTF-8 during deserialization. For
-/// example, strings that are keys of a map don&#39;t need to ever be reified as `str`s.
+/// Use this type instead of `str` if you don't need to enforce UTF-8 during deserialization. For
+/// example, strings that are keys of a map don't need to ever be reified as `str`s.
 ///
 /// [`UnvalidatedStr`] derefs to `[u8]`. To obtain a `str`, use [`Self::try_as_str()`].
 ///
@@ -556,14 +557,14 @@
 /// use zerovec::ZeroMap;
 ///
 /// let map: ZeroMap&lt;UnvalidatedStr, usize&gt; = [
-///     (UnvalidatedStr::from_str(&quot;abc&quot;), 11),
-///     (UnvalidatedStr::from_str(&quot;def&quot;), 22),
-///     (UnvalidatedStr::from_str(&quot;ghi&quot;), 33),
+///     (UnvalidatedStr::from_str("abc"), 11),
+///     (UnvalidatedStr::from_str("def"), 22),
+///     (UnvalidatedStr::from_str("ghi"), 33),
 /// ]
 /// .into_iter()
 /// .collect();
 ///
-/// let key = &quot;abc&quot;;
+/// let key = "abc";
 /// let value = map.get_copied_by(|uvstr| uvstr.as_bytes().cmp(key.as_bytes()));
 /// assert_eq!(Some(11), value);
 /// ```
@@ -575,7 +576,7 @@
 </span><span class="kw">pub struct </span>UnvalidatedStr([u8]);
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>UnvalidatedStr {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="comment">// Debug as a string if possible
         </span><span class="kw">match </span><span class="self">self</span>.try_as_str() {
             <span class="prelude-val">Ok</span>(s) =&gt; fmt::Debug::fmt(s, f),
@@ -624,10 +625,10 @@
     /// ```
     /// use zerovec::ule::UnvalidatedStr;
     ///
-    /// static A: &amp;UnvalidatedStr = UnvalidatedStr::from_bytes(b&quot;abc&quot;);
+    /// static A: &amp;UnvalidatedStr = UnvalidatedStr::from_bytes(b"abc");
     ///
     /// let b = A.try_as_str().unwrap();
-    /// assert_eq!(b, &quot;abc&quot;);
+    /// assert_eq!(b, "abc");
     /// ```
     </span><span class="comment">// Note: this is const starting in 1.63
     </span><span class="attr">#[inline]
@@ -636,9 +637,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnvalidatedStr {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnvalidatedStr {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         UnvalidatedStr::from_str(other)
     }
 }
@@ -657,8 +658,8 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>UnvalidatedStr {
-    <span class="kw">type </span>Container = VarZeroVec&lt;<span class="lifetime">&#39;a</span>, UnvalidatedStr&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>UnvalidatedStr {
+    <span class="kw">type </span>Container = VarZeroVec&lt;<span class="lifetime">'a</span>, UnvalidatedStr&gt;;
     <span class="kw">type </span>Slice = VarZeroSlice&lt;UnvalidatedStr&gt;;
     <span class="kw">type </span>GetType = UnvalidatedStr;
     <span class="kw">type </span>OwnedType = Box&lt;UnvalidatedStr&gt;;
@@ -684,7 +685,7 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">impl </span>serde::Serialize <span class="kw">for </span>UnvalidatedStr {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
@@ -693,7 +694,7 @@
         <span class="kw">use </span>serde::ser::Error;
         <span class="kw">let </span>s = <span class="self">self
             </span>.try_as_str()
-            .map_err(|<span class="kw">_</span>| S::Error::custom(<span class="string">&quot;invalid UTF-8 in UnvalidatedStr&quot;</span>))<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| S::Error::custom(<span class="string">"invalid UTF-8 in UnvalidatedStr"</span>))<span class="question-mark">?</span>;
         <span class="kw">if </span>serializer.is_human_readable() {
             serializer.serialize_str(s)
         } <span class="kw">else </span>{
@@ -703,11 +704,11 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Box&lt;UnvalidatedStr&gt; {
+</span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Box&lt;UnvalidatedStr&gt; {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="kw">let </span>boxed_str = Box::&lt;str&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
@@ -720,14 +721,14 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnvalidatedStr
+</span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnvalidatedStr
 <span class="kw">where
-    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>,
+    </span><span class="lifetime">'de</span>: <span class="lifetime">'a</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="kw">let </span>s = &lt;<span class="kw-2">&amp;</span>str&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
@@ -754,9 +755,9 @@
 /// // data known to be little-endian three-byte chunks of valid Unicode scalar values
 /// let data = [0x68, 0x00, 0x00, 0x69, 0x00, 0x00, 0x4B, 0xF4, 0x01];
 /// // ground truth expectation
-/// let real = [&#39;h&#39;, &#39;i&#39;, &#39;👋&#39;];
+/// let real = ['h', 'i', '👋'];
 ///
-/// let chars: &amp;ZeroSlice&lt;UnvalidatedChar&gt; = ZeroSlice::parse_byte_slice(&amp;data).expect(&quot;invalid data length&quot;);
+/// let chars: &amp;ZeroSlice&lt;UnvalidatedChar&gt; = ZeroSlice::parse_byte_slice(&amp;data).expect("invalid data length");
 /// let parsed: Vec&lt;_&gt; = chars.iter().map(|c| unsafe { c.to_char_unchecked() }).collect();
 /// assert_eq!(&amp;parsed, &amp;real);
 ///
@@ -776,8 +777,8 @@
     /// ```
     /// use zerovec::ule::UnvalidatedChar;
     ///
-    /// let a = UnvalidatedChar::from_char(&#39;a&#39;);
-    /// assert_eq!(a.try_to_char().unwrap(), &#39;a&#39;);
+    /// let a = UnvalidatedChar::from_char('a');
+    /// assert_eq!(a.try_to_char().unwrap(), 'a');
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub const fn </span>from_char(c: char) -&gt; <span class="self">Self </span>{
@@ -799,8 +800,8 @@
     /// ```
     /// use zerovec::ule::{AsULE, UnvalidatedChar};
     ///
-    /// let a = UnvalidatedChar::from_char(&#39;a&#39;);
-    /// assert_eq!(a.try_to_char(), Ok(&#39;a&#39;));
+    /// let a = UnvalidatedChar::from_char('a');
+    /// assert_eq!(a.try_to_char(), Ok('a'));
     ///
     /// let b = UnvalidatedChar::from_unaligned([0xFF, 0xFF, 0xFF].into());
     /// assert!(matches!(b.try_to_char(), Err(_)));
@@ -811,7 +812,7 @@
         char::try_from(u32::from_le_bytes([u0, u1, u2, <span class="number">0</span>]))
     }
 
-    <span class="doccomment">/// Convert a [`UnvalidatedChar`] to a `char&#39;, returning [`char::REPLACEMENT_CHARACTER`]
+    <span class="doccomment">/// Convert a [`UnvalidatedChar`] to a `char', returning [`char::REPLACEMENT_CHARACTER`]
     /// if the `UnvalidatedChar` does not represent a valid Unicode scalar value.
     ///
     /// # Examples
@@ -839,8 +840,8 @@
     /// ```
     /// use zerovec::ule::UnvalidatedChar;
     ///
-    /// let a = UnvalidatedChar::from_char(&#39;a&#39;);
-    /// assert_eq!(unsafe { a.to_char_unchecked() }, &#39;a&#39;);
+    /// let a = UnvalidatedChar::from_char('a');
+    /// assert_eq!(unsafe { a.to_char_unchecked() }, 'a');
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub unsafe fn </span>to_char_unchecked(<span class="self">self</span>) -&gt; char {
@@ -877,7 +878,7 @@
 </span><span class="kw">unsafe impl </span>EqULE <span class="kw">for </span>UnvalidatedChar {}
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>UnvalidatedChar {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="comment">// Debug as a char if possible
         </span><span class="kw">match </span><span class="self">self</span>.try_to_char() {
             <span class="prelude-val">Ok</span>(c) =&gt; fmt::Debug::fmt(<span class="kw-2">&amp;</span>c, f),
@@ -920,7 +921,7 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">impl </span>serde::Serialize <span class="kw">for </span>UnvalidatedChar {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
@@ -929,7 +930,7 @@
         <span class="kw">use </span>serde::ser::Error;
         <span class="kw">let </span>c = <span class="self">self
             </span>.try_to_char()
-            .map_err(|<span class="kw">_</span>| S::Error::custom(<span class="string">&quot;invalid Unicode scalar value in UnvalidatedChar&quot;</span>))<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| S::Error::custom(<span class="string">"invalid Unicode scalar value in UnvalidatedChar"</span>))<span class="question-mark">?</span>;
         <span class="kw">if </span>serializer.is_human_readable() {
             serializer.serialize_char(c)
         } <span class="kw">else </span>{
@@ -939,11 +940,11 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>UnvalidatedChar {
+</span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>UnvalidatedChar {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="kw">let </span>c = &lt;char&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
@@ -955,19 +956,19 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;databake&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"databake"</span>)]
 </span><span class="kw">impl </span>databake::Bake <span class="kw">for </span>UnvalidatedChar {
     <span class="kw">fn </span>bake(<span class="kw-2">&amp;</span><span class="self">self</span>, env: <span class="kw-2">&amp;</span>databake::CrateEnv) -&gt; databake::TokenStream {
         <span class="kw">match </span><span class="self">self</span>.try_to_char() {
             <span class="prelude-val">Ok</span>(ch) =&gt; {
-                env.insert(<span class="string">&quot;zerovec&quot;</span>);
+                env.insert(<span class="string">"zerovec"</span>);
                 <span class="kw">let </span>ch = ch.bake(env);
                 <span class="macro">databake::quote! </span>{
                     zerovec::ule::UnvalidatedChar::from_char(#ch)
                 }
             }
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                env.insert(<span class="string">&quot;zerovec&quot;</span>);
+                env.insert(<span class="string">"zerovec"</span>);
                 <span class="kw">let </span>u24 = u32::from_le_bytes([<span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>], <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>], <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>], <span class="number">0</span>]);
                 <span class="macro">databake::quote! </span>{
                     zerovec::ule::UnvalidatedChar::from_u24(#u24)
@@ -985,17 +986,17 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serde_fail() {
         <span class="kw">let </span>uc = UnvalidatedChar([<span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>]);
-        serde_json::to_string(<span class="kw-2">&amp;</span>uc).expect_err(<span class="string">&quot;serialize invalid char bytes&quot;</span>);
-        bincode::serialize(<span class="kw-2">&amp;</span>uc).expect_err(<span class="string">&quot;serialize invalid char bytes&quot;</span>);
+        serde_json::to_string(<span class="kw-2">&amp;</span>uc).expect_err(<span class="string">"serialize invalid char bytes"</span>);
+        bincode::serialize(<span class="kw-2">&amp;</span>uc).expect_err(<span class="string">"serialize invalid char bytes"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serde_json() {
-        <span class="kw">let </span>c = <span class="string">&#39;🙃&#39;</span>;
+        <span class="kw">let </span>c = <span class="string">'🙃'</span>;
         <span class="kw">let </span>uc = UnvalidatedChar::from_char(c);
         <span class="kw">let </span>json_ser = serde_json::to_string(<span class="kw-2">&amp;</span>uc).unwrap();
 
-        <span class="macro">assert_eq!</span>(json_ser, <span class="string">r#&quot;&quot;🙃&quot;&quot;#</span>);
+        <span class="macro">assert_eq!</span>(json_ser, <span class="string">r#""🙃""#</span>);
 
         <span class="kw">let </span>json_de: UnvalidatedChar = serde_json::from_str(<span class="kw-2">&amp;</span>json_ser).unwrap();
 
@@ -1004,7 +1005,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serde_bincode() {
-        <span class="kw">let </span>c = <span class="string">&#39;🙃&#39;</span>;
+        <span class="kw">let </span>c = <span class="string">'🙃'</span>;
         <span class="kw">let </span>uc = UnvalidatedChar::from_char(c);
         <span class="kw">let </span>bytes_ser = bincode::serialize(<span class="kw-2">&amp;</span>uc).unwrap();
 
@@ -1017,7 +1018,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_representation() {
-        <span class="kw">let </span>chars = [<span class="string">&#39;w&#39;</span>, <span class="string">&#39;ω&#39;</span>, <span class="string">&#39;文&#39;</span>, <span class="string">&#39;𑄃&#39;</span>, <span class="string">&#39;🙃&#39;</span>];
+        <span class="kw">let </span>chars = [<span class="string">'w'</span>, <span class="string">'ω'</span>, <span class="string">'文'</span>, <span class="string">'𑄃'</span>, <span class="string">'🙃'</span>];
 
         <span class="comment">// backed by [UnvalidatedChar]
         </span><span class="kw">let </span>uvchars: Vec&lt;<span class="kw">_</span>&gt; = chars
@@ -1047,7 +1048,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_char_bake() {
-        <span class="macro">databake::test_bake!</span>(UnvalidatedChar, <span class="kw">const</span>: <span class="kw">crate</span>::ule::UnvalidatedChar::from_char(<span class="string">&#39;b&#39;</span>), zerovec);
+        <span class="macro">databake::test_bake!</span>(UnvalidatedChar, <span class="kw">const</span>: <span class="kw">crate</span>::ule::UnvalidatedChar::from_char(<span class="string">'b'</span>), zerovec);
         <span class="comment">// surrogate code point
         </span><span class="macro">databake::test_bake!</span>(UnvalidatedChar, <span class="kw">const</span>: <span class="kw">crate</span>::ule::UnvalidatedChar::from_u24(<span class="number">55296u32</span>), zerovec);
     }

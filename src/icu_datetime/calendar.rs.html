@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/calendar.rs`."><title>calendar.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/calendar.rs`."><title>calendar.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -467,7 +468,7 @@
 /// New implementors of this trait will likely also wish to modify `get_era_code_map()`
 /// in the CLDR transformer to support any new era maps.
 </span><span class="kw">pub trait </span>CldrCalendar {
-    <span class="doccomment">/// The Unicode BCP 47 identifier for the calendar&#39;s skeleton
+    <span class="doccomment">/// The Unicode BCP 47 identifier for the calendar's skeleton
     /// If multiple BCP 47 identifiers work, this should be
     /// the default one when no others are provided
     ///
@@ -475,10 +476,10 @@
     </span><span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value;
 
     <span class="doccomment">/// The data marker for loading symbols for this calendar.
-    </span><span class="kw">type </span>DateSymbolsV1Marker: KeyedDataMarker&lt;Yokeable = DateSymbolsV1&lt;<span class="lifetime">&#39;static</span>&gt;&gt;;
+    </span><span class="kw">type </span>DateSymbolsV1Marker: KeyedDataMarker&lt;Yokeable = DateSymbolsV1&lt;<span class="lifetime">'static</span>&gt;&gt;;
 
     <span class="doccomment">/// The data marker for loading length-patterns for this calendar.
-    </span><span class="kw">type </span>DateLengthsV1Marker: KeyedDataMarker&lt;Yokeable = DateLengthsV1&lt;<span class="lifetime">&#39;static</span>&gt;&gt;;
+    </span><span class="kw">type </span>DateLengthsV1Marker: KeyedDataMarker&lt;Yokeable = DateLengthsV1&lt;<span class="lifetime">'static</span>&gt;&gt;;
 
     <span class="doccomment">/// Checks if a given BCP 47 identifier is allowed to be used with this calendar
     ///
@@ -495,58 +496,58 @@
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
     <span class="kw">if let </span>(<span class="prelude-val">Some</span>(first), <span class="prelude-val">Some</span>(second)) = (slice.get(<span class="number">0</span>), slice.get(<span class="number">1</span>)) {
-        <span class="kw">return </span><span class="kw-2">*</span>first == <span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">&quot;islamic&quot;</span>) &amp;&amp; <span class="kw-2">*</span>second == subcal;
+        <span class="kw">return </span><span class="kw-2">*</span>first == <span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">"islamic"</span>) &amp;&amp; <span class="kw-2">*</span>second == subcal;
     }
 
     <span class="bool-val">false
 </span>}
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Buddhist {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;buddhist&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"buddhist"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = BuddhistDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = BuddhistDateLengthsV1Marker;
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Chinese {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;chinese&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"chinese"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = ChineseDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = ChineseDateLengthsV1Marker;
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Coptic {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;coptic&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"coptic"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = CopticDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = CopticDateLengthsV1Marker;
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Dangi {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;dangi&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"dangi"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = DangiDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = DangiDateLengthsV1Marker;
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Ethiopian {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;ethiopic&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"ethiopic"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = EthiopianDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = EthiopianDateLengthsV1Marker;
     <span class="kw">fn </span>is_identifier_allowed_for_calendar(value: <span class="kw-2">&amp;</span>Value) -&gt; bool {
-        <span class="kw-2">*</span>value == <span class="macro">value!</span>(<span class="string">&quot;ethiopic&quot;</span>) || <span class="kw-2">*</span>value == <span class="macro">value!</span>(<span class="string">&quot;ethioaa&quot;</span>)
+        <span class="kw-2">*</span>value == <span class="macro">value!</span>(<span class="string">"ethiopic"</span>) || <span class="kw-2">*</span>value == <span class="macro">value!</span>(<span class="string">"ethioaa"</span>)
     }
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Gregorian {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;gregory&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"gregory"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = GregorianDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = GregorianDateLengthsV1Marker;
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Hebrew {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;hebrew&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"hebrew"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = HebrewDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = HebrewDateLengthsV1Marker;
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Indian {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;indian&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"indian"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = IndianDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = IndianDateLengthsV1Marker;
 }
@@ -555,16 +556,16 @@
     <span class="comment">// this value is not actually a valid identifier for this calendar,
     // however since we are overriding is_identifier_allowed_for_calendar we are using
     // this solely for its effects on skeleton data loading
-    </span><span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;islamic&quot;</span>);
+    </span><span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"islamic"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = IslamicDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = IslamicDateLengthsV1Marker;
     <span class="kw">fn </span>is_identifier_allowed_for_calendar(value: <span class="kw-2">&amp;</span>Value) -&gt; bool {
-        <span class="kw-2">*</span>value == <span class="macro">value!</span>(<span class="string">&quot;islamicc&quot;</span>) || is_islamic_subcal(value, <span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">&quot;civil&quot;</span>))
+        <span class="kw-2">*</span>value == <span class="macro">value!</span>(<span class="string">"islamicc"</span>) || is_islamic_subcal(value, <span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">"civil"</span>))
     }
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>IslamicObservational {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;islamic&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"islamic"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = IslamicDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = IslamicDateLengthsV1Marker;
 }
@@ -573,11 +574,11 @@
     <span class="comment">// this value is not actually a valid identifier for this calendar,
     // however since we are overriding is_identifier_allowed_for_calendar we are using
     // this solely for its effects on skeleton data loading
-    </span><span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;islamic&quot;</span>);
+    </span><span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"islamic"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = IslamicDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = IslamicDateLengthsV1Marker;
     <span class="kw">fn </span>is_identifier_allowed_for_calendar(value: <span class="kw-2">&amp;</span>Value) -&gt; bool {
-        is_islamic_subcal(value, <span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">&quot;tbla&quot;</span>))
+        is_islamic_subcal(value, <span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">"tbla"</span>))
     }
 }
 
@@ -585,34 +586,34 @@
     <span class="comment">// this value is not actually a valid identifier for this calendar,
     // however since we are overriding is_identifier_allowed_for_calendar we are using
     // this solely for its effects on skeleton data loading
-    </span><span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;islamic&quot;</span>);
+    </span><span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"islamic"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = IslamicDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = IslamicDateLengthsV1Marker;
     <span class="kw">fn </span>is_identifier_allowed_for_calendar(value: <span class="kw-2">&amp;</span>Value) -&gt; bool {
-        is_islamic_subcal(value, <span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">&quot;umalqura&quot;</span>))
+        is_islamic_subcal(value, <span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">"umalqura"</span>))
     }
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Japanese {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;japanese&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"japanese"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = JapaneseDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = JapaneseDateLengthsV1Marker;
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>JapaneseExtended {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;japanext&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"japanext"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = JapaneseExtendedDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = JapaneseExtendedDateLengthsV1Marker;
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Persian {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;persian&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"persian"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = PersianDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = PersianDateLengthsV1Marker;
 }
 
 <span class="kw">impl </span>CldrCalendar <span class="kw">for </span>Roc {
-    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">&quot;roc&quot;</span>);
+    <span class="kw">const </span>DEFAULT_BCP_47_IDENTIFIER: Value = <span class="macro">value!</span>(<span class="string">"roc"</span>);
     <span class="kw">type </span>DateSymbolsV1Marker = RocDateSymbolsV1Marker;
     <span class="kw">type </span>DateLengthsV1Marker = RocDateLengthsV1Marker;
 }
@@ -764,7 +765,7 @@
         }
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(
-                DataError::custom(<span class="string">&quot;Don&#39;t know how to load data for specified calendar&quot;</span>)
+                DataError::custom(<span class="string">"Don't know how to load data for specified calendar"</span>)
                     .with_debug_context(<span class="kw-2">&amp;</span>kind),
             )
         }
@@ -885,7 +886,7 @@
         }
         <span class="kw">_ </span>=&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(
-                DataError::custom(<span class="string">&quot;Don&#39;t know how to load data for specified calendar&quot;</span>)
+                DataError::custom(<span class="string">"Don't know how to load data for specified calendar"</span>)
                     .with_debug_context(<span class="kw-2">&amp;</span>kind),
             )
         }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/uuid-1.7.0/src/v5.rs`."><title>v5.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../uuid/index.html"><img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="uuid"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/uuid-1.7.0/src/v5.rs`."><title>v5.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="uuid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../uuid/index.html"><img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="uuid"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -206,7 +207,7 @@
     ///
     /// ```
     /// # use uuid::{Uuid, Version};
-    /// let uuid = Uuid::new_v5(&amp;Uuid::NAMESPACE_DNS, b&quot;rust-lang.org&quot;);
+    /// let uuid = Uuid::new_v5(&amp;Uuid::NAMESPACE_DNS, b"rust-lang.org");
     ///
     /// assert_eq!(Some(Version::Sha1), uuid.get_version());
     /// ```
@@ -229,108 +230,108 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[cfg(all(
-        target_arch = <span class="string">&quot;wasm32&quot;</span>,
-        target_vendor = <span class="string">&quot;unknown&quot;</span>,
-        target_os = <span class="string">&quot;unknown&quot;
+        target_arch = <span class="string">"wasm32"</span>,
+        target_vendor = <span class="string">"unknown"</span>,
+        target_os = <span class="string">"unknown"
     </span>))]
     </span><span class="kw">use </span>wasm_bindgen_test::<span class="kw-2">*</span>;
 
     <span class="kw">use crate</span>::{std::string::ToString, Variant, Version};
 
-    <span class="kw">static </span>FIXTURE: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Uuid, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)] = <span class="kw-2">&amp;</span>[
+    <span class="kw">static </span>FIXTURE: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Uuid, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)] = <span class="kw-2">&amp;</span>[
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS,
-            <span class="string">&quot;example.org&quot;</span>,
-            <span class="string">&quot;aad03681-8b63-5304-89e0-8ca8f49461b5&quot;</span>,
-        ),
-        (
-            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS,
-            <span class="string">&quot;rust-lang.org&quot;</span>,
-            <span class="string">&quot;c66bbb60-d62e-5f17-a399-3a0bd237c503&quot;</span>,
+            <span class="string">"example.org"</span>,
+            <span class="string">"aad03681-8b63-5304-89e0-8ca8f49461b5"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS,
-            <span class="string">&quot;42&quot;</span>,
-            <span class="string">&quot;7c411b5e-9d3f-50b5-9c28-62096e41c4ed&quot;</span>,
+            <span class="string">"rust-lang.org"</span>,
+            <span class="string">"c66bbb60-d62e-5f17-a399-3a0bd237c503"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS,
-            <span class="string">&quot;lorem ipsum&quot;</span>,
-            <span class="string">&quot;97886a05-8a68-5743-ad55-56ab2d61cf7b&quot;</span>,
+            <span class="string">"42"</span>,
+            <span class="string">"7c411b5e-9d3f-50b5-9c28-62096e41c4ed"</span>,
+        ),
+        (
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS,
+            <span class="string">"lorem ipsum"</span>,
+            <span class="string">"97886a05-8a68-5743-ad55-56ab2d61cf7b"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_URL,
-            <span class="string">&quot;example.org&quot;</span>,
-            <span class="string">&quot;54a35416-963c-5dd6-a1e2-5ab7bb5bafc7&quot;</span>,
+            <span class="string">"example.org"</span>,
+            <span class="string">"54a35416-963c-5dd6-a1e2-5ab7bb5bafc7"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_URL,
-            <span class="string">&quot;rust-lang.org&quot;</span>,
-            <span class="string">&quot;c48d927f-4122-5413-968c-598b1780e749&quot;</span>,
+            <span class="string">"rust-lang.org"</span>,
+            <span class="string">"c48d927f-4122-5413-968c-598b1780e749"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_URL,
-            <span class="string">&quot;42&quot;</span>,
-            <span class="string">&quot;5c2b23de-4bad-58ee-a4b3-f22f3b9cfd7d&quot;</span>,
+            <span class="string">"42"</span>,
+            <span class="string">"5c2b23de-4bad-58ee-a4b3-f22f3b9cfd7d"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_URL,
-            <span class="string">&quot;lorem ipsum&quot;</span>,
-            <span class="string">&quot;15c67689-4b85-5253-86b4-49fbb138569f&quot;</span>,
+            <span class="string">"lorem ipsum"</span>,
+            <span class="string">"15c67689-4b85-5253-86b4-49fbb138569f"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_OID,
-            <span class="string">&quot;example.org&quot;</span>,
-            <span class="string">&quot;34784df9-b065-5094-92c7-00bb3da97a30&quot;</span>,
+            <span class="string">"example.org"</span>,
+            <span class="string">"34784df9-b065-5094-92c7-00bb3da97a30"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_OID,
-            <span class="string">&quot;rust-lang.org&quot;</span>,
-            <span class="string">&quot;8ef61ecb-977a-5844-ab0f-c25ef9b8d5d6&quot;</span>,
+            <span class="string">"rust-lang.org"</span>,
+            <span class="string">"8ef61ecb-977a-5844-ab0f-c25ef9b8d5d6"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_OID,
-            <span class="string">&quot;42&quot;</span>,
-            <span class="string">&quot;ba293c61-ad33-57b9-9671-f3319f57d789&quot;</span>,
+            <span class="string">"42"</span>,
+            <span class="string">"ba293c61-ad33-57b9-9671-f3319f57d789"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_OID,
-            <span class="string">&quot;lorem ipsum&quot;</span>,
-            <span class="string">&quot;6485290d-f79e-5380-9e64-cb4312c7b4a6&quot;</span>,
+            <span class="string">"lorem ipsum"</span>,
+            <span class="string">"6485290d-f79e-5380-9e64-cb4312c7b4a6"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_X500,
-            <span class="string">&quot;example.org&quot;</span>,
-            <span class="string">&quot;e3635e86-f82b-5bbc-a54a-da97923e5c76&quot;</span>,
+            <span class="string">"example.org"</span>,
+            <span class="string">"e3635e86-f82b-5bbc-a54a-da97923e5c76"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_X500,
-            <span class="string">&quot;rust-lang.org&quot;</span>,
-            <span class="string">&quot;26c9c3e9-49b7-56da-8b9f-a0fb916a71a3&quot;</span>,
+            <span class="string">"rust-lang.org"</span>,
+            <span class="string">"26c9c3e9-49b7-56da-8b9f-a0fb916a71a3"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_X500,
-            <span class="string">&quot;42&quot;</span>,
-            <span class="string">&quot;e4b88014-47c6-5fe0-a195-13710e5f6e27&quot;</span>,
+            <span class="string">"42"</span>,
+            <span class="string">"e4b88014-47c6-5fe0-a195-13710e5f6e27"</span>,
         ),
         (
             <span class="kw-2">&amp;</span>Uuid::NAMESPACE_X500,
-            <span class="string">&quot;lorem ipsum&quot;</span>,
-            <span class="string">&quot;b11f79a5-1e6d-57ce-a4b5-ba8531ea03d0&quot;</span>,
+            <span class="string">"lorem ipsum"</span>,
+            <span class="string">"b11f79a5-1e6d-57ce-a4b5-ba8531ea03d0"</span>,
         ),
     ];
 
     <span class="attr">#[test]
     #[cfg_attr(
         all(
-            target_arch = <span class="string">&quot;wasm32&quot;</span>,
-            target_vendor = <span class="string">&quot;unknown&quot;</span>,
-            target_os = <span class="string">&quot;unknown&quot;
+            target_arch = <span class="string">"wasm32"</span>,
+            target_vendor = <span class="string">"unknown"</span>,
+            target_os = <span class="string">"unknown"
         </span>),
         wasm_bindgen_test
     )]
     </span><span class="kw">fn </span>test_get_version() {
-        <span class="kw">let </span>uuid = Uuid::new_v5(<span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS, <span class="string">&quot;rust-lang.org&quot;</span>.as_bytes());
+        <span class="kw">let </span>uuid = Uuid::new_v5(<span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS, <span class="string">"rust-lang.org"</span>.as_bytes());
 
         <span class="macro">assert_eq!</span>(uuid.get_version(), <span class="prelude-val">Some</span>(Version::Sha1));
         <span class="macro">assert_eq!</span>(uuid.get_version_num(), <span class="number">5</span>);
@@ -339,9 +340,9 @@
     <span class="attr">#[test]
     #[cfg_attr(
         all(
-            target_arch = <span class="string">&quot;wasm32&quot;</span>,
-            target_vendor = <span class="string">&quot;unknown&quot;</span>,
-            target_os = <span class="string">&quot;unknown&quot;
+            target_arch = <span class="string">"wasm32"</span>,
+            target_vendor = <span class="string">"unknown"</span>,
+            target_os = <span class="string">"unknown"
         </span>),
         wasm_bindgen_test
     )]
@@ -356,9 +357,9 @@
     <span class="attr">#[test]
     #[cfg_attr(
         all(
-            target_arch = <span class="string">&quot;wasm32&quot;</span>,
-            target_vendor = <span class="string">&quot;unknown&quot;</span>,
-            target_os = <span class="string">&quot;unknown&quot;
+            target_arch = <span class="string">"wasm32"</span>,
+            target_vendor = <span class="string">"unknown"</span>,
+            target_os = <span class="string">"unknown"
         </span>),
         wasm_bindgen_test
     )]

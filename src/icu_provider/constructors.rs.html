@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/constructors.rs`."><title>constructors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/constructors.rs`."><title>constructors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -402,8 +403,8 @@
 //!
 //! ## When to use `*`
 //!
-//! If you don&#39;t want to customize data at runtime (i.e. if you don&#39;t care about code size,
-//! updating your data, etc.) you can use the `compiled_data` Cargo feature and don&#39;t have to think
+//! If you don't want to customize data at runtime (i.e. if you don't care about code size,
+//! updating your data, etc.) you can use the `compiled_data` Cargo feature and don't have to think
 //! about where your data comes from.
 //!
 //! These constructors are sometimes `const` functions, this way Rust can most effectively optimize
@@ -418,7 +419,7 @@
 //! 2. Anything with a _blanket_ [`DataProvider`] impl
 //!
 //! Since the exact set of bounds may change at any time, including in minor SemVer releases,
-//! it is the client&#39;s responsibility to guarantee that the requirement is upheld.
+//! it is the client's responsibility to guarantee that the requirement is upheld.
 //!
 //! ## When to use `*_with_any_provider`
 //!
@@ -428,7 +429,7 @@
 //! 1. [`AnyPayloadProvider`]
 //! 2. [`ForkByKeyProvider`] between two providers implementing [`AnyProvider`]
 //! 3. Providers that cache or override certain keys but not others and therefore
-//!    can&#39;t implement [`DataProvider`]
+//!    can't implement [`DataProvider`]
 //!
 //! ## When to use `*_with_buffer_provider`
 //!
@@ -469,7 +470,7 @@
 //! In Rust ICU4X, a similar enum approach was not taken because:
 //!
 //! 1. Feature-gating the enum branches gets complex across crates.
-//! 2. Without feature gating, users need to carry Serde code even if they&#39;re not using it,
+//! 2. Without feature gating, users need to carry Serde code even if they're not using it,
 //!    violating one of the core value propositions of ICU4X.
 //! 3. We could reduce the number of constructors from 4 to 2 but not to 1, so the educational
 //!    benefit is limited.
@@ -489,30 +490,30 @@
 </span><span class="macro">macro_rules! </span>gen_any_buffer_unstable_docs {
     (ANY, <span class="macro-nonterminal">$data</span>:path) =&gt; {
         <span class="macro">concat!</span>(
-            <span class="string">&quot;A version of [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$data</span>), <span class="string">&quot;`] that uses custom data &quot;</span>,
-            <span class="string">&quot;provided by an [`AnyProvider`](icu_provider::AnyProvider).\n\n&quot;</span>,
-            <span class="string">&quot;[📚 Help choosing a constructor](icu_provider::constructors)&quot;</span>,
+            <span class="string">"A version of [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$data</span>), <span class="string">"`] that uses custom data "</span>,
+            <span class="string">"provided by an [`AnyProvider`](icu_provider::AnyProvider).\n\n"</span>,
+            <span class="string">"[📚 Help choosing a constructor](icu_provider::constructors)"</span>,
         )
     };
     (BUFFER, <span class="macro-nonterminal">$data</span>:path) =&gt; {
         <span class="macro">concat!</span>(
-            <span class="string">&quot;A version of [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$data</span>), <span class="string">&quot;`] that uses custom data &quot;</span>,
-            <span class="string">&quot;provided by a [`BufferProvider`](icu_provider::BufferProvider).\n\n&quot;</span>,
-            <span class="string">&quot;✨ *Enabled with the `serde` feature.*\n\n&quot;</span>,
-            <span class="string">&quot;[📚 Help choosing a constructor](icu_provider::constructors)&quot;</span>,
+            <span class="string">"A version of [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$data</span>), <span class="string">"`] that uses custom data "</span>,
+            <span class="string">"provided by a [`BufferProvider`](icu_provider::BufferProvider).\n\n"</span>,
+            <span class="string">"✨ *Enabled with the `serde` feature.*\n\n"</span>,
+            <span class="string">"[📚 Help choosing a constructor](icu_provider::constructors)"</span>,
         )
     };
     (UNSTABLE, <span class="macro-nonterminal">$data</span>:path) =&gt; {
         <span class="macro">concat!</span>(
-            <span class="string">&quot;A version of [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$data</span>), <span class="string">&quot;`] that uses custom data &quot;</span>,
-            <span class="string">&quot;provided by a [`DataProvider`](icu_provider::DataProvider).\n\n&quot;</span>,
-            <span class="string">&quot;[📚 Help choosing a constructor](icu_provider::constructors)\n\n&quot;</span>,
-            <span class="string">&quot;&lt;div class=\&quot;stab unstable\&quot;&gt;⚠️ The bounds on &lt;tt&gt;provider&lt;/tt&gt; may change over time, including in SemVer minor releases.&lt;/div&gt;&quot;
+            <span class="string">"A version of [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$data</span>), <span class="string">"`] that uses custom data "</span>,
+            <span class="string">"provided by a [`DataProvider`](icu_provider::DataProvider).\n\n"</span>,
+            <span class="string">"[📚 Help choosing a constructor](icu_provider::constructors)\n\n"</span>,
+            <span class="string">"&lt;div class=\"stab unstable\"&gt;⚠️ The bounds on &lt;tt&gt;provider&lt;/tt&gt; may change over time, including in SemVer minor releases.&lt;/div&gt;"
         </span>)
     };
 }
 
-<span class="attr">#[allow(clippy::crate_in_macro_def)] </span><span class="comment">// by convention each crate&#39;s data provider is `crate::provider::Baked`
+<span class="attr">#[allow(clippy::crate_in_macro_def)] </span><span class="comment">// by convention each crate's data provider is `crate::provider::Baked`
 </span><span class="attr">#[doc(hidden)]
 #[macro_export]
 </span><span class="macro">macro_rules! </span>gen_any_buffer_data_constructors {
@@ -532,7 +533,7 @@
         );
     };
     (locale: skip, options: skip, error: <span class="macro-nonterminal">$error_ty</span>:path, $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>:meta]</span>)+ functions: [<span class="macro-nonterminal">$baked</span>:ident, <span class="macro-nonterminal">$any</span>:ident, <span class="macro-nonterminal">$buffer</span>:ident, <span class="macro-nonterminal">$unstable</span>:ident $(, <span class="macro-nonterminal">$</span><span class="kw">struct</span>:<span class="macro-nonterminal">ident</span>)<span class="question-mark">? </span>$(,)<span class="question-mark">?</span>]) =&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
         </span>$(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)+
         <span class="kw">pub fn </span><span class="macro-nonterminal">$baked</span>() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="macro-nonterminal">$error_ty</span>&gt; {
             $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>:: )<span class="question-mark">? </span><span class="macro-nonterminal">$unstable</span>(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
@@ -542,7 +543,7 @@
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDowncastingAnyProvider</span>;
             $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>:: )<span class="question-mark">? </span><span class="macro-nonterminal">$unstable</span>(<span class="kw-2">&amp;</span>provider.as_downcasting())
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
         #[doc = <span class="macro-nonterminal">$</span><span class="macro">crate::gen_any_buffer_unstable_docs!</span>(<span class="macro-nonterminal">BUFFER</span>, $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>::)<span class="question-mark">? </span><span class="macro-nonterminal">$baked</span>)]
         </span><span class="kw">pub fn </span><span class="macro-nonterminal">$buffer</span>(provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span><span class="macro-nonterminal">$crate::BufferProvider </span>+ <span class="question-mark">?</span>Sized)) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="macro-nonterminal">$error_ty</span>&gt; {
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDeserializingBufferProvider</span>;
@@ -552,7 +553,7 @@
 
 
     (locale: skip, options: skip, result: <span class="macro-nonterminal">$result_ty</span>:path, $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>:meta]</span>)+ functions: [<span class="macro-nonterminal">$baked</span>:ident, <span class="macro-nonterminal">$any</span>:ident, <span class="macro-nonterminal">$buffer</span>:ident, <span class="macro-nonterminal">$unstable</span>:ident $(, <span class="macro-nonterminal">$</span><span class="kw">struct</span>:<span class="macro-nonterminal">ident</span>)<span class="question-mark">? </span>$(,)<span class="question-mark">?</span>]) =&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
         </span>$(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)+
         <span class="kw">pub fn </span><span class="macro-nonterminal">$baked</span>() -&gt; <span class="macro-nonterminal">$result_ty </span>{
             $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>:: )<span class="question-mark">? </span><span class="macro-nonterminal">$unstable</span>(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
@@ -562,7 +563,7 @@
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDowncastingAnyProvider</span>;
             $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>:: )<span class="question-mark">? </span><span class="macro-nonterminal">$unstable</span>(<span class="kw-2">&amp;</span>provider.as_downcasting())
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
         #[doc = <span class="macro-nonterminal">$</span><span class="macro">crate::gen_any_buffer_unstable_docs!</span>(<span class="macro-nonterminal">BUFFER</span>, $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>::)<span class="question-mark">? </span><span class="macro-nonterminal">$baked</span>)]
         </span><span class="kw">pub fn </span><span class="macro-nonterminal">$buffer</span>(provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span><span class="macro-nonterminal">$crate::BufferProvider </span>+ <span class="question-mark">?</span>Sized)) -&gt; <span class="macro-nonterminal">$result_ty </span>{
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDeserializingBufferProvider</span>;
@@ -586,7 +587,7 @@
         );
     };
     (locale: skip, <span class="macro-nonterminal">$options_arg</span>:ident: <span class="macro-nonterminal">$options_ty</span>:ty, result: <span class="macro-nonterminal">$result_ty</span>:ty, $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>:meta]</span>)+ functions: [<span class="macro-nonterminal">$baked</span>:ident, <span class="macro-nonterminal">$any</span>:ident, <span class="macro-nonterminal">$buffer</span>:ident, <span class="macro-nonterminal">$unstable</span>:ident $(, <span class="macro-nonterminal">$</span><span class="kw">struct</span>:<span class="macro-nonterminal">ident</span>)<span class="question-mark">? </span>$(,)<span class="question-mark">?</span>]) =&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
         </span>$(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)+
         <span class="doccomment">///
         /// ✨ *Enabled with the `compiled_data` Cargo feature.*
@@ -600,7 +601,7 @@
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDowncastingAnyProvider</span>;
             $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>:: )<span class="question-mark">? </span><span class="macro-nonterminal">$unstable</span>(<span class="kw-2">&amp;</span>provider.as_downcasting(), <span class="macro-nonterminal">$options_arg</span>)
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
         #[doc = <span class="macro-nonterminal">$</span><span class="macro">crate::gen_any_buffer_unstable_docs!</span>(<span class="macro-nonterminal">BUFFER</span>, $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>::)<span class="question-mark">? </span><span class="macro-nonterminal">$baked</span>)]
         </span><span class="kw">pub fn </span><span class="macro-nonterminal">$buffer</span>(provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span><span class="macro-nonterminal">$crate::BufferProvider </span>+ <span class="question-mark">?</span>Sized), <span class="macro-nonterminal">$options_arg</span>: <span class="macro-nonterminal">$options_ty</span>) -&gt; <span class="macro-nonterminal">$result_ty </span>{
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDeserializingBufferProvider</span>;
@@ -608,7 +609,7 @@
         }
     };
     (locale: skip, <span class="macro-nonterminal">$options_arg</span>:ident: <span class="macro-nonterminal">$options_ty</span>:ty, error: <span class="macro-nonterminal">$error_ty</span>:ty, $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>:meta]</span>)+ functions: [<span class="macro-nonterminal">$baked</span>:ident, <span class="macro-nonterminal">$any</span>:ident, <span class="macro-nonterminal">$buffer</span>:ident, <span class="macro-nonterminal">$unstable</span>:ident $(, <span class="macro-nonterminal">$</span><span class="kw">struct</span>:<span class="macro-nonterminal">ident</span>)<span class="question-mark">? </span>$(,)<span class="question-mark">?</span>]) =&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
         </span>$(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)+
         <span class="doccomment">///
         /// ✨ *Enabled with the `compiled_data` Cargo feature.*
@@ -622,7 +623,7 @@
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDowncastingAnyProvider</span>;
             $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>:: )<span class="question-mark">? </span><span class="macro-nonterminal">$unstable</span>(<span class="kw-2">&amp;</span>provider.as_downcasting(), <span class="macro-nonterminal">$options_arg</span>)
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
         #[doc = <span class="macro-nonterminal">$</span><span class="macro">crate::gen_any_buffer_unstable_docs!</span>(<span class="macro-nonterminal">BUFFER</span>, $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>::)<span class="question-mark">? </span><span class="macro-nonterminal">$baked</span>)]
         </span><span class="kw">pub fn </span><span class="macro-nonterminal">$buffer</span>(provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span><span class="macro-nonterminal">$crate::BufferProvider </span>+ <span class="question-mark">?</span>Sized), <span class="macro-nonterminal">$options_arg</span>: <span class="macro-nonterminal">$options_ty</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="macro-nonterminal">$error_ty</span>&gt; {
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDeserializingBufferProvider</span>;
@@ -645,7 +646,7 @@
         );
     };
     (locale: include, options: skip, error: <span class="macro-nonterminal">$error_ty</span>:path, $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>:meta]</span>)+ functions: [<span class="macro-nonterminal">$baked</span>:ident, <span class="macro-nonterminal">$any</span>:ident, <span class="macro-nonterminal">$buffer</span>:ident, <span class="macro-nonterminal">$unstable</span>:ident $(, <span class="macro-nonterminal">$</span><span class="kw">struct</span>:<span class="macro-nonterminal">ident</span>)<span class="question-mark">? </span>$(,)<span class="question-mark">?</span>]) =&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
         </span>$(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)+
         <span class="doccomment">///
         /// ✨ *Enabled with the `compiled_data` Cargo feature.*
@@ -659,7 +660,7 @@
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDowncastingAnyProvider</span>;
             $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>:: )<span class="question-mark">? </span><span class="macro-nonterminal">$unstable</span>(<span class="kw-2">&amp;</span>provider.as_downcasting(), locale)
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
         #[doc = <span class="macro-nonterminal">$</span><span class="macro">crate::gen_any_buffer_unstable_docs!</span>(<span class="macro-nonterminal">BUFFER</span>, $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>::)<span class="question-mark">? </span><span class="macro-nonterminal">$baked</span>)]
         </span><span class="kw">pub fn </span><span class="macro-nonterminal">$buffer</span>(provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span><span class="macro-nonterminal">$crate::BufferProvider </span>+ <span class="question-mark">?</span>Sized), locale: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$crate::DataLocale</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="macro-nonterminal">$error_ty</span>&gt; {
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDeserializingBufferProvider</span>;
@@ -684,7 +685,7 @@
         );
     };
     (locale: include, <span class="macro-nonterminal">$config_arg</span>:ident: <span class="macro-nonterminal">$config_ty</span>:path, <span class="macro-nonterminal">$options_arg</span>:ident: <span class="macro-nonterminal">$options_ty</span>:path, error: <span class="macro-nonterminal">$error_ty</span>:path, $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>:meta]</span>)+ functions: [<span class="macro-nonterminal">$baked</span>:ident, <span class="macro-nonterminal">$any</span>:ident, <span class="macro-nonterminal">$buffer</span>:ident, <span class="macro-nonterminal">$unstable</span>:ident $(, <span class="macro-nonterminal">$</span><span class="kw">struct</span>:<span class="macro-nonterminal">ident</span>)<span class="question-mark">? </span>$(,)<span class="question-mark">?</span>]) =&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
         </span>$(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)+
         <span class="doccomment">///
         /// ✨ *Enabled with the `compiled_data` Cargo feature.*
@@ -698,7 +699,7 @@
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDowncastingAnyProvider</span>;
             $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>:: )<span class="question-mark">? </span><span class="macro-nonterminal">$unstable</span>(<span class="kw-2">&amp;</span>provider.as_downcasting(), locale, <span class="macro-nonterminal">$config_arg</span>, <span class="macro-nonterminal">$options_arg</span>)
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
         #[doc = <span class="macro-nonterminal">$</span><span class="macro">crate::gen_any_buffer_unstable_docs!</span>(<span class="macro-nonterminal">BUFFER</span>, $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>::)<span class="question-mark">? </span><span class="macro-nonterminal">$baked</span>)]
         </span><span class="kw">pub fn </span><span class="macro-nonterminal">$buffer</span>(provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span><span class="macro-nonterminal">$crate::BufferProvider </span>+ <span class="question-mark">?</span>Sized), locale: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$crate::DataLocale</span>, <span class="macro-nonterminal">$config_arg</span>: <span class="macro-nonterminal">$config_ty</span>, <span class="macro-nonterminal">$options_arg</span>: <span class="macro-nonterminal">$options_ty</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="macro-nonterminal">$error_ty</span>&gt; {
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDeserializingBufferProvider</span>;
@@ -722,7 +723,7 @@
         );
     };
     (locale: include, <span class="macro-nonterminal">$options_arg</span>:ident: <span class="macro-nonterminal">$options_ty</span>:path, error: <span class="macro-nonterminal">$error_ty</span>:path, $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>:meta]</span>)+ functions: [<span class="macro-nonterminal">$baked</span>:ident, <span class="macro-nonterminal">$any</span>:ident, <span class="macro-nonterminal">$buffer</span>:ident, <span class="macro-nonterminal">$unstable</span>:ident $(, <span class="macro-nonterminal">$</span><span class="kw">struct</span>:<span class="macro-nonterminal">ident</span>)<span class="question-mark">? </span>$(,)<span class="question-mark">?</span>]) =&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
         </span>$(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)+
         <span class="doccomment">///
         /// ✨ *Enabled with the `compiled_data` Cargo feature.*
@@ -736,7 +737,7 @@
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDowncastingAnyProvider</span>;
             $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>:: )<span class="question-mark">? </span><span class="macro-nonterminal">$unstable</span>(<span class="kw-2">&amp;</span>provider.as_downcasting(), locale, <span class="macro-nonterminal">$options_arg</span>)
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
         #[doc = <span class="macro-nonterminal">$</span><span class="macro">crate::gen_any_buffer_unstable_docs!</span>(<span class="macro-nonterminal">BUFFER</span>, $(<span class="macro-nonterminal">$</span><span class="kw">struct </span>::)<span class="question-mark">? </span><span class="macro-nonterminal">$baked</span>)]
         </span><span class="kw">pub fn </span><span class="macro-nonterminal">$buffer</span>(provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span><span class="macro-nonterminal">$crate::BufferProvider </span>+ <span class="question-mark">?</span>Sized), locale: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$crate::DataLocale</span>, <span class="macro-nonterminal">$options_arg</span>: <span class="macro-nonterminal">$options_ty</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="macro-nonterminal">$error_ty</span>&gt; {
             <span class="kw">use </span><span class="macro-nonterminal">$crate::AsDeserializingBufferProvider</span>;

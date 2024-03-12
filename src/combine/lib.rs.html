@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1035,16 +1036,16 @@
 //! use combine::{Parser, EasyParser};
 //! use combine::stream::position;
 //! use combine::parser::char::{digit, letter};
-//! const MSG: &amp;&#39;static str = r#&quot;Parse error at line: 1, column: 1
+//! const MSG: &amp;'static str = r#"Parse error at line: 1, column: 1
 //! Unexpected `|`
 //! Expected digit or letter
-//! &quot;#;
+//! "#;
 //!
 //! fn main() {
 //!     // Wrapping a `&amp;str` with `State` provides automatic line and column tracking. If `State`
 //!     // was not used the positions would instead only be pointers into the `&amp;str`
-//!     if let Err(err) = digit().or(letter()).easy_parse(position::Stream::new(&quot;|&quot;)) {
-//!         assert_eq!(MSG, format!(&quot;{}&quot;, err));
+//!     if let Err(err) = digit().or(letter()).easy_parse(position::Stream::new("|")) {
+//!         assert_eq!(MSG, format!("{}", err));
 //!     }
 //! }
 //! ```
@@ -1058,10 +1059,10 @@
 //! * [`stream`] contains the second most important trait next to [`Parser`]. Streams represent the
 //! data source which is being parsed such as `&amp;[u8]`, `&amp;str` or iterators.
 //!
-//! * [`easy`] contains combine&#39;s default &quot;easy&quot; error and stream handling. If you use the
+//! * [`easy`] contains combine's default "easy" error and stream handling. If you use the
 //! `easy_parse` method to start your parsing these are the types that are used.
 //!
-//! * [`error`] contains the types and traits that make up combine&#39;s error handling. Unless you
+//! * [`error`] contains the types and traits that make up combine's error handling. Unless you
 //! need to customize the errors your parsers return you should not need to use this module much.
 //!
 //!
@@ -1080,22 +1081,22 @@
 //!         .with(many1(digit()).map(|string: String| string.parse::&lt;i32&gt;().unwrap()));
 //!
 //!     //Parse integers separated by commas, skipping whitespace
-//!     let mut integer_list = sep_by(integer, spaces().skip(char(&#39;,&#39;)));
+//!     let mut integer_list = sep_by(integer, spaces().skip(char(',')));
 //!
 //!     //Call parse with the input to execute the parser
-//!     let input = &quot;1234, 45,78&quot;;
+//!     let input = "1234, 45,78";
 //!     let result: Result&lt;(Vec&lt;i32&gt;, &amp;str), easy::ParseError&lt;&amp;str&gt;&gt; =
 //!         integer_list.easy_parse(input);
 //!     match result {
-//!         Ok((value, _remaining_input)) =&gt; println!(&quot;{:?}&quot;, value),
-//!         Err(err) =&gt; println!(&quot;{}&quot;, err)
+//!         Ok((value, _remaining_input)) =&gt; println!("{:?}", value),
+//!         Err(err) =&gt; println!("{}", err)
 //!     }
 //! }
 //! ```
 //!
 //! If we need a parser that is mutually recursive or if we want to export a reusable parser the
 //! [`parser!`] macro can be used. In effect it makes it possible to return a parser without naming
-//! the type of the parser (which can be very large due to combine&#39;s trait based approach). While
+//! the type of the parser (which can be very large due to combine's trait based approach). While
 //! it is possible to do avoid naming the type without the macro those solutions require either allocation
 //! (`Box&lt;dyn Parser&lt; Input, Output = O, PartialState = P&gt;&gt;`) or nightly rust via `impl Trait`. The
 //! macro thus threads the needle and makes it possible to have non-allocating, anonymous parsers
@@ -1126,23 +1127,23 @@
 //!     let word = many1(letter());
 //!
 //!     // A parser which skips past whitespace.
-//!     // Since we aren&#39;t interested in knowing that our expression parser
+//!     // Since we aren't interested in knowing that our expression parser
 //!     // could have accepted additional whitespace between the tokens we also silence the error.
 //!     let skip_spaces = || spaces().silent();
 //!
 //!     //Creates a parser which parses a char and skips any trailing whitespace
 //!     let lex_char = |c| char(c).skip(skip_spaces());
 //!
-//!     let comma_list = sep_by(expr(), lex_char(&#39;,&#39;));
-//!     let array = between(lex_char(&#39;[&#39;), lex_char(&#39;]&#39;), comma_list);
+//!     let comma_list = sep_by(expr(), lex_char(','));
+//!     let array = between(lex_char('['), lex_char(']'), comma_list);
 //!
 //!     //We can use tuples to run several parsers in sequence
 //!     //The resulting type is a tuple containing each parsers output
-//!     let pair = (lex_char(&#39;(&#39;),
+//!     let pair = (lex_char('('),
 //!                 expr(),
-//!                 lex_char(&#39;,&#39;),
+//!                 lex_char(','),
 //!                 expr(),
-//!                 lex_char(&#39;)&#39;))
+//!                 lex_char(')'))
 //!                    .map(|t| Expr::Pair(Box::new(t.1), Box::new(t.3)));
 //!
 //!     choice((
@@ -1153,7 +1154,7 @@
 //!         .skip(skip_spaces())
 //! }
 //!
-//! // As this expression parser needs to be able to call itself recursively `impl Parser` can&#39;t
+//! // As this expression parser needs to be able to call itself recursively `impl Parser` can't
 //! // be used on its own as that would cause an infinitely large type. We can avoid this by using
 //! // the `parser!` macro which erases the inner type and the size of that type entirely which
 //! // lets it be used recursively.
@@ -1170,14 +1171,14 @@
 //!
 //! fn main() {
 //!     let result = expr()
-//!         .parse(&quot;[[], (hello, world), [rust]]&quot;);
+//!         .parse("[[], (hello, world), [rust]]");
 //!     let expr = Expr::Array(vec![
 //!           Expr::Array(Vec::new())
-//!         , Expr::Pair(Box::new(Expr::Id(&quot;hello&quot;.to_string())),
-//!                      Box::new(Expr::Id(&quot;world&quot;.to_string())))
-//!         , Expr::Array(vec![Expr::Id(&quot;rust&quot;.to_string())])
+//!         , Expr::Pair(Box::new(Expr::Id("hello".to_string())),
+//!                      Box::new(Expr::Id("world".to_string())))
+//!         , Expr::Array(vec![Expr::Id("rust".to_string())])
 //!     ]);
-//!     assert_eq!(result, Ok((expr, &quot;&quot;)));
+//!     assert_eq!(result, Ok((expr, "")));
 //! }
 //! ```
 //!
@@ -1204,16 +1205,16 @@
     clippy::too_many_arguments,
     clippy::match_like_matches_macro
 )]
-#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
+#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">extern crate </span>alloc;
 
 <span class="attr">#[doc(inline)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::error::{ParseError, ParseResult, StdParseResult};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 #[doc(inline)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::parser::EasyParser;
 
@@ -1320,18 +1321,18 @@
 /// }
 ///
 /// fn main() {
-///     assert_eq!(integer().easy_parse(&quot;123&quot;), Ok((123, &quot;&quot;)));
-///     assert!(integer().easy_parse(&quot;!&quot;).is_err());
+///     assert_eq!(integer().easy_parse("123"), Ok((123, "")));
+///     assert!(integer().easy_parse("!").is_err());
 ///
 ///     assert_eq!(
-///         integer_or_string().easy_parse(&quot;123&quot;),
-///         Ok((IntOrString::Int(123), &quot;&quot;))
+///         integer_or_string().easy_parse("123"),
+///         Ok((IntOrString::Int(123), ""))
 ///     );
 ///     assert_eq!(
-///         integer_or_string().easy_parse(&quot;abc&quot;),
-///         Ok((IntOrString::String(&quot;abc&quot;.to_string()), &quot;&quot;))
+///         integer_or_string().easy_parse("abc"),
+///         Ok((IntOrString::String("abc".to_string()), ""))
 ///     );
-///     assert_eq!(twice(|| digit()).parse(&quot;123&quot;), Ok(((&#39;1&#39;, &#39;2&#39;), &quot;3&quot;)));
+///     assert_eq!(twice(|| digit()).parse("123"), Ok((('1', '2'), "3")));
 /// }
 /// ```
 </span><span class="attr">#[macro_export]
@@ -1612,14 +1613,14 @@
 // Public but hidden to be accessible in macros
 </span><span class="attr">#[doc(hidden)]
 </span><span class="kw">pub mod </span>lib {
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">pub use </span>core::<span class="kw-2">*</span>;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub use </span>std::<span class="kw-2">*</span>;
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 #[doc(inline)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::stream::easy;
 
@@ -1631,7 +1632,7 @@
 <span class="attr">#[macro_use]
 </span><span class="kw">pub mod </span>parser;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;futures-core-03&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"futures-core-03"</span>)]
 </span><span class="kw">pub mod </span>future_ext;
 
 <span class="attr">#[doc(hidden)]
@@ -1650,31 +1651,31 @@
         <span class="kw">fn </span>first&lt;T, U&gt;(t: T, <span class="kw">_</span>: U) -&gt; T {
             t
         }
-        <span class="kw">let </span><span class="kw-2">mut </span>p = chainl1(string(<span class="string">&quot;abc&quot;</span>), char(<span class="string">&#39;,&#39;</span>).map(|<span class="kw">_</span>| first));
-        <span class="macro">assert!</span>(p.parse(<span class="string">&quot;abc,ab&quot;</span>).is_err());
+        <span class="kw">let </span><span class="kw-2">mut </span>p = chainl1(string(<span class="string">"abc"</span>), char(<span class="string">','</span>).map(|<span class="kw">_</span>| first));
+        <span class="macro">assert!</span>(p.parse(<span class="string">"abc,ab"</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>choice_strings() {
         <span class="kw">let </span><span class="kw-2">mut </span>fruits = [
-            attempt(string(<span class="string">&quot;Apple&quot;</span>)),
-            attempt(string(<span class="string">&quot;Banana&quot;</span>)),
-            attempt(string(<span class="string">&quot;Cherry&quot;</span>)),
-            attempt(string(<span class="string">&quot;Date&quot;</span>)),
-            attempt(string(<span class="string">&quot;Fig&quot;</span>)),
-            attempt(string(<span class="string">&quot;Grape&quot;</span>)),
+            attempt(string(<span class="string">"Apple"</span>)),
+            attempt(string(<span class="string">"Banana"</span>)),
+            attempt(string(<span class="string">"Cherry"</span>)),
+            attempt(string(<span class="string">"Date"</span>)),
+            attempt(string(<span class="string">"Fig"</span>)),
+            attempt(string(<span class="string">"Grape"</span>)),
         ];
         <span class="kw">let </span><span class="kw-2">mut </span>parser = choice(<span class="kw-2">&amp;mut </span>fruits);
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;Apple&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;Apple&quot;</span>, <span class="string">&quot;&quot;</span>)));
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;Banana&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;Banana&quot;</span>, <span class="string">&quot;&quot;</span>)));
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;Cherry&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;Cherry&quot;</span>, <span class="string">&quot;&quot;</span>)));
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;DateABC&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;Date&quot;</span>, <span class="string">&quot;ABC&quot;</span>)));
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;Fig123&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;Fig&quot;</span>, <span class="string">&quot;123&quot;</span>)));
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;GrapeApple&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;Grape&quot;</span>, <span class="string">&quot;Apple&quot;</span>)));
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">"Apple"</span>), <span class="prelude-val">Ok</span>((<span class="string">"Apple"</span>, <span class="string">""</span>)));
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">"Banana"</span>), <span class="prelude-val">Ok</span>((<span class="string">"Banana"</span>, <span class="string">""</span>)));
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">"Cherry"</span>), <span class="prelude-val">Ok</span>((<span class="string">"Cherry"</span>, <span class="string">""</span>)));
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">"DateABC"</span>), <span class="prelude-val">Ok</span>((<span class="string">"Date"</span>, <span class="string">"ABC"</span>)));
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">"Fig123"</span>), <span class="prelude-val">Ok</span>((<span class="string">"Fig"</span>, <span class="string">"123"</span>)));
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">"GrapeApple"</span>), <span class="prelude-val">Ok</span>((<span class="string">"Grape"</span>, <span class="string">"Apple"</span>)));
     }
 }
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, test))]
+<span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, test))]
 </span><span class="kw">mod </span>std_tests {
 
     <span class="kw">use crate</span>::{
@@ -1690,8 +1691,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>optional_error_consume() {
-        <span class="kw">let </span><span class="kw-2">mut </span>p = optional(string(<span class="string">&quot;abc&quot;</span>));
-        <span class="kw">let </span>err = p.easy_parse(position::Stream::new(<span class="string">&quot;ab&quot;</span>)).unwrap_err();
+        <span class="kw">let </span><span class="kw-2">mut </span>p = optional(string(<span class="string">"abc"</span>));
+        <span class="kw">let </span>err = p.easy_parse(position::Stream::new(<span class="string">"ab"</span>)).unwrap_err();
         <span class="macro">assert_eq!</span>(err.position, SourcePosition { line: <span class="number">1</span>, column: <span class="number">1 </span>});
     }
 
@@ -1724,32 +1725,32 @@
         Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
     {
         <span class="kw">let </span>(s, input) = many1::&lt;String, <span class="kw">_</span>, <span class="kw">_</span>&gt;(digit())
-            .expected(<span class="string">&quot;integer&quot;</span>)
+            .expected(<span class="string">"integer"</span>)
             .parse_stream(input)
             .into_result()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
         <span class="kw">for </span>c <span class="kw">in </span>s.chars() {
-            n = n * <span class="number">10 </span>+ (c <span class="kw">as </span>i64 - <span class="string">&#39;0&#39; </span><span class="kw">as </span>i64);
+            n = n * <span class="number">10 </span>+ (c <span class="kw">as </span>i64 - <span class="string">'0' </span><span class="kw">as </span>i64);
         }
         <span class="prelude-val">Ok</span>((n, input))
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_integer() {
-        <span class="kw">let </span>result = parser(integer).parse(<span class="string">&quot;123&quot;</span>);
-        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="number">123i64</span>, <span class="string">&quot;&quot;</span>)));
+        <span class="kw">let </span>result = parser(integer).parse(<span class="string">"123"</span>);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="number">123i64</span>, <span class="string">""</span>)));
     }
     <span class="attr">#[test]
     </span><span class="kw">fn </span>list() {
-        <span class="kw">let </span><span class="kw-2">mut </span>p = sep_by(parser(integer), char(<span class="string">&#39;,&#39;</span>));
-        <span class="kw">let </span>result = p.parse(<span class="string">&quot;123,4,56&quot;</span>);
-        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="macro">vec!</span>[<span class="number">123i64</span>, <span class="number">4</span>, <span class="number">56</span>], <span class="string">&quot;&quot;</span>)));
+        <span class="kw">let </span><span class="kw-2">mut </span>p = sep_by(parser(integer), char(<span class="string">','</span>));
+        <span class="kw">let </span>result = p.parse(<span class="string">"123,4,56"</span>);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="macro">vec!</span>[<span class="number">123i64</span>, <span class="number">4</span>, <span class="number">56</span>], <span class="string">""</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>iterator() {
         <span class="kw">let </span>result = parser(integer)
-            .parse(position::Stream::new(IteratorStream::new(<span class="string">&quot;123&quot;</span>.chars())))
+            .parse(position::Stream::new(IteratorStream::new(<span class="string">"123"</span>.chars())))
             .map(|(i, <span class="kw-2">mut </span>input)| (i, input.uncons().is_err()));
         <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="number">123i64</span>, <span class="bool-val">true</span>)));
     }
@@ -1757,17 +1758,17 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>field() {
         <span class="kw">let </span>word = || many(alpha_num());
-        <span class="kw">let </span>c_decl = (word(), spaces(), char(<span class="string">&#39;:&#39;</span>), spaces(), word())
+        <span class="kw">let </span>c_decl = (word(), spaces(), char(<span class="string">':'</span>), spaces(), word())
             .map(|t| (t.<span class="number">0</span>, t.<span class="number">4</span>))
-            .parse(<span class="string">&quot;x: int&quot;</span>);
-        <span class="macro">assert_eq!</span>(c_decl, <span class="prelude-val">Ok</span>(((<span class="string">&quot;x&quot;</span>.to_string(), <span class="string">&quot;int&quot;</span>.to_string()), <span class="string">&quot;&quot;</span>)));
+            .parse(<span class="string">"x: int"</span>);
+        <span class="macro">assert_eq!</span>(c_decl, <span class="prelude-val">Ok</span>(((<span class="string">"x"</span>.to_string(), <span class="string">"int"</span>.to_string()), <span class="string">""</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>source_position() {
-        <span class="kw">let </span>source = <span class="string">r&quot;
+        <span class="kw">let </span>source = <span class="string">r"
 123
-&quot;</span>;
+"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>parsed_state = position::Stream::with_positioner(source, SourcePosition::new());
         <span class="kw">let </span>result = (spaces(), parser(integer), spaces())
             .map(|t| t.<span class="number">1</span>)
@@ -1775,7 +1776,7 @@
             .into_result();
         <span class="kw">let </span>state = Commit::Commit(position::Stream {
             positioner: SourcePosition { line: <span class="number">3</span>, column: <span class="number">1 </span>},
-            input: <span class="string">&quot;&quot;</span>,
+            input: <span class="string">""</span>,
         });
         <span class="macro">assert_eq!</span>(
             result.map(|(x, c)| (x, c.map(|<span class="kw">_</span>| parsed_state))),
@@ -1797,10 +1798,10 @@
         <span class="kw">where
             </span>[Input: Stream&lt;Token = char&gt;,]
         {
-            <span class="kw">let </span>word = many1(letter()).expected(<span class="string">&quot;identifier&quot;</span>);
+            <span class="kw">let </span>word = many1(letter()).expected(<span class="string">"identifier"</span>);
             <span class="kw">let </span>integer = parser(integer);
-            <span class="kw">let </span>array = between(char(<span class="string">&#39;[&#39;</span>), char(<span class="string">&#39;]&#39;</span>), sep_by(expr(), char(<span class="string">&#39;,&#39;</span>))).expected(<span class="string">&quot;[&quot;</span>);
-            <span class="kw">let </span>paren_expr = between(char(<span class="string">&#39;(&#39;</span>), char(<span class="string">&#39;)&#39;</span>), parser(term)).expected(<span class="string">&quot;(&quot;</span>);
+            <span class="kw">let </span>array = between(char(<span class="string">'['</span>), char(<span class="string">']'</span>), sep_by(expr(), char(<span class="string">','</span>))).expected(<span class="string">"["</span>);
+            <span class="kw">let </span>paren_expr = between(char(<span class="string">'('</span>), char(<span class="string">')'</span>), parser(term)).expected(<span class="string">"("</span>);
             spaces()
                 .silent()
                 .with(
@@ -1815,29 +1816,29 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>expression_basic() {
-        <span class="kw">let </span>result = sep_by(expr(), char(<span class="string">&#39;,&#39;</span>)).parse(<span class="string">&quot;int, 100, [[], 123]&quot;</span>);
+        <span class="kw">let </span>result = sep_by(expr(), char(<span class="string">','</span>)).parse(<span class="string">"int, 100, [[], 123]"</span>);
         <span class="kw">let </span>exprs = <span class="macro">vec!</span>[
-            Expr::Id(<span class="string">&quot;int&quot;</span>.to_string()),
+            Expr::Id(<span class="string">"int"</span>.to_string()),
             Expr::Int(<span class="number">100</span>),
             Expr::Array(<span class="macro">vec!</span>[Expr::Array(<span class="macro">vec!</span>[]), Expr::Int(<span class="number">123</span>)]),
         ];
-        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((exprs, <span class="string">&quot;&quot;</span>)));
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((exprs, <span class="string">""</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>expression_error() {
-        <span class="kw">let </span>input = <span class="string">r&quot;
+        <span class="kw">let </span>input = <span class="string">r"
 ,123
-&quot;</span>;
+"</span>;
         <span class="kw">let </span>result = expr().easy_parse(position::Stream::new(input));
         <span class="kw">let </span>err = easy::Errors {
             position: SourcePosition { line: <span class="number">2</span>, column: <span class="number">1 </span>},
             errors: <span class="macro">vec!</span>[
-                Error::Unexpected(<span class="string">&#39;,&#39;</span>.into()),
-                Error::Expected(<span class="string">&quot;integer&quot;</span>.into()),
-                Error::Expected(<span class="string">&quot;identifier&quot;</span>.into()),
-                Error::Expected(<span class="string">&quot;[&quot;</span>.into()),
-                Error::Expected(<span class="string">&quot;(&quot;</span>.into()),
+                Error::Unexpected(<span class="string">','</span>.into()),
+                Error::Expected(<span class="string">"integer"</span>.into()),
+                Error::Expected(<span class="string">"identifier"</span>.into()),
+                Error::Expected(<span class="string">"["</span>.into()),
+                Error::Expected(<span class="string">"("</span>.into()),
             ],
         };
         <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(err));
@@ -1854,38 +1855,38 @@
         <span class="kw">fn </span>plus(l: Expr, r: Expr) -&gt; Expr {
             Expr::Plus(Box::new(l), Box::new(r))
         }
-        <span class="kw">let </span>mul = char(<span class="string">&#39;*&#39;</span>).map(|<span class="kw">_</span>| times);
-        <span class="kw">let </span>add = char(<span class="string">&#39;+&#39;</span>).map(|<span class="kw">_</span>| plus);
+        <span class="kw">let </span>mul = char(<span class="string">'*'</span>).map(|<span class="kw">_</span>| times);
+        <span class="kw">let </span>add = char(<span class="string">'+'</span>).map(|<span class="kw">_</span>| plus);
         <span class="kw">let </span>factor = chainl1(expr(), mul);
         chainl1(factor, add).parse_stream(input).into()
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>operators() {
-        <span class="kw">let </span>input = <span class="string">r&quot;
+        <span class="kw">let </span>input = <span class="string">r"
 1 * 2 + 3 * test
-&quot;</span>;
+"</span>;
         <span class="kw">let </span>(result, <span class="kw">_</span>) = parser(term).parse(position::Stream::new(input)).unwrap();
 
         <span class="kw">let </span>e1 = Expr::Times(Box::new(Expr::Int(<span class="number">1</span>)), Box::new(Expr::Int(<span class="number">2</span>)));
         <span class="kw">let </span>e2 = Expr::Times(
             Box::new(Expr::Int(<span class="number">3</span>)),
-            Box::new(Expr::Id(<span class="string">&quot;test&quot;</span>.to_string())),
+            Box::new(Expr::Id(<span class="string">"test"</span>.to_string())),
         );
         <span class="macro">assert_eq!</span>(result, Expr::Plus(Box::new(e1), Box::new(e2)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>error_position() {
-        <span class="kw">let </span><span class="kw-2">mut </span>p = string(<span class="string">&quot;let&quot;</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>p = string(<span class="string">"let"</span>)
             .skip(parser(follow))
             .map(|x| x.to_string())
             .or(many1(digit()));
-        <span class="kw">match </span>p.easy_parse(position::Stream::new(<span class="string">&quot;le123&quot;</span>)) {
+        <span class="kw">match </span>p.easy_parse(position::Stream::new(<span class="string">"le123"</span>)) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(),
             <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">assert_eq!</span>(err.position, SourcePosition { line: <span class="number">1</span>, column: <span class="number">1 </span>}),
         }
-        <span class="kw">match </span>p.easy_parse(position::Stream::new(<span class="string">&quot;let1&quot;</span>)) {
+        <span class="kw">match </span>p.easy_parse(position::Stream::new(<span class="string">"let1"</span>)) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(),
             <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">assert_eq!</span>(err.position, SourcePosition { line: <span class="number">1</span>, column: <span class="number">4 </span>}),
         }
@@ -1893,30 +1894,30 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>sep_by_error_consume() {
-        <span class="kw">let </span><span class="kw-2">mut </span>p = sep_by::&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;(string(<span class="string">&quot;abc&quot;</span>), char(<span class="string">&#39;,&#39;</span>));
-        <span class="kw">let </span>err = p.easy_parse(position::Stream::new(<span class="string">&quot;ab,abc&quot;</span>)).unwrap_err();
+        <span class="kw">let </span><span class="kw-2">mut </span>p = sep_by::&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>&gt;(string(<span class="string">"abc"</span>), char(<span class="string">','</span>));
+        <span class="kw">let </span>err = p.easy_parse(position::Stream::new(<span class="string">"ab,abc"</span>)).unwrap_err();
         <span class="macro">assert_eq!</span>(err.position, SourcePosition { line: <span class="number">1</span>, column: <span class="number">1 </span>});
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>inner_error_consume() {
-        <span class="kw">let </span><span class="kw-2">mut </span>p = many::&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>, <span class="kw">_</span>&gt;(between(char(<span class="string">&#39;[&#39;</span>), char(<span class="string">&#39;]&#39;</span>), digit()));
-        <span class="kw">let </span>result = p.easy_parse(position::Stream::new(<span class="string">&quot;[1][2][]&quot;</span>));
-        <span class="macro">assert!</span>(result.is_err(), <span class="string">&quot;{:?}&quot;</span>, result);
-        <span class="kw">let </span>error = result.map(|x| <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, x)).unwrap_err();
+        <span class="kw">let </span><span class="kw-2">mut </span>p = many::&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>, <span class="kw">_</span>&gt;(between(char(<span class="string">'['</span>), char(<span class="string">']'</span>), digit()));
+        <span class="kw">let </span>result = p.easy_parse(position::Stream::new(<span class="string">"[1][2][]"</span>));
+        <span class="macro">assert!</span>(result.is_err(), <span class="string">"{:?}"</span>, result);
+        <span class="kw">let </span>error = result.map(|x| <span class="macro">format!</span>(<span class="string">"{:?}"</span>, x)).unwrap_err();
         <span class="macro">assert_eq!</span>(error.position, SourcePosition { line: <span class="number">1</span>, column: <span class="number">8 </span>});
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>infinite_recursion_in_box_parser() {
-        <span class="kw">let _</span>: <span class="prelude-ty">Result</span>&lt;(Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>), <span class="kw">_</span>&gt; = (many(Box::new(digit()))).parse(<span class="string">&quot;1&quot;</span>);
+        <span class="kw">let _</span>: <span class="prelude-ty">Result</span>&lt;(Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>), <span class="kw">_</span>&gt; = (many(Box::new(digit()))).parse(<span class="string">"1"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>unsized_parser() {
         <span class="kw">let </span><span class="kw-2">mut </span>parser: Box&lt;<span class="kw">dyn </span>Parser&lt;<span class="kw">_</span>, Output = char, PartialState = <span class="kw">_</span>&gt;&gt; = Box::new(digit());
         <span class="kw">let </span>borrow_parser = <span class="kw-2">&amp;mut *</span>parser;
-        <span class="macro">assert_eq!</span>(borrow_parser.parse(<span class="string">&quot;1&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&#39;1&#39;</span>, <span class="string">&quot;&quot;</span>)));
+        <span class="macro">assert_eq!</span>(borrow_parser.parse(<span class="string">"1"</span>), <span class="prelude-val">Ok</span>((<span class="string">'1'</span>, <span class="string">""</span>)));
     }
 
     <span class="attr">#[test]
@@ -1928,17 +1929,17 @@
         <span class="attr">#[derive(Debug)]
         </span><span class="kw">struct </span>Error;
         <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-                <span class="macro">write!</span>(f, <span class="string">&quot;error&quot;</span>)
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+                <span class="macro">write!</span>(f, <span class="string">"error"</span>)
             }
         }
         <span class="kw">impl </span>StdError <span class="kw">for </span>Error {
             <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-                <span class="string">&quot;error&quot;
+                <span class="string">"error"
             </span>}
         }
         <span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;((), <span class="kw">_</span>), easy::Errors&lt;char, <span class="kw-2">&amp;</span>str, <span class="kw">_</span>&gt;&gt; =
-            EasyParser::easy_parse(<span class="kw-2">&amp;mut </span>string(<span class="string">&quot;abc&quot;</span>).and_then(|<span class="kw">_</span>| <span class="prelude-val">Err</span>(Error)), <span class="string">&quot;abc&quot;</span>);
+            EasyParser::easy_parse(<span class="kw-2">&amp;mut </span>string(<span class="string">"abc"</span>).and_then(|<span class="kw">_</span>| <span class="prelude-val">Err</span>(Error)), <span class="string">"abc"</span>);
         <span class="macro">assert!</span>(result.is_err());
         <span class="comment">// Test that ParseError can be coerced to a StdError
         </span><span class="kw">let _ </span>= result.map_err(|err| {
@@ -1971,31 +1972,31 @@
 
         <span class="kw">impl </span>StdError <span class="kw">for </span>ExtractedError {
             <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-                <span class="string">&quot;extracted error&quot;
+                <span class="string">"extracted error"
             </span>}
         }
 
         <span class="kw">impl </span>fmt::Display <span class="kw">for </span>CloneOnly {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+                <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.<span class="number">0</span>)
             }
         }
 
         <span class="kw">impl</span>&lt;T: fmt::Debug&gt; fmt::Display <span class="kw">for </span>DisplayVec&lt;T&gt; {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-                <span class="macro">write!</span>(f, <span class="string">&quot;[{:?}]&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+                <span class="macro">write!</span>(f, <span class="string">"[{:?}]"</span>, <span class="self">self</span>.<span class="number">0</span>)
             }
         }
 
         <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ExtractedError {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-                <span class="macro">writeln!</span>(f, <span class="string">&quot;Parse error at {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)<span class="question-mark">?</span>;
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+                <span class="macro">writeln!</span>(f, <span class="string">"Parse error at {}"</span>, <span class="self">self</span>.<span class="number">0</span>)<span class="question-mark">?</span>;
                 Error::fmt_errors(<span class="kw-2">&amp;</span>(<span class="self">self</span>.<span class="number">1</span>).<span class="number">0</span>, f)
             }
         }
 
-        <span class="kw">let </span>input = <span class="kw-2">&amp;</span>[CloneOnly(<span class="string">&quot;x&quot;</span>.to_string()), CloneOnly(<span class="string">&quot;y&quot;</span>.to_string())][..];
-        <span class="kw">let </span>result = token(CloneOnly(<span class="string">&quot;z&quot;</span>.to_string()))
+        <span class="kw">let </span>input = <span class="kw-2">&amp;</span>[CloneOnly(<span class="string">"x"</span>.to_string()), CloneOnly(<span class="string">"y"</span>.to_string())][..];
+        <span class="kw">let </span>result = token(CloneOnly(<span class="string">"z"</span>.to_string()))
             .easy_parse(input)
             .map_err(|e| e.map_position(|p| p.translate_position(input)))
             .map_err(|e| {
@@ -2014,9 +2015,9 @@
         <span class="comment">// Test that the fresh ExtractedError is Display, so that the internal errors can be
         // inspected by consuming code; and that the ExtractedError can be coerced to StdError.
         </span><span class="kw">let _ </span>= result.map_err(|err| {
-            <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, err);
-            <span class="macro">assert!</span>(s.starts_with(<span class="string">&quot;Parse error at 0&quot;</span>));
-            <span class="macro">assert!</span>(s.contains(<span class="string">&quot;Expected&quot;</span>));
+            <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{}"</span>, err);
+            <span class="macro">assert!</span>(s.starts_with(<span class="string">"Parse error at 0"</span>));
+            <span class="macro">assert!</span>(s.contains(<span class="string">"Expected"</span>));
             <span class="kw">let </span>err: Box&lt;<span class="kw">dyn </span>StdError&gt; = Box::new(err);
             err
         });

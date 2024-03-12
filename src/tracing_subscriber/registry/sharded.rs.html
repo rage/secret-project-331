@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/registry/sharded.rs`."><title>sharded.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/registry/sharded.rs`."><title>sharded.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -939,7 +940,7 @@
 /// relationships between spans, and tracking which spans are active and which
 /// are closed. In addition, it provides a mechanism for [`Layer`]s to store
 /// user-defined per-span data, called [extensions], in the registry. This
-/// allows [`Layer`]-specific data to benefit from the `Registry`&#39;s
+/// allows [`Layer`]-specific data to benefit from the `Registry`'s
 /// high-performance concurrent storage.
 ///
 /// This registry is implemented using a [lock-free sharded slab][slab], and is
@@ -951,11 +952,11 @@
 /// no two currently active spans have the same ID within a process.
 ///
 /// One of the primary responsibilities of the registry is to generate [span
-/// IDs]. Therefore, it&#39;s important for other code that interacts with the
+/// IDs]. Therefore, it's important for other code that interacts with the
 /// registry, such as [`Layer`]s, to understand the guarantees of the
 /// span IDs that are generated.
 ///
-/// The registry&#39;s span IDs are guaranteed to be unique **at a given point
+/// The registry's span IDs are guaranteed to be unique **at a given point
 /// in time**. This means that an active span will never be assigned the
 /// same ID as another **currently active** span. However, the registry
 /// **will** eventually reuse the IDs of [closed] spans, although an ID
@@ -976,7 +977,7 @@
 /// Similarly, span IDs generated by the registry are not unique outside of
 /// a given process. Distributed tracing systems may require identifiers
 /// that are unique across multiple processes on multiple machines (for
-/// example, [OpenTelemetry&#39;s `SpanId`s and `TraceId`s][ot]). `tracing` span
+/// example, [OpenTelemetry's `SpanId`s and `TraceId`s][ot]). `tracing` span
 /// IDs generated by the registry should **not** be used for this purpose.
 /// Instead, code which integrates with a distributed tracing system should
 /// generate and propagate its own IDs according to the rules specified by
@@ -994,8 +995,8 @@
 /// [ot]: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/api.md#spancontext
 /// [fields]: tracing_core::field
 /// [stored span data]: crate::registry::SpanData::extensions_mut
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;registry&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;registry&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg(feature = <span class="string">"registry"</span>)]
+#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"registry"</span>, feature = <span class="string">"std"</span>))))]
 #[derive(Debug)]
 </span><span class="kw">pub struct </span>Registry {
     spans: Pool&lt;DataInner&gt;,
@@ -1012,28 +1013,28 @@
 ///
 /// [`Layer`s]: crate::layer::Layer
 /// [extensions]: Extensions
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;registry&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;registry&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg(feature = <span class="string">"registry"</span>)]
+#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"registry"</span>, feature = <span class="string">"std"</span>))))]
 #[derive(Debug)]
-</span><span class="kw">pub struct </span>Data&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Data&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Immutable reference to the pooled `DataInner` entry.
-    </span>inner: Ref&lt;<span class="lifetime">&#39;a</span>, DataInner&gt;,
+    </span>inner: Ref&lt;<span class="lifetime">'a</span>, DataInner&gt;,
 }
 
 <span class="doccomment">/// Stored data associated with a span.
 ///
 /// This type is pooled using [`sharded_slab::Pool`]; when a span is
-/// dropped, the `DataInner` entry at that span&#39;s slab index is cleared
+/// dropped, the `DataInner` entry at that span's slab index is cleared
 /// in place and reused by a future span. Thus, the `Default` and
 /// [`sharded_slab::Clear`] implementations for this type are
 /// load-bearing.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">struct </span>DataInner {
     filter_map: FilterMap,
-    metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;,
+    metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;,
     parent: <span class="prelude-ty">Option</span>&lt;Id&gt;,
     ref_count: AtomicUsize,
-    <span class="comment">// The span&#39;s `Extensions` typemap. Allocations for the `HashMap` backing
+    <span class="comment">// The span's `Extensions` typemap. Allocations for the `HashMap` backing
     // this are pooled and reused in place.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) extensions: RwLock&lt;ExtensionsInner&gt;,
 }
@@ -1081,14 +1082,14 @@
 ///    greater than 0, `CloseGuard` decrements the counter by one and
 ///    _does not_ remove the span from the [`Registry`].
 ///
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>CloseGuard&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>CloseGuard&lt;<span class="lifetime">'a</span>&gt; {
     id: Id,
-    registry: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Registry,
+    registry: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Registry,
     is_closing: bool,
 }
 
 <span class="kw">impl </span>Registry {
-    <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">&#39;_</span>, DataInner&gt;&gt; {
+    <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">'_</span>, DataInner&gt;&gt; {
         <span class="self">self</span>.spans.get(id_to_idx(id))
     }
 
@@ -1096,7 +1097,7 @@
     /// processed an `on_close` notification via the `CLOSE_COUNT` thread-local.
     /// For additional details, see [`CloseGuard`].
     ///
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>start_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Id) -&gt; CloseGuard&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>start_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Id) -&gt; CloseGuard&lt;<span class="lifetime">'_</span>&gt; {
         CLOSE_COUNT.with(|count| {
             <span class="kw">let </span>c = count.get();
             count.set(c + <span class="number">1</span>);
@@ -1112,7 +1113,7 @@
         <span class="self">self</span>.next_filter_id &gt; <span class="number">0
     </span>}
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>span_stack(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; cell::Ref&lt;<span class="lifetime">&#39;_</span>, SpanStack&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>span_stack(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; cell::Ref&lt;<span class="lifetime">'_</span>, SpanStack&gt; {
         <span class="self">self</span>.current_spans.get_or_default().borrow()
     }
 }
@@ -1126,7 +1127,7 @@
 }
 
 <span class="kw">impl </span>Subscriber <span class="kw">for </span>Registry {
-    <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="kw">if </span><span class="self">self</span>.has_per_layer_filters() {
             <span class="kw">return </span>FilterState::take_interest().unwrap_or_else(Interest::always);
         }
@@ -1134,7 +1135,7 @@
         Interest::always()
     }
 
-    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">if </span><span class="self">self</span>.has_per_layer_filters() {
             <span class="kw">return </span>FilterState::event_enabled();
         }
@@ -1142,7 +1143,7 @@
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; span::Id {
+    </span><span class="kw">fn </span>new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;) -&gt; span::Id {
         <span class="kw">let </span>parent = <span class="kw">if </span>attrs.is_root() {
             <span class="prelude-val">None
         </span>} <span class="kw">else if </span>attrs.is_contextual() {
@@ -1172,18 +1173,18 @@
                 <span class="macro">debug_assert_eq!</span>(<span class="kw-2">*</span>refs, <span class="number">0</span>);
                 <span class="kw-2">*</span>refs = <span class="number">1</span>;
             })
-            .expect(<span class="string">&quot;Unable to allocate another span&quot;</span>);
+            .expect(<span class="string">"Unable to allocate another span"</span>);
         idx_to_id(id)
     }
 
     <span class="doccomment">/// This is intentionally not implemented, as recording fields
     /// on a span is the responsibility of layers atop of this registry.
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>record(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>span::Id, <span class="kw">_</span>: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;) {}
+    </span><span class="kw">fn </span>record(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>span::Id, <span class="kw">_</span>: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;) {}
 
     <span class="kw">fn </span>record_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, _span: <span class="kw-2">&amp;</span>span::Id, _follows: <span class="kw-2">&amp;</span>span::Id) {}
 
-    <span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, _event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, _event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">if </span><span class="self">self</span>.has_per_layer_filters() {
             <span class="kw">return </span>FilterState::event_enabled();
         }
@@ -1192,7 +1193,7 @@
 
     <span class="doccomment">/// This is intentionally not implemented, as recording events
     /// is the responsibility of layers atop of this registry.
-    </span><span class="kw">fn </span>event(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;) {}
+    </span><span class="kw">fn </span>event(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;) {}
 
     <span class="kw">fn </span>enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id) {
         <span class="kw">if </span><span class="self">self
@@ -1217,11 +1218,11 @@
         <span class="kw">let </span>span = <span class="self">self
             </span>.get(id)
             .unwrap_or_else(|| <span class="macro">panic!</span>(
-                <span class="string">&quot;tried to clone {:?}, but no span exists with that ID\n\
-                This may be caused by consuming a parent span (`parent: span`) rather than borrowing it (`parent: &amp;span`).&quot;</span>,
+                <span class="string">"tried to clone {:?}, but no span exists with that ID\n\
+                This may be caused by consuming a parent span (`parent: span`) rather than borrowing it (`parent: &amp;span`)."</span>,
                 id,
             ));
-        <span class="comment">// Like `std::sync::Arc`, adds to the ref count (on clone) don&#39;t require
+        <span class="comment">// Like `std::sync::Arc`, adds to the ref count (on clone) don't require
         // a strong ordering; if we call` clone_span`, the reference count must
         // always at least 1. The only synchronization necessary is between
         // calls to `try_close`: we have to ensure that all threads have
@@ -1229,7 +1230,7 @@
         </span><span class="kw">let </span>refs = span.ref_count.fetch_add(<span class="number">1</span>, Ordering::Relaxed);
         <span class="macro">assert_ne!</span>(
             refs, <span class="number">0</span>,
-            <span class="string">&quot;tried to clone a span ({:?}) that already closed&quot;</span>,
+            <span class="string">"tried to clone a span ({:?}) that already closed"</span>,
             id
         );
         id.clone()
@@ -1255,12 +1256,12 @@
         <span class="kw">let </span>span = <span class="kw">match </span><span class="self">self</span>.get(<span class="kw-2">&amp;</span>id) {
             <span class="prelude-val">Some</span>(span) =&gt; span,
             <span class="prelude-val">None </span><span class="kw">if </span>std::thread::panicking() =&gt; <span class="kw">return </span><span class="bool-val">false</span>,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;tried to drop a ref to {:?}, but no such span exists!&quot;</span>, id),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">"tried to drop a ref to {:?}, but no such span exists!"</span>, id),
         };
 
         <span class="kw">let </span>refs = span.ref_count.fetch_sub(<span class="number">1</span>, Ordering::Release);
         <span class="kw">if </span>!std::thread::panicking() {
-            <span class="macro">assert!</span>(refs &lt; std::usize::MAX, <span class="string">&quot;reference count overflow!&quot;</span>);
+            <span class="macro">assert!</span>(refs &lt; std::usize::MAX, <span class="string">"reference count overflow!"</span>);
         }
         <span class="kw">if </span>refs &gt; <span class="number">1 </span>{
             <span class="kw">return </span><span class="bool-val">false</span>;
@@ -1274,10 +1275,10 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Registry {
-    <span class="kw">type </span>Data = Data&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; LookupSpan&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Registry {
+    <span class="kw">type </span>Data = Data&lt;<span class="lifetime">'a</span>&gt;;
 
-    <span class="kw">fn </span>span_data(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Data&gt; {
+    <span class="kw">fn </span>span_data(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Data&gt; {
         <span class="kw">let </span>inner = <span class="self">self</span>.get(id)<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(Data { inner })
     }
@@ -1291,20 +1292,20 @@
 
 <span class="comment">// === impl CloseGuard ===
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CloseGuard&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CloseGuard&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_closing(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.is_closing = <span class="bool-val">true</span>;
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Drop <span class="kw">for </span>CloseGuard&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Drop <span class="kw">for </span>CloseGuard&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// If this returns with an error, we are already panicking. At
-        // this point, there&#39;s nothing we can really do to recover
+        // this point, there's nothing we can really do to recover
         // except by avoiding a double-panic.
         </span><span class="kw">let _ </span>= CLOSE_COUNT.try_with(|count| {
             <span class="kw">let </span>c = count.get();
-            <span class="comment">// Decrement the count to indicate that _this_ guard&#39;s
+            <span class="comment">// Decrement the count to indicate that _this_ guard's
             // `on_close` callback has completed.
             //
             // Note that we *must* do this before we actually remove the span
@@ -1313,7 +1314,7 @@
             </span>count.set(c - <span class="number">1</span>);
 
             <span class="comment">// If the current close count is 1, this stack frame is the last
-            // `on_close` call. If the span is closing, it&#39;s okay to remove the
+            // `on_close` call. If the span is closing, it's okay to remove the
             // span.
             </span><span class="kw">if </span>c == <span class="number">1 </span>&amp;&amp; <span class="self">self</span>.is_closing {
                 <span class="self">self</span>.registry.spans.clear(id_to_idx(<span class="kw-2">&amp;</span><span class="self">self</span>.id));
@@ -1324,12 +1325,12 @@
 
 <span class="comment">// === impl Data ===
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SpanData&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Data&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SpanData&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Data&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Id {
         idx_to_id(<span class="self">self</span>.inner.key())
     }
 
-    <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt; {
+    <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt; {
         <span class="self">self</span>.inner.metadata
     }
 
@@ -1337,12 +1338,12 @@
         <span class="self">self</span>.inner.parent.as_ref()
     }
 
-    <span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Extensions&lt;<span class="lifetime">&#39;_</span>&gt; {
-        Extensions::new(<span class="self">self</span>.inner.extensions.read().expect(<span class="string">&quot;Mutex poisoned&quot;</span>))
+    <span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Extensions&lt;<span class="lifetime">'_</span>&gt; {
+        Extensions::new(<span class="self">self</span>.inner.extensions.read().expect(<span class="string">"Mutex poisoned"</span>))
     }
 
-    <span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ExtensionsMut&lt;<span class="lifetime">&#39;_</span>&gt; {
-        ExtensionsMut::new(<span class="self">self</span>.inner.extensions.write().expect(<span class="string">&quot;Mutex poisoned&quot;</span>))
+    <span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ExtensionsMut&lt;<span class="lifetime">'_</span>&gt; {
+        ExtensionsMut::new(<span class="self">self</span>.inner.extensions.write().expect(<span class="string">"Mutex poisoned"</span>))
     }
 
     <span class="attr">#[inline]
@@ -1355,33 +1356,33 @@
 
 </span><span class="kw">impl </span>Default <span class="kw">for </span>DataInner {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="comment">// Since `DataInner` owns a `&amp;&#39;static Callsite` pointer, we need
+        <span class="comment">// Since `DataInner` owns a `&amp;'static Callsite` pointer, we need
         // something to use as the initial default value for that callsite.
-        // Since we can&#39;t access a `DataInner` until it has had actual span data
+        // Since we can't access a `DataInner` until it has had actual span data
         // inserted into it, the null metadata will never actually be accessed.
         </span><span class="kw">struct </span>NullCallsite;
         <span class="kw">impl </span>tracing_core::callsite::Callsite <span class="kw">for </span>NullCallsite {
             <span class="kw">fn </span>set_interest(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: Interest) {
                 <span class="macro">unreachable!</span>(
-                    <span class="string">&quot;/!\\ Tried to register the null callsite /!\\\n \
+                    <span class="string">"/!\\ Tried to register the null callsite /!\\\n \
                     This should never have happened and is definitely a bug. \
-                    A `tracing` bug report would be appreciated.&quot;
+                    A `tracing` bug report would be appreciated."
                 </span>)
             }
 
-            <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt; {
+            <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt; {
                 <span class="macro">unreachable!</span>(
-                    <span class="string">&quot;/!\\ Tried to access the null callsite&#39;s metadata /!\\\n \
+                    <span class="string">"/!\\ Tried to access the null callsite's metadata /!\\\n \
                     This should never have happened and is definitely a bug. \
-                    A `tracing` bug report would be appreciated.&quot;
+                    A `tracing` bug report would be appreciated."
                 </span>)
             }
         }
 
         <span class="kw">static </span>NULL_CALLSITE: NullCallsite = NullCallsite;
-        <span class="kw">static </span>NULL_METADATA: Metadata&lt;<span class="lifetime">&#39;static</span>&gt; = <span class="macro">tracing_core::metadata! </span>{
-            name: <span class="string">&quot;&quot;</span>,
-            target: <span class="string">&quot;&quot;</span>,
+        <span class="kw">static </span>NULL_METADATA: Metadata&lt;<span class="lifetime">'static</span>&gt; = <span class="macro">tracing_core::metadata! </span>{
+            name: <span class="string">""</span>,
+            target: <span class="string">""</span>,
             level: tracing_core::Level::TRACE,
             fields: <span class="kw-2">&amp;</span>[],
             callsite: <span class="kw-2">&amp;</span>NULL_CALLSITE,
@@ -1399,32 +1400,32 @@
 }
 
 <span class="kw">impl </span>Clear <span class="kw">for </span>DataInner {
-    <span class="doccomment">/// Clears the span&#39;s data in place, dropping the parent&#39;s reference count.
+    <span class="doccomment">/// Clears the span's data in place, dropping the parent's reference count.
     </span><span class="kw">fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// A span is not considered closed until all of its children have closed.
-        // Therefore, each span&#39;s `DataInner` holds a &quot;reference&quot; to the parent
+        // Therefore, each span's `DataInner` holds a "reference" to the parent
         // span, keeping the parent span open until all its children have closed.
-        // When we close a span, we must then decrement the parent&#39;s ref count
+        // When we close a span, we must then decrement the parent's ref count
         // (potentially, allowing it to close, if this child is the last reference
         // to that span).
         // We have to actually unpack the option inside the `get_default`
         // closure, since it is a `FnMut`, but testing that there _is_ a value
-        // here lets us avoid the thread-local access if we don&#39;t need the
+        // here lets us avoid the thread-local access if we don't need the
         // dispatcher at all.
         </span><span class="kw">if </span><span class="self">self</span>.parent.is_some() {
             <span class="comment">// Note that --- because `Layered::try_close` works by calling
             // `try_close` on the inner subscriber and using the return value to
-            // determine whether to call the `Layer`&#39;s `on_close` callback ---
+            // determine whether to call the `Layer`'s `on_close` callback ---
             // we must call `try_close` on the entire subscriber stack, rather
             // than just on the registry. If the registry called `try_close` on
-            // itself directly, the layers wouldn&#39;t see the close notification.
+            // itself directly, the layers wouldn't see the close notification.
             </span><span class="kw">let </span>subscriber = dispatcher::get_default(Dispatch::clone);
             <span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.take() {
                 <span class="kw">let _ </span>= subscriber.try_close(parent);
             }
         }
 
-        <span class="comment">// Clear (but do not deallocate!) the pooled `HashMap` for the span&#39;s extensions.
+        <span class="comment">// Clear (but do not deallocate!) the pooled `HashMap` for the span's extensions.
         </span><span class="self">self</span>.extensions
             .get_mut()
             .unwrap_or_else(|l| {
@@ -1460,10 +1461,10 @@
     <span class="kw">struct </span>AssertionLayer;
     <span class="kw">impl</span>&lt;S&gt; Layer&lt;S&gt; <span class="kw">for </span>AssertionLayer
     <span class="kw">where
-        </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; LookupSpan&lt;<span class="lifetime">'a</span>&gt;,
     {
-        <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
-            <span class="macro">dbg!</span>(<span class="macro">format_args!</span>(<span class="string">&quot;closing {:?}&quot;</span>, id));
+        <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
+            <span class="macro">dbg!</span>(<span class="macro">format_args!</span>(<span class="string">"closing {:?}"</span>, id));
             <span class="macro">assert!</span>(<span class="kw-2">&amp;</span>ctx.span(<span class="kw-2">&amp;</span>id).is_some());
         }
     }
@@ -1473,7 +1474,7 @@
         <span class="kw">let </span>subscriber = AssertionLayer.with_subscriber(Registry::default());
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span = <span class="macro">tracing::debug_span!</span>(<span class="string">&quot;span&quot;</span>);
+            <span class="kw">let </span>span = <span class="macro">tracing::debug_span!</span>(<span class="string">"span"</span>);
             drop(span);
         });
     }
@@ -1485,7 +1486,7 @@
             .with_subscriber(Registry::default());
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span = <span class="macro">tracing::debug_span!</span>(<span class="string">&quot;span&quot;</span>);
+            <span class="kw">let </span>span = <span class="macro">tracing::debug_span!</span>(<span class="string">"span"</span>);
             drop(span);
         });
     }
@@ -1500,42 +1501,42 @@
 
     <span class="attr">#[derive(Default)]
     </span><span class="kw">struct </span>CloseState {
-        open: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Weak&lt;()&gt;&gt;,
-        closed: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Weak&lt;()&gt;)&gt;,
+        open: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Weak&lt;()&gt;&gt;,
+        closed: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, Weak&lt;()&gt;)&gt;,
     }
 
     <span class="kw">struct </span>SetRemoved(Arc&lt;()&gt;);
 
     <span class="kw">impl</span>&lt;S&gt; Layer&lt;S&gt; <span class="kw">for </span>CloseLayer
     <span class="kw">where
-        </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; LookupSpan&lt;<span class="lifetime">'a</span>&gt;,
     {
-        <span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
-            <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">&quot;Missing span; this is a bug&quot;</span>);
+        <span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
+            <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">"Missing span; this is a bug"</span>);
             <span class="kw">let </span><span class="kw-2">mut </span>lock = <span class="self">self</span>.inner.lock().unwrap();
             <span class="kw">let </span>is_removed = Arc::new(());
             <span class="macro">assert!</span>(
                 lock.open
                     .insert(span.name(), Arc::downgrade(<span class="kw-2">&amp;</span>is_removed))
                     .is_none(),
-                <span class="string">&quot;test layer saw multiple spans with the same name, the test is probably messed up&quot;
+                <span class="string">"test layer saw multiple spans with the same name, the test is probably messed up"
             </span>);
             <span class="kw">let </span><span class="kw-2">mut </span>extensions = span.extensions_mut();
             extensions.insert(SetRemoved(is_removed));
         }
 
-        <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="kw">let </span>span = <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = ctx.span(<span class="kw-2">&amp;</span>id) {
                 span
             } <span class="kw">else </span>{
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;span {:?} did not exist in `on_close`, are we panicking?&quot;</span>,
+                    <span class="string">"span {:?} did not exist in `on_close`, are we panicking?"</span>,
                     id
                 );
                 <span class="kw">return</span>;
             };
             <span class="kw">let </span>name = span.name();
-            <span class="macro">println!</span>(<span class="string">&quot;close {} ({:?})&quot;</span>, name, id);
+            <span class="macro">println!</span>(<span class="string">"close {} ({:?})"</span>, name, id);
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>lock) = <span class="self">self</span>.inner.lock() {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(is_removed) = lock.open.remove(name) {
                     <span class="macro">assert!</span>(is_removed.upgrade().is_some());
@@ -1572,12 +1573,12 @@
             <span class="kw">let </span>lock = <span class="self">self</span>.state.lock().unwrap();
             <span class="macro">assert!</span>(
                 lock.is_closed(span),
-                <span class="string">&quot;expected {} to be closed{}&quot;</span>,
+                <span class="string">"expected {} to be closed{}"</span>,
                 span,
                 <span class="kw">if </span>lock.is_open(span) {
-                    <span class="string">&quot; (it was still open)&quot;
+                    <span class="string">" (it was still open)"
                 </span>} <span class="kw">else </span>{
-                    <span class="string">&quot;, but it never existed (is there a problem with the test?)&quot;
+                    <span class="string">", but it never existed (is there a problem with the test?)"
                 </span>}
             )
         }
@@ -1586,12 +1587,12 @@
             <span class="kw">let </span>lock = <span class="self">self</span>.state.lock().unwrap();
             <span class="macro">assert!</span>(
                 lock.is_open(span),
-                <span class="string">&quot;expected {} to be open{}&quot;</span>,
+                <span class="string">"expected {} to be open{}"</span>,
                 span,
                 <span class="kw">if </span>lock.is_closed(span) {
-                    <span class="string">&quot; (it was still open)&quot;
+                    <span class="string">" (it was still open)"
                 </span>} <span class="kw">else </span>{
-                    <span class="string">&quot;, but it never existed (is there a problem with the test?)&quot;
+                    <span class="string">", but it never existed (is there a problem with the test?)"
                 </span>}
             )
         }
@@ -1601,18 +1602,18 @@
             <span class="kw">let </span>is_removed = <span class="kw">match </span>lock.closed.iter().find(|(name, <span class="kw">_</span>)| name == <span class="kw-2">&amp;</span>span) {
                 <span class="prelude-val">Some</span>((<span class="kw">_</span>, is_removed)) =&gt; is_removed,
                 <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(
-                    <span class="string">&quot;expected {} to be removed from the registry, but it was not closed {}&quot;</span>,
+                    <span class="string">"expected {} to be removed from the registry, but it was not closed {}"</span>,
                     span,
                     <span class="kw">if </span>lock.is_closed(span) {
-                        <span class="string">&quot; (it was still open)&quot;
+                        <span class="string">" (it was still open)"
                     </span>} <span class="kw">else </span>{
-                        <span class="string">&quot;, but it never existed (is there a problem with the test?)&quot;
+                        <span class="string">", but it never existed (is there a problem with the test?)"
                     </span>}
                 ),
             };
             <span class="macro">assert!</span>(
                 is_removed.upgrade().is_none(),
-                <span class="string">&quot;expected {} to have been removed from the registry&quot;</span>,
+                <span class="string">"expected {} to have been removed from the registry"</span>,
                 span
             )
         }
@@ -1626,7 +1627,7 @@
             };
             <span class="macro">assert!</span>(
                 is_removed.upgrade().is_some(),
-                <span class="string">&quot;expected {} to have been removed from the registry&quot;</span>,
+                <span class="string">"expected {} to have been removed from the registry"</span>,
                 span
             )
         }
@@ -1638,19 +1639,19 @@
             <span class="macro">assert_eq!</span>(
                 last,
                 span.as_ref(),
-                <span class="string">&quot;expected {:?} to have closed last&quot;</span>,
+                <span class="string">"expected {:?} to have closed last"</span>,
                 span
             );
         }
 
-        <span class="kw">fn </span>assert_closed_in_order(<span class="kw-2">&amp;</span><span class="self">self</span>, order: <span class="kw">impl </span>AsRef&lt;[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str]&gt;) {
+        <span class="kw">fn </span>assert_closed_in_order(<span class="kw-2">&amp;</span><span class="self">self</span>, order: <span class="kw">impl </span>AsRef&lt;[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str]&gt;) {
             <span class="kw">let </span>lock = <span class="self">self</span>.state.lock().unwrap();
             <span class="kw">let </span>order = order.as_ref();
             <span class="kw">for </span>(i, name) <span class="kw">in </span>order.iter().enumerate() {
                 <span class="macro">assert_eq!</span>(
                     lock.closed.get(i).map(|(span, <span class="kw">_</span>)| span),
                     <span class="prelude-val">Some</span>(name),
-                    <span class="string">&quot;expected close order: {:?}, actual: {:?}&quot;</span>,
+                    <span class="string">"expected close order: {:?}, actual: {:?}"</span>,
                     order,
                     lock.closed.iter().map(|(name, <span class="kw">_</span>)| name).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
                 );
@@ -1673,14 +1674,14 @@
         </span><span class="kw">let </span>dispatch = dispatcher::Dispatch::new(subscriber);
 
         dispatcher::with_default(<span class="kw-2">&amp;</span>dispatch, || {
-            <span class="kw">let </span>span = <span class="macro">tracing::debug_span!</span>(<span class="string">&quot;span1&quot;</span>);
+            <span class="kw">let </span>span = <span class="macro">tracing::debug_span!</span>(<span class="string">"span1"</span>);
             drop(span);
-            <span class="kw">let </span>span = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span2&quot;</span>);
+            <span class="kw">let </span>span = <span class="macro">tracing::info_span!</span>(<span class="string">"span2"</span>);
             drop(span);
         });
 
-        state.assert_removed(<span class="string">&quot;span1&quot;</span>);
-        state.assert_removed(<span class="string">&quot;span2&quot;</span>);
+        state.assert_removed(<span class="string">"span1"</span>);
+        state.assert_removed(<span class="string">"span2"</span>);
 
         <span class="comment">// Ensure the registry itself outlives the span.
         </span>drop(dispatch);
@@ -1701,19 +1702,19 @@
         </span><span class="kw">let </span>dispatch = dispatcher::Dispatch::new(subscriber);
 
         <span class="kw">let </span>span2 = dispatcher::with_default(<span class="kw-2">&amp;</span>dispatch, || {
-            <span class="kw">let </span>span = <span class="macro">tracing::debug_span!</span>(<span class="string">&quot;span1&quot;</span>);
+            <span class="kw">let </span>span = <span class="macro">tracing::debug_span!</span>(<span class="string">"span1"</span>);
             drop(span);
-            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span2&quot;</span>);
+            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(<span class="string">"span2"</span>);
             <span class="kw">let </span>span2_clone = span2.clone();
             drop(span2);
             span2_clone
         });
 
-        state.assert_removed(<span class="string">&quot;span1&quot;</span>);
-        state.assert_not_removed(<span class="string">&quot;span2&quot;</span>);
+        state.assert_removed(<span class="string">"span1"</span>);
+        state.assert_not_removed(<span class="string">"span2"</span>);
 
         drop(span2);
-        state.assert_removed(<span class="string">&quot;span1&quot;</span>);
+        state.assert_removed(<span class="string">"span1"</span>);
 
         <span class="comment">// Ensure the registry itself outlives the span.
         </span>drop(dispatch);
@@ -1734,8 +1735,8 @@
         </span><span class="kw">let </span>dispatch = dispatcher::Dispatch::new(subscriber);
 
         dispatcher::with_default(<span class="kw-2">&amp;</span>dispatch, || {
-            <span class="kw">let </span>span1 = <span class="macro">tracing::debug_span!</span>(<span class="string">&quot;span1&quot;</span>);
-            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span2&quot;</span>);
+            <span class="kw">let </span>span1 = <span class="macro">tracing::debug_span!</span>(<span class="string">"span1"</span>);
+            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(<span class="string">"span2"</span>);
 
             <span class="kw">let </span>enter1 = span1.enter();
             <span class="kw">let </span>enter2 = span2.enter();
@@ -1743,22 +1744,22 @@
             drop(enter1);
             drop(span1);
 
-            state.assert_removed(<span class="string">&quot;span1&quot;</span>);
-            state.assert_not_removed(<span class="string">&quot;span2&quot;</span>);
+            state.assert_removed(<span class="string">"span1"</span>);
+            state.assert_not_removed(<span class="string">"span2"</span>);
 
             drop(enter2);
-            state.assert_not_removed(<span class="string">&quot;span2&quot;</span>);
+            state.assert_not_removed(<span class="string">"span2"</span>);
 
             drop(span2);
-            state.assert_removed(<span class="string">&quot;span1&quot;</span>);
-            state.assert_removed(<span class="string">&quot;span2&quot;</span>);
+            state.assert_removed(<span class="string">"span1"</span>);
+            state.assert_removed(<span class="string">"span2"</span>);
         });
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>child_closes_parent() {
-        <span class="comment">// This test asserts that if a parent span&#39;s handle is dropped before
-        // a child span&#39;s handle, the parent will remain open until child
+        <span class="comment">// This test asserts that if a parent span's handle is dropped before
+        // a child span's handle, the parent will remain open until child
         // closes, and will then be closed.
 
         </span><span class="kw">let </span>(close_layer, state) = CloseLayer::new();
@@ -1767,19 +1768,19 @@
         <span class="kw">let </span>dispatch = dispatcher::Dispatch::new(subscriber);
 
         dispatcher::with_default(<span class="kw-2">&amp;</span>dispatch, || {
-            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;parent&quot;</span>);
-            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(parent: <span class="kw-2">&amp;</span>span1, <span class="string">&quot;child&quot;</span>);
+            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">"parent"</span>);
+            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(parent: <span class="kw-2">&amp;</span>span1, <span class="string">"child"</span>);
 
-            state.assert_open(<span class="string">&quot;parent&quot;</span>);
-            state.assert_open(<span class="string">&quot;child&quot;</span>);
+            state.assert_open(<span class="string">"parent"</span>);
+            state.assert_open(<span class="string">"child"</span>);
 
             drop(span1);
-            state.assert_open(<span class="string">&quot;parent&quot;</span>);
-            state.assert_open(<span class="string">&quot;child&quot;</span>);
+            state.assert_open(<span class="string">"parent"</span>);
+            state.assert_open(<span class="string">"child"</span>);
 
             drop(span2);
-            state.assert_closed(<span class="string">&quot;parent&quot;</span>);
-            state.assert_closed(<span class="string">&quot;child&quot;</span>);
+            state.assert_closed(<span class="string">"parent"</span>);
+            state.assert_closed(<span class="string">"child"</span>);
         });
     }
 
@@ -1794,23 +1795,23 @@
         <span class="kw">let </span>dispatch = dispatcher::Dispatch::new(subscriber);
 
         dispatcher::with_default(<span class="kw-2">&amp;</span>dispatch, || {
-            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;grandparent&quot;</span>);
-            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(parent: <span class="kw-2">&amp;</span>span1, <span class="string">&quot;parent&quot;</span>);
-            <span class="kw">let </span>span3 = <span class="macro">tracing::info_span!</span>(parent: <span class="kw-2">&amp;</span>span2, <span class="string">&quot;child&quot;</span>);
+            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">"grandparent"</span>);
+            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(parent: <span class="kw-2">&amp;</span>span1, <span class="string">"parent"</span>);
+            <span class="kw">let </span>span3 = <span class="macro">tracing::info_span!</span>(parent: <span class="kw-2">&amp;</span>span2, <span class="string">"child"</span>);
 
-            state.assert_open(<span class="string">&quot;grandparent&quot;</span>);
-            state.assert_open(<span class="string">&quot;parent&quot;</span>);
-            state.assert_open(<span class="string">&quot;child&quot;</span>);
+            state.assert_open(<span class="string">"grandparent"</span>);
+            state.assert_open(<span class="string">"parent"</span>);
+            state.assert_open(<span class="string">"child"</span>);
 
             drop(span1);
             drop(span2);
-            state.assert_open(<span class="string">&quot;grandparent&quot;</span>);
-            state.assert_open(<span class="string">&quot;parent&quot;</span>);
-            state.assert_open(<span class="string">&quot;child&quot;</span>);
+            state.assert_open(<span class="string">"grandparent"</span>);
+            state.assert_open(<span class="string">"parent"</span>);
+            state.assert_open(<span class="string">"child"</span>);
 
             drop(span3);
 
-            state.assert_closed_in_order([<span class="string">&quot;child&quot;</span>, <span class="string">&quot;parent&quot;</span>, <span class="string">&quot;grandparent&quot;</span>]);
+            state.assert_closed_in_order([<span class="string">"child"</span>, <span class="string">"parent"</span>, <span class="string">"grandparent"</span>]);
         });
     }
 }

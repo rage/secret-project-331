@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/authorization.rs`."><title>authorization.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/authorization.rs`."><title>authorization.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1066,13 +1067,13 @@
 <span class="kw">use </span>sqlx::PgConnection;
 <span class="kw">use </span>std::env;
 <span class="kw">use </span>std::pin::Pin;
-<span class="attr">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ts_rs"</span>)]
 </span><span class="kw">pub use </span>ts_rs::TS;
 <span class="kw">use </span>uuid::Uuid;
 
-<span class="kw">const </span>SESSION_KEY: <span class="kw-2">&amp;</span>str = <span class="string">&quot;user&quot;</span>;
+<span class="kw">const </span>SESSION_KEY: <span class="kw-2">&amp;</span>str = <span class="string">"user"</span>;
 
-<span class="kw">const </span>MOOCFI_GRAPHQL_URL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;https://www.mooc.fi/api&quot;</span>;
+<span class="kw">const </span>MOOCFI_GRAPHQL_URL: <span class="kw-2">&amp;</span>str = <span class="string">"https://www.mooc.fi/api"</span>;
 
 <span class="comment">// at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
@@ -1088,15 +1089,15 @@
 }
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-#[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+#[serde(rename_all = <span class="string">"snake_case"</span>)]
 </span><span class="kw">pub struct </span>ActionOnResource {
     <span class="kw">pub </span>action: Action,
     <span class="kw">pub </span>resource: Resource,
 }
 
 <span class="kw">impl </span>AuthUser {
-    <span class="doccomment">/// The user&#39;s ID in TMC.
+    <span class="doccomment">/// The user's ID in TMC.
     </span><span class="kw">pub fn </span>upstream_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt; {
         <span class="self">self</span>.upstream_id
     }
@@ -1116,7 +1117,7 @@
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(user)) =&gt; <span class="prelude-val">Ok</span>(verify_auth_user_exists(user, pool, <span class="kw-2">&amp;</span>session).<span class="kw">await</span><span class="question-mark">?</span>),
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
                     ControllerErrorType::Unauthorized,
-                    <span class="string">&quot;Unauthorized.&quot;</span>.to_string(),
+                    <span class="string">"Unauthorized."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )),
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
@@ -1124,8 +1125,8 @@
                     </span>session.remove(SESSION_KEY);
                     <span class="prelude-val">Err</span>(ControllerError::new(
                         ControllerErrorType::Unauthorized,
-                        <span class="string">&quot;Unauthorized.&quot;</span>.to_string(),
-                        <span class="comment">// Don&#39;t want to leak too many details from the error to the user
+                        <span class="string">"Unauthorized."</span>.to_string(),
+                        <span class="comment">// Don't want to leak too many details from the error to the user
                         </span><span class="prelude-val">None</span>,
                     ))
                 }
@@ -1135,7 +1136,7 @@
 }
 
 <span class="doccomment">/**
- * For making sure the user saved in the session still exists in the database. Check the user&#39;s existance when the session is at least 3 hours old, updates the session automatically, and returns an up-to-date AuthUser.
+ * For making sure the user saved in the session still exists in the database. Check the user's existance when the session is at least 3 hours old, updates the session automatically, and returns an up-to-date AuthUser.
  */
 </span><span class="kw">async fn </span>verify_auth_user_exists(
     auth_user: AuthUser,
@@ -1151,7 +1152,7 @@
         }
     }
     <span class="kw">if let </span><span class="prelude-val">Some</span>(pool) = pool {
-        <span class="macro">info!</span>(<span class="string">&quot;Checking whether the user saved in the session still exists in the database.&quot;</span>);
+        <span class="macro">info!</span>(<span class="string">"Checking whether the user saved in the session still exists in the database."</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>user = models::users::get_by_id(<span class="kw-2">&amp;mut </span>conn, auth_user.id).<span class="kw">await</span><span class="question-mark">?</span>;
         remember(session, user)<span class="question-mark">?</span>;
@@ -1159,20 +1160,20 @@
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(session_user)) =&gt; <span class="prelude-val">Ok</span>(session_user),
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::InternalServerError,
-                <span class="string">&quot;User did not persist in the session&quot;</span>.to_string(),
+                <span class="string">"User did not persist in the session"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )),
             <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::InternalServerError,
-                <span class="string">&quot;User did not persist in the session&quot;</span>.to_string(),
+                <span class="string">"User did not persist in the session"</span>.to_string(),
                 <span class="prelude-val">Some</span>(e.into()),
             )),
         }
     } <span class="kw">else </span>{
-        <span class="macro">warn!</span>(<span class="string">&quot;No database pool provided to verify_auth_user_exists&quot;</span>);
+        <span class="macro">warn!</span>(<span class="string">"No database pool provided to verify_auth_user_exists"</span>);
         <span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::InternalServerError,
-            <span class="string">&quot;No database pool provided to verify_auth_user_exists&quot;</span>.to_string(),
+            <span class="string">"No database pool provided to verify_auth_user_exists"</span>.to_string(),
             <span class="prelude-val">None</span>,
         ))
     }
@@ -1190,7 +1191,7 @@
     };
     session
         .insert(SESSION_KEY, auth_user)
-        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to insert to session&quot;</span>))
+        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Failed to insert to session"</span>))
 }
 
 <span class="doccomment">/// Checks if the user is authenticated in the given session.
@@ -1212,8 +1213,8 @@
 
 <span class="doccomment">/// Describes an action that a user can take on some resource.
 </span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-#[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>, tag = <span class="string">&quot;type&quot;</span>, content = <span class="string">&quot;variant&quot;</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+#[serde(rename_all = <span class="string">"snake_case"</span>, tag = <span class="string">"type"</span>, content = <span class="string">"variant"</span>)]
 </span><span class="kw">pub enum </span>Action {
     ViewMaterial,
     View,
@@ -1225,7 +1226,7 @@
     DeleteAnswer,
     EditRole(UserRole),
     CreateCoursesOrExams,
-    <span class="doccomment">/// Deletion that we usually don&#39;t want to allow.
+    <span class="doccomment">/// Deletion that we usually don't want to allow.
     </span>UsuallyUnacceptableDeletion,
     UploadFile,
     ViewUserProgressOrDetails,
@@ -1235,8 +1236,8 @@
 
 <span class="doccomment">/// The target of an action.
 </span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-#[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>, tag = <span class="string">&quot;type&quot;</span>, content = <span class="string">&quot;id&quot;</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+#[serde(rename_all = <span class="string">"snake_case"</span>, tag = <span class="string">"type"</span>, content = <span class="string">"id"</span>)]
 </span><span class="kw">pub enum </span>Resource {
     GlobalPermissions,
     Chapter(Uuid),
@@ -1327,7 +1328,7 @@ async fn example_function(
         <span class="kw">if </span>user_id.is_none() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::Unauthorized,
-                <span class="string">&quot;The course is not public&quot;</span>.to_string(),
+                <span class="string">"The course is not public"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
@@ -1343,16 +1344,16 @@ async fn example_function(
     request: <span class="kw-2">&amp;</span>HttpRequest,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;AuthorizationToken, ControllerError&gt; {
     <span class="kw">let </span>tmc_server_secret_for_communicating_to_secret_project =
-        env::var(<span class="string">&quot;TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT&quot;</span>)
-            .expect(<span class="string">&quot;TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined&quot;</span>);
+        env::var(<span class="string">"TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT"</span>)
+            .expect(<span class="string">"TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined"</span>);
     <span class="comment">// check authorization header
     </span><span class="kw">let </span>auth_header = request
         .headers()
-        .get(<span class="string">&quot;Authorization&quot;</span>)
+        .get(<span class="string">"Authorization"</span>)
         .ok_or_else(|| {
             ControllerError::new(
                 ControllerErrorType::Unauthorized,
-                <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+                <span class="string">"Unauthorized"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })<span class="question-mark">?
@@ -1360,7 +1361,7 @@ async fn example_function(
         .map_err(|<span class="kw">_</span>| {
             ControllerError::new(
                 ControllerErrorType::Unauthorized,
-                <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+                <span class="string">"Unauthorized"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })<span class="question-mark">?</span>;
@@ -1370,7 +1371,7 @@ async fn example_function(
     }
     <span class="prelude-val">Err</span>(ControllerError::new(
         ControllerErrorType::Unauthorized,
-        <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+        <span class="string">"Unauthorized"</span>.to_string(),
         <span class="prelude-val">None</span>,
     ))
 }
@@ -1433,7 +1434,7 @@ token.authorized_ok(web::Json(cms_page_info))
     authorize_with_fetched_list_of_roles(conn, action, user_id, resource, <span class="kw-2">&amp;</span>user_roles).<span class="kw">await
 </span>}
 
-<span class="doccomment">/// Same as `authorize`, but takes as an argument `Vec&lt;Role&gt;` so that we avoid fetching the roles from the database for optimization reasons. This is useful when we&#39;re checking multiple authorizations at once.
+<span class="doccomment">/// Same as `authorize`, but takes as an argument `Vec&lt;Role&gt;` so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
 </span><span class="kw">pub async fn </span>authorize_with_fetched_list_of_roles(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     action: Action,
@@ -1522,7 +1523,7 @@ token.authorized_ok(web::Json(cms_page_info))
             <span class="comment">// permissions for these resources have already been checked
             </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::Forbidden,
-                <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+                <span class="string">"Unauthorized"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ))
         }
@@ -1550,7 +1551,7 @@ token.authorized_ok(web::Json(cms_page_info))
     }
     <span class="prelude-val">Err</span>(ControllerError::new(
         ControllerErrorType::Forbidden,
-        <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+        <span class="string">"Unauthorized"</span>.to_string(),
         <span class="prelude-val">None</span>,
     ))
 }
@@ -1639,7 +1640,7 @@ token.authorized_ok(web::Json(cms_page_info))
     }
     <span class="prelude-val">Err</span>(ControllerError::new(
         ControllerErrorType::Forbidden,
-        <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+        <span class="string">"Unauthorized"</span>.to_string(),
         <span class="prelude-val">None</span>,
     ))
 }
@@ -1654,7 +1655,7 @@ token.authorized_ok(web::Json(cms_page_info))
         </span>.map_err(|original_error| {
             ControllerError::new(
                 ControllerErrorType::Forbidden,
-                <span class="string">&quot;Unauthorized&quot;</span>.to_string(),
+                <span class="string">"Unauthorized"</span>.to_string(),
                 <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
@@ -1713,20 +1714,20 @@ token.authorized_ok(web::Json(cms_page_info))
 <span class="kw">pub fn </span>parse_secret_key_from_header(header: <span class="kw-2">&amp;</span>HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str, ControllerError&gt; {
     <span class="kw">let </span>raw_token = header
         .headers()
-        .get(<span class="string">&quot;Authorization&quot;</span>)
-        .map_or(<span class="prelude-val">Ok</span>(<span class="string">&quot;&quot;</span>), |x| x.to_str())
-        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Access denied.&quot;</span>.to_string()))<span class="question-mark">?</span>;
-    <span class="kw">if </span>!raw_token.starts_with(<span class="string">&quot;Basic&quot;</span>) {
+        .get(<span class="string">"Authorization"</span>)
+        .map_or(<span class="prelude-val">Ok</span>(<span class="string">""</span>), |x| x.to_str())
+        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">"Access denied."</span>.to_string()))<span class="question-mark">?</span>;
+    <span class="kw">if </span>!raw_token.starts_with(<span class="string">"Basic"</span>) {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::Forbidden,
-            <span class="string">&quot;Access denied&quot;</span>.to_string(),
+            <span class="string">"Access denied"</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
-    <span class="kw">let </span>secret_key = raw_token.split(<span class="string">&#39; &#39;</span>).nth(<span class="number">1</span>).ok_or_else(|| {
+    <span class="kw">let </span>secret_key = raw_token.split(<span class="string">' '</span>).nth(<span class="number">1</span>).ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::Forbidden,
-            <span class="string">&quot;Malformed authorization token&quot;</span>.to_string(),
+            <span class="string">"Malformed authorization token"</span>.to_string(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
@@ -1762,9 +1763,9 @@ token.authorized_ok(web::Json(cms_page_info))
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-</span><span class="kw">struct </span>GraphQLRequest&lt;<span class="lifetime">&#39;a</span>&gt; {
-    query: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="attr">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+</span><span class="kw">struct </span>GraphQLRequest&lt;<span class="lifetime">'a</span>&gt; {
+    query: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="attr">#[serde(skip_serializing_if = <span class="string">"Option::is_none"</span>)]
     </span>variables: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
 }
 
@@ -1791,15 +1792,15 @@ token.authorized_ok(web::Json(cms_page_info))
     token: <span class="kw-2">&amp;</span>LoginToken,
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
 ) -&gt; anyhow::Result&lt;User&gt; {
-    <span class="macro">info!</span>(<span class="string">&quot;Getting user details from mooc.fi&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Getting user details from mooc.fi"</span>);
 
     <span class="kw">let </span>client = reqwest::Client::default();
     <span class="kw">let </span>res = client
         .post(MOOCFI_GRAPHQL_URL)
-        .header(reqwest::header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>)
-        .header(reqwest::header::ACCEPT, <span class="string">&quot;application/json&quot;</span>)
+        .header(reqwest::header::CONTENT_TYPE, <span class="string">"application/json"</span>)
+        .header(reqwest::header::ACCEPT, <span class="string">"application/json"</span>)
         .json(<span class="kw-2">&amp;</span>GraphQLRequest {
-            query: <span class="string">r#&quot;
+            query: <span class="string">r#"
 {
     user: currentUser {
       id
@@ -1808,20 +1809,20 @@ token.authorized_ok(web::Json(cms_page_info))
       last_name
       upstream_id
     }
-}&quot;#</span>,
+}"#</span>,
             variables: <span class="prelude-val">None</span>,
         })
         .bearer_auth(token.access_token().secret())
         .send()
         .<span class="kw">await
-        </span>.context(<span class="string">&quot;Failed to send request to Mooc.fi&quot;</span>)<span class="question-mark">?</span>;
+        </span>.context(<span class="string">"Failed to send request to Mooc.fi"</span>)<span class="question-mark">?</span>;
     <span class="kw">if </span>!res.status().is_success() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to get current user from Mooc.fi&quot;</span>));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">"Failed to get current user from Mooc.fi"</span>));
     }
     <span class="kw">let </span>current_user_response: MoocfiUserResponse = res
         .json()
         .<span class="kw">await
-        </span>.context(<span class="string">&quot;Unexpected response from Mooc.fi&quot;</span>)<span class="question-mark">?</span>;
+        </span>.context(<span class="string">"Unexpected response from Mooc.fi"</span>)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>user = get_or_create_user_from_moocfi_response(<span class="kw-2">&amp;mut *</span>conn, current_user_response.data.user)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1833,16 +1834,16 @@ token.authorized_ok(web::Json(cms_page_info))
     tmc_access_token: <span class="kw-2">&amp;</span>str,
     upstream_id: <span class="kw-2">&amp;</span>i32,
 ) -&gt; anyhow::Result&lt;User&gt; {
-    <span class="macro">info!</span>(<span class="string">&quot;Getting user details from mooc.fi&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Getting user details from mooc.fi"</span>);
     <span class="kw">let </span>client = reqwest::Client::default();
 
     <span class="kw">let </span>res = client
         .post(MOOCFI_GRAPHQL_URL)
-        .header(reqwest::header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>)
-        .header(reqwest::header::ACCEPT, <span class="string">&quot;application/json&quot;</span>)
+        .header(reqwest::header::CONTENT_TYPE, <span class="string">"application/json"</span>)
+        .header(reqwest::header::ACCEPT, <span class="string">"application/json"</span>)
         .bearer_auth(tmc_access_token)
         .json(<span class="kw-2">&amp;</span>GraphQLRequest {
-            query: <span class="string">r#&quot;
+            query: <span class="string">r#"
 query ($upstreamId: Int) {
   user(upstream_id: $upstreamId) {
     id
@@ -1851,19 +1852,19 @@ query ($upstreamId: Int) {
     last_name
     upstream_id
   }
-}&quot;#</span>,
-            variables: <span class="prelude-val">Some</span>(<span class="macro">json!</span>({ <span class="string">&quot;upstreamId&quot;</span>: upstream_id })),
+}"#</span>,
+            variables: <span class="prelude-val">Some</span>(<span class="macro">json!</span>({ <span class="string">"upstreamId"</span>: upstream_id })),
         })
         .send()
         .<span class="kw">await
-        </span>.context(<span class="string">&quot;Failed to send request to Mooc.fi&quot;</span>)<span class="question-mark">?</span>;
+        </span>.context(<span class="string">"Failed to send request to Mooc.fi"</span>)<span class="question-mark">?</span>;
     <span class="kw">if </span>!res.status().is_success() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to get current user from Mooc.fi&quot;</span>));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">"Failed to get current user from Mooc.fi"</span>));
     }
     <span class="kw">let </span>current_user_response: MoocfiUserResponse = res
         .json()
         .<span class="kw">await
-        </span>.context(<span class="string">&quot;Unexpected response from Mooc.fi&quot;</span>)<span class="question-mark">?</span>;
+        </span>.context(<span class="string">"Unexpected response from Mooc.fi"</span>)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>user = get_or_create_user_from_moocfi_response(<span class="kw-2">&amp;mut *</span>conn, current_user_response.data.user)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1919,42 +1920,42 @@ query ($upstreamId: Int) {
 ) -&gt; anyhow::Result&lt;User&gt; {
     <span class="comment">// Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     </span><span class="macro">assert!</span>(application_configuration.test_mode);
-    <span class="kw">let </span>user = <span class="kw">if </span>email == <span class="string">&quot;admin@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;admin&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;admin@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;teacher@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;teacher&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;language.teacher@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;language.teacher&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;language.teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;material.viewer@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;material.viewer&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;material.viewer@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;user@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;user&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;user@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;assistant@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;assistant&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;assistant@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;creator@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;creator&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;creator@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;student1@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;student1&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;student1@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;student2@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;student2&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;student2@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;student3@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;student3&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;student3@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;student4@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;student4&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;student4@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;student5@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;student5&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;student5@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;teaching-and-learning-services@example.com&quot;
-        </span>&amp;&amp; password == <span class="string">&quot;teaching-and-learning-services&quot;
+    <span class="kw">let </span>user = <span class="kw">if </span>email == <span class="string">"admin@example.com" </span>&amp;&amp; password == <span class="string">"admin" </span>{
+        models::users::get_by_email(conn, <span class="string">"admin@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"teacher@example.com" </span>&amp;&amp; password == <span class="string">"teacher" </span>{
+        models::users::get_by_email(conn, <span class="string">"teacher@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"language.teacher@example.com" </span>&amp;&amp; password == <span class="string">"language.teacher" </span>{
+        models::users::get_by_email(conn, <span class="string">"language.teacher@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"material.viewer@example.com" </span>&amp;&amp; password == <span class="string">"material.viewer" </span>{
+        models::users::get_by_email(conn, <span class="string">"material.viewer@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"user@example.com" </span>&amp;&amp; password == <span class="string">"user" </span>{
+        models::users::get_by_email(conn, <span class="string">"user@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"assistant@example.com" </span>&amp;&amp; password == <span class="string">"assistant" </span>{
+        models::users::get_by_email(conn, <span class="string">"assistant@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"creator@example.com" </span>&amp;&amp; password == <span class="string">"creator" </span>{
+        models::users::get_by_email(conn, <span class="string">"creator@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"student1@example.com" </span>&amp;&amp; password == <span class="string">"student1" </span>{
+        models::users::get_by_email(conn, <span class="string">"student1@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"student2@example.com" </span>&amp;&amp; password == <span class="string">"student2" </span>{
+        models::users::get_by_email(conn, <span class="string">"student2@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"student3@example.com" </span>&amp;&amp; password == <span class="string">"student3" </span>{
+        models::users::get_by_email(conn, <span class="string">"student3@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"student4@example.com" </span>&amp;&amp; password == <span class="string">"student4" </span>{
+        models::users::get_by_email(conn, <span class="string">"student4@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"student5@example.com" </span>&amp;&amp; password == <span class="string">"student5" </span>{
+        models::users::get_by_email(conn, <span class="string">"student5@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"teaching-and-learning-services@example.com"
+        </span>&amp;&amp; password == <span class="string">"teaching-and-learning-services"
     </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;teaching-and-learning-services@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;student-without-research-consent@example.com&quot;
-        </span>&amp;&amp; password == <span class="string">&quot;student-without-research-consent&quot;
+        models::users::get_by_email(conn, <span class="string">"teaching-and-learning-services@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"student-without-research-consent@example.com"
+        </span>&amp;&amp; password == <span class="string">"student-without-research-consent"
     </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;student-without-research-consent@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
-    </span>} <span class="kw">else if </span>email == <span class="string">&quot;langs@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;langs&quot; </span>{
-        models::users::get_by_email(conn, <span class="string">&quot;langs@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+        models::users::get_by_email(conn, <span class="string">"student-without-research-consent@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">"langs@example.com" </span>&amp;&amp; password == <span class="string">"langs" </span>{
+        models::users::get_by_email(conn, <span class="string">"langs@example.com"</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else </span>{
-        <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Invalid email or password&quot;</span>);
+        <span class="macro">anyhow::bail!</span>(<span class="string">"Invalid email or password"</span>);
     };
     <span class="prelude-val">Ok</span>(user)
 }
@@ -1978,12 +1979,12 @@ query ($upstreamId: Int) {
 </span><span class="kw">async fn </span>async_http_client_with_headers(
     <span class="kw-2">mut </span>request: oauth2::HttpRequest,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;oauth2::HttpResponse, AsyncHttpClientError&gt; {
-    <span class="kw">let </span>ratelimit_api_key = std::env::var(<span class="string">&quot;RATELIMIT_PROTECTION_SAFE_API_KEY&quot;</span>)
-        .expect(<span class="string">&quot;RATELIMIT_PROTECTION_SAFE_API_KEY must be defined&quot;</span>);
+    <span class="kw">let </span>ratelimit_api_key = std::env::var(<span class="string">"RATELIMIT_PROTECTION_SAFE_API_KEY"</span>)
+        .expect(<span class="string">"RATELIMIT_PROTECTION_SAFE_API_KEY must be defined"</span>);
     request.headers.append(
-        <span class="string">&quot;RATELIMIT-PROTECTION-SAFE-API-KEY&quot;</span>,
+        <span class="string">"RATELIMIT-PROTECTION-SAFE-API-KEY"</span>,
         ratelimit_api_key.parse().map_err(|_err| {
-            AsyncHttpClientError::Other(<span class="string">&quot;Invalid RATELIMIT API key.&quot;</span>.to_string())
+            AsyncHttpClientError::Other(<span class="string">"Invalid RATELIMIT API key."</span>.to_string())
         })<span class="question-mark">?</span>,
     );
     <span class="kw">let </span>result = oauth2::reqwest::async_http_client(request).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2005,13 +2006,13 @@ query ($upstreamId: Int) {
         <span class="kw">let </span>user = users::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
-            <span class="string">&quot;auth@example.com&quot;</span>,
+            <span class="string">"auth@example.com"</span>,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
         )
         .<span class="kw">await
         </span>.unwrap();
-        <span class="kw">let </span>org = organizations::insert(tx.as_mut(), PKeyPolicy::Generate, <span class="string">&quot;auth&quot;</span>, <span class="string">&quot;auth&quot;</span>, <span class="string">&quot;auth&quot;</span>)
+        <span class="kw">let </span>org = organizations::insert(tx.as_mut(), PKeyPolicy::Generate, <span class="string">"auth"</span>, <span class="string">"auth"</span>, <span class="string">"auth"</span>)
             .<span class="kw">await
             </span>.unwrap();
 

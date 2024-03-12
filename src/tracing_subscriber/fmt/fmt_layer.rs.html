@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/fmt_layer.rs`."><title>fmt_layer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/fmt_layer.rs`."><title>fmt_layer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1620,15 +1621,15 @@
 /// tracing::subscriber::set_global_default(subscriber).unwrap();
 /// ```
 ///
-/// Overriding the layer&#39;s behavior:
+/// Overriding the layer's behavior:
 ///
 /// ```rust
 /// use tracing_subscriber::{fmt, Registry};
 /// use tracing_subscriber::prelude::*;
 ///
 /// let fmt_layer = fmt::layer()
-///    .with_target(false) // don&#39;t include event targets when logging
-///    .with_level(false); // don&#39;t include event levels when logging
+///    .with_target(false) // don't include event targets when logging
+///    .with_level(false); // don't include event levels when logging
 ///
 /// let subscriber = Registry::default().with(fmt_layer);
 /// # tracing::subscriber::set_global_default(subscriber).unwrap();
@@ -1649,7 +1650,7 @@
 /// ```
 ///
 /// [`Layer`]: super::layer::Layer
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>))))]
 #[derive(Debug)]
 </span><span class="kw">pub struct </span>Layer&lt;
     S,
@@ -1676,9 +1677,9 @@
 <span class="comment">// This needs to be a seperate impl block because they place different bounds on the type parameters.
 </span><span class="kw">impl</span>&lt;S, N, E, W&gt; Layer&lt;S, N, E, W&gt;
 <span class="kw">where
-    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;,
-    N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-    W: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; LookupSpan&lt;<span class="lifetime">'a</span>&gt;,
+    N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+    W: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Sets the [event formatter][`FormatEvent`] that the layer being built will
     /// use to format events.
@@ -1704,7 +1705,7 @@
     /// [`Writer`]: format::Writer
     </span><span class="kw">pub fn </span>event_format&lt;E2&gt;(<span class="self">self</span>, e: E2) -&gt; Layer&lt;S, N, E2, W&gt;
     <span class="kw">where
-        </span>E2: FormatEvent&lt;S, N&gt; + <span class="lifetime">&#39;static</span>,
+        </span>E2: FormatEvent&lt;S, N&gt; + <span class="lifetime">'static</span>,
     {
         Layer {
             fmt_fields: <span class="self">self</span>.fmt_fields,
@@ -1734,7 +1735,7 @@
     /// ```
     </span><span class="kw">pub fn </span>map_event_format&lt;E2&gt;(<span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(E) -&gt; E2) -&gt; Layer&lt;S, N, E2, W&gt;
     <span class="kw">where
-        </span>E2: FormatEvent&lt;S, N&gt; + <span class="lifetime">&#39;static</span>,
+        </span>E2: FormatEvent&lt;S, N&gt; + <span class="lifetime">'static</span>,
     {
         Layer {
             fmt_fields: <span class="self">self</span>.fmt_fields,
@@ -1768,7 +1769,7 @@
     /// ```
     </span><span class="kw">pub fn </span>with_writer&lt;W2&gt;(<span class="self">self</span>, make_writer: W2) -&gt; Layer&lt;S, N, E, W2&gt;
     <span class="kw">where
-        </span>W2: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>W2: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         Layer {
             fmt_fields: <span class="self">self</span>.fmt_fields,
@@ -1808,9 +1809,9 @@
     /// # // specifying the Registry type is required
     /// # let _: &amp;reload::Handle&lt;fmt::Layer&lt;Registry, _, _, _&gt;, Registry&gt; = &amp;reload_handle;
     /// #
-    /// info!(&quot;This will be logged to stderr&quot;);
+    /// info!("This will be logged to stderr");
     /// reload_handle.modify(|layer| *layer.writer_mut() = non_blocking(std::io::stdout()));
-    /// info!(&quot;This will be logged to stdout&quot;);
+    /// info!("This will be logged to stdout");
     /// # }
     /// ```
     ///
@@ -1825,13 +1826,13 @@
     /// This method is primarily expected to be used with the
     /// [`reload::Handle::modify`](crate::reload::Handle::modify) method when changing
     /// the writer.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;ansi&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"ansi"</span>)))]
     </span><span class="kw">pub fn </span>set_ansi(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ansi: bool) {
         <span class="self">self</span>.is_ansi = ansi;
     }
 
-    <span class="doccomment">/// Configures the layer to support [`libtest`&#39;s output capturing][capturing] when used in
+    <span class="doccomment">/// Configures the layer to support [`libtest`'s output capturing][capturing] when used in
     /// unit tests.
     ///
     /// See [`TestWriter`] for additional details.
@@ -1868,7 +1869,7 @@
     <span class="doccomment">/// Sets whether or not the formatter emits ANSI terminal escape codes
     /// for colors and other text formatting.
     ///
-    /// When the &quot;ansi&quot; crate feature flag is enabled, ANSI colors are enabled
+    /// When the "ansi" crate feature flag is enabled, ANSI colors are enabled
     /// by default unless the [`NO_COLOR`] environment variable is set to
     /// a non-empty value.  If the [`NO_COLOR`] environment variable is set to
     /// any non-empty value, then ANSI colors will be suppressed by default.
@@ -1877,8 +1878,8 @@
     ///
     /// [`NO_COLOR`]: https://no-color.org/
     ///
-    /// Enabling ANSI escapes (calling `with_ansi(true)`) requires the &quot;ansi&quot;
-    /// crate feature flag. Calling `with_ansi(true)` without the &quot;ansi&quot;
+    /// Enabling ANSI escapes (calling `with_ansi(true)`) requires the "ansi"
+    /// crate feature flag. Calling `with_ansi(true)` without the "ansi"
     /// feature flag enabled will panic if debug assertions are enabled, or
     /// print a warning otherwise.
     ///
@@ -1887,20 +1888,20 @@
     /// having to opt-in to the dependencies required to emit ANSI formatting.
     /// This way, code which constructs a formatter that should never emit
     /// ANSI escape codes can ensure that they are not used, regardless of
-    /// whether or not other crates in the dependency graph enable the &quot;ansi&quot;
+    /// whether or not other crates in the dependency graph enable the "ansi"
     /// feature flag.
     ///
     /// [`with_ansi`]: Subscriber::with_ansi
     /// [`set_ansi`]: Subscriber::set_ansi
     </span><span class="kw">pub fn </span>with_ansi(<span class="self">self</span>, ansi: bool) -&gt; <span class="self">Self </span>{
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;ansi&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"ansi"</span>))]
         </span><span class="kw">if </span>ansi {
             <span class="kw">const </span>ERROR: <span class="kw-2">&amp;</span>str =
-                <span class="string">&quot;tracing-subscriber: the `ansi` crate feature is required to enable ANSI terminal colors&quot;</span>;
+                <span class="string">"tracing-subscriber: the `ansi` crate feature is required to enable ANSI terminal colors"</span>;
             <span class="attr">#[cfg(debug_assertions)]
-            </span><span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, ERROR);
+            </span><span class="macro">panic!</span>(<span class="string">"{}"</span>, ERROR);
             <span class="attr">#[cfg(not(debug_assertions))]
-            </span><span class="macro">eprintln!</span>(<span class="string">&quot;{}&quot;</span>, ERROR);
+            </span><span class="macro">eprintln!</span>(<span class="string">"{}"</span>, ERROR);
         }
 
         <span class="self">Self </span>{
@@ -1948,7 +1949,7 @@
     /// ```
     </span><span class="kw">pub fn </span>map_writer&lt;W2&gt;(<span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(W) -&gt; W2) -&gt; Layer&lt;S, N, E, W2&gt;
     <span class="kw">where
-        </span>W2: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>W2: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         Layer {
             fmt_fields: <span class="self">self</span>.fmt_fields,
@@ -1964,13 +1965,13 @@
 
 <span class="kw">impl</span>&lt;S, N, L, T, W&gt; Layer&lt;S, N, format::Format&lt;L, T&gt;, W&gt;
 <span class="kw">where
-    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Use the given [`timer`] for span and event timestamps.
     ///
     /// See the [`time` module] for the provided timer implementations.
     ///
-    /// Note that using the `&quot;time`&quot;&quot; feature flag enables the
+    /// Note that using the `"time`"" feature flag enables the
     /// additional time formatters [`UtcTime`] and [`LocalTime`], which use the
     /// [`time` crate] to provide more sophisticated timestamp formatting
     /// options.
@@ -2018,14 +2019,14 @@
     /// - `FmtSpan::EXIT`: An event will be synthesized when spans are exited.
     /// - `FmtSpan::CLOSE`: An event will be synthesized when a span closes. If
     ///    [timestamps are enabled][time] for this formatter, the generated
-    ///    event will contain fields with the span&#39;s _busy time_ (the total
+    ///    event will contain fields with the span's _busy time_ (the total
     ///    time for which it was entered) and _idle time_ (the total time that
     ///    the span existed but was not entered).
     /// - `FmtSpan::ACTIVE`: Events will be synthesized when spans are entered
     ///    or exited.
     /// - `FmtSpan::FULL`: Events will be synthesized whenever a span is
     ///    created, entered, exited, or closed. If timestamps are enabled, the
-    ///    close event will contain the span&#39;s busy and idle time, as
+    ///    close event will contain the span's busy and idle time, as
     ///    described above.
     ///
     /// The options can be enabled in any combination. For instance, the following
@@ -2053,14 +2054,14 @@
         </span>}
     }
 
-    <span class="doccomment">/// Sets whether or not an event&#39;s target is displayed.
+    <span class="doccomment">/// Sets whether or not an event's target is displayed.
     </span><span class="kw">pub fn </span>with_target(<span class="self">self</span>, display_target: bool) -&gt; Layer&lt;S, N, format::Format&lt;L, T&gt;, W&gt; {
         Layer {
             fmt_event: <span class="self">self</span>.fmt_event.with_target(display_target),
             ..<span class="self">self
         </span>}
     }
-    <span class="doccomment">/// Sets whether or not an event&#39;s [source code file path][file] is
+    <span class="doccomment">/// Sets whether or not an event's [source code file path][file] is
     /// displayed.
     ///
     /// [file]: tracing_core::Metadata::file
@@ -2071,7 +2072,7 @@
         </span>}
     }
 
-    <span class="doccomment">/// Sets whether or not an event&#39;s [source code line number][line] is
+    <span class="doccomment">/// Sets whether or not an event's [source code line number][line] is
     /// displayed.
     ///
     /// [line]: tracing_core::Metadata::line
@@ -2085,7 +2086,7 @@
         </span>}
     }
 
-    <span class="doccomment">/// Sets whether or not an event&#39;s level is displayed.
+    <span class="doccomment">/// Sets whether or not an event's level is displayed.
     </span><span class="kw">pub fn </span>with_level(<span class="self">self</span>, display_level: bool) -&gt; Layer&lt;S, N, format::Format&lt;L, T&gt;, W&gt; {
         Layer {
             fmt_event: <span class="self">self</span>.fmt_event.with_level(display_level),
@@ -2121,7 +2122,7 @@
     <span class="doccomment">/// Sets the layer being built to use a [less verbose formatter][super::format::Compact].
     </span><span class="kw">pub fn </span>compact(<span class="self">self</span>) -&gt; Layer&lt;S, N, format::Format&lt;format::Compact, T&gt;, W&gt;
     <span class="kw">where
-        </span>N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         Layer {
             fmt_event: <span class="self">self</span>.fmt_event.compact(),
@@ -2135,8 +2136,8 @@
     }
 
     <span class="doccomment">/// Sets the layer being built to use an [excessively pretty, human-readable formatter](crate::fmt::format::Pretty).
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;ansi&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"ansi"</span>)))]
     </span><span class="kw">pub fn </span>pretty(<span class="self">self</span>) -&gt; Layer&lt;S, format::Pretty, format::Format&lt;format::Pretty, T&gt;, W&gt; {
         Layer {
             fmt_event: <span class="self">self</span>.fmt_event.pretty(),
@@ -2156,7 +2157,7 @@
     /// # Example Output
     ///
     /// ```ignore,json
-    /// {&quot;timestamp&quot;:&quot;Feb 20 11:28:15.096&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;target&quot;:&quot;mycrate&quot;,&quot;fields&quot;:{&quot;message&quot;:&quot;some message&quot;, &quot;key&quot;: &quot;value&quot;}}
+    /// {"timestamp":"Feb 20 11:28:15.096","level":"INFO","target":"mycrate","fields":{"message":"some message", "key": "value"}}
     /// ```
     ///
     /// # Options
@@ -2165,8 +2166,8 @@
     /// object.
     ///
     /// [`Layer::flatten_event`]: Layer::flatten_event()
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;json&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"json"</span>)))]
     </span><span class="kw">pub fn </span>json(<span class="self">self</span>) -&gt; Layer&lt;S, format::JsonFields, format::Format&lt;format::Json, T&gt;, W&gt; {
         Layer {
             fmt_event: <span class="self">self</span>.fmt_event.json(),
@@ -2181,8 +2182,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;json&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"json"</span>)))]
 </span><span class="kw">impl</span>&lt;S, T, W&gt; Layer&lt;S, format::JsonFields, format::Format&lt;format::Json, T&gt;, W&gt; {
     <span class="doccomment">/// Sets the JSON layer being built to flatten event metadata.
     ///
@@ -2234,7 +2235,7 @@
     /// fields.
     </span><span class="kw">pub fn </span>fmt_fields&lt;N2&gt;(<span class="self">self</span>, fmt_fields: N2) -&gt; Layer&lt;S, N2, E, W&gt;
     <span class="kw">where
-        </span>N2: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>N2: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         Layer {
             fmt_event: <span class="self">self</span>.fmt_event,
@@ -2265,7 +2266,7 @@
     /// ```
     </span><span class="kw">pub fn </span>map_fmt_fields&lt;N2&gt;(<span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(N) -&gt; N2) -&gt; Layer&lt;S, N2, E, W&gt;
     <span class="kw">where
-        </span>N2: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>N2: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         Layer {
             fmt_event: <span class="self">self</span>.fmt_event,
@@ -2283,7 +2284,7 @@
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="comment">// only enable ANSI when the feature is enabled, and the NO_COLOR
         // environment variable is unset or empty.
-        </span><span class="kw">let </span>ansi = <span class="macro">cfg!</span>(feature = <span class="string">&quot;ansi&quot;</span>) &amp;&amp; env::var(<span class="string">&quot;NO_COLOR&quot;</span>).map_or(<span class="bool-val">true</span>, |v| v.is_empty());
+        </span><span class="kw">let </span>ansi = <span class="macro">cfg!</span>(feature = <span class="string">"ansi"</span>) &amp;&amp; env::var(<span class="string">"NO_COLOR"</span>).map_or(<span class="bool-val">true</span>, |v| v.is_empty());
 
         Layer {
             fmt_fields: format::DefaultFields::default(),
@@ -2299,13 +2300,13 @@
 
 <span class="kw">impl</span>&lt;S, N, E, W&gt; Layer&lt;S, N, E, W&gt;
 <span class="kw">where
-    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;,
-    N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-    E: FormatEvent&lt;S, N&gt; + <span class="lifetime">&#39;static</span>,
-    W: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; LookupSpan&lt;<span class="lifetime">'a</span>&gt;,
+    N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+    E: FormatEvent&lt;S, N&gt; + <span class="lifetime">'static</span>,
+    W: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_ctx&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, ctx: Context&lt;<span class="lifetime">&#39;a</span>, S&gt;, event: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Event&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; FmtContext&lt;<span class="lifetime">&#39;a</span>, S, N&gt; {
+    </span><span class="kw">fn </span>make_ctx&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, ctx: Context&lt;<span class="lifetime">'a</span>, S&gt;, event: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Event&lt;<span class="lifetime">'a</span>&gt;) -&gt; FmtContext&lt;<span class="lifetime">'a</span>, S, N&gt; {
         FmtContext {
             ctx,
             fmt_fields: <span class="kw-2">&amp;</span><span class="self">self</span>.fmt_fields,
@@ -2314,10 +2315,10 @@
     }
 }
 
-<span class="doccomment">/// A formatted representation of a span&#39;s fields stored in its [extensions].
+<span class="doccomment">/// A formatted representation of a span's fields stored in its [extensions].
 ///
 /// Because `FormattedFields` is generic over the type of the formatter that
-/// produced it, multiple versions of a span&#39;s formatted fields can be stored in
+/// produced it, multiple versions of a span's formatted fields can be stored in
 /// the [`Extensions`][extensions] type-map. This means that when multiple
 /// formatters are in use, each can store its own formatted representation
 /// without conflicting.
@@ -2345,23 +2346,23 @@
     ///
     /// The returned [`format::Writer`] can be used with the
     /// [`FormatFields::format_fields`] method.
-    </span><span class="kw">pub fn </span>as_writer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; format::Writer&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>as_writer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; format::Writer&lt;<span class="lifetime">'_</span>&gt; {
         format::Writer::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.fields).with_ansi(<span class="self">self</span>.was_ansi)
     }
 }
 
 <span class="kw">impl</span>&lt;E: <span class="question-mark">?</span>Sized&gt; fmt::Debug <span class="kw">for </span>FormattedFields&lt;E&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;FormattedFields&quot;</span>)
-            .field(<span class="string">&quot;fields&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.fields)
-            .field(<span class="string">&quot;formatter&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, std::any::type_name::&lt;E&gt;()))
-            .field(<span class="string">&quot;was_ansi&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.was_ansi)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"FormattedFields"</span>)
+            .field(<span class="string">"fields"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.fields)
+            .field(<span class="string">"formatter"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{}"</span>, std::any::type_name::&lt;E&gt;()))
+            .field(<span class="string">"was_ansi"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.was_ansi)
             .finish()
     }
 }
 
 <span class="kw">impl</span>&lt;E: <span class="question-mark">?</span>Sized&gt; fmt::Display <span class="kw">for </span>FormattedFields&lt;E&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.fields, f)
     }
 }
@@ -2393,13 +2394,13 @@
 
 <span class="kw">impl</span>&lt;S, N, E, W&gt; layer::Layer&lt;S&gt; <span class="kw">for </span>Layer&lt;S, N, E, W&gt;
 <span class="kw">where
-    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;,
-    N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-    E: FormatEvent&lt;S, N&gt; + <span class="lifetime">&#39;static</span>,
-    W: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; LookupSpan&lt;<span class="lifetime">'a</span>&gt;,
+    N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+    E: FormatEvent&lt;S, N&gt; + <span class="lifetime">'static</span>,
+    W: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
 {
-    <span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
-        <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">&quot;Span not found, this is a bug&quot;</span>);
+    <span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
+        <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">"Span not found, this is a bug"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>extensions = span.extensions_mut();
 
         <span class="kw">if </span>extensions.get_mut::&lt;FormattedFields&lt;N&gt;&gt;().is_none() {
@@ -2413,7 +2414,7 @@
                 extensions.insert(fields);
             } <span class="kw">else </span>{
                 <span class="macro">eprintln!</span>(
-                    <span class="string">&quot;[tracing-subscriber] Unable to format the following event, ignoring: {:?}&quot;</span>,
+                    <span class="string">"[tracing-subscriber] Unable to format the following event, ignoring: {:?}"</span>,
                     attrs
                 );
             }
@@ -2427,7 +2428,7 @@
         }
 
         <span class="kw">if </span><span class="self">self</span>.fmt_span.trace_new() {
-            <span class="macro">with_event_from_span!</span>(id, span, <span class="string">&quot;message&quot; </span>= <span class="string">&quot;new&quot;</span>, |event| {
+            <span class="macro">with_event_from_span!</span>(id, span, <span class="string">"message" </span>= <span class="string">"new"</span>, |event| {
                 drop(extensions);
                 drop(span);
                 <span class="self">self</span>.on_event(<span class="kw-2">&amp;</span>event, ctx);
@@ -2435,8 +2436,8 @@
         }
     }
 
-    <span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id, values: <span class="kw-2">&amp;</span>Record&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
-        <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">&quot;Span not found, this is a bug&quot;</span>);
+    <span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id, values: <span class="kw-2">&amp;</span>Record&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
+        <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">"Span not found, this is a bug"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>extensions = span.extensions_mut();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(fields) = extensions.get_mut::&lt;FormattedFields&lt;N&gt;&gt;() {
             <span class="kw">let _ </span>= <span class="self">self</span>.fmt_fields.add_fields(fields, values);
@@ -2454,9 +2455,9 @@
         }
     }
 
-    <span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if </span><span class="self">self</span>.fmt_span.trace_enter() || <span class="self">self</span>.fmt_span.trace_close() &amp;&amp; <span class="self">self</span>.fmt_span.fmt_timing {
-            <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">&quot;Span not found, this is a bug&quot;</span>);
+            <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">"Span not found, this is a bug"</span>);
             <span class="kw">let </span><span class="kw-2">mut </span>extensions = span.extensions_mut();
             <span class="kw">if let </span><span class="prelude-val">Some</span>(timings) = extensions.get_mut::&lt;Timings&gt;() {
                 <span class="kw">let </span>now = Instant::now();
@@ -2465,7 +2466,7 @@
             }
 
             <span class="kw">if </span><span class="self">self</span>.fmt_span.trace_enter() {
-                <span class="macro">with_event_from_span!</span>(id, span, <span class="string">&quot;message&quot; </span>= <span class="string">&quot;enter&quot;</span>, |event| {
+                <span class="macro">with_event_from_span!</span>(id, span, <span class="string">"message" </span>= <span class="string">"enter"</span>, |event| {
                     drop(extensions);
                     drop(span);
                     <span class="self">self</span>.on_event(<span class="kw-2">&amp;</span>event, ctx);
@@ -2474,9 +2475,9 @@
         }
     }
 
-    <span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if </span><span class="self">self</span>.fmt_span.trace_exit() || <span class="self">self</span>.fmt_span.trace_close() &amp;&amp; <span class="self">self</span>.fmt_span.fmt_timing {
-            <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">&quot;Span not found, this is a bug&quot;</span>);
+            <span class="kw">let </span>span = ctx.span(id).expect(<span class="string">"Span not found, this is a bug"</span>);
             <span class="kw">let </span><span class="kw-2">mut </span>extensions = span.extensions_mut();
             <span class="kw">if let </span><span class="prelude-val">Some</span>(timings) = extensions.get_mut::&lt;Timings&gt;() {
                 <span class="kw">let </span>now = Instant::now();
@@ -2485,7 +2486,7 @@
             }
 
             <span class="kw">if </span><span class="self">self</span>.fmt_span.trace_exit() {
-                <span class="macro">with_event_from_span!</span>(id, span, <span class="string">&quot;message&quot; </span>= <span class="string">&quot;exit&quot;</span>, |event| {
+                <span class="macro">with_event_from_span!</span>(id, span, <span class="string">"message" </span>= <span class="string">"exit"</span>, |event| {
                     drop(extensions);
                     drop(span);
                     <span class="self">self</span>.on_event(<span class="kw-2">&amp;</span>event, ctx);
@@ -2494,9 +2495,9 @@
         }
     }
 
-    <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if </span><span class="self">self</span>.fmt_span.trace_close() {
-            <span class="kw">let </span>span = ctx.span(<span class="kw-2">&amp;</span>id).expect(<span class="string">&quot;Span not found, this is a bug&quot;</span>);
+            <span class="kw">let </span>span = ctx.span(<span class="kw-2">&amp;</span>id).expect(<span class="string">"Span not found, this is a bug"</span>);
             <span class="kw">let </span>extensions = span.extensions();
             <span class="kw">if let </span><span class="prelude-val">Some</span>(timing) = extensions.get::&lt;Timings&gt;() {
                 <span class="kw">let </span>Timings {
@@ -2512,9 +2513,9 @@
                 <span class="macro">with_event_from_span!</span>(
                     id,
                     span,
-                    <span class="string">&quot;message&quot; </span>= <span class="string">&quot;close&quot;</span>,
-                    <span class="string">&quot;time.busy&quot; </span>= t_busy,
-                    <span class="string">&quot;time.idle&quot; </span>= t_idle,
+                    <span class="string">"message" </span>= <span class="string">"close"</span>,
+                    <span class="string">"time.busy" </span>= t_busy,
+                    <span class="string">"time.idle" </span>= t_idle,
                     |event| {
                         drop(extensions);
                         drop(span);
@@ -2522,7 +2523,7 @@
                     }
                 );
             } <span class="kw">else </span>{
-                <span class="macro">with_event_from_span!</span>(id, span, <span class="string">&quot;message&quot; </span>= <span class="string">&quot;close&quot;</span>, |event| {
+                <span class="macro">with_event_from_span!</span>(id, span, <span class="string">"message" </span>= <span class="string">"close"</span>, |event| {
                     drop(extensions);
                     drop(span);
                     <span class="self">self</span>.on_event(<span class="kw-2">&amp;</span>event, ctx);
@@ -2531,7 +2532,7 @@
         }
     }
 
-    <span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="macro">thread_local! </span>{
             <span class="kw">static </span>BUF: RefCell&lt;String&gt; = RefCell::new(String::new());
         }
@@ -2565,16 +2566,16 @@
                 <span class="kw">let </span>res = io::Write::write_all(<span class="kw-2">&amp;mut </span>writer, buf.as_bytes());
                 <span class="kw">if </span><span class="self">self</span>.log_internal_errors {
                     <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = res {
-                        <span class="macro">eprintln!</span>(<span class="string">&quot;[tracing-subscriber] Unable to write an event to the Writer for this Subscriber! Error: {}\n&quot;</span>, e);
+                        <span class="macro">eprintln!</span>(<span class="string">"[tracing-subscriber] Unable to write an event to the Writer for this Subscriber! Error: {}\n"</span>, e);
                     }
                 }
             } <span class="kw">else if </span><span class="self">self</span>.log_internal_errors {
-                <span class="kw">let </span>err_msg = <span class="macro">format!</span>(<span class="string">&quot;Unable to format the following event. Name: {}; Fields: {:?}\n&quot;</span>,
+                <span class="kw">let </span>err_msg = <span class="macro">format!</span>(<span class="string">"Unable to format the following event. Name: {}; Fields: {:?}\n"</span>,
                     event.metadata().name(), event.fields());
                 <span class="kw">let </span><span class="kw-2">mut </span>writer = <span class="self">self</span>.make_writer.make_writer_for(event.metadata());
                 <span class="kw">let </span>res = io::Write::write_all(<span class="kw-2">&amp;mut </span>writer, err_msg.as_bytes());
                 <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = res {
-                    <span class="macro">eprintln!</span>(<span class="string">&quot;[tracing-subscriber] Unable to write an \&quot;event formatting error\&quot; to the Writer for this Subscriber! Error: {}\n&quot;</span>, e);
+                    <span class="macro">eprintln!</span>(<span class="string">"[tracing-subscriber] Unable to write an \"event formatting error\" to the Writer for this Subscriber! Error: {}\n"</span>, e);
                 }
             }
 
@@ -2585,7 +2586,7 @@
     <span class="kw">unsafe fn </span>downcast_raw(<span class="kw-2">&amp;</span><span class="self">self</span>, id: TypeId) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">*const </span>()&gt; {
         <span class="comment">// This `downcast_raw` impl allows downcasting a `fmt` layer to any of
         // its components (event formatter, field formatter, and `MakeWriter`)
-        // as well as to the layer&#39;s type itself. The potential use-cases for
+        // as well as to the layer's type itself. The potential use-cases for
         // this *may* be somewhat niche, though...
         </span><span class="kw">match </span>() {
             <span class="kw">_ if </span>id == TypeId::of::&lt;<span class="self">Self</span>&gt;() =&gt; <span class="prelude-val">Some</span>(<span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self </span><span class="kw">as </span><span class="kw-2">*const </span>()),
@@ -2598,45 +2599,45 @@
 }
 
 <span class="doccomment">/// Provides the current span context to a formatter.
-</span><span class="kw">pub struct </span>FmtContext&lt;<span class="lifetime">&#39;a</span>, S, N&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) ctx: Context&lt;<span class="lifetime">&#39;a</span>, S&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) fmt_fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>N,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) event: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Event&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>FmtContext&lt;<span class="lifetime">'a</span>, S, N&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) ctx: Context&lt;<span class="lifetime">'a</span>, S&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) fmt_fields: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>N,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) event: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Event&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S, N&gt; fmt::Debug <span class="kw">for </span>FmtContext&lt;<span class="lifetime">&#39;a</span>, S, N&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;FmtContext&quot;</span>).finish()
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S, N&gt; fmt::Debug <span class="kw">for </span>FmtContext&lt;<span class="lifetime">'a</span>, S, N&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"FmtContext"</span>).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cx</span>, <span class="lifetime">&#39;writer</span>, S, N&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; <span class="kw">for </span>FmtContext&lt;<span class="lifetime">&#39;cx</span>, S, N&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'cx</span>, <span class="lifetime">'writer</span>, S, N&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; <span class="kw">for </span>FmtContext&lt;<span class="lifetime">'cx</span>, S, N&gt;
 <span class="kw">where
-    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">&#39;lookup</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;lookup</span>&gt;,
-    N: FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">'lookup</span>&gt; LookupSpan&lt;<span class="lifetime">'lookup</span>&gt;,
+    N: FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
 {
     <span class="kw">fn </span>format_fields&lt;R: RecordFields&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        writer: format::Writer&lt;<span class="lifetime">&#39;writer</span>&gt;,
+        writer: format::Writer&lt;<span class="lifetime">'writer</span>&gt;,
         fields: R,
     ) -&gt; fmt::Result {
         <span class="self">self</span>.fmt_fields.format_fields(writer, fields)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S, N&gt; FmtContext&lt;<span class="lifetime">&#39;a</span>, S, N&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S, N&gt; FmtContext&lt;<span class="lifetime">'a</span>, S, N&gt;
 <span class="kw">where
-    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">&#39;lookup</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;lookup</span>&gt;,
-    N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">'lookup</span>&gt; LookupSpan&lt;<span class="lifetime">'lookup</span>&gt;,
+    N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Visits every span in the current context with a closure.
     ///
     /// The provided closure will be called first with the current span,
-    /// and then with that span&#39;s parent, and then that span&#39;s parent,
+    /// and then with that span's parent, and then that span's parent,
     /// and so on until a root span is reached.
     </span><span class="kw">pub fn </span>visit_spans&lt;E, F&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) -&gt; <span class="prelude-ty">Result</span>&lt;(), E&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span>SpanRef&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), E&gt;,
+        </span>F: FnMut(<span class="kw-2">&amp;</span>SpanRef&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), E&gt;,
     {
         <span class="comment">// visit all the current spans
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(scope) = <span class="self">self</span>.event_scope() {
@@ -2652,9 +2653,9 @@
     /// If this returns `None`, then no span exists for that ID (either it has
     /// closed or the ID is invalid).
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;&gt;
+    </span><span class="kw">pub fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;&gt;
     <span class="kw">where
-        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">&#39;lookup</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;lookup</span>&gt;,
+        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">'lookup</span>&gt; LookupSpan&lt;<span class="lifetime">'lookup</span>&gt;,
     {
         <span class="self">self</span>.ctx.metadata(id)
     }
@@ -2666,9 +2667,9 @@
     ///
     /// [stored data]: crate::registry::SpanRef
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;SpanRef&lt;<span class="lifetime">&#39;_</span>, S&gt;&gt;
+    </span><span class="kw">pub fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;SpanRef&lt;<span class="lifetime">'_</span>, S&gt;&gt;
     <span class="kw">where
-        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">&#39;lookup</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;lookup</span>&gt;,
+        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">'lookup</span>&gt; LookupSpan&lt;<span class="lifetime">'lookup</span>&gt;,
     {
         <span class="self">self</span>.ctx.span(id)
     }
@@ -2677,7 +2678,7 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>exists(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; bool
     <span class="kw">where
-        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">&#39;lookup</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;lookup</span>&gt;,
+        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">'lookup</span>&gt; LookupSpan&lt;<span class="lifetime">'lookup</span>&gt;,
     {
         <span class="self">self</span>.ctx.exists(id)
     }
@@ -2689,9 +2690,9 @@
     ///
     /// [stored data]: crate::registry::SpanRef
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>lookup_current(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SpanRef&lt;<span class="lifetime">&#39;_</span>, S&gt;&gt;
+    </span><span class="kw">pub fn </span>lookup_current(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SpanRef&lt;<span class="lifetime">'_</span>, S&gt;&gt;
     <span class="kw">where
-        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">&#39;lookup</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;lookup</span>&gt;,
+        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">'lookup</span>&gt; LookupSpan&lt;<span class="lifetime">'lookup</span>&gt;,
     {
         <span class="self">self</span>.ctx.lookup_current()
     }
@@ -2709,7 +2710,7 @@
     /// the event does not have a parent span, this will return `None`.
     ///
     /// [stored data]: SpanRef
-    </span><span class="kw">pub fn </span>parent_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SpanRef&lt;<span class="lifetime">&#39;_</span>, S&gt;&gt; {
+    </span><span class="kw">pub fn </span>parent_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SpanRef&lt;<span class="lifetime">'_</span>, S&gt;&gt; {
         <span class="self">self</span>.ctx.event_span(<span class="self">self</span>.event)
     }
 
@@ -2719,60 +2720,60 @@
     ///
     /// This is equivalent to the [`Context::span_scope`] method.
     ///
-    /// &lt;div class=&quot;information&quot;&gt;
-    ///     &lt;div class=&quot;tooltip ignore&quot; style=&quot;&quot;&gt;ⓘ&lt;span class=&quot;tooltiptext&quot;&gt;Note&lt;/span&gt;&lt;/div&gt;
+    /// &lt;div class="information"&gt;
+    ///     &lt;div class="tooltip ignore" style=""&gt;ⓘ&lt;span class="tooltiptext"&gt;Note&lt;/span&gt;&lt;/div&gt;
     /// &lt;/div&gt;
-    /// &lt;div class=&quot;example-wrap&quot; style=&quot;display:inline-block&quot;&gt;
-    /// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;
-    /// &lt;strong&gt;Note&lt;/strong&gt;: Compared to &lt;a href=&quot;#method.scope&quot;&gt;&lt;code&gt;scope&lt;/code&gt;&lt;/a&gt; this
+    /// &lt;div class="example-wrap" style="display:inline-block"&gt;
+    /// &lt;pre class="ignore" style="white-space:normal;font:inherit;"&gt;
+    /// &lt;strong&gt;Note&lt;/strong&gt;: Compared to &lt;a href="#method.scope"&gt;&lt;code&gt;scope&lt;/code&gt;&lt;/a&gt; this
     /// returns the spans in reverse order (from leaf to root). Use
-    /// &lt;a href=&quot;../registry/struct.Scope.html#method.from_root&quot;&gt;&lt;code&gt;Scope::from_root&lt;/code&gt;&lt;/a&gt;
+    /// &lt;a href="../registry/struct.Scope.html#method.from_root"&gt;&lt;code&gt;Scope::from_root&lt;/code&gt;&lt;/a&gt;
     /// in case root-to-leaf ordering is desired.
     /// &lt;/pre&gt;&lt;/div&gt;
     ///
-    /// &lt;div class=&quot;example-wrap&quot; style=&quot;display:inline-block&quot;&gt;
-    /// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;
+    /// &lt;div class="example-wrap" style="display:inline-block"&gt;
+    /// &lt;pre class="ignore" style="white-space:normal;font:inherit;"&gt;
     /// &lt;strong&gt;Note&lt;/strong&gt;: This requires the wrapped subscriber to implement the
-    /// &lt;a href=&quot;../registry/trait.LookupSpan.html&quot;&gt;&lt;code&gt;LookupSpan&lt;/code&gt;&lt;/a&gt; trait.
-    /// See the documentation on &lt;a href=&quot;./struct.Context.html&quot;&gt;&lt;code&gt;Context&lt;/code&gt;&#39;s
+    /// &lt;a href="../registry/trait.LookupSpan.html"&gt;&lt;code&gt;LookupSpan&lt;/code&gt;&lt;/a&gt; trait.
+    /// See the documentation on &lt;a href="./struct.Context.html"&gt;&lt;code&gt;Context&lt;/code&gt;'s
     /// declaration&lt;/a&gt; for details.
     /// &lt;/pre&gt;&lt;/div&gt;
     ///
     /// [stored data]: crate::registry::SpanRef
-    </span><span class="kw">pub fn </span>span_scope(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;registry::Scope&lt;<span class="lifetime">&#39;_</span>, S&gt;&gt;
+    </span><span class="kw">pub fn </span>span_scope(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>Id) -&gt; <span class="prelude-ty">Option</span>&lt;registry::Scope&lt;<span class="lifetime">'_</span>, S&gt;&gt;
     <span class="kw">where
-        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">&#39;lookup</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;lookup</span>&gt;,
+        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">'lookup</span>&gt; LookupSpan&lt;<span class="lifetime">'lookup</span>&gt;,
     {
         <span class="self">self</span>.ctx.span_scope(id)
     }
 
     <span class="doccomment">/// Returns an iterator over the [stored data] for all the spans in the
-    /// event&#39;s span context, starting with its parent span and ending with the
+    /// event's span context, starting with its parent span and ending with the
     /// root of the trace tree.
     ///
     /// This is equivalent to calling the [`Context::event_scope`] method and
     /// passing the event currently being formatted.
     ///
-    /// &lt;div class=&quot;example-wrap&quot; style=&quot;display:inline-block&quot;&gt;
-    /// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;
-    /// &lt;strong&gt;Note&lt;/strong&gt;: Compared to &lt;a href=&quot;#method.scope&quot;&gt;&lt;code&gt;scope&lt;/code&gt;&lt;/a&gt; this
+    /// &lt;div class="example-wrap" style="display:inline-block"&gt;
+    /// &lt;pre class="ignore" style="white-space:normal;font:inherit;"&gt;
+    /// &lt;strong&gt;Note&lt;/strong&gt;: Compared to &lt;a href="#method.scope"&gt;&lt;code&gt;scope&lt;/code&gt;&lt;/a&gt; this
     /// returns the spans in reverse order (from leaf to root). Use
-    /// &lt;a href=&quot;../registry/struct.Scope.html#method.from_root&quot;&gt;&lt;code&gt;Scope::from_root&lt;/code&gt;&lt;/a&gt;
+    /// &lt;a href="../registry/struct.Scope.html#method.from_root"&gt;&lt;code&gt;Scope::from_root&lt;/code&gt;&lt;/a&gt;
     /// in case root-to-leaf ordering is desired.
     /// &lt;/pre&gt;&lt;/div&gt;
     ///
-    /// &lt;div class=&quot;example-wrap&quot; style=&quot;display:inline-block&quot;&gt;
-    /// &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;
+    /// &lt;div class="example-wrap" style="display:inline-block"&gt;
+    /// &lt;pre class="ignore" style="white-space:normal;font:inherit;"&gt;
     /// &lt;strong&gt;Note&lt;/strong&gt;: This requires the wrapped subscriber to implement the
-    /// &lt;a href=&quot;../registry/trait.LookupSpan.html&quot;&gt;&lt;code&gt;LookupSpan&lt;/code&gt;&lt;/a&gt; trait.
-    /// See the documentation on &lt;a href=&quot;./struct.Context.html&quot;&gt;&lt;code&gt;Context&lt;/code&gt;&#39;s
+    /// &lt;a href="../registry/trait.LookupSpan.html"&gt;&lt;code&gt;LookupSpan&lt;/code&gt;&lt;/a&gt; trait.
+    /// See the documentation on &lt;a href="./struct.Context.html"&gt;&lt;code&gt;Context&lt;/code&gt;'s
     /// declaration&lt;/a&gt; for details.
     /// &lt;/pre&gt;&lt;/div&gt;
     ///
     /// [stored data]: crate::registry::SpanRef
-    </span><span class="kw">pub fn </span>event_scope(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;registry::Scope&lt;<span class="lifetime">&#39;_</span>, S&gt;&gt;
+    </span><span class="kw">pub fn </span>event_scope(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;registry::Scope&lt;<span class="lifetime">'_</span>, S&gt;&gt;
     <span class="kw">where
-        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">&#39;lookup</span>&gt; registry::LookupSpan&lt;<span class="lifetime">&#39;lookup</span>&gt;,
+        </span>S: <span class="kw">for</span>&lt;<span class="lifetime">'lookup</span>&gt; registry::LookupSpan&lt;<span class="lifetime">'lookup</span>&gt;,
     {
         <span class="self">self</span>.ctx.event_scope(<span class="self">self</span>.event)
     }
@@ -2861,15 +2862,15 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_lookup_span() {
-        <span class="kw">fn </span>assert_lookup_span&lt;T: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::registry::LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;&gt;(<span class="kw">_</span>: T) {}
+        <span class="kw">fn </span>assert_lookup_span&lt;T: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">crate</span>::registry::LookupSpan&lt;<span class="lifetime">'a</span>&gt;&gt;(<span class="kw">_</span>: T) {}
         <span class="kw">let </span>fmt = fmt::Layer::default();
         <span class="kw">let </span>subscriber = fmt.with_subscriber(Registry::default());
         assert_lookup_span(subscriber)
     }
 
     <span class="kw">fn </span>sanitize_timings(s: String) -&gt; String {
-        <span class="kw">let </span>re = Regex::new(<span class="string">&quot;time\\.(idle|busy)=([0-9.]+)[mµn]s&quot;</span>).unwrap();
-        re.replace_all(s.as_str(), <span class="string">&quot;timing&quot;</span>).to_string()
+        <span class="kw">let </span>re = Regex::new(<span class="string">"time\\.(idle|busy)=([0-9.]+)[mµn]s"</span>).unwrap();
+        re.replace_all(s.as_str(), <span class="string">"timing"</span>).to_string()
     }
 
     <span class="attr">#[test]
@@ -2877,7 +2878,7 @@
         <span class="kw">struct </span>AlwaysError;
 
         <span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>AlwaysError {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, _f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, _f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
                 <span class="prelude-val">Err</span>(std::fmt::Error)
             }
         }
@@ -2897,13 +2898,13 @@
 
         <span class="comment">// Only assert the start because the line number and callsite may change.
         </span><span class="kw">let </span>expected = <span class="macro">concat!</span>(
-            <span class="string">&quot;Unable to format the following event. Name: event &quot;</span>,
+            <span class="string">"Unable to format the following event. Name: event "</span>,
             <span class="macro">file!</span>(),
-            <span class="string">&quot;:&quot;
+            <span class="string">":"
         </span>);
         <span class="macro">assert!</span>(
             actual.as_str().starts_with(expected),
-            <span class="string">&quot;\nactual = {}\nshould start with expected = {}\n&quot;</span>,
+            <span class="string">"\nactual = {}\nshould start with expected = {}\n"</span>,
             actual,
             expected
         );
@@ -2914,7 +2915,7 @@
         <span class="kw">struct </span>AlwaysError;
 
         <span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>AlwaysError {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, _f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, _f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
                 <span class="prelude-val">Err</span>(std::fmt::Error)
             }
         }
@@ -2932,7 +2933,7 @@
             <span class="macro">tracing::info!</span>(<span class="question-mark">?</span>AlwaysError);
         });
         <span class="kw">let </span>actual = sanitize_timings(make_writer.get_string());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;&quot;</span>, actual.as_str());
+        <span class="macro">assert_eq!</span>(<span class="string">""</span>, actual.as_str());
     }
 
     <span class="attr">#[test]
@@ -2947,11 +2948,11 @@
             </span>.finish();
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span1&quot;</span>, x = <span class="number">42</span>);
+            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">"span1"</span>, x = <span class="number">42</span>);
             <span class="kw">let </span>_e = span1.enter();
         });
         <span class="kw">let </span>actual = sanitize_timings(make_writer.get_string());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;&quot;</span>, actual.as_str());
+        <span class="macro">assert_eq!</span>(<span class="string">""</span>, actual.as_str());
     }
 
     <span class="attr">#[test]
@@ -2966,13 +2967,13 @@
             .finish();
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span1&quot;</span>, x = <span class="number">42</span>);
+            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">"span1"</span>, x = <span class="number">42</span>);
             <span class="kw">let </span>_e = span1.enter();
         });
         <span class="kw">let </span>actual = sanitize_timings(make_writer.get_string());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: enter\n\
-             fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: exit\n&quot;</span>,
+            <span class="string">"fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: enter\n\
+             fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: exit\n"</span>,
             actual.as_str()
         );
     }
@@ -2989,12 +2990,12 @@
             .finish();
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span1&quot;</span>, x = <span class="number">42</span>);
+            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">"span1"</span>, x = <span class="number">42</span>);
             <span class="kw">let </span>_e = span1.enter();
         });
         <span class="kw">let </span>actual = sanitize_timings(make_writer.get_string());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: close timing timing\n&quot;</span>,
+            <span class="string">"fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: close timing timing\n"</span>,
             actual.as_str()
         );
     }
@@ -3012,12 +3013,12 @@
             .finish();
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span1&quot;</span>, x = <span class="number">42</span>);
+            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">"span1"</span>, x = <span class="number">42</span>);
             <span class="kw">let </span>_e = span1.enter();
         });
         <span class="kw">let </span>actual = sanitize_timings(make_writer.get_string());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: close\n&quot;</span>,
+            <span class="string">"span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: close\n"</span>,
             actual.as_str()
         );
     }
@@ -3034,15 +3035,15 @@
             .finish();
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;span1&quot;</span>, x = <span class="number">42</span>);
+            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">"span1"</span>, x = <span class="number">42</span>);
             <span class="kw">let </span>_e = span1.enter();
         });
         <span class="kw">let </span>actual = sanitize_timings(make_writer.get_string());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: new\n\
+            <span class="string">"fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: new\n\
              fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: enter\n\
              fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: exit\n\
-             fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: close timing timing\n&quot;</span>,
+             fake time span1{x=42}: tracing_subscriber::fmt::fmt_layer::test: close timing timing\n"</span>,
             actual.as_str()
         );
     }
@@ -3054,15 +3055,15 @@
             make_writer2: MockMakeWriter,
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>MakeByTarget {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>MakeByTarget {
             <span class="kw">type </span>Writer = MockWriter;
 
-            <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+            <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
                 <span class="self">self</span>.make_writer1.make_writer()
             }
 
-            <span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
-                <span class="kw">if </span>meta.target() == <span class="string">&quot;writer2&quot; </span>{
+            <span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
+                <span class="kw">if </span>meta.target() == <span class="string">"writer2" </span>{
                     <span class="kw">return </span><span class="self">self</span>.make_writer2.make_writer();
                 }
                 <span class="self">self</span>.make_writer()
@@ -3087,34 +3088,34 @@
             .finish();
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">&quot;writer1_span&quot;</span>, x = <span class="number">42</span>);
+            <span class="kw">let </span>span1 = <span class="macro">tracing::info_span!</span>(<span class="string">"writer1_span"</span>, x = <span class="number">42</span>);
             <span class="kw">let </span>_e = span1.enter();
-            <span class="macro">tracing::info!</span>(target: <span class="string">&quot;writer2&quot;</span>, <span class="string">&quot;hello writer2!&quot;</span>);
-            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(target: <span class="string">&quot;writer2&quot;</span>, <span class="string">&quot;writer2_span&quot;</span>);
+            <span class="macro">tracing::info!</span>(target: <span class="string">"writer2"</span>, <span class="string">"hello writer2!"</span>);
+            <span class="kw">let </span>span2 = <span class="macro">tracing::info_span!</span>(target: <span class="string">"writer2"</span>, <span class="string">"writer2_span"</span>);
             <span class="kw">let </span>_e = span2.enter();
-            <span class="macro">tracing::warn!</span>(target: <span class="string">&quot;writer1&quot;</span>, <span class="string">&quot;hello writer1!&quot;</span>);
+            <span class="macro">tracing::warn!</span>(target: <span class="string">"writer1"</span>, <span class="string">"hello writer1!"</span>);
         });
 
         <span class="kw">let </span>actual = sanitize_timings(make_writer1.get_string());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;fake time writer1_span{x=42}:writer2_span: hello writer1!\n\
-             fake time writer1_span{x=42}: close timing timing\n&quot;</span>,
+            <span class="string">"fake time writer1_span{x=42}:writer2_span: hello writer1!\n\
+             fake time writer1_span{x=42}: close timing timing\n"</span>,
             actual.as_str()
         );
         <span class="kw">let </span>actual = sanitize_timings(make_writer2.get_string());
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;fake time writer1_span{x=42}: hello writer2!\n\
-             fake time writer1_span{x=42}:writer2_span: close timing timing\n&quot;</span>,
+            <span class="string">"fake time writer1_span{x=42}: hello writer2!\n\
+             fake time writer1_span{x=42}:writer2_span: close timing timing\n"</span>,
             actual.as_str()
         );
     }
 
     <span class="comment">// Because we need to modify an environment variable for these test cases,
     // we do them all in a single test.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
     #[test]
     </span><span class="kw">fn </span>layer_no_color() {
-        <span class="kw">const </span>NO_COLOR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;NO_COLOR&quot;</span>;
+        <span class="kw">const </span>NO_COLOR: <span class="kw-2">&amp;</span>str = <span class="string">"NO_COLOR"</span>;
 
         <span class="comment">// Restores the previous value of the `NO_COLOR` env variable when
         // dropped.
@@ -3135,10 +3136,10 @@
         <span class="kw">let </span>_saved_no_color = RestoreEnvVar(env::var(NO_COLOR));
 
         <span class="kw">let </span>cases: Vec&lt;(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, bool)&gt; = <span class="macro">vec!</span>[
-            (<span class="prelude-val">Some</span>(<span class="string">&quot;0&quot;</span>), <span class="bool-val">false</span>),   <span class="comment">// any non-empty value disables ansi
-            </span>(<span class="prelude-val">Some</span>(<span class="string">&quot;off&quot;</span>), <span class="bool-val">false</span>), <span class="comment">// any non-empty value disables ansi
-            </span>(<span class="prelude-val">Some</span>(<span class="string">&quot;1&quot;</span>), <span class="bool-val">false</span>),
-            (<span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>), <span class="bool-val">true</span>), <span class="comment">// empty value does not disable ansi
+            (<span class="prelude-val">Some</span>(<span class="string">"0"</span>), <span class="bool-val">false</span>),   <span class="comment">// any non-empty value disables ansi
+            </span>(<span class="prelude-val">Some</span>(<span class="string">"off"</span>), <span class="bool-val">false</span>), <span class="comment">// any non-empty value disables ansi
+            </span>(<span class="prelude-val">Some</span>(<span class="string">"1"</span>), <span class="bool-val">false</span>),
+            (<span class="prelude-val">Some</span>(<span class="string">""</span>), <span class="bool-val">true</span>), <span class="comment">// empty value does not disable ansi
             </span>(<span class="prelude-val">None</span>, <span class="bool-val">true</span>),
         ];
 
@@ -3152,7 +3153,7 @@
             <span class="kw">let </span>layer: Layer&lt;()&gt; = fmt::Layer::default();
             <span class="macro">assert_eq!</span>(
                 layer.is_ansi, ansi,
-                <span class="string">&quot;NO_COLOR={:?}; Layer::default().is_ansi should be {}&quot;</span>,
+                <span class="string">"NO_COLOR={:?}; Layer::default().is_ansi should be {}"</span>,
                 var, ansi
             );
 
@@ -3160,7 +3161,7 @@
             </span><span class="kw">let </span>layer: Layer&lt;()&gt; = fmt::Layer::default().with_ansi(<span class="bool-val">true</span>);
             <span class="macro">assert!</span>(
                 layer.is_ansi,
-                <span class="string">&quot;NO_COLOR={:?}; Layer::default().with_ansi(true).is_ansi should be true&quot;</span>,
+                <span class="string">"NO_COLOR={:?}; Layer::default().with_ansi(true).is_ansi should be true"</span>,
                 var
             );
 
@@ -3169,7 +3170,7 @@
             layer.set_ansi(<span class="bool-val">true</span>);
             <span class="macro">assert!</span>(
                 layer.is_ansi,
-                <span class="string">&quot;NO_COLOR={:?}; layer.set_ansi(true); layer.is_ansi should be true&quot;</span>,
+                <span class="string">"NO_COLOR={:?}; layer.set_ansi(true); layer.is_ansi should be true"</span>,
                 var
             );
         }

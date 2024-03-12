@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_organizations/uh_mathstat.rs`."><title>uh_mathstat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_organizations/uh_mathstat.rs`."><title>uh_mathstat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -264,7 +265,7 @@
     <span class="comment">// Passed to this function to ensure the seed file storage has been ran before this. This function will not work is seed file storage has not been ran
     </span>seed_file_storage_result: SeedFileStorageResult,
 ) -&gt; anyhow::Result&lt;Uuid&gt; {
-    <span class="macro">info!</span>(<span class="string">&quot;seeding organization uh-mathstat&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"seeding organization uh-mathstat"</span>);
 
     <span class="kw">let </span>SeedUsersResult {
         admin_user_id,
@@ -290,10 +291,10 @@
 
     <span class="kw">let </span>uh_mathstat_id = organizations::insert(
         <span class="kw-2">&amp;mut </span>conn,
-        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;269d28b2-a517-4572-9955-3ed5cecc69bd&quot;</span>)<span class="question-mark">?</span>),
-        <span class="string">&quot;University of Helsinki, Department of Mathematics and Statistics&quot;</span>,
-        <span class="string">&quot;uh-mathstat&quot;</span>,
-        <span class="string">&quot;Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.&quot;</span>,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">"269d28b2-a517-4572-9955-3ed5cecc69bd"</span>)<span class="question-mark">?</span>),
+        <span class="string">"University of Helsinki, Department of Mathematics and Statistics"</span>,
+        <span class="string">"uh-mathstat"</span>,
+        <span class="string">"Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction."</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -306,13 +307,13 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>new_course = NewCourse {
-        name: <span class="string">&quot;Introduction to Statistics&quot;</span>.to_string(),
-        slug: <span class="string">&quot;introduction-to-statistics&quot;</span>.to_string(),
+        name: <span class="string">"Introduction to Statistics"</span>.to_string(),
+        slug: <span class="string">"introduction-to-statistics"</span>.to_string(),
         organization_id: uh_mathstat_id,
-        language_code: <span class="string">&quot;en-US&quot;</span>.to_string(),
-        teacher_in_charge_name: <span class="string">&quot;admin&quot;</span>.to_string(),
-        teacher_in_charge_email: <span class="string">&quot;admin@example.com&quot;</span>.to_string(),
-        description: <span class="string">&quot;Introduces you to the wonderful world of statistics!&quot;</span>.to_string(),
+        language_code: <span class="string">"en-US"</span>.to_string(),
+        teacher_in_charge_name: <span class="string">"admin"</span>.to_string(),
+        teacher_in_charge_email: <span class="string">"admin@example.com"</span>.to_string(),
+        description: <span class="string">"Introduces you to the wonderful world of statistics!"</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
@@ -325,8 +326,8 @@
     ) = library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
-            course_id: Uuid::parse_str(<span class="string">&quot;f307d05f-be34-4148-bb0c-21d6f7a35cdb&quot;</span>)<span class="question-mark">?</span>,
-            default_course_instance_id: Uuid::parse_str(<span class="string">&quot;8e4aeba5-1958-49bc-9b40-c9f0f0680911&quot;</span>)<span class="question-mark">?</span>,
+            course_id: Uuid::parse_str(<span class="string">"f307d05f-be34-4148-bb0c-21d6f7a35cdb"</span>)<span class="question-mark">?</span>,
+            default_course_instance_id: Uuid::parse_str(<span class="string">"8e4aeba5-1958-49bc-9b40-c9f0f0680911"</span>)<span class="question-mark">?</span>,
         }),
         new_course,
         admin_user_id,
@@ -336,14 +337,14 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>_statistics_course_instance = course_instances::insert(
         <span class="kw-2">&amp;mut </span>conn,
-        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;c4a99a18-fd43-491a-9500-4673cb900be0&quot;</span>)<span class="question-mark">?</span>),
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">"c4a99a18-fd43-491a-9500-4673cb900be0"</span>)<span class="question-mark">?</span>),
         NewCourseInstance {
             course_id: statistics_course.id,
-            name: <span class="prelude-val">Some</span>(<span class="string">&quot;Non-default instance&quot;</span>),
-            description: <span class="prelude-val">Some</span>(<span class="string">&quot;This appears to be a non-default instance&quot;</span>),
-            support_email: <span class="prelude-val">Some</span>(<span class="string">&quot;contact@example.com&quot;</span>),
-            teacher_in_charge_name: <span class="string">&quot;admin&quot;</span>,
-            teacher_in_charge_email: <span class="string">&quot;admin@example.com&quot;</span>,
+            name: <span class="prelude-val">Some</span>(<span class="string">"Non-default instance"</span>),
+            description: <span class="prelude-val">Some</span>(<span class="string">"This appears to be a non-default instance"</span>),
+            support_email: <span class="prelude-val">Some</span>(<span class="string">"contact@example.com"</span>),
+            teacher_in_charge_name: <span class="string">"admin"</span>,
+            teacher_in_charge_email: <span class="string">"admin@example.com"</span>,
             opening_time: <span class="prelude-val">None</span>,
             closing_time: <span class="prelude-val">None</span>,
         },
@@ -351,13 +352,13 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>draft_course = NewCourse {
-        name: <span class="string">&quot;Introduction to Drafts&quot;</span>.to_string(),
-        slug: <span class="string">&quot;introduction-to-drafts&quot;</span>.to_string(),
+        name: <span class="string">"Introduction to Drafts"</span>.to_string(),
+        slug: <span class="string">"introduction-to-drafts"</span>.to_string(),
         organization_id: uh_mathstat_id,
-        language_code: <span class="string">&quot;en-US&quot;</span>.to_string(),
-        teacher_in_charge_name: <span class="string">&quot;admin&quot;</span>.to_string(),
-        teacher_in_charge_email: <span class="string">&quot;admin@example.com&quot;</span>.to_string(),
-        description: <span class="string">&quot;Just a draft.&quot;</span>.to_string(),
+        language_code: <span class="string">"en-US"</span>.to_string(),
+        teacher_in_charge_name: <span class="string">"admin"</span>.to_string(),
+        teacher_in_charge_email: <span class="string">"admin@example.com"</span>.to_string(),
+        description: <span class="string">"Just a draft."</span>.to_string(),
         is_draft: <span class="bool-val">true</span>,
         is_test_mode: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
@@ -365,8 +366,8 @@
     library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
-            course_id: Uuid::parse_str(<span class="string">&quot;963a9caf-1e2d-4560-8c88-9c6d20794da3&quot;</span>)<span class="question-mark">?</span>,
-            default_course_instance_id: Uuid::parse_str(<span class="string">&quot;5cb4b4d6-4599-4f81-ab7e-79b415f8f584&quot;</span>)<span class="question-mark">?</span>,
+            course_id: Uuid::parse_str(<span class="string">"963a9caf-1e2d-4560-8c88-9c6d20794da3"</span>)<span class="question-mark">?</span>,
+            default_course_instance_id: Uuid::parse_str(<span class="string">"5cb4b4d6-4599-4f81-ab7e-79b415f8f584"</span>)<span class="question-mark">?</span>,
         }),
         draft_course,
         admin_user_id,
@@ -385,9 +386,9 @@
         base_url,
     };
     <span class="kw">let </span>introduction_to_citations = seed_sample_course(
-        Uuid::parse_str(<span class="string">&quot;049061ba-ac30-49f1-aa9d-b7566dc22b78&quot;</span>)<span class="question-mark">?</span>,
-        <span class="string">&quot;Introduction to citations&quot;</span>,
-        <span class="string">&quot;introduction-to-citations&quot;</span>,
+        Uuid::parse_str(<span class="string">"049061ba-ac30-49f1-aa9d-b7566dc22b78"</span>)<span class="question-mark">?</span>,
+        <span class="string">"Introduction to citations"</span>,
+        <span class="string">"introduction-to-citations"</span>,
         uh_data.clone(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -396,13 +397,13 @@
         <span class="kw-2">&amp;mut </span>conn,
         introduction_to_citations,
         <span class="kw-2">&amp;</span>NewCourse {
-            name: <span class="string">&quot;Johdatus sitaatioihin&quot;</span>.to_string(),
-            slug: <span class="string">&quot;johdatus-sitaatioihin&quot;</span>.to_string(),
+            name: <span class="string">"Johdatus sitaatioihin"</span>.to_string(),
+            slug: <span class="string">"johdatus-sitaatioihin"</span>.to_string(),
             organization_id: uh_mathstat_id,
-            language_code: <span class="string">&quot;fi-FI&quot;</span>.to_string(),
-            teacher_in_charge_name: <span class="string">&quot;admin&quot;</span>.to_string(),
-            teacher_in_charge_email: <span class="string">&quot;admin@example.com&quot;</span>.to_string(),
-            description: <span class="string">&quot;Just a draft.&quot;</span>.to_string(),
+            language_code: <span class="string">"fi-FI"</span>.to_string(),
+            teacher_in_charge_name: <span class="string">"admin"</span>.to_string(),
+            teacher_in_charge_email: <span class="string">"admin@example.com"</span>.to_string(),
+            description: <span class="string">"Just a draft."</span>.to_string(),
             is_draft: <span class="bool-val">false</span>,
             is_test_mode: <span class="bool-val">false</span>,
             copy_user_permissions: <span class="bool-val">false</span>,
@@ -413,9 +414,9 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>preview_unopened_chapters = seed_sample_course(
-        Uuid::parse_str(<span class="string">&quot;dc276e05-6152-4a45-b31d-97a0c2700a68&quot;</span>)<span class="question-mark">?</span>,
-        <span class="string">&quot;Preview unopened chapters&quot;</span>,
-        <span class="string">&quot;preview-unopened-chapters&quot;</span>,
+        Uuid::parse_str(<span class="string">"dc276e05-6152-4a45-b31d-97a0c2700a68"</span>)<span class="question-mark">?</span>,
+        <span class="string">"Preview unopened chapters"</span>,
+        <span class="string">"preview-unopened-chapters"</span>,
         uh_data.clone(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -429,9 +430,9 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>reset_progress = seed_sample_course(
-        Uuid::parse_str(<span class="string">&quot;841ea3f5-0269-4146-a4c6-4fd2f51e4150&quot;</span>)<span class="question-mark">?</span>,
-        <span class="string">&quot;Reset progress&quot;</span>,
-        <span class="string">&quot;reset-progress&quot;</span>,
+        Uuid::parse_str(<span class="string">"841ea3f5-0269-4146-a4c6-4fd2f51e4150"</span>)<span class="question-mark">?</span>,
+        <span class="string">"Reset progress"</span>,
+        <span class="string">"reset-progress"</span>,
         uh_data.clone(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -445,9 +446,9 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>change_path = seed_sample_course(
-        Uuid::parse_str(<span class="string">&quot;c783777b-426e-4cfd-9a5f-4a36b2da503a&quot;</span>)<span class="question-mark">?</span>,
-        <span class="string">&quot;Change path&quot;</span>,
-        <span class="string">&quot;change-path&quot;</span>,
+        Uuid::parse_str(<span class="string">"c783777b-426e-4cfd-9a5f-4a36b2da503a"</span>)<span class="question-mark">?</span>,
+        <span class="string">"Change path"</span>,
+        <span class="string">"change-path"</span>,
         uh_data.clone(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

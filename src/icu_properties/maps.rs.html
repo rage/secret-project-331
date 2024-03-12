@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.4.0/src/maps.rs`."><title>maps.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.4.0/src/maps.rs`."><title>maps.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -638,7 +639,7 @@
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 </span><span class="kw">struct </span>ErasedMaplikeMarker&lt;T&gt;(PhantomData&lt;T&gt;);
 <span class="kw">impl</span>&lt;T: TrieValue&gt; DataMarker <span class="kw">for </span>ErasedMaplikeMarker&lt;T&gt; {
-    <span class="kw">type </span>Yokeable = PropertyCodePointMapV1&lt;<span class="lifetime">&#39;static</span>, T&gt;;
+    <span class="kw">type </span>Yokeable = PropertyCodePointMapV1&lt;<span class="lifetime">'static</span>, T&gt;;
 }
 
 <span class="kw">impl</span>&lt;T: TrieValue&gt; CodePointMapData&lt;T&gt; {
@@ -649,7 +650,7 @@
     ///
     /// This owned version if returned by functions that use a runtime data provider.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">'_</span>, T&gt; {
         CodePointMapDataBorrowed {
             map: <span class="self">self</span>.data.get(),
         }
@@ -672,8 +673,8 @@
     /// let gc = data.try_into_converted::&lt;u8&gt;().unwrap();
     /// let gc = gc.as_borrowed();
     ///
-    /// assert_eq!(gc.get(&#39;木&#39;), GeneralCategory::OtherLetter as u8);  // U+6728
-    /// assert_eq!(gc.get(&#39;🎃&#39;), GeneralCategory::OtherSymbol as u8);  // U+1F383 JACK-O-LANTERN
+    /// assert_eq!(gc.get('木'), GeneralCategory::OtherLetter as u8);  // U+6728
+    /// assert_eq!(gc.get('🎃'), GeneralCategory::OtherSymbol as u8);  // U+1F383 JACK-O-LANTERN
     /// ```
     </span><span class="kw">pub fn </span>try_into_converted&lt;P&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;CodePointMapData&lt;P&gt;, ZeroVecError&gt;
     <span class="kw">where
@@ -691,13 +692,13 @@
     /// Typically it is preferable to use getters like [`load_general_category()`] instead
     </span><span class="kw">pub fn </span>from_data&lt;M&gt;(data: DataPayload&lt;M&gt;) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>M: DataMarker&lt;Yokeable = PropertyCodePointMapV1&lt;<span class="lifetime">&#39;static</span>, T&gt;&gt;,
+        </span>M: DataMarker&lt;Yokeable = PropertyCodePointMapV1&lt;<span class="lifetime">'static</span>, T&gt;&gt;,
     {
         <span class="self">Self </span>{ data: data.cast() }
     }
 
     <span class="doccomment">/// Construct a new one an owned [`CodePointTrie`]
-    </span><span class="kw">pub fn </span>from_code_point_trie(trie: CodePointTrie&lt;<span class="lifetime">&#39;static</span>, T&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>from_code_point_trie(trie: CodePointTrie&lt;<span class="lifetime">'static</span>, T&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>set = PropertyCodePointMapV1::from_code_point_trie(trie);
         CodePointMapData::from_data(DataPayload::&lt;ErasedMaplikeMarker&lt;T&gt;&gt;::from_owned(set))
     }
@@ -711,7 +712,7 @@
     /// This method returns an `Option` in order to return `None` when the backing data provider
     /// cannot return a [`CodePointTrie`], or cannot do so within the expected constant time
     /// constraint.
-    </span><span class="kw">pub fn </span>as_code_point_trie(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CodePointTrie&lt;<span class="lifetime">&#39;_</span>, T&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_code_point_trie(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CodePointTrie&lt;<span class="lifetime">'_</span>, T&gt;&gt; {
         <span class="self">self</span>.data.get().as_code_point_trie()
     }
 
@@ -724,7 +725,7 @@
     ///
     /// The performance of the conversion to this specific return type will vary
     /// depending on the data structure that is backing `self`.
-    </span><span class="kw">pub fn </span>to_code_point_trie(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointTrie&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    </span><span class="kw">pub fn </span>to_code_point_trie(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointTrie&lt;<span class="lifetime">'_</span>, T&gt; {
         <span class="self">self</span>.data.get().to_code_point_trie()
     }
 }
@@ -732,11 +733,11 @@
 <span class="doccomment">/// A borrowed wrapper around code point set data, returned by
 /// [`CodePointSetData::as_borrowed()`]. More efficient to query.
 </span><span class="attr">#[derive(Clone, Copy, Debug)]
-</span><span class="kw">pub struct </span>CodePointMapDataBorrowed&lt;<span class="lifetime">&#39;a</span>, T: TrieValue&gt; {
-    map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyCodePointMapV1&lt;<span class="lifetime">&#39;a</span>, T&gt;,
+</span><span class="kw">pub struct </span>CodePointMapDataBorrowed&lt;<span class="lifetime">'a</span>, T: TrieValue&gt; {
+    map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PropertyCodePointMapV1&lt;<span class="lifetime">'a</span>, T&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: TrieValue&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: TrieValue&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="doccomment">/// Get the value this map has associated with code point `ch`
     ///
     /// # Example
@@ -746,8 +747,8 @@
     ///
     /// let gc = maps::general_category();
     ///
-    /// assert_eq!(gc.get(&#39;木&#39;), GeneralCategory::OtherLetter);  // U+6728
-    /// assert_eq!(gc.get(&#39;🎃&#39;), GeneralCategory::OtherSymbol);  // U+1F383 JACK-O-LANTERN
+    /// assert_eq!(gc.get('木'), GeneralCategory::OtherLetter);  // U+6728
+    /// assert_eq!(gc.get('🎃'), GeneralCategory::OtherSymbol);  // U+1F383 JACK-O-LANTERN
     /// ```
     </span><span class="kw">pub fn </span>get(<span class="self">self</span>, ch: char) -&gt; T {
         <span class="self">self</span>.map.get32(ch <span class="kw">as </span>u32)
@@ -782,8 +783,8 @@
     ///     gc.get_set_for_value(GeneralCategory::OtherLetter);
     /// let other_letter_set = other_letter_set_data.as_borrowed();
     ///
-    /// assert!(other_letter_set.contains(&#39;木&#39;)); // U+6728
-    /// assert!(!other_letter_set.contains(&#39;🎃&#39;)); // U+1F383 JACK-O-LANTERN
+    /// assert!(other_letter_set.contains('木')); // U+6728
+    /// assert!(!other_letter_set.contains('🎃')); // U+1F383 JACK-O-LANTERN
     /// ```
     </span><span class="kw">pub fn </span>get_set_for_value(<span class="self">self</span>, value: T) -&gt; CodePointSetData {
         <span class="kw">let </span>set = <span class="self">self</span>.map.get_set_for_value(value);
@@ -809,7 +810,7 @@
     /// assert_eq!(next.range, 32..=32);
     /// assert_eq!(next.value, GeneralCategory::SpaceSeparator);
     /// ```
-    </span><span class="kw">pub fn </span>iter_ranges(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = CodePointMapRange&lt;T&gt;&gt; + <span class="lifetime">&#39;a </span>{
+    </span><span class="kw">pub fn </span>iter_ranges(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = CodePointMapRange&lt;T&gt;&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.map.iter_ranges()
     }
 
@@ -826,11 +827,11 @@
     ///
     /// let gc = maps::general_category();
     /// let mut ranges = gc.iter_ranges_for_value(GeneralCategory::UppercaseLetter);
-    /// assert_eq!(ranges.next().unwrap(), &#39;A&#39; as u32..=&#39;Z&#39; as u32);
-    /// assert_eq!(ranges.next().unwrap(), &#39;À&#39; as u32..=&#39;Ö&#39; as u32);
-    /// assert_eq!(ranges.next().unwrap(), &#39;Ø&#39; as u32..=&#39;Þ&#39; as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'A' as u32..='Z' as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'À' as u32..='Ö' as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'Ø' as u32..='Þ' as u32);
     /// ```
-    </span><span class="kw">pub fn </span>iter_ranges_for_value(<span class="self">self</span>, val: T) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">&#39;a </span>{
+    </span><span class="kw">pub fn </span>iter_ranges_for_value(<span class="self">self</span>, val: T) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.map
             .iter_ranges()
             .filter(<span class="kw">move </span>|r| r.value == val)
@@ -842,7 +843,7 @@
     </span><span class="kw">pub fn </span>iter_ranges_for_value_complemented(
         <span class="self">self</span>,
         val: T,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">&#39;a </span>{
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.map
             .iter_ranges_mapped(<span class="kw">move </span>|value| value != val)
             .filter(|v| v.value)
@@ -852,18 +853,18 @@
     <span class="doccomment">/// Exposed for FFI needs, could be exposed in general in the future but we should
     /// have a use case first.
     ///
-    /// FFI needs this since it operates on erased maps and can&#39;t use `iter_ranges_for_group()`
+    /// FFI needs this since it operates on erased maps and can't use `iter_ranges_for_group()`
     </span><span class="attr">#[doc(hidden)]
-    </span><span class="kw">pub fn </span>iter_ranges_mapped&lt;U: Eq + <span class="lifetime">&#39;a</span>&gt;(
+    </span><span class="kw">pub fn </span>iter_ranges_mapped&lt;U: Eq + <span class="lifetime">'a</span>&gt;(
         <span class="self">self</span>,
-        predicate: <span class="kw">impl </span>FnMut(T) -&gt; U + Copy + <span class="lifetime">&#39;a</span>,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = CodePointMapRange&lt;U&gt;&gt; + <span class="lifetime">&#39;a </span>{
+        predicate: <span class="kw">impl </span>FnMut(T) -&gt; U + Copy + <span class="lifetime">'a</span>,
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = CodePointMapRange&lt;U&gt;&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.map.iter_ranges_mapped(predicate)
     }
 }
 
-<span class="kw">impl</span>&lt;T: TrieValue&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">&#39;static</span>, T&gt; {
-    <span class="doccomment">/// Cheaply converts a `CodePointMapDataBorrowed&lt;&#39;static&gt;` into a `CodePointMapData`.
+<span class="kw">impl</span>&lt;T: TrieValue&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">'static</span>, T&gt; {
+    <span class="doccomment">/// Cheaply converts a `CodePointMapDataBorrowed&lt;'static&gt;` into a `CodePointMapData`.
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; CodePointMapData&lt;T&gt; {
         CodePointMapData {
             data: DataPayload::from_static_ref(<span class="self">self</span>.map),
@@ -871,7 +872,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">&#39;a</span>, <span class="kw">crate</span>::GeneralCategory&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">'a</span>, <span class="kw">crate</span>::GeneralCategory&gt; {
     <span class="doccomment">/// Yields an [`Iterator`] returning ranges of consecutive code points that
     /// have a `General_Category` value belonging to the specified [`GeneralCategoryGroup`]
     ///
@@ -885,18 +886,18 @@
     ///
     /// let gc = maps::general_category();
     /// let mut ranges = gc.iter_ranges_for_group(GeneralCategoryGroup::Letter);
-    /// assert_eq!(ranges.next().unwrap(), &#39;A&#39; as u32..=&#39;Z&#39; as u32);
-    /// assert_eq!(ranges.next().unwrap(), &#39;a&#39; as u32..=&#39;z&#39; as u32);
-    /// assert_eq!(ranges.next().unwrap(), &#39;ª&#39; as u32..=&#39;ª&#39; as u32);
-    /// assert_eq!(ranges.next().unwrap(), &#39;µ&#39; as u32..=&#39;µ&#39; as u32);
-    /// assert_eq!(ranges.next().unwrap(), &#39;º&#39; as u32..=&#39;º&#39; as u32);
-    /// assert_eq!(ranges.next().unwrap(), &#39;À&#39; as u32..=&#39;Ö&#39; as u32);
-    /// assert_eq!(ranges.next().unwrap(), &#39;Ø&#39; as u32..=&#39;ö&#39; as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'A' as u32..='Z' as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'a' as u32..='z' as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'ª' as u32..='ª' as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'µ' as u32..='µ' as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'º' as u32..='º' as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'À' as u32..='Ö' as u32);
+    /// assert_eq!(ranges.next().unwrap(), 'Ø' as u32..='ö' as u32);
     /// ```
     </span><span class="kw">pub fn </span>iter_ranges_for_group(
         <span class="self">self</span>,
         group: <span class="kw">crate</span>::GeneralCategoryGroup,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">&#39;a </span>{
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.map
             .iter_ranges_mapped(<span class="kw">move </span>|value| group.contains(value))
             .filter(|v| v.value)
@@ -917,7 +918,7 @@
         <span class="macro-nonterminal">$vis2</span>:vis <span class="kw">const </span><span class="macro-nonterminal">$constname</span>:ident =&gt; <span class="macro-nonterminal">$singleton</span>:ident;
         <span class="macro-nonterminal">$vis</span>:vis <span class="kw">fn </span><span class="macro-nonterminal">$name</span>:ident();
     ) =&gt; {
-        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;A version of [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$constname</span>), <span class="string">&quot;()`] that uses custom data provided by a [`DataProvider`].&quot;</span>)]
+        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"A version of [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$constname</span>), <span class="string">"()`] that uses custom data provided by a [`DataProvider`]."</span>)]
         </span><span class="doccomment">///
         /// Note that this will return an owned version of the data. Functionality is available on
         /// the borrowed version, accessible through [`CodePointMapData::as_borrowed`].
@@ -929,8 +930,8 @@
             <span class="prelude-val">Ok</span>(provider.load(Default::default()).and_then(DataResponse::take_payload).map(CodePointMapData::from_data)<span class="question-mark">?</span>)
         }
         $(<span class="attr">#[<span class="macro-nonterminal">$doc</span>]</span>)*
-        <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
-        </span><span class="kw">pub const fn </span><span class="macro-nonterminal">$constname</span>() -&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">&#39;static</span>, <span class="macro-nonterminal">$value_ty</span>&gt; {
+        <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+        </span><span class="kw">pub const fn </span><span class="macro-nonterminal">$constname</span>() -&gt; CodePointMapDataBorrowed&lt;<span class="lifetime">'static</span>, <span class="macro-nonterminal">$value_ty</span>&gt; {
             CodePointMapDataBorrowed {
                 map: <span class="kw">crate</span>::provider::Baked::<span class="macro-nonterminal">$singleton
             </span>}
@@ -939,7 +940,7 @@
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;General_Category&quot;</span>;
+    property: <span class="string">"General_Category"</span>;
     marker: GeneralCategoryProperty;
     value: <span class="kw">crate</span>::GeneralCategory;
     keyed_data_marker: GeneralCategoryV1Marker;
@@ -955,15 +956,15 @@
     /// ```
     /// use icu::properties::{maps, GeneralCategory};
     ///
-    /// assert_eq!(maps::general_category().get(&#39;木&#39;), GeneralCategory::OtherLetter);  // U+6728
-    /// assert_eq!(maps::general_category().get(&#39;🎃&#39;), GeneralCategory::OtherSymbol);  // U+1F383 JACK-O-LANTERN
+    /// assert_eq!(maps::general_category().get('木'), GeneralCategory::OtherLetter);  // U+6728
+    /// assert_eq!(maps::general_category().get('🎃'), GeneralCategory::OtherSymbol);  // U+1F383 JACK-O-LANTERN
     /// ```
     </span><span class="kw">pub const </span>general_category =&gt; SINGLETON_PROPS_GC_V1;
     <span class="kw">pub fn </span>load_general_category();
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;Bidi_Class&quot;</span>;
+    property: <span class="string">"Bidi_Class"</span>;
     marker: BidiClassProperty;
     value: <span class="kw">crate</span>::BidiClass;
     keyed_data_marker: BidiClassV1Marker;
@@ -979,15 +980,15 @@
     /// ```
     /// use icu::properties::{maps, BidiClass};
     ///
-    /// assert_eq!(maps::bidi_class().get(&#39;y&#39;), BidiClass::LeftToRight);  // U+0079
-    /// assert_eq!(maps::bidi_class().get(&#39;ع&#39;), BidiClass::ArabicLetter);  // U+0639
+    /// assert_eq!(maps::bidi_class().get('y'), BidiClass::LeftToRight);  // U+0079
+    /// assert_eq!(maps::bidi_class().get('ع'), BidiClass::ArabicLetter);  // U+0639
     /// ```
     </span><span class="kw">pub const </span>bidi_class =&gt; SINGLETON_PROPS_BC_V1;
     <span class="kw">pub fn </span>load_bidi_class();
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;Script&quot;</span>;
+    property: <span class="string">"Script"</span>;
     marker: ScriptProperty;
     value: <span class="kw">crate</span>::Script;
     keyed_data_marker: ScriptV1Marker;
@@ -1008,8 +1009,8 @@
     /// ```
     /// use icu::properties::{maps, Script};
     ///
-    /// assert_eq!(maps::script().get(&#39;木&#39;), Script::Han);  // U+6728
-    /// assert_eq!(maps::script().get(&#39;🎃&#39;), Script::Common);  // U+1F383 JACK-O-LANTERN
+    /// assert_eq!(maps::script().get('木'), Script::Han);  // U+6728
+    /// assert_eq!(maps::script().get('🎃'), Script::Common);  // U+1F383 JACK-O-LANTERN
     /// ```
     /// [`load_script_with_extensions_unstable`]: crate::script::load_script_with_extensions_unstable
     /// [`ScriptWithExtensionsBorrowed::has_script`]: crate::script::ScriptWithExtensionsBorrowed::has_script
@@ -1018,7 +1019,7 @@
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;East_Asian_Width&quot;</span>;
+    property: <span class="string">"East_Asian_Width"</span>;
     marker: EastAsianWidthProperty;
     value: <span class="kw">crate</span>::EastAsianWidth;
     keyed_data_marker: EastAsianWidthV1Marker;
@@ -1035,15 +1036,15 @@
     /// ```
     /// use icu::properties::{maps, EastAsianWidth};
     ///
-    /// assert_eq!(maps::east_asian_width().get(&#39;ｱ&#39;), EastAsianWidth::Halfwidth); // U+FF71: Halfwidth Katakana Letter A
-    /// assert_eq!(maps::east_asian_width().get(&#39;ア&#39;), EastAsianWidth::Wide); //U+30A2: Katakana Letter A
+    /// assert_eq!(maps::east_asian_width().get('ｱ'), EastAsianWidth::Halfwidth); // U+FF71: Halfwidth Katakana Letter A
+    /// assert_eq!(maps::east_asian_width().get('ア'), EastAsianWidth::Wide); //U+30A2: Katakana Letter A
     /// ```
     </span><span class="kw">pub const </span>east_asian_width =&gt; SINGLETON_PROPS_EA_V1;
     <span class="kw">pub fn </span>load_east_asian_width();
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;Line_Break&quot;</span>;
+    property: <span class="string">"Line_Break"</span>;
     marker: LineBreakProperty;
     value: <span class="kw">crate</span>::LineBreak;
     keyed_data_marker: LineBreakV1Marker;
@@ -1062,15 +1063,15 @@
     /// ```
     /// use icu::properties::{maps, LineBreak};
     ///
-    /// assert_eq!(maps::line_break().get(&#39;)&#39;), LineBreak::CloseParenthesis); // U+0029: Right Parenthesis
-    /// assert_eq!(maps::line_break().get(&#39;ぁ&#39;), LineBreak::ConditionalJapaneseStarter); //U+3041: Hiragana Letter Small A
+    /// assert_eq!(maps::line_break().get(')'), LineBreak::CloseParenthesis); // U+0029: Right Parenthesis
+    /// assert_eq!(maps::line_break().get('ぁ'), LineBreak::ConditionalJapaneseStarter); //U+3041: Hiragana Letter Small A
     /// ```
     </span><span class="kw">pub const </span>line_break =&gt; SINGLETON_PROPS_LB_V1;
     <span class="kw">pub fn </span>load_line_break();
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;Grapheme_Cluster_Break&quot;</span>;
+    property: <span class="string">"Grapheme_Cluster_Break"</span>;
     marker: GraphemeClusterBreakProperty;
     value: <span class="kw">crate</span>::GraphemeClusterBreak;
     keyed_data_marker: GraphemeClusterBreakV1Marker;
@@ -1089,15 +1090,15 @@
     /// ```
     /// use icu::properties::{maps, GraphemeClusterBreak};
     ///
-    /// assert_eq!(maps::grapheme_cluster_break().get(&#39;🇦&#39;), GraphemeClusterBreak::RegionalIndicator); // U+1F1E6: Regional Indicator Symbol Letter A
-    /// assert_eq!(maps::grapheme_cluster_break().get(&#39;ำ&#39;), GraphemeClusterBreak::SpacingMark); //U+0E33: Thai Character Sara Am
+    /// assert_eq!(maps::grapheme_cluster_break().get('🇦'), GraphemeClusterBreak::RegionalIndicator); // U+1F1E6: Regional Indicator Symbol Letter A
+    /// assert_eq!(maps::grapheme_cluster_break().get('ำ'), GraphemeClusterBreak::SpacingMark); //U+0E33: Thai Character Sara Am
     /// ```
     </span><span class="kw">pub const </span>grapheme_cluster_break =&gt; SINGLETON_PROPS_GCB_V1;
     <span class="kw">pub fn </span>load_grapheme_cluster_break();
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;Word_Break&quot;</span>;
+    property: <span class="string">"Word_Break"</span>;
     marker: WordBreakProperty;
     value: <span class="kw">crate</span>::WordBreak;
     keyed_data_marker: WordBreakV1Marker;
@@ -1116,15 +1117,15 @@
     /// ```
     /// use icu::properties::{maps, WordBreak};
     ///
-    /// assert_eq!(maps::word_break().get(&#39;.&#39;), WordBreak::MidNumLet); // U+002E: Full Stop
-    /// assert_eq!(maps::word_break().get(&#39;，&#39;), WordBreak::MidNum); // U+FF0C: Fullwidth Comma
+    /// assert_eq!(maps::word_break().get('.'), WordBreak::MidNumLet); // U+002E: Full Stop
+    /// assert_eq!(maps::word_break().get('，'), WordBreak::MidNum); // U+FF0C: Fullwidth Comma
     /// ```
     </span><span class="kw">pub const </span>word_break =&gt; SINGLETON_PROPS_WB_V1;
     <span class="kw">pub fn </span>load_word_break();
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;Sentence_Break&quot;</span>;
+    property: <span class="string">"Sentence_Break"</span>;
     marker: SentenceBreakProperty;
     value: <span class="kw">crate</span>::SentenceBreak;
     keyed_data_marker: SentenceBreakV1Marker;
@@ -1143,15 +1144,15 @@
     /// ```
     /// use icu::properties::{maps, SentenceBreak};
     ///
-    /// assert_eq!(maps::sentence_break().get(&#39;９&#39;), SentenceBreak::Numeric); // U+FF19: Fullwidth Digit Nine
-    /// assert_eq!(maps::sentence_break().get(&#39;,&#39;), SentenceBreak::SContinue); // U+002C: Comma
+    /// assert_eq!(maps::sentence_break().get('９'), SentenceBreak::Numeric); // U+FF19: Fullwidth Digit Nine
+    /// assert_eq!(maps::sentence_break().get(','), SentenceBreak::SContinue); // U+002C: Comma
     /// ```
     </span><span class="kw">pub const </span>sentence_break =&gt; SINGLETON_PROPS_SB_V1;
     <span class="kw">pub fn </span>load_sentence_break();
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;Canonical_Combining_Class&quot;</span>;
+    property: <span class="string">"Canonical_Combining_Class"</span>;
     marker: CanonicalCombiningClassProperty;
     value: <span class="kw">crate</span>::CanonicalCombiningClass;
     keyed_data_marker: CanonicalCombiningClassV1Marker;
@@ -1171,7 +1172,7 @@
     /// ```
     /// use icu::properties::{maps, CanonicalCombiningClass};
     ///
-    /// assert_eq!(maps::canonical_combining_class().get(&#39;a&#39;), CanonicalCombiningClass::NotReordered); // U+0061: LATIN SMALL LETTER A
+    /// assert_eq!(maps::canonical_combining_class().get('a'), CanonicalCombiningClass::NotReordered); // U+0061: LATIN SMALL LETTER A
     /// assert_eq!(maps::canonical_combining_class().get32(0x0301), CanonicalCombiningClass::Above); // U+0301: COMBINING ACUTE ACCENT
     /// ```
     </span><span class="kw">pub const </span>canonical_combining_class =&gt; SINGLETON_PROPS_CCC_V1;
@@ -1179,7 +1180,7 @@
 }
 
 <span class="macro">make_map_property! </span>{
-    property: <span class="string">&quot;Indic_Syllabic_Category&quot;</span>;
+    property: <span class="string">"Indic_Syllabic_Category"</span>;
     marker: IndicSyllabicCategoryProperty;
     value: <span class="kw">crate</span>::IndicSyllabicCategory;
     keyed_data_marker: IndicSyllabicCategoryV1Marker;
@@ -1196,7 +1197,7 @@
     /// ```
     /// use icu::properties::{maps, IndicSyllabicCategory};
     ///
-    /// assert_eq!(maps::indic_syllabic_category().get(&#39;a&#39;), IndicSyllabicCategory::Other);
+    /// assert_eq!(maps::indic_syllabic_category().get('a'), IndicSyllabicCategory::Other);
     /// assert_eq!(maps::indic_syllabic_category().get32(0x0900), IndicSyllabicCategory::Bindu); // U+0900: DEVANAGARI SIGN INVERTED CANDRABINDU
     /// ```
     </span><span class="kw">pub const </span>indic_syllabic_category =&gt; SINGLETON_PROPS_INSC_V1;

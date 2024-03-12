@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/svg.rs`."><title>svg.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/svg.rs`."><title>svg.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -660,14 +661,14 @@
 
 </span><span class="doccomment">/// A single SVG arc segment.
 </span><span class="attr">#[derive(Clone, Copy, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;schemars&quot;</span>, derive(schemars::JsonSchema))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"schemars"</span>, derive(schemars::JsonSchema))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>SvgArc {
-    <span class="doccomment">/// The arc&#39;s start point.
+    <span class="doccomment">/// The arc's start point.
     </span><span class="kw">pub </span>from: Point,
-    <span class="doccomment">/// The arc&#39;s end point.
+    <span class="doccomment">/// The arc's end point.
     </span><span class="kw">pub </span>to: Point,
-    <span class="doccomment">/// The arc&#39;s radii, where the vector&#39;s x-component is the radius in the
+    <span class="doccomment">/// The arc's radii, where the vector's x-component is the radius in the
     /// positive x direction after applying `x_rotation`.
     </span><span class="kw">pub </span>radii: Vec2,
     <span class="doccomment">/// How much the arc is rotated, in radians.
@@ -704,7 +705,7 @@
 
     <span class="doccomment">/// Convert the path to an SVG path string representation.
     ///
-    /// The current implementation doesn&#39;t take any special care to produce a
+    /// The current implementation doesn't take any special care to produce a
     /// short string (reducing precision, using relative movement).
     </span><span class="kw">pub fn </span>to_svg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::new();
@@ -716,18 +717,18 @@
     </span><span class="kw">pub fn </span>write_to&lt;W: Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>writer: W) -&gt; io::Result&lt;()&gt; {
         <span class="kw">for </span>(i, el) <span class="kw">in </span><span class="self">self</span>.elements().iter().enumerate() {
             <span class="kw">if </span>i &gt; <span class="number">0 </span>{
-                <span class="macro">write!</span>(writer, <span class="string">&quot; &quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(writer, <span class="string">" "</span>)<span class="question-mark">?</span>;
             }
             <span class="kw">match </span><span class="kw-2">*</span>el {
-                PathEl::MoveTo(p) =&gt; <span class="macro">write!</span>(writer, <span class="string">&quot;M{},{}&quot;</span>, p.x, p.y)<span class="question-mark">?</span>,
-                PathEl::LineTo(p) =&gt; <span class="macro">write!</span>(writer, <span class="string">&quot;L{},{}&quot;</span>, p.x, p.y)<span class="question-mark">?</span>,
-                PathEl::QuadTo(p1, p2) =&gt; <span class="macro">write!</span>(writer, <span class="string">&quot;Q{},{} {},{}&quot;</span>, p1.x, p1.y, p2.x, p2.y)<span class="question-mark">?</span>,
+                PathEl::MoveTo(p) =&gt; <span class="macro">write!</span>(writer, <span class="string">"M{},{}"</span>, p.x, p.y)<span class="question-mark">?</span>,
+                PathEl::LineTo(p) =&gt; <span class="macro">write!</span>(writer, <span class="string">"L{},{}"</span>, p.x, p.y)<span class="question-mark">?</span>,
+                PathEl::QuadTo(p1, p2) =&gt; <span class="macro">write!</span>(writer, <span class="string">"Q{},{} {},{}"</span>, p1.x, p1.y, p2.x, p2.y)<span class="question-mark">?</span>,
                 PathEl::CurveTo(p1, p2, p3) =&gt; <span class="macro">write!</span>(
                     writer,
-                    <span class="string">&quot;C{},{} {},{} {},{}&quot;</span>,
+                    <span class="string">"C{},{} {},{} {},{}"</span>,
                     p1.x, p1.y, p2.x, p2.y, p3.x, p3.y
                 )<span class="question-mark">?</span>,
-                PathEl::ClosePath =&gt; <span class="macro">write!</span>(writer, <span class="string">&quot;Z&quot;</span>)<span class="question-mark">?</span>,
+                PathEl::ClosePath =&gt; <span class="macro">write!</span>(writer, <span class="string">"Z"</span>)<span class="question-mark">?</span>,
             }
         }
 
@@ -747,32 +748,32 @@
         <span class="kw">let </span><span class="kw-2">mut </span>first_pt = Point::ORIGIN;
         <span class="kw">let </span><span class="kw-2">mut </span>implicit_moveto = <span class="prelude-val">None</span>;
         <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = lexer.get_cmd(last_cmd) {
-            <span class="kw">if </span>c != <span class="string">b&#39;m&#39; </span>&amp;&amp; c != <span class="string">b&#39;M&#39; </span>{
+            <span class="kw">if </span>c != <span class="string">b'm' </span>&amp;&amp; c != <span class="string">b'M' </span>{
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = implicit_moveto.take() {
                     path.move_to(pt);
                 }
             }
             <span class="kw">match </span>c {
-                <span class="string">b&#39;m&#39; </span>| <span class="string">b&#39;M&#39; </span>=&gt; {
+                <span class="string">b'm' </span>| <span class="string">b'M' </span>=&gt; {
                     implicit_moveto = <span class="prelude-val">None</span>;
                     <span class="kw">let </span>pt = lexer.get_maybe_relative(c)<span class="question-mark">?</span>;
                     path.move_to(pt);
                     lexer.last_pt = pt;
                     first_pt = pt;
                     last_ctrl = <span class="prelude-val">Some</span>(pt);
-                    last_cmd = c - (<span class="string">b&#39;M&#39; </span>- <span class="string">b&#39;L&#39;</span>);
+                    last_cmd = c - (<span class="string">b'M' </span>- <span class="string">b'L'</span>);
                 }
-                <span class="string">b&#39;l&#39; </span>| <span class="string">b&#39;L&#39; </span>=&gt; {
+                <span class="string">b'l' </span>| <span class="string">b'L' </span>=&gt; {
                     <span class="kw">let </span>pt = lexer.get_maybe_relative(c)<span class="question-mark">?</span>;
                     path.line_to(pt);
                     lexer.last_pt = pt;
                     last_ctrl = <span class="prelude-val">Some</span>(pt);
                     last_cmd = c;
                 }
-                <span class="string">b&#39;h&#39; </span>| <span class="string">b&#39;H&#39; </span>=&gt; {
+                <span class="string">b'h' </span>| <span class="string">b'H' </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>x = lexer.get_number()<span class="question-mark">?</span>;
                     lexer.opt_comma();
-                    <span class="kw">if </span>c == <span class="string">b&#39;h&#39; </span>{
+                    <span class="kw">if </span>c == <span class="string">b'h' </span>{
                         x += lexer.last_pt.x;
                     }
                     <span class="kw">let </span>pt = Point::new(x, lexer.last_pt.y);
@@ -781,10 +782,10 @@
                     last_ctrl = <span class="prelude-val">Some</span>(pt);
                     last_cmd = c;
                 }
-                <span class="string">b&#39;v&#39; </span>| <span class="string">b&#39;V&#39; </span>=&gt; {
+                <span class="string">b'v' </span>| <span class="string">b'V' </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>y = lexer.get_number()<span class="question-mark">?</span>;
                     lexer.opt_comma();
-                    <span class="kw">if </span>c == <span class="string">b&#39;v&#39; </span>{
+                    <span class="kw">if </span>c == <span class="string">b'v' </span>{
                         y += lexer.last_pt.y;
                     }
                     <span class="kw">let </span>pt = Point::new(lexer.last_pt.x, y);
@@ -793,7 +794,7 @@
                     last_ctrl = <span class="prelude-val">Some</span>(pt);
                     last_cmd = c;
                 }
-                <span class="string">b&#39;q&#39; </span>| <span class="string">b&#39;Q&#39; </span>=&gt; {
+                <span class="string">b'q' </span>| <span class="string">b'Q' </span>=&gt; {
                     <span class="kw">let </span>p1 = lexer.get_maybe_relative(c)<span class="question-mark">?</span>;
                     <span class="kw">let </span>p2 = lexer.get_maybe_relative(c)<span class="question-mark">?</span>;
                     path.quad_to(p1, p2);
@@ -801,7 +802,7 @@
                     lexer.last_pt = p2;
                     last_cmd = c;
                 }
-                <span class="string">b&#39;t&#39; </span>| <span class="string">b&#39;T&#39; </span>=&gt; {
+                <span class="string">b't' </span>| <span class="string">b'T' </span>=&gt; {
                     <span class="kw">let </span>p1 = <span class="kw">match </span>last_ctrl {
                         <span class="prelude-val">Some</span>(ctrl) =&gt; (<span class="number">2.0 </span>* lexer.last_pt.to_vec2() - ctrl.to_vec2()).to_point(),
                         <span class="prelude-val">None </span>=&gt; lexer.last_pt,
@@ -812,7 +813,7 @@
                     lexer.last_pt = p2;
                     last_cmd = c;
                 }
-                <span class="string">b&#39;c&#39; </span>| <span class="string">b&#39;C&#39; </span>=&gt; {
+                <span class="string">b'c' </span>| <span class="string">b'C' </span>=&gt; {
                     <span class="kw">let </span>p1 = lexer.get_maybe_relative(c)<span class="question-mark">?</span>;
                     <span class="kw">let </span>p2 = lexer.get_maybe_relative(c)<span class="question-mark">?</span>;
                     <span class="kw">let </span>p3 = lexer.get_maybe_relative(c)<span class="question-mark">?</span>;
@@ -821,7 +822,7 @@
                     lexer.last_pt = p3;
                     last_cmd = c;
                 }
-                <span class="string">b&#39;s&#39; </span>| <span class="string">b&#39;S&#39; </span>=&gt; {
+                <span class="string">b's' </span>| <span class="string">b'S' </span>=&gt; {
                     <span class="kw">let </span>p1 = <span class="kw">match </span>last_ctrl {
                         <span class="prelude-val">Some</span>(ctrl) =&gt; (<span class="number">2.0 </span>* lexer.last_pt.to_vec2() - ctrl.to_vec2()).to_point(),
                         <span class="prelude-val">None </span>=&gt; lexer.last_pt,
@@ -833,7 +834,7 @@
                     lexer.last_pt = p3;
                     last_cmd = c;
                 }
-                <span class="string">b&#39;a&#39; </span>| <span class="string">b&#39;A&#39; </span>=&gt; {
+                <span class="string">b'a' </span>| <span class="string">b'A' </span>=&gt; {
                     <span class="kw">let </span>radii = lexer.get_number_pair()<span class="question-mark">?</span>;
                     <span class="kw">let </span>x_rotation = lexer.get_number()<span class="question-mark">?</span>.to_radians();
                     lexer.opt_comma();
@@ -867,7 +868,7 @@
                     lexer.last_pt = p;
                     last_cmd = c;
                 }
-                <span class="string">b&#39;z&#39; </span>| <span class="string">b&#39;Z&#39; </span>=&gt; {
+                <span class="string">b'z' </span>| <span class="string">b'Z' </span>=&gt; {
                     path.close_path();
                     lexer.last_pt = first_pt;
                     implicit_moveto = <span class="prelude-val">Some</span>(first_pt);
@@ -891,24 +892,24 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>SvgParseError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            SvgParseError::Wrong =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Unable to parse a number&quot;</span>),
-            SvgParseError::UnexpectedEof =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Unexpected EOF&quot;</span>),
-            SvgParseError::UnknownCommand(letter) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Unknown command, \&quot;{letter}\&quot;&quot;</span>),
+            SvgParseError::Wrong =&gt; <span class="macro">write!</span>(f, <span class="string">"Unable to parse a number"</span>),
+            SvgParseError::UnexpectedEof =&gt; <span class="macro">write!</span>(f, <span class="string">"Unexpected EOF"</span>),
+            SvgParseError::UnknownCommand(letter) =&gt; <span class="macro">write!</span>(f, <span class="string">"Unknown command, \"{letter}\""</span>),
         }
     }
 }
 
 <span class="kw">impl </span>Error <span class="kw">for </span>SvgParseError {}
 
-<span class="kw">struct </span>SvgLexer&lt;<span class="lifetime">&#39;a</span>&gt; {
-    data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+<span class="kw">struct </span>SvgLexer&lt;<span class="lifetime">'a</span>&gt; {
+    data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     ix: usize,
     <span class="kw">pub </span>last_pt: Point,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SvgLexer&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SvgLexer&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>new(data: <span class="kw-2">&amp;</span>str) -&gt; SvgLexer {
         SvgLexer {
             data,
@@ -919,7 +920,7 @@
 
     <span class="kw">fn </span>skip_ws(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>c) = <span class="self">self</span>.data.as_bytes().get(<span class="self">self</span>.ix) {
-            <span class="kw">if </span>!(c == <span class="string">b&#39; &#39; </span>|| c == <span class="number">9 </span>|| c == <span class="number">10 </span>|| c == <span class="number">12 </span>|| c == <span class="number">13</span>) {
+            <span class="kw">if </span>!(c == <span class="string">b' ' </span>|| c == <span class="number">9 </span>|| c == <span class="number">10 </span>|| c == <span class="number">12 </span>|| c == <span class="number">13</span>) {
                 <span class="kw">break</span>;
             }
             <span class="self">self</span>.ix += <span class="number">1</span>;
@@ -931,7 +932,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.get_byte() {
             <span class="kw">if </span>c.is_ascii_lowercase() || c.is_ascii_uppercase() {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(c);
-            } <span class="kw">else if </span>last_cmd != <span class="number">0 </span>&amp;&amp; (c == <span class="string">b&#39;-&#39; </span>|| c == <span class="string">b&#39;.&#39; </span>|| c.is_ascii_digit()) {
+            } <span class="kw">else if </span>last_cmd != <span class="number">0 </span>&amp;&amp; (c == <span class="string">b'-' </span>|| c == <span class="string">b'.' </span>|| c.is_ascii_digit()) {
                 <span class="comment">// Plausible number start
                 </span><span class="self">self</span>.unget();
                 <span class="kw">return </span><span class="prelude-val">Some</span>(last_cmd);
@@ -957,7 +958,7 @@
         <span class="self">self</span>.skip_ws();
         <span class="kw">let </span>start = <span class="self">self</span>.ix;
         <span class="kw">let </span>c = <span class="self">self</span>.get_byte().ok_or(SvgParseError::UnexpectedEof)<span class="question-mark">?</span>;
-        <span class="kw">if </span>!(c == <span class="string">b&#39;-&#39; </span>|| c == <span class="string">b&#39;+&#39;</span>) {
+        <span class="kw">if </span>!(c == <span class="string">b'-' </span>|| c == <span class="string">b'+'</span>) {
             <span class="self">self</span>.unget();
         }
         <span class="kw">let </span><span class="kw-2">mut </span>digit_count = <span class="number">0</span>;
@@ -965,7 +966,7 @@
         <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.get_byte() {
             <span class="kw">if </span>c.is_ascii_digit() {
                 digit_count += <span class="number">1</span>;
-            } <span class="kw">else if </span>c == <span class="string">b&#39;.&#39; </span>&amp;&amp; !seen_period {
+            } <span class="kw">else if </span>c == <span class="string">b'.' </span>&amp;&amp; !seen_period {
                 seen_period = <span class="bool-val">true</span>;
             } <span class="kw">else </span>{
                 <span class="self">self</span>.unget();
@@ -973,9 +974,9 @@
             }
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.get_byte() {
-            <span class="kw">if </span>c == <span class="string">b&#39;e&#39; </span>|| c == <span class="string">b&#39;E&#39; </span>{
+            <span class="kw">if </span>c == <span class="string">b'e' </span>|| c == <span class="string">b'E' </span>{
                 <span class="kw">let </span><span class="kw-2">mut </span>c = <span class="self">self</span>.get_byte().ok_or(SvgParseError::Wrong)<span class="question-mark">?</span>;
-                <span class="kw">if </span>c == <span class="string">b&#39;-&#39; </span>|| c == <span class="string">b&#39;+&#39; </span>{
+                <span class="kw">if </span>c == <span class="string">b'-' </span>|| c == <span class="string">b'+' </span>{
                     c = <span class="self">self</span>.get_byte().ok_or(SvgParseError::Wrong)<span class="question-mark">?
                 </span>}
                 <span class="kw">if </span>c.is_ascii_digit() {
@@ -1003,8 +1004,8 @@
     <span class="kw">fn </span>get_flag(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool, SvgParseError&gt; {
         <span class="self">self</span>.skip_ws();
         <span class="kw">match </span><span class="self">self</span>.get_byte().ok_or(SvgParseError::UnexpectedEof)<span class="question-mark">? </span>{
-            <span class="string">b&#39;0&#39; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
-            <span class="string">b&#39;1&#39; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
+            <span class="string">b'0' </span>=&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
+            <span class="string">b'1' </span>=&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(SvgParseError::Wrong),
         }
     }
@@ -1029,7 +1030,7 @@
     <span class="kw">fn </span>opt_comma(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.skip_ws();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.get_byte() {
-            <span class="kw">if </span>c != <span class="string">b&#39;,&#39; </span>{
+            <span class="kw">if </span>c != <span class="string">b',' </span>{
                 <span class="self">self</span>.unget();
             }
         }
@@ -1136,20 +1137,20 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_svg() {
-        <span class="kw">let </span>path = BezPath::from_svg(<span class="string">&quot;m10 10 100 0 0 100 -100 0z&quot;</span>).unwrap();
+        <span class="kw">let </span>path = BezPath::from_svg(<span class="string">"m10 10 100 0 0 100 -100 0z"</span>).unwrap();
         <span class="macro">assert_eq!</span>(path.segments().count(), <span class="number">4</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_svg2() {
         <span class="kw">let </span>path =
-            BezPath::from_svg(<span class="string">&quot;M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z&quot;</span>).unwrap();
+            BezPath::from_svg(<span class="string">"M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1H4a.5.5 0 01-.5-.5z"</span>).unwrap();
         <span class="macro">assert_eq!</span>(path.segments().count(), <span class="number">6</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_svg_arc() {
-        <span class="kw">let </span>path = BezPath::from_svg(<span class="string">&quot;M 100 100 A 25 25 0 1 0 -25 25 z&quot;</span>).unwrap();
+        <span class="kw">let </span>path = BezPath::from_svg(<span class="string">"M 100 100 A 25 25 0 1 0 -25 25 z"</span>).unwrap();
         <span class="macro">assert_eq!</span>(path.segments().count(), <span class="number">3</span>);
     }
 
@@ -1157,7 +1158,7 @@
     </span><span class="attr">#[test]
     #[allow(clippy::float_cmp)]
     </span><span class="kw">fn </span>test_parse_svg_arc_pie() {
-        <span class="kw">let </span>path = BezPath::from_svg(<span class="string">&quot;M 100 100 h 25 a 25 25 0 1 0 -25 25 z&quot;</span>).unwrap();
+        <span class="kw">let </span>path = BezPath::from_svg(<span class="string">"M 100 100 h 25 a 25 25 0 1 0 -25 25 z"</span>).unwrap();
         <span class="comment">// Approximate figures, but useful for regression testing
         </span><span class="macro">assert_eq!</span>(path.area().round(), -<span class="number">1473.0</span>);
         <span class="macro">assert_eq!</span>(path.perimeter(<span class="number">1e-6</span>).round(), <span class="number">168.0</span>);
@@ -1174,7 +1175,7 @@
         .into()];
         <span class="kw">let </span>path = BezPath::from_path_segments(segments.iter().cloned());
 
-        <span class="macro">assert_eq!</span>(path.to_svg(), <span class="string">&quot;M10,10 C20,20 30,30 40,40&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.to_svg(), <span class="string">"M10,10 C20,20 30,30 40,40"</span>);
     }
 
     <span class="attr">#[test]
@@ -1199,7 +1200,7 @@
 
         <span class="macro">assert_eq!</span>(
             path.to_svg(),
-            <span class="string">&quot;M10,10 C20,20 30,30 40,40 C30,30 20,20 10,10&quot;
+            <span class="string">"M10,10 C20,20 30,30 40,40 C30,30 20,20 10,10"
         </span>);
     }
 
@@ -1225,7 +1226,7 @@
 
         <span class="macro">assert_eq!</span>(
             path.to_svg(),
-            <span class="string">&quot;M10,10 C20,20 30,30 40,40 M50,50 C30,30 20,20 10,10&quot;
+            <span class="string">"M10,10 C20,20 30,30 40,40 M50,50 C30,30 20,20 10,10"
         </span>);
     }
 
@@ -1282,7 +1283,7 @@
         <span class="kw">for _ in </span><span class="number">0</span>..N_TESTS {
             <span class="kw">let </span>vec = gen_random_path_sequence(<span class="kw-2">&amp;mut </span>rng);
             <span class="kw">let </span>ser = BezPath::from_path_segments(vec.iter().cloned()).to_svg();
-            <span class="kw">let </span>deser = BezPath::from_svg(<span class="kw-2">&amp;</span>ser).expect(<span class="string">&quot;failed deserialization&quot;</span>);
+            <span class="kw">let </span>deser = BezPath::from_svg(<span class="kw-2">&amp;</span>ser).expect(<span class="string">"failed deserialization"</span>);
 
             <span class="kw">let </span>deser_vec = deser.segments().collect::&lt;Vec&lt;PathSeg&gt;&gt;();
 

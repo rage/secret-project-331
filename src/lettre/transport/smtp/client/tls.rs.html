@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/client/tls.rs`."><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/client/tls.rs`."><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -580,17 +581,17 @@
 <a href="#580" id="580">580</a>
 <a href="#581" id="581">581</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug};
-<span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
 </span><span class="kw">use </span>std::{io, sync::Arc};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
 </span><span class="kw">use </span>boring::{
     ssl::{SslConnector, SslVersion},
     x509::store::X509StoreBuilder,
 };
-<span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
 </span><span class="kw">use </span>native_tls::{Protocol, TlsConnector};
-<span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
 </span><span class="kw">use </span>rustls::{
     client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
     crypto::{verify_tls12_signature, verify_tls13_signature},
@@ -598,18 +599,18 @@
     ClientConfig, DigitallySignedStruct, Error <span class="kw">as </span>TlsError, RootCertStore, SignatureScheme,
 };
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::transport::smtp::{error, Error};
 
 <span class="doccomment">/// TLS protocol versions.
 </span><span class="attr">#[derive(Debug, Copy, Clone)]
 #[non_exhaustive]
-#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
 </span><span class="kw">pub enum </span>TlsVersion {
     <span class="doccomment">/// TLS 1.0
     ///
     /// Should only be used when trying to support legacy
-    /// SMTP servers that haven&#39;t updated to
+    /// SMTP servers that haven't updated to
     /// at least TLS 1.2 yet.
     ///
     /// Supported by `native-tls` and `boring-tls`.
@@ -617,7 +618,7 @@
     <span class="doccomment">/// TLS 1.1
     ///
     /// Should only be used when trying to support legacy
-    /// SMTP servers that haven&#39;t updated to
+    /// SMTP servers that haven't updated to
     /// at least TLS 1.2 yet.
     ///
     /// Supported by `native-tls` and `boring-tls`.
@@ -644,38 +645,38 @@
     <span class="doccomment">/// Insecure connection only (for testing purposes)
     </span><span class="prelude-val">None</span>,
     <span class="doccomment">/// Start with insecure connection and use `STARTTLS` when available
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,
-        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+        doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>)))
     )]
     </span>Opportunistic(TlsParameters),
     <span class="doccomment">/// Start with insecure connection and require `STARTTLS`
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,
-        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+        doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>)))
     )]
     </span>Required(TlsParameters),
     <span class="doccomment">/// Use TLS wrapped connection
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,
-        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+        doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>)))
     )]
     </span>Wrapper(TlsParameters),
 }
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>Tls {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
-            <span class="self">Self</span>::None =&gt; f.pad(<span class="string">&quot;None&quot;</span>),
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
-            </span><span class="self">Self</span>::Opportunistic(<span class="kw">_</span>) =&gt; f.pad(<span class="string">&quot;Opportunistic&quot;</span>),
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
-            </span><span class="self">Self</span>::Required(<span class="kw">_</span>) =&gt; f.pad(<span class="string">&quot;Required&quot;</span>),
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
-            </span><span class="self">Self</span>::Wrapper(<span class="kw">_</span>) =&gt; f.pad(<span class="string">&quot;Wrapper&quot;</span>),
+            <span class="self">Self</span>::None =&gt; f.pad(<span class="string">"None"</span>),
+            <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
+            </span><span class="self">Self</span>::Opportunistic(<span class="kw">_</span>) =&gt; f.pad(<span class="string">"Opportunistic"</span>),
+            <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
+            </span><span class="self">Self</span>::Required(<span class="kw">_</span>) =&gt; f.pad(<span class="string">"Required"</span>),
+            <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
+            </span><span class="self">Self</span>::Wrapper(<span class="kw">_</span>) =&gt; f.pad(<span class="string">"Wrapper"</span>),
         }
     }
 }
@@ -698,9 +699,9 @@
     <span class="doccomment">/// Use a hardcoded set of Mozilla roots via the `webpki-roots` crate.
     ///
     /// This option is only available in the rustls backend.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
     </span>WebpkiRoots,
-    <span class="doccomment">/// Don&#39;t use any system certificates.
+    <span class="doccomment">/// Don't use any system certificates.
     </span><span class="prelude-val">None</span>,
 }
 
@@ -710,7 +711,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) connector: InnerTlsParameters,
     <span class="doccomment">/// The domain name which is expected in the TLS certificate from the server
     </span><span class="kw">pub</span>(<span class="kw">super</span>) domain: String,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) accept_invalid_hostnames: bool,
 }
 
@@ -722,7 +723,7 @@
     root_certs: Vec&lt;Certificate&gt;,
     accept_invalid_hostnames: bool,
     accept_invalid_certs: bool,
-    <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     </span>min_tls_version: TlsVersion,
 }
 
@@ -735,7 +736,7 @@
             root_certs: Vec::new(),
             accept_invalid_hostnames: <span class="bool-val">false</span>,
             accept_invalid_certs: <span class="bool-val">false</span>,
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
             </span>min_tls_version: TlsVersion::Tlsv12,
         }
     }
@@ -767,8 +768,8 @@
     /// This method introduces significant vulnerabilities to man-in-the-middle attacks.
     ///
     /// Hostname verification can only be disabled with the `native-tls` TLS backend.
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
-    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"boring-tls"</span>))))]
     </span><span class="kw">pub fn </span>dangerous_accept_invalid_hostnames(<span class="kw-2">mut </span><span class="self">self</span>, accept_invalid_hostnames: bool) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.accept_invalid_hostnames = accept_invalid_hostnames;
         <span class="self">self
@@ -777,7 +778,7 @@
     <span class="doccomment">/// Controls which minimum TLS version is allowed
     ///
     /// Defaults to [`Tlsv12`][TlsVersion::Tlsv12].
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     </span><span class="kw">pub fn </span>set_min_tls_version(<span class="kw-2">mut </span><span class="self">self</span>, min_tls_version: TlsVersion) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.min_tls_version = min_tls_version;
         <span class="self">self
@@ -806,23 +807,23 @@
 
     <span class="doccomment">/// Creates a new `TlsParameters` using native-tls, boring-tls or rustls
     /// depending on which one is available
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,
-        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+        doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>)))
     )]
     </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TlsParameters, Error&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
         </span><span class="kw">return </span><span class="self">self</span>.build_rustls();
-        <span class="attr">#[cfg(all(not(feature = <span class="string">&quot;rustls-tls&quot;</span>), feature = <span class="string">&quot;native-tls&quot;</span>))]
+        <span class="attr">#[cfg(all(not(feature = <span class="string">"rustls-tls"</span>), feature = <span class="string">"native-tls"</span>))]
         </span><span class="kw">return </span><span class="self">self</span>.build_native();
-        <span class="attr">#[cfg(all(not(feature = <span class="string">&quot;rustls-tls&quot;</span>), feature = <span class="string">&quot;boring-tls&quot;</span>))]
+        <span class="attr">#[cfg(all(not(feature = <span class="string">"rustls-tls"</span>), feature = <span class="string">"boring-tls"</span>))]
         </span><span class="kw">return </span><span class="self">self</span>.build_boring();
     }
 
     <span class="doccomment">/// Creates a new `TlsParameters` using native-tls with the provided configuration
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;native-tls&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"native-tls"</span>)))]
     </span><span class="kw">pub fn </span>build_native(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TlsParameters, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>tls_builder = TlsConnector::builder();
 
@@ -834,7 +835,7 @@
             <span class="attr">#[allow(unreachable_patterns)]
             </span>other =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(<span class="macro">format!</span>(
-                    <span class="string">&quot;{other:?} is not supported in native tls&quot;
+                    <span class="string">"{other:?} is not supported in native tls"
                 </span>)))
             }
         }
@@ -850,7 +851,7 @@
             TlsVersion::Tlsv12 =&gt; Protocol::Tlsv12,
             TlsVersion::Tlsv13 =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(
-                    <span class="string">&quot;min tls version Tlsv13 not supported in native tls&quot;</span>,
+                    <span class="string">"min tls version Tlsv13 not supported in native tls"</span>,
                 ))
             }
         };
@@ -860,14 +861,14 @@
         <span class="prelude-val">Ok</span>(TlsParameters {
             connector: InnerTlsParameters::NativeTls(connector),
             domain: <span class="self">self</span>.domain,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>accept_invalid_hostnames: <span class="self">self</span>.accept_invalid_hostnames,
         })
     }
 
     <span class="doccomment">/// Creates a new `TlsParameters` using boring-tls with the provided configuration
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"boring-tls"</span>)))]
     </span><span class="kw">pub fn </span>build_boring(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TlsParameters, Error&gt; {
         <span class="kw">use </span>boring::ssl::{SslMethod, SslVerifyMode};
 
@@ -886,7 +887,7 @@
                 <span class="attr">#[allow(unreachable_patterns)]
                 </span>other =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(<span class="macro">format!</span>(
-                        <span class="string">&quot;{other:?} is not supported in boring tls&quot;
+                        <span class="string">"{other:?} is not supported in boring tls"
                     </span>)))
                 }
             }
@@ -917,16 +918,16 @@
     }
 
     <span class="doccomment">/// Creates a new `TlsParameters` using rustls with the provided configuration
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls"</span>)))]
     </span><span class="kw">pub fn </span>build_rustls(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TlsParameters, Error&gt; {
         <span class="kw">let </span>just_version3 = <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>rustls::version::TLS13];
         <span class="kw">let </span>supported_versions = <span class="kw">match </span><span class="self">self</span>.min_tls_version {
             TlsVersion::Tlsv10 =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(<span class="string">&quot;min tls version Tlsv10 not supported in rustls&quot;</span>))
+                <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(<span class="string">"min tls version Tlsv10 not supported in rustls"</span>))
             }
             TlsVersion::Tlsv11 =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(<span class="string">&quot;min tls version Tlsv11 not supported in rustls&quot;</span>))
+                <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(<span class="string">"min tls version Tlsv11 not supported in rustls"</span>))
             }
             TlsVersion::Tlsv12 =&gt; rustls::ALL_VERSIONS,
             TlsVersion::Tlsv13 =&gt; just_version3,
@@ -940,30 +941,30 @@
         } <span class="kw">else </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>root_cert_store = RootCertStore::empty();
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-native-certs&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-native-certs"</span>)]
             </span><span class="kw">fn </span>load_native_roots(store: <span class="kw-2">&amp;mut </span>RootCertStore) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
                 <span class="kw">let </span>native_certs = rustls_native_certs::load_native_certs().map_err(error::tls)<span class="question-mark">?</span>;
                 <span class="kw">let </span>(added, ignored) = store.add_parsable_certificates(native_certs);
-                <span class="attr">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"tracing"</span>)]
                 </span><span class="macro">tracing::debug!</span>(
-                    <span class="string">&quot;loaded platform certs with {added} valid and {ignored} ignored (invalid) certs&quot;
+                    <span class="string">"loaded platform certs with {added} valid and {ignored} ignored (invalid) certs"
                 </span>);
                 <span class="prelude-val">Ok</span>(())
             }
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span><span class="kw">fn </span>load_webpki_roots(store: <span class="kw-2">&amp;mut </span>RootCertStore) {
                 store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
             }
 
             <span class="kw">match </span><span class="self">self</span>.cert_store {
                 CertificateStore::Default =&gt; {
-                    <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-native-certs&quot;</span>)]
+                    <span class="attr">#[cfg(feature = <span class="string">"rustls-native-certs"</span>)]
                     </span>load_native_roots(<span class="kw-2">&amp;mut </span>root_cert_store)<span class="question-mark">?</span>;
-                    <span class="attr">#[cfg(not(feature = <span class="string">&quot;rustls-native-certs&quot;</span>))]
+                    <span class="attr">#[cfg(not(feature = <span class="string">"rustls-native-certs"</span>))]
                     </span>load_webpki_roots(<span class="kw-2">&amp;mut </span>root_cert_store);
                 }
-                <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
                 </span>CertificateStore::WebpkiRoots =&gt; {
                     load_webpki_roots(<span class="kw-2">&amp;mut </span>root_cert_store);
                 }
@@ -982,7 +983,7 @@
         <span class="prelude-val">Ok</span>(TlsParameters {
             connector: InnerTlsParameters::RustlsTls(Arc::new(tls)),
             domain: <span class="self">self</span>.domain,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>accept_invalid_hostnames: <span class="self">self</span>.accept_invalid_hostnames,
         })
     }
@@ -991,21 +992,21 @@
 <span class="attr">#[derive(Clone)]
 #[allow(clippy::enum_variant_names)]
 </span><span class="kw">pub enum </span>InnerTlsParameters {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
     </span>NativeTls(TlsConnector),
-    <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
     </span>RustlsTls(Arc&lt;ClientConfig&gt;),
-    <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
     </span>BoringTls(SslConnector),
 }
 
 <span class="kw">impl </span>TlsParameters {
     <span class="doccomment">/// Creates a new `TlsParameters` using native-tls or rustls
     /// depending on which one is available
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,
-        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+        doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>)))
     )]
     </span><span class="kw">pub fn </span>new(domain: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         TlsParametersBuilder::new(domain).build()
@@ -1017,22 +1018,22 @@
     }
 
     <span class="doccomment">/// Creates a new `TlsParameters` using native-tls
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;native-tls&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"native-tls"</span>)))]
     </span><span class="kw">pub fn </span>new_native(domain: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         TlsParametersBuilder::new(domain).build_native()
     }
 
     <span class="doccomment">/// Creates a new `TlsParameters` using rustls
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls"</span>)))]
     </span><span class="kw">pub fn </span>new_rustls(domain: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         TlsParametersBuilder::new(domain).build_rustls()
     }
 
     <span class="doccomment">/// Creates a new `TlsParameters` using boring
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"boring-tls"</span>)))]
     </span><span class="kw">pub fn </span>new_boring(domain: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         TlsParametersBuilder::new(domain).build_boring()
     }
@@ -1046,80 +1047,80 @@
 </span><span class="attr">#[derive(Clone)]
 #[allow(missing_copy_implementations)]
 </span><span class="kw">pub struct </span>Certificate {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
     </span>native_tls: native_tls::Certificate,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
-    </span>rustls: Vec&lt;CertificateDer&lt;<span class="lifetime">&#39;static</span>&gt;&gt;,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
+    </span>rustls: Vec&lt;CertificateDer&lt;<span class="lifetime">'static</span>&gt;&gt;,
+    <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
     </span>boring_tls: boring::x509::X509,
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
 </span><span class="kw">impl </span>Certificate {
     <span class="doccomment">/// Create a `Certificate` from a DER encoded certificate
     </span><span class="kw">pub fn </span>from_der(der: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
         </span><span class="kw">let </span>native_tls_cert = native_tls::Certificate::from_der(<span class="kw-2">&amp;</span>der).map_err(error::tls)<span class="question-mark">?</span>;
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
         </span><span class="kw">let </span>boring_tls_cert = boring::x509::X509::from_der(<span class="kw-2">&amp;</span>der).map_err(error::tls)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>native_tls: native_tls_cert,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>rustls: <span class="macro">vec!</span>[der.into()],
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>boring_tls: boring_tls_cert,
         })
     }
 
     <span class="doccomment">/// Create a `Certificate` from a PEM encoded certificate
     </span><span class="kw">pub fn </span>from_pem(pem: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
         </span><span class="kw">let </span>native_tls_cert = native_tls::Certificate::from_pem(pem).map_err(error::tls)<span class="question-mark">?</span>;
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
         </span><span class="kw">let </span>boring_tls_cert = boring::x509::X509::from_pem(pem).map_err(error::tls)<span class="question-mark">?</span>;
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
         </span><span class="kw">let </span>rustls_cert = {
             <span class="kw">use </span>std::io::Cursor;
 
             <span class="kw">let </span><span class="kw-2">mut </span>pem = Cursor::new(pem);
             rustls_pemfile::certs(<span class="kw-2">&amp;mut </span>pem)
                 .collect::&lt;io::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()
-                .map_err(|<span class="kw">_</span>| error::tls(<span class="string">&quot;invalid certificates&quot;</span>))<span class="question-mark">?
+                .map_err(|<span class="kw">_</span>| error::tls(<span class="string">"invalid certificates"</span>))<span class="question-mark">?
         </span>};
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
             </span>native_tls: native_tls_cert,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
             </span>rustls: rustls_cert,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"boring-tls"</span>)]
             </span>boring_tls: boring_tls_cert,
         })
     }
 }
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>Certificate {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;Certificate&quot;</span>).finish()
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"Certificate"</span>).finish()
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
 #[derive(Debug)]
 </span><span class="kw">struct </span>InvalidCertsVerifier;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"rustls-tls"</span>)]
 </span><span class="kw">impl </span>ServerCertVerifier <span class="kw">for </span>InvalidCertsVerifier {
     <span class="kw">fn </span>verify_server_cert(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        _end_entity: <span class="kw-2">&amp;</span>CertificateDer&lt;<span class="lifetime">&#39;_</span>&gt;,
-        _intermediates: <span class="kw-2">&amp;</span>[CertificateDer&lt;<span class="lifetime">&#39;_</span>&gt;],
-        _server_name: <span class="kw-2">&amp;</span>ServerName&lt;<span class="lifetime">&#39;_</span>&gt;,
+        _end_entity: <span class="kw-2">&amp;</span>CertificateDer&lt;<span class="lifetime">'_</span>&gt;,
+        _intermediates: <span class="kw-2">&amp;</span>[CertificateDer&lt;<span class="lifetime">'_</span>&gt;],
+        _server_name: <span class="kw-2">&amp;</span>ServerName&lt;<span class="lifetime">'_</span>&gt;,
         _ocsp_response: <span class="kw-2">&amp;</span>[u8],
         _now: UnixTime,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerCertVerified, TlsError&gt; {
@@ -1129,7 +1130,7 @@
     <span class="kw">fn </span>verify_tls12_signature(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         message: <span class="kw-2">&amp;</span>[u8],
-        cert: <span class="kw-2">&amp;</span>CertificateDer&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cert: <span class="kw-2">&amp;</span>CertificateDer&lt;<span class="lifetime">'_</span>&gt;,
         dss: <span class="kw-2">&amp;</span>DigitallySignedStruct,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;HandshakeSignatureValid, TlsError&gt; {
         verify_tls12_signature(
@@ -1143,7 +1144,7 @@
     <span class="kw">fn </span>verify_tls13_signature(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         message: <span class="kw-2">&amp;</span>[u8],
-        cert: <span class="kw-2">&amp;</span>CertificateDer&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cert: <span class="kw-2">&amp;</span>CertificateDer&lt;<span class="lifetime">'_</span>&gt;,
         dss: <span class="kw-2">&amp;</span>DigitallySignedStruct,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;HandshakeSignatureValid, TlsError&gt; {
         verify_tls13_signature(

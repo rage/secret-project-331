@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid_transform-1.4.0/src/expander.rs`."><title>expander.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid_transform" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid_transform-1.4.0/src/expander.rs`."><title>expander.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid_transform" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -746,13 +747,13 @@
 ///
 /// let lc = LocaleExpander::new();
 ///
-/// let mut locale = locale!(&quot;zh-CN&quot;);
+/// let mut locale = locale!("zh-CN");
 /// assert_eq!(lc.maximize(&amp;mut locale), TransformResult::Modified);
-/// assert_eq!(locale, locale!(&quot;zh-Hans-CN&quot;));
+/// assert_eq!(locale, locale!("zh-Hans-CN"));
 ///
-/// let mut locale = locale!(&quot;zh-Hant-TW&quot;);
+/// let mut locale = locale!("zh-Hant-TW");
 /// assert_eq!(lc.maximize(&amp;mut locale), TransformResult::Unmodified);
-/// assert_eq!(locale, locale!(&quot;zh-Hant-TW&quot;));
+/// assert_eq!(locale, locale!("zh-Hant-TW"));
 /// ```
 ///
 /// Remove likely subtags:
@@ -763,13 +764,13 @@
 ///
 /// let lc = LocaleExpander::new();
 ///
-/// let mut locale = locale!(&quot;zh-Hans-CN&quot;);
+/// let mut locale = locale!("zh-Hans-CN");
 /// assert_eq!(lc.minimize(&amp;mut locale), TransformResult::Modified);
-/// assert_eq!(locale, locale!(&quot;zh&quot;));
+/// assert_eq!(locale, locale!("zh"));
 ///
-/// let mut locale = locale!(&quot;zh&quot;);
+/// let mut locale = locale!("zh");
 /// assert_eq!(lc.minimize(&amp;mut locale), TransformResult::Unmodified);
-/// assert_eq!(locale, locale!(&quot;zh&quot;));
+/// assert_eq!(locale, locale!("zh"));
 /// ```
 ///
 /// Normally, only CLDR locales with Basic or higher coverage are included. To include more
@@ -781,9 +782,9 @@
 ///
 /// let lc = LocaleExpander::new_extended();
 ///
-/// let mut locale = locale!(&quot;atj&quot;);
+/// let mut locale = locale!("atj");
 /// assert_eq!(lc.maximize(&amp;mut locale), TransformResult::Modified);
-/// assert_eq!(locale, locale!(&quot;atj-Latn-CA&quot;));
+/// assert_eq!(locale, locale!("atj-Latn-CA"));
 /// ```
 ///
 /// [UTS #35: Likely Subtags]: https://www.unicode.org/reports/tr35/#Likely_Subtags
@@ -794,13 +795,13 @@
     likely_subtags_ext: <span class="prelude-ty">Option</span>&lt;DataPayload&lt;LikelySubtagsExtendedV1Marker&gt;&gt;,
 }
 
-<span class="kw">struct </span>LocaleExpanderBorrowed&lt;<span class="lifetime">&#39;a</span>&gt; {
-    likely_subtags_l: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LikelySubtagsForLanguageV1&lt;<span class="lifetime">&#39;a</span>&gt;,
-    likely_subtags_sr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LikelySubtagsForScriptRegionV1&lt;<span class="lifetime">&#39;a</span>&gt;,
-    likely_subtags_ext: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LikelySubtagsExtendedV1&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+<span class="kw">struct </span>LocaleExpanderBorrowed&lt;<span class="lifetime">'a</span>&gt; {
+    likely_subtags_l: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LikelySubtagsForLanguageV1&lt;<span class="lifetime">'a</span>&gt;,
+    likely_subtags_sr: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LikelySubtagsForScriptRegionV1&lt;<span class="lifetime">'a</span>&gt;,
+    likely_subtags_ext: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>LikelySubtagsExtendedV1&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
 
-<span class="kw">impl </span>LocaleExpanderBorrowed&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>LocaleExpanderBorrowed&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>get_l(<span class="kw-2">&amp;</span><span class="self">self</span>, l: Language) -&gt; <span class="prelude-ty">Option</span>&lt;(Script, Region)&gt; {
         <span class="kw">let </span>key = <span class="kw-2">&amp;</span>l.into_tinystr().to_unvalidated();
         <span class="self">self</span>.likely_subtags_l.language.get_copied(key).or_else(|| {
@@ -914,7 +915,7 @@
     /// [📚 Help choosing a constructor](icu_provider::constructors)
     ///
     /// [CLDR coverage]: https://www.unicode.org/reports/tr35/tr35-info.html#Coverage_Levels
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         LocaleExpander {
             likely_subtags_l: DataPayload::from_static_ref(
@@ -937,7 +938,7 @@
     /// [📚 Help choosing a constructor](icu_provider::constructors)
     ///
     /// [CLDR coverage]: https://www.unicode.org/reports/tr35/tr35-info.html#Coverage_Levels
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new_extended() -&gt; <span class="self">Self </span>{
         LocaleExpander {
             likely_subtags_l: DataPayload::from_static_ref(
@@ -991,7 +992,7 @@
     }
 
     <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(BUFFER, <span class="self">Self</span>::new)]
-    #[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    #[cfg(feature = <span class="string">"serde"</span>)]
     </span><span class="kw">pub fn </span>try_new_with_buffer_provider(
         provider: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>BufferProvider + <span class="question-mark">?</span>Sized),
     ) -&gt; <span class="prelude-ty">Result</span>&lt;LocaleExpander, LocaleTransformError&gt; {
@@ -1066,7 +1067,7 @@
     }
 
     <span class="doccomment">/// The maximize method potentially updates a passed in locale in place
-    /// depending up the results of running the &#39;Add Likely Subtags&#39; algorithm
+    /// depending up the results of running the 'Add Likely Subtags' algorithm
     /// from &lt;https://www.unicode.org/reports/tr35/#Likely_Subtags&gt;.
     ///
     /// If the result of running the algorithm would result in a new locale, the
@@ -1083,13 +1084,13 @@
     ///
     /// let lc = LocaleExpander::new();
     ///
-    /// let mut locale = locale!(&quot;zh-CN&quot;);
+    /// let mut locale = locale!("zh-CN");
     /// assert_eq!(lc.maximize(&amp;mut locale), TransformResult::Modified);
-    /// assert_eq!(locale, locale!(&quot;zh-Hans-CN&quot;));
+    /// assert_eq!(locale, locale!("zh-Hans-CN"));
     ///
-    /// let mut locale = locale!(&quot;zh-Hant-TW&quot;);
+    /// let mut locale = locale!("zh-Hant-TW");
     /// assert_eq!(lc.maximize(&amp;mut locale), TransformResult::Unmodified);
-    /// assert_eq!(locale, locale!(&quot;zh-Hant-TW&quot;));
+    /// assert_eq!(locale, locale!("zh-Hant-TW"));
     /// ```
     </span><span class="kw">pub fn </span>maximize&lt;T: AsMut&lt;LanguageIdentifier&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>langid: T) -&gt; TransformResult {
         <span class="kw">let </span>langid = langid.as_mut();
@@ -1139,7 +1140,7 @@
     }
 
     <span class="doccomment">/// This returns a new Locale that is the result of running the
-    /// &#39;Remove Likely Subtags&#39; algorithm from
+    /// 'Remove Likely Subtags' algorithm from
     /// &lt;https://www.unicode.org/reports/tr35/#Likely_Subtags&gt;.
     ///
     /// If the result of running the algorithm would result in a new locale, the
@@ -1156,13 +1157,13 @@
     ///
     /// let lc = LocaleExpander::new();
     ///
-    /// let mut locale = locale!(&quot;zh-Hans-CN&quot;);
+    /// let mut locale = locale!("zh-Hans-CN");
     /// assert_eq!(lc.minimize(&amp;mut locale), TransformResult::Modified);
-    /// assert_eq!(locale, locale!(&quot;zh&quot;));
+    /// assert_eq!(locale, locale!("zh"));
     ///
-    /// let mut locale = locale!(&quot;zh&quot;);
+    /// let mut locale = locale!("zh");
     /// assert_eq!(lc.minimize(&amp;mut locale), TransformResult::Unmodified);
-    /// assert_eq!(locale, locale!(&quot;zh&quot;));
+    /// assert_eq!(locale, locale!("zh"));
     /// ```
     </span><span class="kw">pub fn </span>minimize&lt;T: AsMut&lt;LanguageIdentifier&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>langid: T) -&gt; TransformResult {
         <span class="kw">let </span>langid = langid.as_mut();
@@ -1282,8 +1283,8 @@
         // 1. language + region
         // 2. language
         // 3. region
-        // we need to check all cases, because e.g. for &quot;en-US&quot; the default script is associated
-        // with &quot;en&quot; but not &quot;en-US&quot;
+        // we need to check all cases, because e.g. for "en-US" the default script is associated
+        // with "en" but not "en-US"
         </span><span class="kw">if </span>language != Language::UND {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(region) = region {
                 <span class="comment">// 1. we know both language and region
@@ -1307,7 +1308,7 @@
     </span>}
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 #[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -1320,7 +1321,7 @@
     <span class="kw">impl </span>AnyProvider <span class="kw">for </span>RejectByKeyProvider {
         <span class="kw">fn </span>load_any(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, <span class="kw">_</span>: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;AnyResponse, DataError&gt; {
             <span class="kw">if </span><span class="self">self</span>.keys.contains(<span class="kw-2">&amp;</span>key) {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::MissingDataKey.with_str_context(<span class="string">&quot;rejected&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DataErrorKind::MissingDataKey.with_str_context(<span class="string">"rejected"</span>));
             }
 
             <span class="kw">let </span>l = <span class="kw">crate</span>::provider::Baked::SINGLETON_LOCID_TRANSFORM_LIKELYSUBTAGS_L_V1;
@@ -1380,10 +1381,10 @@
             ],
         };
         <span class="kw">let </span>lc = LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider)
-            .expect(<span class="string">&quot;should create with old keys&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">&quot;zh-CN&quot;</span>);
+            .expect(<span class="string">"should create with old keys"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">"zh-CN"</span>);
         <span class="macro">assert_eq!</span>(lc.maximize(<span class="kw-2">&amp;mut </span>locale), TransformResult::Modified);
-        <span class="macro">assert_eq!</span>(locale, <span class="macro">locale!</span>(<span class="string">&quot;zh-Hans-CN&quot;</span>));
+        <span class="macro">assert_eq!</span>(locale, <span class="macro">locale!</span>(<span class="string">"zh-Hans-CN"</span>));
     }
 
     <span class="attr">#[test]
@@ -1392,10 +1393,10 @@
             keys: <span class="macro">vec!</span>[LikelySubtagsV1Marker::KEY],
         };
         <span class="kw">let </span>lc = LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider)
-            .expect(<span class="string">&quot;should create with new keys&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">&quot;zh-CN&quot;</span>);
+            .expect(<span class="string">"should create with new keys"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">"zh-CN"</span>);
         <span class="macro">assert_eq!</span>(lc.maximize(<span class="kw-2">&amp;mut </span>locale), TransformResult::Modified);
-        <span class="macro">assert_eq!</span>(locale, <span class="macro">locale!</span>(<span class="string">&quot;zh-Hans-CN&quot;</span>));
+        <span class="macro">assert_eq!</span>(locale, <span class="macro">locale!</span>(<span class="string">"zh-Hans-CN"</span>));
     }
 
     <span class="attr">#[test]
@@ -1406,10 +1407,10 @@
             keys: <span class="macro">vec!</span>[LikelySubtagsForScriptRegionV1Marker::KEY],
         };
         <span class="kw">let </span>lc = LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider)
-            .expect(<span class="string">&quot;should create with mixed keys&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">&quot;zh-CN&quot;</span>);
+            .expect(<span class="string">"should create with mixed keys"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">"zh-CN"</span>);
         <span class="macro">assert_eq!</span>(lc.maximize(<span class="kw-2">&amp;mut </span>locale), TransformResult::Modified);
-        <span class="macro">assert_eq!</span>(locale, <span class="macro">locale!</span>(<span class="string">&quot;zh-Hans-CN&quot;</span>));
+        <span class="macro">assert_eq!</span>(locale, <span class="macro">locale!</span>(<span class="string">"zh-Hans-CN"</span>));
     }
 
     <span class="attr">#[test]
@@ -1422,7 +1423,7 @@
             ],
         };
         <span class="kw">if </span>LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider).is_ok() {
-            <span class="macro">panic!</span>(<span class="string">&quot;should not create: no data present&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"should not create: no data present"</span>)
         };
     }
 
@@ -1436,10 +1437,10 @@
             ],
         };
         <span class="kw">let </span>lc = LocaleExpander::try_new_with_any_provider(<span class="kw-2">&amp;</span>provider)
-            .expect(<span class="string">&quot;should create with mixed keys&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">&quot;zh-CN&quot;</span>);
+            .expect(<span class="string">"should create with mixed keys"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>locale = <span class="macro">locale!</span>(<span class="string">"zh-CN"</span>);
         <span class="macro">assert_eq!</span>(lc.maximize(<span class="kw-2">&amp;mut </span>locale), TransformResult::Modified);
-        <span class="macro">assert_eq!</span>(locale, <span class="macro">locale!</span>(<span class="string">&quot;zh-Hans-CN&quot;</span>));
+        <span class="macro">assert_eq!</span>(locale, <span class="macro">locale!</span>(<span class="string">"zh-Hans-CN"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

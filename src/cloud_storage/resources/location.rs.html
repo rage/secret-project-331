@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/location.rs`."><title>location.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/location.rs`."><title>location.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -182,22 +183,22 @@
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 </span><span class="kw">pub enum </span>NALocation {
     <span class="doccomment">/// Store the files in Montréal.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;NORTHAMERICA-NORTHEAST1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"NORTHAMERICA-NORTHEAST1"</span>)]
     </span>Montreal,
     <span class="doccomment">/// Store the files in Iowa.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;US-CENTRAL1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"US-CENTRAL1"</span>)]
     </span>Iowa,
     <span class="doccomment">/// Store the files in South Carolina.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;US-EAST1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"US-EAST1"</span>)]
     </span>SouthCarolina,
     <span class="doccomment">/// Store the files in Northern Virginia.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;US-EAST4&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"US-EAST4"</span>)]
     </span>NorthernVirginia,
     <span class="doccomment">/// Store the files in Oregon.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;US-WEST1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"US-WEST1"</span>)]
     </span>Oregon,
     <span class="doccomment">/// Store the files in Los Angeles.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;US-WEST2&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"US-WEST2"</span>)]
     </span>LosAngeles,
 }
 
@@ -206,7 +207,7 @@
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 </span><span class="kw">pub enum </span>SALocation {
     <span class="doccomment">/// Store the files in Soa Paulo.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;SOUTHAMERICA-EAST1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"SOUTHAMERICA-EAST1"</span>)]
     </span>SaoPaulo,
 }
 
@@ -214,22 +215,22 @@
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 </span><span class="kw">pub enum </span>EuropeLocation {
     <span class="doccomment">/// Store the files in Finland.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;EUROPE-NORTH1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"EUROPE-NORTH1"</span>)]
     </span>Finland,
     <span class="doccomment">/// Store the files in Belgium.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;EUROPE-WEST1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"EUROPE-WEST1"</span>)]
     </span>Belgium,
     <span class="doccomment">/// Store the files in London.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;EUROPE-WEST2&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"EUROPE-WEST2"</span>)]
     </span>London,
     <span class="doccomment">/// Store the files in Frankfurt.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;EUROPE-WEST3&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"EUROPE-WEST3"</span>)]
     </span>Frankfurt,
     <span class="doccomment">/// Store the files in the Netherlands.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;EUROPE-WEST4&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"EUROPE-WEST4"</span>)]
     </span>Netherlands,
     <span class="doccomment">/// Store the files in Zurich.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;EUROPE-WEST6&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"EUROPE-WEST6"</span>)]
     </span>Zurich,
 }
 
@@ -237,22 +238,22 @@
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 </span><span class="kw">pub enum </span>AsiaLocation {
     <span class="doccomment">/// Store the files in Taiwan.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ASIA-EAST1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ASIA-EAST1"</span>)]
     </span>Taiwan,
     <span class="doccomment">/// Store the files in Hong Kong.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ASIA-EAST2&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ASIA-EAST2"</span>)]
     </span>HongKong,
     <span class="doccomment">/// Store the files in Tokyo.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ASIA-NORTHEAST1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ASIA-NORTHEAST1"</span>)]
     </span>Tokyo,
     <span class="doccomment">/// Store the files in Osaka.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ASIA-NORTHEAST2&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ASIA-NORTHEAST2"</span>)]
     </span>Osaka,
     <span class="doccomment">/// Store the files in Mumbai.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ASIA-SOUTH1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ASIA-SOUTH1"</span>)]
     </span>Mumbai,
     <span class="doccomment">/// Store the files in Singapore.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;ASIA-SOUTHEAST1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"ASIA-SOUTHEAST1"</span>)]
     </span>Singapore,
 }
 
@@ -260,13 +261,13 @@
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 </span><span class="kw">pub enum </span>AusLocation {
     <span class="doccomment">/// Store the files in Sydney.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;AUSTRALIA-SOUTHEAST1&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"AUSTRALIA-SOUTHEAST1"</span>)]
     </span>Sydney,
 }
 
 <span class="doccomment">/// The possible options for multi-region storage.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;UPPERCASE&quot;</span>)]
+#[serde(rename_all = <span class="string">"UPPERCASE"</span>)]
 </span><span class="kw">pub enum </span>MultiRegion {
     <span class="doccomment">/// Data centers in Asia
     </span>Asia,
@@ -281,7 +282,7 @@
 
 <span class="doccomment">/// The possible options for dual-region storage
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;UPPERCASE&quot;</span>)]
+#[serde(rename_all = <span class="string">"UPPERCASE"</span>)]
 </span><span class="kw">pub enum </span>DualRegion {
     <span class="doccomment">/// EUROPE-NORTH1 and EUROPE-WEST4. Additionally, object metadata may be stored in EUROPE-WEST1.
     </span>Eur4,

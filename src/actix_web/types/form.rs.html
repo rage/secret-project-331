@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/types/form.rs`."><title>form.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/types/form.rs`."><title>form.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -576,7 +577,7 @@
 <span class="kw">use </span>futures_util::{FutureExt <span class="kw">as _</span>, StreamExt <span class="kw">as _</span>};
 <span class="kw">use </span>serde::{de::DeserializeOwned, Serialize};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"__compress"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::dev::Decompress;
 <span class="kw">use crate</span>::{
     body::EitherBody, error::UrlencodedError, extract::FromRequest, http::header::CONTENT_LENGTH,
@@ -606,9 +607,9 @@
 /// // This handler is only called if:
 /// // - request headers declare the content type as `application/x-www-form-urlencoded`
 /// // - request payload deserializes into an `Info` struct from the URL encoded format
-/// #[post(&quot;/&quot;)]
+/// #[post("/")]
 /// async fn index(web::Form(form): web::Form&lt;Info&gt;) -&gt; String {
-///     format!(&quot;Welcome {}!&quot;, form.name)
+///     format!("Welcome {}!", form.name)
 /// }
 /// ```
 ///
@@ -631,10 +632,10 @@
 /// // - status: 200 OK
 /// // - header: `Content-Type: application/x-www-form-urlencoded`
 /// // - body: `name=actix&amp;age=123`
-/// #[get(&quot;/&quot;)]
+/// #[get("/")]
 /// async fn index() -&gt; web::Form&lt;SomeForm&gt; {
 ///     web::Form(SomeForm {
-///         name: &quot;actix&quot;.to_owned(),
+///         name: "actix".to_owned(),
 ///         age: 123
 ///     })
 /// }
@@ -682,7 +683,7 @@
 <span class="doccomment">/// See [here](#extractor) for example of usage as an extractor.
 </span><span class="kw">impl</span>&lt;T&gt; FromRequest <span class="kw">for </span>Form&lt;T&gt;
 <span class="kw">where
-    </span>T: DeserializeOwned + <span class="lifetime">&#39;static</span>,
+    </span>T: DeserializeOwned + <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Error = Error;
     <span class="kw">type </span>Future = FormExtractFut&lt;T&gt;;
@@ -709,11 +710,11 @@
 
 <span class="kw">impl</span>&lt;T&gt; Future <span class="kw">for </span>FormExtractFut&lt;T&gt;
 <span class="kw">where
-    </span>T: DeserializeOwned + <span class="lifetime">&#39;static</span>,
+    </span>T: DeserializeOwned + <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Form&lt;T&gt;, Error&gt;;
 
-    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
 
         <span class="kw">let </span>res = <span class="macro">ready!</span>(Pin::new(<span class="kw-2">&amp;mut </span>this.fut).poll(cx));
@@ -731,7 +732,7 @@
 }
 
 <span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>Form&lt;T&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="self">self</span>.<span class="number">0</span>.fmt(f)
     }
 }
@@ -770,9 +771,9 @@
 ///
 /// // Custom `FormConfig` is applied to App.
 /// // Max payload size for URL encoded forms is set to 4kB.
-/// #[post(&quot;/&quot;)]
+/// #[post("/")]
 /// async fn index(form: web::Form&lt;Info&gt;) -&gt; Result&lt;String&gt; {
-///     Ok(format!(&quot;Welcome {}!&quot;, form.username))
+///     Ok(format!("Welcome {}!", form.username))
 /// }
 ///
 /// App::new()
@@ -795,7 +796,7 @@
     <span class="doccomment">/// Set custom error handler
     </span><span class="kw">pub fn </span>error_handler&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(UrlencodedError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(UrlencodedError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.err_handler = <span class="prelude-val">Some</span>(Rc::new(f));
         <span class="self">self
@@ -831,16 +832,16 @@
 /// - content type is not `application/x-www-form-urlencoded`
 /// - content length is greater than [limit](UrlEncoded::limit())
 </span><span class="kw">pub struct </span>UrlEncoded&lt;T&gt; {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"__compress"</span>)]
     </span>stream: <span class="prelude-ty">Option</span>&lt;Decompress&lt;Payload&gt;&gt;,
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;__compress&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"__compress"</span>))]
     </span>stream: <span class="prelude-ty">Option</span>&lt;Payload&gt;,
 
     limit: usize,
     length: <span class="prelude-ty">Option</span>&lt;usize&gt;,
-    encoding: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Encoding,
+    encoding: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Encoding,
     err: <span class="prelude-ty">Option</span>&lt;UrlencodedError&gt;,
-    fut: <span class="prelude-ty">Option</span>&lt;LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;T, UrlencodedError&gt;&gt;&gt;,
+    fut: <span class="prelude-ty">Option</span>&lt;LocalBoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;T, UrlencodedError&gt;&gt;&gt;,
 }
 
 <span class="attr">#[allow(clippy::borrow_interior_mutable_const)]
@@ -848,7 +849,7 @@
     <span class="doccomment">/// Create a new future to decode a URL encoded request payload.
     </span><span class="kw">pub fn </span>new(req: <span class="kw-2">&amp;</span>HttpRequest, payload: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self </span>{
         <span class="comment">// check content type
-        </span><span class="kw">if </span>req.content_type().to_lowercase() != <span class="string">&quot;application/x-www-form-urlencoded&quot; </span>{
+        </span><span class="kw">if </span>req.content_type().to_lowercase() != <span class="string">"application/x-www-form-urlencoded" </span>{
             <span class="kw">return </span><span class="self">Self</span>::err(UrlencodedError::ContentType);
         }
         <span class="kw">let </span>encoding = <span class="kw">match </span>req.encoding() {
@@ -871,7 +872,7 @@
 
         <span class="kw">let </span>payload = {
             <span class="macro">cfg_if::cfg_if! </span>{
-                <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)] </span>{
+                <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">"__compress"</span>)] </span>{
                     Decompress::from_headers(payload.take(), req.headers())
                 } <span class="kw">else </span>{
                     payload.take()
@@ -909,11 +910,11 @@
 
 <span class="kw">impl</span>&lt;T&gt; Future <span class="kw">for </span>UrlEncoded&lt;T&gt;
 <span class="kw">where
-    </span>T: DeserializeOwned + <span class="lifetime">&#39;static</span>,
+    </span>T: DeserializeOwned + <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;T, UrlencodedError&gt;;
 
-    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>fut) = <span class="self">self</span>.fut {
             <span class="kw">return </span>Pin::new(fut).poll(cx);
         }
@@ -992,16 +993,16 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_form() {
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .insert_header((CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((CONTENT_TYPE, <span class="string">"application/x-www-form-urlencoded"</span>))
             .insert_header((CONTENT_LENGTH, <span class="number">11</span>))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&amp;counter=123&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"hello=world&amp;counter=123"</span>))
             .to_http_parts();
 
         <span class="kw">let </span>Form(s) = Form::&lt;Info&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(
             s,
             Info {
-                hello: <span class="string">&quot;world&quot;</span>.into(),
+                hello: <span class="string">"world"</span>.into(),
                 counter: <span class="number">123
             </span>}
         );
@@ -1021,15 +1022,15 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_urlencoded_error() {
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .insert_header((CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .insert_header((CONTENT_LENGTH, <span class="string">&quot;xxxx&quot;</span>))
+            .insert_header((CONTENT_TYPE, <span class="string">"application/x-www-form-urlencoded"</span>))
+            .insert_header((CONTENT_LENGTH, <span class="string">"xxxx"</span>))
             .to_http_parts();
         <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
         <span class="macro">assert!</span>(eq(info.err().unwrap(), UrlencodedError::UnknownLength));
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .insert_header((CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .insert_header((CONTENT_LENGTH, <span class="string">&quot;1000000&quot;</span>))
+            .insert_header((CONTENT_TYPE, <span class="string">"application/x-www-form-urlencoded"</span>))
+            .insert_header((CONTENT_LENGTH, <span class="string">"1000000"</span>))
             .to_http_parts();
         <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
         <span class="macro">assert!</span>(eq(
@@ -1038,7 +1039,7 @@
         ));
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .insert_header((CONTENT_TYPE, <span class="string">&quot;text/plain&quot;</span>))
+            .insert_header((CONTENT_TYPE, <span class="string">"text/plain"</span>))
             .insert_header((CONTENT_LENGTH, <span class="number">10</span>))
             .to_http_parts();
         <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
@@ -1048,16 +1049,16 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_urlencoded() {
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .insert_header((CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((CONTENT_TYPE, <span class="string">"application/x-www-form-urlencoded"</span>))
             .insert_header((CONTENT_LENGTH, <span class="number">11</span>))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&amp;counter=123&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"hello=world&amp;counter=123"</span>))
             .to_http_parts();
 
         <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(
             info,
             Info {
-                hello: <span class="string">&quot;world&quot;</span>.to_owned(),
+                hello: <span class="string">"world"</span>.to_owned(),
                 counter: <span class="number">123
             </span>}
         );
@@ -1065,17 +1066,17 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 CONTENT_TYPE,
-                <span class="string">&quot;application/x-www-form-urlencoded; charset=utf-8&quot;</span>,
+                <span class="string">"application/x-www-form-urlencoded; charset=utf-8"</span>,
             ))
             .insert_header((CONTENT_LENGTH, <span class="number">11</span>))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&amp;counter=123&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"hello=world&amp;counter=123"</span>))
             .to_http_parts();
 
         <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(
             info,
             Info {
-                hello: <span class="string">&quot;world&quot;</span>.to_owned(),
+                hello: <span class="string">"world"</span>.to_owned(),
                 counter: <span class="number">123
             </span>}
         );
@@ -1086,26 +1087,26 @@
         <span class="kw">let </span>req = TestRequest::default().to_http_request();
 
         <span class="kw">let </span>form = Form(Info {
-            hello: <span class="string">&quot;world&quot;</span>.to_string(),
+            hello: <span class="string">"world"</span>.to_string(),
             counter: <span class="number">123</span>,
         });
         <span class="kw">let </span>res = form.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(CONTENT_TYPE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>)
+            HeaderValue::from_static(<span class="string">"application/x-www-form-urlencoded"</span>)
         );
-        <span class="macro">assert_body_eq!</span>(res, <span class="string">b&quot;hello=world&amp;counter=123&quot;</span>);
+        <span class="macro">assert_body_eq!</span>(res, <span class="string">b"hello=world&amp;counter=123"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_with_config_in_data_wrapper() {
-        <span class="kw">let </span>ctype = HeaderValue::from_static(<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>);
+        <span class="kw">let </span>ctype = HeaderValue::from_static(<span class="string">"application/x-www-form-urlencoded"</span>);
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((CONTENT_TYPE, ctype))
-            .insert_header((CONTENT_LENGTH, HeaderValue::from_static(<span class="string">&quot;20&quot;</span>)))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=test&amp;counter=4&quot;</span>))
+            .insert_header((CONTENT_LENGTH, HeaderValue::from_static(<span class="string">"20"</span>)))
+            .set_payload(Bytes::from_static(<span class="string">b"hello=test&amp;counter=4"</span>))
             .app_data(web::Data::new(FormConfig::default().limit(<span class="number">10</span>)))
             .to_http_parts();
 
@@ -1113,7 +1114,7 @@
         <span class="macro">assert!</span>(s.is_err());
 
         <span class="kw">let </span>err_str = s.err().unwrap().to_string();
-        <span class="macro">assert!</span>(err_str.starts_with(<span class="string">&quot;URL encoded payload is larger&quot;</span>));
+        <span class="macro">assert!</span>(err_str.starts_with(<span class="string">"URL encoded payload is larger"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime_data-1.4.0/src/../data/macros/time_zone_generic_short_v1.rs.data`."><title>time_zone_generic_short_v1.rs.data - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_datetime_data" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime_data-1.4.0/src/../data/macros/time_zone_generic_short_v1.rs.data`."><title>time_zone_generic_short_v1.rs.data - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_datetime_data" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -615,564 +616,564 @@
 </pre></div><pre class="rust"><code><span class="comment">// @generated
 </span><span class="doccomment">/// Implement `DataProvider&lt;MetazoneGenericNamesShortV1Marker&gt;` on the given struct using the data
 /// hardcoded in this file. This allows the struct to be used with
-/// `icu`&#39;s `_unstable` constructors.
+/// `icu`'s `_unstable` constructors.
 </span><span class="attr">#[doc(hidden)]
 #[macro_export]
 </span><span class="macro">macro_rules! </span>__impl_time_zone_generic_short_v1 {
     ($ provider : ty) =&gt; {
-        <span class="attr">#[clippy::msrv = <span class="string">&quot;1.67&quot;</span>]
+        <span class="attr">#[clippy::msrv = <span class="string">"1.67"</span>]
         </span><span class="kw">const _</span>: () = &lt;<span class="macro-nonterminal">$provider</span>&gt;::MUST_USE_MAKE_PROVIDER_MACRO;
-        <span class="attr">#[clippy::msrv = <span class="string">&quot;1.67&quot;</span>]
+        <span class="attr">#[clippy::msrv = <span class="string">"1.67"</span>]
         </span><span class="kw">impl </span>icu_provider::DataProvider&lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker&gt; <span class="kw">for </span><span class="macro-nonterminal">$provider </span>{
             <span class="kw">fn </span>load(<span class="kw-2">&amp;</span><span class="self">self</span>, req: icu_provider::DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;icu_provider::DataResponse&lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker&gt;, icu_provider::DataError&gt; {
                 <span class="kw">static </span>KGP: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;acreamazbras&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x03\0\0\0\0\0\x03\0\x06\0ACTAMTBRT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"acreamazbras"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x03\0\0\0\0\0\x03\0\x06\0ACTAMTBRT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>AF: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;afceafeaafsoafwe&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x04\0\0\0\0\0\x03\0\x06\0\n\0CATEATSASTWAT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"afceafeaafsoafwe"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x04\0\0\0\0\0\x03\0\x06\0\n\0CATEATSASTWAT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_BW: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;afceafeaafsoafwemgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x05\0\0\0\0\0\x03\0\x06\0\n\0\r\0CATEATSASTWATGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"afceafeaafsoafwemgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x05\0\0\0\0\0\x03\0\x06\0\n\0\r\0CATEATSASTWATGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_CA: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;afghalasamceameaammoampaargeatlaaucwaueaauwebangbhutbrasbrunchatchricocoeasteatiecuafalkgalagreaguyahaalinceindiindoineainweiranmalamaldmgmtnepanewfnoropakiparaperupimiurugvene&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;,\0\0\0\0\0\x03\0\x06\0\x08\0\n\0\x0C\0\x0E\0\x11\0\x13\0\x17\0\x1A\0\x1E\0!\0$\0&#39;\0*\0/\x002\x005\09\0&lt;\0?\0B\0F\0I\0L\0O\0S\0V\0Y\0\\\0_\0c\0f\0i\0l\0o\0q\0t\0w\0z\0}\0\x80\0\x83\0AFTAKTCTETMTPTARTATACWTAETAWSTBSTBTTBRTBNTCHASTCXTCCTEASTTLTECTFKTGALTEGTGYTHATWITAISTICTWITWIBIRSTMYTMVTGMTNPTNTFNTPKTPYTPETPMTUYTVET&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"afghalasamceameaammoampaargeatlaaucwaueaauwebangbhutbrasbrunchatchricocoeasteatiecuafalkgalagreaguyahaalinceindiindoineainweiranmalamaldmgmtnepanewfnoropakiparaperupimiurugvene"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b",\0\0\0\0\0\x03\0\x06\0\x08\0\n\0\x0C\0\x0E\0\x11\0\x13\0\x17\0\x1A\0\x1E\0!\0$\0'\0*\0/\x002\x005\09\0&lt;\0?\0B\0F\0I\0L\0O\0S\0V\0Y\0\\\0_\0c\0f\0i\0l\0o\0q\0t\0w\0z\0}\0\x80\0\x83\0AFTAKTCTETMTPTARTATACWTAETAWSTBSTBTTBRTBNTCHASTCXTCCTEASTTLTECTFKTGALTEGTGYTHATWITAISTICTWITWIBIRSTMYTMVTGMTNPTNTFNTPKTPYTPETPMTUYTVET"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_GU: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlachamhaalmgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\t\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x11\0\x14\0AKTCTETMTPTATChSTHATGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlachamhaalmgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\t\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x11\0\x14\0AKTCTETMTPTATChSTHATGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>KU: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlacubagreagrwehaalmenomepanewfpimiyuko&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x0F\0\0\0\0\0\x03\0\x05\0\x07\0\n\0\x0C\0\x0E\0\x10\0\x13\0\x17\0\x1B\0\x1F\0\&quot;\0%\0)\0SAKSNSRS\xC3\x87SPSASKSGRSGROSHALSMBRSPMSNFSSPMSY&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlacubagreagrwehaalmenomepanewfpimiyuko"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x0F\0\0\0\0\0\x03\0\x05\0\x07\0\n\0\x0C\0\x0E\0\x10\0\x13\0\x17\0\x1B\0\x1F\0\"\0%\0)\0SAKSNSRS\xC3\x87SPSASKSGRSGROSHALSMBRSPMSNFSSPMSY"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0SGH&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0SGH"</span>) })
                     },
                 };
                 <span class="kw">static </span>ID: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlacubagreahaalinceineainwenewfpimi&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x0E\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x16\0\x19\0\x1C\0 \0#\0&amp;\0(\0AKTCTETMTPTATCT (Kuba)EGTHATWITAWITWIBNTPMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlacubagreahaalinceineainwenewfpimi"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x0E\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x16\0\x19\0\x1C\0 \0#\0&amp;\0(\0AKTCTETMTPTATCT (Kuba)EGTHATWITAWITWIBNTPMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>CS: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlaeuce&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x07\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0AKTCTETMTPTATSE\xC4\x8C&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlaeuce"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x07\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0AKTCTETMTPTATSE\xC4\x8C"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EU: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlaeuceeueaeuwehaalmgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x0B\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x10\0\x13\0\x16\0\x19\0AKTCTETMTPTATCETEETWETHATGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlaeuceeueaeuwehaalmgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x0B\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x10\0\x13\0\x16\0\x19\0AKTCTETMTPTATCETEETWETHATGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>NL_SR: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlaeuceeueaeuwehaalmgmtsuri&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x0C\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x10\0\x13\0\x16\0\x19\0\x1C\0AKTCTETMTPTATCETEETWETHATGMTSRT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlaeuceeueaeuwehaalmgmtsuri"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x0C\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x10\0\x13\0\x16\0\x19\0\x1C\0AKTCTETMTPTATCETEETWETHATGMTSRT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>VI: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlahaal&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x07\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0AKTCTETMTPTATHAT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlahaal"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x07\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0AKTCTETMTPTATHAT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\t\0Gi\xE1\xBB\x9D HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\t\0Gi\xE1\xBB\x9D HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>CHR: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlahaal&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x07\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0AKTCTETMTPTATHAT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlahaal"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x07\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0AKTCTETMTPTATHAT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>AST: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlahaalmgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x08\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x10\0AKTCTETMTPTATHATGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlahaalmgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x08\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x10\0AKTCTETMTPTATHATGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>ZH_HANT: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlahaalmgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x08\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x10\0AKTCTETMTPTATHATGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlahaalmgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x08\0\0\0\0\0\x03\0\x05\0\x07\0\t\0\x0B\0\r\0\x10\0AKTCTETMTPTATHATGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>SC: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;alasamceameaammoampaatlamgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x07\0\0\0\0\0\x03\0\x05\0\x07\0\n\0\x0C\0\x0E\0OAKOTOOOMPOPOAOMG&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"alasamceameaammoampaatlamgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x07\0\0\0\0\0\x03\0\x05\0\x07\0\n\0\x0C\0\x0E\0OAKOTOOOMPOPOAOMG"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0OIHTCU&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0OIHTCU"</span>) })
                     },
                 };
                 <span class="kw">static </span>FR_CA: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;amceameaammoampanewf&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x05\0\0\0\0\0\x02\0\x04\0\x06\0\x08\0HCHEHRHPHT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"amceameaammoampanewf"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x05\0\0\0\0\0\x02\0\x04\0\x06\0\x08\0HCHEHRHPHT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>GA: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ampaeuceeueaeuwemgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x05\0\0\0\0\0\x03\0\x06\0\t\0\x0C\0AACCETEETWETMAG&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ampaeuceeueaeuwemgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x05\0\0\0\0\0\x03\0\x06\0\t\0\x0C\0AACCETEETWETMAG"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>ES_AR: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;argearwe&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0ARTWART&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"argearwe"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0ARTWART"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_NZ: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;auceaucwaueaauwechatlohomgmtneze&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x08\0\0\0\0\0\x03\0\x07\0\n\0\r\0\x11\0\x14\0\x17\0ACTACWTAETAWTCHATLHTGMTNZT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"auceaucwaueaauwechatlohomgmtneze"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x08\0\0\0\0\0\x03\0\x07\0\n\0\r\0\x11\0\x14\0\x17\0ACTACWTAETAWTCHATLHTGMTNZT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_AU: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;auceaucwaueaauwegulflohomgmtneze&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x08\0\0\0\0\0\x03\0\x07\0\n\0\r\0\x14\0\x17\0\x1A\0ACTACWTAETAWTGulf STLHTGMTNZT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"auceaucwaueaauwegulflohomgmtneze"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x08\0\0\0\0\0\x03\0\x07\0\n\0\r\0\x14\0\x17\0\x1A\0ACTACWTAETAWTGulf STLHTGMTNZT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>PT_CV: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;azor&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0AZOT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"azor"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0AZOT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>PT_PT: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;azoreuceeueaeuwe&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x04\0\0\0\0\0\x04\0\x07\0\n\0AZOTCETEETWET&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"azoreuceeueaeuwe"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x04\0\0\0\0\0\x04\0\x07\0\n\0AZOTCETEETWET"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>ES_BO: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;boli&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0BOT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"boli"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0BOT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>ES_CL: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;chil&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0CLT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"chil"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0CLT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>ES_CO: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;colo&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0COT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"colo"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0COT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>ES_EC: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ecua&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0ECT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ecua"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0ECT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>SK: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;euce&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0SE\xC4\x8C&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"euce"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0SE\xC4\x8C"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>DA: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;euceeueaeuwe&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x03\0\0\0\0\0\x03\0\x06\0CETEETWET&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"euceeueaeuwe"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x03\0\0\0\0\0\x03\0\x06\0CETEETWET"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>DE: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;euceeueaeuwe&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x03\0\0\0\0\0\x03\0\x06\0MEZOEZWEZ&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"euceeueaeuwe"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x03\0\0\0\0\0\x03\0\x06\0MEZOEZWEZ"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>SV: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;euceeueaeuwemgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x04\0\0\0\0\0\x03\0\x06\0\t\0CETEETWETGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"euceeueaeuwemgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x04\0\0\0\0\0\x03\0\x06\0\t\0CETEETWETGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x0B\0HonolulutidUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x0B\0HonolulutidUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>BS: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;euceeueaeuwemgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x04\0\0\0\0\0\x03\0\x06\0\t\0CETEETWETGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"euceeueaeuwemgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x04\0\0\0\0\0\x03\0\x06\0\t\0CETEETWETGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>KK: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;euea&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0EET&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"euea"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0EET"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>FR_GF: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;frgu&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0GFT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"frgu"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0GFT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>AR: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;gulf&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0GST&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"gulf"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0GST"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>HI_LATN: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;gulfindimgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x03\0\0\0\0\0\x03\0\x06\0GSTISTGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"gulfindimgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x03\0\0\0\0\0\x03\0\x06\0GSTISTGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HSTUTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HSTUTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_IN: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;gulfindimgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x03\0\0\0\0\0\x03\0\x06\0GSTISTGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"gulfindimgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x03\0\0\0\0\0\x03\0\x06\0GSTISTGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_AE: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;gulfmgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0GSTGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"gulfmgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0GSTGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_GY: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;guyamgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0GYTGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"guyamgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0GYTGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>SO: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;haal&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0HAT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"haal"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0HAT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0Waqtiga UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0Waqtiga UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_MO: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;hokomacamgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x03\0\0\0\0\0\x03\0\x06\0HKTMSTGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"hokomacamgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x03\0\0\0\0\0\x03\0\x06\0HKTMSTGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_HK: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;hokomgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0HKTGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"hokomgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0HKTGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_ID: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;inceineainwemgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x04\0\0\0\0\0\x04\0\x07\0\n\0WITAWITWIBGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"inceineainwemgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x04\0\0\0\0\0\x04\0\x07\0\n\0WITAWITWIBGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>HI: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;indi&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0IST&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"indi"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0IST"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x12\0\xE0\xA4\x8F\xE0\xA4\x9A\xE0\xA4\x8F\xE0\xA4\xB8\xE0\xA4\x9F\xE0\xA5\x80UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x12\0\xE0\xA4\x8F\xE0\xA4\x9A\xE0\xA4\x8F\xE0\xA4\xB8\xE0\xA4\x9F\xE0\xA5\x80UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>BN: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;indi&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0IST&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"indi"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0IST"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>AS: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;indi&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0\xE0\xA6\xAD\xE0\xA6\xBE. \xE0\xA6\xB8.&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"indi"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0\xE0\xA6\xAD\xE0\xA6\xBE. \xE0\xA6\xB8."</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>OR: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;indimgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0ISTGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"indimgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0ISTGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>JA: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;japa&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0JST&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"japa"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0JST"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_MY: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;malamgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0MYTGMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"malamgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0MYTGMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_SG: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;malamgmtsing&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x03\0\0\0\0\0\x03\0\x06\0MYTGMTSGT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"malamgmtsing"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x03\0\0\0\0\0\x03\0\x06\0MYTGMTSGT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>TA_MY: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;malasing&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x03\0MYTSGT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"malasing"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x03\0MYTSGT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>EN_001: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;mgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0GMT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"mgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0GMT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>BLO: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;mgmt&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0Gk&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"mgmt"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0Gk"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0\xC6\x89AK&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0\xC6\x89AK"</span>) })
                     },
                 };
                 <span class="kw">static </span>ES_PE: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;peru&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0PET&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"peru"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0PET"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>ES_UY: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;urug&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UYT&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"urug"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UYT"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>ES_VE: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
                     defaults: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;vene&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0VET&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"vene"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0VET"</span>) })
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>FF_ADLM: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
@@ -1182,7 +1183,7 @@
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;ushnl\0\0\0utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x02\0\0\0\0\0\x0C\0\xF0\x9E\xA4\x91\xF0\x9E\xA4\x96\xF0\x9E\xA4\x96\xF0\x9E\xA4\x91\xF0\x9E\xA4\x96\xF0\x9E\xA4\x8A&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"ushnl\0\0\0utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x02\0\0\0\0\0\x0C\0\xF0\x9E\xA4\x91\xF0\x9E\xA4\x96\xF0\x9E\xA4\x96\xF0\x9E\xA4\x91\xF0\x9E\xA4\x96\xF0\x9E\xA4\x8A"</span>) })
                     },
                 };
                 <span class="kw">static </span>ES_419: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
@@ -1192,7 +1193,7 @@
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0UTC&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0UTC"</span>) })
                     },
                 };
                 <span class="kw">static </span>SD: &lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable = icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1 {
@@ -1202,16 +1203,16 @@
                     },
                     overrides: <span class="kw">unsafe </span>{
                         <span class="attr">#[allow(unused_unsafe)]
-                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b&quot;utc\0\0\0\0\0&quot;</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b&quot;\x01\0\0\0\0\0\xD9\x85 \xD8\xB9 \xD9\x88&quot;</span>) })
+                        </span>zerovec::ZeroMap::from_parts_unchecked(<span class="kw">unsafe </span>{ zerovec::ZeroVec::from_bytes_unchecked(<span class="string">b"utc\0\0\0\0\0"</span>) }, <span class="kw">unsafe </span>{ zerovec::VarZeroVec::from_bytes_unchecked(<span class="string">b"\x01\0\0\0\0\0\xD9\x85 \xD8\xB9 \xD9\x88"</span>) })
                     },
                 };
                 <span class="kw">static </span>VALUES: [<span class="kw-2">&amp;</span>&lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::DataMarker&gt;::Yokeable; <span class="number">132usize</span>] = [<span class="kw-2">&amp;</span>AF, <span class="kw-2">&amp;</span>AR, <span class="kw-2">&amp;</span>AS, <span class="kw-2">&amp;</span>AST, <span class="kw-2">&amp;</span>BLO, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>CHR, <span class="kw-2">&amp;</span>CS, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>DA, <span class="kw-2">&amp;</span>DE, <span class="kw-2">&amp;</span>DE, <span class="kw-2">&amp;</span>DA, <span class="kw-2">&amp;</span>AST, <span class="kw-2">&amp;</span>EN_001, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>EN_AE, <span class="kw-2">&amp;</span>EN_AU, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_CA, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_GU, <span class="kw-2">&amp;</span>EN_GY, <span class="kw-2">&amp;</span>EN_HK, <span class="kw-2">&amp;</span>EN_ID, <span class="kw-2">&amp;</span>EN_IN, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_001, <span class="kw-2">&amp;</span>EN_MO, <span class="kw-2">&amp;</span>EN_001, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_MY, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_NZ, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_SG, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>EN_BW, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>ES_419, <span class="kw-2">&amp;</span>ES_AR, <span class="kw-2">&amp;</span>ES_BO, <span class="kw-2">&amp;</span>ES_CL, <span class="kw-2">&amp;</span>ES_CO, <span class="kw-2">&amp;</span>ES_EC, <span class="kw-2">&amp;</span>ES_PE, <span class="kw-2">&amp;</span>CHR, <span class="kw-2">&amp;</span>ES_UY, <span class="kw-2">&amp;</span>ES_VE, <span class="kw-2">&amp;</span>EU, <span class="kw-2">&amp;</span>FF_ADLM, <span class="kw-2">&amp;</span>FR_CA, <span class="kw-2">&amp;</span>FR_GF, <span class="kw-2">&amp;</span>DA, <span class="kw-2">&amp;</span>GA, <span class="kw-2">&amp;</span>EU, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>HI, <span class="kw-2">&amp;</span>HI_LATN, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>DE, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>ID, <span class="kw-2">&amp;</span>DA, <span class="kw-2">&amp;</span>JA, <span class="kw-2">&amp;</span>KGP, <span class="kw-2">&amp;</span>KK, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>KU, <span class="kw-2">&amp;</span>DA, <span class="kw-2">&amp;</span>DA, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>EN_SG, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>EU, <span class="kw-2">&amp;</span>NL_SR, <span class="kw-2">&amp;</span>EU, <span class="kw-2">&amp;</span>OR, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>DA, <span class="kw-2">&amp;</span>KGP, <span class="kw-2">&amp;</span>ES_419, <span class="kw-2">&amp;</span>PT_CV, <span class="kw-2">&amp;</span>ES_419, <span class="kw-2">&amp;</span>ES_419, <span class="kw-2">&amp;</span>ES_419, <span class="kw-2">&amp;</span>PT_PT, <span class="kw-2">&amp;</span>ES_419, <span class="kw-2">&amp;</span>ES_419, <span class="kw-2">&amp;</span>ES_PE, <span class="kw-2">&amp;</span>ES_BO, <span class="kw-2">&amp;</span>ES_EC, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>SC, <span class="kw-2">&amp;</span>SD, <span class="kw-2">&amp;</span>SK, <span class="kw-2">&amp;</span>SO, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>BS, <span class="kw-2">&amp;</span>SV, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>TA_MY, <span class="kw-2">&amp;</span>TA_MY, <span class="kw-2">&amp;</span>BN, <span class="kw-2">&amp;</span>ES_419, <span class="kw-2">&amp;</span>VI, <span class="kw-2">&amp;</span>KGP, <span class="kw-2">&amp;</span>ZH_HANT, <span class="kw-2">&amp;</span>TA_MY];
-                <span class="kw">static </span>KEYS: [<span class="kw-2">&amp;</span>str; <span class="number">132usize</span>] = [<span class="string">&quot;af&quot;</span>, <span class="string">&quot;ar&quot;</span>, <span class="string">&quot;as&quot;</span>, <span class="string">&quot;ast&quot;</span>, <span class="string">&quot;blo&quot;</span>, <span class="string">&quot;bn&quot;</span>, <span class="string">&quot;brx&quot;</span>, <span class="string">&quot;bs&quot;</span>, <span class="string">&quot;ca&quot;</span>, <span class="string">&quot;chr&quot;</span>, <span class="string">&quot;cs&quot;</span>, <span class="string">&quot;cy&quot;</span>, <span class="string">&quot;da&quot;</span>, <span class="string">&quot;de&quot;</span>, <span class="string">&quot;dsb&quot;</span>, <span class="string">&quot;el&quot;</span>, <span class="string">&quot;en&quot;</span>, <span class="string">&quot;en-001&quot;</span>, <span class="string">&quot;en-150&quot;</span>, <span class="string">&quot;en-AE&quot;</span>, <span class="string">&quot;en-AU&quot;</span>, <span class="string">&quot;en-BW&quot;</span>, <span class="string">&quot;en-CA&quot;</span>, <span class="string">&quot;en-CM&quot;</span>, <span class="string">&quot;en-ER&quot;</span>, <span class="string">&quot;en-GB&quot;</span>, <span class="string">&quot;en-GH&quot;</span>, <span class="string">&quot;en-GM&quot;</span>, <span class="string">&quot;en-GU&quot;</span>, <span class="string">&quot;en-GY&quot;</span>, <span class="string">&quot;en-HK&quot;</span>, <span class="string">&quot;en-ID&quot;</span>, <span class="string">&quot;en-IN&quot;</span>, <span class="string">&quot;en-KE&quot;</span>, <span class="string">&quot;en-LR&quot;</span>, <span class="string">&quot;en-LS&quot;</span>, <span class="string">&quot;en-MG&quot;</span>, <span class="string">&quot;en-MH&quot;</span>, <span class="string">&quot;en-MO&quot;</span>, <span class="string">&quot;en-MP&quot;</span>, <span class="string">&quot;en-MU&quot;</span>, <span class="string">&quot;en-MW&quot;</span>, <span class="string">&quot;en-MY&quot;</span>, <span class="string">&quot;en-NA&quot;</span>, <span class="string">&quot;en-NG&quot;</span>, <span class="string">&quot;en-NZ&quot;</span>, <span class="string">&quot;en-RW&quot;</span>, <span class="string">&quot;en-SD&quot;</span>, <span class="string">&quot;en-SG&quot;</span>, <span class="string">&quot;en-SL&quot;</span>, <span class="string">&quot;en-SS&quot;</span>, <span class="string">&quot;en-SZ&quot;</span>, <span class="string">&quot;en-TZ&quot;</span>, <span class="string">&quot;en-UG&quot;</span>, <span class="string">&quot;en-ZA&quot;</span>, <span class="string">&quot;en-ZM&quot;</span>, <span class="string">&quot;en-ZW&quot;</span>, <span class="string">&quot;es&quot;</span>, <span class="string">&quot;es-419&quot;</span>, <span class="string">&quot;es-AR&quot;</span>, <span class="string">&quot;es-BO&quot;</span>, <span class="string">&quot;es-CL&quot;</span>, <span class="string">&quot;es-CO&quot;</span>, <span class="string">&quot;es-EC&quot;</span>, <span class="string">&quot;es-PE&quot;</span>, <span class="string">&quot;es-US&quot;</span>, <span class="string">&quot;es-UY&quot;</span>, <span class="string">&quot;es-VE&quot;</span>, <span class="string">&quot;eu&quot;</span>, <span class="string">&quot;ff-Adlm&quot;</span>, <span class="string">&quot;fr-CA&quot;</span>, <span class="string">&quot;fr-GF&quot;</span>, <span class="string">&quot;fy&quot;</span>, <span class="string">&quot;ga&quot;</span>, <span class="string">&quot;gd&quot;</span>, <span class="string">&quot;gl&quot;</span>, <span class="string">&quot;gu&quot;</span>, <span class="string">&quot;hi&quot;</span>, <span class="string">&quot;hi-Latn&quot;</span>, <span class="string">&quot;hr&quot;</span>, <span class="string">&quot;hsb&quot;</span>, <span class="string">&quot;hu&quot;</span>, <span class="string">&quot;id&quot;</span>, <span class="string">&quot;it&quot;</span>, <span class="string">&quot;ja&quot;</span>, <span class="string">&quot;kgp&quot;</span>, <span class="string">&quot;kk&quot;</span>, <span class="string">&quot;kn&quot;</span>, <span class="string">&quot;kok&quot;</span>, <span class="string">&quot;ku&quot;</span>, <span class="string">&quot;lv&quot;</span>, <span class="string">&quot;mk&quot;</span>, <span class="string">&quot;ml&quot;</span>, <span class="string">&quot;mr&quot;</span>, <span class="string">&quot;ms&quot;</span>, <span class="string">&quot;mt&quot;</span>, <span class="string">&quot;ne-IN&quot;</span>, <span class="string">&quot;nl&quot;</span>, <span class="string">&quot;nl-SR&quot;</span>, <span class="string">&quot;no&quot;</span>, <span class="string">&quot;or&quot;</span>, <span class="string">&quot;pa&quot;</span>, <span class="string">&quot;pl&quot;</span>, <span class="string">&quot;pt&quot;</span>, <span class="string">&quot;pt-AO&quot;</span>, <span class="string">&quot;pt-CV&quot;</span>, <span class="string">&quot;pt-GW&quot;</span>, <span class="string">&quot;pt-MO&quot;</span>, <span class="string">&quot;pt-MZ&quot;</span>, <span class="string">&quot;pt-PT&quot;</span>, <span class="string">&quot;pt-ST&quot;</span>, <span class="string">&quot;pt-TL&quot;</span>, <span class="string">&quot;qu&quot;</span>, <span class="string">&quot;qu-BO&quot;</span>, <span class="string">&quot;qu-EC&quot;</span>, <span class="string">&quot;ro&quot;</span>, <span class="string">&quot;sc&quot;</span>, <span class="string">&quot;sd&quot;</span>, <span class="string">&quot;sk&quot;</span>, <span class="string">&quot;so&quot;</span>, <span class="string">&quot;sr&quot;</span>, <span class="string">&quot;sr-Latn&quot;</span>, <span class="string">&quot;sv&quot;</span>, <span class="string">&quot;ta&quot;</span>, <span class="string">&quot;ta-MY&quot;</span>, <span class="string">&quot;ta-SG&quot;</span>, <span class="string">&quot;te&quot;</span>, <span class="string">&quot;und&quot;</span>, <span class="string">&quot;vi&quot;</span>, <span class="string">&quot;yrl&quot;</span>, <span class="string">&quot;zh-Hant&quot;</span>, <span class="string">&quot;zh-SG&quot;</span>];
+                <span class="kw">static </span>KEYS: [<span class="kw-2">&amp;</span>str; <span class="number">132usize</span>] = [<span class="string">"af"</span>, <span class="string">"ar"</span>, <span class="string">"as"</span>, <span class="string">"ast"</span>, <span class="string">"blo"</span>, <span class="string">"bn"</span>, <span class="string">"brx"</span>, <span class="string">"bs"</span>, <span class="string">"ca"</span>, <span class="string">"chr"</span>, <span class="string">"cs"</span>, <span class="string">"cy"</span>, <span class="string">"da"</span>, <span class="string">"de"</span>, <span class="string">"dsb"</span>, <span class="string">"el"</span>, <span class="string">"en"</span>, <span class="string">"en-001"</span>, <span class="string">"en-150"</span>, <span class="string">"en-AE"</span>, <span class="string">"en-AU"</span>, <span class="string">"en-BW"</span>, <span class="string">"en-CA"</span>, <span class="string">"en-CM"</span>, <span class="string">"en-ER"</span>, <span class="string">"en-GB"</span>, <span class="string">"en-GH"</span>, <span class="string">"en-GM"</span>, <span class="string">"en-GU"</span>, <span class="string">"en-GY"</span>, <span class="string">"en-HK"</span>, <span class="string">"en-ID"</span>, <span class="string">"en-IN"</span>, <span class="string">"en-KE"</span>, <span class="string">"en-LR"</span>, <span class="string">"en-LS"</span>, <span class="string">"en-MG"</span>, <span class="string">"en-MH"</span>, <span class="string">"en-MO"</span>, <span class="string">"en-MP"</span>, <span class="string">"en-MU"</span>, <span class="string">"en-MW"</span>, <span class="string">"en-MY"</span>, <span class="string">"en-NA"</span>, <span class="string">"en-NG"</span>, <span class="string">"en-NZ"</span>, <span class="string">"en-RW"</span>, <span class="string">"en-SD"</span>, <span class="string">"en-SG"</span>, <span class="string">"en-SL"</span>, <span class="string">"en-SS"</span>, <span class="string">"en-SZ"</span>, <span class="string">"en-TZ"</span>, <span class="string">"en-UG"</span>, <span class="string">"en-ZA"</span>, <span class="string">"en-ZM"</span>, <span class="string">"en-ZW"</span>, <span class="string">"es"</span>, <span class="string">"es-419"</span>, <span class="string">"es-AR"</span>, <span class="string">"es-BO"</span>, <span class="string">"es-CL"</span>, <span class="string">"es-CO"</span>, <span class="string">"es-EC"</span>, <span class="string">"es-PE"</span>, <span class="string">"es-US"</span>, <span class="string">"es-UY"</span>, <span class="string">"es-VE"</span>, <span class="string">"eu"</span>, <span class="string">"ff-Adlm"</span>, <span class="string">"fr-CA"</span>, <span class="string">"fr-GF"</span>, <span class="string">"fy"</span>, <span class="string">"ga"</span>, <span class="string">"gd"</span>, <span class="string">"gl"</span>, <span class="string">"gu"</span>, <span class="string">"hi"</span>, <span class="string">"hi-Latn"</span>, <span class="string">"hr"</span>, <span class="string">"hsb"</span>, <span class="string">"hu"</span>, <span class="string">"id"</span>, <span class="string">"it"</span>, <span class="string">"ja"</span>, <span class="string">"kgp"</span>, <span class="string">"kk"</span>, <span class="string">"kn"</span>, <span class="string">"kok"</span>, <span class="string">"ku"</span>, <span class="string">"lv"</span>, <span class="string">"mk"</span>, <span class="string">"ml"</span>, <span class="string">"mr"</span>, <span class="string">"ms"</span>, <span class="string">"mt"</span>, <span class="string">"ne-IN"</span>, <span class="string">"nl"</span>, <span class="string">"nl-SR"</span>, <span class="string">"no"</span>, <span class="string">"or"</span>, <span class="string">"pa"</span>, <span class="string">"pl"</span>, <span class="string">"pt"</span>, <span class="string">"pt-AO"</span>, <span class="string">"pt-CV"</span>, <span class="string">"pt-GW"</span>, <span class="string">"pt-MO"</span>, <span class="string">"pt-MZ"</span>, <span class="string">"pt-PT"</span>, <span class="string">"pt-ST"</span>, <span class="string">"pt-TL"</span>, <span class="string">"qu"</span>, <span class="string">"qu-BO"</span>, <span class="string">"qu-EC"</span>, <span class="string">"ro"</span>, <span class="string">"sc"</span>, <span class="string">"sd"</span>, <span class="string">"sk"</span>, <span class="string">"so"</span>, <span class="string">"sr"</span>, <span class="string">"sr-Latn"</span>, <span class="string">"sv"</span>, <span class="string">"ta"</span>, <span class="string">"ta-MY"</span>, <span class="string">"ta-SG"</span>, <span class="string">"te"</span>, <span class="string">"und"</span>, <span class="string">"vi"</span>, <span class="string">"yrl"</span>, <span class="string">"zh-Hant"</span>, <span class="string">"zh-SG"</span>];
                 <span class="kw">let </span><span class="kw-2">mut </span>metadata = icu_provider::DataResponseMetadata::default();
                 <span class="kw">let </span>payload = <span class="kw">if let </span><span class="prelude-val">Ok</span>(payload) = KEYS.binary_search_by(|k| req.locale.strict_cmp(k.as_bytes()).reverse()).map(|i| <span class="kw-2">*</span><span class="kw">unsafe </span>{ VALUES.get_unchecked(i) }) {
                     payload
                 } <span class="kw">else </span>{
-                    <span class="kw">const </span>FALLBACKER: icu::locid_transform::fallback::LocaleFallbackerWithConfig&lt;<span class="lifetime">&#39;static</span>&gt; = icu::locid_transform::fallback::LocaleFallbacker::new().for_config(&lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::KeyedDataMarker&gt;::KEY.fallback_config());
+                    <span class="kw">const </span>FALLBACKER: icu::locid_transform::fallback::LocaleFallbackerWithConfig&lt;<span class="lifetime">'static</span>&gt; = icu::locid_transform::fallback::LocaleFallbacker::new().for_config(&lt;icu::datetime::provider::time_zones::MetazoneGenericNamesShortV1Marker <span class="kw">as </span>icu_provider::KeyedDataMarker&gt;::KEY.fallback_config());
                     <span class="kw">let </span><span class="kw-2">mut </span>fallback_iterator = FALLBACKER.fallback_for(req.locale.clone());
                     <span class="kw">loop </span>{
                         <span class="kw">if let </span><span class="prelude-val">Ok</span>(payload) = KEYS.binary_search_by(|k| fallback_iterator.get().strict_cmp(k.as_bytes()).reverse()).map(|i| <span class="kw-2">*</span><span class="kw">unsafe </span>{ VALUES.get_unchecked(i) }) {

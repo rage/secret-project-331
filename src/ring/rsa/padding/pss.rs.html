@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.7/src/rsa/padding/pss.rs`."><title>pss.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/rsa/padding/pss.rs`."><title>pss.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -293,7 +294,7 @@
 // purpose with or without fee is hereby granted, provided that the above
 // copyright notice and this permission notice appear in all copies.
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHORS DISCLAIM ALL WARRANTIES
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHORS DISCLAIM ALL WARRANTIES
 // WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
 // SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
@@ -306,20 +307,20 @@
 
 <span class="doccomment">/// RSA PSS padding as described in [RFC 3447 Section 8.1].
 ///
-/// See &quot;`RSA_PSS_*` Details\&quot; in `ring::signature`&#39;s module-level
+/// See "`RSA_PSS_*` Details\" in `ring::signature`'s module-level
 /// documentation for more details.
 ///
 /// [RFC 3447 Section 8.1]: https://tools.ietf.org/html/rfc3447#section-8.1
 </span><span class="attr">#[allow(clippy::upper_case_acronyms)] </span><span class="comment">// TODO: Until we implement cargo-semver-checks
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>PSS {
-    digest_alg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>digest::Algorithm,
+    digest_alg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>digest::Algorithm,
 }
 
 <span class="kw">impl </span><span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>PSS {}
 
 <span class="kw">impl </span>Padding <span class="kw">for </span>PSS {
-    <span class="kw">fn </span>digest_alg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>digest::Algorithm {
+    <span class="kw">fn </span>digest_alg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>digest::Algorithm {
         <span class="self">self</span>.digest_alg
     }
 }
@@ -338,9 +339,9 @@
 
         <span class="comment">// The `m_out` this function fills is the big-endian-encoded value of `m`
         // from the specification, padded to `k` bytes, where `k` is the length
-        // in bytes of the public modulus. The spec says &quot;Note that emLen will
+        // in bytes of the public modulus. The spec says "Note that emLen will
         // be one less than k if modBits - 1 is divisible by 8 and equal to k
-        // otherwise.&quot; In other words we might need to prefix `em` with a
+        // otherwise." In other words we might need to prefix `em` with a
         // leading zero byte to form a correct value of `m`.
         </span><span class="kw">let </span>em = <span class="kw">if </span>metrics.top_byte_mask == <span class="number">0xff </span>{
             m_out[<span class="number">0</span>] = <span class="number">0</span>;
@@ -402,8 +403,8 @@
         <span class="comment">// RSASSA-PSS-VERIFY Step 2(c). The `m` this function is given is the
         // big-endian-encoded value of `m` from the specification, padded to
         // `k` bytes, where `k` is the length in bytes of the public modulus.
-        // The spec. says &quot;Note that emLen will be one less than k if
-        // modBits - 1 is divisible by 8 and equal to k otherwise,&quot; where `k`
+        // The spec. says "Note that emLen will be one less than k if
+        // modBits - 1 is divisible by 8 and equal to k otherwise," where `k`
         // is the length in octets of the RSA public modulus `n`. In other
         // words, `em` might have an extra leading zero byte that we need to
         // strip before we start the PSS decoding steps which is an artifact of
@@ -480,7 +481,7 @@
 }
 
 <span class="kw">struct </span>PSSMetrics {
-    <span class="attr">#[cfg_attr(not(feature = <span class="string">&quot;alloc&quot;</span>), allow(dead_code))]
+    <span class="attr">#[cfg_attr(not(feature = <span class="string">"alloc"</span>), allow(dead_code))]
     </span>em_len: usize,
     db_len: usize,
     ps_len: usize,
@@ -491,12 +492,12 @@
 
 <span class="kw">impl </span>PSSMetrics {
     <span class="kw">fn </span>new(
-        digest_alg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>digest::Algorithm,
+        digest_alg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>digest::Algorithm,
         mod_bits: bits::BitLength,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::Unspecified&gt; {
         <span class="kw">let </span>em_bits = mod_bits.try_sub_1()<span class="question-mark">?</span>;
         <span class="kw">let </span>em_len = em_bits.as_usize_bytes_rounded_up();
-        <span class="kw">let </span>leading_zero_bits = (<span class="number">8 </span>* em_len) - em_bits.as_usize_bits();
+        <span class="kw">let </span>leading_zero_bits = (<span class="number">8 </span>* em_len) - em_bits.as_bits();
         <span class="macro">debug_assert!</span>(leading_zero_bits &lt; <span class="number">8</span>);
         <span class="kw">let </span>top_byte_mask = <span class="number">0xffu8 </span>&gt;&gt; leading_zero_bits;
 
@@ -506,16 +507,16 @@
         </span><span class="kw">let </span>s_len = h_len;
 
         <span class="comment">// Step 3 of both `EMSA-PSS-ENCODE` is `EMSA-PSS-VERIFY` requires that
-        // we reject inputs where &quot;emLen &lt; hLen + sLen + 2&quot;. The definition of
+        // we reject inputs where "emLen &lt; hLen + sLen + 2". The definition of
         // `emBits` in RFC 3447 Sections 9.1.1 and 9.1.2 says `emBits` must be
-        // &quot;at least 8hLen + 8sLen + 9&quot;. Since 9 bits requires two bytes, these
+        // "at least 8hLen + 8sLen + 9". Since 9 bits requires two bytes, these
         // two conditions are equivalent. 9 bits are required as the 0x01
         // before the salt requires 1 bit and the 0xbc after the digest
         // requires 8 bits.
         </span><span class="kw">let </span>db_len = em_len.checked_sub(<span class="number">1 </span>+ s_len).ok_or(error::Unspecified)<span class="question-mark">?</span>;
         <span class="kw">let </span>ps_len = db_len.checked_sub(h_len + <span class="number">1</span>).ok_or(error::Unspecified)<span class="question-mark">?</span>;
 
-        <span class="macro">debug_assert!</span>(em_bits.as_usize_bits() &gt;= (<span class="number">8 </span>* h_len) + (<span class="number">8 </span>* s_len) + <span class="number">9</span>);
+        <span class="macro">debug_assert!</span>(em_bits.as_bits() &gt;= (<span class="number">8 </span>* h_len) + (<span class="number">8 </span>* s_len) + <span class="number">9</span>);
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             em_len,
@@ -529,7 +530,7 @@
 }
 
 <span class="kw">fn </span>pss_digest(
-    digest_alg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>digest::Algorithm,
+    digest_alg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>digest::Algorithm,
     m_hash: digest::Digest,
     salt: <span class="kw-2">&amp;</span>[u8],
 ) -&gt; digest::Digest {
@@ -556,24 +557,24 @@
 <span class="macro">rsa_pss_padding!</span>(
     <span class="kw">pub </span>RSA_PSS_SHA256,
     <span class="kw-2">&amp;</span>digest::SHA256,
-    <span class="string">&quot;RSA PSS padding using SHA-256 for RSA signatures.\n\nSee
-                 \&quot;`RSA_PSS_*` Details\&quot; in `ring::signature`&#39;s module-level
-                 documentation for more details.&quot;
+    <span class="string">"RSA PSS padding using SHA-256 for RSA signatures.\n\nSee
+                 \"`RSA_PSS_*` Details\" in `ring::signature`'s module-level
+                 documentation for more details."
 </span>);
 
 <span class="macro">rsa_pss_padding!</span>(
     <span class="kw">pub </span>RSA_PSS_SHA384,
     <span class="kw-2">&amp;</span>digest::SHA384,
-    <span class="string">&quot;RSA PSS padding using SHA-384 for RSA signatures.\n\nSee
-                 \&quot;`RSA_PSS_*` Details\&quot; in `ring::signature`&#39;s module-level
-                 documentation for more details.&quot;
+    <span class="string">"RSA PSS padding using SHA-384 for RSA signatures.\n\nSee
+                 \"`RSA_PSS_*` Details\" in `ring::signature`'s module-level
+                 documentation for more details."
 </span>);
 
 <span class="macro">rsa_pss_padding!</span>(
     <span class="kw">pub </span>RSA_PSS_SHA512,
     <span class="kw-2">&amp;</span>digest::SHA512,
-    <span class="string">&quot;RSA PSS padding using SHA-512 for RSA signatures.\n\nSee
-                 \&quot;`RSA_PSS_*` Details\&quot; in `ring::signature`&#39;s module-level
-                 documentation for more details.&quot;
+    <span class="string">"RSA PSS padding using SHA-512 for RSA signatures.\n\nSee
+                 \"`RSA_PSS_*` Details\" in `ring::signature`'s module-level
+                 documentation for more details."
 </span>);
 </code></pre></div></section></main></body></html>

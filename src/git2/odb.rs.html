@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/odb.rs`."><title>odb.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/odb.rs`."><title>odb.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -743,19 +744,19 @@
 };
 
 <span class="doccomment">/// A structure to represent a git object database
-</span><span class="kw">pub struct </span>Odb&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>Odb&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_odb,
-    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;,
+    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">'repo</span>&gt;&gt;,
 }
 
 <span class="comment">// `git_odb` uses locking and atomics internally.
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Send <span class="kw">for </span>Odb&lt;<span class="lifetime">&#39;repo</span>&gt; {}
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Sync <span class="kw">for </span>Odb&lt;<span class="lifetime">&#39;repo</span>&gt; {}
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'repo</span>&gt; Send <span class="kw">for </span>Odb&lt;<span class="lifetime">'repo</span>&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'repo</span>&gt; Sync <span class="kw">for </span>Odb&lt;<span class="lifetime">'repo</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Odb&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>Odb&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_odb;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_odb) -&gt; Odb&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_odb) -&gt; Odb&lt;<span class="lifetime">'repo</span>&gt; {
         Odb {
             raw,
             _marker: marker::PhantomData,
@@ -766,15 +767,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Odb&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>Odb&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_odb_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Odb&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Odb&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="doccomment">/// Creates an object database without any backends.
-    </span><span class="kw">pub fn </span>new&lt;<span class="lifetime">&#39;a</span>&gt;() -&gt; <span class="prelude-ty">Result</span>&lt;Odb&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>new&lt;<span class="lifetime">'a</span>&gt;() -&gt; <span class="prelude-ty">Result</span>&lt;Odb&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
         <span class="kw">crate</span>::init();
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>out = ptr::null_mut();
@@ -785,9 +786,9 @@
 
     <span class="doccomment">/// Create object database reading stream.
     ///
-    /// Note that most backends do not support streaming reads because they store their objects as compressed/delta&#39;ed blobs.
+    /// Note that most backends do not support streaming reads because they store their objects as compressed/delta'ed blobs.
     /// If the backend does not support streaming reads, use the `read` method instead.
-    </span><span class="kw">pub fn </span>reader(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;(OdbReader&lt;<span class="lifetime">&#39;_</span>&gt;, usize, ObjectType), Error&gt; {
+    </span><span class="kw">pub fn </span>reader(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;(OdbReader&lt;<span class="lifetime">'_</span>&gt;, usize, ObjectType), Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>out = ptr::null_mut();
         <span class="kw">let </span><span class="kw-2">mut </span>size = <span class="number">0usize</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>otype: raw::git_object_t = ObjectType::Any.raw();
@@ -811,7 +812,7 @@
     ///
     /// The type and final length of the object must be specified when opening the stream.
     /// If the backend does not support streaming writes, use the `write` method instead.
-    </span><span class="kw">pub fn </span>writer(<span class="kw-2">&amp;</span><span class="self">self</span>, size: usize, obj_type: ObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;OdbWriter&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>writer(<span class="kw-2">&amp;</span><span class="self">self</span>, size: usize, obj_type: ObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;OdbWriter&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>out = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_odb_open_wstream(
@@ -844,7 +845,7 @@
     }
 
     <span class="doccomment">/// Read an object from the database.
-    </span><span class="kw">pub fn </span>read(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;OdbObject&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>read(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;OdbObject&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>out = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_odb_read(<span class="kw-2">&amp;mut </span>out, <span class="self">self</span>.raw, oid.raw()));
@@ -888,7 +889,7 @@
     }
 
     <span class="doccomment">/// Create stream for writing a pack file to the ODB
-    </span><span class="kw">pub fn </span>packwriter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;OdbPackwriter&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>packwriter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;OdbPackwriter&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>out = ptr::null_mut();
         <span class="kw">let </span>progress_cb: raw::git_indexer_progress_cb = <span class="prelude-val">Some</span>(write_pack_progress_cb);
         <span class="kw">let </span>progress_payload = Box::new(OdbPackwriterCb { cb: <span class="prelude-val">None </span>});
@@ -967,7 +968,7 @@
     /// deletion of the mempack backend.
     ///
     /// Here is an example that fails to compile because it tries to hold the
-    /// mempack reference beyond the Odb&#39;s lifetime:
+    /// mempack reference beyond the Odb's lifetime:
     ///
     /// ```compile_fail
     /// use git2::Odb;
@@ -976,10 +977,10 @@
     ///     odb.add_new_mempack_backend(1000).unwrap()
     /// };
     /// ```
-    </span><span class="kw">pub fn </span>add_new_mempack_backend&lt;<span class="lifetime">&#39;odb</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;odb </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>add_new_mempack_backend&lt;<span class="lifetime">'odb</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'odb </span><span class="self">self</span>,
         priority: i32,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Mempack&lt;<span class="lifetime">&#39;odb</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Mempack&lt;<span class="lifetime">'odb</span>&gt;, Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>mempack = ptr::null_mut();
             <span class="comment">// The mempack backend object in libgit2 is only ever freed by an
@@ -987,7 +988,7 @@
             // leaking the mempack backend, this API ensures that the backend
             // is added to the odb before returning it. The lifetime of the
             // mempack is also bound to the lifetime of the odb, so that users
-            // can&#39;t end up with a dangling reference to a mempack object that
+            // can't end up with a dangling reference to a mempack object that
             // was actually freed when the odb was destroyed.
             </span><span class="macro">try_call!</span>(raw::git_mempack_new(<span class="kw-2">&amp;mut </span>mempack));
             <span class="macro">try_call!</span>(raw::git_odb_add_backend(
@@ -1001,15 +1002,15 @@
 }
 
 <span class="doccomment">/// An object from the Object Database.
-</span><span class="kw">pub struct </span>OdbObject&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>OdbObject&lt;<span class="lifetime">'a</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_odb_object,
-    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>OdbObject&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Binding <span class="kw">for </span>OdbObject&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_odb_object;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_odb_object) -&gt; OdbObject&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_odb_object) -&gt; OdbObject&lt;<span class="lifetime">'a</span>&gt; {
         OdbObject {
             raw,
             _marker: marker::PhantomData,
@@ -1021,13 +1022,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Drop <span class="kw">for </span>OdbObject&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Drop <span class="kw">for </span>OdbObject&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_odb_object_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; OdbObject&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; OdbObject&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Get the object type.
     </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ObjectType {
         <span class="kw">unsafe </span>{ ObjectType::from_raw(raw::git_odb_object_type(<span class="self">self</span>.raw)).unwrap() }
@@ -1055,19 +1056,19 @@
 }
 
 <span class="doccomment">/// A structure to represent a git ODB rstream
-</span><span class="kw">pub struct </span>OdbReader&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>OdbReader&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_odb_stream,
-    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;,
+    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">'repo</span>&gt;&gt;,
 }
 
-<span class="comment">// `git_odb_stream` is not thread-safe internally, so it can&#39;t use `Sync`, but moving it to another
+<span class="comment">// `git_odb_stream` is not thread-safe internally, so it can't use `Sync`, but moving it to another
 // thread and continuing to read will work.
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Send <span class="kw">for </span>OdbReader&lt;<span class="lifetime">&#39;repo</span>&gt; {}
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'repo</span>&gt; Send <span class="kw">for </span>OdbReader&lt;<span class="lifetime">'repo</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>OdbReader&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>OdbReader&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_odb_stream;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_odb_stream) -&gt; OdbReader&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_odb_stream) -&gt; OdbReader&lt;<span class="lifetime">'repo</span>&gt; {
         OdbReader {
             raw,
             _marker: marker::PhantomData,
@@ -1078,20 +1079,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>OdbReader&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>OdbReader&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_odb_stream_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; io::Read <span class="kw">for </span>OdbReader&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; io::Read <span class="kw">for </span>OdbReader&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = buf.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>c_char;
             <span class="kw">let </span>len = buf.len();
             <span class="kw">let </span>res = raw::git_odb_stream_read(<span class="self">self</span>.raw, ptr, len);
             <span class="kw">if </span>res &lt; <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">&quot;Read error&quot;</span>))
+                <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">"Read error"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(len)
             }
@@ -1100,16 +1101,16 @@
 }
 
 <span class="doccomment">/// A structure to represent a git ODB wstream
-</span><span class="kw">pub struct </span>OdbWriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>OdbWriter&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_odb_stream,
-    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;,
+    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">'repo</span>&gt;&gt;,
 }
 
-<span class="comment">// `git_odb_stream` is not thread-safe internally, so it can&#39;t use `Sync`, but moving it to another
+<span class="comment">// `git_odb_stream` is not thread-safe internally, so it can't use `Sync`, but moving it to another
 // thread and continuing to write will work.
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Send <span class="kw">for </span>OdbWriter&lt;<span class="lifetime">&#39;repo</span>&gt; {}
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'repo</span>&gt; Send <span class="kw">for </span>OdbWriter&lt;<span class="lifetime">'repo</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; OdbWriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; OdbWriter&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="doccomment">/// Finish writing to an ODB stream
     ///
     /// This method can be used to finalize writing object to the database and get an identifier.
@@ -1127,10 +1128,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>OdbWriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>OdbWriter&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_odb_stream;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_odb_stream) -&gt; OdbWriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_odb_stream) -&gt; OdbWriter&lt;<span class="lifetime">'repo</span>&gt; {
         OdbWriter {
             raw,
             _marker: marker::PhantomData,
@@ -1141,20 +1142,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>OdbWriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>OdbWriter&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_odb_stream_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; io::Write <span class="kw">for </span>OdbWriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; io::Write <span class="kw">for </span>OdbWriter&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = buf.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char;
             <span class="kw">let </span>len = buf.len();
             <span class="kw">let </span>res = raw::git_odb_stream_write(<span class="self">self</span>.raw, ptr, len);
             <span class="kw">if </span>res &lt; <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">&quot;Write error&quot;</span>))
+                <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">"Write error"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(buf.len())
             }
@@ -1165,18 +1166,18 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>OdbPackwriterCb&lt;<span class="lifetime">&#39;repo</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) cb: <span class="prelude-ty">Option</span>&lt;Box&lt;IndexerProgress&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;&gt;,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>OdbPackwriterCb&lt;<span class="lifetime">'repo</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) cb: <span class="prelude-ty">Option</span>&lt;Box&lt;IndexerProgress&lt;<span class="lifetime">'repo</span>&gt;&gt;&gt;,
 }
 
 <span class="doccomment">/// A stream to write a packfile to the ODB
-</span><span class="kw">pub struct </span>OdbPackwriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>OdbPackwriter&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_odb_writepack,
     progress: raw::git_indexer_progress,
-    progress_payload_ptr: <span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">&#39;repo</span>&gt;,
+    progress_payload_ptr: <span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">'repo</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; OdbPackwriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; OdbPackwriter&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="doccomment">/// Finish writing the packfile
     </span><span class="kw">pub fn </span>commit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i32, Error&gt; {
         <span class="kw">unsafe </span>{
@@ -1196,19 +1197,19 @@
 
     <span class="doccomment">/// The callback through which progress is monitored. Be aware that this is
     /// called inline, so performance may be affected.
-    </span><span class="kw">pub fn </span>progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>OdbPackwriter&lt;<span class="lifetime">&#39;repo</span>&gt;
+    </span><span class="kw">pub fn </span>progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>OdbPackwriter&lt;<span class="lifetime">'repo</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(Progress&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool + <span class="lifetime">&#39;repo</span>,
+        </span>F: FnMut(Progress&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool + <span class="lifetime">'repo</span>,
     {
         <span class="kw">let </span>progress_payload =
-            <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>(<span class="self">self</span>.progress_payload_ptr <span class="kw">as </span><span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">&#39;_</span>&gt;) };
+            <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>(<span class="self">self</span>.progress_payload_ptr <span class="kw">as </span><span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">'_</span>&gt;) };
 
-        progress_payload.cb = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;IndexerProgress&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;);
+        progress_payload.cb = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;IndexerProgress&lt;<span class="lifetime">'repo</span>&gt;&gt;);
         <span class="self">self
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; io::Write <span class="kw">for </span>OdbPackwriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; io::Write <span class="kw">for </span>OdbPackwriter&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = buf.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>c_void;
@@ -1221,7 +1222,7 @@
             };
 
             <span class="kw">if </span>res &lt; <span class="number">0 </span>{
-                <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">&quot;Write error&quot;</span>))
+                <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">"Write error"</span>))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(buf.len())
             }
@@ -1232,7 +1233,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>OdbPackwriter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>OdbPackwriter&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>writepack = <span class="kw-2">&amp;*</span><span class="self">self</span>.raw;
@@ -1246,15 +1247,15 @@
     }
 }
 
-<span class="kw">pub type </span>ForeachCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>Oid) -&gt; bool + <span class="lifetime">&#39;a</span>;
+<span class="kw">pub type </span>ForeachCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>Oid) -&gt; bool + <span class="lifetime">'a</span>;
 
-<span class="kw">struct </span>ForeachCbData&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>callback: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>ForeachCb&lt;<span class="lifetime">&#39;a</span>&gt;,
+<span class="kw">struct </span>ForeachCbData&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub </span>callback: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ForeachCb&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>foreach_cb(id: <span class="kw-2">*const </span>raw::git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>foreach_cb(id: <span class="kw-2">*const </span>raw::git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
     panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>ForeachCbData&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>ForeachCbData&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>res = {
             <span class="kw">let </span>callback = <span class="kw-2">&amp;mut </span>data.callback;
             callback(<span class="kw-2">&amp;</span>Binding::from_raw(id))
@@ -1269,19 +1270,19 @@
     .unwrap_or(<span class="number">1</span>)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>write_pack_progress_cb(
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>write_pack_progress_cb(
     stats: <span class="kw-2">*const </span>raw::git_indexer_progress,
     payload: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int {
     <span class="kw">let </span>ok = panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">'_</span>&gt;);
 
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.cb {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>cb) =&gt; cb,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">true</span>,
         };
 
-        <span class="kw">let </span>progress: Progress&lt;<span class="lifetime">&#39;_</span>&gt; = Binding::from_raw(stats);
+        <span class="kw">let </span>progress: Progress&lt;<span class="lifetime">'_</span>&gt; = Binding::from_raw(stats);
         callback(progress)
     });
     <span class="kw">if </span>ok == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
@@ -1426,8 +1427,8 @@
         <span class="kw">let </span>odb = repo.odb().unwrap();
         <span class="kw">let </span>mempack = odb.add_new_mempack_backend(<span class="number">1000</span>).unwrap();
 
-        <span class="comment">// Sanity check that foo doesn&#39;t exist initially
-        </span><span class="kw">let </span>foo_file = Path::new(repo.workdir().unwrap()).join(<span class="string">&quot;foo&quot;</span>);
+        <span class="comment">// Sanity check that foo doesn't exist initially
+        </span><span class="kw">let </span>foo_file = Path::new(repo.workdir().unwrap()).join(<span class="string">"foo"</span>);
         <span class="macro">assert!</span>(!foo_file.exists());
 
         <span class="comment">// Make a commit that adds foo. This writes new stuff into the mempack
@@ -1437,7 +1438,7 @@
         <span class="macro">t!</span>(repo.reset(commit1.as_object(), ResetType::Hard, <span class="prelude-val">None</span>));
         <span class="macro">assert!</span>(foo_file.exists());
 
-        <span class="comment">// Dump the mempack modifications into a buf, and reset it. This &quot;erases&quot;
+        <span class="comment">// Dump the mempack modifications into a buf, and reset it. This "erases"
         // commit-related objects from the repository. Ensure the commit appears
         // to have become invalid, by checking for failure in `reset --hard`.
         </span><span class="kw">let </span><span class="kw-2">mut </span>buf = Buf::new();

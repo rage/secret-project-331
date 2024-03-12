@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/parser.rs`."><title>parser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/parser.rs`."><title>parser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -418,27 +419,27 @@
 
 <span class="kw">const </span>MAX_RECURSE_DEPTH: usize = <span class="number">100</span>;
 
-<span class="kw">fn </span>value&lt;<span class="lifetime">&#39;a</span>, I&gt;(
+<span class="kw">fn </span>value&lt;<span class="lifetime">'a</span>, I&gt;(
     count: <span class="prelude-ty">Option</span>&lt;usize&gt;,
 ) -&gt; <span class="kw">impl </span>combine::Parser&lt;I, Output = RedisResult&lt;Value&gt;, PartialState = AnySendSyncPartialState&gt;
 <span class="kw">where
-    </span>I: RangeStream&lt;Token = u8, Range = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;,
-    I::Error: combine::ParseError&lt;u8, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], I::Position&gt;,
+    </span>I: RangeStream&lt;Token = u8, Range = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;,
+    I::Error: combine::ParseError&lt;u8, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], I::Position&gt;,
 {
     <span class="kw">let </span>count = count.unwrap_or(<span class="number">1</span>);
 
     <span class="macro">opaque!</span>(any_send_sync_partial_state(
         any()
             .then_partial(<span class="kw">move </span>|<span class="kw-2">&amp;mut </span>b| {
-                <span class="kw">if </span>b == <span class="string">b&#39;*&#39; </span>&amp;&amp; count &gt; MAX_RECURSE_DEPTH {
-                    combine::unexpected_any(<span class="string">&quot;Maximum recursion depth exceeded&quot;</span>).left()
+                <span class="kw">if </span>b == <span class="string">b'*' </span>&amp;&amp; count &gt; MAX_RECURSE_DEPTH {
+                    combine::unexpected_any(<span class="string">"Maximum recursion depth exceeded"</span>).left()
                 } <span class="kw">else </span>{
                     combine::value(b).right()
                 }
             })
             .then_partial(<span class="kw">move </span>|<span class="kw-2">&amp;mut </span>b| {
                 <span class="kw">let </span>line = || {
-                    recognize(take_until_bytes(<span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..]).with(take(<span class="number">2</span>).map(|<span class="kw">_</span>| ()))).and_then(
+                    recognize(take_until_bytes(<span class="kw-2">&amp;</span><span class="string">b"\r\n"</span>[..]).with(take(<span class="number">2</span>).map(|<span class="kw">_</span>| ()))).and_then(
                         |line: <span class="kw-2">&amp;</span>[u8]| {
                             str::from_utf8(<span class="kw-2">&amp;</span>line[..line.len() - <span class="number">2</span>])
                                 .map_err(StreamErrorFor::&lt;I&gt;::other)
@@ -448,7 +449,7 @@
 
                 <span class="kw">let </span>status = || {
                     line().map(|line| {
-                        <span class="kw">if </span>line == <span class="string">&quot;OK&quot; </span>{
+                        <span class="kw">if </span>line == <span class="string">"OK" </span>{
                             Value::Okay
                         } <span class="kw">else </span>{
                             Value::Status(line.into())
@@ -459,7 +460,7 @@
                 <span class="kw">let </span>int = || {
                     line().and_then(|line| <span class="kw">match </span>line.trim().parse::&lt;i64&gt;() {
                         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(StreamErrorFor::&lt;I&gt;::message_static_message(
-                            <span class="string">&quot;Expected integer, got garbage&quot;</span>,
+                            <span class="string">"Expected integer, got garbage"</span>,
                         )),
                         <span class="prelude-val">Ok</span>(value) =&gt; <span class="prelude-val">Ok</span>(value),
                     })
@@ -493,21 +494,21 @@
 
                 <span class="kw">let </span>error = || {
                     line().map(|line: <span class="kw-2">&amp;</span>str| {
-                        <span class="kw">let </span>desc = <span class="string">&quot;An error was signalled by the server&quot;</span>;
-                        <span class="kw">let </span><span class="kw-2">mut </span>pieces = line.splitn(<span class="number">2</span>, <span class="string">&#39; &#39;</span>);
+                        <span class="kw">let </span>desc = <span class="string">"An error was signalled by the server"</span>;
+                        <span class="kw">let </span><span class="kw-2">mut </span>pieces = line.splitn(<span class="number">2</span>, <span class="string">' '</span>);
                         <span class="kw">let </span>kind = <span class="kw">match </span>pieces.next().unwrap() {
-                            <span class="string">&quot;ERR&quot; </span>=&gt; ErrorKind::ResponseError,
-                            <span class="string">&quot;EXECABORT&quot; </span>=&gt; ErrorKind::ExecAbortError,
-                            <span class="string">&quot;LOADING&quot; </span>=&gt; ErrorKind::BusyLoadingError,
-                            <span class="string">&quot;NOSCRIPT&quot; </span>=&gt; ErrorKind::NoScriptError,
-                            <span class="string">&quot;MOVED&quot; </span>=&gt; ErrorKind::Moved,
-                            <span class="string">&quot;ASK&quot; </span>=&gt; ErrorKind::Ask,
-                            <span class="string">&quot;TRYAGAIN&quot; </span>=&gt; ErrorKind::TryAgain,
-                            <span class="string">&quot;CLUSTERDOWN&quot; </span>=&gt; ErrorKind::ClusterDown,
-                            <span class="string">&quot;CROSSSLOT&quot; </span>=&gt; ErrorKind::CrossSlot,
-                            <span class="string">&quot;MASTERDOWN&quot; </span>=&gt; ErrorKind::MasterDown,
-                            <span class="string">&quot;READONLY&quot; </span>=&gt; ErrorKind::ReadOnly,
-                            <span class="string">&quot;NOTBUSY&quot; </span>=&gt; ErrorKind::NotBusy,
+                            <span class="string">"ERR" </span>=&gt; ErrorKind::ResponseError,
+                            <span class="string">"EXECABORT" </span>=&gt; ErrorKind::ExecAbortError,
+                            <span class="string">"LOADING" </span>=&gt; ErrorKind::BusyLoadingError,
+                            <span class="string">"NOSCRIPT" </span>=&gt; ErrorKind::NoScriptError,
+                            <span class="string">"MOVED" </span>=&gt; ErrorKind::Moved,
+                            <span class="string">"ASK" </span>=&gt; ErrorKind::Ask,
+                            <span class="string">"TRYAGAIN" </span>=&gt; ErrorKind::TryAgain,
+                            <span class="string">"CLUSTERDOWN" </span>=&gt; ErrorKind::ClusterDown,
+                            <span class="string">"CROSSSLOT" </span>=&gt; ErrorKind::CrossSlot,
+                            <span class="string">"MASTERDOWN" </span>=&gt; ErrorKind::MasterDown,
+                            <span class="string">"READONLY" </span>=&gt; ErrorKind::ReadOnly,
+                            <span class="string">"NOTBUSY" </span>=&gt; ErrorKind::NotBusy,
                             code =&gt; <span class="kw">return </span>make_extension_error(code, pieces.next()),
                         };
                         <span class="kw">match </span>pieces.next() {
@@ -518,18 +519,18 @@
                 };
 
                 <span class="macro">combine::dispatch!</span>(b;
-                    <span class="string">b&#39;+&#39; </span>=&gt; status().map(<span class="prelude-val">Ok</span>),
-                    <span class="string">b&#39;:&#39; </span>=&gt; int().map(|i| <span class="prelude-val">Ok</span>(Value::Int(i))),
-                    <span class="string">b&#39;$&#39; </span>=&gt; data().map(<span class="prelude-val">Ok</span>),
-                    <span class="string">b&#39;*&#39; </span>=&gt; bulk(),
-                    <span class="string">b&#39;-&#39; </span>=&gt; error().map(<span class="prelude-val">Err</span>),
+                    <span class="string">b'+' </span>=&gt; status().map(<span class="prelude-val">Ok</span>),
+                    <span class="string">b':' </span>=&gt; int().map(|i| <span class="prelude-val">Ok</span>(Value::Int(i))),
+                    <span class="string">b'$' </span>=&gt; data().map(<span class="prelude-val">Ok</span>),
+                    <span class="string">b'*' </span>=&gt; bulk(),
+                    <span class="string">b'-' </span>=&gt; error().map(<span class="prelude-val">Err</span>),
                     b =&gt; combine::unexpected_any(combine::error::Token(b))
                 )
             })
     ))
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
 </span><span class="kw">mod </span>aio_support {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -557,11 +558,11 @@
                     <span class="prelude-val">Err</span>(err) =&gt; {
                         <span class="kw">let </span>err = err
                             .map_position(|pos| pos.translate_position(buffer))
-                            .map_range(|range| <span class="macro">format!</span>(<span class="string">&quot;{range:?}&quot;</span>))
+                            .map_range(|range| <span class="macro">format!</span>(<span class="string">"{range:?}"</span>))
                             .to_string();
                         <span class="kw">return </span><span class="prelude-val">Err</span>(RedisError::from((
                             ErrorKind::ResponseError,
-                            <span class="string">&quot;parse error&quot;</span>,
+                            <span class="string">"parse error"</span>,
                             err,
                         )));
                     }
@@ -616,10 +617,10 @@
                         RedisError::from(io::Error::from(io::ErrorKind::UnexpectedEof))
                     } <span class="kw">else </span>{
                         <span class="kw">let </span>err = err
-                            .map_range(|range| <span class="macro">format!</span>(<span class="string">&quot;{range:?}&quot;</span>))
+                            .map_range(|range| <span class="macro">format!</span>(<span class="string">"{range:?}"</span>))
                             .map_position(|pos| pos.translate_position(decoder.buffer()))
                             .to_string();
-                        RedisError::from((ErrorKind::ResponseError, <span class="string">&quot;parse error&quot;</span>, err))
+                        RedisError::from((ErrorKind::ResponseError, <span class="string">"parse error"</span>, err))
                     }
                 }
             }),
@@ -628,8 +629,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;aio&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"aio"</span>)))]
 </span><span class="kw">pub use </span><span class="self">self</span>::aio_support::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// The internal redis response parser.
@@ -644,7 +645,7 @@
 }
 
 <span class="doccomment">/// The parser can be used to parse redis responses into values.  Generally
-/// you normally do not use this directly as it&#39;s already done for you by
+/// you normally do not use this directly as it's already done for you by
 /// the client but in some more complex situations it might be useful to be
 /// able to parse the redis responses.
 </span><span class="kw">impl </span>Parser {
@@ -674,10 +675,10 @@
                         RedisError::from(io::Error::from(io::ErrorKind::UnexpectedEof))
                     } <span class="kw">else </span>{
                         <span class="kw">let </span>err = err
-                            .map_range(|range| <span class="macro">format!</span>(<span class="string">&quot;{range:?}&quot;</span>))
+                            .map_range(|range| <span class="macro">format!</span>(<span class="string">"{range:?}"</span>))
                             .map_position(|pos| pos.translate_position(decoder.buffer()))
                             .to_string();
-                        RedisError::from((ErrorKind::ResponseError, <span class="string">&quot;parse error&quot;</span>, err))
+                        RedisError::from((ErrorKind::ResponseError, <span class="string">"parse error"</span>, err))
                     }
                 }
             }),
@@ -700,16 +701,16 @@
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
     #[test]
     </span><span class="kw">fn </span>decode_eof_returns_none_at_eof() {
         <span class="kw">use </span>tokio_util::codec::Decoder;
         <span class="kw">let </span><span class="kw-2">mut </span>codec = ValueCodec::default();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>bytes = bytes::BytesMut::from(<span class="kw-2">&amp;</span><span class="string">b&quot;+GET 123\r\n&quot;</span>[..]);
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = bytes::BytesMut::from(<span class="kw-2">&amp;</span><span class="string">b"+GET 123\r\n"</span>[..]);
         <span class="macro">assert_eq!</span>(
             codec.decode_eof(<span class="kw-2">&amp;mut </span>bytes),
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(parse_redis_value(<span class="string">b&quot;+GET 123\r\n&quot;</span>).unwrap())))
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(parse_redis_value(<span class="string">b"+GET 123\r\n"</span>).unwrap())))
         );
         <span class="macro">assert_eq!</span>(codec.decode_eof(<span class="kw-2">&amp;mut </span>bytes), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
         <span class="macro">assert_eq!</span>(codec.decode_eof(<span class="kw-2">&amp;mut </span>bytes), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
@@ -717,9 +718,9 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_max_recursion_depth() {
-        <span class="kw">let </span>bytes = <span class="string">b&quot;*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n&quot;</span>;
+        <span class="kw">let </span>bytes = <span class="string">b"*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n*1\r\n"</span>;
         <span class="kw">match </span>parse_redis_value(bytes) {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected Err&quot;</span>),
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Expected Err"</span>),
             <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">assert!</span>(<span class="macro">matches!</span>(e.kind(), ErrorKind::ResponseError)),
         }
     }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-log-0.2.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_log" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../tracing_log/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_log"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-log-0.2.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_log" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../tracing_log/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_log"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -634,7 +635,7 @@
 //! LogTracer::init()?;
 //!
 //! // will be available for Subscribers as a tracing Event
-//! log::trace!(&quot;an example trace log&quot;);
+//! log::trace!("an example trace log");
 //! # Ok(())
 //! # }
 //! ```
@@ -649,7 +650,7 @@
 //!
 //! ## Convert tracing `Event`s to logs
 //!
-//! Enabling the [&quot;log&quot; and &quot;log-always&quot; feature flags][flags] on the `tracing`
+//! Enabling the ["log" and "log-always" feature flags][flags] on the `tracing`
 //! crate will cause all `tracing` spans and events to emit `log::Record`s as
 //! they occur.
 //!
@@ -695,8 +696,8 @@
 //! [flags]: https://docs.rs/tracing/latest/tracing/#crate-feature-flags
 //! [`Builder::with_interest_cache`]: log_tracer::Builder::with_interest_cache
 </span><span class="attr">#![doc(
-    html_logo_url = <span class="string">&quot;https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png&quot;</span>,
-    issue_tracker_base_url = <span class="string">&quot;https://github.com/tokio-rs/tracing/issues/&quot;
+    html_logo_url = <span class="string">"https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png"</span>,
+    issue_tracker_base_url = <span class="string">"https://github.com/tokio-rs/tracing/issues/"
 </span>)]
 #![cfg_attr(docsrs, feature(doc_cfg), deny(rustdoc::broken_intra_doc_links))]
 #![warn(
@@ -733,37 +734,37 @@
     subscriber, Event, Metadata,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;log-tracer&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;log-tracer&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"log-tracer"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"log-tracer"</span>)))]
 </span><span class="kw">pub mod </span>log_tracer;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;log-tracer&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;log-tracer&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"log-tracer"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"log-tracer"</span>)))]
 #[doc(inline)]
 </span><span class="kw">pub use </span><span class="self">self</span>::log_tracer::LogTracer;
 
 <span class="kw">pub use </span>log;
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;interest-cache&quot;</span>, feature = <span class="string">&quot;log-tracer&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(all(feature = <span class="string">"interest-cache"</span>, feature = <span class="string">"log-tracer"</span>, feature = <span class="string">"std"</span>))]
 </span><span class="kw">mod </span>interest_cache;
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;interest-cache&quot;</span>, feature = <span class="string">&quot;log-tracer&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(all(feature = <span class="string">"interest-cache"</span>, feature = <span class="string">"log-tracer"</span>, feature = <span class="string">"std"</span>))]
 #[cfg_attr(
     docsrs,
-    doc(cfg(all(feature = <span class="string">&quot;interest-cache&quot;</span>, feature = <span class="string">&quot;log-tracer&quot;</span>, feature = <span class="string">&quot;std&quot;</span>)))
+    doc(cfg(all(feature = <span class="string">"interest-cache"</span>, feature = <span class="string">"log-tracer"</span>, feature = <span class="string">"std"</span>)))
 )]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::interest_cache::InterestCacheConfig;
 
 <span class="doccomment">/// Format a log record as a trace event in the current span.
-</span><span class="kw">pub fn </span>format_trace(record: <span class="kw-2">&amp;</span>log::Record&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
+</span><span class="kw">pub fn </span>format_trace(record: <span class="kw-2">&amp;</span>log::Record&lt;<span class="lifetime">'_</span>&gt;) -&gt; io::Result&lt;()&gt; {
     dispatch_record(record);
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="comment">// XXX(eliza): this is factored out so that we don&#39;t have to deal with the pub
-// function `format_trace`&#39;s `Result` return type...maybe we should get rid of
+<span class="comment">// XXX(eliza): this is factored out so that we don't have to deal with the pub
+// function `format_trace`'s `Result` return type...maybe we should get rid of
 // that in 0.2...
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>dispatch_record(record: <span class="kw-2">&amp;</span>log::Record&lt;<span class="lifetime">&#39;_</span>&gt;) {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>dispatch_record(record: <span class="kw-2">&amp;</span>log::Record&lt;<span class="lifetime">'_</span>&gt;) {
     dispatcher::get_default(|dispatch| {
         <span class="kw">let </span>filter_meta = record.as_trace();
         <span class="kw">if </span>!dispatch.enabled(<span class="kw-2">&amp;</span>filter_meta) {
@@ -811,10 +812,10 @@
     </span><span class="kw">fn </span>as_trace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Trace;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>Metadata&lt;<span class="lifetime">&#39;a</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>Metadata&lt;<span class="lifetime">'a</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AsLog <span class="kw">for </span>Metadata&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Log = log::Metadata&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; AsLog <span class="kw">for </span>Metadata&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Log = log::Metadata&lt;<span class="lifetime">'a</span>&gt;;
     <span class="kw">fn </span>as_log(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Log {
         log::Metadata::builder()
             .level(<span class="self">self</span>.level().as_log())
@@ -822,14 +823,14 @@
             .build()
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>log::Metadata&lt;<span class="lifetime">&#39;a</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>log::Metadata&lt;<span class="lifetime">'a</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AsTrace <span class="kw">for </span>log::Metadata&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Trace = Metadata&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; AsTrace <span class="kw">for </span>log::Metadata&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Trace = Metadata&lt;<span class="lifetime">'a</span>&gt;;
     <span class="kw">fn </span>as_trace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Trace {
         <span class="kw">let </span>cs_id = <span class="macro">identify_callsite!</span>(loglevel_to_cs(<span class="self">self</span>.level()).<span class="number">0</span>);
         Metadata::new(
-            <span class="string">&quot;log record&quot;</span>,
+            <span class="string">"log record"</span>,
             <span class="self">self</span>.target(),
             <span class="self">self</span>.level().as_trace(),
             <span class="prelude-val">None</span>,
@@ -850,21 +851,21 @@
 }
 
 <span class="kw">static </span>FIELD_NAMES: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str] = <span class="kw-2">&amp;</span>[
-    <span class="string">&quot;message&quot;</span>,
-    <span class="string">&quot;log.target&quot;</span>,
-    <span class="string">&quot;log.module_path&quot;</span>,
-    <span class="string">&quot;log.file&quot;</span>,
-    <span class="string">&quot;log.line&quot;</span>,
+    <span class="string">"message"</span>,
+    <span class="string">"log.target"</span>,
+    <span class="string">"log.module_path"</span>,
+    <span class="string">"log.file"</span>,
+    <span class="string">"log.line"</span>,
 ];
 
 <span class="kw">impl </span>Fields {
-    <span class="kw">fn </span>new(cs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>Callsite) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>new(cs: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>Callsite) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>fieldset = cs.metadata().fields();
-        <span class="kw">let </span>message = fieldset.field(<span class="string">&quot;message&quot;</span>).unwrap();
-        <span class="kw">let </span>target = fieldset.field(<span class="string">&quot;log.target&quot;</span>).unwrap();
-        <span class="kw">let </span>module = fieldset.field(<span class="string">&quot;log.module_path&quot;</span>).unwrap();
-        <span class="kw">let </span>file = fieldset.field(<span class="string">&quot;log.file&quot;</span>).unwrap();
-        <span class="kw">let </span>line = fieldset.field(<span class="string">&quot;log.line&quot;</span>).unwrap();
+        <span class="kw">let </span>message = fieldset.field(<span class="string">"message"</span>).unwrap();
+        <span class="kw">let </span>target = fieldset.field(<span class="string">"log.target"</span>).unwrap();
+        <span class="kw">let </span>module = fieldset.field(<span class="string">"log.module_path"</span>).unwrap();
+        <span class="kw">let </span>file = fieldset.field(<span class="string">"log.file"</span>).unwrap();
+        <span class="kw">let </span>line = fieldset.field(<span class="string">"log.line"</span>).unwrap();
         Fields {
             message,
             target,
@@ -879,9 +880,9 @@
     (<span class="macro-nonterminal">$level</span>:expr, <span class="macro-nonterminal">$cs</span>:ident, <span class="macro-nonterminal">$meta</span>:ident, <span class="macro-nonterminal">$ty</span>:ident) =&gt; {
         <span class="kw">struct </span><span class="macro-nonterminal">$ty</span>;
         <span class="kw">static </span><span class="macro-nonterminal">$cs</span>: <span class="macro-nonterminal">$ty </span>= <span class="macro-nonterminal">$ty</span>;
-        <span class="kw">static </span><span class="macro-nonterminal">$meta</span>: Metadata&lt;<span class="lifetime">&#39;static</span>&gt; = Metadata::new(
-            <span class="string">&quot;log event&quot;</span>,
-            <span class="string">&quot;log&quot;</span>,
+        <span class="kw">static </span><span class="macro-nonterminal">$meta</span>: Metadata&lt;<span class="lifetime">'static</span>&gt; = Metadata::new(
+            <span class="string">"log event"</span>,
+            <span class="string">"log"</span>,
             <span class="macro-nonterminal">$level</span>,
             ::core::option::Option::None,
             ::core::option::Option::None,
@@ -892,7 +893,7 @@
 
         <span class="kw">impl </span>callsite::Callsite <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
             <span class="kw">fn </span>set_interest(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: subscriber::Interest) {}
-            <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt; {
+            <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt; {
                 <span class="kw-2">&amp;</span><span class="macro-nonterminal">$meta
             </span>}
         }
@@ -926,7 +927,7 @@
 <span class="kw">static </span>WARN_FIELDS: Lazy&lt;Fields&gt; = Lazy::new(|| Fields::new(<span class="kw-2">&amp;</span>WARN_CS));
 <span class="kw">static </span>ERROR_FIELDS: Lazy&lt;Fields&gt; = Lazy::new(|| Fields::new(<span class="kw-2">&amp;</span>ERROR_CS));
 
-<span class="kw">fn </span>level_to_cs(level: Level) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>Callsite, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Fields) {
+<span class="kw">fn </span>level_to_cs(level: Level) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>Callsite, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Fields) {
     <span class="kw">match </span>level {
         Level::TRACE =&gt; (<span class="kw-2">&amp;</span>TRACE_CS, <span class="kw-2">&amp;*</span>TRACE_FIELDS),
         Level::DEBUG =&gt; (<span class="kw-2">&amp;</span>DEBUG_CS, <span class="kw-2">&amp;*</span>DEBUG_FIELDS),
@@ -939,9 +940,9 @@
 <span class="kw">fn </span>loglevel_to_cs(
     level: log::Level,
 ) -&gt; (
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>Callsite,
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Fields,
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;,
+    <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>Callsite,
+    <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Fields,
+    <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;,
 ) {
     <span class="kw">match </span>level {
         log::Level::Trace =&gt; (<span class="kw-2">&amp;</span>TRACE_CS, <span class="kw-2">&amp;*</span>TRACE_FIELDS, <span class="kw-2">&amp;</span>TRACE_META),
@@ -952,14 +953,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>log::Record&lt;<span class="lifetime">&#39;a</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>log::Record&lt;<span class="lifetime">'a</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AsTrace <span class="kw">for </span>log::Record&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Trace = Metadata&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; AsTrace <span class="kw">for </span>log::Record&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Trace = Metadata&lt;<span class="lifetime">'a</span>&gt;;
     <span class="kw">fn </span>as_trace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Trace {
         <span class="kw">let </span>cs_id = <span class="macro">identify_callsite!</span>(loglevel_to_cs(<span class="self">self</span>.level()).<span class="number">0</span>);
         Metadata::new(
-            <span class="string">&quot;log record&quot;</span>,
+            <span class="string">"log record"</span>,
             <span class="self">self</span>.target(),
             <span class="self">self</span>.level().as_trace(),
             <span class="self">self</span>.file(),
@@ -1038,11 +1039,11 @@
 <span class="doccomment">/// Extends log `Event`s to provide complete `Metadata`.
 ///
 /// In `tracing-log`, an `Event` produced by a log (through [`AsTrace`]) has an hard coded
-/// &quot;log&quot; target and no `file`, `line`, or `module_path` attributes. This happens because `Event`
-/// requires its `Metadata` to be `&#39;static`, while [`log::Record`]s provide them with a generic
+/// "log" target and no `file`, `line`, or `module_path` attributes. This happens because `Event`
+/// requires its `Metadata` to be `'static`, while [`log::Record`]s provide them with a generic
 /// lifetime.
 ///
-/// However, these values are stored in the `Event`&#39;s fields and
+/// However, these values are stored in the `Event`'s fields and
 /// the [`normalized_metadata`] method allows to build a new `Metadata`
 /// that only lives as long as its source `Event`, but provides complete
 /// data.
@@ -1052,34 +1053,34 @@
 /// regardless of the source of its source.
 ///
 /// [`normalized_metadata`]: NormalizeEvent#normalized_metadata
-</span><span class="kw">pub trait </span>NormalizeEvent&lt;<span class="lifetime">&#39;a</span>&gt;: <span class="kw">crate</span>::sealed::Sealed {
+</span><span class="kw">pub trait </span>NormalizeEvent&lt;<span class="lifetime">'a</span>&gt;: <span class="kw">crate</span>::sealed::Sealed {
     <span class="doccomment">/// If this `Event` comes from a `log`, this method provides a new
     /// normalized `Metadata` which has all available attributes
     /// from the original log, including `file`, `line`, `module_path`
     /// and `target`.
     /// Returns `None` is the `Event` is not issued from a `log`.
-    </span><span class="kw">fn </span>normalized_metadata(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Metadata&lt;<span class="lifetime">&#39;a</span>&gt;&gt;;
+    </span><span class="kw">fn </span>normalized_metadata(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Metadata&lt;<span class="lifetime">'a</span>&gt;&gt;;
     <span class="doccomment">/// Returns whether this `Event` represents a log (from the `log` crate)
     </span><span class="kw">fn </span>is_log(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>Event&lt;<span class="lifetime">&#39;a</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>Event&lt;<span class="lifetime">'a</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; NormalizeEvent&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Event&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>normalized_metadata(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Metadata&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; NormalizeEvent&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Event&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>normalized_metadata(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Metadata&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">let </span>original = <span class="self">self</span>.metadata();
         <span class="kw">if </span><span class="self">self</span>.is_log() {
             <span class="kw">let </span><span class="kw-2">mut </span>fields = LogVisitor::new_for(<span class="self">self</span>, level_to_cs(<span class="kw-2">*</span>original.level()).<span class="number">1</span>);
             <span class="self">self</span>.record(<span class="kw-2">&amp;mut </span>fields);
 
             <span class="prelude-val">Some</span>(Metadata::new(
-                <span class="string">&quot;log event&quot;</span>,
-                fields.target.unwrap_or(<span class="string">&quot;log&quot;</span>),
+                <span class="string">"log event"</span>,
+                fields.target.unwrap_or(<span class="string">"log"</span>),
                 <span class="kw-2">*</span>original.level(),
                 fields.file,
                 fields.line.map(|l| l <span class="kw">as </span>u32),
                 fields.module_path,
-                field::FieldSet::new(<span class="kw-2">&amp;</span>[<span class="string">&quot;message&quot;</span>], original.callsite()),
+                field::FieldSet::new(<span class="kw-2">&amp;</span>[<span class="string">"message"</span>], original.callsite()),
                 Kind::EVENT,
             ))
         } <span class="kw">else </span>{
@@ -1092,19 +1093,19 @@
     }
 }
 
-<span class="kw">struct </span>LogVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
-    target: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
-    module_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
-    file: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+<span class="kw">struct </span>LogVisitor&lt;<span class="lifetime">'a</span>&gt; {
+    target: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
+    module_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
+    file: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
     line: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-    fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Fields,
+    fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Fields,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LogVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="comment">// We don&#39;t actually _use_ the provided event argument; it is simply to
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; LogVisitor&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="comment">// We don't actually _use_ the provided event argument; it is simply to
     // ensure that the `LogVisitor` does not outlive the event whose fields it
     // is visiting, so that the reference casts in `record_str` are safe.
-    </span><span class="kw">fn </span>new_for(_event: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Event&lt;<span class="lifetime">&#39;a</span>&gt;, fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Fields) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>new_for(_event: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Event&lt;<span class="lifetime">'a</span>&gt;, fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Fields) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             target: <span class="prelude-val">None</span>,
             module_path: <span class="prelude-val">None</span>,
@@ -1115,7 +1116,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Visit <span class="kw">for </span>LogVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Visit <span class="kw">for </span>LogVisitor&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>record_debug(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _field: <span class="kw-2">&amp;</span>Field, _value: <span class="kw-2">&amp;</span><span class="kw">dyn </span>fmt::Debug) {}
 
     <span class="kw">fn </span>record_u64(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: <span class="kw-2">&amp;</span>Field, value: u64) {
@@ -1126,11 +1127,11 @@
 
     <span class="kw">fn </span>record_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: <span class="kw-2">&amp;</span>Field, value: <span class="kw-2">&amp;</span>str) {
         <span class="kw">unsafe </span>{
-            <span class="comment">// The `Visit` API erases the string slice&#39;s lifetime. However, we
-            // know it is part of the `Event` struct with a lifetime of `&#39;a`. If
+            <span class="comment">// The `Visit` API erases the string slice's lifetime. However, we
+            // know it is part of the `Event` struct with a lifetime of `'a`. If
             // (and only if!) this `LogVisitor` was constructed with the same
-            // lifetime parameter `&#39;a` as the event in question, it&#39;s safe to
-            // cast these string slices to the `&#39;a` lifetime.
+            // lifetime parameter `'a` as the event in question, it's safe to
+            // cast these string slices to the `'a` lifetime.
             </span><span class="kw">if </span>field == <span class="kw-2">&amp;</span><span class="self">self</span>.fields.file {
                 <span class="self">self</span>.file = <span class="prelude-val">Some</span>(<span class="kw-2">&amp;*</span>(value <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>));
             } <span class="kw">else if </span>field == <span class="kw-2">&amp;</span><span class="self">self</span>.fields.target {
@@ -1152,12 +1153,12 @@
 
     <span class="kw">fn </span>test_callsite(level: log::Level) {
         <span class="kw">let </span>record = log::Record::builder()
-            .args(<span class="macro">format_args!</span>(<span class="string">&quot;Error!&quot;</span>))
+            .args(<span class="macro">format_args!</span>(<span class="string">"Error!"</span>))
             .level(level)
-            .target(<span class="string">&quot;myApp&quot;</span>)
-            .file(<span class="prelude-val">Some</span>(<span class="string">&quot;server.rs&quot;</span>))
+            .target(<span class="string">"myApp"</span>)
+            .file(<span class="prelude-val">Some</span>(<span class="string">"server.rs"</span>))
             .line(<span class="prelude-val">Some</span>(<span class="number">144</span>))
-            .module_path(<span class="prelude-val">Some</span>(<span class="string">&quot;server&quot;</span>))
+            .module_path(<span class="prelude-val">Some</span>(<span class="string">"server"</span>))
             .build();
 
         <span class="kw">let </span>meta = record.as_trace();
@@ -1166,7 +1167,7 @@
         <span class="macro">assert_eq!</span>(
             meta.callsite(),
             cs_meta.callsite(),
-            <span class="string">&quot;actual: {:#?}\nexpected: {:#?}&quot;</span>,
+            <span class="string">"actual: {:#?}\nexpected: {:#?}"</span>,
             meta,
             cs_meta
         );

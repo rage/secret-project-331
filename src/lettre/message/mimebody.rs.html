@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/message/mimebody.rs`."><title>mimebody.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/message/mimebody.rs`."><title>mimebody.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -747,7 +748,7 @@
 }
 
 <span class="kw">impl </span>Part {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"dkim"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>format_body(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">match </span><span class="self">self </span>{
             Part::Single(part) =&gt; part.format_body(out),
@@ -822,7 +823,7 @@
 /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 /// let part = SinglePart::builder()
 ///     .header(header::ContentType::TEXT_PLAIN)
-///     .body(String::from(&quot;Текст письма в уникоде&quot;));
+///     .body(String::from("Текст письма в уникоде"));
 /// # Ok(())
 /// # }
 /// ```
@@ -875,15 +876,15 @@
     <span class="doccomment">/// Format only the signlepart body
     </span><span class="kw">fn </span>format_body(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         out.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.body);
-        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+        out.extend_from_slice(<span class="string">b"\r\n"</span>);
     }
 }
 
 <span class="kw">impl </span>EmailFormat <span class="kw">for </span>SinglePart {
     <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
-        <span class="macro">write!</span>(out, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.headers)
-            .expect(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
-        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+        <span class="macro">write!</span>(out, <span class="string">"{}"</span>, <span class="self">self</span>.headers)
+            .expect(<span class="string">"A Write implementation panicked while formatting headers"</span>);
+        out.extend_from_slice(<span class="string">b"\r\n"</span>);
         <span class="self">self</span>.format_body(out);
     }
 }
@@ -924,19 +925,19 @@
         <span class="kw">let </span>boundary = boundary.map_or_else(make_boundary, Into::into);
 
         <span class="macro">format!</span>(
-            <span class="string">&quot;multipart/{}; boundary=\&quot;{}\&quot;{}&quot;</span>,
+            <span class="string">"multipart/{}; boundary=\"{}\"{}"</span>,
             <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Mixed =&gt; <span class="string">&quot;mixed&quot;</span>,
-                <span class="self">Self</span>::Alternative =&gt; <span class="string">&quot;alternative&quot;</span>,
-                <span class="self">Self</span>::Related =&gt; <span class="string">&quot;related&quot;</span>,
-                <span class="self">Self</span>::Encrypted { .. } =&gt; <span class="string">&quot;encrypted&quot;</span>,
-                <span class="self">Self</span>::Signed { .. } =&gt; <span class="string">&quot;signed&quot;</span>,
+                <span class="self">Self</span>::Mixed =&gt; <span class="string">"mixed"</span>,
+                <span class="self">Self</span>::Alternative =&gt; <span class="string">"alternative"</span>,
+                <span class="self">Self</span>::Related =&gt; <span class="string">"related"</span>,
+                <span class="self">Self</span>::Encrypted { .. } =&gt; <span class="string">"encrypted"</span>,
+                <span class="self">Self</span>::Signed { .. } =&gt; <span class="string">"signed"</span>,
             },
             boundary,
             <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Encrypted { protocol } =&gt; <span class="macro">format!</span>(<span class="string">&quot;; protocol=\&quot;{protocol}\&quot;&quot;</span>),
+                <span class="self">Self</span>::Encrypted { protocol } =&gt; <span class="macro">format!</span>(<span class="string">"; protocol=\"{protocol}\""</span>),
                 <span class="self">Self</span>::Signed { protocol, micalg } =&gt;
-                    <span class="macro">format!</span>(<span class="string">&quot;; protocol=\&quot;{protocol}\&quot;; micalg=\&quot;{micalg}\&quot;&quot;</span>),
+                    <span class="macro">format!</span>(<span class="string">"; protocol=\"{protocol}\"; micalg=\"{micalg}\""</span>),
                 <span class="kw">_ </span>=&gt; String::new(),
             }
         )
@@ -946,16 +947,16 @@
 
     <span class="kw">fn </span>from_mime(m: <span class="kw-2">&amp;</span>Mime) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>m.subtype().as_ref() {
-            <span class="string">&quot;mixed&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Mixed),
-            <span class="string">&quot;alternative&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Alternative),
-            <span class="string">&quot;related&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Related),
-            <span class="string">&quot;signed&quot; </span>=&gt; m.get_param(<span class="string">&quot;protocol&quot;</span>).and_then(|p| {
-                m.get_param(<span class="string">&quot;micalg&quot;</span>).map(|micalg| <span class="self">Self</span>::Signed {
+            <span class="string">"mixed" </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Mixed),
+            <span class="string">"alternative" </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Alternative),
+            <span class="string">"related" </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Related),
+            <span class="string">"signed" </span>=&gt; m.get_param(<span class="string">"protocol"</span>).and_then(|p| {
+                m.get_param(<span class="string">"micalg"</span>).map(|micalg| <span class="self">Self</span>::Signed {
                     protocol: p.as_str().to_owned(),
                     micalg: micalg.as_str().to_owned(),
                 })
             }),
-            <span class="string">&quot;encrypted&quot; </span>=&gt; m.get_param(<span class="string">&quot;protocol&quot;</span>).map(|p| <span class="self">Self</span>::Encrypted {
+            <span class="string">"encrypted" </span>=&gt; m.get_param(<span class="string">"protocol"</span>).map(|p| <span class="self">Self</span>::Encrypted {
                 protocol: p.as_str().to_owned(),
             }),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -1095,7 +1096,7 @@
         <span class="kw">let </span>content_type = <span class="self">self</span>.headers.get::&lt;ContentType&gt;().unwrap();
         content_type
             .as_ref()
-            .get_param(<span class="string">&quot;boundary&quot;</span>)
+            .get_param(<span class="string">"boundary"</span>)
             .unwrap()
             .as_str()
             .into()
@@ -1123,23 +1124,23 @@
         <span class="kw">let </span>boundary = <span class="self">self</span>.boundary();
 
         <span class="kw">for </span>part <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.parts {
-            out.extend_from_slice(<span class="string">b&quot;--&quot;</span>);
+            out.extend_from_slice(<span class="string">b"--"</span>);
             out.extend_from_slice(boundary.as_bytes());
-            out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+            out.extend_from_slice(<span class="string">b"\r\n"</span>);
             part.format(out);
         }
 
-        out.extend_from_slice(<span class="string">b&quot;--&quot;</span>);
+        out.extend_from_slice(<span class="string">b"--"</span>);
         out.extend_from_slice(boundary.as_bytes());
-        out.extend_from_slice(<span class="string">b&quot;--\r\n&quot;</span>);
+        out.extend_from_slice(<span class="string">b"--\r\n"</span>);
     }
 }
 
 <span class="kw">impl </span>EmailFormat <span class="kw">for </span>MultiPart {
     <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
-        <span class="macro">write!</span>(out, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.headers)
-            .expect(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
-        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+        <span class="macro">write!</span>(out, <span class="string">"{}"</span>, <span class="self">self</span>.headers)
+            .expect(<span class="string">"A Write implementation panicked while formatting headers"</span>);
+        out.extend_from_slice(<span class="string">b"\r\n"</span>);
         <span class="self">self</span>.format_body(out);
     }
 }
@@ -1156,15 +1157,15 @@
         <span class="kw">let </span>part = SinglePart::builder()
             .header(header::ContentType::TEXT_PLAIN)
             .header(header::ContentTransferEncoding::Binary)
-            .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
+            .body(String::from(<span class="string">"Текст письма в уникоде"</span>));
 
         <span class="macro">assert_eq!</span>(
             String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: binary\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Текст письма в уникоде\r\n&quot;
+                <span class="string">"Content-Type: text/plain; charset=utf-8\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: binary\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"Текст письма в уникоде\r\n"
             </span>)
         );
     }
@@ -1174,16 +1175,16 @@
         <span class="kw">let </span>part = SinglePart::builder()
             .header(header::ContentType::TEXT_PLAIN)
             .header(header::ContentTransferEncoding::QuotedPrintable)
-            .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
+            .body(String::from(<span class="string">"Текст письма в уникоде"</span>));
 
         <span class="macro">assert_eq!</span>(
             String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: quoted-printable\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;=D0=A2=D0=B5=D0=BA=D1=81=D1=82 =D0=BF=D0=B8=D1=81=D1=8C=D0=BC=D0=B0 =D0=B2 =\r\n&quot;</span>,
-                <span class="string">&quot;=D1=83=D0=BD=D0=B8=D0=BA=D0=BE=D0=B4=D0=B5\r\n&quot;
+                <span class="string">"Content-Type: text/plain; charset=utf-8\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: quoted-printable\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"=D0=A2=D0=B5=D0=BA=D1=81=D1=82 =D0=BF=D0=B8=D1=81=D1=8C=D0=BC=D0=B0 =D0=B2 =\r\n"</span>,
+                <span class="string">"=D1=83=D0=BD=D0=B8=D0=BA=D0=BE=D0=B4=D0=B5\r\n"
             </span>)
         );
     }
@@ -1193,15 +1194,15 @@
         <span class="kw">let </span>part = SinglePart::builder()
             .header(header::ContentType::TEXT_PLAIN)
             .header(header::ContentTransferEncoding::Base64)
-            .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
+            .body(String::from(<span class="string">"Текст письма в уникоде"</span>));
 
         <span class="macro">assert_eq!</span>(
             String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: base64\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;0KLQtdC60YHRgiDQv9C40YHRjNC80LAg0LIg0YPQvdC40LrQvtC00LU=\r\n&quot;
+                <span class="string">"Content-Type: text/plain; charset=utf-8\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: base64\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"0KLQtdC60YHRgiDQv9C40YHRjNC80LAg0LIg0YPQvdC40LrQvtC00LU=\r\n"
             </span>)
         );
     }
@@ -1209,151 +1210,151 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multi_part_mixed() {
         <span class="kw">let </span>part = MultiPart::mixed()
-            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+            .boundary(<span class="string">"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1"</span>)
             .singlepart(
                 SinglePart::builder()
                     .header(header::ContentType::TEXT_PLAIN)
                     .header(header::ContentTransferEncoding::Binary)
-                    .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>)),
+                    .body(String::from(<span class="string">"Текст письма в уникоде"</span>)),
             )
             .singlepart(
                 SinglePart::builder()
                     .header(header::ContentType::TEXT_PLAIN)
-                    .header(header::ContentDisposition::attachment(<span class="string">&quot;example.c&quot;</span>))
+                    .header(header::ContentDisposition::attachment(<span class="string">"example.c"</span>))
                     .header(header::ContentTransferEncoding::Binary)
-                    .body(String::from(<span class="string">&quot;int main() { return 0; }&quot;</span>)),
+                    .body(String::from(<span class="string">"int main() { return 0; }"</span>)),
             );
 
         <span class="macro">assert_eq!</span>(
             String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Content-Type: multipart/mixed;\r\n&quot;</span>,
-                <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: binary\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Текст письма в уникоде\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
-                <span class="string">&quot;Content-Disposition: attachment; filename=\&quot;example.c\&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: binary\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;int main() { return 0; }\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;
+                <span class="string">"Content-Type: multipart/mixed;\r\n"</span>,
+                <span class="string">" boundary=\"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\"\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                <span class="string">"Content-Type: text/plain; charset=utf-8\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: binary\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"Текст письма в уникоде\r\n"</span>,
+                <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                <span class="string">"Content-Type: text/plain; charset=utf-8\r\n"</span>,
+                <span class="string">"Content-Disposition: attachment; filename=\"example.c\"\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: binary\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"int main() { return 0; }\r\n"</span>,
+                <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n"
             </span>)
         );
     }
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multi_part_encrypted() {
-        <span class="kw">let </span>part = MultiPart::encrypted(<span class="string">&quot;application/pgp-encrypted&quot;</span>.to_owned())
-            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+        <span class="kw">let </span>part = MultiPart::encrypted(<span class="string">"application/pgp-encrypted"</span>.to_owned())
+            .boundary(<span class="string">"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1"</span>)
             .singlepart(
                 SinglePart::builder()
-                    .header(header::ContentType::parse(<span class="string">&quot;application/pgp-encrypted&quot;</span>).unwrap())
-                    .body(String::from(<span class="string">&quot;Version: 1&quot;</span>)),
+                    .header(header::ContentType::parse(<span class="string">"application/pgp-encrypted"</span>).unwrap())
+                    .body(String::from(<span class="string">"Version: 1"</span>)),
             )
             .singlepart(
                 SinglePart::builder()
                     .header(
-                        ContentType::parse(<span class="string">&quot;application/octet-stream; name=\&quot;encrypted.asc\&quot;&quot;</span>)
+                        ContentType::parse(<span class="string">"application/octet-stream; name=\"encrypted.asc\""</span>)
                             .unwrap(),
                     )
                     .header(header::ContentDisposition::inline_with_name(
-                        <span class="string">&quot;encrypted.asc&quot;</span>,
+                        <span class="string">"encrypted.asc"</span>,
                     ))
                     .body(String::from(<span class="macro">concat!</span>(
-                        <span class="string">&quot;-----BEGIN PGP MESSAGE-----\r\n&quot;</span>,
-                        <span class="string">&quot;wV4D0dz5vDXklO8SAQdA5lGX1UU/eVQqDxNYdHa7tukoingHzqUB6wQssbMfHl8w\r\n&quot;</span>,
-                        <span class="string">&quot;...\r\n&quot;</span>,
-                        <span class="string">&quot;-----END PGP MESSAGE-----\r\n&quot;
+                        <span class="string">"-----BEGIN PGP MESSAGE-----\r\n"</span>,
+                        <span class="string">"wV4D0dz5vDXklO8SAQdA5lGX1UU/eVQqDxNYdHa7tukoingHzqUB6wQssbMfHl8w\r\n"</span>,
+                        <span class="string">"...\r\n"</span>,
+                        <span class="string">"-----END PGP MESSAGE-----\r\n"
                     </span>))),
             );
 
         <span class="macro">assert_eq!</span>(
             String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Content-Type: multipart/encrypted;\r\n&quot;</span>,
-                <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;;\r\n&quot;</span>,
-                <span class="string">&quot; protocol=\&quot;application/pgp-encrypted\&quot;\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                <span class="string">&quot;Content-Type: application/pgp-encrypted\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Version: 1\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                <span class="string">&quot;Content-Type: application/octet-stream; name=\&quot;encrypted.asc\&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Content-Disposition: inline; filename=\&quot;encrypted.asc\&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;-----BEGIN PGP MESSAGE-----\r\n&quot;</span>,
-                <span class="string">&quot;wV4D0dz5vDXklO8SAQdA5lGX1UU/eVQqDxNYdHa7tukoingHzqUB6wQssbMfHl8w\r\n&quot;</span>,
-                <span class="string">&quot;...\r\n&quot;</span>,
-                <span class="string">&quot;-----END PGP MESSAGE-----\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;
+                <span class="string">"Content-Type: multipart/encrypted;\r\n"</span>,
+                <span class="string">" boundary=\"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\";\r\n"</span>,
+                <span class="string">" protocol=\"application/pgp-encrypted\"\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                <span class="string">"Content-Type: application/pgp-encrypted\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: 7bit\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"Version: 1\r\n"</span>,
+                <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                <span class="string">"Content-Type: application/octet-stream; name=\"encrypted.asc\"\r\n"</span>,
+                <span class="string">"Content-Disposition: inline; filename=\"encrypted.asc\"\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: 7bit\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"-----BEGIN PGP MESSAGE-----\r\n"</span>,
+                <span class="string">"wV4D0dz5vDXklO8SAQdA5lGX1UU/eVQqDxNYdHa7tukoingHzqUB6wQssbMfHl8w\r\n"</span>,
+                <span class="string">"...\r\n"</span>,
+                <span class="string">"-----END PGP MESSAGE-----\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n"
             </span>)
         );
     }
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multi_part_signed() {
         <span class="kw">let </span>part = MultiPart::signed(
-            <span class="string">&quot;application/pgp-signature&quot;</span>.to_owned(),
-            <span class="string">&quot;pgp-sha256&quot;</span>.to_owned(),
+            <span class="string">"application/pgp-signature"</span>.to_owned(),
+            <span class="string">"pgp-sha256"</span>.to_owned(),
         )
-        .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+        .boundary(<span class="string">"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1"</span>)
         .singlepart(
             SinglePart::builder()
                 .header(header::ContentType::TEXT_PLAIN)
-                .body(String::from(<span class="string">&quot;Test email for signature&quot;</span>)),
+                .body(String::from(<span class="string">"Test email for signature"</span>)),
         )
         .singlepart(
             SinglePart::builder()
                 .header(
-                    ContentType::parse(<span class="string">&quot;application/pgp-signature; name=\&quot;signature.asc\&quot;&quot;</span>)
+                    ContentType::parse(<span class="string">"application/pgp-signature; name=\"signature.asc\""</span>)
                         .unwrap(),
                 )
-                .header(header::ContentDisposition::attachment(<span class="string">&quot;signature.asc&quot;</span>))
+                .header(header::ContentDisposition::attachment(<span class="string">"signature.asc"</span>))
                 .body(String::from(<span class="macro">concat!</span>(
-                    <span class="string">&quot;-----BEGIN PGP SIGNATURE-----\r\n&quot;</span>,
-                    <span class="string">&quot;\r\n&quot;</span>,
-                    <span class="string">&quot;iHUEARYIAB0WIQTNsp3S/GbdE0KoiQ+IGQOscREZuQUCXyOzDAAKCRCIGQOscREZ\r\n&quot;</span>,
-                    <span class="string">&quot;udgDAQCv3FJ3QWW5bRaGZAa0Ug6vASFdkvDMKoRwcoFnHPthjQEAiQ8skkIyE2GE\r\n&quot;</span>,
-                    <span class="string">&quot;PoLpAXiKpT+NU8S8+8dfvwutnb4dSwM=\r\n&quot;</span>,
-                    <span class="string">&quot;=3FYZ\r\n&quot;</span>,
-                    <span class="string">&quot;-----END PGP SIGNATURE-----\r\n&quot;</span>,
+                    <span class="string">"-----BEGIN PGP SIGNATURE-----\r\n"</span>,
+                    <span class="string">"\r\n"</span>,
+                    <span class="string">"iHUEARYIAB0WIQTNsp3S/GbdE0KoiQ+IGQOscREZuQUCXyOzDAAKCRCIGQOscREZ\r\n"</span>,
+                    <span class="string">"udgDAQCv3FJ3QWW5bRaGZAa0Ug6vASFdkvDMKoRwcoFnHPthjQEAiQ8skkIyE2GE\r\n"</span>,
+                    <span class="string">"PoLpAXiKpT+NU8S8+8dfvwutnb4dSwM=\r\n"</span>,
+                    <span class="string">"=3FYZ\r\n"</span>,
+                    <span class="string">"-----END PGP SIGNATURE-----\r\n"</span>,
                 ))),
         );
 
         <span class="macro">assert_eq!</span>(
             String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Content-Type: multipart/signed;\r\n&quot;</span>,
-                <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;;\r\n&quot;</span>,
-                <span class="string">&quot; protocol=\&quot;application/pgp-signature\&quot;;&quot;</span>,
-                <span class="string">&quot; micalg=\&quot;pgp-sha256\&quot;\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Test email for signature\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                <span class="string">&quot;Content-Type: application/pgp-signature; name=\&quot;signature.asc\&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Content-Disposition: attachment; filename=\&quot;signature.asc\&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;-----BEGIN PGP SIGNATURE-----\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;iHUEARYIAB0WIQTNsp3S/GbdE0KoiQ+IGQOscREZuQUCXyOzDAAKCRCIGQOscREZ\r\n&quot;</span>,
-                <span class="string">&quot;udgDAQCv3FJ3QWW5bRaGZAa0Ug6vASFdkvDMKoRwcoFnHPthjQEAiQ8skkIyE2GE\r\n&quot;</span>,
-                <span class="string">&quot;PoLpAXiKpT+NU8S8+8dfvwutnb4dSwM=\r\n&quot;</span>,
-                <span class="string">&quot;=3FYZ\r\n&quot;</span>,
-                <span class="string">&quot;-----END PGP SIGNATURE-----\r\n&quot;</span>,
-                <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;
+                <span class="string">"Content-Type: multipart/signed;\r\n"</span>,
+                <span class="string">" boundary=\"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\";\r\n"</span>,
+                <span class="string">" protocol=\"application/pgp-signature\";"</span>,
+                <span class="string">" micalg=\"pgp-sha256\"\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                <span class="string">"Content-Type: text/plain; charset=utf-8\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: 7bit\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"Test email for signature\r\n"</span>,
+                <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                <span class="string">"Content-Type: application/pgp-signature; name=\"signature.asc\"\r\n"</span>,
+                <span class="string">"Content-Disposition: attachment; filename=\"signature.asc\"\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: 7bit\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"-----BEGIN PGP SIGNATURE-----\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"iHUEARYIAB0WIQTNsp3S/GbdE0KoiQ+IGQOscREZuQUCXyOzDAAKCRCIGQOscREZ\r\n"</span>,
+                <span class="string">"udgDAQCv3FJ3QWW5bRaGZAa0Ug6vASFdkvDMKoRwcoFnHPthjQEAiQ8skkIyE2GE\r\n"</span>,
+                <span class="string">"PoLpAXiKpT+NU8S8+8dfvwutnb4dSwM=\r\n"</span>,
+                <span class="string">"=3FYZ\r\n"</span>,
+                <span class="string">"-----END PGP SIGNATURE-----\r\n"</span>,
+                <span class="string">"\r\n"</span>,
+                <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n"
             </span>)
         );
     }
@@ -1361,83 +1362,83 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multi_part_alternative() {
         <span class="kw">let </span>part = MultiPart::alternative()
-            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+            .boundary(<span class="string">"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1"</span>)
             .singlepart(SinglePart::builder()
                              .header(header::ContentType::TEXT_PLAIN)
                              .header(header::ContentTransferEncoding::Binary)
-                             .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>)))
+                             .body(String::from(<span class="string">"Текст письма в уникоде"</span>)))
             .singlepart(SinglePart::builder()
                              .header(header::ContentType::TEXT_HTML)
                              .header(header::ContentTransferEncoding::Binary)
-                             .body(String::from(<span class="string">&quot;&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\&quot;https://ru.wikipedia.org/wiki/Юникод\&quot;&gt;уникоде&lt;/a&gt;&lt;p&gt;&quot;</span>)));
+                             .body(String::from(<span class="string">"&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\"https://ru.wikipedia.org/wiki/Юникод\"&gt;уникоде&lt;/a&gt;&lt;p&gt;"</span>)));
 
         <span class="macro">assert_eq!</span>(String::from_utf8(part.formatted()).unwrap(),
-                   <span class="macro">concat!</span>(<span class="string">&quot;Content-Type: multipart/alternative;\r\n&quot;</span>,
-                           <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Transfer-Encoding: binary\r\n&quot;</span>,
-                           <span class="string">&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;Текст письма в уникоде\r\n&quot;</span>,
-                           <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Type: text/html; charset=utf-8\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Transfer-Encoding: binary\r\n&quot;</span>,
-                           <span class="string">&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\&quot;https://ru.wikipedia.org/wiki/Юникод\&quot;&gt;уникоде&lt;/a&gt;&lt;p&gt;\r\n&quot;</span>,
-                           <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;</span>));
+                   <span class="macro">concat!</span>(<span class="string">"Content-Type: multipart/alternative;\r\n"</span>,
+                           <span class="string">" boundary=\"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\"\r\n"</span>,
+                           <span class="string">"\r\n"</span>,
+                           <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                           <span class="string">"Content-Type: text/plain; charset=utf-8\r\n"</span>,
+                           <span class="string">"Content-Transfer-Encoding: binary\r\n"</span>,
+                           <span class="string">"\r\n"</span>,
+                           <span class="string">"Текст письма в уникоде\r\n"</span>,
+                           <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                           <span class="string">"Content-Type: text/html; charset=utf-8\r\n"</span>,
+                           <span class="string">"Content-Transfer-Encoding: binary\r\n"</span>,
+                           <span class="string">"\r\n"</span>,
+                           <span class="string">"&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\"https://ru.wikipedia.org/wiki/Юникод\"&gt;уникоде&lt;/a&gt;&lt;p&gt;\r\n"</span>,
+                           <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multi_part_mixed_related() {
         <span class="kw">let </span>part = MultiPart::mixed()
-            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+            .boundary(<span class="string">"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1"</span>)
             .multipart(MultiPart::related()
-                            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+                            .boundary(<span class="string">"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1"</span>)
                             .singlepart(SinglePart::builder()
                                              .header(header::ContentType::TEXT_HTML)
                                              .header(header::ContentTransferEncoding::Binary)
-                                             .body(String::from(<span class="string">&quot;&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\&quot;https://ru.wikipedia.org/wiki/Юникод\&quot;&gt;уникоде&lt;/a&gt;&lt;p&gt;&quot;</span>)))
+                                             .body(String::from(<span class="string">"&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\"https://ru.wikipedia.org/wiki/Юникод\"&gt;уникоде&lt;/a&gt;&lt;p&gt;"</span>)))
                             .singlepart(SinglePart::builder()
-                                             .header(header::ContentType::parse(<span class="string">&quot;image/png&quot;</span>).unwrap())
-                                             .header(header::ContentLocation::from(String::from(<span class="string">&quot;/image.png&quot;</span>)))
+                                             .header(header::ContentType::parse(<span class="string">"image/png"</span>).unwrap())
+                                             .header(header::ContentLocation::from(String::from(<span class="string">"/image.png"</span>)))
                                              .header(header::ContentTransferEncoding::Base64)
-                                             .body(String::from(<span class="string">&quot;1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890&quot;</span>))))
+                                             .body(String::from(<span class="string">"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"</span>))))
             .singlepart(SinglePart::builder()
                              .header(header::ContentType::TEXT_PLAIN)
-                             .header(header::ContentDisposition::attachment(<span class="string">&quot;example.c&quot;</span>))
+                             .header(header::ContentDisposition::attachment(<span class="string">"example.c"</span>))
                              .header(header::ContentTransferEncoding::Binary)
-                             .body(String::from(<span class="string">&quot;int main() { return 0; }&quot;</span>)));
+                             .body(String::from(<span class="string">"int main() { return 0; }"</span>)));
 
         <span class="macro">assert_eq!</span>(String::from_utf8(part.formatted()).unwrap(),
-                   <span class="macro">concat!</span>(<span class="string">&quot;Content-Type: multipart/mixed;\r\n&quot;</span>,
-                           <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Type: multipart/related;\r\n&quot;</span>,
-                           <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Type: text/html; charset=utf-8\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Transfer-Encoding: binary\r\n&quot;</span>,
-                           <span class="string">&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\&quot;https://ru.wikipedia.org/wiki/Юникод\&quot;&gt;уникоде&lt;/a&gt;&lt;p&gt;\r\n&quot;</span>,
-                           <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Type: image/png\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Location: /image.png\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Transfer-Encoding: base64\r\n&quot;</span>,
-                           <span class="string">&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3\r\n&quot;</span>,
-                           <span class="string">&quot;ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0\r\n&quot;</span>,
-                           <span class="string">&quot;NTY3ODkwMTIzNDU2Nzg5MA==\r\n&quot;</span>,
-                           <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;</span>,
-                           <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Disposition: attachment; filename=\&quot;example.c\&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;Content-Transfer-Encoding: binary\r\n&quot;</span>,
-                           <span class="string">&quot;\r\n&quot;</span>,
-                           <span class="string">&quot;int main() { return 0; }\r\n&quot;</span>,
-                           <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;</span>));
+                   <span class="macro">concat!</span>(<span class="string">"Content-Type: multipart/mixed;\r\n"</span>,
+                           <span class="string">" boundary=\"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\"\r\n"</span>,
+                           <span class="string">"\r\n"</span>,
+                           <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                           <span class="string">"Content-Type: multipart/related;\r\n"</span>,
+                           <span class="string">" boundary=\"0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\"\r\n"</span>,
+                           <span class="string">"\r\n"</span>,
+                           <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                           <span class="string">"Content-Type: text/html; charset=utf-8\r\n"</span>,
+                           <span class="string">"Content-Transfer-Encoding: binary\r\n"</span>,
+                           <span class="string">"\r\n"</span>,
+                           <span class="string">"&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\"https://ru.wikipedia.org/wiki/Юникод\"&gt;уникоде&lt;/a&gt;&lt;p&gt;\r\n"</span>,
+                           <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                           <span class="string">"Content-Type: image/png\r\n"</span>,
+                           <span class="string">"Content-Location: /image.png\r\n"</span>,
+                           <span class="string">"Content-Transfer-Encoding: base64\r\n"</span>,
+                           <span class="string">"\r\n"</span>,
+                           <span class="string">"MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3\r\n"</span>,
+                           <span class="string">"ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0\r\n"</span>,
+                           <span class="string">"NTY3ODkwMTIzNDU2Nzg5MA==\r\n"</span>,
+                           <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n"</span>,
+                           <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\r\n"</span>,
+                           <span class="string">"Content-Type: text/plain; charset=utf-8\r\n"</span>,
+                           <span class="string">"Content-Disposition: attachment; filename=\"example.c\"\r\n"</span>,
+                           <span class="string">"Content-Transfer-Encoding: binary\r\n"</span>,
+                           <span class="string">"\r\n"</span>,
+                           <span class="string">"int main() { return 0; }\r\n"</span>,
+                           <span class="string">"--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n"</span>));
     }
 
     <span class="attr">#[test]

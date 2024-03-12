@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-0.13.2/src/fut/future/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../actix/index.html"><img src="https://actix.rs/img/logo.png" alt="actix"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-0.13.3/src/fut/future/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../actix/index.html"><img src="https://actix.rs/img/logo.png" alt="actix"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -283,9 +284,6 @@
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
-<a href="#286" id="286">286</a>
-<a href="#287" id="287">287</a>
-<a href="#288" id="288">288</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     future::Future,
     marker::PhantomData,
@@ -311,12 +309,14 @@
 <span class="doccomment">/// Trait for types which are a placeholder of a value that may become
 /// available at some later point in time.
 ///
-/// [`ActorFuture`] is very similar to a regular [`Future`], only with subsequent combinator closures accepting the actor and its context, in addition to the result.
+/// [`ActorFuture`] is very similar to a regular [`Future`], only with subsequent combinator
+/// closures accepting the actor and its context, in addition to the result.
 ///
-/// [`ActorFuture`] allows for use cases where future processing requires access to the actor or its context.
+/// [`ActorFuture`] allows for use cases where future processing requires access to the actor or
+/// its context.
 ///
-/// Here is an example of a handler on a single actor, deferring work to another actor, and
-/// then updating the initiating actor&#39;s state:
+/// Here is an example of a handler on a single actor, deferring work to another actor, and then
+/// updating the initiating actor's state:
 ///
 /// ```no_run
 /// use actix::prelude::*;
@@ -326,7 +326,7 @@
 /// // The error type returned by the actor future
 /// type MessageError = ();
 /// // This is the needed result for the DeferredWork message
-/// // It&#39;s a result that combine both Response and Error from the future response.
+/// // It's a result that combine both Response and Error from the future response.
 /// type DeferredWorkResult = Result&lt;OriginalActorResponse, MessageError&gt;;
 /// #
 /// # struct ActorState {}
@@ -344,8 +344,7 @@
 /// # impl Handler&lt;OtherMessage&gt; for OtherActor {
 /// #    type Result = ();
 /// #
-/// #    fn handle(&amp;mut self, _msg: OtherMessage, _ctx: &amp;mut Context&lt;Self&gt;) -&gt; Self::Result {
-/// #    }
+/// #    fn handle(&amp;mut self, _msg: OtherMessage, _ctx: &amp;mut Context&lt;Self&gt;) -&gt; Self::Result {}
 /// # }
 /// #
 /// # struct OriginalActor{
@@ -358,63 +357,59 @@
 /// # }
 /// #
 /// # #[derive(Message)]
-/// # #[rtype(result = &quot;Result&lt;(), MessageError&gt;&quot;)]
-/// # struct DeferredWork{}
+/// # #[rtype(result = "Result&lt;(), MessageError&gt;")]
+/// # struct DeferredWork {}
 /// #
 /// # #[derive(Message)]
-/// # #[rtype(result = &quot;()&quot;)]
-/// # struct OtherMessage{}
+/// # #[rtype(result = "()")]
+/// # struct OtherMessage {}
 ///
 /// impl Handler&lt;DeferredWork&gt; for OriginalActor {
 ///     // Notice the `Response` is an `ActorFuture`-ized version of `Self::Message::Result`.
 ///     type Result = ResponseActFuture&lt;Self, DeferredWorkResult&gt;;
 ///
 ///     fn handle(&amp;mut self, _msg: DeferredWork, _ctx: &amp;mut Context&lt;Self&gt;) -&gt; Self::Result {
-///         // this creates a `Future` representing the `.send` and subsequent `Result` from
-///         // `other_actor`
-///         let send_to_other = self.other_actor
-///             .send(OtherMessage {});
+///         // this creates a `Future` representing the `.send` and subsequent
+///         // `Result` from `other_actor`
+///         let update_self = self.other_actor
+///             .send(OtherMessage {})
+///             // Wrap that future so chained handlers can access the actor
+///             // (`self` in the synchronous code) as well as the context.
+///             .into_actor(self)
+///             // once the wrapped future resolves, update this actor's state
+///             .map(|result, actor, _ctx| {
+///                 match result {
+///                     Ok(v) =&gt; {
+///                         // update actor (self) state
+///                         actor.inner_state.update_from(v);
+///                         Ok(())
+///                     },
+///                     // Failed to send message to other_actor
+///                     Err(_e) =&gt; Err(()),
+///                 }
+///             });
 ///
-///         // Wrap that `Future` so subsequent chained handlers can access
-///         // the `actor` (`self` in the  synchronous code) as well as the context.
-///         let send_to_other = actix::fut::wrap_future::&lt;_, Self&gt;(send_to_other);
-///
-///         // once the wrapped future resolves, update this actor&#39;s state
-///         let update_self = send_to_other.map(|result, actor, _ctx| {
-///             // Actor&#39;s state updated here
-///             match result {
-///                 Ok(v) =&gt; {
-///                     actor.inner_state.update_from(v);
-///                     Ok(())
-///                 },
-///                 // Failed to send message to other_actor
-///                 Err(_e) =&gt; Err(()),
-///             }
-///         });
-///
-///         // return the wrapped future
+///         // box and return the wrapped future
 ///         Box::pin(update_self)
 ///     }
 /// }
-///
 /// ```
 ///
-/// See also [`into_actor`](trait.WrapFuture.html#tymethod.into_actor), which provides future conversion using trait
+/// See also [`WrapFuture::into_actor()`] which provides future conversion.
 </span><span class="kw">pub trait </span>ActorFuture&lt;A: Actor&gt; {
-    <span class="doccomment">/// The type of value that this future will resolved with if it is
-    /// successful.
+    <span class="doccomment">/// The type of value produced on completion.
     </span><span class="kw">type </span>Output;
 
     <span class="kw">fn </span>poll(
         <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         srv: <span class="kw-2">&amp;mut </span>A,
         ctx: <span class="kw-2">&amp;mut </span>A::Context,
-        task: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        task: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt;;
 }
 
 <span class="kw">pub trait </span>ActorFutureExt&lt;A: Actor&gt;: ActorFuture&lt;A&gt; {
-    <span class="doccomment">/// Map this future&#39;s result to a different type, returning a new future of
+    <span class="doccomment">/// Map this future's result to a different type, returning a new future of
     /// the resulting type.
     </span><span class="kw">fn </span>map&lt;F, U&gt;(<span class="self">self</span>, f: F) -&gt; Map&lt;<span class="self">Self</span>, F&gt;
     <span class="kw">where
@@ -450,7 +445,7 @@
     /// A shortcut for wrapping in [`Box::pin`].
     </span><span class="kw">fn </span>boxed_local(<span class="self">self</span>) -&gt; LocalBoxActorFuture&lt;A, <span class="self">Self</span>::Output&gt;
     <span class="kw">where
-        </span><span class="self">Self</span>: Sized + <span class="lifetime">&#39;static</span>,
+        </span><span class="self">Self</span>: Sized + <span class="lifetime">'static</span>,
     {
         Box::pin(<span class="self">self</span>)
     }
@@ -477,7 +472,7 @@
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         srv: <span class="kw-2">&amp;mut </span>A,
         ctx: <span class="kw-2">&amp;mut </span>A::Context,
-        task: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        task: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         Pin::new(<span class="kw-2">&amp;mut **</span><span class="self">self</span>.as_mut()).poll(srv, ctx, task)
     }
@@ -495,7 +490,7 @@
         <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         srv: <span class="kw-2">&amp;mut </span>A,
         ctx: <span class="kw-2">&amp;mut </span>A::Context,
-        task: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        task: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         Pin::get_mut(<span class="self">self</span>).as_mut().poll(srv, ctx, task)
     }
@@ -509,7 +504,7 @@
     <span class="doccomment">/// The future that this type can be converted into.
     </span><span class="kw">type </span>Future: ActorFuture&lt;A&gt;;
 
-    <span class="attr">#[deprecated(since = <span class="string">&quot;0.11.0&quot;</span>, note = <span class="string">&quot;Please use WrapFuture::into_actor&quot;</span>)]
+    <span class="attr">#[deprecated(since = <span class="string">"0.11.0"</span>, note = <span class="string">"Please use WrapFuture::into_actor"</span>)]
     #[doc(hidden)]
     </span><span class="kw">fn </span>actfuture(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Future;
 
@@ -543,7 +538,7 @@
 }
 
 <span class="doccomment">/// Converts normal future into [`ActorFuture`], allowing its processing to
-/// use the actor&#39;s state.
+/// use the actor's state.
 ///
 /// See the documentation for [`ActorFuture`] for a practical example involving both
 /// [`wrap_future`] and [`ActorFuture`]
@@ -569,7 +564,7 @@
         <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A,
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A::Context,
-        task: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        task: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="self">self</span>.project().fut.poll(task)
     }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/rt.rs`."><title>rt.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/rt.rs`."><title>rt.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -79,25 +80,25 @@
 </pre></div><pre class="rust"><code><span class="doccomment">//! A selection of re-exports from [`tokio`] and [`actix-rt`].
 //!
 //! Actix Web runs on [Tokio], providing full[^compat] compatibility with its huge ecosystem of
-//! crates. Each of the server&#39;s workers uses a single-threaded runtime. Read more about the
-//! architecture in [`actix-rt`]&#39;s docs.
+//! crates. Each of the server's workers uses a single-threaded runtime. Read more about the
+//! architecture in [`actix-rt`]'s docs.
 //!
 //! # Running Actix Web Without Macros
 //!
 //! ```no_run
 //! use actix_web::{middleware, rt, web, App, HttpRequest, HttpServer};
 //!
-//! async fn index(req: HttpRequest) -&gt; &amp;&#39;static str {
-//!     println!(&quot;REQ: {:?}&quot;, req);
-//!     &quot;Hello world!\r\n&quot;
+//! async fn index(req: HttpRequest) -&gt; &amp;'static str {
+//!     println!("REQ: {:?}", req);
+//!     "Hello world!\r\n"
 //! }
 //!
 //! fn main() -&gt; std::io::Result&lt;()&gt; {
 //!     rt::System::new().block_on(
 //!         HttpServer::new(|| {
-//!             App::new().service(web::resource(&quot;/&quot;).route(web::get().to(index)))
+//!             App::new().service(web::resource("/").route(web::get().to(index)))
 //!         })
-//!         .bind((&quot;127.0.0.1&quot;, 8080))?
+//!         .bind(("127.0.0.1", 8080))?
 //!         .run()
 //!     )
 //! }
@@ -105,24 +106,24 @@
 //!
 //! # Running Actix Web Using `#[tokio::main]`
 //!
-//! If you need to run something that uses Tokio&#39;s work stealing functionality alongside Actix Web,
+//! If you need to run something that uses Tokio's work stealing functionality alongside Actix Web,
 //! you can run Actix Web under `#[tokio::main]`. The [`Server`](crate::dev::Server) object returned
 //! from [`HttpServer::run`](crate::HttpServer::run) can also be [`spawn`]ed, if preferred.
 //!
 //! Note that `actix` actor support (and therefore WebSocket support through `actix-web-actors`)
 //! still require `#[actix_web::main]` since they require a [`System`] to be set up.
 //!
-//! Also note that calls to this module&#39;s [`spawn()`] re-export require an `#[actix_web::main]`
-//! runtime (or a manually configured `LocalSet`) since it makes calls into to the current thread&#39;s
+//! Also note that calls to this module's [`spawn()`] re-export require an `#[actix_web::main]`
+//! runtime (or a manually configured `LocalSet`) since it makes calls into to the current thread's
 //! `LocalSet`, which `#[tokio::main]` does not set up.
 //!
 //! ```no_run
 //! use actix_web::{get, middleware, rt, web, App, HttpRequest, HttpServer};
 //!
-//! #[get(&quot;/&quot;)]
-//! async fn index(req: HttpRequest) -&gt; &amp;&#39;static str {
-//!     println!(&quot;REQ: {:?}&quot;, req);
-//!     &quot;Hello world!\r\n&quot;
+//! #[get("/")]
+//! async fn index(req: HttpRequest) -&gt; &amp;'static str {
+//!     println!("REQ: {:?}", req);
+//!     "Hello world!\r\n"
 //! }
 //!
 //! #[tokio::main]
@@ -130,13 +131,13 @@
 //!     HttpServer::new(|| {
 //!         App::new().service(index)
 //!     })
-//!     .bind((&quot;127.0.0.1&quot;, 8080))?
+//!     .bind(("127.0.0.1", 8080))?
 //!     .run()
 //!     .await
 //! }
 //! ```
 //!
-//! [^compat]: Crates that use Tokio&#39;s [`block_in_place`] will not work with Actix Web. Fortunately,
+//! [^compat]: Crates that use Tokio's [`block_in_place`] will not work with Actix Web. Fortunately,
 //!   the vast majority of Tokio-based crates do not use it.
 //!
 //! [`actix-rt`]: https://docs.rs/actix-rt
@@ -147,10 +148,10 @@
 
 </span><span class="comment">// In particular:
 // - Omit the `Arbiter` types because they have limited value here.
-// - Re-export but hide the runtime macros because they won&#39;t work directly but are required for
+// - Re-export but hide the runtime macros because they won't work directly but are required for
 //   `#[actix_web::main]` and `#[actix_web::test]` to work.
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;macros&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"macros"</span>)]
 #[doc(hidden)]
 </span><span class="kw">pub use </span>actix_macros::{main, test};
 <span class="kw">pub use </span>actix_rt::{net, pin, signal, spawn, task, time, Runtime, System, SystemRunner};

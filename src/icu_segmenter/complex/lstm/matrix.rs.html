@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.4.0/src/complex/lstm/matrix.rs`."><title>matrix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.4.0/src/complex/lstm/matrix.rs`."><title>matrix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -615,12 +616,12 @@
 
 <span class="doccomment">/// A `D`-dimensional, borrowed matrix.
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>MatrixBorrowed&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>D: usize&gt; {
-    data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[f32],
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>MatrixBorrowed&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>D: usize&gt; {
+    data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[f32],
     dims: [usize; D],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>D: usize&gt; MatrixBorrowed&lt;<span class="lifetime">&#39;a</span>, D&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>D: usize&gt; MatrixBorrowed&lt;<span class="lifetime">'a</span>, D&gt; {
     <span class="attr">#[cfg(debug_assertions)]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>debug_assert_dims(<span class="kw-2">&amp;</span><span class="self">self</span>, dims: [usize; D]) {
         <span class="macro">debug_assert_eq!</span>(dims, <span class="self">self</span>.dims);
@@ -628,13 +629,13 @@
         <span class="macro">debug_assert_eq!</span>(expected_len, <span class="self">self</span>.data.len());
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[f32] {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[f32] {
         <span class="self">self</span>.data
     }
 
     <span class="doccomment">/// See [`MatrixOwned::submatrix`].
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>submatrix&lt;<span class="kw">const </span>M: usize&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;MatrixBorrowed&lt;<span class="lifetime">&#39;a</span>, M&gt;&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>submatrix&lt;<span class="kw">const </span>M: usize&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;MatrixBorrowed&lt;<span class="lifetime">'a</span>, M&gt;&gt; {
         <span class="comment">// This assertion is based on const generics; it should always succeed and be elided.
         </span><span class="macro">assert_eq!</span>(M, D - <span class="number">1</span>);
         <span class="kw">let </span>(range, dims) = <span class="self">self</span>.submatrix_range(index);
@@ -656,21 +657,21 @@
 
 <span class="macro">macro_rules! </span>impl_basic_dim {
     (<span class="macro-nonterminal">$t1</span>:path, <span class="macro-nonterminal">$t2</span>:path, <span class="macro-nonterminal">$t3</span>:path) =&gt; {
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="macro-nonterminal">$t1 </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$t1 </span>{
             <span class="attr">#[allow(dead_code)]
             </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>dim(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
                 <span class="kw">let </span>[dim] = <span class="self">self</span>.dims;
                 dim
             }
         }
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="macro-nonterminal">$t2 </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$t2 </span>{
             <span class="attr">#[allow(dead_code)]
             </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>dim(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, usize) {
                 <span class="kw">let </span>[d0, d1] = <span class="self">self</span>.dims;
                 (d0, d1)
             }
         }
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="macro-nonterminal">$t3 </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$t3 </span>{
             <span class="attr">#[allow(dead_code)]
             </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>dim(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, usize, usize) {
                 <span class="kw">let </span>[d0, d1, d2] = <span class="self">self</span>.dims;
@@ -682,24 +683,24 @@
 
 <span class="macro">impl_basic_dim!</span>(MatrixOwned&lt;<span class="number">1</span>&gt;, MatrixOwned&lt;<span class="number">2</span>&gt;, MatrixOwned&lt;<span class="number">3</span>&gt;);
 <span class="macro">impl_basic_dim!</span>(
-    MatrixBorrowed&lt;<span class="lifetime">&#39;a</span>, <span class="number">1</span>&gt;,
-    MatrixBorrowed&lt;<span class="lifetime">&#39;a</span>, <span class="number">2</span>&gt;,
-    MatrixBorrowed&lt;<span class="lifetime">&#39;a</span>, <span class="number">3</span>&gt;
+    MatrixBorrowed&lt;<span class="lifetime">'a</span>, <span class="number">1</span>&gt;,
+    MatrixBorrowed&lt;<span class="lifetime">'a</span>, <span class="number">2</span>&gt;,
+    MatrixBorrowed&lt;<span class="lifetime">'a</span>, <span class="number">3</span>&gt;
 );
 <span class="macro">impl_basic_dim!</span>(
-    MatrixBorrowedMut&lt;<span class="lifetime">&#39;a</span>, <span class="number">1</span>&gt;,
-    MatrixBorrowedMut&lt;<span class="lifetime">&#39;a</span>, <span class="number">2</span>&gt;,
-    MatrixBorrowedMut&lt;<span class="lifetime">&#39;a</span>, <span class="number">3</span>&gt;
+    MatrixBorrowedMut&lt;<span class="lifetime">'a</span>, <span class="number">1</span>&gt;,
+    MatrixBorrowedMut&lt;<span class="lifetime">'a</span>, <span class="number">2</span>&gt;,
+    MatrixBorrowedMut&lt;<span class="lifetime">'a</span>, <span class="number">3</span>&gt;
 );
-<span class="macro">impl_basic_dim!</span>(MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">1</span>&gt;, MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">2</span>&gt;, MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">3</span>&gt;);
+<span class="macro">impl_basic_dim!</span>(MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">1</span>&gt;, MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">2</span>&gt;, MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">3</span>&gt;);
 
 <span class="doccomment">/// A `D`-dimensional, mutably borrowed matrix.
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>MatrixBorrowedMut&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>D: usize&gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[f32],
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>MatrixBorrowedMut&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>D: usize&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[f32],
     <span class="kw">pub</span>(<span class="kw">super</span>) dims: [usize; D],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>D: usize&gt; MatrixBorrowedMut&lt;<span class="lifetime">&#39;a</span>, D&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>D: usize&gt; MatrixBorrowedMut&lt;<span class="lifetime">'a</span>, D&gt; {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MatrixBorrowed&lt;D&gt; {
         MatrixBorrowed {
             data: <span class="self">self</span>.data,
@@ -724,7 +725,7 @@
     }
 
     <span class="attr">#[must_use]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: MatrixZero&lt;<span class="lifetime">&#39;_</span>, D&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: MatrixZero&lt;<span class="lifetime">'_</span>, D&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
         <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.dims, other.dims);
         <span class="comment">// TODO: Vectorize?
         </span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.data.len() {
@@ -759,16 +760,16 @@
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>convolve(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        i: MatrixBorrowed&lt;<span class="lifetime">&#39;_</span>, D&gt;,
-        c: MatrixBorrowed&lt;<span class="lifetime">&#39;_</span>, D&gt;,
-        f: MatrixBorrowed&lt;<span class="lifetime">&#39;_</span>, D&gt;,
+        i: MatrixBorrowed&lt;<span class="lifetime">'_</span>, D&gt;,
+        c: MatrixBorrowed&lt;<span class="lifetime">'_</span>, D&gt;,
+        f: MatrixBorrowed&lt;<span class="lifetime">'_</span>, D&gt;,
     ) {
         <span class="kw">let </span>i = i.as_slice();
         <span class="kw">let </span>c = c.as_slice();
         <span class="kw">let </span>f = f.as_slice();
         <span class="kw">let </span>len = <span class="self">self</span>.data.len();
         <span class="kw">if </span>len != i.len() || len != c.len() || len != f.len() {
-            <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;LSTM matrices not the correct dimensions&quot;</span>);
+            <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"LSTM matrices not the correct dimensions"</span>);
             <span class="kw">return</span>;
         }
         <span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..len {
@@ -780,12 +781,12 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mul_tanh(<span class="kw-2">&amp;mut </span><span class="self">self</span>, o: MatrixBorrowed&lt;<span class="lifetime">&#39;_</span>, D&gt;, c: MatrixBorrowed&lt;<span class="lifetime">&#39;_</span>, D&gt;) {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>mul_tanh(<span class="kw-2">&amp;mut </span><span class="self">self</span>, o: MatrixBorrowed&lt;<span class="lifetime">'_</span>, D&gt;, c: MatrixBorrowed&lt;<span class="lifetime">'_</span>, D&gt;) {
         <span class="kw">let </span>o = o.as_slice();
         <span class="kw">let </span>c = c.as_slice();
         <span class="kw">let </span>len = <span class="self">self</span>.data.len();
         <span class="kw">if </span>len != o.len() || len != c.len() {
-            <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;LSTM matrices not the correct dimensions&quot;</span>);
+            <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"LSTM matrices not the correct dimensions"</span>);
             <span class="kw">return</span>;
         }
         <span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..len {
@@ -798,7 +799,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MatrixBorrowed&lt;<span class="lifetime">&#39;a</span>, <span class="number">1</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MatrixBorrowed&lt;<span class="lifetime">'a</span>, <span class="number">1</span>&gt; {
     <span class="attr">#[allow(dead_code)] </span><span class="comment">// could be useful
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>dot_1d(<span class="kw-2">&amp;</span><span class="self">self</span>, other: MatrixZero&lt;<span class="number">1</span>&gt;) -&gt; f32 {
         <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.dims, other.dims);
@@ -806,7 +807,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MatrixBorrowedMut&lt;<span class="lifetime">&#39;a</span>, <span class="number">1</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MatrixBorrowedMut&lt;<span class="lifetime">'a</span>, <span class="number">1</span>&gt; {
     <span class="doccomment">/// Calculate the dot product of a and b, adding the result to self.
     ///
     /// Note: For better dot product efficiency, if `b` is MxN, then `a` should be N;
@@ -817,7 +818,7 @@
         <span class="macro">debug_assert_eq!</span>(
             m,
             b.dim().<span class="number">1</span>,
-            <span class="string">&quot;dims: {:?}/{:?}/{:?}&quot;</span>,
+            <span class="string">"dims: {:?}/{:?}/{:?}"</span>,
             <span class="self">self</span>.as_borrowed().dim(),
             a.dim(),
             b.dim()
@@ -825,7 +826,7 @@
         <span class="macro">debug_assert_eq!</span>(
             n,
             b.dim().<span class="number">0</span>,
-            <span class="string">&quot;dims: {:?}/{:?}/{:?}&quot;</span>,
+            <span class="string">"dims: {:?}/{:?}/{:?}"</span>,
             <span class="self">self</span>.as_borrowed().dim(),
             a.dim(),
             b.dim()
@@ -835,13 +836,13 @@
             {
                 <span class="kw-2">*</span>dest += unrolled_dot_1(a.data, b_sub.data);
             } <span class="kw">else </span>{
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;unreachable: dims checked above&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"unreachable: dims checked above"</span>);
             }
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MatrixBorrowedMut&lt;<span class="lifetime">&#39;a</span>, <span class="number">2</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MatrixBorrowedMut&lt;<span class="lifetime">'a</span>, <span class="number">2</span>&gt; {
     <span class="doccomment">/// Calculate the dot product of a and b, adding the result to self.
     ///
     /// Self should be _MxN_; `a`, _O_; and `b`, _MxNxO_.
@@ -851,7 +852,7 @@
         <span class="macro">debug_assert_eq!</span>(
             m,
             b.dim().<span class="number">2</span>,
-            <span class="string">&quot;dims: {:?}/{:?}/{:?}&quot;</span>,
+            <span class="string">"dims: {:?}/{:?}/{:?}"</span>,
             <span class="self">self</span>.as_borrowed().dim(),
             a.dim(),
             b.dim()
@@ -859,7 +860,7 @@
         <span class="macro">debug_assert_eq!</span>(
             n,
             b.dim().<span class="number">0 </span>* b.dim().<span class="number">1</span>,
-            <span class="string">&quot;dims: {:?}/{:?}/{:?}&quot;</span>,
+            <span class="string">"dims: {:?}/{:?}/{:?}"</span>,
             <span class="self">self</span>.as_borrowed().dim(),
             a.dim(),
             b.dim()
@@ -877,7 +878,7 @@
             ) {
                 <span class="kw-2">*</span>dest += unrolled_dot_1(lhs, rhs);
             } <span class="kw">else </span>{
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;unreachable: dims checked above&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"unreachable: dims checked above"</span>);
             }
         }
     }
@@ -891,7 +892,7 @@
         <span class="macro">debug_assert_eq!</span>(
             m,
             b.dim().<span class="number">2</span>,
-            <span class="string">&quot;dims: {:?}/{:?}/{:?}&quot;</span>,
+            <span class="string">"dims: {:?}/{:?}/{:?}"</span>,
             <span class="self">self</span>.as_borrowed().dim(),
             a.dim(),
             b.dim()
@@ -899,7 +900,7 @@
         <span class="macro">debug_assert_eq!</span>(
             n,
             b.dim().<span class="number">0 </span>* b.dim().<span class="number">1</span>,
-            <span class="string">&quot;dims: {:?}/{:?}/{:?}&quot;</span>,
+            <span class="string">"dims: {:?}/{:?}/{:?}"</span>,
             <span class="self">self</span>.as_borrowed().dim(),
             a.dim(),
             b.dim()
@@ -917,7 +918,7 @@
             ) {
                 <span class="kw-2">*</span>dest += unrolled_dot_2(lhs, rhs);
             } <span class="kw">else </span>{
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;unreachable: dims checked above&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"unreachable: dims checked above"</span>);
             }
         }
     }
@@ -925,13 +926,13 @@
 
 <span class="doccomment">/// A `D`-dimensional matrix borrowed from a [`ZeroSlice`].
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>D: usize&gt; {
-    data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ZeroSlice&lt;f32&gt;,
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>MatrixZero&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>D: usize&gt; {
+    data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ZeroSlice&lt;f32&gt;,
     dims: [usize; D],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">crate</span>::provider::LstmMatrix1&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">1</span>&gt; {
-    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">crate</span>::provider::LstmMatrix1&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">crate</span>::provider::LstmMatrix1&lt;<span class="lifetime">'a</span>&gt;&gt; <span class="kw">for </span>MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">1</span>&gt; {
+    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">crate</span>::provider::LstmMatrix1&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             data: <span class="kw-2">&amp;</span>other.data,
             dims: other.dims.map(|x| x <span class="kw">as </span>usize),
@@ -939,8 +940,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">crate</span>::provider::LstmMatrix2&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">2</span>&gt; {
-    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">crate</span>::provider::LstmMatrix2&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">crate</span>::provider::LstmMatrix2&lt;<span class="lifetime">'a</span>&gt;&gt; <span class="kw">for </span>MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">2</span>&gt; {
+    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">crate</span>::provider::LstmMatrix2&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             data: <span class="kw-2">&amp;</span>other.data,
             dims: other.dims.map(|x| x <span class="kw">as </span>usize),
@@ -948,8 +949,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">crate</span>::provider::LstmMatrix3&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>MatrixZero&lt;<span class="lifetime">&#39;a</span>, <span class="number">3</span>&gt; {
-    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">crate</span>::provider::LstmMatrix3&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">crate</span>::provider::LstmMatrix3&lt;<span class="lifetime">'a</span>&gt;&gt; <span class="kw">for </span>MatrixZero&lt;<span class="lifetime">'a</span>, <span class="number">3</span>&gt; {
+    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">crate</span>::provider::LstmMatrix3&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             data: <span class="kw-2">&amp;</span>other.data,
             dims: other.dims.map(|x| x <span class="kw">as </span>usize),
@@ -957,7 +958,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>D: usize&gt; MatrixZero&lt;<span class="lifetime">&#39;a</span>, D&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>D: usize&gt; MatrixZero&lt;<span class="lifetime">'a</span>, D&gt; {
     <span class="attr">#[allow(clippy::wrong_self_convention)] </span><span class="comment">// same convention as slice::to_vec
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MatrixOwned&lt;D&gt; {
         MatrixOwned {
@@ -979,7 +980,7 @@
 
     <span class="doccomment">/// See [`MatrixOwned::submatrix`].
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>submatrix&lt;<span class="kw">const </span>M: usize&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;MatrixZero&lt;<span class="lifetime">&#39;a</span>, M&gt;&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>submatrix&lt;<span class="kw">const </span>M: usize&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;MatrixZero&lt;<span class="lifetime">'a</span>, M&gt;&gt; {
         <span class="comment">// This assertion is based on const generics; it should always succeed and be elided.
         </span><span class="macro">assert_eq!</span>(M, D - <span class="number">1</span>);
         <span class="kw">let </span>(range, dims) = <span class="self">self</span>.submatrix_range(index);

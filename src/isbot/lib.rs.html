@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/isbot-0.1.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="isbot" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/isbot-0.1.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="isbot" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -355,8 +356,8 @@
 //! use isbot::Bots;
 //!
 //! let bots = Bots::default();
-//! assert!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;));
-//! assert!(!bots.is_bot(&quot;Opera/9.60 (Windows NT 6.0; U; en) Presto/2.1.1&quot;));
+//! assert!(bots.is_bot("Googlebot-Image/1.0"));
+//! assert!(!bots.is_bot("Opera/9.60 (Windows NT 6.0; U; en) Presto/2.1.1"));
 //! ```
 //!
 //! User-agent regular expressions can be added or removed for specific use cases.
@@ -366,10 +367,10 @@
 //! let mut bots = isbot::Bots::default();
 //!
 //! // By default Chrome Lighthouse is considered a bot
-//! assert!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;));
+//! assert!(bots.is_bot("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse"));
 //! // Remove the Chrome Lighthouse regular expression pattern to indicate it is not a bot
-//! bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);
-//! assert!(!bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;));
+//! bots.remove(&amp;["Chrome-Lighthouse"]);
+//! assert!(!bots.is_bot("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse"));
 //! ```
 //!
 //! Or append a new user-agent to detect a custom bot:
@@ -377,9 +378,9 @@
 //! let mut bots = isbot::Bots::default();
 //!
 //! // Append a new custom bot user-agent regular expression
-//! assert!(!bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));
-//! bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);
-//! assert!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));
+//! assert!(!bots.is_bot("Mozilla/5.0 (CustomNewTestB0T /1.2)"));
+//! bots.append(&amp;[r"CustomNewTestB0T\s/\d\.\d"]);
+//! assert!(bots.is_bot("Mozilla/5.0 (CustomNewTestB0T /1.2)"));
 //! ```
 
 </span><span class="kw">use </span>regex::Regex;
@@ -401,12 +402,12 @@
 }
 
 <span class="doccomment">/// Load default bot user-agent regular expressions from a local file, unless the feature is disabled
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;include-default-bots&quot;</span>)]
-</span><span class="kw">const </span>BOT_PATTERNS: <span class="kw-2">&amp;</span>str = <span class="macro">include_str!</span>(<span class="string">&quot;bot_regex_patterns.txt&quot;</span>);
+</span><span class="attr">#[cfg(feature = <span class="string">"include-default-bots"</span>)]
+</span><span class="kw">const </span>BOT_PATTERNS: <span class="kw-2">&amp;</span>str = <span class="macro">include_str!</span>(<span class="string">"bot_regex_patterns.txt"</span>);
 
 <span class="doccomment">/// Do not load any default user-agent strings into the compiled library if feature is not enabled
-</span><span class="attr">#[cfg(not(feature = <span class="string">&quot;include-default-bots&quot;</span>))]
-</span><span class="kw">const </span>BOT_PATTERNS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;&quot;</span>;
+</span><span class="attr">#[cfg(not(feature = <span class="string">"include-default-bots"</span>))]
+</span><span class="kw">const </span>BOT_PATTERNS: <span class="kw-2">&amp;</span>str = <span class="string">""</span>;
 
 <span class="kw">impl </span>Default <span class="kw">for </span>Bots {
     <span class="doccomment">/// Constructs a new instance with default user-agent patterns.
@@ -418,7 +419,7 @@
     ///
     /// let bots = Bots::default();
     ///
-    /// assert!(bots.is_bot(&quot;Googlebot&quot;));
+    /// assert!(bots.is_bot("Googlebot"));
     /// ```
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         Bots::new(BOT_PATTERNS)
@@ -435,14 +436,14 @@
     /// ```
     /// use isbot::Bots;
     ///
-    /// let custom_user_agent_patterns = r#&quot;
+    /// let custom_user_agent_patterns = r#"
     /// ^Googlebot-Image/
-    /// bingpreview/&quot;#;
+    /// bingpreview/"#;
     /// let bots = Bots::new(custom_user_agent_patterns);
     ///
-    /// assert!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;));
-    /// assert!(bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;));
-    /// assert!(!bots.is_bot(&quot;Googlebot&quot;));
+    /// assert!(bots.is_bot("Googlebot-Image/1.0"));
+    /// assert!(bots.is_bot("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b"));
+    /// assert!(!bots.is_bot("Googlebot"));
     /// ```
     </span><span class="kw">pub fn </span>new(bot_entries: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>user_agent_patterns = Bots::parse_lines(<span class="kw-2">&amp;</span>bot_entries.to_ascii_lowercase());
@@ -464,8 +465,8 @@
     ///
     /// let bots = Bots::default();
     ///
-    /// assert!(bots.is_bot(&quot;Googlebot/2.1 (+http://www.google.com/bot.html)&quot;));
-    /// assert!(!bots.is_bot(&quot;Dalvik/2.1.0 (Linux; U; Android 8.0.0; SM-G930F Build/R16NW)&quot;));
+    /// assert!(bots.is_bot("Googlebot/2.1 (+http://www.google.com/bot.html)"));
+    /// assert!(!bots.is_bot("Dalvik/2.1.0 (Linux; U; Android 8.0.0; SM-G930F Build/R16NW)"));
     /// ```    
     </span><span class="kw">pub fn </span>is_bot(<span class="kw-2">&amp;</span><span class="self">self</span>, user_agent: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="self">self</span>.user_agents_regex
@@ -482,13 +483,13 @@
     /// use isbot::Bots;
     ///
     /// let mut bots = Bots::default();
-    /// assert!(!bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));
-    /// bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);
-    /// assert!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));
+    /// assert!(!bots.is_bot("Mozilla/5.0 (CustomNewTestB0T /1.2)"));
+    /// bots.append(&amp;[r"CustomNewTestB0T\s/\d\.\d"]);
+    /// assert!(bots.is_bot("Mozilla/5.0 (CustomNewTestB0T /1.2)"));
     ///
-    /// let new_bot_patterns = vec![&quot;GoogleMetaverse&quot;, &quot;^Special/&quot;];
+    /// let new_bot_patterns = vec!["GoogleMetaverse", "^Special/"];
     /// bots.append(&amp;new_bot_patterns);
-    /// assert!(bots.is_bot(&quot;Mozilla/5.0 (GoogleMetaverse/1.0)&quot;));
+    /// assert!(bots.is_bot("Mozilla/5.0 (GoogleMetaverse/1.0)"));
     /// ```
     </span><span class="kw">pub fn </span>append(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bots: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) {
         <span class="kw">for </span>bot <span class="kw">in </span>bots {
@@ -507,14 +508,14 @@
     /// let mut bots = Bots::default();
     ///
     ///
-    /// assert!(bots.is_bot(&quot;Chrome-Lighthouse&quot;));
-    /// bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);
-    /// assert!(!bots.is_bot(&quot;Chrome-Lighthouse&quot;));
+    /// assert!(bots.is_bot("Chrome-Lighthouse"));
+    /// bots.remove(&amp;["Chrome-Lighthouse"]);
+    /// assert!(!bots.is_bot("Chrome-Lighthouse"));
     ///
-    /// let bot_patterns_to_remove = vec![&quot;bingpreview/&quot;, &quot;Google Favicon&quot;];
+    /// let bot_patterns_to_remove = vec!["bingpreview/", "Google Favicon"];
     /// bots.remove(&amp;bot_patterns_to_remove);
-    /// assert!(!bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;));
-    /// assert!(!bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36 Google Favicon&quot;));
+    /// assert!(!bots.is_bot("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b"));
+    /// assert!(!bots.is_bot("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36 Google Favicon"));
     /// ```
     </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bots: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) {
         <span class="kw">for </span>bot <span class="kw">in </span>bots {
@@ -541,10 +542,10 @@
             .iter()
             .cloned()
             .collect::&lt;Vec&lt;String&gt;&gt;()
-            .join(<span class="string">&quot;|&quot;</span>);
+            .join(<span class="string">"|"</span>);
 
         <span class="kw">if </span>pattern.is_empty() {
-            <span class="kw">return </span>Regex::new(<span class="string">&quot;^$&quot;</span>).unwrap();
+            <span class="kw">return </span>Regex::new(<span class="string">"^$"</span>).unwrap();
         }
 
         Regex::new(<span class="kw-2">&amp;</span>pattern).unwrap()
@@ -556,29 +557,29 @@
     <span class="kw">use </span><span class="kw">crate</span>::Bots;
 
     <span class="kw">static </span>GOOD_BOTS: [<span class="kw-2">&amp;</span>str; <span class="number">7</span>] = [
-        <span class="string">&quot;Googlebot&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)&quot;</span>,
-        <span class="string">&quot;DuckDuckBot/1.0; (+http://duckduckgo.com/duckduckbot.html)&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;
+        <span class="string">"Googlebot"</span>,
+        <span class="string">"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"</span>,
+        <span class="string">"Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)"</span>,
+        <span class="string">"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"</span>,
+        <span class="string">"Mozilla/5.0 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)"</span>,
+        <span class="string">"DuckDuckBot/1.0; (+http://duckduckgo.com/duckduckbot.html)"</span>,
+        <span class="string">"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse"
     </span>];
 
     <span class="kw">static </span>NOT_BOTS: [<span class="kw-2">&amp;</span>str; <span class="number">6</span>] = [
-        <span class="string">&quot;&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36&quot;</span>,
-        <span class="string">&quot;Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (Linux; Android 5.0; SAMSUNG SM-N900 Build/LRX21V) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/2.1 Chrome/34.0.1847.76 Mobile Safari/537.36&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36&quot;</span>,
+        <span class="string">""</span>,
+        <span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"</span>,
+        <span class="string">"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)"</span>,
+        <span class="string">"Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1"</span>,
+        <span class="string">"Mozilla/5.0 (Linux; Android 5.0; SAMSUNG SM-N900 Build/LRX21V) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/2.1 Chrome/34.0.1847.76 Mobile Safari/537.36"</span>,
+        <span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36"</span>,
     ];
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>good_bots() {
         <span class="kw">let </span>bots = Bots::default();
         <span class="kw">for </span>bot <span class="kw">in </span>GOOD_BOTS {
-            <span class="macro">assert!</span>(bots.is_bot(bot), <span class="string">&quot;Invalid bot: &#39;{}&#39;&quot;</span>, bot);
+            <span class="macro">assert!</span>(bots.is_bot(bot), <span class="string">"Invalid bot: '{}'"</span>, bot);
         }
     }
 
@@ -586,94 +587,94 @@
     </span><span class="kw">fn </span>not_bots() {
         <span class="kw">let </span>bots = Bots::default();
         <span class="kw">for </span>bot <span class="kw">in </span>NOT_BOTS {
-            <span class="macro">assert!</span>(!bots.is_bot(bot), <span class="string">&quot;Is a bot{}&quot;</span>, bot);
+            <span class="macro">assert!</span>(!bots.is_bot(bot), <span class="string">"Is a bot{}"</span>, bot);
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>custom_user_agent_patterns() {
-        <span class="kw">let </span>custom_user_agent_patterns = <span class="string">&quot;\
+        <span class="kw">let </span>custom_user_agent_patterns = <span class="string">"\
             ^Simplebot\n\
             anything\\s+bot\n\
-            Numerical\\d{4}\\.\\d{4}\\.\\d{4}\\.\\d{4}&quot;</span>;
+            Numerical\\d{4}\\.\\d{4}\\.\\d{4}\\.\\d{4}"</span>;
         <span class="kw">let </span>bots = Bots::new(custom_user_agent_patterns);
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;InvalidBot&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Googlebot&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Simplebot/1.2&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot; Simplebot/1.2&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Anything  Bot&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;AnythingBot&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;numerical1101.2001.3987.4781&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;numerical1.2.3.4&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"InvalidBot"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Googlebot"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Simplebot/1.2"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">" Simplebot/1.2"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Anything  Bot"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"AnythingBot"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"numerical1101.2001.3987.4781"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"numerical1.2.3.4"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty_user_agent_patterns() {
-        <span class="kw">let </span>empty_user_agent_patterns = <span class="string">&quot;&quot;</span>;
+        <span class="kw">let </span>empty_user_agent_patterns = <span class="string">""</span>;
         <span class="kw">let </span>bots = Bots::new(empty_user_agent_patterns);
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;1&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Googlebot&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">""</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"1"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Googlebot"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>single_user_agent_patterns() {
-        <span class="kw">let </span>single_user_agent_patterns = <span class="string">&quot;me&quot;</span>;
+        <span class="kw">let </span>single_user_agent_patterns = <span class="string">"me"</span>;
         <span class="kw">let </span>bots = Bots::new(single_user_agent_patterns);
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;M&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Me&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Googlebot&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">""</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"M"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Me"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Googlebot"</span>));
     }
     <span class="attr">#[test]
     </span><span class="kw">fn </span>add_pattern() {
         <span class="kw">let </span><span class="kw-2">mut </span>bots = Bots::default();
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
-        bots.append(<span class="kw-2">&amp;</span>[<span class="string">r&quot;FancyNewTestB0T\s/\d\.\d&quot;</span>]);
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Mozilla/5.0 (FancyNewTestB0T /1.2)"</span>));
+        bots.append(<span class="kw-2">&amp;</span>[<span class="string">r"FancyNewTestB0T\s/\d\.\d"</span>]);
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Mozilla/5.0 (FancyNewTestB0T /1.2)"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>add_multiple_patterns() {
         <span class="kw">let </span><span class="kw-2">mut </span>bots = Bots::default();
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Special/1.0&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Mozilla/5.0 (FancyNewTestB0T /1.2)"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Special/1.0"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"GoogleMetaverse/2.1 (experimental)"</span>));
 
-        <span class="kw">let </span>new_bot_patterns = <span class="macro">vec!</span>[<span class="string">&quot;FancyNewTestB0T&quot;</span>, <span class="string">&quot;^GoogleMetaverse&quot;</span>, <span class="string">&quot;^Special/&quot;</span>];
+        <span class="kw">let </span>new_bot_patterns = <span class="macro">vec!</span>[<span class="string">"FancyNewTestB0T"</span>, <span class="string">"^GoogleMetaverse"</span>, <span class="string">"^Special/"</span>];
         bots.append(<span class="kw-2">&amp;</span>new_bot_patterns);
 
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Special/1.0&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Mozilla/5.0 (FancyNewTestB0T /1.2)"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Special/1.0"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"GoogleMetaverse/2.1 (experimental)"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>remove_pattern() {
         <span class="kw">let </span><span class="kw-2">mut </span>bots = Bots::default();
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
-        bots.remove(<span class="kw-2">&amp;</span>[<span class="string">&quot;Chrome-Lighthouse&quot;</span>]);
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Chrome-Lighthouse&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) adbeat.com/policy AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse"</span>));
+        bots.remove(<span class="kw-2">&amp;</span>[<span class="string">"Chrome-Lighthouse"</span>]);
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Chrome-Lighthouse"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) adbeat.com/policy AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>remove_multiple_patterns() {
         <span class="kw">let </span><span class="kw-2">mut </span>bots = Bots::default();
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>));
-        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Datadog Agent/5.10.1"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Mozilla/5.0 (Java) outbrain"</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">"Mozilla/5.0 (compatible; Google-Site-Verification/1.0)"</span>));
 
         <span class="kw">let </span>bot_patterns_to_remove =
-            <span class="macro">vec!</span>[<span class="string">&quot;datadog agent&quot;</span>, <span class="string">&quot;Chrome-Lighthouse&quot;</span>, <span class="string">&quot;outbrain&quot;</span>, <span class="string">&quot;google-&quot;</span>];
+            <span class="macro">vec!</span>[<span class="string">"datadog agent"</span>, <span class="string">"Chrome-Lighthouse"</span>, <span class="string">"outbrain"</span>, <span class="string">"google-"</span>];
         bots.remove(<span class="kw-2">&amp;</span>bot_patterns_to_remove);
 
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>));
-        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Datadog Agent/5.10.1"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Mozilla/5.0 (Java) outbrain"</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">"Mozilla/5.0 (compatible; Google-Site-Verification/1.0)"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

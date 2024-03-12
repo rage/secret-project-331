@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sharded-slab-0.1.7/src/shard.rs`."><title>shard.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sharded_slab" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sharded-slab-0.1.7/src/shard.rs`."><title>shard.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sharded_slab" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -467,17 +468,17 @@
 //                      └────────┘
 //                         ...
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Shard&lt;T, C: cfg::Config&gt; {
-    <span class="doccomment">/// The shard&#39;s parent thread ID.
+    <span class="doccomment">/// The shard's parent thread ID.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) tid: usize,
     <span class="doccomment">/// The local free list for each page.
     ///
-    /// These are only ever accessed from this shard&#39;s thread, so they are
+    /// These are only ever accessed from this shard's thread, so they are
     /// stored separately from the shared state for the page that can be
     /// accessed concurrently, to minimize false sharing.
     </span>local: Box&lt;[page::Local]&gt;,
     <span class="doccomment">/// The shared state for each page in this shard.
     ///
-    /// This consists of the page&#39;s metadata (size, previous size), remote free
+    /// This consists of the page's metadata (size, previous size), remote free
     /// list, and a pointer to the actual array backing that page.
     </span>shared: Box&lt;[page::Shared&lt;T, C&gt;]&gt;,
 }
@@ -491,7 +492,7 @@
 </span><span class="kw">struct </span>Ptr&lt;T, C: cfg::Config&gt;(AtomicPtr&lt;alloc::Track&lt;Shard&lt;T, C&gt;&gt;&gt;);
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>IterMut&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;a</span>, C: cfg::Config + <span class="lifetime">&#39;a</span>&gt;(slice::IterMut&lt;<span class="lifetime">&#39;a</span>, Ptr&lt;T, C&gt;&gt;);
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>IterMut&lt;<span class="lifetime">'a</span>, T: <span class="lifetime">'a</span>, C: cfg::Config + <span class="lifetime">'a</span>&gt;(slice::IterMut&lt;<span class="lifetime">'a</span>, Ptr&lt;T, C&gt;&gt;);
 
 <span class="comment">// === impl Shard ===
 
@@ -500,15 +501,15 @@
     </span>C: cfg::Config,
 {
     <span class="attr">#[inline(always)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_slot&lt;<span class="lifetime">&#39;a</span>, U&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_slot&lt;<span class="lifetime">'a</span>, U&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         idx: usize,
-        f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>page::Slot&lt;T, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;U&gt;,
+        f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>page::Slot&lt;T, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;U&gt;,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;U&gt; {
         <span class="macro">debug_assert_eq_in_drop!</span>(Tid::&lt;C&gt;::from_packed(idx).as_usize(), <span class="self">self</span>.tid);
         <span class="kw">let </span>(addr, page_index) = page::indices::&lt;C&gt;(idx);
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; {:?}&quot;</span>, addr);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; {:?}"</span>, addr);
         <span class="kw">if </span>page_index &gt;= <span class="self">self</span>.shared.len() {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -535,26 +536,26 @@
 <span class="kw">where
     </span>C: cfg::Config,
 {
-    <span class="doccomment">/// Remove an item on the shard&#39;s local thread.
+    <span class="doccomment">/// Remove an item on the shard's local thread.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>take_local(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
         <span class="macro">debug_assert_eq_in_drop!</span>(Tid::&lt;C&gt;::from_packed(idx).as_usize(), <span class="self">self</span>.tid);
         <span class="kw">let </span>(addr, page_index) = page::indices::&lt;C&gt;(idx);
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; remove_local {:?}&quot;</span>, addr);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; remove_local {:?}"</span>, addr);
 
         <span class="self">self</span>.shared
             .get(page_index)<span class="question-mark">?
             </span>.take(addr, C::unpack_gen(idx), <span class="self">self</span>.local(page_index))
     }
 
-    <span class="doccomment">/// Remove an item, while on a different thread from the shard&#39;s local thread.
+    <span class="doccomment">/// Remove an item, while on a different thread from the shard's local thread.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>take_remote(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
         <span class="macro">debug_assert_eq_in_drop!</span>(Tid::&lt;C&gt;::from_packed(idx).as_usize(), <span class="self">self</span>.tid);
         <span class="macro">debug_assert!</span>(Tid::&lt;C&gt;::current().as_usize() != <span class="self">self</span>.tid);
 
         <span class="kw">let </span>(addr, page_index) = page::indices::&lt;C&gt;(idx);
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; take_remote {:?}; page {:?}&quot;</span>, addr, page_index);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; take_remote {:?}; page {:?}"</span>, addr, page_index);
 
         <span class="kw">let </span>shared = <span class="self">self</span>.shared.get(page_index)<span class="question-mark">?</span>;
         shared.take(addr, C::unpack_gen(idx), shared.free_list())
@@ -583,7 +584,7 @@
         shared.remove(addr, C::unpack_gen(idx), shared.free_list())
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::slice::Iter&lt;<span class="lifetime">&#39;_</span>, page::Shared&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::slice::Iter&lt;<span class="lifetime">'_</span>, page::Shared&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;&gt; {
         <span class="self">self</span>.shared.iter()
     }
 }
@@ -601,7 +602,7 @@
         </span><span class="kw">for </span>(page_idx, page) <span class="kw">in </span><span class="self">self</span>.shared.iter().enumerate() {
             <span class="kw">let </span>local = <span class="self">self</span>.local(page_idx);
 
-            <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; page {}; {:?}; {:?}&quot;</span>, page_idx, local, page);
+            <span class="macro">test_println!</span>(<span class="string">"-&gt; page {}; {:?}; {:?}"</span>, page_idx, local, page);
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(res) = page.init_with(local, <span class="kw-2">&amp;mut </span>init) {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(res);
@@ -638,7 +639,7 @@
         <span class="kw">crate</span>::sync::atomic::fence(<span class="kw">crate</span>::sync::atomic::Ordering::Acquire);
         <span class="kw">let </span>tid = Tid::&lt;C&gt;::current().as_usize();
         <span class="macro">test_println!</span>(
-            <span class="string">&quot;-&gt; clear_after_release; self.tid={:?}; current.tid={:?};&quot;</span>,
+            <span class="string">"-&gt; clear_after_release; self.tid={:?}; current.tid={:?};"</span>,
             tid,
             <span class="self">self</span>.tid
         );
@@ -678,7 +679,7 @@
         </span><span class="macro">debug_assert_eq_in_drop!</span>(
             Tid::&lt;C&gt;::current().as_usize(),
             <span class="self">self</span>.tid,
-            <span class="string">&quot;tried to access local data from another thread!&quot;
+            <span class="string">"tried to access local data from another thread!"
         </span>);
 
         <span class="kw-2">&amp;</span><span class="self">self</span>.local[i]
@@ -686,12 +687,12 @@
 }
 
 <span class="kw">impl</span>&lt;T: fmt::Debug, C: cfg::Config&gt; fmt::Debug <span class="kw">for </span>Shard&lt;T, C&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>d = f.debug_struct(<span class="string">&quot;Shard&quot;</span>);
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>d = f.debug_struct(<span class="string">"Shard"</span>);
 
         <span class="attr">#[cfg(debug_assertions)]
-        </span>d.field(<span class="string">&quot;tid&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.tid);
-        d.field(<span class="string">&quot;shared&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.shared).finish()
+        </span>d.field(<span class="string">"tid"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.tid);
+        d.field(<span class="string">"shared"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.shared).finish()
     }
 }
 
@@ -715,27 +716,27 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Shard&lt;T, C&gt;&gt; {
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; get shard={}&quot;</span>, idx);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; get shard={}"</span>, idx);
         <span class="self">self</span>.shards.get(idx)<span class="question-mark">?</span>.load(Acquire)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>current(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (Tid&lt;C&gt;, <span class="kw-2">&amp;</span>Shard&lt;T, C&gt;) {
         <span class="kw">let </span>tid = Tid::&lt;C&gt;::current();
-        <span class="macro">test_println!</span>(<span class="string">&quot;current: {:?}&quot;</span>, tid);
+        <span class="macro">test_println!</span>(<span class="string">"current: {:?}"</span>, tid);
         <span class="kw">let </span>idx = tid.as_usize();
         <span class="macro">assert!</span>(
             idx &lt; <span class="self">self</span>.shards.len(),
-            <span class="string">&quot;Thread count overflowed the configured max count. \
-            Thread index = {}, max threads = {}.&quot;</span>,
+            <span class="string">"Thread count overflowed the configured max count. \
+            Thread index = {}, max threads = {}."</span>,
             idx,
             C::MAX_SHARDS,
         );
-        <span class="comment">// It&#39;s okay for this to be relaxed. The value is only ever stored by
+        <span class="comment">// It's okay for this to be relaxed. The value is only ever stored by
         // the thread that corresponds to the index, and we are that thread.
         </span><span class="kw">let </span>shard = <span class="self">self</span>.shards[idx].load(Relaxed).unwrap_or_else(|| {
             <span class="kw">let </span>ptr = Box::into_raw(Box::new(alloc::Track::new(Shard::new(idx))));
-            <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; allocated new shard for index {} at {:p}&quot;</span>, idx, ptr);
+            <span class="macro">test_println!</span>(<span class="string">"-&gt; allocated new shard for index {} at {:p}"</span>, idx, ptr);
             <span class="self">self</span>.shards[idx].set(ptr);
             <span class="kw">let </span><span class="kw-2">mut </span>max = <span class="self">self</span>.max.load(Acquire);
             <span class="kw">while </span>max &lt; idx {
@@ -744,7 +745,7 @@
                     <span class="prelude-val">Err</span>(actual) =&gt; max = actual,
                 }
             }
-            <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; highest index={}, prev={}&quot;</span>, std::cmp::max(max, idx), max);
+            <span class="macro">test_println!</span>(<span class="string">"-&gt; highest index={}, prev={}"</span>, std::cmp::max(max, idx), max);
             <span class="kw">unsafe </span>{
                 <span class="comment">// Safety: we just put it there!
                 </span><span class="kw-2">&amp;*</span>ptr
@@ -754,10 +755,10 @@
         (tid, shard)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; IterMut&lt;<span class="lifetime">&#39;_</span>, T, C&gt; {
-        <span class="macro">test_println!</span>(<span class="string">&quot;Array::iter_mut&quot;</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; IterMut&lt;<span class="lifetime">'_</span>, T, C&gt; {
+        <span class="macro">test_println!</span>(<span class="string">"Array::iter_mut"</span>);
         <span class="kw">let </span>max = <span class="self">self</span>.max.load(Acquire);
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; highest index={}&quot;</span>, max);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; highest index={}"</span>, max);
         IterMut(<span class="self">self</span>.shards[<span class="number">0</span>..=max].iter_mut())
     }
 }
@@ -784,15 +785,15 @@
 }
 
 <span class="kw">impl</span>&lt;T: fmt::Debug, C: cfg::Config&gt; fmt::Debug <span class="kw">for </span>Array&lt;T, C&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span>max = <span class="self">self</span>.max.load(Acquire);
         <span class="kw">let </span><span class="kw-2">mut </span>set = f.debug_map();
         <span class="kw">for </span>shard <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.shards[<span class="number">0</span>..=max] {
             <span class="kw">let </span>ptr = shard.<span class="number">0</span>.load(Acquire);
             <span class="kw">if let </span><span class="prelude-val">Some</span>(shard) = ptr::NonNull::new(ptr) {
-                set.entry(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:p}&quot;</span>, ptr), <span class="kw">unsafe </span>{ shard.as_ref() });
+                set.entry(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:p}"</span>, ptr), <span class="kw">unsafe </span>{ shard.as_ref() });
             } <span class="kw">else </span>{
-                set.entry(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:p}&quot;</span>, ptr), <span class="kw-2">&amp;</span>());
+                set.entry(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:p}"</span>, ptr), <span class="kw-2">&amp;</span>());
             }
         }
         set.finish()
@@ -810,16 +811,16 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>load(<span class="kw-2">&amp;</span><span class="self">self</span>, order: Ordering) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Shard&lt;T, C&gt;&gt; {
         <span class="kw">let </span>ptr = <span class="self">self</span>.<span class="number">0</span>.load(order);
-        <span class="macro">test_println!</span>(<span class="string">&quot;---&gt; loaded={:p} (order={:?})&quot;</span>, ptr, order);
+        <span class="macro">test_println!</span>(<span class="string">"---&gt; loaded={:p} (order={:?})"</span>, ptr, order);
         <span class="kw">if </span>ptr.is_null() {
-            <span class="macro">test_println!</span>(<span class="string">&quot;---&gt; null&quot;</span>);
+            <span class="macro">test_println!</span>(<span class="string">"---&gt; null"</span>);
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
         <span class="kw">let </span>track = <span class="kw">unsafe </span>{
             <span class="comment">// Safety: The returned reference will have the same lifetime as the
             // reference to the shard pointer, which (morally, if not actually)
             // owns the shard. The shard is only deallocated when the shard
-            // array is dropped, and it won&#39;t be dropped while this pointer is
+            // array is dropped, and it won't be dropped while this pointer is
             // borrowed --- and the returned reference has the same lifetime.
             //
             // We know that the pointer is not null, because we just
@@ -834,29 +835,29 @@
     </span><span class="kw">fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>, new: <span class="kw-2">*mut </span>alloc::Track&lt;Shard&lt;T, C&gt;&gt;) {
         <span class="self">self</span>.<span class="number">0
             </span>.compare_exchange(ptr::null_mut(), new, AcqRel, Acquire)
-            .expect(<span class="string">&quot;a shard can only be inserted by the thread that owns it, this is a bug!&quot;</span>);
+            .expect(<span class="string">"a shard can only be inserted by the thread that owns it, this is a bug!"</span>);
     }
 }
 
 <span class="comment">// === Iterators ===
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, C&gt; Iterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;a</span>, T, C&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, C&gt; Iterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">'a</span>, T, C&gt;
 <span class="kw">where
-    </span>T: <span class="lifetime">&#39;a</span>,
-    C: cfg::Config + <span class="lifetime">&#39;a</span>,
+    </span>T: <span class="lifetime">'a</span>,
+    C: cfg::Config + <span class="lifetime">'a</span>,
 {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Shard&lt;T, C&gt;;
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Shard&lt;T, C&gt;;
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="macro">test_println!</span>(<span class="string">&quot;IterMut::next&quot;</span>);
+        <span class="macro">test_println!</span>(<span class="string">"IterMut::next"</span>);
         <span class="kw">loop </span>{
             <span class="comment">// Skip over empty indices if they are less than the highest
             // allocated shard. Some threads may have accessed the slab
             // (generating a thread ID) but never actually inserted data, so
             // they may have never allocated a shard.
             </span><span class="kw">let </span>next = <span class="self">self</span>.<span class="number">0</span>.next();
-            <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; next.is_some={}&quot;</span>, next.is_some());
+            <span class="macro">test_println!</span>(<span class="string">"-&gt; next.is_some={}"</span>, next.is_some());
             <span class="kw">if let </span><span class="prelude-val">Some</span>(shard) = next<span class="question-mark">?</span>.load(Acquire) {
-                <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; done&quot;</span>);
+                <span class="macro">test_println!</span>(<span class="string">"-&gt; done"</span>);
                 <span class="kw">return </span><span class="prelude-val">Some</span>(shard);
             }
         }

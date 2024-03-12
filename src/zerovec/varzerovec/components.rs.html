@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/varzerovec/components.rs`."><title>components.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/varzerovec/components.rs`."><title>components.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -601,8 +602,8 @@
 ///
 /// Do not implement this trait, its internals may be changed in the future,
 /// and all of its associated items are hidden from the docs.
-</span><span class="attr">#[allow(clippy::missing_safety_doc)] </span><span class="comment">// no safety section for you, don&#39;t implement this trait period
-</span><span class="kw">pub unsafe trait </span>VarZeroVecFormat: <span class="lifetime">&#39;static </span>+ Sized {
+</span><span class="attr">#[allow(clippy::missing_safety_doc)] </span><span class="comment">// no safety section for you, don't implement this trait period
+</span><span class="kw">pub unsafe trait </span>VarZeroVecFormat: <span class="lifetime">'static </span>+ Sized {
     <span class="attr">#[doc(hidden)]
     </span><span class="kw">const </span>INDEX_WIDTH: usize;
     <span class="attr">#[doc(hidden)]
@@ -624,7 +625,7 @@
 }
 
 <span class="doccomment">/// This is a [`VarZeroVecFormat`] that stores u16s in the index array.
-/// Will have a smaller data size, but it&#39;s more likely for larger arrays
+/// Will have a smaller data size, but it's more likely for larger arrays
 /// to be unrepresentable (and error on construction)
 ///
 /// This is the default index size used by all [`VarZeroVec`](super::VarZeroVec) types.
@@ -678,42 +679,42 @@
 <span class="doccomment">/// A more parsed version of `VarZeroSlice`. This type is where most of the VarZeroVec
 /// internal representation code lies.
 ///
-/// This is *basically* an `&amp;&#39;a [u8]` to a zero copy buffer, but split out into
+/// This is *basically* an `&amp;'a [u8]` to a zero copy buffer, but split out into
 /// the buffer components. Logically this is capable of behaving as
-/// a `&amp;&#39;a [T::VarULE]`, but since `T::VarULE` is unsized that type does not actually
+/// a `&amp;'a [T::VarULE]`, but since `T::VarULE` is unsized that type does not actually
 /// exist.
 ///
 /// See [`VarZeroVecComponents::parse_byte_slice()`] for information on the internal invariants involved
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, F&gt; {
+</span><span class="kw">pub struct </span>VarZeroVecComponents&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>Sized, F&gt; {
     <span class="doccomment">/// The number of elements
     </span>len: u32,
     <span class="doccomment">/// The list of indices into the `things` slice
-    </span>indices: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+    </span>indices: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
     <span class="doccomment">/// The contiguous list of `T::VarULE`s
-    </span>things: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+    </span>things: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
     <span class="doccomment">/// The original slice this was constructed from
-    </span>entire_slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-    marker: PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T, F)&gt;,
+    </span>entire_slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
+    marker: PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T, F)&gt;,
 }
 
-<span class="comment">// #[derive()] won&#39;t work here since we do not want it to be
+<span class="comment">// #[derive()] won't work here since we do not want it to be
 // bound on T: Copy
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, F&gt; Copy <span class="kw">for </span>VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, F&gt; Clone <span class="kw">for </span>VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>Sized, F&gt; Copy <span class="kw">for </span>VarZeroVecComponents&lt;<span class="lifetime">'a</span>, T, F&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>Sized, F&gt; Clone <span class="kw">for </span>VarZeroVecComponents&lt;<span class="lifetime">'a</span>, T, F&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw-2">*</span><span class="self">self
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: VarULE + <span class="question-mark">?</span>Sized, F&gt; Default <span class="kw">for </span>VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: VarULE + <span class="question-mark">?</span>Sized, F&gt; Default <span class="kw">for </span>VarZeroVecComponents&lt;<span class="lifetime">'a</span>, T, F&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: VarULE + <span class="question-mark">?</span>Sized, F&gt; VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: VarULE + <span class="question-mark">?</span>Sized, F&gt; VarZeroVecComponents&lt;<span class="lifetime">'a</span>, T, F&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -725,17 +726,17 @@
         }
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: VarULE + <span class="question-mark">?</span>Sized, F: VarZeroVecFormat&gt; VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: VarULE + <span class="question-mark">?</span>Sized, F: VarZeroVecFormat&gt; VarZeroVecComponents&lt;<span class="lifetime">'a</span>, T, F&gt; {
     <span class="doccomment">/// Construct a new VarZeroVecComponents, checking invariants about the overall buffer size:
     ///
-    /// - There must be either zero or at least four bytes (if four, this is the &quot;length&quot; parsed as a usize)
+    /// - There must be either zero or at least four bytes (if four, this is the "length" parsed as a usize)
     /// - There must be at least `4*length + 4` bytes total, to form the array `indices` of indices
     /// - `indices[i]..indices[i+1]` must index into a valid section of
     ///   `things`, such that it parses to a `T::VarULE`
     /// - `indices[len - 1]..things.len()` must index into a valid section of
     ///   `things`, such that it parses to a `T::VarULE`
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>parse_byte_slice(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ZeroVecError&gt; {
+    </span><span class="kw">pub fn </span>parse_byte_slice(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ZeroVecError&gt; {
         <span class="comment">// The empty VZV is special-cased to the empty slice
         </span><span class="kw">if </span>slice.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(VarZeroVecComponents {
@@ -787,7 +788,7 @@
     /// # Safety
     /// The bytes must have previously successfully run through
     /// [`VarZeroVecComponents::parse_byte_slice()`]
-    </span><span class="kw">pub unsafe fn </span>from_bytes_unchecked(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub unsafe fn </span>from_bytes_unchecked(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="comment">// The empty VZV is special-cased to the empty slice
         </span><span class="kw">if </span>slice.is_empty() {
             <span class="kw">return </span>VarZeroVecComponents {
@@ -830,21 +831,21 @@
         <span class="self">self</span>.indices.is_empty()
     }
 
-    <span class="doccomment">/// Get the idx&#39;th element out of this slice. Returns `None` if out of bounds.
+    <span class="doccomment">/// Get the idx'th element out of this slice. Returns `None` if out of bounds.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>get(<span class="self">self</span>, idx: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">pub fn </span>get(<span class="self">self</span>, idx: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="kw">if </span>idx &gt;= <span class="self">self</span>.len() {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
         <span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="self">self</span>.get_unchecked(idx) })
     }
 
-    <span class="doccomment">/// Get the idx&#39;th element out of this slice. Does not bounds check.
+    <span class="doccomment">/// Get the idx'th element out of this slice. Does not bounds check.
     ///
     /// Safety:
     /// - `idx` must be in bounds (`idx &lt; self.len()`)
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>get_unchecked(<span class="self">self</span>, idx: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>get_unchecked(<span class="self">self</span>, idx: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T {
         <span class="kw">let </span>range = <span class="self">self</span>.get_things_range(idx);
         <span class="kw">let </span>things_slice = <span class="self">self</span>.things.get_unchecked(range);
         T::from_byte_slice_unchecked(things_slice)
@@ -928,7 +929,7 @@
 
     <span class="doccomment">/// Create an iterator over the Ts contained in VarZeroVecComponents
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>iter(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">pub fn </span>iter(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="self">self</span>.indices_slice()
             .iter()
             .copied()
@@ -950,7 +951,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>indices_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[F::RawBytes] {
+    </span><span class="kw">fn </span>indices_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[F::RawBytes] {
         <span class="kw">unsafe </span>{ F::RawBytes::from_byte_slice_unchecked(<span class="self">self</span>.indices) }
     }
 
@@ -963,11 +964,11 @@
             .copied()
             .map(F::rawbytes_to_usize)
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        <span class="macro">format!</span>(<span class="string">&quot;VarZeroVecComponents {{ indices: {indices:?} }}&quot;</span>)
+        <span class="macro">format!</span>(<span class="string">"VarZeroVecComponents {{ indices: {indices:?} }}"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, F&gt; VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, F&gt; VarZeroVecComponents&lt;<span class="lifetime">'a</span>, T, F&gt;
 <span class="kw">where
     </span>T: VarULE,
     T: <span class="question-mark">?</span>Sized,
@@ -990,7 +991,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, F&gt; VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, F&gt; VarZeroVecComponents&lt;<span class="lifetime">'a</span>, T, F&gt;
 <span class="kw">where
     </span>T: VarULE,
     T: <span class="question-mark">?</span>Sized,
@@ -1021,11 +1022,11 @@
         <span class="comment">// This code is an absolute atrocity. This code is not a place of honor. This
         // code is known to the State of California to cause cancer.
         //
-        // Unfortunately, the stdlib&#39;s `binary_search*` functions can only operate on slices.
+        // Unfortunately, the stdlib's `binary_search*` functions can only operate on slices.
         // We do not have a slice. We have something we can .get() and index on, but that is not
         // a slice.
         //
-        // The `binary_search*` functions also do not have a variant where they give you the element&#39;s
+        // The `binary_search*` functions also do not have a variant where they give you the element's
         // index, which we could otherwise use to directly index `self`.
         // We do have `self.indices`, but these are indices into a byte buffer, which cannot in
         // isolation be used to recoup the logical index of the element they refer to.
@@ -1034,7 +1035,7 @@
         // Since the layout of Rust slices is well-defined, we can do pointer arithmetic on these references
         // to obtain the index being used by the search.
         //
-        // It&#39;s worth noting that the slice we choose to search is irrelevant, as long as it has the appropriate
+        // It's worth noting that the slice we choose to search is irrelevant, as long as it has the appropriate
         // length. `self.indices` is defined to have length `self.len()`, so it is convenient to use
         // here and does not require additional allocations.
         //

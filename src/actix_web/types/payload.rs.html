@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/types/payload.rs`."><title>payload.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/types/payload.rs`."><title>payload.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -669,7 +670,7 @@
     HttpRequest,
 };
 
-<span class="doccomment">/// Extract a request&#39;s raw payload stream.
+<span class="doccomment">/// Extract a request's raw payload stream.
 ///
 /// See [`PayloadConfig`] for important notes when using this advanced extractor.
 ///
@@ -680,7 +681,7 @@
 /// use actix_web::{post, web};
 ///
 /// // `body: web::Payload` parameter extracts raw payload stream from request
-/// #[post(&quot;/&quot;)]
+/// #[post("/")]
 /// async fn index(mut body: web::Payload) -&gt; actix_web::Result&lt;String&gt; {
 ///     // for demonstration only; in a normal case use the `Bytes` extractor
 ///     // collect payload stream into a bytes object
@@ -689,7 +690,7 @@
 ///         bytes.extend_from_slice(&amp;item?);
 ///     }
 ///
-///     Ok(format!(&quot;Request Body Bytes:\n{:?}&quot;, bytes))
+///     Ok(format!("Request Body Bytes:\n{:?}", bytes))
 /// }
 /// ```
 </span><span class="kw">pub struct </span>Payload(dev::Payload);
@@ -772,7 +773,7 @@
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+    </span><span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
         Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).poll_next(cx)
     }
 }
@@ -788,7 +789,7 @@
     }
 }
 
-<span class="doccomment">/// Extract binary data from a request&#39;s payload.
+<span class="doccomment">/// Extract binary data from a request's payload.
 ///
 /// Collects request payload stream into a [Bytes] instance.
 ///
@@ -799,9 +800,9 @@
 /// use actix_web::{post, web};
 ///
 /// /// extract binary data from request
-/// #[post(&quot;/&quot;)]
+/// #[post("/")]
 /// async fn index(body: web::Bytes) -&gt; String {
-///     format!(&quot;Body {:?}!&quot;, body)
+///     format!("Body {:?}!", body)
 /// }
 /// ```
 </span><span class="kw">impl </span>FromRequest <span class="kw">for </span>Bytes {
@@ -831,14 +832,14 @@
 <span class="kw">impl </span>Future <span class="kw">for </span>BytesExtractFut {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;;
 
-    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.body_fut).poll(cx).map_err(Into::into)
     }
 }
 
-<span class="doccomment">/// Extract text information from a request&#39;s body.
+<span class="doccomment">/// Extract text information from a request's body.
 ///
-/// Text extractor automatically decode body according to the request&#39;s charset.
+/// Text extractor automatically decode body according to the request's charset.
 ///
 /// Use [`PayloadConfig`] to configure extraction process.
 ///
@@ -847,9 +848,9 @@
 /// use actix_web::{post, web, FromRequest};
 ///
 /// // extract text data from request
-/// #[post(&quot;/&quot;)]
+/// #[post("/")]
 /// async fn index(text: String) -&gt; String {
-///     format!(&quot;Body {}!&quot;, text)
+///     format!("Body {}!", text)
 /// }
 </span><span class="kw">impl </span>FromRequest <span class="kw">for </span>String {
     <span class="kw">type </span>Error = Error;
@@ -879,13 +880,13 @@
 <span class="doccomment">/// Future for `String` extractor.
 </span><span class="kw">pub struct </span>StringExtractFut {
     body_fut: HttpMessageBody,
-    encoding: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Encoding,
+    encoding: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Encoding,
 }
 
 <span class="kw">impl </span>Future <span class="kw">for </span>StringExtractFut {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;String, Error&gt;;
 
-    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>encoding = <span class="self">self</span>.encoding;
 
         Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.body_fut).poll(cx).map(|out| {
@@ -895,16 +896,16 @@
     }
 }
 
-<span class="kw">fn </span>bytes_to_string(body: Bytes, encoding: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Encoding) -&gt; <span class="prelude-ty">Result</span>&lt;String, Error&gt; {
+<span class="kw">fn </span>bytes_to_string(body: Bytes, encoding: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Encoding) -&gt; <span class="prelude-ty">Result</span>&lt;String, Error&gt; {
     <span class="kw">if </span>encoding == UTF_8 {
         <span class="prelude-val">Ok</span>(str::from_utf8(body.as_ref())
-            .map_err(|<span class="kw">_</span>| ErrorBadRequest(<span class="string">&quot;Can not decode body&quot;</span>))<span class="question-mark">?
+            .map_err(|<span class="kw">_</span>| ErrorBadRequest(<span class="string">"Can not decode body"</span>))<span class="question-mark">?
             </span>.to_owned())
     } <span class="kw">else </span>{
         <span class="prelude-val">Ok</span>(encoding
             .decode_without_bom_handling_and_without_replacement(<span class="kw-2">&amp;</span>body)
             .map(Cow::into_owned)
-            .ok_or_else(|| ErrorBadRequest(<span class="string">&quot;Can not decode body&quot;</span>))<span class="question-mark">?</span>)
+            .ok_or_else(|| ErrorBadRequest(<span class="string">"Can not decode body"</span>))<span class="question-mark">?</span>)
     }
 }
 
@@ -952,11 +953,11 @@
             <span class="kw">match </span>req.mime_type() {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref </span>req_mt)) =&gt; {
                     <span class="kw">if </span>mt != req_mt {
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(ErrorBadRequest(<span class="string">&quot;Unexpected Content-Type&quot;</span>));
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(ErrorBadRequest(<span class="string">"Unexpected Content-Type"</span>));
                     }
                 }
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(ErrorBadRequest(<span class="string">&quot;Content-Type is expected&quot;</span>));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ErrorBadRequest(<span class="string">"Content-Type is expected"</span>));
                 }
                 <span class="prelude-val">Err</span>(err) =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(err.into());
@@ -997,9 +998,9 @@
 </span><span class="kw">pub struct </span>HttpMessageBody {
     limit: usize,
     length: <span class="prelude-ty">Option</span>&lt;usize&gt;,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"__compress"</span>)]
     </span>stream: dev::Decompress&lt;dev::Payload&gt;,
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;__compress&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"__compress"</span>))]
     </span>stream: dev::Payload,
     buf: BytesMut,
     err: <span class="prelude-ty">Option</span>&lt;PayloadError&gt;,
@@ -1029,7 +1030,7 @@
 
         <span class="kw">let </span>stream = {
             <span class="macro">cfg_if::cfg_if! </span>{
-                <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)] </span>{
+                <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">"__compress"</span>)] </span>{
                     dev::Decompress::from_headers(payload.take(), req.headers())
                 } <span class="kw">else </span>{
                     payload.take()
@@ -1063,7 +1064,7 @@
 <span class="kw">impl </span>Future <span class="kw">for </span>HttpMessageBody {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;;
 
-    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = this.err.take() {
@@ -1107,38 +1108,38 @@
         <span class="kw">async fn </span>limited_payload_handler(pl: Payload) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw">impl </span>Responder&gt; {
             <span class="kw">match </span>pl.to_bytes_limited(<span class="number">5</span>).<span class="kw">await </span>{
                 <span class="prelude-val">Ok</span>(res) =&gt; res,
-                <span class="prelude-val">Err</span>(_limited) =&gt; <span class="prelude-val">Err</span>(ErrorBadRequest(<span class="string">&quot;too big&quot;</span>)),
+                <span class="prelude-val">Err</span>(_limited) =&gt; <span class="prelude-val">Err</span>(ErrorBadRequest(<span class="string">"too big"</span>)),
             }
         }
 
         <span class="kw">let </span>srv = init_service(
             App::new()
-                .route(<span class="string">&quot;/all&quot;</span>, web::to(payload_handler))
-                .route(<span class="string">&quot;limited&quot;</span>, web::to(limited_payload_handler)),
+                .route(<span class="string">"/all"</span>, web::to(payload_handler))
+                .route(<span class="string">"limited"</span>, web::to(limited_payload_handler)),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/all&quot;</span>)
-            .set_payload(<span class="string">&quot;1234567890&quot;</span>)
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/all"</span>)
+            .set_payload(<span class="string">"1234567890"</span>)
             .to_request();
         <span class="kw">let </span>res = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="kw">let </span>body = read_body(res).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(body, <span class="string">&quot;1234567890&quot;</span>);
+        <span class="macro">assert_eq!</span>(body, <span class="string">"1234567890"</span>);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/limited&quot;</span>)
-            .set_payload(<span class="string">&quot;1234567890&quot;</span>)
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/limited"</span>)
+            .set_payload(<span class="string">"1234567890"</span>)
             .to_request();
         <span class="kw">let </span>res = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::BAD_REQUEST);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/limited&quot;</span>)
-            .set_payload(<span class="string">&quot;12345&quot;</span>)
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/limited"</span>)
+            .set_payload(<span class="string">"12345"</span>)
             .to_request();
         <span class="kw">let </span>res = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="kw">let </span>body = read_body(res).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(body, <span class="string">&quot;12345&quot;</span>);
+        <span class="macro">assert_eq!</span>(body, <span class="string">"12345"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1148,12 +1149,12 @@
         <span class="macro">assert!</span>(cfg.check_mimetype(<span class="kw-2">&amp;</span>req).is_err());
 
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((header::CONTENT_TYPE, <span class="string">"application/x-www-form-urlencoded"</span>))
             .to_http_request();
         <span class="macro">assert!</span>(cfg.check_mimetype(<span class="kw-2">&amp;</span>req).is_err());
 
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .insert_header((header::CONTENT_TYPE, <span class="string">"application/json"</span>))
             .to_http_request();
         <span class="macro">assert!</span>(cfg.check_mimetype(<span class="kw-2">&amp;</span>req).is_ok());
     }
@@ -1163,73 +1164,73 @@
     #[actix_rt::test]
     </span><span class="kw">async fn </span>test_config_recall_locations() {
         <span class="kw">async fn </span>bytes_handler(<span class="kw">_</span>: Bytes) -&gt; <span class="kw">impl </span>Responder {
-            <span class="string">&quot;payload is probably json bytes&quot;
+            <span class="string">"payload is probably json bytes"
         </span>}
 
         <span class="kw">async fn </span>string_handler(<span class="kw">_</span>: String) -&gt; <span class="kw">impl </span>Responder {
-            <span class="string">&quot;payload is probably json string&quot;
+            <span class="string">"payload is probably json string"
         </span>}
 
         <span class="kw">let </span>srv = init_service(
             App::new()
                 .service(
-                    web::resource(<span class="string">&quot;/bytes-app-data&quot;</span>)
+                    web::resource(<span class="string">"/bytes-app-data"</span>)
                         .app_data(PayloadConfig::default().mimetype(mime::APPLICATION_JSON))
                         .route(web::get().to(bytes_handler)),
                 )
                 .service(
-                    web::resource(<span class="string">&quot;/bytes-data&quot;</span>)
+                    web::resource(<span class="string">"/bytes-data"</span>)
                         .data(PayloadConfig::default().mimetype(mime::APPLICATION_JSON))
                         .route(web::get().to(bytes_handler)),
                 )
                 .service(
-                    web::resource(<span class="string">&quot;/string-app-data&quot;</span>)
+                    web::resource(<span class="string">"/string-app-data"</span>)
                         .app_data(PayloadConfig::default().mimetype(mime::APPLICATION_JSON))
                         .route(web::get().to(string_handler)),
                 )
                 .service(
-                    web::resource(<span class="string">&quot;/string-data&quot;</span>)
+                    web::resource(<span class="string">"/string-data"</span>)
                         .data(PayloadConfig::default().mimetype(mime::APPLICATION_JSON))
                         .route(web::get().to(string_handler)),
                 ),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/bytes-app-data&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/bytes-app-data"</span>).to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/bytes-data&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/bytes-data"</span>).to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/string-app-data&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/string-app-data"</span>).to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/string-data&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/string-data"</span>).to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/bytes-app-data&quot;</span>)
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/bytes-app-data"</span>)
             .insert_header(header::ContentType(mime::APPLICATION_JSON))
             .to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/bytes-data&quot;</span>)
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/bytes-data"</span>)
             .insert_header(header::ContentType(mime::APPLICATION_JSON))
             .to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/string-app-data&quot;</span>)
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/string-app-data"</span>)
             .insert_header(header::ContentType(mime::APPLICATION_JSON))
             .to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/string-data&quot;</span>)
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/string-data"</span>)
             .insert_header(header::ContentType(mime::APPLICATION_JSON))
             .to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
@@ -1239,60 +1240,60 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_bytes() {
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .insert_header((header::CONTENT_LENGTH, <span class="string">&quot;11&quot;</span>))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&quot;</span>))
+            .insert_header((header::CONTENT_LENGTH, <span class="string">"11"</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"hello=world"</span>))
             .to_http_parts();
 
         <span class="kw">let </span>s = Bytes::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
-        <span class="macro">assert_eq!</span>(s, Bytes::from_static(<span class="string">b&quot;hello=world&quot;</span>));
+        <span class="macro">assert_eq!</span>(s, Bytes::from_static(<span class="string">b"hello=world"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_string() {
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .insert_header((header::CONTENT_LENGTH, <span class="string">&quot;11&quot;</span>))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&quot;</span>))
+            .insert_header((header::CONTENT_LENGTH, <span class="string">"11"</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"hello=world"</span>))
             .to_http_parts();
 
         <span class="kw">let </span>s = String::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;hello=world&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"hello=world"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_message_body() {
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .insert_header((header::CONTENT_LENGTH, <span class="string">&quot;xxxx&quot;</span>))
+            .insert_header((header::CONTENT_LENGTH, <span class="string">"xxxx"</span>))
             .to_srv_request()
             .into_parts();
         <span class="kw">let </span>res = HttpMessageBody::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
         <span class="kw">match </span>res.err().unwrap() {
             PayloadError::UnknownLength =&gt; {}
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;error&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"error"</span>),
         }
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .insert_header((header::CONTENT_LENGTH, <span class="string">&quot;1000000&quot;</span>))
+            .insert_header((header::CONTENT_LENGTH, <span class="string">"1000000"</span>))
             .to_srv_request()
             .into_parts();
         <span class="kw">let </span>res = HttpMessageBody::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
         <span class="kw">match </span>res.err().unwrap() {
             PayloadError::Overflow =&gt; {}
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;error&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"error"</span>),
         }
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .set_payload(Bytes::from_static(<span class="string">b&quot;test&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"test"</span>))
             .to_http_parts();
         <span class="kw">let </span>res = HttpMessageBody::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(res.ok().unwrap(), Bytes::from_static(<span class="string">b&quot;test&quot;</span>));
+        <span class="macro">assert_eq!</span>(res.ok().unwrap(), Bytes::from_static(<span class="string">b"test"</span>));
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
-            .set_payload(Bytes::from_static(<span class="string">b&quot;11111111111111&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"11111111111111"</span>))
             .to_http_parts();
         <span class="kw">let </span>res = HttpMessageBody::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).limit(<span class="number">5</span>).<span class="kw">await</span>;
         <span class="kw">match </span>res.err().unwrap() {
             PayloadError::Overflow =&gt; {}
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;error&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"error"</span>),
         }
     }
 }

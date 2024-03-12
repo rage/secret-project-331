@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-error-0.2.0/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_error" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../tracing_error/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_error"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-error-0.2.0/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_error" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../tracing_error/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_error"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -317,7 +318,7 @@
 /// }
 ///
 /// impl std::error::Error for Error {
-///     fn source(&amp;self) -&gt; Option&lt;&amp;(dyn std::error::Error + &#39;static)&gt; {
+///     fn source(&amp;self) -&gt; Option&lt;&amp;(dyn std::error::Error + 'static)&gt; {
 ///         self.source.source()
 ///     }
 ///
@@ -327,7 +328,7 @@
 /// }
 ///
 /// impl fmt::Display for Error {
-///     fn fmt(&amp;self, fmt: &amp;mut fmt::Formatter&lt;&#39;_&gt;) -&gt; fmt::Result {
+///     fn fmt(&amp;self, fmt: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
 ///         fmt::Display::fmt(&amp;self.source, fmt)
 ///     }
 /// }
@@ -344,20 +345,20 @@
 ///     }
 /// }
 /// ```
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;traced-error&quot;</span>)))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"traced-error"</span>)))]
 </span><span class="kw">pub struct </span>TracedError&lt;E&gt; {
     inner: ErrorImpl&lt;E&gt;,
 }
 
 <span class="kw">impl</span>&lt;E&gt; From&lt;E&gt; <span class="kw">for </span>TracedError&lt;E&gt;
 <span class="kw">where
-    </span>E: Error + Send + Sync + <span class="lifetime">&#39;static</span>,
+    </span>E: Error + Send + Sync + <span class="lifetime">'static</span>,
 {
     <span class="kw">fn </span>from(error: E) -&gt; <span class="self">Self </span>{
         <span class="comment">// # SAFETY
         //
         // This function + the repr(C) on the ErrorImpl make the type erasure throughout the rest
-        // of this struct&#39;s methods safe. This saves a function pointer that is parameterized on the Error type
+        // of this struct's methods safe. This saves a function pointer that is parameterized on the Error type
         // being stored inside the ErrorImpl. This lets the object_ref function safely cast a type
         // erased `ErrorImpl` back to its original type, which is needed in order to forward our
         // error/display/debug impls to the internal error type from the type erased error type.
@@ -381,18 +382,18 @@
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">struct </span>ErrorImpl&lt;E&gt; {
-    vtable: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>ErrorVTable,
+    vtable: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>ErrorVTable,
     span_trace: SpanTrace,
-    <span class="comment">// NOTE: Don&#39;t use directly. Use only through vtable. Erased type may have
+    <span class="comment">// NOTE: Don't use directly. Use only through vtable. Erased type may have
     // different alignment.
     </span>error: E,
 }
 
 <span class="kw">impl </span>ErrorImpl&lt;Erased&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">&#39;static</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">'static</span>) {
         <span class="comment">// # SAFETY
         //
-        // this function is used to cast a type-erased pointer to a pointer to error&#39;s
+        // this function is used to cast a type-erased pointer to a pointer to error's
         // original type. the `ErrorImpl::error` method, which calls this function, requires that
         // the type this function casts to be the original erased type of the error; failure to
         // uphold this is UB. since the `From` impl is parameterized over the original error type,
@@ -403,7 +404,7 @@
 }
 
 <span class="kw">struct </span>ErrorVTable {
-    object_ref: <span class="kw">unsafe fn</span>(<span class="kw-2">&amp;</span>ErrorImpl&lt;Erased&gt;) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">&#39;static</span>),
+    object_ref: <span class="kw">unsafe fn</span>(<span class="kw-2">&amp;</span>ErrorImpl&lt;Erased&gt;) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">'static</span>),
 }
 
 <span class="comment">// # SAFETY
@@ -411,17 +412,17 @@
 // This function must be parameterized on the type E of the original error that is being stored
 // inside of the `ErrorImpl`. When it is parameterized by the correct type, it safely
 // casts the erased `ErrorImpl` pointer type back to the original pointer type.
-</span><span class="kw">unsafe fn </span>object_ref&lt;E&gt;(e: <span class="kw-2">&amp;</span>ErrorImpl&lt;Erased&gt;) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">&#39;static</span>)
+</span><span class="kw">unsafe fn </span>object_ref&lt;E&gt;(e: <span class="kw-2">&amp;</span>ErrorImpl&lt;Erased&gt;) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">'static</span>)
 <span class="kw">where
-    </span>E: Error + Send + Sync + <span class="lifetime">&#39;static</span>,
+    </span>E: Error + Send + Sync + <span class="lifetime">'static</span>,
 {
-    <span class="comment">// Attach E&#39;s native Error vtable onto a pointer to e.error.
+    <span class="comment">// Attach E's native Error vtable onto a pointer to e.error.
     </span><span class="kw-2">&amp;</span>(<span class="kw-2">*</span>(e <span class="kw">as </span><span class="kw-2">*const </span>ErrorImpl&lt;Erased&gt; <span class="kw">as </span><span class="kw-2">*const </span>ErrorImpl&lt;E&gt;)).error
 }
 
 <span class="kw">impl</span>&lt;E&gt; Error <span class="kw">for </span>TracedError&lt;E&gt;
 <span class="kw">where
-    </span>E: std::error::Error + <span class="lifetime">&#39;static</span>,
+    </span>E: std::error::Error + <span class="lifetime">'static</span>,
 {
     <span class="comment">// # SAFETY
     //
@@ -435,7 +436,7 @@
     // errors defined in other crates. By erasing the type here we can always cast back to the
     // Erased version of the ErrorImpl pointer, and still access the internal error type safely
     // through the vtable.
-    </span><span class="kw">fn </span>source&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>(<span class="kw">dyn </span>Error + <span class="lifetime">&#39;static</span>)&gt; {
+    </span><span class="kw">fn </span>source&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>(<span class="kw">dyn </span>Error + <span class="lifetime">'static</span>)&gt; {
         <span class="kw">let </span>erased = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.inner <span class="kw">as </span><span class="kw-2">*const </span>ErrorImpl&lt;E&gt; <span class="kw">as </span><span class="kw-2">*const </span>ErrorImpl&lt;Erased&gt;) };
         <span class="prelude-val">Some</span>(erased)
     }
@@ -445,7 +446,7 @@
 <span class="kw">where
     </span>E: std::error::Error,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         Debug::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.inner.error, f)
     }
 }
@@ -454,33 +455,33 @@
 <span class="kw">where
     </span>E: std::error::Error,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.inner.error, f)
     }
 }
 
 <span class="kw">impl </span>Error <span class="kw">for </span>ErrorImpl&lt;Erased&gt; {
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + <span class="lifetime">&#39;static</span>)&gt; {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + <span class="lifetime">'static</span>)&gt; {
         <span class="self">self</span>.error().source()
     }
 }
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>ErrorImpl&lt;Erased&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.pad(<span class="string">&quot;span backtrace:\n&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.pad(<span class="string">"span backtrace:\n"</span>)<span class="question-mark">?</span>;
         Debug::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.span_trace, f)
     }
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>ErrorImpl&lt;Erased&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.pad(<span class="string">&quot;span backtrace:\n&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.pad(<span class="string">"span backtrace:\n"</span>)<span class="question-mark">?</span>;
         Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.span_trace, f)
     }
 }
 
 <span class="doccomment">/// Extension trait for instrumenting errors with `SpanTrace`s
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;traced-error&quot;</span>)))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"traced-error"</span>)))]
 </span><span class="kw">pub trait </span>InstrumentError {
     <span class="doccomment">/// The type of the wrapped error after instrumentation
     </span><span class="kw">type </span>Instrumented;
@@ -494,7 +495,7 @@
     ///
     /// fn wrap_error&lt;E&gt;(e: E) -&gt; TracedError&lt;E&gt;
     /// where
-    ///     E: std::error::Error + Send + Sync + &#39;static
+    ///     E: std::error::Error + Send + Sync + 'static
     /// {
     ///     e.in_current_span()
     /// }
@@ -503,7 +504,7 @@
 }
 
 <span class="doccomment">/// Extension trait for instrumenting errors in `Result`s with `SpanTrace`s
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;traced-error&quot;</span>)))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"traced-error"</span>)))]
 </span><span class="kw">pub trait </span>InstrumentResult&lt;T&gt; {
     <span class="doccomment">/// The type of the wrapped error after instrumentation
     </span><span class="kw">type </span>Instrumented;
@@ -516,7 +517,7 @@
     /// # use std::{io, fs};
     /// use tracing_error::{TracedError, InstrumentResult};
     ///
-    /// # fn fallible_fn() -&gt; io::Result&lt;()&gt; { fs::read_dir(&quot;......&quot;).map(drop) };
+    /// # fn fallible_fn() -&gt; io::Result&lt;()&gt; { fs::read_dir("......").map(drop) };
     ///
     /// fn do_thing() -&gt; Result&lt;(), TracedError&lt;io::Error&gt;&gt; {
     ///     fallible_fn().in_current_span()
@@ -538,7 +539,7 @@
 
 <span class="doccomment">/// A trait for extracting SpanTraces created by `in_current_span()` from `dyn
 /// Error` trait objects
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;traced-error&quot;</span>)))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"traced-error"</span>)))]
 </span><span class="kw">pub trait </span>ExtractSpanTrace {
     <span class="doccomment">/// Attempts to downcast to a `TracedError` and return a reference to its
     /// SpanTrace
@@ -549,10 +550,10 @@
     /// use tracing_error::ExtractSpanTrace;
     /// use std::error::Error;
     ///
-    /// fn print_span_trace(e: &amp;(dyn Error + &#39;static)) {
+    /// fn print_span_trace(e: &amp;(dyn Error + 'static)) {
     ///     let span_trace = e.span_trace();
     ///     if let Some(span_trace) = span_trace {
-    ///         println!(&quot;{}&quot;, span_trace);
+    ///         println!("{}", span_trace);
     ///     }
     /// }
     /// ```
@@ -570,7 +571,7 @@
     }
 }
 
-<span class="kw">impl </span>ExtractSpanTrace <span class="kw">for dyn </span>Error + <span class="lifetime">&#39;static </span>{
+<span class="kw">impl </span>ExtractSpanTrace <span class="kw">for dyn </span>Error + <span class="lifetime">'static </span>{
     <span class="kw">fn </span>span_trace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>SpanTrace&gt; {
         <span class="self">self</span>.downcast_ref::&lt;ErrorImpl&lt;Erased&gt;&gt;()
             .map(|inner| <span class="kw-2">&amp;</span>inner.span_trace)

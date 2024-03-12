@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/map/serde.rs`."><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/map/serde.rs`."><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -319,15 +320,15 @@
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>serde::de::{<span class="self">self</span>, Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">use </span>serde::ser::{Serialize, SerializeMap, SerializeSeq, Serializer};
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Serialize <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+</span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Serialize <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Serialize + <span class="question-mark">?</span>Sized + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Serialize + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Serialize + <span class="question-mark">?</span>Sized + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Serialize + <span class="question-mark">?</span>Sized,
     K::Container: Serialize,
     V::Container: Serialize,
 {
@@ -336,7 +337,7 @@
         </span>S: Serializer,
     {
         <span class="kw">if </span>serializer.is_human_readable() {
-            <span class="comment">// Many human-readable formats don&#39;t support values other
+            <span class="comment">// Many human-readable formats don't support values other
             // than numbers and strings as map keys. For them, we can serialize
             // as a vec of tuples instead
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(k) = <span class="self">self</span>.iter_keys().next() {
@@ -363,11 +364,11 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Serialize <span class="kw">for </span>ZeroMapBorrowed&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+</span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Serialize <span class="kw">for </span>ZeroMapBorrowed&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Serialize + <span class="question-mark">?</span>Sized + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Serialize + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Serialize + <span class="question-mark">?</span>Sized + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Serialize + <span class="question-mark">?</span>Sized,
     K::Container: Serialize,
     V::Container: Serialize,
 {
@@ -380,19 +381,19 @@
 }
 
 <span class="doccomment">/// Modified example from https://serde.rs/deserialize-map.html
-</span><span class="kw">struct </span>ZeroMapMapVisitor&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+</span><span class="kw">struct </span>ZeroMapMapVisitor&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
 {
-    <span class="attr">#[allow(clippy::type_complexity)] </span><span class="comment">// it&#39;s a marker type, complexity doesn&#39;t matter
-    </span>marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K::OwnedType, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V::OwnedType)&gt;,
+    <span class="attr">#[allow(clippy::type_complexity)] </span><span class="comment">// it's a marker type, complexity doesn't matter
+    </span>marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K::OwnedType, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V::OwnedType)&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ZeroMapMapVisitor&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ZeroMapMapVisitor&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized + Ord,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
         ZeroMapMapVisitor {
@@ -401,22 +402,22 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;de</span>, K, V&gt; Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ZeroMapMapVisitor&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'de</span>, K, V&gt; Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ZeroMapMapVisitor&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Ord + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    K::OwnedType: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    V::OwnedType: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Ord + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    K::OwnedType: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    V::OwnedType: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
 {
-    <span class="kw">type </span>Value = ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;;
+    <span class="kw">type </span>Value = ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;;
 
     <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        formatter.write_str(<span class="string">&quot;a map produced by ZeroMap&quot;</span>)
+        formatter.write_str(<span class="string">"a map produced by ZeroMap"</span>)
     }
 
     <span class="kw">fn </span>visit_seq&lt;S&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>access: S) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, S::Error&gt;
     <span class="kw">where
-        </span>S: SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>S: SeqAccess&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>map = ZeroMap::with_capacity(access.size_hint().unwrap_or(<span class="number">0</span>));
 
@@ -434,7 +435,7 @@
                 .is_some()
             {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;ZeroMap&#39;s keys must be sorted while deserializing&quot;</span>,
+                    <span class="string">"ZeroMap's keys must be sorted while deserializing"</span>,
                 ));
             }
         }
@@ -444,7 +445,7 @@
 
     <span class="kw">fn </span>visit_map&lt;M&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>access: M) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, M::Error&gt;
     <span class="kw">where
-        </span>M: MapAccess&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>M: MapAccess&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>map = ZeroMap::with_capacity(access.size_hint().unwrap_or(<span class="number">0</span>));
 
@@ -462,7 +463,7 @@
                 .is_some()
             {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;ZeroMap&#39;s keys must be sorted while deserializing&quot;</span>,
+                    <span class="string">"ZeroMap's keys must be sorted while deserializing"</span>,
                 ));
             }
         }
@@ -472,28 +473,28 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, K, V&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>, K, V&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Ord + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    K::Container: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    V::Container: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    K::OwnedType: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    V::OwnedType: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    <span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Ord + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    K::Container: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    V::Container: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    K::OwnedType: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    V::OwnedType: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    <span class="lifetime">'de</span>: <span class="lifetime">'a</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
-            deserializer.deserialize_any(ZeroMapMapVisitor::&lt;<span class="lifetime">&#39;a</span>, K, V&gt;::new())
+            deserializer.deserialize_any(ZeroMapMapVisitor::&lt;<span class="lifetime">'a</span>, K, V&gt;::new())
         } <span class="kw">else </span>{
             <span class="kw">let </span>(keys, values): (K::Container, V::Container) =
                 Deserialize::deserialize(deserializer)<span class="question-mark">?</span>;
             <span class="kw">if </span>keys.zvl_len() != values.zvl_len() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;Mismatched key and value sizes in ZeroMap&quot;</span>,
+                    <span class="string">"Mismatched key and value sizes in ZeroMap"</span>,
                 ));
             }
             <span class="comment">// #1433: If keys are out of order, treat it as GIGO.
@@ -504,38 +505,38 @@
 }
 
 <span class="comment">// /// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, K, V&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ZeroMapBorrowed&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>, K, V&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ZeroMapBorrowed&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
-    </span>K: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + Ord + <span class="question-mark">?</span>Sized,
-    V: ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="question-mark">?</span>Sized,
-    K::Container: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    V::Container: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    K::OwnedType: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    V::OwnedType: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    <span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>,
+    </span>K: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + Ord + <span class="question-mark">?</span>Sized,
+    V: ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; + <span class="question-mark">?</span>Sized,
+    K::Container: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    V::Container: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    K::OwnedType: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    V::OwnedType: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    <span class="lifetime">'de</span>: <span class="lifetime">'a</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="prelude-val">Err</span>(de::Error::custom(
-                <span class="string">&quot;ZeroMapBorrowed cannot be deserialized from human-readable formats&quot;</span>,
+                <span class="string">"ZeroMapBorrowed cannot be deserialized from human-readable formats"</span>,
             ))
         } <span class="kw">else </span>{
-            <span class="kw">let </span>deserialized: ZeroMap&lt;<span class="lifetime">&#39;a</span>, K, V&gt; = ZeroMap::deserialize(deserializer)<span class="question-mark">?</span>;
+            <span class="kw">let </span>deserialized: ZeroMap&lt;<span class="lifetime">'a</span>, K, V&gt; = ZeroMap::deserialize(deserializer)<span class="question-mark">?</span>;
             <span class="kw">let </span>keys = <span class="kw">if let </span><span class="prelude-val">Some</span>(keys) = deserialized.keys.zvl_as_borrowed_inner() {
                 keys
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;ZeroMapBorrowed can only deserialize in zero-copy ways&quot;</span>,
+                    <span class="string">"ZeroMapBorrowed can only deserialize in zero-copy ways"</span>,
                 ));
             };
             <span class="kw">let </span>values = <span class="kw">if let </span><span class="prelude-val">Some</span>(values) = deserialized.values.zvl_as_borrowed_inner() {
                 values
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;ZeroMapBorrowed can only deserialize in zero-copy ways&quot;</span>,
+                    <span class="string">"ZeroMapBorrowed can only deserialize in zero-copy ways"</span>,
                 ));
             };
             <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ keys, values })
@@ -549,37 +550,37 @@
     <span class="kw">use crate</span>::{map::ZeroMapBorrowed, ZeroMap};
 
     <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
-    </span><span class="kw">struct </span>DeriveTest_ZeroMap&lt;<span class="lifetime">&#39;data</span>&gt; {
+    </span><span class="kw">struct </span>DeriveTest_ZeroMap&lt;<span class="lifetime">'data</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span>_data: ZeroMap&lt;<span class="lifetime">&#39;data</span>, str, [u8]&gt;,
+        </span>_data: ZeroMap&lt;<span class="lifetime">'data</span>, str, [u8]&gt;,
     }
 
     <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
-    </span><span class="kw">struct </span>DeriveTest_ZeroMapBorrowed&lt;<span class="lifetime">&#39;data</span>&gt; {
+    </span><span class="kw">struct </span>DeriveTest_ZeroMapBorrowed&lt;<span class="lifetime">'data</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span>_data: ZeroMapBorrowed&lt;<span class="lifetime">&#39;data</span>, str, [u8]&gt;,
+        </span>_data: ZeroMapBorrowed&lt;<span class="lifetime">'data</span>, str, [u8]&gt;,
     }
 
-    <span class="kw">const </span>JSON_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;{\&quot;1\&quot;:\&quot;uno\&quot;,\&quot;2\&quot;:\&quot;dos\&quot;,\&quot;3\&quot;:\&quot;tres\&quot;}&quot;</span>;
+    <span class="kw">const </span>JSON_STR: <span class="kw-2">&amp;</span>str = <span class="string">"{\"1\":\"uno\",\"2\":\"dos\",\"3\":\"tres\"}"</span>;
     <span class="kw">const </span>BINCODE_BYTES: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
         <span class="number">12</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">20</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>,
         <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">0</span>, <span class="number">117</span>, <span class="number">110</span>, <span class="number">111</span>, <span class="number">100</span>, <span class="number">111</span>, <span class="number">115</span>, <span class="number">116</span>, <span class="number">114</span>, <span class="number">101</span>, <span class="number">115</span>,
     ];
 
-    <span class="kw">fn </span>make_map() -&gt; ZeroMap&lt;<span class="lifetime">&#39;static</span>, u32, str&gt; {
+    <span class="kw">fn </span>make_map() -&gt; ZeroMap&lt;<span class="lifetime">'static</span>, u32, str&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>map = ZeroMap::new();
-        map.insert(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="string">&quot;uno&quot;</span>);
-        map.insert(<span class="kw-2">&amp;</span><span class="number">2</span>, <span class="string">&quot;dos&quot;</span>);
-        map.insert(<span class="kw-2">&amp;</span><span class="number">3</span>, <span class="string">&quot;tres&quot;</span>);
+        map.insert(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="string">"uno"</span>);
+        map.insert(<span class="kw-2">&amp;</span><span class="number">2</span>, <span class="string">"dos"</span>);
+        map.insert(<span class="kw-2">&amp;</span><span class="number">3</span>, <span class="string">"tres"</span>);
         map
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serde_json() {
         <span class="kw">let </span>map = make_map();
-        <span class="kw">let </span>json_str = serde_json::to_string(<span class="kw-2">&amp;</span>map).expect(<span class="string">&quot;serialize&quot;</span>);
+        <span class="kw">let </span>json_str = serde_json::to_string(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
         <span class="macro">assert_eq!</span>(JSON_STR, json_str);
-        <span class="kw">let </span>new_map: ZeroMap&lt;u32, str&gt; = serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">&quot;deserialize&quot;</span>);
+        <span class="kw">let </span>new_map: ZeroMap&lt;u32, str&gt; = serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">"deserialize"</span>);
         <span class="macro">assert_eq!</span>(
             new_map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
@@ -589,16 +590,16 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serde_json_complex_key() {
         <span class="kw">let </span><span class="kw-2">mut </span>map = ZeroMap::new();
-        map.insert(<span class="kw-2">&amp;</span>(<span class="number">1</span>, <span class="number">1</span>), <span class="string">&quot;uno&quot;</span>);
-        map.insert(<span class="kw-2">&amp;</span>(<span class="number">2</span>, <span class="number">2</span>), <span class="string">&quot;dos&quot;</span>);
-        map.insert(<span class="kw-2">&amp;</span>(<span class="number">3</span>, <span class="number">3</span>), <span class="string">&quot;tres&quot;</span>);
-        <span class="kw">let </span>json_str = serde_json::to_string(<span class="kw-2">&amp;</span>map).expect(<span class="string">&quot;serialize&quot;</span>);
+        map.insert(<span class="kw-2">&amp;</span>(<span class="number">1</span>, <span class="number">1</span>), <span class="string">"uno"</span>);
+        map.insert(<span class="kw-2">&amp;</span>(<span class="number">2</span>, <span class="number">2</span>), <span class="string">"dos"</span>);
+        map.insert(<span class="kw-2">&amp;</span>(<span class="number">3</span>, <span class="number">3</span>), <span class="string">"tres"</span>);
+        <span class="kw">let </span>json_str = serde_json::to_string(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
         <span class="macro">assert_eq!</span>(
             json_str,
-            <span class="string">&quot;[[[1,1],\&quot;uno\&quot;],[[2,2],\&quot;dos\&quot;],[[3,3],\&quot;tres\&quot;]]&quot;
+            <span class="string">"[[[1,1],\"uno\"],[[2,2],\"dos\"],[[3,3],\"tres\"]]"
         </span>);
         <span class="kw">let </span>new_map: ZeroMap&lt;(u32, u32), str&gt; =
-            serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">&quot;deserialize&quot;</span>);
+            serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">"deserialize"</span>);
         <span class="macro">assert_eq!</span>(
             new_map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
@@ -608,16 +609,16 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bincode() {
         <span class="kw">let </span>map = make_map();
-        <span class="kw">let </span>bincode_bytes = bincode::serialize(<span class="kw-2">&amp;</span>map).expect(<span class="string">&quot;serialize&quot;</span>);
+        <span class="kw">let </span>bincode_bytes = bincode::serialize(<span class="kw-2">&amp;</span>map).expect(<span class="string">"serialize"</span>);
         <span class="macro">assert_eq!</span>(BINCODE_BYTES, bincode_bytes);
-        <span class="kw">let </span>new_map: ZeroMap&lt;u32, str&gt; = bincode::deserialize(<span class="kw-2">&amp;</span>bincode_bytes).expect(<span class="string">&quot;deserialize&quot;</span>);
+        <span class="kw">let </span>new_map: ZeroMap&lt;u32, str&gt; = bincode::deserialize(<span class="kw-2">&amp;</span>bincode_bytes).expect(<span class="string">"deserialize"</span>);
         <span class="macro">assert_eq!</span>(
             new_map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
         );
 
         <span class="kw">let </span>new_map: ZeroMapBorrowed&lt;u32, str&gt; =
-            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_bytes).expect(<span class="string">&quot;deserialize&quot;</span>);
+            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_bytes).expect(<span class="string">"deserialize"</span>);
         <span class="macro">assert_eq!</span>(
             new_map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()

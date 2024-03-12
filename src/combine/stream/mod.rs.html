@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/stream/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/stream/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1906,7 +1907,7 @@
 //! In addition to he functionality above, a proper `Stream` usable by a `Parser` must also have a
 //! position (marked by the `Positioned` trait) and must also be resetable (marked by the
 //! `ResetStream` trait). The former is used to ensure that errors at different points in the stream
-//! aren&#39;t combined and the latter is used in parsers such as `or` to try multiple alternative
+//! aren't combined and the latter is used in parsers such as `or` to try multiple alternative
 //! parses.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::lib::{cmp::Ordering, fmt, marker::PhantomData, str::Chars};
@@ -1920,7 +1921,7 @@
     Parser,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">pub use </span><span class="self">self</span>::decoder::Decoder;
 
 <span class="attr">#[doc(hidden)]
@@ -1944,29 +1945,29 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub mod </span>buf_reader;
 <span class="doccomment">/// Stream wrapper which provides a `ResetStream` impl for `StreamOnce` impls which do not have
 /// one.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;alloc&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"alloc"</span>)))]
 </span><span class="kw">pub mod </span>buffered;
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub mod </span>easy;
 <span class="doccomment">/// Stream wrapper which provides more detailed position information.
 </span><span class="kw">pub mod </span>position;
 <span class="doccomment">/// Stream wrapper allowing `std::io::Read` to be used
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub mod </span>read;
 <span class="kw">pub mod </span>span;
 <span class="doccomment">/// Stream wrapper allowing custom state to be used.
 </span><span class="kw">pub mod </span>state;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub mod </span>decoder;
 
 <span class="doccomment">/// A type which has a position.
@@ -1990,11 +1991,11 @@
 ///     where [ Input: Stream&lt;Token = char&gt;, ]
 ///     {
 ///         many1(letter()).and_then(|word: String| {
-///             if word == &quot;combine&quot; {
+///             if word == "combine" {
 ///                 Ok(word)
 ///             } else {
 ///                 // The alias makes it easy to refer to the `StreamError` type of `Input`
-///                 Err(StreamErrorFor::&lt;Input&gt;::expected_static_message(&quot;combine&quot;))
+///                 Err(StreamErrorFor::&lt;Input&gt;::expected_static_message("combine"))
 ///             }
 ///         })
 ///     }
@@ -2047,9 +2048,9 @@
     </span><span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, checkpoint: <span class="self">Self</span>::Checkpoint) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
 }
 
-<span class="macro">clone_resetable! </span>{(<span class="lifetime">&#39;a</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str}
-<span class="macro">clone_resetable! </span>{(<span class="lifetime">&#39;a</span>, T) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]}
-<span class="macro">clone_resetable! </span>{(<span class="lifetime">&#39;a</span>, T) SliceStream&lt;<span class="lifetime">&#39;a</span>, T&gt; }
+<span class="macro">clone_resetable! </span>{(<span class="lifetime">'a</span>) <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str}
+<span class="macro">clone_resetable! </span>{(<span class="lifetime">'a</span>, T) <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]}
+<span class="macro">clone_resetable! </span>{(<span class="lifetime">'a</span>, T) SliceStream&lt;<span class="lifetime">'a</span>, T&gt; }
 <span class="macro">clone_resetable! </span>{(T: Clone) IteratorStream&lt;T&gt;}
 
 <span class="doccomment">/// A stream of tokens which can be duplicated
@@ -2117,7 +2118,7 @@
             PeekErr(Tracked::from(StreamErrorFor::&lt;<span class="self">Self</span>&gt;::end_of_input()))
         } <span class="kw">else </span>{
             PeekErr(Tracked::from(
-                StreamErrorFor::&lt;<span class="self">Self</span>&gt;::unexpected_static_message(<span class="string">&quot;&quot;</span>),
+                StreamErrorFor::&lt;<span class="self">Self</span>&gt;::unexpected_static_message(<span class="string">""</span>),
             ))
         }
     }
@@ -2287,7 +2288,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, I&gt; StreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>I
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, I&gt; StreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>I
 <span class="kw">where
     </span>I: StreamOnce + <span class="question-mark">?</span>Sized,
 {
@@ -2307,7 +2308,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, I&gt; Positioned <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>I
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, I&gt; Positioned <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>I
 <span class="kw">where
     </span>I: Positioned + <span class="question-mark">?</span>Sized,
 {
@@ -2317,7 +2318,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, I&gt; ResetStream <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>I
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, I&gt; ResetStream <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>I
 <span class="kw">where
     </span>I: ResetStream + <span class="question-mark">?</span>Sized,
 {
@@ -2332,7 +2333,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, I&gt; RangeStreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>I
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, I&gt; RangeStreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>I
 <span class="kw">where
     </span>I: RangeStreamOnce + <span class="question-mark">?</span>Sized,
 {
@@ -2367,7 +2368,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, I&gt; Range <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>I
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, I&gt; Range <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>I
 <span class="kw">where
     </span>I: Range + <span class="question-mark">?</span>Sized,
 {
@@ -2376,9 +2377,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; StreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; StreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
     <span class="kw">type </span>Token = char;
-    <span class="kw">type </span>Range = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str;
+    <span class="kw">type </span>Range = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str;
     <span class="kw">type </span>Position = PointerOffset&lt;str&gt;;
     <span class="kw">type </span>Error = StringStreamError;
 
@@ -2395,7 +2396,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Positioned <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Positioned <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>position(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Position {
         PointerOffset::new(<span class="self">self</span>.as_bytes().position().<span class="number">0</span>)
@@ -2403,7 +2404,7 @@
 }
 
 <span class="attr">#[allow(clippy::while_let_loop)]
-</span><span class="kw">fn </span>str_uncons_while&lt;<span class="lifetime">&#39;a</span>, F&gt;(slice: <span class="kw-2">&amp;mut &amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">mut </span>chars: Chars&lt;<span class="lifetime">&#39;a</span>&gt;, <span class="kw-2">mut </span>f: F) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str
+</span><span class="kw">fn </span>str_uncons_while&lt;<span class="lifetime">'a</span>, F&gt;(slice: <span class="kw-2">&amp;mut &amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">mut </span>chars: Chars&lt;<span class="lifetime">'a</span>&gt;, <span class="kw-2">mut </span>f: F) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str
 <span class="kw">where
     </span>F: FnMut(char) -&gt; bool,
 {
@@ -2439,8 +2440,8 @@
     result
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; RangeStreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
-    <span class="kw">fn </span>uncons_while&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; RangeStreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
+    <span class="kw">fn </span>uncons_while&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt;
     <span class="kw">where
         </span>F: FnMut(<span class="self">Self</span>::Token) -&gt; bool,
     {
@@ -2466,7 +2467,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>uncons_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt; {
+    </span><span class="kw">fn </span>uncons_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">fn </span>is_char_boundary(s: <span class="kw-2">&amp;</span>str, index: usize) -&gt; bool {
             <span class="kw">if </span>index == s.len() {
                 <span class="kw">return </span><span class="bool-val">true</span>;
@@ -2499,14 +2500,14 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Range <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Range <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         str::len(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Range <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T] {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; Range <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T] {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         &lt;[T]&gt;::len(<span class="self">self</span>)
@@ -2519,7 +2520,7 @@
     One = <span class="number">1</span>,
 }
 
-<span class="kw">fn </span>slice_uncons_while&lt;<span class="lifetime">&#39;a</span>, T, F&gt;(slice: <span class="kw-2">&amp;mut &amp;</span><span class="lifetime">&#39;a </span>[T], start: UnconsStart, <span class="kw-2">mut </span>f: F) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]
+<span class="kw">fn </span>slice_uncons_while&lt;<span class="lifetime">'a</span>, T, F&gt;(slice: <span class="kw-2">&amp;mut &amp;</span><span class="lifetime">'a </span>[T], start: UnconsStart, <span class="kw-2">mut </span>f: F) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]
 <span class="kw">where
     </span>F: FnMut(T) -&gt; bool,
     T: Clone,
@@ -2527,7 +2528,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>i = start <span class="kw">as </span>usize;
     <span class="kw">let </span>len = slice.len();
     <span class="comment">// SAFETY: We only call this function with `One` if the slice has length &gt;= 1
-    </span><span class="macro">debug_assert!</span>(len &gt;= i, <span class="string">&quot;&quot;</span>);
+    </span><span class="macro">debug_assert!</span>(len &gt;= i, <span class="string">""</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>found = <span class="bool-val">false</span>;
 
     <span class="macro">macro_rules! </span>check {
@@ -2566,12 +2567,12 @@
     result
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; RangeStreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; RangeStreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]
 <span class="kw">where
     </span>T: Clone + PartialEq,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>uncons_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T], StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt; {
+    </span><span class="kw">fn </span>uncons_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T], StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">if </span>size &lt;= <span class="self">self</span>.len() {
             <span class="kw">let </span>(result, remaining) = <span class="self">self</span>.split_at(size);
             <span class="kw-2">*</span><span class="self">self </span>= remaining;
@@ -2582,7 +2583,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>uncons_while&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T], StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt;
+    </span><span class="kw">fn </span>uncons_while&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T], StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt;
     <span class="kw">where
         </span>F: FnMut(<span class="self">Self</span>::Token) -&gt; bool,
     {
@@ -2618,7 +2619,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Positioned <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; Positioned <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]
 <span class="kw">where
     </span>T: Clone + PartialEq,
 {
@@ -2628,12 +2629,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; StreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; StreamOnce <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]
 <span class="kw">where
     </span>T: Clone + PartialEq,
 {
     <span class="kw">type </span>Token = T;
-    <span class="kw">type </span>Range = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T];
+    <span class="kw">type </span>Range = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T];
     <span class="kw">type </span>Position = PointerOffset&lt;[T]&gt;;
     <span class="kw">type </span>Error = UnexpectedParse;
 
@@ -2754,8 +2755,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, S&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="kw-2">mut </span>S&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="kw-2">mut </span>CompleteStream&lt;S&gt; {
-    <span class="kw">fn </span>from(t: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="kw-2">mut </span>S) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, S&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="kw-2">mut </span>S&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="kw-2">mut </span>CompleteStream&lt;S&gt; {
+    <span class="kw">fn </span>from(t: <span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="kw-2">mut </span>S) -&gt; <span class="self">Self </span>{
         <span class="comment">// SAFETY repr(transparent) is specified on CompleteStream
         </span><span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>(t <span class="kw">as </span><span class="kw-2">*mut </span>S <span class="kw">as </span><span class="kw-2">*mut </span>CompleteStream&lt;S&gt;) }
     }
@@ -2928,17 +2929,17 @@
 
 <span class="doccomment">/// Newtype for constructing a stream from a slice where the items in the slice are not copyable.
 </span><span class="attr">#[derive(Copy, Eq, PartialEq, Ord, PartialOrd, Debug)]
-</span><span class="kw">pub struct </span>SliceStream&lt;<span class="lifetime">&#39;a</span>, T&gt;(<span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]);
+</span><span class="kw">pub struct </span>SliceStream&lt;<span class="lifetime">'a</span>, T&gt;(<span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Clone <span class="kw">for </span>SliceStream&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SliceStream&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; Clone <span class="kw">for </span>SliceStream&lt;<span class="lifetime">'a</span>, T&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SliceStream&lt;<span class="lifetime">'a</span>, T&gt; {
         SliceStream(<span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Positioned <span class="kw">for </span>SliceStream&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; Positioned <span class="kw">for </span>SliceStream&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
-    </span>T: PartialEq + <span class="lifetime">&#39;a</span>,
+    </span>T: PartialEq + <span class="lifetime">'a</span>,
 {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>position(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Position {
@@ -2946,17 +2947,17 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; StreamOnce <span class="kw">for </span>SliceStream&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; StreamOnce <span class="kw">for </span>SliceStream&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
-    </span>T: PartialEq + <span class="lifetime">&#39;a</span>,
+    </span>T: PartialEq + <span class="lifetime">'a</span>,
 {
-    <span class="kw">type </span>Token = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T;
-    <span class="kw">type </span>Range = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T];
+    <span class="kw">type </span>Token = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T;
+    <span class="kw">type </span>Range = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T];
     <span class="kw">type </span>Position = PointerOffset&lt;[T]&gt;;
     <span class="kw">type </span>Error = UnexpectedParse;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>uncons(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T, StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt; {
+    </span><span class="kw">fn </span>uncons(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T, StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.split_first() {
             <span class="prelude-val">Some</span>((first, rest)) =&gt; {
                 <span class="self">self</span>.<span class="number">0 </span>= rest;
@@ -2967,14 +2968,14 @@
     }
 }
 
-<span class="kw">fn </span>slice_uncons_while_ref&lt;<span class="lifetime">&#39;a</span>, T, F&gt;(slice: <span class="kw-2">&amp;mut &amp;</span><span class="lifetime">&#39;a </span>[T], start: UnconsStart, <span class="kw-2">mut </span>f: F) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]
+<span class="kw">fn </span>slice_uncons_while_ref&lt;<span class="lifetime">'a</span>, T, F&gt;(slice: <span class="kw-2">&amp;mut &amp;</span><span class="lifetime">'a </span>[T], start: UnconsStart, <span class="kw-2">mut </span>f: F) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]
 <span class="kw">where
-    </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T) -&gt; bool,
+    </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; bool,
 {
     <span class="kw">let </span><span class="kw-2">mut </span>i = start <span class="kw">as </span>usize;
     <span class="kw">let </span>len = slice.len();
     <span class="comment">// SAFETY: We only call this function with `One` if the slice has length &gt;= 1
-    </span><span class="macro">debug_assert!</span>(len &gt;= i, <span class="string">&quot;&quot;</span>);
+    </span><span class="macro">debug_assert!</span>(len &gt;= i, <span class="string">""</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>found = <span class="bool-val">false</span>;
 
     <span class="macro">macro_rules! </span>check {
@@ -3013,12 +3014,12 @@
     result
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; RangeStreamOnce <span class="kw">for </span>SliceStream&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; RangeStreamOnce <span class="kw">for </span>SliceStream&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
-    </span>T: PartialEq + <span class="lifetime">&#39;a</span>,
+    </span>T: PartialEq + <span class="lifetime">'a</span>,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>uncons_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T], StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt; {
+    </span><span class="kw">fn </span>uncons_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T], StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">if </span>size &lt;= <span class="self">self</span>.<span class="number">0</span>.len() {
             <span class="kw">let </span>(range, rest) = <span class="self">self</span>.<span class="number">0</span>.split_at(size);
             <span class="self">self</span>.<span class="number">0 </span>= rest;
@@ -3029,7 +3030,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>uncons_while&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T], StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt;
+    </span><span class="kw">fn </span>uncons_while&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T], StreamErrorFor&lt;<span class="self">Self</span>&gt;&gt;
     <span class="kw">where
         </span>F: FnMut(<span class="self">Self</span>::Token) -&gt; bool,
     {
@@ -3153,8 +3154,8 @@
 <span class="kw">where
     </span>T: <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>)
     }
 }
 
@@ -3162,8 +3163,8 @@
 <span class="kw">where
     </span>T: <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;PointerOffset({:?})&quot;</span>, <span class="self">self</span>.<span class="number">0 </span><span class="kw">as </span><span class="kw-2">*const </span>())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"PointerOffset({:?})"</span>, <span class="self">self</span>.<span class="number">0 </span><span class="kw">as </span><span class="kw-2">*const </span>())
     }
 }
 
@@ -3181,8 +3182,8 @@
     /// # extern crate combine;
     /// # use combine::*;
     /// # fn main() {
-    /// let text = &quot;b&quot;;
-    /// let err = token(&#39;a&#39;).easy_parse(text).unwrap_err();
+    /// let text = "b";
+    /// let err = token('a').easy_parse(text).unwrap_err();
     /// assert_eq!(err.position.0, text.as_ptr() as usize);
     /// assert_eq!(err.map_position(|p| p.translate_position(text)).position, 0);
     /// # }
@@ -3285,9 +3286,9 @@
 /// };
 /// use combine::{decode, satisfy, skip_many1, many1, sep_end_by, Parser, stream::Decoder};
 ///
-/// let mut read = File::open(&quot;README.md&quot;).unwrap();
+/// let mut read = File::open("README.md").unwrap();
 /// let mut decoder = Decoder::new();
-/// let is_whitespace = |b: u8| b == b&#39; &#39; || b == b&#39;\r&#39; || b == b&#39;\n&#39;;
+/// let is_whitespace = |b: u8| b == b' ' || b == b'\r' || b == b'\n';
 /// assert_eq!(
 ///     decode!(
 ///         decoder,
@@ -3301,8 +3302,8 @@
 ///     Ok(824),
 /// );
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 #[macro_export]
 </span><span class="macro">macro_rules! </span>decode {
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr $(,)<span class="question-mark">?</span>) =&gt; {
@@ -3316,7 +3317,7 @@
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr, <span class="macro-nonterminal">$input_stream</span>: expr, <span class="macro-nonterminal">$post_decode</span>: expr $(,)<span class="question-mark">?</span>) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$decoder </span>{
             <span class="kw-2">ref mut </span>decoder =&gt; <span class="kw">match </span><span class="macro-nonterminal">$read </span>{
-                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
+                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">'outer</span>: <span class="kw">loop </span>{
                     <span class="kw">let </span>(opt, removed) = {
                         <span class="kw">let </span>(state, position, buffer, end_of_input) = decoder.__inner();
                         <span class="kw">let </span>buffer =
@@ -3333,7 +3334,7 @@
                         <span class="kw">match </span>result {
                             <span class="prelude-val">Ok</span>(x) =&gt; x,
                             <span class="prelude-val">Err</span>(err) =&gt; {
-                                <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err))
+                                <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err))
                             }
                         }
                     };
@@ -3341,13 +3342,13 @@
                     decoder.advance(<span class="kw-2">&amp;mut *</span>read, removed);
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = opt {
-                        <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Ok</span>(v);
+                        <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Ok</span>(v);
                     }
 
                     <span class="kw">match </span>decoder.__before_parse(<span class="kw-2">&amp;mut *</span>read) {
                         <span class="prelude-val">Ok</span>(x) =&gt; x,
                         <span class="prelude-val">Err</span>(error) =&gt; {
-                            <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
+                            <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
                                 error,
                                 position: Clone::clone(decoder.position()),
                             })
@@ -3381,9 +3382,9 @@
 /// }
 ///
 /// async fn main_() {
-///     let mut read = File::open(&quot;README.md&quot;).await.unwrap();
+///     let mut read = File::open("README.md").await.unwrap();
 ///     let mut decoder = Decoder::new();
-///     let is_whitespace = |b: u8| b == b&#39; &#39; || b == b&#39;\r&#39; || b == b&#39;\n&#39;;
+///     let is_whitespace = |b: u8| b == b' ' || b == b'\r' || b == b'\n';
 ///     assert_eq!(
 ///         decode_futures_03!(
 ///             decoder,
@@ -3398,8 +3399,8 @@
 ///     );
 /// }
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;futures-io-03&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;futures-io-03&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"futures-io-03"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"futures-io-03"</span>)))]
 #[macro_export]
 </span><span class="macro">macro_rules! </span>decode_futures_03 {
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr) =&gt; {
@@ -3414,7 +3415,7 @@
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr, <span class="macro-nonterminal">$input_stream</span>: expr, <span class="macro-nonterminal">$post_decode</span>: expr $(,)<span class="question-mark">?</span>) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$decoder </span>{
             <span class="kw-2">ref mut </span>decoder =&gt; <span class="kw">match </span><span class="macro-nonterminal">$read </span>{
-                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
+                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">'outer</span>: <span class="kw">loop </span>{
                     <span class="kw">let </span>(opt, removed) = {
                         <span class="kw">let </span>(state, position, buffer, end_of_input) = decoder.__inner();
                         <span class="kw">let </span>buffer =
@@ -3430,21 +3431,21 @@
                         <span class="macro-nonterminal">$crate::stream::call_with</span>(stream, <span class="macro-nonterminal">$post_decode</span>);
                         <span class="kw">match </span>result {
                             <span class="prelude-val">Ok</span>(x) =&gt; x,
-                            <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err)),
+                            <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err)),
                         }
                     };
 
                     decoder.advance_pin(std::pin::Pin::new(<span class="kw-2">&amp;mut *</span>read), removed);
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = opt {
-                        <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Ok</span>(v);
+                        <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Ok</span>(v);
                     }
 
 
                     <span class="kw">match </span>decoder.__before_parse_async(std::pin::Pin::new(<span class="kw-2">&amp;mut *</span>read)).<span class="kw">await </span>{
                         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
                         <span class="prelude-val">Err</span>(error) =&gt; {
-                            <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
+                            <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
                                 error,
                                 position: Clone::clone(decoder.position()),
                             })
@@ -3475,9 +3476,9 @@
 ///
 /// #[tokio::main]
 /// async fn main() {
-///     let mut read = BufReader::new(File::open(&quot;README.md&quot;).await.unwrap());
+///     let mut read = BufReader::new(File::open("README.md").await.unwrap());
 ///     let mut decoder = Decoder::new_bufferless();
-///     let is_whitespace = |b: u8| b == b&#39; &#39; || b == b&#39;\r&#39; || b == b&#39;\n&#39;;
+///     let is_whitespace = |b: u8| b == b' ' || b == b'\r' || b == b'\n';
 ///     assert_eq!(
 ///         decode_tokio_02!(
 ///             decoder,
@@ -3492,8 +3493,8 @@
 ///     );
 /// }
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;tokio-02&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio-02&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"tokio-02"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"tokio-02"</span>)))]
 #[macro_export]
 </span><span class="macro">macro_rules! </span>decode_tokio_02 {
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr $(,)<span class="question-mark">?</span>) =&gt; {
@@ -3507,7 +3508,7 @@
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr, <span class="macro-nonterminal">$input_stream</span>: expr, <span class="macro-nonterminal">$post_decode</span>: expr $(,)<span class="question-mark">?</span>) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$decoder </span>{
             <span class="kw-2">ref mut </span>decoder =&gt; <span class="kw">match </span><span class="macro-nonterminal">$read </span>{
-                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
+                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">'outer</span>: <span class="kw">loop </span>{
                     <span class="kw">let </span>(opt, removed) = {
                         <span class="kw">let </span>(state, position, buffer, end_of_input) = decoder.__inner();
                         <span class="kw">let </span>buffer =
@@ -3523,7 +3524,7 @@
                         <span class="kw">match </span>result {
                             <span class="prelude-val">Ok</span>(x) =&gt; x,
                             <span class="prelude-val">Err</span>(err) =&gt; {
-                                <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err))
+                                <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err))
                             }
                         }
                     };
@@ -3531,7 +3532,7 @@
                     decoder.advance_pin(std::pin::Pin::new(read), removed);
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = opt {
-                        <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Ok</span>(v);
+                        <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Ok</span>(v);
                     }
 
                     <span class="kw">match </span>decoder
@@ -3540,7 +3541,7 @@
                     </span>{
                         <span class="prelude-val">Ok</span>(x) =&gt; x,
                         <span class="prelude-val">Err</span>(error) =&gt; {
-                            <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
+                            <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
                                 error,
                                 position: Clone::clone(decoder.position()),
                             })
@@ -3571,9 +3572,9 @@
 ///
 /// #[tokio::main]
 /// async fn main() {
-///     let mut read = BufReader::new(File::open(&quot;README.md&quot;).await.unwrap());
+///     let mut read = BufReader::new(File::open("README.md").await.unwrap());
 ///     let mut decoder = Decoder::new_bufferless();
-///     let is_whitespace = |b: u8| b == b&#39; &#39; || b == b&#39;\r&#39; || b == b&#39;\n&#39;;
+///     let is_whitespace = |b: u8| b == b' ' || b == b'\r' || b == b'\n';
 ///     assert_eq!(
 ///         decode_tokio_03!(
 ///             decoder,
@@ -3588,8 +3589,8 @@
 ///     );
 /// }
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;tokio-03&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio-03&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"tokio-03"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"tokio-03"</span>)))]
 #[macro_export]
 </span><span class="macro">macro_rules! </span>decode_tokio_03 {
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr $(,)<span class="question-mark">?</span>) =&gt; {
@@ -3603,7 +3604,7 @@
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr, <span class="macro-nonterminal">$input_stream</span>: expr, <span class="macro-nonterminal">$post_decode</span>: expr $(,)<span class="question-mark">?</span>) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$decoder </span>{
             <span class="kw-2">ref mut </span>decoder =&gt; <span class="kw">match </span><span class="macro-nonterminal">$read </span>{
-                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
+                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">'outer</span>: <span class="kw">loop </span>{
                     <span class="kw">let </span>(opt, removed) = {
                         <span class="kw">let </span>(state, position, buffer, end_of_input) = decoder.__inner();
                         <span class="kw">let </span>buffer =
@@ -3619,7 +3620,7 @@
                         <span class="kw">match </span>result {
                             <span class="prelude-val">Ok</span>(x) =&gt; x,
                             <span class="prelude-val">Err</span>(err) =&gt; {
-                                <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err))
+                                <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err))
                             }
                         }
                     };
@@ -3627,7 +3628,7 @@
                     decoder.advance_pin(std::pin::Pin::new(read), removed);
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = opt {
-                        <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Ok</span>(v);
+                        <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Ok</span>(v);
                     }
 
                     <span class="kw">match </span>decoder
@@ -3636,7 +3637,7 @@
                     </span>{
                         <span class="prelude-val">Ok</span>(x) =&gt; x,
                         <span class="prelude-val">Err</span>(error) =&gt; {
-                            <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
+                            <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
                                 error,
                                 position: Clone::clone(decoder.position()),
                             })
@@ -3667,9 +3668,9 @@
 ///
 /// #[tokio::main]
 /// async fn main() {
-///     let mut read = BufReader::new(File::open(&quot;README.md&quot;).await.unwrap());
+///     let mut read = BufReader::new(File::open("README.md").await.unwrap());
 ///     let mut decoder = Decoder::new_bufferless();
-///     let is_whitespace = |b: u8| b == b&#39; &#39; || b == b&#39;\r&#39; || b == b&#39;\n&#39;;
+///     let is_whitespace = |b: u8| b == b' ' || b == b'\r' || b == b'\n';
 ///     assert_eq!(
 ///         decode_tokio!(
 ///             decoder,
@@ -3684,8 +3685,8 @@
 ///     );
 /// }
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;tokio&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"tokio"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"tokio"</span>)))]
 #[macro_export]
 </span><span class="macro">macro_rules! </span>decode_tokio {
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr $(,)<span class="question-mark">?</span>) =&gt; {
@@ -3699,7 +3700,7 @@
     (<span class="macro-nonterminal">$decoder</span>: expr, <span class="macro-nonterminal">$read</span>: expr, <span class="macro-nonterminal">$parser</span>: expr, <span class="macro-nonterminal">$input_stream</span>: expr, <span class="macro-nonterminal">$post_decode</span>: expr $(,)<span class="question-mark">?</span>) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$decoder </span>{
             <span class="kw-2">ref mut </span>decoder =&gt; <span class="kw">match </span><span class="macro-nonterminal">$read </span>{
-                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
+                <span class="kw-2">ref mut </span>read =&gt; <span class="lifetime">'outer</span>: <span class="kw">loop </span>{
                     <span class="kw">let </span>(opt, removed) = {
                         <span class="kw">let </span>(state, position, buffer, end_of_input) = decoder.__inner();
                         <span class="kw">let </span>buffer =
@@ -3715,7 +3716,7 @@
                         <span class="kw">match </span>result {
                             <span class="prelude-val">Ok</span>(x) =&gt; x,
                             <span class="prelude-val">Err</span>(err) =&gt; {
-                                <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err))
+                                <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Parse</span>(err))
                             }
                         }
                     };
@@ -3723,7 +3724,7 @@
                     decoder.advance_pin(std::pin::Pin::new(read), removed);
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = opt {
-                        <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Ok</span>(v);
+                        <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Ok</span>(v);
                     }
 
                     <span class="kw">match </span>decoder
@@ -3732,7 +3733,7 @@
                     </span>{
                         <span class="prelude-val">Ok</span>(x) =&gt; x,
                         <span class="prelude-val">Err</span>(error) =&gt; {
-                            <span class="kw">break </span><span class="lifetime">&#39;outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
+                            <span class="kw">break </span><span class="lifetime">'outer </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::stream::decoder::Error::Io </span>{
                                 error,
                                 position: Clone::clone(decoder.position()),
                             })
@@ -3768,8 +3769,8 @@
     <span class="attr">#[test]
     #[inline]
     </span><span class="kw">fn </span>uncons_range_at_end() {
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;&quot;</span>.uncons_range(<span class="number">0</span>), <span class="prelude-val">Ok</span>(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;123&quot;</span>.uncons_range(<span class="number">3</span>), <span class="prelude-val">Ok</span>(<span class="string">&quot;123&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">""</span>.uncons_range(<span class="number">0</span>), <span class="prelude-val">Ok</span>(<span class="string">""</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">"123"</span>.uncons_range(<span class="number">3</span>), <span class="prelude-val">Ok</span>(<span class="string">"123"</span>));
         <span class="macro">assert_eq!</span>((<span class="kw-2">&amp;</span>[<span class="number">1</span>][..]).uncons_range(<span class="number">1</span>), <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>][..]));
         <span class="kw">let </span>s: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[];
         <span class="macro">assert_eq!</span>(SliceStream(s).uncons_range(<span class="number">0</span>), <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span>[][..]));

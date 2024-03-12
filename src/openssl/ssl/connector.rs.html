@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.63/src/ssl/connector.rs`."><title>connector.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/ssl/connector.rs`."><title>connector.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -618,7 +619,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::version;
 <span class="kw">use </span>std::net::IpAddr;
 
-<span class="kw">const </span>FFDHE_2048: <span class="kw-2">&amp;</span>str = <span class="string">&quot;
+<span class="kw">const </span>FFDHE_2048: <span class="kw-2">&amp;</span>str = <span class="string">"
 -----BEGIN DH PARAMETERS-----
 MIIBCAKCAQEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
 +8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
@@ -627,7 +628,7 @@ YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
 7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
 ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 -----END DH PARAMETERS-----
-&quot;</span>;
+"</span>;
 
 <span class="attr">#[allow(clippy::inconsistent_digit_grouping, clippy::unusual_byte_groupings)]
 </span><span class="kw">fn </span>ctx(method: SslMethod) -&gt; <span class="prelude-ty">Result</span>&lt;SslContextBuilder, ErrorStack&gt; {
@@ -664,10 +665,10 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 
 <span class="doccomment">/// A type which wraps client-side streams in a TLS session.
 ///
-/// OpenSSL&#39;s default configuration is highly insecure. This connector manages the OpenSSL
+/// OpenSSL's default configuration is highly insecure. This connector manages the OpenSSL
 /// structures, configuring cipher suites, session options, hostname verification, and more.
 ///
-/// OpenSSL&#39;s built-in hostname verification is used when linking against OpenSSL 1.0.2 or 1.1.0,
+/// OpenSSL's built-in hostname verification is used when linking against OpenSSL 1.0.2 or 1.1.0,
 /// and a custom implementation is used when linking against OpenSSL 1.0.1.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>SslConnector(SslContext);
@@ -680,7 +681,7 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = ctx(method)<span class="question-mark">?</span>;
         ctx.set_default_verify_paths()<span class="question-mark">?</span>;
         ctx.set_cipher_list(
-            <span class="string">&quot;DEFAULT:!aNULL:!eNULL:!MD5:!3DES:!DES:!RC4:!IDEA:!SEED:!aDSS:!SRP:!PSK&quot;</span>,
+            <span class="string">"DEFAULT:!aNULL:!eNULL:!MD5:!3DES:!DES:!RC4:!IDEA:!SEED:!aDSS:!SRP:!PSK"</span>,
         )<span class="question-mark">?</span>;
         setup_verify(<span class="kw-2">&amp;mut </span>ctx);
 
@@ -823,7 +824,7 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 
 <span class="doccomment">/// A type which wraps server-side streams in a TLS session.
 ///
-/// OpenSSL&#39;s default configuration is highly insecure. This connector manages the OpenSSL
+/// OpenSSL's default configuration is highly insecure. This connector manages the OpenSSL
 /// structures, configuring cipher suites, session options, and more.
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>SslAcceptor(SslContext);
@@ -832,7 +833,7 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
     <span class="doccomment">/// Creates a new builder configured to connect to non-legacy clients. This should generally be
     /// considered a reasonable default choice.
     ///
-    /// This corresponds to the intermediate configuration of version 5 of Mozilla&#39;s server side TLS
+    /// This corresponds to the intermediate configuration of version 5 of Mozilla's server side TLS
     /// recommendations. See its [documentation][docs] for more details on specifics.
     ///
     /// [docs]: https://wiki.mozilla.org/Security/Server_Side_TLS
@@ -843,20 +844,20 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
         ctx.set_tmp_dh(<span class="kw-2">&amp;</span>dh)<span class="question-mark">?</span>;
         setup_curves(<span class="kw-2">&amp;mut </span>ctx)<span class="question-mark">?</span>;
         ctx.set_cipher_list(
-            <span class="string">&quot;ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:\
+            <span class="string">"ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:\
              ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:\
-             DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384&quot;
+             DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384"
         </span>)<span class="question-mark">?</span>;
         <span class="attr">#[cfg(any(ossl111, libressl340))]
         </span>ctx.set_ciphersuites(
-            <span class="string">&quot;TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256&quot;</span>,
+            <span class="string">"TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256"</span>,
         )<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SslAcceptorBuilder(ctx))
     }
 
     <span class="doccomment">/// Creates a new builder configured to connect to modern clients.
     ///
-    /// This corresponds to the modern configuration of version 5 of Mozilla&#39;s server side TLS recommendations.
+    /// This corresponds to the modern configuration of version 5 of Mozilla's server side TLS recommendations.
     /// See its [documentation][docs] for more details on specifics.
     ///
     /// Requires OpenSSL 1.1.1 or LibreSSL 3.4.0 or newer.
@@ -867,7 +868,7 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = ctx(method)<span class="question-mark">?</span>;
         ctx.set_min_proto_version(<span class="prelude-val">Some</span>(SslVersion::TLS1_3))<span class="question-mark">?</span>;
         ctx.set_ciphersuites(
-            <span class="string">&quot;TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256&quot;</span>,
+            <span class="string">"TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256"</span>,
         )<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SslAcceptorBuilder(ctx))
     }
@@ -875,7 +876,7 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
     <span class="doccomment">/// Creates a new builder configured to connect to non-legacy clients. This should generally be
     /// considered a reasonable default choice.
     ///
-    /// This corresponds to the intermediate configuration of version 4 of Mozilla&#39;s server side TLS
+    /// This corresponds to the intermediate configuration of version 4 of Mozilla's server side TLS
     /// recommendations. See its [documentation][docs] for more details on specifics.
     ///
     /// [docs]: https://wiki.mozilla.org/Security/Server_Side_TLS
@@ -889,21 +890,21 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
         ctx.set_tmp_dh(<span class="kw-2">&amp;</span>dh)<span class="question-mark">?</span>;
         setup_curves(<span class="kw-2">&amp;mut </span>ctx)<span class="question-mark">?</span>;
         ctx.set_cipher_list(
-            <span class="string">&quot;ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:\
+            <span class="string">"ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:\
              ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:\
              DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:\
              ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:\
              ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:\
              DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:\
              EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:\
-             AES256-SHA:DES-CBC3-SHA:!DSS&quot;</span>,
+             AES256-SHA:DES-CBC3-SHA:!DSS"</span>,
         )<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SslAcceptorBuilder(ctx))
     }
 
     <span class="doccomment">/// Creates a new builder configured to connect to modern clients.
     ///
-    /// This corresponds to the modern configuration of version 4 of Mozilla&#39;s server side TLS recommendations.
+    /// This corresponds to the modern configuration of version 4 of Mozilla's server side TLS recommendations.
     /// See its [documentation][docs] for more details on specifics.
     ///
     /// [docs]: https://wiki.mozilla.org/Security/Server_Side_TLS
@@ -917,9 +918,9 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
         </span>ctx.set_options(SslOptions::NO_TLSV1_3);
         setup_curves(<span class="kw-2">&amp;mut </span>ctx)<span class="question-mark">?</span>;
         ctx.set_cipher_list(
-            <span class="string">&quot;ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:\
+            <span class="string">"ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:\
              ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:\
-             ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256&quot;</span>,
+             ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256"</span>,
         )<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SslAcceptorBuilder(ctx))
     }
@@ -1034,7 +1035,7 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 
             <span class="kw">static </span>HOSTNAME_IDX: OnceCell&lt;Index&lt;Ssl, String&gt;&gt; = OnceCell::new();
 
-            <span class="kw">pub fn </span>try_get_hostname_idx() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Index&lt;Ssl, String&gt;, ErrorStack&gt; {
+            <span class="kw">pub fn </span>try_get_hostname_idx() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Index&lt;Ssl, String&gt;, ErrorStack&gt; {
                 HOSTNAME_IDX.get_or_try_init(Ssl::new_ex_index)
             }
 
@@ -1044,7 +1045,7 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
                 }
 
                 <span class="kw">let </span>hostname_idx =
-                    try_get_hostname_idx().expect(<span class="string">&quot;failed to initialize hostname index&quot;</span>);
+                    try_get_hostname_idx().expect(<span class="string">"failed to initialize hostname index"</span>);
                 <span class="kw">let </span>ok = <span class="kw">match </span>(
                     x509_ctx.current_cert(),
                     X509StoreContext::ssl_idx()
@@ -1103,7 +1104,7 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
                             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="bool-val">false</span>,
                         };
 
-                        <span class="comment">// Unlike SANs, IP addresses in the subject name don&#39;t have a
+                        <span class="comment">// Unlike SANs, IP addresses in the subject name don't have a
                         // different encoding.
                         </span><span class="kw">match </span>domain.parse::&lt;IpAddr&gt;() {
                             <span class="prelude-val">Ok</span>(ip) =&gt; pattern
@@ -1119,10 +1120,10 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 
             <span class="kw">fn </span>matches_dns(<span class="kw-2">mut </span>pattern: <span class="kw-2">&amp;</span>str, <span class="kw-2">mut </span>hostname: <span class="kw-2">&amp;</span>str) -&gt; bool {
                 <span class="comment">// first strip trailing . off of pattern and hostname to normalize
-                </span><span class="kw">if </span>pattern.ends_with(<span class="string">&#39;.&#39;</span>) {
+                </span><span class="kw">if </span>pattern.ends_with(<span class="string">'.'</span>) {
                     pattern = <span class="kw-2">&amp;</span>pattern[..pattern.len() - <span class="number">1</span>];
                 }
-                <span class="kw">if </span>hostname.ends_with(<span class="string">&#39;.&#39;</span>) {
+                <span class="kw">if </span>hostname.ends_with(<span class="string">'.'</span>) {
                     hostname = <span class="kw-2">&amp;</span>hostname[..hostname.len() - <span class="number">1</span>];
                 }
 
@@ -1130,25 +1131,25 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
             }
 
             <span class="kw">fn </span>matches_wildcard(pattern: <span class="kw-2">&amp;</span>str, hostname: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
-                <span class="kw">let </span>wildcard_location = <span class="kw">match </span>pattern.find(<span class="string">&#39;*&#39;</span>) {
+                <span class="kw">let </span>wildcard_location = <span class="kw">match </span>pattern.find(<span class="string">'*'</span>) {
                     <span class="prelude-val">Some</span>(l) =&gt; l,
                     <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
                 };
 
-                <span class="kw">let </span><span class="kw-2">mut </span>dot_idxs = pattern.match_indices(<span class="string">&#39;.&#39;</span>).map(|(l, <span class="kw">_</span>)| l);
+                <span class="kw">let </span><span class="kw-2">mut </span>dot_idxs = pattern.match_indices(<span class="string">'.'</span>).map(|(l, <span class="kw">_</span>)| l);
                 <span class="kw">let </span>wildcard_end = <span class="kw">match </span>dot_idxs.next() {
                     <span class="prelude-val">Some</span>(l) =&gt; l,
                     <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
                 };
 
-                <span class="comment">// Never match wildcards if the pattern has less than 2 &#39;.&#39;s (no *.com)
+                <span class="comment">// Never match wildcards if the pattern has less than 2 '.'s (no *.com)
                 //
-                // This is a bit dubious, as it doesn&#39;t disallow other TLDs like *.co.uk.
+                // This is a bit dubious, as it doesn't disallow other TLDs like *.co.uk.
                 // Chrome has a black- and white-list for this, but Firefox (via NSS) does
                 // the same thing we do here.
                 //
                 // The Public Suffix (https://www.publicsuffix.org/) list could
-                // potentially be used here, but it&#39;s both huge and updated frequently
+                // potentially be used here, but it's both huge and updated frequently
                 // enough that management would be a PITA.
                 </span><span class="kw">if </span>dot_idxs.next().is_none() {
                     <span class="kw">return </span><span class="prelude-val">None</span>;
@@ -1159,7 +1160,7 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
                     <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
 
-                <span class="kw">let </span>hostname_label_end = <span class="kw">match </span>hostname.find(<span class="string">&#39;.&#39;</span>) {
+                <span class="kw">let </span>hostname_label_end = <span class="kw">match </span>hostname.find(<span class="string">'.'</span>) {
                     <span class="prelude-val">Some</span>(l) =&gt; l,
                     <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
                 };
@@ -1180,30 +1181,30 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
             <span class="attr">#[test]
             </span><span class="kw">fn </span>test_dns_match() {
                 <span class="kw">use </span><span class="kw">crate</span>::ssl::connector::verify::matches_dns;
-                <span class="macro">assert!</span>(matches_dns(<span class="string">&quot;website.tld&quot;</span>, <span class="string">&quot;website.tld&quot;</span>)); <span class="comment">// A name should match itself.
-                </span><span class="macro">assert!</span>(matches_dns(<span class="string">&quot;website.tld&quot;</span>, <span class="string">&quot;wEbSiTe.tLd&quot;</span>)); <span class="comment">// DNS name matching ignores case of hostname.
-                </span><span class="macro">assert!</span>(matches_dns(<span class="string">&quot;wEbSiTe.TlD&quot;</span>, <span class="string">&quot;website.tld&quot;</span>)); <span class="comment">// DNS name matching ignores case of subject.
+                <span class="macro">assert!</span>(matches_dns(<span class="string">"website.tld"</span>, <span class="string">"website.tld"</span>)); <span class="comment">// A name should match itself.
+                </span><span class="macro">assert!</span>(matches_dns(<span class="string">"website.tld"</span>, <span class="string">"wEbSiTe.tLd"</span>)); <span class="comment">// DNS name matching ignores case of hostname.
+                </span><span class="macro">assert!</span>(matches_dns(<span class="string">"wEbSiTe.TlD"</span>, <span class="string">"website.tld"</span>)); <span class="comment">// DNS name matching ignores case of subject.
 
-                </span><span class="macro">assert!</span>(matches_dns(<span class="string">&quot;xn--bcher-kva.tld&quot;</span>, <span class="string">&quot;xn--bcher-kva.tld&quot;</span>)); <span class="comment">// Likewise, nothing special to punycode names.
-                </span><span class="macro">assert!</span>(matches_dns(<span class="string">&quot;xn--bcher-kva.tld&quot;</span>, <span class="string">&quot;xn--BcHer-Kva.tLd&quot;</span>)); <span class="comment">// And punycode must be compared similarly case-insensitively.
+                </span><span class="macro">assert!</span>(matches_dns(<span class="string">"xn--bcher-kva.tld"</span>, <span class="string">"xn--bcher-kva.tld"</span>)); <span class="comment">// Likewise, nothing special to punycode names.
+                </span><span class="macro">assert!</span>(matches_dns(<span class="string">"xn--bcher-kva.tld"</span>, <span class="string">"xn--BcHer-Kva.tLd"</span>)); <span class="comment">// And punycode must be compared similarly case-insensitively.
 
-                </span><span class="macro">assert!</span>(matches_dns(<span class="string">&quot;*.example.com&quot;</span>, <span class="string">&quot;subdomain.example.com&quot;</span>)); <span class="comment">// Wildcard matching works.
-                </span><span class="macro">assert!</span>(matches_dns(<span class="string">&quot;*.eXaMpLe.cOm&quot;</span>, <span class="string">&quot;subdomain.example.com&quot;</span>)); <span class="comment">// Wildcard matching ignores case of subject.
-                </span><span class="macro">assert!</span>(matches_dns(<span class="string">&quot;*.example.com&quot;</span>, <span class="string">&quot;sUbDoMaIn.eXaMpLe.cOm&quot;</span>)); <span class="comment">// Wildcard matching ignores case of hostname.
+                </span><span class="macro">assert!</span>(matches_dns(<span class="string">"*.example.com"</span>, <span class="string">"subdomain.example.com"</span>)); <span class="comment">// Wildcard matching works.
+                </span><span class="macro">assert!</span>(matches_dns(<span class="string">"*.eXaMpLe.cOm"</span>, <span class="string">"subdomain.example.com"</span>)); <span class="comment">// Wildcard matching ignores case of subject.
+                </span><span class="macro">assert!</span>(matches_dns(<span class="string">"*.example.com"</span>, <span class="string">"sUbDoMaIn.eXaMpLe.cOm"</span>)); <span class="comment">// Wildcard matching ignores case of hostname.
 
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;prefix*.example.com&quot;</span>, <span class="string">&quot;p.example.com&quot;</span>)); <span class="comment">// Prefix longer than the label works and does not match.
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;*suffix.example.com&quot;</span>, <span class="string">&quot;s.example.com&quot;</span>)); <span class="comment">// Suffix longer than the label works and does not match.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"prefix*.example.com"</span>, <span class="string">"p.example.com"</span>)); <span class="comment">// Prefix longer than the label works and does not match.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"*suffix.example.com"</span>, <span class="string">"s.example.com"</span>)); <span class="comment">// Suffix longer than the label works and does not match.
 
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;prefix*.example.com&quot;</span>, <span class="string">&quot;prefix.example.com&quot;</span>)); <span class="comment">// Partial wildcards do not work.
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;*suffix.example.com&quot;</span>, <span class="string">&quot;suffix.example.com&quot;</span>)); <span class="comment">// Partial wildcards do not work.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"prefix*.example.com"</span>, <span class="string">"prefix.example.com"</span>)); <span class="comment">// Partial wildcards do not work.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"*suffix.example.com"</span>, <span class="string">"suffix.example.com"</span>)); <span class="comment">// Partial wildcards do not work.
 
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;prefix*.example.com&quot;</span>, <span class="string">&quot;prefixdomain.example.com&quot;</span>)); <span class="comment">// Partial wildcards do not work.
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;*suffix.example.com&quot;</span>, <span class="string">&quot;domainsuffix.example.com&quot;</span>)); <span class="comment">// Partial wildcards do not work.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"prefix*.example.com"</span>, <span class="string">"prefixdomain.example.com"</span>)); <span class="comment">// Partial wildcards do not work.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"*suffix.example.com"</span>, <span class="string">"domainsuffix.example.com"</span>)); <span class="comment">// Partial wildcards do not work.
 
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;xn--*.example.com&quot;</span>, <span class="string">&quot;subdomain.example.com&quot;</span>)); <span class="comment">// Punycode domains with wildcard parts do not match.
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;xN--*.example.com&quot;</span>, <span class="string">&quot;subdomain.example.com&quot;</span>)); <span class="comment">// And we can&#39;t bypass a punycode test with weird casing.
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;Xn--*.example.com&quot;</span>, <span class="string">&quot;subdomain.example.com&quot;</span>)); <span class="comment">// And we can&#39;t bypass a punycode test with weird casing.
-                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">&quot;XN--*.example.com&quot;</span>, <span class="string">&quot;subdomain.example.com&quot;</span>)); <span class="comment">// And we can&#39;t bypass a punycode test with weird casing.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"xn--*.example.com"</span>, <span class="string">"subdomain.example.com"</span>)); <span class="comment">// Punycode domains with wildcard parts do not match.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"xN--*.example.com"</span>, <span class="string">"subdomain.example.com"</span>)); <span class="comment">// And we can't bypass a punycode test with weird casing.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"Xn--*.example.com"</span>, <span class="string">"subdomain.example.com"</span>)); <span class="comment">// And we can't bypass a punycode test with weird casing.
+                </span><span class="macro">assert!</span>(!matches_dns(<span class="string">"XN--*.example.com"</span>, <span class="string">"subdomain.example.com"</span>)); <span class="comment">// And we can't bypass a punycode test with weird casing.
             </span>}
         }
     }

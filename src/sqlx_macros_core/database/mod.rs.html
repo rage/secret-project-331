@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/database/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/database/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -202,8 +203,8 @@
 }
 
 <span class="kw">pub trait </span>DatabaseExt: Database {
-    <span class="kw">const </span>DATABASE_PATH: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
-    <span class="kw">const </span>ROW_PATH: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">const </span>DATABASE_PATH: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
+    <span class="kw">const </span>ROW_PATH: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="kw">const </span>PARAM_CHECKING: ParamChecking;
 
@@ -215,11 +216,11 @@
         syn::parse_str(<span class="self">Self</span>::ROW_PATH).unwrap()
     }
 
-    <span class="kw">fn </span>param_type_for_id(id: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
+    <span class="kw">fn </span>param_type_for_id(id: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;;
 
-    <span class="kw">fn </span>return_type_for_id(id: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
+    <span class="kw">fn </span>return_type_for_id(id: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;;
 
-    <span class="kw">fn </span>get_feature_gate(info: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
+    <span class="kw">fn </span>get_feature_gate(info: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;;
 
     <span class="kw">fn </span>describe_blocking(query: <span class="kw-2">&amp;</span>str, database_url: <span class="kw-2">&amp;</span>str) -&gt; sqlx_core::Result&lt;Describe&lt;<span class="self">Self</span>&gt;&gt;;
 }
@@ -239,13 +240,13 @@
 
     <span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>, query: <span class="kw-2">&amp;</span>str, database_url: <span class="kw-2">&amp;</span>str) -&gt; sqlx_core::Result&lt;Describe&lt;DB&gt;&gt;
     <span class="kw">where
-        for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>DB::Connection: Executor&lt;<span class="lifetime">&#39;a</span>, Database = DB&gt;,
+        for</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>DB::Connection: Executor&lt;<span class="lifetime">'a</span>, Database = DB&gt;,
     {
         <span class="kw">crate</span>::block_on(<span class="kw">async </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>cache = <span class="self">self
                 </span>.connections
                 .lock()
-                .expect(<span class="string">&quot;previous panic in describe call&quot;</span>);
+                .expect(<span class="string">"previous panic in describe call"</span>);
 
             <span class="kw">let </span>conn = <span class="kw">match </span>cache.entry(database_url.to_string()) {
                 hash_map::Entry::Occupied(hit) =&gt; hit.into_mut(),
@@ -259,7 +260,7 @@
     }
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;postgres&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"postgres"</span>, feature = <span class="string">"mysql"</span>, feature = <span class="string">"sqlite"</span>))]
 </span><span class="macro">macro_rules! </span>impl_database_ext {
     (
         <span class="macro-nonterminal">$database</span>:path {
@@ -271,11 +272,11 @@
         $(describe-blocking: <span class="macro-nonterminal">$describe</span>:path,)<span class="question-mark">?
     </span>) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$crate::database::DatabaseExt </span><span class="kw">for </span><span class="macro-nonterminal">$database </span>{
-            <span class="kw">const </span>DATABASE_PATH: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="macro">stringify!</span>(<span class="macro-nonterminal">$database</span>);
-            <span class="kw">const </span>ROW_PATH: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="macro">stringify!</span>(<span class="macro-nonterminal">$row</span>);
+            <span class="kw">const </span>DATABASE_PATH: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="macro">stringify!</span>(<span class="macro-nonterminal">$database</span>);
+            <span class="kw">const </span>ROW_PATH: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="macro">stringify!</span>(<span class="macro-nonterminal">$row</span>);
             <span class="kw">const </span>PARAM_CHECKING: <span class="macro-nonterminal">$crate::database::ParamChecking </span>= <span class="macro-nonterminal">$crate::database::ParamChecking</span>::<span class="macro-nonterminal">$param_checking</span>;
 
-            <span class="kw">fn </span>param_type_for_id(info: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+            <span class="kw">fn </span>param_type_for_id(info: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
                 <span class="kw">match </span>() {
                     $(
                         $(<span class="attr">#[<span class="macro-nonterminal">$meta</span>]</span>)<span class="question-mark">?
@@ -289,7 +290,7 @@
                 </span>}
             }
 
-            <span class="kw">fn </span>return_type_for_id(info: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+            <span class="kw">fn </span>return_type_for_id(info: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
                 <span class="kw">match </span>() {
                     $(
                         $(<span class="attr">#[<span class="macro-nonterminal">$meta</span>]</span>)<span class="question-mark">?
@@ -303,7 +304,7 @@
                 </span>}
             }
 
-            <span class="kw">fn </span>get_feature_gate(<span class="macro-nonterminal">$ty_info</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+            <span class="kw">fn </span>get_feature_gate(<span class="macro-nonterminal">$ty_info</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
                 <span class="macro-nonterminal">$get_gate
             </span>}
 
@@ -312,7 +313,7 @@
     }
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;postgres&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"postgres"</span>, feature = <span class="string">"mysql"</span>, feature = <span class="string">"sqlite"</span>))]
 </span><span class="macro">macro_rules! </span>impl_describe_blocking {
     (<span class="macro-nonterminal">$database</span>:path $(,)<span class="question-mark">?</span>) =&gt; {
         <span class="kw">fn </span>describe_blocking(
@@ -321,7 +322,7 @@
         ) -&gt; sqlx_core::Result&lt;sqlx_core::describe::Describe&lt;<span class="self">Self</span>&gt;&gt; {
             <span class="kw">use </span><span class="macro-nonterminal">$crate::database::CachingDescribeBlocking</span>;
 
-            <span class="comment">// This can&#39;t be a provided method because the `static` can&#39;t reference `Self`.
+            <span class="comment">// This can't be a provided method because the `static` can't reference `Self`.
             </span><span class="kw">static </span>CACHE: CachingDescribeBlocking&lt;<span class="macro-nonterminal">$database</span>&gt; = CachingDescribeBlocking::new();
 
             CACHE.describe(query, database_url)
@@ -337,7 +338,7 @@
     };
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;postgres&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"postgres"</span>, feature = <span class="string">"mysql"</span>, feature = <span class="string">"sqlite"</span>))]
 </span><span class="macro">macro_rules! </span>input_ty {
     (<span class="macro-nonterminal">$ty</span>:ty, <span class="macro-nonterminal">$input</span>:ty) =&gt; {
         <span class="macro">stringify!</span>(<span class="macro-nonterminal">$input</span>)
@@ -347,25 +348,25 @@
     };
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"postgres"</span>)]
 </span><span class="kw">mod </span>postgres;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"mysql"</span>)]
 </span><span class="kw">mod </span>mysql;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"sqlite"</span>)]
 </span><span class="kw">mod </span>sqlite;
 
 <span class="kw">mod </span>fake_sqlx {
     <span class="kw">pub use </span>sqlx_core::<span class="kw-2">*</span>;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"mysql"</span>)]
     </span><span class="kw">pub use </span>sqlx_mysql <span class="kw">as </span>mysql;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"postgres"</span>)]
     </span><span class="kw">pub use </span>sqlx_postgres <span class="kw">as </span>postgres;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"sqlite"</span>)]
     </span><span class="kw">pub use </span>sqlx_sqlite <span class="kw">as </span>sqlite;
 }
 </code></pre></div></section></main></body></html>

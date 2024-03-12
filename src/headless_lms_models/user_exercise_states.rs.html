@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_exercise_states.rs`."><title>user_exercise_states.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_exercise_states.rs`."><title>user_exercise_states.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1207,8 +1208,8 @@
 };
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[sqlx(type_name = <span class="string">&quot;reviewing_stage&quot;</span>, rename_all = <span class="string">&quot;snake_case&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">"reviewing_stage"</span>, rename_all = <span class="string">"snake_case"</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="doccomment">/**
 Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
 */
@@ -1243,7 +1244,7 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
     </span>ReviewedAndLocked,
 }
 
-<span class="attr">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+<span class="attr">#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 </span><span class="kw">pub struct </span>UserExerciseState {
     <span class="kw">pub </span>id: Uuid,
@@ -1266,7 +1267,7 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
         <span class="self">self</span>.course_instance_id.ok_or_else(|| {
             ModelError::new(
                 ModelErrorType::Generic,
-                <span class="string">&quot;Exercise is not part of a course instance.&quot;</span>.to_string(),
+                <span class="string">"Exercise is not part of a course instance."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })
@@ -1276,7 +1277,7 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
         <span class="self">self</span>.selected_exercise_slide_id.ok_or_else(|| {
             ModelError::new(
                 ModelErrorType::Generic,
-                <span class="string">&quot;No exercise slide selected.&quot;</span>.to_string(),
+                <span class="string">"No exercise slide selected."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })
@@ -1310,14 +1311,14 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
         <span class="kw">match </span>(course_instance_id, exam_id) {
             (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(ModelError::new(
                 ModelErrorType::Generic,
-                <span class="string">&quot;Expected either course instance or exam id, but neither were provided.&quot;</span>.into(),
+                <span class="string">"Expected either course instance or exam id, but neither were provided."</span>.into(),
                 <span class="prelude-val">None</span>,
             )),
             (<span class="prelude-val">Some</span>(instance_id), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Instance(instance_id)),
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(exam_id)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Exam(exam_id)),
             (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(ModelError::new(
                 ModelErrorType::Generic,
-                <span class="string">&quot;Expected either course instance or exam id, but both were provided.&quot;</span>.into(),
+                <span class="string">"Expected either course instance or exam id, but both were provided."</span>.into(),
                 <span class="prelude-val">None</span>,
             )),
         }
@@ -1343,7 +1344,7 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserCourseInstanceProgress {
     <span class="kw">pub </span>course_module_id: Uuid,
     <span class="kw">pub </span>course_module_name: String,
@@ -1357,7 +1358,7 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserCourseInstanceChapterExerciseProgress {
     <span class="kw">pub </span>exercise_id: Uuid,
     <span class="kw">pub </span>score_given: f32,
@@ -1390,18 +1391,18 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseUserCounts {
     exercise_name: String,
     exercise_order_number: i32,
     page_order_number: i32,
     chapter_number: i32,
     exercise_id: Uuid,
-    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, ts(<span class="kw">type </span>= <span class="string">&quot;number&quot;</span>))]
+    <span class="attr">#[cfg_attr(feature = <span class="string">"ts_rs"</span>, ts(<span class="kw">type </span>= <span class="string">"number"</span>))]
     </span>n_users_attempted: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, ts(<span class="kw">type </span>= <span class="string">&quot;number&quot;</span>))]
+    <span class="attr">#[cfg_attr(feature = <span class="string">"ts_rs"</span>, ts(<span class="kw">type </span>= <span class="string">"number"</span>))]
     </span>n_users_with_some_points: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, ts(<span class="kw">type </span>= <span class="string">&quot;number&quot;</span>))]
+    <span class="attr">#[cfg_attr(feature = <span class="string">"ts_rs"</span>, ts(<span class="kw">type </span>= <span class="string">"number"</span>))]
     </span>n_users_with_max_points: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 }
 
@@ -1411,7 +1412,7 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
 ) -&gt; ModelResult&lt;Vec&lt;CourseInstanceExerciseMetrics&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         CourseInstanceExerciseMetrics,
-        <span class="string">r&quot;
+        <span class="string">r"
 SELECT chapters.course_module_id,
   COUNT(exercises.id) AS total_exercises,
   SUM(exercises.score_maximum) AS score_maximum
@@ -1421,7 +1422,7 @@ FROM course_instances
 WHERE exercises.deleted_at IS NULL
   AND course_instances.id = $1
 GROUP BY chapters.course_module_id
-        &quot;</span>,
+        "</span>,
         course_instance_id
     )
     .fetch_all(conn)
@@ -1449,7 +1450,7 @@ GROUP BY chapters.course_module_id
     user_id: Uuid,
 ) -&gt; ModelResult&lt;UserCourseInstanceMetrics&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
@@ -1457,10 +1458,10 @@ FROM user_exercise_states AS ues
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE chapters.course_module_id = $1
   AND ues.course_instance_id = $2
-  AND ues.activity_progress IN (&#39;completed&#39;, &#39;submitted&#39;)
+  AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $3
   AND ues.deleted_at IS NULL
-        &quot;</span>,
+        "</span>,
         course_module_id,
         course_instance_id,
         user_id,
@@ -1482,7 +1483,7 @@ WHERE chapters.course_module_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;UserCourseInstanceMetrics&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         UserCourseInstanceMetrics,
-        <span class="string">r&quot;
+        <span class="string">r"
 SELECT chapters.course_module_id,
   COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
@@ -1490,11 +1491,11 @@ FROM user_exercise_states AS ues
   LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE ues.course_instance_id = $1
-  AND ues.activity_progress IN (&#39;completed&#39;, &#39;submitted&#39;)
+  AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL
 GROUP BY chapters.course_module_id;
-        &quot;</span>,
+        "</span>,
         course_instance_id,
         user_id,
     )
@@ -1524,7 +1525,7 @@ GROUP BY chapters.course_module_id;
 ) -&gt; ModelResult&lt;UserChapterMetrics&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         UserChapterMetrics,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
@@ -1532,10 +1533,10 @@ WHERE ues.exercise_id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND ues.deleted_at IS NULL
-  AND ues.activity_progress IN (&#39;completed&#39;, &#39;submitted&#39;)
+  AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.course_instance_id = $3;
-                &quot;#</span>,
+                "#</span>,
         <span class="kw-2">&amp;</span>exercise_ids,
         user_id,
         course_instance_id
@@ -1572,13 +1573,13 @@ WHERE ues.exercise_id IN (
     exam_id: Uuid,
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;f32&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
-SELECT SUM(score_given) AS &quot;points&quot;
+        <span class="string">r#"
+SELECT SUM(score_given) AS "points"
 FROM user_exercise_states
 WHERE user_id = $2
   AND exam_id = $1
   AND deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         exam_id,
         user_id,
     )
@@ -1602,7 +1603,7 @@ WHERE user_id = $2
             <span class="kw">let </span>requirements = course_module.completion_policy.automatic();
             <span class="kw">let </span>progress = UserCourseInstanceProgress {
                 course_module_id: course_module.id,
-                <span class="comment">// Only default course module doesn&#39;t have a name.
+                <span class="comment">// Only default course module doesn't have a name.
                 </span>course_module_name: course_module
                     .name
                     .unwrap_or_else(|| default_course_module_name_placeholder.to_string()),
@@ -1639,7 +1640,7 @@ WHERE user_id = $2
 ) -&gt; ModelResult&lt;Vec&lt;DatabaseUserCourseInstanceChapterExerciseProgress&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         DatabaseUserCourseInstanceChapterExerciseProgress,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT COALESCE(ues.score_given, 0) AS score_given,
   ues.exercise_id AS exercise_id
 FROM user_exercise_states AS ues
@@ -1649,7 +1650,7 @@ WHERE ues.deleted_at IS NULL
   )
   AND ues.course_instance_id = $2
   AND ues.user_id = $3;
-        &quot;#</span>,
+        "#</span>,
         exercise_ids,
         course_instance_id,
         user_id,
@@ -1668,7 +1669,7 @@ WHERE ues.deleted_at IS NULL
 ) -&gt; ModelResult&lt;UserExerciseState&gt; {
     <span class="kw">let </span>existing = <span class="macro">sqlx::query_as!</span>(
         UserExerciseState,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   user_id,
   exercise_id,
@@ -1678,16 +1679,16 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress AS &quot;grading_progress: _&quot;,
-  activity_progress AS &quot;activity_progress: _&quot;,
-  reviewing_stage AS &quot;reviewing_stage: _&quot;,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_instance_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
-&quot;#</span>,
+"#</span>,
         user_id,
         exercise_id,
         course_instance_id,
@@ -1701,7 +1702,7 @@ WHERE user_id = $1
     } <span class="kw">else </span>{
         <span class="macro">sqlx::query_as!</span>(
             UserExerciseState,
-            <span class="string">r#&quot;
+            <span class="string">r#"
     INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id, exam_id)
     VALUES ($1, $2, $3, $4)
     RETURNING id,
@@ -1713,11 +1714,11 @@ WHERE user_id = $1
       updated_at,
       deleted_at,
       score_given,
-      grading_progress as &quot;grading_progress: _&quot;,
-      activity_progress as &quot;activity_progress: _&quot;,
-      reviewing_stage AS &quot;reviewing_stage: _&quot;,
+      grading_progress as "grading_progress: _",
+      activity_progress as "activity_progress: _",
+      reviewing_stage AS "reviewing_stage: _",
       selected_exercise_slide_id
-      &quot;#</span>,
+      "#</span>,
             user_id,
             exercise_id,
             course_instance_id,
@@ -1732,7 +1733,7 @@ WHERE user_id = $1
 <span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;UserExerciseState&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         UserExerciseState,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   user_id,
   exercise_id,
@@ -1742,14 +1743,14 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress AS &quot;grading_progress: _&quot;,
-  activity_progress AS &quot;activity_progress: _&quot;,
-  reviewing_stage AS &quot;reviewing_stage: _&quot;,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE id = $1
   AND deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         id,
     )
     .fetch_one(conn)
@@ -1773,7 +1774,7 @@ WHERE id = $1
                 .ok_or_else(|| {
                     ModelError::new(
                         ModelErrorType::PreconditionFailed,
-                        <span class="string">&quot;Missing user course settings.&quot;</span>.to_string(),
+                        <span class="string">"Missing user course settings."</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })
@@ -1786,7 +1787,7 @@ WHERE id = $1
             </span>.ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::PreconditionFailed,
-                    <span class="string">&quot;Missing user exercise state.&quot;</span>.to_string(),
+                    <span class="string">"Missing user exercise state."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
@@ -1802,7 +1803,7 @@ WHERE id = $1
     <span class="kw">let </span>(course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         UserExerciseState,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   user_id,
   exercise_id,
@@ -1812,16 +1813,16 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress AS &quot;grading_progress: _&quot;,
-  activity_progress AS &quot;activity_progress: _&quot;,
-  reviewing_stage AS &quot;reviewing_stage: _&quot;,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_instance_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
-      &quot;#</span>,
+      "#</span>,
         user_id,
         exercise_id,
         course_instance_id,
@@ -1840,7 +1841,7 @@ WHERE user_id = $1
     <span class="kw">let </span>(course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         UserExerciseState,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   user_id,
   exercise_id,
@@ -1850,15 +1851,15 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress AS &quot;grading_progress: _&quot;,
-  activity_progress AS &quot;activity_progress: _&quot;,
-  reviewing_stage AS &quot;reviewing_stage: _&quot;,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
   AND (course_instance_id = $2 OR exam_id = $3)
   AND deleted_at IS NULL
-      &quot;#</span>,
+      "#</span>,
         user_id,
         course_instance_id,
         exam_id
@@ -1877,14 +1878,14 @@ WHERE user_id = $1
     selected_exercise_slide_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="kw">let </span>existing = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_instance_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
-&quot;</span>,
+"</span>,
         user_id,
         exercise_id,
         course_instance_id,
@@ -1894,14 +1895,14 @@ WHERE user_id = $1
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if </span>existing.is_some() {
         <span class="macro">sqlx::query!</span>(
-            <span class="string">&quot;
+            <span class="string">"
 UPDATE user_exercise_states
 SET selected_exercise_slide_id = $4
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_instance_id = $3 OR exam_id = $5)
   AND deleted_at IS NULL
-    &quot;</span>,
+    "</span>,
             user_id,
             exercise_id,
             course_instance_id,
@@ -1912,7 +1913,7 @@ WHERE user_id = $1
         .<span class="kw">await</span><span class="question-mark">?</span>;
     } <span class="kw">else </span>{
         <span class="macro">sqlx::query!</span>(
-            <span class="string">&quot;
+            <span class="string">"
     INSERT INTO user_exercise_states (
         user_id,
         exercise_id,
@@ -1921,7 +1922,7 @@ WHERE user_id = $1
         exam_id
       )
     VALUES ($1, $2, $3, $4, $5)
-    &quot;</span>,
+    "</span>,
             user_id,
             exercise_id,
             course_instance_id,
@@ -1941,7 +1942,7 @@ WHERE user_id = $1
 ) -&gt; ModelResult&lt;UserExerciseState&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         UserExerciseState,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE user_exercise_states
 SET score_given = $1,
   activity_progress = $2,
@@ -1958,11 +1959,11 @@ RETURNING id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress AS &quot;grading_progress: _&quot;,
-  activity_progress AS &quot;activity_progress: _&quot;,
-  reviewing_stage AS &quot;reviewing_stage: _&quot;,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
-        &quot;#</span>,
+        "#</span>,
         user_exercise_state_update.score_given,
         user_exercise_state_update.activity_progress <span class="kw">as </span>ActivityProgress,
         user_exercise_state_update.reviewing_stage <span class="kw">as </span>ReviewingStage,
@@ -1984,7 +1985,7 @@ RETURNING id,
     <span class="kw">let </span>(course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         UserExerciseState,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE user_exercise_states
 SET reviewing_stage = $5
 WHERE user_id = $1
@@ -1999,11 +2000,11 @@ RETURNING id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress AS &quot;grading_progress: _&quot;,
-  activity_progress AS &quot;activity_progress: _&quot;,
-  reviewing_stage AS &quot;reviewing_stage: _&quot;,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
-        &quot;#</span>,
+        "#</span>,
         user_id,
         course_instance_id,
         exam_id,
@@ -2023,7 +2024,7 @@ RETURNING id,
 ) -&gt; ModelResult&lt;UserExerciseState&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         UserExerciseState,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE user_exercise_states
 SET reviewing_stage = $1
 WHERE id = $2
@@ -2037,11 +2038,11 @@ RETURNING id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress AS &quot;grading_progress: _&quot;,
-  activity_progress AS &quot;activity_progress: _&quot;,
-  reviewing_stage AS &quot;reviewing_stage: _&quot;,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
-        &quot;#</span>,
+        "#</span>,
         reviewing_stage <span class="kw">as </span>ReviewingStage,
         id
     )
@@ -2144,14 +2145,14 @@ RETURNING id,
                 })),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(ModelError::new(
                     ModelErrorType::Generic,
-                    <span class="string">&quot;Invalid initializer data.&quot;</span>.to_string(),
+                    <span class="string">"Invalid initializer data."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )),
             }
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(ModelError::new(
                 ModelErrorType::Generic,
-                <span class="string">&quot;Exercise doesn&#39;t match the state.&quot;</span>.to_string(),
+                <span class="string">"Exercise doesn't match the state."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ))
         }
@@ -2186,11 +2187,11 @@ RETURNING id,
 <span class="kw">pub fn </span>stream_course_instance_points(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_instance_id: Uuid,
-) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;CourseInstanceUserPoints&gt;&gt; + <span class="lifetime">&#39;_ </span>{
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;CourseInstanceUserPoints&gt;&gt; + <span class="lifetime">'_ </span>{
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT user_id,
-  to_jsonb(array_agg(to_jsonb(uue) - &#39;email&#39; - &#39;user_id&#39;)) AS points_for_each_chapter
+  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter
 FROM (
     SELECT ud.email,
       u.id AS user_id,
@@ -2212,7 +2213,7 @@ FROM (
   ) as uue
 GROUP BY user_id
 
-&quot;</span>,
+"</span>,
         course_instance_id
     )
     .try_map(|i| {
@@ -2231,12 +2232,12 @@ GROUP BY user_id
 <span class="kw">pub fn </span>stream_exam_points(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exam_id: Uuid,
-) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;ExamUserPoints&gt;&gt; + <span class="lifetime">&#39;_ </span>{
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;ExamUserPoints&gt;&gt; + <span class="lifetime">'_ </span>{
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT user_id,
   email,
-  to_jsonb(array_agg(to_jsonb(uue) - &#39;email&#39; - &#39;user_id&#39;)) AS points_for_exercises
+  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_exercises
 FROM (
     SELECT u.id AS user_id,
       ud.email,
@@ -2253,7 +2254,7 @@ FROM (
   ) as uue
 GROUP BY user_id,
   email
-&quot;</span>,
+"</span>,
         exam_id
     )
     .try_map(|i| {
@@ -2276,7 +2277,7 @@ GROUP BY user_id,
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseUserCounts&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseUserCounts,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT exercises.name as exercise_name,
   exercises.order_number as exercise_order_number,
   pages.order_number as page_order_number,
@@ -2285,17 +2286,17 @@ SELECT exercises.name as exercise_name,
 FROM (
     SELECT exercise_id,
       COUNT(DISTINCT user_id) FILTER (
-        WHERE ues.activity_progress = &#39;completed&#39;
+        WHERE ues.activity_progress = 'completed'
       ) as n_users_attempted,
       COUNT(DISTINCT user_id) FILTER (
         WHERE ues.score_given IS NOT NULL
           and ues.score_given &gt; 0
-          AND ues.activity_progress = &#39;completed&#39;
+          AND ues.activity_progress = 'completed'
       ) as n_users_with_some_points,
       COUNT(DISTINCT user_id) FILTER (
         WHERE ues.score_given IS NOT NULL
           and ues.score_given &gt;= exercises.score_maximum
-          and ues.activity_progress = &#39;completed&#39;
+          and ues.activity_progress = 'completed'
       ) as n_users_with_max_points
     FROM exercises
       JOIN user_exercise_states ues on exercises.id = ues.exercise_id
@@ -2310,7 +2311,7 @@ FROM (
 WHERE exercises.deleted_at IS NULL
   AND pages.deleted_at IS NULL
   AND chapters.deleted_at IS NULL
-          &quot;#</span>,
+          "#</span>,
         course_id
     )
     .fetch_all(conn)
@@ -2345,10 +2346,10 @@ WHERE exercises.deleted_at IS NULL
     <span class="attr">#[test]
     </span><span class="kw">fn </span>merges_course_modules_with_metrics() {
         <span class="kw">let </span>timestamp = Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">22</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap();
-        <span class="kw">let </span>module_id = Uuid::parse_str(<span class="string">&quot;9e831ecc-9751-42f1-ae7e-9b2f06e523e8&quot;</span>).unwrap();
+        <span class="kw">let </span>module_id = Uuid::parse_str(<span class="string">"9e831ecc-9751-42f1-ae7e-9b2f06e523e8"</span>).unwrap();
         <span class="kw">let </span>course_modules = <span class="macro">vec!</span>[CourseModule::new(
             module_id,
-            Uuid::parse_str(<span class="string">&quot;3fa4bee6-7390-415e-968f-ecdc5f28330e&quot;</span>).unwrap(),
+            Uuid::parse_str(<span class="string">"3fa4bee6-7390-415e-968f-ecdc5f28330e"</span>).unwrap(),
         )
         .set_timestamps(timestamp, timestamp, <span class="prelude-val">None</span>)
         .set_registration_info(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">5.0</span>), <span class="prelude-val">None</span>, <span class="bool-val">false</span>)];
@@ -2372,13 +2373,13 @@ WHERE exercises.deleted_at IS NULL
             course_modules,
             <span class="kw-2">&amp;</span>course_metrics_by_course_module_id,
             <span class="kw-2">&amp;</span>user_metrics_by_course_module_id,
-            <span class="string">&quot;Default module&quot;</span>,
+            <span class="string">"Default module"</span>,
         )
         .unwrap();
         <span class="macro">assert_eq!</span>(metrics.len(), <span class="number">1</span>);
         <span class="kw">let </span>metric = metrics.first().unwrap();
         <span class="macro">assert_eq!</span>(metric.attempted_exercises, <span class="prelude-val">Some</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>metric.course_module_name, <span class="string">&quot;Default module&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>metric.course_module_name, <span class="string">"Default module"</span>);
         <span class="macro">assert_eq!</span>(metric.score_given, <span class="number">1.0</span>);
         <span class="macro">assert_eq!</span>(metric.score_maximum, <span class="prelude-val">Some</span>(<span class="number">10</span>));
         <span class="macro">assert_eq!</span>(metric.total_exercises, <span class="prelude-val">Some</span>(<span class="number">4</span>));

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/layer_filters/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/layer_filters/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1326,7 +1327,7 @@
 //! re-exported in the top-level `filter` module. Therefore, this documentation
 //! primarily concerns the internal implementation details. For the user-facing
 //! public API documentation, see the individual public types in this module, as
-//! well as the, see the `Layer` trait documentation&#39;s [per-layer filtering
+//! well as the, see the `Layer` trait documentation's [per-layer filtering
 //! section]][1].
 //!
 //! ## How does per-layer filtering work?
@@ -1375,7 +1376,7 @@
 ///
 /// [`Filter`]: crate::layer::Filter
 /// [plf]: crate::layer#per-layer-filtering
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;registry&quot;</span>)))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"registry"</span>)))]
 #[derive(Clone)]
 </span><span class="kw">pub struct </span>Filtered&lt;L, F, S&gt; {
     filter: F,
@@ -1390,7 +1391,7 @@
 /// When adding a [`Filtered`] [`Layer`] to a [`Subscriber`], the [`Subscriber`]
 /// generates a `FilterId` for that [`Filtered`] layer. The [`Filtered`] layer
 /// will then use the generated ID to query whether a particular span was
-/// previously enabled by that layer&#39;s [`Filter`].
+/// previously enabled by that layer's [`Filter`].
 ///
 /// **Note**: Currently, the [`Registry`] type provided by this crate is the
 /// **only** [`Subscriber`] implementation capable of participating in per-layer
@@ -1404,15 +1405,15 @@
 /// [`Subscriber`]: tracing_core::Subscriber
 /// [`Layer`]: crate::layer::Layer
 /// [`Registry`]: crate::registry::Registry
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;registry&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;registry&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"registry"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"registry"</span>)))]
 #[derive(Copy, Clone)]
 </span><span class="kw">pub struct </span>FilterId(u64);
 
 <span class="doccomment">/// A bitmap tracking which [`FilterId`]s have enabled a given span or
 /// event.
 ///
-/// This is currently a private type that&#39;s used exclusively by the
+/// This is currently a private type that's used exclusively by the
 /// [`Registry`]. However, in the future, this may become a public API, in order
 /// to allow user subscribers to host [`Filter`]s.
 ///
@@ -1439,21 +1440,21 @@
 ///
 /// 1. When filtering a span, the Registry must store the `FilterMap`
 ///    generated by `Filtered::enabled` calls for that span as part of the
-///    span&#39;s per-span data. This allows `Filtered` layers to determine
+///    span's per-span data. This allows `Filtered` layers to determine
 ///    whether they had previously disabled a given span, and avoid showing it
 ///    to the wrapped layer if it was disabled.
 ///
 ///    This allows `Filtered` layers to also filter out the spans they
 ///    disable from span traversals (such as iterating over parents, etc).
 /// 2. If all the bits are set, then every per-layer filter has decided it
-///    doesn&#39;t want to enable that span or event. In that case, the
-///    `Registry`&#39;s `enabled` method will return `false`, so that
+///    doesn't want to enable that span or event. In that case, the
+///    `Registry`'s `enabled` method will return `false`, so that
 ///     recording a span or event can be skipped entirely.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FilterState {
     enabled: Cell&lt;FilterMap&gt;,
     <span class="comment">// TODO(eliza): `Interest`s should _probably_ be `Copy`. The only reason
-    // they&#39;re not is our Obsessive Commitment to Forwards-Compatibility. If
+    // they're not is our Obsessive Commitment to Forwards-Compatibility. If
     // this changes in tracing-core`, we can make this a `Cell` rather than
     // `RefCell`...
     </span>interest: RefCell&lt;<span class="prelude-ty">Option</span>&lt;Interest&gt;&gt;,
@@ -1500,7 +1501,7 @@
     ///
     /// // Enables spans and events with targets starting with `interesting_target`:
     /// let target_filter = filter_fn(|meta| {
-    ///     meta.target().starts_with(&quot;interesting_target&quot;)
+    ///     meta.target().starts_with("interesting_target")
     /// });
     ///
     /// // Enables spans and events with levels `INFO` and below:
@@ -1515,13 +1516,13 @@
     ///     .init();
     ///
     /// // This event will *not* be enabled:
-    /// tracing::info!(&quot;an event with an uninteresting target&quot;);
+    /// tracing::info!("an event with an uninteresting target");
     ///
     /// // This event *will* be enabled:
-    /// tracing::info!(target: &quot;interesting_target&quot;, &quot;a very interesting event&quot;);
+    /// tracing::info!(target: "interesting_target", "a very interesting event");
     ///
     /// // This event will *not* be enabled:
-    /// tracing::debug!(target: &quot;interesting_target&quot;, &quot;interesting debug event...&quot;);
+    /// tracing::debug!(target: "interesting_target", "interesting debug event...");
     /// ```
     ///
     /// [`Filter`]: crate::layer::Filter
@@ -1548,7 +1549,7 @@
     ///
     /// // Enables spans and events with targets starting with `interesting_target`:
     /// let target_filter = filter_fn(|meta| {
-    ///     meta.target().starts_with(&quot;interesting_target&quot;)
+    ///     meta.target().starts_with("interesting_target")
     /// });
     ///
     /// // Enables spans and events with levels `INFO` and below:
@@ -1564,16 +1565,16 @@
     ///     .init();
     ///
     /// // This event will *not* be enabled:
-    /// tracing::debug!(&quot;an uninteresting event&quot;);
+    /// tracing::debug!("an uninteresting event");
     ///
     /// // This event *will* be enabled:
-    /// tracing::info!(&quot;an uninteresting INFO event&quot;);
+    /// tracing::info!("an uninteresting INFO event");
     ///
     /// // This event *will* be enabled:
-    /// tracing::info!(target: &quot;interesting_target&quot;, &quot;a very interesting event&quot;);
+    /// tracing::info!(target: "interesting_target", "a very interesting event");
     ///
     /// // This event *will* be enabled:
-    /// tracing::debug!(target: &quot;interesting_target&quot;, &quot;interesting debug event...&quot;);
+    /// tracing::debug!(target: "interesting_target", "interesting debug event...");
     /// ```
     ///
     /// Enabling a higher level for a particular target by using `or` in
@@ -1588,7 +1589,7 @@
     /// // This filter will enable spans and events with targets beginning with
     /// // `my_crate`:
     /// let my_crate = filter_fn(|meta| {
-    ///     meta.target().starts_with(&quot;my_crate&quot;)
+    ///     meta.target().starts_with("my_crate")
     /// });
     ///
     /// let filter = my_crate
@@ -1596,7 +1597,7 @@
     ///     // filter that will enable the `INFO` level and lower for spans and
     ///     // events with `my_crate` targets:
     ///     .and(LevelFilter::INFO)
-    ///     // If a span or event *doesn&#39;t* have a target beginning with
+    ///     // If a span or event *doesn't* have a target beginning with
     ///     // `my_crate`, enable it if it has the `WARN` level or lower:
     ///     .or(LevelFilter::WARN);
     ///
@@ -1666,8 +1667,8 @@
     /// `event_enabled` only when `enabled() == true` is possible, but requires
     /// additional thread-local mutable state to support a very niche use case.
     </span><span class="comment">//
-    //  Also, it&#39;d mean the wrapped layer&#39;s `enabled()` always gets called and
-    //  globally applied to events where it doesn&#39;t today, since we can&#39;t know
+    //  Also, it'd mean the wrapped layer's `enabled()` always gets called and
+    //  globally applied to events where it doesn't today, since we can't know
     //  what `event_enabled` will say until we have the event to call it with.
     </span><span class="doccomment">///
     /// [`Filter`]: crate::layer::Filter
@@ -1689,7 +1690,7 @@
     /// # Examples
     ///
     /// When different combinations of filters are used conditionally, they may
-    /// have different types. For example, the following code won&#39;t compile,
+    /// have different types. For example, the following code won't compile,
     /// since the `if` and `else` clause produce filters of different types:
     ///
     /// ```compile_fail
@@ -1702,13 +1703,13 @@
     /// # false;
     ///
     /// let filter = if enable_bar_target {
-    ///     filter_fn(|meta| meta.target().starts_with(&quot;foo&quot;))
+    ///     filter_fn(|meta| meta.target().starts_with("foo"))
     ///         // If `enable_bar_target` is true, add a `filter_fn` enabling
     ///         // spans and events with the target `bar`:
-    ///         .or(filter_fn(|meta| meta.target().starts_with(&quot;bar&quot;)))
+    ///         .or(filter_fn(|meta| meta.target().starts_with("bar")))
     ///         .and(LevelFilter::INFO)
     /// } else {
-    ///     filter_fn(|meta| meta.target().starts_with(&quot;foo&quot;))
+    ///     filter_fn(|meta| meta.target().starts_with("foo"))
     ///         .and(LevelFilter::INFO)
     /// };
     ///
@@ -1719,7 +1720,7 @@
     ///
     /// By using `boxed`, the types of the two different branches can be erased,
     /// so the assignment to the `filter` variable is valid (as both branches
-    /// have the type `Box&lt;dyn Filter&lt;S&gt; + Send + Sync + &#39;static&gt;`). The
+    /// have the type `Box&lt;dyn Filter&lt;S&gt; + Send + Sync + 'static&gt;`). The
     /// following code *does* compile:
     ///
     /// ```
@@ -1732,14 +1733,14 @@
     /// # false;
     ///
     /// let filter = if enable_bar_target {
-    ///     filter_fn(|meta| meta.target().starts_with(&quot;foo&quot;))
-    ///         .or(filter_fn(|meta| meta.target().starts_with(&quot;bar&quot;)))
+    ///     filter_fn(|meta| meta.target().starts_with("foo"))
+    ///         .or(filter_fn(|meta| meta.target().starts_with("bar")))
     ///         .and(LevelFilter::INFO)
     ///         // Boxing the filter erases its type, so both branches now
     ///         // have the same type.
     ///         .boxed()
     /// } else {
-    ///     filter_fn(|meta| meta.target().starts_with(&quot;foo&quot;))
+    ///     filter_fn(|meta| meta.target().starts_with("foo"))
     ///         .and(LevelFilter::INFO)
     ///         .boxed()
     /// };
@@ -1751,9 +1752,9 @@
     ///
     /// [Boxes]: std::boxed
     /// [`Box::new`]: std::boxed::Box::new
-    </span><span class="kw">fn </span>boxed(<span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>layer::Filter&lt;S&gt; + Send + Sync + <span class="lifetime">&#39;static</span>&gt;
+    </span><span class="kw">fn </span>boxed(<span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>layer::Filter&lt;S&gt; + Send + Sync + <span class="lifetime">'static</span>&gt;
     <span class="kw">where
-        </span><span class="self">Self</span>: Sized + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span><span class="self">Self</span>: Sized + Send + Sync + <span class="lifetime">'static</span>,
     {
         Box::new(<span class="self">self</span>)
     }
@@ -1761,14 +1762,14 @@
 
 <span class="comment">// === impl Filter ===
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;registry&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;registry&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"registry"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"registry"</span>)))]
 </span><span class="kw">impl</span>&lt;S&gt; layer::Filter&lt;S&gt; <span class="kw">for </span>LevelFilter {
-    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         meta.level() &lt;= <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    <span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="kw">if </span>meta.level() &lt;= <span class="self">self </span>{
             Interest::always()
         } <span class="kw">else </span>{
@@ -1784,12 +1785,12 @@
 <span class="macro">macro_rules! </span>filter_impl_body {
     () =&gt; {
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+        </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
             <span class="self">self</span>.deref().enabled(meta, cx)
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+        </span><span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
             <span class="self">self</span>.deref().callsite_enabled(meta)
         }
 
@@ -1799,65 +1800,65 @@
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+        </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
             <span class="self">self</span>.deref().event_enabled(event, cx)
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.deref().on_new_span(attrs, id, ctx)
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.deref().on_record(id, values, ctx)
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.deref().on_enter(id, ctx)
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.deref().on_exit(id, ctx)
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.deref().on_close(id, ctx)
         }
     };
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;registry&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;registry&quot;</span>)))]
-</span><span class="kw">impl</span>&lt;S&gt; layer::Filter&lt;S&gt; <span class="kw">for </span>Arc&lt;<span class="kw">dyn </span>layer::Filter&lt;S&gt; + Send + Sync + <span class="lifetime">&#39;static</span>&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"registry"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"registry"</span>)))]
+</span><span class="kw">impl</span>&lt;S&gt; layer::Filter&lt;S&gt; <span class="kw">for </span>Arc&lt;<span class="kw">dyn </span>layer::Filter&lt;S&gt; + Send + Sync + <span class="lifetime">'static</span>&gt; {
     <span class="macro">filter_impl_body!</span>();
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;registry&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;registry&quot;</span>)))]
-</span><span class="kw">impl</span>&lt;S&gt; layer::Filter&lt;S&gt; <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>layer::Filter&lt;S&gt; + Send + Sync + <span class="lifetime">&#39;static</span>&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"registry"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"registry"</span>)))]
+</span><span class="kw">impl</span>&lt;S&gt; layer::Filter&lt;S&gt; <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>layer::Filter&lt;S&gt; + Send + Sync + <span class="lifetime">'static</span>&gt; {
     <span class="macro">filter_impl_body!</span>();
 }
 
 <span class="comment">// Implement Filter for Option&lt;Filter&gt; where None =&gt; allow
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;registry&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;registry&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"registry"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"registry"</span>)))]
 </span><span class="kw">impl</span>&lt;F, S&gt; layer::Filter&lt;S&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;F&gt;
 <span class="kw">where
     </span>F: layer::Filter&lt;S&gt;,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="self">self</span>.as_ref()
             .map(|inner| inner.enabled(meta, ctx))
             .unwrap_or(<span class="bool-val">true</span>)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    </span><span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="self">self</span>.as_ref()
             .map(|inner| inner.callsite_enabled(meta))
             .unwrap_or_else(Interest::always)
@@ -1869,42 +1870,42 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="self">self</span>.as_ref()
             .map(|inner| inner.event_enabled(event, ctx))
             .unwrap_or(<span class="bool-val">true</span>)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = <span class="self">self </span>{
             inner.on_new_span(attrs, id, ctx)
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = <span class="self">self </span>{
             inner.on_record(id, values, ctx)
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = <span class="self">self </span>{
             inner.on_enter(id, ctx)
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = <span class="self">self </span>{
             inner.on_exit(id, ctx)
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = <span class="self">self </span>{
             inner.on_close(id, ctx)
         }
@@ -1936,8 +1937,8 @@
     </span><span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; FilterId {
         <span class="macro">debug_assert!</span>(
             !<span class="self">self</span>.id.<span class="number">0</span>.is_disabled(),
-            <span class="string">&quot;a `Filtered` layer was used, but it had no `FilterId`; \
-            was it registered with the subscriber?&quot;
+            <span class="string">"a `Filtered` layer was used, but it had no `FilterId`; \
+            was it registered with the subscriber?"
         </span>);
         <span class="self">self</span>.id.<span class="number">0
     </span>}
@@ -1971,9 +1972,9 @@
     /// # filter::LevelFilter, Registry&gt;,Registry&gt;
     /// # = &amp;reload_handle;
     /// #
-    /// info!(&quot;This will be ignored&quot;);
+    /// info!("This will be ignored");
     /// reload_handle.modify(|layer| *layer.filter_mut() = filter::LevelFilter::INFO);
-    /// info!(&quot;This will be logged&quot;);
+    /// info!("This will be logged");
     /// # }
     /// ```
     </span><span class="kw">pub fn </span>filter_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>F {
@@ -2007,9 +2008,9 @@
     /// # filter::LevelFilter, Registry&gt;, Registry&gt;
     /// # = &amp;reload_handle;
     /// #
-    /// info!(&quot;This will be logged to stderr&quot;);
+    /// info!("This will be logged to stderr");
     /// reload_handle.modify(|layer| *layer.inner_mut().writer_mut() = non_blocking(std::io::stdout()));
-    /// info!(&quot;This will be logged to stdout&quot;);
+    /// info!("This will be logged to stdout");
     /// # }
     /// ```
     ///
@@ -2021,8 +2022,8 @@
 
 <span class="kw">impl</span>&lt;S, L, F&gt; Layer&lt;S&gt; <span class="kw">for </span>Filtered&lt;L, F, S&gt;
 <span class="kw">where
-    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">&#39;span</span>&gt; registry::LookupSpan&lt;<span class="lifetime">&#39;span</span>&gt; + <span class="lifetime">&#39;static</span>,
-    F: layer::Filter&lt;S&gt; + <span class="lifetime">&#39;static</span>,
+    </span>S: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">'span</span>&gt; registry::LookupSpan&lt;<span class="lifetime">'span</span>&gt; + <span class="lifetime">'static</span>,
+    F: layer::Filter&lt;S&gt; + <span class="lifetime">'static</span>,
     L: Layer&lt;S&gt;,
 {
     <span class="kw">fn </span>on_register_dispatch(<span class="kw-2">&amp;</span><span class="self">self</span>, subscriber: <span class="kw-2">&amp;</span>Dispatch) {
@@ -2035,20 +2036,20 @@
     }
 
     <span class="comment">// TODO(eliza): can we figure out a nice way to make the `Filtered` layer
-    // not call `is_enabled_for` in hooks that the inner layer doesn&#39;t actually
+    // not call `is_enabled_for` in hooks that the inner layer doesn't actually
     // have real implementations of? probably not...
     //
     // it would be cool if there was some wild rust reflection way of checking
-    // if a trait impl has the default impl of a trait method or not, but that&#39;s
+    // if a trait impl has the default impl of a trait method or not, but that's
     // almsot certainly impossible...right?
 
-    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="kw">let </span>interest = <span class="self">self</span>.filter.callsite_enabled(metadata);
 
-        <span class="comment">// If the filter didn&#39;t disable the callsite, allow the inner layer to
+        <span class="comment">// If the filter didn't disable the callsite, allow the inner layer to
         // register it — since `register_callsite` is also used for purposes
         // such as reserving/caching per-callsite data, we want the inner layer
-        // to be able to perform any other registration steps. However, we&#39;ll
+        // to be able to perform any other registration steps. However, we'll
         // ignore its `Interest`.
         </span><span class="kw">if </span>!interest.is_never() {
             <span class="self">self</span>.layer.register_callsite(metadata);
@@ -2058,16 +2059,16 @@
         // for this callsite.
         </span>FILTERING.with(|filtering| filtering.add_interest(interest));
 
-        <span class="comment">// don&#39;t short circuit! if the stack consists entirely of `Layer`s with
+        <span class="comment">// don't short circuit! if the stack consists entirely of `Layer`s with
         // per-layer filters, the `Registry` will return the actual `Interest`
-        // value that&#39;s the sum of all the `register_callsite` calls to those
+        // value that's the sum of all the `register_callsite` calls to those
         // per-layer filters. if we returned an actual `never` interest here, a
         // `Layered` layer would short-circuit and not allow any `Filtered`
         // layers below us if _they_ are interested in the callsite.
         </span>Interest::always()
     }
 
-    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="kw">let </span>cx = cx.with_filter(<span class="self">self</span>.id());
         <span class="kw">let </span>enabled = <span class="self">self</span>.filter.enabled(metadata, <span class="kw-2">&amp;</span>cx);
         FILTERING.with(|filtering| filtering.set(<span class="self">self</span>.id(), enabled));
@@ -2081,7 +2082,7 @@
             // metadata, but returning `false` in `Layer::enabled` will
             // short-circuit and globally disable the span or event. This is
             // *not* what we want for per-layer filters, as other layers may
-            // still want this event. Returning `true` here means we&#39;ll continue
+            // still want this event. Returning `true` here means we'll continue
             // asking the next layer in the stack.
             //
             // Once all per-layer filters have been evaluated, the `Registry`
@@ -2094,7 +2095,7 @@
         </span>}
     }
 
-    <span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="self">self</span>.did_enable(|| {
             <span class="kw">let </span>cx = cx.with_filter(<span class="self">self</span>.id());
             <span class="self">self</span>.filter.on_new_span(attrs, id, cx.clone());
@@ -2107,14 +2108,14 @@
         <span class="self">self</span>.filter.max_level_hint()
     }
 
-    <span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(cx) = cx.if_enabled_for(span, <span class="self">self</span>.id()) {
             <span class="self">self</span>.filter.on_record(span, values, cx.clone());
             <span class="self">self</span>.layer.on_record(span, values, cx)
         }
     }
 
-    <span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, follows: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, follows: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="comment">// only call `on_follows_from` if both spans are enabled by us
         </span><span class="kw">if </span>cx.is_enabled_for(span, <span class="self">self</span>.id()) &amp;&amp; cx.is_enabled_for(follows, <span class="self">self</span>.id()) {
             <span class="self">self</span>.layer
@@ -2122,7 +2123,7 @@
         }
     }
 
-    <span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    <span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="kw">let </span>cx = cx.with_filter(<span class="self">self</span>.id());
         <span class="kw">let </span>enabled = FILTERING
             .with(|filtering| filtering.and(<span class="self">self</span>.id(), || <span class="self">self</span>.filter.event_enabled(event, <span class="kw-2">&amp;</span>cx)));
@@ -2138,27 +2139,27 @@
         </span>}
     }
 
-    <span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="self">self</span>.did_enable(|| {
             <span class="self">self</span>.layer.on_event(event, cx.with_filter(<span class="self">self</span>.id()));
         })
     }
 
-    <span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(cx) = cx.if_enabled_for(id, <span class="self">self</span>.id()) {
             <span class="self">self</span>.filter.on_enter(id, cx.clone());
             <span class="self">self</span>.layer.on_enter(id, cx);
         }
     }
 
-    <span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(cx) = cx.if_enabled_for(id, <span class="self">self</span>.id()) {
             <span class="self">self</span>.filter.on_exit(id, cx.clone());
             <span class="self">self</span>.layer.on_exit(id, cx);
         }
     }
 
-    <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    <span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(cx) = cx.if_enabled_for(<span class="kw-2">&amp;</span>id, <span class="self">self</span>.id()) {
             <span class="self">self</span>.filter.on_close(id.clone(), cx.clone());
             <span class="self">self</span>.layer.on_close(id, cx);
@@ -2166,7 +2167,7 @@
     }
 
     <span class="comment">// XXX(eliza): the existence of this method still makes me sad...
-    </span><span class="kw">fn </span>on_id_change(<span class="kw-2">&amp;</span><span class="self">self</span>, old: <span class="kw-2">&amp;</span>span::Id, new: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_id_change(<span class="kw-2">&amp;</span><span class="self">self</span>, old: <span class="kw-2">&amp;</span>span::Id, new: <span class="kw-2">&amp;</span>span::Id, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(cx) = cx.if_enabled_for(old, <span class="self">self</span>.id()) {
             <span class="self">self</span>.layer.on_id_change(old, new, cx)
         }
@@ -2192,11 +2193,11 @@
     </span>F: fmt::Debug,
     L: fmt::Debug,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;Filtered&quot;</span>)
-            .field(<span class="string">&quot;filter&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.filter)
-            .field(<span class="string">&quot;layer&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.layer)
-            .field(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"Filtered"</span>)
+            .field(<span class="string">"filter"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.filter)
+            .field(<span class="string">"layer"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.layer)
+            .field(<span class="string">"id"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id)
             .finish()
     }
 }
@@ -2214,7 +2215,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(id: u8) -&gt; <span class="self">Self </span>{
-        <span class="macro">assert!</span>(id &lt; <span class="number">64</span>, <span class="string">&quot;filter IDs may not be greater than 64&quot;</span>);
+        <span class="macro">assert!</span>(id &lt; <span class="number">64</span>, <span class="string">"filter IDs may not be greater than 64"</span>);
         <span class="self">Self</span>(<span class="number">1 </span>&lt;&lt; id <span class="kw">as </span>usize)
     }
 
@@ -2243,25 +2244,25 @@
     /// We want `layer2` to be affected by both `filter1` _and_ `filter2`.
     /// Without combining `FilterId`s, this works fine when filtering
     /// `on_event`/`new_span`, because the outer `Filtered` layer (`filter1`)
-    /// won&#39;t call the inner layer&#39;s `on_event` or `new_span` callbacks if it
+    /// won't call the inner layer's `on_event` or `new_span` callbacks if it
     /// disabled the event/span.
     ///
-    /// However, it _doesn&#39;t_ work when filtering span lookups and traversals
+    /// However, it _doesn't_ work when filtering span lookups and traversals
     /// (e.g. `scope`). This is because the [`Context`] passed to `layer2`
     /// would set its filter ID to the filter ID of `filter2`, and would skip
     /// spans that were disabled by `filter2`. However, what if a span was
-    /// disabled by `filter1`? We wouldn&#39;t see it in `new_span`, but we _would_
-    /// see it in lookups and traversals...which we don&#39;t want.
+    /// disabled by `filter1`? We wouldn't see it in `new_span`, but we _would_
+    /// see it in lookups and traversals...which we don't want.
     ///
     /// When a [`Filtered`] layer adds its ID to a [`Context`], it _combines_ it
     /// with any previous filter ID that the context had, rather than replacing
-    /// it. That way, `layer2`&#39;s context will check if a span was disabled by
+    /// it. That way, `layer2`'s context will check if a span was disabled by
     /// `filter1` _or_ `filter2`. The way we do this, instead of representing
     /// `FilterId`s as a number number that we shift a 1 over by to get a mask,
     /// we just store the actual mask,so we can combine them with a bitwise-OR.
     ///
     /// For example, if we consider the following case (pretending that the
-    /// masks are 8 bits instead of 64 just so i don&#39;t have to write out a bunch
+    /// masks are 8 bits instead of 64 just so i don't have to write out a bunch
     /// of extra zeroes):
     ///
     /// - `filter1` has the filter id 1 (`0b0000_0001`)
@@ -2271,14 +2272,14 @@
     /// bits `0b0000_0001`.
     ///
     /// If the `FilterId` was internally represented as `(bits to shift + 1),
-    /// when `layer2`&#39;s [`Context`] checked if it enabled the  span, it would
+    /// when `layer2`'s [`Context`] checked if it enabled the  span, it would
     /// make the mask `0b0000_0010` (`1 &lt;&lt; 1`). That bit would not be set in the
-    /// [`FilterMap`], so it would see that it _didn&#39;t_ disable  the span. Which
-    /// is *true*, it just doesn&#39;t reflect the tree-like shape of the actual
+    /// [`FilterMap`], so it would see that it _didn't_ disable  the span. Which
+    /// is *true*, it just doesn't reflect the tree-like shape of the actual
     /// subscriber.
     ///
     /// By having the IDs be masks instead of shifts, though, when the
-    /// [`Filtered`] with `filter2` gets the [`Context`] with `filter1`&#39;s filter ID,
+    /// [`Filtered`] with `filter2` gets the [`Context`] with `filter1`'s filter ID,
     /// instead of replacing it, it ors them together:
     ///
     /// ```ignore
@@ -2312,30 +2313,30 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>FilterId {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="comment">// don&#39;t print a giant set of the numbers 0..63 if the filter ID is disabled.
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="comment">// don't print a giant set of the numbers 0..63 if the filter ID is disabled.
         </span><span class="kw">if </span><span class="self">self</span>.<span class="number">0 </span>== <span class="self">Self</span>::disabled().<span class="number">0 </span>{
             <span class="kw">return </span>f
-                .debug_tuple(<span class="string">&quot;FilterId&quot;</span>)
-                .field(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;DISABLED&quot;</span>))
+                .debug_tuple(<span class="string">"FilterId"</span>)
+                .field(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"DISABLED"</span>))
                 .finish();
         }
 
         <span class="kw">if </span>f.alternate() {
-            f.debug_struct(<span class="string">&quot;FilterId&quot;</span>)
-                .field(<span class="string">&quot;ids&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:?}&quot;</span>, FmtBitset(<span class="self">self</span>.<span class="number">0</span>)))
-                .field(<span class="string">&quot;bits&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>))
+            f.debug_struct(<span class="string">"FilterId"</span>)
+                .field(<span class="string">"ids"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:?}"</span>, FmtBitset(<span class="self">self</span>.<span class="number">0</span>)))
+                .field(<span class="string">"bits"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:b}"</span>, <span class="self">self</span>.<span class="number">0</span>))
                 .finish()
         } <span class="kw">else </span>{
-            f.debug_tuple(<span class="string">&quot;FilterId&quot;</span>).field(<span class="kw-2">&amp;</span>FmtBitset(<span class="self">self</span>.<span class="number">0</span>)).finish()
+            f.debug_tuple(<span class="string">"FilterId"</span>).field(<span class="kw-2">&amp;</span>FmtBitset(<span class="self">self</span>.<span class="number">0</span>)).finish()
         }
     }
 }
 
 <span class="kw">impl </span>fmt::Binary <span class="kw">for </span>FilterId {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_tuple(<span class="string">&quot;FilterId&quot;</span>)
-            .field(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>))
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_tuple(<span class="string">"FilterId"</span>)
+            .field(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:b}"</span>, <span class="self">self</span>.<span class="number">0</span>))
             .finish()
     }
 }
@@ -2375,13 +2376,13 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>FilterMap {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span>alt = f.alternate();
-        <span class="kw">let </span><span class="kw-2">mut </span>s = f.debug_struct(<span class="string">&quot;FilterMap&quot;</span>);
-        s.field(<span class="string">&quot;disabled_by&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span>FmtBitset(<span class="self">self</span>.bits)));
+        <span class="kw">let </span><span class="kw-2">mut </span>s = f.debug_struct(<span class="string">"FilterMap"</span>);
+        s.field(<span class="string">"disabled_by"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:?}"</span>, <span class="kw-2">&amp;</span>FmtBitset(<span class="self">self</span>.bits)));
 
         <span class="kw">if </span>alt {
-            s.field(<span class="string">&quot;bits&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="self">self</span>.bits));
+            s.field(<span class="string">"bits"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:b}"</span>, <span class="self">self</span>.bits));
         }
 
         s.finish()
@@ -2389,9 +2390,9 @@
 }
 
 <span class="kw">impl </span>fmt::Binary <span class="kw">for </span>FilterMap {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;FilterMap&quot;</span>)
-            .field(<span class="string">&quot;bits&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:b}&quot;</span>, <span class="self">self</span>.bits))
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"FilterMap"</span>)
+            .field(<span class="string">"bits"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:b}"</span>, <span class="self">self</span>.bits))
             .finish()
     }
 }
@@ -2420,7 +2421,7 @@
             <span class="macro">debug_assert_eq!</span>(
                 <span class="self">self</span>.counters.in_interest_pass.get(),
                 <span class="number">0</span>,
-                <span class="string">&quot;if we are in or starting a filter pass, we must not be in an interest pass.&quot;
+                <span class="string">"if we are in or starting a filter pass, we must not be in an interest pass."
             </span>)
         }
 
@@ -2462,7 +2463,7 @@
                         <span class="macro">debug_assert_eq!</span>(this.enabled.get(), FilterMap::default());
                     }
 
-                    <span class="comment">// Nothing enabled this event, we won&#39;t tick back down the
+                    <span class="comment">// Nothing enabled this event, we won't tick back down the
                     // counter in `did_enable`. Reset it.
                     </span><span class="kw">if </span>!enabled {
                         this.counters.in_filter_pass.set(<span class="number">0</span>);
@@ -2481,13 +2482,13 @@
     </span><span class="kw">fn </span>did_enable(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: FilterId, f: <span class="kw">impl </span>FnOnce()) {
         <span class="kw">let </span>map = <span class="self">self</span>.enabled.get();
         <span class="kw">if </span>map.is_enabled(filter) {
-            <span class="comment">// If the filter didn&#39;t disable the current span/event, run the
+            <span class="comment">// If the filter didn't disable the current span/event, run the
             // callback.
             </span>f();
         } <span class="kw">else </span>{
             <span class="comment">// Otherwise, if this filter _did_ disable the span or event
-            // currently being processed, clear its bit from this thread&#39;s
-            // `FilterState`. The bit has already been &quot;consumed&quot; by skipping
+            // currently being processed, clear its bit from this thread's
+            // `FilterState`. The bit has already been "consumed" by skipping
             // this callback, and we need to ensure that the `FilterMap` for
             // this thread is reset when the *next* `enabled` call occurs.
             </span><span class="self">self</span>.enabled.set(map.set(filter, <span class="bool-val">true</span>));
@@ -2504,7 +2505,7 @@
             <span class="macro">debug_assert_eq!</span>(
                 <span class="self">self</span>.counters.in_interest_pass.get(),
                 <span class="number">0</span>,
-                <span class="string">&quot;if we are in a filter pass, we must not be in an interest pass.&quot;
+                <span class="string">"if we are in a filter pass, we must not be in an interest pass."
             </span>)
         }
     }
@@ -2523,7 +2524,7 @@
     /// clearing the debug counters.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clear_enabled() {
         <span class="comment">// Drop the `Result` returned by `try_with` --- if we are in the middle
-        // a panic and the thread-local has been torn down, that&#39;s fine, just
+        // a panic and the thread-local has been torn down, that's fine, just
         // ignore it ratehr than panicking.
         </span><span class="kw">let _ </span>= FILTERING.try_with(|filtering| {
             filtering.enabled.set(FilterMap::default());
@@ -2570,26 +2571,26 @@
 /// layers like Reload, Option, etc.
 ///
 /// Why is this a wrapper around the `FilterId`, you may ask? Because
-/// downcasting works by returning a pointer, and we don&#39;t want to risk
-/// introducing UB by  constructing pointers that _don&#39;t_ point to a valid
-/// instance of the type they claim to be. In this case, we don&#39;t _intend_ for
+/// downcasting works by returning a pointer, and we don't want to risk
+/// introducing UB by  constructing pointers that _don't_ point to a valid
+/// instance of the type they claim to be. In this case, we don't _intend_ for
 /// this pointer to be dereferenced, so it would actually be fine to return one
-/// that isn&#39;t a valid pointer...but we can&#39;t guarantee that the caller won&#39;t
-/// (accidentally) dereference it, so it&#39;s better to be safe than sorry. We
-/// could, alternatively, add an additional field to the type that&#39;s used only
+/// that isn't a valid pointer...but we can't guarantee that the caller won't
+/// (accidentally) dereference it, so it's better to be safe than sorry. We
+/// could, alternatively, add an additional field to the type that's used only
 /// for returning pointers to as as part of the evil downcasting hack, but I
 /// thought it was nicer to just add a `repr(transparent)` wrapper to the
-/// existing `FilterId` field, since it won&#39;t make the struct any bigger.
+/// existing `FilterId` field, since it won't make the struct any bigger.
 ///
-/// Don&#39;t worry, this isn&#39;t on the test. :)
+/// Don't worry, this isn't on the test. :)
 </span><span class="attr">#[derive(Clone, Copy)]
 #[repr(transparent)]
 </span><span class="kw">struct </span>MagicPlfDowncastMarker(FilterId);
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>MagicPlfDowncastMarker {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="comment">// Just pretend that `MagicPlfDowncastMarker` doesn&#39;t exist for
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="comment">// Just pretend that `MagicPlfDowncastMarker` doesn't exist for
         // `fmt::Debug` purposes...if no one *sees* it in their `Debug` output,
-        // they don&#39;t have to know I thought this code would be a good idea.
+        // they don't have to know I thought this code would be a good idea.
         </span>fmt::Debug::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, f)
     }
 }
@@ -2613,10 +2614,10 @@
     S: Subscriber,
 {
     <span class="kw">unsafe </span>{
-        <span class="comment">// Safety: we&#39;re not actually *doing* anything with this pointer --- we
-        // only care about the `Option`, which we&#39;re turning into a `bool`. So
+        <span class="comment">// Safety: we're not actually *doing* anything with this pointer --- we
+        // only care about the `Option`, which we're turning into a `bool`. So
         // even if the layer decides to be evil and give us some kind of invalid
-        // pointer, we don&#39;t ever dereference it, so this is always safe.
+        // pointer, we don't ever dereference it, so this is always safe.
         </span>layer.downcast_raw(TypeId::of::&lt;MagicPlfDowncastMarker&gt;())
     }
     .is_some()
@@ -2625,7 +2626,7 @@
 <span class="kw">struct </span>FmtBitset(u64);
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>FmtBitset {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>set = f.debug_set();
         <span class="kw">for </span>bit <span class="kw">in </span><span class="number">0</span>..<span class="number">64 </span>{
             <span class="comment">// if the `bit`-th bit is set, add it to the debug set

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/any_calendar.rs`."><title>any_calendar.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/any_calendar.rs`."><title>any_calendar.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1749,7 +1750,7 @@
 /// [`Date`] can also be converted to [`AnyCalendar`]-compatible ones
 /// via [`Date::to_any()`](crate::Date::to_any()).
 ///
-/// There are many ways of constructing an AnyCalendar&#39;d date:
+/// There are many ways of constructing an AnyCalendar'd date:
 /// ```
 /// use icu::calendar::{AnyCalendar, AnyCalendarKind, DateTime, japanese::Japanese, types::Time};
 /// use icu::locid::locale;
@@ -1757,29 +1758,29 @@
 /// # use std::rc::Rc;
 /// # use std::convert::TryInto;
 ///
-/// let locale = locale!(&quot;en-u-ca-japanese&quot;); // English with the Japanese calendar
+/// let locale = locale!("en-u-ca-japanese"); // English with the Japanese calendar
 ///
 /// let calendar = AnyCalendar::new_for_locale(&amp;locale.into());
 /// let calendar = Rc::new(calendar); // Avoid cloning it each time
 ///                                   // If everything is a local reference, you may use icu_calendar::Ref instead.
 ///
 /// // manually construct a datetime in this calendar
-/// let manual_time = Time::try_new(12, 33, 12, 0).expect(&quot;failed to construct Time&quot;);
+/// let manual_time = Time::try_new(12, 33, 12, 0).expect("failed to construct Time");
 /// // construct from era code, year, month code, day, time, and a calendar
 /// // This is March 28, 15 Heisei
-/// let manual_datetime = DateTime::try_new_from_codes(&quot;heisei&quot;.parse().unwrap(), 15, &quot;M03&quot;.parse().unwrap(), 28,
+/// let manual_datetime = DateTime::try_new_from_codes("heisei".parse().unwrap(), 15, "M03".parse().unwrap(), 28,
 ///                                                manual_time, calendar.clone())
-///                     .expect(&quot;Failed to construct DateTime manually&quot;);
+///                     .expect("Failed to construct DateTime manually");
 ///
 ///
 /// // construct another datetime by converting from ISO
 /// let iso_datetime = DateTime::try_new_iso_datetime(2020, 9, 1, 12, 34, 28)
-///     .expect(&quot;Failed to construct ISO DateTime.&quot;);
+///     .expect("Failed to construct ISO DateTime.");
 /// let iso_converted = iso_datetime.to_calendar(calendar);
 ///
 /// // Construct a datetime in the appropriate typed calendar and convert
 /// let japanese_calendar = Japanese::new();
-/// let japanese_datetime = DateTime::try_new_japanese_datetime(&quot;heisei&quot;.parse().unwrap(), 15, 3, 28,
+/// let japanese_datetime = DateTime::try_new_japanese_datetime("heisei".parse().unwrap(), 15, 3, 28,
 ///                                                         12, 33, 12, japanese_calendar).unwrap();
 /// // This is a DateTime&lt;AnyCalendar&gt;
 /// let any_japanese_datetime = japanese_datetime.to_any();
@@ -1900,7 +1901,7 @@
             (<span class="kw-2">&amp;</span><span class="self">Self</span>::Persian(<span class="kw-2">ref </span><span class="macro-nonterminal">$cal_matched</span>), <span class="kw-2">&amp;</span>AnyDateInner::Persian(<span class="kw-2">ref </span><span class="macro-nonterminal">$date_matched</span>)) =&gt; <span class="macro-nonterminal">$e</span>,
             (<span class="kw-2">&amp;</span><span class="self">Self</span>::Roc(<span class="kw-2">ref </span><span class="macro-nonterminal">$cal_matched</span>), <span class="kw-2">&amp;</span>AnyDateInner::Roc(<span class="kw-2">ref </span><span class="macro-nonterminal">$date_matched</span>)) =&gt; <span class="macro-nonterminal">$e</span>,
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Found AnyCalendar with mixed calendar type {:?} and date type {:?}!&quot;</span>,
+                <span class="string">"Found AnyCalendar with mixed calendar type {:?} and date type {:?}!"</span>,
                 <span class="macro-nonterminal">$cal</span>.kind().debug_name(),
                 <span class="macro-nonterminal">$date</span>.kind().debug_name()
             ),
@@ -2064,7 +2065,7 @@
             <span class="comment">// This is only reached from misuse of from_raw, a semi-internal api
             </span><span class="attr">#[allow(clippy::panic)]
             </span>(<span class="kw">_</span>, d) =&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Found AnyCalendar with mixed calendar type {} and date type {}!&quot;</span>,
+                <span class="string">"Found AnyCalendar with mixed calendar type {} and date type {}!"</span>,
                 <span class="self">self</span>.kind().debug_name(),
                 d.kind().debug_name()
             ),
@@ -2246,25 +2247,25 @@
         <span class="macro">match_cal_and_date!</span>(<span class="kw">match </span>(<span class="self">self</span>, date): (c, d) =&gt; c.day_of_year_info(d))
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            <span class="self">Self</span>::Buddhist(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Buddhist)&quot;</span>,
-            <span class="self">Self</span>::Chinese(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Chinese)&quot;</span>,
-            <span class="self">Self</span>::Coptic(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Coptic)&quot;</span>,
-            <span class="self">Self</span>::Dangi(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Dangi)&quot;</span>,
-            <span class="self">Self</span>::Ethiopian(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Ethiopian)&quot;</span>,
-            <span class="self">Self</span>::Gregorian(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Gregorian)&quot;</span>,
-            <span class="self">Self</span>::Hebrew(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Hebrew)&quot;</span>,
-            <span class="self">Self</span>::Indian(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Indian)&quot;</span>,
-            <span class="self">Self</span>::IslamicCivil(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Islamic, civil)&quot;</span>,
-            <span class="self">Self</span>::IslamicObservational(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Islamic, observational)&quot;</span>,
-            <span class="self">Self</span>::IslamicTabular(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Islamic, tabular)&quot;</span>,
-            <span class="self">Self</span>::IslamicUmmAlQura(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Islamic, Umm al-Qura)&quot;</span>,
-            <span class="self">Self</span>::Iso(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Iso)&quot;</span>,
-            <span class="self">Self</span>::Japanese(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Japanese)&quot;</span>,
-            <span class="self">Self</span>::JapaneseExtended(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Japanese, historical era data)&quot;</span>,
-            <span class="self">Self</span>::Persian(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Persian)&quot;</span>,
-            <span class="self">Self</span>::Roc(<span class="kw">_</span>) =&gt; <span class="string">&quot;AnyCalendar (Roc)&quot;</span>,
+            <span class="self">Self</span>::Buddhist(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Buddhist)"</span>,
+            <span class="self">Self</span>::Chinese(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Chinese)"</span>,
+            <span class="self">Self</span>::Coptic(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Coptic)"</span>,
+            <span class="self">Self</span>::Dangi(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Dangi)"</span>,
+            <span class="self">Self</span>::Ethiopian(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Ethiopian)"</span>,
+            <span class="self">Self</span>::Gregorian(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Gregorian)"</span>,
+            <span class="self">Self</span>::Hebrew(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Hebrew)"</span>,
+            <span class="self">Self</span>::Indian(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Indian)"</span>,
+            <span class="self">Self</span>::IslamicCivil(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Islamic, civil)"</span>,
+            <span class="self">Self</span>::IslamicObservational(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Islamic, observational)"</span>,
+            <span class="self">Self</span>::IslamicTabular(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Islamic, tabular)"</span>,
+            <span class="self">Self</span>::IslamicUmmAlQura(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Islamic, Umm al-Qura)"</span>,
+            <span class="self">Self</span>::Iso(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Iso)"</span>,
+            <span class="self">Self</span>::Japanese(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Japanese)"</span>,
+            <span class="self">Self</span>::JapaneseExtended(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Japanese, historical era data)"</span>,
+            <span class="self">Self</span>::Persian(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Persian)"</span>,
+            <span class="self">Self</span>::Roc(<span class="kw">_</span>) =&gt; <span class="string">"AnyCalendar (Roc)"</span>,
         }
     }
 
@@ -2282,7 +2283,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new(kind: AnyCalendarKind) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>kind {
             AnyCalendarKind::Buddhist =&gt; AnyCalendar::Buddhist(Buddhist),
@@ -2354,7 +2355,7 @@
         })
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
     #[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(BUFFER, <span class="self">Self</span>::new)]
     </span><span class="kw">pub fn </span>try_new_with_buffer_provider&lt;P&gt;(
         provider: <span class="kw-2">&amp;</span>P,
@@ -2436,13 +2437,13 @@
 
     <span class="doccomment">/// Constructs an AnyCalendar for a given calendar kind from compiled data.
     ///
-    /// In case the locale&#39;s calendar is unknown or unspecified, it will attempt to load the default
+    /// In case the locale's calendar is unknown or unspecified, it will attempt to load the default
     /// calendar for the locale, falling back to gregorian.
     ///
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>new_for_locale(locale: <span class="kw-2">&amp;</span>DataLocale) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>kind = AnyCalendarKind::from_data_locale_with_fallback(locale);
         <span class="self">Self</span>::new(kind)
@@ -2486,7 +2487,7 @@
             <span class="attr">#[allow(clippy::expect_used)] </span><span class="comment">// Invariant known at compile time
             </span><span class="self">Self</span>::Ethiopian(<span class="kw-2">ref </span>e) =&gt; e
                 .any_calendar_kind()
-                .expect(<span class="string">&quot;Ethiopian calendar known to have an AnyCalendarKind&quot;</span>),
+                .expect(<span class="string">"Ethiopian calendar known to have an AnyCalendarKind"</span>),
             <span class="self">Self</span>::Gregorian(<span class="kw">_</span>) =&gt; AnyCalendarKind::Gregorian,
             <span class="self">Self</span>::Hebrew(<span class="kw">_</span>) =&gt; AnyCalendarKind::Hebrew,
             <span class="self">Self</span>::Indian(<span class="kw">_</span>) =&gt; AnyCalendarKind::Indian,
@@ -2504,10 +2505,10 @@
 
     <span class="doccomment">/// Given an AnyCalendar date, convert that date to another AnyCalendar date in this calendar,
     /// if conversion is needed
-    </span><span class="kw">pub fn </span>convert_any_date&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>convert_any_date&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         date: <span class="kw-2">&amp;</span>Date&lt;<span class="kw">impl </span>AsCalendar&lt;Calendar = AnyCalendar&gt;&gt;,
-    ) -&gt; Date&lt;Ref&lt;<span class="lifetime">&#39;a</span>, AnyCalendar&gt;&gt; {
+    ) -&gt; Date&lt;Ref&lt;<span class="lifetime">'a</span>, AnyCalendar&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.kind() != date.calendar.as_calendar().kind() {
             Date::new_from_iso(date.to_iso(), Ref(<span class="self">self</span>))
         } <span class="kw">else </span>{
@@ -2520,10 +2521,10 @@
 
     <span class="doccomment">/// Given an AnyCalendar datetime, convert that date to another AnyCalendar datetime in this calendar,
     /// if conversion is needed
-    </span><span class="kw">pub fn </span>convert_any_datetime&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>convert_any_datetime&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         date: <span class="kw-2">&amp;</span>DateTime&lt;<span class="kw">impl </span>AsCalendar&lt;Calendar = AnyCalendar&gt;&gt;,
-    ) -&gt; DateTime&lt;Ref&lt;<span class="lifetime">&#39;a</span>, AnyCalendar&gt;&gt; {
+    ) -&gt; DateTime&lt;Ref&lt;<span class="lifetime">'a</span>, AnyCalendar&gt;&gt; {
         DateTime {
             time: date.time,
             date: <span class="self">self</span>.convert_any_date(<span class="kw-2">&amp;</span>date.date),
@@ -2611,27 +2612,27 @@
     /// [`CalendarError::unknown_any_calendar_kind`].
     </span><span class="kw">pub fn </span>get_for_bcp47_bytes(x: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Some</span>(<span class="kw">match </span>x {
-            <span class="string">b&quot;buddhist&quot; </span>=&gt; AnyCalendarKind::Buddhist,
-            <span class="string">b&quot;chinese&quot; </span>=&gt; AnyCalendarKind::Chinese,
-            <span class="string">b&quot;coptic&quot; </span>=&gt; AnyCalendarKind::Coptic,
-            <span class="string">b&quot;dangi&quot; </span>=&gt; AnyCalendarKind::Dangi,
-            <span class="string">b&quot;ethioaa&quot; </span>=&gt; AnyCalendarKind::EthiopianAmeteAlem,
-            <span class="string">b&quot;ethiopic&quot; </span>=&gt; AnyCalendarKind::Ethiopian,
-            <span class="string">b&quot;gregory&quot; </span>=&gt; AnyCalendarKind::Gregorian,
-            <span class="string">b&quot;hebrew&quot; </span>=&gt; AnyCalendarKind::Hebrew,
-            <span class="string">b&quot;indian&quot; </span>=&gt; AnyCalendarKind::Indian,
-            <span class="string">b&quot;islamic-civil&quot; </span>| <span class="string">b&quot;islamicc&quot; </span>=&gt; AnyCalendarKind::IslamicCivil,
-            <span class="string">b&quot;islamic-tbla&quot; </span>=&gt; AnyCalendarKind::IslamicTabular,
-            <span class="string">b&quot;islamic-umalqura&quot; </span>=&gt; AnyCalendarKind::IslamicUmmAlQura,
-            <span class="string">b&quot;islamic&quot; </span>=&gt; AnyCalendarKind::IslamicObservational,
-            <span class="string">b&quot;iso&quot; </span>=&gt; AnyCalendarKind::Iso,
-            <span class="string">b&quot;japanese&quot; </span>=&gt; AnyCalendarKind::Japanese,
-            <span class="string">b&quot;japanext&quot; </span>=&gt; AnyCalendarKind::JapaneseExtended,
-            <span class="string">b&quot;persian&quot; </span>=&gt; AnyCalendarKind::Persian,
-            <span class="string">b&quot;roc&quot; </span>=&gt; AnyCalendarKind::Roc,
+            <span class="string">b"buddhist" </span>=&gt; AnyCalendarKind::Buddhist,
+            <span class="string">b"chinese" </span>=&gt; AnyCalendarKind::Chinese,
+            <span class="string">b"coptic" </span>=&gt; AnyCalendarKind::Coptic,
+            <span class="string">b"dangi" </span>=&gt; AnyCalendarKind::Dangi,
+            <span class="string">b"ethioaa" </span>=&gt; AnyCalendarKind::EthiopianAmeteAlem,
+            <span class="string">b"ethiopic" </span>=&gt; AnyCalendarKind::Ethiopian,
+            <span class="string">b"gregory" </span>=&gt; AnyCalendarKind::Gregorian,
+            <span class="string">b"hebrew" </span>=&gt; AnyCalendarKind::Hebrew,
+            <span class="string">b"indian" </span>=&gt; AnyCalendarKind::Indian,
+            <span class="string">b"islamic-civil" </span>| <span class="string">b"islamicc" </span>=&gt; AnyCalendarKind::IslamicCivil,
+            <span class="string">b"islamic-tbla" </span>=&gt; AnyCalendarKind::IslamicTabular,
+            <span class="string">b"islamic-umalqura" </span>=&gt; AnyCalendarKind::IslamicUmmAlQura,
+            <span class="string">b"islamic" </span>=&gt; AnyCalendarKind::IslamicObservational,
+            <span class="string">b"iso" </span>=&gt; AnyCalendarKind::Iso,
+            <span class="string">b"japanese" </span>=&gt; AnyCalendarKind::Japanese,
+            <span class="string">b"japanext" </span>=&gt; AnyCalendarKind::JapaneseExtended,
+            <span class="string">b"persian" </span>=&gt; AnyCalendarKind::Persian,
+            <span class="string">b"roc" </span>=&gt; AnyCalendarKind::Roc,
             <span class="kw">_ </span>=&gt; {
-                <span class="comment">// Log a warning when a calendar value is passed in but doesn&#39;t match any calendars
-                </span>DataError::custom(<span class="string">&quot;bcp47_bytes did not match any calendars&quot;</span>).with_debug_context(x);
+                <span class="comment">// Log a warning when a calendar value is passed in but doesn't match any calendars
+                </span>DataError::custom(<span class="string">"bcp47_bytes did not match any calendars"</span>).with_debug_context(x);
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
         })
@@ -2646,64 +2647,64 @@
         <span class="kw">if </span>slice.len() &lt;= <span class="number">2 </span>{
             <span class="kw">if let </span><span class="prelude-val">Some</span>(first) = slice.get(<span class="number">0</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(second) = slice.get(<span class="number">1</span>) {
-                    <span class="kw">if </span>first == <span class="string">&quot;islamic&quot; </span>{
+                    <span class="kw">if </span>first == <span class="string">"islamic" </span>{
                         <span class="kw">match </span>second.as_str() {
-                            <span class="string">&quot;civil&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicCivil),
-                            <span class="string">&quot;tbla&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicTabular),
-                            <span class="string">&quot;umalqura&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicUmmAlQura),
+                            <span class="string">"civil" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicCivil),
+                            <span class="string">"tbla" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicTabular),
+                            <span class="string">"umalqura" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicUmmAlQura),
                             <span class="kw">_ </span>=&gt; (),
                         }
                     }
                 } <span class="kw">else </span>{
                     <span class="kw">match </span>first.as_str() {
-                        <span class="string">&quot;buddhist&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Buddhist),
-                        <span class="string">&quot;chinese&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Chinese),
-                        <span class="string">&quot;coptic&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Coptic),
-                        <span class="string">&quot;dangi&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Dangi),
-                        <span class="string">&quot;ethioaa&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::EthiopianAmeteAlem),
-                        <span class="string">&quot;ethiopic&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Ethiopian),
-                        <span class="string">&quot;gregory&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Gregorian),
-                        <span class="string">&quot;hebrew&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Hebrew),
-                        <span class="string">&quot;indian&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Indian),
-                        <span class="string">&quot;islamic&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicObservational),
-                        <span class="string">&quot;islamicc&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicCivil),
-                        <span class="string">&quot;iso&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Iso),
-                        <span class="string">&quot;japanese&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Japanese),
-                        <span class="string">&quot;japanext&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::JapaneseExtended),
-                        <span class="string">&quot;persian&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Persian),
-                        <span class="string">&quot;roc&quot; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Roc),
+                        <span class="string">"buddhist" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Buddhist),
+                        <span class="string">"chinese" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Chinese),
+                        <span class="string">"coptic" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Coptic),
+                        <span class="string">"dangi" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Dangi),
+                        <span class="string">"ethioaa" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::EthiopianAmeteAlem),
+                        <span class="string">"ethiopic" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Ethiopian),
+                        <span class="string">"gregory" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Gregorian),
+                        <span class="string">"hebrew" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Hebrew),
+                        <span class="string">"indian" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Indian),
+                        <span class="string">"islamic" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicObservational),
+                        <span class="string">"islamicc" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicCivil),
+                        <span class="string">"iso" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Iso),
+                        <span class="string">"japanese" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Japanese),
+                        <span class="string">"japanext" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::JapaneseExtended),
+                        <span class="string">"persian" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Persian),
+                        <span class="string">"roc" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Roc),
                         <span class="kw">_ </span>=&gt; (),
                     }
                 }
             }
         }
 
-        <span class="comment">// Log a warning when a calendar value is passed in but doesn&#39;t match any calendars
-        </span>DataError::custom(<span class="string">&quot;bcp47_value did not match any calendars&quot;</span>).with_display_context(x);
+        <span class="comment">// Log a warning when a calendar value is passed in but doesn't match any calendars
+        </span>DataError::custom(<span class="string">"bcp47_value did not match any calendars"</span>).with_display_context(x);
         <span class="prelude-val">None
     </span>}
 
     <span class="doccomment">/// Convert to a BCP-47 string
-    </span><span class="kw">pub fn </span>as_bcp47_string(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>as_bcp47_string(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            AnyCalendarKind::Buddhist =&gt; <span class="string">&quot;buddhist&quot;</span>,
-            AnyCalendarKind::Chinese =&gt; <span class="string">&quot;chinese&quot;</span>,
-            AnyCalendarKind::Coptic =&gt; <span class="string">&quot;coptic&quot;</span>,
-            AnyCalendarKind::Dangi =&gt; <span class="string">&quot;dangi&quot;</span>,
-            AnyCalendarKind::Ethiopian =&gt; <span class="string">&quot;ethiopic&quot;</span>,
-            AnyCalendarKind::EthiopianAmeteAlem =&gt; <span class="string">&quot;ethioaa&quot;</span>,
-            AnyCalendarKind::Gregorian =&gt; <span class="string">&quot;gregory&quot;</span>,
-            AnyCalendarKind::Hebrew =&gt; <span class="string">&quot;hebrew&quot;</span>,
-            AnyCalendarKind::Indian =&gt; <span class="string">&quot;indian&quot;</span>,
-            AnyCalendarKind::IslamicCivil =&gt; <span class="string">&quot;islamic-civil&quot;</span>,
-            AnyCalendarKind::IslamicObservational =&gt; <span class="string">&quot;islamic&quot;</span>,
-            AnyCalendarKind::IslamicTabular =&gt; <span class="string">&quot;islamic-tbla&quot;</span>,
-            AnyCalendarKind::IslamicUmmAlQura =&gt; <span class="string">&quot;islamic-umalqura&quot;</span>,
-            AnyCalendarKind::Iso =&gt; <span class="string">&quot;iso&quot;</span>,
-            AnyCalendarKind::Japanese =&gt; <span class="string">&quot;japanese&quot;</span>,
-            AnyCalendarKind::JapaneseExtended =&gt; <span class="string">&quot;japanext&quot;</span>,
-            AnyCalendarKind::Persian =&gt; <span class="string">&quot;persian&quot;</span>,
-            AnyCalendarKind::Roc =&gt; <span class="string">&quot;roc&quot;</span>,
+            AnyCalendarKind::Buddhist =&gt; <span class="string">"buddhist"</span>,
+            AnyCalendarKind::Chinese =&gt; <span class="string">"chinese"</span>,
+            AnyCalendarKind::Coptic =&gt; <span class="string">"coptic"</span>,
+            AnyCalendarKind::Dangi =&gt; <span class="string">"dangi"</span>,
+            AnyCalendarKind::Ethiopian =&gt; <span class="string">"ethiopic"</span>,
+            AnyCalendarKind::EthiopianAmeteAlem =&gt; <span class="string">"ethioaa"</span>,
+            AnyCalendarKind::Gregorian =&gt; <span class="string">"gregory"</span>,
+            AnyCalendarKind::Hebrew =&gt; <span class="string">"hebrew"</span>,
+            AnyCalendarKind::Indian =&gt; <span class="string">"indian"</span>,
+            AnyCalendarKind::IslamicCivil =&gt; <span class="string">"islamic-civil"</span>,
+            AnyCalendarKind::IslamicObservational =&gt; <span class="string">"islamic"</span>,
+            AnyCalendarKind::IslamicTabular =&gt; <span class="string">"islamic-tbla"</span>,
+            AnyCalendarKind::IslamicUmmAlQura =&gt; <span class="string">"islamic-umalqura"</span>,
+            AnyCalendarKind::Iso =&gt; <span class="string">"iso"</span>,
+            AnyCalendarKind::Japanese =&gt; <span class="string">"japanese"</span>,
+            AnyCalendarKind::JapaneseExtended =&gt; <span class="string">"japanext"</span>,
+            AnyCalendarKind::Persian =&gt; <span class="string">"persian"</span>,
+            AnyCalendarKind::Roc =&gt; <span class="string">"roc"</span>,
         }
     }
 
@@ -2711,30 +2712,30 @@
     </span><span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// these are known-good BCP47 unicode extension values
     </span><span class="kw">pub fn </span>as_bcp47_value(<span class="self">self</span>) -&gt; Value {
         <span class="kw">match </span><span class="self">self </span>{
-            AnyCalendarKind::Buddhist =&gt; <span class="macro">value!</span>(<span class="string">&quot;buddhist&quot;</span>),
-            AnyCalendarKind::Chinese =&gt; <span class="macro">value!</span>(<span class="string">&quot;chinese&quot;</span>),
-            AnyCalendarKind::Coptic =&gt; <span class="macro">value!</span>(<span class="string">&quot;coptic&quot;</span>),
-            AnyCalendarKind::Dangi =&gt; <span class="macro">value!</span>(<span class="string">&quot;dangi&quot;</span>),
-            AnyCalendarKind::Ethiopian =&gt; <span class="macro">value!</span>(<span class="string">&quot;ethiopic&quot;</span>),
-            AnyCalendarKind::EthiopianAmeteAlem =&gt; <span class="macro">value!</span>(<span class="string">&quot;ethioaa&quot;</span>),
-            AnyCalendarKind::Gregorian =&gt; <span class="macro">value!</span>(<span class="string">&quot;gregory&quot;</span>),
-            AnyCalendarKind::Hebrew =&gt; <span class="macro">value!</span>(<span class="string">&quot;hebrew&quot;</span>),
-            AnyCalendarKind::Indian =&gt; <span class="macro">value!</span>(<span class="string">&quot;indian&quot;</span>),
-            AnyCalendarKind::IslamicCivil =&gt; Value::try_from_bytes(<span class="string">b&quot;islamic-civil&quot;</span>).unwrap(),
-            AnyCalendarKind::IslamicObservational =&gt; <span class="macro">value!</span>(<span class="string">&quot;islamic&quot;</span>),
-            AnyCalendarKind::IslamicTabular =&gt; Value::try_from_bytes(<span class="string">b&quot;islamic-tbla&quot;</span>).unwrap(),
+            AnyCalendarKind::Buddhist =&gt; <span class="macro">value!</span>(<span class="string">"buddhist"</span>),
+            AnyCalendarKind::Chinese =&gt; <span class="macro">value!</span>(<span class="string">"chinese"</span>),
+            AnyCalendarKind::Coptic =&gt; <span class="macro">value!</span>(<span class="string">"coptic"</span>),
+            AnyCalendarKind::Dangi =&gt; <span class="macro">value!</span>(<span class="string">"dangi"</span>),
+            AnyCalendarKind::Ethiopian =&gt; <span class="macro">value!</span>(<span class="string">"ethiopic"</span>),
+            AnyCalendarKind::EthiopianAmeteAlem =&gt; <span class="macro">value!</span>(<span class="string">"ethioaa"</span>),
+            AnyCalendarKind::Gregorian =&gt; <span class="macro">value!</span>(<span class="string">"gregory"</span>),
+            AnyCalendarKind::Hebrew =&gt; <span class="macro">value!</span>(<span class="string">"hebrew"</span>),
+            AnyCalendarKind::Indian =&gt; <span class="macro">value!</span>(<span class="string">"indian"</span>),
+            AnyCalendarKind::IslamicCivil =&gt; Value::try_from_bytes(<span class="string">b"islamic-civil"</span>).unwrap(),
+            AnyCalendarKind::IslamicObservational =&gt; <span class="macro">value!</span>(<span class="string">"islamic"</span>),
+            AnyCalendarKind::IslamicTabular =&gt; Value::try_from_bytes(<span class="string">b"islamic-tbla"</span>).unwrap(),
             AnyCalendarKind::IslamicUmmAlQura =&gt; {
-                Value::try_from_bytes(<span class="string">b&quot;islamic-umalqura&quot;</span>).unwrap()
+                Value::try_from_bytes(<span class="string">b"islamic-umalqura"</span>).unwrap()
             }
-            AnyCalendarKind::Iso =&gt; <span class="macro">value!</span>(<span class="string">&quot;iso&quot;</span>),
-            AnyCalendarKind::Japanese =&gt; <span class="macro">value!</span>(<span class="string">&quot;japanese&quot;</span>),
-            AnyCalendarKind::JapaneseExtended =&gt; <span class="macro">value!</span>(<span class="string">&quot;japanext&quot;</span>),
-            AnyCalendarKind::Persian =&gt; <span class="macro">value!</span>(<span class="string">&quot;persian&quot;</span>),
-            AnyCalendarKind::Roc =&gt; <span class="macro">value!</span>(<span class="string">&quot;roc&quot;</span>),
+            AnyCalendarKind::Iso =&gt; <span class="macro">value!</span>(<span class="string">"iso"</span>),
+            AnyCalendarKind::Japanese =&gt; <span class="macro">value!</span>(<span class="string">"japanese"</span>),
+            AnyCalendarKind::JapaneseExtended =&gt; <span class="macro">value!</span>(<span class="string">"japanext"</span>),
+            AnyCalendarKind::Persian =&gt; <span class="macro">value!</span>(<span class="string">"persian"</span>),
+            AnyCalendarKind::Roc =&gt; <span class="macro">value!</span>(<span class="string">"roc"</span>),
         }
     }
 
-    <span class="kw">fn </span>debug_name(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">fn </span>debug_name(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             AnyCalendarKind::Buddhist =&gt; Buddhist.debug_name(),
             AnyCalendarKind::Chinese =&gt; Chinese.debug_name(),
@@ -2765,7 +2766,7 @@
         l.extensions
             .unicode
             .keywords
-            .get(<span class="kw-2">&amp;</span><span class="macro">key!</span>(<span class="string">&quot;ca&quot;</span>))
+            .get(<span class="kw-2">&amp;</span><span class="macro">key!</span>(<span class="string">"ca"</span>))
             .and_then(<span class="self">Self</span>::get_for_bcp47_value)
     }
 
@@ -2774,7 +2775,7 @@
     /// Returns `None` if the calendar is not specified or unknown. If you prefer an error, use
     /// [`CalendarError::unknown_any_calendar_kind`].
     </span><span class="kw">fn </span>get_for_data_locale(l: <span class="kw-2">&amp;</span>DataLocale) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        l.get_unicode_ext(<span class="kw-2">&amp;</span><span class="macro">key!</span>(<span class="string">&quot;ca&quot;</span>))
+        l.get_unicode_ext(<span class="kw-2">&amp;</span><span class="macro">key!</span>(<span class="string">"ca"</span>))
             .and_then(|v| <span class="self">Self</span>::get_for_bcp47_value(<span class="kw-2">&amp;</span>v))
     }
 
@@ -2785,12 +2786,12 @@
             kind
         } <span class="kw">else </span>{
             <span class="kw">let </span>lang = l.language();
-            <span class="kw">if </span>lang == <span class="macro">language!</span>(<span class="string">&quot;th&quot;</span>) {
+            <span class="kw">if </span>lang == <span class="macro">language!</span>(<span class="string">"th"</span>) {
                 <span class="self">Self</span>::Buddhist
             <span class="comment">// Other known fallback routes for currently-unsupported calendars
-            // } else if lang == language!(&quot;sa&quot;) {
+            // } else if lang == language!("sa") {
             //     Self::IslamicUmalqura
-            // } else if lang == language!(&quot;af&quot;) || lang == language!(&quot;ir&quot;) {
+            // } else if lang == language!("af") || lang == language!("ir") {
             //     Self::Persian
             </span>} <span class="kw">else </span>{
                 <span class="self">Self</span>::Gregorian
@@ -3046,12 +3047,12 @@
         month_code: <span class="kw-2">&amp;</span>str,
         day: u8,
     ) {
-        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">&quot;era must parse&quot;</span>));
-        <span class="kw">let </span>month = types::MonthCode(month_code.parse().expect(<span class="string">&quot;month code must parse&quot;</span>));
+        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">"era must parse"</span>));
+        <span class="kw">let </span>month = types::MonthCode(month_code.parse().expect(<span class="string">"month code must parse"</span>));
 
         <span class="kw">let </span>date = Date::try_new_from_codes(era, year, month, day, calendar).unwrap_or_else(|e| {
             <span class="macro">panic!</span>(
-                <span class="string">&quot;Failed to construct date for {} with {:?}, {}, {}, {}: {}&quot;</span>,
+                <span class="string">"Failed to construct date for {} with {:?}, {}, {}, {}: {}"</span>,
                 calendar.debug_name(),
                 era,
                 year,
@@ -3065,7 +3066,7 @@
         <span class="kw">let </span>roundtrip_era = roundtrip_year.era;
         <span class="kw">let </span>roundtrip_year = roundtrip_year.number;
         <span class="kw">let </span>roundtrip_month = date.month().code;
-        <span class="kw">let </span>roundtrip_day = date.day_of_month().<span class="number">0</span>.try_into().expect(<span class="string">&quot;Must fit in u8&quot;</span>);
+        <span class="kw">let </span>roundtrip_day = date.day_of_month().<span class="number">0</span>.try_into().expect(<span class="string">"Must fit in u8"</span>);
 
         <span class="macro">assert_eq!</span>(
             (era, year, month, day),
@@ -3075,7 +3076,7 @@
                 roundtrip_month,
                 roundtrip_day
             ),
-            <span class="string">&quot;Failed to roundtrip for calendar {}&quot;</span>,
+            <span class="string">"Failed to roundtrip for calendar {}"</span>,
             calendar.debug_name()
         );
 
@@ -3083,7 +3084,7 @@
         <span class="kw">let </span>reconstructed = Date::new_from_iso(iso, calendar);
         <span class="macro">assert_eq!</span>(
             date, reconstructed,
-            <span class="string">&quot;Failed to roundtrip via iso with {era:?}, {year}, {month}, {day}&quot;
+            <span class="string">"Failed to roundtrip via iso with {era:?}, {year}, {month}, {day}"
         </span>)
     }
 
@@ -3095,14 +3096,14 @@
         day: u8,
         error: CalendarError,
     ) {
-        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">&quot;era must parse&quot;</span>));
-        <span class="kw">let </span>month = types::MonthCode(month_code.parse().expect(<span class="string">&quot;month code must parse&quot;</span>));
+        <span class="kw">let </span>era = types::Era(era.parse().expect(<span class="string">"era must parse"</span>));
+        <span class="kw">let </span>month = types::MonthCode(month_code.parse().expect(<span class="string">"month code must parse"</span>));
 
         <span class="kw">let </span>date = Date::try_new_from_codes(era, year, month, day, calendar);
         <span class="macro">assert_eq!</span>(
             date,
             <span class="prelude-val">Err</span>(error),
-            <span class="string">&quot;Construction with {era:?}, {year}, {month}, {day} did not return {error:?}&quot;
+            <span class="string">"Construction with {era:?}, {year}, {month}, {day} did not return {error:?}"
         </span>)
     }
 
@@ -3144,277 +3145,277 @@
         <span class="kw">let </span>persian = Ref(<span class="kw-2">&amp;</span>persian);
         <span class="kw">let </span>roc = Ref(<span class="kw-2">&amp;</span>roc);
 
-        single_test_roundtrip(buddhist, <span class="string">&quot;be&quot;</span>, <span class="number">100</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(buddhist, <span class="string">&quot;be&quot;</span>, <span class="number">2000</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(buddhist, <span class="string">&quot;be&quot;</span>, -<span class="number">100</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
+        single_test_roundtrip(buddhist, <span class="string">"be"</span>, <span class="number">100</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(buddhist, <span class="string">"be"</span>, <span class="number">2000</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(buddhist, <span class="string">"be"</span>, -<span class="number">100</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
         single_test_error(
             buddhist,
-            <span class="string">&quot;be&quot;</span>,
+            <span class="string">"be"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M13&quot;</span>,
+            <span class="string">"M13"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M13&quot;</span>.parse().unwrap(),
+                <span class="string">"M13"</span>.parse().unwrap(),
                 AnyCalendarKind::Buddhist.debug_name(),
             ),
         );
 
-        single_test_roundtrip(coptic, <span class="string">&quot;ad&quot;</span>, <span class="number">100</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(coptic, <span class="string">&quot;ad&quot;</span>, <span class="number">2000</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
+        single_test_roundtrip(coptic, <span class="string">"ad"</span>, <span class="number">100</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(coptic, <span class="string">"ad"</span>, <span class="number">2000</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
         <span class="comment">// fails ISO roundtrip
-        // single_test_roundtrip(coptic, &quot;bd&quot;, 100, &quot;M03&quot;, 1);
-        </span>single_test_roundtrip(coptic, <span class="string">&quot;ad&quot;</span>, <span class="number">100</span>, <span class="string">&quot;M13&quot;</span>, <span class="number">1</span>);
+        // single_test_roundtrip(coptic, "bd", 100, "M03", 1);
+        </span>single_test_roundtrip(coptic, <span class="string">"ad"</span>, <span class="number">100</span>, <span class="string">"M13"</span>, <span class="number">1</span>);
         single_test_error(
             coptic,
-            <span class="string">&quot;ad&quot;</span>,
+            <span class="string">"ad"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M14&quot;</span>,
+            <span class="string">"M14"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M14&quot;</span>.parse().unwrap(),
+                <span class="string">"M14"</span>.parse().unwrap(),
                 AnyCalendarKind::Coptic.debug_name(),
             ),
         );
-        single_test_error(coptic, <span class="string">&quot;ad&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>, CalendarError::OutOfRange);
-        single_test_error(coptic, <span class="string">&quot;bd&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_error(coptic, <span class="string">"ad"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_error(coptic, <span class="string">"bd"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>, CalendarError::OutOfRange);
 
-        single_test_roundtrip(ethiopian, <span class="string">&quot;incar&quot;</span>, <span class="number">100</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(ethiopian, <span class="string">&quot;incar&quot;</span>, <span class="number">2000</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(ethiopian, <span class="string">&quot;incar&quot;</span>, <span class="number">2000</span>, <span class="string">&quot;M13&quot;</span>, <span class="number">1</span>);
+        single_test_roundtrip(ethiopian, <span class="string">"incar"</span>, <span class="number">100</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(ethiopian, <span class="string">"incar"</span>, <span class="number">2000</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(ethiopian, <span class="string">"incar"</span>, <span class="number">2000</span>, <span class="string">"M13"</span>, <span class="number">1</span>);
         <span class="comment">// Fails ISO roundtrip due to https://github.com/unicode-org/icu4x/issues/2254
-        // single_test_roundtrip(ethiopian, &quot;pre-incar&quot;, 100, &quot;M03&quot;, 1);
-        </span>single_test_error(ethiopian, <span class="string">&quot;incar&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        // single_test_roundtrip(ethiopian, "pre-incar", 100, "M03", 1);
+        </span>single_test_error(ethiopian, <span class="string">"incar"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>, CalendarError::OutOfRange);
         single_test_error(
             ethiopian,
-            <span class="string">&quot;pre-incar&quot;</span>,
+            <span class="string">"pre-incar"</span>,
             <span class="number">0</span>,
-            <span class="string">&quot;M03&quot;</span>,
+            <span class="string">"M03"</span>,
             <span class="number">1</span>,
             CalendarError::OutOfRange,
         );
         single_test_error(
             ethiopian,
-            <span class="string">&quot;incar&quot;</span>,
+            <span class="string">"incar"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M14&quot;</span>,
+            <span class="string">"M14"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M14&quot;</span>.parse().unwrap(),
+                <span class="string">"M14"</span>.parse().unwrap(),
                 AnyCalendarKind::Ethiopian.debug_name(),
             ),
         );
 
-        single_test_roundtrip(ethioaa, <span class="string">&quot;mundi&quot;</span>, <span class="number">7000</span>, <span class="string">&quot;M13&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(ethioaa, <span class="string">&quot;mundi&quot;</span>, <span class="number">7000</span>, <span class="string">&quot;M13&quot;</span>, <span class="number">1</span>);
+        single_test_roundtrip(ethioaa, <span class="string">"mundi"</span>, <span class="number">7000</span>, <span class="string">"M13"</span>, <span class="number">1</span>);
+        single_test_roundtrip(ethioaa, <span class="string">"mundi"</span>, <span class="number">7000</span>, <span class="string">"M13"</span>, <span class="number">1</span>);
         <span class="comment">// Fails ISO roundtrip due to https://github.com/unicode-org/icu4x/issues/2254
-        // single_test_roundtrip(ethioaa, &quot;mundi&quot;, 100, &quot;M03&quot;, 1);
+        // single_test_roundtrip(ethioaa, "mundi", 100, "M03", 1);
         </span>single_test_error(
             ethiopian,
-            <span class="string">&quot;mundi&quot;</span>,
+            <span class="string">"mundi"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M14&quot;</span>,
+            <span class="string">"M14"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M14&quot;</span>.parse().unwrap(),
+                <span class="string">"M14"</span>.parse().unwrap(),
                 AnyCalendarKind::Ethiopian.debug_name(),
             ),
         );
 
-        single_test_roundtrip(gregorian, <span class="string">&quot;ce&quot;</span>, <span class="number">100</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(gregorian, <span class="string">&quot;ce&quot;</span>, <span class="number">2000</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(gregorian, <span class="string">&quot;bce&quot;</span>, <span class="number">100</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_error(gregorian, <span class="string">&quot;ce&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>, CalendarError::OutOfRange);
-        single_test_error(gregorian, <span class="string">&quot;bce&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_roundtrip(gregorian, <span class="string">"ce"</span>, <span class="number">100</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(gregorian, <span class="string">"ce"</span>, <span class="number">2000</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(gregorian, <span class="string">"bce"</span>, <span class="number">100</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_error(gregorian, <span class="string">"ce"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_error(gregorian, <span class="string">"bce"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>, CalendarError::OutOfRange);
 
         single_test_error(
             gregorian,
-            <span class="string">&quot;bce&quot;</span>,
+            <span class="string">"bce"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M13&quot;</span>,
+            <span class="string">"M13"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M13&quot;</span>.parse().unwrap(),
+                <span class="string">"M13"</span>.parse().unwrap(),
                 AnyCalendarKind::Gregorian.debug_name(),
             ),
         );
 
-        single_test_roundtrip(indian, <span class="string">&quot;saka&quot;</span>, <span class="number">100</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(indian, <span class="string">&quot;saka&quot;</span>, <span class="number">2000</span>, <span class="string">&quot;M12&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(indian, <span class="string">&quot;saka&quot;</span>, -<span class="number">100</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(indian, <span class="string">&quot;saka&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
+        single_test_roundtrip(indian, <span class="string">"saka"</span>, <span class="number">100</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(indian, <span class="string">"saka"</span>, <span class="number">2000</span>, <span class="string">"M12"</span>, <span class="number">1</span>);
+        single_test_roundtrip(indian, <span class="string">"saka"</span>, -<span class="number">100</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(indian, <span class="string">"saka"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
         single_test_error(
             indian,
-            <span class="string">&quot;saka&quot;</span>,
+            <span class="string">"saka"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M13&quot;</span>,
+            <span class="string">"M13"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M13&quot;</span>.parse().unwrap(),
+                <span class="string">"M13"</span>.parse().unwrap(),
                 AnyCalendarKind::Indian.debug_name(),
             ),
         );
 
-        single_test_roundtrip(chinese, <span class="string">&quot;chinese&quot;</span>, <span class="number">400</span>, <span class="string">&quot;M02&quot;</span>, <span class="number">5</span>);
-        single_test_roundtrip(chinese, <span class="string">&quot;chinese&quot;</span>, <span class="number">4660</span>, <span class="string">&quot;M07&quot;</span>, <span class="number">29</span>);
-        single_test_roundtrip(chinese, <span class="string">&quot;chinese&quot;</span>, -<span class="number">100</span>, <span class="string">&quot;M11&quot;</span>, <span class="number">12</span>);
+        single_test_roundtrip(chinese, <span class="string">"chinese"</span>, <span class="number">400</span>, <span class="string">"M02"</span>, <span class="number">5</span>);
+        single_test_roundtrip(chinese, <span class="string">"chinese"</span>, <span class="number">4660</span>, <span class="string">"M07"</span>, <span class="number">29</span>);
+        single_test_roundtrip(chinese, <span class="string">"chinese"</span>, -<span class="number">100</span>, <span class="string">"M11"</span>, <span class="number">12</span>);
         single_test_error(
             chinese,
-            <span class="string">&quot;chinese&quot;</span>,
+            <span class="string">"chinese"</span>,
             <span class="number">4658</span>,
-            <span class="string">&quot;M13&quot;</span>,
+            <span class="string">"M13"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M13&quot;</span>.parse().unwrap(),
+                <span class="string">"M13"</span>.parse().unwrap(),
                 AnyCalendarKind::Chinese.debug_name(),
             ),
         );
 
-        single_test_roundtrip(dangi, <span class="string">&quot;dangi&quot;</span>, <span class="number">400</span>, <span class="string">&quot;M02&quot;</span>, <span class="number">5</span>);
-        single_test_roundtrip(dangi, <span class="string">&quot;dangi&quot;</span>, <span class="number">4660</span>, <span class="string">&quot;M08&quot;</span>, <span class="number">29</span>);
-        single_test_roundtrip(dangi, <span class="string">&quot;dangi&quot;</span>, -<span class="number">1300</span>, <span class="string">&quot;M11&quot;</span>, <span class="number">12</span>);
+        single_test_roundtrip(dangi, <span class="string">"dangi"</span>, <span class="number">400</span>, <span class="string">"M02"</span>, <span class="number">5</span>);
+        single_test_roundtrip(dangi, <span class="string">"dangi"</span>, <span class="number">4660</span>, <span class="string">"M08"</span>, <span class="number">29</span>);
+        single_test_roundtrip(dangi, <span class="string">"dangi"</span>, -<span class="number">1300</span>, <span class="string">"M11"</span>, <span class="number">12</span>);
         single_test_error(
             dangi,
-            <span class="string">&quot;dangi&quot;</span>,
+            <span class="string">"dangi"</span>,
             <span class="number">10393</span>,
-            <span class="string">&quot;M00L&quot;</span>,
+            <span class="string">"M00L"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M00L&quot;</span>.parse().unwrap(),
+                <span class="string">"M00L"</span>.parse().unwrap(),
                 AnyCalendarKind::Dangi.debug_name(),
             ),
         );
 
-        single_test_roundtrip(japanese, <span class="string">&quot;reiwa&quot;</span>, <span class="number">3</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(japanese, <span class="string">&quot;heisei&quot;</span>, <span class="number">6</span>, <span class="string">&quot;M12&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(japanese, <span class="string">&quot;meiji&quot;</span>, <span class="number">10</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(japanese, <span class="string">&quot;ce&quot;</span>, <span class="number">1000</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(japanese, <span class="string">&quot;bce&quot;</span>, <span class="number">10</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_error(japanese, <span class="string">&quot;ce&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>, CalendarError::OutOfRange);
-        single_test_error(japanese, <span class="string">&quot;bce&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_roundtrip(japanese, <span class="string">"reiwa"</span>, <span class="number">3</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(japanese, <span class="string">"heisei"</span>, <span class="number">6</span>, <span class="string">"M12"</span>, <span class="number">1</span>);
+        single_test_roundtrip(japanese, <span class="string">"meiji"</span>, <span class="number">10</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(japanese, <span class="string">"ce"</span>, <span class="number">1000</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(japanese, <span class="string">"bce"</span>, <span class="number">10</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_error(japanese, <span class="string">"ce"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_error(japanese, <span class="string">"bce"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>, CalendarError::OutOfRange);
 
         single_test_error(
             japanese,
-            <span class="string">&quot;reiwa&quot;</span>,
+            <span class="string">"reiwa"</span>,
             <span class="number">2</span>,
-            <span class="string">&quot;M13&quot;</span>,
+            <span class="string">"M13"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M13&quot;</span>.parse().unwrap(),
+                <span class="string">"M13"</span>.parse().unwrap(),
                 AnyCalendarKind::Japanese.debug_name(),
             ),
         );
 
-        single_test_roundtrip(japanext, <span class="string">&quot;reiwa&quot;</span>, <span class="number">3</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(japanext, <span class="string">&quot;heisei&quot;</span>, <span class="number">6</span>, <span class="string">&quot;M12&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(japanext, <span class="string">&quot;meiji&quot;</span>, <span class="number">10</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(japanext, <span class="string">&quot;tenpyokampo-749&quot;</span>, <span class="number">1</span>, <span class="string">&quot;M04&quot;</span>, <span class="number">20</span>);
-        single_test_roundtrip(japanext, <span class="string">&quot;ce&quot;</span>, <span class="number">100</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(japanext, <span class="string">&quot;bce&quot;</span>, <span class="number">10</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_error(japanext, <span class="string">&quot;ce&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>, CalendarError::OutOfRange);
-        single_test_error(japanext, <span class="string">&quot;bce&quot;</span>, <span class="number">0</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_roundtrip(japanext, <span class="string">"reiwa"</span>, <span class="number">3</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(japanext, <span class="string">"heisei"</span>, <span class="number">6</span>, <span class="string">"M12"</span>, <span class="number">1</span>);
+        single_test_roundtrip(japanext, <span class="string">"meiji"</span>, <span class="number">10</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(japanext, <span class="string">"tenpyokampo-749"</span>, <span class="number">1</span>, <span class="string">"M04"</span>, <span class="number">20</span>);
+        single_test_roundtrip(japanext, <span class="string">"ce"</span>, <span class="number">100</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(japanext, <span class="string">"bce"</span>, <span class="number">10</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_error(japanext, <span class="string">"ce"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>, CalendarError::OutOfRange);
+        single_test_error(japanext, <span class="string">"bce"</span>, <span class="number">0</span>, <span class="string">"M03"</span>, <span class="number">1</span>, CalendarError::OutOfRange);
 
         single_test_error(
             japanext,
-            <span class="string">&quot;reiwa&quot;</span>,
+            <span class="string">"reiwa"</span>,
             <span class="number">2</span>,
-            <span class="string">&quot;M13&quot;</span>,
+            <span class="string">"M13"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M13&quot;</span>.parse().unwrap(),
+                <span class="string">"M13"</span>.parse().unwrap(),
                 AnyCalendarKind::JapaneseExtended.debug_name(),
             ),
         );
 
-        single_test_roundtrip(persian, <span class="string">&quot;ah&quot;</span>, <span class="number">477</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(persian, <span class="string">&quot;ah&quot;</span>, <span class="number">2083</span>, <span class="string">&quot;M07&quot;</span>, <span class="number">21</span>);
-        single_test_roundtrip(persian, <span class="string">&quot;ah&quot;</span>, <span class="number">1600</span>, <span class="string">&quot;M12&quot;</span>, <span class="number">20</span>);
+        single_test_roundtrip(persian, <span class="string">"ah"</span>, <span class="number">477</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(persian, <span class="string">"ah"</span>, <span class="number">2083</span>, <span class="string">"M07"</span>, <span class="number">21</span>);
+        single_test_roundtrip(persian, <span class="string">"ah"</span>, <span class="number">1600</span>, <span class="string">"M12"</span>, <span class="number">20</span>);
         single_test_error(
             persian,
-            <span class="string">&quot;ah&quot;</span>,
+            <span class="string">"ah"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M9&quot;</span>,
+            <span class="string">"M9"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M9&quot;</span>.parse().unwrap(),
+                <span class="string">"M9"</span>.parse().unwrap(),
                 AnyCalendarKind::Persian.debug_name(),
             ),
         );
 
-        single_test_roundtrip(hebrew, <span class="string">&quot;hebrew&quot;</span>, <span class="number">5773</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(hebrew, <span class="string">&quot;hebrew&quot;</span>, <span class="number">4993</span>, <span class="string">&quot;M07&quot;</span>, <span class="number">21</span>);
-        single_test_roundtrip(hebrew, <span class="string">&quot;hebrew&quot;</span>, <span class="number">5012</span>, <span class="string">&quot;M12&quot;</span>, <span class="number">20</span>);
+        single_test_roundtrip(hebrew, <span class="string">"hebrew"</span>, <span class="number">5773</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(hebrew, <span class="string">"hebrew"</span>, <span class="number">4993</span>, <span class="string">"M07"</span>, <span class="number">21</span>);
+        single_test_roundtrip(hebrew, <span class="string">"hebrew"</span>, <span class="number">5012</span>, <span class="string">"M12"</span>, <span class="number">20</span>);
         single_test_error(
             hebrew,
-            <span class="string">&quot;hebrew&quot;</span>,
+            <span class="string">"hebrew"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M9&quot;</span>,
+            <span class="string">"M9"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M9&quot;</span>.parse().unwrap(),
+                <span class="string">"M9"</span>.parse().unwrap(),
                 AnyCalendarKind::Hebrew.debug_name(),
             ),
         );
 
-        single_test_roundtrip(roc, <span class="string">&quot;roc&quot;</span>, <span class="number">10</span>, <span class="string">&quot;M05&quot;</span>, <span class="number">3</span>);
-        single_test_roundtrip(roc, <span class="string">&quot;roc-inverse&quot;</span>, <span class="number">15</span>, <span class="string">&quot;M01&quot;</span>, <span class="number">10</span>);
-        single_test_roundtrip(roc, <span class="string">&quot;roc&quot;</span>, <span class="number">100</span>, <span class="string">&quot;M10&quot;</span>, <span class="number">30</span>);
+        single_test_roundtrip(roc, <span class="string">"roc"</span>, <span class="number">10</span>, <span class="string">"M05"</span>, <span class="number">3</span>);
+        single_test_roundtrip(roc, <span class="string">"roc-inverse"</span>, <span class="number">15</span>, <span class="string">"M01"</span>, <span class="number">10</span>);
+        single_test_roundtrip(roc, <span class="string">"roc"</span>, <span class="number">100</span>, <span class="string">"M10"</span>, <span class="number">30</span>);
 
-        single_test_roundtrip(islamic_observational, <span class="string">&quot;islamic&quot;</span>, <span class="number">477</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(islamic_observational, <span class="string">&quot;islamic&quot;</span>, <span class="number">2083</span>, <span class="string">&quot;M07&quot;</span>, <span class="number">21</span>);
-        single_test_roundtrip(islamic_observational, <span class="string">&quot;islamic&quot;</span>, <span class="number">1600</span>, <span class="string">&quot;M12&quot;</span>, <span class="number">20</span>);
+        single_test_roundtrip(islamic_observational, <span class="string">"islamic"</span>, <span class="number">477</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(islamic_observational, <span class="string">"islamic"</span>, <span class="number">2083</span>, <span class="string">"M07"</span>, <span class="number">21</span>);
+        single_test_roundtrip(islamic_observational, <span class="string">"islamic"</span>, <span class="number">1600</span>, <span class="string">"M12"</span>, <span class="number">20</span>);
         single_test_error(
             islamic_observational,
-            <span class="string">&quot;islamic&quot;</span>,
+            <span class="string">"islamic"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M9&quot;</span>,
+            <span class="string">"M9"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M9&quot;</span>.parse().unwrap(),
+                <span class="string">"M9"</span>.parse().unwrap(),
                 AnyCalendarKind::IslamicObservational.debug_name(),
             ),
         );
 
-        single_test_roundtrip(islamic_civil, <span class="string">&quot;islamic&quot;</span>, <span class="number">477</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(islamic_civil, <span class="string">&quot;islamic&quot;</span>, <span class="number">2083</span>, <span class="string">&quot;M07&quot;</span>, <span class="number">21</span>);
-        single_test_roundtrip(islamic_civil, <span class="string">&quot;islamic&quot;</span>, <span class="number">1600</span>, <span class="string">&quot;M12&quot;</span>, <span class="number">20</span>);
+        single_test_roundtrip(islamic_civil, <span class="string">"islamic"</span>, <span class="number">477</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(islamic_civil, <span class="string">"islamic"</span>, <span class="number">2083</span>, <span class="string">"M07"</span>, <span class="number">21</span>);
+        single_test_roundtrip(islamic_civil, <span class="string">"islamic"</span>, <span class="number">1600</span>, <span class="string">"M12"</span>, <span class="number">20</span>);
         single_test_error(
             islamic_civil,
-            <span class="string">&quot;islamic&quot;</span>,
+            <span class="string">"islamic"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M9&quot;</span>,
+            <span class="string">"M9"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M9&quot;</span>.parse().unwrap(),
+                <span class="string">"M9"</span>.parse().unwrap(),
                 AnyCalendarKind::IslamicCivil.debug_name(),
             ),
         );
 
-        single_test_roundtrip(islamic_umm_al_qura, <span class="string">&quot;islamic&quot;</span>, <span class="number">477</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(islamic_umm_al_qura, <span class="string">&quot;islamic&quot;</span>, <span class="number">2083</span>, <span class="string">&quot;M07&quot;</span>, <span class="number">21</span>);
-        single_test_roundtrip(islamic_umm_al_qura, <span class="string">&quot;islamic&quot;</span>, <span class="number">1600</span>, <span class="string">&quot;M12&quot;</span>, <span class="number">20</span>);
+        single_test_roundtrip(islamic_umm_al_qura, <span class="string">"islamic"</span>, <span class="number">477</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(islamic_umm_al_qura, <span class="string">"islamic"</span>, <span class="number">2083</span>, <span class="string">"M07"</span>, <span class="number">21</span>);
+        single_test_roundtrip(islamic_umm_al_qura, <span class="string">"islamic"</span>, <span class="number">1600</span>, <span class="string">"M12"</span>, <span class="number">20</span>);
         single_test_error(
             islamic_umm_al_qura,
-            <span class="string">&quot;islamic&quot;</span>,
+            <span class="string">"islamic"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M9&quot;</span>,
+            <span class="string">"M9"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M9&quot;</span>.parse().unwrap(),
+                <span class="string">"M9"</span>.parse().unwrap(),
                 AnyCalendarKind::IslamicUmmAlQura.debug_name(),
             ),
         );
 
-        single_test_roundtrip(islamic_tabular, <span class="string">&quot;islamic&quot;</span>, <span class="number">477</span>, <span class="string">&quot;M03&quot;</span>, <span class="number">1</span>);
-        single_test_roundtrip(islamic_tabular, <span class="string">&quot;islamic&quot;</span>, <span class="number">2083</span>, <span class="string">&quot;M07&quot;</span>, <span class="number">21</span>);
-        single_test_roundtrip(islamic_tabular, <span class="string">&quot;islamic&quot;</span>, <span class="number">1600</span>, <span class="string">&quot;M12&quot;</span>, <span class="number">20</span>);
+        single_test_roundtrip(islamic_tabular, <span class="string">"islamic"</span>, <span class="number">477</span>, <span class="string">"M03"</span>, <span class="number">1</span>);
+        single_test_roundtrip(islamic_tabular, <span class="string">"islamic"</span>, <span class="number">2083</span>, <span class="string">"M07"</span>, <span class="number">21</span>);
+        single_test_roundtrip(islamic_tabular, <span class="string">"islamic"</span>, <span class="number">1600</span>, <span class="string">"M12"</span>, <span class="number">20</span>);
         single_test_error(
             islamic_tabular,
-            <span class="string">&quot;islamic&quot;</span>,
+            <span class="string">"islamic"</span>,
             <span class="number">100</span>,
-            <span class="string">&quot;M9&quot;</span>,
+            <span class="string">"M9"</span>,
             <span class="number">1</span>,
             CalendarError::UnknownMonthCode(
-                <span class="string">&quot;M9&quot;</span>.parse().unwrap(),
+                <span class="string">"M9"</span>.parse().unwrap(),
                 AnyCalendarKind::IslamicTabular.debug_name(),
             ),
         );

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/acl.rs`."><title>acl.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/acl.rs`."><title>acl.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -320,8 +321,8 @@
     (<span class="macro-nonterminal">$v</span>:expr, <span class="macro-nonterminal">$det</span>:expr) =&gt; {
         RedisError::from((
             ErrorKind::TypeError,
-            <span class="string">&quot;Response type not convertible&quot;</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;{:?} (response was {:?})&quot;</span>, <span class="macro-nonterminal">$det</span>, <span class="macro-nonterminal">$v</span>),
+            <span class="string">"Response type not convertible"</span>,
+            <span class="macro">format!</span>(<span class="string">"{:?} (response was {:?})"</span>, <span class="macro-nonterminal">$det</span>, <span class="macro-nonterminal">$v</span>),
         ))
     };
 }
@@ -332,7 +333,7 @@
 </span><span class="kw">pub enum </span>Rule {
     <span class="doccomment">/// Enable the user: it is possible to authenticate as this user.
     </span>On,
-    <span class="doccomment">/// Disable the user: it&#39;s no longer possible to authenticate with this
+    <span class="doccomment">/// Disable the user: it's no longer possible to authenticate with this
     /// user, however the already authenticated connections will still work.
     </span>Off,
 
@@ -390,28 +391,28 @@
         <span class="kw">use </span><span class="self">self</span>::Rule::<span class="kw-2">*</span>;
 
         <span class="kw">match </span><span class="self">self </span>{
-            On =&gt; out.write_arg(<span class="string">b&quot;on&quot;</span>),
-            Off =&gt; out.write_arg(<span class="string">b&quot;off&quot;</span>),
+            On =&gt; out.write_arg(<span class="string">b"on"</span>),
+            Off =&gt; out.write_arg(<span class="string">b"off"</span>),
 
-            AddCommand(cmd) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;+{cmd}&quot;</span>)),
-            RemoveCommand(cmd) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;-{cmd}&quot;</span>)),
-            AddCategory(cat) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;+@{cat}&quot;</span>)),
-            RemoveCategory(cat) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;-@{cat}&quot;</span>)),
-            AllCommands =&gt; out.write_arg(<span class="string">b&quot;allcommands&quot;</span>),
-            NoCommands =&gt; out.write_arg(<span class="string">b&quot;nocommands&quot;</span>),
+            AddCommand(cmd) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">"+{cmd}"</span>)),
+            RemoveCommand(cmd) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">"-{cmd}"</span>)),
+            AddCategory(cat) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">"+@{cat}"</span>)),
+            RemoveCategory(cat) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">"-@{cat}"</span>)),
+            AllCommands =&gt; out.write_arg(<span class="string">b"allcommands"</span>),
+            NoCommands =&gt; out.write_arg(<span class="string">b"nocommands"</span>),
 
-            AddPass(pass) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;&gt;{pass}&quot;</span>)),
-            RemovePass(pass) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;&lt;{pass}&quot;</span>)),
-            AddHashedPass(pass) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;#{pass}&quot;</span>)),
-            RemoveHashedPass(pass) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;!{pass}&quot;</span>)),
-            NoPass =&gt; out.write_arg(<span class="string">b&quot;nopass&quot;</span>),
-            ResetPass =&gt; out.write_arg(<span class="string">b&quot;resetpass&quot;</span>),
+            AddPass(pass) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">"&gt;{pass}"</span>)),
+            RemovePass(pass) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">"&lt;{pass}"</span>)),
+            AddHashedPass(pass) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">"#{pass}"</span>)),
+            RemoveHashedPass(pass) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">"!{pass}"</span>)),
+            NoPass =&gt; out.write_arg(<span class="string">b"nopass"</span>),
+            ResetPass =&gt; out.write_arg(<span class="string">b"resetpass"</span>),
 
-            Pattern(pat) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;~{pat}&quot;</span>)),
-            AllKeys =&gt; out.write_arg(<span class="string">b&quot;allkeys&quot;</span>),
-            ResetKeys =&gt; out.write_arg(<span class="string">b&quot;resetkeys&quot;</span>),
+            Pattern(pat) =&gt; out.write_arg_fmt(<span class="macro">format_args!</span>(<span class="string">"~{pat}"</span>)),
+            AllKeys =&gt; out.write_arg(<span class="string">b"allkeys"</span>),
+            ResetKeys =&gt; out.write_arg(<span class="string">b"resetkeys"</span>),
 
-            Reset =&gt; out.write_arg(<span class="string">b&quot;reset&quot;</span>),
+            Reset =&gt; out.write_arg(<span class="string">b"reset"</span>),
 
             Other(rule) =&gt; out.write_arg(rule.as_bytes()),
         };
@@ -434,7 +435,7 @@
     /// [4]: ./enum.Rule.html#variant.AllCommands
     /// [5]: ./enum.Rule.html#variant.NoPass
     </span><span class="kw">pub </span>flags: Vec&lt;Rule&gt;,
-    <span class="doccomment">/// Describes the user&#39;s passwords. Represented by [`Rule::AddHashedPass`][1].
+    <span class="doccomment">/// Describes the user's passwords. Represented by [`Rule::AddHashedPass`][1].
     ///
     /// [1]: ./enum.Rule.html#variant.AddHashedPass
     </span><span class="kw">pub </span>passwords: Vec&lt;Rule&gt;,
@@ -458,7 +459,7 @@
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>it = v
             .as_sequence()
-            .ok_or_else(|| <span class="macro">not_convertible_error!</span>(v, <span class="string">&quot;&quot;</span>))<span class="question-mark">?
+            .ok_or_else(|| <span class="macro">not_convertible_error!</span>(v, <span class="string">""</span>))<span class="question-mark">?
             </span>.iter()
             .skip(<span class="number">1</span>)
             .step_by(<span class="number">2</span>);
@@ -471,21 +472,21 @@
                 </span><span class="kw">let </span>flags = flags
                     .as_sequence()
                     .ok_or_else(|| {
-                        <span class="macro">not_convertible_error!</span>(flags, <span class="string">&quot;Expect a bulk response of ACL flags&quot;</span>)
+                        <span class="macro">not_convertible_error!</span>(flags, <span class="string">"Expect a bulk response of ACL flags"</span>)
                     })<span class="question-mark">?
                     </span>.iter()
                     .map(|flag| <span class="kw">match </span>flag {
                         Value::Data(flag) =&gt; <span class="kw">match </span>flag.as_slice() {
-                            <span class="string">b&quot;on&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Rule::On),
-                            <span class="string">b&quot;off&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Rule::Off),
-                            <span class="string">b&quot;allkeys&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Rule::AllKeys),
-                            <span class="string">b&quot;allcommands&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Rule::AllCommands),
-                            <span class="string">b&quot;nopass&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Rule::NoPass),
+                            <span class="string">b"on" </span>=&gt; <span class="prelude-val">Ok</span>(Rule::On),
+                            <span class="string">b"off" </span>=&gt; <span class="prelude-val">Ok</span>(Rule::Off),
+                            <span class="string">b"allkeys" </span>=&gt; <span class="prelude-val">Ok</span>(Rule::AllKeys),
+                            <span class="string">b"allcommands" </span>=&gt; <span class="prelude-val">Ok</span>(Rule::AllCommands),
+                            <span class="string">b"nopass" </span>=&gt; <span class="prelude-val">Ok</span>(Rule::NoPass),
                             other =&gt; <span class="prelude-val">Ok</span>(Rule::Other(String::from_utf8_lossy(other).into_owned())),
                         },
                         <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">not_convertible_error!</span>(
                             flag,
-                            <span class="string">&quot;Expect an arbitrary binary data&quot;
+                            <span class="string">"Expect an arbitrary binary data"
                         </span>)),
                     })
                     .collect::&lt;RedisResult&lt;<span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
@@ -493,7 +494,7 @@
                 <span class="kw">let </span>passwords = passwords
                     .as_sequence()
                     .ok_or_else(|| {
-                        <span class="macro">not_convertible_error!</span>(flags, <span class="string">&quot;Expect a bulk response of ACL flags&quot;</span>)
+                        <span class="macro">not_convertible_error!</span>(flags, <span class="string">"Expect a bulk response of ACL flags"</span>)
                     })<span class="question-mark">?
                     </span>.iter()
                     .map(|pass| <span class="prelude-val">Ok</span>(Rule::AddHashedPass(String::from_redis_value(pass)<span class="question-mark">?</span>)))
@@ -504,26 +505,26 @@
                     <span class="kw">_ </span>=&gt; {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">not_convertible_error!</span>(
                             commands,
-                            <span class="string">&quot;Expect a valid UTF8 string&quot;
+                            <span class="string">"Expect a valid UTF8 string"
                         </span>))
                     }
                 }
-                .split_terminator(<span class="string">&#39; &#39;</span>)
+                .split_terminator(<span class="string">' '</span>)
                 .map(|cmd| <span class="kw">match </span>cmd {
-                    x <span class="kw">if </span>x.starts_with(<span class="string">&quot;+@&quot;</span>) =&gt; <span class="prelude-val">Ok</span>(Rule::AddCategory(x[<span class="number">2</span>..].to_owned())),
-                    x <span class="kw">if </span>x.starts_with(<span class="string">&quot;-@&quot;</span>) =&gt; <span class="prelude-val">Ok</span>(Rule::RemoveCategory(x[<span class="number">2</span>..].to_owned())),
-                    x <span class="kw">if </span>x.starts_with(<span class="string">&#39;+&#39;</span>) =&gt; <span class="prelude-val">Ok</span>(Rule::AddCommand(x[<span class="number">1</span>..].to_owned())),
-                    x <span class="kw">if </span>x.starts_with(<span class="string">&#39;-&#39;</span>) =&gt; <span class="prelude-val">Ok</span>(Rule::RemoveCommand(x[<span class="number">1</span>..].to_owned())),
+                    x <span class="kw">if </span>x.starts_with(<span class="string">"+@"</span>) =&gt; <span class="prelude-val">Ok</span>(Rule::AddCategory(x[<span class="number">2</span>..].to_owned())),
+                    x <span class="kw">if </span>x.starts_with(<span class="string">"-@"</span>) =&gt; <span class="prelude-val">Ok</span>(Rule::RemoveCategory(x[<span class="number">2</span>..].to_owned())),
+                    x <span class="kw">if </span>x.starts_with(<span class="string">'+'</span>) =&gt; <span class="prelude-val">Ok</span>(Rule::AddCommand(x[<span class="number">1</span>..].to_owned())),
+                    x <span class="kw">if </span>x.starts_with(<span class="string">'-'</span>) =&gt; <span class="prelude-val">Ok</span>(Rule::RemoveCommand(x[<span class="number">1</span>..].to_owned())),
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">not_convertible_error!</span>(
                         cmd,
-                        <span class="string">&quot;Expect a command addition/removal&quot;
+                        <span class="string">"Expect a command addition/removal"
                     </span>)),
                 })
                 .collect::&lt;RedisResult&lt;<span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
 
                 <span class="kw">let </span>keys = keys
                     .as_sequence()
-                    .ok_or_else(|| <span class="macro">not_convertible_error!</span>(keys, <span class="string">&quot;&quot;</span>))<span class="question-mark">?
+                    .ok_or_else(|| <span class="macro">not_convertible_error!</span>(keys, <span class="string">""</span>))<span class="question-mark">?
                     </span>.iter()
                     .map(|pat| <span class="prelude-val">Ok</span>(Rule::Pattern(String::from_redis_value(pat)<span class="question-mark">?</span>)))
                     .collect::&lt;RedisResult&lt;<span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
@@ -533,7 +534,7 @@
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">not_convertible_error!</span>(
                     v,
-                    <span class="string">&quot;Expect a resposne from `ACL GETUSER`&quot;
+                    <span class="string">"Expect a resposne from `ACL GETUSER`"
                 </span>))
             }
         };
@@ -561,63 +562,63 @@
     </span><span class="kw">fn </span>test_rule_to_arg() {
         <span class="kw">use </span><span class="self">self</span>::Rule::<span class="kw-2">*</span>;
 
-        <span class="macro">assert_args!</span>(On, <span class="string">b&quot;on&quot;</span>);
-        <span class="macro">assert_args!</span>(Off, <span class="string">b&quot;off&quot;</span>);
-        <span class="macro">assert_args!</span>(AddCommand(<span class="string">&quot;set&quot;</span>.to_owned()), <span class="string">b&quot;+set&quot;</span>);
-        <span class="macro">assert_args!</span>(RemoveCommand(<span class="string">&quot;set&quot;</span>.to_owned()), <span class="string">b&quot;-set&quot;</span>);
-        <span class="macro">assert_args!</span>(AddCategory(<span class="string">&quot;hyperloglog&quot;</span>.to_owned()), <span class="string">b&quot;+@hyperloglog&quot;</span>);
-        <span class="macro">assert_args!</span>(RemoveCategory(<span class="string">&quot;hyperloglog&quot;</span>.to_owned()), <span class="string">b&quot;-@hyperloglog&quot;</span>);
-        <span class="macro">assert_args!</span>(AllCommands, <span class="string">b&quot;allcommands&quot;</span>);
-        <span class="macro">assert_args!</span>(NoCommands, <span class="string">b&quot;nocommands&quot;</span>);
-        <span class="macro">assert_args!</span>(AddPass(<span class="string">&quot;mypass&quot;</span>.to_owned()), <span class="string">b&quot;&gt;mypass&quot;</span>);
-        <span class="macro">assert_args!</span>(RemovePass(<span class="string">&quot;mypass&quot;</span>.to_owned()), <span class="string">b&quot;&lt;mypass&quot;</span>);
+        <span class="macro">assert_args!</span>(On, <span class="string">b"on"</span>);
+        <span class="macro">assert_args!</span>(Off, <span class="string">b"off"</span>);
+        <span class="macro">assert_args!</span>(AddCommand(<span class="string">"set"</span>.to_owned()), <span class="string">b"+set"</span>);
+        <span class="macro">assert_args!</span>(RemoveCommand(<span class="string">"set"</span>.to_owned()), <span class="string">b"-set"</span>);
+        <span class="macro">assert_args!</span>(AddCategory(<span class="string">"hyperloglog"</span>.to_owned()), <span class="string">b"+@hyperloglog"</span>);
+        <span class="macro">assert_args!</span>(RemoveCategory(<span class="string">"hyperloglog"</span>.to_owned()), <span class="string">b"-@hyperloglog"</span>);
+        <span class="macro">assert_args!</span>(AllCommands, <span class="string">b"allcommands"</span>);
+        <span class="macro">assert_args!</span>(NoCommands, <span class="string">b"nocommands"</span>);
+        <span class="macro">assert_args!</span>(AddPass(<span class="string">"mypass"</span>.to_owned()), <span class="string">b"&gt;mypass"</span>);
+        <span class="macro">assert_args!</span>(RemovePass(<span class="string">"mypass"</span>.to_owned()), <span class="string">b"&lt;mypass"</span>);
         <span class="macro">assert_args!</span>(
             AddHashedPass(
-                <span class="string">&quot;c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2&quot;</span>.to_owned()
+                <span class="string">"c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2"</span>.to_owned()
             ),
-            <span class="string">b&quot;#c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2&quot;
+            <span class="string">b"#c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2"
         </span>);
         <span class="macro">assert_args!</span>(
             RemoveHashedPass(
-                <span class="string">&quot;c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2&quot;</span>.to_owned()
+                <span class="string">"c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2"</span>.to_owned()
             ),
-            <span class="string">b&quot;!c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2&quot;
+            <span class="string">b"!c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2"
         </span>);
-        <span class="macro">assert_args!</span>(NoPass, <span class="string">b&quot;nopass&quot;</span>);
-        <span class="macro">assert_args!</span>(Pattern(<span class="string">&quot;pat:*&quot;</span>.to_owned()), <span class="string">b&quot;~pat:*&quot;</span>);
-        <span class="macro">assert_args!</span>(AllKeys, <span class="string">b&quot;allkeys&quot;</span>);
-        <span class="macro">assert_args!</span>(ResetKeys, <span class="string">b&quot;resetkeys&quot;</span>);
-        <span class="macro">assert_args!</span>(Reset, <span class="string">b&quot;reset&quot;</span>);
-        <span class="macro">assert_args!</span>(Other(<span class="string">&quot;resetchannels&quot;</span>.to_owned()), <span class="string">b&quot;resetchannels&quot;</span>);
+        <span class="macro">assert_args!</span>(NoPass, <span class="string">b"nopass"</span>);
+        <span class="macro">assert_args!</span>(Pattern(<span class="string">"pat:*"</span>.to_owned()), <span class="string">b"~pat:*"</span>);
+        <span class="macro">assert_args!</span>(AllKeys, <span class="string">b"allkeys"</span>);
+        <span class="macro">assert_args!</span>(ResetKeys, <span class="string">b"resetkeys"</span>);
+        <span class="macro">assert_args!</span>(Reset, <span class="string">b"reset"</span>);
+        <span class="macro">assert_args!</span>(Other(<span class="string">"resetchannels"</span>.to_owned()), <span class="string">b"resetchannels"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_redis_value() {
         <span class="kw">let </span>redis_value = Value::Bulk(<span class="macro">vec!</span>[
-            Value::Data(<span class="string">&quot;flags&quot;</span>.into()),
+            Value::Data(<span class="string">"flags"</span>.into()),
             Value::Bulk(<span class="macro">vec!</span>[
-                Value::Data(<span class="string">&quot;on&quot;</span>.into()),
-                Value::Data(<span class="string">&quot;allchannels&quot;</span>.into()),
+                Value::Data(<span class="string">"on"</span>.into()),
+                Value::Data(<span class="string">"allchannels"</span>.into()),
             ]),
-            Value::Data(<span class="string">&quot;passwords&quot;</span>.into()),
+            Value::Data(<span class="string">"passwords"</span>.into()),
             Value::Bulk(<span class="macro">vec!</span>[]),
-            Value::Data(<span class="string">&quot;commands&quot;</span>.into()),
-            Value::Data(<span class="string">&quot;-@all +get&quot;</span>.into()),
-            Value::Data(<span class="string">&quot;keys&quot;</span>.into()),
-            Value::Bulk(<span class="macro">vec!</span>[Value::Data(<span class="string">&quot;pat:*&quot;</span>.into())]),
+            Value::Data(<span class="string">"commands"</span>.into()),
+            Value::Data(<span class="string">"-@all +get"</span>.into()),
+            Value::Data(<span class="string">"keys"</span>.into()),
+            Value::Bulk(<span class="macro">vec!</span>[Value::Data(<span class="string">"pat:*"</span>.into())]),
         ]);
-        <span class="kw">let </span>acl_info = AclInfo::from_redis_value(<span class="kw-2">&amp;</span>redis_value).expect(<span class="string">&quot;Parse successfully&quot;</span>);
+        <span class="kw">let </span>acl_info = AclInfo::from_redis_value(<span class="kw-2">&amp;</span>redis_value).expect(<span class="string">"Parse successfully"</span>);
 
         <span class="macro">assert_eq!</span>(
             acl_info,
             AclInfo {
-                flags: <span class="macro">vec!</span>[Rule::On, Rule::Other(<span class="string">&quot;allchannels&quot;</span>.into())],
+                flags: <span class="macro">vec!</span>[Rule::On, Rule::Other(<span class="string">"allchannels"</span>.into())],
                 passwords: <span class="macro">vec!</span>[],
                 commands: <span class="macro">vec!</span>[
-                    Rule::RemoveCategory(<span class="string">&quot;all&quot;</span>.to_owned()),
-                    Rule::AddCommand(<span class="string">&quot;get&quot;</span>.to_owned()),
+                    Rule::RemoveCategory(<span class="string">"all"</span>.to_owned()),
+                    Rule::AddCommand(<span class="string">"get"</span>.to_owned()),
                 ],
-                keys: <span class="macro">vec!</span>[Rule::Pattern(<span class="string">&quot;pat:*&quot;</span>.to_owned())],
+                keys: <span class="macro">vec!</span>[Rule::Pattern(<span class="string">"pat:*"</span>.to_owned())],
             }
         );
     }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/format/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/format/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -700,30 +701,30 @@
 /// use icu::datetime::TypedDateTimeFormatter;
 /// use icu::locid::locale;
 /// let dtf = TypedDateTimeFormatter::&lt;Gregorian&gt;::try_new(
-///     &amp;locale!(&quot;en&quot;).into(),
+///     &amp;locale!("en").into(),
 ///     Default::default(),
 /// )
-/// .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
+/// .expect("Failed to create TypedDateTimeFormatter instance.");
 ///
 /// let datetime = DateTime::try_new_gregorian_datetime(2020, 9, 1, 12, 34, 28)
-///     .expect(&quot;Failed to construct DateTime.&quot;);
+///     .expect("Failed to construct DateTime.");
 ///
 /// let formatted_date = dtf.format(&amp;datetime);
 ///
-/// let _ = format!(&quot;Date: {}&quot;, formatted_date);
+/// let _ = format!("Date: {}", formatted_date);
 /// ```
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>FormattedDateTime&lt;<span class="lifetime">&#39;l</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) patterns: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>DataPayload&lt;PatternPluralsFromPatternsV1Marker&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>provider::calendar::DateSymbolsV1&lt;<span class="lifetime">&#39;l</span>&gt;&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>provider::calendar::TimeSymbolsV1&lt;<span class="lifetime">&#39;l</span>&gt;&gt;,
+</span><span class="kw">pub struct </span>FormattedDateTime&lt;<span class="lifetime">'l</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) patterns: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>DataPayload&lt;PatternPluralsFromPatternsV1Marker&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'l </span>provider::calendar::DateSymbolsV1&lt;<span class="lifetime">'l</span>&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'l </span>provider::calendar::TimeSymbolsV1&lt;<span class="lifetime">'l</span>&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) datetime: ExtractedDateTimeInput,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>WeekCalculator&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) ordinal_rules: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>PluralRules&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) fixed_decimal_format: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>FixedDecimalFormatter,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'l </span>WeekCalculator&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) ordinal_rules: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'l </span>PluralRules&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) fixed_decimal_format: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>FixedDecimalFormatter,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>&gt; Writeable <span class="kw">for </span>FormattedDateTime&lt;<span class="lifetime">&#39;l</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>&gt; Writeable <span class="kw">for </span>FormattedDateTime&lt;<span class="lifetime">'l</span>&gt; {
     <span class="kw">fn </span>write_to&lt;W: fmt::Write + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sink: <span class="kw-2">&amp;mut </span>W) -&gt; fmt::Result {
         write_pattern_plurals(
             <span class="kw-2">&amp;</span><span class="self">self</span>.patterns.get().<span class="number">0</span>,
@@ -741,8 +742,8 @@
     <span class="comment">// TODO(#489): Implement writeable_length_hint
 </span>}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>&gt; fmt::Display <span class="kw">for </span>FormattedDateTime&lt;<span class="lifetime">&#39;l</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>&gt; fmt::Display <span class="kw">for </span>FormattedDateTime&lt;<span class="lifetime">'l</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="self">self</span>.write_to(f)
     }
 }
@@ -845,23 +846,23 @@
 }
 
 <span class="kw">const </span>CHINESE_CYCLIC_YEARS: [<span class="kw-2">&amp;</span>str; <span class="number">60</span>] = [
-    <span class="string">&quot;甲子&quot;</span>, <span class="string">&quot;乙丑&quot;</span>, <span class="string">&quot;丙寅&quot;</span>, <span class="string">&quot;丁卯&quot;</span>, <span class="string">&quot;戊辰&quot;</span>, <span class="string">&quot;己巳&quot;</span>, <span class="string">&quot;庚午&quot;</span>, <span class="string">&quot;辛未&quot;</span>, <span class="string">&quot;壬申&quot;</span>, <span class="string">&quot;癸酉&quot;</span>, <span class="string">&quot;甲戌&quot;</span>, <span class="string">&quot;乙亥&quot;</span>,
-    <span class="string">&quot;丙子&quot;</span>, <span class="string">&quot;丁丑&quot;</span>, <span class="string">&quot;戊寅&quot;</span>, <span class="string">&quot;己卯&quot;</span>, <span class="string">&quot;庚辰&quot;</span>, <span class="string">&quot;辛巳&quot;</span>, <span class="string">&quot;壬午&quot;</span>, <span class="string">&quot;癸未&quot;</span>, <span class="string">&quot;甲申&quot;</span>, <span class="string">&quot;乙酉&quot;</span>, <span class="string">&quot;丙戌&quot;</span>, <span class="string">&quot;丁亥&quot;</span>,
-    <span class="string">&quot;戊子&quot;</span>, <span class="string">&quot;己丑&quot;</span>, <span class="string">&quot;庚寅&quot;</span>, <span class="string">&quot;辛卯&quot;</span>, <span class="string">&quot;壬辰&quot;</span>, <span class="string">&quot;癸巳&quot;</span>, <span class="string">&quot;甲午&quot;</span>, <span class="string">&quot;乙未&quot;</span>, <span class="string">&quot;丙申&quot;</span>, <span class="string">&quot;丁酉&quot;</span>, <span class="string">&quot;戊戌&quot;</span>, <span class="string">&quot;己亥&quot;</span>,
-    <span class="string">&quot;庚子&quot;</span>, <span class="string">&quot;辛丑&quot;</span>, <span class="string">&quot;壬寅&quot;</span>, <span class="string">&quot;癸卯&quot;</span>, <span class="string">&quot;甲辰&quot;</span>, <span class="string">&quot;乙巳&quot;</span>, <span class="string">&quot;丙午&quot;</span>, <span class="string">&quot;丁未&quot;</span>, <span class="string">&quot;戊申&quot;</span>, <span class="string">&quot;己酉&quot;</span>, <span class="string">&quot;庚戌&quot;</span>, <span class="string">&quot;辛亥&quot;</span>,
-    <span class="string">&quot;壬子&quot;</span>, <span class="string">&quot;癸丑&quot;</span>, <span class="string">&quot;甲寅&quot;</span>, <span class="string">&quot;乙卯&quot;</span>, <span class="string">&quot;丙辰&quot;</span>, <span class="string">&quot;丁巳&quot;</span>, <span class="string">&quot;戊午&quot;</span>, <span class="string">&quot;己未&quot;</span>, <span class="string">&quot;庚申&quot;</span>, <span class="string">&quot;辛酉&quot;</span>, <span class="string">&quot;壬戌&quot;</span>, <span class="string">&quot;癸亥&quot;</span>,
+    <span class="string">"甲子"</span>, <span class="string">"乙丑"</span>, <span class="string">"丙寅"</span>, <span class="string">"丁卯"</span>, <span class="string">"戊辰"</span>, <span class="string">"己巳"</span>, <span class="string">"庚午"</span>, <span class="string">"辛未"</span>, <span class="string">"壬申"</span>, <span class="string">"癸酉"</span>, <span class="string">"甲戌"</span>, <span class="string">"乙亥"</span>,
+    <span class="string">"丙子"</span>, <span class="string">"丁丑"</span>, <span class="string">"戊寅"</span>, <span class="string">"己卯"</span>, <span class="string">"庚辰"</span>, <span class="string">"辛巳"</span>, <span class="string">"壬午"</span>, <span class="string">"癸未"</span>, <span class="string">"甲申"</span>, <span class="string">"乙酉"</span>, <span class="string">"丙戌"</span>, <span class="string">"丁亥"</span>,
+    <span class="string">"戊子"</span>, <span class="string">"己丑"</span>, <span class="string">"庚寅"</span>, <span class="string">"辛卯"</span>, <span class="string">"壬辰"</span>, <span class="string">"癸巳"</span>, <span class="string">"甲午"</span>, <span class="string">"乙未"</span>, <span class="string">"丙申"</span>, <span class="string">"丁酉"</span>, <span class="string">"戊戌"</span>, <span class="string">"己亥"</span>,
+    <span class="string">"庚子"</span>, <span class="string">"辛丑"</span>, <span class="string">"壬寅"</span>, <span class="string">"癸卯"</span>, <span class="string">"甲辰"</span>, <span class="string">"乙巳"</span>, <span class="string">"丙午"</span>, <span class="string">"丁未"</span>, <span class="string">"戊申"</span>, <span class="string">"己酉"</span>, <span class="string">"庚戌"</span>, <span class="string">"辛亥"</span>,
+    <span class="string">"壬子"</span>, <span class="string">"癸丑"</span>, <span class="string">"甲寅"</span>, <span class="string">"乙卯"</span>, <span class="string">"丙辰"</span>, <span class="string">"丁巳"</span>, <span class="string">"戊午"</span>, <span class="string">"己未"</span>, <span class="string">"庚申"</span>, <span class="string">"辛酉"</span>, <span class="string">"壬戌"</span>, <span class="string">"癸亥"</span>,
 ];
 <span class="kw">const </span>DANGI_CYCLIC_YEARS: [<span class="kw-2">&amp;</span>str; <span class="number">60</span>] = [
-    <span class="string">&quot;갑자&quot;</span>, <span class="string">&quot;을축&quot;</span>, <span class="string">&quot;병인&quot;</span>, <span class="string">&quot;정묘&quot;</span>, <span class="string">&quot;무진&quot;</span>, <span class="string">&quot;기사&quot;</span>, <span class="string">&quot;경오&quot;</span>, <span class="string">&quot;신미&quot;</span>, <span class="string">&quot;임신&quot;</span>, <span class="string">&quot;계유&quot;</span>, <span class="string">&quot;갑술&quot;</span>, <span class="string">&quot;을해&quot;</span>,
-    <span class="string">&quot;병자&quot;</span>, <span class="string">&quot;정축&quot;</span>, <span class="string">&quot;무인&quot;</span>, <span class="string">&quot;기묘&quot;</span>, <span class="string">&quot;경진&quot;</span>, <span class="string">&quot;신사&quot;</span>, <span class="string">&quot;임오&quot;</span>, <span class="string">&quot;계미&quot;</span>, <span class="string">&quot;갑신&quot;</span>, <span class="string">&quot;을유&quot;</span>, <span class="string">&quot;병술&quot;</span>, <span class="string">&quot;정해&quot;</span>,
-    <span class="string">&quot;무자&quot;</span>, <span class="string">&quot;기축&quot;</span>, <span class="string">&quot;경인&quot;</span>, <span class="string">&quot;신묘&quot;</span>, <span class="string">&quot;임진&quot;</span>, <span class="string">&quot;계사&quot;</span>, <span class="string">&quot;갑오&quot;</span>, <span class="string">&quot;을미&quot;</span>, <span class="string">&quot;병신&quot;</span>, <span class="string">&quot;정유&quot;</span>, <span class="string">&quot;무술&quot;</span>, <span class="string">&quot;기해&quot;</span>,
-    <span class="string">&quot;경자&quot;</span>, <span class="string">&quot;신축&quot;</span>, <span class="string">&quot;임인&quot;</span>, <span class="string">&quot;계묘&quot;</span>, <span class="string">&quot;갑진&quot;</span>, <span class="string">&quot;을사&quot;</span>, <span class="string">&quot;병오&quot;</span>, <span class="string">&quot;정미&quot;</span>, <span class="string">&quot;무신&quot;</span>, <span class="string">&quot;기유&quot;</span>, <span class="string">&quot;경술&quot;</span>, <span class="string">&quot;신해&quot;</span>,
-    <span class="string">&quot;임자&quot;</span>, <span class="string">&quot;계축&quot;</span>, <span class="string">&quot;갑인&quot;</span>, <span class="string">&quot;을묘&quot;</span>, <span class="string">&quot;병진&quot;</span>, <span class="string">&quot;정사&quot;</span>, <span class="string">&quot;무오&quot;</span>, <span class="string">&quot;기미&quot;</span>, <span class="string">&quot;경신&quot;</span>, <span class="string">&quot;신유&quot;</span>, <span class="string">&quot;임술&quot;</span>, <span class="string">&quot;계해&quot;</span>,
+    <span class="string">"갑자"</span>, <span class="string">"을축"</span>, <span class="string">"병인"</span>, <span class="string">"정묘"</span>, <span class="string">"무진"</span>, <span class="string">"기사"</span>, <span class="string">"경오"</span>, <span class="string">"신미"</span>, <span class="string">"임신"</span>, <span class="string">"계유"</span>, <span class="string">"갑술"</span>, <span class="string">"을해"</span>,
+    <span class="string">"병자"</span>, <span class="string">"정축"</span>, <span class="string">"무인"</span>, <span class="string">"기묘"</span>, <span class="string">"경진"</span>, <span class="string">"신사"</span>, <span class="string">"임오"</span>, <span class="string">"계미"</span>, <span class="string">"갑신"</span>, <span class="string">"을유"</span>, <span class="string">"병술"</span>, <span class="string">"정해"</span>,
+    <span class="string">"무자"</span>, <span class="string">"기축"</span>, <span class="string">"경인"</span>, <span class="string">"신묘"</span>, <span class="string">"임진"</span>, <span class="string">"계사"</span>, <span class="string">"갑오"</span>, <span class="string">"을미"</span>, <span class="string">"병신"</span>, <span class="string">"정유"</span>, <span class="string">"무술"</span>, <span class="string">"기해"</span>,
+    <span class="string">"경자"</span>, <span class="string">"신축"</span>, <span class="string">"임인"</span>, <span class="string">"계묘"</span>, <span class="string">"갑진"</span>, <span class="string">"을사"</span>, <span class="string">"병오"</span>, <span class="string">"정미"</span>, <span class="string">"무신"</span>, <span class="string">"기유"</span>, <span class="string">"경술"</span>, <span class="string">"신해"</span>,
+    <span class="string">"임자"</span>, <span class="string">"계축"</span>, <span class="string">"갑인"</span>, <span class="string">"을묘"</span>, <span class="string">"병진"</span>, <span class="string">"정사"</span>, <span class="string">"무오"</span>, <span class="string">"기미"</span>, <span class="string">"경신"</span>, <span class="string">"신유"</span>, <span class="string">"임술"</span>, <span class="string">"계해"</span>,
 ];
 
-<span class="kw">const </span>CHINESE_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;閏&quot;</span>;
-<span class="kw">const </span>DANGI_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;윤&quot;</span>;
-<span class="kw">const </span>PLACEHOLDER_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;(leap)&quot;</span>;
+<span class="kw">const </span>CHINESE_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">"閏"</span>;
+<span class="kw">const </span>DANGI_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">"윤"</span>;
+<span class="kw">const </span>PLACEHOLDER_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">"(leap)"</span>;
 <span class="comment">// This function assumes that the correct decision has been
 // made regarding availability of symbols in the caller.
 //
@@ -887,7 +888,7 @@
             <span class="kw">let </span>era = datetime
                 .datetime()
                 .year()
-                .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;year&quot;</span>)))<span class="question-mark">?
+                .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"year"</span>)))<span class="question-mark">?
                 </span>.era;
             <span class="kw">let </span>symbol = date_symbols
                 .ok_or(Error::MissingDateSymbols)<span class="question-mark">?
@@ -902,7 +903,7 @@
                     datetime
                         .datetime()
                         .year()
-                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;year&quot;</span>)))<span class="question-mark">?
+                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"year"</span>)))<span class="question-mark">?
                         </span>.number,
                 ),
                 field.length,
@@ -917,9 +918,9 @@
                 <span class="kw">let </span>datetime = datetime.datetime();
                 <span class="kw">let </span>cyclic = datetime
                     .year()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;year&quot;</span>)))<span class="question-mark">?
+                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"year"</span>)))<span class="question-mark">?
                     </span>.cyclic
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;cyclic&quot;</span>)))<span class="question-mark">?</span>;
+                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"cyclic"</span>)))<span class="question-mark">?</span>;
                 <span class="comment">// TODO(#3761): This is a hack, we should use actual data for cyclic years
                 </span><span class="kw">let </span>cyclics = <span class="kw">match </span>datetime.any_calendar_kind() {
                     <span class="prelude-val">Some</span>(AnyCalendarKind::Dangi) =&gt; <span class="kw-2">&amp;</span>DANGI_CYCLIC_YEARS,
@@ -927,7 +928,7 @@
                 </span>};
                 <span class="kw">let </span>cyclic_str = cyclics.get(usize::from(cyclic.get()) - <span class="number">1</span>).ok_or(
                     icu_calendar::CalendarError::Overflow {
-                        field: <span class="string">&quot;cyclic&quot;</span>,
+                        field: <span class="string">"cyclic"</span>,
                         max: <span class="number">60</span>,
                     },
                 )<span class="question-mark">?</span>;
@@ -941,9 +942,9 @@
                         datetime
                             .datetime()
                             .year()
-                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;year&quot;</span>)))<span class="question-mark">?
+                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"year"</span>)))<span class="question-mark">?
                             </span>.related_iso
-                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;related_iso&quot;</span>)))<span class="question-mark">?</span>,
+                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"related_iso"</span>)))<span class="question-mark">?</span>,
                     ),
                     field.length,
                 )<span class="question-mark">?</span>;
@@ -957,7 +958,7 @@
                     datetime
                         .datetime()
                         .month()
-                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;month&quot;</span>)))<span class="question-mark">?
+                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"month"</span>)))<span class="question-mark">?
                         </span>.ordinal,
                 ),
                 field.length,
@@ -966,7 +967,7 @@
                 <span class="kw">let </span>datetime = datetime.datetime();
                 <span class="kw">let </span>code = datetime
                     .month()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;month&quot;</span>)))<span class="question-mark">?
+                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"month"</span>)))<span class="question-mark">?
                     </span>.code;
 
                 <span class="kw">let </span>(symbol, is_leap) = date_symbols
@@ -1003,7 +1004,7 @@
             <span class="kw">let </span>dow = datetime
                 .datetime()
                 .iso_weekday()
-                .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;iso_weekday&quot;</span>)))<span class="question-mark">?</span>;
+                .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"iso_weekday"</span>)))<span class="question-mark">?</span>;
             <span class="kw">let </span>symbol = date_symbols
                 .ok_or(Error::MissingDateSymbols)<span class="question-mark">?
                 </span>.get_symbol_for_weekday(weekday, field.length, dow)<span class="question-mark">?</span>;
@@ -1017,7 +1018,7 @@
                     datetime
                         .datetime()
                         .day_of_month()
-                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;day_of_month&quot;</span>)))<span class="question-mark">?
+                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"day_of_month"</span>)))<span class="question-mark">?
                         </span>.<span class="number">0
                 </span>}
                 fields::Day::DayOfWeekInMonth =&gt; datetime.day_of_week_in_month()<span class="question-mark">?</span>.<span class="number">0</span>,
@@ -1030,7 +1031,7 @@
                 datetime
                     .datetime()
                     .hour()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;hour&quot;</span>)))<span class="question-mark">?</span>,
+                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"hour"</span>)))<span class="question-mark">?</span>,
             ) <span class="kw">as </span>isize;
             <span class="kw">let </span>value = <span class="kw">match </span>hour {
                 fields::Hour::H11 =&gt; h % <span class="number">12</span>,
@@ -1065,7 +1066,7 @@
                 datetime
                     .datetime()
                     .minute()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;minute&quot;</span>)))<span class="question-mark">?</span>,
+                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"minute"</span>)))<span class="question-mark">?</span>,
             )),
             field.length,
         )<span class="question-mark">?</span>,
@@ -1074,7 +1075,7 @@
                 datetime
                     .datetime()
                     .second()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;second&quot;</span>)))<span class="question-mark">?</span>,
+                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"second"</span>)))<span class="question-mark">?</span>,
             ));
             <span class="kw">if let </span><span class="prelude-val">Some</span>(PatternItem::Field(next_field)) = next_item {
                 <span class="kw">if let </span>FieldSymbol::Second(Second::FractionalSecond) = next_field.symbol {
@@ -1082,7 +1083,7 @@
                         datetime
                             .datetime()
                             .nanosecond()
-                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;nanosecond&quot;</span>)))<span class="question-mark">?</span>,
+                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"nanosecond"</span>)))<span class="question-mark">?</span>,
                     ));
 
                     <span class="comment">// We only support fixed field length for fractional seconds.
@@ -1123,7 +1124,7 @@
                     datetime
                         .datetime()
                         .hour()
-                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;hour&quot;</span>)))<span class="question-mark">?</span>,
+                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"hour"</span>)))<span class="question-mark">?</span>,
                     pattern.time_granularity.is_top_of_hour(
                         datetime.datetime().minute().map(u8::from).unwrap_or(<span class="number">0</span>),
                         datetime.datetime().second().map(u8::from).unwrap_or(<span class="number">0</span>),
@@ -1192,7 +1193,7 @@
                     </span><span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
                 }
             } <span class="kw">else if </span><span class="macro">matches!</span>(field.symbol, FieldSymbol::TimeZone(<span class="kw">_</span>)) {
-                <span class="comment">// If we don&#39;t support time zones, and encountered a time zone
+                <span class="comment">// If we don't support time zones, and encountered a time zone
                 // field, error out.
                 </span><span class="kw">return </span><span class="prelude-val">Err</span>(field);
             }
@@ -1210,7 +1211,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>required = RequiredData::default();
     <span class="kw">for </span>pattern <span class="kw">in </span>patterns.patterns_iter() {
         <span class="kw">if </span>required.add_requirements_from_pattern(pattern, supports_time_zones)<span class="question-mark">? </span>{
-            <span class="comment">// We can bail early if everything is required &amp; we don&#39;t need to
+            <span class="comment">// We can bail early if everything is required &amp; we don't need to
             // validate the absence of TimeZones.
             </span><span class="kw">break</span>;
         }
@@ -1232,27 +1233,27 @@
         <span class="kw">use </span>icu::datetime::options::length;
         <span class="kw">use </span>icu::datetime::DateFormatter;
 
-        <span class="kw">let </span>locale: Locale = <span class="string">&quot;en-u-ca-japanese&quot;</span>.parse().unwrap();
+        <span class="kw">let </span>locale: Locale = <span class="string">"en-u-ca-japanese"</span>.parse().unwrap();
         <span class="kw">let </span>dtf = DateFormatter::try_new_with_length(<span class="kw-2">&amp;</span>locale.into(), length::Date::Medium)
-            .expect(<span class="string">&quot;DateTimeFormat construction succeeds&quot;</span>);
+            .expect(<span class="string">"DateTimeFormat construction succeeds"</span>);
 
-        <span class="kw">let </span>date = Date::try_new_gregorian_date(<span class="number">1800</span>, <span class="number">9</span>, <span class="number">1</span>).expect(<span class="string">&quot;Failed to construct Date.&quot;</span>);
+        <span class="kw">let </span>date = Date::try_new_gregorian_date(<span class="number">1800</span>, <span class="number">9</span>, <span class="number">1</span>).expect(<span class="string">"Failed to construct Date."</span>);
         <span class="kw">let </span>date = date
             .to_calendar(JapaneseExtended::new())
             .into_japanese_date()
             .to_any();
 
-        <span class="macro">writeable::assert_writeable_eq!</span>(dtf.format(<span class="kw-2">&amp;</span>date).unwrap(), <span class="string">&quot;Sep 1, 12 kansei-1789&quot;</span>)
+        <span class="macro">writeable::assert_writeable_eq!</span>(dtf.format(<span class="kw-2">&amp;</span>date).unwrap(), <span class="string">"Sep 1, 12 kansei-1789"</span>)
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    #[cfg(feature = <span class="string">"serde"</span>)]
     </span><span class="kw">fn </span>test_basic() {
         <span class="kw">use </span><span class="kw">crate</span>::provider::calendar::{GregorianDateSymbolsV1Marker, TimeSymbolsV1Marker};
         <span class="kw">use </span>icu_calendar::DateTime;
         <span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
 
-        <span class="kw">let </span>locale = <span class="string">&quot;en-u-ca-gregory&quot;</span>.parse::&lt;Locale&gt;().unwrap().into();
+        <span class="kw">let </span>locale = <span class="string">"en-u-ca-gregory"</span>.parse::&lt;Locale&gt;().unwrap().into();
         <span class="kw">let </span>req = DataRequest {
             locale: <span class="kw-2">&amp;</span>locale,
             metadata: Default::default(),
@@ -1267,7 +1268,7 @@
             .unwrap()
             .take_payload()
             .unwrap();
-        <span class="kw">let </span>pattern = <span class="string">&quot;MMM&quot;</span>.parse().unwrap();
+        <span class="kw">let </span>pattern = <span class="string">"MMM"</span>.parse().unwrap();
         <span class="kw">let </span>datetime = DateTime::try_new_gregorian_datetime(<span class="number">2020</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">28</span>).unwrap();
         <span class="kw">let </span>fixed_decimal_format =
             FixedDecimalFormatter::try_new(<span class="kw-2">&amp;</span>locale, Default::default()).unwrap();
@@ -1283,26 +1284,26 @@
             <span class="kw-2">&amp;mut </span>sink,
         )
         .unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;{sink}&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">"{sink}"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_format_number() {
         <span class="kw">let </span>values = <span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">20</span>, <span class="number">201</span>, <span class="number">2017</span>, <span class="number">20173</span>];
         <span class="kw">let </span>samples = <span class="kw-2">&amp;</span>[
-            (FieldLength::One, [<span class="string">&quot;2&quot;</span>, <span class="string">&quot;20&quot;</span>, <span class="string">&quot;201&quot;</span>, <span class="string">&quot;2017&quot;</span>, <span class="string">&quot;20173&quot;</span>]),
-            (FieldLength::TwoDigit, [<span class="string">&quot;02&quot;</span>, <span class="string">&quot;20&quot;</span>, <span class="string">&quot;01&quot;</span>, <span class="string">&quot;17&quot;</span>, <span class="string">&quot;73&quot;</span>]),
+            (FieldLength::One, [<span class="string">"2"</span>, <span class="string">"20"</span>, <span class="string">"201"</span>, <span class="string">"2017"</span>, <span class="string">"20173"</span>]),
+            (FieldLength::TwoDigit, [<span class="string">"02"</span>, <span class="string">"20"</span>, <span class="string">"01"</span>, <span class="string">"17"</span>, <span class="string">"73"</span>]),
             (
                 FieldLength::Abbreviated,
-                [<span class="string">&quot;002&quot;</span>, <span class="string">&quot;020&quot;</span>, <span class="string">&quot;201&quot;</span>, <span class="string">&quot;2017&quot;</span>, <span class="string">&quot;20173&quot;</span>],
+                [<span class="string">"002"</span>, <span class="string">"020"</span>, <span class="string">"201"</span>, <span class="string">"2017"</span>, <span class="string">"20173"</span>],
             ),
-            (FieldLength::Wide, [<span class="string">&quot;0002&quot;</span>, <span class="string">&quot;0020&quot;</span>, <span class="string">&quot;0201&quot;</span>, <span class="string">&quot;2017&quot;</span>, <span class="string">&quot;20173&quot;</span>]),
+            (FieldLength::Wide, [<span class="string">"0002"</span>, <span class="string">"0020"</span>, <span class="string">"0201"</span>, <span class="string">"2017"</span>, <span class="string">"20173"</span>]),
         ];
 
         <span class="kw">let </span><span class="kw-2">mut </span>fixed_decimal_format_options = FixedDecimalFormatterOptions::default();
         fixed_decimal_format_options.grouping_strategy = GroupingStrategy::Never;
         <span class="kw">let </span>fixed_decimal_format = FixedDecimalFormatter::try_new(
-            <span class="kw-2">&amp;</span><span class="macro">icu_locid::locale!</span>(<span class="string">&quot;en&quot;</span>).into(),
+            <span class="kw-2">&amp;</span><span class="macro">icu_locid::locale!</span>(<span class="string">"en"</span>).into(),
             fixed_decimal_format_options,
         )
         .unwrap();

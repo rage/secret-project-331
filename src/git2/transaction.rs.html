@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/transaction.rs`."><title>transaction.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/transaction.rs`."><title>transaction.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -288,27 +289,27 @@
 
 <span class="kw">use crate</span>::{raw, util::Binding, Error, Oid, Reflog, Repository, Signature};
 
-<span class="doccomment">/// A structure representing a transactional update of a repository&#39;s references.
+<span class="doccomment">/// A structure representing a transactional update of a repository's references.
 ///
 /// Transactions work by locking loose refs for as long as the [`Transaction`]
 /// is held, and committing all changes to disk when [`Transaction::commit`] is
 /// called. Note that committing is not atomic: if an operation fails, the
 /// transaction aborts, but previous successful operations are not rolled back.
-</span><span class="kw">pub struct </span>Transaction&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>Transaction&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_transaction,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;repo </span>Repository&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'repo </span>Repository&gt;,
 }
 
-<span class="kw">impl </span>Drop <span class="kw">for </span>Transaction&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Drop <span class="kw">for </span>Transaction&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_transaction_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Transaction&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>Transaction&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_transaction;
 
-    <span class="kw">unsafe fn </span>from_raw(ptr: <span class="kw-2">*mut </span>raw::git_transaction) -&gt; Transaction&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(ptr: <span class="kw-2">*mut </span>raw::git_transaction) -&gt; Transaction&lt;<span class="lifetime">'repo</span>&gt; {
         Transaction {
             raw: ptr,
             _marker: marker::PhantomData,
@@ -320,7 +321,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Transaction&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Transaction&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="doccomment">/// Lock the specified reference by name.
     </span><span class="kw">pub fn </span>lock_ref(<span class="kw-2">&amp;mut </span><span class="self">self</span>, refname: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>refname = CString::new(refname).unwrap();
@@ -341,7 +342,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         refname: <span class="kw-2">&amp;</span>str,
         target: Oid,
-        reflog_signature: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        reflog_signature: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;&gt;,
         reflog_message: <span class="kw-2">&amp;</span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>refname = CString::new(refname).unwrap();
@@ -369,7 +370,7 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         refname: <span class="kw-2">&amp;</span>str,
         target: <span class="kw-2">&amp;</span>str,
-        reflog_signature: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        reflog_signature: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;&gt;,
         reflog_message: <span class="kw-2">&amp;</span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>refname = CString::new(refname).unwrap();
@@ -394,7 +395,7 @@
     /// Note that atomicity is **not* guaranteed: if the transaction fails to
     /// modify `refname`, the reflog may still have been committed to disk.
     ///
-    /// If this is combined with setting the target, that update won&#39;t be
+    /// If this is combined with setting the target, that update won't be
     /// written to the log (i.e. the `reflog_signature` and `reflog_message`
     /// parameters will be ignored).
     </span><span class="kw">pub fn </span>set_reflog(<span class="kw-2">&amp;mut </span><span class="self">self</span>, refname: <span class="kw-2">&amp;</span>str, reflog: Reflog) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -444,26 +445,26 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="macro">t!</span>(repo.transaction());
 
-        <span class="macro">t!</span>(tx.lock_ref(<span class="string">&quot;refs/heads/main&quot;</span>));
-        <span class="macro">t!</span>(tx.lock_ref(<span class="string">&quot;refs/heads/next&quot;</span>));
+        <span class="macro">t!</span>(tx.lock_ref(<span class="string">"refs/heads/main"</span>));
+        <span class="macro">t!</span>(tx.lock_ref(<span class="string">"refs/heads/next"</span>));
 
-        <span class="macro">t!</span>(tx.set_target(<span class="string">&quot;refs/heads/main&quot;</span>, Oid::zero(), <span class="prelude-val">None</span>, <span class="string">&quot;set main to zero&quot;</span>));
+        <span class="macro">t!</span>(tx.set_target(<span class="string">"refs/heads/main"</span>, Oid::zero(), <span class="prelude-val">None</span>, <span class="string">"set main to zero"</span>));
         <span class="macro">t!</span>(tx.set_symbolic_target(
-            <span class="string">&quot;refs/heads/next&quot;</span>,
-            <span class="string">&quot;refs/heads/main&quot;</span>,
+            <span class="string">"refs/heads/next"</span>,
+            <span class="string">"refs/heads/main"</span>,
             <span class="prelude-val">None</span>,
-            <span class="string">&quot;set next to main&quot;</span>,
+            <span class="string">"set next to main"</span>,
         ));
 
         <span class="macro">t!</span>(tx.commit());
 
-        <span class="macro">assert_eq!</span>(repo.refname_to_id(<span class="string">&quot;refs/heads/main&quot;</span>).unwrap(), Oid::zero());
+        <span class="macro">assert_eq!</span>(repo.refname_to_id(<span class="string">"refs/heads/main"</span>).unwrap(), Oid::zero());
         <span class="macro">assert_eq!</span>(
-            repo.find_reference(<span class="string">&quot;refs/heads/next&quot;</span>)
+            repo.find_reference(<span class="string">"refs/heads/next"</span>)
                 .unwrap()
                 .symbolic_target()
                 .unwrap(),
-            <span class="string">&quot;refs/heads/main&quot;
+            <span class="string">"refs/heads/main"
         </span>);
     }
 
@@ -472,10 +473,10 @@
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx1 = <span class="macro">t!</span>(repo.transaction());
-        <span class="macro">t!</span>(tx1.lock_ref(<span class="string">&quot;refs/heads/seen&quot;</span>));
+        <span class="macro">t!</span>(tx1.lock_ref(<span class="string">"refs/heads/seen"</span>));
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx2 = <span class="macro">t!</span>(repo.transaction());
-        <span class="macro">assert!</span>(<span class="macro">matches!</span>(tx2.lock_ref(<span class="string">&quot;refs/heads/seen&quot;</span>), <span class="prelude-val">Err</span>(e) <span class="kw">if </span>e.code() == ErrorCode::Locked))
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(tx2.lock_ref(<span class="string">"refs/heads/seen"</span>), <span class="prelude-val">Err</span>(e) <span class="kw">if </span>e.code() == ErrorCode::Locked))
     }
 
     <span class="attr">#[test]
@@ -484,10 +485,10 @@
         <span class="kw">let </span>repo2 = <span class="macro">t!</span>(Repository::open(<span class="kw-2">&amp;</span>td));
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx1 = <span class="macro">t!</span>(repo1.transaction());
-        <span class="macro">t!</span>(tx1.lock_ref(<span class="string">&quot;refs/heads/seen&quot;</span>));
+        <span class="macro">t!</span>(tx1.lock_ref(<span class="string">"refs/heads/seen"</span>));
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx2 = <span class="macro">t!</span>(repo2.transaction());
-        <span class="macro">assert!</span>(<span class="macro">matches!</span>(tx2.lock_ref(<span class="string">&quot;refs/heads/seen&quot;</span>), <span class="prelude-val">Err</span>(e) <span class="kw">if </span>e.code() == ErrorCode::Locked))
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(tx2.lock_ref(<span class="string">"refs/heads/seen"</span>), <span class="prelude-val">Err</span>(e) <span class="kw">if </span>e.code() == ErrorCode::Locked))
     }
 
     <span class="attr">#[test]
@@ -495,11 +496,11 @@
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="macro">t!</span>(repo.transaction());
-        <span class="macro">t!</span>(tx.lock_ref(<span class="string">&quot;refs/heads/seen&quot;</span>));
+        <span class="macro">t!</span>(tx.lock_ref(<span class="string">"refs/heads/seen"</span>));
         drop(tx);
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx2 = <span class="macro">t!</span>(repo.transaction());
-        <span class="macro">t!</span>(tx2.lock_ref(<span class="string">&quot;refs/heads/seen&quot;</span>))
+        <span class="macro">t!</span>(tx2.lock_ref(<span class="string">"refs/heads/seen"</span>))
     }
 
     <span class="attr">#[test]
@@ -507,23 +508,23 @@
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="macro">t!</span>(repo.transaction());
-        <span class="macro">t!</span>(tx.lock_ref(<span class="string">&quot;refs/heads/seen&quot;</span>));
+        <span class="macro">t!</span>(tx.lock_ref(<span class="string">"refs/heads/seen"</span>));
         <span class="macro">t!</span>(tx.commit());
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx2 = <span class="macro">t!</span>(repo.transaction());
-        <span class="macro">t!</span>(tx2.lock_ref(<span class="string">&quot;refs/heads/seen&quot;</span>));
+        <span class="macro">t!</span>(tx2.lock_ref(<span class="string">"refs/heads/seen"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>prevents_non_transactional_updates() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="kw">let </span>head = <span class="macro">t!</span>(repo.refname_to_id(<span class="string">&quot;HEAD&quot;</span>));
+        <span class="kw">let </span>head = <span class="macro">t!</span>(repo.refname_to_id(<span class="string">"HEAD"</span>));
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="macro">t!</span>(repo.transaction());
-        <span class="macro">t!</span>(tx.lock_ref(<span class="string">&quot;refs/heads/seen&quot;</span>));
+        <span class="macro">t!</span>(tx.lock_ref(<span class="string">"refs/heads/seen"</span>));
 
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(
-            repo.reference(<span class="string">&quot;refs/heads/seen&quot;</span>, head, <span class="bool-val">true</span>, <span class="string">&quot;competing with lock&quot;</span>),
+            repo.reference(<span class="string">"refs/heads/seen"</span>, head, <span class="bool-val">true</span>, <span class="string">"competing with lock"</span>),
             <span class="prelude-val">Err</span>(e) <span class="kw">if </span>e.code() == ErrorCode::Locked
         ));
     }
@@ -531,14 +532,14 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>remove() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="kw">let </span>head = <span class="macro">t!</span>(repo.refname_to_id(<span class="string">&quot;HEAD&quot;</span>));
-        <span class="kw">let </span>next = <span class="string">&quot;refs/heads/next&quot;</span>;
+        <span class="kw">let </span>head = <span class="macro">t!</span>(repo.refname_to_id(<span class="string">"HEAD"</span>));
+        <span class="kw">let </span>next = <span class="string">"refs/heads/next"</span>;
 
         <span class="macro">t!</span>(repo.reference(
             next,
             head,
             <span class="bool-val">true</span>,
-            <span class="string">&quot;refs/heads/next@{0}: branch: Created from HEAD&quot;
+            <span class="string">"refs/heads/next@{0}: branch: Created from HEAD"
         </span>));
 
         {
@@ -558,12 +559,12 @@
         </span><span class="kw">fn </span>is_not_locked_err(e: <span class="kw-2">&amp;</span>Error) -&gt; bool {
             e.code() == ErrorCode::NotFound
                 &amp;&amp; e.class() == ErrorClass::Reference
-                &amp;&amp; e.message() == <span class="string">&quot;the specified reference is not locked&quot;
+                &amp;&amp; e.message() == <span class="string">"the specified reference is not locked"
         </span>}
 
         <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="macro">t!</span>(repo.transaction());
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(
-            tx.set_target(<span class="string">&quot;refs/heads/main&quot;</span>, Oid::zero(), <span class="prelude-val">None</span>, <span class="string">&quot;set main to zero&quot;</span>),
+            tx.set_target(<span class="string">"refs/heads/main"</span>, Oid::zero(), <span class="prelude-val">None</span>, <span class="string">"set main to zero"</span>),
             <span class="prelude-val">Err</span>(e) <span class="kw">if </span>is_not_locked_err(<span class="kw-2">&amp;</span>e)
         ))
     }

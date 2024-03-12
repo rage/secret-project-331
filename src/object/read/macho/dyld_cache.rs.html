@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/macho/dyld_cache.rs`."><title>dyld_cache.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/macho/dyld_cache.rs`."><title>dyld_cache.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -350,37 +351,37 @@
 
 <span class="doccomment">/// A parsed representation of the dyld shared cache.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>DyldCache&lt;<span class="lifetime">&#39;data</span>, E = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>DyldCache&lt;<span class="lifetime">'data</span>, E = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>E: Endian,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
     endian: E,
     data: R,
-    subcaches: Vec&lt;DyldSubCache&lt;<span class="lifetime">&#39;data</span>, E, R&gt;&gt;,
-    mappings: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[macho::DyldCacheMappingInfo&lt;E&gt;],
-    images: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[macho::DyldCacheImageInfo&lt;E&gt;],
+    subcaches: Vec&lt;DyldSubCache&lt;<span class="lifetime">'data</span>, E, R&gt;&gt;,
+    mappings: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[macho::DyldCacheMappingInfo&lt;E&gt;],
+    images: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[macho::DyldCacheImageInfo&lt;E&gt;],
     arch: Architecture,
 }
 
 <span class="doccomment">/// Information about a subcache.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>DyldSubCache&lt;<span class="lifetime">&#39;data</span>, E = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>DyldSubCache&lt;<span class="lifetime">'data</span>, E = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>E: Endian,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
     data: R,
-    mappings: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[macho::DyldCacheMappingInfo&lt;E&gt;],
+    mappings: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[macho::DyldCacheMappingInfo&lt;E&gt;],
 }
 
 <span class="comment">// This is the offset of the images_across_all_subcaches_count field.
 </span><span class="kw">const </span>MIN_HEADER_SIZE_SUBCACHES: u32 = <span class="number">0x1c4</span>;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, E, R&gt; DyldCache&lt;<span class="lifetime">&#39;data</span>, E, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, E, R&gt; DyldCache&lt;<span class="lifetime">'data</span>, E, R&gt;
 <span class="kw">where
     </span>E: Endian,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
     <span class="doccomment">/// Parse the raw dyld shared cache data.
     ///
@@ -397,7 +398,7 @@
         <span class="kw">let </span>subcaches_info = header.subcaches(endian, data)<span class="question-mark">?</span>.unwrap_or(<span class="kw-2">&amp;</span>[]);
 
         <span class="kw">if </span>subcache_data.len() != subcaches_info.len() + symbols_subcache_uuid.is_some() <span class="kw">as </span>usize {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Incorrect number of SubCaches&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Incorrect number of SubCaches"</span>));
         }
 
         <span class="comment">// Split out the .symbols subcache data from the other subcaches.
@@ -414,7 +415,7 @@
         <span class="kw">for </span>(<span class="kw-2">&amp;</span>data, info) <span class="kw">in </span>subcache_data.iter().zip(subcaches_info.iter()) {
             <span class="kw">let </span>sc_header = macho::DyldCacheHeader::&lt;E&gt;::parse(data)<span class="question-mark">?</span>;
             <span class="kw">if </span>sc_header.uuid != info.uuid {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unexpected SubCache UUID&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unexpected SubCache UUID"</span>));
             }
             <span class="kw">let </span>mappings = sc_header.mappings(endian, data)<span class="question-mark">?</span>;
             subcaches.push(DyldSubCache { data, mappings });
@@ -426,7 +427,7 @@
             <span class="prelude-val">Some</span>((data, uuid)) =&gt; {
                 <span class="kw">let </span>sc_header = macho::DyldCacheHeader::&lt;E&gt;::parse(data)<span class="question-mark">?</span>;
                 <span class="kw">if </span>sc_header.uuid != uuid {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unexpected .symbols SubCache UUID&quot;</span>));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unexpected .symbols SubCache UUID"</span>));
                 }
                 <span class="kw">let </span>mappings = sc_header.mappings(endian, data)<span class="question-mark">?</span>;
                 <span class="prelude-val">Some</span>(DyldSubCache { data, mappings })
@@ -466,7 +467,7 @@
     }
 
     <span class="doccomment">/// Iterate over the images in this cache.
-    </span><span class="kw">pub fn </span>images&lt;<span class="lifetime">&#39;cache</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;cache </span><span class="self">self</span>) -&gt; DyldCacheImageIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;cache</span>, E, R&gt; {
+    </span><span class="kw">pub fn </span>images&lt;<span class="lifetime">'cache</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'cache </span><span class="self">self</span>) -&gt; DyldCacheImageIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E, R&gt; {
         DyldCacheImageIterator {
             cache: <span class="self">self</span>,
             iter: <span class="self">self</span>.images.iter(),
@@ -492,23 +493,23 @@
 
 <span class="doccomment">/// An iterator over all the images (dylibs) in the dyld shared cache.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>DyldCacheImageIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;cache</span>, E = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>DyldCacheImageIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>E: Endian,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    cache: <span class="kw-2">&amp;</span><span class="lifetime">&#39;cache </span>DyldCache&lt;<span class="lifetime">&#39;data</span>, E, R&gt;,
-    iter: slice::Iter&lt;<span class="lifetime">&#39;data</span>, macho::DyldCacheImageInfo&lt;E&gt;&gt;,
+    cache: <span class="kw-2">&amp;</span><span class="lifetime">'cache </span>DyldCache&lt;<span class="lifetime">'data</span>, E, R&gt;,
+    iter: slice::Iter&lt;<span class="lifetime">'data</span>, macho::DyldCacheImageInfo&lt;E&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;cache</span>, E, R&gt; Iterator <span class="kw">for </span>DyldCacheImageIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;cache</span>, E, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E, R&gt; Iterator <span class="kw">for </span>DyldCacheImageIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E, R&gt;
 <span class="kw">where
     </span>E: Endian,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>Item = DyldCacheImage&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;cache</span>, E, R&gt;;
+    <span class="kw">type </span>Item = DyldCacheImage&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E, R&gt;;
 
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DyldCacheImage&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;cache</span>, E, R&gt;&gt; {
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DyldCacheImage&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E, R&gt;&gt; {
         <span class="kw">let </span>image_info = <span class="self">self</span>.iter.next()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(DyldCacheImage {
             cache: <span class="self">self</span>.cache,
@@ -519,25 +520,25 @@
 
 <span class="doccomment">/// One image (dylib) from inside the dyld shared cache.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>DyldCacheImage&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;cache</span>, E = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>DyldCacheImage&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>E: Endian,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) cache: <span class="kw-2">&amp;</span><span class="lifetime">&#39;cache </span>DyldCache&lt;<span class="lifetime">&#39;data</span>, E, R&gt;,
-    image_info: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>macho::DyldCacheImageInfo&lt;E&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) cache: <span class="kw-2">&amp;</span><span class="lifetime">'cache </span>DyldCache&lt;<span class="lifetime">'data</span>, E, R&gt;,
+    image_info: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>macho::DyldCacheImageInfo&lt;E&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;cache</span>, E, R&gt; DyldCacheImage&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;cache</span>, E, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E, R&gt; DyldCacheImage&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E, R&gt;
 <span class="kw">where
     </span>E: Endian,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
     <span class="doccomment">/// The file system path of this image.
-    </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>str&gt; {
+    </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>str&gt; {
         <span class="kw">let </span>path = <span class="self">self</span>.image_info.path(<span class="self">self</span>.cache.endian, <span class="self">self</span>.cache.data)<span class="question-mark">?</span>;
         <span class="comment">// The path should always be ascii, so from_utf8 should always succeed.
-        </span><span class="kw">let </span>path = core::str::from_utf8(path).map_err(|<span class="kw">_</span>| Error(<span class="string">&quot;Path string not valid utf-8&quot;</span>))<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>path = core::str::from_utf8(path).map_err(|<span class="kw">_</span>| Error(<span class="string">"Path string not valid utf-8"</span>))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(path)
     }
 
@@ -547,69 +548,69 @@
         <span class="kw">let </span>address = <span class="self">self</span>.image_info.address.get(<span class="self">self</span>.cache.endian);
         <span class="self">self</span>.cache
             .data_and_offset_for_address(address)
-            .ok_or(Error(<span class="string">&quot;Address not found in any mapping&quot;</span>))
+            .ok_or(Error(<span class="string">"Address not found in any mapping"</span>))
     }
 
     <span class="doccomment">/// Parse this image into an Object.
-    </span><span class="kw">pub fn </span>parse_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;File&lt;<span class="lifetime">&#39;data</span>, R&gt;&gt; {
+    </span><span class="kw">pub fn </span>parse_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;File&lt;<span class="lifetime">'data</span>, R&gt;&gt; {
         File::parse_dyld_cache_image(<span class="self">self</span>)
     }
 }
 
 <span class="kw">impl</span>&lt;E: Endian&gt; macho::DyldCacheHeader&lt;E&gt; {
     <span class="doccomment">/// Read the dyld cache header.
-    </span><span class="kw">pub fn </span>parse&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>parse&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">Self</span>&gt; {
         data.read_at::&lt;macho::DyldCacheHeader&lt;E&gt;&gt;(<span class="number">0</span>)
-            .read_error(<span class="string">&quot;Invalid dyld cache header size or alignment&quot;</span>)
+            .read_error(<span class="string">"Invalid dyld cache header size or alignment"</span>)
     }
 
     <span class="doccomment">/// Returns (arch, endian) based on the magic string.
     </span><span class="kw">pub fn </span>parse_magic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Architecture, E)&gt; {
         <span class="kw">let </span>(arch, is_big_endian) = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.magic {
-            <span class="string">b&quot;dyld_v1    i386\0&quot; </span>=&gt; (Architecture::I386, <span class="bool-val">false</span>),
-            <span class="string">b&quot;dyld_v1  x86_64\0&quot; </span>=&gt; (Architecture::X86_64, <span class="bool-val">false</span>),
-            <span class="string">b&quot;dyld_v1 x86_64h\0&quot; </span>=&gt; (Architecture::X86_64, <span class="bool-val">false</span>),
-            <span class="string">b&quot;dyld_v1     ppc\0&quot; </span>=&gt; (Architecture::PowerPc, <span class="bool-val">true</span>),
-            <span class="string">b&quot;dyld_v1   armv6\0&quot; </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
-            <span class="string">b&quot;dyld_v1   armv7\0&quot; </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
-            <span class="string">b&quot;dyld_v1  armv7f\0&quot; </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
-            <span class="string">b&quot;dyld_v1  armv7s\0&quot; </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
-            <span class="string">b&quot;dyld_v1  armv7k\0&quot; </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
-            <span class="string">b&quot;dyld_v1   arm64\0&quot; </span>=&gt; (Architecture::Aarch64, <span class="bool-val">false</span>),
-            <span class="string">b&quot;dyld_v1  arm64e\0&quot; </span>=&gt; (Architecture::Aarch64, <span class="bool-val">false</span>),
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unrecognized dyld cache magic&quot;</span>)),
+            <span class="string">b"dyld_v1    i386\0" </span>=&gt; (Architecture::I386, <span class="bool-val">false</span>),
+            <span class="string">b"dyld_v1  x86_64\0" </span>=&gt; (Architecture::X86_64, <span class="bool-val">false</span>),
+            <span class="string">b"dyld_v1 x86_64h\0" </span>=&gt; (Architecture::X86_64, <span class="bool-val">false</span>),
+            <span class="string">b"dyld_v1     ppc\0" </span>=&gt; (Architecture::PowerPc, <span class="bool-val">true</span>),
+            <span class="string">b"dyld_v1   armv6\0" </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
+            <span class="string">b"dyld_v1   armv7\0" </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
+            <span class="string">b"dyld_v1  armv7f\0" </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
+            <span class="string">b"dyld_v1  armv7s\0" </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
+            <span class="string">b"dyld_v1  armv7k\0" </span>=&gt; (Architecture::Arm, <span class="bool-val">false</span>),
+            <span class="string">b"dyld_v1   arm64\0" </span>=&gt; (Architecture::Aarch64, <span class="bool-val">false</span>),
+            <span class="string">b"dyld_v1  arm64e\0" </span>=&gt; (Architecture::Aarch64, <span class="bool-val">false</span>),
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unrecognized dyld cache magic"</span>)),
         };
         <span class="kw">let </span>endian =
-            E::from_big_endian(is_big_endian).read_error(<span class="string">&quot;Unsupported dyld cache endian&quot;</span>)<span class="question-mark">?</span>;
+            E::from_big_endian(is_big_endian).read_error(<span class="string">"Unsupported dyld cache endian"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((arch, endian))
     }
 
     <span class="doccomment">/// Return the mapping information table.
-    </span><span class="kw">pub fn </span>mappings&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>mappings&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: E,
         data: R,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[macho::DyldCacheMappingInfo&lt;E&gt;]&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[macho::DyldCacheMappingInfo&lt;E&gt;]&gt; {
         data.read_slice_at::&lt;macho::DyldCacheMappingInfo&lt;E&gt;&gt;(
             <span class="self">self</span>.mapping_offset.get(endian).into(),
             <span class="self">self</span>.mapping_count.get(endian) <span class="kw">as </span>usize,
         )
-        .read_error(<span class="string">&quot;Invalid dyld cache mapping size or alignment&quot;</span>)
+        .read_error(<span class="string">"Invalid dyld cache mapping size or alignment"</span>)
     }
 
     <span class="doccomment">/// Return the information about subcaches, if present.
-    </span><span class="kw">pub fn </span>subcaches&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>subcaches&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: E,
         data: R,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[macho::DyldSubCacheInfo&lt;E&gt;]&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[macho::DyldSubCacheInfo&lt;E&gt;]&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.mapping_offset.get(endian) &gt;= MIN_HEADER_SIZE_SUBCACHES {
             <span class="kw">let </span>subcaches = data
                 .read_slice_at::&lt;macho::DyldSubCacheInfo&lt;E&gt;&gt;(
                     <span class="self">self</span>.subcaches_offset.get(endian).into(),
                     <span class="self">self</span>.subcaches_count.get(endian) <span class="kw">as </span>usize,
                 )
-                .read_error(<span class="string">&quot;Invalid dyld subcaches size or alignment&quot;</span>)<span class="question-mark">?</span>;
+                .read_error(<span class="string">"Invalid dyld subcaches size or alignment"</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(subcaches))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
@@ -628,34 +629,34 @@
     </span>}
 
     <span class="doccomment">/// Return the image information table.
-    </span><span class="kw">pub fn </span>images&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>images&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: E,
         data: R,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[macho::DyldCacheImageInfo&lt;E&gt;]&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[macho::DyldCacheImageInfo&lt;E&gt;]&gt; {
         <span class="kw">if </span><span class="self">self</span>.mapping_offset.get(endian) &gt;= MIN_HEADER_SIZE_SUBCACHES {
             data.read_slice_at::&lt;macho::DyldCacheImageInfo&lt;E&gt;&gt;(
                 <span class="self">self</span>.images_across_all_subcaches_offset.get(endian).into(),
                 <span class="self">self</span>.images_across_all_subcaches_count.get(endian) <span class="kw">as </span>usize,
             )
-            .read_error(<span class="string">&quot;Invalid dyld cache image size or alignment&quot;</span>)
+            .read_error(<span class="string">"Invalid dyld cache image size or alignment"</span>)
         } <span class="kw">else </span>{
             data.read_slice_at::&lt;macho::DyldCacheImageInfo&lt;E&gt;&gt;(
                 <span class="self">self</span>.images_offset.get(endian).into(),
                 <span class="self">self</span>.images_count.get(endian) <span class="kw">as </span>usize,
             )
-            .read_error(<span class="string">&quot;Invalid dyld cache image size or alignment&quot;</span>)
+            .read_error(<span class="string">"Invalid dyld cache image size or alignment"</span>)
         }
     }
 }
 
 <span class="kw">impl</span>&lt;E: Endian&gt; macho::DyldCacheImageInfo&lt;E&gt; {
     <span class="doccomment">/// The file system path of this image.
-    </span><span class="kw">pub fn </span>path&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, endian: E, data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>path&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, endian: E, data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="kw">let </span>r_start = <span class="self">self</span>.path_file_offset.get(endian).into();
-        <span class="kw">let </span>r_end = data.len().read_error(<span class="string">&quot;Couldn&#39;t get data len()&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>r_end = data.len().read_error(<span class="string">"Couldn't get data len()"</span>)<span class="question-mark">?</span>;
         data.read_bytes_at_until(r_start..r_end, <span class="number">0</span>)
-            .read_error(<span class="string">&quot;Couldn&#39;t read dyld cache image path&quot;</span>)
+            .read_error(<span class="string">"Couldn't read dyld cache image path"</span>)
     }
 
     <span class="doccomment">/// Find the file offset of the image by looking up its address in the mappings.
@@ -666,7 +667,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         <span class="kw">let </span>address = <span class="self">self</span>.address.get(endian);
         address_to_file_offset(address, endian, mappings)
-            .read_error(<span class="string">&quot;Invalid dyld cache image address&quot;</span>)
+            .read_error(<span class="string">"Invalid dyld cache image address"</span>)
     }
 }
 

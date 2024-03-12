@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_plurals-1.4.0/src/provider.rs`."><title>provider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_plurals" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_plurals-1.4.0/src/provider.rs`."><title>provider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_plurals" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -340,7 +341,7 @@
 
 </span><span class="doccomment">//! 🚧 \[Unstable\] Data provider struct definitions for this ICU4X component.
 //!
-//! &lt;div class=&quot;stab unstable&quot;&gt;
+//! &lt;div class="stab unstable"&gt;
 //! 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 //! including in SemVer minor releases. While the serde representation of data structs is guaranteed
 //! to be stable, their Rust representation might not be. Use with caution.
@@ -352,18 +353,18 @@
 <span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>icu_provider::DataMarker;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 #[derive(Debug)]
 </span><span class="doccomment">/// Baked data
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. In particular, the `DataProvider` implementations are only
-/// guaranteed to match with this version&#39;s `*_unstable` providers. Use with caution.
+/// guaranteed to match with this version's `*_unstable` providers. Use with caution.
 /// &lt;/div&gt;
 </span><span class="kw">pub struct </span>Baked;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 </span><span class="kw">const _</span>: () = {
     <span class="kw">pub mod </span>icu {
         <span class="kw">pub use crate as </span>plurals;
@@ -372,16 +373,16 @@
     <span class="macro">icu_plurals_data::make_provider!</span>(Baked);
     <span class="macro">icu_plurals_data::impl_plurals_ordinal_v1!</span>(Baked);
     <span class="macro">icu_plurals_data::impl_plurals_cardinal_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_plurals_data::impl_plurals_ranges_v1!</span>(Baked);
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
 </span><span class="doccomment">/// The latest minimum set of keys required by this component.
 </span><span class="kw">pub const </span>KEYS: <span class="kw-2">&amp;</span>[DataKey] = <span class="kw-2">&amp;</span>[
     CardinalV1Marker::KEY,
     OrdinalV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>PluralRangesV1Marker::KEY,
 ];
 
@@ -389,54 +390,54 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::PluralCategory;
 
 <span class="doccomment">/// Plural rule strings conforming to UTS 35 syntax. Includes separate fields for five of the six
-/// standard plural forms. If none of the rules match, the &quot;other&quot; category is assumed.
+/// standard plural forms. If none of the rules match, the "other" category is assumed.
 ///
 /// More information: &lt;https://unicode.org/reports/tr35/tr35-numbers.html#Language_Plural_Rules&gt;
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[icu_provider::data_struct(
-    CardinalV1Marker = <span class="string">&quot;plurals/cardinal@1&quot;</span>,
-    OrdinalV1Marker = <span class="string">&quot;plurals/ordinal@1&quot;
+    CardinalV1Marker = <span class="string">"plurals/cardinal@1"</span>,
+    OrdinalV1Marker = <span class="string">"plurals/ordinal@1"
 </span>)]
 #[derive(Default, Clone, PartialEq, Debug)]
 #[cfg_attr(
-    feature = <span class="string">&quot;datagen&quot;</span>,
+    feature = <span class="string">"datagen"</span>,
     derive(serde::Serialize, databake::Bake),
     databake(path = icu_plurals::provider),
 )]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
-</span><span class="kw">pub struct </span>PluralRulesV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
+</span><span class="kw">pub struct </span>PluralRulesV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Rule that matches [`PluralCategory::Zero`], or `None` if not present.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>zero: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>zero: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">'data</span>&gt;&gt;,
     <span class="doccomment">/// Rule that matches [`PluralCategory::One`], or `None` if not present.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>one: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>one: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">'data</span>&gt;&gt;,
     <span class="doccomment">/// Rule that matches [`PluralCategory::Two`], or `None` if not present.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>two: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>two: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">'data</span>&gt;&gt;,
     <span class="doccomment">/// Rule that matches [`PluralCategory::Few`], or `None` if not present.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>few: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>few: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">'data</span>&gt;&gt;,
     <span class="doccomment">/// Rule that matches [`PluralCategory::Many`], or `None` if not present.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>many: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>many: <span class="prelude-ty">Option</span>&lt;Rule&lt;<span class="lifetime">'data</span>&gt;&gt;,
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ErasedPluralRulesV1Marker;
 
 <span class="kw">impl </span>DataMarker <span class="kw">for </span>ErasedPluralRulesV1Marker {
-    <span class="kw">type </span>Yokeable = PluralRulesV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+    <span class="kw">type </span>Yokeable = PluralRulesV1&lt;<span class="lifetime">'static</span>&gt;;
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;datagen&quot;</span>, feature = <span class="string">&quot;experimental&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))]
 </span><span class="kw">pub use </span>ranges::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;datagen&quot;</span>, feature = <span class="string">&quot;experimental&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))]
 </span><span class="kw">mod </span>ranges {
     <span class="kw">use </span><span class="kw">crate</span>::PluralCategory;
     <span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
@@ -444,50 +445,50 @@
 
     <span class="doccomment">/// [`PluralCategory`] but serializable as provider data.
     ///
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
+    /// &lt;div class="stab unstable"&gt;
     /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
     /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
     /// to be stable, their Rust representation might not be. Use with caution.
     /// &lt;/div&gt;
     </span><span class="attr">#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Ord, PartialOrd)]
     #[cfg_attr(
-        feature = <span class="string">&quot;datagen&quot;</span>,
+        feature = <span class="string">"datagen"</span>,
         derive(serde::Serialize, databake::Bake),
         databake(path = icu_plurals::provider),
     )]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
     #[zerovec::make_ule(RawPluralCategoryULE)]
     #[repr(u8)]
     #[cfg_attr(
-        any(feature = <span class="string">&quot;datagen&quot;</span>, feature = <span class="string">&quot;serde&quot;</span>),
-        serde(rename_all = <span class="string">&quot;lowercase&quot;</span>)
+        any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"serde"</span>),
+        serde(rename_all = <span class="string">"lowercase"</span>)
     )]
     </span><span class="kw">pub enum </span>RawPluralCategory {
-        <span class="doccomment">/// CLDR &quot;other&quot; plural category.
+        <span class="doccomment">/// CLDR "other" plural category.
         </span>Other = <span class="number">0</span>,
-        <span class="doccomment">/// CLDR &quot;zero&quot; plural category.
+        <span class="doccomment">/// CLDR "zero" plural category.
         </span>Zero = <span class="number">1</span>,
-        <span class="doccomment">/// CLDR &quot;one&quot; plural category.
+        <span class="doccomment">/// CLDR "one" plural category.
         </span>One = <span class="number">2</span>,
-        <span class="doccomment">/// CLDR &quot;two&quot; plural category.
+        <span class="doccomment">/// CLDR "two" plural category.
         </span>Two = <span class="number">3</span>,
-        <span class="doccomment">/// CLDR &quot;few&quot; plural category.
+        <span class="doccomment">/// CLDR "few" plural category.
         </span>Few = <span class="number">4</span>,
-        <span class="doccomment">/// CLDR &quot;many&quot; plural category.
+        <span class="doccomment">/// CLDR "many" plural category.
         </span>Many = <span class="number">5</span>,
     }
 
     <span class="kw">impl </span>RawPluralCategory {
         <span class="doccomment">/// Gets the corresponding variant string of this `RawPluralCategory`.
-        </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;datagen&quot;</span>, feature = <span class="string">&quot;serde&quot;</span>))]
-        </span><span class="kw">const fn </span>as_str(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        </span><span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"serde"</span>))]
+        </span><span class="kw">const fn </span>as_str(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
             <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Other =&gt; <span class="string">&quot;other&quot;</span>,
-                <span class="self">Self</span>::Zero =&gt; <span class="string">&quot;zero&quot;</span>,
-                <span class="self">Self</span>::One =&gt; <span class="string">&quot;one&quot;</span>,
-                <span class="self">Self</span>::Two =&gt; <span class="string">&quot;two&quot;</span>,
-                <span class="self">Self</span>::Few =&gt; <span class="string">&quot;few&quot;</span>,
-                <span class="self">Self</span>::Many =&gt; <span class="string">&quot;many&quot;</span>,
+                <span class="self">Self</span>::Other =&gt; <span class="string">"other"</span>,
+                <span class="self">Self</span>::Zero =&gt; <span class="string">"zero"</span>,
+                <span class="self">Self</span>::One =&gt; <span class="string">"one"</span>,
+                <span class="self">Self</span>::Two =&gt; <span class="string">"two"</span>,
+                <span class="self">Self</span>::Few =&gt; <span class="string">"few"</span>,
+                <span class="self">Self</span>::Many =&gt; <span class="string">"many"</span>,
             }
         }
     }
@@ -520,14 +521,14 @@
 
     <span class="doccomment">/// An `u8` that is expected to be a plural range, but does not enforce this invariant.
     ///
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
+    /// &lt;div class="stab unstable"&gt;
     /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
     /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
     /// to be stable, their Rust representation might not be. Use with caution.
     /// &lt;/div&gt;
     </span><span class="attr">#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Ord, PartialOrd)]
     #[cfg_attr(
-        feature = <span class="string">&quot;datagen&quot;</span>,
+        feature = <span class="string">"datagen"</span>,
         derive(databake::Bake),
         databake(path = icu_plurals::provider),
     )]
@@ -549,7 +550,7 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
     </span><span class="kw">impl </span>serde::Serialize <span class="kw">for </span>UnvalidatedPluralRange {
         <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
         <span class="kw">where
@@ -560,18 +561,18 @@
             <span class="kw">struct </span>PrettyPrinter(RawPluralCategory, RawPluralCategory);
 
             <span class="kw">impl </span>core::fmt::Display <span class="kw">for </span>PrettyPrinter {
-                <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+                <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
                     f.write_str(<span class="self">self</span>.<span class="number">0</span>.as_str())<span class="question-mark">?</span>;
-                    f.write_str(<span class="string">&quot;--&quot;</span>)<span class="question-mark">?</span>;
+                    f.write_str(<span class="string">"--"</span>)<span class="question-mark">?</span>;
                     f.write_str(<span class="self">self</span>.<span class="number">1</span>.as_str())
                 }
             }
 
             <span class="kw">if </span>serializer.is_human_readable() {
                 <span class="kw">let </span>start = RawPluralCategory::new_from_u8(<span class="self">self</span>.<span class="number">0 </span>&gt;&gt; <span class="number">4</span>)
-                    .ok_or_else(|| S::Error::custom(<span class="string">&quot;invalid tag in UnvalidatedPluralRange&quot;</span>))<span class="question-mark">?</span>;
+                    .ok_or_else(|| S::Error::custom(<span class="string">"invalid tag in UnvalidatedPluralRange"</span>))<span class="question-mark">?</span>;
                 <span class="kw">let </span>end = RawPluralCategory::new_from_u8(<span class="self">self</span>.<span class="number">0 </span>&amp; <span class="number">0x0F</span>)
-                    .ok_or_else(|| S::Error::custom(<span class="string">&quot;invalid tag in UnvalidatedPluralRange&quot;</span>))<span class="question-mark">?</span>;
+                    .ok_or_else(|| S::Error::custom(<span class="string">"invalid tag in UnvalidatedPluralRange"</span>))<span class="question-mark">?</span>;
                 serializer.collect_str(<span class="kw-2">&amp;</span>PrettyPrinter(start, end))
             } <span class="kw">else </span>{
                 <span class="self">self</span>.<span class="number">0</span>.serialize(serializer)
@@ -579,23 +580,23 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-    </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>UnvalidatedPluralRange {
+    <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+    </span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>UnvalidatedPluralRange {
         <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
         <span class="kw">where
-            </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+            </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
         {
             <span class="kw">use </span>serde::de::{Error, Visitor};
 
             <span class="kw">struct </span>HumanReadableVisitor;
 
-            <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>HumanReadableVisitor {
+            <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>HumanReadableVisitor {
                 <span class="kw">type </span>Value = UnvalidatedPluralRange;
 
                 <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>alloc::fmt::Formatter) -&gt; alloc::fmt::Result {
                     <span class="macro">write!</span>(
                         formatter,
-                        <span class="string">&quot;a plural range of the form &lt;PluralCategory&gt;-&lt;PluralCategory&gt;&quot;</span>,
+                        <span class="string">"a plural range of the form &lt;PluralCategory&gt;-&lt;PluralCategory&gt;"</span>,
                     )
                 }
 
@@ -613,8 +614,8 @@
                     ];
 
                     <span class="kw">let </span>(start, end) = v
-                        .split_once(<span class="string">&quot;--&quot;</span>)
-                        .ok_or_else(|| E::custom(<span class="string">&quot;expected token `--` in plural range&quot;</span>))<span class="question-mark">?</span>;
+                        .split_once(<span class="string">"--"</span>)
+                        .ok_or_else(|| E::custom(<span class="string">"expected token `--` in plural range"</span>))<span class="question-mark">?</span>;
 
                     <span class="kw">let </span>start = PluralCategory::get_for_cldr_string(start)
                         .ok_or_else(|| E::unknown_variant(start, <span class="kw-2">&amp;</span>VARIANTS))<span class="question-mark">?</span>;
@@ -640,28 +641,28 @@
     ///
     /// More information: &lt;https://unicode.org/reports/tr35/tr35-numbers.html#Plural_Ranges&gt;
     ///
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
+    /// &lt;div class="stab unstable"&gt;
     /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
     /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
     /// to be stable, their Rust representation might not be. Use with caution.
     /// &lt;/div&gt;
-    </span><span class="attr">#[icu_provider::data_struct(PluralRangesV1Marker = <span class="string">&quot;plurals/ranges@1&quot;</span>)]
+    </span><span class="attr">#[icu_provider::data_struct(PluralRangesV1Marker = <span class="string">"plurals/ranges@1"</span>)]
     #[derive(Clone, PartialEq, Debug)]
     #[cfg_attr(
-        feature = <span class="string">&quot;datagen&quot;</span>,
+        feature = <span class="string">"datagen"</span>,
         derive(serde::Serialize, databake::Bake),
         databake(path = icu_plurals::provider),
     )]
-    #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
+    #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
     #[yoke(prove_covariance_manually)]
-    </span><span class="kw">pub struct </span>PluralRangesV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+    </span><span class="kw">pub struct </span>PluralRangesV1&lt;<span class="lifetime">'data</span>&gt; {
         <span class="doccomment">/// Map between the categories of the endpoints of a range and its corresponding
         /// category.
         ///
         /// This is roughly equivalent to a `BTreeMap&lt;(PluralCategory, PluralCategory), PluralCategory&gt;`,
         /// where the key is `(start category, end category)`.
-        </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-        </span><span class="kw">pub </span>ranges: ZeroMap&lt;<span class="lifetime">&#39;data</span>, UnvalidatedPluralRange, RawPluralCategory&gt;,
+        </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+        </span><span class="kw">pub </span>ranges: ZeroMap&lt;<span class="lifetime">'data</span>, UnvalidatedPluralRange, RawPluralCategory&gt;,
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_casemap-1.4.0/src/titlecase.rs`."><title>titlecase.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_casemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_casemap-1.4.0/src/titlecase.rs`."><title>titlecase.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_casemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -467,7 +468,7 @@
 /// use icu_locid::langid;
 ///
 /// let cm = TitlecaseMapper::new();
-/// let root = langid!(&quot;und&quot;);
+/// let root = langid!("und");
 ///
 /// let default_options = Default::default();
 /// let mut preserve_case: TitlecaseOptions = Default::default();
@@ -475,33 +476,33 @@
 ///
 /// // Exhibits trailing case when set:
 /// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;spOngeBoB&quot;, &amp;root, default_options),
-///     &quot;Spongebob&quot;
+///     cm.titlecase_segment_to_string("spOngeBoB", &amp;root, default_options),
+///     "Spongebob"
 /// );
 /// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;spOngeBoB&quot;, &amp;root, preserve_case),
-///     &quot;SpOngeBoB&quot;
+///     cm.titlecase_segment_to_string("spOngeBoB", &amp;root, preserve_case),
+///     "SpOngeBoB"
 /// );
 /// ```
 </span><span class="attr">#[non_exhaustive]
 #[derive(Copy, Clone, Default, PartialEq, Eq, Hash, Debug)]
 </span><span class="kw">pub enum </span>TrailingCase {
-    <span class="doccomment">/// Preserve the casing of the rest of the string (&quot;spoNgEBoB&quot; -&gt; &quot;SpoNgEBoB&quot;)
+    <span class="doccomment">/// Preserve the casing of the rest of the string ("spoNgEBoB" -&gt; "SpoNgEBoB")
     </span>Unchanged,
-    <span class="doccomment">/// Lowercase the rest of the string (&quot;spoNgEBoB&quot; -&gt; &quot;Spongebob&quot;)
+    <span class="doccomment">/// Lowercase the rest of the string ("spoNgEBoB" -&gt; "Spongebob")
     </span><span class="attr">#[default]
     </span>Lower,
 }
 
 <span class="doccomment">/// Where to start casing the string.
 ///
-/// [`TitlecaseMapper`] by default performs &quot;leading adjustment&quot;, where it searches for the first &quot;relevant&quot; character
+/// [`TitlecaseMapper`] by default performs "leading adjustment", where it searches for the first "relevant" character
 /// in the string before initializing the actual titlecasing. For example, it will skip punctuation at the beginning
-/// of a string, allowing for strings like `&#39;twas` or `«hello»` to be appropriately titlecased.
+/// of a string, allowing for strings like `'twas` or `«hello»` to be appropriately titlecased.
 ///
-/// Opinions on exactly what is a &quot;relevant&quot; character may differ. In &quot;adjust to cased&quot; mode the first cased character is considered &quot;relevant&quot;,
-/// whereas in the &quot;auto&quot; mode, it is the first character that is a letter, number, symbol, or private use character. This means
-/// that the strings `49ers` and `«丰(abc)»` will titlecase in &quot;adjust to cased&quot; mode to `49Ers` and `«丰(Abc)»`, whereas in the &quot;auto&quot; mode they stay unchanged.
+/// Opinions on exactly what is a "relevant" character may differ. In "adjust to cased" mode the first cased character is considered "relevant",
+/// whereas in the "auto" mode, it is the first character that is a letter, number, symbol, or private use character. This means
+/// that the strings `49ers` and `«丰(abc)»` will titlecase in "adjust to cased" mode to `49Ers` and `«丰(Abc)»`, whereas in the "auto" mode they stay unchanged.
 /// This difference largely matters for things that mix numbers and letters, or mix writing systems, within a single segment.
 ///
 /// # Examples
@@ -512,7 +513,7 @@
 /// use icu_locid::langid;
 ///
 /// let cm = TitlecaseMapper::new();
-/// let root = langid!(&quot;und&quot;);
+/// let root = langid!("und");
 ///
 /// let default_options = Default::default(); // head adjustment set to Auto
 /// let mut no_adjust: TitlecaseOptions = Default::default();
@@ -522,63 +523,63 @@
 ///
 /// // Exhibits leading adjustment when set:
 /// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;«hello»&quot;, &amp;root, default_options),
-///     &quot;«Hello»&quot;
+///     cm.titlecase_segment_to_string("«hello»", &amp;root, default_options),
+///     "«Hello»"
 /// );
 /// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;«hello»&quot;, &amp;root, adjust_to_cased),
-///     &quot;«Hello»&quot;
+///     cm.titlecase_segment_to_string("«hello»", &amp;root, adjust_to_cased),
+///     "«Hello»"
 /// );
 /// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;«hello»&quot;, &amp;root, no_adjust),
-///     &quot;«hello»&quot;
-/// );
-///
-/// // Only changed in adjust-to-cased mode:
-/// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;丰(abc)&quot;, &amp;root, default_options),
-///     &quot;丰(abc)&quot;
-/// );
-/// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;丰(abc)&quot;, &amp;root, adjust_to_cased),
-///     &quot;丰(Abc)&quot;
-/// );
-/// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;丰(abc)&quot;, &amp;root, no_adjust),
-///     &quot;丰(abc)&quot;
+///     cm.titlecase_segment_to_string("«hello»", &amp;root, no_adjust),
+///     "«hello»"
 /// );
 ///
 /// // Only changed in adjust-to-cased mode:
 /// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;49ers&quot;, &amp;root, default_options),
-///     &quot;49ers&quot;
+///     cm.titlecase_segment_to_string("丰(abc)", &amp;root, default_options),
+///     "丰(abc)"
 /// );
 /// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;49ers&quot;, &amp;root, adjust_to_cased),
-///     &quot;49Ers&quot;
+///     cm.titlecase_segment_to_string("丰(abc)", &amp;root, adjust_to_cased),
+///     "丰(Abc)"
 /// );
 /// assert_eq!(
-///     cm.titlecase_segment_to_string(&quot;49ers&quot;, &amp;root, no_adjust),
-///     &quot;49ers&quot;
+///     cm.titlecase_segment_to_string("丰(abc)", &amp;root, no_adjust),
+///     "丰(abc)"
+/// );
+///
+/// // Only changed in adjust-to-cased mode:
+/// assert_eq!(
+///     cm.titlecase_segment_to_string("49ers", &amp;root, default_options),
+///     "49ers"
+/// );
+/// assert_eq!(
+///     cm.titlecase_segment_to_string("49ers", &amp;root, adjust_to_cased),
+///     "49Ers"
+/// );
+/// assert_eq!(
+///     cm.titlecase_segment_to_string("49ers", &amp;root, no_adjust),
+///     "49ers"
 /// );
 /// ```
 </span><span class="attr">#[non_exhaustive]
 #[derive(Copy, Clone, Default, PartialEq, Eq, Hash, Debug)]
 </span><span class="kw">pub enum </span>LeadingAdjustment {
     <span class="doccomment">/// Start titlecasing immediately, even if the character is not one that is relevant for casing
-    /// (&quot;&#39;twixt&quot; -&gt; &quot;&#39;twixt&quot;, &quot;twixt&quot; -&gt; &quot;Twixt&quot;)
+    /// ("'twixt" -&gt; "'twixt", "twixt" -&gt; "Twixt")
     </span><span class="prelude-val">None</span>,
     <span class="doccomment">/// Adjust the string to the first relevant character before beginning to apply casing
-    /// (&quot;&#39;twixt&quot; -&gt; &quot;&#39;Twixt&quot;). &quot;Relevant&quot; character is picked by best available algorithm,
+    /// ("'twixt" -&gt; "'Twixt"). "Relevant" character is picked by best available algorithm,
     /// by default will adjust to first letter, number, symbol, or private use character,
     /// but if no data is available (e.g. this API is being called via [`CaseMapper::titlecase_segment_with_only_case_data()`]),
-    /// then may be equivalent to &quot;adjust to cased&quot;.
+    /// then may be equivalent to "adjust to cased".
     ///
     /// This is the default
     </span><span class="attr">#[default]
     </span>Auto,
     <span class="doccomment">/// Adjust the string to the first cased character before beginning to apply casing
-    /// (&quot;&#39;twixt&quot; -&gt; &quot;&#39;Twixt&quot;)
+    /// ("'twixt" -&gt; "'Twixt")
     </span>ToCased,
 }
 
@@ -597,12 +598,12 @@
 }
 
 <span class="doccomment">/// A wrapper around [`CaseMapper`] that can compute titlecasing stuff, and is able to load additional data
-/// to support the non-legacy &quot;head adjustment&quot; behavior.
+/// to support the non-legacy "head adjustment" behavior.
 ///
 ///
-/// By default, [`Self::titlecase_segment()`] and [`Self::titlecase_segment_to_string()`] perform &quot;leading adjustment&quot;,
-/// where they wait till the first relevant character to begin titlecasing. For example, in the string `&#39;twixt`, the apostrophe
-/// is ignored because the word starts at the first &quot;t&quot;, which will get titlecased (producing `&#39;Twixt`). Other punctuation will
+/// By default, [`Self::titlecase_segment()`] and [`Self::titlecase_segment_to_string()`] perform "leading adjustment",
+/// where they wait till the first relevant character to begin titlecasing. For example, in the string `'twixt`, the apostrophe
+/// is ignored because the word starts at the first "t", which will get titlecased (producing `'Twixt`). Other punctuation will
 /// also be ignored, like in the string `«hello»`, which will get titlecased to `«Hello»`.
 ///
 /// This is a separate type from [`CaseMapper`] because it loads the additional data
@@ -620,26 +621,26 @@
 /// use icu_locid::langid;
 ///
 /// let cm = TitlecaseMapper::new();
-/// let root = langid!(&quot;und&quot;);
+/// let root = langid!("und");
 ///
 /// let default_options = Default::default();
 ///
 /// // note that the subsequent words are not titlecased, this function assumes
 /// // that the entire string is a single segment and only titlecases at the beginning.
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;hEllO WorLd&quot;, &amp;root, default_options), &quot;Hello world&quot;);
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;Γειά σου Κόσμε&quot;, &amp;root, default_options), &quot;Γειά σου κόσμε&quot;);
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;नमस्ते दुनिया&quot;, &amp;root, default_options), &quot;नमस्ते दुनिया&quot;);
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;Привет мир&quot;, &amp;root, default_options), &quot;Привет мир&quot;);
+/// assert_eq!(cm.titlecase_segment_to_string("hEllO WorLd", &amp;root, default_options), "Hello world");
+/// assert_eq!(cm.titlecase_segment_to_string("Γειά σου Κόσμε", &amp;root, default_options), "Γειά σου κόσμε");
+/// assert_eq!(cm.titlecase_segment_to_string("नमस्ते दुनिया", &amp;root, default_options), "नमस्ते दुनिया");
+/// assert_eq!(cm.titlecase_segment_to_string("Привет мир", &amp;root, default_options), "Привет мир");
 ///
 /// // Some behavior is language-sensitive
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;istanbul&quot;, &amp;root, default_options), &quot;Istanbul&quot;);
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;istanbul&quot;, &amp;langid!(&quot;tr&quot;), default_options), &quot;İstanbul&quot;); // Turkish dotted i
+/// assert_eq!(cm.titlecase_segment_to_string("istanbul", &amp;root, default_options), "Istanbul");
+/// assert_eq!(cm.titlecase_segment_to_string("istanbul", &amp;langid!("tr"), default_options), "İstanbul"); // Turkish dotted i
 ///
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;և Երևանի&quot;, &amp;root, default_options), &quot;Եւ երևանի&quot;);
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;և Երևանի&quot;, &amp;langid!(&quot;hy&quot;), default_options), &quot;Եվ երևանի&quot;); // Eastern Armenian ech-yiwn ligature
+/// assert_eq!(cm.titlecase_segment_to_string("և Երևանի", &amp;root, default_options), "Եւ երևանի");
+/// assert_eq!(cm.titlecase_segment_to_string("և Երևանի", &amp;langid!("hy"), default_options), "Եվ երևանի"); // Eastern Armenian ech-yiwn ligature
 ///
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;ijkdijk&quot;, &amp;root, default_options), &quot;Ijkdijk&quot;);
-/// assert_eq!(cm.titlecase_segment_to_string(&quot;ijkdijk&quot;, &amp;langid!(&quot;nl&quot;), default_options), &quot;IJkdijk&quot;); // Dutch IJ digraph
+/// assert_eq!(cm.titlecase_segment_to_string("ijkdijk", &amp;root, default_options), "Ijkdijk");
+/// assert_eq!(cm.titlecase_segment_to_string("ijkdijk", &amp;langid!("nl"), default_options), "IJkdijk"); // Dutch IJ digraph
 /// ```
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>TitlecaseMapper&lt;CM&gt; {
@@ -653,7 +654,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             cm: CaseMapper::new(),
@@ -705,7 +706,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new_with_mapper(casemapper: CM) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             cm: casemapper,
@@ -735,18 +736,18 @@
     /// by the application, for example one can titlecase on a per-word basis by mixing this with
     /// a `WordSegmenter`.
     ///
-    /// This function is context and language sensitive. Callers should pass the text&#39;s language
+    /// This function is context and language sensitive. Callers should pass the text's language
     /// as a `LanguageIdentifier` (usually the `id` field of the `Locale`) if available, or
     /// `Default::default()` for the root locale.
     ///
     /// See [`Self::titlecase_segment_to_string()`] for the equivalent convenience function that returns a String,
     /// as well as for an example.
-    </span><span class="kw">pub fn </span>titlecase_segment&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        src: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    </span><span class="kw">pub fn </span>titlecase_segment&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        src: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         langid: <span class="kw-2">&amp;</span>LanguageIdentifier,
         options: TitlecaseOptions,
-    ) -&gt; <span class="kw">impl </span>Writeable + <span class="lifetime">&#39;a </span>{
+    ) -&gt; <span class="kw">impl </span>Writeable + <span class="lifetime">'a </span>{
         <span class="kw">if </span>options.leading_adjustment == LeadingAdjustment::Auto {
             <span class="comment">// letter, number, symbol, or private use code point
             </span><span class="kw">const </span>HEAD_GROUPS: GeneralCategoryGroup = GeneralCategoryGroup::Letter
@@ -774,7 +775,7 @@
     /// by the application, for example one can titlecase on a per-word basis by mixing this with
     /// a `WordSegmenter`.
     ///
-    /// This function is context and language sensitive. Callers should pass the text&#39;s language
+    /// This function is context and language sensitive. Callers should pass the text's language
     /// as a `LanguageIdentifier` (usually the `id` field of the `Locale`) if available, or
     /// `Default::default()` for the root locale.
     ///
@@ -787,26 +788,26 @@
     /// use icu_locid::langid;
     ///
     /// let cm = TitlecaseMapper::new();
-    /// let root = langid!(&quot;und&quot;);
+    /// let root = langid!("und");
     ///
     /// let default_options = Default::default();
     ///
     /// // note that the subsequent words are not titlecased, this function assumes
     /// // that the entire string is a single segment and only titlecases at the beginning.
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;hEllO WorLd&quot;, &amp;root, default_options), &quot;Hello world&quot;);
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;Γειά σου Κόσμε&quot;, &amp;root, default_options), &quot;Γειά σου κόσμε&quot;);
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;नमस्ते दुनिया&quot;, &amp;root, default_options), &quot;नमस्ते दुनिया&quot;);
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;Привет мир&quot;, &amp;root, default_options), &quot;Привет мир&quot;);
+    /// assert_eq!(cm.titlecase_segment_to_string("hEllO WorLd", &amp;root, default_options), "Hello world");
+    /// assert_eq!(cm.titlecase_segment_to_string("Γειά σου Κόσμε", &amp;root, default_options), "Γειά σου κόσμε");
+    /// assert_eq!(cm.titlecase_segment_to_string("नमस्ते दुनिया", &amp;root, default_options), "नमस्ते दुनिया");
+    /// assert_eq!(cm.titlecase_segment_to_string("Привет мир", &amp;root, default_options), "Привет мир");
     ///
     /// // Some behavior is language-sensitive
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;istanbul&quot;, &amp;root, default_options), &quot;Istanbul&quot;);
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;istanbul&quot;, &amp;langid!(&quot;tr&quot;), default_options), &quot;İstanbul&quot;); // Turkish dotted i
+    /// assert_eq!(cm.titlecase_segment_to_string("istanbul", &amp;root, default_options), "Istanbul");
+    /// assert_eq!(cm.titlecase_segment_to_string("istanbul", &amp;langid!("tr"), default_options), "İstanbul"); // Turkish dotted i
     ///
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;և Երևանի&quot;, &amp;root, default_options), &quot;Եւ երևանի&quot;);
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;և Երևանի&quot;, &amp;langid!(&quot;hy&quot;), default_options), &quot;Եվ երևանի&quot;); // Eastern Armenian ech-yiwn ligature
+    /// assert_eq!(cm.titlecase_segment_to_string("և Երևանի", &amp;root, default_options), "Եւ երևանի");
+    /// assert_eq!(cm.titlecase_segment_to_string("և Երևանի", &amp;langid!("hy"), default_options), "Եվ երևանի"); // Eastern Armenian ech-yiwn ligature
     ///
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;ijkdijk&quot;, &amp;root, default_options), &quot;Ijkdijk&quot;);
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;ijkdijk&quot;, &amp;langid!(&quot;nl&quot;), default_options), &quot;IJkdijk&quot;); // Dutch IJ digraph
+    /// assert_eq!(cm.titlecase_segment_to_string("ijkdijk", &amp;root, default_options), "Ijkdijk");
+    /// assert_eq!(cm.titlecase_segment_to_string("ijkdijk", &amp;langid!("nl"), default_options), "IJkdijk"); // Dutch IJ digraph
     /// ```
     ///
     /// Leading adjustment behaviors:
@@ -817,7 +818,7 @@
     /// use icu_locid::langid;
     ///
     /// let cm = TitlecaseMapper::new();
-    /// let root = langid!(&quot;und&quot;);
+    /// let root = langid!("und");
     ///
     /// let default_options = Default::default();
     /// let mut no_adjust: TitlecaseOptions = Default::default();
@@ -825,28 +826,28 @@
     ///
     /// // Exhibits leading adjustment when set:
     /// assert_eq!(
-    ///     cm.titlecase_segment_to_string(&quot;«hello»&quot;, &amp;root, default_options),
-    ///     &quot;«Hello»&quot;
+    ///     cm.titlecase_segment_to_string("«hello»", &amp;root, default_options),
+    ///     "«Hello»"
     /// );
     /// assert_eq!(
-    ///     cm.titlecase_segment_to_string(&quot;«hello»&quot;, &amp;root, no_adjust),
-    ///     &quot;«hello»&quot;
+    ///     cm.titlecase_segment_to_string("«hello»", &amp;root, no_adjust),
+    ///     "«hello»"
     /// );
     ///
     /// assert_eq!(
-    ///     cm.titlecase_segment_to_string(&quot;&#39;Twas&quot;, &amp;root, default_options),
-    ///     &quot;&#39;Twas&quot;
+    ///     cm.titlecase_segment_to_string("'Twas", &amp;root, default_options),
+    ///     "'Twas"
     /// );
     /// assert_eq!(
-    ///     cm.titlecase_segment_to_string(&quot;&#39;Twas&quot;, &amp;root, no_adjust),
-    ///     &quot;&#39;twas&quot;
+    ///     cm.titlecase_segment_to_string("'Twas", &amp;root, no_adjust),
+    ///     "'twas"
     /// );
     ///
     /// assert_eq!(
-    ///     cm.titlecase_segment_to_string(&quot;&quot;, &amp;root, default_options),
-    ///     &quot;&quot;
+    ///     cm.titlecase_segment_to_string("", &amp;root, default_options),
+    ///     ""
     /// );
-    /// assert_eq!(cm.titlecase_segment_to_string(&quot;&quot;, &amp;root, no_adjust), &quot;&quot;);
+    /// assert_eq!(cm.titlecase_segment_to_string("", &amp;root, no_adjust), "");
     /// ```
     ///
     /// Tail casing behaviors:
@@ -857,7 +858,7 @@
     /// use icu_locid::langid;
     ///
     /// let cm = TitlecaseMapper::new();
-    /// let root = langid!(&quot;und&quot;);
+    /// let root = langid!("und");
     ///
     /// let default_options = Default::default();
     /// let mut preserve_case: TitlecaseOptions = Default::default();
@@ -865,12 +866,12 @@
     ///
     /// // Exhibits trailing case when set:
     /// assert_eq!(
-    ///     cm.titlecase_segment_to_string(&quot;spOngeBoB&quot;, &amp;root, default_options),
-    ///     &quot;Spongebob&quot;
+    ///     cm.titlecase_segment_to_string("spOngeBoB", &amp;root, default_options),
+    ///     "Spongebob"
     /// );
     /// assert_eq!(
-    ///     cm.titlecase_segment_to_string(&quot;spOngeBoB&quot;, &amp;root, preserve_case),
-    ///     &quot;SpOngeBoB&quot;
+    ///     cm.titlecase_segment_to_string("spOngeBoB", &amp;root, preserve_case),
+    ///     "SpOngeBoB"
     /// );
     /// ```
     </span><span class="kw">pub fn </span>titlecase_segment_to_string(

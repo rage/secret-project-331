@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_casemap-1.4.0/src/greek_to_me/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_casemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_casemap-1.4.0/src/greek_to_me/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_casemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -446,19 +447,19 @@
     Ω = <span class="number">7</span>,
     ϒ = <span class="number">8</span>,
 }
-<span class="kw">pub const </span>CAPITAL_RHO: char = <span class="string">&#39;Ρ&#39;</span>;
+<span class="kw">pub const </span>CAPITAL_RHO: char = <span class="string">'Ρ'</span>;
 
 <span class="kw">impl </span>From&lt;GreekVowel&gt; <span class="kw">for </span>char {
     <span class="kw">fn </span>from(other: GreekVowel) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>other {
-            GreekVowel::Α =&gt; <span class="string">&#39;Α&#39;</span>,
-            GreekVowel::Ε =&gt; <span class="string">&#39;Ε&#39;</span>,
-            GreekVowel::Η =&gt; <span class="string">&#39;Η&#39;</span>,
-            GreekVowel::Ι =&gt; <span class="string">&#39;Ι&#39;</span>,
-            GreekVowel::Ο =&gt; <span class="string">&#39;Ο&#39;</span>,
-            GreekVowel::Υ =&gt; <span class="string">&#39;Υ&#39;</span>,
-            GreekVowel::Ω =&gt; <span class="string">&#39;Ω&#39;</span>,
-            GreekVowel::ϒ =&gt; <span class="string">&#39;ϒ&#39;</span>,
+            GreekVowel::Α =&gt; <span class="string">'Α'</span>,
+            GreekVowel::Ε =&gt; <span class="string">'Ε'</span>,
+            GreekVowel::Η =&gt; <span class="string">'Η'</span>,
+            GreekVowel::Ι =&gt; <span class="string">'Ι'</span>,
+            GreekVowel::Ο =&gt; <span class="string">'Ο'</span>,
+            GreekVowel::Υ =&gt; <span class="string">'Υ'</span>,
+            GreekVowel::Ω =&gt; <span class="string">'Ω'</span>,
+            GreekVowel::ϒ =&gt; <span class="string">'ϒ'</span>,
         }
     }
 }
@@ -467,14 +468,14 @@
     <span class="kw">type </span>Error = ();
     <span class="kw">fn </span>try_from(other: char) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ()&gt; {
         <span class="prelude-val">Ok</span>(<span class="kw">match </span>other {
-            <span class="string">&#39;Α&#39; </span>=&gt; GreekVowel::Α,
-            <span class="string">&#39;Ε&#39; </span>=&gt; GreekVowel::Ε,
-            <span class="string">&#39;Η&#39; </span>=&gt; GreekVowel::Η,
-            <span class="string">&#39;Ι&#39; </span>=&gt; GreekVowel::Ι,
-            <span class="string">&#39;Ο&#39; </span>=&gt; GreekVowel::Ο,
-            <span class="string">&#39;Υ&#39; </span>=&gt; GreekVowel::Υ,
-            <span class="string">&#39;Ω&#39; </span>=&gt; GreekVowel::Ω,
-            <span class="string">&#39;ϒ&#39; </span>=&gt; GreekVowel::ϒ,
+            <span class="string">'Α' </span>=&gt; GreekVowel::Α,
+            <span class="string">'Ε' </span>=&gt; GreekVowel::Ε,
+            <span class="string">'Η' </span>=&gt; GreekVowel::Η,
+            <span class="string">'Ι' </span>=&gt; GreekVowel::Ι,
+            <span class="string">'Ο' </span>=&gt; GreekVowel::Ο,
+            <span class="string">'Υ' </span>=&gt; GreekVowel::Υ,
+            <span class="string">'Ω' </span>=&gt; GreekVowel::Ω,
+            <span class="string">'ϒ' </span>=&gt; GreekVowel::ϒ,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(()),
         })
     }
@@ -518,10 +519,10 @@
     </span><span class="kw">pub </span>combining: GreekDiacritics,
 }
 
-<span class="kw">pub const </span>TONOS: char = <span class="string">&#39;\u{0301}&#39;</span>;
-<span class="kw">pub const </span>DIALYTIKA: char = <span class="string">&#39;\u{0308}&#39;</span>;
-<span class="kw">pub const </span>DIALYTIKA_TONOS: char = <span class="string">&#39;\u{0344}&#39;</span>;
-<span class="kw">pub const </span>YPOGEGRAMMENI: char = <span class="string">&#39;\u{0345}&#39;</span>;
+<span class="kw">pub const </span>TONOS: char = <span class="string">'\u{0301}'</span>;
+<span class="kw">pub const </span>DIALYTIKA: char = <span class="string">'\u{0308}'</span>;
+<span class="kw">pub const </span>DIALYTIKA_TONOS: char = <span class="string">'\u{0344}'</span>;
+<span class="kw">pub const </span>YPOGEGRAMMENI: char = <span class="string">'\u{0345}'</span>;
 
 <span class="attr">#[macro_export]
 #[doc(hidden)]
@@ -531,23 +532,23 @@
     // adding a διαλυτικά to a following vowel.
     </span>(ACCENTS) =&gt; {
         <span class="comment">// https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%5Cu0300+%5Cu0301+%5Cu0342+%5Cu0302+%5Cu0303+%5Cu0311%5D&amp;g=&amp;i=
-        </span><span class="string">&#39;\u{0300}&#39; </span><span class="comment">// Polytonic βαρεία (varia), grave accent.
+        </span><span class="string">'\u{0300}' </span><span class="comment">// Polytonic βαρεία (varia), grave accent.
         </span>| <span class="macro-nonterminal">$crate::greek_to_me::TONOS </span><span class="comment">// Polytonic οξεία (oxia) unified with monotonic τόνος (tonos), acute accent.
-        </span>| <span class="string">&#39;\u{0342}&#39; </span><span class="comment">// Polytonic περισπωμένη (perispomeni), often translated to circumflex.
-        </span>| <span class="string">&#39;\u{0302}&#39; </span><span class="comment">// Circumflex accent, sometimes a lookalike of the περισπωμένη.
-        </span>| <span class="string">&#39;\u{0303}&#39; </span><span class="comment">// Tilde, sometimes a lookalike of the περισπωμένη.
-        </span>| <span class="string">&#39;\u{0311}&#39; </span><span class="comment">// Inverted breve, sometimes a lookalike of the περισπωμένη.
+        </span>| <span class="string">'\u{0342}' </span><span class="comment">// Polytonic περισπωμένη (perispomeni), often translated to circumflex.
+        </span>| <span class="string">'\u{0302}' </span><span class="comment">// Circumflex accent, sometimes a lookalike of the περισπωμένη.
+        </span>| <span class="string">'\u{0303}' </span><span class="comment">// Tilde, sometimes a lookalike of the περισπωμένη.
+        </span>| <span class="string">'\u{0311}' </span><span class="comment">// Inverted breve, sometimes a lookalike of the περισπωμένη.
     </span>};
     <span class="comment">// Breathings and length marks.
     // These expected to occur in Greek combining sequences, and are removed when uppercasing.
     // This removal has no other effect.
     </span>(BREATHING_AND_LENGTH) =&gt; {
         <span class="comment">// https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%5Cu0304+%5Cu0306+%5Cu0313+%5Cu0314+%5Cu0343%5D&amp;g=&amp;i=
-        </span><span class="string">&#39;\u{0304}&#39;  </span><span class="comment">// Macron, marking long vowels.
-        </span>| <span class="string">&#39;\u{0306}&#39;  </span><span class="comment">// Breve, marking short vowels.
-        </span>| <span class="string">&#39;\u{0313}&#39;  </span><span class="comment">// Comma above, smooth breathing or κορωνίς marking crasis.
-        </span>| <span class="string">&#39;\u{0314}&#39;  </span><span class="comment">// Reversed comma above, rough breathing.
-        </span>| <span class="string">&#39;\u{0343}&#39;  </span><span class="comment">// κορωνίς (koronis), canonically decomposes to comma above.
+        </span><span class="string">'\u{0304}'  </span><span class="comment">// Macron, marking long vowels.
+        </span>| <span class="string">'\u{0306}'  </span><span class="comment">// Breve, marking short vowels.
+        </span>| <span class="string">'\u{0313}'  </span><span class="comment">// Comma above, smooth breathing or κορωνίς marking crasis.
+        </span>| <span class="string">'\u{0314}'  </span><span class="comment">// Reversed comma above, rough breathing.
+        </span>| <span class="string">'\u{0343}'  </span><span class="comment">// κορωνίς (koronis), canonically decomposes to comma above.
     </span>};
     <span class="comment">// All diacritics containing a dialytika
     </span>(DIALYTIKA_ALL) =&gt; { <span class="macro-nonterminal">$crate::greek_to_me::DIALYTIKA </span>| <span class="macro-nonterminal">$crate::greek_to_me::DIALYTIKA_TONOS </span>};

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/calendrical_calculations-0.1.0/src/astronomy.rs`."><title>astronomy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calendrical_calculations" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/calendrical_calculations-0.1.0/src/astronomy.rs`."><title>astronomy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calendrical_calculations" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2670,7 +2671,7 @@
 <span class="attr">#[allow(unused_imports)]
 </span><span class="kw">use </span>core_maths::<span class="kw-2">*</span>;
 
-<span class="comment">// TODO: this isn&#39;t f64::div_euclid as defined in std. Figure out what the call sites
+<span class="comment">// TODO: this isn't f64::div_euclid as defined in std. Figure out what the call sites
 // mean to do.
 </span><span class="kw">fn </span>div_euclid_f64(n: f64, d: f64) -&gt; f64 {
     <span class="macro">debug_assert!</span>(d &gt; <span class="number">0.0</span>);
@@ -2846,7 +2847,7 @@
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz.
     /// Reference lisp code: &lt;https://github.com/EdReingold/calendar-code2/blob/9afc1f3/calendar.l#L3479-L3483&gt;
     </span><span class="kw">pub fn </span>universal_from_standard(standard_moment: Moment, location: Location) -&gt; Moment {
-        <span class="macro">debug_assert!</span>(location.zone &gt; MIN_UTC_OFFSET &amp;&amp; location.zone &lt; MAX_UTC_OFFSET, <span class="string">&quot;UTC offset {0} was not within the possible range of offsets (see astronomy::MIN_UTC_OFFSET and astronomy::MAX_UTC_OFFSET)&quot;</span>, location.zone);
+        <span class="macro">debug_assert!</span>(location.zone &gt; MIN_UTC_OFFSET &amp;&amp; location.zone &lt; MAX_UTC_OFFSET, <span class="string">"UTC offset {0} was not within the possible range of offsets (see astronomy::MIN_UTC_OFFSET and astronomy::MAX_UTC_OFFSET)"</span>, location.zone);
         standard_moment - location.zone
     }
     <span class="doccomment">/// Given a Moment in standard time and UTC-offset in hours,
@@ -2858,7 +2859,7 @@
     /// Reference lisp code: &lt;https://github.com/EdReingold/calendar-code2/blob/9afc1f3/calendar.l#L3473-L3477&gt;
     </span><span class="attr">#[allow(dead_code)]
     </span><span class="kw">pub fn </span>standard_from_universal(standard_time: Moment, location: Location) -&gt; Moment {
-        <span class="macro">debug_assert!</span>(location.zone &gt; MIN_UTC_OFFSET &amp;&amp; location.zone &lt; MAX_UTC_OFFSET, <span class="string">&quot;UTC offset {0} was not within the possible range of offsets (see astronomy::MIN_UTC_OFFSET and astronomy::MAX_UTC_OFFSET)&quot;</span>, location.zone);
+        <span class="macro">debug_assert!</span>(location.zone &gt; MIN_UTC_OFFSET &amp;&amp; location.zone &lt; MAX_UTC_OFFSET, <span class="string">"UTC offset {0} was not within the possible range of offsets (see astronomy::MIN_UTC_OFFSET and astronomy::MAX_UTC_OFFSET)"</span>, location.zone);
         standard_time + location.zone
     }
 }
@@ -2959,7 +2960,7 @@
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz.
     /// Reference lisp code: &lt;https://github.com/EdReingold/calendar-code2/blob/9afc1f3/calendar.l#L3850-L3853&gt;
     </span><span class="kw">pub fn </span>dynamical_from_universal(universal: Moment) -&gt; Moment {
-        <span class="comment">// TODO: Determine correct naming scheme for &quot;dynamical&quot;
+        <span class="comment">// TODO: Determine correct naming scheme for "dynamical"
         </span>universal + <span class="self">Self</span>::ephemeris_correction(universal)
     }
 
@@ -2968,7 +2969,7 @@
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz.
     /// Reference lisp code: &lt;https://github.com/EdReingold/calendar-code2/blob/9afc1f3/calendar.l#L3845-L3848&gt;
     </span><span class="kw">pub fn </span>universal_from_dynamical(dynamical: Moment) -&gt; Moment {
-        <span class="comment">// TODO: Determine correct naming scheme for &quot;dynamical&quot;
+        <span class="comment">// TODO: Determine correct naming scheme for "dynamical"
         </span>dynamical - <span class="self">Self</span>::ephemeris_correction(dynamical)
     }
 
@@ -3031,7 +3032,7 @@
         ))
     }
 
-    <span class="doccomment">/// Calculates the obliquity of the ecliptic at a given moment, meaning the angle of the Earth&#39;s
+    <span class="doccomment">/// Calculates the obliquity of the ecliptic at a given moment, meaning the angle of the Earth's
     /// axial tilt with respect to the plane of its orbit around the sun  (currently ~23.4 deg)
     ///
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz.
@@ -3045,7 +3046,7 @@
 
     <span class="doccomment">/// Calculates the declination at a given [`Moment`] of UTC time of an object at ecliptic latitude `beta` and ecliptic longitude `lambda`; all angles are in degrees.
     /// the declination is the angular distance north or south of an object in the sky with respect to the plane
-    /// of the Earth&#39;s equator; analogous to latitude.
+    /// of the Earth's equator; analogous to latitude.
     ///
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz.
     /// Reference lisp code: &lt;https://github.com/EdReingold/calendar-code2/blob/9afc1f3/calendar.l#L3567-L3576&gt;
@@ -3152,7 +3153,7 @@
         }
     }
 
-    <span class="doccomment">/// The angle of refraction caused by Earth&#39;s atmosphere at a given location.
+    <span class="doccomment">/// The angle of refraction caused by Earth's atmosphere at a given location.
     ///
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz.
     /// Reference lisp code: &lt;https://github.com/EdReingold/calendar-code2/blob/9afc1f3/calendar.l#L3681-L3690&gt;
@@ -3888,7 +3889,7 @@
         (moon - prev) <span class="kw">as </span>u8
     }
 
-    <span class="doccomment">/// Lunar elongation (the moon&#39;s angular distance east of the Sun) at a given Moment in Julian centuries
+    <span class="doccomment">/// Lunar elongation (the moon's angular distance east of the Sun) at a given Moment in Julian centuries
     ///
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz,
     /// originally from _Astronomical Algorithms_ by Jean Meeus, 2nd edn., 1998, p. 338.
@@ -4104,7 +4105,7 @@
             .rem_euclid(<span class="number">360.0</span>)
     }
 
-    <span class="doccomment">/// The moon&#39;s argument of latitude, in degrees, at the moment given by `c` in Julian centuries.
+    <span class="doccomment">/// The moon's argument of latitude, in degrees, at the moment given by `c` in Julian centuries.
     /// The argument of latitude is used to define the position of a body moving in a Kepler orbit.
     ///
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz,
@@ -4153,7 +4154,7 @@
                     .inner()
                     .max(date.inner()),
             );
-            <span class="macro">debug_assert!</span>(std &gt;= date, <span class="string">&quot;std should not be less than date&quot;</span>);
+            <span class="macro">debug_assert!</span>(std &gt;= date, <span class="string">"std should not be less than date"</span>);
             <span class="kw">if </span>std &lt; date {
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
@@ -4191,7 +4192,7 @@
         </span>}
     }
 
-    <span class="doccomment">/// Longitudinal nutation (periodic variation in the inclination of the Earth&#39;s axis) at a given Moment.
+    <span class="doccomment">/// Longitudinal nutation (periodic variation in the inclination of the Earth's axis) at a given Moment.
     /// Argument comes from the result of calling `Self::julian_centuries(moment)` in an earlier function.
     ///
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz.
@@ -4214,7 +4215,7 @@
         <span class="kw">let </span>maybe_n = i64_to_i32(div_euclid_f64(moment - t0, MEAN_SYNODIC_MONTH).round() <span class="kw">as </span>i64);
         <span class="macro">debug_assert!</span>(
             maybe_n.is_ok(),
-            <span class="string">&quot;Lunar phase moment should be in range of i32&quot;
+            <span class="string">"Lunar phase moment should be in range of i32"
         </span>);
         <span class="kw">let </span>n = maybe_n.unwrap_or_else(|e| e.saturate());
         <span class="kw">let </span>a = (<span class="self">Self</span>::lunar_longitude(julian_centuries) - <span class="self">Self</span>::solar_longitude(julian_centuries))
@@ -4251,7 +4252,7 @@
     /// Moment is not directly used but is enconded from the argument `julian_centuries` which is the result of calling `Self::julian_centuries(moment) in an earlier function`.
     ///
     /// Based on functions from _Calendrical Calculations_ by Reingold &amp; Dershowitz,
-    /// originally from &quot;Planetary Programs and Tables from -4000 to +2800&quot; by Bretagnon &amp; Simon, 1986.
+    /// originally from "Planetary Programs and Tables from -4000 to +2800" by Bretagnon &amp; Simon, 1986.
     /// Reference code: &lt;https://github.com/EdReingold/calendar-code2/blob/9afc1f3/calendar.l#L3985-L4035&gt;
     </span><span class="kw">pub fn </span>solar_longitude(julian_centuries: f64) -&gt; f64 {
         <span class="kw">let </span>c: f64 = julian_centuries;
@@ -4557,7 +4558,7 @@
         <span class="kw">let </span>maybe_n = i64_to_i32(
             (div_euclid_f64(moment - t0, MEAN_SYNODIC_MONTH) - phi / <span class="number">360.0</span>).round() <span class="kw">as </span>i64,
         );
-        <span class="macro">debug_assert!</span>(maybe_n.is_ok(), <span class="string">&quot;Num of new moon should be in range of i32&quot;</span>);
+        <span class="macro">debug_assert!</span>(maybe_n.is_ok(), <span class="string">"Num of new moon should be in range of i32"</span>);
         <span class="kw">let </span>n = maybe_n.unwrap_or_else(|e| e.saturate());
         <span class="kw">let </span><span class="kw-2">mut </span>result = n;
         <span class="kw">let </span><span class="kw-2">mut </span>iters = <span class="number">0</span>;
@@ -4601,17 +4602,17 @@
         (<span class="macro-nonterminal">$expected_value</span>:expr, <span class="macro-nonterminal">$value</span>:expr, <span class="macro-nonterminal">$moment</span>:expr) =&gt; {
             <span class="kw">if </span><span class="macro-nonterminal">$expected_value </span>&gt; <span class="number">0.0 </span>{
                 <span class="macro">assert!</span>(<span class="macro-nonterminal">$value </span>&gt; <span class="macro-nonterminal">$expected_value </span>* TEST_LOWER_BOUND_FACTOR,
-                         <span class="string">&quot;calculation failed for the test case:\n\n\tMoment: {:?} with expected: {} and calculated: {}\n\n&quot;</span>,
+                         <span class="string">"calculation failed for the test case:\n\n\tMoment: {:?} with expected: {} and calculated: {}\n\n"</span>,
                          <span class="macro-nonterminal">$moment</span>, <span class="macro-nonterminal">$expected_value</span>, <span class="macro-nonterminal">$value</span>);
                 <span class="macro">assert!</span>(<span class="macro-nonterminal">$value </span>&lt; <span class="macro-nonterminal">$expected_value </span>* TEST_UPPER_BOUND_FACTOR,
-                         <span class="string">&quot;calculation failed for the test case:\n\n\tMoment: {:?} with expected: {} and calculated: {}\n\n&quot;</span>,
+                         <span class="string">"calculation failed for the test case:\n\n\tMoment: {:?} with expected: {} and calculated: {}\n\n"</span>,
                          <span class="macro-nonterminal">$moment</span>, <span class="macro-nonterminal">$expected_value</span>, <span class="macro-nonterminal">$value</span>);
             } <span class="kw">else </span>{
                 <span class="macro">assert!</span>(<span class="macro-nonterminal">$value </span>&gt; <span class="macro-nonterminal">$expected_value </span>* TEST_UPPER_BOUND_FACTOR,
-                         <span class="string">&quot;calculation failed for the test case:\n\n\tMoment: {:?} with expected: {} and calculated: {}\n\n&quot;</span>,
+                         <span class="string">"calculation failed for the test case:\n\n\tMoment: {:?} with expected: {} and calculated: {}\n\n"</span>,
                          <span class="macro-nonterminal">$moment</span>, <span class="macro-nonterminal">$expected_value</span>, <span class="macro-nonterminal">$value</span>);
                 <span class="macro">assert!</span>(<span class="macro-nonterminal">$value </span>&lt; <span class="macro-nonterminal">$expected_value </span>* TEST_LOWER_BOUND_FACTOR,
-                         <span class="string">&quot;calculation failed for the test case:\n\n\tMoment: {:?} with expected: {} and calculated: {}\n\n&quot;</span>,
+                         <span class="string">"calculation failed for the test case:\n\n\tMoment: {:?} with expected: {} and calculated: {}\n\n"</span>,
                          <span class="macro-nonterminal">$moment</span>, <span class="macro-nonterminal">$expected_value</span>, <span class="macro-nonterminal">$value</span>);
             }
         }
@@ -4665,8 +4666,8 @@
             <span class="kw">let </span>moment: Moment = Moment::new(<span class="kw-2">*</span>rd <span class="kw">as </span>f64);
             <span class="kw">let </span>ephemeris = Astronomical::ephemeris_correction(moment);
             <span class="kw">let </span>expected_ephemeris_value = expected_ephemeris;
-            <span class="macro">assert!</span>(ephemeris &gt; expected_ephemeris_value * TEST_LOWER_BOUND_FACTOR, <span class="string">&quot;Ephemeris correction calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_ephemeris_value} and calculated: {ephemeris}\n\n&quot;</span>);
-            <span class="macro">assert!</span>(ephemeris &lt; expected_ephemeris_value * TEST_UPPER_BOUND_FACTOR, <span class="string">&quot;Ephemeris correction calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_ephemeris_value} and calculated: {ephemeris}\n\n&quot;</span>);
+            <span class="macro">assert!</span>(ephemeris &gt; expected_ephemeris_value * TEST_LOWER_BOUND_FACTOR, <span class="string">"Ephemeris correction calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_ephemeris_value} and calculated: {ephemeris}\n\n"</span>);
+            <span class="macro">assert!</span>(ephemeris &lt; expected_ephemeris_value * TEST_UPPER_BOUND_FACTOR, <span class="string">"Ephemeris correction calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_ephemeris_value} and calculated: {ephemeris}\n\n"</span>);
         }
     }
 
@@ -4719,8 +4720,8 @@
             <span class="kw">let </span>solar_long =
                 Astronomical::solar_longitude(Astronomical::julian_centuries(moment + <span class="number">0.5</span>));
             <span class="kw">let </span>expected_solar_long_value = expected_solar_long;
-            <span class="macro">assert!</span>(solar_long &gt; expected_solar_long_value * TEST_LOWER_BOUND_FACTOR, <span class="string">&quot;Solar longitude calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_solar_long_value} and calculated: {solar_long}\n\n&quot;</span>);
-            <span class="macro">assert!</span>(solar_long &lt; expected_solar_long_value * TEST_UPPER_BOUND_FACTOR, <span class="string">&quot;Solar longitude calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_solar_long_value} and calculated: {solar_long}\n\n&quot;</span>);
+            <span class="macro">assert!</span>(solar_long &gt; expected_solar_long_value * TEST_LOWER_BOUND_FACTOR, <span class="string">"Solar longitude calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_solar_long_value} and calculated: {solar_long}\n\n"</span>);
+            <span class="macro">assert!</span>(solar_long &lt; expected_solar_long_value * TEST_UPPER_BOUND_FACTOR, <span class="string">"Solar longitude calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_solar_long_value} and calculated: {solar_long}\n\n"</span>);
         }
     }
 
@@ -5162,11 +5163,11 @@
             <span class="kw">let </span>next_new_moon = Astronomical::new_moon_at_or_after(moment);
             <span class="kw">let </span>expected_next_new_moon_moment = Moment::new(<span class="kw-2">*</span>expected_next_new_moon);
             <span class="kw">if </span><span class="kw-2">*</span>expected_next_new_moon &gt; <span class="number">0.0 </span>{
-                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &gt; next_new_moon.inner() * TEST_LOWER_BOUND_FACTOR, <span class="string">&quot;New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n&quot;</span>);
-                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &lt; next_new_moon.inner() * TEST_UPPER_BOUND_FACTOR, <span class="string">&quot;New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n&quot;</span>);
+                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &gt; next_new_moon.inner() * TEST_LOWER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
+                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &lt; next_new_moon.inner() * TEST_UPPER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
             } <span class="kw">else </span>{
-                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &gt; next_new_moon.inner() * TEST_UPPER_BOUND_FACTOR, <span class="string">&quot;New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n&quot;</span>);
-                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &lt; next_new_moon.inner() * TEST_LOWER_BOUND_FACTOR, <span class="string">&quot;New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n&quot;</span>);
+                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &gt; next_new_moon.inner() * TEST_UPPER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
+                <span class="macro">assert!</span>(expected_next_new_moon_moment.inner() &lt; next_new_moon.inner() * TEST_LOWER_BOUND_FACTOR, <span class="string">"New moon calculation failed for the test case:\n\n\tMoment: {moment:?} with expected: {expected_next_new_moon_moment:?} and calculated: {next_new_moon:?}\n\n"</span>);
             }
         }
     }
@@ -5178,7 +5179,7 @@
         <span class="macro">assert_eq!</span>(
             zeroth_new_moon.inner() <span class="kw">as </span>i32,
             <span class="number">11</span>,
-            <span class="string">&quot;0th new moon check failed with nth_new_moon(0) = {zeroth_new_moon:?}&quot;
+            <span class="string">"0th new moon check failed with nth_new_moon(0) = {zeroth_new_moon:?}"
         </span>);
     }
 
@@ -5201,17 +5202,17 @@
         <span class="kw">while </span>iters &lt; max_iters &amp;&amp; moment &lt; max_moment {
             <span class="kw">let </span>before = Astronomical::new_moon_before(moment);
             <span class="kw">let </span>at_or_after = Astronomical::new_moon_at_or_after(moment);
-            <span class="macro">assert!</span>(before &lt; at_or_after, <span class="string">&quot;Directionality of fns new_moon_before and new_moon_at_or_after failed for Moment: {moment:?}&quot;</span>);
+            <span class="macro">assert!</span>(before &lt; at_or_after, <span class="string">"Directionality of fns new_moon_before and new_moon_at_or_after failed for Moment: {moment:?}"</span>);
             iters += <span class="number">1</span>;
             moment += <span class="number">31.0</span>;
         }
         <span class="macro">assert!</span>(
             iters &gt; <span class="number">500</span>,
-            <span class="string">&quot;Testing failed: less than the expected number of testing iterations&quot;
+            <span class="string">"Testing failed: less than the expected number of testing iterations"
         </span>);
         <span class="macro">assert!</span>(
             iters &lt; max_iters,
-            <span class="string">&quot;Testing failed: more than the expected number of testing iterations&quot;
+            <span class="string">"Testing failed: more than the expected number of testing iterations"
         </span>);
     }
 

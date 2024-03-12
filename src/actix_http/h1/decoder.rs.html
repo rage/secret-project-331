@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/h1/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/h1/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1291,13 +1292,13 @@
 
                 <span class="kw">match </span>name {
                     header::CONTENT_LENGTH <span class="kw">if </span>content_length.is_some() =&gt; {
-                        <span class="macro">debug!</span>(<span class="string">&quot;multiple Content-Length&quot;</span>);
+                        <span class="macro">debug!</span>(<span class="string">"multiple Content-Length"</span>);
                         <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
                     }
 
                     header::CONTENT_LENGTH =&gt; <span class="kw">match </span>value.to_str().map(str::trim) {
-                        <span class="prelude-val">Ok</span>(val) <span class="kw">if </span>val.starts_with(<span class="string">&#39;+&#39;</span>) =&gt; {
-                            <span class="macro">debug!</span>(<span class="string">&quot;illegal Content-Length: {:?}&quot;</span>, val);
+                        <span class="prelude-val">Ok</span>(val) <span class="kw">if </span>val.starts_with(<span class="string">'+'</span>) =&gt; {
+                            <span class="macro">debug!</span>(<span class="string">"illegal Content-Length: {:?}"</span>, val);
                             <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
                         }
 
@@ -1307,20 +1308,20 @@
                                 // headers have been processed to prevent request smuggling issues
                                 </span>content_length = <span class="prelude-val">Some</span>(len);
                             } <span class="kw">else </span>{
-                                <span class="macro">debug!</span>(<span class="string">&quot;illegal Content-Length: {:?}&quot;</span>, val);
+                                <span class="macro">debug!</span>(<span class="string">"illegal Content-Length: {:?}"</span>, val);
                                 <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
                             }
                         }
 
                         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                            <span class="macro">debug!</span>(<span class="string">&quot;illegal Content-Length: {:?}&quot;</span>, value);
+                            <span class="macro">debug!</span>(<span class="string">"illegal Content-Length: {:?}"</span>, value);
                             <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
                         }
                     },
 
                     <span class="comment">// transfer-encoding
                     </span>header::TRANSFER_ENCODING <span class="kw">if </span>seen_te =&gt; {
-                        <span class="macro">debug!</span>(<span class="string">&quot;multiple Transfer-Encoding not allowed&quot;</span>);
+                        <span class="macro">debug!</span>(<span class="string">"multiple Transfer-Encoding not allowed"</span>);
                         <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
                     }
 
@@ -1328,12 +1329,12 @@
                         seen_te = <span class="bool-val">true</span>;
 
                         <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = value.to_str().map(str::trim) {
-                            <span class="kw">if </span>val.eq_ignore_ascii_case(<span class="string">&quot;chunked&quot;</span>) {
+                            <span class="kw">if </span>val.eq_ignore_ascii_case(<span class="string">"chunked"</span>) {
                                 chunked = <span class="bool-val">true</span>;
-                            } <span class="kw">else if </span>val.eq_ignore_ascii_case(<span class="string">&quot;identity&quot;</span>) {
+                            } <span class="kw">else if </span>val.eq_ignore_ascii_case(<span class="string">"identity"</span>) {
                                 <span class="comment">// allow silently since multiple TE headers are already checked
                             </span>} <span class="kw">else </span>{
-                                <span class="macro">debug!</span>(<span class="string">&quot;illegal Transfer-Encoding: {:?}&quot;</span>, val);
+                                <span class="macro">debug!</span>(<span class="string">"illegal Transfer-Encoding: {:?}"</span>, val);
                                 <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
                             }
                         } <span class="kw">else </span>{
@@ -1344,11 +1345,11 @@
                     <span class="comment">// connection keep-alive state
                     </span>header::CONNECTION =&gt; {
                         ka = <span class="kw">if let </span><span class="prelude-val">Ok</span>(conn) = value.to_str().map(str::trim) {
-                            <span class="kw">if </span>conn.eq_ignore_ascii_case(<span class="string">&quot;keep-alive&quot;</span>) {
+                            <span class="kw">if </span>conn.eq_ignore_ascii_case(<span class="string">"keep-alive"</span>) {
                                 <span class="prelude-val">Some</span>(ConnectionType::KeepAlive)
-                            } <span class="kw">else if </span>conn.eq_ignore_ascii_case(<span class="string">&quot;close&quot;</span>) {
+                            } <span class="kw">else if </span>conn.eq_ignore_ascii_case(<span class="string">"close"</span>) {
                                 <span class="prelude-val">Some</span>(ConnectionType::Close)
-                            } <span class="kw">else if </span>conn.eq_ignore_ascii_case(<span class="string">&quot;upgrade&quot;</span>) {
+                            } <span class="kw">else if </span>conn.eq_ignore_ascii_case(<span class="string">"upgrade"</span>) {
                                 <span class="prelude-val">Some</span>(ConnectionType::Upgrade)
                             } <span class="kw">else </span>{
                                 <span class="prelude-val">None
@@ -1360,7 +1361,7 @@
 
                     header::UPGRADE =&gt; {
                         <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = value.to_str().map(str::trim) {
-                            <span class="kw">if </span>val.eq_ignore_ascii_case(<span class="string">&quot;websocket&quot;</span>) {
+                            <span class="kw">if </span>val.eq_ignore_ascii_case(<span class="string">"websocket"</span>) {
                                 has_upgrade_websocket = <span class="bool-val">true</span>;
                             }
                         }
@@ -1368,7 +1369,7 @@
 
                     header::EXPECT =&gt; {
                         <span class="kw">let </span>bytes = value.as_bytes();
-                        <span class="kw">if </span>bytes.len() &gt;= <span class="number">4 </span>&amp;&amp; <span class="kw-2">&amp;</span>bytes[<span class="number">0</span>..<span class="number">4</span>] == <span class="string">b&quot;100-&quot; </span>{
+                        <span class="kw">if </span>bytes.len() &gt;= <span class="number">4 </span>&amp;&amp; <span class="kw-2">&amp;</span>bytes[<span class="number">0</span>..<span class="number">4</span>] == <span class="string">b"100-" </span>{
                             expect = <span class="bool-val">true</span>;
                         }
                     }
@@ -1429,7 +1430,7 @@
             // type we are claiming to have initialized here is a bunch of `MaybeUninit`s, which
             // do not require initialization.
             </span><span class="kw">let </span><span class="kw-2">mut </span>parsed = <span class="kw">unsafe </span>{
-                MaybeUninit::&lt;[MaybeUninit&lt;httparse::Header&lt;<span class="lifetime">&#39;_</span>&gt;&gt;; MAX_HEADERS]&gt;::uninit()
+                MaybeUninit::&lt;[MaybeUninit&lt;httparse::Header&lt;<span class="lifetime">'_</span>&gt;&gt;; MAX_HEADERS]&gt;::uninit()
                     .assume_init()
             };
 
@@ -1452,7 +1453,7 @@
 
                 httparse::Status::Partial =&gt; {
                     <span class="kw">return if </span>src.len() &gt;= MAX_BUFFER_SIZE {
-                        <span class="macro">trace!</span>(<span class="string">&quot;MAX_BUFFER_SIZE unprocessed data reached, closing&quot;</span>);
+                        <span class="macro">trace!</span>(<span class="string">"MAX_BUFFER_SIZE unprocessed data reached, closing"</span>);
                         <span class="prelude-val">Err</span>(ParseError::TooLarge)
                     } <span class="kw">else </span>{
                         <span class="comment">// Return None to notify more read are needed for parsing request
@@ -1470,7 +1471,7 @@
         <span class="comment">// disallow HTTP/1.0 POST requests that do not contain a Content-Length headers
         // see https://datatracker.ietf.org/doc/html/rfc1945#section-7.2.2
         </span><span class="kw">if </span>ver == Version::HTTP_10 &amp;&amp; method == Method::POST &amp;&amp; length.is_none() {
-            <span class="macro">debug!</span>(<span class="string">&quot;no Content-Length specified for HTTP/1.0 POST request&quot;</span>);
+            <span class="macro">debug!</span>(<span class="string">"no Content-Length specified for HTTP/1.0 POST request"</span>);
             <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
         }
 
@@ -1528,7 +1529,7 @@
             // type we are claiming to have initialized here is a bunch of `MaybeUninit`s, which
             // do not require initialization.
             </span><span class="kw">let </span><span class="kw-2">mut </span>parsed = <span class="kw">unsafe </span>{
-                MaybeUninit::&lt;[MaybeUninit&lt;httparse::Header&lt;<span class="lifetime">&#39;_</span>&gt;&gt;; MAX_HEADERS]&gt;::uninit()
+                MaybeUninit::&lt;[MaybeUninit&lt;httparse::Header&lt;<span class="lifetime">'_</span>&gt;&gt;; MAX_HEADERS]&gt;::uninit()
                     .assume_init()
             };
 
@@ -1554,7 +1555,7 @@
 
                 httparse::Status::Partial =&gt; {
                     <span class="kw">return if </span>src.len() &gt;= MAX_BUFFER_SIZE {
-                        <span class="macro">error!</span>(<span class="string">&quot;MAX_BUFFER_SIZE unprocessed data reached, closing&quot;</span>);
+                        <span class="macro">error!</span>(<span class="string">"MAX_BUFFER_SIZE unprocessed data reached, closing"</span>);
                         <span class="prelude-val">Err</span>(ParseError::TooLarge)
                     } <span class="kw">else </span>{
                         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
@@ -1613,7 +1614,7 @@
 <span class="kw">impl </span>HeaderIndex {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>record(
         bytes: <span class="kw-2">&amp;</span>[u8],
-        headers: <span class="kw-2">&amp;</span>[httparse::Header&lt;<span class="lifetime">&#39;_</span>&gt;],
+        headers: <span class="kw-2">&amp;</span>[httparse::Header&lt;<span class="lifetime">'_</span>&gt;],
         indices: <span class="kw-2">&amp;mut </span>[HeaderIndex],
     ) {
         <span class="kw">let </span>bytes_ptr = bytes.as_ptr() <span class="kw">as </span>usize;
@@ -1672,7 +1673,7 @@
     <span class="doccomment">/// A reader used when `Transfer-Encoding` is `chunked`.
     </span>Chunked(ChunkedState, u64),
 
-    <span class="doccomment">/// A reader used for responses that don&#39;t indicate a length or chunked.
+    <span class="doccomment">/// A reader used for responses that don't indicate a length or chunked.
     ///
     /// Note: This should only used for `Response`s. It is illegal for a `Request` to be made
     /// without either of `Content-Length` and `Transfer-Encoding: chunked` missing, as explained
@@ -1711,7 +1712,7 @@
                         buf = src.split_to(<span class="kw-2">*</span>remaining <span class="kw">as </span>usize).freeze();
                         <span class="kw-2">*</span>remaining = <span class="number">0</span>;
                     };
-                    <span class="macro">trace!</span>(<span class="string">&quot;Length read: {}&quot;</span>, buf.len());
+                    <span class="macro">trace!</span>(<span class="string">"Length read: {}"</span>, buf.len());
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(PayloadItem::Chunk(buf)))
                 }
             }
@@ -1728,7 +1729,7 @@
                     };
 
                     <span class="kw">if </span><span class="kw-2">*</span>state == ChunkedState::End {
-                        <span class="macro">trace!</span>(<span class="string">&quot;End of chunked stream&quot;</span>);
+                        <span class="macro">trace!</span>(<span class="string">"End of chunked stream"</span>);
                         <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(PayloadItem::Eof));
                     }
 
@@ -1782,7 +1783,7 @@
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>chunk(<span class="self">self</span>) -&gt; Bytes {
             <span class="kw">match </span><span class="self">self </span>{
                 PayloadItem::Chunk(chunk) =&gt; chunk,
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;error&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"error"</span>),
             }
         }
 
@@ -1795,8 +1796,8 @@
         (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
             <span class="kw">match </span>MessageDecoder::&lt;Request&gt;::default().decode(<span class="macro-nonterminal">$e</span>) {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((msg, <span class="kw">_</span>))) =&gt; msg,
-                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Eof during parsing http request&quot;</span>),
-                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Error during parsing http request: {:?}&quot;</span>, err),
+                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">"Eof during parsing http request"</span>),
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">unreachable!</span>(<span class="string">"Error during parsing http request: {:?}"</span>, err),
             }
         }};
     }
@@ -1805,58 +1806,58 @@
         (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
             <span class="kw">match </span>MessageDecoder::&lt;Request&gt;::default().decode(<span class="macro-nonterminal">$e</span>) {
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">match </span>err {
-                    ParseError::Io(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parse error expected&quot;</span>),
+                    ParseError::Io(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">"Parse error expected"</span>),
                     <span class="kw">_ </span>=&gt; {}
                 },
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Error expected&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Error expected"</span>),
             }
         }};
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse() {
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">&quot;GET /test HTTP/1.1\r\n\r\n&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">"GET /test HTTP/1.1\r\n\r\n"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">match </span>reader.decode(<span class="kw-2">&amp;mut </span>buf) {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((req, <span class="kw">_</span>))) =&gt; {
                 <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_11);
                 <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::GET);
-                <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test&quot;</span>);
+                <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test"</span>);
             }
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) | <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Error during parsing http request&quot;</span>),
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) | <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">"Error during parsing http request"</span>),
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_partial() {
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">&quot;PUT /test HTTP/1&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">"PUT /test HTTP/1"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="macro">assert!</span>(reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none());
 
-        buf.extend(<span class="string">b&quot;.1\r\n\r\n&quot;</span>);
+        buf.extend(<span class="string">b".1\r\n\r\n"</span>);
         <span class="kw">let </span>(req, <span class="kw">_</span>) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_11);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::PUT);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse_h09_reject() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET /test1 HTTP/0.9\r\n\
-            \r\n&quot;</span>,
+            <span class="string">"GET /test1 HTTP/0.9\r\n\
+            \r\n"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap_err();
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;POST /test2 HTTP/0.9\r\n\
+            <span class="string">"POST /test2 HTTP/0.9\r\n\
             Content-Length: 3\r\n\
             \r\n
-            abc&quot;</span>,
+            abc"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
@@ -1866,157 +1867,157 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse_h10_get() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET /test1 HTTP/1.0\r\n\
-            \r\n&quot;</span>,
+            <span class="string">"GET /test1 HTTP/1.0\r\n\
+            \r\n"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, <span class="kw">_</span>) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_10);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::GET);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test1&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test1"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET /test2 HTTP/1.0\r\n\
+            <span class="string">"GET /test2 HTTP/1.0\r\n\
             Content-Length: 0\r\n\
-            \r\n&quot;</span>,
+            \r\n"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, <span class="kw">_</span>) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_10);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::GET);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test2&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test2"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET /test3 HTTP/1.0\r\n\
+            <span class="string">"GET /test3 HTTP/1.0\r\n\
             Content-Length: 3\r\n\
             \r\n
-            abc&quot;</span>,
+            abc"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, <span class="kw">_</span>) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_10);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::GET);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test3&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test3"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse_h10_post() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;POST /test1 HTTP/1.0\r\n\
+            <span class="string">"POST /test1 HTTP/1.0\r\n\
             Content-Length: 3\r\n\
             \r\n\
-            abc&quot;</span>,
+            abc"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, <span class="kw">_</span>) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_10);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::POST);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test1&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test1"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;POST /test2 HTTP/1.0\r\n\
+            <span class="string">"POST /test2 HTTP/1.0\r\n\
             Content-Length: 0\r\n\
-            \r\n&quot;</span>,
+            \r\n"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, <span class="kw">_</span>) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_10);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::POST);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test2&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test2"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;POST /test3 HTTP/1.0\r\n\
-            \r\n&quot;</span>,
+            <span class="string">"POST /test3 HTTP/1.0\r\n\
+            \r\n"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>err = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap_err();
-        <span class="macro">assert!</span>(err.to_string().contains(<span class="string">&quot;Header&quot;</span>))
+        <span class="macro">assert!</span>(err.to_string().contains(<span class="string">"Header"</span>))
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_body() {
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">&quot;GET /test HTTP/1.1\r\nContent-Length: 4\r\n\r\nbody&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">"GET /test HTTP/1.1\r\nContent-Length: 4\r\n\r\nbody"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, pl) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>pl = pl.unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_11);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::GET);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test"</span>);
         <span class="macro">assert_eq!</span>(
             pl.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap().chunk().as_ref(),
-            <span class="string">b&quot;body&quot;
+            <span class="string">b"body"
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_body_crlf() {
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">&quot;\r\nGET /test HTTP/1.1\r\nContent-Length: 4\r\n\r\nbody&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">"\r\nGET /test HTTP/1.1\r\nContent-Length: 4\r\n\r\nbody"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, pl) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>pl = pl.unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_11);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::GET);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test"</span>);
         <span class="macro">assert_eq!</span>(
             pl.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap().chunk().as_ref(),
-            <span class="string">b&quot;body&quot;
+            <span class="string">b"body"
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_partial_eof() {
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">&quot;GET /test HTTP/1.1\r\n&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">"GET /test HTTP/1.1\r\n"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="macro">assert!</span>(reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none());
 
-        buf.extend(<span class="string">b&quot;\r\n&quot;</span>);
+        buf.extend(<span class="string">b"\r\n"</span>);
         <span class="kw">let </span>(req, <span class="kw">_</span>) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_11);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::GET);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_headers_split_field() {
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">&quot;GET /test HTTP/1.1\r\n&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">"GET /test HTTP/1.1\r\n"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="macro">assert! </span>{ reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none() }
 
-        buf.extend(<span class="string">b&quot;t&quot;</span>);
+        buf.extend(<span class="string">b"t"</span>);
         <span class="macro">assert! </span>{ reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none() }
 
-        buf.extend(<span class="string">b&quot;es&quot;</span>);
+        buf.extend(<span class="string">b"es"</span>);
         <span class="macro">assert! </span>{ reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().is_none() }
 
-        buf.extend(<span class="string">b&quot;t: value\r\n\r\n&quot;</span>);
+        buf.extend(<span class="string">b"t: value\r\n\r\n"</span>);
         <span class="kw">let </span>(req, <span class="kw">_</span>) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_11);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.method(), Method::GET);
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;/test&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"/test"</span>);
         <span class="macro">assert_eq!</span>(
             req.headers()
-                .get(HeaderName::try_from(<span class="string">&quot;test&quot;</span>).unwrap())
+                .get(HeaderName::try_from(<span class="string">"test"</span>).unwrap())
                 .unwrap()
                 .as_bytes(),
-            <span class="string">b&quot;value&quot;
+            <span class="string">b"value"
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_headers_multi_value() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
+            <span class="string">"GET /test HTTP/1.1\r\n\
              Set-Cookie: c1=cookie1\r\n\
-             Set-Cookie: c2=cookie2\r\n\r\n&quot;</span>,
+             Set-Cookie: c2=cookie2\r\n\r\n"</span>,
         );
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, <span class="kw">_</span>) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
@@ -2026,33 +2027,33 @@
             .get_all(SET_COOKIE)
             .map(|v| v.to_str().unwrap().to_owned())
             .collect();
-        <span class="macro">assert_eq!</span>(val[<span class="number">0</span>], <span class="string">&quot;c1=cookie1&quot;</span>);
-        <span class="macro">assert_eq!</span>(val[<span class="number">1</span>], <span class="string">&quot;c2=cookie2&quot;</span>);
+        <span class="macro">assert_eq!</span>(val[<span class="number">0</span>], <span class="string">"c1=cookie1"</span>);
+        <span class="macro">assert_eq!</span>(val[<span class="number">1</span>], <span class="string">"c2=cookie2"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_default_1_0() {
-        <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">&quot;GET /test HTTP/1.0\r\n\r\n&quot;</span>));
+        <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">"GET /test HTTP/1.0\r\n\r\n"</span>));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::Close);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_default_1_1() {
-        <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">&quot;GET /test HTTP/1.1\r\n\r\n&quot;</span>));
+        <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">"GET /test HTTP/1.1\r\n\r\n"</span>));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::KeepAlive);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_close() {
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
-             connection: close\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.1\r\n\
+             connection: close\r\n\r\n"</span>,
         ));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::Close);
 
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
-             connection: Close\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.1\r\n\
+             connection: Close\r\n\r\n"</span>,
         ));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::Close);
     }
@@ -2060,8 +2061,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_close_1_0() {
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.0\r\n\
-             connection: close\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.0\r\n\
+             connection: close\r\n\r\n"</span>,
         ));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::Close);
     }
@@ -2069,14 +2070,14 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_keep_alive_1_0() {
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.0\r\n\
-             connection: keep-alive\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.0\r\n\
+             connection: keep-alive\r\n\r\n"</span>,
         ));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::KeepAlive);
 
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.0\r\n\
-             connection: Keep-Alive\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.0\r\n\
+             connection: Keep-Alive\r\n\r\n"</span>,
         ));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::KeepAlive);
     }
@@ -2084,8 +2085,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_keep_alive_1_1() {
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
-             connection: keep-alive\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.1\r\n\
+             connection: keep-alive\r\n\r\n"</span>,
         ));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::KeepAlive);
     }
@@ -2093,8 +2094,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_other_1_0() {
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.0\r\n\
-             connection: other\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.0\r\n\
+             connection: other\r\n\r\n"</span>,
         ));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::Close);
     }
@@ -2102,8 +2103,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_other_1_1() {
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
-             connection: other\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.1\r\n\
+             connection: other\r\n\r\n"</span>,
         ));
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::KeepAlive);
     }
@@ -2111,18 +2112,18 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_upgrade() {
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
+            <span class="string">"GET /test HTTP/1.1\r\n\
              upgrade: websockets\r\n\
-             connection: upgrade\r\n\r\n&quot;</span>,
+             connection: upgrade\r\n\r\n"</span>,
         ));
 
         <span class="macro">assert!</span>(req.upgrade());
         <span class="macro">assert_eq!</span>(req.head().connection_type(), ConnectionType::Upgrade);
 
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
+            <span class="string">"GET /test HTTP/1.1\r\n\
              upgrade: Websockets\r\n\
-             connection: Upgrade\r\n\r\n&quot;</span>,
+             connection: Upgrade\r\n\r\n"</span>,
         ));
 
         <span class="macro">assert!</span>(req.upgrade());
@@ -2132,8 +2133,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conn_upgrade_connect_method() {
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;CONNECT /test HTTP/1.1\r\n\
-             content-type: text/plain\r\n\r\n&quot;</span>,
+            <span class="string">"CONNECT /test HTTP/1.1\r\n\
+             content-type: text/plain\r\n\r\n"</span>,
         ));
 
         <span class="macro">assert!</span>(req.upgrade());
@@ -2143,22 +2144,22 @@
     </span><span class="kw">fn </span>test_headers_bad_content_length() {
         <span class="comment">// string CL
         </span><span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
-             content-length: line\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.1\r\n\
+             content-length: line\r\n\r\n"</span>,
         ));
 
         <span class="comment">// negative CL
         </span><span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
-             content-length: -1\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.1\r\n\
+             content-length: -1\r\n\r\n"</span>,
         ));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>octal_ish_cl_parsed_as_decimal() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;POST /test HTTP/1.1\r\n\
-             content-length: 011\r\n\r\n&quot;</span>,
+            <span class="string">"POST /test HTTP/1.1\r\n\
+             content-length: 011\r\n\r\n"</span>,
         );
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(_req, pl) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
@@ -2171,31 +2172,31 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_invalid_header() {
         <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
-             test line\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.1\r\n\
+             test line\r\n\r\n"</span>,
         ));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_invalid_name() {
         <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
-             test[]: line\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.1\r\n\
+             test[]: line\r\n\r\n"</span>,
         ));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_http_request_bad_status_line() {
-        <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">&quot;getpath \r\n\r\n&quot;</span>));
+        <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">"getpath \r\n\r\n"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_http_request_upgrade_websocket() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
+            <span class="string">"GET /test HTTP/1.1\r\n\
              connection: upgrade\r\n\
              upgrade: websocket\r\n\r\n\
-             some raw data&quot;</span>,
+             some raw data"</span>,
         );
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, pl) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
@@ -2207,14 +2208,14 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_http_request_upgrade_h2c() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
+            <span class="string">"GET /test HTTP/1.1\r\n\
              connection: upgrade, http2-settings\r\n\
              upgrade: h2c\r\n\
-             http2-settings: dummy\r\n\r\n&quot;</span>,
+             http2-settings: dummy\r\n\r\n"</span>,
         );
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
         <span class="kw">let </span>(req, pl) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
-        <span class="comment">// `connection: upgrade, http2-settings` doesn&#39;t work properly..
+        <span class="comment">// `connection: upgrade, http2-settings` doesn't work properly..
         // see MessageType::set_headers().
         //
         // The line below should be:
@@ -2227,73 +2228,73 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_http_request_parser_utf8() {
         <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
-             x-test: тест\r\n\r\n&quot;</span>,
+            <span class="string">"GET /test HTTP/1.1\r\n\
+             x-test: тест\r\n\r\n"</span>,
         ));
 
         <span class="macro">assert_eq!</span>(
-            req.headers().get(<span class="string">&quot;x-test&quot;</span>).unwrap().as_bytes(),
-            <span class="string">&quot;тест&quot;</span>.as_bytes()
+            req.headers().get(<span class="string">"x-test"</span>).unwrap().as_bytes(),
+            <span class="string">"тест"</span>.as_bytes()
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_http_request_parser_two_slashes() {
-        <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">&quot;GET //path HTTP/1.1\r\n\r\n&quot;</span>));
-        <span class="macro">assert_eq!</span>(req.path(), <span class="string">&quot;//path&quot;</span>);
+        <span class="kw">let </span>req = <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">"GET //path HTTP/1.1\r\n\r\n"</span>));
+        <span class="macro">assert_eq!</span>(req.path(), <span class="string">"//path"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_http_request_parser_bad_method() {
-        <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">&quot;!12%()+=~$ /get HTTP/1.1\r\n\r\n&quot;</span>));
+        <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">"!12%()+=~$ /get HTTP/1.1\r\n\r\n"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_http_request_parser_bad_version() {
-        <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">&quot;GET //get HT/11\r\n\r\n&quot;</span>));
+        <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(<span class="string">"GET //get HT/11\r\n\r\n"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_response_http10_read_until_eof() {
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">&quot;HTTP/1.0 200 Ok\r\n\r\ntest data&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="string">"HTTP/1.0 200 Ok\r\n\r\ntest data"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;ResponseHead&gt;::default();
         <span class="kw">let </span>(_msg, pl) = reader.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>pl = pl.unwrap();
 
         <span class="kw">let </span>chunk = pl.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
-        <span class="macro">assert_eq!</span>(chunk, PayloadItem::Chunk(Bytes::from_static(<span class="string">b&quot;test data&quot;</span>)));
+        <span class="macro">assert_eq!</span>(chunk, PayloadItem::Chunk(Bytes::from_static(<span class="string">b"test data"</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>hrs_multiple_content_length() {
         <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET / HTTP/1.1\r\n\
+            <span class="string">"GET / HTTP/1.1\r\n\
             Host: example.com\r\n\
             Content-Length: 4\r\n\
             Content-Length: 2\r\n\
             \r\n\
-            abcd&quot;</span>,
+            abcd"</span>,
         ));
 
         <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET / HTTP/1.1\r\n\
+            <span class="string">"GET / HTTP/1.1\r\n\
             Host: example.com\r\n\
             Content-Length: 0\r\n\
             Content-Length: 2\r\n\
             \r\n\
-            ab&quot;</span>,
+            ab"</span>,
         ));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>hrs_content_length_plus() {
         <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;GET / HTTP/1.1\r\n\
+            <span class="string">"GET / HTTP/1.1\r\n\
             Host: example.com\r\n\
             Content-Length: +3\r\n\
             \r\n\
-            000&quot;</span>,
+            000"</span>,
         ));
     }
 
@@ -2302,28 +2303,28 @@
         <span class="comment">// in HTTP/1.0 transfer encoding is ignored and must therefore contain a CL header
 
         </span><span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>BytesMut::from(
-            <span class="string">&quot;POST / HTTP/1.0\r\n\
+            <span class="string">"POST / HTTP/1.0\r\n\
             Host: example.com\r\n\
             Transfer-Encoding: chunked\r\n\
             \r\n\
             3\r\n\
             aaa\r\n\
             0\r\n\
-            &quot;</span>,
+            "</span>,
         ));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>hrs_cl_and_te_http10() {
-        <span class="comment">// in HTTP/1.0 transfer encoding is simply ignored so it&#39;s fine to have both
+        <span class="comment">// in HTTP/1.0 transfer encoding is simply ignored so it's fine to have both
 
         </span><span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET / HTTP/1.0\r\n\
+            <span class="string">"GET / HTTP/1.0\r\n\
             Host: example.com\r\n\
             Content-Length: 3\r\n\
             Transfer-Encoding: chunked\r\n\
             \r\n\
-            000&quot;</span>,
+            000"</span>,
         );
 
         <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut </span>buf);
@@ -2332,14 +2333,14 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>hrs_unknown_transfer_encoding() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET / HTTP/1.1\r\n\
+            <span class="string">"GET / HTTP/1.1\r\n\
             Host: example.com\r\n\
             Transfer-Encoding: JUNK\r\n\
             Transfer-Encoding: chunked\r\n\
             \r\n\
             5\r\n\
             hello\r\n\
-            0&quot;</span>,
+            0"</span>,
         );
 
         <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>buf);
@@ -2348,7 +2349,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>hrs_multiple_transfer_encoding() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET / HTTP/1.1\r\n\
+            <span class="string">"GET / HTTP/1.1\r\n\
             Host: example.com\r\n\
             Content-Length: 51\r\n\
             Transfer-Encoding: identity\r\n\
@@ -2357,7 +2358,7 @@
             0\r\n\
             \r\n\
             GET /forbidden HTTP/1.1\r\n\
-            Host: example.com\r\n\r\n&quot;</span>,
+            Host: example.com\r\n\r\n"</span>,
         );
 
         <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut </span>buf);
@@ -2366,12 +2367,12 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>transfer_encoding_agrees() {
         <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(
-            <span class="string">&quot;GET /test HTTP/1.1\r\n\
+            <span class="string">"GET /test HTTP/1.1\r\n\
             Host: example.com\r\n\
             Content-Length: 3\r\n\
             Transfer-Encoding: identity\r\n\
             \r\n\
-            0\r\n&quot;</span>,
+            0\r\n"</span>,
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>reader = MessageDecoder::&lt;Request&gt;::default();
@@ -2379,7 +2380,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>pl = pl.unwrap();
 
         <span class="kw">let </span>chunk = pl.decode(<span class="kw-2">&amp;mut </span>buf).unwrap().unwrap();
-        <span class="macro">assert_eq!</span>(chunk, PayloadItem::Chunk(Bytes::from_static(<span class="string">b&quot;0\r\n&quot;</span>)));
+        <span class="macro">assert_eq!</span>(chunk, PayloadItem::Chunk(Bytes::from_static(<span class="string">b"0\r\n"</span>)));
     }
 }
 </code></pre></div></section></main></body></html>

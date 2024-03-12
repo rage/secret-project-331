@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-stream-0.1.14/src/stream_ext.rs`."><title>stream_ext.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tokio_stream" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-stream-0.1.14/src/stream_ext.rs`."><title>stream_ext.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tokio_stream" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1278,7 +1279,7 @@
 /// ```
 /// // import one of the traits:
 /// use futures::stream::StreamExt;
-/// # #[tokio::main(flavor = &quot;current_thread&quot;)]
+/// # #[tokio::main(flavor = "current_thread")]
 /// # async fn main() {
 ///
 /// let a = tokio_stream::iter(vec![1, 3, 5]);
@@ -1306,9 +1307,9 @@
     /// async fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;;
     /// ```
     ///
-    /// Note that because `next` doesn&#39;t take ownership over the stream,
+    /// Note that because `next` doesn't take ownership over the stream,
     /// the [`Stream`] type must be [`Unpin`]. If you want to use `next` with a
-    /// [`!Unpin`](Unpin) stream, you&#39;ll first have to pin the stream. This can
+    /// [`!Unpin`](Unpin) stream, you'll first have to pin the stream. This can
     /// be done by boxing the stream using [`Box::pin`] or
     /// pinning it to the stack using the `pin_mut!` macro from the `pin_utils`
     /// crate.
@@ -1334,7 +1335,7 @@
     /// assert_eq!(stream.next().await, None);
     /// # }
     /// ```
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Next&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>&gt;
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Next&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Unpin,
     {
@@ -1368,21 +1369,21 @@
     /// # async fn main() {
     /// use tokio_stream::{self as stream, StreamExt};
     ///
-    /// let mut stream = stream::iter(vec![Ok(1), Ok(2), Err(&quot;nope&quot;)]);
+    /// let mut stream = stream::iter(vec![Ok(1), Ok(2), Err("nope")]);
     ///
     /// assert_eq!(stream.try_next().await, Ok(Some(1)));
     /// assert_eq!(stream.try_next().await, Ok(Some(2)));
-    /// assert_eq!(stream.try_next().await, Err(&quot;nope&quot;));
+    /// assert_eq!(stream.try_next().await, Err("nope"));
     /// # }
     /// ```
-    </span><span class="kw">fn </span>try_next&lt;T, E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; TryNext&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>&gt;
+    </span><span class="kw">fn </span>try_next&lt;T, E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; TryNext&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;T, E&gt;&gt; + Unpin,
     {
         TryNext::new(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Maps this stream&#39;s items to a different type, returning a new stream of
+    <span class="doccomment">/// Maps this stream's items to a different type, returning a new stream of
     /// the resulting type.
     ///
     /// The provided closure is executed over all elements of this stream as
@@ -1416,7 +1417,7 @@
         Map::new(<span class="self">self</span>, f)
     }
 
-    <span class="doccomment">/// Map this stream&#39;s items to a different type for as long as determined by
+    <span class="doccomment">/// Map this stream's items to a different type for as long as determined by
     /// the provided closure. A stream of the target type will be returned,
     /// which will yield elements until the closure returns `None`.
     ///
@@ -1458,7 +1459,7 @@
         MapWhile::new(<span class="self">self</span>, f)
     }
 
-    <span class="doccomment">/// Maps this stream&#39;s items asynchronously to a different type, returning a
+    <span class="doccomment">/// Maps this stream's items asynchronously to a different type, returning a
     /// new stream of the resulting type.
     ///
     /// The provided closure is executed over all elements of this stream as
@@ -1533,7 +1534,7 @@
     /// # /*
     /// #[tokio::main]
     /// # */
-    /// # #[tokio::main(flavor = &quot;current_thread&quot;)]
+    /// # #[tokio::main(flavor = "current_thread")]
     /// async fn main() {
     /// # time::pause();
     ///     let (tx1, mut rx1) = mpsc::channel::&lt;usize&gt;(10);
@@ -1694,11 +1695,11 @@
     /// impl Stream for Alternate {
     ///     type Item = i32;
     ///
-    ///     fn poll_next(mut self: Pin&lt;&amp;mut Self&gt;, _cx: &amp;mut Context&lt;&#39;_&gt;) -&gt; Poll&lt;Option&lt;i32&gt;&gt; {
+    ///     fn poll_next(mut self: Pin&lt;&amp;mut Self&gt;, _cx: &amp;mut Context&lt;'_&gt;) -&gt; Poll&lt;Option&lt;i32&gt;&gt; {
     ///         let val = self.state;
     ///         self.state = self.state + 1;
     ///
-    ///         // if it&#39;s even, Some(i32), else None
+    ///         // if it's even, Some(i32), else None
     ///         if val % 2 == 0 {
     ///             Poll::Ready(Some(val))
     ///         } else {
@@ -1902,7 +1903,7 @@
     /// assert_eq!(iter.next().await, Some(&amp;3));
     /// # }
     /// ```
-    </span><span class="kw">fn </span>all&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; AllFuture&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>, F&gt;
+    </span><span class="kw">fn </span>all&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; AllFuture&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>, F&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Unpin,
         F: FnMut(<span class="self">Self</span>::Item) -&gt; bool,
@@ -1961,7 +1962,7 @@
     /// assert_eq!(iter.next().await, Some(&amp;2));
     /// # }
     /// ```
-    </span><span class="kw">fn </span>any&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; AnyFuture&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>, F&gt;
+    </span><span class="kw">fn </span>any&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; AnyFuture&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>, F&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Unpin,
         F: FnMut(<span class="self">Self</span>::Item) -&gt; bool,
@@ -2096,14 +2097,14 @@
     ///     assert_eq!(Ok(vec![1, 2, 3]), values);
     ///
     ///     // A stream containing `Err` values will return the first error.
-    ///     let results = vec![Ok(1), Err(&quot;no&quot;), Ok(2), Ok(3), Err(&quot;nein&quot;)];
+    ///     let results = vec![Ok(1), Err("no"), Ok(2), Ok(3), Err("nein")];
     ///
     ///     let values: Result&lt;Vec&lt;i32&gt;, &amp;str&gt; =
     ///         stream::iter(results)
     ///             .collect()
     ///             .await;
     ///
-    ///     assert_eq!(Err(&quot;no&quot;), values);
+    ///     assert_eq!(Err("no"), values);
     /// }
     /// ```
     </span><span class="kw">fn </span>collect&lt;T&gt;(<span class="self">self</span>) -&gt; Collect&lt;<span class="self">Self</span>, T&gt;
@@ -2176,7 +2177,7 @@
     /// unless the wrapped stream yields a value (timeouts do not repeat).
     ///
     /// ```
-    /// # #[tokio::main(flavor = &quot;current_thread&quot;, start_paused = true)]
+    /// # #[tokio::main(flavor = "current_thread", start_paused = true)]
     /// # async fn main() {
     /// use tokio_stream::{StreamExt, wrappers::IntervalStream};
     /// use std::time::Duration;
@@ -2186,12 +2187,12 @@
     ///
     /// // Only one timeout will be received between values in the source stream.
     /// assert!(timeout_stream.try_next().await.is_ok());
-    /// assert!(timeout_stream.try_next().await.is_err(), &quot;expected one timeout&quot;);
-    /// assert!(timeout_stream.try_next().await.is_ok(), &quot;expected no more timeouts&quot;);
+    /// assert!(timeout_stream.try_next().await.is_err(), "expected one timeout");
+    /// assert!(timeout_stream.try_next().await.is_ok(), "expected no more timeouts");
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;time&quot;</span>))]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;time&quot;</span>)))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"time"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"time"</span>)))]
     </span><span class="kw">fn </span>timeout(<span class="self">self</span>, duration: Duration) -&gt; Timeout&lt;<span class="self">Self</span>&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
@@ -2263,7 +2264,7 @@
     /// until the wrapped stream yields a value.
     ///
     /// ```
-    /// # #[tokio::main(flavor = &quot;current_thread&quot;, start_paused = true)]
+    /// # #[tokio::main(flavor = "current_thread", start_paused = true)]
     /// # async fn main() {
     /// use tokio_stream::{StreamExt, wrappers::IntervalStream};
     /// use std::time::Duration;
@@ -2273,14 +2274,14 @@
     ///
     /// // Multiple timeouts will be received between values in the source stream.
     /// assert!(timeout_stream.try_next().await.is_ok());
-    /// assert!(timeout_stream.try_next().await.is_err(), &quot;expected one timeout&quot;);
-    /// assert!(timeout_stream.try_next().await.is_err(), &quot;expected a second timeout&quot;);
+    /// assert!(timeout_stream.try_next().await.is_err(), "expected one timeout");
+    /// assert!(timeout_stream.try_next().await.is_err(), "expected a second timeout");
     /// // Will eventually receive another value from the source stream...
-    /// assert!(timeout_stream.try_next().await.is_ok(), &quot;expected non-timeout&quot;);
+    /// assert!(timeout_stream.try_next().await.is_ok(), "expected non-timeout");
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;time&quot;</span>))]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;time&quot;</span>)))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"time"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"time"</span>)))]
     </span><span class="kw">fn </span>timeout_repeating(<span class="self">self</span>, interval: Interval) -&gt; TimeoutRepeating&lt;<span class="self">Self</span>&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
@@ -2300,17 +2301,17 @@
     /// use tokio_stream::StreamExt;
     ///
     /// # async fn dox() {
-    /// let item_stream = futures::stream::repeat(&quot;one&quot;).throttle(Duration::from_secs(2));
+    /// let item_stream = futures::stream::repeat("one").throttle(Duration::from_secs(2));
     /// tokio::pin!(item_stream);
     ///
     /// loop {
     ///     // The string will be produced at most every 2 seconds
-    ///     println!(&quot;{:?}&quot;, item_stream.next().await);
+    ///     println!("{:?}", item_stream.next().await);
     /// }
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;time&quot;</span>))]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;time&quot;</span>)))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"time"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"time"</span>)))]
     </span><span class="kw">fn </span>throttle(<span class="self">self</span>, duration: Duration) -&gt; Throttle&lt;<span class="self">Self</span>&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
@@ -2342,7 +2343,7 @@
     ///
     /// #[tokio::main]
     /// # async fn _unused() {}
-    /// # #[tokio::main(flavor = &quot;current_thread&quot;, start_paused = true)]
+    /// # #[tokio::main(flavor = "current_thread", start_paused = true)]
     /// async fn main() {
     ///     let iter = vec![1, 2, 3, 4].into_iter();
     ///     let stream0 = stream::iter(iter);
@@ -2364,14 +2365,14 @@
     ///     assert_eq!(chunk_stream.next().await, Some(vec![5]));
     /// }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;time&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;time&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"time"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"time"</span>)))]
     #[track_caller]
     </span><span class="kw">fn </span>chunks_timeout(<span class="self">self</span>, max_size: usize, duration: Duration) -&gt; ChunksTimeout&lt;<span class="self">Self</span>&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
     {
-        <span class="macro">assert!</span>(max_size &gt; <span class="number">0</span>, <span class="string">&quot;`max_size` must be non-zero.&quot;</span>);
+        <span class="macro">assert!</span>(max_size &gt; <span class="number">0</span>, <span class="string">"`max_size` must be non-zero."</span>);
         ChunksTimeout::new(<span class="self">self</span>, max_size, duration)
     }
 }

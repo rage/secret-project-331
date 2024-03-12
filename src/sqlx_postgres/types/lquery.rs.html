@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/types/lquery.rs`."><title>lquery.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/types/lquery.rs`."><title>lquery.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -329,16 +330,16 @@
 </span><span class="attr">#[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 </span><span class="kw">pub enum </span>PgLQueryParseError {
-    <span class="attr">#[error(<span class="string">&quot;lquery cannot be empty&quot;</span>)]
+    <span class="attr">#[error(<span class="string">"lquery cannot be empty"</span>)]
     </span>EmptyString,
-    <span class="attr">#[error(<span class="string">&quot;unexpected character in lquery&quot;</span>)]
+    <span class="attr">#[error(<span class="string">"unexpected character in lquery"</span>)]
     </span>UnexpectedCharacter,
-    <span class="attr">#[error(<span class="string">&quot;error parsing integer: {0}&quot;</span>)]
+    <span class="attr">#[error(<span class="string">"error parsing integer: {0}"</span>)]
     </span>ParseIntError(<span class="attr">#[from] </span>std::num::ParseIntError),
-    <span class="attr">#[error(<span class="string">&quot;error parsing integer: {0}&quot;</span>)]
+    <span class="attr">#[error(<span class="string">"error parsing integer: {0}"</span>)]
     </span>LTreeParrseError(<span class="attr">#[from] </span>PgLTreeParseError),
     <span class="doccomment">/// LQuery version not supported
-    </span><span class="attr">#[error(<span class="string">&quot;lquery version not supported&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"lquery version not supported"</span>)]
     </span>InvalidLqueryVersion,
 }
 
@@ -352,15 +353,15 @@
 /// wire protocol, which only became available in Postgres 13.
 /// ([Postgres 13.0 Release Notes, Additional Modules][https://www.postgresql.org/docs/13/release-13.html#id-1.11.6.11.5.14])
 ///
-/// Ideally, SQLx&#39;s Postgres driver should support falling back to text format for types
-/// which don&#39;t have `typsend` and `typrecv` entries in `pg_type`, but that work still needs
+/// Ideally, SQLx's Postgres driver should support falling back to text format for types
+/// which don't have `typsend` and `typrecv` entries in `pg_type`, but that work still needs
 /// to be done.
 ///
 /// ### Note: Extension Required
 /// The `ltree` extension is not enabled by default in Postgres. You will need to do so explicitly:
 ///
 /// ```ignore
-/// CREATE EXTENSION IF NOT EXISTS &quot;ltree&quot;;
+/// CREATE EXTENSION IF NOT EXISTS "ltree";
 /// ```
 </span><span class="attr">#[derive(Clone, Debug, Default, PartialEq)]
 </span><span class="kw">pub struct </span>PgLQuery {
@@ -417,7 +418,7 @@
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             levels: s
-                .split(<span class="string">&#39;.&#39;</span>)
+                .split(<span class="string">'.'</span>)
                 .map(|s| PgLQueryLevel::from_str(s))
                 .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, <span class="self">Self</span>::Err&gt;&gt;()<span class="question-mark">?</span>,
         })
@@ -425,12 +426,12 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>PgLQuery {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.levels.iter();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(label) = iter.next() {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{label}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"{label}"</span>)<span class="question-mark">?</span>;
             <span class="kw">for </span>label <span class="kw">in </span>iter {
-                <span class="macro">write!</span>(f, <span class="string">&quot;.{label}&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">".{label}"</span>)<span class="question-mark">?</span>;
             }
         }
         <span class="prelude-val">Ok</span>(())
@@ -448,22 +449,22 @@
 <span class="kw">impl </span>Type&lt;Postgres&gt; <span class="kw">for </span>PgLQuery {
     <span class="kw">fn </span>type_info() -&gt; PgTypeInfo {
         <span class="comment">// Since `ltree` is enabled by an extension, it does not have a stable OID.
-        </span>PgTypeInfo::with_name(<span class="string">&quot;lquery&quot;</span>)
+        </span>PgTypeInfo::with_name(<span class="string">"lquery"</span>)
     }
 }
 
-<span class="kw">impl </span>Encode&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; <span class="kw">for </span>PgLQuery {
+<span class="kw">impl </span>Encode&lt;<span class="lifetime">'_</span>, Postgres&gt; <span class="kw">for </span>PgLQuery {
     <span class="kw">fn </span>encode_by_ref(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>PgArgumentBuffer) -&gt; IsNull {
         buf.extend(<span class="number">1i8</span>.to_le_bytes());
-        <span class="macro">write!</span>(buf, <span class="string">&quot;{self}&quot;</span>)
-            .expect(<span class="string">&quot;Display implementation panicked while writing to PgArgumentBuffer&quot;</span>);
+        <span class="macro">write!</span>(buf, <span class="string">"{self}"</span>)
+            .expect(<span class="string">"Display implementation panicked while writing to PgArgumentBuffer"</span>);
 
         IsNull::No
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; Decode&lt;<span class="lifetime">&#39;r</span>, Postgres&gt; <span class="kw">for </span>PgLQuery {
-    <span class="kw">fn </span>decode(value: PgValueRef&lt;<span class="lifetime">&#39;r</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxDynError&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>&gt; Decode&lt;<span class="lifetime">'r</span>, Postgres&gt; <span class="kw">for </span>PgLQuery {
+    <span class="kw">fn </span>decode(value: PgValueRef&lt;<span class="lifetime">'r</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxDynError&gt; {
         <span class="kw">match </span>value.format() {
             PgValueFormat::Binary =&gt; {
                 <span class="kw">let </span>bytes = value.as_bytes()<span class="question-mark">?</span>;
@@ -492,15 +493,15 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>PgLQueryVariantFlag {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span><span class="self">self</span>.contains(PgLQueryVariantFlag::ANY_END) {
-            <span class="macro">write!</span>(f, <span class="string">&quot;*&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"*"</span>)<span class="question-mark">?</span>;
         }
         <span class="kw">if </span><span class="self">self</span>.contains(PgLQueryVariantFlag::IN_CASE) {
-            <span class="macro">write!</span>(f, <span class="string">&quot;@&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"@"</span>)<span class="question-mark">?</span>;
         }
         <span class="kw">if </span><span class="self">self</span>.contains(PgLQueryVariantFlag::SUBLEXEME) {
-            <span class="macro">write!</span>(f, <span class="string">&quot;%&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"%"</span>)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -514,8 +515,8 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>PgLQueryVariant {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.label, <span class="self">self</span>.modifiers)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"{}{}"</span>, <span class="self">self</span>.label, <span class="self">self</span>.modifiers)
     }
 }
 
@@ -538,9 +539,9 @@
             <span class="prelude-val">Err</span>(PgLQueryParseError::EmptyString)
         } <span class="kw">else </span>{
             <span class="kw">match </span>bytes[<span class="number">0</span>] {
-                <span class="string">b&#39;*&#39; </span>=&gt; {
+                <span class="string">b'*' </span>=&gt; {
                     <span class="kw">if </span>bytes.len() &gt; <span class="number">1 </span>{
-                        <span class="kw">let </span>parts = s[<span class="number">2</span>..s.len() - <span class="number">1</span>].split(<span class="string">&#39;,&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                        <span class="kw">let </span>parts = s[<span class="number">2</span>..s.len() - <span class="number">1</span>].split(<span class="string">','</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
                         <span class="kw">match </span>parts.len() {
                             <span class="number">1 </span>=&gt; {
                                 <span class="kw">let </span>number = parts[<span class="number">0</span>].parse()<span class="question-mark">?</span>;
@@ -556,14 +557,14 @@
                         <span class="prelude-val">Ok</span>(PgLQueryLevel::Star(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>))
                     }
                 }
-                <span class="string">b&#39;!&#39; </span>=&gt; <span class="prelude-val">Ok</span>(PgLQueryLevel::NotNonStar(
+                <span class="string">b'!' </span>=&gt; <span class="prelude-val">Ok</span>(PgLQueryLevel::NotNonStar(
                     s[<span class="number">1</span>..]
-                        .split(<span class="string">&#39;|&#39;</span>)
+                        .split(<span class="string">'|'</span>)
                         .map(|s| PgLQueryVariant::from_str(s))
                         .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, PgLQueryParseError&gt;&gt;()<span class="question-mark">?</span>,
                 )),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(PgLQueryLevel::NonStar(
-                    s.split(<span class="string">&#39;|&#39;</span>)
+                    s.split(<span class="string">'|'</span>)
                         .map(|s| PgLQueryVariant::from_str(s))
                         .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, PgLQueryParseError&gt;&gt;()<span class="question-mark">?</span>,
                 )),
@@ -582,9 +583,9 @@
 
         <span class="kw">while let </span><span class="prelude-val">Some</span>(b) = rev_iter.next() {
             <span class="kw">match </span>b {
-                <span class="string">b&#39;@&#39; </span>=&gt; modifiers.insert(PgLQueryVariantFlag::IN_CASE),
-                <span class="string">b&#39;*&#39; </span>=&gt; modifiers.insert(PgLQueryVariantFlag::ANY_END),
-                <span class="string">b&#39;%&#39; </span>=&gt; modifiers.insert(PgLQueryVariantFlag::SUBLEXEME),
+                <span class="string">b'@' </span>=&gt; modifiers.insert(PgLQueryVariantFlag::IN_CASE),
+                <span class="string">b'*' </span>=&gt; modifiers.insert(PgLQueryVariantFlag::ANY_END),
+                <span class="string">b'%' </span>=&gt; modifiers.insert(PgLQueryVariantFlag::SUBLEXEME),
                 <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
             }
             label_length -= <span class="number">1</span>;
@@ -597,30 +598,30 @@
     }
 }
 
-<span class="kw">fn </span>write_variants(f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;, variants: <span class="kw-2">&amp;</span>[PgLQueryVariant], not: bool) -&gt; fmt::Result {
+<span class="kw">fn </span>write_variants(f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;, variants: <span class="kw-2">&amp;</span>[PgLQueryVariant], not: bool) -&gt; fmt::Result {
     <span class="kw">let </span><span class="kw-2">mut </span>iter = variants.iter();
     <span class="kw">if let </span><span class="prelude-val">Some</span>(variant) = iter.next() {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}{}&quot;</span>, <span class="kw">if </span>not { <span class="string">&quot;!&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;&quot; </span>}, variant)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">"{}{}"</span>, <span class="kw">if </span>not { <span class="string">"!" </span>} <span class="kw">else </span>{ <span class="string">"" </span>}, variant)<span class="question-mark">?</span>;
         <span class="kw">for </span>variant <span class="kw">in </span>iter {
-            <span class="macro">write!</span>(f, <span class="string">&quot;.{variant}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">".{variant}"</span>)<span class="question-mark">?</span>;
         }
     }
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>PgLQueryLevel {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             PgLQueryLevel::Star(<span class="prelude-val">Some</span>(at_least), <span class="prelude-val">Some</span>(at_most)) =&gt; {
                 <span class="kw">if </span>at_least == at_most {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;*{{{at_least}}}&quot;</span>)
+                    <span class="macro">write!</span>(f, <span class="string">"*{{{at_least}}}"</span>)
                 } <span class="kw">else </span>{
-                    <span class="macro">write!</span>(f, <span class="string">&quot;*{{{at_least},{at_most}}}&quot;</span>)
+                    <span class="macro">write!</span>(f, <span class="string">"*{{{at_least},{at_most}}}"</span>)
                 }
             }
-            PgLQueryLevel::Star(<span class="prelude-val">Some</span>(at_least), <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;*{{{at_least},}}&quot;</span>),
-            PgLQueryLevel::Star(<span class="kw">_</span>, <span class="prelude-val">Some</span>(at_most)) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;*{{,{at_most}}}&quot;</span>),
-            PgLQueryLevel::Star(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;*&quot;</span>),
+            PgLQueryLevel::Star(<span class="prelude-val">Some</span>(at_least), <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"*{{{at_least},}}"</span>),
+            PgLQueryLevel::Star(<span class="kw">_</span>, <span class="prelude-val">Some</span>(at_most)) =&gt; <span class="macro">write!</span>(f, <span class="string">"*{{,{at_most}}}"</span>),
+            PgLQueryLevel::Star(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"*"</span>),
             PgLQueryLevel::NonStar(variants) =&gt; write_variants(f, <span class="kw-2">&amp;</span>variants, <span class="bool-val">false</span>),
             PgLQueryLevel::NotNonStar(variants) =&gt; write_variants(f, <span class="kw-2">&amp;</span>variants, <span class="bool-val">true</span>),
         }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/email-encoding-0.2.0/src/headers/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="email_encoding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/email-encoding-0.2.0/src/headers/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="email_encoding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -364,15 +365,15 @@
 /// last line written to it.
 ///
 /// [`Write`]: std::fmt::Write
-</span><span class="kw">pub struct </span>EmailWriter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    writer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="kw">dyn </span>Write,
+</span><span class="kw">pub struct </span>EmailWriter&lt;<span class="lifetime">'a</span>&gt; {
+    writer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>Write,
     line_len: usize,
     spaces: usize,
     optional_breakpoint: bool,
     can_go_to_new_line_now: bool,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; EmailWriter&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; EmailWriter&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Construct a new `EmailWriter`.
     ///
     /// * `line_len` is the length of the last line in `writer`.
@@ -381,7 +382,7 @@
     /// * `can_go_to_new_line_now` is whether the current line can
     ///   be wrapped now or not.
     </span><span class="kw">pub fn </span>new(
-        writer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="kw">dyn </span>Write,
+        writer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>Write,
         line_len: usize,
         spaces: usize,
         optional_breakpoint: bool,
@@ -398,7 +399,7 @@
 
     <span class="doccomment">/// Go to a new line and reset the `line_len` to `0`.
     </span><span class="kw">pub fn </span>new_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
-        <span class="self">self</span>.writer.write_str(<span class="string">&quot;\r\n&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.writer.write_str(<span class="string">"\r\n"</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.line_len = <span class="number">0</span>;
         <span class="self">self</span>.optional_breakpoint = <span class="bool-val">false</span>;
         <span class="self">self</span>.can_go_to_new_line_now = <span class="bool-val">false</span>;
@@ -408,7 +409,7 @@
 
     <span class="doccomment">/// Equivalent to calling `new_line()` and `space()` consecutively.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_line_and_space(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
-        <span class="self">self</span>.writer.write_str(<span class="string">&quot;\r\n &quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.writer.write_str(<span class="string">"\r\n "</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.line_len = <span class="number">1</span>;
         <span class="self">self</span>.optional_breakpoint = <span class="bool-val">false</span>;
         <span class="self">self</span>.can_go_to_new_line_now = <span class="bool-val">false</span>;
@@ -418,7 +419,7 @@
 
     <span class="attr">#[cfg(not(tarpaulin_include))]
     #[doc(hidden)]
-    #[deprecated(note = <span class="string">&quot;Renamed to `new_line`&quot;</span>, since = <span class="string">&quot;0.1.2&quot;</span>)]
+    #[deprecated(note = <span class="string">"Renamed to `new_line`"</span>, since = <span class="string">"0.1.2"</span>)]
     </span><span class="kw">pub fn </span>new_line_no_initial_space(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
         <span class="self">self</span>.new_line()
     }
@@ -428,9 +429,9 @@
         <span class="self">self</span>.spaces += <span class="number">1</span>;
     }
 
-    <span class="doccomment">/// Write a space which won&#39;t be printed if the line wraps.
+    <span class="doccomment">/// Write a space which won't be printed if the line wraps.
     ///
-    /// This method shouldn&#39;t be called multiple times consecutively,
+    /// This method shouldn't be called multiple times consecutively,
     /// and will panic if debug assertions are on.
     </span><span class="kw">pub fn </span>optional_breakpoint(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="macro">debug_assert!</span>(!<span class="self">self</span>.optional_breakpoint);
@@ -451,13 +452,13 @@
     <span class="doccomment">/// Get a [`Write`]r which automatically line folds text written to it.
     ///
     /// [`Write`]: std::fmt::Write
-    </span><span class="kw">pub fn </span>folding&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; FoldingEmailWriter&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+    </span><span class="kw">pub fn </span>folding&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; FoldingEmailWriter&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
         FoldingEmailWriter { writer: <span class="self">self </span>}
     }
 
     <span class="kw">fn </span>write_spaces(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
         <span class="kw">while </span><span class="self">self</span>.spaces &gt; <span class="number">0 </span>{
-            <span class="self">self</span>.writer.write_char(<span class="string">&#39; &#39;</span>)<span class="question-mark">?</span>;
+            <span class="self">self</span>.writer.write_char(<span class="string">' '</span>)<span class="question-mark">?</span>;
             <span class="self">self</span>.line_len += <span class="number">1</span>;
             <span class="self">self</span>.spaces -= <span class="number">1</span>;
         }
@@ -466,12 +467,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Write <span class="kw">for </span>EmailWriter&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Write <span class="kw">for </span>EmailWriter&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result {
         <span class="self">self</span>.spaces += usize::from(mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.optional_breakpoint));
         <span class="self">self</span>.write_spaces()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>s_after = s.trim_end_matches(<span class="string">&#39; &#39;</span>);
+        <span class="kw">let </span>s_after = s.trim_end_matches(<span class="string">' '</span>);
         <span class="self">self</span>.spaces += s.len() - s_after.len();
 
         <span class="kw">if </span>!s_after.is_empty() {
@@ -484,7 +485,7 @@
     }
 
     <span class="kw">fn </span>write_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) -&gt; fmt::Result {
-        <span class="kw">if </span>c == <span class="string">&#39; &#39; </span>{
+        <span class="kw">if </span>c == <span class="string">' ' </span>{
             <span class="self">self</span>.spaces += <span class="number">1</span>;
         } <span class="kw">else </span>{
             <span class="self">self</span>.spaces += usize::from(mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.optional_breakpoint));
@@ -499,7 +500,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Drop <span class="kw">for </span>EmailWriter&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Drop <span class="kw">for </span>EmailWriter&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let _ </span>= <span class="self">self</span>.write_spaces();
     }
@@ -509,20 +510,20 @@
 /// last line and automatically line folds text written to it.
 ///
 /// [`Write`]: std::fmt::Write
-</span><span class="kw">pub struct </span>FoldingEmailWriter&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
-    writer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>EmailWriter&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>FoldingEmailWriter&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
+    writer: <span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span>EmailWriter&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; Write <span class="kw">for </span>FoldingEmailWriter&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; Write <span class="kw">for </span>FoldingEmailWriter&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
     <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>s: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result {
         <span class="kw">while </span>!s.is_empty() {
-            <span class="kw">if </span>s.starts_with(<span class="string">&#39; &#39;</span>) {
+            <span class="kw">if </span>s.starts_with(<span class="string">' '</span>) {
                 <span class="self">self</span>.writer.space();
                 s = <span class="kw-2">&amp;</span>s[<span class="number">1</span>..];
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let </span>(start, end) = s.find(<span class="string">&#39; &#39;</span>).map_or((s, <span class="string">&quot;&quot;</span>), |i| s.split_at(i));
+            <span class="kw">let </span>(start, end) = s.find(<span class="string">' '</span>).map_or((s, <span class="string">""</span>), |i| s.split_at(i));
 
             <span class="kw">match </span>(
                 <span class="self">self</span>.writer.can_go_to_new_line_now,
@@ -547,7 +548,7 @@
     }
 
     <span class="kw">fn </span>write_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) -&gt; fmt::Result {
-        <span class="kw">if </span>c == <span class="string">&#39; &#39; </span>{
+        <span class="kw">if </span>c == <span class="string">' ' </span>{
             <span class="self">self</span>.writer.spaces += <span class="number">1</span>;
         } <span class="kw">else </span>{
             <span class="self">self</span>.write_str(c.encode_utf8(<span class="kw-2">&amp;mut </span>[<span class="number">0u8</span>; <span class="number">4</span>]))<span class="question-mark">?</span>;
@@ -566,140 +567,140 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>wrap_immediate() {
         <span class="kw">let </span><span class="kw-2">mut </span>s =
-            <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;</span>.to_owned();
+            <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"</span>.to_owned();
         <span class="kw">let </span>line_len = s.len();
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>);
             <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">16 </span>{
-                w.folding().write_str(<span class="string">&quot;0123456789&quot;</span>).unwrap();
+                w.folding().write_str(<span class="string">"0123456789"</span>).unwrap();
             }
         }
 
         <span class="macro">assert_eq!</span>(
             s,
-            <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789&quot;</span>,
+            <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"</span>,
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>wrap_keeping_final_whitespace() {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Subject: AAAAAAAAAAAAAA&quot;</span>.to_owned();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">"Subject: AAAAAAAAAAAAAA"</span>.to_owned();
         <span class="kw">let </span>line_len = s.len();
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">1</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>);
-            w.folding().write_str(<span class="string">&quot;12345 &quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"12345 "</span>).unwrap();
             w.new_line().unwrap();
-            w.folding().write_str(<span class="string">&quot;12345&quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"12345"</span>).unwrap();
         }
 
-        <span class="macro">assert_eq!</span>(s, <span class="macro">concat!</span>(<span class="string">&quot;Subject: AAAAAAAAAAAAAA 12345\r\n&quot;</span>, <span class="string">&quot; 12345&quot;</span>));
+        <span class="macro">assert_eq!</span>(s, <span class="macro">concat!</span>(<span class="string">"Subject: AAAAAAAAAAAAAA 12345\r\n"</span>, <span class="string">" 12345"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>catch_space() {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;</span>.to_owned();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"</span>.to_owned();
         <span class="kw">let </span>line_len = s.len();
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">1</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>);
-            w.folding().write_str(<span class="string">&quot;BBB &quot;</span>).unwrap();
-            w.folding().write_str(<span class="string">&quot;CCCCCCCCCCCCC&quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"BBB "</span>).unwrap();
+            w.folding().write_str(<span class="string">"CCCCCCCCCCCCC"</span>).unwrap();
         }
 
         <span class="macro">assert_eq!</span>(
             s,
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBB\r\n&quot;</span>,
-                <span class="string">&quot; CCCCCCCCCCCCC&quot;
+                <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBB\r\n"</span>,
+                <span class="string">" CCCCCCCCCCCCC"
             </span>)
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>catch_spaces() {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;</span>.to_owned();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"</span>.to_owned();
         <span class="kw">let </span>line_len = s.len();
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">1</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>);
-            w.folding().write_str(<span class="string">&quot;BBB   &quot;</span>).unwrap();
-            w.folding().write_str(<span class="string">&quot;CCCCCCCCCCCCC&quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"BBB   "</span>).unwrap();
+            w.folding().write_str(<span class="string">"CCCCCCCCCCCCC"</span>).unwrap();
         }
 
         <span class="macro">assert_eq!</span>(
             s,
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBB\r\n&quot;</span>,
-                <span class="string">&quot;   CCCCCCCCCCCCC&quot;
+                <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBB\r\n"</span>,
+                <span class="string">"   CCCCCCCCCCCCC"
             </span>)
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>explicit_space() {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;</span>.to_owned();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"</span>.to_owned();
         <span class="kw">let </span>line_len = s.len();
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">1</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>);
-            w.folding().write_str(<span class="string">&quot;BBB&quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"BBB"</span>).unwrap();
             w.space();
-            w.folding().write_str(<span class="string">&quot;CCCCCCCCCCCCC&quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"CCCCCCCCCCCCC"</span>).unwrap();
         }
 
         <span class="macro">assert_eq!</span>(
             s,
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBB\r\n&quot;</span>,
-                <span class="string">&quot; CCCCCCCCCCCCC&quot;
+                <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBB\r\n"</span>,
+                <span class="string">" CCCCCCCCCCCCC"
             </span>)
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>explicit_spaces() {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;</span>.to_owned();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"</span>.to_owned();
         <span class="kw">let </span>line_len = s.len();
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">1</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>);
-            w.folding().write_str(<span class="string">&quot;BBB&quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"BBB"</span>).unwrap();
             w.space();
-            w.write_char(<span class="string">&#39; &#39;</span>).unwrap();
+            w.write_char(<span class="string">' '</span>).unwrap();
             w.space();
-            w.folding().write_str(<span class="string">&quot;CCCCCCCCCCCCC&quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"CCCCCCCCCCCCC"</span>).unwrap();
         }
 
         <span class="macro">assert_eq!</span>(
             s,
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBB\r\n&quot;</span>,
-                <span class="string">&quot;   CCCCCCCCCCCCC&quot;
+                <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBB\r\n"</span>,
+                <span class="string">"   CCCCCCCCCCCCC"
             </span>)
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>optional_breakpoint() {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot;
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
             </span>.to_owned();
         <span class="kw">let </span>line_len = s.len();
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="number">0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>);
             w.optional_breakpoint();
-            w.folding().write_str(<span class="string">&quot;BBBBBBBBBB&quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"BBBBBBBBBB"</span>).unwrap();
             w.optional_breakpoint();
-            w.folding().write_str(<span class="string">&quot;CCCCCCCCCC&quot;</span>).unwrap();
+            w.folding().write_str(<span class="string">"CCCCCCCCCC"</span>).unwrap();
         }
 
         <span class="macro">assert_eq!</span>(
             s,
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n&quot;</span>,
-                <span class="string">&quot; BBBBBBBBBB CCCCCCCCCC&quot;</span>,
+                <span class="string">"Subject: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n"</span>,
+                <span class="string">" BBBBBBBBBB CCCCCCCCCC"</span>,
             )
         );
     }

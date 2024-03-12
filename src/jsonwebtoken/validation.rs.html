@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonwebtoken-7.2.0/src/validation.rs`."><title>validation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jsonwebtoken" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonwebtoken-7.2.0/src/validation.rs`."><title>validation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jsonwebtoken" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -487,8 +488,8 @@
 ///
 /// // Setting audience
 /// let mut validation = Validation::default();
-/// validation.set_audience(&amp;[&quot;Me&quot;]); // a single string
-/// validation.set_audience(&amp;[&quot;Me&quot;, &quot;You&quot;]); // array of strings
+/// validation.set_audience(&amp;["Me"]); // a single string
+/// validation.set_audience(&amp;["Me", "You"]); // array of strings
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, PartialEq)]
 </span><span class="kw">pub struct </span>Validation {
@@ -564,14 +565,14 @@
 
 <span class="kw">fn </span>get_current_timestamp() -&gt; u64 {
     <span class="kw">let </span>start = SystemTime::now();
-    start.duration_since(UNIX_EPOCH).expect(<span class="string">&quot;Time went backwards&quot;</span>).as_secs()
+    start.duration_since(UNIX_EPOCH).expect(<span class="string">"Time went backwards"</span>).as_secs()
 }
 
 <span class="kw">pub fn </span>validate(claims: <span class="kw-2">&amp;</span>Map&lt;String, Value&gt;, options: <span class="kw-2">&amp;</span>Validation) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">let </span>now = get_current_timestamp();
 
     <span class="kw">if </span>options.validate_exp {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(exp) = claims.get(<span class="string">&quot;exp&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(exp) = claims.get(<span class="string">"exp"</span>) {
             <span class="kw">if </span>from_value::&lt;u64&gt;(exp.clone())<span class="question-mark">? </span>&lt; now - options.leeway {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::ExpiredSignature));
             }
@@ -581,7 +582,7 @@
     }
 
     <span class="kw">if </span>options.validate_nbf {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(nbf) = claims.get(<span class="string">&quot;nbf&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(nbf) = claims.get(<span class="string">"nbf"</span>) {
             <span class="kw">if </span>from_value::&lt;u64&gt;(nbf.clone())<span class="question-mark">? </span>&gt; now + options.leeway {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::ImmatureSignature));
             }
@@ -591,7 +592,7 @@
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>correct_iss) = options.iss {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(iss) = claims.get(<span class="string">&quot;iss&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(iss) = claims.get(<span class="string">"iss"</span>) {
             <span class="kw">if </span>from_value::&lt;String&gt;(iss.clone())<span class="question-mark">? </span>!= <span class="kw-2">*</span>correct_iss {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidIssuer));
             }
@@ -601,7 +602,7 @@
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>correct_sub) = options.sub {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(sub) = claims.get(<span class="string">&quot;sub&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(sub) = claims.get(<span class="string">"sub"</span>) {
             <span class="kw">if </span>from_value::&lt;String&gt;(sub.clone())<span class="question-mark">? </span>!= <span class="kw-2">*</span>correct_sub {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidSubject));
             }
@@ -611,7 +612,7 @@
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>correct_aud) = options.aud {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(aud) = claims.get(<span class="string">&quot;aud&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(aud) = claims.get(<span class="string">"aud"</span>) {
             <span class="kw">match </span>aud {
                 Value::String(aud_found) =&gt; {
                     <span class="kw">if </span>!correct_aud.contains(aud_found) {
@@ -646,7 +647,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>exp_in_future_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;exp&quot;</span>.to_string(), to_value(get_current_timestamp() + <span class="number">10000</span>).unwrap());
+        claims.insert(<span class="string">"exp"</span>.to_string(), to_value(get_current_timestamp() + <span class="number">10000</span>).unwrap());
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>Validation::default());
         <span class="macro">assert!</span>(res.is_ok());
     }
@@ -654,7 +655,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>exp_in_past_fails() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;exp&quot;</span>.to_string(), to_value(get_current_timestamp() - <span class="number">100000</span>).unwrap());
+        claims.insert(<span class="string">"exp"</span>.to_string(), to_value(get_current_timestamp() - <span class="number">100000</span>).unwrap());
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>Validation::default());
         <span class="macro">assert!</span>(res.is_err());
 
@@ -667,7 +668,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>exp_in_past_but_in_leeway_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;exp&quot;</span>.to_string(), to_value(get_current_timestamp() - <span class="number">500</span>).unwrap());
+        claims.insert(<span class="string">"exp"</span>.to_string(), to_value(get_current_timestamp() - <span class="number">500</span>).unwrap());
         <span class="kw">let </span>validation = Validation { leeway: <span class="number">1000 </span>* <span class="number">60</span>, ..Default::default() };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
         <span class="macro">assert!</span>(res.is_ok());
@@ -688,7 +689,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>nbf_in_past_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;nbf&quot;</span>.to_string(), to_value(get_current_timestamp() - <span class="number">10000</span>).unwrap());
+        claims.insert(<span class="string">"nbf"</span>.to_string(), to_value(get_current_timestamp() - <span class="number">10000</span>).unwrap());
         <span class="kw">let </span>validation =
             Validation { validate_exp: <span class="bool-val">false</span>, validate_nbf: <span class="bool-val">true</span>, ..Validation::default() };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
@@ -698,7 +699,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>nbf_in_future_fails() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;nbf&quot;</span>.to_string(), to_value(get_current_timestamp() + <span class="number">100000</span>).unwrap());
+        claims.insert(<span class="string">"nbf"</span>.to_string(), to_value(get_current_timestamp() + <span class="number">100000</span>).unwrap());
         <span class="kw">let </span>validation =
             Validation { validate_exp: <span class="bool-val">false</span>, validate_nbf: <span class="bool-val">true</span>, ..Validation::default() };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
@@ -713,7 +714,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>nbf_in_future_but_in_leeway_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;nbf&quot;</span>.to_string(), to_value(get_current_timestamp() + <span class="number">500</span>).unwrap());
+        claims.insert(<span class="string">"nbf"</span>.to_string(), to_value(get_current_timestamp() + <span class="number">500</span>).unwrap());
         <span class="kw">let </span>validation = Validation {
             leeway: <span class="number">1000 </span>* <span class="number">60</span>,
             validate_nbf: <span class="bool-val">true</span>,
@@ -727,10 +728,10 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>iss_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;iss&quot;</span>.to_string(), to_value(<span class="string">&quot;Keats&quot;</span>).unwrap());
+        claims.insert(<span class="string">"iss"</span>.to_string(), to_value(<span class="string">"Keats"</span>).unwrap());
         <span class="kw">let </span>validation = Validation {
             validate_exp: <span class="bool-val">false</span>,
-            iss: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            iss: <span class="prelude-val">Some</span>(<span class="string">"Keats"</span>.to_string()),
             ..Default::default()
         };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
@@ -740,10 +741,10 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>iss_not_matching_fails() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;iss&quot;</span>.to_string(), to_value(<span class="string">&quot;Hacked&quot;</span>).unwrap());
+        claims.insert(<span class="string">"iss"</span>.to_string(), to_value(<span class="string">"Hacked"</span>).unwrap());
         <span class="kw">let </span>validation = Validation {
             validate_exp: <span class="bool-val">false</span>,
-            iss: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            iss: <span class="prelude-val">Some</span>(<span class="string">"Keats"</span>.to_string()),
             ..Default::default()
         };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
@@ -760,7 +761,7 @@
         <span class="kw">let </span>claims = Map::new();
         <span class="kw">let </span>validation = Validation {
             validate_exp: <span class="bool-val">false</span>,
-            iss: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            iss: <span class="prelude-val">Some</span>(<span class="string">"Keats"</span>.to_string()),
             ..Default::default()
         };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
@@ -775,10 +776,10 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>sub_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;sub&quot;</span>.to_string(), to_value(<span class="string">&quot;Keats&quot;</span>).unwrap());
+        claims.insert(<span class="string">"sub"</span>.to_string(), to_value(<span class="string">"Keats"</span>).unwrap());
         <span class="kw">let </span>validation = Validation {
             validate_exp: <span class="bool-val">false</span>,
-            sub: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            sub: <span class="prelude-val">Some</span>(<span class="string">"Keats"</span>.to_string()),
             ..Default::default()
         };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
@@ -788,10 +789,10 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>sub_not_matching_fails() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;sub&quot;</span>.to_string(), to_value(<span class="string">&quot;Hacked&quot;</span>).unwrap());
+        claims.insert(<span class="string">"sub"</span>.to_string(), to_value(<span class="string">"Hacked"</span>).unwrap());
         <span class="kw">let </span>validation = Validation {
             validate_exp: <span class="bool-val">false</span>,
-            sub: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            sub: <span class="prelude-val">Some</span>(<span class="string">"Keats"</span>.to_string()),
             ..Default::default()
         };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
@@ -808,7 +809,7 @@
         <span class="kw">let </span>claims = Map::new();
         <span class="kw">let </span>validation = Validation {
             validate_exp: <span class="bool-val">false</span>,
-            sub: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            sub: <span class="prelude-val">Some</span>(<span class="string">"Keats"</span>.to_string()),
             ..Default::default()
         };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
@@ -823,9 +824,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>aud_string_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;aud&quot;</span>.to_string(), to_value([<span class="string">&quot;Everyone&quot;</span>]).unwrap());
+        claims.insert(<span class="string">"aud"</span>.to_string(), to_value([<span class="string">"Everyone"</span>]).unwrap());
         <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
-        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;Everyone&quot;</span>]);
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">"Everyone"</span>]);
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
         <span class="macro">assert!</span>(res.is_ok());
     }
@@ -833,9 +834,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>aud_array_of_string_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;aud&quot;</span>.to_string(), to_value([<span class="string">&quot;UserA&quot;</span>, <span class="string">&quot;UserB&quot;</span>]).unwrap());
+        claims.insert(<span class="string">"aud"</span>.to_string(), to_value([<span class="string">"UserA"</span>, <span class="string">"UserB"</span>]).unwrap());
         <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
-        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;UserA&quot;</span>, <span class="string">&quot;UserB&quot;</span>]);
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">"UserA"</span>, <span class="string">"UserB"</span>]);
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
         <span class="macro">assert!</span>(res.is_ok());
     }
@@ -843,9 +844,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>aud_type_mismatch_fails() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;aud&quot;</span>.to_string(), to_value([<span class="string">&quot;Everyone&quot;</span>]).unwrap());
+        claims.insert(<span class="string">"aud"</span>.to_string(), to_value([<span class="string">"Everyone"</span>]).unwrap());
         <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
-        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;UserA&quot;</span>, <span class="string">&quot;UserB&quot;</span>]);
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">"UserA"</span>, <span class="string">"UserB"</span>]);
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
         <span class="macro">assert!</span>(res.is_err());
 
@@ -858,9 +859,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>aud_correct_type_not_matching_fails() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;aud&quot;</span>.to_string(), to_value([<span class="string">&quot;Everyone&quot;</span>]).unwrap());
+        claims.insert(<span class="string">"aud"</span>.to_string(), to_value([<span class="string">"Everyone"</span>]).unwrap());
         <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
-        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;None&quot;</span>]);
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">"None"</span>]);
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
         <span class="macro">assert!</span>(res.is_err());
 
@@ -874,7 +875,7 @@
     </span><span class="kw">fn </span>aud_missing_fails() {
         <span class="kw">let </span>claims = Map::new();
         <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
-        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;None&quot;</span>]);
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">"None"</span>]);
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
         <span class="macro">assert!</span>(res.is_err());
 
@@ -888,12 +889,12 @@
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>does_validation_in_right_order() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
-        claims.insert(<span class="string">&quot;exp&quot;</span>.to_string(), to_value(get_current_timestamp() + <span class="number">10000</span>).unwrap());
+        claims.insert(<span class="string">"exp"</span>.to_string(), to_value(get_current_timestamp() + <span class="number">10000</span>).unwrap());
         <span class="kw">let </span>v = Validation {
             leeway: <span class="number">5</span>,
             validate_exp: <span class="bool-val">true</span>,
-            iss: <span class="prelude-val">Some</span>(<span class="string">&quot;iss no check&quot;</span>.to_string()),
-            sub: <span class="prelude-val">Some</span>(<span class="string">&quot;sub no check&quot;</span>.to_string()),
+            iss: <span class="prelude-val">Some</span>(<span class="string">"iss no check"</span>.to_string()),
+            sub: <span class="prelude-val">Some</span>(<span class="string">"sub no check"</span>.to_string()),
             ..Validation::default()
         };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>v);
@@ -902,7 +903,7 @@
         <span class="kw">match </span>res.unwrap_err().kind() {
             <span class="kw-2">&amp;</span>ErrorKind::InvalidIssuer =&gt; (),
             t @ <span class="kw">_ </span>=&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, t);
+                <span class="macro">println!</span>(<span class="string">"{:?}"</span>, t);
                 <span class="macro">assert!</span>(<span class="bool-val">false</span>)
             }
         };
@@ -913,18 +914,18 @@
     </span><span class="kw">fn </span>aud_use_validation_struct() {
         <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
         claims.insert(
-            <span class="string">&quot;aud&quot;</span>.to_string(),
-            to_value(<span class="string">&quot;my-googleclientid1234.apps.googleusercontent.com&quot;</span>).unwrap(),
+            <span class="string">"aud"</span>.to_string(),
+            to_value(<span class="string">"my-googleclientid1234.apps.googleusercontent.com"</span>).unwrap(),
         );
 
-        <span class="kw">let </span>aud = <span class="string">&quot;my-googleclientid1234.apps.googleusercontent.com&quot;</span>.to_string();
+        <span class="kw">let </span>aud = <span class="string">"my-googleclientid1234.apps.googleusercontent.com"</span>.to_string();
         <span class="kw">let </span><span class="kw-2">mut </span>aud_hashset = std::collections::HashSet::new();
         aud_hashset.insert(aud);
 
         <span class="kw">let </span>validation =
             Validation { aud: <span class="prelude-val">Some</span>(aud_hashset), validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
         <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, res);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, res);
         <span class="macro">assert!</span>(res.is_ok());
     }
 }

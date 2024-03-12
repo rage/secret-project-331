@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/repo.rs`."><title>repo.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/repo.rs`."><title>repo.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4224,6 +4225,86 @@
 <a href="#4224" id="4224">4224</a>
 <a href="#4225" id="4225">4225</a>
 <a href="#4226" id="4226">4226</a>
+<a href="#4227" id="4227">4227</a>
+<a href="#4228" id="4228">4228</a>
+<a href="#4229" id="4229">4229</a>
+<a href="#4230" id="4230">4230</a>
+<a href="#4231" id="4231">4231</a>
+<a href="#4232" id="4232">4232</a>
+<a href="#4233" id="4233">4233</a>
+<a href="#4234" id="4234">4234</a>
+<a href="#4235" id="4235">4235</a>
+<a href="#4236" id="4236">4236</a>
+<a href="#4237" id="4237">4237</a>
+<a href="#4238" id="4238">4238</a>
+<a href="#4239" id="4239">4239</a>
+<a href="#4240" id="4240">4240</a>
+<a href="#4241" id="4241">4241</a>
+<a href="#4242" id="4242">4242</a>
+<a href="#4243" id="4243">4243</a>
+<a href="#4244" id="4244">4244</a>
+<a href="#4245" id="4245">4245</a>
+<a href="#4246" id="4246">4246</a>
+<a href="#4247" id="4247">4247</a>
+<a href="#4248" id="4248">4248</a>
+<a href="#4249" id="4249">4249</a>
+<a href="#4250" id="4250">4250</a>
+<a href="#4251" id="4251">4251</a>
+<a href="#4252" id="4252">4252</a>
+<a href="#4253" id="4253">4253</a>
+<a href="#4254" id="4254">4254</a>
+<a href="#4255" id="4255">4255</a>
+<a href="#4256" id="4256">4256</a>
+<a href="#4257" id="4257">4257</a>
+<a href="#4258" id="4258">4258</a>
+<a href="#4259" id="4259">4259</a>
+<a href="#4260" id="4260">4260</a>
+<a href="#4261" id="4261">4261</a>
+<a href="#4262" id="4262">4262</a>
+<a href="#4263" id="4263">4263</a>
+<a href="#4264" id="4264">4264</a>
+<a href="#4265" id="4265">4265</a>
+<a href="#4266" id="4266">4266</a>
+<a href="#4267" id="4267">4267</a>
+<a href="#4268" id="4268">4268</a>
+<a href="#4269" id="4269">4269</a>
+<a href="#4270" id="4270">4270</a>
+<a href="#4271" id="4271">4271</a>
+<a href="#4272" id="4272">4272</a>
+<a href="#4273" id="4273">4273</a>
+<a href="#4274" id="4274">4274</a>
+<a href="#4275" id="4275">4275</a>
+<a href="#4276" id="4276">4276</a>
+<a href="#4277" id="4277">4277</a>
+<a href="#4278" id="4278">4278</a>
+<a href="#4279" id="4279">4279</a>
+<a href="#4280" id="4280">4280</a>
+<a href="#4281" id="4281">4281</a>
+<a href="#4282" id="4282">4282</a>
+<a href="#4283" id="4283">4283</a>
+<a href="#4284" id="4284">4284</a>
+<a href="#4285" id="4285">4285</a>
+<a href="#4286" id="4286">4286</a>
+<a href="#4287" id="4287">4287</a>
+<a href="#4288" id="4288">4288</a>
+<a href="#4289" id="4289">4289</a>
+<a href="#4290" id="4290">4290</a>
+<a href="#4291" id="4291">4291</a>
+<a href="#4292" id="4292">4292</a>
+<a href="#4293" id="4293">4293</a>
+<a href="#4294" id="4294">4294</a>
+<a href="#4295" id="4295">4295</a>
+<a href="#4296" id="4296">4296</a>
+<a href="#4297" id="4297">4297</a>
+<a href="#4298" id="4298">4298</a>
+<a href="#4299" id="4299">4299</a>
+<a href="#4300" id="4300">4300</a>
+<a href="#4301" id="4301">4301</a>
+<a href="#4302" id="4302">4302</a>
+<a href="#4303" id="4303">4303</a>
+<a href="#4304" id="4304">4304</a>
+<a href="#4305" id="4305">4305</a>
+<a href="#4306" id="4306">4306</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libc::{c_char, c_int, c_uint, c_void, size_t};
 <span class="kw">use </span>std::env;
 <span class="kw">use </span>std::ffi::{CStr, CString, OsStr};
@@ -4261,20 +4342,20 @@
 <span class="kw">use crate</span>::{DescribeOptions, Diff, DiffOptions, Odb, PackBuilder, TreeBuilder};
 <span class="kw">use crate</span>::{Note, Notes, ObjectType, Revwalk, Status, StatusOptions, Statuses, Tag, Transaction};
 
-<span class="kw">type </span>MergeheadForeachCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>Oid) -&gt; bool + <span class="lifetime">&#39;a</span>;
-<span class="kw">type </span>FetchheadForeachCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>[u8], <span class="kw-2">&amp;</span>Oid, bool) -&gt; bool + <span class="lifetime">&#39;a</span>;
+<span class="kw">type </span>MergeheadForeachCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>Oid) -&gt; bool + <span class="lifetime">'a</span>;
+<span class="kw">type </span>FetchheadForeachCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>[u8], <span class="kw-2">&amp;</span>Oid, bool) -&gt; bool + <span class="lifetime">'a</span>;
 
-<span class="kw">struct </span>FetchheadForeachCbData&lt;<span class="lifetime">&#39;a</span>&gt; {
-    callback: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>FetchheadForeachCb&lt;<span class="lifetime">&#39;a</span>&gt;,
+<span class="kw">struct </span>FetchheadForeachCbData&lt;<span class="lifetime">'a</span>&gt; {
+    callback: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>FetchheadForeachCb&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">struct </span>MergeheadForeachCbData&lt;<span class="lifetime">&#39;a</span>&gt; {
-    callback: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>MergeheadForeachCb&lt;<span class="lifetime">&#39;a</span>&gt;,
+<span class="kw">struct </span>MergeheadForeachCbData&lt;<span class="lifetime">'a</span>&gt; {
+    callback: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>MergeheadForeachCb&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>mergehead_foreach_cb(oid: <span class="kw-2">*const </span>raw::git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>mergehead_foreach_cb(oid: <span class="kw-2">*const </span>raw::git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
     panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>MergeheadForeachCbData&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>MergeheadForeachCbData&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>res = {
             <span class="kw">let </span>callback = <span class="kw-2">&amp;mut </span>data.callback;
             callback(<span class="kw-2">&amp;</span>Binding::from_raw(oid))
@@ -4289,7 +4370,7 @@
     .unwrap_or(<span class="number">1</span>)
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>fetchhead_foreach_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>fetchhead_foreach_cb(
     ref_name: <span class="kw-2">*const </span>c_char,
     remote_url: <span class="kw-2">*const </span>c_char,
     oid: <span class="kw-2">*const </span>raw::git_oid,
@@ -4297,7 +4378,7 @@
     payload: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int {
     panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>FetchheadForeachCbData&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>FetchheadForeachCbData&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>res = {
             <span class="kw">let </span>callback = <span class="kw-2">&amp;mut </span>data.callback;
 
@@ -4411,10 +4492,10 @@
     /// stat st_dev field changes).
     ///
     /// If flags contains [BARE](RepositoryOpenFlags::BARE), force opening the repository as
-    /// bare even if it isn&#39;t, ignoring any working directory, and defer
+    /// bare even if it isn't, ignoring any working directory, and defer
     /// loading the repository configuration for performance.
     ///
-    /// If flags contains [NO_DOTGIT](RepositoryOpenFlags::NO_DOTGIT), don&#39;t try appending
+    /// If flags contains [NO_DOTGIT](RepositoryOpenFlags::NO_DOTGIT), don't try appending
     /// `/.git` to `path`.
     ///
     /// If flags contains [FROM_ENV](RepositoryOpenFlags::FROM_ENV), `open_ext` will ignore
@@ -4568,7 +4649,7 @@
     }
 
     <span class="doccomment">/// Attempt to wrap an object database as a repository.
-    </span><span class="kw">pub fn </span>from_odb(odb: Odb&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Repository, Error&gt; {
+    </span><span class="kw">pub fn </span>from_odb(odb: Odb&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Repository, Error&gt; {
         <span class="kw">crate</span>::init();
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -4601,7 +4682,7 @@
     ///
     /// The resulting revision specification is returned, or an error is
     /// returned if one occurs.
-    </span><span class="kw">pub fn </span>revparse(<span class="kw-2">&amp;</span><span class="self">self</span>, spec: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Revspec&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>revparse(<span class="kw-2">&amp;</span><span class="self">self</span>, spec: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Revspec&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = raw::git_revspec {
             from: ptr::null_mut(),
             to: ptr::null_mut(),
@@ -4618,7 +4699,7 @@
     }
 
     <span class="doccomment">/// Find a single object, as specified by a revision string.
-    </span><span class="kw">pub fn </span>revparse_single(<span class="kw-2">&amp;</span><span class="self">self</span>, spec: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>revparse_single(<span class="kw-2">&amp;</span><span class="self">self</span>, spec: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>spec = CString::new(spec)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>obj = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -4637,7 +4718,7 @@
     /// In some cases (`@{&lt;-n&gt;}` or `&lt;branchname&gt;@{upstream}`), the expression
     /// may point to an intermediate reference. When such expressions are being
     /// passed in, this intermediate reference is returned.
-    </span><span class="kw">pub fn </span>revparse_ext(<span class="kw-2">&amp;</span><span class="self">self</span>, spec: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(Object&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="prelude-ty">Option</span>&lt;Reference&lt;<span class="lifetime">&#39;_</span>&gt;&gt;), Error&gt; {
+    </span><span class="kw">pub fn </span>revparse_ext(<span class="kw-2">&amp;</span><span class="self">self</span>, spec: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(Object&lt;<span class="lifetime">'_</span>&gt;, <span class="prelude-ty">Option</span>&lt;Reference&lt;<span class="lifetime">'_</span>&gt;&gt;), Error&gt; {
         <span class="kw">let </span>spec = CString::new(spec)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>git_obj = ptr::null_mut();
         <span class="kw">let </span><span class="kw-2">mut </span>git_ref = ptr::null_mut();
@@ -4691,7 +4772,7 @@
                 <span class="kw">super</span>::RepositoryState::<span class="macro-nonterminal">$real
             </span>}) <span class="kw">else </span>*
             <span class="kw">else </span>{
-                <span class="macro">panic!</span>(<span class="string">&quot;unknown repository state: {}&quot;</span>, state)
+                <span class="macro">panic!</span>(<span class="string">"unknown repository state: {}"</span>, state)
             }
         ) );
 
@@ -4728,7 +4809,7 @@
     <span class="doccomment">/// Set the path to the working directory for this repository.
     ///
     /// If `update_link` is true, create/update the gitlink file in the workdir
-    /// and set config &quot;core.worktree&quot; (if workdir is not the parent of the .git
+    /// and set config "core.worktree" (if workdir is not the parent of the .git
     /// directory).
     </span><span class="kw">pub fn </span>set_workdir(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path, update_gitlink: bool) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="comment">// Normal file path OK (does not need Windows conversion).
@@ -4811,7 +4892,7 @@
     }
 
     <span class="doccomment">/// Get the information for a particular remote
-    </span><span class="kw">pub fn </span>find_remote(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_remote(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
@@ -4820,9 +4901,9 @@
         }
     }
 
-    <span class="doccomment">/// Add a remote with the default fetch refspec to the repository&#39;s
+    <span class="doccomment">/// Add a remote with the default fetch refspec to the repository's
     /// configuration.
-    </span><span class="kw">pub fn </span>remote(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>remote(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span>url = CString::new(url)<span class="question-mark">?</span>;
@@ -4832,14 +4913,14 @@
         }
     }
 
-    <span class="doccomment">/// Add a remote with the provided fetch refspec to the repository&#39;s
+    <span class="doccomment">/// Add a remote with the provided fetch refspec to the repository's
     /// configuration.
     </span><span class="kw">pub fn </span>remote_with_fetch(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         name: <span class="kw-2">&amp;</span>str,
         url: <span class="kw-2">&amp;</span>str,
         fetch: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span>url = CString::new(url)<span class="question-mark">?</span>;
@@ -4855,9 +4936,9 @@
     <span class="doccomment">/// Create an anonymous remote
     ///
     /// Create a remote with the given URL and refspec in memory. You can use
-    /// this when you have a URL instead of a remote&#39;s name. Note that anonymous
+    /// this when you have a URL instead of a remote's name. Note that anonymous
     /// remotes cannot be converted to persisted remotes.
-    </span><span class="kw">pub fn </span>remote_anonymous(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>remote_anonymous(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">let </span>url = CString::new(url)<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
@@ -4909,7 +4990,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Add a fetch refspec to the remote&#39;s configuration
+    <span class="doccomment">/// Add a fetch refspec to the remote's configuration
     ///
     /// Add the given refspec to the fetch list in the configuration. No loaded
     /// remote instances will be affected.
@@ -4922,7 +5003,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Add a push refspec to the remote&#39;s configuration.
+    <span class="doccomment">/// Add a push refspec to the remote's configuration.
     ///
     /// Add the given refspec to the push list in the configuration. No
     /// loaded remote instances will be affected.
@@ -4935,7 +5016,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Set the remote&#39;s URL in the configuration
+    <span class="doccomment">/// Set the remote's URL in the configuration
     ///
     /// Remote objects already in memory will not be affected. This assumes
     /// the common case of a single-url remote and will otherwise return an
@@ -4949,7 +5030,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Set the remote&#39;s URL for pushing in the configuration.
+    <span class="doccomment">/// Set the remote's URL for pushing in the configuration.
     ///
     /// Remote objects already in memory will not be affected. This assumes
     /// the common case of a single-url remote and will otherwise return an
@@ -4984,9 +5065,9 @@
     /// The `checkout` options will only be used for a hard reset.
     </span><span class="kw">pub fn </span>reset(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        target: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;_</span>&gt;,
+        target: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">'_</span>&gt;,
         kind: ResetType,
-        checkout: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        checkout: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>opts: raw::git_checkout_options = mem::zeroed();
@@ -5010,7 +5091,7 @@
     ///
     /// Passing a `None` target will result in removing entries in the index
     /// matching the provided pathspecs.
-    </span><span class="kw">pub fn </span>reset_default&lt;T, I&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, target: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, paths: I) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    </span><span class="kw">pub fn </span>reset_default&lt;T, I&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, target: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">'_</span>&gt;&gt;, paths: I) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
         </span>T: IntoCString,
         I: IntoIterator&lt;Item = T&gt;,
@@ -5024,7 +5105,7 @@
     }
 
     <span class="doccomment">/// Retrieve and resolve the reference pointed at by HEAD.
-    </span><span class="kw">pub fn </span>head(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>head(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_repository_head(<span class="kw-2">&amp;mut </span>ret, <span class="self">self</span>.raw));
@@ -5038,8 +5119,8 @@
     /// unaltered and an error is returned.
     ///
     /// If the provided reference points to a branch, the HEAD will point to
-    /// that branch, staying attached, or become attached if it isn&#39;t yet. If
-    /// the branch doesn&#39;t exist yet, no error will be returned. The HEAD will
+    /// that branch, staying attached, or become attached if it isn't yet. If
+    /// the branch doesn't exist yet, no error will be returned. The HEAD will
     /// then be attached to an unborn branch.
     ///
     /// Otherwise, the HEAD will be detached and will directly point to the
@@ -5054,8 +5135,8 @@
     /// unaltered and an error is returned.
     ///
     /// If the provided reference points to a branch, the HEAD will point to
-    /// that branch, staying attached, or become attached if it isn&#39;t yet. If
-    /// the branch doesn&#39;t exist yet, no error will be returned. The HEAD will
+    /// that branch, staying attached, or become attached if it isn't yet. If
+    /// the branch doesn't exist yet, no error will be returned. The HEAD will
     /// then be attached to an unborn branch.
     ///
     /// Otherwise, the HEAD will be detached and will directly point to the
@@ -5110,7 +5191,7 @@
     /// to the peeled commit.
     </span><span class="kw">pub fn </span>set_head_detached_from_annotated(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        commitish: AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;,
+        commitish: AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_repository_set_head_detached_from_annotated(
@@ -5121,8 +5202,8 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Create an iterator for the repo&#39;s references
-    </span><span class="kw">pub fn </span>references(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;References&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    <span class="doccomment">/// Create an iterator for the repo's references
+    </span><span class="kw">pub fn </span>references(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;References&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_reference_iterator_new(<span class="kw-2">&amp;mut </span>ret, <span class="self">self</span>.raw));
@@ -5130,9 +5211,9 @@
         }
     }
 
-    <span class="doccomment">/// Create an iterator for the repo&#39;s references that match the specified
+    <span class="doccomment">/// Create an iterator for the repo's references that match the specified
     /// glob
-    </span><span class="kw">pub fn </span>references_glob(<span class="kw-2">&amp;</span><span class="self">self</span>, glob: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;References&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>references_glob(<span class="kw-2">&amp;</span><span class="self">self</span>, glob: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;References&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">let </span>glob = CString::new(glob)<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
@@ -5145,10 +5226,10 @@
     }
 
     <span class="doccomment">/// Load all submodules for this repository and return them.
-    </span><span class="kw">pub fn </span>submodules(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Submodule&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, Error&gt; {
-        <span class="kw">struct </span>Data&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
-            repo: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Repository,
-            ret: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Vec&lt;Submodule&lt;<span class="lifetime">&#39;b</span>&gt;&gt;,
+    </span><span class="kw">pub fn </span>submodules(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Submodule&lt;<span class="lifetime">'_</span>&gt;&gt;, Error&gt; {
+        <span class="kw">struct </span>Data&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
+            repo: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>Repository,
+            ret: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Vec&lt;Submodule&lt;<span class="lifetime">'b</span>&gt;&gt;,
         }
         <span class="kw">let </span><span class="kw-2">mut </span>ret = Vec::new();
 
@@ -5167,13 +5248,13 @@
 
         <span class="kw">return </span><span class="prelude-val">Ok</span>(ret);
 
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>append(
+        <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>append(
             _repo: <span class="kw-2">*mut </span>raw::git_submodule,
             name: <span class="kw-2">*const </span>c_char,
             data: <span class="kw-2">*mut </span>c_void,
         ) -&gt; c_int {
             <span class="kw">unsafe </span>{
-                <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>Data&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;);
+                <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>Data&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt;);
                 <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
                 <span class="kw">let </span>rc = raw::git_submodule_lookup(<span class="kw-2">&amp;mut </span>raw, data.repo.raw(), name);
                 <span class="macro">assert_eq!</span>(rc, <span class="number">0</span>);
@@ -5189,7 +5270,7 @@
     /// status, then the results from rename detection (if you enable it) may
     /// not be accurate. To do rename detection properly, this must be called
     /// with no pathspec so that all files can be considered.
-    </span><span class="kw">pub fn </span>statuses(<span class="kw-2">&amp;</span><span class="self">self</span>, options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>StatusOptions&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Statuses&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>statuses(<span class="kw-2">&amp;</span><span class="self">self</span>, options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>StatusOptions&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Statuses&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_status_list_new(
@@ -5207,7 +5288,7 @@
     /// given file. This indicates if the file would be ignored regardless of
     /// whether the file is already in the index or committed to the repository.
     ///
-    /// One way to think of this is if you were to do &quot;git add .&quot; on the
+    /// One way to think of this is if you were to do "git add ." on the
     /// directory containing the file, would it be added or not?
     </span><span class="kw">pub fn </span>status_should_ignore(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;bool, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="number">0 </span><span class="kw">as </span>c_int;
@@ -5244,7 +5325,7 @@
     }
 
     <span class="doccomment">/// Create an iterator which loops over the requested branches.
-    </span><span class="kw">pub fn </span>branches(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: <span class="prelude-ty">Option</span>&lt;BranchType&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Branches&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>branches(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: <span class="prelude-ty">Option</span>&lt;BranchType&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Branches&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_branch_iterator_new(<span class="kw-2">&amp;mut </span>raw, <span class="self">self</span>.raw(), filter));
@@ -5298,7 +5379,7 @@
     /// and avoid the special string.
     ///
     /// As such, the return type of this function will probably be changed in the next major version
-    /// to prevent interpreting the returned string without checking whether it&#39;s special.
+    /// to prevent interpreting the returned string without checking whether it's special.
     </span><span class="kw">pub fn </span>get_attr(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         path: <span class="kw-2">&amp;</span>Path,
@@ -5318,7 +5399,7 @@
     /// avoid the special string.
     ///
     /// As such, the return type of this function will probably be changed in the next major version
-    /// to prevent interpreting the returned byte slice without checking whether it&#39;s special.
+    /// to prevent interpreting the returned byte slice without checking whether it's special.
     </span><span class="kw">pub fn </span>get_attr_bytes(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         path: <span class="kw-2">&amp;</span>Path,
@@ -5389,7 +5470,7 @@
     /// If the `hintpath` parameter is filled, it will be used to determine
     /// what git filters should be applied to the object before it is written
     /// to the object database.
-    </span><span class="kw">pub fn </span>blob_writer(<span class="kw-2">&amp;</span><span class="self">self</span>, hintpath: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;BlobWriter&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>blob_writer(<span class="kw-2">&amp;</span><span class="self">self</span>, hintpath: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;BlobWriter&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>path_str = <span class="kw">match </span>hintpath {
             <span class="prelude-val">Some</span>(path) =&gt; <span class="prelude-val">Some</span>(path.into_c_string()<span class="question-mark">?</span>),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
@@ -5406,7 +5487,7 @@
     }
 
     <span class="doccomment">/// Lookup a reference to one of the objects in a repository.
-    </span><span class="kw">pub fn </span>find_blob(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Blob&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_blob(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Blob&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_blob_lookup(<span class="kw-2">&amp;mut </span>raw, <span class="self">self</span>.raw(), oid.raw()));
@@ -5415,7 +5496,7 @@
     }
 
     <span class="doccomment">/// Get the object database for this repository
-    </span><span class="kw">pub fn </span>odb(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Odb&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>odb(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Odb&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>odb = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_repository_odb(<span class="kw-2">&amp;mut </span>odb, <span class="self">self</span>.raw()));
@@ -5424,7 +5505,7 @@
     }
 
     <span class="doccomment">/// Override the object database for this repository
-    </span><span class="kw">pub fn </span>set_odb(<span class="kw-2">&amp;</span><span class="self">self</span>, odb: <span class="kw-2">&amp;</span>Odb&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">pub fn </span>set_odb(<span class="kw-2">&amp;</span><span class="self">self</span>, odb: <span class="kw-2">&amp;</span>Odb&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_repository_set_odb(<span class="self">self</span>.raw(), odb.raw()));
         }
@@ -5435,13 +5516,13 @@
     ///
     /// A new direct reference will be created pointing to this target commit.
     /// If `force` is true and a reference already exists with the given name,
-    /// it&#39;ll be replaced.
+    /// it'll be replaced.
     </span><span class="kw">pub fn </span>branch(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         branch_name: <span class="kw-2">&amp;</span>str,
-        target: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;,
+        target: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;,
         force: bool,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Branch&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Branch&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>branch_name = CString::new(branch_name)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -5467,9 +5548,9 @@
     </span><span class="kw">pub fn </span>branch_from_annotated_commit(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         branch_name: <span class="kw-2">&amp;</span>str,
-        target: <span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;,
+        target: <span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;,
         force: bool,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Branch&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Branch&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>branch_name = CString::new(branch_name)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -5485,7 +5566,7 @@
     }
 
     <span class="doccomment">/// Lookup a branch by its name in a repository.
-    </span><span class="kw">pub fn </span>find_branch(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, branch_type: BranchType) -&gt; <span class="prelude-ty">Result</span>&lt;Branch&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_branch(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, branch_type: BranchType) -&gt; <span class="prelude-ty">Result</span>&lt;Branch&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -5503,18 +5584,18 @@
     ///
     /// If the `update_ref` is not `None`, name of the reference that will be
     /// updated to point to this commit. If the reference is not direct, it will
-    /// be resolved to a direct reference. Use &quot;HEAD&quot; to update the HEAD of the
+    /// be resolved to a direct reference. Use "HEAD" to update the HEAD of the
     /// current branch and make it point to this commit. If the reference
-    /// doesn&#39;t exist yet, it will be created. If it does exist, the first
+    /// doesn't exist yet, it will be created. If it does exist, the first
     /// parent must be the tip of this branch.
     </span><span class="kw">pub fn </span>commit(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         update_ref: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
-        author: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
-        committer: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
+        author: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
+        committer: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
         message: <span class="kw-2">&amp;</span>str,
-        tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;,
-        parents: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;],
+        tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;,
+        parents: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
         <span class="kw">let </span>update_ref = <span class="kw">crate</span>::opt_cstr(update_ref)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>parent_ptrs = parents
@@ -5549,11 +5630,11 @@
     /// the arguments behave the same as in the `commit` function.
     </span><span class="kw">pub fn </span>commit_create_buffer(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        author: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
-        committer: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
+        author: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
+        committer: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
         message: <span class="kw-2">&amp;</span>str,
-        tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;,
-        parents: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;],
+        tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;,
+        parents: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Buf, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>parent_ptrs = parents
             .iter()
@@ -5579,7 +5660,7 @@
 
     <span class="doccomment">/// Create a commit object from the given buffer and signature
     ///
-    /// Given the unsigned commit object&#39;s contents, its signature and the
+    /// Given the unsigned commit object's contents, its signature and the
     /// header field in which to store the signature, attach the signature to
     /// the commit and write it into the given repository.
     ///
@@ -5636,7 +5717,7 @@
     }
 
     <span class="doccomment">/// Lookup a reference to one of the commits in a repository.
-    </span><span class="kw">pub fn </span>find_commit(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Commit&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_commit(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Commit&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_commit_lookup(<span class="kw-2">&amp;mut </span>raw, <span class="self">self</span>.raw(), oid.raw()));
@@ -5644,8 +5725,22 @@
         }
     }
 
+    <span class="doccomment">/// Lookup a reference to one of the commits in a repository by short hash.
+    </span><span class="kw">pub fn </span>find_commit_by_prefix(<span class="kw-2">&amp;</span><span class="self">self</span>, prefix_hash: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Commit&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_commit_lookup_prefix(
+                <span class="kw-2">&amp;mut </span>raw,
+                <span class="self">self</span>.raw(),
+                Oid::from_str(prefix_hash)<span class="question-mark">?</span>.raw(),
+                prefix_hash.len()
+            ));
+            <span class="prelude-val">Ok</span>(Binding::from_raw(raw))
+        }
+    }
+
     <span class="doccomment">/// Creates an `AnnotatedCommit` from the given commit id.
-    </span><span class="kw">pub fn </span>find_annotated_commit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_annotated_commit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
             <span class="macro">try_call!</span>(raw::git_annotated_commit_lookup(
@@ -5658,13 +5753,32 @@
     }
 
     <span class="doccomment">/// Lookup a reference to one of the objects in a repository.
-    </span><span class="kw">pub fn </span>find_object(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid, kind: <span class="prelude-ty">Option</span>&lt;ObjectType&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_object(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid, kind: <span class="prelude-ty">Option</span>&lt;ObjectType&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_object_lookup(
                 <span class="kw-2">&amp;mut </span>raw,
                 <span class="self">self</span>.raw(),
                 oid.raw(),
+                kind
+            ));
+            <span class="prelude-val">Ok</span>(Binding::from_raw(raw))
+        }
+    }
+
+    <span class="doccomment">/// Lookup a reference to one of the objects by id prefix in a repository.
+    </span><span class="kw">pub fn </span>find_object_by_prefix(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        prefix_hash: <span class="kw-2">&amp;</span>str,
+        kind: <span class="prelude-ty">Option</span>&lt;ObjectType&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_object_lookup_prefix(
+                <span class="kw-2">&amp;mut </span>raw,
+                <span class="self">self</span>.raw(),
+                Oid::from_str(prefix_hash)<span class="question-mark">?</span>.raw(),
+                prefix_hash.len(),
                 kind
             ));
             <span class="prelude-val">Ok</span>(Binding::from_raw(raw))
@@ -5682,7 +5796,7 @@
         id: Oid,
         force: bool,
         log_message: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span>log_message = CString::new(log_message)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
@@ -5704,7 +5818,7 @@
     /// A direct reference (also called an object id reference) refers directly
     /// to a specific object id (a.k.a. OID or SHA) in the repository.  The id
     /// permanently refers to the object (although the reference itself can be
-    /// moved).  For example, in libgit2 the direct ref &quot;refs/tags/v0.17.0&quot;
+    /// moved).  For example, in libgit2 the direct ref "refs/tags/v0.17.0"
     /// refers to OID 5b9fac39d8a76b9139667c26a63e6b3f204b3977.
     ///
     /// The direct reference will be created in the repository and written to
@@ -5713,10 +5827,10 @@
     /// Valid reference names must follow one of two patterns:
     ///
     /// 1. Top-level names must contain only capital letters and underscores,
-    ///    and must begin and end with a letter.  (e.g.  &quot;HEAD&quot;, &quot;ORIG_HEAD&quot;).
-    /// 2. Names prefixed with &quot;refs/&quot; can be almost anything.  You must avoid
+    ///    and must begin and end with a letter.  (e.g.  "HEAD", "ORIG_HEAD").
+    /// 2. Names prefixed with "refs/" can be almost anything.  You must avoid
     ///    the characters `~`, `^`, `:`, `\\`, `?`, `[`, and `*`, and the
-    ///    sequences &quot;..&quot; and &quot;@{&quot; which have special meaning to revparse.
+    ///    sequences ".." and "@{" which have special meaning to revparse.
     ///
     /// This function will return an error if a reference already exists with
     /// the given name unless `force` is true, in which case it will be
@@ -5726,7 +5840,7 @@
     /// belong in the standard set (HEAD, branches and remote-tracking
     /// branches) and it does not have a reflog.
     ///
-    /// It will return GIT_EMODIFIED if the reference&#39;s value at the time of
+    /// It will return GIT_EMODIFIED if the reference's value at the time of
     /// updating does not match the one passed through `current_id` (i.e. if the
     /// ref has changed since the user read it).
     </span><span class="kw">pub fn </span>reference_matching(
@@ -5736,7 +5850,7 @@
         force: bool,
         current_id: Oid,
         log_message: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span>log_message = CString::new(log_message)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
@@ -5758,16 +5872,16 @@
     ///
     /// A symbolic reference is a reference name that refers to another
     /// reference name.  If the other name moves, the symbolic name will move,
-    /// too.  As a simple example, the &quot;HEAD&quot; reference might refer to
-    /// &quot;refs/heads/master&quot; while on the &quot;master&quot; branch of a repository.
+    /// too.  As a simple example, the "HEAD" reference might refer to
+    /// "refs/heads/master" while on the "master" branch of a repository.
     ///
     /// Valid reference names must follow one of two patterns:
     ///
     /// 1. Top-level names must contain only capital letters and underscores,
-    ///    and must begin and end with a letter. (e.g. &quot;HEAD&quot;, &quot;ORIG_HEAD&quot;).
-    /// 2. Names prefixed with &quot;refs/&quot; can be almost anything.  You must avoid
-    ///    the characters &#39;~&#39;, &#39;^&#39;, &#39;:&#39;, &#39;\\&#39;, &#39;?&#39;, &#39;[&#39;, and &#39;*&#39;, and the
-    ///    sequences &quot;..&quot; and &quot;@{&quot; which have special meaning to revparse.
+    ///    and must begin and end with a letter. (e.g. "HEAD", "ORIG_HEAD").
+    /// 2. Names prefixed with "refs/" can be almost anything.  You must avoid
+    ///    the characters '~', '^', ':', '\\', '?', '[', and '*', and the
+    ///    sequences ".." and "@{" which have special meaning to revparse.
     ///
     /// This function will return an error if a reference already exists with
     /// the given name unless force is true, in which case it will be
@@ -5778,7 +5892,7 @@
         target: <span class="kw-2">&amp;</span>str,
         force: bool,
         log_message: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span>target = CString::new(target)<span class="question-mark">?</span>;
         <span class="kw">let </span>log_message = CString::new(log_message)<span class="question-mark">?</span>;
@@ -5802,7 +5916,7 @@
     /// the given name unless force is true, in which case it will be
     /// overwritten.
     ///
-    /// It will return GIT_EMODIFIED if the reference&#39;s value at the time of
+    /// It will return GIT_EMODIFIED if the reference's value at the time of
     /// updating does not match the one passed through current_value (i.e. if
     /// the ref has changed since the user read it).
     </span><span class="kw">pub fn </span>reference_symbolic_matching(
@@ -5812,7 +5926,7 @@
         force: bool,
         current_value: <span class="kw-2">&amp;</span>str,
         log_message: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span>target = CString::new(target)<span class="question-mark">?</span>;
         <span class="kw">let </span>current_value = CString::new(current_value)<span class="question-mark">?</span>;
@@ -5833,7 +5947,7 @@
     }
 
     <span class="doccomment">/// Lookup a reference to one of the objects in a repository.
-    </span><span class="kw">pub fn </span>find_reference(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_reference(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -5844,9 +5958,9 @@
 
     <span class="doccomment">/// Lookup a reference to one of the objects in a repository.
     /// `Repository::find_reference` with teeth; give the method your reference in
-    /// human-readable format e.g. &#39;main&#39; instead of &#39;refs/heads/main&#39;, and it
+    /// human-readable format e.g. 'main' instead of 'refs/heads/main', and it
     /// will do-what-you-mean, returning the `Reference`.
-    </span><span class="kw">pub fn </span>resolve_reference_from_short_name(<span class="kw-2">&amp;</span><span class="self">self</span>, refname: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>resolve_reference_from_short_name(<span class="kw-2">&amp;</span><span class="self">self</span>, refname: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Reference&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>refname = CString::new(refname)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -5874,8 +5988,8 @@
     <span class="doccomment">/// Creates a git_annotated_commit from the given reference.
     </span><span class="kw">pub fn </span>reference_to_annotated_commit(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        reference: <span class="kw-2">&amp;</span>Reference&lt;<span class="lifetime">&#39;_</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+        reference: <span class="kw-2">&amp;</span>Reference&lt;<span class="lifetime">'_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_annotated_commit_from_ref(
@@ -5893,7 +6007,7 @@
         branch_name: <span class="kw-2">&amp;</span>str,
         remote_url: <span class="kw-2">&amp;</span>str,
         id: <span class="kw-2">&amp;</span>Oid,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>branch_name = CString::new(branch_name)<span class="question-mark">?</span>;
         <span class="kw">let </span>remote_url = CString::new(remote_url)<span class="question-mark">?</span>;
 
@@ -5916,7 +6030,7 @@
     /// uses the current time as the timestamp, and creates a new signature
     /// based on that information. It will return `NotFound` if either the
     /// user.name or user.email are not set.
-    </span><span class="kw">pub fn </span>signature(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Signature&lt;<span class="lifetime">&#39;static</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>signature(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Signature&lt;<span class="lifetime">'static</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_signature_default(<span class="kw-2">&amp;mut </span>ret, <span class="self">self</span>.raw()));
@@ -5926,13 +6040,13 @@
 
     <span class="doccomment">/// Set up a new git submodule for checkout.
     ///
-    /// This does &quot;git submodule add&quot; up to the fetch and checkout of the
+    /// This does "git submodule add" up to the fetch and checkout of the
     /// submodule contents. It preps a new submodule, creates an entry in
     /// `.gitmodules` and creates an empty initialized repository either at the
     /// given path in the working directory or in `.git/modules` with a gitlink
     /// from the working directory to the new repo.
     ///
-    /// To fully emulate &quot;git submodule add&quot; call this function, then `open()`
+    /// To fully emulate "git submodule add" call this function, then `open()`
     /// the submodule repo and perform the clone step as needed. Lastly, call
     /// `add_finalize()` to wrap up adding the new submodule and `.gitmodules`
     /// to the index to be ready to commit.
@@ -5941,7 +6055,7 @@
         url: <span class="kw-2">&amp;</span>str,
         path: <span class="kw-2">&amp;</span>Path,
         use_gitlink: bool,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Submodule&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Submodule&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>url = CString::new(url)<span class="question-mark">?</span>;
         <span class="kw">let </span>path = path_to_repo_path(path)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
@@ -5961,7 +6075,7 @@
     ///
     /// Given either the submodule name or path (they are usually the same),
     /// this returns a structure describing the submodule.
-    </span><span class="kw">pub fn </span>find_submodule(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Submodule&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_submodule(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Submodule&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -6004,7 +6118,7 @@
 
     <span class="doccomment">/// Set the update rule for the submodule in the configuration
     ///
-    /// This setting won&#39;t affect any existing instances.
+    /// This setting won't affect any existing instances.
     </span><span class="kw">pub fn </span>submodule_set_update(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         name: <span class="kw-2">&amp;</span>str,
@@ -6044,7 +6158,7 @@
     }
 
     <span class="doccomment">/// Lookup a reference to one of the objects in a repository.
-    </span><span class="kw">pub fn </span>find_tree(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Tree&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_tree(<span class="kw-2">&amp;</span><span class="self">self</span>, oid: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Tree&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_tree_lookup(<span class="kw-2">&amp;mut </span>raw, <span class="self">self</span>.raw(), oid.raw()));
@@ -6057,7 +6171,7 @@
     ///
     /// The tree builder can be used to create or modify trees in memory and
     /// write them as tree objects to the database.
-    </span><span class="kw">pub fn </span>treebuilder(<span class="kw-2">&amp;</span><span class="self">self</span>, tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;TreeBuilder&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>treebuilder(<span class="kw-2">&amp;</span><span class="self">self</span>, tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;TreeBuilder&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
             <span class="kw">let </span>tree = <span class="kw">match </span>tree {
@@ -6073,18 +6187,18 @@
     ///
     /// A new reference will also be created pointing to this tag object. If
     /// `force` is true and a reference already exists with the given name,
-    /// it&#39;ll be replaced.
+    /// it'll be replaced.
     ///
     /// The message will not be cleaned up.
     ///
     /// The tag name will be checked for validity. You must avoid the characters
-    /// &#39;~&#39;, &#39;^&#39;, &#39;:&#39;, &#39; \ &#39;, &#39;?&#39;, &#39;[&#39;, and &#39;*&#39;, and the sequences &quot;..&quot; and &quot; @
-    /// {&quot; which have special meaning to revparse.
+    /// '~', '^', ':', ' \ ', '?', '[', and '*', and the sequences ".." and " @
+    /// {" which have special meaning to revparse.
     </span><span class="kw">pub fn </span>tag(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         name: <span class="kw-2">&amp;</span>str,
-        target: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;_</span>&gt;,
-        tagger: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
+        target: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">'_</span>&gt;,
+        tagger: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
         message: <span class="kw-2">&amp;</span>str,
         force: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
@@ -6112,13 +6226,13 @@
     /// The message will not be cleaned up.
     ///
     /// The tag name will be checked for validity. You must avoid the characters
-    /// &#39;~&#39;, &#39;^&#39;, &#39;:&#39;, &#39; \ &#39;, &#39;?&#39;, &#39;[&#39;, and &#39;*&#39;, and the sequences &quot;..&quot; and &quot; @
-    /// {&quot; which have special meaning to revparse.
+    /// '~', '^', ':', ' \ ', '?', '[', and '*', and the sequences ".." and " @
+    /// {" which have special meaning to revparse.
     </span><span class="kw">pub fn </span>tag_annotation_create(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         name: <span class="kw-2">&amp;</span>str,
-        target: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;_</span>&gt;,
-        tagger: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
+        target: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">'_</span>&gt;,
+        tagger: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
         message: <span class="kw-2">&amp;</span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
@@ -6143,11 +6257,11 @@
     ///
     /// A new direct reference will be created pointing to this target object.
     /// If force is true and a reference already exists with the given name,
-    /// it&#39;ll be replaced.
+    /// it'll be replaced.
     </span><span class="kw">pub fn </span>tag_lightweight(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         name: <span class="kw-2">&amp;</span>str,
-        target: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;_</span>&gt;,
+        target: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">'_</span>&gt;,
         force: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
         <span class="kw">let </span>name = CString::new(name)<span class="question-mark">?</span>;
@@ -6167,10 +6281,24 @@
     }
 
     <span class="doccomment">/// Lookup a tag object from the repository.
-    </span><span class="kw">pub fn </span>find_tag(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Tag&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_tag(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Tag&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_tag_lookup(<span class="kw-2">&amp;mut </span>raw, <span class="self">self</span>.raw, id.raw()));
+            <span class="prelude-val">Ok</span>(Binding::from_raw(raw))
+        }
+    }
+
+    <span class="doccomment">/// Lookup a tag object by prefix hash from the repository.
+    </span><span class="kw">pub fn </span>find_tag_by_prefix(<span class="kw-2">&amp;</span><span class="self">self</span>, prefix_hash: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Tag&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_tag_lookup_prefix(
+                <span class="kw-2">&amp;mut </span>raw,
+                <span class="self">self</span>.raw,
+                Oid::from_str(prefix_hash)<span class="question-mark">?</span>.raw(),
+                prefix_hash.len()
+            ));
             <span class="prelude-val">Ok</span>(Binding::from_raw(raw))
         }
     }
@@ -6216,7 +6344,7 @@
         </span>T: FnMut(Oid, <span class="kw-2">&amp;</span>[u8]) -&gt; bool,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>data = TagForeachData {
-            cb: Box::new(cb) <span class="kw">as </span>TagForeachCB&lt;<span class="lifetime">&#39;_</span>&gt;,
+            cb: Box::new(cb) <span class="kw">as </span>TagForeachCB&lt;<span class="lifetime">'_</span>&gt;,
         };
 
         <span class="kw">unsafe </span>{
@@ -6231,7 +6359,7 @@
 
     <span class="doccomment">/// Updates files in the index and the working tree to match the content of
     /// the commit pointed at by HEAD.
-    </span><span class="kw">pub fn </span>checkout_head(<span class="kw-2">&amp;</span><span class="self">self</span>, opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">pub fn </span>checkout_head(<span class="kw-2">&amp;</span><span class="self">self</span>, opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw_opts = mem::zeroed();
             <span class="macro">try_call!</span>(raw::git_checkout_init_options(
@@ -6249,11 +6377,11 @@
 
     <span class="doccomment">/// Updates files in the working tree to match the content of the index.
     ///
-    /// If the index is `None`, the repository&#39;s index will be used.
+    /// If the index is `None`, the repository's index will be used.
     </span><span class="kw">pub fn </span>checkout_index(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         index: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Index&gt;,
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw_opts = mem::zeroed();
@@ -6278,8 +6406,8 @@
     /// tree pointed at by the treeish.
     </span><span class="kw">pub fn </span>checkout_tree(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        treeish: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;_</span>&gt;,
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        treeish: <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">'_</span>&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw_opts = mem::zeroed();
@@ -6298,7 +6426,7 @@
 
     <span class="doccomment">/// Merges the given commit(s) into HEAD, writing the results into the
     /// working directory. Any changes are staged for commit and any conflicts
-    /// are written to the index. Callers should inspect the repository&#39;s index
+    /// are written to the index. Callers should inspect the repository's index
     /// after this completes, resolve any conflicts and prepare a commit.
     ///
     /// For compatibility with git, the repository is put into a merging state.
@@ -6306,9 +6434,9 @@
     /// clear this state by calling cleanup_state().
     </span><span class="kw">pub fn </span>merge(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        annotated_commits: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;],
+        annotated_commits: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;],
         merge_opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>MergeOptions&gt;,
-        checkout_opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        checkout_opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw_checkout_opts = mem::zeroed();
@@ -6342,8 +6470,8 @@
     /// should resolve any conflicts that arose as part of the merge.
     </span><span class="kw">pub fn </span>merge_commits(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        our_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;,
-        their_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;,
+        our_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;,
+        their_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>MergeOptions&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Index, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
@@ -6365,9 +6493,9 @@
     /// should resolve any conflicts that arose as part of the merge.
     </span><span class="kw">pub fn </span>merge_trees(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        ancestor_tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;,
-        our_tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;,
-        their_tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ancestor_tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;,
+        our_tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;,
+        their_tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>MergeOptions&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Index, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
@@ -6397,7 +6525,7 @@
     /// merging them into the HEAD of the repository.
     </span><span class="kw">pub fn </span>merge_analysis(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        their_heads: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;],
+        their_heads: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(MergeAnalysis, MergePreference), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw_merge_analysis = <span class="number">0 </span><span class="kw">as </span>raw::git_merge_analysis_t;
@@ -6424,8 +6552,8 @@
     /// merging them into a reference.
     </span><span class="kw">pub fn </span>merge_analysis_for_ref(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        our_ref: <span class="kw-2">&amp;</span>Reference&lt;<span class="lifetime">&#39;_</span>&gt;,
-        their_heads: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;],
+        our_ref: <span class="kw-2">&amp;</span>Reference&lt;<span class="lifetime">'_</span>&gt;,
+        their_heads: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(MergeAnalysis, MergePreference), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw_merge_analysis = <span class="number">0 </span><span class="kw">as </span>raw::git_merge_analysis_t;
@@ -6454,11 +6582,11 @@
     /// call `next()`.
     </span><span class="kw">pub fn </span>rebase(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        branch: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        upstream: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        onto: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>RebaseOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Rebase&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+        branch: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        upstream: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        onto: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AnnotatedCommit&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>RebaseOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Rebase&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>rebase: <span class="kw-2">*mut </span>raw::git_rebase = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_rebase_init(
@@ -6476,7 +6604,7 @@
 
     <span class="doccomment">/// Opens an existing rebase that was previously started by either an
     /// invocation of `rebase()` or by another client.
-    </span><span class="kw">pub fn </span>open_rebase(<span class="kw-2">&amp;</span><span class="self">self</span>, opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>RebaseOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Rebase&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>open_rebase(<span class="kw-2">&amp;</span><span class="self">self</span>, opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>RebaseOptions&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Rebase&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>rebase: <span class="kw-2">*mut </span>raw::git_rebase = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_rebase_open(
@@ -6491,12 +6619,12 @@
     <span class="doccomment">/// Add a note for an object
     ///
     /// The `notes_ref` argument is the canonical name of the reference to use,
-    /// defaulting to &quot;refs/notes/commits&quot;. If `force` is specified then
+    /// defaulting to "refs/notes/commits". If `force` is specified then
     /// previous notes are overwritten.
     </span><span class="kw">pub fn </span>note(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        author: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
-        committer: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
+        author: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
+        committer: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
         notes_ref: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
         oid: Oid,
         note: <span class="kw-2">&amp;</span>str,
@@ -6534,12 +6662,12 @@
     <span class="doccomment">/// Creates a new iterator for notes in this repository.
     ///
     /// The `notes_ref` argument is the canonical name of the reference to use,
-    /// defaulting to &quot;refs/notes/commits&quot;.
+    /// defaulting to "refs/notes/commits".
     ///
     /// The iterator returned yields pairs of (Oid, Oid) where the first element
     /// is the id of the note and the second id is the id the note is
     /// annotating.
-    </span><span class="kw">pub fn </span>notes(<span class="kw-2">&amp;</span><span class="self">self</span>, notes_ref: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Notes&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>notes(<span class="kw-2">&amp;</span><span class="self">self</span>, notes_ref: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Notes&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>notes_ref = <span class="kw">crate</span>::opt_cstr(notes_ref)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -6551,10 +6679,10 @@
     <span class="doccomment">/// Read the note for an object.
     ///
     /// The `notes_ref` argument is the canonical name of the reference to use,
-    /// defaulting to &quot;refs/notes/commits&quot;.
+    /// defaulting to "refs/notes/commits".
     ///
     /// The id specified is the Oid of the git object to read the note from.
-    </span><span class="kw">pub fn </span>find_note(<span class="kw-2">&amp;</span><span class="self">self</span>, notes_ref: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, id: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Note&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_note(<span class="kw-2">&amp;</span><span class="self">self</span>, notes_ref: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, id: Oid) -&gt; <span class="prelude-ty">Result</span>&lt;Note&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>notes_ref = <span class="kw">crate</span>::opt_cstr(notes_ref)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -6566,15 +6694,15 @@
     <span class="doccomment">/// Remove the note for an object.
     ///
     /// The `notes_ref` argument is the canonical name of the reference to use,
-    /// defaulting to &quot;refs/notes/commits&quot;.
+    /// defaulting to "refs/notes/commits".
     ///
     /// The id specified is the Oid of the git object to remove the note from.
     </span><span class="kw">pub fn </span>note_delete(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         id: Oid,
         notes_ref: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
-        author: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
-        committer: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
+        author: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
+        committer: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>notes_ref = <span class="kw">crate</span>::opt_cstr(notes_ref)<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
@@ -6590,7 +6718,7 @@
     }
 
     <span class="doccomment">/// Create a revwalk that can be used to traverse the commit graph.
-    </span><span class="kw">pub fn </span>revwalk(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Revwalk&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>revwalk(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Revwalk&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_revwalk_new(<span class="kw-2">&amp;mut </span>raw, <span class="self">self</span>.raw()));
@@ -6603,7 +6731,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         path: <span class="kw-2">&amp;</span>Path,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>BlameOptions&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Blame&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Blame&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span>path = path_to_repo_path(path)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
 
@@ -6776,7 +6904,7 @@
     /// Performs a describe operation on the current commit and the worktree.
     /// After performing a describe on HEAD, a status is run and description is
     /// considered to be dirty if there are.
-    </span><span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>, opts: <span class="kw-2">&amp;</span>DescribeOptions) -&gt; <span class="prelude-ty">Result</span>&lt;Describe&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>, opts: <span class="kw-2">&amp;</span>DescribeOptions) -&gt; <span class="prelude-ty">Result</span>&lt;Describe&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_describe_workdir(<span class="kw-2">&amp;mut </span>ret, <span class="self">self</span>.raw, opts.raw()));
@@ -6800,15 +6928,15 @@
     /// option).
     </span><span class="kw">pub fn </span>diff_blobs(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        old_blob: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Blob&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        old_blob: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Blob&lt;<span class="lifetime">'_</span>&gt;&gt;,
         old_as_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
-        new_blob: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Blob&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        new_blob: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Blob&lt;<span class="lifetime">'_</span>&gt;&gt;,
         new_as_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>DiffOptions&gt;,
-        file_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>FileCb&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        binary_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>BinaryCb&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        hunk_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>HunkCb&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        line_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>LineCb&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        file_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>FileCb&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        binary_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>BinaryCb&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        hunk_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>HunkCb&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        line_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>LineCb&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>old_as_path = <span class="kw">crate</span>::opt_cstr(old_as_path)<span class="question-mark">?</span>;
         <span class="kw">let </span>new_as_path = <span class="kw">crate</span>::opt_cstr(new_as_path)<span class="question-mark">?</span>;
@@ -6860,16 +6988,16 @@
     ///
     /// This is equivalent to `git diff &lt;old-tree&gt; &lt;new-tree&gt;`
     ///
-    /// The first tree will be used for the &quot;old_file&quot; side of the delta and the
-    /// second tree will be used for the &quot;new_file&quot; side of the delta.  You can
+    /// The first tree will be used for the "old_file" side of the delta and the
+    /// second tree will be used for the "new_file" side of the delta.  You can
     /// pass `None` to indicate an empty tree, although it is an error to pass
     /// `None` for both the `old_tree` and `new_tree`.
     </span><span class="kw">pub fn </span>diff_tree_to_tree(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        old_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        new_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        old_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        new_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;&gt;,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>DiffOptions&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_diff_tree_to_tree(
@@ -6888,8 +7016,8 @@
     /// This is equivalent to `git diff --cached &lt;treeish&gt;` or if you pass
     /// the HEAD tree, then like `git diff --cached`.
     ///
-    /// The tree you pass will be used for the &quot;old_file&quot; side of the delta, and
-    /// the index will be used for the &quot;new_file&quot; side of the delta.
+    /// The tree you pass will be used for the "old_file" side of the delta, and
+    /// the index will be used for the "new_file" side of the delta.
     ///
     /// If you pass `None` for the index, then the existing index of the `repo`
     /// will be used.  In this case, the index will be refreshed from disk
@@ -6898,10 +7026,10 @@
     /// If the tree is `None`, then it is considered an empty tree.
     </span><span class="kw">pub fn </span>diff_tree_to_index(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        old_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        old_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;&gt;,
         index: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Index&gt;,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>DiffOptions&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_diff_tree_to_index(
@@ -6917,14 +7045,14 @@
 
     <span class="doccomment">/// Create a diff between two index objects.
     ///
-    /// The first index will be used for the &quot;old_file&quot; side of the delta, and
-    /// the second index will be used for the &quot;new_file&quot; side of the delta.
+    /// The first index will be used for the "old_file" side of the delta, and
+    /// the second index will be used for the "new_file" side of the delta.
     </span><span class="kw">pub fn </span>diff_index_to_index(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         old_index: <span class="kw-2">&amp;</span>Index,
         new_index: <span class="kw-2">&amp;</span>Index,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>DiffOptions&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_diff_index_to_index(
@@ -6945,8 +7073,8 @@
     /// `git diff` and `git diff HEAD` and how to emulate a `git diff &lt;treeish&gt;`
     /// using libgit2.
     ///
-    /// The index will be used for the &quot;old_file&quot; side of the delta, and the
-    /// working directory will be used for the &quot;new_file&quot; side of the delta.
+    /// The index will be used for the "old_file" side of the delta, and the
+    /// working directory will be used for the "new_file" side of the delta.
     ///
     /// If you pass `None` for the index, then the existing index of the `repo`
     /// will be used.  In this case, the index will be refreshed from disk
@@ -6955,7 +7083,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         index: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Index&gt;,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>DiffOptions&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_diff_index_to_workdir(
@@ -6970,8 +7098,8 @@
 
     <span class="doccomment">/// Create a diff between a tree and the working directory.
     ///
-    /// The tree you provide will be used for the &quot;old_file&quot; side of the delta,
-    /// and the working directory will be used for the &quot;new_file&quot; side.
+    /// The tree you provide will be used for the "old_file" side of the delta,
+    /// and the working directory will be used for the "new_file" side.
     ///
     /// This is not the same as `git diff &lt;treeish&gt;` or `git diff-index
     /// &lt;treeish&gt;`.  Those commands use information from the index, whereas this
@@ -6982,15 +7110,15 @@
     /// To see difference between this and `tree_to_workdir_with_index`,
     /// consider the example of a staged file deletion where the file has then
     /// been put back into the working dir and further modified.  The
-    /// tree-to-workdir diff for that file is &#39;modified&#39;, but `git diff` would
-    /// show status &#39;deleted&#39; since there is a staged delete.
+    /// tree-to-workdir diff for that file is 'modified', but `git diff` would
+    /// show status 'deleted' since there is a staged delete.
     ///
     /// If `None` is passed for `tree`, then an empty tree is used.
     </span><span class="kw">pub fn </span>diff_tree_to_workdir(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        old_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        old_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;&gt;,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>DiffOptions&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_diff_tree_to_workdir(
@@ -7011,9 +7139,9 @@
     /// single diff that includes staged deleted, etc.
     </span><span class="kw">pub fn </span>diff_tree_to_workdir_with_index(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        old_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        old_tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;&gt;,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>DiffOptions&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_diff_tree_to_workdir_with_index(
@@ -7027,7 +7155,7 @@
     }
 
     <span class="doccomment">/// Create a PackBuilder
-    </span><span class="kw">pub fn </span>packbuilder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PackBuilder&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>packbuilder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PackBuilder&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_packbuilder_new(<span class="kw-2">&amp;mut </span>ret, <span class="self">self</span>.raw()));
@@ -7038,7 +7166,7 @@
     <span class="doccomment">/// Save the local modifications to a new stash.
     </span><span class="kw">pub fn </span>stash_save(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        stasher: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
+        stasher: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
         message: <span class="kw-2">&amp;</span>str,
         flags: <span class="prelude-ty">Option</span>&lt;StashFlags&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
@@ -7049,7 +7177,7 @@
     /// unlike `stash_save` it allows to pass a null `message`
     </span><span class="kw">pub fn </span>stash_save2(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        stasher: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;,
+        stasher: <span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">'_</span>&gt;,
         message: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
         flags: <span class="prelude-ty">Option</span>&lt;StashFlags&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
@@ -7073,7 +7201,7 @@
     <span class="doccomment">/// Like `stash_save` but with more options like selective statshing via path patterns.
     </span><span class="kw">pub fn </span>stash_save_ext(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>StashSaveOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>StashSaveOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw_oid = raw::git_oid {
@@ -7093,7 +7221,7 @@
     </span><span class="kw">pub fn </span>stash_apply(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         index: usize,
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>StashApplyOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>StashApplyOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>opts = opts.map(|opts| opts.raw());
@@ -7135,7 +7263,7 @@
     </span><span class="kw">pub fn </span>stash_pop(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         index: usize,
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>StashApplyOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>StashApplyOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>opts = opts.map(|opts| opts.raw());
@@ -7180,8 +7308,8 @@
     <span class="doccomment">/// Perform a cherrypick
     </span><span class="kw">pub fn </span>cherrypick(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;,
-        options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CherrypickOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;,
+        options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CherrypickOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>raw_opts = options.map(|o| o.raw());
         <span class="kw">let </span>ptr_raw_opts = <span class="kw">match </span>raw_opts.as_ref() {
@@ -7199,8 +7327,8 @@
     /// cherry-picking.
     </span><span class="kw">pub fn </span>cherrypick_commit(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        cherrypick_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;,
-        our_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cherrypick_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;,
+        our_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;,
         mainline: u32,
         options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>MergeOptions&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Index, Error&gt; {
@@ -7256,9 +7384,9 @@
     <span class="doccomment">/// Apply a Diff to the given repo, making changes directly in the working directory, the index, or both.
     </span><span class="kw">pub fn </span>apply(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        diff: <span class="kw-2">&amp;</span>Diff&lt;<span class="lifetime">&#39;_</span>&gt;,
+        diff: <span class="kw-2">&amp;</span>Diff&lt;<span class="lifetime">'_</span>&gt;,
         location: ApplyLocation,
-        options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ApplyOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ApplyOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_apply(
@@ -7275,9 +7403,9 @@
     <span class="doccomment">/// Apply a Diff to the provided tree, and return the resulting Index.
     </span><span class="kw">pub fn </span>apply_to_tree(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;,
-        diff: <span class="kw-2">&amp;</span>Diff&lt;<span class="lifetime">&#39;_</span>&gt;,
-        options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ApplyOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;,
+        diff: <span class="kw-2">&amp;</span>Diff&lt;<span class="lifetime">'_</span>&gt;,
+        options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ApplyOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Index, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -7295,8 +7423,8 @@
     <span class="doccomment">/// Reverts the given commit, producing changes in the index and working directory.
     </span><span class="kw">pub fn </span>revert(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;,
-        options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>RevertOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;,
+        options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>RevertOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>raw_opts = options.map(|o| o.raw());
         <span class="kw">let </span>ptr_raw_opts = <span class="kw">match </span>raw_opts.as_ref() {
@@ -7309,12 +7437,12 @@
         }
     }
 
-    <span class="doccomment">/// Reverts the given commit against the given &quot;our&quot; commit,
+    <span class="doccomment">/// Reverts the given commit against the given "our" commit,
     /// producing an index that reflects the result of the revert.
     </span><span class="kw">pub fn </span>revert_commit(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        revert_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;,
-        our_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">&#39;_</span>&gt;,
+        revert_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;,
+        our_commit: <span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;,
         mainline: u32,
         options: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>MergeOptions&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Index, Error&gt; {
@@ -7357,11 +7485,11 @@
     }
 
     <span class="doccomment">/// Creates a new worktree for the repository
-    </span><span class="kw">pub fn </span>worktree&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>worktree&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         name: <span class="kw-2">&amp;</span>str,
         path: <span class="kw-2">&amp;</span>Path,
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>WorktreeAddOptions&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>WorktreeAddOptions&lt;<span class="lifetime">'a</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Worktree, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">let </span>raw_name = CString::new(name)<span class="question-mark">?</span>;
@@ -7380,7 +7508,7 @@
     }
 
     <span class="doccomment">/// Create a new transaction
-    </span><span class="kw">pub fn </span>transaction&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>transaction&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_transaction_new(<span class="kw-2">&amp;mut </span>raw, <span class="self">self</span>.raw));
@@ -7388,7 +7516,7 @@
         }
     }
 
-    <span class="doccomment">/// Gets this repository&#39;s mailmap.
+    <span class="doccomment">/// Gets this repository's mailmap.
     </span><span class="kw">pub fn </span>mailmap(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Mailmap, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -7397,7 +7525,7 @@
         }
     }
 
-    <span class="doccomment">///  If a merge is in progress, invoke &#39;callback&#39; for each commit ID in the
+    <span class="doccomment">///  If a merge is in progress, invoke 'callback' for each commit ID in the
     ///  MERGE_HEAD file.
     </span><span class="kw">pub fn </span>mergehead_foreach&lt;C&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>callback: C) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
@@ -7417,7 +7545,7 @@
         }
     }
 
-    <span class="doccomment">/// Invoke &#39;callback&#39; for each entry in the given FETCH_HEAD file.
+    <span class="doccomment">/// Invoke 'callback' for each entry in the given FETCH_HEAD file.
     ///
     /// `callback` will be called with with following arguments:
     ///
@@ -7494,7 +7622,7 @@
         <span class="self">self</span>.flag(raw::GIT_REPOSITORY_INIT_NO_REINIT, enabled)
     }
 
-    <span class="doccomment">/// Normally a &#39;/.git/&#39; will be appended to the repo path for non-bare repos
+    <span class="doccomment">/// Normally a '/.git/' will be appended to the repo path for non-bare repos
     /// (if it is not already there), but passing this flag prevents that
     /// behavior.
     ///
@@ -7503,7 +7631,7 @@
         <span class="self">self</span>.flag(raw::GIT_REPOSITORY_INIT_NO_DOTGIT_DIR, enabled)
     }
 
-    <span class="doccomment">/// Make the repo path (and workdir path) as needed. The &quot;.git&quot; directory
+    <span class="doccomment">/// Make the repo path (and workdir path) as needed. The ".git" directory
     /// will always be created regardless of this flag.
     ///
     /// Defaults to true.
@@ -7552,7 +7680,7 @@
     <span class="doccomment">/// The path to the working directory.
     ///
     /// If this is a relative path it will be evaluated relative to the repo
-    /// path. If this is not the &quot;natural&quot; working directory, a .git gitlink
+    /// path. If this is not the "natural" working directory, a .git gitlink
     /// file will be created here linking to the repo path.
     </span><span class="kw">pub fn </span>workdir_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="kw-2">&amp;mut </span>RepositoryInitOptions {
         <span class="comment">// Normal file path OK (does not need Windows conversion).
@@ -7560,7 +7688,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// If set, this will be used to initialize the &quot;description&quot; file in the
+    <span class="doccomment">/// If set, this will be used to initialize the "description" file in the
     /// repository instead of using the template content.
     </span><span class="kw">pub fn </span>description(<span class="kw-2">&amp;mut </span><span class="self">self</span>, desc: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>RepositoryInitOptions {
         <span class="self">self</span>.description = <span class="prelude-val">Some</span>(CString::new(desc).unwrap());
@@ -7662,7 +7790,7 @@
         <span class="macro">assert!</span>(repo.is_empty().unwrap());
         <span class="macro">assert_eq!</span>(
             <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>repo.path()).unwrap(),
-            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;.git/&quot;</span>)).unwrap()
+            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">".git/"</span>)).unwrap()
         );
         <span class="macro">assert_eq!</span>(repo.state(), <span class="kw">crate</span>::RepositoryState::Clean);
     }
@@ -7677,7 +7805,7 @@
         <span class="macro">assert!</span>(repo.is_bare());
         <span class="macro">assert_eq!</span>(
             <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>repo.path()).unwrap(),
-            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;&quot;</span>)).unwrap()
+            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">""</span>)).unwrap()
         );
     }
 
@@ -7690,12 +7818,12 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke_revparse() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="kw">let </span>rev = repo.revparse(<span class="string">&quot;HEAD&quot;</span>).unwrap();
+        <span class="kw">let </span>rev = repo.revparse(<span class="string">"HEAD"</span>).unwrap();
         <span class="macro">assert!</span>(rev.to().is_none());
         <span class="kw">let </span>from = rev.from().unwrap();
         <span class="macro">assert!</span>(rev.from().is_some());
 
-        <span class="macro">assert_eq!</span>(repo.revparse_single(<span class="string">&quot;HEAD&quot;</span>).unwrap().id(), from.id());
+        <span class="macro">assert_eq!</span>(repo.revparse_single(<span class="string">"HEAD"</span>).unwrap().id(), from.id());
         <span class="kw">let </span>obj = repo.find_object(from.id(), <span class="prelude-val">None</span>).unwrap().clone();
         obj.peel(ObjectType::Any).unwrap();
         obj.short_id().unwrap();
@@ -7707,43 +7835,43 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>makes_dirs() {
         <span class="kw">let </span>td = TempDir::new().unwrap();
-        Repository::init(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;a/b/c/d&quot;</span>)).unwrap();
+        Repository::init(<span class="kw-2">&amp;</span>td.path().join(<span class="string">"a/b/c/d"</span>)).unwrap();
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke_discover() {
         <span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>subdir = td.path().join(<span class="string">&quot;subdi&quot;</span>);
+        <span class="kw">let </span>subdir = td.path().join(<span class="string">"subdi"</span>);
         fs::create_dir(<span class="kw-2">&amp;</span>subdir).unwrap();
         Repository::init_bare(td.path()).unwrap();
         <span class="kw">let </span>repo = Repository::discover(<span class="kw-2">&amp;</span>subdir).unwrap();
         <span class="macro">assert_eq!</span>(
             <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>repo.path()).unwrap(),
-            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;&quot;</span>)).unwrap()
+            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">""</span>)).unwrap()
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke_discover_path() {
         <span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>subdir = td.path().join(<span class="string">&quot;subdi&quot;</span>);
+        <span class="kw">let </span>subdir = td.path().join(<span class="string">"subdi"</span>);
         fs::create_dir(<span class="kw-2">&amp;</span>subdir).unwrap();
         Repository::init_bare(td.path()).unwrap();
         <span class="kw">let </span>path = Repository::discover_path(<span class="kw-2">&amp;</span>subdir, <span class="kw-2">&amp;</span>[] <span class="kw">as </span><span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>OsStr]).unwrap();
         <span class="macro">assert_eq!</span>(
             <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>path).unwrap(),
-            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;&quot;</span>)).unwrap()
+            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">""</span>)).unwrap()
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke_discover_path_ceiling_dir() {
         <span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>subdir = td.path().join(<span class="string">&quot;subdi&quot;</span>);
+        <span class="kw">let </span>subdir = td.path().join(<span class="string">"subdi"</span>);
         fs::create_dir(<span class="kw-2">&amp;</span>subdir).unwrap();
-        <span class="kw">let </span>ceilingdir = subdir.join(<span class="string">&quot;ceiling&quot;</span>);
+        <span class="kw">let </span>ceilingdir = subdir.join(<span class="string">"ceiling"</span>);
         fs::create_dir(<span class="kw-2">&amp;</span>ceilingdir).unwrap();
-        <span class="kw">let </span>testdir = ceilingdir.join(<span class="string">&quot;testdi&quot;</span>);
+        <span class="kw">let </span>testdir = ceilingdir.join(<span class="string">"testdi"</span>);
         fs::create_dir(<span class="kw-2">&amp;</span>testdir).unwrap();
         Repository::init_bare(td.path()).unwrap();
         <span class="kw">let </span>path = Repository::discover_path(<span class="kw-2">&amp;</span>testdir, <span class="kw-2">&amp;</span>[ceilingdir.as_os_str()]);
@@ -7754,7 +7882,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke_open_ext() {
         <span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>subdir = td.path().join(<span class="string">&quot;subdir&quot;</span>);
+        <span class="kw">let </span>subdir = td.path().join(<span class="string">"subdir"</span>);
         fs::create_dir(<span class="kw-2">&amp;</span>subdir).unwrap();
         Repository::init(td.path()).unwrap();
 
@@ -7767,7 +7895,7 @@
         <span class="macro">assert!</span>(!repo.is_bare());
         <span class="macro">assert_eq!</span>(
             <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>repo.path()).unwrap(),
-            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;.git&quot;</span>)).unwrap()
+            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">".git"</span>)).unwrap()
         );
 
         <span class="kw">let </span>repo =
@@ -7776,7 +7904,7 @@
         <span class="macro">assert!</span>(repo.is_bare());
         <span class="macro">assert_eq!</span>(
             <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>repo.path()).unwrap(),
-            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;.git&quot;</span>)).unwrap()
+            <span class="kw">crate</span>::test::realpath(<span class="kw-2">&amp;</span>td.path().join(<span class="string">".git"</span>)).unwrap()
         );
 
         <span class="kw">let </span>err = Repository::open_ext(
@@ -7804,7 +7932,7 @@
 
             <span class="kw">let </span>tree = repo.find_tree(id).unwrap();
             <span class="kw">let </span>sig = repo.signature().unwrap();
-            repo.commit(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">&quot;second&quot;</span>, <span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>head])
+            repo.commit(<span class="prelude-val">Some</span>(<span class="string">"HEAD"</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">"second"</span>, <span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>head])
                 .unwrap();
         }
         (_td, repo)
@@ -7840,54 +7968,65 @@
     </span><span class="kw">fn </span>smoke_reference_has_log_ensure_log() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
 
-        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">&quot;HEAD&quot;</span>).unwrap(), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">&quot;refs/heads/main&quot;</span>).unwrap(), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">&quot;NOT_HEAD&quot;</span>).unwrap(), <span class="bool-val">false</span>);
-        <span class="kw">let </span>main_oid = repo.revparse_single(<span class="string">&quot;main&quot;</span>).unwrap().id();
+        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">"HEAD"</span>).unwrap(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">"refs/heads/main"</span>).unwrap(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">"NOT_HEAD"</span>).unwrap(), <span class="bool-val">false</span>);
+        <span class="kw">let </span>main_oid = repo.revparse_single(<span class="string">"main"</span>).unwrap().id();
         <span class="macro">assert!</span>(repo
-            .reference(<span class="string">&quot;NOT_HEAD&quot;</span>, main_oid, <span class="bool-val">false</span>, <span class="string">&quot;creating a new branch&quot;</span>)
+            .reference(<span class="string">"NOT_HEAD"</span>, main_oid, <span class="bool-val">false</span>, <span class="string">"creating a new branch"</span>)
             .is_ok());
-        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">&quot;NOT_HEAD&quot;</span>).unwrap(), <span class="bool-val">false</span>);
-        <span class="macro">assert!</span>(repo.reference_ensure_log(<span class="string">&quot;NOT_HEAD&quot;</span>).is_ok());
-        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">&quot;NOT_HEAD&quot;</span>).unwrap(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">"NOT_HEAD"</span>).unwrap(), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(repo.reference_ensure_log(<span class="string">"NOT_HEAD"</span>).is_ok());
+        <span class="macro">assert_eq!</span>(repo.reference_has_log(<span class="string">"NOT_HEAD"</span>).unwrap(), <span class="bool-val">true</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke_set_head() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
 
-        <span class="macro">assert!</span>(repo.set_head(<span class="string">&quot;refs/heads/does-not-exist&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(repo.set_head(<span class="string">"refs/heads/does-not-exist"</span>).is_ok());
         <span class="macro">assert!</span>(repo.head().is_err());
 
-        <span class="macro">assert!</span>(repo.set_head(<span class="string">&quot;refs/heads/main&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(repo.set_head(<span class="string">"refs/heads/main"</span>).is_ok());
         <span class="macro">assert!</span>(repo.head().is_ok());
 
-        <span class="macro">assert!</span>(repo.set_head(<span class="string">&quot;*&quot;</span>).is_err());
+        <span class="macro">assert!</span>(repo.set_head(<span class="string">"*"</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke_set_head_bytes() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
 
-        <span class="macro">assert!</span>(repo.set_head_bytes(<span class="string">b&quot;refs/heads/does-not-exist&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(repo.set_head_bytes(<span class="string">b"refs/heads/does-not-exist"</span>).is_ok());
         <span class="macro">assert!</span>(repo.head().is_err());
 
-        <span class="macro">assert!</span>(repo.set_head_bytes(<span class="string">b&quot;refs/heads/main&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(repo.set_head_bytes(<span class="string">b"refs/heads/main"</span>).is_ok());
         <span class="macro">assert!</span>(repo.head().is_ok());
 
-        <span class="macro">assert!</span>(repo.set_head_bytes(<span class="string">b&quot;*&quot;</span>).is_err());
+        <span class="macro">assert!</span>(repo.set_head_bytes(<span class="string">b"*"</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke_set_head_detached() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
 
-        <span class="kw">let </span>void_oid = Oid::from_bytes(<span class="string">b&quot;00000000000000000000&quot;</span>).unwrap();
+        <span class="kw">let </span>void_oid = Oid::from_bytes(<span class="string">b"00000000000000000000"</span>).unwrap();
         <span class="macro">assert!</span>(repo.set_head_detached(void_oid).is_err());
 
-        <span class="kw">let </span>main_oid = repo.revparse_single(<span class="string">&quot;main&quot;</span>).unwrap().id();
+        <span class="kw">let </span>main_oid = repo.revparse_single(<span class="string">"main"</span>).unwrap().id();
         <span class="macro">assert!</span>(repo.set_head_detached(main_oid).is_ok());
         <span class="macro">assert_eq!</span>(repo.head().unwrap().target().unwrap(), main_oid);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>smoke_find_object_by_prefix() {
+        <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
+        <span class="kw">let </span>head = repo.head().unwrap().target().unwrap();
+        <span class="kw">let </span>head = repo.find_commit(head).unwrap();
+        <span class="kw">let </span>head_id = head.id();
+        <span class="kw">let </span>head_prefix = <span class="kw-2">&amp;</span>head_id.to_string()[..<span class="number">7</span>];
+        <span class="kw">let </span>obj = repo.find_object_by_prefix(head_prefix, <span class="prelude-val">None</span>).unwrap();
+        <span class="macro">assert_eq!</span>(obj.id(), head_id);
     }
 
     <span class="doccomment">/// create the following:
@@ -7902,76 +8041,76 @@
         <span class="comment">// let oid1 = head
         </span><span class="kw">let </span>oid1 = repo.head().unwrap().target().unwrap();
         <span class="kw">let </span>commit1 = repo.find_commit(oid1).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;created oid1 {:?}&quot;</span>, oid1);
+        <span class="macro">println!</span>(<span class="string">"created oid1 {:?}"</span>, oid1);
 
-        repo.branch(<span class="string">&quot;branch_a&quot;</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
-        repo.branch(<span class="string">&quot;branch_b&quot;</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
-        repo.branch(<span class="string">&quot;branch_c&quot;</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
+        repo.branch(<span class="string">"branch_a"</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
+        repo.branch(<span class="string">"branch_b"</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
+        repo.branch(<span class="string">"branch_c"</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
 
         <span class="comment">// create commit oid2 on branch_a
         </span><span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
-        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">&quot;file_a&quot;</span>);
-        <span class="macro">println!</span>(<span class="string">&quot;using path {:?}&quot;</span>, p);
+        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">"file_a"</span>);
+        <span class="macro">println!</span>(<span class="string">"using path {:?}"</span>, p);
         fs::File::create(<span class="kw-2">&amp;</span>p).unwrap();
-        index.add_path(Path::new(<span class="string">&quot;file_a&quot;</span>)).unwrap();
+        index.add_path(Path::new(<span class="string">"file_a"</span>)).unwrap();
         <span class="kw">let </span>id_a = index.write_tree().unwrap();
         <span class="kw">let </span>tree_a = repo.find_tree(id_a).unwrap();
         <span class="kw">let </span>oid2 = repo
             .commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/branch_a&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"refs/heads/branch_a"</span>),
                 <span class="kw-2">&amp;</span>sig,
                 <span class="kw-2">&amp;</span>sig,
-                <span class="string">&quot;commit 2&quot;</span>,
+                <span class="string">"commit 2"</span>,
                 <span class="kw-2">&amp;</span>tree_a,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1],
             )
             .unwrap();
         repo.find_commit(oid2).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;created oid2 {:?}&quot;</span>, oid2);
+        <span class="macro">println!</span>(<span class="string">"created oid2 {:?}"</span>, oid2);
 
         <span class="macro">t!</span>(repo.reset(commit1.as_object(), ResetType::Hard, <span class="prelude-val">None</span>));
 
         <span class="comment">// create commit oid3 on branch_b
         </span><span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
-        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">&quot;file_b&quot;</span>);
+        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">"file_b"</span>);
         fs::File::create(<span class="kw-2">&amp;</span>p).unwrap();
-        index.add_path(Path::new(<span class="string">&quot;file_b&quot;</span>)).unwrap();
+        index.add_path(Path::new(<span class="string">"file_b"</span>)).unwrap();
         <span class="kw">let </span>id_b = index.write_tree().unwrap();
         <span class="kw">let </span>tree_b = repo.find_tree(id_b).unwrap();
         <span class="kw">let </span>oid3 = repo
             .commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/branch_b&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"refs/heads/branch_b"</span>),
                 <span class="kw-2">&amp;</span>sig,
                 <span class="kw-2">&amp;</span>sig,
-                <span class="string">&quot;commit 3&quot;</span>,
+                <span class="string">"commit 3"</span>,
                 <span class="kw-2">&amp;</span>tree_b,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1],
             )
             .unwrap();
         repo.find_commit(oid3).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;created oid3 {:?}&quot;</span>, oid3);
+        <span class="macro">println!</span>(<span class="string">"created oid3 {:?}"</span>, oid3);
 
         <span class="macro">t!</span>(repo.reset(commit1.as_object(), ResetType::Hard, <span class="prelude-val">None</span>));
 
         <span class="comment">// create commit oid4 on branch_c
         </span><span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
-        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">&quot;file_c&quot;</span>);
+        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">"file_c"</span>);
         fs::File::create(<span class="kw-2">&amp;</span>p).unwrap();
-        index.add_path(Path::new(<span class="string">&quot;file_c&quot;</span>)).unwrap();
+        index.add_path(Path::new(<span class="string">"file_c"</span>)).unwrap();
         <span class="kw">let </span>id_c = index.write_tree().unwrap();
         <span class="kw">let </span>tree_c = repo.find_tree(id_c).unwrap();
         <span class="kw">let </span>oid4 = repo
             .commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/branch_c&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"refs/heads/branch_c"</span>),
                 <span class="kw-2">&amp;</span>sig,
                 <span class="kw-2">&amp;</span>sig,
-                <span class="string">&quot;commit 3&quot;</span>,
+                <span class="string">"commit 3"</span>,
                 <span class="kw-2">&amp;</span>tree_c,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1],
             )
             .unwrap();
         repo.find_commit(oid4).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;created oid4 {:?}&quot;</span>, oid4);
+        <span class="macro">println!</span>(<span class="string">"created oid4 {:?}"</span>, oid4);
 
         <span class="comment">// the merge base of (oid2,oid3) should be oid1
         </span><span class="kw">let </span>merge_base = repo.merge_base(oid2, oid3).unwrap();
@@ -7995,94 +8134,94 @@
         <span class="comment">// let oid1 = head
         </span><span class="kw">let </span>oid1 = repo.head().unwrap().target().unwrap();
         <span class="kw">let </span>commit1 = repo.find_commit(oid1).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;created oid1 {:?}&quot;</span>, oid1);
+        <span class="macro">println!</span>(<span class="string">"created oid1 {:?}"</span>, oid1);
 
-        repo.branch(<span class="string">&quot;branch_a&quot;</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
-        repo.branch(<span class="string">&quot;branch_b&quot;</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
+        repo.branch(<span class="string">"branch_a"</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
+        repo.branch(<span class="string">"branch_b"</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
 
         <span class="comment">// create commit oid2 on branchA
         </span><span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
-        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">&quot;file_a&quot;</span>);
-        <span class="macro">println!</span>(<span class="string">&quot;using path {:?}&quot;</span>, p);
+        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">"file_a"</span>);
+        <span class="macro">println!</span>(<span class="string">"using path {:?}"</span>, p);
         fs::File::create(<span class="kw-2">&amp;</span>p).unwrap();
-        index.add_path(Path::new(<span class="string">&quot;file_a&quot;</span>)).unwrap();
+        index.add_path(Path::new(<span class="string">"file_a"</span>)).unwrap();
         <span class="kw">let </span>id_a = index.write_tree().unwrap();
         <span class="kw">let </span>tree_a = repo.find_tree(id_a).unwrap();
         <span class="kw">let </span>oid2 = repo
             .commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/branch_a&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"refs/heads/branch_a"</span>),
                 <span class="kw-2">&amp;</span>sig,
                 <span class="kw-2">&amp;</span>sig,
-                <span class="string">&quot;commit 2&quot;</span>,
+                <span class="string">"commit 2"</span>,
                 <span class="kw-2">&amp;</span>tree_a,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1],
             )
             .unwrap();
         <span class="kw">let </span>commit2 = repo.find_commit(oid2).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;created oid2 {:?}&quot;</span>, oid2);
+        <span class="macro">println!</span>(<span class="string">"created oid2 {:?}"</span>, oid2);
 
         <span class="macro">t!</span>(repo.reset(commit1.as_object(), ResetType::Hard, <span class="prelude-val">None</span>));
 
         <span class="comment">// create commit oid3 on branchB
         </span><span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
-        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">&quot;file_b&quot;</span>);
+        <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="string">"file_b"</span>);
         fs::File::create(<span class="kw-2">&amp;</span>p).unwrap();
-        index.add_path(Path::new(<span class="string">&quot;file_b&quot;</span>)).unwrap();
+        index.add_path(Path::new(<span class="string">"file_b"</span>)).unwrap();
         <span class="kw">let </span>id_b = index.write_tree().unwrap();
         <span class="kw">let </span>tree_b = repo.find_tree(id_b).unwrap();
         <span class="kw">let </span>oid3 = repo
             .commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/branch_b&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"refs/heads/branch_b"</span>),
                 <span class="kw-2">&amp;</span>sig,
                 <span class="kw-2">&amp;</span>sig,
-                <span class="string">&quot;commit 3&quot;</span>,
+                <span class="string">"commit 3"</span>,
                 <span class="kw-2">&amp;</span>tree_b,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1],
             )
             .unwrap();
         <span class="kw">let </span>commit3 = repo.find_commit(oid3).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;created oid3 {:?}&quot;</span>, oid3);
+        <span class="macro">println!</span>(<span class="string">"created oid3 {:?}"</span>, oid3);
 
         <span class="comment">// create merge commit oid4 on branchA with parents oid2 and oid3
         //let mut index4 = repo.merge_commits(&amp;commit2, &amp;commit3, None).unwrap();
-        </span>repo.set_head(<span class="string">&quot;refs/heads/branch_a&quot;</span>).unwrap();
+        </span>repo.set_head(<span class="string">"refs/heads/branch_a"</span>).unwrap();
         repo.checkout_head(<span class="prelude-val">None</span>).unwrap();
         <span class="kw">let </span>oid4 = repo
             .commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/branch_a&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"refs/heads/branch_a"</span>),
                 <span class="kw-2">&amp;</span>sig,
                 <span class="kw-2">&amp;</span>sig,
-                <span class="string">&quot;commit 4&quot;</span>,
+                <span class="string">"commit 4"</span>,
                 <span class="kw-2">&amp;</span>tree_a,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit2, <span class="kw-2">&amp;</span>commit3],
             )
             .unwrap();
         <span class="comment">//index4.write_tree_to(&amp;repo).unwrap();
-        </span><span class="macro">println!</span>(<span class="string">&quot;created oid4 {:?}&quot;</span>, oid4);
+        </span><span class="macro">println!</span>(<span class="string">"created oid4 {:?}"</span>, oid4);
 
         <span class="comment">// create merge commit oid5 on branchB with parents oid2 and oid3
         //let mut index5 = repo.merge_commits(&amp;commit3, &amp;commit2, None).unwrap();
-        </span>repo.set_head(<span class="string">&quot;refs/heads/branch_b&quot;</span>).unwrap();
+        </span>repo.set_head(<span class="string">"refs/heads/branch_b"</span>).unwrap();
         repo.checkout_head(<span class="prelude-val">None</span>).unwrap();
         <span class="kw">let </span>oid5 = repo
             .commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/branch_b&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"refs/heads/branch_b"</span>),
                 <span class="kw-2">&amp;</span>sig,
                 <span class="kw-2">&amp;</span>sig,
-                <span class="string">&quot;commit 5&quot;</span>,
+                <span class="string">"commit 5"</span>,
                 <span class="kw-2">&amp;</span>tree_a,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit3, <span class="kw-2">&amp;</span>commit2],
             )
             .unwrap();
         <span class="comment">//index5.write_tree_to(&amp;repo).unwrap();
-        </span><span class="macro">println!</span>(<span class="string">&quot;created oid5 {:?}&quot;</span>, oid5);
+        </span><span class="macro">println!</span>(<span class="string">"created oid5 {:?}"</span>, oid5);
 
         <span class="comment">// merge bases of (oid4,oid5) should be (oid2,oid3)
         </span><span class="kw">let </span>merge_bases = repo.merge_bases(oid4, oid5).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>found_oid2 = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>found_oid3 = <span class="bool-val">false</span>;
         <span class="kw">for </span>mg <span class="kw">in </span>merge_bases.iter() {
-            <span class="macro">println!</span>(<span class="string">&quot;found merge base {:?}&quot;</span>, mg);
+            <span class="macro">println!</span>(<span class="string">"found merge base {:?}"</span>, mg);
             <span class="kw">if </span>mg == <span class="kw-2">&amp;</span>oid2 {
                 found_oid2 = <span class="bool-val">true</span>;
             } <span class="kw">else if </span>mg == <span class="kw-2">&amp;</span>oid3 {
@@ -8100,7 +8239,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>found_oid2 = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>found_oid3 = <span class="bool-val">false</span>;
         <span class="kw">for </span>mg <span class="kw">in </span>merge_bases.iter() {
-            <span class="macro">println!</span>(<span class="string">&quot;found merge base {:?}&quot;</span>, mg);
+            <span class="macro">println!</span>(<span class="string">"found merge base {:?}"</span>, mg);
             <span class="kw">if </span>mg == <span class="kw-2">&amp;</span>oid2 {
                 found_oid2 = <span class="bool-val">true</span>;
             } <span class="kw">else if </span>mg == <span class="kw-2">&amp;</span>oid3 {
@@ -8119,19 +8258,19 @@
         <span class="kw">let </span>(_td, repo) = graph_repo_init();
 
         {
-            <span class="kw">let </span>short_refname = <span class="string">&quot;main&quot;</span>;
-            <span class="kw">let </span>expected_refname = <span class="string">&quot;refs/heads/main&quot;</span>;
+            <span class="kw">let </span>short_refname = <span class="string">"main"</span>;
+            <span class="kw">let </span>expected_refname = <span class="string">"refs/heads/main"</span>;
             <span class="kw">let </span>(obj, reference) = repo.revparse_ext(short_refname).unwrap();
             <span class="kw">let </span>expected_obj = repo.revparse_single(expected_refname).unwrap();
             <span class="macro">assert_eq!</span>(obj.id(), expected_obj.id());
             <span class="macro">assert_eq!</span>(reference.unwrap().name().unwrap(), expected_refname);
         }
         {
-            <span class="kw">let </span>missing_refname = <span class="string">&quot;refs/heads/does-not-exist&quot;</span>;
+            <span class="kw">let </span>missing_refname = <span class="string">"refs/heads/does-not-exist"</span>;
             <span class="macro">assert!</span>(repo.revparse_ext(missing_refname).is_err());
         }
         {
-            <span class="kw">let </span>(_obj, reference) = repo.revparse_ext(<span class="string">&quot;HEAD^&quot;</span>).unwrap();
+            <span class="kw">let </span>(_obj, reference) = repo.revparse_ext(<span class="string">"HEAD^"</span>).unwrap();
             <span class="macro">assert!</span>(reference.is_none());
         }
     }
@@ -8140,18 +8279,18 @@
     </span><span class="kw">fn </span>smoke_is_path_ignored() {
         <span class="kw">let </span>(_td, repo) = graph_repo_init();
 
-        <span class="macro">assert!</span>(!repo.is_path_ignored(Path::new(<span class="string">&quot;foo&quot;</span>)).unwrap());
+        <span class="macro">assert!</span>(!repo.is_path_ignored(Path::new(<span class="string">"foo"</span>)).unwrap());
 
-        <span class="kw">let _ </span>= repo.add_ignore_rule(<span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">assert!</span>(repo.is_path_ignored(Path::new(<span class="string">&quot;foo&quot;</span>)).unwrap());
+        <span class="kw">let _ </span>= repo.add_ignore_rule(<span class="string">"/foo"</span>);
+        <span class="macro">assert!</span>(repo.is_path_ignored(Path::new(<span class="string">"foo"</span>)).unwrap());
         <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
-            <span class="macro">assert!</span>(repo.is_path_ignored(Path::new(<span class="string">&quot;foo\\thing&quot;</span>)).unwrap());
+            <span class="macro">assert!</span>(repo.is_path_ignored(Path::new(<span class="string">"foo\\thing"</span>)).unwrap());
         }
 
         <span class="kw">let _ </span>= repo.clear_ignore_rules();
-        <span class="macro">assert!</span>(!repo.is_path_ignored(Path::new(<span class="string">&quot;foo&quot;</span>)).unwrap());
+        <span class="macro">assert!</span>(!repo.is_path_ignored(Path::new(<span class="string">"foo"</span>)).unwrap());
         <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
-            <span class="macro">assert!</span>(!repo.is_path_ignored(Path::new(<span class="string">&quot;foo\\thing&quot;</span>)).unwrap());
+            <span class="macro">assert!</span>(!repo.is_path_ignored(Path::new(<span class="string">"foo\\thing"</span>)).unwrap());
         }
     }
 
@@ -8163,47 +8302,47 @@
         <span class="kw">let </span>oid1 = repo.head().unwrap().target().unwrap();
         <span class="kw">let </span>commit1 = repo.find_commit(oid1).unwrap();
 
-        repo.branch(<span class="string">&quot;branch_a&quot;</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
+        repo.branch(<span class="string">"branch_a"</span>, <span class="kw-2">&amp;</span>commit1, <span class="bool-val">true</span>).unwrap();
 
         <span class="comment">// Add 2 commits on top of the initial one in branch_a
         </span><span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
-        <span class="kw">let </span>p1 = Path::new(repo.workdir().unwrap()).join(<span class="string">&quot;file_c&quot;</span>);
+        <span class="kw">let </span>p1 = Path::new(repo.workdir().unwrap()).join(<span class="string">"file_c"</span>);
         fs::File::create(<span class="kw-2">&amp;</span>p1).unwrap();
-        index.add_path(Path::new(<span class="string">&quot;file_c&quot;</span>)).unwrap();
+        index.add_path(Path::new(<span class="string">"file_c"</span>)).unwrap();
         <span class="kw">let </span>id = index.write_tree().unwrap();
         <span class="kw">let </span>tree_c = repo.find_tree(id).unwrap();
         <span class="kw">let </span>oid2 = repo
             .commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/branch_a&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"refs/heads/branch_a"</span>),
                 <span class="kw-2">&amp;</span>sig,
                 <span class="kw-2">&amp;</span>sig,
-                <span class="string">&quot;commit 2&quot;</span>,
+                <span class="string">"commit 2"</span>,
                 <span class="kw-2">&amp;</span>tree_c,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1],
             )
             .unwrap();
         <span class="kw">let </span>commit2 = repo.find_commit(oid2).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;created oid2 {:?}&quot;</span>, oid2);
+        <span class="macro">println!</span>(<span class="string">"created oid2 {:?}"</span>, oid2);
         <span class="macro">assert!</span>(p1.exists());
 
         <span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
-        <span class="kw">let </span>p2 = Path::new(repo.workdir().unwrap()).join(<span class="string">&quot;file_d&quot;</span>);
+        <span class="kw">let </span>p2 = Path::new(repo.workdir().unwrap()).join(<span class="string">"file_d"</span>);
         fs::File::create(<span class="kw-2">&amp;</span>p2).unwrap();
-        index.add_path(Path::new(<span class="string">&quot;file_d&quot;</span>)).unwrap();
+        index.add_path(Path::new(<span class="string">"file_d"</span>)).unwrap();
         <span class="kw">let </span>id = index.write_tree().unwrap();
         <span class="kw">let </span>tree_d = repo.find_tree(id).unwrap();
         <span class="kw">let </span>oid3 = repo
             .commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/branch_a&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"refs/heads/branch_a"</span>),
                 <span class="kw-2">&amp;</span>sig,
                 <span class="kw-2">&amp;</span>sig,
-                <span class="string">&quot;commit 3&quot;</span>,
+                <span class="string">"commit 3"</span>,
                 <span class="kw-2">&amp;</span>tree_d,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit2],
             )
             .unwrap();
         <span class="kw">let </span>commit3 = repo.find_commit(oid3).unwrap();
-        <span class="macro">println!</span>(<span class="string">&quot;created oid3 {:?}&quot;</span>, oid3);
+        <span class="macro">println!</span>(<span class="string">"created oid3 {:?}"</span>, oid3);
         <span class="macro">assert!</span>(p1.exists());
         <span class="macro">assert!</span>(p2.exists());
 
@@ -8216,7 +8355,7 @@
         <span class="kw">let </span>id = repo.index().unwrap().write_tree().unwrap();
         <span class="kw">let </span>tree_d = repo.find_tree(id).unwrap();
         <span class="kw">let </span>oid4 = repo
-            .commit(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">&quot;commit 4&quot;</span>, <span class="kw-2">&amp;</span>tree_d, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1])
+            .commit(<span class="prelude-val">Some</span>(<span class="string">"HEAD"</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">"commit 4"</span>, <span class="kw-2">&amp;</span>tree_d, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1])
             .unwrap();
         <span class="kw">let </span>commit4 = repo.find_commit(oid4).unwrap();
         <span class="comment">// should have file from commit3, but not the file from commit2
@@ -8228,7 +8367,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke_revert() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="kw">let </span>foo_file = Path::new(repo.workdir().unwrap()).join(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>foo_file = Path::new(repo.workdir().unwrap()).join(<span class="string">"foo"</span>);
         <span class="macro">assert!</span>(!foo_file.exists());
 
         <span class="kw">let </span>(oid1, _id) = <span class="kw">crate</span>::test::commit(<span class="kw-2">&amp;</span>repo);
@@ -8240,7 +8379,7 @@
         <span class="kw">let </span>id = repo.index().unwrap().write_tree().unwrap();
         <span class="kw">let </span>tree2 = repo.find_tree(id).unwrap();
         <span class="kw">let </span>sig = repo.signature().unwrap();
-        repo.commit(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">&quot;commit 1&quot;</span>, <span class="kw-2">&amp;</span>tree2, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1])
+        repo.commit(<span class="prelude-val">Some</span>(<span class="string">"HEAD"</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">"commit 1"</span>, <span class="kw-2">&amp;</span>tree2, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit1])
             .unwrap();
         <span class="comment">// reverting once removes `foo` file
         </span><span class="macro">assert!</span>(!foo_file.exists());
@@ -8250,7 +8389,7 @@
         repo.revert(<span class="kw-2">&amp;</span>commit2, <span class="prelude-val">None</span>).unwrap();
         <span class="kw">let </span>id = repo.index().unwrap().write_tree().unwrap();
         <span class="kw">let </span>tree3 = repo.find_tree(id).unwrap();
-        repo.commit(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">&quot;commit 2&quot;</span>, <span class="kw-2">&amp;</span>tree3, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit2])
+        repo.commit(<span class="prelude-val">Some</span>(<span class="string">"HEAD"</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">"commit 2"</span>, <span class="kw-2">&amp;</span>tree3, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit2])
             .unwrap();
         <span class="comment">// reverting twice restores `foo` file
         </span><span class="macro">assert!</span>(foo_file.exists());
@@ -8262,16 +8401,16 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>config = repo.config().unwrap();
 
-        config.set_bool(<span class="string">&quot;commit.gpgsign&quot;</span>, <span class="bool-val">false</span>).unwrap();
+        config.set_bool(<span class="string">"commit.gpgsign"</span>, <span class="bool-val">false</span>).unwrap();
 
-        <span class="kw">let </span>c = fs::read_to_string(td.path().join(<span class="string">&quot;.git&quot;</span>).join(<span class="string">&quot;config&quot;</span>)).unwrap();
+        <span class="kw">let </span>c = fs::read_to_string(td.path().join(<span class="string">".git"</span>).join(<span class="string">"config"</span>)).unwrap();
 
-        <span class="macro">assert!</span>(c.contains(<span class="string">&quot;[commit]&quot;</span>));
-        <span class="macro">assert!</span>(c.contains(<span class="string">&quot;gpgsign = false&quot;</span>));
+        <span class="macro">assert!</span>(c.contains(<span class="string">"[commit]"</span>));
+        <span class="macro">assert!</span>(c.contains(<span class="string">"gpgsign = false"</span>));
 
         <span class="kw">let </span>config = repo.config().unwrap();
 
-        <span class="macro">assert!</span>(!config.get_bool(<span class="string">&quot;commit.gpgsign&quot;</span>).unwrap());
+        <span class="macro">assert!</span>(!config.get_bool(<span class="string">"commit.gpgsign"</span>).unwrap());
     }
 
     <span class="attr">#[test]
@@ -8289,17 +8428,17 @@
         repo.set_head_detached(head_commit.id())<span class="question-mark">?</span>;
 
         <span class="comment">// git branch their-branch HEAD
-        </span><span class="kw">let </span>their_branch = repo.branch(<span class="string">&quot;their-branch&quot;</span>, <span class="kw-2">&amp;</span>head_commit, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>their_branch = repo.branch(<span class="string">"their-branch"</span>, <span class="kw-2">&amp;</span>head_commit, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// git branch -f main HEAD~
         </span><span class="kw">let </span><span class="kw-2">mut </span>parents_iter = head_commit.parents();
         <span class="kw">let </span>parent = parents_iter.next().unwrap();
         <span class="macro">assert!</span>(parents_iter.next().is_none());
 
-        <span class="kw">let </span>main = repo.branch(<span class="string">&quot;main&quot;</span>, <span class="kw-2">&amp;</span>parent, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>main = repo.branch(<span class="string">"main"</span>, <span class="kw-2">&amp;</span>parent, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// git checkout main
-        </span>repo.set_head(main.get().name().expect(<span class="string">&quot;should be utf-8&quot;</span>))<span class="question-mark">?</span>;
+        </span>repo.set_head(main.get().name().expect(<span class="string">"should be utf-8"</span>))<span class="question-mark">?</span>;
 
         <span class="kw">let </span>(merge_analysis, _merge_preference) = repo.merge_analysis_for_ref(
             main.get(),
@@ -8316,11 +8455,11 @@
         <span class="kw">let </span>(td1, _repo) = <span class="kw">crate</span>::test::repo_init();
         <span class="kw">let </span>(td2, <span class="kw-2">mut </span>repo2) = <span class="kw">crate</span>::test::repo_init();
         <span class="kw">let </span>url = <span class="kw">crate</span>::test::path2url(td1.path());
-        <span class="kw">let </span>name = <span class="string">&quot;bar&quot;</span>;
+        <span class="kw">let </span>name = <span class="string">"bar"</span>;
         {
             <span class="kw">let </span><span class="kw-2">mut </span>s = repo2.submodule(<span class="kw-2">&amp;</span>url, Path::new(name), <span class="bool-val">true</span>)<span class="question-mark">?</span>;
-            fs::remove_dir_all(td2.path().join(<span class="string">&quot;bar&quot;</span>)).unwrap();
-            Repository::clone(<span class="kw-2">&amp;</span>url, td2.path().join(<span class="string">&quot;bar&quot;</span>))<span class="question-mark">?</span>;
+            fs::remove_dir_all(td2.path().join(<span class="string">"bar"</span>)).unwrap();
+            Repository::clone(<span class="kw-2">&amp;</span>url, td2.path().join(<span class="string">"bar"</span>))<span class="question-mark">?</span>;
             s.add_to_index(<span class="bool-val">false</span>)<span class="question-mark">?</span>;
             s.add_finalize()<span class="question-mark">?</span>;
         }
@@ -8350,12 +8489,12 @@
         ));
 
         <span class="comment">// url
-        </span>repo2.submodule_set_url(name, <span class="string">&quot;fake-url&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(repo2.find_submodule(name)<span class="question-mark">?</span>.url(), <span class="prelude-val">Some</span>(<span class="string">&quot;fake-url&quot;</span>));
+        </span>repo2.submodule_set_url(name, <span class="string">"fake-url"</span>)<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(repo2.find_submodule(name)<span class="question-mark">?</span>.url(), <span class="prelude-val">Some</span>(<span class="string">"fake-url"</span>));
 
         <span class="comment">// branch
-        </span>repo2.submodule_set_branch(name, <span class="string">&quot;fake-branch&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(repo2.find_submodule(name)<span class="question-mark">?</span>.branch(), <span class="prelude-val">Some</span>(<span class="string">&quot;fake-branch&quot;</span>));
+        </span>repo2.submodule_set_branch(name, <span class="string">"fake-branch"</span>)<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(repo2.find_submodule(name)<span class="question-mark">?</span>.branch(), <span class="prelude-val">Some</span>(<span class="string">"fake-branch"</span>));
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -8372,10 +8511,10 @@
         <span class="comment">// This is our baseline for HEAD.
         </span><span class="kw">let </span>author = commit.author();
         <span class="kw">let </span>committer = commit.committer();
-        <span class="macro">assert_eq!</span>(author.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;name&quot;</span>));
-        <span class="macro">assert_eq!</span>(author.email(), <span class="prelude-val">Some</span>(<span class="string">&quot;email&quot;</span>));
-        <span class="macro">assert_eq!</span>(committer.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;name&quot;</span>));
-        <span class="macro">assert_eq!</span>(committer.email(), <span class="prelude-val">Some</span>(<span class="string">&quot;email&quot;</span>));
+        <span class="macro">assert_eq!</span>(author.name(), <span class="prelude-val">Some</span>(<span class="string">"name"</span>));
+        <span class="macro">assert_eq!</span>(author.email(), <span class="prelude-val">Some</span>(<span class="string">"email"</span>));
+        <span class="macro">assert_eq!</span>(committer.name(), <span class="prelude-val">Some</span>(<span class="string">"name"</span>));
+        <span class="macro">assert_eq!</span>(committer.email(), <span class="prelude-val">Some</span>(<span class="string">"email"</span>));
 
         <span class="comment">// There is no .mailmap file in the test repo so all signature identities are equal.
         </span><span class="kw">let </span>mailmap = <span class="macro">t!</span>(repo.mailmap());
@@ -8388,16 +8527,16 @@
 
         <span class="kw">let </span>commit = {
             <span class="comment">// - Add a .mailmap file to the repository.
-            // - Commit with a signature identity different from the author&#39;s.
+            // - Commit with a signature identity different from the author's.
             // - Include entries for both author and committer to prove we call
             //   the right raw functions.
-            </span><span class="kw">let </span>mailmap_file = Path::new(<span class="string">&quot;.mailmap&quot;</span>);
+            </span><span class="kw">let </span>mailmap_file = Path::new(<span class="string">".mailmap"</span>);
             <span class="kw">let </span>p = Path::new(repo.workdir().unwrap()).join(<span class="kw-2">&amp;</span>mailmap_file);
             <span class="macro">t!</span>(fs::write(
                 p,
-                <span class="string">r#&quot;
+                <span class="string">r#"
 Author Name &lt;author.proper@email&gt; name &lt;email&gt;
-Committer Name &lt;committer.proper@email&gt; &lt;committer@email&gt;&quot;#</span>,
+Committer Name &lt;committer.proper@email&gt; &lt;committer@email&gt;"#</span>,
             ));
             <span class="kw">let </span><span class="kw-2">mut </span>index = <span class="macro">t!</span>(repo.index());
             <span class="macro">t!</span>(index.add_path(<span class="kw-2">&amp;</span>mailmap_file));
@@ -8405,26 +8544,26 @@ Committer Name &lt;committer.proper@email&gt; &lt;committer@email&gt;&quot;#</sp
             <span class="kw">let </span>tree_mailmap = <span class="macro">t!</span>(repo.find_tree(id_mailmap));
 
             <span class="kw">let </span>head = <span class="macro">t!</span>(repo.commit(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>),
+                <span class="prelude-val">Some</span>(<span class="string">"HEAD"</span>),
                 <span class="kw-2">&amp;</span>author,
-                <span class="macro">t!</span>(<span class="kw-2">&amp;</span>Signature::now(<span class="string">&quot;committer&quot;</span>, <span class="string">&quot;committer@email&quot;</span>)),
-                <span class="string">&quot;Add mailmap&quot;</span>,
+                <span class="macro">t!</span>(<span class="kw-2">&amp;</span>Signature::now(<span class="string">"committer"</span>, <span class="string">"committer@email"</span>)),
+                <span class="string">"Add mailmap"</span>,
                 <span class="kw-2">&amp;</span>tree_mailmap,
                 <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit],
             ));
             <span class="macro">t!</span>(repo.find_commit(head))
         };
 
-        <span class="comment">// Sanity check that we&#39;re working with the right commit and that its
+        <span class="comment">// Sanity check that we're working with the right commit and that its
         // author and committer identities differ.
         </span><span class="kw">let </span>author = commit.author();
         <span class="kw">let </span>committer = commit.committer();
         <span class="macro">assert_ne!</span>(author.name(), committer.name());
         <span class="macro">assert_ne!</span>(author.email(), committer.email());
-        <span class="macro">assert_eq!</span>(author.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;name&quot;</span>));
-        <span class="macro">assert_eq!</span>(author.email(), <span class="prelude-val">Some</span>(<span class="string">&quot;email&quot;</span>));
-        <span class="macro">assert_eq!</span>(committer.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;committer&quot;</span>));
-        <span class="macro">assert_eq!</span>(committer.email(), <span class="prelude-val">Some</span>(<span class="string">&quot;committer@email&quot;</span>));
+        <span class="macro">assert_eq!</span>(author.name(), <span class="prelude-val">Some</span>(<span class="string">"name"</span>));
+        <span class="macro">assert_eq!</span>(author.email(), <span class="prelude-val">Some</span>(<span class="string">"email"</span>));
+        <span class="macro">assert_eq!</span>(committer.name(), <span class="prelude-val">Some</span>(<span class="string">"committer"</span>));
+        <span class="macro">assert_eq!</span>(committer.email(), <span class="prelude-val">Some</span>(<span class="string">"committer@email"</span>));
 
         <span class="comment">// Fetch the newly added .mailmap from the repository.
         </span><span class="kw">let </span>mailmap = <span class="macro">t!</span>(repo.mailmap());
@@ -8440,14 +8579,36 @@ Committer Name &lt;committer.proper@email&gt; &lt;committer@email&gt;&quot;#</sp
         drop(commit);
 
         <span class="comment">// author_with_mailmap() + committer_with_mailmap() work
-        </span><span class="macro">assert_eq!</span>(mailmapped_author.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;Author Name&quot;</span>));
-        <span class="macro">assert_eq!</span>(mailmapped_author.email(), <span class="prelude-val">Some</span>(<span class="string">&quot;author.proper@email&quot;</span>));
-        <span class="macro">assert_eq!</span>(mailmapped_committer.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;Committer Name&quot;</span>));
-        <span class="macro">assert_eq!</span>(mailmapped_committer.email(), <span class="prelude-val">Some</span>(<span class="string">&quot;committer.proper@email&quot;</span>));
+        </span><span class="macro">assert_eq!</span>(mailmapped_author.name(), <span class="prelude-val">Some</span>(<span class="string">"Author Name"</span>));
+        <span class="macro">assert_eq!</span>(mailmapped_author.email(), <span class="prelude-val">Some</span>(<span class="string">"author.proper@email"</span>));
+        <span class="macro">assert_eq!</span>(mailmapped_committer.name(), <span class="prelude-val">Some</span>(<span class="string">"Committer Name"</span>));
+        <span class="macro">assert_eq!</span>(mailmapped_committer.email(), <span class="prelude-val">Some</span>(<span class="string">"committer.proper@email"</span>));
 
         <span class="comment">// resolve_signature() works
         </span><span class="macro">assert_eq!</span>(mm_resolve_author.email(), mailmapped_author.email());
         <span class="macro">assert_eq!</span>(mm_resolve_committer.email(), mailmapped_committer.email());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>smoke_find_tag_by_prefix() {
+        <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
+        <span class="kw">let </span>head = repo.head().unwrap();
+        <span class="kw">let </span>tag_oid = repo
+            .tag(
+                <span class="string">"tag"</span>,
+                <span class="kw-2">&amp;</span>repo
+                    .find_object(head.peel_to_commit().unwrap().id(), <span class="prelude-val">None</span>)
+                    .unwrap(),
+                <span class="kw-2">&amp;</span>repo.signature().unwrap(),
+                <span class="string">"message"</span>,
+                <span class="bool-val">false</span>,
+            )
+            .unwrap();
+        <span class="kw">let </span>tag = repo.find_tag(tag_oid).unwrap();
+        <span class="kw">let </span>found_tag = repo
+            .find_tag_by_prefix(<span class="kw-2">&amp;</span>tag.id().to_string()[<span class="number">0</span>..<span class="number">7</span>])
+            .unwrap();
+        <span class="macro">assert_eq!</span>(tag.id(), found_tag.id());
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/char.rs`."><title>char.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/char.rs`."><title>char.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -350,8 +351,8 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::char;
-/// assert_eq!(char(&#39;!&#39;).parse(&quot;!&quot;), Ok((&#39;!&#39;, &quot;&quot;)));
-/// assert!(char(&#39;A&#39;).parse(&quot;!&quot;).is_err());
+/// assert_eq!(char('!').parse("!"), Ok(('!', "")));
+/// assert!(char('A').parse("!").is_err());
 /// ```
 </span><span class="kw">pub fn </span>char&lt;Input&gt;(c: char) -&gt; Token&lt;Input&gt;
 <span class="kw">where
@@ -369,14 +370,14 @@
     /// ```
     /// use combine::Parser;
     /// use combine::parser::char::digit;
-    /// assert_eq!(digit().parse(&quot;9&quot;), Ok((&#39;9&#39;, &quot;&quot;)));
-    /// assert!(digit().parse(&quot;A&quot;).is_err());
+    /// assert_eq!(digit().parse("9"), Ok(('9', "")));
+    /// assert!(digit().parse("A").is_err());
     /// ```
     </span><span class="kw">pub fn </span>digit[Input]()(Input) -&gt; char
     <span class="kw">where
         </span>[Input: Stream&lt;Token = char&gt;,]
     {
-        satisfy(|c: char| c.is_digit(<span class="number">10</span>)).expected(<span class="string">&quot;digit&quot;</span>)
+        satisfy(|c: char| c.is_digit(<span class="number">10</span>)).expected(<span class="string">"digit"</span>)
     }
 }
 
@@ -389,10 +390,10 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::space;
-/// assert_eq!(space().parse(&quot; &quot;), Ok((&#39; &#39;, &quot;&quot;)));
-/// assert_eq!(space().parse(&quot;  &quot;), Ok((&#39; &#39;, &quot; &quot;)));
-/// assert!(space().parse(&quot;!&quot;).is_err());
-/// assert!(space().parse(&quot;&quot;).is_err());
+/// assert_eq!(space().parse(" "), Ok((' ', "")));
+/// assert_eq!(space().parse("  "), Ok((' ', " ")));
+/// assert!(space().parse("!").is_err());
+/// assert!(space().parse("").is_err());
 /// ```
 </span><span class="kw">pub fn </span>space&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
@@ -400,7 +401,7 @@
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     <span class="kw">let </span>f: <span class="kw">fn</span>(char) -&gt; bool = char::is_whitespace;
-    satisfy(f).expected(<span class="string">&quot;whitespace&quot;</span>)
+    satisfy(f).expected(<span class="string">"whitespace"</span>)
 }
 
 <span class="doccomment">/// Skips over zero or more spaces according to [`std::char::is_whitespace`].
@@ -412,64 +413,64 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::spaces;
-/// assert_eq!(spaces().parse(&quot;&quot;), Ok(((), &quot;&quot;)));
-/// assert_eq!(spaces().parse(&quot;   &quot;), Ok(((), &quot;&quot;)));
+/// assert_eq!(spaces().parse(""), Ok(((), "")));
+/// assert_eq!(spaces().parse("   "), Ok(((), "")));
 /// ```
 </span><span class="kw">pub fn </span>spaces&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    skip_many(space()).expected(<span class="string">&quot;whitespaces&quot;</span>)
+    skip_many(space()).expected(<span class="string">"whitespaces"</span>)
 }
 
-<span class="doccomment">/// Parses a newline character (`&#39;\n&#39;`).
+<span class="doccomment">/// Parses a newline character (`'\n'`).
 ///
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::newline;
-/// assert_eq!(newline().parse(&quot;\n&quot;), Ok((&#39;\n&#39;, &quot;&quot;)));
-/// assert!(newline().parse(&quot;\r&quot;).is_err());
+/// assert_eq!(newline().parse("\n"), Ok(('\n', "")));
+/// assert!(newline().parse("\r").is_err());
 /// ```
 </span><span class="kw">pub fn </span>newline&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch: char| ch == <span class="string">&#39;\n&#39;</span>).expected(<span class="string">&quot;lf newline&quot;</span>)
+    satisfy(|ch: char| ch == <span class="string">'\n'</span>).expected(<span class="string">"lf newline"</span>)
 }
 
-<span class="doccomment">/// Parses carriage return and newline (`&quot;\r\n&quot;`), returning the newline character.
+<span class="doccomment">/// Parses carriage return and newline (`"\r\n"`), returning the newline character.
 ///
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::crlf;
-/// assert_eq!(crlf().parse(&quot;\r\n&quot;), Ok((&#39;\n&#39;, &quot;&quot;)));
-/// assert!(crlf().parse(&quot;\r&quot;).is_err());
-/// assert!(crlf().parse(&quot;\n&quot;).is_err());
+/// assert_eq!(crlf().parse("\r\n"), Ok(('\n', "")));
+/// assert!(crlf().parse("\r").is_err());
+/// assert!(crlf().parse("\n").is_err());
 /// ```
 </span><span class="kw">pub fn </span>crlf&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    no_partial(satisfy(|ch: char| ch == <span class="string">&#39;\r&#39;</span>).with(newline())).expected(<span class="string">&quot;crlf newline&quot;</span>)
+    no_partial(satisfy(|ch: char| ch == <span class="string">'\r'</span>).with(newline())).expected(<span class="string">"crlf newline"</span>)
 }
 
-<span class="doccomment">/// Parses a tab character (`&#39;\t&#39;`).
+<span class="doccomment">/// Parses a tab character (`'\t'`).
 ///
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::tab;
-/// assert_eq!(tab().parse(&quot;\t&quot;), Ok((&#39;\t&#39;, &quot;&quot;)));
-/// assert!(tab().parse(&quot; &quot;).is_err());
+/// assert_eq!(tab().parse("\t"), Ok(('\t', "")));
+/// assert!(tab().parse(" ").is_err());
 /// ```
 </span><span class="kw">pub fn </span>tab&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch: char| ch == <span class="string">&#39;\t&#39;</span>).expected(<span class="string">&quot;tab&quot;</span>)
+    satisfy(|ch: char| ch == <span class="string">'\t'</span>).expected(<span class="string">"tab"</span>)
 }
 
 <span class="doccomment">/// Parses an uppercase letter according to [`std::char::is_uppercase`].
@@ -479,15 +480,15 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::upper;
-/// assert_eq!(upper().parse(&quot;A&quot;), Ok((&#39;A&#39;, &quot;&quot;)));
-/// assert!(upper().parse(&quot;a&quot;).is_err());
+/// assert_eq!(upper().parse("A"), Ok(('A', "")));
+/// assert!(upper().parse("a").is_err());
 /// ```
 </span><span class="kw">pub fn </span>upper&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch: char| ch.is_uppercase()).expected(<span class="string">&quot;uppercase letter&quot;</span>)
+    satisfy(|ch: char| ch.is_uppercase()).expected(<span class="string">"uppercase letter"</span>)
 }
 
 <span class="doccomment">/// Parses an lowercase letter according to [`std::char::is_lowercase`].
@@ -497,15 +498,15 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::lower;
-/// assert_eq!(lower().parse(&quot;a&quot;), Ok((&#39;a&#39;, &quot;&quot;)));
-/// assert!(lower().parse(&quot;A&quot;).is_err());
+/// assert_eq!(lower().parse("a"), Ok(('a', "")));
+/// assert!(lower().parse("A").is_err());
 /// ```
 </span><span class="kw">pub fn </span>lower&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch: char| ch.is_lowercase()).expected(<span class="string">&quot;lowercase letter&quot;</span>)
+    satisfy(|ch: char| ch.is_lowercase()).expected(<span class="string">"lowercase letter"</span>)
 }
 
 <span class="doccomment">/// Parses either an alphabet letter or digit according to [`std::char::is_alphanumeric`].
@@ -515,16 +516,16 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::alpha_num;
-/// assert_eq!(alpha_num().parse(&quot;A&quot;), Ok((&#39;A&#39;, &quot;&quot;)));
-/// assert_eq!(alpha_num().parse(&quot;1&quot;), Ok((&#39;1&#39;, &quot;&quot;)));
-/// assert!(alpha_num().parse(&quot;!&quot;).is_err());
+/// assert_eq!(alpha_num().parse("A"), Ok(('A', "")));
+/// assert_eq!(alpha_num().parse("1"), Ok(('1', "")));
+/// assert!(alpha_num().parse("!").is_err());
 /// ```
 </span><span class="kw">pub fn </span>alpha_num&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch: char| ch.is_alphanumeric()).expected(<span class="string">&quot;letter or digit&quot;</span>)
+    satisfy(|ch: char| ch.is_alphanumeric()).expected(<span class="string">"letter or digit"</span>)
 }
 
 <span class="doccomment">/// Parses an alphabet letter according to [`std::char::is_alphabetic`].
@@ -534,16 +535,16 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::letter;
-/// assert_eq!(letter().parse(&quot;a&quot;), Ok((&#39;a&#39;, &quot;&quot;)));
-/// assert_eq!(letter().parse(&quot;A&quot;), Ok((&#39;A&#39;, &quot;&quot;)));
-/// assert!(letter().parse(&quot;9&quot;).is_err());
+/// assert_eq!(letter().parse("a"), Ok(('a', "")));
+/// assert_eq!(letter().parse("A"), Ok(('A', "")));
+/// assert!(letter().parse("9").is_err());
 /// ```
 </span><span class="kw">pub fn </span>letter&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch: char| ch.is_alphabetic()).expected(<span class="string">&quot;letter&quot;</span>)
+    satisfy(|ch: char| ch.is_alphabetic()).expected(<span class="string">"letter"</span>)
 }
 
 <span class="doccomment">/// Parses an octal digit.
@@ -551,15 +552,15 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::oct_digit;
-/// assert_eq!(oct_digit().parse(&quot;7&quot;), Ok((&#39;7&#39;, &quot;&quot;)));
-/// assert!(oct_digit().parse(&quot;8&quot;).is_err());
+/// assert_eq!(oct_digit().parse("7"), Ok(('7', "")));
+/// assert!(oct_digit().parse("8").is_err());
 /// ```
 </span><span class="kw">pub fn </span>oct_digit&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch: char| ch.is_digit(<span class="number">8</span>)).expected(<span class="string">&quot;octal digit&quot;</span>)
+    satisfy(|ch: char| ch.is_digit(<span class="number">8</span>)).expected(<span class="string">"octal digit"</span>)
 }
 
 <span class="doccomment">/// Parses a hexdecimal digit with uppercase and lowercase.
@@ -567,15 +568,15 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::char::hex_digit;
-/// assert_eq!(hex_digit().parse(&quot;F&quot;), Ok((&#39;F&#39;, &quot;&quot;)));
-/// assert!(hex_digit().parse(&quot;H&quot;).is_err());
+/// assert_eq!(hex_digit().parse("F"), Ok(('F', "")));
+/// assert!(hex_digit().parse("H").is_err());
 /// ```
 </span><span class="kw">pub fn </span>hex_digit&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = char, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch: char| ch.is_digit(<span class="number">0x10</span>)).expected(<span class="string">&quot;hexadecimal digit&quot;</span>)
+    satisfy(|ch: char| ch.is_digit(<span class="number">0x10</span>)).expected(<span class="string">"hexadecimal digit"</span>)
 }
 
 <span class="doccomment">/// Parses the string `s`.
@@ -585,13 +586,13 @@
 /// # use combine::*;
 /// # use combine::parser::char::string;
 /// # fn main() {
-/// let result = string(&quot;rust&quot;)
-///     .parse(&quot;rust&quot;)
+/// let result = string("rust")
+///     .parse("rust")
 ///     .map(|x| x.0);
-/// assert_eq!(result, Ok(&quot;rust&quot;));
+/// assert_eq!(result, Ok("rust"));
 /// # }
 /// ```
-</span><span class="kw">pub fn </span>string&lt;<span class="lifetime">&#39;a</span>, Input&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;
+</span><span class="kw">pub fn </span>string&lt;<span class="lifetime">'a</span>, Input&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = char&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
@@ -606,13 +607,13 @@
 /// # use combine::*;
 /// # use combine::parser::char::string_cmp;
 /// # fn main() {
-/// let result = string_cmp(&quot;rust&quot;, |l, r| l.eq_ignore_ascii_case(&amp;r))
-///     .parse(&quot;RusT&quot;)
+/// let result = string_cmp("rust", |l, r| l.eq_ignore_ascii_case(&amp;r))
+///     .parse("RusT")
 ///     .map(|x| x.0);
-/// assert_eq!(result, Ok(&quot;rust&quot;));
+/// assert_eq!(result, Ok("rust"));
 /// # }
 /// ```
-</span><span class="kw">pub fn </span>string_cmp&lt;<span class="lifetime">&#39;a</span>, C, Input&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, cmp: C) -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;
+</span><span class="kw">pub fn </span>string_cmp&lt;<span class="lifetime">'a</span>, C, Input&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, cmp: C) -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;
 <span class="kw">where
     </span>C: FnMut(char, char) -&gt; bool,
     Input: Stream&lt;Token = char&gt;,
@@ -621,7 +622,7 @@
     tokens_cmp(s.chars(), cmp).map(<span class="kw">move </span>|<span class="kw">_</span>| s).expected(s)
 }
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, test))]
+<span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, test))]
 </span><span class="kw">mod </span>tests {
 
     <span class="kw">use crate</span>::{
@@ -636,17 +637,17 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>space_error() {
-        <span class="kw">let </span>result = space().easy_parse(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span>result = space().easy_parse(<span class="string">""</span>);
         <span class="macro">assert!</span>(result.is_err());
         <span class="macro">assert_eq!</span>(
             result.unwrap_err().errors,
-            <span class="macro">vec!</span>[Error::end_of_input(), Error::Expected(<span class="string">&quot;whitespace&quot;</span>.into())]
+            <span class="macro">vec!</span>[Error::end_of_input(), Error::Expected(<span class="string">"whitespace"</span>.into())]
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>string_committed() {
-        <span class="kw">let </span>result = string(<span class="string">&quot;a&quot;</span>).easy_parse(position::Stream::new(<span class="string">&quot;b&quot;</span>));
+        <span class="kw">let </span>result = string(<span class="string">"a"</span>).easy_parse(position::Stream::new(<span class="string">"b"</span>));
         <span class="macro">assert!</span>(result.is_err());
         <span class="macro">assert_eq!</span>(
             result.unwrap_err().position,
@@ -656,12 +657,12 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>string_error() {
-        <span class="kw">let </span>result = string(<span class="string">&quot;abc&quot;</span>).easy_parse(position::Stream::new(<span class="string">&quot;bc&quot;</span>));
+        <span class="kw">let </span>result = string(<span class="string">"abc"</span>).easy_parse(position::Stream::new(<span class="string">"bc"</span>));
         <span class="macro">assert_eq!</span>(
             result,
             <span class="prelude-val">Err</span>(Errors {
                 position: SourcePosition { line: <span class="number">1</span>, column: <span class="number">1 </span>},
-                errors: <span class="macro">vec!</span>[Error::Unexpected(<span class="string">&#39;b&#39;</span>.into()), Error::Expected(<span class="string">&quot;abc&quot;</span>.into())],
+                errors: <span class="macro">vec!</span>[Error::Unexpected(<span class="string">'b'</span>.into()), Error::Expected(<span class="string">"abc"</span>.into())],
             })
         );
     }

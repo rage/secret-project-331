@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/certificates.rs`."><title>certificates.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/certificates.rs`."><title>certificates.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -519,7 +520,7 @@
 };
 
 <span class="attr">#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CertificateConfigurationUpdate {
     <span class="kw">pub </span>course_module_id: Uuid,
     <span class="kw">pub </span>course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
@@ -548,7 +549,7 @@
 <span class="attr">#[derive(Debug, MultipartForm)]
 </span><span class="kw">pub struct </span>CertificateConfigurationUpdateForm {
     metadata: actix_multipart::form::json::Json&lt;CertificateConfigurationUpdate&gt;,
-    <span class="attr">#[multipart(rename = <span class="string">&quot;file&quot;</span>)]
+    <span class="attr">#[multipart(rename = <span class="string">"file"</span>)]
     </span>files: Vec&lt;TempFile&gt;,
 }
 
@@ -596,7 +597,7 @@ Updates the certificate configuration for a given module.
                 .<span class="kw">await
                 </span>{
                     <span class="comment">// do not propagate error so that we at least try to delete all of the files
-                    </span><span class="macro">error!</span>(<span class="string">&quot;Failed to delete file &#39;{file_to_delete}&#39;: {err}&quot;</span>);
+                    </span><span class="macro">error!</span>(<span class="string">"Failed to delete file '{file_to_delete}': {err}"</span>);
                 }
             }
         }
@@ -613,7 +614,7 @@ Updates the certificate configuration for a given module.
                 .<span class="kw">await
                 </span>{
                     <span class="comment">// do not propagate error so that we at least try to delete all of the files
-                    </span><span class="macro">error!</span>(<span class="string">&quot;Failed to delete file &#39;{uploaded_file}&#39; during cleanup: {err}&quot;</span>);
+                    </span><span class="macro">error!</span>(<span class="string">"Failed to delete file '{uploaded_file}' during cleanup: {err}"</span>);
                 }
             }
             <span class="kw">return </span><span class="prelude-val">Err</span>(err);
@@ -642,7 +643,7 @@ Updates the certificate configuration for a given module.
         <span class="kw">let </span><span class="prelude-val">Some</span>(file_name) = file.file_name <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="string">&quot;Missing file name in multipart request&quot;</span>.to_string(),
+                <span class="string">"Missing file name in multipart request"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         };
@@ -653,7 +654,7 @@ Updates the certificate configuration for a given module.
             metadata.overlay_svg_file_name.as_ref(),
         ) {
             (<span class="prelude-val">Some</span>(background_svg_file_name), <span class="kw">_</span>) <span class="kw">if </span>background_svg_file_name == <span class="kw-2">&amp;</span>file_name =&gt; {
-                <span class="macro">info!</span>(<span class="string">&quot;Saving new background svg file&quot;</span>);
+                <span class="macro">info!</span>(<span class="string">"Saving new background svg file"</span>);
                 <span class="comment">// upload new background svg
                 </span><span class="kw">let </span>(id, path) = file_uploading::upload_certificate_svg(
                     <span class="kw-2">&amp;mut </span>tx,
@@ -666,10 +667,10 @@ Updates the certificate configuration for a given module.
                 .<span class="kw">await</span><span class="question-mark">?</span>;
                 uploaded_files.push(id);
                 new_background_svg_file =
-                    <span class="prelude-val">Some</span>((id, path.to_str().context(<span class="string">&quot;Invalid path&quot;</span>)<span class="question-mark">?</span>.to_string()));
+                    <span class="prelude-val">Some</span>((id, path.to_str().context(<span class="string">"Invalid path"</span>)<span class="question-mark">?</span>.to_string()));
             }
             (<span class="kw">_</span>, <span class="prelude-val">Some</span>(overlay_svg_file_name)) <span class="kw">if </span>overlay_svg_file_name == <span class="kw-2">&amp;</span>file_name =&gt; {
-                <span class="macro">info!</span>(<span class="string">&quot;Saving new overlay svg file&quot;</span>);
+                <span class="macro">info!</span>(<span class="string">"Saving new overlay svg file"</span>);
                 <span class="comment">// upload new overlay svg
                 </span><span class="kw">let </span>(id, path) = file_uploading::upload_certificate_svg(
                     <span class="kw-2">&amp;mut </span>tx,
@@ -682,12 +683,12 @@ Updates the certificate configuration for a given module.
                 .<span class="kw">await</span><span class="question-mark">?</span>;
                 uploaded_files.push(id);
                 new_overlay_svg_file =
-                    <span class="prelude-val">Some</span>((id, path.to_str().context(<span class="string">&quot;Invalid path&quot;</span>)<span class="question-mark">?</span>.to_string()));
+                    <span class="prelude-val">Some</span>((id, path.to_str().context(<span class="string">"Invalid path"</span>)<span class="question-mark">?</span>.to_string()));
             }
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                     ControllerErrorType::BadRequest,
-                    <span class="string">&quot;Invalid field in multipart request&quot;</span>.to_string(),
+                    <span class="string">"Invalid field in multipart request"</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 ));
             }
@@ -725,7 +726,7 @@ Updates the certificate configuration for a given module.
                 <span class="comment">// no existing config and no new upload, invalid request
                 </span><span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                     ControllerErrorType::BadRequest,
-                    <span class="string">&quot;Missing background SVG file&quot;</span>.to_string(),
+                    <span class="string">"Missing background SVG file"</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 ));
             }
@@ -836,7 +837,7 @@ Generates a certificate for a given certificate configuration id.
     </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Cannot generate certificate; user has not completed all the requirements to be eligible for this certificate.&quot;
+            <span class="string">"Cannot generate certificate; user has not completed all the requirements to be eligible for this certificate."
                 </span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
@@ -858,7 +859,7 @@ Generates a certificate for a given certificate configuration id.
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_configuration_id}`
 
-Fetches the user&#39;s certificate for the given course module and course instance.
+Fetches the user's certificate for the given course module and course instance.
 */
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>get_generated_certificate(
@@ -895,7 +896,7 @@ Fetches the user&#39;s certificate for the given course module and course instan
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/certificates/{certificate_verification_id}`
 
-Fetches the user&#39;s certificate using the verification id.
+Fetches the user's certificate using the verification id.
 
 Response: the certificate as a png.
 */
@@ -922,8 +923,8 @@ Response: the certificate as a png.
                 deleted_at: <span class="prelude-val">None</span>,
                 user_id: Uuid::new_v4(),
                 certificate_configuration_id: test_certificate_configuration_id,
-                name_on_certificate: <span class="string">&quot;Example user&quot;</span>.to_string(),
-                verification_id: <span class="string">&quot;test&quot;</span>.to_string(),
+                name_on_certificate: <span class="string">"Example user"</span>.to_string(),
+                verification_id: <span class="string">"test"</span>.to_string(),
             }
         } <span class="kw">else </span>{
             models::generated_certificates::get_certificate_by_verification_id(
@@ -945,8 +946,8 @@ Response: the certificate as a png.
 
     token.authorized_ok(
         HttpResponse::Ok()
-            .content_type(<span class="string">&quot;image/png&quot;</span>)
-            .insert_header((<span class="string">&quot;Cache-Control&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;max-age={max_age}&quot;</span>)))
+            .content_type(<span class="string">"image/png"</span>)
+            .insert_header((<span class="string">"Cache-Control"</span>, <span class="macro">format!</span>(<span class="string">"max-age={max_age}"</span>)))
             .body(data),
     )
 }
@@ -987,7 +988,7 @@ Deletes the given configuration.
     }
     models::certificate_configurations::delete(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>configuration_id).<span class="kw">await</span><span class="question-mark">?</span>;
     token
-        .expect(<span class="string">&quot;Never None at this point&quot;</span>)
+        .expect(<span class="string">"Never None at this point"</span>)
         .authorized_ok(web::Json(<span class="bool-val">true</span>))
 }
 
@@ -999,18 +1000,18 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 </span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-    cfg.route(<span class="string">&quot;&quot;</span>, web::post().to(update_certificate_configuration))
-        .route(<span class="string">&quot;/generate&quot;</span>, web::post().to(generate_generated_certificate))
+    cfg.route(<span class="string">""</span>, web::post().to(update_certificate_configuration))
+        .route(<span class="string">"/generate"</span>, web::post().to(generate_generated_certificate))
         .route(
-            <span class="string">&quot;/get-by-configuration-id/{certificate_configuration_id}&quot;</span>,
+            <span class="string">"/get-by-configuration-id/{certificate_configuration_id}"</span>,
             web::get().to(get_generated_certificate),
         )
         .route(
-            <span class="string">&quot;/{certificate_verification_id}&quot;</span>,
+            <span class="string">"/{certificate_verification_id}"</span>,
             web::get().to(get_cerficate_by_verification_id),
         )
         .route(
-            <span class="string">&quot;/configuration/{certificate_configuration_id}&quot;</span>,
+            <span class="string">"/configuration/{certificate_configuration_id}"</span>,
             web::delete().to(delete_certificate_configuration),
         );
 }

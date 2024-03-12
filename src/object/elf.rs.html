@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/elf.rs`."><title>elf.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/elf.rs`."><title>elf.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -6415,7 +6416,7 @@
 }
 
 <span class="doccomment">/// File identification bytes stored in `Ident::magic`.
-</span><span class="kw">pub const </span>ELFMAG: [u8; <span class="number">4</span>] = [<span class="number">0x7f</span>, <span class="string">b&#39;E&#39;</span>, <span class="string">b&#39;L&#39;</span>, <span class="string">b&#39;F&#39;</span>];
+</span><span class="kw">pub const </span>ELFMAG: [u8; <span class="number">4</span>] = [<span class="number">0x7f</span>, <span class="string">b'E'</span>, <span class="string">b'L'</span>, <span class="string">b'F'</span>];
 
 <span class="comment">// Values for `Ident::class`.
 </span><span class="doccomment">/// Invalid class.
@@ -6428,9 +6429,9 @@
 <span class="comment">// Values for `Ident::data`.
 </span><span class="doccomment">/// Invalid data encoding.
 </span><span class="kw">pub const </span>ELFDATANONE: u8 = <span class="number">0</span>;
-<span class="doccomment">/// 2&#39;s complement, little endian.
+<span class="doccomment">/// 2's complement, little endian.
 </span><span class="kw">pub const </span>ELFDATA2LSB: u8 = <span class="number">1</span>;
-<span class="doccomment">/// 2&#39;s complement, big endian.
+<span class="doccomment">/// 2's complement, big endian.
 </span><span class="kw">pub const </span>ELFDATA2MSB: u8 = <span class="number">2</span>;
 
 <span class="comment">// Values for `Ident::os_abi`.
@@ -6530,7 +6531,7 @@
 </span><span class="kw">pub const </span>EM_PARISC: u16 = <span class="number">15</span>;
 <span class="doccomment">/// Fujitsu VPP500
 </span><span class="kw">pub const </span>EM_VPP500: u16 = <span class="number">17</span>;
-<span class="doccomment">/// Sun&#39;s &quot;v8plus&quot;
+<span class="doccomment">/// Sun's "v8plus"
 </span><span class="kw">pub const </span>EM_SPARC32PLUS: u16 = <span class="number">18</span>;
 <span class="doccomment">/// Intel 80960
 </span><span class="kw">pub const </span>EM_960: u16 = <span class="number">19</span>;
@@ -6630,7 +6631,7 @@
 </span><span class="kw">pub const </span>EM_FIREPATH: u16 = <span class="number">78</span>;
 <span class="doccomment">/// LSI Logic 16-bit DSP Processor
 </span><span class="kw">pub const </span>EM_ZSP: u16 = <span class="number">79</span>;
-<span class="doccomment">/// Donald Knuth&#39;s educational 64-bit proc
+<span class="doccomment">/// Donald Knuth's educational 64-bit proc
 </span><span class="kw">pub const </span>EM_MMIX: u16 = <span class="number">80</span>;
 <span class="doccomment">/// Harvard University machine-independent object files
 </span><span class="kw">pub const </span>EM_HUANY: u16 = <span class="number">81</span>;
@@ -7291,7 +7292,7 @@
 </span><span class="kw">pub const </span>STT_FUNC: u8 = <span class="number">2</span>;
 <span class="doccomment">/// Symbol is associated with a section.
 </span><span class="kw">pub const </span>STT_SECTION: u8 = <span class="number">3</span>;
-<span class="doccomment">/// Symbol&#39;s name is a file name.
+<span class="doccomment">/// Symbol's name is a file name.
 </span><span class="kw">pub const </span>STT_FILE: u8 = <span class="number">4</span>;
 <span class="doccomment">/// Symbol is a common data object.
 </span><span class="kw">pub const </span>STT_COMMON: u8 = <span class="number">5</span>;
@@ -7595,11 +7596,11 @@
 </span><span class="kw">pub const </span>PF_MASKPROC: u32 = <span class="number">0xf000_0000</span>;
 
 <span class="doccomment">/// Note name for core files.
-</span><span class="kw">pub const </span>ELF_NOTE_CORE: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;CORE&quot;</span>;
+</span><span class="kw">pub const </span>ELF_NOTE_CORE: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"CORE"</span>;
 <span class="doccomment">/// Note name for linux core files.
 ///
 /// Notes in linux core files may also use `ELF_NOTE_CORE`.
-</span><span class="kw">pub const </span>ELF_NOTE_LINUX: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;LINUX&quot;</span>;
+</span><span class="kw">pub const </span>ELF_NOTE_LINUX: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"LINUX"</span>;
 
 <span class="comment">// Values for `NoteHeader*::n_type` in core files.
 //
@@ -7904,7 +7905,7 @@
 <span class="doccomment">/// Number of needed versions
 </span><span class="kw">pub const </span>DT_VERNEEDNUM: u32 = <span class="number">0x6fff_ffff</span>;
 
-<span class="comment">// Machine-independent extensions in the &quot;processor-specific&quot; range.
+<span class="comment">// Machine-independent extensions in the "processor-specific" range.
 </span><span class="doccomment">/// Shared object to load before self
 </span><span class="kw">pub const </span>DT_AUXILIARY: u32 = <span class="number">0x7fff_fffd</span>;
 <span class="doccomment">/// Shared object to get values from
@@ -7946,7 +7947,7 @@
 </span><span class="kw">pub const </span>DF_1_INTERPOSE: u32 = <span class="number">0x0000_0400</span>;
 <span class="doccomment">/// Ignore default lib search path.
 </span><span class="kw">pub const </span>DF_1_NODEFLIB: u32 = <span class="number">0x0000_0800</span>;
-<span class="doccomment">/// Object can&#39;t be dldump&#39;ed.
+<span class="doccomment">/// Object can't be dldump'ed.
 </span><span class="kw">pub const </span>DF_1_NODUMP: u32 = <span class="number">0x0000_1000</span>;
 <span class="doccomment">/// Configuration alternative created.
 </span><span class="kw">pub const </span>DF_1_CONFALT: u32 = <span class="number">0x0000_2000</span>;
@@ -8078,11 +8079,11 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>NoteHeader32&lt;E: Endian&gt; {
-    <span class="doccomment">/// Length of the note&#39;s name.
+    <span class="doccomment">/// Length of the note's name.
     ///
     /// Some known names are defined by the `ELF_NOTE_*` constants.
     </span><span class="kw">pub </span>n_namesz: U32&lt;E&gt;,
-    <span class="doccomment">/// Length of the note&#39;s descriptor.
+    <span class="doccomment">/// Length of the note's descriptor.
     ///
     /// The content of the descriptor depends on the note name and type.
     </span><span class="kw">pub </span>n_descsz: U32&lt;E&gt;,
@@ -8097,11 +8098,11 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>NoteHeader64&lt;E: Endian&gt; {
-    <span class="doccomment">/// Length of the note&#39;s name.
+    <span class="doccomment">/// Length of the note's name.
     ///
     /// Some known names are defined by the `ELF_NOTE_*` constants.
     </span><span class="kw">pub </span>n_namesz: U32&lt;E&gt;,
-    <span class="doccomment">/// Length of the note&#39;s descriptor.
+    <span class="doccomment">/// Length of the note's descriptor.
     ///
     /// The content of the descriptor depends on the note name and type.
     </span><span class="kw">pub </span>n_descsz: U32&lt;E&gt;,
@@ -8113,18 +8114,18 @@
 }
 
 <span class="doccomment">/// Solaris entries in the note section have this name.
-</span><span class="kw">pub const </span>ELF_NOTE_SOLARIS: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;SUNW Solaris&quot;</span>;
+</span><span class="kw">pub const </span>ELF_NOTE_SOLARIS: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"SUNW Solaris"</span>;
 
 <span class="comment">// Values for `n_type` when the name is `ELF_NOTE_SOLARIS`.
 </span><span class="doccomment">/// Desired pagesize for the binary.
 </span><span class="kw">pub const </span>NT_SOLARIS_PAGESIZE_HINT: u32 = <span class="number">1</span>;
 
 <span class="doccomment">/// GNU entries in the note section have this name.
-</span><span class="kw">pub const </span>ELF_NOTE_GNU: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;GNU&quot;</span>;
+</span><span class="kw">pub const </span>ELF_NOTE_GNU: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"GNU"</span>;
 
 <span class="doccomment">/// Go entries in the note section have this name.
 </span><span class="comment">// See https://go-review.googlesource.com/9520 and https://go-review.googlesource.com/10704.
-</span><span class="kw">pub const </span>ELF_NOTE_GO: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;Go&quot;</span>;
+</span><span class="kw">pub const </span>ELF_NOTE_GO: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"Go"</span>;
 
 <span class="comment">// Note types for `ELF_NOTE_GNU`.
 
@@ -8152,7 +8153,7 @@
 /// - word 0: number of entries
 /// - word 1: bitmask of enabled entries
 /// Then follow variable-length entries, one byte followed by a
-/// &#39;\0&#39;-terminated hwcap name string.  The byte gives the bit
+/// '\0'-terminated hwcap name string.  The byte gives the bit
 /// number to test if enabled, (1U &lt;&lt; bit) &amp; bitmask.  */
 </span><span class="kw">pub const </span>NT_GNU_HWCAP: u32 = <span class="number">2</span>;
 
@@ -8161,7 +8162,7 @@
 /// The descriptor consists of any nonzero number of bytes.
 </span><span class="kw">pub const </span>NT_GNU_BUILD_ID: u32 = <span class="number">3</span>;
 
-<span class="doccomment">/// Build ID bits as generated by Go&#39;s gc compiler.
+<span class="doccomment">/// Build ID bits as generated by Go's gc compiler.
 ///
 /// The descriptor consists of any nonzero number of bytes.
 </span><span class="comment">// See https://go-review.googlesource.com/10707.
@@ -8926,7 +8927,7 @@
 <span class="doccomment">/// Only valid for `STB_MIPS_SPLIT_COMMON`.
 </span><span class="kw">pub const </span>STO_MIPS_SC_ALIGN_UNUSED: u8 = <span class="number">0xff</span>;
 
-<span class="comment">// MIPS values for `Sym32::st_info&#39;.
+<span class="comment">// MIPS values for `Sym32::st_info'.
 </span><span class="kw">pub const </span>STB_MIPS_SPLIT_COMMON: u8 = <span class="number">13</span>;
 
 <span class="comment">// Entries found in sections of type `SHT_MIPS_GPTAB`.
@@ -8949,16 +8950,16 @@
 </span><span class="kw">pub const </span>ODK_FILL: u32 = <span class="number">5</span>;
 <span class="doccomment">/// reserve space for desktop tools to write.
 </span><span class="kw">pub const </span>ODK_TAGS: u32 = <span class="number">6</span>;
-<span class="doccomment">/// HW workarounds.  &#39;AND&#39; bits when merging.
+<span class="doccomment">/// HW workarounds.  'AND' bits when merging.
 </span><span class="kw">pub const </span>ODK_HWAND: u32 = <span class="number">7</span>;
-<span class="doccomment">/// HW workarounds.  &#39;OR&#39; bits when merging.
+<span class="doccomment">/// HW workarounds.  'OR' bits when merging.
 </span><span class="kw">pub const </span>ODK_HWOR: u32 = <span class="number">8</span>;
 
 <span class="comment">// Values for `Elf_Options::info` for `ODK_EXCEPTIONS` entries.
 
-</span><span class="doccomment">/// FPE&#39;s which MUST be enabled.
+</span><span class="doccomment">/// FPE's which MUST be enabled.
 </span><span class="kw">pub const </span>OEX_FPU_MIN: u32 = <span class="number">0x1f</span>;
-<span class="doccomment">/// FPE&#39;s which MAY be enabled.
+<span class="doccomment">/// FPE's which MAY be enabled.
 </span><span class="kw">pub const </span>OEX_FPU_MAX: u32 = <span class="number">0x1f00</span>;
 <span class="doccomment">/// page zero must be mapped.
 </span><span class="kw">pub const </span>OEX_PAGE0: u32 = <span class="number">0x10000</span>;
@@ -9241,7 +9242,7 @@
 <span class="doccomment">/// Architecture version.
 </span><span class="kw">pub const </span>EF_PARISC_ARCH: u32 = <span class="number">0x0000_ffff</span>;
 
-<span class="comment">// Values for `EF_PARISC_ARCH&#39;.
+<span class="comment">// Values for `EF_PARISC_ARCH'.
 
 </span><span class="doccomment">/// PA-RISC 1.0 big-endian.
 </span><span class="kw">pub const </span>EFA_PARISC_1_0: u32 = <span class="number">0x020b</span>;
@@ -11274,7 +11275,7 @@
 </span><span class="kw">pub const </span>R_X86_64_PC8: u32 = <span class="number">15</span>;
 <span class="doccomment">/// ID of module containing symbol
 </span><span class="kw">pub const </span>R_X86_64_DTPMOD64: u32 = <span class="number">16</span>;
-<span class="doccomment">/// Offset in module&#39;s TLS block
+<span class="doccomment">/// Offset in module's TLS block
 </span><span class="kw">pub const </span>R_X86_64_DTPOFF64: u32 = <span class="number">17</span>;
 <span class="doccomment">/// Offset in initial TLS block
 </span><span class="kw">pub const </span>R_X86_64_TPOFF64: u32 = <span class="number">18</span>;
@@ -11744,13 +11745,13 @@
 </span><span class="kw">pub const </span>R_TILEPRO_IMM16_X0_GOT_HA: u32 = <span class="number">45</span>;
 <span class="doccomment">/// X1 pipe ha() 16-bit GOT offset
 </span><span class="kw">pub const </span>R_TILEPRO_IMM16_X1_GOT_HA: u32 = <span class="number">46</span>;
-<span class="doccomment">/// X0 pipe mm &quot;start&quot;
+<span class="doccomment">/// X0 pipe mm "start"
 </span><span class="kw">pub const </span>R_TILEPRO_MMSTART_X0: u32 = <span class="number">47</span>;
-<span class="doccomment">/// X0 pipe mm &quot;end&quot;
+<span class="doccomment">/// X0 pipe mm "end"
 </span><span class="kw">pub const </span>R_TILEPRO_MMEND_X0: u32 = <span class="number">48</span>;
-<span class="doccomment">/// X1 pipe mm &quot;start&quot;
+<span class="doccomment">/// X1 pipe mm "start"
 </span><span class="kw">pub const </span>R_TILEPRO_MMSTART_X1: u32 = <span class="number">49</span>;
-<span class="doccomment">/// X1 pipe mm &quot;end&quot;
+<span class="doccomment">/// X1 pipe mm "end"
 </span><span class="kw">pub const </span>R_TILEPRO_MMEND_X1: u32 = <span class="number">50</span>;
 <span class="doccomment">/// X0 pipe shift amount
 </span><span class="kw">pub const </span>R_TILEPRO_SHAMT_X0: u32 = <span class="number">51</span>;
@@ -11763,17 +11764,17 @@
 <span class="doccomment">/// X1 pipe destination 8-bit
 </span><span class="kw">pub const </span>R_TILEPRO_DEST_IMM8_X1: u32 = <span class="number">55</span>;
 <span class="comment">// Relocs 56-59 are currently not defined.
-</span><span class="doccomment">/// &quot;jal&quot; for TLS GD
+</span><span class="doccomment">/// "jal" for TLS GD
 </span><span class="kw">pub const </span>R_TILEPRO_TLS_GD_CALL: u32 = <span class="number">60</span>;
-<span class="doccomment">/// X0 pipe &quot;addi&quot; for TLS GD
+<span class="doccomment">/// X0 pipe "addi" for TLS GD
 </span><span class="kw">pub const </span>R_TILEPRO_IMM8_X0_TLS_GD_ADD: u32 = <span class="number">61</span>;
-<span class="doccomment">/// X1 pipe &quot;addi&quot; for TLS GD
+<span class="doccomment">/// X1 pipe "addi" for TLS GD
 </span><span class="kw">pub const </span>R_TILEPRO_IMM8_X1_TLS_GD_ADD: u32 = <span class="number">62</span>;
-<span class="doccomment">/// Y0 pipe &quot;addi&quot; for TLS GD
+<span class="doccomment">/// Y0 pipe "addi" for TLS GD
 </span><span class="kw">pub const </span>R_TILEPRO_IMM8_Y0_TLS_GD_ADD: u32 = <span class="number">63</span>;
-<span class="doccomment">/// Y1 pipe &quot;addi&quot; for TLS GD
+<span class="doccomment">/// Y1 pipe "addi" for TLS GD
 </span><span class="kw">pub const </span>R_TILEPRO_IMM8_Y1_TLS_GD_ADD: u32 = <span class="number">64</span>;
-<span class="doccomment">/// &quot;lw_tls&quot; for TLS IE
+<span class="doccomment">/// "lw_tls" for TLS IE
 </span><span class="kw">pub const </span>R_TILEPRO_TLS_IE_LOAD: u32 = <span class="number">65</span>;
 <span class="doccomment">/// X0 pipe 16-bit TLS GD offset
 </span><span class="kw">pub const </span>R_TILEPRO_IMM16_X0_TLS_GD: u32 = <span class="number">66</span>;
@@ -11896,9 +11897,9 @@
 </span><span class="kw">pub const </span>R_TILEGX_MT_IMM14_X1: u32 = <span class="number">28</span>;
 <span class="doccomment">/// X1 pipe mfspr
 </span><span class="kw">pub const </span>R_TILEGX_MF_IMM14_X1: u32 = <span class="number">29</span>;
-<span class="doccomment">/// X0 pipe mm &quot;start&quot;
+<span class="doccomment">/// X0 pipe mm "start"
 </span><span class="kw">pub const </span>R_TILEGX_MMSTART_X0: u32 = <span class="number">30</span>;
-<span class="doccomment">/// X0 pipe mm &quot;end&quot;
+<span class="doccomment">/// X0 pipe mm "end"
 </span><span class="kw">pub const </span>R_TILEGX_MMEND_X0: u32 = <span class="number">31</span>;
 <span class="doccomment">/// X0 pipe shift amount
 </span><span class="kw">pub const </span>R_TILEGX_SHAMT_X0: u32 = <span class="number">32</span>;
@@ -12042,37 +12043,37 @@
 <span class="doccomment">/// X1 pipe last hword 1 IE off
 </span><span class="kw">pub const </span>R_TILEGX_IMM16_X1_HW1_LAST_TLS_IE: u32 = <span class="number">103</span>;
 <span class="comment">// Relocs 104-105 are currently not defined.
-</span><span class="doccomment">/// 64-bit ID of symbol&#39;s module
+</span><span class="doccomment">/// 64-bit ID of symbol's module
 </span><span class="kw">pub const </span>R_TILEGX_TLS_DTPMOD64: u32 = <span class="number">106</span>;
 <span class="doccomment">/// 64-bit offset in TLS block
 </span><span class="kw">pub const </span>R_TILEGX_TLS_DTPOFF64: u32 = <span class="number">107</span>;
 <span class="doccomment">/// 64-bit offset in static TLS block
 </span><span class="kw">pub const </span>R_TILEGX_TLS_TPOFF64: u32 = <span class="number">108</span>;
-<span class="doccomment">/// 32-bit ID of symbol&#39;s module
+<span class="doccomment">/// 32-bit ID of symbol's module
 </span><span class="kw">pub const </span>R_TILEGX_TLS_DTPMOD32: u32 = <span class="number">109</span>;
 <span class="doccomment">/// 32-bit offset in TLS block
 </span><span class="kw">pub const </span>R_TILEGX_TLS_DTPOFF32: u32 = <span class="number">110</span>;
 <span class="doccomment">/// 32-bit offset in static TLS block
 </span><span class="kw">pub const </span>R_TILEGX_TLS_TPOFF32: u32 = <span class="number">111</span>;
-<span class="doccomment">/// &quot;jal&quot; for TLS GD
+<span class="doccomment">/// "jal" for TLS GD
 </span><span class="kw">pub const </span>R_TILEGX_TLS_GD_CALL: u32 = <span class="number">112</span>;
-<span class="doccomment">/// X0 pipe &quot;addi&quot; for TLS GD
+<span class="doccomment">/// X0 pipe "addi" for TLS GD
 </span><span class="kw">pub const </span>R_TILEGX_IMM8_X0_TLS_GD_ADD: u32 = <span class="number">113</span>;
-<span class="doccomment">/// X1 pipe &quot;addi&quot; for TLS GD
+<span class="doccomment">/// X1 pipe "addi" for TLS GD
 </span><span class="kw">pub const </span>R_TILEGX_IMM8_X1_TLS_GD_ADD: u32 = <span class="number">114</span>;
-<span class="doccomment">/// Y0 pipe &quot;addi&quot; for TLS GD
+<span class="doccomment">/// Y0 pipe "addi" for TLS GD
 </span><span class="kw">pub const </span>R_TILEGX_IMM8_Y0_TLS_GD_ADD: u32 = <span class="number">115</span>;
-<span class="doccomment">/// Y1 pipe &quot;addi&quot; for TLS GD
+<span class="doccomment">/// Y1 pipe "addi" for TLS GD
 </span><span class="kw">pub const </span>R_TILEGX_IMM8_Y1_TLS_GD_ADD: u32 = <span class="number">116</span>;
-<span class="doccomment">/// &quot;ld_tls&quot; for TLS IE
+<span class="doccomment">/// "ld_tls" for TLS IE
 </span><span class="kw">pub const </span>R_TILEGX_TLS_IE_LOAD: u32 = <span class="number">117</span>;
-<span class="doccomment">/// X0 pipe &quot;addi&quot; for TLS GD/IE
+<span class="doccomment">/// X0 pipe "addi" for TLS GD/IE
 </span><span class="kw">pub const </span>R_TILEGX_IMM8_X0_TLS_ADD: u32 = <span class="number">118</span>;
-<span class="doccomment">/// X1 pipe &quot;addi&quot; for TLS GD/IE
+<span class="doccomment">/// X1 pipe "addi" for TLS GD/IE
 </span><span class="kw">pub const </span>R_TILEGX_IMM8_X1_TLS_ADD: u32 = <span class="number">119</span>;
-<span class="doccomment">/// Y0 pipe &quot;addi&quot; for TLS GD/IE
+<span class="doccomment">/// Y0 pipe "addi" for TLS GD/IE
 </span><span class="kw">pub const </span>R_TILEGX_IMM8_Y0_TLS_ADD: u32 = <span class="number">120</span>;
-<span class="doccomment">/// Y1 pipe &quot;addi&quot; for TLS GD/IE
+<span class="doccomment">/// Y1 pipe "addi" for TLS GD/IE
 </span><span class="kw">pub const </span>R_TILEGX_IMM8_Y1_TLS_ADD: u32 = <span class="number">121</span>;
 
 <span class="doccomment">/// GNU C++ vtable hierarchy

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/byte_phf/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/byte_phf/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -511,31 +512,31 @@
 //!     // `p` parameter
 //!     1, // `q` parameters, one for each of the N buckets
 //!     0, 0, 1, 1, // Exact keys to be compared with the input
-//!     b&#39;e&#39;, b&#39;a&#39;, b&#39;c&#39;, b&#39;g&#39;,
+//!     b'e', b'a', b'c', b'g',
 //! ];
 //!
 //! let phf = PerfectByteHashMap::from_bytes(&amp;phf_example_bytes);
 //!
 //! // The PHF returns the index of the key or `None` if not found.
-//! assert_eq!(phf.get(b&#39;a&#39;), Some(1));
-//! assert_eq!(phf.get(b&#39;b&#39;), None);
-//! assert_eq!(phf.get(b&#39;c&#39;), Some(2));
-//! assert_eq!(phf.get(b&#39;d&#39;), None);
-//! assert_eq!(phf.get(b&#39;e&#39;), Some(0));
-//! assert_eq!(phf.get(b&#39;f&#39;), None);
-//! assert_eq!(phf.get(b&#39;g&#39;), Some(3));
+//! assert_eq!(phf.get(b'a'), Some(1));
+//! assert_eq!(phf.get(b'b'), None);
+//! assert_eq!(phf.get(b'c'), Some(2));
+//! assert_eq!(phf.get(b'd'), None);
+//! assert_eq!(phf.get(b'e'), Some(0));
+//! assert_eq!(phf.get(b'f'), None);
+//! assert_eq!(phf.get(b'g'), Some(3));
 //! ```
 
 </span><span class="kw">use </span><span class="kw">crate</span>::helpers::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">mod </span>builder;
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">mod </span>cached_owned;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">pub use </span>builder::find;
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">pub use </span>cached_owned::PerfectByteHashMapCacheOwned;
 
 <span class="doccomment">/// The cutoff for the fast version of [`f1`].
@@ -545,11 +546,11 @@
 </span><span class="kw">const </span>Q_FAST_MAX: u8 = <span class="number">95</span>;
 
 <span class="doccomment">/// The maximum allowable value of `p`. This could be raised if found to be necessary.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)] </span><span class="comment">// used in the builder code
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="comment">// used in the builder code
 </span><span class="kw">const </span>P_REAL_MAX: u8 = <span class="number">15</span>;
 
 <span class="doccomment">/// The maximum allowable value of `q`. This could be raised if found to be necessary.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)] </span><span class="comment">// used in the builder code
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="comment">// used in the builder code
 </span><span class="kw">const </span>Q_REAL_MAX: u8 = <span class="number">127</span>;
 
 <span class="doccomment">/// Calculates the function `f1` for the PHF. For the exact formula, please read the code.
@@ -592,7 +593,7 @@
     <span class="kw">let </span>n = <span class="kw">if </span>n &gt; <span class="number">0 </span>{
         n
     } <span class="kw">else </span>{
-        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;unreachable by invariant&quot;</span>);
+        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"unreachable by invariant"</span>);
         <span class="number">1
     </span>};
     <span class="kw">if </span>p == <span class="number">0 </span>{
@@ -649,7 +650,7 @@
     <span class="kw">let </span>n = <span class="kw">if </span>n &gt; <span class="number">0 </span>{
         n
     } <span class="kw">else </span>{
-        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;unreachable by invariant&quot;</span>);
+        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"unreachable by invariant"</span>);
         <span class="number">1
     </span>};
     <span class="kw">let </span><span class="kw-2">mut </span>result = byte ^ q;
@@ -730,21 +731,21 @@
     </span><span class="kw">pub fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="self">self</span>.<span class="number">0</span>.as_ref()
     }
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;alloc&quot;</span>, test))]
-    </span><span class="kw">pub fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, u8)&gt; {
+    <span class="attr">#[cfg(all(feature = <span class="string">"alloc"</span>, test))]
+    </span><span class="kw">pub fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, u8)&gt; {
         <span class="kw">use </span>alloc::vec;
         <span class="kw">let </span>len = <span class="self">self</span>.num_items();
         <span class="kw">let </span><span class="kw-2">mut </span>seen = <span class="macro">vec!</span>[<span class="bool-val">false</span>; len];
         <span class="kw">for </span>b <span class="kw">in </span><span class="number">0</span>..=<span class="number">255u8 </span>{
             <span class="kw">let </span>get_result = <span class="self">self</span>.get(b);
             <span class="kw">if </span><span class="self">self</span>.keys().contains(<span class="kw-2">&amp;</span>b) {
-                <span class="kw">let </span>i = get_result.ok_or((<span class="string">&quot;expected to find&quot;</span>, b))<span class="question-mark">?</span>;
+                <span class="kw">let </span>i = get_result.ok_or((<span class="string">"expected to find"</span>, b))<span class="question-mark">?</span>;
                 <span class="kw">if </span>seen[i] {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">&quot;seen&quot;</span>, b));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">"seen"</span>, b));
                 }
                 seen[i] = <span class="bool-val">true</span>;
             } <span class="kw">else if </span>get_result.is_some() {
-                <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">&quot;did not expect to find&quot;</span>, b));
+                <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">"did not expect to find"</span>, b));
             }
         }
         <span class="prelude-val">Ok</span>(())
@@ -771,7 +772,7 @@
     }
 }
 
-<span class="attr">#[cfg(all(test, feature = <span class="string">&quot;alloc&quot;</span>))]
+<span class="attr">#[cfg(all(test, feature = <span class="string">"alloc"</span>))]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>alloc::vec::Vec;
@@ -780,7 +781,7 @@
     <span class="kw">fn </span>random_alphanums(seed: u64, len: usize) -&gt; Vec&lt;u8&gt; {
         <span class="kw">use </span>rand::seq::SliceRandom;
         <span class="kw">use </span>rand::SeedableRng;
-        <span class="kw">const </span>BYTES: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&quot;</span>;
+        <span class="kw">const </span>BYTES: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>rng = rand_pcg::Lcg64Xsh32::seed_from_u64(seed);
         BYTES.choose_multiple(<span class="kw-2">&amp;mut </span>rng, len).copied().collect()
     }
@@ -796,19 +797,19 @@
                 <span class="kw">let </span>computed = PerfectByteHashMap::try_new(<span class="kw-2">&amp;</span>keys).expect(keys_str);
                 computed
                     .check()
-                    .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, std::str::from_utf8(<span class="kw-2">&amp;</span>keys).expect(keys_str)));
+                    .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"{}"</span>, std::str::from_utf8(<span class="kw-2">&amp;</span>keys).expect(keys_str)));
                 <span class="kw">let </span>(p, qmax) = computed.p_qmax().unwrap();
                 count_by_p[p <span class="kw">as </span>usize] += <span class="number">1</span>;
                 count_by_qmax[qmax <span class="kw">as </span>usize] += <span class="number">1</span>;
             }
         }
-        <span class="macro">std::println!</span>(<span class="string">&quot;count_by_p (smaller): {count_by_p:?}&quot;</span>);
-        <span class="macro">std::println!</span>(<span class="string">&quot;count_by_qmax (smaller): {count_by_qmax:?}&quot;</span>);
+        <span class="macro">std::println!</span>(<span class="string">"count_by_p (smaller): {count_by_p:?}"</span>);
+        <span class="macro">std::println!</span>(<span class="string">"count_by_qmax (smaller): {count_by_qmax:?}"</span>);
         <span class="kw">let </span>count_fastq = count_by_qmax[<span class="number">0</span>..=Q_FAST_MAX <span class="kw">as </span>usize].iter().sum::&lt;usize&gt;();
         <span class="kw">let </span>count_slowq = count_by_qmax[Q_FAST_MAX <span class="kw">as </span>usize + <span class="number">1</span>..]
             .iter()
             .sum::&lt;usize&gt;();
-        <span class="macro">std::println!</span>(<span class="string">&quot;fastq/slowq: {count_fastq}/{count_slowq}&quot;</span>);
+        <span class="macro">std::println!</span>(<span class="string">"fastq/slowq: {count_fastq}/{count_slowq}"</span>);
         <span class="comment">// Assert that 99% of cases resolve to the fast hash
         </span><span class="macro">assert!</span>(count_fastq &gt;= count_slowq * <span class="number">100</span>);
     }
@@ -824,19 +825,19 @@
                 <span class="kw">let </span>computed = PerfectByteHashMap::try_new(<span class="kw-2">&amp;</span>keys).expect(keys_str);
                 computed
                     .check()
-                    .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, std::str::from_utf8(<span class="kw-2">&amp;</span>keys).expect(keys_str)));
+                    .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"{}"</span>, std::str::from_utf8(<span class="kw-2">&amp;</span>keys).expect(keys_str)));
                 <span class="kw">let </span>(p, qmax) = computed.p_qmax().unwrap();
                 count_by_p[p <span class="kw">as </span>usize] += <span class="number">1</span>;
                 count_by_qmax[qmax <span class="kw">as </span>usize] += <span class="number">1</span>;
             }
         }
-        <span class="macro">std::println!</span>(<span class="string">&quot;count_by_p (larger): {count_by_p:?}&quot;</span>);
-        <span class="macro">std::println!</span>(<span class="string">&quot;count_by_qmax (larger): {count_by_qmax:?}&quot;</span>);
+        <span class="macro">std::println!</span>(<span class="string">"count_by_p (larger): {count_by_p:?}"</span>);
+        <span class="macro">std::println!</span>(<span class="string">"count_by_qmax (larger): {count_by_qmax:?}"</span>);
         <span class="kw">let </span>count_fastq = count_by_qmax[<span class="number">0</span>..=Q_FAST_MAX <span class="kw">as </span>usize].iter().sum::&lt;usize&gt;();
         <span class="kw">let </span>count_slowq = count_by_qmax[Q_FAST_MAX <span class="kw">as </span>usize + <span class="number">1</span>..]
             .iter()
             .sum::&lt;usize&gt;();
-        <span class="macro">std::println!</span>(<span class="string">&quot;fastq/slowq: {count_fastq}/{count_slowq}&quot;</span>);
+        <span class="macro">std::println!</span>(<span class="string">"fastq/slowq: {count_fastq}/{count_slowq}"</span>);
         <span class="comment">// Assert that 99% of cases resolve to the fast hash
         </span><span class="macro">assert!</span>(count_fastq &gt;= count_slowq * <span class="number">100</span>);
     }
@@ -844,78 +845,78 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_build_read_small() {
         <span class="attr">#[derive(Debug)]
-        </span><span class="kw">struct </span>TestCase&lt;<span class="lifetime">&#39;a</span>&gt; {
-            keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-            expected: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-            reordered_keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        </span><span class="kw">struct </span>TestCase&lt;<span class="lifetime">'a</span>&gt; {
+            keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+            expected: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
+            reordered_keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         }
         <span class="kw">let </span>cases = [
             TestCase {
-                keys: <span class="string">&quot;ab&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b&#39;b&#39;</span>, <span class="string">b&#39;a&#39;</span>],
-                reordered_keys: <span class="string">&quot;ba&quot;</span>,
+                keys: <span class="string">"ab"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b'b'</span>, <span class="string">b'a'</span>],
+                reordered_keys: <span class="string">"ba"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;abc&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b&#39;c&#39;</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;b&#39;</span>],
-                reordered_keys: <span class="string">&quot;cab&quot;</span>,
+                keys: <span class="string">"abc"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b'c'</span>, <span class="string">b'a'</span>, <span class="string">b'b'</span>],
+                reordered_keys: <span class="string">"cab"</span>,
             },
             TestCase {
-                <span class="comment">// Note: splitting &quot;a&quot; and &quot;c&quot; into different buckets requires the heavier hash
-                // function because the difference between &quot;a&quot; and &quot;c&quot; is the period (2).
-                </span>keys: <span class="string">&quot;ac&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">b&#39;c&#39;</span>, <span class="string">b&#39;a&#39;</span>],
-                reordered_keys: <span class="string">&quot;ca&quot;</span>,
+                <span class="comment">// Note: splitting "a" and "c" into different buckets requires the heavier hash
+                // function because the difference between "a" and "c" is the period (2).
+                </span>keys: <span class="string">"ac"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">b'c'</span>, <span class="string">b'a'</span>],
+                reordered_keys: <span class="string">"ca"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;aceg&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">b&#39;e&#39;</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;c&#39;</span>, <span class="string">b&#39;g&#39;</span>],
-                reordered_keys: <span class="string">&quot;eacg&quot;</span>,
+                keys: <span class="string">"aceg"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="string">b'e'</span>, <span class="string">b'a'</span>, <span class="string">b'c'</span>, <span class="string">b'g'</span>],
+                reordered_keys: <span class="string">"eacg"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;abd&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;b&#39;</span>, <span class="string">b&#39;d&#39;</span>],
-                reordered_keys: <span class="string">&quot;abd&quot;</span>,
+                keys: <span class="string">"abd"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="string">b'a'</span>, <span class="string">b'b'</span>, <span class="string">b'd'</span>],
+                reordered_keys: <span class="string">"abd"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;def&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b&#39;f&#39;</span>, <span class="string">b&#39;d&#39;</span>, <span class="string">b&#39;e&#39;</span>],
-                reordered_keys: <span class="string">&quot;fde&quot;</span>,
+                keys: <span class="string">"def"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b'f'</span>, <span class="string">b'd'</span>, <span class="string">b'e'</span>],
+                reordered_keys: <span class="string">"fde"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;fi&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b&#39;f&#39;</span>, <span class="string">b&#39;i&#39;</span>],
-                reordered_keys: <span class="string">&quot;fi&quot;</span>,
+                keys: <span class="string">"fi"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b'f'</span>, <span class="string">b'i'</span>],
+                reordered_keys: <span class="string">"fi"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;gh&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b&#39;h&#39;</span>, <span class="string">b&#39;g&#39;</span>],
-                reordered_keys: <span class="string">&quot;hg&quot;</span>,
+                keys: <span class="string">"gh"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b'h'</span>, <span class="string">b'g'</span>],
+                reordered_keys: <span class="string">"hg"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;lm&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b&#39;l&#39;</span>, <span class="string">b&#39;m&#39;</span>],
-                reordered_keys: <span class="string">&quot;lm&quot;</span>,
+                keys: <span class="string">"lm"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b'l'</span>, <span class="string">b'm'</span>],
+                reordered_keys: <span class="string">"lm"</span>,
             },
             TestCase {
-                <span class="comment">// Note: &quot;a&quot; and &quot;q&quot; (0x61 and 0x71) are very hard to split; only a handful of
+                <span class="comment">// Note: "a" and "q" (0x61 and 0x71) are very hard to split; only a handful of
                 // hash function crates can get them into separate buckets.
-                </span>keys: <span class="string">&quot;aq&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">4</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;q&#39;</span>],
-                reordered_keys: <span class="string">&quot;aq&quot;</span>,
+                </span>keys: <span class="string">"aq"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">4</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="string">b'a'</span>, <span class="string">b'q'</span>],
+                reordered_keys: <span class="string">"aq"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;xy&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b&#39;x&#39;</span>, <span class="string">b&#39;y&#39;</span>],
-                reordered_keys: <span class="string">&quot;xy&quot;</span>,
+                keys: <span class="string">"xy"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b'x'</span>, <span class="string">b'y'</span>],
+                reordered_keys: <span class="string">"xy"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;xyz&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b&#39;x&#39;</span>, <span class="string">b&#39;y&#39;</span>, <span class="string">b&#39;z&#39;</span>],
-                reordered_keys: <span class="string">&quot;xyz&quot;</span>,
+                keys: <span class="string">"xyz"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">b'x'</span>, <span class="string">b'y'</span>, <span class="string">b'z'</span>],
+                reordered_keys: <span class="string">"xyz"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz&quot;</span>,
+                keys: <span class="string">"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"</span>,
                 expected: <span class="kw-2">&amp;</span>[
                     <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">12</span>, <span class="number">16</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">16</span>,
                     <span class="number">16</span>, <span class="number">16</span>, <span class="number">16</span>, <span class="number">16</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>,
@@ -924,32 +925,32 @@
                     <span class="number">84</span>, <span class="number">85</span>, <span class="number">86</span>, <span class="number">87</span>, <span class="number">88</span>, <span class="number">89</span>, <span class="number">90</span>, <span class="number">75</span>, <span class="number">76</span>, <span class="number">77</span>, <span class="number">78</span>, <span class="number">79</span>, <span class="number">103</span>, <span class="number">97</span>, <span class="number">98</span>, <span class="number">99</span>, <span class="number">116</span>, <span class="number">100</span>, <span class="number">102</span>,
                     <span class="number">101</span>,
                 ],
-                reordered_keys: <span class="string">&quot;hijklmnopuvwDEFqrABCxyzsHIJGPQRSTUVWXYZKLMNOgabctdfe&quot;</span>,
+                reordered_keys: <span class="string">"hijklmnopuvwDEFqrABCxyzsHIJGPQRSTUVWXYZKLMNOgabctdfe"</span>,
             },
             TestCase {
-                keys: <span class="string">&quot;abcdefghij&quot;</span>,
+                keys: <span class="string">"abcdefghij"</span>,
                 expected: <span class="kw-2">&amp;</span>[
                     <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">100</span>, <span class="number">101</span>, <span class="number">102</span>, <span class="number">103</span>, <span class="number">104</span>, <span class="number">105</span>, <span class="number">106</span>, <span class="number">97</span>, <span class="number">98</span>, <span class="number">99</span>,
                 ],
-                reordered_keys: <span class="string">&quot;defghijabc&quot;</span>,
+                reordered_keys: <span class="string">"defghijabc"</span>,
             },
             TestCase {
                 <span class="comment">// This is a small case that resolves to the slow hasher
-                </span>keys: <span class="string">&quot;Jbej&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">102</span>, <span class="number">0</span>, <span class="string">b&#39;j&#39;</span>, <span class="string">b&#39;e&#39;</span>, <span class="string">b&#39;b&#39;</span>, <span class="string">b&#39;J&#39;</span>],
-                reordered_keys: <span class="string">&quot;jebJ&quot;</span>,
+                </span>keys: <span class="string">"Jbej"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">102</span>, <span class="number">0</span>, <span class="string">b'j'</span>, <span class="string">b'e'</span>, <span class="string">b'b'</span>, <span class="string">b'J'</span>],
+                reordered_keys: <span class="string">"jebJ"</span>,
             },
             TestCase {
                 <span class="comment">// This is another small case that resolves to the slow hasher
-                </span>keys: <span class="string">&quot;JFNv&quot;</span>,
-                expected: <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">98</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="string">b&#39;J&#39;</span>, <span class="string">b&#39;F&#39;</span>, <span class="string">b&#39;N&#39;</span>, <span class="string">b&#39;v&#39;</span>],
-                reordered_keys: <span class="string">&quot;JFNv&quot;</span>,
+                </span>keys: <span class="string">"JFNv"</span>,
+                expected: <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">98</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="string">b'J'</span>, <span class="string">b'F'</span>, <span class="string">b'N'</span>, <span class="string">b'v'</span>],
+                reordered_keys: <span class="string">"JFNv"</span>,
             },
         ];
         <span class="kw">for </span>cas <span class="kw">in </span>cases {
             <span class="kw">let </span>computed = PerfectByteHashMap::try_new(cas.keys.as_bytes()).expect(cas.keys);
-            <span class="macro">assert_eq!</span>(computed.as_bytes(), cas.expected, <span class="string">&quot;{:?}&quot;</span>, cas);
-            <span class="macro">assert_eq!</span>(computed.keys(), cas.reordered_keys.as_bytes(), <span class="string">&quot;{:?}&quot;</span>, cas);
+            <span class="macro">assert_eq!</span>(computed.as_bytes(), cas.expected, <span class="string">"{:?}"</span>, cas);
+            <span class="macro">assert_eq!</span>(computed.keys(), cas.reordered_keys.as_bytes(), <span class="string">"{:?}"</span>, cas);
             computed.check().expect(cas.keys);
         }
     }

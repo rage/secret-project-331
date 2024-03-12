@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/signal-hook-registry-1.4.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="signal_hook_registry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/signal-hook-registry-1.4.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="signal_hook_registry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -825,7 +826,7 @@
 //! # Rust version compatibility
 //!
 //! Currently builds on 1.26.0 an newer and this is very unlikely to change. However, tests
-//! require dependencies that don&#39;t build there, so tests need newer Rust version (they are run on
+//! require dependencies that don't build there, so tests need newer Rust version (they are run on
 //! stable).
 //!
 //! # Portability
@@ -833,14 +834,14 @@
 //! This crate includes a limited support for Windows, based on `signal`/`raise` in the CRT.
 //! There are differences in both API and behavior:
 //!
-//! - Due to lack of `siginfo_t`, we don&#39;t provide `register_sigaction` or `register_unchecked`.
-//! - Due to lack of signal blocking, there&#39;s a race condition.
-//!   After the call to `signal`, there&#39;s a moment where we miss a signal.
+//! - Due to lack of `siginfo_t`, we don't provide `register_sigaction` or `register_unchecked`.
+//! - Due to lack of signal blocking, there's a race condition.
+//!   After the call to `signal`, there's a moment where we miss a signal.
 //!   That means when you register a handler, there may be a signal which invokes
 //!   neither the default handler or the handler you register.
 //! - Handlers registered by `signal` in Windows are cleared on first signal.
 //!   To match behavior in other platforms, we re-register the handler each time the handler is
-//!   called, but there&#39;s a moment where we miss a handler.
+//!   called, but there's a moment where we miss a handler.
 //!   That means when you receive two signals in a row, there may be a signal which invokes
 //!   the default handler, nevertheless you certainly have registered the handler.
 //!
@@ -893,7 +894,7 @@
 
 <span class="comment">// # Internal workings
 //
-// This uses a form of RCU. There&#39;s an atomic pointer to the current action descriptors (in the
+// This uses a form of RCU. There's an atomic pointer to the current action descriptors (in the
 // form of IndependentArcSwap, to be able to track what, if any, signal handlers still use the
 // version). A signal handler takes a copy of the pointer and calls all the relevant actions.
 //
@@ -917,7 +918,7 @@
     action: ActionId,
 }
 
-<span class="comment">// This should be dyn Fn(...), but we want to support Rust 1.26.0 and that one doesn&#39;t allow dyn
+<span class="comment">// This should be dyn Fn(...), but we want to support Rust 1.26.0 and that one doesn't allow dyn
 // yet.
 </span><span class="attr">#[allow(unknown_lints, bare_trait_objects)]
 </span><span class="kw">type </span>Action = Fn(<span class="kw-2">&amp;</span>siginfo_t) + Send + Sync;
@@ -947,9 +948,9 @@
     </span><span class="kw">fn </span>new(signal: libc::c_int) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="comment">// C data structure, expected to be zeroed out.
         </span><span class="kw">let </span><span class="kw-2">mut </span>new: libc::sigaction = <span class="kw">unsafe </span>{ mem::zeroed() };
-        <span class="attr">#[cfg(not(target_os = <span class="string">&quot;aix&quot;</span>))]
+        <span class="attr">#[cfg(not(target_os = <span class="string">"aix"</span>))]
         </span>{ new.sa_sigaction = handler <span class="kw">as </span>usize; }
-        <span class="attr">#[cfg(target_os = <span class="string">&quot;aix&quot;</span>)]
+        <span class="attr">#[cfg(target_os = <span class="string">"aix"</span>)]
         </span>{ new.sa_union.__su_sigaction = handler; }
         <span class="comment">// Android is broken and uses different int types than the rest (and different depending on
         // the pointer width). This converts the flags to the proper type no matter what it is on
@@ -962,7 +963,7 @@
         new.sa_flags = flags <span class="kw">as _</span>;
         <span class="comment">// C data structure, expected to be zeroed out.
         </span><span class="kw">let </span><span class="kw-2">mut </span>old: libc::sigaction = <span class="kw">unsafe </span>{ mem::zeroed() };
-        <span class="comment">// FFI ‒ pointers are valid, it doesn&#39;t take ownership.
+        <span class="comment">// FFI ‒ pointers are valid, it doesn't take ownership.
         </span><span class="kw">if unsafe </span>{ libc::sigaction(signal, <span class="kw-2">&amp;</span>new, <span class="kw-2">&amp;mut </span>old) } != <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::last_os_error());
         }
@@ -1002,7 +1003,7 @@
     </span><span class="kw">fn </span>detect(signal: c_int) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="comment">// C data structure, expected to be zeroed out.
         </span><span class="kw">let </span><span class="kw-2">mut </span>old: libc::sigaction = <span class="kw">unsafe </span>{ mem::zeroed() };
-        <span class="comment">// FFI ‒ pointers are valid, it doesn&#39;t take ownership.
+        <span class="comment">// FFI ‒ pointers are valid, it doesn't take ownership.
         </span><span class="kw">if unsafe </span>{ libc::sigaction(signal, ptr::null(), <span class="kw-2">&amp;mut </span>old) } != <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::last_os_error());
         }
@@ -1016,7 +1017,7 @@
         <span class="kw">if </span>fptr != <span class="number">0 </span>&amp;&amp; fptr != SIG_DFL &amp;&amp; fptr != SIG_IGN {
             <span class="comment">// FFI ‒ calling the original signal handler.
             </span><span class="kw">unsafe </span>{
-                <span class="kw">let </span>action = mem::transmute::&lt;usize, <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(c_int)&gt;(fptr);
+                <span class="kw">let </span>action = mem::transmute::&lt;usize, <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(c_int)&gt;(fptr);
                 action(sig);
             }
         }
@@ -1024,9 +1025,9 @@
 
     <span class="attr">#[cfg(not(windows))]
     </span><span class="kw">unsafe fn </span>execute(<span class="kw-2">&amp;</span><span class="self">self</span>, sig: c_int, info: <span class="kw-2">*mut </span>siginfo_t, data: <span class="kw-2">*mut </span>c_void) {
-        <span class="attr">#[cfg(not(target_os = <span class="string">&quot;aix&quot;</span>))]
+        <span class="attr">#[cfg(not(target_os = <span class="string">"aix"</span>))]
         </span><span class="kw">let </span>fptr = <span class="self">self</span>.info.sa_sigaction;
-        <span class="attr">#[cfg(target_os = <span class="string">&quot;aix&quot;</span>)]
+        <span class="attr">#[cfg(target_os = <span class="string">"aix"</span>)]
         </span><span class="kw">let </span>fptr = <span class="self">self</span>.info.sa_union.__su_sigaction <span class="kw">as </span>usize;
         <span class="kw">if </span>fptr != <span class="number">0 </span>&amp;&amp; fptr != libc::SIG_DFL &amp;&amp; fptr != libc::SIG_IGN {
             <span class="comment">// Android is broken and uses different int types than the rest (and different
@@ -1040,10 +1041,10 @@
             </span><span class="kw">let </span><span class="kw-2">mut </span>siginfo = <span class="self">self</span>.info.sa_flags;
             siginfo = libc::SA_SIGINFO <span class="kw">as _</span>;
             <span class="kw">if </span><span class="self">self</span>.info.sa_flags &amp; siginfo == <span class="number">0 </span>{
-                <span class="kw">let </span>action = mem::transmute::&lt;usize, <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(c_int)&gt;(fptr);
+                <span class="kw">let </span>action = mem::transmute::&lt;usize, <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(c_int)&gt;(fptr);
                 action(sig);
             } <span class="kw">else </span>{
-                <span class="kw">type </span>SigAction = <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(c_int, <span class="kw-2">*mut </span>siginfo_t, <span class="kw-2">*mut </span>c_void);
+                <span class="kw">type </span>SigAction = <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(c_int, <span class="kw-2">*mut </span>siginfo_t, <span class="kw-2">*mut </span>c_void);
                 <span class="kw">let </span>action = mem::transmute::&lt;usize, SigAction&gt;(fptr);
                 action(sig, info, data);
             }
@@ -1053,7 +1054,7 @@
 
 <span class="doccomment">/// Lazy-initiated data structure with our global variables.
 ///
-/// Used inside a structure to cut down on boilerplate code to lazy-initialize stuff. We don&#39;t dare
+/// Used inside a structure to cut down on boilerplate code to lazy-initialize stuff. We don't dare
 /// use anything fancy like lazy-static or once-cell, since we are not sure they are
 /// async-signal-safe in their access. Our code uses the [Once], but only on the write end outside
 /// of signal handler. The handler assumes it has already been initialized.
@@ -1072,10 +1073,10 @@
 </span><span class="kw">static </span>GLOBAL_INIT: Once = ONCE_INIT;
 
 <span class="kw">impl </span>GlobalData {
-    <span class="kw">fn </span>get() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self </span>{
+    <span class="kw">fn </span>get() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self </span>{
         <span class="kw">unsafe </span>{ GLOBAL_DATA.as_ref().unwrap() }
     }
-    <span class="kw">fn </span>ensure() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self </span>{
+    <span class="kw">fn </span>ensure() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self </span>{
         GLOBAL_INIT.call_once(|| <span class="kw">unsafe </span>{
             GLOBAL_DATA = <span class="prelude-val">Some</span>(GlobalData {
                 data: HalfLock::new(SignalData {
@@ -1090,21 +1091,21 @@
 }
 
 <span class="attr">#[cfg(windows)]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>handler(sig: c_int) {
+</span><span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>handler(sig: c_int) {
     <span class="kw">if </span>sig != SIGFPE {
         <span class="comment">// Windows CRT `signal` resets handler every time, unless for SIGFPE.
         // Reregister the handler to retain maximal compatibility.
         // Problems:
-        // - It&#39;s racy. But this is inevitably racy in Windows.
+        // - It's racy. But this is inevitably racy in Windows.
         // - Interacts poorly with handlers outside signal-hook-registry.
         </span><span class="kw">let </span>old = <span class="kw">unsafe </span>{ libc::signal(sig, handler <span class="kw">as </span>sighandler_t) };
         <span class="kw">if </span>old == SIG_ERR {
-            <span class="comment">// MSDN doesn&#39;t describe which errors might occur,
+            <span class="comment">// MSDN doesn't describe which errors might occur,
             // but we can tell from the Linux manpage that
             // EINVAL (invalid signal number) is mostly the only case.
             // Therefore, this branch must not occur.
             // In any case we can do nothing useful in the signal handler,
-            // so we&#39;re going to abort silently.
+            // so we're going to abort silently.
             </span><span class="kw">unsafe </span>{
                 libc::abort();
             }
@@ -1122,7 +1123,7 @@
             action(<span class="kw-2">&amp;</span>siginfo_t);
         }
     } <span class="kw">else if let </span><span class="prelude-val">Some</span>(prev) = fallback.as_ref() {
-        <span class="comment">// In case we get called but don&#39;t have the slot for this signal set up yet, we are under
+        <span class="comment">// In case we get called but don't have the slot for this signal set up yet, we are under
         // the race condition. We may have the old signal handler stored in the fallback
         // temporarily.
         </span><span class="kw">if </span>sig == prev.signal {
@@ -1134,7 +1135,7 @@
 }
 
 <span class="attr">#[cfg(not(windows))]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>handler(sig: c_int, info: <span class="kw-2">*mut </span>siginfo_t, data: <span class="kw-2">*mut </span>c_void) {
+</span><span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>handler(sig: c_int, info: <span class="kw-2">*mut </span>siginfo_t, data: <span class="kw-2">*mut </span>c_void) {
     <span class="kw">let </span>globals = GlobalData::get();
     <span class="kw">let </span>fallback = globals.race_fallback.read();
     <span class="kw">let </span>sigdata = globals.data.read();
@@ -1145,13 +1146,13 @@
         <span class="kw">let </span>info = <span class="kw">unsafe </span>{ info.as_ref() };
         <span class="kw">let </span>info = info.unwrap_or_else(|| {
             <span class="comment">// The info being null seems to be illegal according to POSIX, but has been observed on
-            // some probably broken platform. We can&#39;t do anything about that, that is just broken,
+            // some probably broken platform. We can't do anything about that, that is just broken,
             // but we are not allowed to panic in a signal handler, so we are left only with simply
             // aborting. We try to write a message what happens, but using the libc stuff
             // (`eprintln` is not guaranteed to be async-signal-safe).
             </span><span class="kw">unsafe </span>{
                 <span class="kw">const </span>MSG: <span class="kw-2">&amp;</span>[u8] =
-                    <span class="string">b&quot;Platform broken, got NULL as siginfo to signal handler. Aborting&quot;</span>;
+                    <span class="string">b"Platform broken, got NULL as siginfo to signal handler. Aborting"</span>;
                 libc::write(<span class="number">2</span>, MSG.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>, MSG.len());
                 libc::abort();
             }
@@ -1161,7 +1162,7 @@
             action(info);
         }
     } <span class="kw">else if let </span><span class="prelude-val">Some</span>(prev) = fallback.as_ref() {
-        <span class="comment">// In case we get called but don&#39;t have the slot for this signal set up yet, we are under
+        <span class="comment">// In case we get called but don't have the slot for this signal set up yet, we are under
         // the race condition. We may have the old signal handler stored in the fallback
         // temporarily.
         </span><span class="kw">if </span>prev.signal == sig {
@@ -1188,12 +1189,12 @@
 
 <span class="doccomment">/// Registers an arbitrary action for the given signal.
 ///
-/// This makes sure there&#39;s a signal handler for the given signal. It then adds the action to the
+/// This makes sure there's a signal handler for the given signal. It then adds the action to the
 /// ones called each time the signal is delivered. If multiple actions are set for the same signal,
 /// all are called, in the order of registration.
 ///
 /// If there was a previous signal handler for the given signal, it is chained ‒ it will be called
-/// as part of this library&#39;s signal handler, before any actions set through this function.
+/// as part of this library's signal handler, before any actions set through this function.
 ///
 /// On success, the function returns an ID that can be used to remove the action again with
 /// [`unregister`].
@@ -1211,8 +1212,8 @@
 /// The first two are not possible to override (and the underlying C functions simply ignore all
 /// requests to do so, which smells of possible bugs, or return errors). The rest can be set, but
 /// generally needs very special handling to do so correctly (direct manipulation of the
-/// application&#39;s address space, `longjmp` and similar). Unless you know very well what you&#39;re
-/// doing, you&#39;ll shoot yourself into the foot and this library won&#39;t help you with that.
+/// application's address space, `longjmp` and similar). Unless you know very well what you're
+/// doing, you'll shoot yourself into the foot and this library won't help you with that.
 ///
 /// # Errors
 ///
@@ -1231,8 +1232,8 @@
 /// functions by POSIX). These specifically do *not* contain mutexes and memory
 /// allocation/deallocation. They *do* contain routines to terminate the program, to further
 /// manipulate signals (by the low-level functions, not by this library) and to read and write file
-/// descriptors. Calling program&#39;s own functions consisting only of these is OK, as is manipulating
-/// program&#39;s variables ‒ however, as the action can be called on any thread that does not have the
+/// descriptors. Calling program's own functions consisting only of these is OK, as is manipulating
+/// program's variables ‒ however, as the action can be called on any thread that does not have the
 /// given signal masked (by default no signal is masked on any thread), and mutexes are a no-go,
 /// this is harder than it looks like at first.
 ///
@@ -1245,7 +1246,7 @@
 ///
 /// # Race condition
 ///
-/// Upon registering the first hook for a given signal into this library, there&#39;s a short race
+/// Upon registering the first hook for a given signal into this library, there's a short race
 /// condition under the following circumstances:
 ///
 /// * The program already has a signal handler installed for this particular signal (through some
@@ -1254,7 +1255,7 @@
 ///   installed by this library.
 /// * At the same time, the signal is delivered.
 ///
-/// Under such conditions signal-hook might wrongly &quot;chain&quot; to the older signal handler for a short
+/// Under such conditions signal-hook might wrongly "chain" to the older signal handler for a short
 /// while (until the registration is fully complete).
 ///
 /// Note that the exact conditions of the race condition might change in future versions of the
@@ -1267,7 +1268,7 @@
 ///
 /// Even when it is possible to repeatedly install and remove actions during the lifetime of a
 /// program, the installation and removal is considered a slow operation and should not be done
-/// very often. Also, there&#39;s limited (though huge) amount of distinct IDs (they are `u128`).
+/// very often. Also, there's limited (though huge) amount of distinct IDs (they are `u128`).
 ///
 /// # Examples
 ///
@@ -1288,7 +1289,7 @@
 /// ```
 </span><span class="kw">pub unsafe fn </span>register&lt;F&gt;(signal: c_int, action: F) -&gt; <span class="prelude-ty">Result</span>&lt;SigId, Error&gt;
 <span class="kw">where
-    </span>F: Fn() + Sync + Send + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn() + Sync + Send + <span class="lifetime">'static</span>,
 {
     register_sigaction_impl(signal, <span class="kw">move </span>|<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">_</span>| action())
 }
@@ -1305,18 +1306,18 @@
 </span><span class="attr">#[cfg(not(windows))]
 </span><span class="kw">pub unsafe fn </span>register_sigaction&lt;F&gt;(signal: c_int, action: F) -&gt; <span class="prelude-ty">Result</span>&lt;SigId, Error&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>siginfo_t) + Sync + Send + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn(<span class="kw-2">&amp;</span>siginfo_t) + Sync + Send + <span class="lifetime">'static</span>,
 {
     register_sigaction_impl(signal, action)
 }
 
 <span class="kw">unsafe fn </span>register_sigaction_impl&lt;F&gt;(signal: c_int, action: F) -&gt; <span class="prelude-ty">Result</span>&lt;SigId, Error&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>siginfo_t) + Sync + Send + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn(<span class="kw-2">&amp;</span>siginfo_t) + Sync + Send + <span class="lifetime">'static</span>,
 {
     <span class="macro">assert!</span>(
         !FORBIDDEN.contains(<span class="kw-2">&amp;</span>signal),
-        <span class="string">&quot;Attempted to register forbidden signal {}&quot;</span>,
+        <span class="string">"Attempted to register forbidden signal {}"</span>,
         signal,
     );
     register_unchecked_impl(signal, action)
@@ -1325,7 +1326,7 @@
 <span class="doccomment">/// Register a signal action without checking for forbidden signals.
 ///
 /// This acts in the same way as [`register_unchecked`], including the drawbacks, panics and
-/// performance characteristics. The only difference is the provided action doesn&#39;t accept a
+/// performance characteristics. The only difference is the provided action doesn't accept a
 /// [`siginfo_t`] argument.
 ///
 /// # Safety
@@ -1333,7 +1334,7 @@
 /// See the details of [`register`].
 </span><span class="kw">pub unsafe fn </span>register_signal_unchecked&lt;F&gt;(signal: c_int, action: F) -&gt; <span class="prelude-ty">Result</span>&lt;SigId, Error&gt;
 <span class="kw">where
-    </span>F: Fn() + Sync + Send + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn() + Sync + Send + <span class="lifetime">'static</span>,
 {
     register_unchecked_impl(signal, <span class="kw">move </span>|<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">_</span>| action())
 }
@@ -1344,8 +1345,8 @@
 /// signals. All the signals passed are registered and it is up to the caller to make some sense of
 /// them.
 ///
-/// Note that you really need to know what you&#39;re doing if you change eg. the `SIGSEGV` signal
-/// handler. Generally, you don&#39;t want to do that. But unlike the other functions here, this
+/// Note that you really need to know what you're doing if you change eg. the `SIGSEGV` signal
+/// handler. Generally, you don't want to do that. But unlike the other functions here, this
 /// function still allows you to do it.
 ///
 /// # Safety
@@ -1354,14 +1355,14 @@
 </span><span class="attr">#[cfg(not(windows))]
 </span><span class="kw">pub unsafe fn </span>register_unchecked&lt;F&gt;(signal: c_int, action: F) -&gt; <span class="prelude-ty">Result</span>&lt;SigId, Error&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>siginfo_t) + Sync + Send + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn(<span class="kw-2">&amp;</span>siginfo_t) + Sync + Send + <span class="lifetime">'static</span>,
 {
     register_unchecked_impl(signal, action)
 }
 
 <span class="kw">unsafe fn </span>register_unchecked_impl&lt;F&gt;(signal: c_int, action: F) -&gt; <span class="prelude-ty">Result</span>&lt;SigId, Error&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>siginfo_t) + Sync + Send + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn(<span class="kw-2">&amp;</span>siginfo_t) + Sync + Send + <span class="lifetime">'static</span>,
 {
     <span class="kw">let </span>globals = GlobalData::ensure();
     <span class="kw">let </span>action = Arc::from(action);
@@ -1383,7 +1384,7 @@
             // storing it.
             //
             // Therefore we first store the old one in the fallback storage. The fallback only
-            // covers the cases where the slot is not yet active and becomes &quot;inert&quot; after that,
+            // covers the cases where the slot is not yet active and becomes "inert" after that,
             // even if not removed (it may get overwritten by some other signal, but for that the
             // mutex in globals.data must be unlocked here - and by that time we already stored the
             // slot.
@@ -1410,7 +1411,7 @@
 <span class="doccomment">/// Removes a previously installed action.
 ///
 /// This function does nothing if the action was already removed. It returns true if it was removed
-/// and false if the action wasn&#39;t found.
+/// and false if the action wasn't found.
 ///
 /// It can unregister all the actions installed by [`register`] as well as the ones from downstream
 /// crates (like [`signal-hook`](https://docs.rs/signal-hook)).
@@ -1439,11 +1440,11 @@
 }
 
 <span class="comment">// We keep this one here for strict backwards compatibility, but the API is kind of bad. One can
-// delete actions that don&#39;t belong to them, which is kind of against the whole idea of not
+// delete actions that don't belong to them, which is kind of against the whole idea of not
 // breaking stuff for others.
 </span><span class="attr">#[deprecated(
-    since = <span class="string">&quot;1.3.0&quot;</span>,
-    note = <span class="string">&quot;Don&#39;t use. Can influence unrelated parts of program / unknown actions&quot;
+    since = <span class="string">"1.3.0"</span>,
+    note = <span class="string">"Don't use. Can influence unrelated parts of program / unknown actions"
 </span>)]
 #[doc(hidden)]
 </span><span class="kw">pub fn </span>unregister_signal(signal: c_int) -&gt; bool {
@@ -1488,7 +1489,7 @@
 
     <span class="doccomment">/// Registering the forbidden signals is allowed in the _unchecked version.
     </span><span class="attr">#[test]
-    #[allow(clippy::redundant_closure)] </span><span class="comment">// Clippy, you&#39;re wrong. Because it changes the return value.
+    #[allow(clippy::redundant_closure)] </span><span class="comment">// Clippy, you're wrong. Because it changes the return value.
     </span><span class="kw">fn </span>forbidden_raw() {
         <span class="kw">unsafe </span>{ register_signal_unchecked(SIGFPE, || std::process::abort()).unwrap() };
     }
@@ -1514,10 +1515,10 @@
                 </span><span class="number">0 </span>=&gt; <span class="kw">continue</span>,
                 <span class="comment">// Good, we are done with the correct result
                 </span><span class="kw">_ if </span>current == <span class="number">1 </span>=&gt; <span class="kw">return</span>,
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Wrong result value {}&quot;</span>, current),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Wrong result value {}"</span>, current),
             }
         }
-        <span class="macro">panic!</span>(<span class="string">&quot;Timed out waiting for the signal&quot;</span>);
+        <span class="macro">panic!</span>(<span class="string">"Timed out waiting for the signal"</span>);
     }
 
     <span class="attr">#[test]
@@ -1534,7 +1535,7 @@
                 </span><span class="attr">#[repr(C)]
                 </span><span class="kw">struct </span>SigInfo {
                     _fields: [c_int; <span class="number">3</span>],
-                    <span class="attr">#[cfg(all(target_pointer_width = <span class="string">&quot;64&quot;</span>, target_os = <span class="string">&quot;linux&quot;</span>))]
+                    <span class="attr">#[cfg(all(target_pointer_width = <span class="string">"64"</span>, target_os = <span class="string">"linux"</span>))]
                     </span>_pad: c_int,
                     pid: pid_t,
                 }
@@ -1556,14 +1557,14 @@
             thread::sleep(Duration::from_millis(<span class="number">100</span>));
             <span class="kw">let </span>current = status.load(Ordering::Relaxed);
             <span class="kw">match </span>current {
-                <span class="comment">// Not yet (PID == 0 doesn&#39;t happen)
+                <span class="comment">// Not yet (PID == 0 doesn't happen)
                 </span><span class="number">0 </span>=&gt; <span class="kw">continue</span>,
                 <span class="comment">// Good, we are done with the correct result
                 </span><span class="kw">_ if </span>current == pid <span class="kw">as </span>usize =&gt; <span class="kw">return</span>,
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Wrong status value {}&quot;</span>, current),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Wrong status value {}"</span>, current),
             }
         }
-        <span class="macro">panic!</span>(<span class="string">&quot;Timed out waiting for the signal&quot;</span>);
+        <span class="macro">panic!</span>(<span class="string">"Timed out waiting for the signal"</span>);
     }
 
     <span class="doccomment">/// Check that registration works as expected and that unregister tells if it did or not.

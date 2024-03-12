@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/packbuilder.rs`."><title>packbuilder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/packbuilder.rs`."><title>packbuilder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -429,18 +430,18 @@
     </span>Deltafication,
 }
 
-<span class="kw">pub type </span>ProgressCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(PackBuilderStage, u32, u32) -&gt; bool + <span class="lifetime">&#39;a</span>;
-<span class="kw">pub type </span>ForEachCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">&#39;a</span>;
+<span class="kw">pub type </span>ProgressCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(PackBuilderStage, u32, u32) -&gt; bool + <span class="lifetime">'a</span>;
+<span class="kw">pub type </span>ForEachCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// A builder for creating a packfile
-</span><span class="kw">pub struct </span>PackBuilder&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>PackBuilder&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_packbuilder,
-    _progress: <span class="prelude-ty">Option</span>&lt;Box&lt;Box&lt;ProgressCb&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;&gt;&gt;,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;repo </span>Repository&gt;,
+    _progress: <span class="prelude-ty">Option</span>&lt;Box&lt;Box&lt;ProgressCb&lt;<span class="lifetime">'repo</span>&gt;&gt;&gt;&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'repo </span>Repository&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; PackBuilder&lt;<span class="lifetime">&#39;repo</span>&gt; {
-    <span class="doccomment">/// Insert a single object. For an optimal pack it&#39;s mandatory to insert
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; PackBuilder&lt;<span class="lifetime">'repo</span>&gt; {
+    <span class="doccomment">/// Insert a single object. For an optimal pack it's mandatory to insert
     /// objects in recency order, commits followed by trees and blobs.
     </span><span class="kw">pub fn </span>insert_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: Oid, name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>name = <span class="kw">crate</span>::opt_cstr(name)<span class="question-mark">?</span>;
@@ -470,7 +471,7 @@
 
     <span class="doccomment">/// Insert objects as given by the walk. Those commits and all objects they
     /// reference will be inserted into the packbuilder.
-    </span><span class="kw">pub fn </span>insert_walk(<span class="kw-2">&amp;mut </span><span class="self">self</span>, walk: <span class="kw-2">&amp;mut </span>Revwalk&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">pub fn </span>insert_walk(<span class="kw-2">&amp;mut </span><span class="self">self</span>, walk: <span class="kw-2">&amp;mut </span>Revwalk&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_packbuilder_insert_walk(<span class="self">self</span>.raw, walk.raw()));
         }
@@ -502,7 +503,7 @@
     <span class="kw">where
         </span>F: FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; bool,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>cb = <span class="kw-2">&amp;mut </span>cb <span class="kw">as </span><span class="kw-2">&amp;mut </span>ForEachCb&lt;<span class="lifetime">&#39;_</span>&gt;;
+        <span class="kw">let </span><span class="kw-2">mut </span>cb = <span class="kw-2">&amp;mut </span>cb <span class="kw">as </span><span class="kw-2">&amp;mut </span>ForEachCb&lt;<span class="lifetime">'_</span>&gt;;
         <span class="kw">let </span>ptr = <span class="kw-2">&amp;mut </span>cb <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>;
         <span class="kw">let </span>foreach: raw::git_packbuilder_foreach_cb = <span class="prelude-val">Some</span>(foreach_c);
         <span class="kw">unsafe </span>{
@@ -524,9 +525,9 @@
     /// progress callback without attaching a new one.
     </span><span class="kw">pub fn </span>set_progress_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, progress: F) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
-        </span>F: FnMut(PackBuilderStage, u32, u32) -&gt; bool + <span class="lifetime">&#39;repo</span>,
+        </span>F: FnMut(PackBuilderStage, u32, u32) -&gt; bool + <span class="lifetime">'repo</span>,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>progress = Box::new(Box::new(progress) <span class="kw">as </span>Box&lt;ProgressCb&lt;<span class="lifetime">&#39;_</span>&gt;&gt;);
+        <span class="kw">let </span><span class="kw-2">mut </span>progress = Box::new(Box::new(progress) <span class="kw">as </span>Box&lt;ProgressCb&lt;<span class="lifetime">'_</span>&gt;&gt;);
         <span class="kw">let </span>ptr = <span class="kw-2">&amp;mut *</span>progress <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>;
         <span class="kw">let </span>progress_c: raw::git_packbuilder_progress = <span class="prelude-val">Some</span>(progress_c);
         <span class="kw">unsafe </span>{
@@ -571,10 +572,10 @@
         <span class="kw">unsafe </span>{ raw::git_packbuilder_written(<span class="self">self</span>.raw) }
     }
 
-    <span class="doccomment">/// Get the packfile&#39;s hash. A packfile&#39;s name is derived from the sorted
+    <span class="doccomment">/// Get the packfile's hash. A packfile's name is derived from the sorted
     /// hashing of all object names. This is only correct after the packfile
     /// has been written.
-    </span><span class="attr">#[deprecated = <span class="string">&quot;use `name()` to retrieve the filename&quot;</span>]
+    </span><span class="attr">#[deprecated = <span class="string">"use `name()` to retrieve the filename"</span>]
     #[allow(deprecated)]
     </span><span class="kw">pub fn </span>hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Oid&gt; {
         <span class="kw">if </span><span class="self">self</span>.object_count() == <span class="number">0 </span>{
@@ -586,7 +587,7 @@
 
     <span class="doccomment">/// Get the unique name for the resulting packfile.
     ///
-    /// The packfile&#39;s name is derived from the packfile&#39;s content. This is only
+    /// The packfile's name is derived from the packfile's content. This is only
     /// correct after the packfile has been written.
     ///
     /// Returns `None` if the packfile has not been written or if the name is
@@ -597,16 +598,16 @@
 
     <span class="doccomment">/// Get the unique name for the resulting packfile, in bytes.
     ///
-    /// The packfile&#39;s name is derived from the packfile&#39;s content. This is only
+    /// The packfile's name is derived from the packfile's content. This is only
     /// correct after the packfile has been written.
     </span><span class="kw">pub fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_packbuilder_name(<span class="self">self</span>.raw)) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>PackBuilder&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>PackBuilder&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_packbuilder;
-    <span class="kw">unsafe fn </span>from_raw(ptr: <span class="kw-2">*mut </span>raw::git_packbuilder) -&gt; PackBuilder&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(ptr: <span class="kw-2">*mut </span>raw::git_packbuilder) -&gt; PackBuilder&lt;<span class="lifetime">'repo</span>&gt; {
         PackBuilder {
             raw: ptr,
             _progress: <span class="prelude-val">None</span>,
@@ -618,7 +619,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>PackBuilder&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>PackBuilder&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             raw::git_packbuilder_set_callbacks(<span class="self">self</span>.raw, <span class="prelude-val">None</span>, ptr::null_mut());
@@ -633,7 +634,7 @@
         <span class="kw">match </span>raw {
             raw::GIT_PACKBUILDER_ADDING_OBJECTS =&gt; PackBuilderStage::AddingObjects,
             raw::GIT_PACKBUILDER_DELTAFICATION =&gt; PackBuilderStage::Deltafication,
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown git diff binary kind&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unknown git diff binary kind"</span>),
         }
     }
     <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_packbuilder_stage_t {
@@ -644,12 +645,12 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>foreach_c(buf: <span class="kw-2">*const </span>c_void, size: size_t, data: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>foreach_c(buf: <span class="kw-2">*const </span>c_void, size: size_t, data: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>buf = slice::from_raw_parts(buf <span class="kw">as </span><span class="kw-2">*const </span>u8, size <span class="kw">as </span>usize);
 
         <span class="kw">let </span>r = panic::wrap(|| {
-            <span class="kw">let </span>data = data <span class="kw">as </span><span class="kw-2">*mut &amp;mut </span>ForEachCb&lt;<span class="lifetime">&#39;_</span>&gt;;
+            <span class="kw">let </span>data = data <span class="kw">as </span><span class="kw-2">*mut &amp;mut </span>ForEachCb&lt;<span class="lifetime">'_</span>&gt;;
             (<span class="kw-2">*</span>data)(buf)
         });
         <span class="kw">if </span>r == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
@@ -660,7 +661,7 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>progress_c(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>progress_c(
     stage: raw::git_packbuilder_stage_t,
     current: c_uint,
     total: c_uint,
@@ -670,7 +671,7 @@
         <span class="kw">let </span>stage = Binding::from_raw(stage);
 
         <span class="kw">let </span>r = panic::wrap(|| {
-            <span class="kw">let </span>data = data <span class="kw">as </span><span class="kw-2">*mut </span>Box&lt;ProgressCb&lt;<span class="lifetime">&#39;_</span>&gt;&gt;;
+            <span class="kw">let </span>data = data <span class="kw">as </span><span class="kw-2">*mut </span>Box&lt;ProgressCb&lt;<span class="lifetime">'_</span>&gt;&gt;;
             (<span class="kw-2">*</span>data)(stage, current, total)
         });
         <span class="kw">if </span>r == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
@@ -687,7 +688,7 @@
 
     <span class="kw">fn </span>pack_header(len: u8) -&gt; Vec&lt;u8&gt; {
         [].iter()
-            .chain(<span class="string">b&quot;PACK&quot;</span>) <span class="comment">// signature
+            .chain(<span class="string">b"PACK"</span>) <span class="comment">// signature
             </span>.chain(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>]) <span class="comment">// version number
             </span>.chain(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, len]) <span class="comment">// number of objects
             </span>.cloned()

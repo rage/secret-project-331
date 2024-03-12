@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.63/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -427,10 +428,10 @@
 //! use openssl::error::ErrorStack;
 //! use openssl::bn::BigNum;
 //!
-//! let an_error = BigNum::from_dec_str(&quot;Cannot parse letters&quot;);
+//! let an_error = BigNum::from_dec_str("Cannot parse letters");
 //! match an_error {
 //!     Ok(_)  =&gt; (),
-//!     Err(e) =&gt; println!(&quot;Parsing Error: {:?}&quot;, e),
+//!     Err(e) =&gt; println!("Parsing Error: {:?}", e),
 //! }
 //! ```
 </span><span class="kw">use </span>cfg_if::cfg_if;
@@ -482,17 +483,17 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ErrorStack {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_empty() {
-            <span class="kw">return </span>fmt.write_str(<span class="string">&quot;OpenSSL error&quot;</span>);
+            <span class="kw">return </span>fmt.write_str(<span class="string">"OpenSSL error"</span>);
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
         <span class="kw">for </span>err <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
             <span class="kw">if </span>!first {
-                fmt.write_str(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                fmt.write_str(<span class="string">", "</span>)<span class="question-mark">?</span>;
             }
-            <span class="macro">write!</span>(fmt, <span class="string">&quot;{}&quot;</span>, err)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(fmt, <span class="string">"{}"</span>, err)<span class="question-mark">?</span>;
             first = <span class="bool-val">false</span>;
         }
         <span class="prelude-val">Ok</span>(())
@@ -520,7 +521,7 @@
     file: ShimStr,
     line: c_int,
     func: <span class="prelude-ty">Option</span>&lt;ShimStr&gt;,
-    data: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;,
+    data: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;,
 }
 
 <span class="kw">unsafe impl </span>Sync <span class="kw">for </span>Error {}
@@ -541,7 +542,7 @@
                 <span class="number">0 </span>=&gt; <span class="prelude-val">None</span>,
                 code =&gt; {
                     <span class="comment">// The memory referenced by data is only valid until that slot is overwritten
-                    // in the error stack, so we&#39;ll need to copy it off if it&#39;s dynamic
+                    // in the error stack, so we'll need to copy it off if it's dynamic
                     </span><span class="kw">let </span>data = <span class="kw">if </span>flags &amp; ffi::ERR_TXT_STRING != <span class="number">0 </span>{
                         <span class="kw">let </span>bytes = CStr::from_ptr(data <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>).to_bytes();
                         <span class="kw">let </span>data = str::from_utf8(bytes).unwrap();
@@ -588,7 +589,7 @@
                 <span class="prelude-val">Some</span>(Cow::Owned(<span class="kw-2">ref </span>data)) =&gt; {
                     <span class="kw">let </span>ptr = ffi::CRYPTO_malloc(
                         (data.len() + <span class="number">1</span>) <span class="kw">as _</span>,
-                        <span class="macro">concat!</span>(<span class="macro">file!</span>(), <span class="string">&quot;\0&quot;</span>).as_ptr() <span class="kw">as _</span>,
+                        <span class="macro">concat!</span>(<span class="macro">file!</span>(), <span class="string">"\0"</span>).as_ptr() <span class="kw">as _</span>,
                         <span class="macro">line!</span>() <span class="kw">as _</span>,
                     ) <span class="kw">as </span><span class="kw-2">*mut </span>c_char;
                     <span class="kw">if </span>ptr.is_null() {
@@ -643,7 +644,7 @@
     }
 
     <span class="doccomment">/// Returns the name of the library reporting the error, if available.
-    </span><span class="kw">pub fn </span>library(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    </span><span class="kw">pub fn </span>library(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>cstr = ffi::ERR_lib_error_string(<span class="self">self</span>.code);
             <span class="kw">if </span>cstr.is_null() {
@@ -657,19 +658,19 @@
     <span class="doccomment">/// Returns the raw OpenSSL error constant for the library reporting the
     /// error.
     </span><span class="comment">// On BoringSSL ERR_GET_{LIB,FUNC,REASON} are `unsafe`, but on
-    // OpenSSL/LibreSSL they&#39;re safe.
+    // OpenSSL/LibreSSL they're safe.
     </span><span class="attr">#[allow(unused_unsafe)]
     </span><span class="kw">pub fn </span>library_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; libc::c_int {
         <span class="kw">unsafe </span>{ ffi::ERR_GET_LIB(<span class="self">self</span>.code) }
     }
 
     <span class="doccomment">/// Returns the name of the function reporting the error.
-    </span><span class="kw">pub fn </span>function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;RetStr&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>function(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;RetStr&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="self">self</span>.func.as_ref().map(|s| s.as_str())
     }
 
     <span class="doccomment">/// Returns the reason for the error.
-    </span><span class="kw">pub fn </span>reason(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    </span><span class="kw">pub fn </span>reason(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>cstr = ffi::ERR_reason_error_string(<span class="self">self</span>.code);
             <span class="kw">if </span>cstr.is_null() {
@@ -682,14 +683,14 @@
 
     <span class="doccomment">/// Returns the raw OpenSSL error constant for the reason for the error.
     </span><span class="comment">// On BoringSSL ERR_GET_{LIB,FUNC,REASON} are `unsafe`, but on
-    // OpenSSL/LibreSSL they&#39;re safe.
+    // OpenSSL/LibreSSL they're safe.
     </span><span class="attr">#[allow(unused_unsafe)]
     </span><span class="kw">pub fn </span>reason_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; libc::c_int {
         <span class="kw">unsafe </span>{ ffi::ERR_GET_REASON(<span class="self">self</span>.code) }
     }
 
     <span class="doccomment">/// Returns the name of the source file which encountered the error.
-    </span><span class="kw">pub fn </span>file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RetStr&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RetStr&lt;<span class="lifetime">'_</span>&gt; {
         <span class="self">self</span>.file.as_str()
     }
 
@@ -706,22 +707,22 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Error {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>builder = fmt.debug_struct(<span class="string">&quot;Error&quot;</span>);
-        builder.field(<span class="string">&quot;code&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.code());
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>builder = fmt.debug_struct(<span class="string">"Error"</span>);
+        builder.field(<span class="string">"code"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.code());
         <span class="kw">if let </span><span class="prelude-val">Some</span>(library) = <span class="self">self</span>.library() {
-            builder.field(<span class="string">&quot;library&quot;</span>, <span class="kw-2">&amp;</span>library);
+            builder.field(<span class="string">"library"</span>, <span class="kw-2">&amp;</span>library);
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(function) = <span class="self">self</span>.function() {
-            builder.field(<span class="string">&quot;function&quot;</span>, <span class="kw-2">&amp;</span>function);
+            builder.field(<span class="string">"function"</span>, <span class="kw-2">&amp;</span>function);
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(reason) = <span class="self">self</span>.reason() {
-            builder.field(<span class="string">&quot;reason&quot;</span>, <span class="kw-2">&amp;</span>reason);
+            builder.field(<span class="string">"reason"</span>, <span class="kw-2">&amp;</span>reason);
         }
-        builder.field(<span class="string">&quot;file&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.file());
-        builder.field(<span class="string">&quot;line&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.line());
+        builder.field(<span class="string">"file"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.file());
+        builder.field(<span class="string">"line"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.line());
         <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = <span class="self">self</span>.data() {
-            builder.field(<span class="string">&quot;data&quot;</span>, <span class="kw-2">&amp;</span>data);
+            builder.field(<span class="string">"data"</span>, <span class="kw-2">&amp;</span>data);
         }
         builder.finish()
     }
@@ -729,28 +730,28 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
     <span class="comment">// On BoringSSL ERR_GET_{LIB,FUNC,REASON} are `unsafe`, but on
-    // OpenSSL/LibreSSL they&#39;re safe.
+    // OpenSSL/LibreSSL they're safe.
     </span><span class="attr">#[allow(unused_unsafe)]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(fmt, <span class="string">&quot;error:{:08X}&quot;</span>, <span class="self">self</span>.code())<span class="question-mark">?</span>;
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(fmt, <span class="string">"error:{:08X}"</span>, <span class="self">self</span>.code())<span class="question-mark">?</span>;
         <span class="kw">match </span><span class="self">self</span>.library() {
-            <span class="prelude-val">Some</span>(l) =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;:{}&quot;</span>, l)<span class="question-mark">?</span>,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;:lib({})&quot;</span>, <span class="self">self</span>.library_code())<span class="question-mark">?</span>,
+            <span class="prelude-val">Some</span>(l) =&gt; <span class="macro">write!</span>(fmt, <span class="string">":{}"</span>, l)<span class="question-mark">?</span>,
+            <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(fmt, <span class="string">":lib({})"</span>, <span class="self">self</span>.library_code())<span class="question-mark">?</span>,
         }
         <span class="kw">match </span><span class="self">self</span>.function() {
-            <span class="prelude-val">Some</span>(f) =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;:{}&quot;</span>, f)<span class="question-mark">?</span>,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;:func({})&quot;</span>, <span class="kw">unsafe </span>{ ffi::ERR_GET_FUNC(<span class="self">self</span>.code()) })<span class="question-mark">?</span>,
+            <span class="prelude-val">Some</span>(f) =&gt; <span class="macro">write!</span>(fmt, <span class="string">":{}"</span>, f)<span class="question-mark">?</span>,
+            <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(fmt, <span class="string">":func({})"</span>, <span class="kw">unsafe </span>{ ffi::ERR_GET_FUNC(<span class="self">self</span>.code()) })<span class="question-mark">?</span>,
         }
         <span class="kw">match </span><span class="self">self</span>.reason() {
-            <span class="prelude-val">Some</span>(r) =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;:{}&quot;</span>, r)<span class="question-mark">?</span>,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;:reason({})&quot;</span>, <span class="self">self</span>.reason_code())<span class="question-mark">?</span>,
+            <span class="prelude-val">Some</span>(r) =&gt; <span class="macro">write!</span>(fmt, <span class="string">":{}"</span>, r)<span class="question-mark">?</span>,
+            <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(fmt, <span class="string">":reason({})"</span>, <span class="self">self</span>.reason_code())<span class="question-mark">?</span>,
         }
         <span class="macro">write!</span>(
             fmt,
-            <span class="string">&quot;:{}:{}:{}&quot;</span>,
+            <span class="string">":{}:{}:{}"</span>,
             <span class="self">self</span>.file(),
             <span class="self">self</span>.line(),
-            <span class="self">self</span>.data().unwrap_or(<span class="string">&quot;&quot;</span>)
+            <span class="self">self</span>.data().unwrap_or(<span class="string">""</span>)
         )
     }
 }
@@ -762,7 +763,7 @@
         <span class="kw">use </span>std::ffi::{CString};
         <span class="kw">use </span>ffi::ERR_get_error_all;
 
-        <span class="kw">type </span>RetStr&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str;
+        <span class="kw">type </span>RetStr&lt;<span class="lifetime">'a</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str;
 
         <span class="attr">#[derive(Clone)]
         </span><span class="kw">struct </span>ShimStr(CString);
@@ -782,7 +783,7 @@
         }
     } <span class="kw">else </span>{
         <span class="attr">#[allow(bad_style)]
-        </span><span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>ERR_get_error_all(
+        </span><span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>ERR_get_error_all(
             file: <span class="kw-2">*mut *const </span>c_char,
             line: <span class="kw-2">*mut </span>c_int,
             func: <span class="kw-2">*mut *const </span>c_char,
@@ -794,7 +795,7 @@
             code
         }
 
-        <span class="kw">type </span>RetStr&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+        <span class="kw">type </span>RetStr&lt;<span class="lifetime">'a</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
         <span class="attr">#[derive(Clone)]
         </span><span class="kw">struct </span>ShimStr(<span class="kw-2">*const </span>c_char);
@@ -808,7 +809,7 @@
                 <span class="self">self</span>.<span class="number">0
             </span>}
 
-            <span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+            <span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
                 <span class="kw">unsafe </span>{
                     CStr::from_ptr(<span class="self">self</span>.<span class="number">0</span>).to_str().unwrap()
                 }
@@ -826,7 +827,7 @@
     </span><span class="comment">// Due to a bug in OpenSSL 3.1.0, this test can hang there. Skip for now.
     </span><span class="attr">#[cfg(not(ossl310))]
     </span><span class="kw">fn </span>test_error_library_code() {
-        <span class="kw">let </span>stack = Nid::create(<span class="string">&quot;not-an-oid&quot;</span>, <span class="string">&quot;invalid&quot;</span>, <span class="string">&quot;invalid&quot;</span>).unwrap_err();
+        <span class="kw">let </span>stack = Nid::create(<span class="string">"not-an-oid"</span>, <span class="string">"invalid"</span>, <span class="string">"invalid"</span>).unwrap_err();
         <span class="kw">let </span>errors = stack.errors();
         <span class="attr">#[cfg(not(boringssl))]
         </span><span class="macro">assert_eq!</span>(errors[<span class="number">0</span>].library_code(), ffi::ERR_LIB_ASN1);

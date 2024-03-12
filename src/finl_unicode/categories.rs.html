@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/finl_unicode-1.2.0/src/categories.rs`."><title>categories.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="finl_unicode" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/finl_unicode-1.2.0/src/categories.rs`."><title>categories.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="finl_unicode" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -760,7 +761,7 @@
     </span><span class="kw">fn </span>is_separator(<span class="self">self</span>) -&gt; bool;
     <span class="doccomment">/// Determines whether a character is a space separator (Zs). In addition to the standard space
     /// and the non-breaking space (U+A0), there are various typographic spaces and the Ogham space
-    /// mark but printed spaces from other scripts such as the Ge&#39;ez word space (፡).
+    /// mark but printed spaces from other scripts such as the Ge'ez word space (፡).
     </span><span class="kw">fn </span>is_separator_space(<span class="self">self</span>) -&gt; bool;
     <span class="doccomment">/// Determines whether a character is a line separator (Zl). This is the Unicode code point U+2028.
     </span><span class="kw">fn </span>is_separator_line(<span class="self">self</span>) -&gt; bool;
@@ -942,7 +943,7 @@
             Cat::Z =&gt; MajorCategory::Z,
             Cat::C =&gt; MajorCategory::C,
             <span class="kw">_ </span>=&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;Corrupt character data&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"Corrupt character data"</span>)
             }
         }
     }
@@ -980,7 +981,7 @@
             Cat::Co =&gt; MinorCategory::Co,
             Cat::Cn =&gt; MinorCategory::Cn,
             <span class="kw">_ </span>=&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;Corrupt character data&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"Corrupt character data"</span>)
             }
         }
     }
@@ -1181,14 +1182,14 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>character_categories() {
-        <span class="macro">assert!</span>(<span class="string">&#39;a&#39;</span>.is_letter());
-        <span class="macro">assert!</span>(!<span class="string">&#39;a&#39;</span>.is_letter_uppercase());
-        <span class="macro">assert!</span>(<span class="string">&#39;Ü&#39;</span>.is_letter_uppercase());
-        <span class="macro">assert!</span>(<span class="string">&#39;Я&#39;</span>.is_letter_uppercase());
+        <span class="macro">assert!</span>(<span class="string">'a'</span>.is_letter());
+        <span class="macro">assert!</span>(!<span class="string">'a'</span>.is_letter_uppercase());
+        <span class="macro">assert!</span>(<span class="string">'Ü'</span>.is_letter_uppercase());
+        <span class="macro">assert!</span>(<span class="string">'Я'</span>.is_letter_uppercase());
 
         <span class="comment">// test data from http://www.i18nguy.com/unicode/supplementary-test.html
-        </span><span class="string">&quot;𠜎 𠜱 𠝹 𠱓 𠱸 𠲖 𠳏 𠳕 𠴕 𠵼 𠵿 𠸎 𠸏 𠹷 𠺝 𠺢 𠻗 𠻹 𠻺 𠼭 𠼮 𠽌 𠾴 𠾼 𠿪 𡁜 𡁯 𡁵 𡁶 𡁻 𡃁 𡃉 𡇙 𢃇 𢞵 𢫕 𢭃 𢯊 𢱑 𢱕 𢳂 𢴈 𢵌 𢵧 𢺳 𣲷 𤓓 𤶸 𤷪 𥄫 𦉘 𦟌 𦧲 𦧺 𧨾 𨅝 𨈇 𨋢 𨳊 𨳍 𨳒 𩶘&quot;</span>.chars()
-            .filter(|<span class="kw-2">&amp;</span>c| c != <span class="string">&#39; &#39;</span>)
+        </span><span class="string">"𠜎 𠜱 𠝹 𠱓 𠱸 𠲖 𠳏 𠳕 𠴕 𠵼 𠵿 𠸎 𠸏 𠹷 𠺝 𠺢 𠻗 𠻹 𠻺 𠼭 𠼮 𠽌 𠾴 𠾼 𠿪 𡁜 𡁯 𡁵 𡁶 𡁻 𡃁 𡃉 𡇙 𢃇 𢞵 𢫕 𢭃 𢯊 𢱑 𢱕 𢳂 𢴈 𢵌 𢵧 𢺳 𣲷 𤓓 𤶸 𤷪 𥄫 𦉘 𦟌 𦧲 𦧺 𧨾 𨅝 𨈇 𨋢 𨳊 𨳍 𨳒 𩶘"</span>.chars()
+            .filter(|<span class="kw-2">&amp;</span>c| c != <span class="string">' '</span>)
             .for_each(
                 |c| {
                     <span class="macro">assert!</span>(c.is_letter());
@@ -1198,48 +1199,48 @@
             );
 
         <span class="comment">// test data from https://en.wikipedia.org/wiki/Module:Unicode_data/testcases
-        </span><span class="macro">assert!</span>(<span class="string">&#39;\t&#39;</span>.is_control());
-        <span class="macro">assert!</span>(<span class="string">&#39; &#39;</span>.is_separator_space());
+        </span><span class="macro">assert!</span>(<span class="string">'\t'</span>.is_control());
+        <span class="macro">assert!</span>(<span class="string">' '</span>.is_separator_space());
         <span class="macro">assert!</span>(
-            <span class="string">&#39;[&#39;</span>.is_punctuation_open(),
-            <span class="string">&quot;Got character code of {}&quot;</span>,
-            get_code(<span class="string">&#39;[&#39;</span>)
+            <span class="string">'['</span>.is_punctuation_open(),
+            <span class="string">"Got character code of {}"</span>,
+            get_code(<span class="string">'['</span>)
         );
-        <span class="macro">assert!</span>(<span class="string">&#39;]&#39;</span>.is_punctuation_close());
-        <span class="macro">assert!</span>(<span class="string">&#39;^&#39;</span>.is_symbol_modifier());
-        <span class="macro">assert!</span>(<span class="string">&#39;A&#39;</span>.is_letter_uppercase());
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{00AD}&#39;</span>.is_format());
-        <span class="macro">assert!</span>(<span class="string">&#39;¾&#39;</span>.is_number_other());
-        <span class="macro">assert!</span>(<span class="string">&#39;«&#39;</span>.is_punctuation_initial());
-        <span class="macro">assert!</span>(<span class="string">&#39;»&#39;</span>.is_punctuation_final());
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{0300}&#39;</span>.is_mark_nonspacing());
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{0488}&#39;</span>.is_mark_enclosing());
-        <span class="macro">assert!</span>(<span class="string">&#39;٣&#39;</span>.is_number_decimal());
-        <span class="macro">assert!</span>(<span class="string">&#39;子&#39;</span>.is_letter_other());
-        <span class="macro">assert!</span>(<span class="string">&#39;ᾮ&#39;</span>.is_letter_titlecase());
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{1B44}&#39;</span>.is_mark_spacing());
-        <span class="macro">assert!</span>(<span class="string">&#39;∈&#39;</span>.is_symbol_math());
-        <span class="macro">assert!</span>(<span class="string">&#39;‿&#39;</span>.is_punctuation_connector());
-        <span class="macro">assert!</span>(<span class="string">&#39;↹&#39;</span>.is_symbol_other());
-        <span class="macro">assert!</span>(<span class="string">&#39;⸗&#39;</span>.is_punctuation_dash());
-        <span class="macro">assert!</span>(<span class="string">&#39;Ⅷ&#39;</span>.is_number_letter());
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{2028}&#39;</span>.is_separator_line());
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{2029}&#39;</span>.is_separator_paragraph());
-        <span class="macro">assert!</span>(<span class="string">&#39;ゞ&#39;</span>.is_letter_modifier());
-        <span class="comment">//assert!(&#39;\u{D800}&#39;.is_surrogate());
-        </span><span class="macro">assert!</span>(<span class="string">&#39;￡&#39;</span>.is_symbol_currency());
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{FFFF}&#39;</span>.is_unassigned());
-        <span class="macro">assert!</span>(<span class="string">&#39;\u{100000}&#39;</span>.is_private_use());
+        <span class="macro">assert!</span>(<span class="string">']'</span>.is_punctuation_close());
+        <span class="macro">assert!</span>(<span class="string">'^'</span>.is_symbol_modifier());
+        <span class="macro">assert!</span>(<span class="string">'A'</span>.is_letter_uppercase());
+        <span class="macro">assert!</span>(<span class="string">'\u{00AD}'</span>.is_format());
+        <span class="macro">assert!</span>(<span class="string">'¾'</span>.is_number_other());
+        <span class="macro">assert!</span>(<span class="string">'«'</span>.is_punctuation_initial());
+        <span class="macro">assert!</span>(<span class="string">'»'</span>.is_punctuation_final());
+        <span class="macro">assert!</span>(<span class="string">'\u{0300}'</span>.is_mark_nonspacing());
+        <span class="macro">assert!</span>(<span class="string">'\u{0488}'</span>.is_mark_enclosing());
+        <span class="macro">assert!</span>(<span class="string">'٣'</span>.is_number_decimal());
+        <span class="macro">assert!</span>(<span class="string">'子'</span>.is_letter_other());
+        <span class="macro">assert!</span>(<span class="string">'ᾮ'</span>.is_letter_titlecase());
+        <span class="macro">assert!</span>(<span class="string">'\u{1B44}'</span>.is_mark_spacing());
+        <span class="macro">assert!</span>(<span class="string">'∈'</span>.is_symbol_math());
+        <span class="macro">assert!</span>(<span class="string">'‿'</span>.is_punctuation_connector());
+        <span class="macro">assert!</span>(<span class="string">'↹'</span>.is_symbol_other());
+        <span class="macro">assert!</span>(<span class="string">'⸗'</span>.is_punctuation_dash());
+        <span class="macro">assert!</span>(<span class="string">'Ⅷ'</span>.is_number_letter());
+        <span class="macro">assert!</span>(<span class="string">'\u{2028}'</span>.is_separator_line());
+        <span class="macro">assert!</span>(<span class="string">'\u{2029}'</span>.is_separator_paragraph());
+        <span class="macro">assert!</span>(<span class="string">'ゞ'</span>.is_letter_modifier());
+        <span class="comment">//assert!('\u{D800}'.is_surrogate());
+        </span><span class="macro">assert!</span>(<span class="string">'￡'</span>.is_symbol_currency());
+        <span class="macro">assert!</span>(<span class="string">'\u{FFFF}'</span>.is_unassigned());
+        <span class="macro">assert!</span>(<span class="string">'\u{100000}'</span>.is_private_use());
 
-        <span class="kw">for </span>c <span class="kw">in </span><span class="string">&quot;edä\u{0301}\u{20dd}\u{903}&quot;</span>.chars() {
+        <span class="kw">for </span>c <span class="kw">in </span><span class="string">"edä\u{0301}\u{20dd}\u{903}"</span>.chars() {
             <span class="macro">assert!</span>(c.is_letter_or_mark());
         }
-        <span class="kw">for </span>c <span class="kw">in </span><span class="string">&quot;45.$😀&quot;</span>.chars() {
+        <span class="kw">for </span>c <span class="kw">in </span><span class="string">"45.$😀"</span>.chars() {
             <span class="macro">assert!</span>(!c.is_letter_or_mark());
         }
 
-        <span class="macro">assert_eq!</span>(<span class="string">&#39;]&#39;</span>.get_minor_category(), MinorCategory::Pe);
-        <span class="macro">assert_eq!</span>(<span class="string">&#39;]&#39;</span>.get_major_category(), MajorCategory::P);
+        <span class="macro">assert_eq!</span>(<span class="string">']'</span>.get_minor_category(), MinorCategory::Pe);
+        <span class="macro">assert_eq!</span>(<span class="string">']'</span>.get_major_category(), MajorCategory::P);
     }
 }
 </code></pre></div></section></main></body></html>

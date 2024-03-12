@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/pe.rs`."><title>pe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/pe.rs`."><title>pe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3059,7 +3060,7 @@
 //! These definitions are independent of read/write support, although we do implement
 //! some traits useful for those.
 //!
-//! This module is based heavily on &quot;winnt.h&quot; (10.0.17763.0).
+//! This module is based heavily on "winnt.h" (10.0.17763.0).
 
 </span><span class="attr">#![allow(missing_docs)]
 
@@ -3302,7 +3303,7 @@
 /// * `http://www.ntcore.com/files/richsign.htm`
 /// * `https://www.researchgate.net/figure/Structure-of-the-Rich-Header_fig1_318145388`
 ///
-/// This data is &quot;masked&quot;, i.e. XORed with a checksum derived from the file data.
+/// This data is "masked", i.e. XORed with a checksum derived from the file data.
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>MaskedRichHeaderEntry {
@@ -3415,7 +3416,7 @@
 </span><span class="kw">pub const </span>IMAGE_FILE_MACHINE_M32R: u16 = <span class="number">0x9041</span>;
 <span class="doccomment">/// ARM64 Little-Endian
 </span><span class="kw">pub const </span>IMAGE_FILE_MACHINE_ARM64: u16 = <span class="number">0xAA64</span>;
-<span class="doccomment">/// ARM64EC (&quot;Emulation Compatible&quot;)
+<span class="doccomment">/// ARM64EC ("Emulation Compatible")
 </span><span class="kw">pub const </span>IMAGE_FILE_MACHINE_ARM64EC: u16 = <span class="number">0xA641</span>;
 <span class="kw">pub const </span>IMAGE_FILE_MACHINE_CEE: u16 = <span class="number">0xC0EE</span>;
 <span class="doccomment">/// RISCV32
@@ -3565,7 +3566,7 @@
 
 </span><span class="doccomment">/// Unknown subsystem.
 </span><span class="kw">pub const </span>IMAGE_SUBSYSTEM_UNKNOWN: u16 = <span class="number">0</span>;
-<span class="doccomment">/// Image doesn&#39;t require a subsystem.
+<span class="doccomment">/// Image doesn't require a subsystem.
 </span><span class="kw">pub const </span>IMAGE_SUBSYSTEM_NATIVE: u16 = <span class="number">1</span>;
 <span class="doccomment">/// Image runs in the Windows GUI subsystem.
 </span><span class="kw">pub const </span>IMAGE_SUBSYSTEM_WINDOWS_GUI: u16 = <span class="number">2</span>;
@@ -3601,7 +3602,7 @@
 </span><span class="kw">pub const </span>IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY: u16 = <span class="number">0x0080</span>;
 <span class="doccomment">/// Image is NX compatible
 </span><span class="kw">pub const </span>IMAGE_DLLCHARACTERISTICS_NX_COMPAT: u16 = <span class="number">0x0100</span>;
-<span class="doccomment">/// Image understands isolation and doesn&#39;t want it
+<span class="doccomment">/// Image understands isolation and doesn't want it
 </span><span class="kw">pub const </span>IMAGE_DLLCHARACTERISTICS_NO_ISOLATION: u16 = <span class="number">0x0200</span>;
 <span class="doccomment">/// Image does not use SEH.  No SE handler may reside in this image
 </span><span class="kw">pub const </span>IMAGE_DLLCHARACTERISTICS_NO_SEH: u16 = <span class="number">0x0400</span>;
@@ -4825,17 +4826,17 @@
 //
 
 </span><span class="kw">pub const </span>IMAGE_ARCHIVE_START_SIZE: usize = <span class="number">8</span>;
-<span class="kw">pub const </span>IMAGE_ARCHIVE_START: <span class="kw-2">&amp;</span>[u8; <span class="number">8</span>] = <span class="string">b&quot;!&lt;arch&gt;\n&quot;</span>;
-<span class="kw">pub const </span>IMAGE_ARCHIVE_END: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;`\n&quot;</span>;
-<span class="kw">pub const </span>IMAGE_ARCHIVE_PAD: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;\n&quot;</span>;
-<span class="kw">pub const </span>IMAGE_ARCHIVE_LINKER_MEMBER: <span class="kw-2">&amp;</span>[u8; <span class="number">16</span>] = <span class="string">b&quot;/               &quot;</span>;
-<span class="kw">pub const </span>IMAGE_ARCHIVE_LONGNAMES_MEMBER: <span class="kw-2">&amp;</span>[u8; <span class="number">16</span>] = <span class="string">b&quot;//              &quot;</span>;
-<span class="kw">pub const </span>IMAGE_ARCHIVE_HYBRIDMAP_MEMBER: <span class="kw-2">&amp;</span>[u8; <span class="number">16</span>] = <span class="string">b&quot;/&lt;HYBRIDMAP&gt;/   &quot;</span>;
+<span class="kw">pub const </span>IMAGE_ARCHIVE_START: <span class="kw-2">&amp;</span>[u8; <span class="number">8</span>] = <span class="string">b"!&lt;arch&gt;\n"</span>;
+<span class="kw">pub const </span>IMAGE_ARCHIVE_END: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"`\n"</span>;
+<span class="kw">pub const </span>IMAGE_ARCHIVE_PAD: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"\n"</span>;
+<span class="kw">pub const </span>IMAGE_ARCHIVE_LINKER_MEMBER: <span class="kw-2">&amp;</span>[u8; <span class="number">16</span>] = <span class="string">b"/               "</span>;
+<span class="kw">pub const </span>IMAGE_ARCHIVE_LONGNAMES_MEMBER: <span class="kw-2">&amp;</span>[u8; <span class="number">16</span>] = <span class="string">b"//              "</span>;
+<span class="kw">pub const </span>IMAGE_ARCHIVE_HYBRIDMAP_MEMBER: <span class="kw-2">&amp;</span>[u8; <span class="number">16</span>] = <span class="string">b"/&lt;HYBRIDMAP&gt;/   "</span>;
 
 <span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>ImageArchiveMemberHeader {
-    <span class="doccomment">/// File member name - `/&#39; terminated.
+    <span class="doccomment">/// File member name - `/' terminated.
     </span><span class="kw">pub </span>name: [u8; <span class="number">16</span>],
     <span class="doccomment">/// File member date - decimal.
     </span><span class="kw">pub </span>date: [u8; <span class="number">12</span>],
@@ -5862,12 +5863,12 @@ pub const SIZEOF_RFPO_DATA: usize = 16;
 <span class="kw">pub const </span>NON_PAGED_DEBUG_SIGNATURE: u16 = <span class="number">0x494E</span>;
 
 <span class="kw">pub const </span>IMAGE_SEPARATE_DEBUG_FLAGS_MASK: u16 = <span class="number">0x8000</span>;
-<span class="doccomment">/// when DBG was updated, the old checksum didn&#39;t match.
+<span class="doccomment">/// when DBG was updated, the old checksum didn't match.
 </span><span class="kw">pub const </span>IMAGE_SEPARATE_DEBUG_MISMATCH: u16 = <span class="number">0x8000</span>;
 
 <span class="comment">//
 //  The .arch section is made up of headers, each describing an amask position/value
-//  pointing to an array of IMAGE_ARCHITECTURE_ENTRY&#39;s.  Each &quot;array&quot; (both the header
+//  pointing to an array of IMAGE_ARCHITECTURE_ENTRY's.  Each "array" (both the header
 //  and entry arrays) are terminiated by a quadword of 0xffffffffL.
 //
 //  NOTE: There may be quadwords of 0 sprinkled around and must be skipped.
@@ -5887,7 +5888,7 @@ pub struct ImageArchitectureHeader {
     unsigned int AmaskShift: 8;
     /// MBZ
     int :16;
-    /// RVA into .arch section to array of ARCHITECTURE_ENTRY&#39;s
+    /// RVA into .arch section to array of ARCHITECTURE_ENTRY's
     pub first_entry_rva: U32&lt;LE&gt;,
 }
 */
@@ -5904,7 +5905,7 @@ pub struct ImageArchitectureHeader {
 <span class="comment">// The following structure defines the new import object.  Note the values of the first two fields,
 // which must be set as stated in order to differentiate old and new import members.
 // Following this structure, the linker emits two null-terminated strings used to recreate the
-// import at the time of use.  The first string is the import&#39;s name, the second is the dll&#39;s name.
+// import at the time of use.  The first string is the import's name, the second is the dll's name.
 
 </span><span class="kw">pub const </span>IMPORT_OBJECT_HDR_SIG2: u16 = <span class="number">0xffff</span>;
 

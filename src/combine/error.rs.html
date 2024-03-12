@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1101,7 +1102,7 @@
 <a href="#1101" id="1101">1101</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::lib::fmt;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
 
 <span class="kw">use crate</span>::{stream::StreamOnce, ErrorOffset};
@@ -1141,40 +1142,40 @@
 <span class="doccomment">/// Trait for types which can be used to construct error information.
 ///
 /// To call functions expecting this trait, use the wrapper types defined in this module
-/// `Token`, `Range`, `Format` or `Static`/`&amp;&#39;static str`
-</span><span class="kw">pub trait </span>ErrorInfo&lt;<span class="lifetime">&#39;s</span>, T, R&gt; {
+/// `Token`, `Range`, `Format` or `Static`/`&amp;'static str`
+</span><span class="kw">pub trait </span>ErrorInfo&lt;<span class="lifetime">'s</span>, T, R&gt; {
     <span class="kw">type </span>Format: fmt::Display;
 
     <span class="attr">#[allow(clippy::wrong_self_convention)]
-    </span><span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt;;
+    </span><span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt;;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, <span class="lifetime">&#39;a</span>, T, R, F&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, T, R&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>F
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, <span class="lifetime">'a</span>, T, R, F&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, T, R&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>F
 <span class="kw">where
-    </span>F: ErrorInfo&lt;<span class="lifetime">&#39;s</span>, T, R&gt;,
+    </span>F: ErrorInfo&lt;<span class="lifetime">'s</span>, T, R&gt;,
 {
     <span class="kw">type </span>Format = F::Format;
-    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
+    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
         (<span class="kw-2">**</span><span class="self">self</span>).into_info()
     }
 }
 
 <span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub enum </span>Info&lt;T, R, F = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+</span><span class="kw">pub enum </span>Info&lt;T, R, F = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     Token(T),
     Range(R),
-    Static(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str),
+    Static(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
     Format(F),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, T, R, F&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, T, R&gt; <span class="kw">for </span>Info&lt;T, R, F&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, T, R, F&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, T, R&gt; <span class="kw">for </span>Info&lt;T, R, F&gt;
 <span class="kw">where
     </span>T: Clone,
     R: Clone,
-    F: fmt::Display + <span class="lifetime">&#39;s</span>,
+    F: fmt::Display + <span class="lifetime">'s</span>,
 {
-    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>F;
-    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>) -&gt; Info&lt;T, R, &lt;<span class="self">Self </span><span class="kw">as </span>ErrorInfo&lt;<span class="lifetime">&#39;_</span>, T, R&gt;&gt;::Format&gt; {
+    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">'s </span>F;
+    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="self">self</span>) -&gt; Info&lt;T, R, &lt;<span class="self">Self </span><span class="kw">as </span>ErrorInfo&lt;<span class="lifetime">'_</span>, T, R&gt;&gt;::Format&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Info::Token(b) =&gt; Info::Token(b.clone()),
             Info::Range(b) =&gt; Info::Range(b.clone()),
@@ -1190,21 +1191,21 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, R&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, char, R&gt; <span class="kw">for </span>char {
-    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, R&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, char, R&gt; <span class="kw">for </span>char {
+    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
     <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Info&lt;char, R, <span class="self">Self</span>::Format&gt; {
         Info::Token(<span class="kw-2">*</span><span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;T, R, F&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; <span class="kw">for </span>Info&lt;T, R, F&gt; {
-    <span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;T, R, F&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; <span class="kw">for </span>Info&lt;T, R, F&gt; {
+    <span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         Info::Static(s)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, T, R&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, T, R&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, T, R&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, T, R&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
     <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
         Info::Static(<span class="kw-2">*</span><span class="self">self</span>)
     }
@@ -1216,8 +1217,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;R&gt; ErrorInfo&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>, R&gt; <span class="kw">for </span>u8 {
-    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+<span class="kw">impl</span>&lt;R&gt; ErrorInfo&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>, R&gt; <span class="kw">for </span>u8 {
+    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
     <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Info&lt;<span class="self">Self</span>, R, <span class="self">Self</span>::Format&gt; {
         Info::Token(<span class="kw-2">*</span><span class="self">self</span>)
     }
@@ -1226,18 +1227,18 @@
 <span class="doccomment">/// Newtype which constructs an `Info::Token` through `ErrorInfo`
 </span><span class="kw">pub struct </span>Token&lt;T&gt;(<span class="kw">pub </span>T);
 
-<span class="kw">impl</span>&lt;T, R&gt; From&lt;Token&lt;T&gt;&gt; <span class="kw">for </span>Info&lt;T, R, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">impl</span>&lt;T, R&gt; From&lt;Token&lt;T&gt;&gt; <span class="kw">for </span>Info&lt;T, R, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="kw">fn </span>from(s: Token&lt;T&gt;) -&gt; <span class="self">Self </span>{
         Info::Token(s.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, T, R&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, T, R&gt; <span class="kw">for </span>Token&lt;T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, T, R&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, T, R&gt; <span class="kw">for </span>Token&lt;T&gt;
 <span class="kw">where
     </span>T: Clone,
 {
-    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
-    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
+    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
+    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
         Info::Token(<span class="self">self</span>.<span class="number">0</span>.clone())
     }
 }
@@ -1245,25 +1246,25 @@
 <span class="doccomment">/// Newtype which constructs an `Info::Range` through `ErrorInfo`
 </span><span class="kw">pub struct </span>Range&lt;R&gt;(<span class="kw">pub </span>R);
 
-<span class="kw">impl</span>&lt;T, R&gt; From&lt;Range&lt;R&gt;&gt; <span class="kw">for </span>Info&lt;T, R, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">impl</span>&lt;T, R&gt; From&lt;Range&lt;R&gt;&gt; <span class="kw">for </span>Info&lt;T, R, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="kw">fn </span>from(s: Range&lt;R&gt;) -&gt; <span class="self">Self </span>{
         Info::Range(s.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, T, R&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, T, R&gt; <span class="kw">for </span>Range&lt;R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, T, R&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, T, R&gt; <span class="kw">for </span>Range&lt;R&gt;
 <span class="kw">where
     </span>R: Clone,
 {
-    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
-    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
+    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
+    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
         Info::Range(<span class="self">self</span>.<span class="number">0</span>.clone())
     }
 }
 
 <span class="doccomment">/// Newtype which constructs an `Info::Static` through `ErrorInfo`
-/// A plain `&amp;&#39;static str` can also be used, this exists for consistency.
-</span><span class="kw">pub struct </span>Static(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str);
+/// A plain `&amp;'static str` can also be used, this exists for consistency.
+</span><span class="kw">pub struct </span>Static(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str);
 
 <span class="kw">impl</span>&lt;T, R, F&gt; From&lt;Static&gt; <span class="kw">for </span>Info&lt;T, R, F&gt;
 <span class="kw">where
@@ -1274,9 +1275,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, T, R&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, T, R&gt; <span class="kw">for </span>Static {
-    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
-    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, T, R&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, T, R&gt; <span class="kw">for </span>Static {
+    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
+    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
         Info::Static(<span class="self">self</span>.<span class="number">0</span>)
     }
 }
@@ -1295,12 +1296,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, T, R, F&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, T, R&gt; <span class="kw">for </span>Format&lt;F&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, T, R, F&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, T, R&gt; <span class="kw">for </span>Format&lt;F&gt;
 <span class="kw">where
-    </span>F: fmt::Display + <span class="lifetime">&#39;s</span>,
+    </span>F: fmt::Display + <span class="lifetime">'s</span>,
 {
-    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>F;
-    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
+    <span class="kw">type </span>Format = <span class="kw-2">&amp;</span><span class="lifetime">'s </span>F;
+    <span class="kw">fn </span>into_info(<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="self">self</span>) -&gt; Info&lt;T, R, <span class="self">Self</span>::Format&gt; {
         Info::Format(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>)
     }
 }
@@ -1393,22 +1394,22 @@
     /// # extern crate combine as pc;
     /// # use pc::*;
     /// # fn main() {
-    /// //Parses a character of string literal and handles the escaped characters \\ and \&quot; as \
-    /// //and &quot; respectively
+    /// //Parses a character of string literal and handles the escaped characters \\ and \" as \
+    /// //and " respectively
     /// fn char&lt;Input&gt;(input: &amp;mut Input) -&gt; StdParseResult&lt;char, Input&gt;
     ///     where Input: Stream&lt;Token = char&gt;,
     ///           Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
     /// {
-    ///     let (c, committed) = satisfy(|c| c != &#39;&quot;&#39;).parse_stream(input).into_result()?;
+    ///     let (c, committed) = satisfy(|c| c != '"').parse_stream(input).into_result()?;
     ///     match c {
     ///         //Since the `char` parser has already committed some of the input `combine` is used
     ///         //propagate the committed state to the next part of the parser
-    ///         &#39;\\&#39; =&gt; committed.combine(|_| {
-    ///             satisfy(|c| c == &#39;&quot;&#39; || c == &#39;\\&#39;)
+    ///         '\\' =&gt; committed.combine(|_| {
+    ///             satisfy(|c| c == '"' || c == '\\')
     ///                 .map(|c| {
     ///                     match c {
-    ///                         &#39;&quot;&#39; =&gt; &#39;&quot;&#39;,
-    ///                         &#39;\\&#39; =&gt; &#39;\\&#39;,
+    ///                         '"' =&gt; '"',
+    ///                         '\\' =&gt; '\\',
     ///                         c =&gt; c
     ///                     }
     ///                 })
@@ -1419,8 +1420,8 @@
     ///     }
     /// }
     /// let result = many(parser(char))
-    ///     .easy_parse(r#&quot;abc\&quot;\\&quot;#);
-    /// assert_eq!(result, Ok((r#&quot;abc&quot;\&quot;#.to_string(), &quot;&quot;)));
+    ///     .easy_parse(r#"abc\"\\"#);
+    /// assert_eq!(result, Ok((r#"abc"\"#.to_string(), "")));
     /// }
     /// ```
     </span><span class="kw">pub fn </span>combine&lt;F, U, E&gt;(<span class="self">self</span>, f: F) -&gt; StdParseResult2&lt;U, E&gt;
@@ -1473,7 +1474,7 @@
         </span>T: fmt::Display;
     <span class="kw">fn </span>unexpected&lt;E&gt;(info: E) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">&#39;s</span>&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, Item, Range&gt;,
+        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">'s</span>&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, Item, Range&gt;,
     {
         <span class="kw">match </span>info.into_info() {
             Info::Token(b) =&gt; <span class="self">Self</span>::unexpected_token(b),
@@ -1482,7 +1483,7 @@
             Info::Format(b) =&gt; <span class="self">Self</span>::unexpected_format(b),
         }
     }
-    <span class="kw">fn </span>unexpected_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>unexpected_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::unexpected_format(msg)
     }
 
@@ -1493,7 +1494,7 @@
         </span>T: fmt::Display;
     <span class="kw">fn </span>expected&lt;E&gt;(info: E) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">&#39;s</span>&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, Item, Range&gt;,
+        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">'s</span>&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, Item, Range&gt;,
     {
         <span class="kw">match </span>info.into_info() {
             Info::Token(b) =&gt; <span class="self">Self</span>::expected_token(b),
@@ -1502,7 +1503,7 @@
             Info::Format(b) =&gt; <span class="self">Self</span>::expected_format(b),
         }
     }
-    <span class="kw">fn </span>expected_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>expected_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::expected_format(msg)
     }
 
@@ -1511,12 +1512,12 @@
     <span class="kw">fn </span>message_format&lt;T&gt;(msg: T) -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>T: fmt::Display;
-    <span class="kw">fn </span>message_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>message_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::message_format(msg)
     }
     <span class="kw">fn </span>message&lt;E&gt;(info: E) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">&#39;s</span>&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, Item, Range&gt;,
+        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">'s</span>&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, Item, Range&gt;,
     {
         <span class="kw">match </span>info.into_info() {
             Info::Token(b) =&gt; <span class="self">Self</span>::message_token(b),
@@ -1526,16 +1527,16 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">fn </span>other&lt;E&gt;(err: E) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>E: StdError + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>E: StdError + Send + Sync + <span class="lifetime">'static</span>,
     {
         <span class="self">Self</span>::message_format(err)
     }
 
     <span class="kw">fn </span>end_of_input() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::unexpected_static_message(<span class="string">&quot;end of input&quot;</span>)
+        <span class="self">Self</span>::unexpected_static_message(<span class="string">"end of input"</span>)
     }
 
     <span class="kw">fn </span>is_unexpected_end_of_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
@@ -1592,21 +1593,21 @@
 
     <span class="kw">fn </span>add_expected&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, info: E)
     <span class="kw">where
-        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">&#39;s</span>&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, Item, Range&gt;,
+        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">'s</span>&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, Item, Range&gt;,
     {
         <span class="self">self</span>.add(<span class="self">Self</span>::StreamError::expected(info))
     }
 
     <span class="kw">fn </span>add_unexpected&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, info: E)
     <span class="kw">where
-        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">&#39;s</span>&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, Item, Range&gt;,
+        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">'s</span>&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, Item, Range&gt;,
     {
         <span class="self">self</span>.add(<span class="self">Self</span>::StreamError::unexpected(info))
     }
 
     <span class="kw">fn </span>add_message&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, info: E)
     <span class="kw">where
-        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">&#39;s</span>&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, Item, Range&gt;,
+        </span>E: <span class="kw">for</span>&lt;<span class="lifetime">'s</span>&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, Item, Range&gt;,
     {
         <span class="self">self</span>.add(<span class="self">Self</span>::StreamError::message(info))
     }
@@ -1659,12 +1660,12 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>UnexpectedParse {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.as_str())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.as_str())
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>StdError <span class="kw">for </span>UnexpectedParse {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="self">self</span>.as_str()
@@ -1675,8 +1676,8 @@
     <span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">use </span><span class="self">self</span>::UnexpectedParse::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Unexpected =&gt; <span class="string">&quot;unexpected parse&quot;</span>,
-            Eoi =&gt; <span class="string">&quot;unexpected end of input&quot;</span>,
+            Unexpected =&gt; <span class="string">"unexpected parse"</span>,
+            Eoi =&gt; <span class="string">"unexpected end of input"</span>,
         }
     }
 }
@@ -1745,7 +1746,7 @@
         </span>T: StreamError&lt;Item, Range&gt;,
     {
         <span class="kw">match </span><span class="self">self </span>{
-            UnexpectedParse::Unexpected =&gt; T::unexpected_static_message(<span class="string">&quot;parse&quot;</span>),
+            UnexpectedParse::Unexpected =&gt; T::unexpected_static_message(<span class="string">"parse"</span>),
             UnexpectedParse::Eoi =&gt; T::end_of_input(),
         }
     }
@@ -1839,15 +1840,15 @@
     CharacterBoundary,
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>CHAR_BOUNDARY_ERROR_MESSAGE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;unexpected slice on character boundary&quot;</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>CHAR_BOUNDARY_ERROR_MESSAGE: <span class="kw-2">&amp;</span>str = <span class="string">"unexpected slice on character boundary"</span>;
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>StringStreamError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.as_str())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.as_str())
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>StdError <span class="kw">for </span>StringStreamError {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="self">self</span>.as_str()
@@ -1858,8 +1859,8 @@
     <span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">use </span><span class="self">self</span>::StringStreamError::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            UnexpectedParse =&gt; <span class="string">&quot;unexpected parse&quot;</span>,
-            Eoi =&gt; <span class="string">&quot;unexpected end of input&quot;</span>,
+            UnexpectedParse =&gt; <span class="string">"unexpected parse"</span>,
+            Eoi =&gt; <span class="string">"unexpected end of input"</span>,
             CharacterBoundary =&gt; CHAR_BOUNDARY_ERROR_MESSAGE,
         }
     }
@@ -1912,7 +1913,7 @@
     </span><span class="kw">fn </span>message_range(<span class="kw">_</span>: Range) -&gt; <span class="self">Self </span>{
         StringStreamError::UnexpectedParse
     }
-    <span class="kw">fn </span>message_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>message_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>msg == CHAR_BOUNDARY_ERROR_MESSAGE {
             StringStreamError::CharacterBoundary
         } <span class="kw">else </span>{
@@ -1934,7 +1935,7 @@
     {
         <span class="kw">let </span>msg = <span class="kw">match </span><span class="self">self </span>{
             StringStreamError::CharacterBoundary =&gt; CHAR_BOUNDARY_ERROR_MESSAGE,
-            StringStreamError::UnexpectedParse =&gt; <span class="string">&quot;parse&quot;</span>,
+            StringStreamError::UnexpectedParse =&gt; <span class="string">"parse"</span>,
             StringStreamError::Eoi =&gt; <span class="kw">return </span>T::end_of_input(),
         };
         T::unexpected_static_message(msg)
@@ -2173,7 +2174,7 @@
     }
 }
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, test))]
+<span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, test))]
 </span><span class="kw">mod </span>tests_std {
 
     <span class="kw">use </span><span class="kw">crate</span>::Parser;
@@ -2187,15 +2188,15 @@
     </span><span class="kw">fn </span>parse_clone_but_not_copy() {
         <span class="comment">// This verifies we can parse slice references with an token type that is Clone but not Copy.
         </span><span class="kw">let </span>input = <span class="kw-2">&amp;</span>[
-            CloneOnly { s: <span class="string">&quot;x&quot;</span>.to_string() },
-            CloneOnly { s: <span class="string">&quot;y&quot;</span>.to_string() },
+            CloneOnly { s: <span class="string">"x"</span>.to_string() },
+            CloneOnly { s: <span class="string">"y"</span>.to_string() },
         ][..];
-        <span class="kw">let </span>result = <span class="kw">crate</span>::parser::range::take_while(|c: CloneOnly| c.s == <span class="string">&quot;x&quot;</span>).parse(input);
+        <span class="kw">let </span>result = <span class="kw">crate</span>::parser::range::take_while(|c: CloneOnly| c.s == <span class="string">"x"</span>).parse(input);
         <span class="macro">assert_eq!</span>(
             result,
             <span class="prelude-val">Ok</span>((
-                <span class="kw-2">&amp;</span>[CloneOnly { s: <span class="string">&quot;x&quot;</span>.to_string() }][..],
-                <span class="kw-2">&amp;</span>[CloneOnly { s: <span class="string">&quot;y&quot;</span>.to_string() }][..]
+                <span class="kw-2">&amp;</span>[CloneOnly { s: <span class="string">"x"</span>.to_string() }][..],
+                <span class="kw-2">&amp;</span>[CloneOnly { s: <span class="string">"y"</span>.to_string() }][..]
             ))
         );
     }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crossbeam-queue-0.3.11/src/seg_queue.rs`."><title>seg_queue.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="crossbeam_queue" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crossbeam-queue-0.3.11/src/seg_queue.rs`."><title>seg_queue.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="crossbeam_queue" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -566,7 +567,7 @@
 <span class="kw">const </span>READ: usize = <span class="number">2</span>;
 <span class="kw">const </span>DESTROY: usize = <span class="number">4</span>;
 
-<span class="comment">// Each block covers one &quot;lap&quot; of indices.
+<span class="comment">// Each block covers one "lap" of indices.
 </span><span class="kw">const </span>LAP: usize = <span class="number">32</span>;
 <span class="comment">// The maximum number of values a block can hold.
 </span><span class="kw">const </span>BLOCK_CAP: usize = LAP - <span class="number">1</span>;
@@ -677,11 +678,11 @@
 ///
 /// let q = SegQueue::new();
 ///
-/// q.push(&#39;a&#39;);
-/// q.push(&#39;b&#39;);
+/// q.push('a');
+/// q.push('b');
 ///
-/// assert_eq!(q.pop(), Some(&#39;a&#39;));
-/// assert_eq!(q.pop(), Some(&#39;b&#39;));
+/// assert_eq!(q.pop(), Some('a'));
+/// assert_eq!(q.pop(), Some('b'));
 /// assert!(q.pop().is_none());
 /// ```
 </span><span class="kw">pub struct </span>SegQueue&lt;T&gt; {
@@ -755,7 +756,7 @@
                 <span class="kw">continue</span>;
             }
 
-            <span class="comment">// If we&#39;re going to have to install the next block, allocate it in advance in order to
+            <span class="comment">// If we're going to have to install the next block, allocate it in advance in order to
             // make the wait for other threads as short as possible.
             </span><span class="kw">if </span>offset + <span class="number">1 </span>== BLOCK_CAP &amp;&amp; next_block.is_none() {
                 next_block = <span class="prelude-val">Some</span>(Box::new(Block::&lt;T&gt;::new()));
@@ -791,7 +792,7 @@
                 Ordering::Acquire,
             ) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">unsafe </span>{
-                    <span class="comment">// If we&#39;ve reached the end of the block, install the next one.
+                    <span class="comment">// If we've reached the end of the block, install the next one.
                     </span><span class="kw">if </span>offset + <span class="number">1 </span>== BLOCK_CAP {
                         <span class="kw">let </span>next_block = Box::into_raw(next_block.unwrap());
                         <span class="kw">let </span>next_index = new_tail.wrapping_add(<span class="number">1 </span>&lt;&lt; SHIFT);
@@ -883,7 +884,7 @@
                 Ordering::Acquire,
             ) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">unsafe </span>{
-                    <span class="comment">// If we&#39;ve reached the end of the block, move to the next one.
+                    <span class="comment">// If we've reached the end of the block, move to the next one.
                     </span><span class="kw">if </span>offset + <span class="number">1 </span>== BLOCK_CAP {
                         <span class="kw">let </span>next = (<span class="kw-2">*</span>block).wait_next();
                         <span class="kw">let </span><span class="kw-2">mut </span>next_index = (new_head &amp; !HAS_NEXT).wrapping_add(<span class="number">1 </span>&lt;&lt; SHIFT);
@@ -900,8 +901,8 @@
                     slot.wait_write();
                     <span class="kw">let </span>value = slot.value.get().read().assume_init();
 
-                    <span class="comment">// Destroy the block if we&#39;ve reached the end, or if another thread wanted to
-                    // destroy but couldn&#39;t because we were busy reading from the slot.
+                    <span class="comment">// Destroy the block if we've reached the end, or if another thread wanted to
+                    // destroy but couldn't because we were busy reading from the slot.
                     </span><span class="kw">if </span>offset + <span class="number">1 </span>== BLOCK_CAP {
                         Block::destroy(block, <span class="number">0</span>);
                     } <span class="kw">else if </span>slot.state.fetch_or(READ, Ordering::AcqRel) &amp; DESTROY != <span class="number">0 </span>{
@@ -960,7 +961,7 @@
             </span><span class="kw">let </span><span class="kw-2">mut </span>tail = <span class="self">self</span>.tail.index.load(Ordering::SeqCst);
             <span class="kw">let </span><span class="kw-2">mut </span>head = <span class="self">self</span>.head.index.load(Ordering::SeqCst);
 
-            <span class="comment">// If the tail index didn&#39;t change, we&#39;ve got consistent indices to work with.
+            <span class="comment">// If the tail index didn't change, we've got consistent indices to work with.
             </span><span class="kw">if </span><span class="self">self</span>.tail.index.load(Ordering::SeqCst) == tail {
                 <span class="comment">// Erase the lower bits.
                 </span>tail &amp;= !((<span class="number">1 </span>&lt;&lt; SHIFT) - <span class="number">1</span>);
@@ -1028,8 +1029,8 @@
 }
 
 <span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>SegQueue&lt;T&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.pad(<span class="string">&quot;SegQueue { .. }&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.pad(<span class="string">"SegQueue { .. }"</span>)
     }
 }
 
@@ -1077,7 +1078,7 @@
             };
             <span class="kw">if </span>offset + <span class="number">1 </span>== BLOCK_CAP {
                 <span class="comment">// Deallocate the block and move to the next one.
-                // SAFETY: The block is initialized because we&#39;ve been reading
+                // SAFETY: The block is initialized because we've been reading
                 // from it this entire time. We can drop it b/c everything has
                 // been read out of it, so nothing is pointing to it anymore.
                 </span><span class="kw">unsafe </span>{
@@ -1087,7 +1088,7 @@
                 }
                 <span class="comment">// The last value in a block is empty, so skip it
                 </span><span class="kw-2">*</span>value.head.index.get_mut() = head.wrapping_add(<span class="number">2 </span>&lt;&lt; SHIFT);
-                <span class="comment">// Double-check that we&#39;re pointing to the first item in a block.
+                <span class="comment">// Double-check that we're pointing to the first item in a block.
                 </span><span class="macro">debug_assert_eq!</span>((<span class="kw-2">*</span>value.head.index.get_mut() &gt;&gt; SHIFT) % LAP, <span class="number">0</span>);
             } <span class="kw">else </span>{
                 <span class="kw-2">*</span>value.head.index.get_mut() = head.wrapping_add(<span class="number">1 </span>&lt;&lt; SHIFT);

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/time_zone.rs`."><title>time_zone.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/time_zone.rs`."><title>time_zone.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1445,46 +1446,46 @@
 ///
 /// // Set up the formatter
 /// let mut tzf = TimeZoneFormatter::try_new(
-///     &amp;locale!(&quot;en&quot;).into(),
+///     &amp;locale!("en").into(),
 ///     Default::default(),
 /// )
 /// .unwrap();
 /// tzf.include_generic_non_location_short()?
 ///     .include_generic_non_location_long()?;
 ///
-/// // &quot;uschi&quot; - has metazone symbol data for generic_non_location_short
-/// let mut time_zone = &quot;-0600&quot;.parse::&lt;CustomTimeZone&gt;().unwrap();
-/// time_zone.time_zone_id = mapper.as_borrowed().get(&quot;America/Chicago&quot;);
+/// // "uschi" - has metazone symbol data for generic_non_location_short
+/// let mut time_zone = "-0600".parse::&lt;CustomTimeZone&gt;().unwrap();
+/// time_zone.time_zone_id = mapper.as_borrowed().get("America/Chicago");
 /// time_zone.maybe_calculate_metazone(&amp;mzc, &amp;datetime);
 /// assert_writeable_eq!(
 ///     tzf.format(&amp;time_zone),
-///     &quot;CT&quot;
+///     "CT"
 /// );
 ///
-/// // &quot;ushnl&quot; - has time zone override symbol data for generic_non_location_short
-/// let mut time_zone = &quot;-1000&quot;.parse::&lt;CustomTimeZone&gt;().unwrap();
-/// time_zone.time_zone_id = Some(tinystr!(8, &quot;ushnl&quot;).into());
+/// // "ushnl" - has time zone override symbol data for generic_non_location_short
+/// let mut time_zone = "-1000".parse::&lt;CustomTimeZone&gt;().unwrap();
+/// time_zone.time_zone_id = Some(tinystr!(8, "ushnl").into());
 /// time_zone.maybe_calculate_metazone(&amp;mzc, &amp;datetime);
 /// assert_writeable_eq!(
 ///     tzf.format(&amp;time_zone),
-///     &quot;HST&quot;
+///     "HST"
 /// );
 ///
-/// // &quot;frpar&quot; - does not have symbol data for generic_non_location_short, so falls
+/// // "frpar" - does not have symbol data for generic_non_location_short, so falls
 /// //           back to generic_non_location_long
-/// let mut time_zone = &quot;+0100&quot;.parse::&lt;CustomTimeZone&gt;().unwrap();
-/// time_zone.time_zone_id = Some(tinystr!(8, &quot;frpar&quot;).into());
+/// let mut time_zone = "+0100".parse::&lt;CustomTimeZone&gt;().unwrap();
+/// time_zone.time_zone_id = Some(tinystr!(8, "frpar").into());
 /// time_zone.maybe_calculate_metazone(&amp;mzc, &amp;datetime);
 /// assert_writeable_eq!(
 ///     tzf.format(&amp;time_zone),
-///     &quot;Central European Time&quot;
+///     "Central European Time"
 /// );
 ///
 /// // GMT with offset - used when metazone is not available
-/// let mut time_zone = &quot;+0530&quot;.parse::&lt;CustomTimeZone&gt;().unwrap();
+/// let mut time_zone = "+0530".parse::&lt;CustomTimeZone&gt;().unwrap();
 /// assert_writeable_eq!(
 ///     tzf.format(&amp;time_zone),
-///     &quot;GMT+05:30&quot;
+///     "GMT+05:30"
 /// );
 ///
 /// # Ok::&lt;(), DateTimeError&gt;(())
@@ -1582,7 +1583,7 @@
                 prev_length = <span class="prelude-val">Some</span>(length);
                 prev_symbol = <span class="prelude-val">Some</span>(symbol);
             } <span class="kw">else if </span>prev_length != <span class="prelude-val">Some</span>(length) &amp;&amp; prev_symbol != <span class="prelude-val">Some</span>(symbol) {
-                <span class="comment">// We don&#39;t support the pattern that has multiple different timezone fields of different types.
+                <span class="comment">// We don't support the pattern that has multiple different timezone fields of different types.
                 </span><span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::Pattern(PatternError::UnsupportedPluralPivot));
             }
 
@@ -1777,14 +1778,14 @@
         /// use writeable::assert_writeable_eq;
         ///
         /// let tzf = TimeZoneFormatter::try_new(
-        ///     &amp;locale!(&quot;es&quot;).into(),
+        ///     &amp;locale!("es").into(),
         ///     TimeZoneFormatterOptions::default(),
         /// )
         /// .unwrap();
         ///
-        /// let time_zone = &quot;-0700&quot;.parse::&lt;CustomTimeZone&gt;().unwrap();
+        /// let time_zone = "-0700".parse::&lt;CustomTimeZone&gt;().unwrap();
         ///
-        /// assert_writeable_eq!(tzf.format(&amp;time_zone), &quot;GMT-07:00&quot;);
+        /// assert_writeable_eq!(tzf.format(&amp;time_zone), "GMT-07:00");
         /// ```
     </span>);
 
@@ -1819,47 +1820,47 @@
         })
     }
 
-    <span class="doccomment">/// Include generic-non-location-long format for timezone from compiled data. For example, &quot;Pacific Time&quot;.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    <span class="doccomment">/// Include generic-non-location-long format for timezone from compiled data. For example, "Pacific Time".
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>include_generic_non_location_long(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
         <span class="self">self</span>.load_generic_non_location_long(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
     }
 
-    <span class="doccomment">/// Include generic-non-location-short format for timezone from compiled data. For example, &quot;PT&quot;.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    <span class="doccomment">/// Include generic-non-location-short format for timezone from compiled data. For example, "PT".
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>include_generic_non_location_short(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
         <span class="self">self</span>.load_generic_non_location_short(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
     }
 
-    <span class="doccomment">/// Include specific-non-location-long format for timezone from compiled data. For example, &quot;Pacific Standard Time&quot;.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    <span class="doccomment">/// Include specific-non-location-long format for timezone from compiled data. For example, "Pacific Standard Time".
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>include_specific_non_location_long(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
         <span class="self">self</span>.load_specific_non_location_long(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
     }
 
-    <span class="doccomment">/// Include specific-non-location-short format for timezone from compiled data. For example, &quot;PDT&quot;.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    <span class="doccomment">/// Include specific-non-location-short format for timezone from compiled data. For example, "PDT".
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>include_specific_non_location_short(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
         <span class="self">self</span>.load_specific_non_location_short(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
     }
 
-    <span class="doccomment">/// Include generic-location format for timezone from compiled data. For example, &quot;Los Angeles Time&quot;.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    <span class="doccomment">/// Include generic-location format for timezone from compiled data. For example, "Los Angeles Time".
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>include_generic_location_format(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
         <span class="self">self</span>.load_generic_location_format(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
     }
 
-    <span class="doccomment">/// Include localized-GMT format for timezone. For example, &quot;GMT-07:00&quot;.
+    <span class="doccomment">/// Include localized-GMT format for timezone. For example, "GMT-07:00".
     </span><span class="kw">pub fn </span>include_localized_gmt_format(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
@@ -1868,7 +1869,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Include ISO-8601 format for timezone. For example, &quot;-07:00&quot;.
+    <span class="doccomment">/// Include ISO-8601 format for timezone. For example, "-07:00".
     </span><span class="kw">pub fn </span>include_iso_8601_format(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         format: IsoFormat,
@@ -1884,7 +1885,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load generic-non-location-long format for timezone. For example, &quot;Pacific Time&quot;.
+    <span class="doccomment">/// Load generic-non-location-long format for timezone. For example, "Pacific Time".
     </span><span class="kw">pub fn </span>load_generic_non_location_long&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1906,7 +1907,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load generic-non-location-short format for timezone. For example, &quot;PT&quot;.
+    <span class="doccomment">/// Load generic-non-location-short format for timezone. For example, "PT".
     </span><span class="kw">pub fn </span>load_generic_non_location_short&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1928,7 +1929,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load specific-non-location-long format for timezone. For example, &quot;Pacific Standard Time&quot;.
+    <span class="doccomment">/// Load specific-non-location-long format for timezone. For example, "Pacific Standard Time".
     </span><span class="kw">pub fn </span>load_specific_non_location_long&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1950,7 +1951,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load specific-non-location-short format for timezone. For example, &quot;PDT&quot;.
+    <span class="doccomment">/// Load specific-non-location-short format for timezone. For example, "PDT".
     </span><span class="kw">pub fn </span>load_specific_non_location_short&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1972,7 +1973,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load generic-location format for timezone. For example, &quot;Los Angeles Time&quot;.
+    <span class="doccomment">/// Load generic-location format for timezone. For example, "Los Angeles Time".
     </span><span class="kw">pub fn </span>load_generic_location_format&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -1994,7 +1995,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Load exemplar-city format for timezone. For example, &quot;Los Angeles&quot;.
+    <span class="doccomment">/// Load exemplar-city format for timezone. For example, "Los Angeles".
     </span><span class="kw">fn </span>load_exemplar_city_format&lt;ZP&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         zone_provider: <span class="kw-2">&amp;</span>ZP,
@@ -2015,13 +2016,13 @@
     }
 
     <span class="doccomment">/// Alias to [`TimeZoneFormatter::include_localized_gmt_format`].
-    </span><span class="attr">#[deprecated(since = <span class="string">&quot;1.3.0&quot;</span>, note = <span class="string">&quot;renamed to `include_localized_gmt_format`&quot;</span>)]
+    </span><span class="attr">#[deprecated(since = <span class="string">"1.3.0"</span>, note = <span class="string">"renamed to `include_localized_gmt_format`"</span>)]
     </span><span class="kw">pub fn </span>load_localized_gmt_format(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>TimeZoneFormatter, DateTimeError&gt; {
         <span class="self">self</span>.include_localized_gmt_format()
     }
 
     <span class="doccomment">/// Alias to [`TimeZoneFormatter::include_iso_8601_format`].
-    </span><span class="attr">#[deprecated(since = <span class="string">&quot;1.3.0&quot;</span>, note = <span class="string">&quot;renamed to `include_iso_8601_format`&quot;</span>)]
+    </span><span class="attr">#[deprecated(since = <span class="string">"1.3.0"</span>, note = <span class="string">"renamed to `include_iso_8601_format`"</span>)]
     </span><span class="kw">pub fn </span>load_iso_8601_format(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         format: IsoFormat,
@@ -2062,16 +2063,16 @@
     /// use writeable::assert_writeable_eq;
     ///
     /// let tzf = TimeZoneFormatter::try_new(
-    ///     &amp;locale!(&quot;en&quot;).into(),
+    ///     &amp;locale!("en").into(),
     ///     TimeZoneFormatterOptions::default(),
     /// )
-    /// .expect(&quot;Failed to create TimeZoneFormatter&quot;);
+    /// .expect("Failed to create TimeZoneFormatter");
     ///
     /// let time_zone = CustomTimeZone::utc();
     ///
-    /// assert_writeable_eq!(tzf.format(&amp;time_zone), &quot;GMT&quot;);
+    /// assert_writeable_eq!(tzf.format(&amp;time_zone), "GMT");
     /// ```
-    </span><span class="kw">pub fn </span>format&lt;<span class="lifetime">&#39;l</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>T) -&gt; FormattedTimeZone&lt;<span class="lifetime">&#39;l</span>, T&gt;
+    </span><span class="kw">pub fn </span>format&lt;<span class="lifetime">'l</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>T) -&gt; FormattedTimeZone&lt;<span class="lifetime">'l</span>, T&gt;
     <span class="kw">where
         </span>T: TimeZoneInput,
     {
@@ -2090,8 +2091,8 @@
     </span><span class="kw">fn </span>format_time_segment(n: u8, padding: ZeroPadding) -&gt; String {
         <span class="macro">debug_assert!</span>((<span class="number">0</span>..<span class="number">60</span>).contains(<span class="kw-2">&amp;</span>n));
         <span class="kw">match </span>padding {
-            ZeroPadding::On =&gt; <span class="macro">format!</span>(<span class="string">&quot;{n:&gt;02}&quot;</span>),
-            ZeroPadding::Off =&gt; <span class="macro">format!</span>(<span class="string">&quot;{n}&quot;</span>),
+            ZeroPadding::On =&gt; <span class="macro">format!</span>(<span class="string">"{n:&gt;02}"</span>),
+            ZeroPadding::Off =&gt; <span class="macro">format!</span>(<span class="string">"{n}"</span>),
         }
     }
 
@@ -2106,7 +2107,7 @@
                 padding,
             ))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)))
+            <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)))
         }
     }
 
@@ -2118,7 +2119,7 @@
                 ZeroPadding::On,
             ))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)))
+            <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)))
         }
     }
 
@@ -2133,7 +2134,7 @@
                 ZeroPadding::On,
             )))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)))
+            <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)))
         }
     }
 }
@@ -2153,12 +2154,12 @@
     </span>Extended,
 
     <span class="doccomment">/// ISO-8601 Basic Format.
-    /// Formats zero-offset with the ISO-8601 UTC indicator: &quot;Z&quot;
+    /// Formats zero-offset with the ISO-8601 UTC indicator: "Z"
     /// e.g. +0500, Z
     </span>UtcBasic,
 
     <span class="doccomment">/// ISO-8601 Extended Format.
-    /// Formats zero-offset with the ISO-8601 UTC indicator: &quot;Z&quot;
+    /// Formats zero-offset with the ISO-8601 UTC indicator: "Z"
     /// e.g. +05:00, Z
     </span>UtcExtended,
 }
@@ -2487,55 +2488,55 @@
             <span class="kw">return if </span>gmt_offset.is_zero() {
                 <span class="prelude-val">Ok</span>(sink.write_str(<span class="kw-2">&amp;</span>data_payloads.zone_formats.get().gmt_zero_format.clone()))
             } <span class="kw">else </span>{
-                <span class="comment">// TODO(blocked on #277) Use formatter utility instead of replacing &quot;{0}&quot;.
+                <span class="comment">// TODO(blocked on #277) Use formatter utility instead of replacing "{0}".
                 </span><span class="prelude-val">Ok</span>(sink.write_str(
                     <span class="kw-2">&amp;</span>data_payloads
                         .zone_formats
                         .get()
                         .gmt_format
                         .replace(
-                            <span class="string">&quot;{0}&quot;</span>,
+                            <span class="string">"{0}"</span>,
                             <span class="kw">if </span>gmt_offset.is_positive() {
                                 <span class="kw-2">&amp;</span>data_payloads.zone_formats.get().hour_format.<span class="number">0
                             </span>} <span class="kw">else </span>{
                                 <span class="kw-2">&amp;</span>data_payloads.zone_formats.get().hour_format.<span class="number">1
                             </span>},
                         )
-                        <span class="comment">// support all combos of &quot;(HH|H):mm&quot; by replacing longest patterns first.
+                        <span class="comment">// support all combos of "(HH|H):mm" by replacing longest patterns first.
                         </span>.replace(
-                            <span class="string">&quot;HH&quot;</span>,
+                            <span class="string">"HH"</span>,
                             <span class="kw">if let </span><span class="prelude-val">Ok</span>(offset_hours) =
                                 <span class="kw-2">&amp;</span>TimeZoneFormatter::format_offset_hours(time_zone, ZeroPadding::On)
                             {
                                 offset_hours
                             } <span class="kw">else </span>{
-                                <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)));
+                                <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)));
                             },
                         )
                         .replace(
-                            <span class="string">&quot;mm&quot;</span>,
+                            <span class="string">"mm"</span>,
                             <span class="kw">if let </span><span class="prelude-val">Ok</span>(offset_minutes) =
                                 <span class="kw-2">&amp;</span>TimeZoneFormatter::format_offset_minutes(time_zone)
                             {
                                 offset_minutes
                             } <span class="kw">else </span>{
-                                <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)));
+                                <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)));
                             },
                         )
                         .replace(
-                            <span class="string">&#39;H&#39;</span>,
+                            <span class="string">'H'</span>,
                             <span class="kw">if let </span><span class="prelude-val">Ok</span>(offset_hours) =
                                 <span class="kw-2">&amp;</span>TimeZoneFormatter::format_offset_hours(time_zone, ZeroPadding::Off)
                             {
                                 offset_hours
                             } <span class="kw">else </span>{
-                                <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)));
+                                <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)));
                             },
                         ),
                 ))
             };
         };
-        <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)))
+        <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)))
     }
 }
 
@@ -2549,7 +2550,7 @@
         time_zone: <span class="kw-2">&amp;</span><span class="kw">impl </span>TimeZoneInput,
         data_payloads: <span class="kw-2">&amp;</span>TimeZoneDataPayloads,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;fmt::Result, DateTimeError&gt; {
-        <span class="comment">// TODO(blocked on #277) Use formatter utility instead of replacing &quot;{0}&quot;.
+        <span class="comment">// TODO(blocked on #277) Use formatter utility instead of replacing "{0}".
         </span><span class="kw">let </span>formatted_time_zone: <span class="prelude-ty">Option</span>&lt;alloc::string::String&gt; = data_payloads
             .exemplar_cities
             .as_ref()
@@ -2560,7 +2561,7 @@
                     .zone_formats
                     .get()
                     .region_format
-                    .replace(<span class="string">&quot;{0}&quot;</span>, location)
+                    .replace(<span class="string">"{0}"</span>, location)
             });
         <span class="kw">match </span>formatted_time_zone {
             <span class="prelude-val">Some</span>(ftz) =&gt; <span class="prelude-val">Ok</span>(sink.write_str(<span class="kw-2">&amp;</span>ftz)),
@@ -2575,7 +2576,7 @@
     ///
     /// [`IsoFormat`] determines whether the format should be Basic or Extended,
     /// and whether a zero-offset should be formatted numerically or with
-    /// The UTC indicator: &quot;Z&quot;
+    /// The UTC indicator: "Z"
     /// - Basic    e.g. +0800
     /// - Extended e.g. +08:00
     ///
@@ -2591,14 +2592,14 @@
             <span class="kw">if </span>gmt_offset.is_zero()
                 &amp;&amp; <span class="macro">matches!</span>(<span class="self">self</span>.format, IsoFormat::UtcBasic | IsoFormat::UtcExtended)
             {
-                <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="string">&#39;Z&#39;</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="string">'Z'</span>) {
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e));
                 }
             }
 
             <span class="kw">let </span>extended_format =
                 <span class="macro">matches!</span>(<span class="self">self</span>.format, IsoFormat::Extended | IsoFormat::UtcExtended);
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="kw">if </span>gmt_offset.is_positive() { <span class="string">&#39;+&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;-&#39; </span>}) {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="kw">if </span>gmt_offset.is_positive() { <span class="string">'+' </span>} <span class="kw">else </span>{ <span class="string">'-' </span>}) {
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e));
             }
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(offset_hours) =
@@ -2608,13 +2609,13 @@
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e));
                 }
             } <span class="kw">else </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)));
             }
 
             <span class="kw">match </span><span class="self">self</span>.minutes {
                 IsoMinutes::Required =&gt; {
                     <span class="kw">if </span>extended_format {
-                        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="string">&#39;:&#39;</span>) {
+                        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="string">':'</span>) {
                             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e));
                         }
                     }
@@ -2624,13 +2625,13 @@
                             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e));
                         }
                     } <span class="kw">else </span>{
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)));
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)));
                     }
                 }
                 IsoMinutes::Optional =&gt; {
                     <span class="kw">if </span>gmt_offset.has_minutes() {
                         <span class="kw">if </span>extended_format {
-                            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="string">&#39;:&#39;</span>) {
+                            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="string">':'</span>) {
                                 <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e));
                             }
                         }
@@ -2641,7 +2642,7 @@
                                 <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e));
                             }
                         } <span class="kw">else </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)));
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)));
                         }
                     }
                 }
@@ -2650,7 +2651,7 @@
             <span class="kw">if let </span>IsoSeconds::Optional = <span class="self">self</span>.seconds {
                 <span class="kw">if </span>gmt_offset.has_seconds() {
                     <span class="kw">if </span>extended_format {
-                        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="string">&#39;:&#39;</span>) {
+                        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = sink.write_char(<span class="string">':'</span>) {
                             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e));
                         }
                     }
@@ -2659,7 +2660,7 @@
             }
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(()));
         };
-        <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">&quot;gmt_offset&quot;</span>)))
+        <span class="prelude-val">Err</span>(DateTimeError::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"gmt_offset"</span>)))
     }
 }
 
@@ -2680,19 +2681,19 @@
         <span class="kw">match </span>formatted_exemplar_city {
             <span class="prelude-val">Some</span>(ftz) =&gt; <span class="prelude-val">Ok</span>(sink.write_str(ftz)),
             <span class="prelude-val">None </span>=&gt; {
-                <span class="comment">// Writes the unknown city &quot;Etc/Unknown&quot; for the current locale.
+                <span class="comment">// Writes the unknown city "Etc/Unknown" for the current locale.
                 //
-                // If there is no localized form of &quot;Etc/Unknown&quot; for the current locale,
-                // returns the &quot;Etc/Unknown&quot; value of the `und` locale as a hard-coded string.
+                // If there is no localized form of "Etc/Unknown" for the current locale,
+                // returns the "Etc/Unknown" value of the `und` locale as a hard-coded string.
                 //
                 // This can be used as a fallback if [`exemplar_city()`](TimeZoneFormatter::exemplar_city())
-                // is unable to produce a localized form of the time zone&#39;s exemplar city in the current locale.
+                // is unable to produce a localized form of the time zone's exemplar city in the current locale.
                 </span><span class="kw">let </span>formatted_unknown_city = data_payloads
                     .exemplar_cities
                     .as_ref()
                     .map(|p| p.get())
-                    .and_then(|cities| cities.<span class="number">0</span>.get(<span class="kw-2">&amp;</span>TimeZoneBcp47Id(<span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">&quot;unk&quot;</span>))))
-                    .unwrap_or(<span class="kw-2">&amp;</span>Cow::Borrowed(<span class="string">&quot;Unknown&quot;</span>));
+                    .and_then(|cities| cities.<span class="number">0</span>.get(<span class="kw-2">&amp;</span>TimeZoneBcp47Id(<span class="macro">tinystr!</span>(<span class="number">8</span>, <span class="string">"unk"</span>))))
+                    .unwrap_or(<span class="kw-2">&amp;</span>Cow::Borrowed(<span class="string">"Unknown"</span>));
                 <span class="prelude-val">Ok</span>(sink.write_str(formatted_unknown_city))
             }
         }

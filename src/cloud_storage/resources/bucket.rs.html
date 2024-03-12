@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/bucket.rs`."><title>bucket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/bucket.rs`."><title>bucket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1035,12 +1036,12 @@
 ///
 /// Buckets contain objects which can be accessed by their own methods. In addition to the
 /// [ACL property](https://cloud.google.com/storage/docs/access-control/lists), buckets contain
-/// `BucketAccessControls`, for use in fine-grained manipulation of an existing bucket&#39;s access
+/// `BucketAccessControls`, for use in fine-grained manipulation of an existing bucket's access
 /// controls.
 ///
 /// A bucket is always owned by the project team owners group.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Bucket {
     <span class="doccomment">/// The kind of item this is. For buckets, this is always `storage#bucket`.
     </span><span class="kw">pub </span>kind: String,
@@ -1049,7 +1050,7 @@
     </span><span class="doccomment">/// The URI of this bucket.
     </span><span class="kw">pub </span>self_link: String,
     <span class="doccomment">/// The project number of the project the bucket belongs to.
-    </span><span class="attr">#[serde(deserialize_with = <span class="string">&quot;crate::from_str&quot;</span>)]
+    </span><span class="attr">#[serde(deserialize_with = <span class="string">"crate::from_str"</span>)]
     </span><span class="kw">pub </span>project_number: u64,
     <span class="doccomment">/// The name of the bucket.
     </span><span class="kw">pub </span>name: String,
@@ -1059,11 +1060,11 @@
     </span><span class="kw">pub </span>updated: chrono::DateTime&lt;chrono::Utc&gt;,
     <span class="doccomment">/// Whether or not to automatically apply an eventBasedHold to new objects added to the bucket.
     </span><span class="kw">pub </span>default_event_based_hold: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    <span class="doccomment">/// The bucket&#39;s retention policy, which defines the minimum age an object in the bucket must
+    <span class="doccomment">/// The bucket's retention policy, which defines the minimum age an object in the bucket must
     /// reach before it can be deleted or overwritten.
     </span><span class="kw">pub </span>retention_policy: <span class="prelude-ty">Option</span>&lt;RetentionPolicy&gt;,
     <span class="doccomment">/// The metadata generation of this bucket.
-    </span><span class="attr">#[serde(deserialize_with = <span class="string">&quot;crate::from_str&quot;</span>)]
+    </span><span class="attr">#[serde(deserialize_with = <span class="string">"crate::from_str"</span>)]
     </span><span class="kw">pub </span>metageneration: i64,
     <span class="doccomment">/// Access controls on the bucket, containing one or more bucketAccessControls Resources. If
     /// iamConfiguration.uniformBucketLevelAccess.enabled is set to true, this field is omitted in
@@ -1074,11 +1075,11 @@
     /// iamConfiguration.uniformBucketLevelAccess.enabled is set to true, this field is omitted in
     /// responses, and requests that specify this field fail.
     </span><span class="kw">pub </span>default_object_acl: <span class="prelude-ty">Option</span>&lt;Vec&lt;DefaultObjectAccessControl&gt;&gt;,
-    <span class="doccomment">/// The bucket&#39;s IAM configuration.
+    <span class="doccomment">/// The bucket's IAM configuration.
     </span><span class="kw">pub </span>iam_configuration: <span class="prelude-ty">Option</span>&lt;IamConfiguration&gt;,
     <span class="doccomment">/// Encryption configuration for a bucket.
     </span><span class="kw">pub </span>encryption: <span class="prelude-ty">Option</span>&lt;Encryption&gt;,
-    <span class="doccomment">/// The owner of the bucket. This is always the project team&#39;s owner group.
+    <span class="doccomment">/// The owner of the bucket. This is always the project team's owner group.
     </span><span class="kw">pub </span>owner: <span class="prelude-ty">Option</span>&lt;Owner&gt;,
     <span class="doccomment">/// The location of the bucket. Object data for objects in the bucket resides in physical
     /// storage within this region. Defaults to US. See Cloud Storage bucket locations for the
@@ -1086,27 +1087,27 @@
     </span><span class="kw">pub </span>location: Location,
     <span class="doccomment">/// The type of location that the bucket resides in, as determined by the location property.
     </span><span class="kw">pub </span>location_type: String,
-    <span class="doccomment">/// The bucket&#39;s website configuration, controlling how the service behaves when accessing
+    <span class="doccomment">/// The bucket's website configuration, controlling how the service behaves when accessing
     /// bucket contents as a web site. See the Static Website Examples for more information.
     </span><span class="kw">pub </span>website: <span class="prelude-ty">Option</span>&lt;Website&gt;,
-    <span class="doccomment">/// The bucket&#39;s logging configuration, which defines the destination bucket and optional name
-    /// prefix for the current bucket&#39;s logs.
+    <span class="doccomment">/// The bucket's logging configuration, which defines the destination bucket and optional name
+    /// prefix for the current bucket's logs.
     </span><span class="kw">pub </span>logging: <span class="prelude-ty">Option</span>&lt;Logging&gt;,
-    <span class="doccomment">/// The bucket&#39;s versioning configuration.
+    <span class="doccomment">/// The bucket's versioning configuration.
     </span><span class="kw">pub </span>versioning: <span class="prelude-ty">Option</span>&lt;Versioning&gt;,
-    <span class="doccomment">/// The bucket&#39;s Cross-Origin Resource Sharing (CORS) configuration.
+    <span class="doccomment">/// The bucket's Cross-Origin Resource Sharing (CORS) configuration.
     </span><span class="kw">pub </span>cors: <span class="prelude-ty">Option</span>&lt;Vec&lt;Cors&gt;&gt;,
-    <span class="doccomment">/// The bucket&#39;s lifecycle configuration. See
+    <span class="doccomment">/// The bucket's lifecycle configuration. See
     /// [lifecycle management](https://cloud.google.com/storage/docs/lifecycle) for more
     /// information.
     </span><span class="kw">pub </span>lifecycle: <span class="prelude-ty">Option</span>&lt;Lifecycle&gt;,
     <span class="doccomment">/// User-provided bucket labels, in key/value pairs.
     </span><span class="kw">pub </span>labels: <span class="prelude-ty">Option</span>&lt;std::collections::HashMap&lt;String, String&gt;&gt;,
-    <span class="doccomment">/// The bucket&#39;s default storage class, used whenever no storageClass is specified for a
+    <span class="doccomment">/// The bucket's default storage class, used whenever no storageClass is specified for a
     /// newly-created object. If storageClass is not specified when the bucket
     /// is created, it defaults to STANDARD. For more information, see storage classes.
     </span><span class="kw">pub </span>storage_class: StorageClass,
-    <span class="doccomment">/// The bucket&#39;s billing configuration.
+    <span class="doccomment">/// The bucket's billing configuration.
     </span><span class="kw">pub </span>billing: <span class="prelude-ty">Option</span>&lt;Billing&gt;,
     <span class="doccomment">/// HTTP 1.1 [Entity tag](https://tools.ietf.org/html/rfc7232#section-2.3) for the bucket.
     </span><span class="kw">pub </span>etag: String,
@@ -1114,7 +1115,7 @@
 
 <span class="doccomment">/// A model that can be used to insert new buckets into Google Cloud Storage.
 </span><span class="attr">#[derive(Debug, PartialEq, Default, serde::Serialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>NewBucket {
     <span class="doccomment">/// The name of the bucket. See the bucket naming guidelines for more information.
     </span><span class="kw">pub </span>name: String,
@@ -1129,7 +1130,7 @@
     /// `iamConfiguration.uniformBucketLevelAccess.enabled` is set to true, this field is omitted in
     /// responses, and requests that specify this field fail with a `400 Bad Request` response.
     </span><span class="kw">pub </span>default_object_acl: <span class="prelude-ty">Option</span>&lt;Vec&lt;NewDefaultObjectAccessControl&gt;&gt;,
-    <span class="doccomment">/// The bucket&#39;s IAM configuration.
+    <span class="doccomment">/// The bucket's IAM configuration.
     </span><span class="kw">pub </span>iam_configuration: <span class="prelude-ty">Option</span>&lt;IamConfiguration&gt;,
     <span class="doccomment">/// Encryption configuration for a bucket.
     </span><span class="kw">pub </span>encryption: <span class="prelude-ty">Option</span>&lt;Encryption&gt;,
@@ -1137,38 +1138,38 @@
     /// storage within this region. Defaults to US. See Cloud Storage bucket locations for the
     /// authoritative list.
     </span><span class="kw">pub </span>location: Location,
-    <span class="doccomment">/// The bucket&#39;s website configuration, controlling how the service behaves when accessing
+    <span class="doccomment">/// The bucket's website configuration, controlling how the service behaves when accessing
     /// bucket contents as a web site. See the Static Website Examples for more information.
     </span><span class="kw">pub </span>website: <span class="prelude-ty">Option</span>&lt;Website&gt;,
-    <span class="doccomment">/// The bucket&#39;s logging configuration, which defines the destination bucket and optional name
-    /// prefix for the current bucket&#39;s logs.
+    <span class="doccomment">/// The bucket's logging configuration, which defines the destination bucket and optional name
+    /// prefix for the current bucket's logs.
     </span><span class="kw">pub </span>logging: <span class="prelude-ty">Option</span>&lt;Logging&gt;,
-    <span class="doccomment">/// The bucket&#39;s versioning configuration.
+    <span class="doccomment">/// The bucket's versioning configuration.
     </span><span class="kw">pub </span>versioning: <span class="prelude-ty">Option</span>&lt;Versioning&gt;,
-    <span class="doccomment">/// The bucket&#39;s Cross-Origin Resource Sharing (CORS) configuration.
+    <span class="doccomment">/// The bucket's Cross-Origin Resource Sharing (CORS) configuration.
     </span><span class="kw">pub </span>cors: <span class="prelude-ty">Option</span>&lt;Vec&lt;Cors&gt;&gt;,
-    <span class="doccomment">/// The bucket&#39;s lifecycle configuration. See
+    <span class="doccomment">/// The bucket's lifecycle configuration. See
     /// [lifecycle management](https://cloud.google.com/storage/docs/lifecycle) for more
     /// information.
     </span><span class="kw">pub </span>lifecycle: <span class="prelude-ty">Option</span>&lt;Lifecycle&gt;,
     <span class="doccomment">/// User-provided bucket labels, in key/value pairs.
     </span><span class="kw">pub </span>labels: <span class="prelude-ty">Option</span>&lt;std::collections::HashMap&lt;String, String&gt;&gt;,
-    <span class="doccomment">/// The bucket&#39;s default storage class, used whenever no storageClass is specified for a
+    <span class="doccomment">/// The bucket's default storage class, used whenever no storageClass is specified for a
     /// newly-created object. If storageClass is not specified when the bucket
     /// is created, it defaults to STANDARD. For more information, see storage classes.
     </span><span class="kw">pub </span>storage_class: <span class="prelude-ty">Option</span>&lt;StorageClass&gt;,
-    <span class="doccomment">/// The bucket&#39;s billing configuration.
+    <span class="doccomment">/// The bucket's billing configuration.
     </span><span class="kw">pub </span>billing: <span class="prelude-ty">Option</span>&lt;Billing&gt;,
 }
 
 <span class="doccomment">/// Contains information about how files are kept after deletion.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>RetentionPolicy {
     <span class="doccomment">/// The period of time, in seconds, that objects in the bucket must be retained and cannot be
     /// deleted, overwritten, or made noncurrent. The value must be greater than 0 seconds and less
     /// than 3,155,760,000 seconds.
-    </span><span class="attr">#[serde(deserialize_with = <span class="string">&quot;crate::from_str&quot;</span>)]
+    </span><span class="attr">#[serde(deserialize_with = <span class="string">"crate::from_str"</span>)]
     </span><span class="kw">pub </span>retention_period: u64,
     <span class="doccomment">/// The time from which the retentionPolicy was effective, in RFC 3339 format.
     </span><span class="kw">pub </span>effective_time: chrono::DateTime&lt;chrono::Utc&gt;,
@@ -1179,9 +1180,9 @@
 
 <span class="doccomment">/// Contains information about the Buckets IAM configuration.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>IamConfiguration {
-    <span class="doccomment">/// The bucket&#39;s uniform bucket-level access configuration.
+    <span class="doccomment">/// The bucket's uniform bucket-level access configuration.
     ///
     /// Note: iamConfiguration also includes the bucketPolicyOnly field, which uses a legacy name
     /// but has the same functionality as the uniformBucketLevelAccess field. We recommend only
@@ -1191,7 +1192,7 @@
 
 <span class="doccomment">/// Access that is configured for all objects in one go.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>UniformBucketLevelAccess {
     <span class="doccomment">/// Whether or not the bucket uses uniform bucket-level access. If set, access checks only use
     /// bucket-level IAM policies or above.
@@ -1206,7 +1207,7 @@
 
 <span class="doccomment">/// Contains information about the encryption used for data in this Bucket.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Encryption {
     <span class="doccomment">/// A Cloud KMS key that will be used to encrypt objects inserted into this bucket, if no
     /// encryption method is specified.
@@ -1215,7 +1216,7 @@
 
 <span class="doccomment">/// Contains information about an entity that is able to own a `Bucket`.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Owner {
     <span class="doccomment">/// The entity, in the form project-owner-projectId.
     </span><span class="kw">pub </span>entity: Entity,
@@ -1225,10 +1226,10 @@
 
 <span class="doccomment">/// Contains configuration about how to visit the website linked to this Bucket.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Website {
     <span class="doccomment">/// If the requested object path is missing, the service will ensure the path has a trailing
-    /// &#39;/&#39;, append this suffix, and attempt to retrieve the resulting object. This allows the
+    /// '/', append this suffix, and attempt to retrieve the resulting object. This allows the
     /// creation of index.html objects to represent directory pages.
     </span><span class="kw">pub </span>main_page_suffix: String,
     <span class="doccomment">/// If the requested object path is missing, and any mainPageSuffix object is missing, if
@@ -1239,9 +1240,9 @@
 
 <span class="doccomment">/// Contains information of where and how access logs to this bucket are maintained.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Logging {
-    <span class="doccomment">/// The destination bucket where the current bucket&#39;s logs should be placed.
+    <span class="doccomment">/// The destination bucket where the current bucket's logs should be placed.
     </span><span class="kw">pub </span>log_bucket: String,
     <span class="doccomment">/// A prefix for log object names. The default prefix is the bucket name.
     </span><span class="kw">pub </span>log_object_prefix: String,
@@ -1249,7 +1250,7 @@
 
 <span class="doccomment">/// Contains information about whether a Bucket keeps track of its version.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Versioning {
     <span class="doccomment">/// While set to true, versioning is fully enabled for this bucket.
     </span><span class="kw">pub </span>enabled: bool,
@@ -1257,13 +1258,13 @@
 
 <span class="doccomment">/// Contains information about how OPTIONS requests for this Bucket are handled.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Cors {
-    <span class="doccomment">/// The list of Origins eligible to receive CORS response headers. Note: &quot;*&quot; is permitted in the
-    /// list of origins, and means &quot;any Origin&quot;.
+    <span class="doccomment">/// The list of Origins eligible to receive CORS response headers. Note: "*" is permitted in the
+    /// list of origins, and means "any Origin".
     </span><span class="kw">pub </span>origin: Vec&lt;String&gt;,
     <span class="doccomment">/// The list of HTTP methods on which to include CORS response headers, (GET, OPTIONS, POST,
-    /// etc) Note: &quot;*&quot; is permitted in the list of methods, and means &quot;any method&quot;.
+    /// etc) Note: "*" is permitted in the list of methods, and means "any method".
     </span><span class="kw">pub </span>method: Vec&lt;String&gt;,
     <span class="doccomment">/// The list of HTTP headers other than the simple response headers to give permission for the
     /// user-agent to share across domains.
@@ -1275,7 +1276,7 @@
 
 <span class="doccomment">/// Contains a set of `Rule` Objects which together describe the way this lifecycle behaves
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Lifecycle {
     <span class="doccomment">/// A lifecycle management rule, which is made of an action to take and the condition(s) under
     /// which the action will be taken.
@@ -1284,7 +1285,7 @@
 
 <span class="doccomment">/// An element of the lifecyle list.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Rule {
     <span class="doccomment">/// The action to take.
     </span><span class="kw">pub </span>action: Action,
@@ -1294,7 +1295,7 @@
 
 <span class="doccomment">/// Represents an action that might be undertaken due to a `Condition`.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Action {
     <span class="doccomment">/// Type of the action.
     </span><span class="kw">pub </span>r#type: ActionType,
@@ -1313,12 +1314,12 @@
 
 <span class="doccomment">/// A rule that might induce an `Action` if met.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Condition {
     <span class="doccomment">/// Age of an object (in days). This condition is satisfied when an object reaches the specified
     /// age.
     </span><span class="kw">pub </span>age: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    <span class="doccomment">/// A date in `RFC 3339` format with only the date part (for instance, &quot;2013-01-15&quot;). This
+    <span class="doccomment">/// A date in `RFC 3339` format with only the date part (for instance, "2013-01-15"). This
     /// condition is satisfied when an object is created before midnight of the specified date in
     /// UTC.
     </span><span class="kw">pub </span>created_before: <span class="prelude-ty">Option</span>&lt;chrono::NaiveDate&gt;,
@@ -1332,13 +1333,13 @@
     <span class="doccomment">/// Relevant only for versioned objects. If the value is N, this condition is satisfied when
     /// there are at least N versions (including the live version) newer than this version of the
     /// object.
-    </span><span class="attr">#[serde(default, deserialize_with = <span class="string">&quot;crate::from_str_opt&quot;</span>)]
+    </span><span class="attr">#[serde(default, deserialize_with = <span class="string">"crate::from_str_opt"</span>)]
     </span><span class="kw">pub </span>num_newer_versions: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
 <span class="doccomment">/// Contains information about the payment structure of this bucket
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Billing {
     <span class="doccomment">/// When set to true, Requester Pays is enabled for this bucket.
     </span><span class="kw">pub </span>requester_pays: bool,
@@ -1346,9 +1347,9 @@
 
 <span class="doccomment">/// The type of storage that is used. Pertains to availability, performance and cost.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;SCREAMING_SNAKE_CASE&quot;</span>)]
+#[serde(rename_all = <span class="string">"SCREAMING_SNAKE_CASE"</span>)]
 </span><span class="kw">pub enum </span>StorageClass {
-    <span class="doccomment">/// Standard Storage is best for data that is frequently accessed (&quot;hot&quot; data) and/or stored for
+    <span class="doccomment">/// Standard Storage is best for data that is frequently accessed ("hot" data) and/or stored for
     /// only brief periods of time.
     </span>Standard,
     <span class="doccomment">/// Nearline Storage is a low-cost, highly durable storage service for storing infrequently
@@ -1375,7 +1376,7 @@
 
 <span class="doccomment">/// A representation of the IAM Policiy for a certain bucket.
 </span><span class="attr">#[derive(Debug, PartialEq, Default, serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>IamPolicy {
     <span class="doccomment">/// The [Cloud IAM policy](https://cloud.google.com/iam/docs/policies#versions) version.
     </span><span class="kw">pub </span>version: i32,
@@ -1394,7 +1395,7 @@
 <span class="doccomment">/// An association between a role, which comes with a set of permissions, and members who may assume
 /// that role.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>Binding {
     <span class="doccomment">/// The role to which members belong. Two types of roles are supported: standard IAM roles,
     /// which grant permissions that do not map directly to those provided by ACLs, and legacy IAM
@@ -1434,15 +1435,15 @@
 
 <span class="doccomment">/// A condition object associated with a binding.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>IamCondition {
-    <span class="doccomment">/// Title of the condition. For example, &quot;expires_end_of_2018&quot;.
+    <span class="doccomment">/// Title of the condition. For example, "expires_end_of_2018".
     </span><span class="kw">pub </span>title: String,
-    <span class="doccomment">/// Optional description of the condition. For example, &quot;Expires at midnight on 2018-12-31&quot;.
+    <span class="doccomment">/// Optional description of the condition. For example, "Expires at midnight on 2018-12-31".
     </span><span class="kw">pub </span>description: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="doccomment">/// [Attribute-based](https://cloud.google.com/iam/docs/conditions-overview#attributes) logic
     /// expression using a subset of the Common Expression Language (CEL). For example,
-    /// &quot;request.time &lt; timestamp(&#39;2019-01-01T00:00:00Z&#39;)&quot;.
+    /// "request.time &lt; timestamp('2019-01-01T00:00:00Z')".
     </span><span class="kw">pub </span>expression: String,
 }
 
@@ -1466,25 +1467,25 @@
 </span><span class="kw">pub enum </span>StandardIamRole {
     <span class="doccomment">/// Allows users to create objects. Does not give permission to view, delete, or overwrite
     /// objects.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.objectCreator&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.objectCreator"</span>)]
     </span>ObjectCreator,
     <span class="doccomment">/// Grants access to view objects and their metadata, excluding ACLs.
     ///
     /// Can also list the objects in a bucket.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.objectViewer&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.objectViewer"</span>)]
     </span>ObjectViewer,
     <span class="doccomment">/// Grants full control over objects, including listing, creating, viewing, and deleting
     /// objects.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.objectAdmin&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.objectAdmin"</span>)]
     </span>ObjectAdmin,
     <span class="doccomment">/// Full control over HMAC keys in a project.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.hmacKeyAdmin&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.hmacKeyAdmin"</span>)]
     </span>HmacKeyAdmin,
     <span class="doccomment">/// Grants full control of buckets and objects.
     ///
     /// When applied to an individual bucket, control applies only to the specified bucket and
     /// objects within the bucket.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.admin&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.admin"</span>)]
     </span>Admin,
 }
 
@@ -1494,15 +1495,15 @@
 </span><span class="kw">pub enum </span>PrimitiveIamRole {
     <span class="doccomment">/// Grants permission to list buckets as well as view bucket metadata, excluding ACLs, when
     /// listing. Also grants permission to list and get HMAC keys in the project.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;role/viewer&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"role/viewer"</span>)]
     </span>Viewer,
     <span class="doccomment">/// Grants permission to create, list, and delete buckets. Grants permission to view bucket
     /// metadata, excluding ACLs, when listing. Grants full control over HMAC keys in a project.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;role/editor&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"role/editor"</span>)]
     </span>Editor,
     <span class="doccomment">/// Grants permission to create, list, and delete buckets. Also grants permission to view bucket
     /// metadata, excluding ACLs, when listing. Grants full control over HMAC keys in a project.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;role/owner&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"role/owner"</span>)]
     </span>Owner,
 }
 
@@ -1511,43 +1512,43 @@
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 </span><span class="kw">pub enum </span>LegacyIamRole {
     <span class="doccomment">/// Grants permission to view objects and their metadata, excluding ACLs.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.legacyObjectReader&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.legacyObjectReader"</span>)]
     </span>LegacyObjectReader,
     <span class="doccomment">/// Grants permission to view and edit objects and their metadata, including ACLs.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.legacyObjectOwner&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.legacyObjectOwner"</span>)]
     </span>LegacyObjectOwner,
-    <span class="doccomment">/// Grants permission to list a bucket&#39;s contents and read bucket metadata, excluding Cloud IAM
+    <span class="doccomment">/// Grants permission to list a bucket's contents and read bucket metadata, excluding Cloud IAM
     /// policies. Also grants permission to read object metadata, excluding Cloud IAM policies, when
     /// listing objects.
     ///
-    /// Use of this role is also reflected in the bucket&#39;s ACLs. See
+    /// Use of this role is also reflected in the bucket's ACLs. See
     /// [Cloud IAM relation to ACLs](https://cloud.google.com/storage/docs/access-control/iam#acls)
     /// for  more information.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.legacyBucketReader&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.legacyBucketReader"</span>)]
     </span>LegacyBucketReader,
     <span class="doccomment">/// Grants permission to create, overwrite, and delete objects; list objects in a bucket and
     /// read object metadata, excluding Cloud IAM policies, when listing; and read bucket metadata,
     /// excluding Cloud IAM policies.
     ///
-    /// Use of this role is also reflected in the bucket&#39;s ACLs. See
+    /// Use of this role is also reflected in the bucket's ACLs. See
     /// [Cloud IAM relation to ACLs](https://cloud.google.com/storage/docs/access-control/iam#acls)
     /// for  more information.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.legacyBucketWriter&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.legacyBucketWriter"</span>)]
     </span>LegacyBucketWriter,
     <span class="doccomment">/// Grants permission to create, overwrite, and delete objects; list objects in a bucket and
     /// read object metadata, excluding Cloud IAM policies, when listing; and read and edit bucket
     /// metadata, including Cloud IAM policies.
     ///
-    /// Use of this role is also reflected in the bucket&#39;s ACLs. See
+    /// Use of this role is also reflected in the bucket's ACLs. See
     /// [Cloud IAM relation to ACLs](https://cloud.google.com/storage/docs/access-control/iam#acls)
     /// for  more information.
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;roles/storage.legacyBucketOwner&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"roles/storage.legacyBucketOwner"</span>)]
     </span>LegacyBucketOwner,
 }
 
 <span class="doccomment">/// The request needed to perform the Object::test_iam_permission function.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>TestIamPermission {
     <span class="doccomment">/// The kind of item this is.
     </span>kind: String,
@@ -1562,7 +1563,7 @@
 <span class="kw">impl </span>Bucket {
     <span class="doccomment">/// Creates a new `Bucket`. There are many options that you can provide for creating a new
     /// bucket, so the `NewBucket` resource contains all of them. Note that `NewBucket` implements
-    /// `Default`, so you don&#39;t have to specify the fields you&#39;re not using. And error is returned
+    /// `Default`, so you don't have to specify the fields you're not using. And error is returned
     /// if that bucket name is already taken.
     /// ### Example
     /// ```
@@ -1572,7 +1573,7 @@
     /// use cloud_storage::bucket::{Location, MultiRegion};
     ///
     /// let new_bucket = NewBucket {
-    ///    name: &quot;cloud-storage-rs-doc-1&quot;.to_string(), // this is the only mandatory field
+    ///    name: "cloud-storage-rs-doc-1".to_string(), // this is the only mandatory field
     ///    location: Location::Multi(MultiRegion::Eu),
     ///    ..Default::default()
     /// };
@@ -1581,7 +1582,7 @@
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>create(new_bucket: <span class="kw-2">&amp;</span>NewBucket) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.bucket().create(new_bucket).<span class="kw">await
     </span>}
@@ -1590,7 +1591,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>create_sync(new_bucket: <span class="kw-2">&amp;</span>NewBucket) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::create(new_bucket))
     }
@@ -1610,7 +1611,7 @@
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>list() -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.bucket().list().<span class="kw">await
     </span>}
@@ -1619,7 +1620,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>list_sync() -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::list())
     }
@@ -1632,17 +1633,17 @@
     /// use cloud_storage::Bucket;
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;cloud-storage-rs-doc-2&quot;.to_string(),
+    /// #   name: "cloud-storage-rs-doc-2".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = Bucket::create(&amp;new_bucket).await?;
     ///
-    /// let bucket = Bucket::read(&quot;cloud-storage-rs-doc-2&quot;).await?;
+    /// let bucket = Bucket::read("cloud-storage-rs-doc-2").await?;
     /// # bucket.delete().await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>read(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.bucket().read(name).<span class="kw">await
     </span>}
@@ -1651,7 +1652,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>read_sync(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::read(name))
     }
@@ -1665,12 +1666,12 @@
     /// use cloud_storage::bucket::{Bucket, RetentionPolicy};
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;cloud-storage-rs-doc-3&quot;.to_string(),
+    /// #   name: "cloud-storage-rs-doc-3".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = Bucket::create(&amp;new_bucket).await?;
     ///
-    /// let mut bucket = Bucket::read(&quot;cloud-storage-rs-doc-3&quot;).await?;
+    /// let mut bucket = Bucket::read("cloud-storage-rs-doc-3").await?;
     /// bucket.retention_policy = Some(RetentionPolicy {
     ///     retention_period: 50,
     ///     effective_time: chrono::Utc::now() + chrono::Duration::seconds(50),
@@ -1681,7 +1682,7 @@
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.bucket().update(<span class="self">self</span>).<span class="kw">await
     </span>}
@@ -1690,13 +1691,13 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>update_sync(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.update())
     }
 
     <span class="doccomment">/// Delete an existing `Bucket`. This permanently removes a bucket from Google Cloud Storage.
-    /// An error is returned when you don&#39;t have sufficient permissions, or when the
+    /// An error is returned when you don't have sufficient permissions, or when the
     /// `retention_policy` prevents you from deleting your Bucket.
     /// ### Example
     /// ```no_run
@@ -1705,17 +1706,17 @@
     /// use cloud_storage::Bucket;
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;unnecessary-bucket&quot;.to_string(),
+    /// #   name: "unnecessary-bucket".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = Bucket::create(&amp;new_bucket).await?;
     ///
-    /// let bucket = Bucket::read(&quot;unnecessary-bucket&quot;).await?;
+    /// let bucket = Bucket::read("unnecessary-bucket").await?;
     /// bucket.delete().await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>delete(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.bucket().delete(<span class="self">self</span>).<span class="kw">await
     </span>}
@@ -1724,7 +1725,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>delete_sync(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.delete())
     }
@@ -1737,18 +1738,18 @@
     /// use cloud_storage::Bucket;
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;cloud-storage-rs-doc-4&quot;.to_string(),
+    /// #   name: "cloud-storage-rs-doc-4".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = Bucket::create(&amp;new_bucket).await?;
     ///
-    /// let bucket = Bucket::read(&quot;cloud-storage-rs-doc-4&quot;).await?;
+    /// let bucket = Bucket::read("cloud-storage-rs-doc-4").await?;
     /// let policy = bucket.get_iam_policy().await?;
     /// # bucket.delete().await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>get_iam_policy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;IamPolicy&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.bucket().get_iam_policy(<span class="self">self</span>).<span class="kw">await
     </span>}
@@ -1757,7 +1758,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>get_iam_policy_sync(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;IamPolicy&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.get_iam_policy())
     }
@@ -1771,18 +1772,18 @@
     /// use cloud_storage::bucket::{IamPolicy, Binding, IamRole, StandardIamRole, Entity};
     /// # use cloud_storage::bucket::NewBucket;
     /// # let new_bucket = NewBucket {
-    /// #   name: &quot;cloud-storage-rs-doc-5&quot;.to_string(),
+    /// #   name: "cloud-storage-rs-doc-5".to_string(),
     /// #    ..Default::default()
     /// # };
     /// # let _ = Bucket::create(&amp;new_bucket).await?;
     ///
-    /// let bucket = Bucket::read(&quot;cloud-storage-rs-doc-5&quot;).await?;
+    /// let bucket = Bucket::read("cloud-storage-rs-doc-5").await?;
     /// let iam_policy = IamPolicy {
     ///     version: 1,
     ///     bindings: vec![
     ///         Binding {
     ///             role: IamRole::Standard(StandardIamRole::ObjectViewer),
-    ///             members: vec![&quot;allUsers&quot;.to_string()],
+    ///             members: vec!["allUsers".to_string()],
     ///             condition: None,
     ///         }
     ///     ],
@@ -1793,7 +1794,7 @@
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>set_iam_policy(<span class="kw-2">&amp;</span><span class="self">self</span>, iam: <span class="kw-2">&amp;</span>IamPolicy) -&gt; <span class="kw">crate</span>::Result&lt;IamPolicy&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT.bucket().set_iam_policy(<span class="self">self</span>, iam).<span class="kw">await
     </span>}
@@ -1802,7 +1803,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>set_iam_policy_sync(<span class="kw-2">&amp;</span><span class="self">self</span>, iam: <span class="kw-2">&amp;</span>IamPolicy) -&gt; <span class="kw">crate</span>::Result&lt;IamPolicy&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.set_iam_policy(iam))
     }
@@ -1814,12 +1815,12 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::Bucket;
     ///
-    /// let bucket = Bucket::read(&quot;my-bucket&quot;).await?;
-    /// bucket.test_iam_permission(&quot;storage.buckets.get&quot;).await?;
+    /// let bucket = Bucket::read("my-bucket").await?;
+    /// bucket.test_iam_permission("storage.buckets.get").await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>test_iam_permission(<span class="kw-2">&amp;</span><span class="self">self</span>, permission: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;TestIamPermission&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .bucket()
@@ -1831,7 +1832,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>test_iam_permission_sync(<span class="kw-2">&amp;</span><span class="self">self</span>, permission: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;TestIamPermission&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.test_iam_permission(permission))
     }
@@ -1841,7 +1842,7 @@
     }
 }
 
-<span class="attr">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>))]
+<span class="attr">#[cfg(all(test, feature = <span class="string">"global-client"</span>))]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::resources::common::Role;
@@ -1849,10 +1850,10 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>create() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         dotenv::dotenv().ok();
-        <span class="kw">let </span>base_name = std::env::var(<span class="string">&quot;TEST_BUCKET&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>base_name = std::env::var(<span class="string">"TEST_BUCKET"</span>)<span class="question-mark">?</span>;
         <span class="comment">// use a more complex bucket in this test.
         </span><span class="kw">let </span>new_bucket = NewBucket {
-            name: <span class="macro">format!</span>(<span class="string">&quot;{}-test-create&quot;</span>, base_name),
+            name: <span class="macro">format!</span>(<span class="string">"{}-test-create"</span>, base_name),
             default_event_based_hold: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
             acl: <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[NewBucketAccessControl {
                 entity: Entity::AllUsers,
@@ -1883,7 +1884,7 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">&quot;test-update&quot;</span>).<span class="kw">await</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">"test-update"</span>).<span class="kw">await</span>;
         bucket.retention_policy = <span class="prelude-val">Some</span>(RetentionPolicy {
             retention_period: <span class="number">50</span>,
             effective_time: chrono::Utc::now() + chrono::Duration::seconds(<span class="number">50</span>),
@@ -1899,14 +1900,14 @@
     <span class="comment">// used a lot throughout the other tests, but included for completeness
     </span><span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-        <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">&quot;test-delete&quot;</span>).<span class="kw">await</span>;
+        <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">"test-delete"</span>).<span class="kw">await</span>;
         bucket.delete().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>get_iam_policy() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-        <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">&quot;test-get-iam-policy&quot;</span>).<span class="kw">await</span>;
+        <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">"test-get-iam-policy"</span>).<span class="kw">await</span>;
         bucket.get_iam_policy().<span class="kw">await</span><span class="question-mark">?</span>;
         bucket.delete().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
@@ -1914,11 +1915,11 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>set_iam_policy() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-        <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">&quot;test-set-iam-policy&quot;</span>).<span class="kw">await</span>;
+        <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">"test-set-iam-policy"</span>).<span class="kw">await</span>;
         <span class="kw">let </span>iam_policy = IamPolicy {
             bindings: <span class="macro">vec!</span>[Binding {
                 role: IamRole::Standard(StandardIamRole::ObjectViewer),
-                members: <span class="macro">vec!</span>[<span class="string">&quot;allUsers&quot;</span>.to_string()],
+                members: <span class="macro">vec!</span>[<span class="string">"allUsers"</span>.to_string()],
                 condition: <span class="prelude-val">None</span>,
             }],
             ..Default::default()
@@ -1931,13 +1932,13 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>test_iam_permission() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-        <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">&quot;test-test-ia-permission&quot;</span>).<span class="kw">await</span>;
-        bucket.test_iam_permission(<span class="string">&quot;storage.buckets.get&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">"test-test-ia-permission"</span>).<span class="kw">await</span>;
+        bucket.test_iam_permission(<span class="string">"storage.buckets.get"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         bucket.delete().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">mod </span>sync {
         <span class="kw">use super</span>::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::resources::common::Role;
@@ -1945,10 +1946,10 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>create() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             dotenv::dotenv().ok();
-            <span class="kw">let </span>base_name = std::env::var(<span class="string">&quot;TEST_BUCKET&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>base_name = std::env::var(<span class="string">"TEST_BUCKET"</span>)<span class="question-mark">?</span>;
             <span class="comment">// use a more complex bucket in this test.
             </span><span class="kw">let </span>new_bucket = NewBucket {
-                name: <span class="macro">format!</span>(<span class="string">&quot;{}-test-create&quot;</span>, base_name),
+                name: <span class="macro">format!</span>(<span class="string">"{}-test-create"</span>, base_name),
                 default_event_based_hold: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
                 acl: <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[NewBucketAccessControl {
                     entity: Entity::AllUsers,
@@ -1979,7 +1980,7 @@
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>read() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-            <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-read&quot;</span>);
+            <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-read"</span>);
             <span class="kw">let </span>also_bucket = Bucket::read_sync(<span class="kw-2">&amp;</span>bucket.name)<span class="question-mark">?</span>;
             <span class="macro">assert_eq!</span>(bucket, also_bucket);
             bucket.delete_sync()<span class="question-mark">?</span>;
@@ -1989,7 +1990,7 @@
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-update&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-update"</span>);
             bucket.retention_policy = <span class="prelude-val">Some</span>(RetentionPolicy {
                 retention_period: <span class="number">50</span>,
                 effective_time: chrono::Utc::now() + chrono::Duration::seconds(<span class="number">50</span>),
@@ -2005,14 +2006,14 @@
         <span class="comment">// used a lot throughout the other tests, but included for completeness
         </span><span class="attr">#[test]
         </span><span class="kw">fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-            <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-delete&quot;</span>);
+            <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-delete"</span>);
             bucket.delete_sync()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>get_iam_policy() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-            <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-get-iam-policy&quot;</span>);
+            <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-get-iam-policy"</span>);
             bucket.get_iam_policy_sync()<span class="question-mark">?</span>;
             bucket.delete_sync()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
@@ -2022,11 +2023,11 @@
         </span><span class="kw">fn </span>set_iam_policy() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="comment">// use crate::resources::iam_policy::{Binding, IamRole, StandardIamRole};
 
-            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-set-iam-policy&quot;</span>);
+            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-set-iam-policy"</span>);
             <span class="kw">let </span>iam_policy = IamPolicy {
                 bindings: <span class="macro">vec!</span>[Binding {
                     role: IamRole::Standard(StandardIamRole::ObjectViewer),
-                    members: <span class="macro">vec!</span>[<span class="string">&quot;allUsers&quot;</span>.to_string()],
+                    members: <span class="macro">vec!</span>[<span class="string">"allUsers"</span>.to_string()],
                     condition: <span class="prelude-val">None</span>,
                 }],
                 ..Default::default()
@@ -2039,8 +2040,8 @@
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>test_iam_permission() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
-            <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-test-ia-permission&quot;</span>);
-            bucket.test_iam_permission_sync(<span class="string">&quot;storage.buckets.get&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-test-ia-permission"</span>);
+            bucket.test_iam_permission_sync(<span class="string">"storage.buckets.get"</span>)<span class="question-mark">?</span>;
             bucket.delete_sync()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }

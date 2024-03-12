@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/courses.rs`."><title>courses.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/courses.rs`."><title>courses.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1489,9 +1490,9 @@ POST /api/v0/main-frontend/courses HTTP/1.1
 Content-Type: application/json
 
 {
-  &quot;name&quot;: &quot;Introduction to introduction&quot;,
-  &quot;slug&quot;: &quot;introduction-to-introduction&quot;,
-  &quot;organization_id&quot;: &quot;1b89e57e-8b57-42f2-9fed-c7a6736e3eec&quot;
+  "name": "Introduction to introduction",
+  "slug": "introduction-to-introduction",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec"
 }
 ```
 */
@@ -1510,7 +1511,7 @@ Content-Type: application/json
     <span class="kw">if </span>!is_ietf_language_code_like(<span class="kw-2">&amp;</span>new_course.language_code) {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Malformed language code.&quot;</span>.to_string(),
+            <span class="string">"Malformed language code."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -1558,7 +1559,7 @@ PUT /api/v0/main-frontend/courses/ab4541d8-6db4-4561-bdb2-45f35b2544a1 HTTP/1.1
 Content-Type: application/json
 
 {
-  &quot;name&quot;: &quot;Introduction to Introduction&quot;
+  "name": "Introduction to Introduction"
 }
 
 ```
@@ -1604,42 +1605,42 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
 # Example
 ```json
 {
-  &quot;course&quot;: {
-    &quot;id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-    &quot;slug&quot;: &quot;introduction-to-everything&quot;,
-    &quot;created_at&quot;: &quot;2021-04-28T10:40:54.503917&quot;,
-    &quot;updated_at&quot;: &quot;2021-04-28T10:40:54.503917&quot;,
-    &quot;name&quot;: &quot;Introduction to everything&quot;,
-    &quot;organization_id&quot;: &quot;1b89e57e-8b57-42f2-9fed-c7a6736e3eec&quot;,
-    &quot;deleted_at&quot;: null,
-    &quot;language_code&quot;: &quot;en-US&quot;,
-    &quot;copied_from&quot;: null,
-    &quot;language_version_of_course_id&quot;: null
+  "course": {
+    "id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
+    "slug": "introduction-to-everything",
+    "created_at": "2021-04-28T10:40:54.503917",
+    "updated_at": "2021-04-28T10:40:54.503917",
+    "name": "Introduction to everything",
+    "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+    "deleted_at": null,
+    "language_code": "en-US",
+    "copied_from": null,
+    "language_version_of_course_id": null
   },
-  &quot;pages&quot;: [
+  "pages": [
     {
-      &quot;id&quot;: &quot;f3b0d699-c9be-4d56-bd0a-9d40e5547e4d&quot;,
-      &quot;created_at&quot;: &quot;2021-04-28T13:51:51.024118&quot;,
-      &quot;updated_at&quot;: &quot;2021-04-28T14:36:18.179490&quot;,
-      &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-      &quot;content&quot;: [],
-      &quot;url_path&quot;: &quot;/&quot;,
-      &quot;title&quot;: &quot;Welcome to Introduction to Everything&quot;,
-      &quot;deleted_at&quot;: null,
-      &quot;chapter_id&quot;: &quot;d332f3d9-39a5-4a18-80f4-251727693c37&quot;
+      "id": "f3b0d699-c9be-4d56-bd0a-9d40e5547e4d",
+      "created_at": "2021-04-28T13:51:51.024118",
+      "updated_at": "2021-04-28T14:36:18.179490",
+      "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
+      "content": [],
+      "url_path": "/",
+      "title": "Welcome to Introduction to Everything",
+      "deleted_at": null,
+      "chapter_id": "d332f3d9-39a5-4a18-80f4-251727693c37"
     }
   ],
-  &quot;chapters&quot;: [
+  "chapters": [
     {
-      &quot;id&quot;: &quot;d332f3d9-39a5-4a18-80f4-251727693c37&quot;,
-      &quot;created_at&quot;: &quot;2021-04-28T16:11:47.477850&quot;,
-      &quot;updated_at&quot;: &quot;2021-04-28T16:11:47.477850&quot;,
-      &quot;name&quot;: &quot;The Basics&quot;,
-      &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-      &quot;deleted_at&quot;: null,
-      &quot;chapter_image_url&quot;: &quot;http://project-331.local/api/v0/files/uploads/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/mbPQh8th96TdUwX96Y0ch1fjbJLRFr.png&quot;,
-      &quot;chapter_number&quot;: 1,
-      &quot;front_page_id&quot;: null
+      "id": "d332f3d9-39a5-4a18-80f4-251727693c37",
+      "created_at": "2021-04-28T16:11:47.477850",
+      "updated_at": "2021-04-28T16:11:47.477850",
+      "name": "The Basics",
+      "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
+      "deleted_at": null,
+      "chapter_image_url": "http://project-331.local/api/v0/files/uploads/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/mbPQh8th96TdUwX96Y0ch1fjbJLRFr.png",
+      "chapter_number": 1,
+      "front_page_id": null
     }
   ]
 }
@@ -1784,10 +1785,10 @@ POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language
 Content-Type: application/json
 
 {
-  &quot;name&quot;: &quot;Johdatus kaikkeen&quot;,
-  &quot;slug&quot;: &quot;johdatus-kaikkeen&quot;,
-  &quot;organization_id&quot;: &quot;1b89e57e-8b57-42f2-9fed-c7a6736e3eec&quot;,
-  &quot;language_code&quot;: &quot;fi-FI&quot;
+  "name": "Johdatus kaikkeen",
+  "slug": "johdatus-kaikkeen",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "language_code": "fi-FI"
 }
 ```
 */
@@ -1832,10 +1833,10 @@ POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/duplicat
 Content-Type: application/json
 
 {
-  &quot;name&quot;: &quot;Johdatus kaikkeen&quot;,
-  &quot;slug&quot;: &quot;johdatus-kaikkeen&quot;,
-  &quot;organization_id&quot;: &quot;1b89e57e-8b57-42f2-9fed-c7a6736e3eec&quot;,
-  &quot;language_code&quot;: &quot;fi-FI&quot;
+  "name": "Johdatus kaikkeen",
+  "slug": "johdatus-kaikkeen",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "language_code": "fi-FI"
 }
 ```
 */
@@ -1995,7 +1996,7 @@ GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course in
 }
 
 <span class="attr">#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>GetFeedbackQuery {
     read: bool,
     <span class="attr">#[serde(flatten)]
@@ -2338,9 +2339,9 @@ gets SCV of course exercise submissions
     general_export(
         pool,
         <span class="kw-2">&amp;</span><span class="macro">format!</span>(
-            <span class="string">&quot;attachment; filename=\&quot;Course: {} - Submissions (exercise tasks) {}.csv\&quot;&quot;</span>,
+            <span class="string">"attachment; filename=\"Course: {} - Submissions (exercise tasks) {}.csv\""</span>,
             course.name,
-            Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+            Utc::now().format(<span class="string">"%Y-%m-%d"</span>)
         ),
         CourseSubmissionExportOperation {
             course_id: <span class="kw-2">*</span>course_id,
@@ -2376,9 +2377,9 @@ gets SCV of user details for all users having submitted an exercise in the cours
     general_export(
         pool,
         <span class="kw-2">&amp;</span><span class="macro">format!</span>(
-            <span class="string">&quot;attachment; filename=\&quot;Course: {} - User Details {}.csv\&quot;&quot;</span>,
+            <span class="string">"attachment; filename=\"Course: {} - User Details {}.csv\""</span>,
             course.name,
-            Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+            Utc::now().format(<span class="string">"%Y-%m-%d"</span>)
         ),
         UsersExportOperation {
             course_id: <span class="kw-2">*</span>course_id,
@@ -2391,7 +2392,7 @@ gets SCV of user details for all users having submitted an exercise in the cours
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`
 
-gets SCV all exercise-tasks&#39; private specs in course
+gets SCV all exercise-tasks' private specs in course
 */
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>exercise_tasks_export(
@@ -2414,9 +2415,9 @@ gets SCV all exercise-tasks&#39; private specs in course
     general_export(
         pool,
         <span class="kw-2">&amp;</span><span class="macro">format!</span>(
-            <span class="string">&quot;attachment; filename=\&quot;Course: {} - Exercise tasks {}.csv\&quot;&quot;</span>,
+            <span class="string">"attachment; filename=\"Course: {} - Exercise tasks {}.csv\""</span>,
             course.name,
-            Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+            Utc::now().format(<span class="string">"%Y-%m-%d"</span>)
         ),
         CourseExerciseTasksExportOperation {
             course_id: <span class="kw-2">*</span>course_id,
@@ -2452,9 +2453,9 @@ gets SCV course instances for course
     general_export(
         pool,
         <span class="kw-2">&amp;</span><span class="macro">format!</span>(
-            <span class="string">&quot;attachment; filename=\&quot;Course: {} - Instances {}.csv\&quot;&quot;</span>,
+            <span class="string">"attachment; filename=\"Course: {} - Instances {}.csv\""</span>,
             course.name,
-            Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+            Utc::now().format(<span class="string">"%Y-%m-%d"</span>)
         ),
         CourseInstancesExportOperation {
             course_id: <span class="kw-2">*</span>course_id,
@@ -2611,11 +2612,11 @@ Deletes submissions, user exercise states, and peer reviews etc. for all the cou
     <span class="kw">if </span>!course.is_draft {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Can only reset progress for a draft course.&quot;</span>.to_string(),
+            <span class="string">"Can only reset progress for a draft course."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
-    <span class="comment">// To prevent teachers from deleting courses that real students have been taking, we need to address the case where the teacher turns the course back to draft to enable resetting progress for everyone. We&#39;ll counteract this by checking the number of course module completions to the course.
+    <span class="comment">// To prevent teachers from deleting courses that real students have been taking, we need to address the case where the teacher turns the course back to draft to enable resetting progress for everyone. We'll counteract this by checking the number of course module completions to the course.
     </span><span class="kw">let </span>n_course_module_completions =
         models::course_module_completions::get_count_of_distinct_completors_by_course_id(
             <span class="kw-2">&amp;mut </span>conn, course_id,
@@ -2627,14 +2628,14 @@ Deletes submissions, user exercise states, and peer reviews etc. for all the cou
     <span class="kw">if </span>n_course_module_completions &gt; <span class="number">200 </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Too many students have completed the course.&quot;</span>.to_string(),
+            <span class="string">"Too many students have completed the course."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
     <span class="kw">if </span>n_completions_registered_to_study_registry &gt; <span class="number">2 </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Too many students have registered their completion to a study registry&quot;</span>.to_string(),
+            <span class="string">"Too many students have registered their completion to a study registry"</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -2670,145 +2671,145 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 </span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-    cfg.route(<span class="string">&quot;/{course_id}&quot;</span>, web::get().to(get_course))
-        .route(<span class="string">&quot;&quot;</span>, web::post().to(post_new_course))
-        .route(<span class="string">&quot;/{course_id}&quot;</span>, web::put().to(update_course))
-        .route(<span class="string">&quot;/{course_id}&quot;</span>, web::delete().to(delete_course))
+    cfg.route(<span class="string">"/{course_id}"</span>, web::get().to(get_course))
+        .route(<span class="string">""</span>, web::post().to(post_new_course))
+        .route(<span class="string">"/{course_id}"</span>, web::put().to(update_course))
+        .route(<span class="string">"/{course_id}"</span>, web::delete().to(delete_course))
         .route(
-            <span class="string">&quot;/{course_id}/daily-submission-counts&quot;</span>,
+            <span class="string">"/{course_id}/daily-submission-counts"</span>,
             web::get().to(get_daily_submission_counts),
         )
         .route(
-            <span class="string">&quot;/{course_id}/daily-users-who-have-submitted-something&quot;</span>,
+            <span class="string">"/{course_id}/daily-users-who-have-submitted-something"</span>,
             web::get().to(get_daily_user_counts_with_submissions),
         )
-        .route(<span class="string">&quot;/{course_id}/exercises&quot;</span>, web::get().to(get_all_exercises))
+        .route(<span class="string">"/{course_id}/exercises"</span>, web::get().to(get_all_exercises))
         .route(
-            <span class="string">&quot;/{course_id}/exercises-and-count-of-answers-requiring-attention&quot;</span>,
+            <span class="string">"/{course_id}/exercises-and-count-of-answers-requiring-attention"</span>,
             web::get().to(get_all_exercises_and_count_of_answers_requiring_attention),
         )
         .route(
-            <span class="string">&quot;/{course_id}/structure&quot;</span>,
+            <span class="string">"/{course_id}/structure"</span>,
             web::get().to(get_course_structure),
         )
         .route(
-            <span class="string">&quot;/{course_id}/language-versions&quot;</span>,
+            <span class="string">"/{course_id}/language-versions"</span>,
             web::get().to(get_all_course_language_versions),
         )
         .route(
-            <span class="string">&quot;/{course_id}/language-versions&quot;</span>,
+            <span class="string">"/{course_id}/language-versions"</span>,
             web::post().to(post_new_course_language_version),
         )
         .route(
-            <span class="string">&quot;/{course_id}/duplicate&quot;</span>,
+            <span class="string">"/{course_id}/duplicate"</span>,
             web::post().to(post_new_course_duplicate),
         )
-        .route(<span class="string">&quot;/{course_id}/upload&quot;</span>, web::post().to(add_media_for_course))
+        .route(<span class="string">"/{course_id}/upload"</span>, web::post().to(add_media_for_course))
         .route(
-            <span class="string">&quot;/{course_id}/weekday-hour-submission-counts&quot;</span>,
+            <span class="string">"/{course_id}/weekday-hour-submission-counts"</span>,
             web::get().to(get_weekday_hour_submission_counts),
         )
         .route(
-            <span class="string">&quot;/{course_id}/submission-counts-by-exercise&quot;</span>,
+            <span class="string">"/{course_id}/submission-counts-by-exercise"</span>,
             web::get().to(get_submission_counts_by_exercise),
         )
         .route(
-            <span class="string">&quot;/{course_id}/course-instances&quot;</span>,
+            <span class="string">"/{course_id}/course-instances"</span>,
             web::get().to(get_course_instances),
         )
-        .route(<span class="string">&quot;/{course_id}/feedback&quot;</span>, web::get().to(get_feedback))
+        .route(<span class="string">"/{course_id}/feedback"</span>, web::get().to(get_feedback))
         .route(
-            <span class="string">&quot;/{course_id}/feedback-count&quot;</span>,
+            <span class="string">"/{course_id}/feedback-count"</span>,
             web::get().to(get_feedback_count),
         )
         .route(
-            <span class="string">&quot;/{course_id}/new-course-instance&quot;</span>,
+            <span class="string">"/{course_id}/new-course-instance"</span>,
             web::post().to(new_course_instance),
         )
-        .route(<span class="string">&quot;/{course_id}/glossary&quot;</span>, web::get().to(glossary))
-        .route(<span class="string">&quot;/{course_id}/glossary&quot;</span>, web::post().to(new_glossary_term))
+        .route(<span class="string">"/{course_id}/glossary"</span>, web::get().to(glossary))
+        .route(<span class="string">"/{course_id}/glossary"</span>, web::post().to(new_glossary_term))
         .route(
-            <span class="string">&quot;/{course_id}/course-users-counts-by-exercise&quot;</span>,
+            <span class="string">"/{course_id}/course-users-counts-by-exercise"</span>,
             web::get().to(get_course_users_counts_by_exercise),
         )
         .route(
-            <span class="string">&quot;/{course_id}/new-page-ordering&quot;</span>,
+            <span class="string">"/{course_id}/new-page-ordering"</span>,
             web::post().to(post_new_page_ordering),
         )
         .route(
-            <span class="string">&quot;/{course_id}/new-chapter-ordering&quot;</span>,
+            <span class="string">"/{course_id}/new-chapter-ordering"</span>,
             web::post().to(post_new_chapter_ordering),
         )
         .route(
-            <span class="string">&quot;/{course_id}/references&quot;</span>,
+            <span class="string">"/{course_id}/references"</span>,
             web::get().to(get_material_references_by_course_id),
         )
         .route(
-            <span class="string">&quot;/{course_id}/references&quot;</span>,
+            <span class="string">"/{course_id}/references"</span>,
             web::post().to(insert_material_references),
         )
         .route(
-            <span class="string">&quot;/{course_id}/references/{reference_id}&quot;</span>,
+            <span class="string">"/{course_id}/references/{reference_id}"</span>,
             web::post().to(update_material_reference),
         )
         .route(
-            <span class="string">&quot;/{course_id}/references/{reference_id}&quot;</span>,
+            <span class="string">"/{course_id}/references/{reference_id}"</span>,
             web::delete().to(delete_material_reference_by_id),
         )
         .route(
-            <span class="string">&quot;/{course_id}/course-modules&quot;</span>,
+            <span class="string">"/{course_id}/course-modules"</span>,
             web::post().to(update_modules),
         )
         .route(
-            <span class="string">&quot;/{course_id}/default-peer-review&quot;</span>,
+            <span class="string">"/{course_id}/default-peer-review"</span>,
             web::get().to(get_course_default_peer_review),
         )
         .route(
-            <span class="string">&quot;/{course_id}/update-peer-review-queue-reviews-received&quot;</span>,
+            <span class="string">"/{course_id}/update-peer-review-queue-reviews-received"</span>,
             web::post().to(post_update_peer_review_queue_reviews_received),
         )
         .route(
-            <span class="string">&quot;/{course_id}/breadcrumb-info&quot;</span>,
+            <span class="string">"/{course_id}/breadcrumb-info"</span>,
             web::get().to(get_course_breadcrumb_info),
         )
         .route(
-            <span class="string">&quot;/{course_id}/export-submissions&quot;</span>,
+            <span class="string">"/{course_id}/export-submissions"</span>,
             web::get().to(submission_export),
         )
         .route(
-            <span class="string">&quot;/{course_id}/export-user-details&quot;</span>,
+            <span class="string">"/{course_id}/export-user-details"</span>,
             web::get().to(user_details_export),
         )
         .route(
-            <span class="string">&quot;/{course_id}/export-exercise-tasks&quot;</span>,
+            <span class="string">"/{course_id}/export-exercise-tasks"</span>,
             web::get().to(exercise_tasks_export),
         )
         .route(
-            <span class="string">&quot;/{course_id}/export-course-instances&quot;</span>,
+            <span class="string">"/{course_id}/export-course-instances"</span>,
             web::get().to(course_instances_export),
         )
         .route(
-            <span class="string">&quot;/{course_id}/page-visit-datum-summary&quot;</span>,
+            <span class="string">"/{course_id}/page-visit-datum-summary"</span>,
             web::get().to(get_page_visit_datum_summary),
         )
         .route(
-            <span class="string">&quot;/{course_id}/page-visit-datum-summary-by-pages&quot;</span>,
+            <span class="string">"/{course_id}/page-visit-datum-summary-by-pages"</span>,
             web::get().to(get_page_visit_datum_summary_by_pages),
         )
         .route(
-            <span class="string">&quot;/{course_id}/page-visit-datum-summary-by-device-types&quot;</span>,
+            <span class="string">"/{course_id}/page-visit-datum-summary-by-device-types"</span>,
             web::get().to(get_page_visit_datum_summary_by_device_types),
         )
         .route(
-            <span class="string">&quot;/{course_id}/page-visit-datum-summary-by-countries&quot;</span>,
+            <span class="string">"/{course_id}/page-visit-datum-summary-by-countries"</span>,
             web::get().to(get_page_visit_datum_summary_by_countries),
         )
         .route(
-            <span class="string">&quot;/{course_id}/teacher-reset-course-progress-for-themselves&quot;</span>,
+            <span class="string">"/{course_id}/teacher-reset-course-progress-for-themselves"</span>,
             web::delete().to(teacher_reset_course_progress_for_themselves),
         )
         .route(
-            <span class="string">&quot;/{course_id}/teacher-reset-course-progress-for-everyone&quot;</span>,
+            <span class="string">"/{course_id}/teacher-reset-course-progress-for-everyone"</span>,
             web::delete().to(teacher_reset_course_progress_for_everyone),
         );
 }

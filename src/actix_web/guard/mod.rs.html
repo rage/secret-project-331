@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/guard/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/guard/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -552,10 +553,10 @@
 //! ```
 //! use actix_web::{web, http::Method, guard, HttpResponse};
 //!
-//! web::resource(&quot;/guarded&quot;).route(
+//! web::resource("/guarded").route(
 //!     web::route()
 //!         .guard(guard::Any(guard::Get()).or(guard::Post()))
-//!         .guard(guard::Header(&quot;x-guarded&quot;, &quot;secret&quot;))
+//!         .guard(guard::Header("x-guarded", "secret"))
 //!         .to(|| HttpResponse::Ok())
 //! );
 //! ```
@@ -583,11 +584,11 @@
 
 <span class="doccomment">/// Provides access to request parts that are useful during routing.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>GuardContext&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ServiceRequest,
+</span><span class="kw">pub struct </span>GuardContext&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) req: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ServiceRequest,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; GuardContext&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; GuardContext&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns reference to the request head.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>head(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>RequestHead {
@@ -596,13 +597,13 @@
 
     <span class="doccomment">/// Returns reference to the request-local data/extensions container.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>req_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;a</span>, Extensions&gt; {
+    </span><span class="kw">pub fn </span>req_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'a</span>, Extensions&gt; {
         <span class="self">self</span>.req.extensions()
     }
 
     <span class="doccomment">/// Returns mutable reference to the request-local data/extensions container.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>req_data_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;a</span>, Extensions&gt; {
+    </span><span class="kw">pub fn </span>req_data_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'a</span>, Extensions&gt; {
         <span class="self">self</span>.req.extensions_mut()
     }
 
@@ -616,7 +617,7 @@
     ///
     /// let image_accept_guard = fn_guard(|ctx| {
     ///     match ctx.header::&lt;header::Accept&gt;() {
-    ///         Some(hdr) =&gt; hdr.preference() == &quot;image/*&quot;,
+    ///         Some(hdr) =&gt; hdr.preference() == "image/*",
     ///         None =&gt; false,
     ///     }
     /// });
@@ -632,11 +633,11 @@
 /// See [module level documentation](self) for more.
 </span><span class="kw">pub trait </span>Guard {
     <span class="doccomment">/// Returns true if predicate condition is met for a given request.
-    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool;
+    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool;
 }
 
 <span class="kw">impl </span>Guard <span class="kw">for </span>Rc&lt;<span class="kw">dyn </span>Guard&gt; {
-    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         (<span class="kw-2">**</span><span class="self">self</span>).check(ctx)
     }
 }
@@ -649,33 +650,33 @@
 ///
 /// web::route()
 ///     .guard(guard::fn_guard(|ctx| {
-///         ctx.head().headers().contains_key(&quot;content-type&quot;)
+///         ctx.head().headers().contains_key("content-type")
 ///     }))
 ///     .to(|| HttpResponse::Ok());
 /// ```
 </span><span class="kw">pub fn </span>fn_guard&lt;F&gt;(f: F) -&gt; <span class="kw">impl </span>Guard
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
 {
     FnGuard(f)
 }
 
-<span class="kw">struct </span>FnGuard&lt;F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool&gt;(F);
+<span class="kw">struct </span>FnGuard&lt;F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool&gt;(F);
 
 <span class="kw">impl</span>&lt;F&gt; Guard <span class="kw">for </span>FnGuard&lt;F&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
 {
-    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         (<span class="self">self</span>.<span class="number">0</span>)(ctx)
     }
 }
 
 <span class="kw">impl</span>&lt;F&gt; Guard <span class="kw">for </span>F
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
 {
-    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         (<span class="self">self</span>)(ctx)
     }
 }
@@ -694,7 +695,7 @@
 ///     .to(|| HttpResponse::Ok());
 /// ```
 </span><span class="attr">#[allow(non_snake_case)]
-</span><span class="kw">pub fn </span>Any&lt;F: Guard + <span class="lifetime">&#39;static</span>&gt;(guard: F) -&gt; AnyGuard {
+</span><span class="kw">pub fn </span>Any&lt;F: Guard + <span class="lifetime">'static</span>&gt;(guard: F) -&gt; AnyGuard {
     AnyGuard {
         guards: <span class="macro">vec!</span>[Box::new(guard)],
     }
@@ -711,7 +712,7 @@
 
 <span class="kw">impl </span>AnyGuard {
     <span class="doccomment">/// Adds new guard to the collection of guards to check.
-    </span><span class="kw">pub fn </span>or&lt;F: Guard + <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: F) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>or&lt;F: Guard + <span class="lifetime">'static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: F) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.guards.push(Box::new(guard));
         <span class="self">self
     </span>}
@@ -719,7 +720,7 @@
 
 <span class="kw">impl </span>Guard <span class="kw">for </span>AnyGuard {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">for </span>guard <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.guards {
             <span class="kw">if </span>guard.check(ctx) {
                 <span class="kw">return </span><span class="bool-val">true</span>;
@@ -741,12 +742,12 @@
 /// web::route()
 ///     .guard(
 ///         guard::All(guard::Get())
-///             .and(guard::Header(&quot;accept&quot;, &quot;text/plain&quot;))
+///             .and(guard::Header("accept", "text/plain"))
 ///     )
 ///     .to(|| HttpResponse::Ok());
 /// ```
 </span><span class="attr">#[allow(non_snake_case)]
-</span><span class="kw">pub fn </span>All&lt;F: Guard + <span class="lifetime">&#39;static</span>&gt;(guard: F) -&gt; AllGuard {
+</span><span class="kw">pub fn </span>All&lt;F: Guard + <span class="lifetime">'static</span>&gt;(guard: F) -&gt; AllGuard {
     AllGuard {
         guards: <span class="macro">vec!</span>[Box::new(guard)],
     }
@@ -763,7 +764,7 @@
 
 <span class="kw">impl </span>AllGuard {
     <span class="doccomment">/// Adds new guard to the collection of guards to check.
-    </span><span class="kw">pub fn </span>and&lt;F: Guard + <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: F) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>and&lt;F: Guard + <span class="lifetime">'static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: F) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.guards.push(Box::new(guard));
         <span class="self">self
     </span>}
@@ -771,7 +772,7 @@
 
 <span class="kw">impl </span>Guard <span class="kw">for </span>AllGuard {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">for </span>guard <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.guards {
             <span class="kw">if </span>!guard.check(ctx) {
                 <span class="kw">return </span><span class="bool-val">false</span>;
@@ -797,7 +798,7 @@
 
 <span class="kw">impl</span>&lt;G: Guard&gt; Guard <span class="kw">for </span>Not&lt;G&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         !<span class="self">self</span>.<span class="number">0</span>.check(ctx)
     }
 }
@@ -816,7 +817,7 @@
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>MethodGuard(HttpMethod);
 
 <span class="kw">impl </span>Guard <span class="kw">for </span>MethodGuard {
-    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">let </span>registered = ctx.req_data_mut().remove::&lt;RegisteredMethods&gt;();
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>methods) = registered {
@@ -833,15 +834,15 @@
 
 <span class="macro">macro_rules! </span>method_guard {
     (<span class="macro-nonterminal">$method_fn</span>:ident, <span class="macro-nonterminal">$method_const</span>:ident) =&gt; {
-        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;Creates a guard that matches the `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_const</span>), <span class="string">&quot;` request method.&quot;</span>)]
+        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a guard that matches the `"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_const</span>), <span class="string">"` request method."</span>)]
         </span><span class="doccomment">///
         /// # Examples
-        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;The route in this example will only respond to `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_const</span>), <span class="string">&quot;` requests.&quot;</span>)]
+        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"The route in this example will only respond to `"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_const</span>), <span class="string">"` requests."</span>)]
         </span><span class="doccomment">/// ```
         /// use actix_web::{guard, web, HttpResponse};
         ///
         /// web::route()
-        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;    .guard(guard::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_fn</span>), <span class="string">&quot;())&quot;</span>)]
+        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"    .guard(guard::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_fn</span>), <span class="string">"())"</span>)]
         </span><span class="doccomment">///     .to(|| HttpResponse::Ok());
         /// ```
         </span><span class="attr">#[allow(non_snake_case)]
@@ -870,11 +871,11 @@
 /// use actix_web::{guard, web, HttpResponse};
 ///
 /// web::route()
-///     .guard(guard::Header(&quot;x-guarded&quot;, &quot;secret&quot;))
+///     .guard(guard::Header("x-guarded", "secret"))
 ///     .to(|| HttpResponse::Ok());
 /// ```
 </span><span class="attr">#[allow(non_snake_case)]
-</span><span class="kw">pub fn </span>Header(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="kw">impl </span>Guard {
+</span><span class="kw">pub fn </span>Header(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, value: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="kw">impl </span>Guard {
     HeaderGuard(
         header::HeaderName::try_from(name).unwrap(),
         header::HeaderValue::from_static(value),
@@ -884,7 +885,7 @@
 <span class="kw">struct </span>HeaderGuard(header::HeaderName, header::HeaderValue);
 
 <span class="kw">impl </span>Guard <span class="kw">for </span>HeaderGuard {
-    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = ctx.head().headers.get(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) {
             <span class="kw">return </span>val == <span class="self">self</span>.<span class="number">1</span>;
         }
@@ -903,19 +904,19 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>header_match() {
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((header::TRANSFER_ENCODING, <span class="string">&quot;chunked&quot;</span>))
+            .insert_header((header::TRANSFER_ENCODING, <span class="string">"chunked"</span>))
             .to_srv_request();
 
-        <span class="kw">let </span>hdr = Header(<span class="string">&quot;transfer-encoding&quot;</span>, <span class="string">&quot;chunked&quot;</span>);
+        <span class="kw">let </span>hdr = Header(<span class="string">"transfer-encoding"</span>, <span class="string">"chunked"</span>);
         <span class="macro">assert!</span>(hdr.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let </span>hdr = Header(<span class="string">&quot;transfer-encoding&quot;</span>, <span class="string">&quot;other&quot;</span>);
+        <span class="kw">let </span>hdr = Header(<span class="string">"transfer-encoding"</span>, <span class="string">"other"</span>);
         <span class="macro">assert!</span>(!hdr.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let </span>hdr = Header(<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;chunked&quot;</span>);
+        <span class="kw">let </span>hdr = Header(<span class="string">"content-type"</span>, <span class="string">"chunked"</span>);
         <span class="macro">assert!</span>(!hdr.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let </span>hdr = Header(<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;other&quot;</span>);
+        <span class="kw">let </span>hdr = Header(<span class="string">"content-type"</span>, <span class="string">"other"</span>);
         <span class="macro">assert!</span>(!hdr.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 
@@ -1003,15 +1004,15 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>function_guard() {
-        <span class="kw">let </span>domain = <span class="string">&quot;rust-lang.org&quot;</span>.to_owned();
+        <span class="kw">let </span>domain = <span class="string">"rust-lang.org"</span>.to_owned();
         <span class="kw">let </span>guard = fn_guard(|ctx| ctx.head().uri.host().unwrap().ends_with(<span class="kw-2">&amp;</span>domain));
 
         <span class="kw">let </span>req = TestRequest::default()
-            .uri(<span class="string">&quot;blog.rust-lang.org&quot;</span>)
+            .uri(<span class="string">"blog.rust-lang.org"</span>)
             .to_srv_request();
         <span class="macro">assert!</span>(guard.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let </span>req = TestRequest::default().uri(<span class="string">&quot;crates.io&quot;</span>).to_srv_request();
+        <span class="kw">let </span>req = TestRequest::default().uri(<span class="string">"crates.io"</span>).to_srv_request();
         <span class="macro">assert!</span>(!guard.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 

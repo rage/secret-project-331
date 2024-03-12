@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/islamic.rs`."><title>islamic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/islamic.rs`."><title>islamic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1977,13 +1978,13 @@
 //! // `Date` type
 //! let islamic_date =
 //!     Date::try_new_observational_islamic_date(1348, 10, 11, islamic)
-//!         .expect(&quot;Failed to initialize islamic Date instance.&quot;);
+//!         .expect("Failed to initialize islamic Date instance.");
 //!
 //! // `DateTime` type
 //! let islamic_datetime = DateTime::try_new_observational_islamic_datetime(
 //!     1348, 10, 11, 13, 1, 0, islamic,
 //! )
-//! .expect(&quot;Failed to initialize islamic DateTime instance.&quot;);
+//! .expect("Failed to initialize islamic DateTime instance.");
 //!
 //! // `Date` checks
 //! assert_eq!(islamic_date.year().number, 1348);
@@ -2011,56 +2012,56 @@
 ///
 /// # Era codes
 ///
-/// This calendar supports a single era code, Anno Mundi, with code `&quot;ah&quot;`
+/// This calendar supports a single era code, Anno Mundi, with code `"ah"`
 ///
 /// # Month codes
 ///
 /// This calendar is a pure lunar calendar with no leap months. It uses month codes
-/// `&quot;M01&quot; - &quot;M12&quot;`.
+/// `"M01" - "M12"`.
 </span><span class="attr">#[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
-#[non_exhaustive] </span><span class="comment">// we&#39;ll be adding precompiled data to this
+#[non_exhaustive] </span><span class="comment">// we'll be adding precompiled data to this
 </span><span class="kw">pub struct </span>IslamicObservational;
 
 <span class="doccomment">/// Civil / Arithmetical Islamic Calendar (Used for administrative purposes)
 ///
 /// # Era codes
 ///
-/// This calendar supports a single era code, Anno Mundi, with code `&quot;ah&quot;`
+/// This calendar supports a single era code, Anno Mundi, with code `"ah"`
 ///
 /// # Month codes
 ///
 /// This calendar is a pure lunar calendar with no leap months. It uses month codes
-/// `&quot;M01&quot; - &quot;M12&quot;`.
+/// `"M01" - "M12"`.
 </span><span class="attr">#[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
-#[non_exhaustive] </span><span class="comment">// we&#39;ll be adding precompiled data to this
+#[non_exhaustive] </span><span class="comment">// we'll be adding precompiled data to this
 </span><span class="kw">pub struct </span>IslamicCivil;
 
 <span class="doccomment">/// Umm al-Qura Hijri Calendar (Used in Saudi Arabia)
 ///
 /// # Era codes
 ///
-/// This calendar supports a single era code, Anno Mundi, with code `&quot;ah&quot;`
+/// This calendar supports a single era code, Anno Mundi, with code `"ah"`
 ///
 /// # Month codes
 ///
 /// This calendar is a pure lunar calendar with no leap months. It uses month codes
-/// `&quot;M01&quot; - &quot;M12&quot;`.
+/// `"M01" - "M12"`.
 </span><span class="attr">#[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
-#[non_exhaustive] </span><span class="comment">// we&#39;ll be adding precompiled data to this
+#[non_exhaustive] </span><span class="comment">// we'll be adding precompiled data to this
 </span><span class="kw">pub struct </span>IslamicUmmAlQura;
 
 <span class="doccomment">/// A Tabular version of the Arithmetical Islamic Calendar
 ///
 /// # Era codes
 ///
-/// This calendar supports a single era code, Anno Mundi, with code `&quot;ah&quot;`
+/// This calendar supports a single era code, Anno Mundi, with code `"ah"`
 ///
 /// # Month codes
 ///
 /// This calendar is a pure lunar calendar with no leap months. It uses month codes
-/// `&quot;M01&quot; - &quot;M12&quot;`.
+/// `"M01" - "M12"`.
 </span><span class="attr">#[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
-#[non_exhaustive] </span><span class="comment">// we&#39;ll be adding precompiled data to this
+#[non_exhaustive] </span><span class="comment">// we'll be adding precompiled data to this
 </span><span class="kw">pub struct </span>IslamicTabular;
 
 <span class="kw">impl </span>IslamicObservational {
@@ -2144,7 +2145,7 @@
         month_code: types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, CalendarError&gt; {
-        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic&quot;</span>) || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ah&quot;</span>) {
+        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic"</span>) || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ah"</span>) {
             year
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownEra(era.<span class="number">0</span>, <span class="self">self</span>.debug_name()));
@@ -2194,8 +2195,8 @@
         date1.<span class="number">0</span>.until(date2.<span class="number">0</span>, _largest_unit, _smallest_unit)
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;Islamic (observational)&quot;
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        <span class="string">"Islamic (observational)"
     </span>}
 
     <span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableYear {
@@ -2258,7 +2259,7 @@
 
     <span class="kw">fn </span>year_as_islamic(year: i32) -&gt; types::FormattableYear {
         types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic"</span>)),
             number: year,
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">None</span>,
@@ -2279,7 +2280,7 @@
     ///
     /// let date_islamic =
     ///     Date::try_new_observational_islamic_date(1392, 4, 25, islamic)
-    ///         .expect(&quot;Failed to initialize Islamic Date instance.&quot;);
+    ///         .expect("Failed to initialize Islamic Date instance.");
     ///
     /// assert_eq!(date_islamic.year().number, 1392);
     /// assert_eq!(date_islamic.month().ordinal, 4);
@@ -2309,7 +2310,7 @@
     /// let datetime_islamic = DateTime::try_new_observational_islamic_datetime(
     ///     474, 10, 11, 13, 1, 0, islamic,
     /// )
-    /// .expect(&quot;Failed to initialize Islamic DateTime instance.&quot;);
+    /// .expect("Failed to initialize Islamic DateTime instance.");
     ///
     /// assert_eq!(datetime_islamic.date.year().number, 474);
     /// assert_eq!(datetime_islamic.date.month().ordinal, 10);
@@ -2374,9 +2375,9 @@
         month_code: types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, CalendarError&gt; {
-        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic-umalqura&quot;</span>)
-            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic&quot;</span>)
-            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ah&quot;</span>)
+        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic-umalqura"</span>)
+            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic"</span>)
+            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ah"</span>)
         {
             year
         } <span class="kw">else </span>{
@@ -2423,8 +2424,8 @@
         date1.<span class="number">0</span>.until(date2.<span class="number">0</span>, _largest_unit, _smallest_unit)
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;Islamic (Umm al-Qura)&quot;
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        <span class="string">"Islamic (Umm al-Qura)"
     </span>}
 
     <span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableYear {
@@ -2472,7 +2473,7 @@
     /// let islamic = IslamicUmmAlQura::new_always_calculating();
     ///
     /// let date_islamic = Date::try_new_ummalqura_date(1392, 4, 25, islamic)
-    ///     .expect(&quot;Failed to initialize Islamic Date instance.&quot;);
+    ///     .expect("Failed to initialize Islamic Date instance.");
     ///
     /// assert_eq!(date_islamic.year().number, 1392);
     /// assert_eq!(date_islamic.month().ordinal, 4);
@@ -2501,7 +2502,7 @@
     ///
     /// let datetime_islamic =
     ///     DateTime::try_new_ummalqura_datetime(474, 10, 11, 13, 1, 0, islamic)
-    ///         .expect(&quot;Failed to initialize Islamic DateTime instance.&quot;);
+    ///         .expect("Failed to initialize Islamic DateTime instance.");
     ///
     /// assert_eq!(datetime_islamic.date.year().number, 474);
     /// assert_eq!(datetime_islamic.date.month().ordinal, 10);
@@ -2553,7 +2554,7 @@
 
     <span class="kw">fn </span>year_as_islamic(year: i32) -&gt; types::FormattableYear {
         types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic"</span>)),
             number: year,
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">None</span>,
@@ -2612,10 +2613,10 @@
         month_code: types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, CalendarError&gt; {
-        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic-civil&quot;</span>)
-            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamicc&quot;</span>)
-            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic&quot;</span>)
-            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ah&quot;</span>)
+        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic-civil"</span>)
+            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamicc"</span>)
+            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic"</span>)
+            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ah"</span>)
         {
             <span class="comment">// TODO: Check name and alias
             </span>year
@@ -2667,8 +2668,8 @@
         date1.<span class="number">0</span>.until(date2.<span class="number">0</span>, _largest_unit, _smallest_unit)
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;Islamic (civil)&quot;
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        <span class="string">"Islamic (civil)"
     </span>}
 
     <span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableYear {
@@ -2730,7 +2731,7 @@
 
     <span class="kw">fn </span>year_as_islamic(year: i32) -&gt; types::FormattableYear {
         types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic"</span>)),
             number: year,
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">None</span>,
@@ -2751,7 +2752,7 @@
     ///
     /// let date_islamic =
     ///     Date::try_new_islamic_civil_date_with_calendar(1392, 4, 25, islamic)
-    ///         .expect(&quot;Failed to initialize Islamic Date instance.&quot;);
+    ///         .expect("Failed to initialize Islamic Date instance.");
     ///
     /// assert_eq!(date_islamic.year().number, 1392);
     /// assert_eq!(date_islamic.month().ordinal, 4);
@@ -2782,7 +2783,7 @@
     ///     DateTime::try_new_islamic_civil_datetime_with_calendar(
     ///         474, 10, 11, 13, 1, 0, islamic,
     ///     )
-    ///     .expect(&quot;Failed to initialize Islamic DateTime instance.&quot;);
+    ///     .expect("Failed to initialize Islamic DateTime instance.");
     ///
     /// assert_eq!(datetime_islamic.date.year().number, 474);
     /// assert_eq!(datetime_islamic.date.month().ordinal, 10);
@@ -2858,9 +2859,9 @@
         month_code: types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, CalendarError&gt; {
-        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic-tbla&quot;</span>)
-            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic&quot;</span>)
-            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ah&quot;</span>)
+        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic-tbla"</span>)
+            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic"</span>)
+            || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ah"</span>)
         {
             year
         } <span class="kw">else </span>{
@@ -2911,8 +2912,8 @@
         date1.<span class="number">0</span>.until(date2.<span class="number">0</span>, _largest_unit, _smallest_unit)
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;Islamic (tabular)&quot;
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        <span class="string">"Islamic (tabular)"
     </span>}
 
     <span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableYear {
@@ -2974,7 +2975,7 @@
 
     <span class="kw">fn </span>year_as_islamic(year: i32) -&gt; types::FormattableYear {
         types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;islamic&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"islamic"</span>)),
             number: year,
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">None</span>,
@@ -2995,7 +2996,7 @@
     ///
     /// let date_islamic =
     ///     Date::try_new_islamic_tabular_date_with_calendar(1392, 4, 25, islamic)
-    ///         .expect(&quot;Failed to initialize Islamic Date instance.&quot;);
+    ///         .expect("Failed to initialize Islamic Date instance.");
     ///
     /// assert_eq!(date_islamic.year().number, 1392);
     /// assert_eq!(date_islamic.month().ordinal, 4);
@@ -3026,7 +3027,7 @@
     ///     DateTime::try_new_islamic_tabular_datetime_with_calendar(
     ///         474, 10, 11, 13, 1, 0, islamic,
     ///     )
-    ///     .expect(&quot;Failed to initialize Islamic DateTime instance.&quot;);
+    ///     .expect("Failed to initialize Islamic DateTime instance.");
     ///
     /// assert_eq!(datetime_islamic.date.year().number, 474);
     /// assert_eq!(datetime_islamic.date.month().ordinal, 10);
@@ -3752,7 +3753,7 @@
             <span class="macro">assert_eq!</span>(
                 IslamicObservational::islamic_from_fixed(RataDie::new(<span class="kw-2">*</span>f_date)),
                 date,
-                <span class="string">&quot;{case:?}&quot;
+                <span class="string">"{case:?}"
             </span>);
         }
     }
@@ -3766,7 +3767,7 @@
             <span class="macro">assert_eq!</span>(
                 IslamicObservational::fixed_from_islamic(date),
                 RataDie::new(<span class="kw-2">*</span>f_date),
-                <span class="string">&quot;{case:?}&quot;
+                <span class="string">"{case:?}"
             </span>);
         }
     }
@@ -3780,7 +3781,7 @@
             <span class="macro">assert_eq!</span>(
                 IslamicCivil::fixed_from_islamic(date),
                 RataDie::new(<span class="kw-2">*</span>f_date),
-                <span class="string">&quot;{case:?}&quot;
+                <span class="string">"{case:?}"
             </span>);
         }
     }
@@ -3798,7 +3799,7 @@
             <span class="macro">assert_eq!</span>(
                 IslamicCivil::islamic_from_fixed(RataDie::new(<span class="kw-2">*</span>f_date)),
                 date,
-                <span class="string">&quot;{case:?}&quot;
+                <span class="string">"{case:?}"
             </span>);
         }
     }
@@ -3812,7 +3813,7 @@
             <span class="macro">assert_eq!</span>(
                 IslamicTabular::fixed_from_islamic(date),
                 RataDie::new(<span class="kw-2">*</span>f_date),
-                <span class="string">&quot;{case:?}&quot;
+                <span class="string">"{case:?}"
             </span>);
         }
     }
@@ -3830,7 +3831,7 @@
             <span class="macro">assert_eq!</span>(
                 IslamicTabular::islamic_from_fixed(RataDie::new(<span class="kw-2">*</span>f_date)),
                 date,
-                <span class="string">&quot;{case:?}&quot;
+                <span class="string">"{case:?}"
             </span>);
         }
     }
@@ -3851,7 +3852,7 @@
             <span class="macro">assert_eq!</span>(
                 IslamicUmmAlQura::saudi_islamic_from_fixed(RataDie::new(<span class="kw-2">*</span>f_date)),
                 date,
-                <span class="string">&quot;{case:?}&quot;
+                <span class="string">"{case:?}"
             </span>);
         }
     }
@@ -3868,7 +3869,7 @@
             <span class="macro">assert_eq!</span>(
                 IslamicUmmAlQura::fixed_from_saudi_islamic(date),
                 RataDie::new(<span class="kw-2">*</span>f_date),
-                <span class="string">&quot;{case:?}&quot;
+                <span class="string">"{case:?}"
             </span>);
         }
     }
@@ -3890,7 +3891,7 @@
 
         </span><span class="macro">assert!</span>(
             (sum_days_in_year - expected_number_of_days).abs() &lt;= tolerance,
-            <span class="string">&quot;Difference between sum_days_in_year and expected_number_of_days is more than the tolerance&quot;
+            <span class="string">"Difference between sum_days_in_year and expected_number_of_days is more than the tolerance"
         </span>);
     }
 

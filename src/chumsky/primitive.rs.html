@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/primitive.rs`."><title>primitive.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/primitive.rs`."><title>primitive.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1146,7 +1147,7 @@
 //! our dimension of vastly hyperintelligent pandimensional beings.”*
 //!
 //! Chumsky parsers are created by combining together smaller parsers. Right at the bottom of the pile are the parser
-//! primitives, a parser developer&#39;s bread &amp; butter. Each of these primitives are very easy to understand in isolation,
+//! primitives, a parser developer's bread &amp; butter. Each of these primitives are very easy to understand in isolation,
 //! usually only doing one thing.
 //!
 //! ## The Important Ones
@@ -1194,7 +1195,7 @@
 
 <span class="doccomment">/// A parser primitive that allows you to define your own custom parsers.
 ///
-/// In theory you shouldn&#39;t need to use this unless you have particularly bizarre requirements, but it&#39;s a cleaner and
+/// In theory you shouldn't need to use this unless you have particularly bizarre requirements, but it's a cleaner and
 /// more sustainable alternative to implementing [`Parser`] by hand.
 ///
 /// The output type of this parser is determined by the parse result of the function.
@@ -1253,8 +1254,8 @@
 ///
 /// ```
 /// # use chumsky::prelude::*;
-/// assert_eq!(end::&lt;Simple&lt;char&gt;&gt;().parse(&quot;&quot;), Ok(()));
-/// assert!(end::&lt;Simple&lt;char&gt;&gt;().parse(&quot;hello&quot;).is_err());
+/// assert_eq!(end::&lt;Simple&lt;char&gt;&gt;().parse(""), Ok(()));
+/// assert!(end::&lt;Simple&lt;char&gt;&gt;().parse("hello").is_err());
 /// ```
 ///
 /// ```
@@ -1262,19 +1263,19 @@
 /// let digits = text::digits::&lt;_, Simple&lt;char&gt;&gt;(10);
 ///
 /// // This parser parses digits!
-/// assert_eq!(digits.parse(&quot;1234&quot;), Ok(&quot;1234&quot;.to_string()));
+/// assert_eq!(digits.parse("1234"), Ok("1234".to_string()));
 ///
 /// // However, parsers are lazy and do not consume trailing input.
 /// // This can be inconvenient if we want to validate all of the input.
-/// assert_eq!(digits.parse(&quot;1234AhasjADSJAlaDJKSDAK&quot;), Ok(&quot;1234&quot;.to_string()));
+/// assert_eq!(digits.parse("1234AhasjADSJAlaDJKSDAK"), Ok("1234".to_string()));
 ///
 /// // To fix this problem, we require that the end of input follows any successfully parsed input
 /// let only_digits = digits.then_ignore(end());
 ///
 /// // Now our parser correctly produces an error if any trailing input is found...
-/// assert!(only_digits.parse(&quot;1234AhasjADSJAlaDJKSDAK&quot;).is_err());
+/// assert!(only_digits.parse("1234AhasjADSJAlaDJKSDAK").is_err());
 /// // ...while still behaving correctly for inputs that only consist of valid patterns
-/// assert_eq!(only_digits.parse(&quot;1234&quot;), Ok(&quot;1234&quot;.to_string()));
+/// assert_eq!(only_digits.parse("1234"), Ok("1234".to_string()));
 /// ```
 </span><span class="kw">pub fn </span>end&lt;E&gt;() -&gt; End&lt;E&gt; {
     End(PhantomData)
@@ -1285,19 +1286,19 @@
 
     <span class="kw">impl</span>&lt;T&gt; Sealed&lt;T&gt; <span class="kw">for </span>T {}
     <span class="kw">impl </span>Sealed&lt;char&gt; <span class="kw">for </span>alloc::string::String {}
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sealed&lt;char&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {}
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Sealed&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T] {}
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Sealed&lt;char&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {}
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; Sealed&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T] {}
     <span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; Sealed&lt;T&gt; <span class="kw">for </span>[T; N] {}
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, <span class="kw">const </span>N: usize&gt; Sealed&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T; N] {}
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, <span class="kw">const </span>N: usize&gt; Sealed&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T; N] {}
     <span class="kw">impl</span>&lt;T&gt; Sealed&lt;T&gt; <span class="kw">for </span>alloc::vec::Vec&lt;T&gt; {}
     <span class="kw">impl</span>&lt;T&gt; Sealed&lt;T&gt; <span class="kw">for </span>alloc::collections::LinkedList&lt;T&gt; {}
     <span class="kw">impl</span>&lt;T&gt; Sealed&lt;T&gt; <span class="kw">for </span>alloc::collections::VecDeque&lt;T&gt; {}
     <span class="kw">impl</span>&lt;T&gt; Sealed&lt;T&gt; <span class="kw">for </span>alloc::collections::BTreeSet&lt;T&gt; {}
     <span class="kw">impl</span>&lt;T&gt; Sealed&lt;T&gt; <span class="kw">for </span>alloc::collections::BinaryHeap&lt;T&gt; {}
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">impl</span>&lt;T&gt; Sealed&lt;T&gt; <span class="kw">for </span>std::collections::HashSet&lt;T&gt; {}
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">impl</span>&lt;T&gt; Sealed&lt;T&gt; <span class="kw">for </span>hashbrown::HashSet&lt;T&gt; {}
 }
 
@@ -1325,22 +1326,22 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Container&lt;char&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
-    <span class="kw">type </span>Iter = alloc::str::Chars&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Container&lt;char&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
+    <span class="kw">type </span>Iter = alloc::str::Chars&lt;<span class="lifetime">'a</span>&gt;;
     <span class="kw">fn </span>get_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Iter {
         <span class="self">self</span>.chars()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Clone&gt; Container&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T] {
-    <span class="kw">type </span>Iter = core::iter::Cloned&lt;core::slice::Iter&lt;<span class="lifetime">&#39;a</span>, T&gt;&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Clone&gt; Container&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T] {
+    <span class="kw">type </span>Iter = core::iter::Cloned&lt;core::slice::Iter&lt;<span class="lifetime">'a</span>, T&gt;&gt;;
     <span class="kw">fn </span>get_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Iter {
         <span class="self">self</span>.iter().cloned()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Clone, <span class="kw">const </span>N: usize&gt; Container&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T; N] {
-    <span class="kw">type </span>Iter = core::iter::Cloned&lt;core::slice::Iter&lt;<span class="lifetime">&#39;a</span>, T&gt;&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Clone, <span class="kw">const </span>N: usize&gt; Container&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T; N] {
+    <span class="kw">type </span>Iter = core::iter::Cloned&lt;core::slice::Iter&lt;<span class="lifetime">'a</span>, T&gt;&gt;;
     <span class="kw">fn </span>get_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Iter {
         <span class="self">self</span>.iter().cloned()
     }
@@ -1374,7 +1375,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl</span>&lt;T: Clone&gt; Container&lt;T&gt; <span class="kw">for </span>std::collections::HashSet&lt;T&gt; {
     <span class="kw">type </span>Iter = std::collections::hash_set::IntoIter&lt;T&gt;;
     <span class="kw">fn </span>get_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Iter {
@@ -1382,7 +1383,7 @@
     }
 }
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">impl</span>&lt;T: Clone&gt; Container&lt;T&gt; <span class="kw">for </span>hashbrown::HashSet&lt;T&gt; {
     <span class="kw">type </span>Iter = hashbrown::hash_set::IntoIter&lt;T&gt;;
     <span class="kw">fn </span>get_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Iter {
@@ -1412,9 +1413,9 @@
 
 <span class="kw">impl</span>&lt;T: Clone&gt; OrderedContainer&lt;T&gt; <span class="kw">for </span>T {}
 <span class="kw">impl </span>OrderedContainer&lt;char&gt; <span class="kw">for </span>String {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; OrderedContainer&lt;char&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Clone&gt; OrderedContainer&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T] {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Clone, <span class="kw">const </span>N: usize&gt; OrderedContainer&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T; N] {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; OrderedContainer&lt;char&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Clone&gt; OrderedContainer&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T] {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Clone, <span class="kw">const </span>N: usize&gt; OrderedContainer&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T; N] {}
 <span class="kw">impl</span>&lt;T: Clone, <span class="kw">const </span>N: usize&gt; OrderedContainer&lt;T&gt; <span class="kw">for </span>[T; N] {}
 <span class="kw">impl</span>&lt;T: Clone&gt; OrderedContainer&lt;T&gt; <span class="kw">for </span>Vec&lt;T&gt; {}
 <span class="kw">impl</span>&lt;T: Clone&gt; OrderedContainer&lt;T&gt; <span class="kw">for </span>alloc::collections::LinkedList&lt;T&gt; {}
@@ -1477,14 +1478,14 @@
 ///
 /// ```
 /// # use chumsky::{prelude::*, error::Cheap};
-/// let question = just::&lt;_, _, Cheap&lt;char&gt;&gt;(&#39;?&#39;);
+/// let question = just::&lt;_, _, Cheap&lt;char&gt;&gt;('?');
 ///
-/// assert_eq!(question.parse(&quot;?&quot;), Ok(&#39;?&#39;));
-/// assert!(question.parse(&quot;!&quot;).is_err());
-/// // This works because parsers do not eagerly consume input, so the &#39;!&#39; is not parsed
-/// assert_eq!(question.parse(&quot;?!&quot;), Ok(&#39;?&#39;));
-/// // This fails because the parser expects an end to the input after the &#39;?&#39;
-/// assert!(question.then(end()).parse(&quot;?!&quot;).is_err());
+/// assert_eq!(question.parse("?"), Ok('?'));
+/// assert!(question.parse("!").is_err());
+/// // This works because parsers do not eagerly consume input, so the '!' is not parsed
+/// assert_eq!(question.parse("?!"), Ok('?'));
+/// // This fails because the parser expects an end to the input after the '?'
+/// assert!(question.then(end()).parse("?!").is_err());
 /// ```
 </span><span class="kw">pub fn </span>just&lt;I, C: OrderedContainer&lt;I&gt;, E: Error&lt;I&gt;&gt;(inputs: C) -&gt; Just&lt;I, C, E&gt; {
     Just(inputs, PhantomData)
@@ -1544,11 +1545,11 @@
 ///
 /// ```
 /// # use chumsky::{prelude::*, error::Cheap};
-/// let hello = seq::&lt;_, _, Cheap&lt;char&gt;&gt;(&quot;Hello&quot;.chars());
+/// let hello = seq::&lt;_, _, Cheap&lt;char&gt;&gt;("Hello".chars());
 ///
-/// assert_eq!(hello.parse(&quot;Hello&quot;), Ok(()));
-/// assert_eq!(hello.parse(&quot;Hello, world!&quot;), Ok(()));
-/// assert!(hello.parse(&quot;Goodbye&quot;).is_err());
+/// assert_eq!(hello.parse("Hello"), Ok(()));
+/// assert_eq!(hello.parse("Hello, world!"), Ok(()));
+/// assert!(hello.parse("Goodbye").is_err());
 ///
 /// let onetwothree = seq::&lt;_, _, Cheap&lt;i32&gt;&gt;([1, 2, 3]);
 ///
@@ -1557,8 +1558,8 @@
 /// assert!(onetwothree.parse([2, 1, 3]).is_err());
 /// ```
 </span><span class="attr">#[deprecated(
-    since = <span class="string">&quot;0.7.0&quot;</span>,
-    note = <span class="string">&quot;Use `just` instead: it now works for many sequence-like types!&quot;
+    since = <span class="string">"0.7.0"</span>,
+    note = <span class="string">"Use `just` instead: it now works for many sequence-like types!"
 </span>)]
 </span><span class="kw">pub fn </span>seq&lt;I: Clone + PartialEq, Iter: IntoIterator&lt;Item = I&gt;, E&gt;(xs: Iter) -&gt; Seq&lt;I, E&gt; {
     Seq(xs.into_iter().collect(), PhantomData)
@@ -1614,13 +1615,13 @@
 ///
 /// ```
 /// # use chumsky::{prelude::*, error::Cheap};
-/// let digits = one_of::&lt;_, _, Cheap&lt;char&gt;&gt;(&quot;0123456789&quot;)
+/// let digits = one_of::&lt;_, _, Cheap&lt;char&gt;&gt;("0123456789")
 ///     .repeated().at_least(1)
 ///     .then_ignore(end())
 ///     .collect::&lt;String&gt;();
 ///
-/// assert_eq!(digits.parse(&quot;48791&quot;), Ok(&quot;48791&quot;.to_string()));
-/// assert!(digits.parse(&quot;421!53&quot;).is_err());
+/// assert_eq!(digits.parse("48791"), Ok("48791".to_string()));
+/// assert!(digits.parse("421!53").is_err());
 /// ```
 </span><span class="kw">pub fn </span>one_of&lt;I, C: Container&lt;I&gt;, E: Error&lt;I&gt;&gt;(inputs: C) -&gt; OneOf&lt;I, C, E&gt; {
     OneOf(inputs, PhantomData)
@@ -1714,15 +1715,15 @@
 ///
 /// ```
 /// # use chumsky::{prelude::*, error::Cheap};
-/// let string = one_of::&lt;_, _, Cheap&lt;char&gt;&gt;(&quot;\&quot;&#39;&quot;)
-///     .ignore_then(none_of(&quot;\&quot;&#39;&quot;).repeated())
-///     .then_ignore(one_of(&quot;\&quot;&#39;&quot;))
+/// let string = one_of::&lt;_, _, Cheap&lt;char&gt;&gt;("\"'")
+///     .ignore_then(none_of("\"'").repeated())
+///     .then_ignore(one_of("\"'"))
 ///     .then_ignore(end())
 ///     .collect::&lt;String&gt;();
 ///
-/// assert_eq!(string.parse(&quot;&#39;hello&#39;&quot;), Ok(&quot;hello&quot;.to_string()));
-/// assert_eq!(string.parse(&quot;\&quot;world\&quot;&quot;), Ok(&quot;world&quot;.to_string()));
-/// assert!(string.parse(&quot;\&quot;421!53&quot;).is_err());
+/// assert_eq!(string.parse("'hello'"), Ok("hello".to_string()));
+/// assert_eq!(string.parse("\"world\""), Ok("world".to_string()));
+/// assert!(string.parse("\"421!53").is_err());
 /// ```
 </span><span class="kw">pub fn </span>none_of&lt;I, C: Container&lt;I&gt;, E: Error&lt;I&gt;&gt;(inputs: C) -&gt; NoneOf&lt;I, C, E&gt; {
     NoneOf(inputs, PhantomData)
@@ -1791,12 +1792,12 @@
 ///
 /// ```
 /// # use chumsky::{prelude::*, error::Cheap};
-/// let single_line = just::&lt;_, _, Simple&lt;char&gt;&gt;(&quot;//&quot;)
+/// let single_line = just::&lt;_, _, Simple&lt;char&gt;&gt;("//")
 ///     .then(take_until(text::newline()))
 ///     .ignored();
 ///
-/// let multi_line = just::&lt;_, _, Simple&lt;char&gt;&gt;(&quot;/*&quot;)
-///     .then(take_until(just(&quot;*/&quot;)))
+/// let multi_line = just::&lt;_, _, Simple&lt;char&gt;&gt;("/*")
+///     .then(take_until(just("*/")))
 ///     .ignored();
 ///
 /// let comment = single_line.or(multi_line);
@@ -1808,7 +1809,7 @@
 ///         .repeated())
 ///     .repeated();
 ///
-/// assert_eq!(tokens.parse(r#&quot;
+/// assert_eq!(tokens.parse(r#"
 ///     // These tokens...
 ///     these are
 ///     /*
@@ -1818,7 +1819,7 @@
 ///     // ...and single-line...
 ///     tokens
 ///     // ...comments between them
-/// &quot;#), Ok(vec![&quot;these&quot;.to_string(), &quot;are&quot;.to_string(), &quot;tokens&quot;.to_string()]));
+/// "#), Ok(vec!["these".to_string(), "are".to_string(), "tokens".to_string()]));
 /// ```
 </span><span class="kw">pub fn </span>take_until&lt;A&gt;(until: A) -&gt; TakeUntil&lt;A&gt; {
     TakeUntil(until)
@@ -1878,8 +1879,8 @@
 ///     .then_ignore(end())
 ///     .collect::&lt;String&gt;();
 ///
-/// assert_eq!(lowercase.parse(&quot;hello&quot;), Ok(&quot;hello&quot;.to_string()));
-/// assert!(lowercase.parse(&quot;Hello&quot;).is_err());
+/// assert_eq!(lowercase.parse("hello"), Ok("hello".to_string()));
+/// assert!(lowercase.parse("Hello").is_err());
 /// ```
 </span><span class="kw">pub fn </span>filter&lt;I, F: Fn(<span class="kw-2">&amp;</span>I) -&gt; bool, E&gt;(f: F) -&gt; Filter&lt;F, E&gt; {
     Filter(f, PhantomData)
@@ -1942,12 +1943,12 @@
 /// # use chumsky::{prelude::*, error::Cheap};
 /// let numeral = filter_map(|span, c: char| match c.to_digit(10) {
 ///     Some(x) =&gt; Ok(x),
-///     None =&gt; Err(Simple::custom(span, format!(&quot;&#39;{}&#39; is not a digit&quot;, c))),
+///     None =&gt; Err(Simple::custom(span, format!("'{}' is not a digit", c))),
 /// });
 ///
-/// assert_eq!(numeral.parse(&quot;3&quot;), Ok(3));
-/// assert_eq!(numeral.parse(&quot;7&quot;), Ok(7));
-/// assert_eq!(numeral.parse(&quot;f&quot;), Err(vec![Simple::custom(0..1, &quot;&#39;f&#39; is not a digit&quot;)]));
+/// assert_eq!(numeral.parse("3"), Ok(3));
+/// assert_eq!(numeral.parse("7"), Ok(7));
+/// assert_eq!(numeral.parse("f"), Err(vec![Simple::custom(0..1, "'f' is not a digit")]));
 /// ```
 </span><span class="kw">pub fn </span>filter_map&lt;I, O, F: Fn(E::Span, I) -&gt; <span class="prelude-ty">Result</span>&lt;O, E&gt;, E: Error&lt;I&gt;&gt;(f: F) -&gt; FilterMap&lt;F, E&gt; {
     FilterMap(f, PhantomData)
@@ -1966,10 +1967,10 @@
 /// # use chumsky::{prelude::*, error::Cheap};
 /// let any = any::&lt;char, Cheap&lt;char&gt;&gt;();
 ///
-/// assert_eq!(any.parse(&quot;a&quot;), Ok(&#39;a&#39;));
-/// assert_eq!(any.parse(&quot;7&quot;), Ok(&#39;7&#39;));
-/// assert_eq!(any.parse(&quot;\t&quot;), Ok(&#39;\t&#39;));
-/// assert!(any.parse(&quot;&quot;).is_err());
+/// assert_eq!(any.parse("a"), Ok('a'));
+/// assert_eq!(any.parse("7"), Ok('7'));
+/// assert_eq!(any.parse("\t"), Ok('\t'));
+/// assert!(any.parse("").is_err());
 /// ```
 </span><span class="kw">pub fn </span>any&lt;I, E&gt;() -&gt; Any&lt;I, E&gt; {
     Filter(|<span class="kw">_</span>| <span class="bool-val">true</span>, PhantomData)
@@ -1977,7 +1978,7 @@
 
 <span class="doccomment">/// See [`fn@todo`].
 </span><span class="attr">#[must_use]
-</span><span class="kw">pub struct </span>Todo&lt;I, O, E&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Location&lt;<span class="lifetime">&#39;static</span>&gt;, PhantomData&lt;(I, O, E)&gt;);
+</span><span class="kw">pub struct </span>Todo&lt;I, O, E&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Location&lt;<span class="lifetime">'static</span>&gt;, PhantomData&lt;(I, O, E)&gt;);
 
 <span class="doccomment">/// A parser that can be used wherever you need to implement a parser later.
 ///
@@ -1987,22 +1988,22 @@
 /// This function is useful when developing your parser, allowing you to prototype and run parts of your parser without
 /// committing to implementing the entire thing immediately.
 ///
-/// The output type of this parser is whatever you want it to be: it&#39;ll never produce output!
+/// The output type of this parser is whatever you want it to be: it'll never produce output!
 ///
 /// # Examples
 ///
 /// ```should_panic
 /// # use chumsky::prelude::*;
-/// let int = just::&lt;_, _, Simple&lt;char&gt;&gt;(&quot;0x&quot;).ignore_then(todo())
-///     .or(just(&quot;0b&quot;).ignore_then(text::digits(2)))
+/// let int = just::&lt;_, _, Simple&lt;char&gt;&gt;("0x").ignore_then(todo())
+///     .or(just("0b").ignore_then(text::digits(2)))
 ///     .or(text::int(10));
 ///
 /// // Decimal numbers are parsed
-/// assert_eq!(int.parse(&quot;12&quot;), Ok(&quot;12&quot;.to_string()));
+/// assert_eq!(int.parse("12"), Ok("12".to_string()));
 /// // Binary numbers are parsed
-/// assert_eq!(int.parse(&quot;0b00101&quot;), Ok(&quot;00101&quot;.to_string()));
+/// assert_eq!(int.parse("0b00101"), Ok("00101".to_string()));
 /// // Parsing hexadecimal numbers results in a panic because the parser is unimplemented
-/// int.parse(&quot;0xd4&quot;);
+/// int.parse("0xd4");
 /// ```
 </span><span class="attr">#[track_caller]
 </span><span class="kw">pub fn </span>todo&lt;I, O, E&gt;() -&gt; Todo&lt;I, O, E&gt; {
@@ -2025,7 +2026,7 @@
         _stream: <span class="kw-2">&amp;mut </span>StreamOf&lt;I, <span class="self">Self</span>::Error&gt;,
     ) -&gt; PResult&lt;I, O, <span class="self">Self</span>::Error&gt; {
         <span class="macro">todo!</span>(
-            <span class="string">&quot;Attempted to use an unimplemented parser. Parser defined at {}&quot;</span>,
+            <span class="string">"Attempted to use an unimplemented parser. Parser defined at {}"</span>,
             <span class="self">self</span>.<span class="number">0
         </span>)
     }
@@ -2209,11 +2210,11 @@
 ///
 /// This primitive has a twofold improvement over a chain of [`Parser::or`] calls:
 ///
-/// - Rust&#39;s trait solver seems to resolve the [`Parser`] impl for this type much faster, significantly reducing
+/// - Rust's trait solver seems to resolve the [`Parser`] impl for this type much faster, significantly reducing
 ///   compilation times.
 ///
-/// - Parsing is likely a little faster in some cases because the resulting parser is &#39;less careful&#39; about error
-///   routing, and doesn&#39;t perform the same fine-grained error prioritisation that [`Parser::or`] does.
+/// - Parsing is likely a little faster in some cases because the resulting parser is 'less careful' about error
+///   routing, and doesn't perform the same fine-grained error prioritisation that [`Parser::or`] does.
 ///
 /// These qualities make this parser ideal for lexers.
 ///
@@ -2233,10 +2234,10 @@
 /// }
 ///
 /// let tokens = choice::&lt;_, Simple&lt;char&gt;&gt;((
-///     text::keyword(&quot;if&quot;).to(Token::If),
-///     text::keyword(&quot;for&quot;).to(Token::For),
-///     text::keyword(&quot;while&quot;).to(Token::While),
-///     text::keyword(&quot;fn&quot;).to(Token::Fn),
+///     text::keyword("if").to(Token::If),
+///     text::keyword("for").to(Token::For),
+///     text::keyword("while").to(Token::While),
+///     text::keyword("fn").to(Token::Fn),
 ///     text::int(10).from_str().unwrapped().map(Token::Int),
 ///     text::ident().map(Token::Ident),
 /// ))
@@ -2245,8 +2246,8 @@
 ///
 /// use Token::*;
 /// assert_eq!(
-///     tokens.parse(&quot;if 56 for foo while 42 fn bar&quot;),
-///     Ok(vec![If, Int(56), For, Ident(&quot;foo&quot;.to_string()), While, Int(42), Fn, Ident(&quot;bar&quot;.to_string())]),
+///     tokens.parse("if 56 for foo while 42 fn bar"),
+///     Ok(vec![If, Int(56), For, Ident("foo".to_string()), While, Int(42), Fn, Ident("bar".to_string())]),
 /// );
 /// ```
 ///
@@ -2264,18 +2265,18 @@
 /// }
 ///
 /// let tokens = choice::&lt;_, Simple&lt;char&gt;&gt;([
-///     text::keyword(&quot;if&quot;).to(Token::If),
-///     text::keyword(&quot;for&quot;).to(Token::For),
-///     text::keyword(&quot;while&quot;).to(Token::While),
-///     text::keyword(&quot;fn&quot;).to(Token::Fn),
-///     text::keyword(&quot;def&quot;).to(Token::Def),
+///     text::keyword("if").to(Token::If),
+///     text::keyword("for").to(Token::For),
+///     text::keyword("while").to(Token::While),
+///     text::keyword("fn").to(Token::Fn),
+///     text::keyword("def").to(Token::Def),
 /// ])
 ///     .padded()
 ///     .repeated();
 ///
 /// use Token::*;
 /// assert_eq!(
-///     tokens.parse(&quot;def fn while if for&quot;),
+///     tokens.parse("def fn while if for"),
 ///     Ok(vec![Def, Fn, While, If, For]),
 /// );
 /// ```

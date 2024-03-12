@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/certificate_configurations.rs`."><title>certificate_configurations.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/certificate_configurations.rs`."><title>certificate_configurations.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -590,9 +591,9 @@
 };
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-#[serde(rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
-#[sqlx(type_name = <span class="string">&quot;certificate_paper_size&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+#[serde(rename_all = <span class="string">"kebab-case"</span>)]
+#[sqlx(type_name = <span class="string">"certificate_paper_size"</span>, rename_all = <span class="string">"kebab-case"</span>)]
 </span><span class="kw">pub enum </span>PaperSize {
     HorizontalA4,
     VerticalA4,
@@ -615,9 +616,9 @@
 
 <span class="doccomment">/// How text should be positioned relative to the given coordinates. See &lt;https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor&gt;.
 </span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-#[serde(rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
-#[sqlx(type_name = <span class="string">&quot;certificate_text_anchor&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+#[serde(rename_all = <span class="string">"kebab-case"</span>)]
+#[sqlx(type_name = <span class="string">"certificate_text_anchor"</span>, rename_all = <span class="string">"kebab-case"</span>)]
 </span><span class="kw">pub enum </span>CertificateTextAnchor {
     Start,
     Middle,
@@ -625,24 +626,24 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>CertificateTextAnchor {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Start =&gt; f.write_str(<span class="string">&quot;start&quot;</span>),
-            <span class="self">Self</span>::Middle =&gt; f.write_str(<span class="string">&quot;middle&quot;</span>),
-            <span class="self">Self</span>::End =&gt; f.write_str(<span class="string">&quot;end&quot;</span>),
+            <span class="self">Self</span>::Start =&gt; f.write_str(<span class="string">"start"</span>),
+            <span class="self">Self</span>::Middle =&gt; f.write_str(<span class="string">"middle"</span>),
+            <span class="self">Self</span>::End =&gt; f.write_str(<span class="string">"end"</span>),
         }
     }
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CertificateConfigurationAndRequirements {
     <span class="kw">pub </span>certificate_configuration: CertificateConfiguration,
     <span class="kw">pub </span>requirements: CertificateAllRequirements,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CertificateConfiguration {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -676,12 +677,12 @@
     certificate_configuration_id: Uuid,
 ) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT course_instance_id
 FROM certificate_configuration_to_requirements
 WHERE certificate_configuration_id = $1
   AND deleted_at IS NULL
-    &quot;#</span>,
+    "#</span>,
         certificate_configuration_id,
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -692,7 +693,7 @@ WHERE certificate_configuration_id = $1
 <span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;CertificateConfiguration&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         CertificateConfiguration,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT cc.id,
   cc.created_at,
   cc.updated_at,
@@ -701,19 +702,19 @@ SELECT cc.id,
   cc.certificate_owner_name_x_pos,
   cc.certificate_owner_name_font_size,
   cc.certificate_owner_name_text_color,
-  cc.certificate_owner_name_text_anchor as &quot;certificate_owner_name_text_anchor: _&quot;,
+  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
   cc.certificate_validate_url_y_pos,
   cc.certificate_validate_url_x_pos,
   cc.certificate_validate_url_font_size,
   cc.certificate_validate_url_text_color,
-  cc.certificate_validate_url_text_anchor as &quot;certificate_validate_url_text_anchor: _&quot;,
+  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
   cc.certificate_date_y_pos,
   cc.certificate_date_x_pos,
   cc.certificate_date_font_size,
   cc.certificate_date_text_color,
-  cc.certificate_date_text_anchor as &quot;certificate_date_text_anchor: _&quot;,
+  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
   cc.certificate_locale,
-  cc.paper_size as &quot;paper_size: _&quot;,
+  cc.paper_size as "paper_size: _",
   cc.background_svg_path,
   cc.background_svg_file_upload_id,
   cc.overlay_svg_path,
@@ -721,7 +722,7 @@ SELECT cc.id,
 FROM certificate_configurations cc
 WHERE id = $1
   AND cc.deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         id,
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
@@ -736,7 +737,7 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;CertificateConfiguration&gt; {
     <span class="kw">let </span>all_certificate_configurations = <span class="macro">sqlx::query_as!</span>(
         CertificateConfiguration,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT cc.id,
   cc.created_at,
   cc.updated_at,
@@ -745,19 +746,19 @@ SELECT cc.id,
   cc.certificate_owner_name_x_pos,
   cc.certificate_owner_name_font_size,
   cc.certificate_owner_name_text_color,
-  cc.certificate_owner_name_text_anchor as &quot;certificate_owner_name_text_anchor: _&quot;,
+  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
   cc.certificate_validate_url_y_pos,
   cc.certificate_validate_url_x_pos,
   cc.certificate_validate_url_font_size,
   cc.certificate_validate_url_text_color,
-  cc.certificate_validate_url_text_anchor as &quot;certificate_validate_url_text_anchor: _&quot;,
+  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
   cc.certificate_date_y_pos,
   cc.certificate_date_x_pos,
   cc.certificate_date_font_size,
   cc.certificate_date_text_color,
-  cc.certificate_date_text_anchor as &quot;certificate_date_text_anchor: _&quot;,
+  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
   cc.certificate_locale,
-  cc.paper_size as &quot;paper_size: _&quot;,
+  cc.paper_size as "paper_size: _",
   cc.background_svg_path,
   cc.background_svg_file_upload_id,
   cc.overlay_svg_path,
@@ -767,7 +768,7 @@ JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_
 WHERE cctr.course_module_id = $1
   AND cc.deleted_at IS NULL
   AND cctr.deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         course_module_id,
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -797,7 +798,7 @@ WHERE cctr.course_module_id = $1
     // }
     </span><span class="prelude-val">Err</span>(ModelError::new(
         ModelErrorType::RecordNotFound,
-        <span class="string">&quot;No certificate configuration found for the course module or the course instance&quot;
+        <span class="string">"No certificate configuration found for the course module or the course instance"
             </span>.to_string(),
         <span class="prelude-val">None</span>,
     ))
@@ -811,7 +812,7 @@ WHERE cctr.course_module_id = $1
     <span class="kw">let </span><span class="kw-2">mut </span>res = Vec::new();
     <span class="kw">let </span>all_certificate_configurations = <span class="macro">sqlx::query_as!</span>(
         CertificateConfiguration,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT cc.id,
   cc.created_at,
   cc.updated_at,
@@ -820,19 +821,19 @@ SELECT cc.id,
   cc.certificate_owner_name_x_pos,
   cc.certificate_owner_name_font_size,
   cc.certificate_owner_name_text_color,
-  cc.certificate_owner_name_text_anchor as &quot;certificate_owner_name_text_anchor: _&quot;,
+  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
   cc.certificate_validate_url_y_pos,
   cc.certificate_validate_url_x_pos,
   cc.certificate_validate_url_font_size,
   cc.certificate_validate_url_text_color,
-  cc.certificate_validate_url_text_anchor as &quot;certificate_validate_url_text_anchor: _&quot;,
+  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
   cc.certificate_date_y_pos,
   cc.certificate_date_x_pos,
   cc.certificate_date_font_size,
   cc.certificate_date_text_color,
-  cc.certificate_date_text_anchor as &quot;certificate_date_text_anchor: _&quot;,
+  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
   cc.certificate_locale,
-  cc.paper_size as &quot;paper_size: _&quot;,
+  cc.paper_size as "paper_size: _",
   cc.background_svg_path,
   cc.background_svg_file_upload_id,
   cc.overlay_svg_path,
@@ -842,7 +843,7 @@ JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_
 WHERE cctr.course_instance_id = $1
   AND cc.deleted_at IS NULL
   AND cctr.deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         course_instance_id,
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -863,7 +864,7 @@ WHERE cctr.course_instance_id = $1
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>DatabaseCertificateConfiguration {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>certificate_owner_name_y_pos: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -891,62 +892,62 @@ WHERE cctr.course_instance_id = $1
 
 <span class="kw">impl </span>DatabaseCertificateConfiguration {
     <span class="doccomment">/// Uses the same default values as the `CREATE TABLE` statement for `certificate_configurations`.
-    /// A little inconvenient, if there&#39;s a better way to turn a None into the default value for the row this can be refactored out.
-    </span><span class="kw">fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DatabaseCertificateConfigurationInner&lt;<span class="lifetime">&#39;_</span>&gt; {
+    /// A little inconvenient, if there's a better way to turn a None into the default value for the row this can be refactored out.
+    </span><span class="kw">fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DatabaseCertificateConfigurationInner&lt;<span class="lifetime">'_</span>&gt; {
         DatabaseCertificateConfigurationInner {
             id: <span class="self">self</span>.id,
             certificate_owner_name_y_pos: <span class="self">self
                 </span>.certificate_owner_name_y_pos
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;70%&quot;</span>),
+                .unwrap_or(<span class="string">"70%"</span>),
             certificate_owner_name_x_pos: <span class="self">self
                 </span>.certificate_owner_name_x_pos
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;50%&quot;</span>),
+                .unwrap_or(<span class="string">"50%"</span>),
             certificate_owner_name_font_size: <span class="self">self
                 </span>.certificate_owner_name_font_size
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;150px&quot;</span>),
+                .unwrap_or(<span class="string">"150px"</span>),
             certificate_owner_name_text_color: <span class="self">self
                 </span>.certificate_owner_name_text_color
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;black&quot;</span>),
+                .unwrap_or(<span class="string">"black"</span>),
             certificate_owner_name_text_anchor: <span class="self">self
                 </span>.certificate_owner_name_text_anchor
                 .unwrap_or(CertificateTextAnchor::Middle),
             certificate_validate_url_y_pos: <span class="self">self
                 </span>.certificate_validate_url_y_pos
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;80%&quot;</span>),
+                .unwrap_or(<span class="string">"80%"</span>),
             certificate_validate_url_x_pos: <span class="self">self
                 </span>.certificate_validate_url_x_pos
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;88.5%&quot;</span>),
+                .unwrap_or(<span class="string">"88.5%"</span>),
             certificate_validate_url_font_size: <span class="self">self
                 </span>.certificate_validate_url_font_size
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;30px&quot;</span>),
+                .unwrap_or(<span class="string">"30px"</span>),
             certificate_validate_url_text_color: <span class="self">self
                 </span>.certificate_validate_url_text_color
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;black&quot;</span>),
+                .unwrap_or(<span class="string">"black"</span>),
             certificate_validate_url_text_anchor: <span class="self">self
                 </span>.certificate_validate_url_text_anchor
                 .unwrap_or(CertificateTextAnchor::End),
-            certificate_date_y_pos: <span class="self">self</span>.certificate_date_y_pos.as_deref().unwrap_or(<span class="string">&quot;88.5%&quot;</span>),
-            certificate_date_x_pos: <span class="self">self</span>.certificate_date_x_pos.as_deref().unwrap_or(<span class="string">&quot;15%&quot;</span>),
+            certificate_date_y_pos: <span class="self">self</span>.certificate_date_y_pos.as_deref().unwrap_or(<span class="string">"88.5%"</span>),
+            certificate_date_x_pos: <span class="self">self</span>.certificate_date_x_pos.as_deref().unwrap_or(<span class="string">"15%"</span>),
             certificate_date_font_size: <span class="self">self
                 </span>.certificate_date_font_size
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;30px&quot;</span>),
+                .unwrap_or(<span class="string">"30px"</span>),
             certificate_date_text_color: <span class="self">self
                 </span>.certificate_date_text_color
                 .as_deref()
-                .unwrap_or(<span class="string">&quot;black&quot;</span>),
+                .unwrap_or(<span class="string">"black"</span>),
             certificate_date_text_anchor: <span class="self">self
                 </span>.certificate_date_text_anchor
                 .unwrap_or(CertificateTextAnchor::Start),
-            certificate_locale: <span class="self">self</span>.certificate_locale.as_deref().unwrap_or(<span class="string">&quot;en&quot;</span>),
+            certificate_locale: <span class="self">self</span>.certificate_locale.as_deref().unwrap_or(<span class="string">"en"</span>),
             paper_size: <span class="self">self</span>.paper_size.unwrap_or(PaperSize::HorizontalA4),
             background_svg_path: <span class="kw-2">&amp;</span><span class="self">self</span>.background_svg_path,
             background_svg_file_upload_id: <span class="self">self</span>.background_svg_file_upload_id,
@@ -957,28 +958,28 @@ WHERE cctr.course_instance_id = $1
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-</span><span class="kw">struct </span>DatabaseCertificateConfigurationInner&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">struct </span>DatabaseCertificateConfigurationInner&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub </span>id: Uuid,
-    <span class="kw">pub </span>certificate_owner_name_y_pos: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>certificate_owner_name_x_pos: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>certificate_owner_name_font_size: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>certificate_owner_name_text_color: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="kw">pub </span>certificate_owner_name_y_pos: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>certificate_owner_name_x_pos: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>certificate_owner_name_font_size: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>certificate_owner_name_text_color: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     <span class="kw">pub </span>certificate_owner_name_text_anchor: CertificateTextAnchor,
-    <span class="kw">pub </span>certificate_validate_url_y_pos: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>certificate_validate_url_x_pos: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>certificate_validate_url_font_size: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>certificate_validate_url_text_color: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="kw">pub </span>certificate_validate_url_y_pos: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>certificate_validate_url_x_pos: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>certificate_validate_url_font_size: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>certificate_validate_url_text_color: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     <span class="kw">pub </span>certificate_validate_url_text_anchor: CertificateTextAnchor,
-    <span class="kw">pub </span>certificate_date_y_pos: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>certificate_date_x_pos: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>certificate_date_font_size: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>certificate_date_text_color: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="kw">pub </span>certificate_date_y_pos: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>certificate_date_x_pos: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>certificate_date_font_size: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>certificate_date_text_color: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     <span class="kw">pub </span>certificate_date_text_anchor: CertificateTextAnchor,
-    <span class="kw">pub </span>certificate_locale: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="kw">pub </span>certificate_locale: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     <span class="kw">pub </span>paper_size: PaperSize,
-    <span class="kw">pub </span>background_svg_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="kw">pub </span>background_svg_path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     <span class="kw">pub </span>background_svg_file_upload_id: Uuid,
-    <span class="kw">pub </span>overlay_svg_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+    <span class="kw">pub </span>overlay_svg_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
     <span class="kw">pub </span>overlay_svg_file_upload_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
@@ -989,7 +990,7 @@ WHERE cctr.course_instance_id = $1
     <span class="kw">let </span>conf = conf.build();
     <span class="kw">let </span>configuration = <span class="macro">sqlx::query_as!</span>(
         CertificateConfiguration,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 INSERT INTO public.certificate_configurations (
     certificate_owner_name_y_pos,
     certificate_owner_name_x_pos,
@@ -1044,24 +1045,24 @@ RETURNING id,
   certificate_owner_name_x_pos,
   certificate_owner_name_font_size,
   certificate_owner_name_text_color,
-  certificate_owner_name_text_anchor as &quot;certificate_owner_name_text_anchor: _&quot;,
+  certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
   certificate_validate_url_y_pos,
   certificate_validate_url_x_pos,
   certificate_validate_url_font_size,
   certificate_validate_url_text_color,
-  certificate_validate_url_text_anchor as &quot;certificate_validate_url_text_anchor: _&quot;,
+  certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
   certificate_date_y_pos,
   certificate_date_x_pos,
   certificate_date_font_size,
   certificate_date_text_color,
-  certificate_date_text_anchor as &quot;certificate_date_text_anchor: _&quot;,
+  certificate_date_text_anchor as "certificate_date_text_anchor: _",
   certificate_locale,
-  paper_size as &quot;paper_size: _&quot;,
+  paper_size as "paper_size: _",
   background_svg_path,
   background_svg_file_upload_id,
   overlay_svg_path,
   overlay_svg_file_upload_id
-&quot;#</span>,
+"#</span>,
         conf.certificate_owner_name_y_pos,
         conf.certificate_owner_name_x_pos,
         conf.certificate_owner_name_font_size,
@@ -1096,7 +1097,7 @@ RETURNING id,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="kw">let </span>conf = conf.build();
     <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE public.certificate_configurations
 SET certificate_owner_name_y_pos = $1,
   certificate_owner_name_x_pos = $2,
@@ -1120,7 +1121,7 @@ SET certificate_owner_name_y_pos = $1,
   overlay_svg_path = $20,
   overlay_svg_file_upload_id = $21
 WHERE id = $22
-&quot;#</span>,
+"#</span>,
         conf.certificate_owner_name_y_pos,
         conf.certificate_owner_name_x_pos,
         conf.certificate_owner_name_font_size,
@@ -1151,11 +1152,11 @@ WHERE id = $22
 
 <span class="kw">pub async fn </span>delete(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE certificate_configurations
 SET deleted_at = now()
 WHERE id = $1
-&quot;</span>,
+"</span>,
         id
     )
     .execute(conn)

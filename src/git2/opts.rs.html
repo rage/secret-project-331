@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/opts.rs`."><title>opts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/opts.rs`."><title>opts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -204,7 +205,45 @@
 <a href="#204" id="204">204</a>
 <a href="#205" id="205">205</a>
 <a href="#206" id="206">206</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! Bindings to libgit2&#39;s git_libgit2_opts function.
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Bindings to libgit2's git_libgit2_opts function.
 
 </span><span class="kw">use </span>std::ffi::CString;
 <span class="kw">use </span>std::ptr;
@@ -357,7 +396,7 @@
 
 <span class="doccomment">/// Set that the given git extensions are supported by the caller. Extensions
 /// supported by libgit2 may be negated by prefixing them with a `!`.
-/// For example: setting extensions to `[ &quot;!noop&quot;, &quot;newext&quot; ]` indicates that
+/// For example: setting extensions to `[ "!noop", "newext" ]` indicates that
 /// the caller does not want to support repositories with the `noop` extension
 /// but does want to support repositories with the `newext` extension.
 ///
@@ -367,7 +406,7 @@
 /// This function is effectively modifying a `static mut` and should be treated as such
 </span><span class="kw">pub unsafe fn </span>set_extensions&lt;E&gt;(extensions: <span class="kw-2">&amp;</span>[E]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
 <span class="kw">where
-    for</span>&lt;<span class="lifetime">&#39;x</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;x </span>E: IntoCString,
+    for</span>&lt;<span class="lifetime">'x</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">'x </span>E: IntoCString,
 {
     <span class="kw">crate</span>::init();
 
@@ -398,6 +437,44 @@
     <span class="comment">// This function cannot actually fail, but the function has an error return
     // for other options that can.
     </span><span class="macro">debug_assert!</span>(error &gt;= <span class="number">0</span>);
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="doccomment">/// Set the SSL certificate-authority location to `file`. `file` is the location
+/// of a file containing several certificates concatenated together.
+</span><span class="kw">pub unsafe fn </span>set_ssl_cert_file&lt;P&gt;(file: P) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+<span class="kw">where
+    </span>P: IntoCString,
+{
+    <span class="kw">crate</span>::init();
+
+    <span class="kw">unsafe </span>{
+        <span class="macro">try_call!</span>(raw::git_libgit2_opts(
+            raw::GIT_OPT_SET_SSL_CERT_LOCATIONS <span class="kw">as </span>libc::c_int,
+            file.into_c_string()<span class="question-mark">?</span>.as_ptr(),
+            core::ptr::null::&lt;libc::c_char&gt;()
+        ));
+    }
+
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="doccomment">/// Set the SSL certificate-authority location to `path`. `path` is the location
+/// of a directory holding several certificates, one per file.
+</span><span class="kw">pub unsafe fn </span>set_ssl_cert_dir&lt;P&gt;(path: P) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+<span class="kw">where
+    </span>P: IntoCString,
+{
+    <span class="kw">crate</span>::init();
+
+    <span class="kw">unsafe </span>{
+        <span class="macro">try_call!</span>(raw::git_libgit2_opts(
+            raw::GIT_OPT_SET_SSL_CERT_LOCATIONS <span class="kw">as </span>libc::c_int,
+            core::ptr::null::&lt;libc::c_char&gt;(),
+            path.into_c_string()<span class="question-mark">?</span>.as_ptr()
+        ));
+    }
+
     <span class="prelude-val">Ok</span>(())
 }
 

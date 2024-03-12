@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/reader.rs`."><title>reader.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/reader.rs`."><title>reader.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -651,9 +652,9 @@
 //! use zerotrie::ZeroTrieSimpleAscii;
 //!
 //! let bytes = [
-//!     b&#39;a&#39;,       // ASCII literal
+//!     b'a',       // ASCII literal
 //!     0b10001010, // value 10
-//!     b&#39;b&#39;,       // ASCII literal
+//!     b'b',       // ASCII literal
 //!     0b10100011, // span of 3
 //!     0x81,       // first byte in span
 //!     0x91,       // second byte in span
@@ -663,16 +664,16 @@
 //!
 //! let trie = ZeroTrieSimpleAscii::from_bytes(&amp;bytes);
 //!
-//! // First value: &quot;a&quot; → 10
-//! assert_eq!(trie.get(b&quot;a&quot;), Some(10));
+//! // First value: "a" → 10
+//! assert_eq!(trie.get(b"a"), Some(10));
 //!
-//! // Second value: &quot;ab\x81\x91\xA1&quot; → 4
-//! assert_eq!(trie.get(b&quot;ab\x81\x91\xA1&quot;), Some(4));
+//! // Second value: "ab\x81\x91\xA1" → 4
+//! assert_eq!(trie.get(b"ab\x81\x91\xA1"), Some(4));
 //!
 //! // A few examples of strings that do NOT have values in the trie:
-//! assert_eq!(trie.get(b&quot;ab&quot;), None);
-//! assert_eq!(trie.get(b&quot;b&quot;), None);
-//! assert_eq!(trie.get(b&quot;b\x81\x91\xA1&quot;), None);
+//! assert_eq!(trie.get(b"ab"), None);
+//! assert_eq!(trie.get(b"b"), None);
+//! assert_eq!(trie.get(b"b\x81\x91\xA1"), None);
 //! ```
 //!
 //! ## Branch Nodes
@@ -685,7 +686,7 @@
 //! - Bottom 8 bits: number of edges in the branch (`N`); if N = 0, set N to 256
 //! - Bits 9 and 10: width of the offset table (`W`)
 //!
-//! Note that N is always in the range [1, 256]. There can&#39;t be more than 256 edges because
+//! Note that N is always in the range [1, 256]. There can't be more than 256 edges because
 //! there are only 256 unique u8 values.
 //!
 //! A few examples of the head node of the branch:
@@ -749,15 +750,15 @@
 //! The following trie encodes the following map. It has multiple varints and branch nodes, which
 //! are all binary search with W = 0. Note that there is a value for the empty string.
 //!
-//! - &quot;&quot; → 0
-//! - &quot;axb&quot; → 100
-//! - &quot;ayc&quot; → 2
-//! - &quot;azd&quot; → 3
-//! - &quot;bxe&quot; → 4
-//! - &quot;bxefg&quot; → 500
-//! - &quot;bxefh&quot; → 6
-//! - &quot;bxei&quot; → 7
-//! - &quot;bxeikl&quot; → 8
+//! - "" → 0
+//! - "axb" → 100
+//! - "ayc" → 2
+//! - "azd" → 3
+//! - "bxe" → 4
+//! - "bxefg" → 500
+//! - "bxefh" → 6
+//! - "bxei" → 7
+//! - "bxeikl" → 8
 //!
 //! ```
 //! use zerotrie::ZeroTrieSimpleAscii;
@@ -765,59 +766,59 @@
 //! let bytes = [
 //!     0b10000000, // value 0
 //!     0b11000010, // branch of 2
-//!     b&#39;a&#39;,       //
-//!     b&#39;b&#39;,       //
+//!     b'a',       //
+//!     b'b',       //
 //!     13,         //
-//!     0b11000011, // start of &#39;a&#39; subtree: branch of 3
-//!     b&#39;x&#39;,       //
-//!     b&#39;y&#39;,       //
-//!     b&#39;z&#39;,       //
+//!     0b11000011, // start of 'a' subtree: branch of 3
+//!     b'x',       //
+//!     b'y',       //
+//!     b'z',       //
 //!     3,          //
 //!     5,          //
-//!     b&#39;b&#39;,       //
+//!     b'b',       //
 //!     0b10010000, // value 100 (lead)
 //!     0x54,       // value 100 (trail)
-//!     b&#39;c&#39;,       //
+//!     b'c',       //
 //!     0b10000010, // value 2
-//!     b&#39;d&#39;,       //
+//!     b'd',       //
 //!     0b10000011, // value 3
-//!     b&#39;x&#39;,       // start of &#39;b&#39; subtree
-//!     b&#39;e&#39;,       //
+//!     b'x',       // start of 'b' subtree
+//!     b'e',       //
 //!     0b10000100, // value 4
 //!     0b11000010, // branch of 2
-//!     b&#39;f&#39;,       //
-//!     b&#39;i&#39;,       //
+//!     b'f',       //
+//!     b'i',       //
 //!     7,          //
 //!     0b11000010, // branch of 2
-//!     b&#39;g&#39;,       //
-//!     b&#39;h&#39;,       //
+//!     b'g',       //
+//!     b'h',       //
 //!     2,          //
 //!     0b10010011, // value 500 (lead)
 //!     0x64,       // value 500 (trail)
 //!     0b10000110, // value 6
 //!     0b10000111, // value 7
-//!     b&#39;k&#39;,       //
-//!     b&#39;l&#39;,       //
+//!     b'k',       //
+//!     b'l',       //
 //!     0b10001000, // value 8
 //! ];
 //!
 //! let trie = ZeroTrieSimpleAscii::from_bytes(&amp;bytes);
 //!
 //! // Assert that the specified items are in the map
-//! assert_eq!(trie.get(b&quot;&quot;), Some(0));
-//! assert_eq!(trie.get(b&quot;axb&quot;), Some(100));
-//! assert_eq!(trie.get(b&quot;ayc&quot;), Some(2));
-//! assert_eq!(trie.get(b&quot;azd&quot;), Some(3));
-//! assert_eq!(trie.get(b&quot;bxe&quot;), Some(4));
-//! assert_eq!(trie.get(b&quot;bxefg&quot;), Some(500));
-//! assert_eq!(trie.get(b&quot;bxefh&quot;), Some(6));
-//! assert_eq!(trie.get(b&quot;bxei&quot;), Some(7));
-//! assert_eq!(trie.get(b&quot;bxeikl&quot;), Some(8));
+//! assert_eq!(trie.get(b""), Some(0));
+//! assert_eq!(trie.get(b"axb"), Some(100));
+//! assert_eq!(trie.get(b"ayc"), Some(2));
+//! assert_eq!(trie.get(b"azd"), Some(3));
+//! assert_eq!(trie.get(b"bxe"), Some(4));
+//! assert_eq!(trie.get(b"bxefg"), Some(500));
+//! assert_eq!(trie.get(b"bxefh"), Some(6));
+//! assert_eq!(trie.get(b"bxei"), Some(7));
+//! assert_eq!(trie.get(b"bxeikl"), Some(8));
 //!
 //! // Assert that some other items are not in the map
-//! assert_eq!(trie.get(b&quot;a&quot;), None);
-//! assert_eq!(trie.get(b&quot;bx&quot;), None);
-//! assert_eq!(trie.get(b&quot;xba&quot;), None);
+//! assert_eq!(trie.get(b"a"), None);
+//! assert_eq!(trie.get(b"bx"), None);
+//! assert_eq!(trie.get(b"xba"), None);
 //! ```
 
 </span><span class="kw">use </span><span class="kw">crate</span>::byte_phf::PerfectByteHashMap;
@@ -825,7 +826,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::varint::read_varint_meta2;
 <span class="kw">use </span><span class="kw">crate</span>::varint::read_varint_meta3;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::string::String;
 
 <span class="doccomment">/// Given a slice starting with an offset table, returns the trie for the given index.
@@ -893,10 +894,10 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
         <span class="kw">use </span>NodeType::<span class="kw-2">*</span>;
         f.write_str(<span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Ascii =&gt; <span class="string">&quot;a&quot;</span>,
-            Span =&gt; <span class="string">&quot;s&quot;</span>,
-            Value =&gt; <span class="string">&quot;v&quot;</span>,
-            Branch =&gt; <span class="string">&quot;m&quot;</span>,
+            Ascii =&gt; <span class="string">"a"</span>,
+            Span =&gt; <span class="string">"s"</span>,
+            Value =&gt; <span class="string">"v"</span>,
+            Branch =&gt; <span class="string">"m"</span>,
         })
     }
 }
@@ -938,7 +939,7 @@
                     </span>ascii = temp;
                     <span class="kw">continue</span>;
                 } <span class="kw">else </span>{
-                    <span class="comment">// Byte that doesn&#39;t match
+                    <span class="comment">// Byte that doesn't match
                     </span><span class="kw">return </span><span class="prelude-val">None</span>;
                 }
             }
@@ -954,14 +955,14 @@
                     <span class="comment">// Matched a byte span
                     </span><span class="kw">continue</span>;
                 } <span class="kw">else </span>{
-                    <span class="comment">// Byte span that doesn&#39;t match
+                    <span class="comment">// Byte span that doesn't match
                     </span><span class="kw">return </span><span class="prelude-val">None</span>;
                 }
             }
             <span class="comment">// Branch node
             </span><span class="kw">let </span>(x, w) = <span class="kw">if </span>x &gt;= <span class="number">256 </span>{ (x &amp; <span class="number">0xff</span>, x &gt;&gt; <span class="number">8</span>) } <span class="kw">else </span>{ (x, <span class="number">0</span>) };
             <span class="comment">// See comment above regarding this assertion
-            </span><span class="macro">debug_assert!</span>(w &lt;= <span class="number">3</span>, <span class="string">&quot;get: w &gt; 3 but we assume w &lt;= 3&quot;</span>);
+            </span><span class="macro">debug_assert!</span>(w &lt;= <span class="number">3</span>, <span class="string">"get: w &gt; 3 but we assume w &lt;= 3"</span>);
             <span class="kw">let </span>w = w &amp; <span class="number">0x3</span>;
             <span class="kw">let </span>x = <span class="kw">if </span>x == <span class="number">0 </span>{ <span class="number">256 </span>} <span class="kw">else </span>{ x };
             <span class="comment">// Always use binary search
@@ -1002,7 +1003,7 @@
                     </span>ascii = temp;
                     <span class="kw">continue</span>;
                 } <span class="kw">else </span>{
-                    <span class="comment">// Byte that doesn&#39;t match
+                    <span class="comment">// Byte that doesn't match
                     </span><span class="kw">return </span><span class="prelude-val">None</span>;
                 }
             }
@@ -1018,14 +1019,14 @@
                     <span class="comment">// Matched a byte span
                     </span><span class="kw">continue</span>;
                 } <span class="kw">else </span>{
-                    <span class="comment">// Byte span that doesn&#39;t match
+                    <span class="comment">// Byte span that doesn't match
                     </span><span class="kw">return </span><span class="prelude-val">None</span>;
                 }
             }
             <span class="comment">// Branch node
             </span><span class="kw">let </span>(x, w) = <span class="kw">if </span>x &gt;= <span class="number">256 </span>{ (x &amp; <span class="number">0xff</span>, x &gt;&gt; <span class="number">8</span>) } <span class="kw">else </span>{ (x, <span class="number">0</span>) };
             <span class="comment">// See comment above regarding this assertion
-            </span><span class="macro">debug_assert!</span>(w &lt;= <span class="number">3</span>, <span class="string">&quot;get: w &gt; 3 but we assume w &lt;= 3&quot;</span>);
+            </span><span class="macro">debug_assert!</span>(w &lt;= <span class="number">3</span>, <span class="string">"get: w &gt; 3 but we assume w &lt;= 3"</span>);
             <span class="kw">let </span>w = w &amp; <span class="number">0x3</span>;
             <span class="kw">let </span>x = <span class="kw">if </span>x == <span class="number">0 </span>{ <span class="number">256 </span>} <span class="kw">else </span>{ x };
             <span class="kw">if </span>x &lt; <span class="number">16 </span>{
@@ -1072,7 +1073,7 @@
                     </span>ascii = temp;
                     <span class="kw">continue</span>;
                 } <span class="kw">else </span>{
-                    <span class="comment">// Byte that doesn&#39;t match
+                    <span class="comment">// Byte that doesn't match
                     </span><span class="kw">return </span><span class="prelude-val">None</span>;
                 }
             }
@@ -1088,7 +1089,7 @@
                     <span class="comment">// Matched a byte span
                     </span><span class="kw">continue</span>;
                 } <span class="kw">else </span>{
-                    <span class="comment">// Byte span that doesn&#39;t match
+                    <span class="comment">// Byte span that doesn't match
                     </span><span class="kw">return </span><span class="prelude-val">None</span>;
                 }
             }
@@ -1121,24 +1122,24 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::vec::Vec;
 
 <span class="doccomment">/// Internal iterator type for walking the strings contained in a ZeroTrie.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ZeroTrieIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ZeroTrieIterator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Whether the PHF is enabled on this trie.
     </span>use_phf: bool,
     <span class="doccomment">/// Intermediate state during iteration:
     /// 1. A trie (usually a slice of the original, bigger trie)
     /// 2. The string that leads to the trie
-    /// 3. If the trie&#39;s lead node is a branch node, the current index being evaluated
-    </span>state: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], Vec&lt;u8&gt;, usize)&gt;,
+    /// 3. If the trie's lead node is a branch node, the current index being evaluated
+    </span>state: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], Vec&lt;u8&gt;, usize)&gt;,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ZeroTrieIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>new&lt;S: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized&gt;(store: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>S, use_phf: bool) -&gt; <span class="self">Self </span>{
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ZeroTrieIterator&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub fn </span>new&lt;S: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized&gt;(store: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>S, use_phf: bool) -&gt; <span class="self">Self </span>{
         ZeroTrieIterator {
             use_phf,
             state: <span class="macro">alloc::vec!</span>[(store.as_ref(), <span class="macro">alloc::vec!</span>[], <span class="number">0</span>)],
@@ -1146,8 +1147,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>ZeroTrieIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>ZeroTrieIterator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Item = (Vec&lt;u8&gt;, usize);
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let </span>(<span class="kw-2">mut </span>trie, <span class="kw-2">mut </span>string, <span class="kw-2">mut </span>branch_idx);
@@ -1213,19 +1214,19 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_iter_phf&lt;S: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized&gt;(
     store: <span class="kw-2">&amp;</span>S,
-) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (Vec&lt;u8&gt;, usize)&gt; + <span class="lifetime">&#39;_ </span>{
+) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (Vec&lt;u8&gt;, usize)&gt; + <span class="lifetime">'_ </span>{
     ZeroTrieIterator::new(store, <span class="bool-val">true</span>)
 }
 
 <span class="doccomment">/// # Panics
 /// Panics if the trie contains non-ASCII items.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_iter_ascii_or_panic&lt;S: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized&gt;(
     store: <span class="kw-2">&amp;</span>S,
-) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (String, usize)&gt; + <span class="lifetime">&#39;_ </span>{
+) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (String, usize)&gt; + <span class="lifetime">'_ </span>{
     ZeroTrieIterator::new(store, <span class="bool-val">false</span>).map(|(k, v)| {
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// in signature of function
         </span><span class="kw">let </span>ascii_str = String::from_utf8(k).unwrap();

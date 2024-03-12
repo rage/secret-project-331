@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/types/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/types/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -259,23 +260,23 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::database::Database;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;bstr&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;bstr&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"bstr"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"bstr"</span>)))]
 </span><span class="kw">pub mod </span>bstr;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;json&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"json"</span>)))]
 </span><span class="kw">mod </span>json;
 
 <span class="kw">mod </span>text;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;uuid&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;uuid&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"uuid"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"uuid"</span>)))]
 #[doc(no_inline)]
 </span><span class="kw">pub use </span>uuid::{<span class="self">self</span>, Uuid};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;chrono&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"chrono"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"chrono"</span>)))]
 </span><span class="kw">pub mod </span>chrono {
     <span class="attr">#[doc(no_inline)]
     </span><span class="kw">pub use </span>chrono::{
@@ -283,43 +284,43 @@
     };
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;bit-vec&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;bit-vec&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"bit-vec"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"bit-vec"</span>)))]
 #[doc(no_inline)]
 </span><span class="kw">pub use </span>bit_vec::BitVec;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;time&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;time&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"time"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"time"</span>)))]
 </span><span class="kw">pub mod </span>time {
     <span class="attr">#[doc(no_inline)]
     </span><span class="kw">pub use </span>time::{Date, OffsetDateTime, PrimitiveDateTime, Time, UtcOffset};
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"bigdecimal"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"bigdecimal"</span>)))]
 #[doc(no_inline)]
 </span><span class="kw">pub use </span>bigdecimal::BigDecimal;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;rust_decimal&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rust_decimal&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"rust_decimal"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rust_decimal"</span>)))]
 #[doc(no_inline)]
 </span><span class="kw">pub use </span>rust_decimal::Decimal;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ipnetwork&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;ipnetwork&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"ipnetwork"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"ipnetwork"</span>)))]
 </span><span class="kw">pub mod </span>ipnetwork {
     <span class="attr">#[doc(no_inline)]
     </span><span class="kw">pub use </span>ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;mac_address&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;mac_address&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"mac_address"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"mac_address"</span>)))]
 </span><span class="kw">pub mod </span>mac_address {
     <span class="attr">#[doc(no_inline)]
     </span><span class="kw">pub use </span>mac_address::MacAddress;
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
 </span><span class="kw">pub use </span>json::{Json, JsonRawValue, JsonValue};
 
 <span class="kw">pub use </span>text::Text;
@@ -335,7 +336,7 @@
 /// struct MyUser { id: UserId, name: String }
 ///
 /// // fetch all properties from user and override the type in Rust for `id`
-/// let user = query_as!(MyUser, r#&quot;SELECT users.*, id as &quot;id: UserId&quot; FROM users&quot;#)
+/// let user = query_as!(MyUser, r#"SELECT users.*, id as "id: UserId" FROM users"#)
 ///     .fetch_one(&amp;pool).await?;
 /// ```
 ///
@@ -361,13 +362,13 @@
 /// so that you may use it with `Vec` and other types that decode from an array in Postgres:
 ///
 /// ```rust,ignore
-/// let user_ids: Vec&lt;UserId&gt; = sqlx::query_scalar(&quot;select &#39;{ 123, 456 }&#39;::int8[]&quot;)
+/// let user_ids: Vec&lt;UserId&gt; = sqlx::query_scalar("select '{ 123, 456 }'::int8[]")
 ///    .fetch(&amp;mut pg_connection)
 ///    .await?;
 /// ```
 ///
 /// However, if you are wrapping a type that does not implement `PgHasArrayType`
-/// (e.g. `Vec` itself, because we don&#39;t currently support multidimensional arrays),
+/// (e.g. `Vec` itself, because we don't currently support multidimensional arrays),
 /// you may receive an error:
 ///
 /// ```rust,ignore
@@ -387,12 +388,12 @@
 ///
 /// ##### Attributes
 ///
-/// * `#[sqlx(type_name = &quot;&lt;SQL type name&gt;&quot;)]` on struct definition: instead of inferring the SQL
+/// * `#[sqlx(type_name = "&lt;SQL type name&gt;")]` on struct definition: instead of inferring the SQL
 ///   type name from the inner field (in the above case, `BIGINT`), explicitly set it to
 ///   `&lt;SQL type name&gt;` instead. May trigger errors or unexpected behavior if the encoding of the
 ///   given type is different than that of the inferred type (e.g. if you rename the above to
 ///   `VARCHAR`). Affects Postgres only.
-/// * `#[sqlx(rename_all = &quot;&lt;strategy&gt;&quot;)]` on struct definition: See [`derive docs in FromRow`](crate::from_row::FromRow#rename_all)
+/// * `#[sqlx(rename_all = "&lt;strategy&gt;")]` on struct definition: See [`derive docs in FromRow`](crate::from_row::FromRow#rename_all)
 /// * `#[sqlx(no_pg_array)]`: do not emit a `PgHasArrayType` impl (see above).
 ///
 /// ### Enumeration
@@ -412,8 +413,8 @@
 ///
 /// ```rust,ignore
 /// #[derive(sqlx::Type)]
-/// #[sqlx(type_name = &quot;color&quot;)] // only for PostgreSQL to match a type definition
-/// #[sqlx(rename_all = &quot;lowercase&quot;)]
+/// #[sqlx(type_name = "color")] // only for PostgreSQL to match a type definition
+/// #[sqlx(rename_all = "lowercase")]
 /// enum Color { Red, Green, Blue }
 /// ```
 ///
@@ -425,7 +426,7 @@
 ///
 /// ```rust,ignore
 /// #[derive(sqlx::Type)]
-/// #[sqlx(type_name = &quot;interface_type&quot;)]
+/// #[sqlx(type_name = "interface_type")]
 /// struct InterfaceType {
 ///     name: String,
 ///     supplier_id: i32,
@@ -456,7 +457,7 @@
 }
 
 <span class="comment">// for references, the underlying SQL type is identical
-</span><span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized + Type&lt;DB&gt;, DB: Database&gt; Type&lt;DB&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T {
+</span><span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized + Type&lt;DB&gt;, DB: Database&gt; Type&lt;DB&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'_ </span>T {
     <span class="kw">fn </span>type_info() -&gt; DB::TypeInfo {
         &lt;T <span class="kw">as </span>Type&lt;DB&gt;&gt;::type_info()
     }

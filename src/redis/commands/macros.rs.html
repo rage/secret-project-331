@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/commands/macros.rs`."><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/commands/macros.rs`."><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -293,10 +294,10 @@
         ///
         /// ```rust,no_run
         /// # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-        /// let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;)?;
+        /// let client = redis::Client::open("redis://127.0.0.1/")?;
         /// let mut con = client.get_connection()?;
-        /// redis::cmd(&quot;SET&quot;).arg(&quot;my_key&quot;).arg(42).execute(&amp;mut con);
-        /// assert_eq!(redis::cmd(&quot;GET&quot;).arg(&quot;my_key&quot;).query(&amp;mut con), Ok(42));
+        /// redis::cmd("SET").arg("my_key").arg(42).execute(&amp;mut con);
+        /// assert_eq!(redis::cmd("GET").arg("my_key").query(&amp;mut con), Ok(42));
         /// # Ok(()) }
         /// ```
         ///
@@ -305,10 +306,10 @@
         /// ```rust,no_run
         /// # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
         /// use redis::Commands;
-        /// let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;)?;
+        /// let client = redis::Client::open("redis://127.0.0.1/")?;
         /// let mut con = client.get_connection()?;
-        /// con.set(&quot;my_key&quot;, 42)?;
-        /// assert_eq!(con.get(&quot;my_key&quot;), Ok(42));
+        /// con.set("my_key", 42)?;
+        /// assert_eq!(con.get("my_key"), Ok(42));
         /// # Ok(()) }
         /// ```
         </span><span class="kw">pub trait </span>Commands : ConnectionLike+Sized {
@@ -323,24 +324,24 @@
 
             <span class="doccomment">/// Incrementally iterate the keys space.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>scan&lt;RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;SCAN&quot;</span>);
+            </span><span class="kw">fn </span>scan&lt;RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SCAN"</span>);
                 c.cursor_arg(<span class="number">0</span>);
                 c.iter(<span class="self">self</span>)
             }
 
             <span class="doccomment">/// Incrementally iterate the keys space for keys matching a pattern.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>scan_match&lt;P: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pattern: P) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;SCAN&quot;</span>);
-                c.cursor_arg(<span class="number">0</span>).arg(<span class="string">&quot;MATCH&quot;</span>).arg(pattern);
+            </span><span class="kw">fn </span>scan_match&lt;P: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pattern: P) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SCAN"</span>);
+                c.cursor_arg(<span class="number">0</span>).arg(<span class="string">"MATCH"</span>).arg(pattern);
                 c.iter(<span class="self">self</span>)
             }
 
             <span class="doccomment">/// Incrementally iterate hash fields and associated values.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>hscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;HSCAN&quot;</span>);
+            </span><span class="kw">fn </span>hscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"HSCAN"</span>);
                 c.arg(key).cursor_arg(<span class="number">0</span>);
                 c.iter(<span class="self">self</span>)
             }
@@ -349,16 +350,16 @@
             /// field names matching a pattern.
             </span><span class="attr">#[inline]
             </span><span class="kw">fn </span>hscan_match&lt;K: ToRedisArgs, P: ToRedisArgs, RV: FromRedisValue&gt;
-                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;HSCAN&quot;</span>);
-                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">&quot;MATCH&quot;</span>).arg(pattern);
+                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"HSCAN"</span>);
+                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">"MATCH"</span>).arg(pattern);
                 c.iter(<span class="self">self</span>)
             }
 
             <span class="doccomment">/// Incrementally iterate set elements.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>sscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;SSCAN&quot;</span>);
+            </span><span class="kw">fn </span>sscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SSCAN"</span>);
                 c.arg(key).cursor_arg(<span class="number">0</span>);
                 c.iter(<span class="self">self</span>)
             }
@@ -366,16 +367,16 @@
             <span class="doccomment">/// Incrementally iterate set elements for elements matching a pattern.
             </span><span class="attr">#[inline]
             </span><span class="kw">fn </span>sscan_match&lt;K: ToRedisArgs, P: ToRedisArgs, RV: FromRedisValue&gt;
-                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;SSCAN&quot;</span>);
-                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">&quot;MATCH&quot;</span>).arg(pattern);
+                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SSCAN"</span>);
+                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">"MATCH"</span>).arg(pattern);
                 c.iter(<span class="self">self</span>)
             }
 
             <span class="doccomment">/// Incrementally iterate sorted set elements.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>zscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;ZSCAN&quot;</span>);
+            </span><span class="kw">fn </span>zscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"ZSCAN"</span>);
                 c.arg(key).cursor_arg(<span class="number">0</span>);
                 c.iter(<span class="self">self</span>)
             }
@@ -383,9 +384,9 @@
             <span class="doccomment">/// Incrementally iterate sorted set elements for elements matching a pattern.
             </span><span class="attr">#[inline]
             </span><span class="kw">fn </span>zscan_match&lt;K: ToRedisArgs, P: ToRedisArgs, RV: FromRedisValue&gt;
-                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;ZSCAN&quot;</span>);
-                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">&quot;MATCH&quot;</span>).arg(pattern);
+                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"ZSCAN"</span>);
+                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">"MATCH"</span>).arg(pattern);
                 c.iter(<span class="self">self</span>)
             }
         }
@@ -409,10 +410,10 @@
         /// ```rust,no_run
         /// use redis::AsyncCommands;
         /// # async fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-        /// let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;)?;
+        /// let client = redis::Client::open("redis://127.0.0.1/")?;
         /// let mut con = client.get_async_connection().await?;
-        /// redis::cmd(&quot;SET&quot;).arg(&quot;my_key&quot;).arg(42i32).query_async(&amp;mut con).await?;
-        /// assert_eq!(redis::cmd(&quot;GET&quot;).arg(&quot;my_key&quot;).query_async(&amp;mut con).await, Ok(42i32));
+        /// redis::cmd("SET").arg("my_key").arg(42i32).query_async(&amp;mut con).await?;
+        /// assert_eq!(redis::cmd("GET").arg("my_key").query_async(&amp;mut con).await, Ok(42i32));
         /// # Ok(()) }
         /// ```
         ///
@@ -422,13 +423,13 @@
         /// use redis::AsyncCommands;
         /// # async fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
         /// use redis::Commands;
-        /// let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;)?;
+        /// let client = redis::Client::open("redis://127.0.0.1/")?;
         /// let mut con = client.get_async_connection().await?;
-        /// con.set(&quot;my_key&quot;, 42i32).await?;
-        /// assert_eq!(con.get(&quot;my_key&quot;).await, Ok(42i32));
+        /// con.set("my_key", 42i32).await?;
+        /// assert_eq!(con.get("my_key").await, Ok(42i32));
         /// # Ok(()) }
         /// ```
-        </span><span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+        </span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
         </span><span class="kw">pub trait </span>AsyncCommands : <span class="kw">crate</span>::aio::ConnectionLike + Send + Sized {
             $(
                 $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
@@ -437,7 +438,7 @@
                 </span><span class="kw">fn </span><span class="macro-nonterminal">$name</span>&lt;<span class="macro-nonterminal">$lifetime</span>, $(<span class="macro-nonterminal">$tyargs</span>: <span class="macro-nonterminal">$ty </span>+ Send + Sync + <span class="macro-nonterminal">$lifetime</span>,)* RV&gt;(
                     &amp; <span class="macro-nonterminal">$lifetime </span><span class="kw-2">mut </span><span class="self">self
                     </span>$(, <span class="macro-nonterminal">$argname</span>: <span class="macro-nonterminal">$argty</span>)*
-                ) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="lifetime">&#39;a</span>, RV&gt;
+                ) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="lifetime">'a</span>, RV&gt;
                 <span class="kw">where
                     </span>RV: FromRedisValue,
                 {
@@ -447,24 +448,24 @@
 
             <span class="doccomment">/// Incrementally iterate the keys space.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>scan&lt;RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;SCAN&quot;</span>);
+            </span><span class="kw">fn </span>scan&lt;RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SCAN"</span>);
                 c.cursor_arg(<span class="number">0</span>);
                 Box::pin(<span class="kw">async move </span>{ c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
             }
 
             <span class="doccomment">/// Incrementally iterate set elements for elements matching a pattern.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>scan_match&lt;P: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pattern: P) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;SCAN&quot;</span>);
-                c.cursor_arg(<span class="number">0</span>).arg(<span class="string">&quot;MATCH&quot;</span>).arg(pattern);
+            </span><span class="kw">fn </span>scan_match&lt;P: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pattern: P) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SCAN"</span>);
+                c.cursor_arg(<span class="number">0</span>).arg(<span class="string">"MATCH"</span>).arg(pattern);
                 Box::pin(<span class="kw">async move </span>{ c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
             }
 
             <span class="doccomment">/// Incrementally iterate hash fields and associated values.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>hscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;HSCAN&quot;</span>);
+            </span><span class="kw">fn </span>hscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"HSCAN"</span>);
                 c.arg(key).cursor_arg(<span class="number">0</span>);
                 Box::pin(<span class="kw">async move </span>{c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
             }
@@ -473,16 +474,16 @@
             /// field names matching a pattern.
             </span><span class="attr">#[inline]
             </span><span class="kw">fn </span>hscan_match&lt;K: ToRedisArgs, P: ToRedisArgs, RV: FromRedisValue&gt;
-                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;HSCAN&quot;</span>);
-                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">&quot;MATCH&quot;</span>).arg(pattern);
+                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"HSCAN"</span>);
+                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">"MATCH"</span>).arg(pattern);
                 Box::pin(<span class="kw">async move </span>{c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
             }
 
             <span class="doccomment">/// Incrementally iterate set elements.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>sscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;SSCAN&quot;</span>);
+            </span><span class="kw">fn </span>sscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SSCAN"</span>);
                 c.arg(key).cursor_arg(<span class="number">0</span>);
                 Box::pin(<span class="kw">async move </span>{c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
             }
@@ -490,16 +491,16 @@
             <span class="doccomment">/// Incrementally iterate set elements for elements matching a pattern.
             </span><span class="attr">#[inline]
             </span><span class="kw">fn </span>sscan_match&lt;K: ToRedisArgs, P: ToRedisArgs, RV: FromRedisValue&gt;
-                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;SSCAN&quot;</span>);
-                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">&quot;MATCH&quot;</span>).arg(pattern);
+                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SSCAN"</span>);
+                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">"MATCH"</span>).arg(pattern);
                 Box::pin(<span class="kw">async move </span>{c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
             }
 
             <span class="doccomment">/// Incrementally iterate sorted set elements.
             </span><span class="attr">#[inline]
-            </span><span class="kw">fn </span>zscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;ZSCAN&quot;</span>);
+            </span><span class="kw">fn </span>zscan&lt;K: ToRedisArgs, RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"ZSCAN"</span>);
                 c.arg(key).cursor_arg(<span class="number">0</span>);
                 Box::pin(<span class="kw">async move </span>{c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
             }
@@ -507,9 +508,9 @@
             <span class="doccomment">/// Incrementally iterate sorted set elements for elements matching a pattern.
             </span><span class="attr">#[inline]
             </span><span class="kw">fn </span>zscan_match&lt;K: ToRedisArgs, P: ToRedisArgs, RV: FromRedisValue&gt;
-                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">&#39;_</span>, RV&gt;&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">&quot;ZSCAN&quot;</span>);
-                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">&quot;MATCH&quot;</span>).arg(pattern);
+                    (<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pattern: P) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"ZSCAN"</span>);
+                c.arg(key).cursor_arg(<span class="number">0</span>).arg(<span class="string">"MATCH"</span>).arg(pattern);
                 Box::pin(<span class="kw">async move </span>{c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
             }
         }
@@ -533,7 +534,7 @@
         <span class="comment">// Implements common redis commands for cluster pipelines.  Unlike the regular
         // commands trait, this returns the cluster pipeline rather than a result
         // directly.  Other than that it works the same however.
-        </span><span class="attr">#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)]
+        </span><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
         </span><span class="kw">impl </span>ClusterPipeline {
             $(
                 $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*

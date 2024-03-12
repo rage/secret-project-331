@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-derive-0.10.1/src/make_ule.rs`."><title>make_ule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-derive-0.10.1/src/make_ule.rs`."><title>make_ule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerovec_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -363,7 +364,7 @@
     {
         <span class="kw">return </span>Error::new(
             input.generics.span(),
-            <span class="string">&quot;#[make_ule] must be applied to a struct without any generics&quot;</span>,
+            <span class="string">"#[make_ule] must be applied to a struct without any generics"</span>,
         )
         .to_compile_error();
     }
@@ -379,7 +380,7 @@
         Data::Struct(<span class="kw-2">ref </span>s) =&gt; make_ule_struct_impl(name, <span class="kw-2">&amp;</span>ule_name, <span class="kw-2">&amp;</span>input, s, attrs),
         Data::Enum(<span class="kw-2">ref </span>e) =&gt; make_ule_enum_impl(name, <span class="kw-2">&amp;</span>ule_name, <span class="kw-2">&amp;</span>input, e, attrs),
         <span class="kw">_ </span>=&gt; {
-            <span class="kw">return </span>Error::new(input.span(), <span class="string">&quot;#[make_ule] must be applied to a struct&quot;</span>)
+            <span class="kw">return </span>Error::new(input.span(), <span class="string">"#[make_ule] must be applied to a struct"</span>)
                 .to_compile_error();
         }
     };
@@ -388,8 +389,8 @@
         <span class="macro">quote!</span>()
     } <span class="kw">else </span>{
         <span class="macro">quote!</span>(
-            <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; zerovec::maps::ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>#name {
-                <span class="kw">type </span>Container = zerovec::ZeroVec&lt;<span class="lifetime">&#39;a</span>, #name&gt;;
+            <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; zerovec::maps::ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>#name {
+                <span class="kw">type </span>Container = zerovec::ZeroVec&lt;<span class="lifetime">'a</span>, #name&gt;;
                 <span class="kw">type </span>Slice = zerovec::ZeroSlice&lt;#name&gt;;
                 <span class="kw">type </span>GetType = #ule_name;
                 <span class="kw">type </span>OwnedType = #name;
@@ -429,10 +430,10 @@
     attrs: ZeroVecAttrs,
 ) -&gt; TokenStream2 {
     <span class="comment">// We could support more int reprs in the future if needed
-    </span><span class="kw">if </span>!utils::has_valid_repr(<span class="kw-2">&amp;</span>input.attrs, |r| r == <span class="string">&quot;u8&quot;</span>) {
+    </span><span class="kw">if </span>!utils::has_valid_repr(<span class="kw-2">&amp;</span>input.attrs, |r| r == <span class="string">"u8"</span>) {
         <span class="kw">return </span>Error::new(
             input.span(),
-            <span class="string">&quot;#[make_ule] can only be applied to #[repr(u8)] enums&quot;</span>,
+            <span class="string">"#[make_ule] can only be applied to #[repr(u8)] enums"</span>,
         )
         .to_compile_error();
     }
@@ -447,7 +448,7 @@
             <span class="comment">// This can be supported in the future, see zerovec/design_doc.md
             </span><span class="kw">return </span>Error::new(
                 variant.span(),
-                <span class="string">&quot;#[make_ule] can only be applied to enums with dataless variants&quot;</span>,
+                <span class="string">"#[make_ule] can only be applied to enums with dataless variants"</span>,
             )
             .to_compile_error();
         }
@@ -466,20 +467,20 @@
                 <span class="comment">// We require explicit discriminants so that it is clear that reordering
                 // fields would be a breaking change. Furthermore, using explicit discriminants helps ensure that
                 // platform-specific C ABI choices do not matter.
-                // We could potentially add in explicit discriminants on the user&#39;s behalf in the future, or support
+                // We could potentially add in explicit discriminants on the user's behalf in the future, or support
                 // more complicated sets of explicit discriminant values.
                 </span><span class="kw">if </span>n != i <span class="kw">as </span>u64 {}
             } <span class="kw">else </span>{
                 <span class="kw">return </span>Error::new(
                     discr.span(),
-                    <span class="string">&quot;#[make_ule] must be applied to enums with explicit integer discriminants&quot;</span>,
+                    <span class="string">"#[make_ule] must be applied to enums with explicit integer discriminants"</span>,
                 )
                 .to_compile_error();
             }
         } <span class="kw">else </span>{
             <span class="kw">return </span>Error::new(
                 variant.span(),
-                <span class="string">&quot;#[make_ule] must be applied to enums with explicit discriminants&quot;</span>,
+                <span class="string">"#[make_ule] must be applied to enums with explicit discriminants"</span>,
             )
             .to_compile_error();
         }
@@ -488,8 +489,8 @@
     <span class="kw">let </span>not_found = not_found.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
     <span class="kw">if </span>!not_found.is_empty() {
-        <span class="kw">return </span>Error::new(input.span(), <span class="macro">format!</span>(<span class="string">&quot;#[make_ule] must be applied to enums with discriminants \
-                                                  filling the range from 0 to a maximum; could not find {not_found:?}&quot;</span>))
+        <span class="kw">return </span>Error::new(input.span(), <span class="macro">format!</span>(<span class="string">"#[make_ule] must be applied to enums with discriminants \
+                                                  filling the range from 0 to a maximum; could not find {not_found:?}"</span>))
             .to_compile_error();
     }
 
@@ -503,7 +504,7 @@
 
     <span class="kw">let </span>vis = <span class="kw-2">&amp;</span>input.vis;
 
-    <span class="kw">let </span>doc = <span class="macro">format!</span>(<span class="string">&quot;[`ULE`](zerovec::ule::ULE) type for {name}&quot;</span>);
+    <span class="kw">let </span>doc = <span class="macro">format!</span>(<span class="string">"[`ULE`](zerovec::ule::ULE) type for {name}"</span>);
 
     <span class="comment">// Safety (based on the safety checklist on the ULE trait):
     //  1. ULE type does not include any uninitialized or padding bytes.
@@ -588,7 +589,7 @@
     <span class="kw">if </span>struc.fields.iter().next().is_none() {
         <span class="kw">return </span>Error::new(
             input.span(),
-            <span class="string">&quot;#[make_ule] must be applied to a non-empty struct&quot;</span>,
+            <span class="string">"#[make_ule] must be applied to a non-empty struct"</span>,
         )
         .to_compile_error();
     }
@@ -600,7 +601,7 @@
     <span class="kw">let </span>repr_attr = utils::repr_for(<span class="kw-2">&amp;</span>struc.fields);
     <span class="kw">let </span>vis = <span class="kw-2">&amp;</span>input.vis;
 
-    <span class="kw">let </span>doc = <span class="macro">format!</span>(<span class="string">&quot;[`ULE`](zerovec::ule::ULE) type for [`{name}`]&quot;</span>);
+    <span class="kw">let </span>doc = <span class="macro">format!</span>(<span class="string">"[`ULE`](zerovec::ule::ULE) type for [`{name}`]"</span>);
 
     <span class="kw">let </span>ule_struct: DeriveInput = <span class="macro">parse_quote!</span>(
         <span class="attr">#[repr(#repr_attr)]

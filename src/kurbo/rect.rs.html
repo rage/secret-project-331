@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/rect.rs`."><title>rect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/rect.rs`."><title>rect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -779,13 +780,13 @@
 
 <span class="kw">use crate</span>::{Ellipse, Insets, PathEl, Point, RoundedRect, RoundedRectRadii, Shape, Size, Vec2};
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::common::FloatFuncs;
 
 <span class="doccomment">/// A rectangle.
 </span><span class="attr">#[derive(Clone, Copy, Default, PartialEq)]
-#[cfg_attr(feature = <span class="string">&quot;schemars&quot;</span>, derive(schemars::JsonSchema))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"schemars"</span>, derive(schemars::JsonSchema))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Rect {
     <span class="doccomment">/// The minimum x coordinate (left edge).
     </span><span class="kw">pub </span>x0: f64,
@@ -1233,7 +1234,7 @@
     <span class="doccomment">/// The aspect ratio of the `Rect`.
     ///
     /// This is defined as the height divided by the width. It measures the
-    /// &quot;squareness&quot; of the rectangle (a value of `1` is square).
+    /// "squareness" of the rectangle (a value of `1` is square).
     ///
     /// If the width is `0` the output will be `sign(y1 - y0) * infinity`.
     ///
@@ -1352,14 +1353,14 @@
 }
 
 <span class="kw">impl </span>Shape <span class="kw">for </span>Rect {
-    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">&#39;iter</span>&gt; = RectPathIter;
+    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">'iter</span>&gt; = RectPathIter;
 
     <span class="kw">fn </span>path_elements(<span class="kw-2">&amp;</span><span class="self">self</span>, _tolerance: f64) -&gt; RectPathIter {
         RectPathIter { rect: <span class="kw-2">*</span><span class="self">self</span>, ix: <span class="number">0 </span>}
     }
 
-    <span class="comment">// It&#39;s a bit of duplication having both this and the impl method, but
-    // removing that would require using the trait. We&#39;ll leave it for now.
+    <span class="comment">// It's a bit of duplication having both this and the impl method, but
+    // removing that would require using the trait. We'll leave it for now.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>area(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
         Rect::area(<span class="self">self</span>)
@@ -1428,14 +1429,14 @@
         <span class="kw">if </span>f.alternate() {
             <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;Rect {{ origin: {:?}, size: {:?} }}&quot;</span>,
+                <span class="string">"Rect {{ origin: {:?}, size: {:?} }}"</span>,
                 <span class="self">self</span>.origin(),
                 <span class="self">self</span>.size()
             )
         } <span class="kw">else </span>{
             <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;Rect {{ x0: {:?}, y0: {:?}, x1: {:?}, y1: {:?} }}&quot;</span>,
+                <span class="string">"Rect {{ x0: {:?}, y0: {:?}, x1: {:?}, y1: {:?} }}"</span>,
                 <span class="self">self</span>.x0, <span class="self">self</span>.y0, <span class="self">self</span>.x1, <span class="self">self</span>.y1
             )
         }
@@ -1444,11 +1445,11 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Rect {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Rect {{ &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">"Rect {{ "</span>)<span class="question-mark">?</span>;
         fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.origin(), f)<span class="question-mark">?</span>;
-        <span class="macro">write!</span>(f, <span class="string">&quot; &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">" "</span>)<span class="question-mark">?</span>;
         fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.size(), f)<span class="question-mark">?</span>;
-        <span class="macro">write!</span>(f, <span class="string">&quot; }}&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">" }}"</span>)
     }
 }
 
@@ -1485,10 +1486,10 @@
     </span><span class="kw">fn </span>display() {
         <span class="kw">let </span>r = Rect::from_origin_size((<span class="number">10.</span>, <span class="number">12.23214</span>), (<span class="number">22.222222222</span>, <span class="number">23.1</span>));
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{r}&quot;</span>),
-            <span class="string">&quot;Rect { (10, 12.23214) (22.222222222×23.1) }&quot;
+            <span class="macro">format!</span>(<span class="string">"{r}"</span>),
+            <span class="string">"Rect { (10, 12.23214) (22.222222222×23.1) }"
         </span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{r:.2}&quot;</span>), <span class="string">&quot;Rect { (10.00, 12.23) (22.22×23.10) }&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{r:.2}"</span>), <span class="string">"Rect { (10.00, 12.23) (22.22×23.10) }"</span>);
     }
 
     <span class="comment">/* TODO uncomment when a (possibly approximate) equality test has been decided on

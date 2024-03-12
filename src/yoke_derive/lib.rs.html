@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-derive-0.7.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-derive-0.7.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -311,7 +312,7 @@
         .generics
         .type_params()
         .map(|ty| {
-            <span class="comment">// Strip out param defaults, we don&#39;t need them in the impl
+            <span class="comment">// Strip out param defaults, we don't need them in the impl
             </span><span class="kw">let </span><span class="kw-2">mut </span>ty = ty.clone();
             ty.eq_token = <span class="prelude-val">None</span>;
             ty.default = <span class="prelude-val">None</span>;
@@ -322,18 +323,18 @@
         .iter()
         .map(|ty| ty.ident.clone())
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-    <span class="comment">// We require all type parameters be &#39;static, otherwise
+    <span class="comment">// We require all type parameters be 'static, otherwise
     // the Yokeable impl becomes really unweildy to generate safely
     </span><span class="kw">let </span>static_bounds: Vec&lt;WherePredicate&gt; = typarams
         .iter()
-        .map(|ty| <span class="macro">parse_quote!</span>(#ty: <span class="lifetime">&#39;static</span>))
+        .map(|ty| <span class="macro">parse_quote!</span>(#ty: <span class="lifetime">'static</span>))
         .collect();
     <span class="kw">let </span>lts = input.generics.lifetimes().count();
     <span class="kw">if </span>lts == <span class="number">0 </span>{
         <span class="kw">let </span>name = <span class="kw-2">&amp;</span>input.ident;
         <span class="macro">quote! </span>{
             <span class="comment">// This is safe because there are no lifetime parameters.
-            </span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, #(#tybounds),<span class="kw-2">*</span>&gt; yoke::Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>#name&lt;#(#typarams),<span class="kw-2">*</span>&gt; <span class="kw">where </span>#(#static_bounds),* {
+            </span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, #(#tybounds),<span class="kw-2">*</span>&gt; yoke::Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>#name&lt;#(#typarams),<span class="kw-2">*</span>&gt; <span class="kw">where </span>#(#static_bounds),* {
                 <span class="kw">type </span>Output = <span class="self">Self</span>;
                 <span class="attr">#[inline]
                 </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
@@ -348,9 +349,9 @@
                     this
                 }
                 <span class="attr">#[inline]
-                </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+                </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
                 <span class="kw">where
-                    </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output) {
+                    </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output) {
                     f(<span class="self">self</span>)
                 }
             }
@@ -359,14 +360,14 @@
         <span class="kw">if </span>lts != <span class="number">1 </span>{
             <span class="kw">return </span>syn::Error::new(
                 input.generics.span(),
-                <span class="string">&quot;derive(Yokeable) cannot have multiple lifetime parameters&quot;</span>,
+                <span class="string">"derive(Yokeable) cannot have multiple lifetime parameters"</span>,
             )
             .to_compile_error();
         }
         <span class="kw">let </span>name = <span class="kw-2">&amp;</span>input.ident;
         <span class="kw">let </span>manual_covariance = input.attrs.iter().any(|a| {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(i) = a.parse_args::&lt;Ident&gt;() {
-                <span class="kw">if </span>i == <span class="string">&quot;prove_covariance_manually&quot; </span>{
+                <span class="kw">if </span>i == <span class="string">"prove_covariance_manually" </span>{
                     <span class="kw">return </span><span class="bool-val">true</span>;
                 }
             }
@@ -377,13 +378,13 @@
             <span class="kw">let </span>generics_env = typarams.iter().cloned().collect();
             <span class="kw">let </span>static_bounds: Vec&lt;WherePredicate&gt; = typarams
                 .iter()
-                .map(|ty| <span class="macro">parse_quote!</span>(#ty: <span class="lifetime">&#39;static</span>))
+                .map(|ty| <span class="macro">parse_quote!</span>(#ty: <span class="lifetime">'static</span>))
                 .collect();
             <span class="kw">let </span><span class="kw-2">mut </span>yoke_bounds: Vec&lt;WherePredicate&gt; = <span class="macro">vec!</span>[];
             structure.bind_with(|<span class="kw">_</span>| synstructure::BindStyle::Move);
             <span class="kw">let </span>owned_body = structure.each_variant(|vi| {
                 vi.construct(|f, i| {
-                    <span class="kw">let </span>binding = <span class="macro">format!</span>(<span class="string">&quot;__binding_{i}&quot;</span>);
+                    <span class="kw">let </span>binding = <span class="macro">format!</span>(<span class="string">"__binding_{i}"</span>);
                     <span class="kw">let </span>field = Ident::new(<span class="kw-2">&amp;</span>binding, Span::call_site());
                     <span class="kw">let </span>fty_static = replace_lifetime(<span class="kw-2">&amp;</span>f.ty, static_lt());
 
@@ -392,15 +393,15 @@
                         <span class="comment">// For types without type parameters, the compiler can figure out that the field implements
                         // Yokeable on its own. However, if there are type parameters, there may be complex preconditions
                         // to `FieldTy: Yokeable` that need to be satisfied. We get them to be satisfied by requiring
-                        // `FieldTy&lt;&#39;static&gt;: Yokeable&lt;FieldTy&lt;&#39;a&gt;&gt;`
+                        // `FieldTy&lt;'static&gt;: Yokeable&lt;FieldTy&lt;'a&gt;&gt;`
                         </span><span class="kw">if </span>has_lt {
-                            <span class="kw">let </span>fty_a = replace_lifetime(<span class="kw-2">&amp;</span>f.ty, custom_lt(<span class="string">&quot;&#39;a&quot;</span>));
+                            <span class="kw">let </span>fty_a = replace_lifetime(<span class="kw-2">&amp;</span>f.ty, custom_lt(<span class="string">"'a"</span>));
                             yoke_bounds.push(
-                                <span class="macro">parse_quote!</span>(#fty_static: yoke::Yokeable&lt;<span class="lifetime">&#39;a</span>, Output = #fty_a&gt;),
+                                <span class="macro">parse_quote!</span>(#fty_static: yoke::Yokeable&lt;<span class="lifetime">'a</span>, Output = #fty_a&gt;),
                             );
                         } <span class="kw">else </span>{
                             yoke_bounds.push(
-                                <span class="macro">parse_quote!</span>(#fty_static: yoke::Yokeable&lt;<span class="lifetime">&#39;a</span>, Output = #fty_static&gt;),
+                                <span class="macro">parse_quote!</span>(#fty_static: yoke::Yokeable&lt;<span class="lifetime">'a</span>, Output = #fty_static&gt;),
                             );
                         }
                     }
@@ -409,7 +410,7 @@
                         // that the lifetimes are covariant, since this requirement
                         // must already be true for the type that implements transform_owned().
                         </span><span class="macro">quote! </span>{
-                            &lt;#fty_static <span class="kw">as </span>yoke::Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::transform_owned(#field)
+                            &lt;#fty_static <span class="kw">as </span>yoke::Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::transform_owned(#field)
                         }
                     } <span class="kw">else </span>{
                         <span class="comment">// No nested lifetimes, so nothing to be done
@@ -425,7 +426,7 @@
 
                 <span class="kw">if </span>has_ty || has_lt {
                     <span class="kw">let </span>fty_static = replace_lifetime(<span class="kw-2">&amp;</span>f.ty, static_lt());
-                    <span class="kw">let </span>fty_a = replace_lifetime(<span class="kw-2">&amp;</span>f.ty, custom_lt(<span class="string">&quot;&#39;a&quot;</span>));
+                    <span class="kw">let </span>fty_a = replace_lifetime(<span class="kw-2">&amp;</span>f.ty, custom_lt(<span class="string">"'a"</span>));
                     <span class="comment">// We also must assert that each individual field can `transform()` correctly
                     //
                     // Even though transform_owned() does such an assertion already, CoerceUnsized
@@ -434,7 +435,7 @@
                     //
                     // https://github.com/unicode-org/icu4x/issues/2928
                     </span><span class="macro">quote! </span>{
-                        <span class="kw">let _</span>: <span class="kw-2">&amp;</span>#fty_a = <span class="kw-2">&amp;</span>&lt;#fty_static <span class="kw">as </span>yoke::Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::transform(#field);
+                        <span class="kw">let _</span>: <span class="kw-2">&amp;</span>#fty_a = <span class="kw-2">&amp;</span>&lt;#fty_static <span class="kw">as </span>yoke::Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::transform(#field);
                     }
                 } <span class="kw">else </span>{
                     <span class="comment">// No nested lifetimes, so nothing to be done
@@ -442,13 +443,13 @@
                 }
             });
             <span class="kw">return </span><span class="macro">quote! </span>{
-                <span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, #(#tybounds),<span class="kw-2">*</span>&gt; yoke::Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>#name&lt;<span class="lifetime">&#39;static</span>, #(#typarams),<span class="kw-2">*</span>&gt;
+                <span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, #(#tybounds),<span class="kw-2">*</span>&gt; yoke::Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>#name&lt;<span class="lifetime">'static</span>, #(#typarams),<span class="kw-2">*</span>&gt;
                     <span class="kw">where </span>#(#static_bounds,)*
                     #(#yoke_bounds,)* {
-                    <span class="kw">type </span>Output = #name&lt;<span class="lifetime">&#39;a</span>, #(#typarams),<span class="kw-2">*</span>&gt;;
+                    <span class="kw">type </span>Output = #name&lt;<span class="lifetime">'a</span>, #(#typarams),<span class="kw-2">*</span>&gt;;
                     <span class="attr">#[inline]
-                    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output {
-                        <span class="comment">// These are just type asserts, we don&#39;t need them for anything
+                    </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output {
+                        <span class="comment">// These are just type asserts, we don't need them for anything
                         </span><span class="kw">if </span><span class="bool-val">false </span>{
                             <span class="kw">match </span><span class="self">self </span>{
                                 #borrowed_body
@@ -467,36 +468,36 @@
                     <span class="attr">#[inline]
                     </span><span class="kw">unsafe fn </span>make(this: <span class="self">Self</span>::Output) -&gt; <span class="self">Self </span>{
                         <span class="kw">use </span>core::{mem, ptr};
-                        <span class="comment">// unfortunately Rust doesn&#39;t think `mem::transmute` is possible since it&#39;s not sure the sizes
+                        <span class="comment">// unfortunately Rust doesn't think `mem::transmute` is possible since it's not sure the sizes
                         // are the same
                         </span><span class="macro">debug_assert!</span>(mem::size_of::&lt;<span class="self">Self</span>::Output&gt;() == mem::size_of::&lt;<span class="self">Self</span>&gt;());
                         <span class="kw">let </span>ptr: <span class="kw-2">*const </span><span class="self">Self </span>= (<span class="kw-2">&amp;</span>this <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>::Output).cast();
-                        <span class="attr">#[allow(forgetting_copy_types, clippy::forget_copy, clippy::forget_non_drop)] </span><span class="comment">// This is a noop if the struct is copy, which Clippy doesn&#39;t like
+                        <span class="attr">#[allow(forgetting_copy_types, clippy::forget_copy, clippy::forget_non_drop)] </span><span class="comment">// This is a noop if the struct is copy, which Clippy doesn't like
                         </span>mem::forget(this);
                         ptr::read(ptr)
                     }
                     <span class="attr">#[inline]
-                    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+                    </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
                     <span class="kw">where
-                        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output) {
-                        <span class="kw">unsafe </span>{ f(core::mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
+                        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output) {
+                        <span class="kw">unsafe </span>{ f(core::mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
                     }
                 }
             };
         }
         <span class="macro">quote! </span>{
             <span class="comment">// This is safe because as long as `transform()` compiles,
-            // we can be sure that `&#39;a` is a covariant lifetime on `Self`
+            // we can be sure that `'a` is a covariant lifetime on `Self`
             //
             // This will not work for structs involving ZeroMap since
             // the compiler does not know that ZeroMap is covariant.
             //
             // This custom derive can be improved to handle this case when
             // necessary
-            </span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, #(#tybounds),<span class="kw-2">*</span>&gt; yoke::Yokeable&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>#name&lt;<span class="lifetime">&#39;static</span>, #(#typarams),<span class="kw-2">*</span>&gt; <span class="kw">where </span>#(#static_bounds),* {
-                <span class="kw">type </span>Output = #name&lt;<span class="lifetime">&#39;a</span>, #(#typarams),<span class="kw-2">*</span>&gt;;
+            </span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, #(#tybounds),<span class="kw-2">*</span>&gt; yoke::Yokeable&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>#name&lt;<span class="lifetime">'static</span>, #(#typarams),<span class="kw-2">*</span>&gt; <span class="kw">where </span>#(#static_bounds),* {
+                <span class="kw">type </span>Output = #name&lt;<span class="lifetime">'a</span>, #(#typarams),<span class="kw-2">*</span>&gt;;
                 <span class="attr">#[inline]
-                </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::Output {
+                </span><span class="kw">fn </span>transform(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::Output {
                     <span class="self">self
                 </span>}
                 <span class="attr">#[inline]
@@ -506,19 +507,19 @@
                 <span class="attr">#[inline]
                 </span><span class="kw">unsafe fn </span>make(this: <span class="self">Self</span>::Output) -&gt; <span class="self">Self </span>{
                     <span class="kw">use </span>core::{mem, ptr};
-                    <span class="comment">// unfortunately Rust doesn&#39;t think `mem::transmute` is possible since it&#39;s not sure the sizes
+                    <span class="comment">// unfortunately Rust doesn't think `mem::transmute` is possible since it's not sure the sizes
                     // are the same
                     </span><span class="macro">debug_assert!</span>(mem::size_of::&lt;<span class="self">Self</span>::Output&gt;() == mem::size_of::&lt;<span class="self">Self</span>&gt;());
                     <span class="kw">let </span>ptr: <span class="kw-2">*const </span><span class="self">Self </span>= (<span class="kw-2">&amp;</span>this <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>::Output).cast();
-                    <span class="attr">#[allow(forgetting_copy_types, clippy::forget_copy, clippy::forget_non_drop)] </span><span class="comment">// This is a noop if the struct is copy, which Clippy doesn&#39;t like
+                    <span class="attr">#[allow(forgetting_copy_types, clippy::forget_copy, clippy::forget_non_drop)] </span><span class="comment">// This is a noop if the struct is copy, which Clippy doesn't like
                     </span>mem::forget(this);
                     ptr::read(ptr)
                 }
                 <span class="attr">#[inline]
-                </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+                </span><span class="kw">fn </span>transform_mut&lt;F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
                 <span class="kw">where
-                    </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output) {
-                    <span class="kw">unsafe </span>{ f(core::mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
+                    </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">Self</span>::Output) {
+                    <span class="kw">unsafe </span>{ f(core::mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">Self</span>::Output&gt;(<span class="self">self</span>)) }
                 }
             }
         }
@@ -526,7 +527,7 @@
 }
 
 <span class="kw">fn </span>static_lt() -&gt; Lifetime {
-    Lifetime::new(<span class="string">&quot;&#39;static&quot;</span>, Span::call_site())
+    Lifetime::new(<span class="string">"'static"</span>, Span::call_site())
 }
 
 <span class="kw">fn </span>custom_lt(s: <span class="kw-2">&amp;</span>str) -&gt; Lifetime {

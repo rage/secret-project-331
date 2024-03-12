@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.4.0/src/iterator_utils.rs`."><title>iterator_utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.4.0/src/iterator_utils.rs`."><title>iterator_utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -233,7 +234,7 @@
     <span class="kw">type </span>Item = CodePointMapRange&lt;T&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="comment">// Get the initial range we&#39;re working with: either a leftover
+        <span class="comment">// Get the initial range we're working with: either a leftover
         // range from last time, or the next range
         </span><span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="kw">if let </span><span class="prelude-val">Some</span>(peek) = <span class="self">self</span>.peek.take() {
             peek
@@ -246,7 +247,7 @@
 
         <span class="comment">// Keep pulling ranges
         </span><span class="attr">#[allow(clippy::while_let_on_iterator)]
-        </span><span class="comment">// can&#39;t move the iterator, also we want it to be explicit that we&#39;re not draining the iterator
+        </span><span class="comment">// can't move the iterator, also we want it to be explicit that we're not draining the iterator
         </span><span class="kw">while let </span><span class="prelude-val">Some</span>(next) = <span class="self">self</span>.iter.next() {
             <span class="kw">if </span><span class="kw-2">*</span>next.range.start() == ret.range.end() + <span class="number">1 </span>&amp;&amp; next.value == ret.value {
                 <span class="comment">// Range has no gap, coalesce
@@ -273,7 +274,7 @@
     <span class="kw">use </span>icu::properties::sets::{<span class="self">self</span>, CodePointSetDataBorrowed};
     <span class="kw">use </span>icu::properties::{GeneralCategory, Script};
 
-    <span class="kw">fn </span>test_set(data: CodePointSetDataBorrowed&lt;<span class="lifetime">&#39;static</span>&gt;, name: <span class="kw-2">&amp;</span>str) {
+    <span class="kw">fn </span>test_set(data: CodePointSetDataBorrowed&lt;<span class="lifetime">'static</span>&gt;, name: <span class="kw-2">&amp;</span>str) {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = CodePointInversionListBuilder::new();
         <span class="kw">let </span><span class="kw-2">mut </span>builder_complement = CodePointInversionListBuilder::new();
 
@@ -288,11 +289,11 @@
         builder.complement();
         <span class="kw">let </span>set1 = builder.build();
         <span class="kw">let </span>set2 = builder_complement.build();
-        <span class="macro">assert_eq!</span>(set1, set2, <span class="string">&quot;Set {name} failed to complement correctly&quot;</span>);
+        <span class="macro">assert_eq!</span>(set1, set2, <span class="string">"Set {name} failed to complement correctly"</span>);
     }
 
     <span class="kw">fn </span>test_map&lt;T: TrieValue + Debug&gt;(
-        data: <span class="kw-2">&amp;</span>CodePointMapDataBorrowed&lt;<span class="lifetime">&#39;static</span>, T&gt;,
+        data: <span class="kw-2">&amp;</span>CodePointMapDataBorrowed&lt;<span class="lifetime">'static</span>, T&gt;,
         value: T,
         name: <span class="kw-2">&amp;</span>str,
     ) {
@@ -312,7 +313,7 @@
         <span class="kw">let </span>set2 = builder_complement.build();
         <span class="macro">assert_eq!</span>(
             set1, set2,
-            <span class="string">&quot;Map {name} failed to complement correctly with value {value:?}&quot;
+            <span class="string">"Map {name} failed to complement correctly with value {value:?}"
         </span>);
     }
 
@@ -320,94 +321,94 @@
     </span><span class="kw">fn </span>test_complement_sets() {
         <span class="comment">// Stress test the RangeListIteratorComplementer logic by ensuring it works for
         // a whole bunch of binary properties
-        </span>test_set(sets::ascii_hex_digit(), <span class="string">&quot;ASCII_Hex_Digit&quot;</span>);
-        test_set(sets::alnum(), <span class="string">&quot;Alnum&quot;</span>);
-        test_set(sets::alphabetic(), <span class="string">&quot;Alphabetic&quot;</span>);
-        test_set(sets::bidi_control(), <span class="string">&quot;Bidi_Control&quot;</span>);
-        test_set(sets::bidi_mirrored(), <span class="string">&quot;Bidi_Mirrored&quot;</span>);
-        test_set(sets::blank(), <span class="string">&quot;Blank&quot;</span>);
-        test_set(sets::cased(), <span class="string">&quot;Cased&quot;</span>);
-        test_set(sets::case_ignorable(), <span class="string">&quot;Case_Ignorable&quot;</span>);
+        </span>test_set(sets::ascii_hex_digit(), <span class="string">"ASCII_Hex_Digit"</span>);
+        test_set(sets::alnum(), <span class="string">"Alnum"</span>);
+        test_set(sets::alphabetic(), <span class="string">"Alphabetic"</span>);
+        test_set(sets::bidi_control(), <span class="string">"Bidi_Control"</span>);
+        test_set(sets::bidi_mirrored(), <span class="string">"Bidi_Mirrored"</span>);
+        test_set(sets::blank(), <span class="string">"Blank"</span>);
+        test_set(sets::cased(), <span class="string">"Cased"</span>);
+        test_set(sets::case_ignorable(), <span class="string">"Case_Ignorable"</span>);
         test_set(
             sets::full_composition_exclusion(),
-            <span class="string">&quot;Full_Composition_Exclusion&quot;</span>,
+            <span class="string">"Full_Composition_Exclusion"</span>,
         );
-        test_set(sets::changes_when_casefolded(), <span class="string">&quot;Changes_When_Casefolded&quot;</span>);
-        test_set(sets::changes_when_casemapped(), <span class="string">&quot;Changes_When_Casemapped&quot;</span>);
+        test_set(sets::changes_when_casefolded(), <span class="string">"Changes_When_Casefolded"</span>);
+        test_set(sets::changes_when_casemapped(), <span class="string">"Changes_When_Casemapped"</span>);
         test_set(
             sets::changes_when_nfkc_casefolded(),
-            <span class="string">&quot;Changes_When_NFKC_Casefolded&quot;</span>,
+            <span class="string">"Changes_When_NFKC_Casefolded"</span>,
         );
-        test_set(sets::changes_when_lowercased(), <span class="string">&quot;Changes_When_Lowercased&quot;</span>);
-        test_set(sets::changes_when_titlecased(), <span class="string">&quot;Changes_When_Titlecased&quot;</span>);
-        test_set(sets::changes_when_uppercased(), <span class="string">&quot;Changes_When_Uppercased&quot;</span>);
-        test_set(sets::dash(), <span class="string">&quot;Dash&quot;</span>);
-        test_set(sets::deprecated(), <span class="string">&quot;Deprecated&quot;</span>);
+        test_set(sets::changes_when_lowercased(), <span class="string">"Changes_When_Lowercased"</span>);
+        test_set(sets::changes_when_titlecased(), <span class="string">"Changes_When_Titlecased"</span>);
+        test_set(sets::changes_when_uppercased(), <span class="string">"Changes_When_Uppercased"</span>);
+        test_set(sets::dash(), <span class="string">"Dash"</span>);
+        test_set(sets::deprecated(), <span class="string">"Deprecated"</span>);
         test_set(
             sets::default_ignorable_code_point(),
-            <span class="string">&quot;Default_Ignorable_Code_Point&quot;</span>,
+            <span class="string">"Default_Ignorable_Code_Point"</span>,
         );
-        test_set(sets::diacritic(), <span class="string">&quot;Diacritic&quot;</span>);
-        test_set(sets::emoji_modifier_base(), <span class="string">&quot;Emoji_Modifier_Base&quot;</span>);
-        test_set(sets::emoji_component(), <span class="string">&quot;Emoji_Component&quot;</span>);
-        test_set(sets::emoji_modifier(), <span class="string">&quot;Emoji_Modifier&quot;</span>);
-        test_set(sets::emoji(), <span class="string">&quot;Emoji&quot;</span>);
-        test_set(sets::emoji_presentation(), <span class="string">&quot;Emoji_Presentation&quot;</span>);
-        test_set(sets::extender(), <span class="string">&quot;Extender&quot;</span>);
-        test_set(sets::extended_pictographic(), <span class="string">&quot;Extended_Pictographic&quot;</span>);
-        test_set(sets::graph(), <span class="string">&quot;Graph&quot;</span>);
-        test_set(sets::grapheme_base(), <span class="string">&quot;Grapheme_Base&quot;</span>);
-        test_set(sets::grapheme_extend(), <span class="string">&quot;Grapheme_Extend&quot;</span>);
-        test_set(sets::grapheme_link(), <span class="string">&quot;Grapheme_Link&quot;</span>);
-        test_set(sets::hex_digit(), <span class="string">&quot;Hex_Digit&quot;</span>);
-        test_set(sets::hyphen(), <span class="string">&quot;Hyphen&quot;</span>);
-        test_set(sets::id_continue(), <span class="string">&quot;Id_Continue&quot;</span>);
-        test_set(sets::ideographic(), <span class="string">&quot;Ideographic&quot;</span>);
-        test_set(sets::id_start(), <span class="string">&quot;Id_Start&quot;</span>);
-        test_set(sets::ids_binary_operator(), <span class="string">&quot;Ids_Binary_Operator&quot;</span>);
-        test_set(sets::ids_trinary_operator(), <span class="string">&quot;Ids_Trinary_Operator&quot;</span>);
-        test_set(sets::join_control(), <span class="string">&quot;Join_Control&quot;</span>);
-        test_set(sets::logical_order_exception(), <span class="string">&quot;Logical_Order_Exception&quot;</span>);
-        test_set(sets::lowercase(), <span class="string">&quot;Lowercase&quot;</span>);
-        test_set(sets::math(), <span class="string">&quot;Math&quot;</span>);
-        test_set(sets::noncharacter_code_point(), <span class="string">&quot;Noncharacter_Code_Point&quot;</span>);
-        test_set(sets::nfc_inert(), <span class="string">&quot;NFC_Inert&quot;</span>);
-        test_set(sets::nfd_inert(), <span class="string">&quot;NFD_Inert&quot;</span>);
-        test_set(sets::nfkc_inert(), <span class="string">&quot;NFKC_Inert&quot;</span>);
-        test_set(sets::nfkd_inert(), <span class="string">&quot;NFKD_Inert&quot;</span>);
-        test_set(sets::pattern_syntax(), <span class="string">&quot;Pattern_Syntax&quot;</span>);
-        test_set(sets::pattern_white_space(), <span class="string">&quot;Pattern_White_Space&quot;</span>);
+        test_set(sets::diacritic(), <span class="string">"Diacritic"</span>);
+        test_set(sets::emoji_modifier_base(), <span class="string">"Emoji_Modifier_Base"</span>);
+        test_set(sets::emoji_component(), <span class="string">"Emoji_Component"</span>);
+        test_set(sets::emoji_modifier(), <span class="string">"Emoji_Modifier"</span>);
+        test_set(sets::emoji(), <span class="string">"Emoji"</span>);
+        test_set(sets::emoji_presentation(), <span class="string">"Emoji_Presentation"</span>);
+        test_set(sets::extender(), <span class="string">"Extender"</span>);
+        test_set(sets::extended_pictographic(), <span class="string">"Extended_Pictographic"</span>);
+        test_set(sets::graph(), <span class="string">"Graph"</span>);
+        test_set(sets::grapheme_base(), <span class="string">"Grapheme_Base"</span>);
+        test_set(sets::grapheme_extend(), <span class="string">"Grapheme_Extend"</span>);
+        test_set(sets::grapheme_link(), <span class="string">"Grapheme_Link"</span>);
+        test_set(sets::hex_digit(), <span class="string">"Hex_Digit"</span>);
+        test_set(sets::hyphen(), <span class="string">"Hyphen"</span>);
+        test_set(sets::id_continue(), <span class="string">"Id_Continue"</span>);
+        test_set(sets::ideographic(), <span class="string">"Ideographic"</span>);
+        test_set(sets::id_start(), <span class="string">"Id_Start"</span>);
+        test_set(sets::ids_binary_operator(), <span class="string">"Ids_Binary_Operator"</span>);
+        test_set(sets::ids_trinary_operator(), <span class="string">"Ids_Trinary_Operator"</span>);
+        test_set(sets::join_control(), <span class="string">"Join_Control"</span>);
+        test_set(sets::logical_order_exception(), <span class="string">"Logical_Order_Exception"</span>);
+        test_set(sets::lowercase(), <span class="string">"Lowercase"</span>);
+        test_set(sets::math(), <span class="string">"Math"</span>);
+        test_set(sets::noncharacter_code_point(), <span class="string">"Noncharacter_Code_Point"</span>);
+        test_set(sets::nfc_inert(), <span class="string">"NFC_Inert"</span>);
+        test_set(sets::nfd_inert(), <span class="string">"NFD_Inert"</span>);
+        test_set(sets::nfkc_inert(), <span class="string">"NFKC_Inert"</span>);
+        test_set(sets::nfkd_inert(), <span class="string">"NFKD_Inert"</span>);
+        test_set(sets::pattern_syntax(), <span class="string">"Pattern_Syntax"</span>);
+        test_set(sets::pattern_white_space(), <span class="string">"Pattern_White_Space"</span>);
         test_set(
             sets::prepended_concatenation_mark(),
-            <span class="string">&quot;Prepended_Concatenation_Mark&quot;</span>,
+            <span class="string">"Prepended_Concatenation_Mark"</span>,
         );
-        test_set(sets::print(), <span class="string">&quot;Print&quot;</span>);
-        test_set(sets::quotation_mark(), <span class="string">&quot;Quotation_Mark&quot;</span>);
-        test_set(sets::radical(), <span class="string">&quot;Radical&quot;</span>);
-        test_set(sets::regional_indicator(), <span class="string">&quot;Regional_Indicator&quot;</span>);
-        test_set(sets::soft_dotted(), <span class="string">&quot;Soft_Dotted&quot;</span>);
-        test_set(sets::segment_starter(), <span class="string">&quot;Segment_Starter&quot;</span>);
-        test_set(sets::case_sensitive(), <span class="string">&quot;Case_Sensitive&quot;</span>);
-        test_set(sets::sentence_terminal(), <span class="string">&quot;Sentence_Terminal&quot;</span>);
-        test_set(sets::terminal_punctuation(), <span class="string">&quot;Terminal_Punctuation&quot;</span>);
-        test_set(sets::unified_ideograph(), <span class="string">&quot;Unified_Ideograph&quot;</span>);
-        test_set(sets::uppercase(), <span class="string">&quot;Uppercase&quot;</span>);
-        test_set(sets::variation_selector(), <span class="string">&quot;Variation_Selector&quot;</span>);
-        test_set(sets::white_space(), <span class="string">&quot;White_Space&quot;</span>);
-        test_set(sets::xdigit(), <span class="string">&quot;Xdigit&quot;</span>);
-        test_set(sets::xid_continue(), <span class="string">&quot;XID_Continue&quot;</span>);
-        test_set(sets::xid_start(), <span class="string">&quot;XID_Start&quot;</span>);
+        test_set(sets::print(), <span class="string">"Print"</span>);
+        test_set(sets::quotation_mark(), <span class="string">"Quotation_Mark"</span>);
+        test_set(sets::radical(), <span class="string">"Radical"</span>);
+        test_set(sets::regional_indicator(), <span class="string">"Regional_Indicator"</span>);
+        test_set(sets::soft_dotted(), <span class="string">"Soft_Dotted"</span>);
+        test_set(sets::segment_starter(), <span class="string">"Segment_Starter"</span>);
+        test_set(sets::case_sensitive(), <span class="string">"Case_Sensitive"</span>);
+        test_set(sets::sentence_terminal(), <span class="string">"Sentence_Terminal"</span>);
+        test_set(sets::terminal_punctuation(), <span class="string">"Terminal_Punctuation"</span>);
+        test_set(sets::unified_ideograph(), <span class="string">"Unified_Ideograph"</span>);
+        test_set(sets::uppercase(), <span class="string">"Uppercase"</span>);
+        test_set(sets::variation_selector(), <span class="string">"Variation_Selector"</span>);
+        test_set(sets::white_space(), <span class="string">"White_Space"</span>);
+        test_set(sets::xdigit(), <span class="string">"Xdigit"</span>);
+        test_set(sets::xid_continue(), <span class="string">"XID_Continue"</span>);
+        test_set(sets::xid_start(), <span class="string">"XID_Start"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_complement_maps() {
         <span class="kw">let </span>gc = maps::general_category();
         <span class="kw">let </span>script = maps::script();
-        test_map(<span class="kw-2">&amp;</span>gc, GeneralCategory::UppercaseLetter, <span class="string">&quot;gc&quot;</span>);
-        test_map(<span class="kw-2">&amp;</span>gc, GeneralCategory::OtherPunctuation, <span class="string">&quot;gc&quot;</span>);
-        test_map(<span class="kw-2">&amp;</span>script, Script::Devanagari, <span class="string">&quot;script&quot;</span>);
-        test_map(<span class="kw-2">&amp;</span>script, Script::Latin, <span class="string">&quot;script&quot;</span>);
-        test_map(<span class="kw-2">&amp;</span>script, Script::Common, <span class="string">&quot;script&quot;</span>);
+        test_map(<span class="kw-2">&amp;</span>gc, GeneralCategory::UppercaseLetter, <span class="string">"gc"</span>);
+        test_map(<span class="kw-2">&amp;</span>gc, GeneralCategory::OtherPunctuation, <span class="string">"gc"</span>);
+        test_map(<span class="kw-2">&amp;</span>script, Script::Devanagari, <span class="string">"script"</span>);
+        test_map(<span class="kw-2">&amp;</span>script, Script::Latin, <span class="string">"script"</span>);
+        test_map(<span class="kw-2">&amp;</span>script, Script::Common, <span class="string">"script"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

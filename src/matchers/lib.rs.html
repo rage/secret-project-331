@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/matchers-0.1.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="matchers" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/matchers-0.1.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="matchers" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -648,14 +649,14 @@
 ///
 /// [`Pattern`]: ../struct.Pattern.html
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>Matcher&lt;<span class="lifetime">&#39;a</span>, S = usize, A = DenseDFA&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[S], S&gt;&gt;
+</span><span class="kw">pub struct </span>Matcher&lt;<span class="lifetime">'a</span>, S = usize, A = DenseDFA&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[S], S&gt;&gt;
 <span class="kw">where
     </span>S: StateID,
     A: DFA&lt;ID = S&gt;,
 {
     automaton: A,
     state: S,
-    _lt: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
+    _lt: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
 }
 
 <span class="comment">// === impl Pattern ===
@@ -676,15 +677,15 @@
     /// use matchers::Pattern;
     ///
     /// // This pattern matches any number of `a`s followed by a `b`.
-    /// let pattern = Pattern::new(&quot;a+b&quot;).expect(&quot;regex is not invalid&quot;);
+    /// let pattern = Pattern::new("a+b").expect("regex is not invalid");
     ///
     /// // Of course, the pattern matches an input where the entire sequence of
     /// // characters matches the pattern:
-    /// assert!(pattern.display_matches(&amp;&quot;aaaaab&quot;));
+    /// assert!(pattern.display_matches(&amp;"aaaaab"));
     ///
     /// // And, since the pattern is unanchored, it will also match the
-    /// // sequence when it&#39;s followed by non-matching characters:
-    /// assert!(pattern.display_matches(&amp;&quot;hello world! aaaaab&quot;));
+    /// // sequence when it's followed by non-matching characters:
+    /// assert!(pattern.display_matches(&amp;"hello world! aaaaab"));
     /// ```
     </span><span class="kw">pub fn </span>new(pattern: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span>automaton = DenseDFA::new(pattern)<span class="question-mark">?</span>;
@@ -704,21 +705,21 @@
     /// use matchers::Pattern;
     ///
     /// // This pattern matches any number of `a`s followed by a `b`.
-    /// let pattern = Pattern::new_anchored(&quot;a+b&quot;)
-    ///     .expect(&quot;regex is not invalid&quot;);
+    /// let pattern = Pattern::new_anchored("a+b")
+    ///     .expect("regex is not invalid");
     ///
     /// // The pattern matches an input where the entire sequence of
     /// // characters matches the pattern:
-    /// assert!(pattern.display_matches(&amp;&quot;aaaaab&quot;));
+    /// assert!(pattern.display_matches(&amp;"aaaaab"));
     ///
     /// // Since the pattern is anchored, it will *not* match an input that
     /// // begins with non-matching characters:
-    /// assert!(!pattern.display_matches(&amp;&quot;hello world! aaaaab&quot;));
+    /// assert!(!pattern.display_matches(&amp;"hello world! aaaaab"));
     ///
     /// // ...however, if we create a pattern beginning with `.*?`, it will:
-    /// let pattern2 = Pattern::new_anchored(&quot;.*?a+b&quot;)
-    ///     .expect(&quot;regex is not invalid&quot;);
-    /// assert!(pattern2.display_matches(&amp;&quot;hello world! aaaaab&quot;));
+    /// let pattern2 = Pattern::new_anchored(".*?a+b")
+    ///     .expect("regex is not invalid");
+    /// assert!(pattern2.display_matches(&amp;"hello world! aaaaab"));
     /// ```
     </span><span class="kw">pub fn </span>new_anchored(pattern: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span>automaton = dense::Builder::new().anchored(<span class="bool-val">true</span>).build(pattern)<span class="question-mark">?</span>;
@@ -737,7 +738,7 @@
 <span class="kw">where
     </span>S: StateID,
     A: DFA&lt;ID = S&gt;,
-    <span class="self">Self</span>: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; ToMatcher&lt;<span class="lifetime">&#39;a</span>, S&gt;,
+    <span class="self">Self</span>: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; ToMatcher&lt;<span class="lifetime">'a</span>, S&gt;,
 {
     <span class="doccomment">/// Returns `true` if this pattern matches the given string.
     </span><span class="attr">#[inline]
@@ -754,18 +755,18 @@
     ///
     /// #[derive(Debug)]
     /// pub struct Hello {
-    ///     to: &amp;&#39;static str,
+    ///     to: &amp;'static str,
     /// }
     ///
-    /// let pattern = Pattern::new(r#&quot;Hello \{ to: &quot;W[^&quot;]*&quot; \}&quot;#).unwrap();
+    /// let pattern = Pattern::new(r#"Hello \{ to: "W[^"]*" \}"#).unwrap();
     ///
-    /// let hello_world = Hello { to: &quot;World&quot; };
+    /// let hello_world = Hello { to: "World" };
     /// assert!(pattern.debug_matches(&amp;hello_world));
     ///
-    /// let hello_sf = Hello { to: &quot;San Francisco&quot; };
+    /// let hello_sf = Hello { to: "San Francisco" };
     /// assert_eq!(pattern.debug_matches(&amp;hello_sf), false);
     ///
-    /// let hello_washington = Hello { to: &quot;Washington&quot; };
+    /// let hello_washington = Hello { to: "Washington" };
     /// assert!(pattern.debug_matches(&amp;hello_washington));
     /// ```
     </span><span class="attr">#[inline]
@@ -783,25 +784,25 @@
     ///
     /// #[derive(Debug)]
     /// pub struct Hello {
-    ///     to: &amp;&#39;static str,
+    ///     to: &amp;'static str,
     /// }
     ///
     /// impl fmt::Display for Hello {
     ///     fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
-    ///         write!(f, &quot;Hello {}&quot;, self.to)
+    ///         write!(f, "Hello {}", self.to)
     ///     }
     /// }
     ///
-    /// let pattern = Pattern::new(&quot;Hello [Ww].+&quot;).unwrap();
+    /// let pattern = Pattern::new("Hello [Ww].+").unwrap();
     ///
-    /// let hello_world = Hello { to: &quot;world&quot; };
+    /// let hello_world = Hello { to: "world" };
     /// assert!(pattern.display_matches(&amp;hello_world));
     /// assert_eq!(pattern.debug_matches(&amp;hello_world), false);
     ///
-    /// let hello_sf = Hello { to: &quot;San Francisco&quot; };
+    /// let hello_sf = Hello { to: "San Francisco" };
     /// assert_eq!(pattern.display_matches(&amp;hello_sf), false);
     ///
-    /// let hello_washington = Hello { to: &quot;Washington&quot; };
+    /// let hello_washington = Hello { to: "Washington" };
     /// assert!(pattern.display_matches(&amp;hello_washington));
     /// ```
     </span><span class="attr">#[inline]
@@ -820,7 +821,7 @@
 
 <span class="comment">// === impl Matcher ===
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S, A&gt; Matcher&lt;<span class="lifetime">&#39;a</span>, S, A&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S, A&gt; Matcher&lt;<span class="lifetime">'a</span>, S, A&gt;
 <span class="kw">where
     </span>S: StateID,
     A: DFA&lt;ID = S&gt;,
@@ -837,7 +838,7 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>advance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: u8) {
         <span class="self">self</span>.state = <span class="kw">unsafe </span>{
-            <span class="comment">// It&#39;s safe to call `next_state_unchecked` since the matcher may
+            <span class="comment">// It's safe to call `next_state_unchecked` since the matcher may
             // only be constructed by a `Pattern`, which, in turn,can only be
             // constructed with a valid DFA.
             </span><span class="self">self</span>.automaton.next_state_unchecked(<span class="self">self</span>.state, input)
@@ -867,7 +868,7 @@
     /// type implementing `fmt::Debug`.
     </span><span class="kw">pub fn </span>debug_matches(<span class="kw-2">mut </span><span class="self">self</span>, d: <span class="kw-2">&amp;</span><span class="kw">impl </span>fmt::Debug) -&gt; bool {
         <span class="kw">use </span>std::fmt::Write;
-        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="string">&quot;{:?}&quot;</span>, d).expect(<span class="string">&quot;matcher write impl should not fail&quot;</span>);
+        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="string">"{:?}"</span>, d).expect(<span class="string">"matcher write impl should not fail"</span>);
         <span class="self">self</span>.is_matched()
     }
 
@@ -875,7 +876,7 @@
     /// type implementing `fmt::Display`.
     </span><span class="kw">pub fn </span>display_matches(<span class="kw-2">mut </span><span class="self">self</span>, d: <span class="kw-2">&amp;</span><span class="kw">impl </span>fmt::Display) -&gt; bool {
         <span class="kw">use </span>std::fmt::Write;
-        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="string">&quot;{}&quot;</span>, d).expect(<span class="string">&quot;matcher write impl should not fail&quot;</span>);
+        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="string">"{}"</span>, d).expect(<span class="string">"matcher write impl should not fail"</span>);
         <span class="self">self</span>.is_matched()
     }
 
@@ -893,7 +894,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S, A&gt; fmt::Write <span class="kw">for </span>Matcher&lt;<span class="lifetime">&#39;a</span>, S, A&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S, A&gt; fmt::Write <span class="kw">for </span>Matcher&lt;<span class="lifetime">'a</span>, S, A&gt;
 <span class="kw">where
     </span>S: StateID,
     A: DFA&lt;ID = S&gt;,
@@ -909,7 +910,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S, A&gt; io::Write <span class="kw">for </span>Matcher&lt;<span class="lifetime">&#39;a</span>, S, A&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S, A&gt; io::Write <span class="kw">for </span>Matcher&lt;<span class="lifetime">'a</span>, S, A&gt;
 <span class="kw">where
     </span>S: StateID,
     A: DFA&lt;ID = S&gt;,
@@ -931,33 +932,33 @@
     }
 }
 
-<span class="kw">pub trait </span>ToMatcher&lt;<span class="lifetime">&#39;a</span>, S&gt;
+<span class="kw">pub trait </span>ToMatcher&lt;<span class="lifetime">'a</span>, S&gt;
 <span class="kw">where
     </span><span class="self">Self</span>: <span class="kw">crate</span>::sealed::Sealed,
-    S: StateID + <span class="lifetime">&#39;a</span>,
+    S: StateID + <span class="lifetime">'a</span>,
 {
     <span class="kw">type </span>Automaton: DFA&lt;ID = S&gt;;
-    <span class="kw">fn </span>matcher(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; Matcher&lt;<span class="lifetime">&#39;a</span>, S, <span class="self">Self</span>::Automaton&gt;;
+    <span class="kw">fn </span>matcher(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; Matcher&lt;<span class="lifetime">'a</span>, S, <span class="self">Self</span>::Automaton&gt;;
 }
 
 <span class="kw">impl</span>&lt;S&gt; <span class="kw">crate</span>::sealed::Sealed <span class="kw">for </span>Pattern&lt;S, DenseDFA&lt;Vec&lt;S&gt;, S&gt;&gt; <span class="kw">where </span>S: StateID {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S&gt; ToMatcher&lt;<span class="lifetime">&#39;a</span>, S&gt; <span class="kw">for </span>Pattern&lt;S, DenseDFA&lt;Vec&lt;S&gt;, S&gt;&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S&gt; ToMatcher&lt;<span class="lifetime">'a</span>, S&gt; <span class="kw">for </span>Pattern&lt;S, DenseDFA&lt;Vec&lt;S&gt;, S&gt;&gt;
 <span class="kw">where
-    </span>S: StateID + <span class="lifetime">&#39;a</span>,
+    </span>S: StateID + <span class="lifetime">'a</span>,
 {
-    <span class="kw">type </span>Automaton = DenseDFA&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[S], S&gt;;
-    <span class="kw">fn </span>matcher(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; Matcher&lt;<span class="lifetime">&#39;a</span>, S, <span class="self">Self</span>::Automaton&gt; {
+    <span class="kw">type </span>Automaton = DenseDFA&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[S], S&gt;;
+    <span class="kw">fn </span>matcher(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; Matcher&lt;<span class="lifetime">'a</span>, S, <span class="self">Self</span>::Automaton&gt; {
         Matcher::new(<span class="self">self</span>.automaton.as_ref())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S&gt; ToMatcher&lt;<span class="lifetime">&#39;a</span>, S&gt; <span class="kw">for </span>Pattern&lt;S, SparseDFA&lt;Vec&lt;u8&gt;, S&gt;&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S&gt; ToMatcher&lt;<span class="lifetime">'a</span>, S&gt; <span class="kw">for </span>Pattern&lt;S, SparseDFA&lt;Vec&lt;u8&gt;, S&gt;&gt;
 <span class="kw">where
-    </span>S: StateID + <span class="lifetime">&#39;a</span>,
+    </span>S: StateID + <span class="lifetime">'a</span>,
 {
-    <span class="kw">type </span>Automaton = SparseDFA&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], S&gt;;
-    <span class="kw">fn </span>matcher(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; Matcher&lt;<span class="lifetime">&#39;a</span>, S, <span class="self">Self</span>::Automaton&gt; {
+    <span class="kw">type </span>Automaton = SparseDFA&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], S&gt;;
+    <span class="kw">fn </span>matcher(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; Matcher&lt;<span class="lifetime">'a</span>, S, <span class="self">Self</span>::Automaton&gt; {
         Matcher::new(<span class="self">self</span>.automaton.as_ref())
     }
 }
@@ -972,92 +973,92 @@
 </span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">struct </span>Str&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str);
-    <span class="kw">struct </span>ReadStr&lt;<span class="lifetime">&#39;a</span>&gt;(io::Cursor&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;);
+    <span class="kw">struct </span>Str&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str);
+    <span class="kw">struct </span>ReadStr&lt;<span class="lifetime">'a</span>&gt;(io::Cursor&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;);
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Debug <span class="kw">for </span>Str&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Debug <span class="kw">for </span>Str&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+            <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.<span class="number">0</span>)
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Display <span class="kw">for </span>Str&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Display <span class="kw">for </span>Str&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+            <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.<span class="number">0</span>)
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; io::Read <span class="kw">for </span>ReadStr&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; io::Read <span class="kw">for </span>ReadStr&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
             <span class="self">self</span>.<span class="number">0</span>.read(buf)
         }
     }
 
-    <span class="kw">impl </span>Str&lt;<span class="lifetime">&#39;static</span>&gt; {
+    <span class="kw">impl </span>Str&lt;<span class="lifetime">'static</span>&gt; {
         <span class="kw">fn </span>hello_world() -&gt; <span class="self">Self </span>{
-            <span class="self">Self</span>::new(<span class="string">&quot;hello world&quot;</span>)
+            <span class="self">Self</span>::new(<span class="string">"hello world"</span>)
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Str&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="kw">fn </span>new(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Str&lt;<span class="lifetime">'a</span>&gt; {
+        <span class="kw">fn </span>new(s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
             Str(s)
         }
 
-        <span class="kw">fn </span>to_reader(<span class="self">self</span>) -&gt; ReadStr&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">fn </span>to_reader(<span class="self">self</span>) -&gt; ReadStr&lt;<span class="lifetime">'a</span>&gt; {
             ReadStr(io::Cursor::new(<span class="self">self</span>.<span class="number">0</span>.as_bytes()))
         }
     }
 
     <span class="kw">fn </span>test_debug_matches(new_pattern: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Pattern, Error&gt;) {
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;hello world&quot;</span>).unwrap();
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"hello world"</span>).unwrap();
         <span class="macro">assert!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::hello_world()));
 
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;hel+o w[orl]{3}d&quot;</span>).unwrap();
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"hel+o w[orl]{3}d"</span>).unwrap();
         <span class="macro">assert!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::hello_world()));
 
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;goodbye world&quot;</span>).unwrap();
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"goodbye world"</span>).unwrap();
         <span class="macro">assert_eq!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::hello_world()), <span class="bool-val">false</span>);
     }
 
     <span class="kw">fn </span>test_display_matches(new_pattern: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Pattern, Error&gt;) {
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;hello world&quot;</span>).unwrap();
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"hello world"</span>).unwrap();
         <span class="macro">assert!</span>(pat.display_matches(<span class="kw-2">&amp;</span>Str::hello_world()));
 
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;hel+o w[orl]{3}d&quot;</span>).unwrap();
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"hel+o w[orl]{3}d"</span>).unwrap();
         <span class="macro">assert!</span>(pat.display_matches(<span class="kw-2">&amp;</span>Str::hello_world()));
 
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;goodbye world&quot;</span>).unwrap();
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"goodbye world"</span>).unwrap();
         <span class="macro">assert_eq!</span>(pat.display_matches(<span class="kw-2">&amp;</span>Str::hello_world()), <span class="bool-val">false</span>);
     }
 
     <span class="kw">fn </span>test_reader_matches(new_pattern: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Pattern, Error&gt;) {
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;hello world&quot;</span>).unwrap();
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"hello world"</span>).unwrap();
         <span class="macro">assert!</span>(pat
             .read_matches(Str::hello_world().to_reader())
-            .expect(<span class="string">&quot;no io error should occur&quot;</span>));
+            .expect(<span class="string">"no io error should occur"</span>));
 
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;hel+o w[orl]{3}d&quot;</span>).unwrap();
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"hel+o w[orl]{3}d"</span>).unwrap();
         <span class="macro">assert!</span>(pat
             .read_matches(Str::hello_world().to_reader())
-            .expect(<span class="string">&quot;no io error should occur&quot;</span>));
+            .expect(<span class="string">"no io error should occur"</span>));
 
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;goodbye world&quot;</span>).unwrap();
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"goodbye world"</span>).unwrap();
         <span class="macro">assert_eq!</span>(
             pat.read_matches(Str::hello_world().to_reader())
-                .expect(<span class="string">&quot;no io error should occur&quot;</span>),
+                .expect(<span class="string">"no io error should occur"</span>),
             <span class="bool-val">false
         </span>);
     }
 
     <span class="kw">fn </span>test_debug_rep_patterns(new_pattern: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Pattern, Error&gt;) {
-        <span class="kw">let </span>pat = new_pattern(<span class="string">&quot;a+b&quot;</span>).unwrap();
-        <span class="macro">assert!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">&quot;ab&quot;</span>)));
-        <span class="macro">assert!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">&quot;aaaab&quot;</span>)));
-        <span class="macro">assert!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">&quot;aaaaaaaaaab&quot;</span>)));
-        <span class="macro">assert_eq!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">&quot;b&quot;</span>)), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">&quot;abb&quot;</span>)), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">&quot;aaaaabb&quot;</span>)), <span class="bool-val">false</span>);
+        <span class="kw">let </span>pat = new_pattern(<span class="string">"a+b"</span>).unwrap();
+        <span class="macro">assert!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">"ab"</span>)));
+        <span class="macro">assert!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">"aaaab"</span>)));
+        <span class="macro">assert!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">"aaaaaaaaaab"</span>)));
+        <span class="macro">assert_eq!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">"b"</span>)), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">"abb"</span>)), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(pat.debug_matches(<span class="kw-2">&amp;</span>Str::new(<span class="string">"aaaaabb"</span>)), <span class="bool-val">false</span>);
     }
 
     <span class="kw">mod </span>anchored {
@@ -1086,13 +1087,13 @@
         // Tests that anchored patterns match each input type only beginning at
         // the first character.
         </span><span class="kw">fn </span>test_is_anchored(f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>Pattern, Str) -&gt; bool) {
-            <span class="kw">let </span>pat = Pattern::new_anchored(<span class="string">&quot;a+b&quot;</span>).unwrap();
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;ab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;aaaab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;aaaaaaaaaab&quot;</span>)));
-            <span class="macro">assert!</span>(!f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;bab&quot;</span>)));
-            <span class="macro">assert!</span>(!f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;ffab&quot;</span>)));
-            <span class="macro">assert!</span>(!f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;qqqqqqqaaaaab&quot;</span>)));
+            <span class="kw">let </span>pat = Pattern::new_anchored(<span class="string">"a+b"</span>).unwrap();
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"ab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"aaaab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"aaaaaaaaaab"</span>)));
+            <span class="macro">assert!</span>(!f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"bab"</span>)));
+            <span class="macro">assert!</span>(!f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"ffab"</span>)));
+            <span class="macro">assert!</span>(!f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"qqqqqqqaaaaab"</span>)));
         }
 
         <span class="attr">#[test]
@@ -1109,21 +1110,21 @@
         </span><span class="kw">fn </span>reader_is_anchored() {
             test_is_anchored(|pat, input| {
                 pat.read_matches(input.to_reader())
-                    .expect(<span class="string">&quot;no io error occurs&quot;</span>)
+                    .expect(<span class="string">"no io error occurs"</span>)
             });
         }
 
         <span class="comment">// === explicitly unanchored =========================================
-        // Tests that if an &quot;anchored&quot; pattern begins with `.*?`, it matches as
+        // Tests that if an "anchored" pattern begins with `.*?`, it matches as
         // though it was unanchored.
         </span><span class="kw">fn </span>test_explicitly_unanchored(f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>Pattern, Str) -&gt; bool) {
-            <span class="kw">let </span>pat = Pattern::new_anchored(<span class="string">&quot;.*?a+b&quot;</span>).unwrap();
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;ab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;aaaab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;aaaaaaaaaab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;bab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;ffab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;qqqqqqqaaaaab&quot;</span>)));
+            <span class="kw">let </span>pat = Pattern::new_anchored(<span class="string">".*?a+b"</span>).unwrap();
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"ab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"aaaab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"aaaaaaaaaab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"bab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"ffab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"qqqqqqqaaaaab"</span>)));
         }
 
         <span class="attr">#[test]
@@ -1140,7 +1141,7 @@
         </span><span class="kw">fn </span>reader_explicitly_unanchored() {
             test_explicitly_unanchored(|pat, input| {
                 pat.read_matches(input.to_reader())
-                    .expect(<span class="string">&quot;no io error occurs&quot;</span>)
+                    .expect(<span class="string">"no io error occurs"</span>)
             });
         }
     }
@@ -1170,13 +1171,13 @@
         <span class="comment">// === anchored behavior =============================================
         // Tests that unanchored patterns match anywhere in the input stream.
         </span><span class="kw">fn </span>test_is_unanchored(f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>Pattern, Str) -&gt; bool) {
-            <span class="kw">let </span>pat = Pattern::new(<span class="string">&quot;a+b&quot;</span>).unwrap();
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;ab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;aaaab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;aaaaaaaaaab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;bab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;ffab&quot;</span>)));
-            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">&quot;qqqfqqqqaaaaab&quot;</span>)));
+            <span class="kw">let </span>pat = Pattern::new(<span class="string">"a+b"</span>).unwrap();
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"ab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"aaaab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"aaaaaaaaaab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"bab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"ffab"</span>)));
+            <span class="macro">assert!</span>(f(<span class="kw-2">&amp;</span>pat, Str::new(<span class="string">"qqqfqqqqaaaaab"</span>)));
         }
 
         <span class="attr">#[test]
@@ -1193,7 +1194,7 @@
         </span><span class="kw">fn </span>reader_is_unanchored() {
             test_is_unanchored(|pat, input| {
                 pat.read_matches(input.to_reader())
-                    .expect(<span class="string">&quot;no io error occurs&quot;</span>)
+                    .expect(<span class="string">"no io error occurs"</span>)
             });
         }
     }

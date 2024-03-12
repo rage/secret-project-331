@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-sys-0.9.99/src/./handwritten/types.rs`."><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-sys-0.9.101/src/./handwritten/types.rs`."><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1093,6 +1094,16 @@
 <a href="#1093" id="1093">1093</a>
 <a href="#1094" id="1094">1094</a>
 <a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libc::<span class="kw-2">*</span>;
 
 <span class="attr">#[allow(unused_imports)]
@@ -1129,7 +1140,7 @@
         </span><span class="kw">pub struct </span>BIO {
             <span class="kw">pub </span>method: <span class="kw-2">*mut </span>BIO_METHOD,
             <span class="kw">pub </span>callback: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>BIO, c_int, <span class="kw-2">*const </span>c_char, c_int, c_long, c_long) -&gt; c_long,
+                <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>BIO, c_int, <span class="kw-2">*const </span>c_char, c_int, c_long, c_long) -&gt; c_long,
             &gt;,
             <span class="kw">pub </span>cb_arg: <span class="kw-2">*mut </span>c_char,
             <span class="kw">pub </span>init: c_int,
@@ -1179,19 +1190,19 @@
             <span class="kw">pub </span>iv_len: c_int,
             <span class="kw">pub </span>flags: c_ulong,
             <span class="kw">pub </span>init: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, <span class="kw-2">*const </span>c_uchar, <span class="kw-2">*const </span>c_uchar, c_int) -&gt; c_int,
+                <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, <span class="kw-2">*const </span>c_uchar, <span class="kw-2">*const </span>c_uchar, c_int) -&gt; c_int,
             &gt;,
             <span class="kw">pub </span>do_cipher: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, <span class="kw-2">*mut </span>c_uchar, <span class="kw-2">*const </span>c_uchar, size_t) -&gt; c_int,
+                <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, <span class="kw-2">*mut </span>c_uchar, <span class="kw-2">*const </span>c_uchar, size_t) -&gt; c_int,
             &gt;,
-            <span class="kw">pub </span>cleanup: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX) -&gt; c_int&gt;,
+            <span class="kw">pub </span>cleanup: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX) -&gt; c_int&gt;,
             <span class="kw">pub </span>ctx_size: c_int,
             <span class="kw">pub </span>set_asn1_parameters:
-                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, <span class="kw-2">*mut </span>ASN1_TYPE) -&gt; c_int&gt;,
+                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, <span class="kw-2">*mut </span>ASN1_TYPE) -&gt; c_int&gt;,
             <span class="kw">pub </span>get_asn1_parameters:
-                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, <span class="kw-2">*mut </span>ASN1_TYPE) -&gt; c_int&gt;,
+                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, <span class="kw-2">*mut </span>ASN1_TYPE) -&gt; c_int&gt;,
             <span class="kw">pub </span>ctrl:
-                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, c_int, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
+                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>EVP_CIPHER_CTX, c_int, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;,
             <span class="kw">pub </span>app_data: <span class="kw-2">*mut </span>c_void,
         }
     }
@@ -1387,7 +1398,7 @@
             crldp: <span class="kw-2">*mut </span>c_void,
             altname: <span class="kw-2">*mut </span>c_void,
             nc: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SHA&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SHA"</span>))]
             </span>sha1_hash: [c_uchar; <span class="number">20</span>],
             aux: <span class="kw-2">*mut </span>c_void,
         }
@@ -1413,11 +1424,11 @@
             crldp: <span class="kw-2">*mut </span>c_void,
             altname: <span class="kw-2">*mut </span>c_void,
             nc: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_RFC3779&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_RFC3779"</span>))]
             </span>rfc3779_addr: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_RFC3779&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_RFC3779"</span>))]
             </span>rfc3779_asid: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SHA&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SHA"</span>))]
             </span>sha1_hash: [c_uchar; <span class="number">20</span>],
             aux: <span class="kw-2">*mut </span>c_void,
         }
@@ -1451,26 +1462,26 @@
             <span class="kw">pub </span>objs: <span class="kw-2">*mut </span>stack_st_X509_OBJECT,
             get_cert_methods: <span class="kw-2">*mut </span>stack_st_X509_LOOKUP,
             param: <span class="kw-2">*mut </span>X509_VERIFY_PARAM,
-            verify: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
-            verify_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ok: c_int, ctx: <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
+            verify: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
+            verify_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ok: c_int, ctx: <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
             get_issuer: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(issuer: <span class="kw-2">*mut *mut </span>X509, ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, x: <span class="kw-2">*mut </span>X509) -&gt; c_int,
+                <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(issuer: <span class="kw-2">*mut *mut </span>X509, ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, x: <span class="kw-2">*mut </span>X509) -&gt; c_int,
             &gt;,
             check_issued:
-                <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, x: <span class="kw-2">*mut </span>X509, issuer: <span class="kw-2">*mut </span>X509) -&gt; c_int&gt;,
-            check_revocation: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
+                <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, x: <span class="kw-2">*mut </span>X509, issuer: <span class="kw-2">*mut </span>X509) -&gt; c_int&gt;,
+            check_revocation: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
             get_crl: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, crl: <span class="kw-2">*mut *mut </span>X509_CRL, x: <span class="kw-2">*mut </span>X509) -&gt; c_int,
+                <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, crl: <span class="kw-2">*mut *mut </span>X509_CRL, x: <span class="kw-2">*mut </span>X509) -&gt; c_int,
             &gt;,
-            check_crl: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, crl: <span class="kw-2">*mut </span>X509_CRL) -&gt; c_int&gt;,
+            check_crl: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, crl: <span class="kw-2">*mut </span>X509_CRL) -&gt; c_int&gt;,
             cert_crl:
-                <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, crl: <span class="kw-2">*mut </span>X509_CRL, x: <span class="kw-2">*mut </span>X509) -&gt; c_int&gt;,
+                <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, crl: <span class="kw-2">*mut </span>X509_CRL, x: <span class="kw-2">*mut </span>X509) -&gt; c_int&gt;,
             lookup_certs:
-                <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, nm: <span class="kw-2">*const </span>X509_NAME) -&gt; <span class="kw-2">*mut </span>stack_st_X509&gt;,
+                <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX, nm: <span class="kw-2">*const </span>X509_NAME) -&gt; <span class="kw-2">*mut </span>stack_st_X509&gt;,
             lookup_crls: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*const </span>X509_STORE_CTX, nm: <span class="kw-2">*const </span>X509_NAME) -&gt; <span class="kw-2">*mut </span>stack_st_X509_CRL,
+                <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*const </span>X509_STORE_CTX, nm: <span class="kw-2">*const </span>X509_NAME) -&gt; <span class="kw-2">*mut </span>stack_st_X509_CRL,
             &gt;,
-            cleanup: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
+            cleanup: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
             ex_data: CRYPTO_EX_DATA,
             references: c_int,
         }
@@ -1611,7 +1622,7 @@
             bbio: <span class="kw-2">*mut </span>c_void,
             rwstate: c_int,
             in_handshake: c_int,
-            handshake_func: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL) -&gt; c_int&gt;,
+            handshake_func: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL) -&gt; c_int&gt;,
             <span class="kw">pub </span>server: c_int,
             new_session: c_int,
             quiet_shutdown: c_int,
@@ -1628,7 +1639,7 @@
             d1: <span class="kw-2">*mut </span>c_void,
             read_ahead: c_int,
             msg_callback: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(c_int,
+                <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(c_int,
                                     c_int,
                                     c_int,
                                     <span class="kw-2">*const </span>c_void,
@@ -1654,8 +1665,8 @@
             session: <span class="kw-2">*mut </span>SSL_SESSION,
             generate_session_id: GEN_SESSION_CB,
             verify_mode: c_int,
-            verify_callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(c_int, <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
-            info_callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, c_int, c_int)&gt;,
+            verify_callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(c_int, <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
+            info_callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, c_int, c_int)&gt;,
             error: c_int,
             error_code: c_int,
             ctx: <span class="kw-2">*mut </span>SSL_CTX,
@@ -1671,7 +1682,7 @@
             client_version: c_int,
             max_send_fragment: c_uint,
             tlsext_debug_cb:
-                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, c_int, c_int, <span class="kw-2">*mut </span>c_uchar, c_int, <span class="kw-2">*mut </span>c_void)&gt;,
+                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, c_int, c_int, <span class="kw-2">*mut </span>c_uchar, c_int, <span class="kw-2">*mut </span>c_void)&gt;,
             tlsext_debug_arg: <span class="kw-2">*mut </span>c_void,
             tlsext_hostname: <span class="kw-2">*mut </span>c_char,
             servername_done: c_int,
@@ -1714,7 +1725,7 @@
             bbio: <span class="kw-2">*mut </span>c_void,
             rwstate: c_int,
             in_handshake: c_int,
-            handshake_func: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL) -&gt; c_int&gt;,
+            handshake_func: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL) -&gt; c_int&gt;,
             <span class="kw">pub </span>server: c_int,
             new_session: c_int,
             quiet_session: c_int,
@@ -1732,7 +1743,7 @@
             d1: <span class="kw-2">*mut </span>c_void,
             read_ahead: c_int,
             msg_callback: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(c_int, c_int, c_int, <span class="kw-2">*const </span>c_void, size_t, <span class="kw-2">*mut </span>SSL, <span class="kw-2">*mut </span>c_void),
+                <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(c_int, c_int, c_int, <span class="kw-2">*const </span>c_void, size_t, <span class="kw-2">*mut </span>SSL, <span class="kw-2">*mut </span>c_void),
             &gt;,
             msg_callback_arg: <span class="kw-2">*mut </span>c_void,
             hit: c_int,
@@ -1752,20 +1763,20 @@
             session: <span class="kw-2">*mut </span>SSL_SESSION,
             generate_session_id: GEN_SESSION_CB,
             verify_mode: c_int,
-            verify_callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(c_int, <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
-            info_callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, c_int, c_int)&gt;,
+            verify_callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(c_int, <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int&gt;,
+            info_callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, c_int, c_int)&gt;,
             error: c_int,
             error_code: c_int,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_KRB5&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_KRB5"</span>))]
             </span>kssl_ctx: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
             </span>psk_client_callback: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_char, c_uint, <span class="kw-2">*mut </span>c_uchar, c_uint)
+                <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_char, c_uint, <span class="kw-2">*mut </span>c_uchar, c_uint)
                     -&gt; c_uint,
             &gt;,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
             </span>psk_server_callback:
-                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_uchar, c_uint) -&gt; c_uint&gt;,
+                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_uchar, c_uint) -&gt; c_uint&gt;,
             ctx: <span class="kw-2">*mut </span>SSL_CTX,
             debug: c_int,
             verify_result: c_long,
@@ -1778,91 +1789,91 @@
             first_packet: c_int,
             client_version: c_int,
             max_send_fragment: c_uint,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_debug_cb:
-                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, c_int, c_int, <span class="kw-2">*mut </span>c_uchar, c_int, <span class="kw-2">*mut </span>c_void)&gt;,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+                <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>SSL, c_int, c_int, <span class="kw-2">*mut </span>c_uchar, c_int, <span class="kw-2">*mut </span>c_void)&gt;,
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_debug_arg: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_hostname: <span class="kw-2">*mut </span>c_char,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>servername_done: c_int,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_status_type: c_int,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_status_expected: c_int,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_ocsp_ids: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_ocsp_exts: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_ocsp_resp: <span class="kw-2">*mut </span>c_uchar,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_ocsp_resplen: c_int,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_ticket_expected: c_int,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_EC&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_EC"</span>)
             ))]
             </span>tlsext_ecpointformatlist_length: size_t,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_EC&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_EC"</span>)
             ))]
             </span>tlsext_ecpointformatlist: <span class="kw-2">*mut </span>c_uchar,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_EC&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_EC"</span>)
             ))]
             </span>tlsext_ellipticcurvelist_length: size_t,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_EC&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_EC"</span>)
             ))]
             </span>tlsext_ellipticcurvelist: <span class="kw-2">*mut </span>c_uchar,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_opaque_prf_input: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_opaque_prf_input_len: size_t,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_session_ticket: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_session_ticket_ext_cb: tls_session_ticket_ext_cb_fn,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tls_session_ticket_ext_cb_arg: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tls_session_secret_cb: tls_session_secret_cb_fn,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tls_session_secret_cb_arg: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>initial_ctx: <span class="kw-2">*mut </span>SSL_CTX,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_NEXTPROTONEG&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_NEXTPROTONEG"</span>)
             ))]
             </span>next_proto_negotiated: <span class="kw-2">*mut </span>c_uchar,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_NEXTPROTONEG&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_NEXTPROTONEG"</span>)
             ))]
             </span>next_proto_negotiated_len: c_uchar,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>srtp_profiles: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>srtp_profile: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_heartbeat: c_uint,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_hb_pending: c_uint,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_hb_seq: c_uint,
             renegotiate: c_int,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SRP&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SRP"</span>))]
             </span>srp_ctx: SRP_CTX,
-            <span class="attr">#[cfg(all(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>), ossl102))]
+            <span class="attr">#[cfg(all(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>), ossl102))]
             </span>alpn_client_proto_list: <span class="kw-2">*mut </span>c_uchar,
-            <span class="attr">#[cfg(all(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>), ossl102))]
+            <span class="attr">#[cfg(all(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>), ossl102))]
             </span>alpn_client_proto_list_len: c_uint,
         }
     }
@@ -1936,7 +1947,7 @@
             quiet_shutdown: c_int,
             max_send_fragment: c_uint,
 
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_ENGINE&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_ENGINE"</span>))]
             </span>client_cert_engine: <span class="kw-2">*mut </span>c_void,
 
             tlsext_servername_callback: <span class="kw-2">*mut </span>c_void,
@@ -2006,107 +2017,107 @@
             quiet_shutdown: c_int,
             max_send_fragment: c_uint,
 
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_ENGINE&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_ENGINE"</span>))]
             </span>client_cert_engine: <span class="kw-2">*mut </span>c_void,
 
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_servername_callback: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsect_servername_arg: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_tick_key_name: [c_uchar; <span class="number">16</span>],
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_tick_hmac_key: [c_uchar; <span class="number">16</span>],
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_tick_aes_key: [c_uchar; <span class="number">16</span>],
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_ticket_key_cb: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_status_cb: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_status_arg: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_opaque_prf_input_callback: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>))]
             </span>tlsext_opaque_prf_input_callback_arg: <span class="kw-2">*mut </span>c_void,
 
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
             </span>psk_identity_hint: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
             </span>psk_client_callback: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
             </span>psk_server_callback: <span class="kw-2">*mut </span>c_void,
 
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_BUF_FREELISTS&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_BUF_FREELISTS"</span>))]
             </span>freelist_max_len: c_uint,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_BUF_FREELISTS&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_BUF_FREELISTS"</span>))]
             </span>wbuf_freelist: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_BUF_FREELISTS&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_BUF_FREELISTS"</span>))]
             </span>rbuf_freelist: <span class="kw-2">*mut </span>c_void,
 
-            <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SRP&quot;</span>))]
+            <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SRP"</span>))]
             </span>srp_ctx: SRP_CTX,
 
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_NEXTPROTONEG&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_NEXTPROTONEG"</span>)
             ))]
             </span>next_protos_advertised_cb: <span class="kw-2">*mut </span>c_void,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_NEXTPROTONEG&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_NEXTPROTONEG"</span>)
             ))]
             </span>next_protos_advertised_cb_arg: <span class="kw-2">*mut </span>c_void,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_NEXTPROTONEG&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_NEXTPROTONEG"</span>)
             ))]
             </span>next_proto_select_cb: <span class="kw-2">*mut </span>c_void,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_NEXTPROTONEG&quot;</span>)
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_NEXTPROTONEG"</span>)
             ))]
             </span>next_proto_select_cb_arg: <span class="kw-2">*mut </span>c_void,
 
-            <span class="attr">#[cfg(all(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>), ossl101))]
+            <span class="attr">#[cfg(all(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>), ossl101))]
             </span>srtp_profiles: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(all(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>), ossl102))]
+            <span class="attr">#[cfg(all(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>), ossl102))]
             </span>alpn_select_cb: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(all(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>), ossl102))]
+            <span class="attr">#[cfg(all(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>), ossl102))]
             </span>alpn_select_cb_arg: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(all(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>), ossl102))]
+            <span class="attr">#[cfg(all(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>), ossl102))]
             </span>alpn_client_proto_list: <span class="kw-2">*mut </span>c_void,
-            <span class="attr">#[cfg(all(not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>), ossl102))]
+            <span class="attr">#[cfg(all(not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>), ossl102))]
             </span>alpn_client_proto_list_len: c_uint,
 
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_EC&quot;</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_EC"</span>),
                 ossl102
             ))]
             </span>tlsext_ecpointformatlist_length: size_t,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_EC&quot;</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_EC"</span>),
                 ossl102
             ))]
             </span>tlsext_ecpointformatlist: <span class="kw-2">*mut </span>c_uchar,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_EC&quot;</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_EC"</span>),
                 ossl102
             ))]
             </span>tlsext_ellipticcurvelist_length: size_t,
             <span class="attr">#[cfg(all(
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_TLSEXT&quot;</span>),
-                not(osslconf = <span class="string">&quot;OPENSSL_NO_EC&quot;</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_TLSEXT"</span>),
+                not(osslconf = <span class="string">"OPENSSL_NO_EC"</span>),
                 ossl102
             ))]
             </span>tlsext_ellipticcurvelist: <span class="kw-2">*mut </span>c_uchar,
         }
 
         <span class="attr">#[repr(C)]
-        #[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SRP&quot;</span>))]
+        #[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SRP"</span>))]
         </span><span class="kw">pub struct </span>SRP_CTX {
             SRP_cb_arg: <span class="kw-2">*mut </span>c_void,
             TLS_ext_srp_username_callback: <span class="kw-2">*mut </span>c_void,
@@ -2138,10 +2149,10 @@
         </span><span class="kw">pub struct </span>COMP_METHOD {
             <span class="kw">pub </span>type_: c_int,
             <span class="kw">pub </span>name: <span class="kw-2">*const </span>c_char,
-            init: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>COMP_CTX) -&gt; c_int&gt;,
-            finish: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>COMP_CTX)&gt;,
+            init: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>COMP_CTX) -&gt; c_int&gt;,
+            finish: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>COMP_CTX)&gt;,
             compress: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+                <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(
                     <span class="kw-2">*mut </span>COMP_CTX,
                     <span class="kw-2">*mut </span>c_uchar,
                     c_uint,
@@ -2150,7 +2161,7 @@
                 ) -&gt; c_int,
             &gt;,
             expand: <span class="prelude-ty">Option</span>&lt;
-                <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+                <span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>(
                     <span class="kw-2">*mut </span>COMP_CTX,
                     <span class="kw-2">*mut </span>c_uchar,
                     c_uint,
@@ -2158,8 +2169,8 @@
                     c_uint,
                 ) -&gt; c_int,
             &gt;,
-            ctrl: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>() -&gt; c_long&gt;,
-            callback_ctrl: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>() -&gt; c_long&gt;,
+            ctrl: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>() -&gt; c_long&gt;,
+            callback_ctrl: <span class="prelude-ty">Option</span>&lt;<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn</span>() -&gt; c_long&gt;,
         }
     }
 }
@@ -2188,4 +2199,14 @@
 
 <span class="attr">#[cfg(ossl300)]
 </span><span class="kw">pub enum </span>OSSL_LIB_CTX {}
+
+<span class="attr">#[cfg(ossl300)]
+#[repr(C)]
+</span><span class="kw">pub struct </span>OSSL_PARAM {
+    key: <span class="kw-2">*const </span>c_char,
+    data_type: c_uchar,
+    data: <span class="kw-2">*mut </span>c_void,
+    data_size: size_t,
+    return_size: size_t,
+}
 </code></pre></div></section></main></body></html>

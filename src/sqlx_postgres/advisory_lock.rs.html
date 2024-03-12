@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/advisory_lock.rs`."><title>advisory_lock.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/advisory_lock.rs`."><title>advisory_lock.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -465,7 +466,7 @@
 ///
 /// Currently, Postgres advisory locks have two different key spaces: one keyed by a single
 /// 64-bit integer, and one keyed by a pair of two 32-bit integers. The Postgres docs
-/// specify that these key spaces &quot;do not overlap&quot;:
+/// specify that these key spaces "do not overlap":
 ///
 /// https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
 ///
@@ -498,8 +499,8 @@
 ///
 /// This means the lock is not actually released as soon as the guard is dropped. To ensure the
 /// lock is eagerly released, you can call [`.release_now().await`][Self::release_now()].
-</span><span class="kw">pub struct </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt;&gt; {
-    lock: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lock </span>PgAdvisoryLock,
+</span><span class="kw">pub struct </span>PgAdvisoryLockGuard&lt;<span class="lifetime">'lock</span>, C: AsMut&lt;PgConnection&gt;&gt; {
+    lock: <span class="kw-2">&amp;</span><span class="lifetime">'lock </span>PgAdvisoryLock,
     conn: <span class="prelude-ty">Option</span>&lt;C&gt;,
 }
 
@@ -513,7 +514,7 @@
     ///
     /// This is done by applying the [Hash-based Key Derivation Function (HKDF; IETF RFC 5869)][hkdf]
     /// to the bytes of the input string, but in a way that the calculated integer is unlikely
-    /// to collide with any similar implementations (although we don&#39;t currently know of any).
+    /// to collide with any similar implementations (although we don't currently know of any).
     /// See the source of this method for details.
     ///
     /// [hkdf]: https://datatracker.ietf.org/doc/html/rfc5869
@@ -522,7 +523,7 @@
     /// # extern crate sqlx_core as sqlx;
     /// use sqlx::postgres::{PgAdvisoryLock, PgAdvisoryLockKey};
     ///
-    /// let lock = PgAdvisoryLock::new(&quot;my first Postgres advisory lock!&quot;);
+    /// let lock = PgAdvisoryLock::new("my first Postgres advisory lock!");
     /// // Negative values are fine because of how Postgres treats advisory lock keys.
     /// // See the documentation for the `pg_locks` system view for details.
     /// assert_eq!(lock.key(), &amp;PgAdvisoryLockKey::BigInt(-5560419505042474287));
@@ -535,38 +536,38 @@
         // well-specified and reproducible algorithm.
         //
         // Granted, the input key is usually meant to be pseudorandom and not human readable,
-        // but we&#39;re not trying to produce an unguessable value by any means; just one that&#39;s as
+        // but we're not trying to produce an unguessable value by any means; just one that's as
         // unlikely to already be in use as possible, but still deterministic.
         //
-        // SHA-256 was chosen as the hash function because it&#39;s already used in the Postgres driver,
+        // SHA-256 was chosen as the hash function because it's already used in the Postgres driver,
         // which should save on codegen and optimization.
 
-        // We don&#39;t supply a salt as that is intended to be random, but we want a deterministic key.
+        // We don't supply a salt as that is intended to be random, but we want a deterministic key.
         </span><span class="kw">let </span>hkdf = Hkdf::&lt;Sha256&gt;::new(<span class="prelude-val">None</span>, input_key_material.as_bytes());
 
         <span class="kw">let </span><span class="kw-2">mut </span>output_key_material = [<span class="number">0u8</span>; <span class="number">8</span>];
 
-        <span class="comment">// The first string is the &quot;info&quot; string of the HKDF which is intended to tie the output
+        <span class="comment">// The first string is the "info" string of the HKDF which is intended to tie the output
         // exclusively to SQLx. This should avoid collisions with implementations using a similar
         // strategy. If you _want_ this to match some other implementation then you should get
         // the calculated integer key from it and use that directly.
         //
         // Do *not* change this string as it will affect the output!
         </span>hkdf.expand(
-            <span class="string">b&quot;SQLx (Rust) Postgres advisory lock&quot;</span>,
+            <span class="string">b"SQLx (Rust) Postgres advisory lock"</span>,
             <span class="kw-2">&amp;mut </span>output_key_material,
         )
         <span class="comment">// `Hkdf::expand()` only returns an error if you ask for more than 255 times the digest size.
         // This is specified by RFC 5869 but not elaborated upon:
         // https://datatracker.ietf.org/doc/html/rfc5869#section-2.3
-        // Since we&#39;re only asking for 8 bytes, this error shouldn&#39;t be returned.
-        </span>.expect(<span class="string">&quot;BUG: `output_key_material` should be of acceptable length&quot;</span>);
+        // Since we're only asking for 8 bytes, this error shouldn't be returned.
+        </span>.expect(<span class="string">"BUG: `output_key_material` should be of acceptable length"</span>);
 
-        <span class="comment">// For ease of use, this method assumes the user doesn&#39;t care which keyspace is used.
+        <span class="comment">// For ease of use, this method assumes the user doesn't care which keyspace is used.
         //
-        // It doesn&#39;t seem likely that someone would care about using the `(int, int)` keyspace
-        // specifically unless they already had keys to use, in which case they wouldn&#39;t
-        // care about this method. That&#39;s why we also provide `with_key()`.
+        // It doesn't seem likely that someone would care about using the `(int, int)` keyspace
+        // specifically unless they already had keys to use, in which case they wouldn't
+        // care about this method. That's why we also provide `with_key()`.
         //
         // The choice of `from_le_bytes()` is mostly due to x86 being the most popular
         // architecture for server software, so it should be a no-op there.
@@ -575,7 +576,7 @@
         <span class="macro">tracing::trace!</span>(
             <span class="question-mark">?</span>key,
             key_string = <span class="question-mark">?</span>input_key_material,
-            <span class="string">&quot;generated key from key string&quot;</span>,
+            <span class="string">"generated key from key string"</span>,
         );
 
         <span class="self">Self</span>::with_key(key)
@@ -594,10 +595,10 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.key
     }
 
-    <span class="comment">// Why doesn&#39;t this use `Acquire`? Well, I tried it and got really useless errors
-    // about &quot;cannot project lifetimes to parent scope&quot;.
+    <span class="comment">// Why doesn't this use `Acquire`? Well, I tried it and got really useless errors
+    // about "cannot project lifetimes to parent scope".
     //
-    // It has something to do with how lifetimes work on the `Acquire` trait, I couldn&#39;t
+    // It has something to do with how lifetimes work on the `Acquire` trait, I couldn't
     // be bothered to figure it out. Probably another issue with a lack of `async fn` in traits
     // or lazy normalization.
 
@@ -617,22 +618,22 @@
     /// it first, so in that sense the lock is re-entrant. However, the number of unlock operations
     /// must match the number of lock operations for the lock to actually be released.
     ///
-    /// See [Postgres&#39; documentation for the Advisory Lock Functions][advisory-funcs] for details.
+    /// See [Postgres' documentation for the Advisory Lock Functions][advisory-funcs] for details.
     ///
     /// [advisory-funcs]: https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
     </span><span class="kw">pub async fn </span>acquire&lt;C: AsMut&lt;PgConnection&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="kw-2">mut </span>conn: C,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;_</span>, C&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PgAdvisoryLockGuard&lt;<span class="lifetime">'_</span>, C&gt;&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.key {
             PgAdvisoryLockKey::BigInt(key) =&gt; {
-                <span class="kw">crate</span>::query::query(<span class="string">&quot;SELECT pg_advisory_lock($1)&quot;</span>)
+                <span class="kw">crate</span>::query::query(<span class="string">"SELECT pg_advisory_lock($1)"</span>)
                     .bind(key)
                     .execute(conn.as_mut())
                     .<span class="kw">await</span><span class="question-mark">?</span>;
             }
             PgAdvisoryLockKey::IntPair(key1, key2) =&gt; {
-                <span class="kw">crate</span>::query::query(<span class="string">&quot;SELECT pg_advisory_lock($1, $2)&quot;</span>)
+                <span class="kw">crate</span>::query::query(<span class="string">"SELECT pg_advisory_lock($1, $2)"</span>)
                     .bind(key1)
                     .bind(key2)
                     .execute(conn.as_mut())
@@ -660,22 +661,22 @@
     /// it first, so in that sense the lock is re-entrant. However, the number of unlock operations
     /// must match the number of lock operations for the lock to actually be released.
     ///
-    /// See [Postgres&#39; documentation for the Advisory Lock Functions][advisory-funcs] for details.
+    /// See [Postgres' documentation for the Advisory Lock Functions][advisory-funcs] for details.
     ///
     /// [advisory-funcs]: https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
     </span><span class="kw">pub async fn </span>try_acquire&lt;C: AsMut&lt;PgConnection&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="kw-2">mut </span>conn: C,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Either&lt;PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;_</span>, C&gt;, C&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Either&lt;PgAdvisoryLockGuard&lt;<span class="lifetime">'_</span>, C&gt;, C&gt;&gt; {
         <span class="kw">let </span>locked: bool = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.key {
             PgAdvisoryLockKey::BigInt(key) =&gt; {
-                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">&quot;SELECT pg_try_advisory_lock($1)&quot;</span>)
+                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">"SELECT pg_try_advisory_lock($1)"</span>)
                     .bind(key)
                     .fetch_one(conn.as_mut())
                     .<span class="kw">await</span><span class="question-mark">?
             </span>}
             PgAdvisoryLockKey::IntPair(key1, key2) =&gt; {
-                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">&quot;SELECT pg_try_advisory_lock($1, $2)&quot;</span>)
+                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">"SELECT pg_try_advisory_lock($1, $2)"</span>)
                     .bind(key1)
                     .bind(key2)
                     .fetch_one(conn.as_mut())
@@ -690,7 +691,7 @@
         }
     }
 
-    <span class="doccomment">/// Execute `pg_advisory_unlock()` for this lock&#39;s key on the given connection.
+    <span class="doccomment">/// Execute `pg_advisory_unlock()` for this lock's key on the given connection.
     ///
     /// This is used by [`PgAdvisoryLockGuard::release_now()`] and is also provided for manually
     /// releasing the lock from connections returned by [`PgAdvisoryLockGuard::leak()`].
@@ -704,13 +705,13 @@
     </span><span class="kw">pub async fn </span>force_release&lt;C: AsMut&lt;PgConnection&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>conn: C) -&gt; <span class="prelude-ty">Result</span>&lt;(C, bool)&gt; {
         <span class="kw">let </span>released: bool = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.key {
             PgAdvisoryLockKey::BigInt(key) =&gt; {
-                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">&quot;SELECT pg_advisory_unlock($1)&quot;</span>)
+                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">"SELECT pg_advisory_unlock($1)"</span>)
                     .bind(key)
                     .fetch_one(conn.as_mut())
                     .<span class="kw">await</span><span class="question-mark">?
             </span>}
             PgAdvisoryLockKey::IntPair(key1, key2) =&gt; {
-                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">&quot;SELECT pg_advisory_unlock($1, $2)&quot;</span>)
+                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">"SELECT pg_advisory_unlock($1, $2)"</span>)
                     .bind(key1)
                     .bind(key2)
                     .fetch_one(conn.as_mut())
@@ -723,9 +724,9 @@
 
     <span class="kw">fn </span>get_release_query(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="self">self</span>.release_query.get_or_init(|| <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.key {
-            PgAdvisoryLockKey::BigInt(key) =&gt; <span class="macro">format!</span>(<span class="string">&quot;SELECT pg_advisory_unlock({key})&quot;</span>),
+            PgAdvisoryLockKey::BigInt(key) =&gt; <span class="macro">format!</span>(<span class="string">"SELECT pg_advisory_unlock({key})"</span>),
             PgAdvisoryLockKey::IntPair(key1, key2) =&gt; {
-                <span class="macro">format!</span>(<span class="string">&quot;SELECT pg_advisory_unlock({key1}, {key2})&quot;</span>)
+                <span class="macro">format!</span>(<span class="string">"SELECT pg_advisory_unlock({key1}, {key2})"</span>)
             }
         })
     }
@@ -742,10 +743,10 @@
     }
 }
 
-<span class="kw">const </span>NONE_ERR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;BUG: PgAdvisoryLockGuard.conn taken&quot;</span>;
+<span class="kw">const </span>NONE_ERR: <span class="kw-2">&amp;</span>str = <span class="string">"BUG: PgAdvisoryLockGuard.conn taken"</span>;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt;&gt; PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt; {
-    <span class="kw">fn </span>new(lock: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lock </span>PgAdvisoryLock, conn: C) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'lock</span>, C: AsMut&lt;PgConnection&gt;&gt; PgAdvisoryLockGuard&lt;<span class="lifetime">'lock</span>, C&gt; {
+    <span class="kw">fn </span>new(lock: <span class="kw-2">&amp;</span><span class="lifetime">'lock </span>PgAdvisoryLock, conn: C) -&gt; <span class="self">Self </span>{
         PgAdvisoryLockGuard {
             lock,
             conn: <span class="prelude-val">Some</span>(conn),
@@ -769,7 +770,7 @@
         <span class="kw">if </span>!released {
             <span class="macro">tracing::warn!</span>(
                 lock = <span class="question-mark">?</span><span class="self">self</span>.lock.key,
-                <span class="string">&quot;PgAdvisoryLockGuard: advisory lock was not held by the contained connection&quot;</span>,
+                <span class="string">"PgAdvisoryLockGuard: advisory lock was not held by the contained connection"</span>,
             );
         }
 
@@ -784,7 +785,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt; + AsRef&lt;PgConnection&gt;&gt; Deref <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'lock</span>, C: AsMut&lt;PgConnection&gt; + AsRef&lt;PgConnection&gt;&gt; Deref <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">'lock</span>, C&gt; {
     <span class="kw">type </span>Target = PgConnection;
 
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
@@ -798,16 +799,16 @@
 /// However, replacing the connection with a different one using, e.g. [`std::mem::replace()`]
 /// is a logic error and will cause a warning to be logged by the PostgreSQL server when this
 /// guard attempts to release the lock.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt; + AsRef&lt;PgConnection&gt;&gt; DerefMut
-    <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'lock</span>, C: AsMut&lt;PgConnection&gt; + AsRef&lt;PgConnection&gt;&gt; DerefMut
+    <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">'lock</span>, C&gt;
 {
     <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
         <span class="self">self</span>.conn.as_mut().expect(NONE_ERR).as_mut()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt; + AsRef&lt;PgConnection&gt;&gt; AsRef&lt;PgConnection&gt;
-    <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'lock</span>, C: AsMut&lt;PgConnection&gt; + AsRef&lt;PgConnection&gt;&gt; AsRef&lt;PgConnection&gt;
+    <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">'lock</span>, C&gt;
 {
     <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PgConnection {
         <span class="self">self</span>.conn.as_ref().expect(NONE_ERR).as_ref()
@@ -820,7 +821,7 @@
 /// However, replacing the connection with a different one using, e.g. [`std::mem::replace()`]
 /// is a logic error and will cause a warning to be logged by the PostgreSQL server when this
 /// guard attempts to release the lock.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt;&gt; AsMut&lt;PgConnection&gt; <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'lock</span>, C: AsMut&lt;PgConnection&gt;&gt; AsMut&lt;PgConnection&gt; <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">'lock</span>, C&gt; {
     <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>PgConnection {
         <span class="self">self</span>.conn.as_mut().expect(NONE_ERR).as_mut()
     }
@@ -829,7 +830,7 @@
 <span class="doccomment">/// Queues a `pg_advisory_unlock()` call on the wrapped connection which will be flushed
 /// to the server the next time it is used, or when it is returned to [`PgPool`][crate::PgPool]
 /// in the case of [`PoolConnection&lt;Postgres&gt;`][crate::pool::PoolConnection].
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt;&gt; Drop <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'lock</span>, C: AsMut&lt;PgConnection&gt;&gt; Drop <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">'lock</span>, C&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>conn) = <span class="self">self</span>.conn.take() {
             <span class="comment">// Queue a simple query message to execute next time the connection is used.

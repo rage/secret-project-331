@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hashlink-0.8.4/src/linked_hash_set.rs`."><title>linked_hash_set.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hashlink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hashlink-0.8.4/src/linked_hash_set.rs`."><title>linked_hash_set.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hashlink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -803,7 +804,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">'_</span>, T&gt; {
         Iter {
             iter: <span class="self">self</span>.map.keys(),
         }
@@ -880,7 +881,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>difference&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;) -&gt; Difference&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+    </span><span class="kw">pub fn </span>difference&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;) -&gt; Difference&lt;<span class="lifetime">'a</span>, T, S&gt; {
         Difference {
             iter: <span class="self">self</span>.iter(),
             other,
@@ -888,17 +889,17 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>symmetric_difference&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;,
-    ) -&gt; SymmetricDifference&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+    </span><span class="kw">pub fn </span>symmetric_difference&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;,
+    ) -&gt; SymmetricDifference&lt;<span class="lifetime">'a</span>, T, S&gt; {
         SymmetricDifference {
             iter: <span class="self">self</span>.difference(other).chain(other.difference(<span class="self">self</span>)),
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>intersection&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;) -&gt; Intersection&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+    </span><span class="kw">pub fn </span>intersection&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;) -&gt; Intersection&lt;<span class="lifetime">'a</span>, T, S&gt; {
         Intersection {
             iter: <span class="self">self</span>.iter(),
             other,
@@ -906,7 +907,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>union&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;) -&gt; Union&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+    </span><span class="kw">pub fn </span>union&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;) -&gt; Union&lt;<span class="lifetime">'a</span>, T, S&gt; {
         Union {
             iter: <span class="self">self</span>.iter().chain(other.difference(<span class="self">self</span>)),
         }
@@ -980,7 +981,7 @@
 
     <span class="doccomment">/// Adds the given value to the set, replacing the existing value.
     ///
-    /// If a previous value existed, returns the replaced value.  In this case, the value&#39;s position
+    /// If a previous value existed, returns the replaced value.  In this case, the value's position
     /// in the internal linked list is *not* changed.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
@@ -1117,7 +1118,7 @@
     </span>T: fmt::Debug,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_set().entries(<span class="self">self</span>.iter()).finish()
     }
 }
@@ -1146,13 +1147,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; Extend&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; <span class="kw">for </span>LinkedHashSet&lt;T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; Extend&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; <span class="kw">for </span>LinkedHashSet&lt;T, S&gt;
 <span class="kw">where
-    </span>T: <span class="lifetime">&#39;a </span>+ Eq + Hash + Copy,
+    </span>T: <span class="lifetime">'a </span>+ Eq + Hash + Copy,
     S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>extend&lt;I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, iter: I) {
+    </span><span class="kw">fn </span>extend&lt;I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, iter: I) {
         <span class="self">self</span>.extend(iter.into_iter().cloned());
     }
 }
@@ -1169,7 +1170,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, T, S&gt; BitOr&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>LinkedHashSet&lt;T, S&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, T, S&gt; BitOr&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>LinkedHashSet&lt;T, S&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;
 <span class="kw">where
     </span>T: Eq + Hash + Clone,
     S: BuildHasher + Default,
@@ -1182,7 +1183,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, T, S&gt; BitAnd&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>LinkedHashSet&lt;T, S&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, T, S&gt; BitAnd&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>LinkedHashSet&lt;T, S&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;
 <span class="kw">where
     </span>T: Eq + Hash + Clone,
     S: BuildHasher + Default,
@@ -1195,7 +1196,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, T, S&gt; BitXor&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>LinkedHashSet&lt;T, S&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, T, S&gt; BitXor&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>LinkedHashSet&lt;T, S&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;
 <span class="kw">where
     </span>T: Eq + Hash + Clone,
     S: BuildHasher + Default,
@@ -1208,7 +1209,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, T, S&gt; Sub&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>LinkedHashSet&lt;T, S&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, T, S&gt; Sub&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>LinkedHashSet&lt;T, S&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;
 <span class="kw">where
     </span>T: Eq + Hash + Clone,
     S: BuildHasher + Default,
@@ -1221,42 +1222,42 @@
     }
 }
 
-<span class="kw">pub struct </span>Iter&lt;<span class="lifetime">&#39;a</span>, K&gt; {
-    iter: linked_hash_map::Keys&lt;<span class="lifetime">&#39;a</span>, K, ()&gt;,
+<span class="kw">pub struct </span>Iter&lt;<span class="lifetime">'a</span>, K&gt; {
+    iter: linked_hash_map::Keys&lt;<span class="lifetime">'a</span>, K, ()&gt;,
 }
 
 <span class="kw">pub struct </span>IntoIter&lt;K&gt; {
     iter: linked_hash_map::IntoIter&lt;K, ()&gt;,
 }
 
-<span class="kw">pub struct </span>Drain&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a</span>&gt; {
-    iter: linked_hash_map::Drain&lt;<span class="lifetime">&#39;a</span>, K, ()&gt;,
+<span class="kw">pub struct </span>Drain&lt;<span class="lifetime">'a</span>, K: <span class="lifetime">'a</span>&gt; {
+    iter: linked_hash_map::Drain&lt;<span class="lifetime">'a</span>, K, ()&gt;,
 }
 
-<span class="kw">pub struct </span>Intersection&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
-    iter: Iter&lt;<span class="lifetime">&#39;a</span>, T&gt;,
-    other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;,
+<span class="kw">pub struct </span>Intersection&lt;<span class="lifetime">'a</span>, T, S&gt; {
+    iter: Iter&lt;<span class="lifetime">'a</span>, T&gt;,
+    other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;,
 }
 
-<span class="kw">pub struct </span>Difference&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
-    iter: Iter&lt;<span class="lifetime">&#39;a</span>, T&gt;,
-    other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt;,
+<span class="kw">pub struct </span>Difference&lt;<span class="lifetime">'a</span>, T, S&gt; {
+    iter: Iter&lt;<span class="lifetime">'a</span>, T&gt;,
+    other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt;,
 }
 
-<span class="kw">pub struct </span>SymmetricDifference&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
-    iter: Chain&lt;Difference&lt;<span class="lifetime">&#39;a</span>, T, S&gt;, Difference&lt;<span class="lifetime">&#39;a</span>, T, S&gt;&gt;,
+<span class="kw">pub struct </span>SymmetricDifference&lt;<span class="lifetime">'a</span>, T, S&gt; {
+    iter: Chain&lt;Difference&lt;<span class="lifetime">'a</span>, T, S&gt;, Difference&lt;<span class="lifetime">'a</span>, T, S&gt;&gt;,
 }
 
-<span class="kw">pub struct </span>Union&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
-    iter: Chain&lt;Iter&lt;<span class="lifetime">&#39;a</span>, T&gt;, Difference&lt;<span class="lifetime">&#39;a</span>, T, S&gt;&gt;,
+<span class="kw">pub struct </span>Union&lt;<span class="lifetime">'a</span>, T, S&gt; {
+    iter: Chain&lt;Iter&lt;<span class="lifetime">'a</span>, T&gt;, Difference&lt;<span class="lifetime">'a</span>, T, S&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashSet&lt;T, S&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T;
-    <span class="kw">type </span>IntoIter = Iter&lt;<span class="lifetime">&#39;a</span>, T&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashSet&lt;T, S&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T;
+    <span class="kw">type </span>IntoIter = Iter&lt;<span class="lifetime">'a</span>, T&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">'a</span>, T&gt; {
         <span class="self">self</span>.iter()
     }
 }
@@ -1273,19 +1274,19 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K&gt; Clone <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K&gt; Clone <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;a</span>, K&gt; {
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">'a</span>, K&gt; {
         Iter {
             iter: <span class="self">self</span>.iter.clone(),
         }
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>K;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K&gt; {
         <span class="self">self</span>.iter.next()
     }
 
@@ -1295,18 +1296,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K&gt; ExactSizeIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K&gt; ExactSizeIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; DoubleEndedIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; DoubleEndedIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="self">self</span>.iter.next_back()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.clone()).finish()
     }
 }
@@ -1334,7 +1335,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K&gt; Iterator <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;a</span>, K&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K&gt; Iterator <span class="kw">for </span>Drain&lt;<span class="lifetime">'a</span>, K&gt; {
     <span class="kw">type </span>Item = K;
 
     <span class="attr">#[inline]
@@ -1348,18 +1349,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K&gt; DoubleEndedIterator <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;a</span>, K&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K&gt; DoubleEndedIterator <span class="kw">for </span>Drain&lt;<span class="lifetime">'a</span>, K&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;K&gt; {
         <span class="self">self</span>.iter.next_back().map(|(k, <span class="kw">_</span>)| k)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K&gt; ExactSizeIterator <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;a</span>, K&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K&gt; ExactSizeIterator <span class="kw">for </span>Drain&lt;<span class="lifetime">'a</span>, K&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; Clone <span class="kw">for </span>Intersection&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; Clone <span class="kw">for </span>Intersection&lt;<span class="lifetime">'a</span>, T, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Intersection&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Intersection&lt;<span class="lifetime">'a</span>, T, S&gt; {
         Intersection {
             iter: <span class="self">self</span>.iter.clone(),
             ..<span class="kw-2">*</span><span class="self">self
@@ -1367,15 +1368,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; Iterator <span class="kw">for </span>Intersection&lt;<span class="lifetime">&#39;a</span>, T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; Iterator <span class="kw">for </span>Intersection&lt;<span class="lifetime">'a</span>, T, S&gt;
 <span class="kw">where
     </span>T: Eq + Hash,
     S: BuildHasher,
 {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T;
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="kw">loop </span>{
             <span class="kw">match </span><span class="self">self</span>.iter.next() {
                 <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
@@ -1395,20 +1396,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; fmt::Debug <span class="kw">for </span>Intersection&lt;<span class="lifetime">&#39;a</span>, T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; fmt::Debug <span class="kw">for </span>Intersection&lt;<span class="lifetime">'a</span>, T, S&gt;
 <span class="kw">where
     </span>T: fmt::Debug + Eq + Hash,
     S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.clone()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; Clone <span class="kw">for </span>Difference&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; Clone <span class="kw">for </span>Difference&lt;<span class="lifetime">'a</span>, T, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Difference&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Difference&lt;<span class="lifetime">'a</span>, T, S&gt; {
         Difference {
             iter: <span class="self">self</span>.iter.clone(),
             ..<span class="kw-2">*</span><span class="self">self
@@ -1416,15 +1417,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; Iterator <span class="kw">for </span>Difference&lt;<span class="lifetime">&#39;a</span>, T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; Iterator <span class="kw">for </span>Difference&lt;<span class="lifetime">'a</span>, T, S&gt;
 <span class="kw">where
     </span>T: Eq + Hash,
     S: BuildHasher,
 {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T;
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="kw">loop </span>{
             <span class="kw">match </span><span class="self">self</span>.iter.next() {
                 <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
@@ -1444,35 +1445,35 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; fmt::Debug <span class="kw">for </span>Difference&lt;<span class="lifetime">&#39;a</span>, T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; fmt::Debug <span class="kw">for </span>Difference&lt;<span class="lifetime">'a</span>, T, S&gt;
 <span class="kw">where
     </span>T: fmt::Debug + Eq + Hash,
     S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.clone()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; Clone <span class="kw">for </span>SymmetricDifference&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; Clone <span class="kw">for </span>SymmetricDifference&lt;<span class="lifetime">'a</span>, T, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymmetricDifference&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymmetricDifference&lt;<span class="lifetime">'a</span>, T, S&gt; {
         SymmetricDifference {
             iter: <span class="self">self</span>.iter.clone(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; Iterator <span class="kw">for </span>SymmetricDifference&lt;<span class="lifetime">&#39;a</span>, T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; Iterator <span class="kw">for </span>SymmetricDifference&lt;<span class="lifetime">'a</span>, T, S&gt;
 <span class="kw">where
     </span>T: Eq + Hash,
     S: BuildHasher,
 {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T;
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="self">self</span>.iter.next()
     }
 
@@ -1482,46 +1483,46 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; fmt::Debug <span class="kw">for </span>SymmetricDifference&lt;<span class="lifetime">&#39;a</span>, T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; fmt::Debug <span class="kw">for </span>SymmetricDifference&lt;<span class="lifetime">'a</span>, T, S&gt;
 <span class="kw">where
     </span>T: fmt::Debug + Eq + Hash,
     S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.clone()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; Clone <span class="kw">for </span>Union&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; Clone <span class="kw">for </span>Union&lt;<span class="lifetime">'a</span>, T, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Union&lt;<span class="lifetime">&#39;a</span>, T, S&gt; {
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Union&lt;<span class="lifetime">'a</span>, T, S&gt; {
         Union {
             iter: <span class="self">self</span>.iter.clone(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; fmt::Debug <span class="kw">for </span>Union&lt;<span class="lifetime">&#39;a</span>, T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; fmt::Debug <span class="kw">for </span>Union&lt;<span class="lifetime">'a</span>, T, S&gt;
 <span class="kw">where
     </span>T: fmt::Debug + Eq + Hash,
     S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.clone()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, S&gt; Iterator <span class="kw">for </span>Union&lt;<span class="lifetime">&#39;a</span>, T, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, S&gt; Iterator <span class="kw">for </span>Union&lt;<span class="lifetime">'a</span>, T, S&gt;
 <span class="kw">where
     </span>T: Eq + Hash,
     S: BuildHasher,
 {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T;
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="self">self</span>.iter.next()
     }
 

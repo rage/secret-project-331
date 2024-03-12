@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/accept.rs`."><title>accept.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/accept.rs`."><title>accept.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -311,12 +312,12 @@
     /// ```plain
     /// Accept = #( media-range [ accept-params ] )
     ///
-    /// media-range    = ( &quot;*/*&quot;
-    ///                  / ( type &quot;/&quot; &quot;*&quot; )
-    ///                  / ( type &quot;/&quot; subtype )
-    ///                  ) *( OWS &quot;;&quot; OWS parameter )
+    /// media-range    = ( "*/*"
+    ///                  / ( type "/" "*" )
+    ///                  / ( type "/" subtype )
+    ///                  ) *( OWS ";" OWS parameter )
     /// accept-params  = weight *( accept-ext )
-    /// accept-ext = OWS &quot;;&quot; OWS token [ &quot;=&quot; ( token / quoted-string ) ]
+    /// accept-ext = OWS ";" OWS token [ "=" ( token / quoted-string ) ]
     /// ```
     ///
     /// # Example Values
@@ -356,9 +357,9 @@
     /// builder.insert_header(
     ///     Accept(vec![
     ///         QualityItem::max(mime::TEXT_HTML),
-    ///         QualityItem::max(&quot;application/xhtml+xml&quot;.parse().unwrap()),
+    ///         QualityItem::max("application/xhtml+xml".parse().unwrap()),
     ///         QualityItem::new(mime::TEXT_XML, q(0.9)),
-    ///         QualityItem::max(&quot;image/webp&quot;.parse().unwrap()),
+    ///         QualityItem::max("image/webp".parse().unwrap()),
     ///         QualityItem::new(mime::STAR_STAR, q(0.8)),
     ///     ])
     /// );
@@ -371,34 +372,34 @@
         <span class="comment">// Tests from the RFC
          </span><span class="macro">crate::http::header::common_header_test!</span>(
             test1,
-            [<span class="string">b&quot;audio/*; q=0.2, audio/basic&quot;</span>],
+            [<span class="string">b"audio/*; q=0.2, audio/basic"</span>],
             <span class="prelude-val">Some</span>(Accept(<span class="macro">vec!</span>[
-                QualityItem::new(<span class="string">&quot;audio/*&quot;</span>.parse().unwrap(), q(<span class="number">0.2</span>)),
-                QualityItem::max(<span class="string">&quot;audio/basic&quot;</span>.parse().unwrap()),
+                QualityItem::new(<span class="string">"audio/*"</span>.parse().unwrap(), q(<span class="number">0.2</span>)),
+                QualityItem::max(<span class="string">"audio/basic"</span>.parse().unwrap()),
                 ])));
 
         <span class="macro">crate::http::header::common_header_test!</span>(
             test2,
-            [<span class="string">b&quot;text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c&quot;</span>],
+            [<span class="string">b"text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c"</span>],
             <span class="prelude-val">Some</span>(Accept(<span class="macro">vec!</span>[
                 QualityItem::new(mime::TEXT_PLAIN, q(<span class="number">0.5</span>)),
                 QualityItem::max(mime::TEXT_HTML),
                 QualityItem::new(
-                    <span class="string">&quot;text/x-dvi&quot;</span>.parse().unwrap(),
+                    <span class="string">"text/x-dvi"</span>.parse().unwrap(),
                     q(<span class="number">0.8</span>)),
-                QualityItem::max(<span class="string">&quot;text/x-c&quot;</span>.parse().unwrap()),
+                QualityItem::max(<span class="string">"text/x-c"</span>.parse().unwrap()),
                 ])));
 
         <span class="comment">// Custom tests
         </span><span class="macro">crate::http::header::common_header_test!</span>(
             test3,
-            [<span class="string">b&quot;text/plain; charset=utf-8&quot;</span>],
+            [<span class="string">b"text/plain; charset=utf-8"</span>],
             <span class="prelude-val">Some</span>(Accept(<span class="macro">vec!</span>[
                 QualityItem::max(mime::TEXT_PLAIN_UTF_8),
             ])));
         <span class="macro">crate::http::header::common_header_test!</span>(
             test4,
-            [<span class="string">b&quot;text/plain; charset=utf-8; q=0.5&quot;</span>],
+            [<span class="string">b"text/plain; charset=utf-8; q=0.5"</span>],
             <span class="prelude-val">Some</span>(Accept(<span class="macro">vec!</span>[
                 QualityItem::new(mime::TEXT_PLAIN_UTF_8, q(<span class="number">0.5</span>)),
             ])));
@@ -406,7 +407,7 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>test_fuzzing1() {
             <span class="kw">let </span>req = test::TestRequest::default()
-                .insert_header((header::ACCEPT, <span class="string">&quot;chunk#;e&quot;</span>))
+                .insert_header((header::ACCEPT, <span class="string">"chunk#;e"</span>))
                 .finish();
             <span class="kw">let </span>header = Accept::parse(<span class="kw-2">&amp;</span>req);
             <span class="macro">assert!</span>(header.is_ok());
@@ -505,7 +506,7 @@
                 }
 
                 <span class="comment">// in both these match expressions, the returned ordering appears
-                // inverted because sort is high-to-low (&quot;descending&quot;) precedence
+                // inverted because sort is high-to-low ("descending") precedence
                 </span><span class="kw">match </span>(a.item.subtype(), b.item.subtype()) {
                     (mime::STAR, mime::STAR) =&gt; Ordering::Equal,
 
@@ -539,16 +540,16 @@
 
         <span class="kw">let </span>test = Accept(<span class="macro">vec!</span>[
             QualityItem::max(mime::TEXT_HTML),
-            <span class="string">&quot;application/xhtml+xml&quot;</span>.parse().unwrap(),
-            QualityItem::new(<span class="string">&quot;application/xml&quot;</span>.parse().unwrap(), q(<span class="number">0.9</span>)),
+            <span class="string">"application/xhtml+xml"</span>.parse().unwrap(),
+            QualityItem::new(<span class="string">"application/xml"</span>.parse().unwrap(), q(<span class="number">0.9</span>)),
             QualityItem::new(mime::STAR_STAR, q(<span class="number">0.8</span>)),
         ]);
         <span class="macro">assert_eq!</span>(
             test.ranked(),
             <span class="macro">vec!</span>[
                 mime::TEXT_HTML,
-                <span class="string">&quot;application/xhtml+xml&quot;</span>.parse().unwrap(),
-                <span class="string">&quot;application/xml&quot;</span>.parse().unwrap(),
+                <span class="string">"application/xhtml+xml"</span>.parse().unwrap(),
+                <span class="string">"application/xml"</span>.parse().unwrap(),
                 mime::STAR_STAR,
             ]
         );
@@ -568,14 +569,14 @@
     </span><span class="kw">fn </span>preference_selection() {
         <span class="kw">let </span>test = Accept(<span class="macro">vec!</span>[
             QualityItem::max(mime::TEXT_HTML),
-            <span class="string">&quot;application/xhtml+xml&quot;</span>.parse().unwrap(),
-            QualityItem::new(<span class="string">&quot;application/xml&quot;</span>.parse().unwrap(), q(<span class="number">0.9</span>)),
+            <span class="string">"application/xhtml+xml"</span>.parse().unwrap(),
+            QualityItem::new(<span class="string">"application/xml"</span>.parse().unwrap(), q(<span class="number">0.9</span>)),
             QualityItem::new(mime::STAR_STAR, q(<span class="number">0.8</span>)),
         ]);
         <span class="macro">assert_eq!</span>(test.preference(), mime::TEXT_HTML);
 
         <span class="kw">let </span>test = Accept(<span class="macro">vec!</span>[
-            QualityItem::new(<span class="string">&quot;video/*&quot;</span>.parse().unwrap(), q(<span class="number">0.8</span>)),
+            QualityItem::new(<span class="string">"video/*"</span>.parse().unwrap(), q(<span class="number">0.8</span>)),
             QualityItem::max(mime::IMAGE_PNG),
             QualityItem::new(mime::STAR_STAR, q(<span class="number">0.5</span>)),
             QualityItem::max(mime::IMAGE_SVG),

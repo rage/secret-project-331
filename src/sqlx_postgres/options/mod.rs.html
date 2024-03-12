@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/options/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/options/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -665,20 +666,20 @@
 ///
 /// # async fn example() -&gt; sqlx::Result&lt;()&gt; {
 /// // URL connection string
-/// let conn = PgConnection::connect(&quot;postgres://localhost/mydb&quot;).await?;
+/// let conn = PgConnection::connect("postgres://localhost/mydb").await?;
 ///
 /// // Manually-constructed options
 /// let conn = PgConnectOptions::new()
-///     .host(&quot;secret-host&quot;)
+///     .host("secret-host")
 ///     .port(2525)
-///     .username(&quot;secret-user&quot;)
-///     .password(&quot;secret-password&quot;)
+///     .username("secret-user")
+///     .password("secret-password")
 ///     .ssl_mode(PgSslMode::Require)
 ///     .connect()
 ///     .await?;
 ///
 /// // Modifying options parsed from a string
-/// let mut opts: PgConnectOptions = &quot;postgres://localhost/mydb&quot;.parse()?;
+/// let mut opts: PgConnectOptions = "postgres://localhost/mydb".parse()?;
 ///
 /// // Change the log verbosity level for queries.
 /// // Information about SQL queries is logged at `DEBUG` level by default.
@@ -702,7 +703,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) statement_cache_capacity: usize,
     <span class="kw">pub</span>(<span class="kw">crate</span>) application_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) log_settings: LogSettings,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) extra_float_digits: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) extra_float_digits: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) options: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
@@ -740,36 +741,36 @@
     }
 
     <span class="kw">pub fn </span>new_without_pgpass() -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>port = var(<span class="string">&quot;PGPORT&quot;</span>)
+        <span class="kw">let </span>port = var(<span class="string">"PGPORT"</span>)
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(<span class="number">5432</span>);
 
-        <span class="kw">let </span>host = var(<span class="string">&quot;PGHOST&quot;</span>).ok().unwrap_or_else(|| default_host(port));
+        <span class="kw">let </span>host = var(<span class="string">"PGHOST"</span>).ok().unwrap_or_else(|| default_host(port));
 
-        <span class="kw">let </span>username = var(<span class="string">&quot;PGUSER&quot;</span>).ok().unwrap_or_else(whoami::username);
+        <span class="kw">let </span>username = var(<span class="string">"PGUSER"</span>).ok().unwrap_or_else(whoami::username);
 
-        <span class="kw">let </span>database = var(<span class="string">&quot;PGDATABASE&quot;</span>).ok();
+        <span class="kw">let </span>database = var(<span class="string">"PGDATABASE"</span>).ok();
 
         PgConnectOptions {
             port,
             host,
             socket: <span class="prelude-val">None</span>,
             username,
-            password: var(<span class="string">&quot;PGPASSWORD&quot;</span>).ok(),
+            password: var(<span class="string">"PGPASSWORD"</span>).ok(),
             database,
-            ssl_root_cert: var(<span class="string">&quot;PGSSLROOTCERT&quot;</span>).ok().map(CertificateInput::from),
-            ssl_client_cert: var(<span class="string">&quot;PGSSLCERT&quot;</span>).ok().map(CertificateInput::from),
-            ssl_client_key: var(<span class="string">&quot;PGSSLKEY&quot;</span>).ok().map(CertificateInput::from),
-            ssl_mode: var(<span class="string">&quot;PGSSLMODE&quot;</span>)
+            ssl_root_cert: var(<span class="string">"PGSSLROOTCERT"</span>).ok().map(CertificateInput::from),
+            ssl_client_cert: var(<span class="string">"PGSSLCERT"</span>).ok().map(CertificateInput::from),
+            ssl_client_key: var(<span class="string">"PGSSLKEY"</span>).ok().map(CertificateInput::from),
+            ssl_mode: var(<span class="string">"PGSSLMODE"</span>)
                 .ok()
                 .and_then(|v| v.parse().ok())
                 .unwrap_or_default(),
             statement_cache_capacity: <span class="number">100</span>,
-            application_name: var(<span class="string">&quot;PGAPPNAME&quot;</span>).ok(),
-            extra_float_digits: <span class="prelude-val">Some</span>(<span class="string">&quot;2&quot;</span>.into()),
+            application_name: var(<span class="string">"PGAPPNAME"</span>).ok(),
+            extra_float_digits: <span class="prelude-val">Some</span>(<span class="string">"2"</span>.into()),
             log_settings: Default::default(),
-            options: var(<span class="string">&quot;PGOPTIONS&quot;</span>).ok(),
+            options: var(<span class="string">"PGOPTIONS"</span>).ok(),
         }
     }
 
@@ -800,7 +801,7 @@
     /// ```rust
     /// # use sqlx_core::postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
-    ///     .host(&quot;localhost&quot;);
+    ///     .host("localhost");
     /// ```
     </span><span class="kw">pub fn </span>host(<span class="kw-2">mut </span><span class="self">self</span>, host: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.host = host.to_owned();
@@ -814,8 +815,8 @@
     /// ```rust
     /// # use sqlx_core::postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
-    ///     .host(&quot;127.0.0.1&quot;);
-    /// assert_eq!(options.get_host(), &quot;127.0.0.1&quot;);
+    ///     .host("127.0.0.1");
+    /// assert_eq!(options.get_host(), "127.0.0.1");
     /// ```
     </span><span class="kw">pub fn </span>get_host(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="self">self</span>.host.as_str()
@@ -856,7 +857,7 @@
     /// ```rust
     /// # use sqlx_core::postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
-    ///     .username(&quot;postgres&quot;);
+    ///     .username("postgres");
     /// ```
     </span><span class="kw">pub fn </span>username(<span class="kw-2">mut </span><span class="self">self</span>, username: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.username = username.to_owned();
@@ -870,8 +871,8 @@
     /// ```rust
     /// # use sqlx_core::postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
-    ///     .username(&quot;root&quot;)
-    ///     .password(&quot;safe-and-secure&quot;);
+    ///     .username("root")
+    ///     .password("safe-and-secure");
     /// ```
     </span><span class="kw">pub fn </span>password(<span class="kw-2">mut </span><span class="self">self</span>, password: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.password = <span class="prelude-val">Some</span>(password.to_owned());
@@ -885,7 +886,7 @@
     /// ```rust
     /// # use sqlx_core::postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
-    ///     .database(&quot;postgres&quot;);
+    ///     .database("postgres");
     /// ```
     </span><span class="kw">pub fn </span>database(<span class="kw-2">mut </span><span class="self">self</span>, database: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.database = <span class="prelude-val">Some</span>(database.to_owned());
@@ -899,7 +900,7 @@
     /// ```rust
     /// # use sqlx_core::postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
-    ///     .database(&quot;postgres&quot;);
+    ///     .database("postgres");
     /// assert!(options.get_database().is_some());
     /// ```
     </span><span class="kw">pub fn </span>get_database(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
@@ -927,7 +928,7 @@
     </span>}
 
     <span class="doccomment">/// Sets the name of a file containing SSL certificate authority (CA) certificate(s).
-    /// If the file exists, the server&#39;s certificate will be verified to be signed by
+    /// If the file exists, the server's certificate will be verified to be signed by
     /// one of these authorities.
     ///
     /// # Example
@@ -937,7 +938,7 @@
     /// let options = PgConnectOptions::new()
     ///     // Providing a CA certificate with less than VerifyCa is pointless
     ///     .ssl_mode(PgSslMode::VerifyCa)
-    ///     .ssl_root_cert(&quot;./ca-certificate.crt&quot;);
+    ///     .ssl_root_cert("./ca-certificate.crt");
     /// ```
     </span><span class="kw">pub fn </span>ssl_root_cert(<span class="kw-2">mut </span><span class="self">self</span>, cert: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.ssl_root_cert = <span class="prelude-val">Some</span>(CertificateInput::File(cert.as_ref().to_path_buf()));
@@ -953,7 +954,7 @@
     /// let options = PgConnectOptions::new()
     ///     // Providing a CA certificate with less than VerifyCa is pointless
     ///     .ssl_mode(PgSslMode::VerifyCa)
-    ///     .ssl_client_cert(&quot;./client.crt&quot;);
+    ///     .ssl_client_cert("./client.crt");
     /// ```
     </span><span class="kw">pub fn </span>ssl_client_cert(<span class="kw-2">mut </span><span class="self">self</span>, cert: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.ssl_client_cert = <span class="prelude-val">Some</span>(CertificateInput::File(cert.as_ref().to_path_buf()));
@@ -971,10 +972,10 @@
     /// ```rust
     /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
     ///
-    /// const CERT: &amp;[u8] = b&quot;\
+    /// const CERT: &amp;[u8] = b"\
     /// -----BEGIN CERTIFICATE-----
     /// &lt;Certificate data here.&gt;
-    /// -----END CERTIFICATE-----&quot;;
+    /// -----END CERTIFICATE-----";
     ///    
     /// let options = PgConnectOptions::new()
     ///     // Providing a CA certificate with less than VerifyCa is pointless
@@ -995,7 +996,7 @@
     /// let options = PgConnectOptions::new()
     ///     // Providing a CA certificate with less than VerifyCa is pointless
     ///     .ssl_mode(PgSslMode::VerifyCa)
-    ///     .ssl_client_key(&quot;./client.key&quot;);
+    ///     .ssl_client_key("./client.key");
     /// ```
     </span><span class="kw">pub fn </span>ssl_client_key(<span class="kw-2">mut </span><span class="self">self</span>, key: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.ssl_client_key = <span class="prelude-val">Some</span>(CertificateInput::File(key.as_ref().to_path_buf()));
@@ -1013,10 +1014,10 @@
     /// ```rust
     /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
     ///
-    /// const KEY: &amp;[u8] = b&quot;\
+    /// const KEY: &amp;[u8] = b"\
     /// -----BEGIN PRIVATE KEY-----
     /// &lt;Private key data here.&gt;
-    /// -----END PRIVATE KEY-----&quot;;
+    /// -----END PRIVATE KEY-----";
     ///
     /// let options = PgConnectOptions::new()
     ///     // Providing a CA certificate with less than VerifyCa is pointless
@@ -1044,7 +1045,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Sets the capacity of the connection&#39;s statement cache in a number of stored
+    <span class="doccomment">/// Sets the capacity of the connection's statement cache in a number of stored
     /// distinct statements. Caching is handled using LRU, meaning when the
     /// amount of queries hits the defined limit, the oldest statement will get
     /// dropped.
@@ -1062,7 +1063,7 @@
     /// ```rust
     /// # use sqlx_core::postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
-    ///     .application_name(&quot;my-app&quot;);
+    ///     .application_name("my-app");
     /// ```
     </span><span class="kw">pub fn </span>application_name(<span class="kw-2">mut </span><span class="self">self</span>, application_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.application_name = <span class="prelude-val">Some</span>(application_name.to_owned());
@@ -1083,7 +1084,7 @@
     /// `float4` to be rounded to 5 digits instead of six, or 14 instead of 15 for `float8`),
     /// positive values cause Postgres to emit that many extra digits of precision over default
     /// (or simply use maximum precision in Postgres 12 and later),
-    /// and 0 means keep the default behavior (or the &quot;old&quot; behavior described above
+    /// and 0 means keep the default behavior (or the "old" behavior described above
     /// as of Postgres 12).
     ///
     /// SQLx sets this value to 3 by default, which tells Postgres to return floating-point values
@@ -1093,7 +1094,7 @@
     /// However, older versions of Postgres and alternative implementations that talk the Postgres
     /// protocol may not support this option, or the full range of values.
     ///
-    /// If you get an error like &quot;unknown option `extra_float_digits`&quot; when connecting, try
+    /// If you get an error like "unknown option `extra_float_digits`" when connecting, try
     /// setting this to `None` or consult the manual of your database for the allowed range
     /// of values.
     ///
@@ -1114,7 +1115,7 @@
     ///     .extra_float_digits(2);
     ///
     /// let mut options = PgConnectOptions::new()
-    ///     // don&#39;t send the option at all (Postgres 9 and older)
+    ///     // don't send the option at all (Postgres 9 and older)
     ///     .extra_float_digits(None);
     /// ```
     </span><span class="kw">pub fn </span>extra_float_digits(<span class="kw-2">mut </span><span class="self">self</span>, extra_float_digits: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;i8&gt;&gt;) -&gt; <span class="self">Self </span>{
@@ -1129,7 +1130,7 @@
     /// ```rust
     /// # use sqlx_core::postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
-    ///     .options([(&quot;geqo&quot;, &quot;off&quot;), (&quot;statement_timeout&quot;, &quot;5min&quot;)]);
+    ///     .options([("geqo", "off"), ("statement_timeout", "5min")]);
     /// ```
     </span><span class="kw">pub fn </span>options&lt;K, V, I&gt;(<span class="kw-2">mut </span><span class="self">self</span>, options: I) -&gt; <span class="self">Self
     </span><span class="kw">where
@@ -1141,10 +1142,10 @@
         </span><span class="kw">let </span>options_str = <span class="self">self</span>.options.get_or_insert_with(String::new);
         <span class="kw">for </span>(k, v) <span class="kw">in </span>options {
             <span class="kw">if </span>!options_str.is_empty() {
-                options_str.push(<span class="string">&#39; &#39;</span>);
+                options_str.push(<span class="string">' '</span>);
             }
 
-            <span class="macro">write!</span>(options_str, <span class="string">&quot;-c {k}={v}&quot;</span>).expect(<span class="string">&quot;failed to write an option to the string&quot;</span>);
+            <span class="macro">write!</span>(options_str, <span class="string">"-c {k}={v}"</span>).expect(<span class="string">"failed to write an option to the string"</span>);
         }
         <span class="self">self
     </span>}
@@ -1154,11 +1155,11 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fetch_socket(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
         <span class="kw">match </span><span class="self">self</span>.socket {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>socket) =&gt; {
-                <span class="kw">let </span>full_path = <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, socket.display(), <span class="self">self</span>.port);
+                <span class="kw">let </span>full_path = <span class="macro">format!</span>(<span class="string">"{}/.s.PGSQL.{}"</span>, socket.display(), <span class="self">self</span>.port);
                 <span class="prelude-val">Some</span>(full_path)
             }
-            <span class="prelude-val">None </span><span class="kw">if </span><span class="self">self</span>.host.starts_with(<span class="string">&#39;/&#39;</span>) =&gt; {
-                <span class="kw">let </span>full_path = <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="self">self</span>.host, <span class="self">self</span>.port);
+            <span class="prelude-val">None </span><span class="kw">if </span><span class="self">self</span>.host.starts_with(<span class="string">'/'</span>) =&gt; {
+                <span class="kw">let </span>full_path = <span class="macro">format!</span>(<span class="string">"{}/.s.PGSQL.{}"</span>, <span class="self">self</span>.host, <span class="self">self</span>.port);
                 <span class="prelude-val">Some</span>(full_path)
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -1168,11 +1169,11 @@
 
 <span class="kw">fn </span>default_host(port: u16) -&gt; String {
     <span class="comment">// try to check for the existence of a unix socket and uses that
-    </span><span class="kw">let </span>socket = <span class="macro">format!</span>(<span class="string">&quot;.s.PGSQL.{port}&quot;</span>);
+    </span><span class="kw">let </span>socket = <span class="macro">format!</span>(<span class="string">".s.PGSQL.{port}"</span>);
     <span class="kw">let </span>candidates = [
-        <span class="string">&quot;/var/run/postgresql&quot;</span>, <span class="comment">// Debian
-        </span><span class="string">&quot;/private/tmp&quot;</span>,        <span class="comment">// OSX (homebrew)
-        </span><span class="string">&quot;/tmp&quot;</span>,                <span class="comment">// Default
+        <span class="string">"/var/run/postgresql"</span>, <span class="comment">// Debian
+        </span><span class="string">"/private/tmp"</span>,        <span class="comment">// OSX (homebrew)
+        </span><span class="string">"/tmp"</span>,                <span class="comment">// Default
     </span>];
 
     <span class="kw">for </span>candidate <span class="kw">in </span><span class="kw-2">&amp;</span>candidates {
@@ -1182,22 +1183,22 @@
     }
 
     <span class="comment">// fallback to localhost if no socket was found
-    </span><span class="string">&quot;localhost&quot;</span>.to_owned()
+    </span><span class="string">"localhost"</span>.to_owned()
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_options_formatting() {
-    <span class="kw">let </span>options = PgConnectOptions::new().options([(<span class="string">&quot;geqo&quot;</span>, <span class="string">&quot;off&quot;</span>)]);
-    <span class="macro">assert_eq!</span>(options.options, <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off&quot;</span>.to_string()));
-    <span class="kw">let </span>options = options.options([(<span class="string">&quot;search_path&quot;</span>, <span class="string">&quot;sqlx&quot;</span>)]);
+    <span class="kw">let </span>options = PgConnectOptions::new().options([(<span class="string">"geqo"</span>, <span class="string">"off"</span>)]);
+    <span class="macro">assert_eq!</span>(options.options, <span class="prelude-val">Some</span>(<span class="string">"-c geqo=off"</span>.to_string()));
+    <span class="kw">let </span>options = options.options([(<span class="string">"search_path"</span>, <span class="string">"sqlx"</span>)]);
     <span class="macro">assert_eq!</span>(
         options.options,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off -c search_path=sqlx&quot;</span>.to_string())
+        <span class="prelude-val">Some</span>(<span class="string">"-c geqo=off -c search_path=sqlx"</span>.to_string())
     );
-    <span class="kw">let </span>options = PgConnectOptions::new().options([(<span class="string">&quot;geqo&quot;</span>, <span class="string">&quot;off&quot;</span>), (<span class="string">&quot;statement_timeout&quot;</span>, <span class="string">&quot;5min&quot;</span>)]);
+    <span class="kw">let </span>options = PgConnectOptions::new().options([(<span class="string">"geqo"</span>, <span class="string">"off"</span>), (<span class="string">"statement_timeout"</span>, <span class="string">"5min"</span>)]);
     <span class="macro">assert_eq!</span>(
         options.options,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off -c statement_timeout=5min&quot;</span>.to_string())
+        <span class="prelude-val">Some</span>(<span class="string">"-c geqo=off -c statement_timeout=5min"</span>.to_string())
     );
     <span class="kw">let </span>options = PgConnectOptions::new();
     <span class="macro">assert_eq!</span>(options.options, <span class="prelude-val">None</span>);

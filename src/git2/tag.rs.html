@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/tag.rs`."><title>tag.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/tag.rs`."><title>tag.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -244,12 +245,12 @@
 <span class="doccomment">/// A structure to represent a git [tag][1]
 ///
 /// [1]: http://git-scm.com/book/en/Git-Basics-Tagging
-</span><span class="kw">pub struct </span>Tag&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>Tag&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_tag,
-    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;,
+    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">'repo</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Tag&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Tag&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="doccomment">/// Determine whether a tag name is valid, meaning that (when prefixed with refs/tags/) that
     /// it is a valid reference name, and that any additional tag name restrictions are imposed
     /// (eg, it cannot start with a -).
@@ -295,7 +296,7 @@
     }
 
     <span class="doccomment">/// Recursively peel a tag until a non tag git_object is found
-    </span><span class="kw">pub fn </span>peel(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>peel(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">'repo</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_tag_peel(<span class="kw-2">&amp;mut </span>ret, <span class="kw-2">&amp;*</span><span class="self">self</span>.raw));
@@ -306,7 +307,7 @@
     <span class="doccomment">/// Get the tagger (author) of a tag
     ///
     /// If the author is unspecified, then `None` is returned.
-    </span><span class="kw">pub fn </span>tagger(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Signature&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>tagger(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Signature&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = raw::git_tag_tagger(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw);
             <span class="kw">if </span>ptr.is_null() {
@@ -321,7 +322,7 @@
     ///
     /// This method performs a repository lookup for the given object and
     /// returns it
-    </span><span class="kw">pub fn </span>target(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>target(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">'repo</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_tag_target(<span class="kw-2">&amp;mut </span>ret, <span class="kw-2">&amp;*</span><span class="self">self</span>.raw));
@@ -340,31 +341,31 @@
     }
 
     <span class="doccomment">/// Casts this Tag to be usable as an `Object`
-    </span><span class="kw">pub fn </span>as_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
-        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(<span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*const </span>Object&lt;<span class="lifetime">&#39;repo</span>&gt;) }
+    </span><span class="kw">pub fn </span>as_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">'repo</span>&gt; {
+        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(<span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*const </span>Object&lt;<span class="lifetime">'repo</span>&gt;) }
     }
 
     <span class="doccomment">/// Consumes Tag to be returned as an `Object`
-    </span><span class="kw">pub fn </span>into_object(<span class="self">self</span>) -&gt; Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
-        <span class="macro">assert_eq!</span>(mem::size_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>), mem::size_of::&lt;Object&lt;<span class="lifetime">&#39;_</span>&gt;&gt;());
+    </span><span class="kw">pub fn </span>into_object(<span class="self">self</span>) -&gt; Object&lt;<span class="lifetime">'repo</span>&gt; {
+        <span class="macro">assert_eq!</span>(mem::size_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>), mem::size_of::&lt;Object&lt;<span class="lifetime">'_</span>&gt;&gt;());
         <span class="kw">unsafe </span>{ mem::transmute(<span class="self">self</span>) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; std::fmt::Debug <span class="kw">for </span>Tag&lt;<span class="lifetime">&#39;repo</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>ds = f.debug_struct(<span class="string">&quot;Tag&quot;</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; std::fmt::Debug <span class="kw">for </span>Tag&lt;<span class="lifetime">'repo</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ds = f.debug_struct(<span class="string">"Tag"</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.name() {
-            ds.field(<span class="string">&quot;name&quot;</span>, <span class="kw-2">&amp;</span>name);
+            ds.field(<span class="string">"name"</span>, <span class="kw-2">&amp;</span>name);
         }
-        ds.field(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id());
+        ds.field(<span class="string">"id"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id());
         ds.finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Tag&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>Tag&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_tag;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_tag) -&gt; Tag&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_tag) -&gt; Tag&lt;<span class="lifetime">'repo</span>&gt; {
         Tag {
             raw,
             _marker: marker::PhantomData,
@@ -375,13 +376,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Clone <span class="kw">for </span>Tag&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Clone <span class="kw">for </span>Tag&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.as_object().clone().into_tag().ok().unwrap()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Tag&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>Tag&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_tag_free(<span class="self">self</span>.raw) }
     }
@@ -394,23 +395,23 @@
     <span class="comment">// Reference -- https://git-scm.com/docs/git-check-ref-format
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>name_is_valid() {
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;blah_blah&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;v1.2.3&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;my/tag&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;@&quot;</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"blah_blah"</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"v1.2.3"</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"my/tag"</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"@"</span>), <span class="bool-val">true</span>);
 
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;-foo&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;foo:bar&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;foo^bar&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;foo.&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;@{&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">&quot;as\\cd&quot;</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"-foo"</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"foo:bar"</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"foo^bar"</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"foo."</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"@{"</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(Tag::is_valid_name(<span class="string">"as\\cd"</span>), <span class="bool-val">false</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>is_valid_name_for_invalid_tag() {
-        Tag::is_valid_name(<span class="string">&quot;ab\012&quot;</span>);
+        Tag::is_valid_name(<span class="string">"ab\012"</span>);
     }
 
     <span class="attr">#[test]
@@ -422,16 +423,16 @@
 
         <span class="kw">let </span>obj = repo.find_object(id, <span class="prelude-val">None</span>).unwrap();
         <span class="kw">let </span>sig = repo.signature().unwrap();
-        <span class="kw">let </span>tag_id = repo.tag(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>obj, <span class="kw-2">&amp;</span>sig, <span class="string">&quot;msg&quot;</span>, <span class="bool-val">false</span>).unwrap();
+        <span class="kw">let </span>tag_id = repo.tag(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>obj, <span class="kw-2">&amp;</span>sig, <span class="string">"msg"</span>, <span class="bool-val">false</span>).unwrap();
         <span class="kw">let </span>tag = repo.find_tag(tag_id).unwrap();
         <span class="macro">assert_eq!</span>(tag.id(), tag_id);
 
         <span class="kw">let </span>tags = repo.tag_names(<span class="prelude-val">None</span>).unwrap();
         <span class="macro">assert_eq!</span>(tags.len(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(tags.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
+        <span class="macro">assert_eq!</span>(tags.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="string">"foo"</span>));
 
-        <span class="macro">assert_eq!</span>(tag.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
-        <span class="macro">assert_eq!</span>(tag.message(), <span class="prelude-val">Some</span>(<span class="string">&quot;msg&quot;</span>));
+        <span class="macro">assert_eq!</span>(tag.name(), <span class="prelude-val">Some</span>(<span class="string">"foo"</span>));
+        <span class="macro">assert_eq!</span>(tag.message(), <span class="prelude-val">Some</span>(<span class="string">"msg"</span>));
         <span class="macro">assert_eq!</span>(tag.peel().unwrap().id(), obj.id());
         <span class="macro">assert_eq!</span>(tag.target_id(), obj.id());
         <span class="macro">assert_eq!</span>(tag.target_type(), <span class="prelude-val">Some</span>(<span class="kw">crate</span>::ObjectType::Commit));
@@ -447,7 +448,7 @@
             .ok()
             .unwrap();
 
-        repo.tag_delete(<span class="string">&quot;foo&quot;</span>).unwrap();
+        repo.tag_delete(<span class="string">"foo"</span>).unwrap();
     }
 
     <span class="attr">#[test]
@@ -456,13 +457,13 @@
         <span class="kw">let </span>head = <span class="macro">t!</span>(repo.head());
         <span class="kw">let </span>id = head.target().unwrap();
         <span class="kw">let </span>obj = <span class="macro">t!</span>(repo.find_object(id, <span class="prelude-val">None</span>));
-        <span class="kw">let </span>tag_id = <span class="macro">t!</span>(repo.tag_lightweight(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>obj, <span class="bool-val">false</span>));
+        <span class="kw">let </span>tag_id = <span class="macro">t!</span>(repo.tag_lightweight(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>obj, <span class="bool-val">false</span>));
         <span class="macro">assert!</span>(repo.find_tag(tag_id).is_err());
-        <span class="macro">assert_eq!</span>(<span class="macro">t!</span>(repo.refname_to_id(<span class="string">&quot;refs/tags/foo&quot;</span>)), id);
+        <span class="macro">assert_eq!</span>(<span class="macro">t!</span>(repo.refname_to_id(<span class="string">"refs/tags/foo"</span>)), id);
 
-        <span class="kw">let </span>tags = <span class="macro">t!</span>(repo.tag_names(<span class="prelude-val">Some</span>(<span class="string">&quot;f*&quot;</span>)));
+        <span class="kw">let </span>tags = <span class="macro">t!</span>(repo.tag_names(<span class="prelude-val">Some</span>(<span class="string">"f*"</span>)));
         <span class="macro">assert_eq!</span>(tags.len(), <span class="number">1</span>);
-        <span class="kw">let </span>tags = <span class="macro">t!</span>(repo.tag_names(<span class="prelude-val">Some</span>(<span class="string">&quot;b*&quot;</span>)));
+        <span class="kw">let </span>tags = <span class="macro">t!</span>(repo.tag_names(<span class="prelude-val">Some</span>(<span class="string">"b*"</span>)));
         <span class="macro">assert_eq!</span>(tags.len(), <span class="number">0</span>);
     }
 }

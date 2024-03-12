@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hashlink-0.8.4/src/linked_hash_map.rs`."><title>linked_hash_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hashlink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hashlink-0.8.4/src/linked_hash_map.rs`."><title>linked_hash_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hashlink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2204,7 +2205,7 @@
 /// It achieves this by keeping its entries in an internal linked list and using a `HashMap` to
 /// point at nodes in this linked list.
 ///
-/// The order of entries defaults to &quot;insertion order&quot;, but the user can also modify the order of
+/// The order of entries defaults to "insertion order", but the user can also modify the order of
 /// existing entries by manually moving them to the front or back.
 ///
 /// There are two kinds of methods that modify the order of the internal list:
@@ -2219,7 +2220,7 @@
     <span class="comment">// We need to keep any custom hash builder outside of the HashMap so we can access it alongside
     // the entry API without mutable aliasing.
     </span>hash_builder: S,
-    <span class="comment">// Circular linked list of nodes.  If `values` is non-null, it will point to a &quot;guard node&quot;
+    <span class="comment">// Circular linked list of nodes.  If `values` is non-null, it will point to a "guard node"
     // which will never have an initialized key or value, `values.prev` will contain the last key /
     // value in the list, `values.next` will contain the first key / value in the list.
     </span>values: <span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
@@ -2349,7 +2350,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>drain(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Drain&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+    </span><span class="kw">pub fn </span>drain(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Drain&lt;<span class="lifetime">'_</span>, K, V&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>(head, tail) = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>values) = <span class="self">self</span>.values {
                 <span class="kw">let </span>ValueLinks { next, prev } = values.as_ref().links.value;
@@ -2455,7 +2456,7 @@
     S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>entry(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; Entry&lt;<span class="lifetime">&#39;_</span>, K, V, S&gt; {
+    </span><span class="kw">pub fn </span>entry(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K) -&gt; Entry&lt;<span class="lifetime">'_</span>, K, V, S&gt; {
         <span class="kw">match </span><span class="self">self</span>.raw_entry_mut().from_key(<span class="kw-2">&amp;</span>key) {
             RawEntryMut::Occupied(occupied) =&gt; Entry::Occupied(OccupiedEntry {
                 key,
@@ -2719,7 +2720,7 @@
     </span>S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>raw_entry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RawEntryBuilder&lt;<span class="lifetime">&#39;_</span>, K, V, S&gt; {
+    </span><span class="kw">pub fn </span>raw_entry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RawEntryBuilder&lt;<span class="lifetime">'_</span>, K, V, S&gt; {
         RawEntryBuilder {
             hash_builder: <span class="kw-2">&amp;</span><span class="self">self</span>.hash_builder,
             entry: <span class="self">self</span>.map.raw_entry(),
@@ -2727,7 +2728,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>raw_entry_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RawEntryBuilderMut&lt;<span class="lifetime">&#39;_</span>, K, V, S&gt; {
+    </span><span class="kw">pub fn </span>raw_entry_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RawEntryBuilderMut&lt;<span class="lifetime">'_</span>, K, V, S&gt; {
         RawEntryBuilderMut {
             hash_builder: <span class="kw-2">&amp;</span><span class="self">self</span>.hash_builder,
             values: <span class="kw-2">&amp;mut </span><span class="self">self</span>.values,
@@ -2838,7 +2839,7 @@
 <span class="kw">unsafe impl</span>&lt;K: Send, V: Send, S: Send&gt; Send <span class="kw">for </span>LinkedHashMap&lt;K, V, S&gt; {}
 <span class="kw">unsafe impl</span>&lt;K: Sync, V: Sync, S: Sync&gt; Sync <span class="kw">for </span>LinkedHashMap&lt;K, V, S&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S, Q&gt; Index&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Q&gt; <span class="kw">for </span>LinkedHashMap&lt;K, V, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S, Q&gt; Index&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Q&gt; <span class="kw">for </span>LinkedHashMap&lt;K, V, S&gt;
 <span class="kw">where
     </span>K: Hash + Eq + Borrow&lt;Q&gt;,
     S: BuildHasher,
@@ -2847,20 +2848,20 @@
     <span class="kw">type </span>Output = V;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Q) -&gt; <span class="kw-2">&amp;</span>V {
-        <span class="self">self</span>.get(index).expect(<span class="string">&quot;no entry found for key&quot;</span>)
+    </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Q) -&gt; <span class="kw-2">&amp;</span>V {
+        <span class="self">self</span>.get(index).expect(<span class="string">"no entry found for key"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S, Q&gt; IndexMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Q&gt; <span class="kw">for </span>LinkedHashMap&lt;K, V, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S, Q&gt; IndexMut&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Q&gt; <span class="kw">for </span>LinkedHashMap&lt;K, V, S&gt;
 <span class="kw">where
     </span>K: Hash + Eq + Borrow&lt;Q&gt;,
     S: BuildHasher,
     Q: Eq + Hash + <span class="question-mark">?</span>Sized,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Q) -&gt; <span class="kw-2">&amp;mut </span>V {
-        <span class="self">self</span>.get_mut(index).expect(<span class="string">&quot;no entry found for key&quot;</span>)
+    </span><span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Q) -&gt; <span class="kw-2">&amp;mut </span>V {
+        <span class="self">self</span>.get_mut(index).expect(<span class="string">"no entry found for key"</span>)
     }
 }
 
@@ -2882,43 +2883,43 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; Extend&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt; <span class="kw">for </span>LinkedHashMap&lt;K, V, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; Extend&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; <span class="kw">for </span>LinkedHashMap&lt;K, V, S&gt;
 <span class="kw">where
-    </span>K: <span class="lifetime">&#39;a </span>+ Hash + Eq + Copy,
-    V: <span class="lifetime">&#39;a </span>+ Copy,
+    </span>K: <span class="lifetime">'a </span>+ Hash + Eq + Copy,
+    V: <span class="lifetime">'a </span>+ Copy,
     S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>extend&lt;I: IntoIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, iter: I) {
+    </span><span class="kw">fn </span>extend&lt;I: IntoIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, iter: I) {
         <span class="kw">for </span>(<span class="kw-2">&amp;</span>k, <span class="kw-2">&amp;</span>v) <span class="kw">in </span>iter {
             <span class="self">self</span>.insert(k, v);
         }
     }
 }
 
-<span class="kw">pub enum </span>Entry&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
-    Occupied(OccupiedEntry&lt;<span class="lifetime">&#39;a</span>, K, V&gt;),
-    Vacant(VacantEntry&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;),
+<span class="kw">pub enum </span>Entry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    Occupied(OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;),
+    Vacant(VacantEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt;),
 }
 
-<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug, S&gt; fmt::Debug <span class="kw">for </span>Entry&lt;<span class="lifetime">&#39;_</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug, S&gt; fmt::Debug <span class="kw">for </span>Entry&lt;<span class="lifetime">'_</span>, K, V, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Entry::Vacant(<span class="kw-2">ref </span>v) =&gt; f.debug_tuple(<span class="string">&quot;Entry&quot;</span>).field(v).finish(),
-            Entry::Occupied(<span class="kw-2">ref </span>o) =&gt; f.debug_tuple(<span class="string">&quot;Entry&quot;</span>).field(o).finish(),
+            Entry::Vacant(<span class="kw-2">ref </span>v) =&gt; f.debug_tuple(<span class="string">"Entry"</span>).field(v).finish(),
+            Entry::Occupied(<span class="kw-2">ref </span>o) =&gt; f.debug_tuple(<span class="string">"Entry"</span>).field(o).finish(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; Entry&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; Entry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
     <span class="doccomment">/// If this entry is vacant, inserts a new entry with the given value and returns a reference to
     /// it.
     ///
     /// If this entry is occupied, this method *moves the occupied entry to the back of the internal
     /// linked list* and returns a reference to the existing value.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>or_insert(<span class="self">self</span>, default: V) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V
+    </span><span class="kw">pub fn </span>or_insert(<span class="self">self</span>, default: V) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V
     <span class="kw">where
         </span>K: Hash,
         S: BuildHasher,
@@ -2935,7 +2936,7 @@
     <span class="doccomment">/// Similar to `Entry::or_insert`, but accepts a function to construct a new value if this entry
     /// is vacant.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>or_insert_with&lt;F: FnOnce() -&gt; V&gt;(<span class="self">self</span>, default: F) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V
+    </span><span class="kw">pub fn </span>or_insert_with&lt;F: FnOnce() -&gt; V&gt;(<span class="self">self</span>, default: F) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V
     <span class="kw">where
         </span>K: Hash,
         S: BuildHasher,
@@ -2972,22 +2973,22 @@
     }
 }
 
-<span class="kw">pub struct </span>OccupiedEntry&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">pub struct </span>OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
     key: K,
-    raw_entry: RawOccupiedEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+    raw_entry: RawOccupiedEntryMut&lt;<span class="lifetime">'a</span>, K, V&gt;,
 }
 
-<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">'_</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;OccupiedEntry&quot;</span>)
-            .field(<span class="string">&quot;key&quot;</span>, <span class="self">self</span>.key())
-            .field(<span class="string">&quot;value&quot;</span>, <span class="self">self</span>.get())
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"OccupiedEntry"</span>)
+            .field(<span class="string">"key"</span>, <span class="self">self</span>.key())
+            .field(<span class="string">"value"</span>, <span class="self">self</span>.get())
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; OccupiedEntry&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
         <span class="self">self</span>.raw_entry.key()
@@ -3009,7 +3010,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>into_mut(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V {
+    </span><span class="kw">pub fn </span>into_mut(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V {
         <span class="self">self</span>.raw_entry.into_mut()
     }
 
@@ -3023,7 +3024,7 @@
         <span class="self">self</span>.raw_entry.to_front()
     }
 
-    <span class="doccomment">/// Replaces this entry&#39;s value with the provided value.
+    <span class="doccomment">/// Replaces this entry's value with the provided value.
     ///
     /// Similarly to `LinkedHashMap::insert`, this moves the existing entry to the back of the
     /// internal linked list.
@@ -3046,8 +3047,8 @@
         <span class="self">self</span>.replace_entry(value)
     }
 
-    <span class="doccomment">/// Replaces the entry&#39;s key with the key provided to `LinkedHashMap::entry`, and replaces the
-    /// entry&#39;s value with the given `value` parameter.
+    <span class="doccomment">/// Replaces the entry's key with the key provided to `LinkedHashMap::entry`, and replaces the
+    /// entry's value with the given `value` parameter.
     ///
     /// Does *not* move the entry to the back of the internal linked list.
     </span><span class="kw">pub fn </span>replace_entry(<span class="kw-2">mut </span><span class="self">self</span>, value: V) -&gt; (K, V) {
@@ -3056,7 +3057,7 @@
         (old_key, old_value)
     }
 
-    <span class="doccomment">/// Replaces this entry&#39;s key with the key provided to `LinkedHashMap::entry`.
+    <span class="doccomment">/// Replaces this entry's key with the key provided to `LinkedHashMap::entry`.
     ///
     /// Does *not* move the entry to the back of the internal linked list.
     </span><span class="attr">#[inline]
@@ -3065,19 +3066,19 @@
     }
 }
 
-<span class="kw">pub struct </span>VacantEntry&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+<span class="kw">pub struct </span>VacantEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
     key: K,
-    raw_entry: RawVacantEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;,
+    raw_entry: RawVacantEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;,
 }
 
-<span class="kw">impl</span>&lt;K: fmt::Debug, V, S&gt; fmt::Debug <span class="kw">for </span>VacantEntry&lt;<span class="lifetime">&#39;_</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;K: fmt::Debug, V, S&gt; fmt::Debug <span class="kw">for </span>VacantEntry&lt;<span class="lifetime">'_</span>, K, V, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_tuple(<span class="string">&quot;VacantEntry&quot;</span>).field(<span class="self">self</span>.key()).finish()
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_tuple(<span class="string">"VacantEntry"</span>).field(<span class="self">self</span>.key()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; VacantEntry&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; VacantEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
         <span class="kw-2">&amp;</span><span class="self">self</span>.key
@@ -3088,10 +3089,10 @@
         <span class="self">self</span>.key
     }
 
-    <span class="doccomment">/// Insert&#39;s the key for this vacant entry paired with the given value as a new entry at the
+    <span class="doccomment">/// Insert's the key for this vacant entry paired with the given value as a new entry at the
     /// *back* of the internal linked list.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>insert(<span class="self">self</span>, value: V) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V
+    </span><span class="kw">pub fn </span>insert(<span class="self">self</span>, value: V) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V
     <span class="kw">where
         </span>K: Hash,
         S: BuildHasher,
@@ -3100,17 +3101,17 @@
     </span>}
 }
 
-<span class="kw">pub struct </span>RawEntryBuilder&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
-    hash_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>S,
-    entry: hash_map::RawEntryBuilder&lt;<span class="lifetime">&#39;a</span>, NonNull&lt;Node&lt;K, V&gt;&gt;, (), NullHasher&gt;,
+<span class="kw">pub struct </span>RawEntryBuilder&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    hash_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>S,
+    entry: hash_map::RawEntryBuilder&lt;<span class="lifetime">'a</span>, NonNull&lt;Node&lt;K, V&gt;&gt;, (), NullHasher&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; RawEntryBuilder&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; RawEntryBuilder&lt;<span class="lifetime">'a</span>, K, V, S&gt;
 <span class="kw">where
     </span>S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>from_key&lt;Q&gt;(<span class="self">self</span>, k: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt;
+    </span><span class="kw">pub fn </span>from_key&lt;Q&gt;(<span class="self">self</span>, k: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
@@ -3120,7 +3121,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>from_key_hashed_nocheck&lt;Q&gt;(<span class="self">self</span>, hash: u64, k: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt;
+    </span><span class="kw">pub fn </span>from_key_hashed_nocheck&lt;Q&gt;(<span class="self">self</span>, hash: u64, k: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
@@ -3133,7 +3134,7 @@
         <span class="self">self</span>,
         hash: u64,
         <span class="kw-2">mut </span>is_match: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span>K) -&gt; bool,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>node = <span class="kw-2">*</span><span class="self">self
                 </span>.entry
@@ -3146,7 +3147,7 @@
     }
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; Send <span class="kw">for </span>RawEntryBuilder&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; Send <span class="kw">for </span>RawEntryBuilder&lt;<span class="lifetime">'a</span>, K, V, S&gt;
 <span class="kw">where
     </span>K: Send,
     V: Send,
@@ -3154,7 +3155,7 @@
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; Sync <span class="kw">for </span>RawEntryBuilder&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; Sync <span class="kw">for </span>RawEntryBuilder&lt;<span class="lifetime">'a</span>, K, V, S&gt;
 <span class="kw">where
     </span>K: Sync,
     V: Sync,
@@ -3162,19 +3163,19 @@
 {
 }
 
-<span class="kw">pub struct </span>RawEntryBuilderMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
-    hash_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>S,
-    values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
-    free: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
-    entry: hash_map::RawEntryBuilderMut&lt;<span class="lifetime">&#39;a</span>, NonNull&lt;Node&lt;K, V&gt;&gt;, (), NullHasher&gt;,
+<span class="kw">pub struct </span>RawEntryBuilderMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    hash_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>S,
+    values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
+    free: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
+    entry: hash_map::RawEntryBuilderMut&lt;<span class="lifetime">'a</span>, NonNull&lt;Node&lt;K, V&gt;&gt;, (), NullHasher&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; RawEntryBuilderMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; RawEntryBuilderMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;
 <span class="kw">where
     </span>S: BuildHasher,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>from_key&lt;Q&gt;(<span class="self">self</span>, k: <span class="kw-2">&amp;</span>Q) -&gt; RawEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+    </span><span class="kw">pub fn </span>from_key&lt;Q&gt;(<span class="self">self</span>, k: <span class="kw-2">&amp;</span>Q) -&gt; RawEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
@@ -3184,7 +3185,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>from_key_hashed_nocheck&lt;Q&gt;(<span class="self">self</span>, hash: u64, k: <span class="kw-2">&amp;</span>Q) -&gt; RawEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+    </span><span class="kw">pub fn </span>from_key_hashed_nocheck&lt;Q&gt;(<span class="self">self</span>, hash: u64, k: <span class="kw-2">&amp;</span>Q) -&gt; RawEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
@@ -3197,7 +3198,7 @@
         <span class="self">self</span>,
         hash: u64,
         <span class="kw-2">mut </span>is_match: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span>K) -&gt; bool,
-    ) -&gt; RawEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+    ) -&gt; RawEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
         <span class="kw">let </span>entry = <span class="self">self
             </span>.entry
             .from_hash(hash, <span class="kw">move </span>|k| is_match(<span class="kw">unsafe </span>{ (<span class="kw-2">*</span>k).as_ref().key_ref() }));
@@ -3220,7 +3221,7 @@
     }
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; Send <span class="kw">for </span>RawEntryBuilderMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; Send <span class="kw">for </span>RawEntryBuilderMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;
 <span class="kw">where
     </span>K: Send,
     V: Send,
@@ -3228,7 +3229,7 @@
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; Sync <span class="kw">for </span>RawEntryBuilderMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; Sync <span class="kw">for </span>RawEntryBuilderMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;
 <span class="kw">where
     </span>K: Sync,
     V: Sync,
@@ -3236,16 +3237,16 @@
 {
 }
 
-<span class="kw">pub enum </span>RawEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
-    Occupied(RawOccupiedEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt;),
-    Vacant(RawVacantEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;),
+<span class="kw">pub enum </span>RawEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    Occupied(RawOccupiedEntryMut&lt;<span class="lifetime">'a</span>, K, V&gt;),
+    Vacant(RawVacantEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; RawEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; RawEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
     <span class="doccomment">/// Similarly to `Entry::or_insert`, if this entry is occupied, it will move the existing entry
     /// to the back of the internal linked list.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>or_insert(<span class="self">self</span>, default_key: K, default_val: V) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V)
+    </span><span class="kw">pub fn </span>or_insert(<span class="self">self</span>, default_key: K, default_val: V) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)
     <span class="kw">where
         </span>K: Hash,
         S: BuildHasher,
@@ -3262,7 +3263,7 @@
     <span class="doccomment">/// Similarly to `Entry::or_insert_with`, if this entry is occupied, it will move the existing
     /// entry to the back of the internal linked list.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>or_insert_with&lt;F&gt;(<span class="self">self</span>, default: F) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V)
+    </span><span class="kw">pub fn </span>or_insert_with&lt;F&gt;(<span class="self">self</span>, default: F) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)
     <span class="kw">where
         </span>F: FnOnce() -&gt; (K, V),
         K: Hash,
@@ -3298,13 +3299,13 @@
     }
 }
 
-<span class="kw">pub struct </span>RawOccupiedEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    free: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
-    values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
-    entry: hash_map::RawOccupiedEntryMut&lt;<span class="lifetime">&#39;a</span>, NonNull&lt;Node&lt;K, V&gt;&gt;, (), NullHasher&gt;,
+<span class="kw">pub struct </span>RawOccupiedEntryMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    free: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
+    values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
+    entry: hash_map::RawOccupiedEntryMut&lt;<span class="lifetime">'a</span>, NonNull&lt;Node&lt;K, V&gt;&gt;, (), NullHasher&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; RawOccupiedEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; RawOccupiedEntryMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
         <span class="self">self</span>.get_key_value().<span class="number">0
@@ -3316,7 +3317,7 @@
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>into_key(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>K {
+    </span><span class="kw">pub fn </span>into_key(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>K {
         <span class="self">self</span>.into_key_value().<span class="number">0
     </span>}
 
@@ -3331,7 +3332,7 @@
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>into_mut(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V {
+    </span><span class="kw">pub fn </span>into_mut(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V {
         <span class="self">self</span>.into_key_value().<span class="number">1
     </span>}
 
@@ -3354,7 +3355,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>into_key_value(<span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V) {
+    </span><span class="kw">pub fn </span>into_key_value(<span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V) {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>node = <span class="kw-2">*</span><span class="self">self</span>.entry.into_key();
             <span class="kw">let </span>(key, value) = (<span class="kw-2">*</span>node.as_ptr()).entry_mut();
@@ -3408,16 +3409,16 @@
     }
 }
 
-<span class="kw">pub struct </span>RawVacantEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
-    hash_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>S,
-    values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
-    free: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
-    entry: hash_map::RawVacantEntryMut&lt;<span class="lifetime">&#39;a</span>, NonNull&lt;Node&lt;K, V&gt;&gt;, (), NullHasher&gt;,
+<span class="kw">pub struct </span>RawVacantEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    hash_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>S,
+    values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
+    free: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
+    entry: hash_map::RawVacantEntryMut&lt;<span class="lifetime">'a</span>, NonNull&lt;Node&lt;K, V&gt;&gt;, (), NullHasher&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; RawVacantEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; RawVacantEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>insert(<span class="self">self</span>, key: K, value: V) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V)
+    </span><span class="kw">pub fn </span>insert(<span class="self">self</span>, key: K, value: V) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)
     <span class="kw">where
         </span>K: Hash,
         S: BuildHasher,
@@ -3427,7 +3428,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>insert_hashed_nocheck(<span class="self">self</span>, hash: u64, key: K, value: V) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V)
+    </span><span class="kw">pub fn </span>insert_hashed_nocheck(<span class="self">self</span>, hash: u64, key: K, value: V) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)
     <span class="kw">where
         </span>K: Hash,
         S: BuildHasher,
@@ -3443,7 +3444,7 @@
         key: K,
         value: V,
         hasher: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>K) -&gt; u64,
-    ) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V)
+    ) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)
     <span class="kw">where
         </span>S: BuildHasher,
     {
@@ -3464,62 +3465,62 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K, V, S&gt; fmt::Debug <span class="kw">for </span>RawEntryBuilderMut&lt;<span class="lifetime">&#39;_</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;K, V, S&gt; fmt::Debug <span class="kw">for </span>RawEntryBuilderMut&lt;<span class="lifetime">'_</span>, K, V, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;RawEntryBuilder&quot;</span>).finish()
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"RawEntryBuilder"</span>).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug, S&gt; fmt::Debug <span class="kw">for </span>RawEntryMut&lt;<span class="lifetime">&#39;_</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug, S&gt; fmt::Debug <span class="kw">for </span>RawEntryMut&lt;<span class="lifetime">'_</span>, K, V, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            RawEntryMut::Vacant(<span class="kw-2">ref </span>v) =&gt; f.debug_tuple(<span class="string">&quot;RawEntry&quot;</span>).field(v).finish(),
-            RawEntryMut::Occupied(<span class="kw-2">ref </span>o) =&gt; f.debug_tuple(<span class="string">&quot;RawEntry&quot;</span>).field(o).finish(),
+            RawEntryMut::Vacant(<span class="kw-2">ref </span>v) =&gt; f.debug_tuple(<span class="string">"RawEntry"</span>).field(v).finish(),
+            RawEntryMut::Occupied(<span class="kw-2">ref </span>o) =&gt; f.debug_tuple(<span class="string">"RawEntry"</span>).field(o).finish(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>RawOccupiedEntryMut&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>RawOccupiedEntryMut&lt;<span class="lifetime">'_</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;RawOccupiedEntryMut&quot;</span>)
-            .field(<span class="string">&quot;key&quot;</span>, <span class="self">self</span>.key())
-            .field(<span class="string">&quot;value&quot;</span>, <span class="self">self</span>.get())
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"RawOccupiedEntryMut"</span>)
+            .field(<span class="string">"key"</span>, <span class="self">self</span>.key())
+            .field(<span class="string">"value"</span>, <span class="self">self</span>.get())
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;K, V, S&gt; fmt::Debug <span class="kw">for </span>RawVacantEntryMut&lt;<span class="lifetime">&#39;_</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;K, V, S&gt; fmt::Debug <span class="kw">for </span>RawVacantEntryMut&lt;<span class="lifetime">'_</span>, K, V, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;RawVacantEntryMut&quot;</span>).finish()
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"RawVacantEntryMut"</span>).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;K, V, S&gt; fmt::Debug <span class="kw">for </span>RawEntryBuilder&lt;<span class="lifetime">&#39;_</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;K, V, S&gt; fmt::Debug <span class="kw">for </span>RawEntryBuilder&lt;<span class="lifetime">'_</span>, K, V, S&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;RawEntryBuilder&quot;</span>).finish()
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"RawEntryBuilder"</span>).finish()
     }
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Send <span class="kw">for </span>RawOccupiedEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Send <span class="kw">for </span>RawOccupiedEntryMut&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
     </span>K: Send,
     V: Send,
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Sync <span class="kw">for </span>RawOccupiedEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Sync <span class="kw">for </span>RawOccupiedEntryMut&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
     </span>K: Sync,
     V: Sync,
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; Send <span class="kw">for </span>RawVacantEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; Send <span class="kw">for </span>RawVacantEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;
 <span class="kw">where
     </span>K: Send,
     V: Send,
@@ -3527,7 +3528,7 @@
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; Sync <span class="kw">for </span>RawVacantEntryMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; Sync <span class="kw">for </span>RawVacantEntryMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;
 <span class="kw">where
     </span>K: Sync,
     V: Sync,
@@ -3535,18 +3536,18 @@
 {
 }
 
-<span class="kw">pub struct </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">pub struct </span>Iter&lt;<span class="lifetime">'a</span>, K, V&gt; {
     head: <span class="kw-2">*const </span>Node&lt;K, V&gt;,
     tail: <span class="kw-2">*const </span>Node&lt;K, V&gt;,
     remaining: usize,
-    marker: PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt;,
+    marker: PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt;,
 }
 
-<span class="kw">pub struct </span>IterMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">pub struct </span>IterMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
     head: <span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
     tail: <span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
     remaining: usize,
-    marker: PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V)&gt;,
+    marker: PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)&gt;,
 }
 
 <span class="kw">pub struct </span>IntoIter&lt;K, V&gt; {
@@ -3556,18 +3557,18 @@
     marker: PhantomData&lt;(K, V)&gt;,
 }
 
-<span class="kw">pub struct </span>Drain&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">pub struct </span>Drain&lt;<span class="lifetime">'a</span>, K, V&gt; {
     free: NonNull&lt;<span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;&gt;,
     head: <span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
     tail: <span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
     remaining: usize,
     <span class="comment">// We want `Drain` to be covariant
-    </span>marker: PhantomData&lt;(K, V, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashMap&lt;K, V&gt;)&gt;,
+    </span>marker: PhantomData&lt;(K, V, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashMap&lt;K, V&gt;)&gt;,
 }
 
-<span class="kw">impl</span>&lt;K, V&gt; IterMut&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;K, V&gt; IterMut&lt;<span class="lifetime">'_</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">'_</span>, K, V&gt; {
         Iter {
             head: <span class="self">self</span>.head.as_ptr(),
             tail: <span class="self">self</span>.tail.as_ptr(),
@@ -3579,7 +3580,7 @@
 
 <span class="kw">impl</span>&lt;K, V&gt; IntoIter&lt;K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">'_</span>, K, V&gt; {
         Iter {
             head: <span class="self">self</span>.head.as_ptr(),
             tail: <span class="self">self</span>.tail.as_ptr(),
@@ -3589,9 +3590,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K, V&gt; Drain&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;K, V&gt; Drain&lt;<span class="lifetime">'_</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">'_</span>, K, V&gt; {
         Iter {
             head: <span class="self">self</span>.head.as_ptr(),
             tail: <span class="self">self</span>.tail.as_ptr(),
@@ -3601,14 +3602,14 @@
     }
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Send <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Send <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
     </span>K: Send,
     V: Send,
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Send <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Send <span class="kw">for </span>IterMut&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
     </span>K: Send,
     V: Send,
@@ -3622,21 +3623,21 @@
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Send <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Send <span class="kw">for </span>Drain&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
     </span>K: Send,
     V: Send,
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Sync <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Sync <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
     </span>K: Sync,
     V: Sync,
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Sync <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Sync <span class="kw">for </span>IterMut&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
     </span>K: Sync,
     V: Sync,
@@ -3650,34 +3651,34 @@
 {
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Sync <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Sync <span class="kw">for </span>Drain&lt;<span class="lifetime">'a</span>, K, V&gt;
 <span class="kw">where
     </span>K: Sync,
     V: Sync,
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Clone <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Clone <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         Iter { ..<span class="kw-2">*</span><span class="self">self </span>}
     }
 }
 
-<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;K: fmt::Debug, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>Iter&lt;<span class="lifetime">'_</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.clone()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;K, V&gt; fmt::Debug <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;_</span>, K, V&gt;
+<span class="kw">impl</span>&lt;K, V&gt; fmt::Debug <span class="kw">for </span>IterMut&lt;<span class="lifetime">'_</span>, K, V&gt;
 <span class="kw">where
     </span>K: fmt::Debug,
     V: fmt::Debug,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.iter()).finish()
     }
 }
@@ -3688,27 +3689,27 @@
     V: fmt::Debug,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.iter()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;K, V&gt; fmt::Debug <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;_</span>, K, V&gt;
+<span class="kw">impl</span>&lt;K, V&gt; fmt::Debug <span class="kw">for </span>Drain&lt;<span class="lifetime">'_</span>, K, V&gt;
 <span class="kw">where
     </span>K: fmt::Debug,
     V: fmt::Debug,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.iter()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V);
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V);
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; {
         <span class="kw">if </span><span class="self">self</span>.remaining == <span class="number">0 </span>{
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -3727,11 +3728,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Iterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V);
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Iterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V);
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V)&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)&gt; {
         <span class="kw">if </span><span class="self">self</span>.remaining == <span class="number">0 </span>{
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -3774,7 +3775,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Iterator <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Iterator <span class="kw">for </span>Drain&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="kw">type </span>Item = (K, V);
 
     <span class="attr">#[inline]
@@ -3798,9 +3799,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V)&gt; {
+    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; {
         <span class="kw">if </span><span class="self">self</span>.remaining == <span class="number">0 </span>{
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -3815,9 +3816,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V)&gt; {
+    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)&gt; {
         <span class="kw">if </span><span class="self">self</span>.remaining == <span class="number">0 </span>{
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -3847,7 +3848,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>Drain&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt; {
         <span class="kw">if </span><span class="self">self</span>.remaining == <span class="number">0 </span>{
@@ -3864,9 +3865,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, K, V&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">'a</span>, K, V&gt; {}
 
 <span class="kw">impl</span>&lt;K, V&gt; ExactSizeIterator <span class="kw">for </span>IntoIter&lt;K, V&gt; {}
 
@@ -3884,7 +3885,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Drop <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Drop <span class="kw">for </span>Drain&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="self">self</span>.remaining {
@@ -3898,31 +3899,31 @@
     }
 }
 
-<span class="kw">pub struct </span>Keys&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    inner: Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+<span class="kw">pub struct </span>Keys&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    inner: Iter&lt;<span class="lifetime">'a</span>, K, V&gt;,
 }
 
-<span class="kw">impl</span>&lt;K: fmt::Debug, V&gt; fmt::Debug <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;K: fmt::Debug, V&gt; fmt::Debug <span class="kw">for </span>Keys&lt;<span class="lifetime">'_</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.clone()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Clone <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Clone <span class="kw">for </span>Keys&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Keys&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Keys&lt;<span class="lifetime">'a</span>, K, V&gt; {
         Keys {
             inner: <span class="self">self</span>.inner.clone(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Iterator <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Iterator <span class="kw">for </span>Keys&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>K;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K&gt; {
         <span class="self">self</span>.inner.next().map(|e| e.<span class="number">0</span>)
     }
 
@@ -3932,25 +3933,25 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>Keys&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K&gt; {
+    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K&gt; {
         <span class="self">self</span>.inner.next_back().map(|e| e.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>Keys&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.inner.len()
     }
 }
 
-<span class="kw">pub struct </span>Values&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    inner: Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+<span class="kw">pub struct </span>Values&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    inner: Iter&lt;<span class="lifetime">'a</span>, K, V&gt;,
 }
 
-<span class="kw">impl</span>&lt;K, V&gt; Clone <span class="kw">for </span>Values&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;K, V&gt; Clone <span class="kw">for </span>Values&lt;<span class="lifetime">'_</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         Values {
@@ -3959,18 +3960,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>Values&lt;<span class="lifetime">&#39;_</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;K, V: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>Values&lt;<span class="lifetime">'_</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.clone()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Iterator <span class="kw">for </span>Values&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Iterator <span class="kw">for </span>Values&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>V&gt; {
         <span class="self">self</span>.inner.next().map(|e| e.<span class="number">1</span>)
     }
 
@@ -3980,40 +3981,40 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>Values&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>Values&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V&gt; {
+    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>V&gt; {
         <span class="self">self</span>.inner.next_back().map(|e| e.<span class="number">1</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>Values&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>Values&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.inner.len()
     }
 }
 
-<span class="kw">pub struct </span>ValuesMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    inner: IterMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt;,
+<span class="kw">pub struct </span>ValuesMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    inner: IterMut&lt;<span class="lifetime">'a</span>, K, V&gt;,
 }
 
-<span class="kw">impl</span>&lt;K, V&gt; fmt::Debug <span class="kw">for </span>ValuesMut&lt;<span class="lifetime">&#39;_</span>, K, V&gt;
+<span class="kw">impl</span>&lt;K, V&gt; fmt::Debug <span class="kw">for </span>ValuesMut&lt;<span class="lifetime">'_</span>, K, V&gt;
 <span class="kw">where
     </span>K: fmt::Debug,
     V: fmt::Debug,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.inner.iter()).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Iterator <span class="kw">for </span>ValuesMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Iterator <span class="kw">for </span>ValuesMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V&gt; {
         <span class="self">self</span>.inner.next().map(|e| e.<span class="number">1</span>)
     }
 
@@ -4023,36 +4024,36 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>ValuesMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; DoubleEndedIterator <span class="kw">for </span>ValuesMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V&gt; {
+    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V&gt; {
         <span class="self">self</span>.inner.next_back().map(|e| e.<span class="number">1</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>ValuesMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; ExactSizeIterator <span class="kw">for </span>ValuesMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.inner.len()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LinkedHashMap&lt;K, V, S&gt; {
-    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V);
-    <span class="kw">type </span>IntoIter = Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>LinkedHashMap&lt;K, V, S&gt; {
+    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V);
+    <span class="kw">type </span>IntoIter = Iter&lt;<span class="lifetime">'a</span>, K, V&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">'a</span>, K, V&gt; {
         <span class="self">self</span>.iter()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>LinkedHashMap&lt;K, V, S&gt; {
-    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>V);
-    <span class="kw">type </span>IntoIter = IterMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V, S&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>LinkedHashMap&lt;K, V, S&gt; {
+    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V);
+    <span class="kw">type </span>IntoIter = IterMut&lt;<span class="lifetime">'a</span>, K, V&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; IterMut&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; IterMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
         <span class="self">self</span>.iter_mut()
     }
 }
@@ -4109,12 +4110,12 @@
 <span class="kw">impl </span>Hasher <span class="kw">for </span>NullHasher {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _bytes: <span class="kw-2">&amp;</span>[u8]) {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;inner map should not be using its built-in hasher&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"inner map should not be using its built-in hasher"</span>)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>finish(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;inner map should not be using its built-in hasher&quot;</span>)
+        <span class="macro">unreachable!</span>(<span class="string">"inner map should not be using its built-in hasher"</span>)
     }
 }
 
@@ -4330,12 +4331,12 @@
 // removed.  Instead, we push the removed nodes onto the free list eagerly, then try and
 // drop the keys and values for any newly freed nodes *after* `HashMap::retain` has
 // completely finished.
-</span><span class="kw">struct </span>DropFilteredValues&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    free: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
+</span><span class="kw">struct </span>DropFilteredValues&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    free: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
     cur_free: <span class="prelude-ty">Option</span>&lt;NonNull&lt;Node&lt;K, V&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; DropFilteredValues&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; DropFilteredValues&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>drop_later(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: NonNull&lt;Node&lt;K, V&gt;&gt;) {
         <span class="kw">unsafe </span>{
@@ -4345,7 +4346,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, V&gt; Drop <span class="kw">for </span>DropFilteredValues&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, V&gt; Drop <span class="kw">for </span>DropFilteredValues&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>end_free = <span class="self">self</span>.cur_free;

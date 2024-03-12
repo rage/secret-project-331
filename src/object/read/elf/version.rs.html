@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/elf/version.rs`."><title>version.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/elf/version.rs`."><title>version.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -459,16 +460,16 @@
 ///
 /// This is derived from entries in the [`elf::SHT_GNU_VERDEF`] and [`elf::SHT_GNU_VERNEED`] sections.
 </span><span class="attr">#[derive(Debug, Default, Clone, Copy)]
-</span><span class="kw">pub struct </span>Version&lt;<span class="lifetime">&#39;data</span>&gt; {
-    name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8],
+</span><span class="kw">pub struct </span>Version&lt;<span class="lifetime">'data</span>&gt; {
+    name: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8],
     hash: u32,
     <span class="comment">// Used to keep track of valid indices in `VersionTable`.
     </span>valid: bool,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; Version&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; Version&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Return the version name.
-    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.name
     }
 
@@ -487,12 +488,12 @@
 ///
 /// Returned by [`SectionTable::versions`](super::SectionTable::versions).
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>VersionTable&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; {
-    symbols: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[elf::Versym&lt;Elf::Endian&gt;],
-    versions: Vec&lt;Version&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
+</span><span class="kw">pub struct </span>VersionTable&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; {
+    symbols: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[elf::Versym&lt;Elf::Endian&gt;],
+    versions: Vec&lt;Version&lt;<span class="lifetime">'data</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; Default <span class="kw">for </span>VersionTable&lt;<span class="lifetime">&#39;data</span>, Elf&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; Default <span class="kw">for </span>VersionTable&lt;<span class="lifetime">'data</span>, Elf&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         VersionTable {
             symbols: <span class="kw-2">&amp;</span>[],
@@ -501,14 +502,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; VersionTable&lt;<span class="lifetime">&#39;data</span>, Elf&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; VersionTable&lt;<span class="lifetime">'data</span>, Elf&gt; {
     <span class="doccomment">/// Parse the version sections.
-    </span><span class="kw">pub fn </span>parse&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>parse&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         endian: Elf::Endian,
-        versyms: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[elf::Versym&lt;Elf::Endian&gt;],
-        verdefs: <span class="prelude-ty">Option</span>&lt;VerdefIterator&lt;<span class="lifetime">&#39;data</span>, Elf&gt;&gt;,
-        verneeds: <span class="prelude-ty">Option</span>&lt;VerneedIterator&lt;<span class="lifetime">&#39;data</span>, Elf&gt;&gt;,
-        strings: StringTable&lt;<span class="lifetime">&#39;data</span>, R&gt;,
+        versyms: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[elf::Versym&lt;Elf::Endian&gt;],
+        verdefs: <span class="prelude-ty">Option</span>&lt;VerdefIterator&lt;<span class="lifetime">'data</span>, Elf&gt;&gt;,
+        verneeds: <span class="prelude-ty">Option</span>&lt;VerneedIterator&lt;<span class="lifetime">'data</span>, Elf&gt;&gt;,
+        strings: StringTable&lt;<span class="lifetime">'data</span>, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>max_index = <span class="number">0</span>;
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>verdefs) = verdefs.clone() {
@@ -599,14 +600,14 @@
     ///
     /// Returns `Ok(None)` for local and global versions.
     /// Returns `Err(_)` if index is invalid.
-    </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>, index: VersionIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Version&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+    </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>, index: VersionIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Version&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="kw">if </span>index.index() &lt;= elf::VER_NDX_GLOBAL {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
         <span class="self">self</span>.versions
             .get(usize::from(index.index()))
             .filter(|version| version.valid)
-            .read_error(<span class="string">&quot;Invalid ELF symbol version index&quot;</span>)
+            .read_error(<span class="string">"Invalid ELF symbol version index"</span>)
             .map(<span class="prelude-val">Some</span>)
     }
 
@@ -614,8 +615,8 @@
     ///
     /// Returns false for any error.
     ///
-    /// Note: this function hasn&#39;t been fully tested and is likely to be incomplete.
-    </span><span class="kw">pub fn </span>matches(<span class="kw-2">&amp;</span><span class="self">self</span>, endian: Elf::Endian, index: usize, need: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Version&lt;<span class="lifetime">&#39;_</span>&gt;&gt;) -&gt; bool {
+    /// Note: this function hasn't been fully tested and is likely to be incomplete.
+    </span><span class="kw">pub fn </span>matches(<span class="kw-2">&amp;</span><span class="self">self</span>, endian: Elf::Endian, index: usize, need: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Version&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; bool {
         <span class="kw">let </span>version_index = <span class="self">self</span>.version_index(endian, index);
         <span class="kw">let </span>def = <span class="kw">match </span><span class="self">self</span>.version(version_index) {
             <span class="prelude-val">Ok</span>(def) =&gt; def,
@@ -639,13 +640,13 @@
 
 <span class="doccomment">/// An iterator for the entries in an ELF [`elf::SHT_GNU_VERDEF`] section.
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>VerdefIterator&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; {
+</span><span class="kw">pub struct </span>VerdefIterator&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; {
     endian: Elf::Endian,
-    data: Bytes&lt;<span class="lifetime">&#39;data</span>&gt;,
+    data: Bytes&lt;<span class="lifetime">'data</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; VerdefIterator&lt;<span class="lifetime">&#39;data</span>, Elf&gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(endian: Elf::Endian, data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; VerdefIterator&lt;<span class="lifetime">'data</span>, Elf&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(endian: Elf::Endian, data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]) -&gt; <span class="self">Self </span>{
         VerdefIterator {
             endian,
             data: Bytes(data),
@@ -655,7 +656,7 @@
     <span class="doccomment">/// Return the next `Verdef` entry.
     </span><span class="kw">pub fn </span>next(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>elf::Verdef&lt;Elf::Endian&gt;, VerdauxIterator&lt;<span class="lifetime">&#39;data</span>, Elf&gt;)&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'data </span>elf::Verdef&lt;Elf::Endian&gt;, VerdauxIterator&lt;<span class="lifetime">'data</span>, Elf&gt;)&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.data.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
@@ -663,12 +664,12 @@
         <span class="kw">let </span>verdef = <span class="self">self
             </span>.data
             .read_at::&lt;elf::Verdef&lt;<span class="kw">_</span>&gt;&gt;(<span class="number">0</span>)
-            .read_error(<span class="string">&quot;ELF verdef is too short&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"ELF verdef is too short"</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>verdaux_data = <span class="self">self</span>.data;
         verdaux_data
             .skip(verdef.vd_aux.get(<span class="self">self</span>.endian) <span class="kw">as </span>usize)
-            .read_error(<span class="string">&quot;Invalid ELF vd_aux&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid ELF vd_aux"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>verdaux =
             VerdauxIterator::new(<span class="self">self</span>.endian, verdaux_data.<span class="number">0</span>, verdef.vd_cnt.get(<span class="self">self</span>.endian));
 
@@ -676,7 +677,7 @@
         <span class="kw">if </span>next != <span class="number">0 </span>{
             <span class="self">self</span>.data
                 .skip(next <span class="kw">as </span>usize)
-                .read_error(<span class="string">&quot;Invalid ELF vd_next&quot;</span>)<span class="question-mark">?</span>;
+                .read_error(<span class="string">"Invalid ELF vd_next"</span>)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="self">self</span>.data = Bytes(<span class="kw-2">&amp;</span>[]);
         }
@@ -686,14 +687,14 @@
 
 <span class="doccomment">/// An iterator for the auxiliary records for an entry in an ELF [`elf::SHT_GNU_VERDEF`] section.
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>VerdauxIterator&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; {
+</span><span class="kw">pub struct </span>VerdauxIterator&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; {
     endian: Elf::Endian,
-    data: Bytes&lt;<span class="lifetime">&#39;data</span>&gt;,
+    data: Bytes&lt;<span class="lifetime">'data</span>&gt;,
     count: u16,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; VerdauxIterator&lt;<span class="lifetime">&#39;data</span>, Elf&gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(endian: Elf::Endian, data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], count: u16) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; VerdauxIterator&lt;<span class="lifetime">'data</span>, Elf&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(endian: Elf::Endian, data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], count: u16) -&gt; <span class="self">Self </span>{
         VerdauxIterator {
             endian,
             data: Bytes(data),
@@ -702,7 +703,7 @@
     }
 
     <span class="doccomment">/// Return the next `Verdaux` entry.
-    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>elf::Verdaux&lt;Elf::Endian&gt;&gt;&gt; {
+    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>elf::Verdaux&lt;Elf::Endian&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.count == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
@@ -710,11 +711,11 @@
         <span class="kw">let </span>verdaux = <span class="self">self
             </span>.data
             .read_at::&lt;elf::Verdaux&lt;<span class="kw">_</span>&gt;&gt;(<span class="number">0</span>)
-            .read_error(<span class="string">&quot;ELF verdaux is too short&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"ELF verdaux is too short"</span>)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.data
             .skip(verdaux.vda_next.get(<span class="self">self</span>.endian) <span class="kw">as </span>usize)
-            .read_error(<span class="string">&quot;Invalid ELF vda_next&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid ELF vda_next"</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.count -= <span class="number">1</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(verdaux))
     }
@@ -722,13 +723,13 @@
 
 <span class="doccomment">/// An iterator for the entries in an ELF [`elf::SHT_GNU_VERNEED`] section.
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>VerneedIterator&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; {
+</span><span class="kw">pub struct </span>VerneedIterator&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; {
     endian: Elf::Endian,
-    data: Bytes&lt;<span class="lifetime">&#39;data</span>&gt;,
+    data: Bytes&lt;<span class="lifetime">'data</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; VerneedIterator&lt;<span class="lifetime">&#39;data</span>, Elf&gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(endian: Elf::Endian, data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; VerneedIterator&lt;<span class="lifetime">'data</span>, Elf&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(endian: Elf::Endian, data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]) -&gt; <span class="self">Self </span>{
         VerneedIterator {
             endian,
             data: Bytes(data),
@@ -740,8 +741,8 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;
         <span class="prelude-ty">Option</span>&lt;(
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>elf::Verneed&lt;Elf::Endian&gt;,
-            VernauxIterator&lt;<span class="lifetime">&#39;data</span>, Elf&gt;,
+            <span class="kw-2">&amp;</span><span class="lifetime">'data </span>elf::Verneed&lt;Elf::Endian&gt;,
+            VernauxIterator&lt;<span class="lifetime">'data</span>, Elf&gt;,
         )&gt;,
     &gt; {
         <span class="kw">if </span><span class="self">self</span>.data.is_empty() {
@@ -751,12 +752,12 @@
         <span class="kw">let </span>verneed = <span class="self">self
             </span>.data
             .read_at::&lt;elf::Verneed&lt;<span class="kw">_</span>&gt;&gt;(<span class="number">0</span>)
-            .read_error(<span class="string">&quot;ELF verneed is too short&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"ELF verneed is too short"</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>vernaux_data = <span class="self">self</span>.data;
         vernaux_data
             .skip(verneed.vn_aux.get(<span class="self">self</span>.endian) <span class="kw">as </span>usize)
-            .read_error(<span class="string">&quot;Invalid ELF vn_aux&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid ELF vn_aux"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>vernaux =
             VernauxIterator::new(<span class="self">self</span>.endian, vernaux_data.<span class="number">0</span>, verneed.vn_cnt.get(<span class="self">self</span>.endian));
 
@@ -764,7 +765,7 @@
         <span class="kw">if </span>next != <span class="number">0 </span>{
             <span class="self">self</span>.data
                 .skip(next <span class="kw">as </span>usize)
-                .read_error(<span class="string">&quot;Invalid ELF vn_next&quot;</span>)<span class="question-mark">?</span>;
+                .read_error(<span class="string">"Invalid ELF vn_next"</span>)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="self">self</span>.data = Bytes(<span class="kw-2">&amp;</span>[]);
         }
@@ -774,14 +775,14 @@
 
 <span class="doccomment">/// An iterator for the auxiliary records for an entry in an ELF [`elf::SHT_GNU_VERNEED`] section.
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>VernauxIterator&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; {
+</span><span class="kw">pub struct </span>VernauxIterator&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; {
     endian: Elf::Endian,
-    data: Bytes&lt;<span class="lifetime">&#39;data</span>&gt;,
+    data: Bytes&lt;<span class="lifetime">'data</span>&gt;,
     count: u16,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Elf: FileHeader&gt; VernauxIterator&lt;<span class="lifetime">&#39;data</span>, Elf&gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(endian: Elf::Endian, data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], count: u16) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; VernauxIterator&lt;<span class="lifetime">'data</span>, Elf&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(endian: Elf::Endian, data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], count: u16) -&gt; <span class="self">Self </span>{
         VernauxIterator {
             endian,
             data: Bytes(data),
@@ -790,7 +791,7 @@
     }
 
     <span class="doccomment">/// Return the next `Vernaux` entry.
-    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>elf::Vernaux&lt;Elf::Endian&gt;&gt;&gt; {
+    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>elf::Vernaux&lt;Elf::Endian&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.count == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
@@ -798,11 +799,11 @@
         <span class="kw">let </span>vernaux = <span class="self">self
             </span>.data
             .read_at::&lt;elf::Vernaux&lt;<span class="kw">_</span>&gt;&gt;(<span class="number">0</span>)
-            .read_error(<span class="string">&quot;ELF vernaux is too short&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"ELF vernaux is too short"</span>)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.data
             .skip(vernaux.vna_next.get(<span class="self">self</span>.endian) <span class="kw">as </span>usize)
-            .read_error(<span class="string">&quot;Invalid ELF vna_next&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid ELF vna_next"</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.count -= <span class="number">1</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(vernaux))
     }
@@ -810,40 +811,40 @@
 
 <span class="kw">impl</span>&lt;Endian: endian::Endian&gt; elf::Verdaux&lt;Endian&gt; {
     <span class="doccomment">/// Parse the version name from the string table.
-    </span><span class="kw">pub fn </span>name&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>name&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: Endian,
-        strings: StringTable&lt;<span class="lifetime">&#39;data</span>, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+        strings: StringTable&lt;<span class="lifetime">'data</span>, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         strings
             .get(<span class="self">self</span>.vda_name.get(endian))
-            .read_error(<span class="string">&quot;Invalid ELF vda_name&quot;</span>)
+            .read_error(<span class="string">"Invalid ELF vda_name"</span>)
     }
 }
 
 <span class="kw">impl</span>&lt;Endian: endian::Endian&gt; elf::Verneed&lt;Endian&gt; {
     <span class="doccomment">/// Parse the file from the string table.
-    </span><span class="kw">pub fn </span>file&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>file&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: Endian,
-        strings: StringTable&lt;<span class="lifetime">&#39;data</span>, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+        strings: StringTable&lt;<span class="lifetime">'data</span>, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         strings
             .get(<span class="self">self</span>.vn_file.get(endian))
-            .read_error(<span class="string">&quot;Invalid ELF vn_file&quot;</span>)
+            .read_error(<span class="string">"Invalid ELF vn_file"</span>)
     }
 }
 
 <span class="kw">impl</span>&lt;Endian: endian::Endian&gt; elf::Vernaux&lt;Endian&gt; {
     <span class="doccomment">/// Parse the version name from the string table.
-    </span><span class="kw">pub fn </span>name&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>name&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: Endian,
-        strings: StringTable&lt;<span class="lifetime">&#39;data</span>, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+        strings: StringTable&lt;<span class="lifetime">'data</span>, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         strings
             .get(<span class="self">self</span>.vna_name.get(endian))
-            .read_error(<span class="string">&quot;Invalid ELF vna_name&quot;</span>)
+            .read_error(<span class="string">"Invalid ELF vna_name"</span>)
     }
 }
 </code></pre></div></section></main></body></html>

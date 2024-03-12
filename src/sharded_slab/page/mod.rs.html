@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sharded-slab-0.1.7/src/page/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sharded_slab" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sharded-slab-0.1.7/src/page/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sharded_slab" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -478,7 +479,7 @@
         // offset on the first page becomes 0.
         </span><span class="kw">let </span>shifted = (<span class="self">self</span>.addr + C::INITIAL_SZ) &gt;&gt; C::ADDR_INDEX_SHIFT;
         <span class="comment">// Now, we can  determine the number of twos places by counting the
-        // number of leading  zeros (unused twos places) in the number&#39;s binary
+        // number of leading  zeros (unused twos places) in the number's binary
         // representation, and subtracting that count from the total number of bits in a word.
         </span>cfg::WIDTH - shifted.leading_zeros() <span class="kw">as </span>usize
     }
@@ -512,9 +513,9 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>Iter&lt;<span class="lifetime">&#39;a</span>, T, C&gt; = std::iter::FilterMap&lt;
-    std::slice::Iter&lt;<span class="lifetime">&#39;a</span>, Slot&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;&gt;,
-    <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Slot&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt;,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>Iter&lt;<span class="lifetime">'a</span>, T, C&gt; = std::iter::FilterMap&lt;
+    std::slice::Iter&lt;<span class="lifetime">'a</span>, Slot&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;&gt;,
+    <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Slot&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;,
 &gt;;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Local {
@@ -586,13 +587,13 @@
     /// If there is space on the local list, it returns the head of the local list. Otherwise, it
     /// pops all the slots from the global list and returns the head of that list
     ///
-    /// *Note*: The local list&#39;s head is reset when setting the new state in the slot pointed to be
+    /// *Note*: The local list's head is reset when setting the new state in the slot pointed to be
     /// `head` returned from this function
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;</span><span class="self">self</span>, local: <span class="kw-2">&amp;</span>Local) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="kw">let </span>head = local.head();
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; local head {:?}&quot;</span>, head);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; local head {:?}"</span>, head);
 
         <span class="comment">// are there any items on the local free list? (fast path)
         </span><span class="kw">let </span>head = <span class="kw">if </span>head &lt; <span class="self">self</span>.size {
@@ -602,14 +603,14 @@
             // the remote free list.
             </span><span class="kw">let </span>head = <span class="self">self</span>.remote.pop_all();
 
-            <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; remote head {:?}&quot;</span>, head);
+            <span class="macro">test_println!</span>(<span class="string">"-&gt; remote head {:?}"</span>, head);
             head<span class="question-mark">?
         </span>};
 
         <span class="comment">// if the head is still null, both the local and remote free lists are
-        // empty --- we can&#39;t fit any more items on this page.
+        // empty --- we can't fit any more items on this page.
         </span><span class="kw">if </span>head == <span class="self">Self</span>::NULL {
-            <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; NULL! {:?}&quot;</span>, head);
+            <span class="macro">test_println!</span>(<span class="string">"-&gt; NULL! {:?}"</span>, head);
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
             <span class="prelude-val">Some</span>(head)
@@ -624,14 +625,14 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_slot&lt;<span class="lifetime">&#39;a</span>, U&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_slot&lt;<span class="lifetime">'a</span>, U&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         addr: Addr&lt;C&gt;,
-        f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Slot&lt;T, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;U&gt;,
+        f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Slot&lt;T, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;U&gt;,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;U&gt; {
         <span class="kw">let </span>poff = addr.offset() - <span class="self">self</span>.prev_sz;
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; offset {:?}&quot;</span>, poff);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; offset {:?}"</span>, poff);
 
         <span class="self">self</span>.slab.with(|slab| {
             <span class="kw">let </span>slot = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>slab }.as_ref()<span class="question-mark">?</span>.get(poff)<span class="question-mark">?</span>;
@@ -645,9 +646,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, C&gt; Shared&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, C&gt; Shared&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;
 <span class="kw">where
-    </span>C: cfg::Config + <span class="lifetime">&#39;a</span>,
+    </span>C: cfg::Config + <span class="lifetime">'a</span>,
 {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>take&lt;F&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -660,7 +661,7 @@
     {
         <span class="kw">let </span>offset = addr.offset() - <span class="self">self</span>.prev_sz;
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; take: offset {:?}&quot;</span>, offset);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; take: offset {:?}"</span>, offset);
 
         <span class="self">self</span>.slab.with(|slab| {
             <span class="kw">let </span>slab = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>slab }.as_ref()<span class="question-mark">?</span>;
@@ -677,7 +678,7 @@
     ) -&gt; bool {
         <span class="kw">let </span>offset = addr.offset() - <span class="self">self</span>.prev_sz;
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; offset {:?}&quot;</span>, offset);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; offset {:?}"</span>, offset);
 
         <span class="self">self</span>.slab.with(|slab| {
             <span class="kw">let </span>slab = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>slab }.as_ref();
@@ -691,15 +692,15 @@
 
     <span class="comment">// Need this function separately, as we need to pass a function pointer to `filter_map` and
     // `Slot::value` just returns a `&amp;T`, specifically a `&amp;Option&lt;T&gt;` for this impl.
-    </span><span class="kw">fn </span>make_ref(slot: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Slot&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">fn </span>make_ref(slot: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Slot&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         slot.value().as_ref()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Iter&lt;<span class="lifetime">&#39;a</span>, T, C&gt;&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Iter&lt;<span class="lifetime">'a</span>, T, C&gt;&gt; {
         <span class="kw">let </span>slab = <span class="self">self</span>.slab.with(|slab| <span class="kw">unsafe </span>{ (<span class="kw-2">*</span>slab).as_ref() });
         slab.map(|slab| {
             slab.iter()
-                .filter_map(Shared::make_ref <span class="kw">as fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Slot&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt;)
+                .filter_map(Shared::make_ref <span class="kw">as fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Slot&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, C&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt;)
         })
     }
 }
@@ -726,21 +727,21 @@
         <span class="kw">let </span>result = <span class="self">self</span>.slab.with(|slab| {
             <span class="kw">let </span>slab = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(slab) }
                 .as_ref()
-                .expect(<span class="string">&quot;page must have been allocated to insert!&quot;</span>);
+                .expect(<span class="string">"page must have been allocated to insert!"</span>);
             <span class="kw">let </span>slot = <span class="kw-2">&amp;</span>slab[head];
             <span class="kw">let </span>result = init(index, slot)<span class="question-mark">?</span>;
             local.set_head(slot.next());
             <span class="prelude-val">Some</span>(result)
         })<span class="question-mark">?</span>;
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; init_with: insert at offset: {}&quot;</span>, index);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; init_with: insert at offset: {}"</span>, index);
         <span class="prelude-val">Some</span>(result)
     }
 
-    <span class="doccomment">/// Allocates storage for the page&#39;s slots.
+    <span class="doccomment">/// Allocates storage for the page's slots.
     </span><span class="attr">#[cold]
     </span><span class="kw">fn </span>allocate(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; alloc new page ({})&quot;</span>, <span class="self">self</span>.size);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; alloc new page ({})"</span>, <span class="self">self</span>.size);
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_unallocated());
 
         <span class="kw">let </span><span class="kw-2">mut </span>slab = Vec::with_capacity(<span class="self">self</span>.size);
@@ -764,7 +765,7 @@
     ) -&gt; bool {
         <span class="kw">let </span>offset = addr.offset() - <span class="self">self</span>.prev_sz;
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; offset {:?}&quot;</span>, offset);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; offset {:?}"</span>, offset);
 
         <span class="self">self</span>.slab.with(|slab| {
             <span class="kw">let </span>slab = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>slab }.as_ref();
@@ -784,7 +785,7 @@
     ) -&gt; bool {
         <span class="kw">let </span>offset = addr.offset() - <span class="self">self</span>.prev_sz;
 
-        <span class="macro">test_println!</span>(<span class="string">&quot;-&gt; offset {:?}&quot;</span>, offset);
+        <span class="macro">test_println!</span>(<span class="string">"-&gt; offset {:?}"</span>, offset);
 
         <span class="self">self</span>.slab.with(|slab| {
             <span class="kw">let </span>slab = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>slab }.as_ref();
@@ -798,33 +799,33 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Local {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="self">self</span>.head.with(|head| {
             <span class="kw">let </span>head = <span class="kw">unsafe </span>{ <span class="kw-2">*</span>head };
-            f.debug_struct(<span class="string">&quot;Local&quot;</span>)
-                .field(<span class="string">&quot;head&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:#0x}&quot;</span>, head))
+            f.debug_struct(<span class="string">"Local"</span>)
+                .field(<span class="string">"head"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:#0x}"</span>, head))
                 .finish()
         })
     }
 }
 
 <span class="kw">impl</span>&lt;C, T&gt; fmt::Debug <span class="kw">for </span>Shared&lt;C, T&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;Shared&quot;</span>)
-            .field(<span class="string">&quot;remote&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.remote)
-            .field(<span class="string">&quot;prev_sz&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.prev_sz)
-            .field(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size)
-            <span class="comment">// .field(&quot;slab&quot;, &amp;self.slab)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"Shared"</span>)
+            .field(<span class="string">"remote"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.remote)
+            .field(<span class="string">"prev_sz"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.prev_sz)
+            .field(<span class="string">"size"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size)
+            <span class="comment">// .field("slab", &amp;self.slab)
             </span>.finish()
     }
 }
 
 <span class="kw">impl</span>&lt;C: cfg::Config&gt; fmt::Debug <span class="kw">for </span>Addr&lt;C&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;Addr&quot;</span>)
-            .field(<span class="string">&quot;addr&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{:#0x}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.addr))
-            .field(<span class="string">&quot;index&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.index())
-            .field(<span class="string">&quot;offset&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.offset())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"Addr"</span>)
+            .field(<span class="string">"addr"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{:#0x}"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.addr))
+            .field(<span class="string">"index"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.index())
+            .field(<span class="string">"offset"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.offset())
             .finish()
     }
 }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/float-cmp-0.9.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="float_cmp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/float-cmp-0.9.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="float_cmp" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -203,8 +204,8 @@
 //! floating point representations. Implementations of these traits are provided for `f32`
 //! and `f64` types.
 //!
-//! When I was a kid in the &#39;80s, the programming rule was &quot;Never compare floating point
-//! numbers&quot;. If you can follow that rule and still get the outcome you desire, then more
+//! When I was a kid in the '80s, the programming rule was "Never compare floating point
+//! numbers". If you can follow that rule and still get the outcome you desire, then more
 //! power to you. However, if you really do need to compare them, this crate provides a
 //! reasonable way to do so.
 //!
@@ -225,7 +226,7 @@
 //!
 //! Floating point operations must round answers to the nearest representable number. Multiple
 //! operations may result in an answer different from what you expect. In the following example,
-//! the assert will fail, even though the printed output says &quot;0.45 == 0.45&quot;:
+//! the assert will fail, even though the printed output says "0.45 == 0.45":
 //!
 //! ```should_panic
 //!   # extern crate float_cmp;
@@ -233,13 +234,13 @@
 //!   # fn main() {
 //!   let a: f32 = 0.15 + 0.15 + 0.15;
 //!   let b: f32 = 0.1 + 0.1 + 0.25;
-//!   println!(&quot;{} == {}&quot;, a, b);
+//!   println!("{} == {}", a, b);
 //!   assert!(a==b)  // Fails, because they are not exactly equal
 //!   # }
 //! ```
 //!
-//! This fails because the correct answer to most operations isn&#39;t exactly representable, and so
-//! your computer&#39;s processor chooses to represent the answer with the closest value it has
+//! This fails because the correct answer to most operations isn't exactly representable, and so
+//! your computer's processor chooses to represent the answer with the closest value it has
 //! available. This introduces error, and this error can accumulate as multiple operations are
 //! performed.
 //!
@@ -254,7 +255,7 @@
 //!   # fn main() {
 //!   let a: f32 = 0.15 + 0.15 + 0.15;
 //!   let b: f32 = 0.1 + 0.1 + 0.25;
-//!   println!(&quot;{} == {}&quot;, a, b);
+//!   println!("{} == {}", a, b);
 //!   // They are equal, within 2 ulps
 //!   assert!( approx_eq!(f32, a, b, ulps = 2) );
 //!   # }
@@ -265,19 +266,19 @@
 //! We use the term ULP (units of least precision, or units in the last place) to mean the
 //! difference between two adjacent floating point representations (adjacent meaning that there is
 //! no floating point number between them). This term is borrowed from prior work (personally I
-//! would have chosen &quot;quanta&quot;). The size of an ULP (measured as a float) varies
+//! would have chosen "quanta"). The size of an ULP (measured as a float) varies
 //! depending on the exponents of the floating point numbers in question. That is a good thing,
 //! because as numbers fall away from equality due to the imprecise nature of their representation,
 //! they fall away in ULPs terms, not in absolute terms.  Pure epsilon-based comparisons are
-//! absolute and thus don&#39;t map well to the nature of the additive error issue. They work fine
+//! absolute and thus don't map well to the nature of the additive error issue. They work fine
 //! for many ranges of numbers, but not for others (consider comparing -0.0000000028
 //! to +0.00000097).
 //!
 //! ## Using this crate
 //!
 //! By default this crate enables the `ratio` module providing the `ApproxEqRatio` trait.  This
-//! feature pulls in `num-traits`.  If you disable this feature, you&#39;ll need to either enable
-//! `num-traits` directly or else enable the `std` feature; otherwise it won&#39;t compile. This crate
+//! feature pulls in `num-traits`.  If you disable this feature, you'll need to either enable
+//! `num-traits` directly or else enable the `std` feature; otherwise it won't compile. This crate
 //! is `#![no_std]` unless you enable the `std` feature.
 //!
 //! You can use the `ApproxEq` trait directly like so:
@@ -327,7 +328,7 @@
 //! ```
 //!
 //! For most cases, I recommend you use a smallish integer for the `ulps` parameter (1 to 5
-//! or so), and a similar small multiple of the floating point&#39;s EPSILON constant (1.0 to 5.0
+//! or so), and a similar small multiple of the floating point's EPSILON constant (1.0 to 5.0
 //! or so), but there are *plenty* of cases where this is insufficient.
 //!
 //! ## Implementing these traits
@@ -344,7 +345,7 @@
 //!   pub y: F,
 //! }
 //!
-//! impl&lt;&#39;a, M: Copy + Default, F: Copy + ApproxEq&lt;Margin=M&gt;&gt; ApproxEq for &amp;&#39;a Vec2&lt;F&gt; {
+//! impl&lt;'a, M: Copy + Default, F: Copy + ApproxEq&lt;Margin=M&gt;&gt; ApproxEq for &amp;'a Vec2&lt;F&gt; {
 //!   type Margin = M;
 //!
 //!   fn approx_eq&lt;T: Into&lt;Self::Margin&gt;&gt;(self, other: Self, margin: T) -&gt; bool {
@@ -370,7 +371,7 @@
 //!
 //! [https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/)
 
-</span><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
+</span><span class="attr">#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
 
 #[macro_use]
 </span><span class="kw">mod </span>macros;
@@ -384,8 +385,8 @@
 <span class="kw">mod </span>eq;
 <span class="kw">pub use </span><span class="self">self</span>::eq::{ApproxEq, F32Margin, F64Margin};
 
-<span class="attr">#[cfg(feature=<span class="string">&quot;ratio&quot;</span>)]
+<span class="attr">#[cfg(feature=<span class="string">"ratio"</span>)]
 </span><span class="kw">mod </span>ratio;
-<span class="attr">#[cfg(feature=<span class="string">&quot;ratio&quot;</span>)]
+<span class="attr">#[cfg(feature=<span class="string">"ratio"</span>)]
 </span><span class="kw">pub use </span><span class="self">self</span>::ratio::ApproxEqRatio;
 </code></pre></div></section></main></body></html>

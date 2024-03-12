@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/blake3-1.5.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blake3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/blake3-1.5.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blake3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1651,18 +1652,18 @@
 //! ```
 //! # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 //! // Hash an input all at once.
-//! let hash1 = blake3::hash(b&quot;foobarbaz&quot;);
+//! let hash1 = blake3::hash(b"foobarbaz");
 //!
 //! // Hash an input incrementally.
 //! let mut hasher = blake3::Hasher::new();
-//! hasher.update(b&quot;foo&quot;);
-//! hasher.update(b&quot;bar&quot;);
-//! hasher.update(b&quot;baz&quot;);
+//! hasher.update(b"foo");
+//! hasher.update(b"bar");
+//! hasher.update(b"baz");
 //! let hash2 = hasher.finalize();
 //! assert_eq!(hash1, hash2);
 //!
 //! // Extended output. OutputReader also implements Read and Seek.
-//! # #[cfg(feature = &quot;std&quot;)] {
+//! # #[cfg(feature = "std")] {
 //! let mut output = [0; 1000];
 //! let mut output_reader = hasher.finalize_xof();
 //! output_reader.fill(&amp;mut output);
@@ -1670,7 +1671,7 @@
 //! # }
 //!
 //! // Print a hash as hex.
-//! println!(&quot;{}&quot;, hash1);
+//! println!("{}", hash1);
 //! # Ok(())
 //! # }
 //! ```
@@ -1682,7 +1683,7 @@
 //! [`update_reader`](Hasher::update_reader) helper method, and runtime CPU
 //! feature detection on x86. If this feature is disabled, the only way to use
 //! the x86 SIMD implementations is to enable the corresponding instruction sets
-//! globally, with e.g. `RUSTFLAGS=&quot;-C target-cpu=native&quot;`. The resulting binary
+//! globally, with e.g. `RUSTFLAGS="-C target-cpu=native"`. The resulting binary
 //! will not be portable to other machines.
 //!
 //! The `rayon` feature (disabled by default, but enabled for [docs.rs]) adds
@@ -1699,7 +1700,7 @@
 //! The `zeroize` feature (disabled by default, but enabled for [docs.rs])
 //! implements
 //! [`Zeroize`](https://docs.rs/zeroize/latest/zeroize/trait.Zeroize.html) for
-//! this crate&#39;s types.
+//! this crate's types.
 //!
 //! The `serde` feature (disabled by default, but enabled for [docs.rs]) implements
 //! [`serde::Serialize`](https://docs.rs/serde/latest/serde/trait.Serialize.html) and
@@ -1708,15 +1709,15 @@
 //!
 //! The NEON implementation is enabled by default for AArch64 but requires the
 //! `neon` feature for other ARM targets. Not all ARMv7 CPUs support NEON, and
-//! enabling this feature will produce a binary that&#39;s not portable to CPUs
+//! enabling this feature will produce a binary that's not portable to CPUs
 //! without NEON support.
 //!
 //! The `traits-preview` feature enables implementations of traits from the
 //! RustCrypto [`digest`] crate, and re-exports that crate as `traits::digest`.
-//! However, the traits aren&#39;t stable, and they&#39;re expected to change in
+//! However, the traits aren't stable, and they're expected to change in
 //! incompatible ways before that crate reaches 1.0. For that reason, this crate
 //! makes no SemVer guarantees for this feature, and callers who use it should
-//! expect breaking changes between patch versions. (The &quot;-preview&quot; feature name
+//! expect breaking changes between patch versions. (The "-preview" feature name
 //! follows the conventions of the RustCrypto [`signature`] crate.)
 //!
 //! [`Hasher::update_rayon`]: struct.Hasher.html#method.update_rayon
@@ -1728,7 +1729,7 @@
 //! [`digest`]: https://crates.io/crates/digest
 //! [`signature`]: https://crates.io/crates/signature
 
-</span><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
+</span><span class="attr">#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
 
 #[cfg(test)]
 </span><span class="kw">mod </span>test;
@@ -1747,32 +1748,32 @@
 <span class="comment">// Platform-specific implementations of the compression function. These
 // BLAKE3-specific cfg flags are set in build.rs.
 </span><span class="attr">#[cfg(blake3_avx2_rust)]
-#[path = <span class="string">&quot;rust_avx2.rs&quot;</span>]
+#[path = <span class="string">"rust_avx2.rs"</span>]
 </span><span class="kw">mod </span>avx2;
 <span class="attr">#[cfg(blake3_avx2_ffi)]
-#[path = <span class="string">&quot;ffi_avx2.rs&quot;</span>]
+#[path = <span class="string">"ffi_avx2.rs"</span>]
 </span><span class="kw">mod </span>avx2;
 <span class="attr">#[cfg(blake3_avx512_ffi)]
-#[path = <span class="string">&quot;ffi_avx512.rs&quot;</span>]
+#[path = <span class="string">"ffi_avx512.rs"</span>]
 </span><span class="kw">mod </span>avx512;
 <span class="attr">#[cfg(blake3_neon)]
-#[path = <span class="string">&quot;ffi_neon.rs&quot;</span>]
+#[path = <span class="string">"ffi_neon.rs"</span>]
 </span><span class="kw">mod </span>neon;
 <span class="kw">mod </span>portable;
 <span class="attr">#[cfg(blake3_sse2_rust)]
-#[path = <span class="string">&quot;rust_sse2.rs&quot;</span>]
+#[path = <span class="string">"rust_sse2.rs"</span>]
 </span><span class="kw">mod </span>sse2;
 <span class="attr">#[cfg(blake3_sse2_ffi)]
-#[path = <span class="string">&quot;ffi_sse2.rs&quot;</span>]
+#[path = <span class="string">"ffi_sse2.rs"</span>]
 </span><span class="kw">mod </span>sse2;
 <span class="attr">#[cfg(blake3_sse41_rust)]
-#[path = <span class="string">&quot;rust_sse41.rs&quot;</span>]
+#[path = <span class="string">"rust_sse41.rs"</span>]
 </span><span class="kw">mod </span>sse41;
 <span class="attr">#[cfg(blake3_sse41_ffi)]
-#[path = <span class="string">&quot;ffi_sse41.rs&quot;</span>]
+#[path = <span class="string">"ffi_sse41.rs"</span>]
 </span><span class="kw">mod </span>sse41;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;traits-preview&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"traits-preview"</span>)]
 </span><span class="kw">pub mod </span>traits;
 
 <span class="kw">mod </span>io;
@@ -1842,9 +1843,9 @@
 ///
 /// `Hash` implements [`From`] and [`Into`] for `[u8; 32]`, and it provides
 /// [`from_bytes`] and [`as_bytes`] for explicit conversions between itself and
-/// `[u8; 32]`. However, byte arrays and slices don&#39;t provide constant-time
+/// `[u8; 32]`. However, byte arrays and slices don't provide constant-time
 /// equality checking, which is often a security requirement in software that
-/// handles private data. `Hash` doesn&#39;t implement [`Deref`] or [`AsRef`], to
+/// handles private data. `Hash` doesn't implement [`Deref`] or [`AsRef`], to
 /// avoid situations where a type conversion happens implicitly and the
 /// constant-time property is accidentally lost.
 ///
@@ -1861,13 +1862,13 @@
 /// [`from_hex`]: #method.from_hex
 /// [`Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 /// [`FromStr`]: https://doc.rust-lang.org/std/str/trait.FromStr.html
-</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize, serde::Serialize))]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">"zeroize"</span>, derive(zeroize::Zeroize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize, serde::Serialize))]
 #[derive(Clone, Copy, Hash)]
 </span><span class="kw">pub struct </span>Hash([u8; OUT_LEN]);
 
 <span class="kw">impl </span>Hash {
-    <span class="doccomment">/// The raw bytes of the `Hash`. Note that byte arrays don&#39;t provide
+    <span class="doccomment">/// The raw bytes of the `Hash`. Note that byte arrays don't provide
     /// constant-time equality checking, so if  you need to compare hashes,
     /// prefer the `Hash` type.
     </span><span class="attr">#[inline]
@@ -1882,15 +1883,15 @@
 
     <span class="doccomment">/// Encode a `Hash` in lowercase hexadecimal.
     ///
-    /// The returned [`ArrayString`] is a fixed size and doesn&#39;t allocate memory
-    /// on the heap. Note that [`ArrayString`] doesn&#39;t provide constant-time
+    /// The returned [`ArrayString`] is a fixed size and doesn't allocate memory
+    /// on the heap. Note that [`ArrayString`] doesn't provide constant-time
     /// equality checking, so if you need to compare hashes, prefer the `Hash`
     /// type.
     ///
     /// [`ArrayString`]: https://docs.rs/arrayvec/0.5.1/arrayvec/struct.ArrayString.html
     </span><span class="kw">pub fn </span>to_hex(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ArrayString&lt;{ <span class="number">2 </span>* OUT_LEN }&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>s = ArrayString::new();
-        <span class="kw">let </span>table = <span class="string">b&quot;0123456789abcdef&quot;</span>;
+        <span class="kw">let </span>table = <span class="string">b"0123456789abcdef"</span>;
         <span class="kw">for </span><span class="kw-2">&amp;</span>b <span class="kw">in </span><span class="self">self</span>.<span class="number">0</span>.iter() {
             s.push(table[(b &gt;&gt; <span class="number">4</span>) <span class="kw">as </span>usize] <span class="kw">as </span>char);
             s.push(table[(b &amp; <span class="number">0xf</span>) <span class="kw">as </span>usize] <span class="kw">as </span>char);
@@ -1901,18 +1902,18 @@
     <span class="doccomment">/// Decode a `Hash` from hexadecimal. Both uppercase and lowercase ASCII
     /// bytes are supported.
     ///
-    /// Any byte outside the ranges `&#39;0&#39;...&#39;9&#39;`, `&#39;a&#39;...&#39;f&#39;`, and `&#39;A&#39;...&#39;F&#39;`
+    /// Any byte outside the ranges `'0'...'9'`, `'a'...'f'`, and `'A'...'F'`
     /// results in an error. An input length other than 64 also results in an
     /// error.
     ///
-    /// Note that `Hash` also implements `FromStr`, so `Hash::from_hex(&quot;...&quot;)`
-    /// is equivalent to `&quot;...&quot;.parse()`.
+    /// Note that `Hash` also implements `FromStr`, so `Hash::from_hex("...")`
+    /// is equivalent to `"...".parse()`.
     </span><span class="kw">pub fn </span>from_hex(hex: <span class="kw">impl </span>AsRef&lt;[u8]&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, HexError&gt; {
         <span class="kw">fn </span>hex_val(byte: u8) -&gt; <span class="prelude-ty">Result</span>&lt;u8, HexError&gt; {
             <span class="kw">match </span>byte {
-                <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;F&#39; </span>=&gt; <span class="prelude-val">Ok</span>(byte - <span class="string">b&#39;A&#39; </span>+ <span class="number">10</span>),
-                <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;f&#39; </span>=&gt; <span class="prelude-val">Ok</span>(byte - <span class="string">b&#39;a&#39; </span>+ <span class="number">10</span>),
-                <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; <span class="prelude-val">Ok</span>(byte - <span class="string">b&#39;0&#39;</span>),
+                <span class="string">b'A'</span>..=<span class="string">b'F' </span>=&gt; <span class="prelude-val">Ok</span>(byte - <span class="string">b'A' </span>+ <span class="number">10</span>),
+                <span class="string">b'a'</span>..=<span class="string">b'f' </span>=&gt; <span class="prelude-val">Ok</span>(byte - <span class="string">b'a' </span>+ <span class="number">10</span>),
+                <span class="string">b'0'</span>..=<span class="string">b'9' </span>=&gt; <span class="prelude-val">Ok</span>(byte - <span class="string">b'0'</span>),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(HexError(HexErrorInner::InvalidByte(byte))),
             }
         }
@@ -1996,14 +1997,14 @@
         </span><span class="kw">let </span>hex = <span class="self">self</span>.to_hex();
         <span class="kw">let </span>hex: <span class="kw-2">&amp;</span>str = hex.as_str();
 
-        f.debug_tuple(<span class="string">&quot;Hash&quot;</span>).field(<span class="kw-2">&amp;</span>hex).finish()
+        f.debug_tuple(<span class="string">"Hash"</span>).field(<span class="kw-2">&amp;</span>hex).finish()
     }
 }
 
 <span class="doccomment">/// The error type for [`Hash::from_hex`].
 ///
 /// The `.to_string()` representation of this error currently distinguishes between bad length
-/// errors and bad character errors. This is to help with logging and debugging, but it isn&#39;t a
+/// errors and bad character errors. This is to help with logging and debugging, but it isn't a
 /// stable API detail, and it may change at any time.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>HexError(HexErrorInner);
@@ -2019,25 +2020,25 @@
         <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
             HexErrorInner::InvalidByte(byte) =&gt; {
                 <span class="kw">if </span>byte &lt; <span class="number">128 </span>{
-                    <span class="macro">write!</span>(f, <span class="string">&quot;invalid hex character: {:?}&quot;</span>, byte <span class="kw">as </span>char)
+                    <span class="macro">write!</span>(f, <span class="string">"invalid hex character: {:?}"</span>, byte <span class="kw">as </span>char)
                 } <span class="kw">else </span>{
-                    <span class="macro">write!</span>(f, <span class="string">&quot;invalid hex character: 0x{:x}&quot;</span>, byte)
+                    <span class="macro">write!</span>(f, <span class="string">"invalid hex character: 0x{:x}"</span>, byte)
                 }
             }
             HexErrorInner::InvalidLen(len) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;expected 64 hex bytes, received {}&quot;</span>, len)
+                <span class="macro">write!</span>(f, <span class="string">"expected 64 hex bytes, received {}"</span>, len)
             }
         }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>HexError {}
 
 <span class="comment">// Each chunk or parent node can produce either a 32-byte chaining value or, by
 // setting the ROOT flag, any number of final output bytes. The Output struct
 // captures the state just prior to choosing between those two possibilities.
-</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">"zeroize"</span>, derive(zeroize::Zeroize))]
 #[derive(Clone)]
 </span><span class="kw">struct </span>Output {
     input_chaining_value: CVWords,
@@ -2045,7 +2046,7 @@
     block_len: u8,
     counter: u64,
     flags: u8,
-    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, zeroize(skip))]
+    <span class="attr">#[cfg_attr(feature = <span class="string">"zeroize"</span>, zeroize(skip))]
     </span>platform: Platform,
 }
 
@@ -2082,7 +2083,7 @@
 }
 
 <span class="attr">#[derive(Clone)]
-#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
+#[cfg_attr(feature = <span class="string">"zeroize"</span>, derive(zeroize::Zeroize))]
 </span><span class="kw">struct </span>ChunkState {
     cv: CVWords,
     chunk_counter: u64,
@@ -2090,7 +2091,7 @@
     buf_len: u8,
     blocks_compressed: u8,
     flags: u8,
-    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, zeroize(skip))]
+    <span class="attr">#[cfg_attr(feature = <span class="string">"zeroize"</span>, zeroize(skip))]
     </span>platform: Platform,
 }
 
@@ -2181,14 +2182,14 @@
     }
 }
 
-<span class="comment">// Don&#39;t derive(Debug), because the state may be secret.
+<span class="comment">// Don't derive(Debug), because the state may be secret.
 </span><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ChunkState {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;ChunkState&quot;</span>)
-            .field(<span class="string">&quot;len&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.len())
-            .field(<span class="string">&quot;chunk_counter&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.chunk_counter)
-            .field(<span class="string">&quot;flags&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.flags)
-            .field(<span class="string">&quot;platform&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.platform)
+        f.debug_struct(<span class="string">"ChunkState"</span>)
+            .field(<span class="string">"len"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.len())
+            .field(<span class="string">"chunk_counter"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.chunk_counter)
+            .field(<span class="string">"flags"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.flags)
+            .field(<span class="string">"platform"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.platform)
             .finish()
     }
 }
@@ -2254,7 +2255,7 @@
     platform: Platform,
     out: <span class="kw-2">&amp;mut </span>[u8],
 ) -&gt; usize {
-    <span class="macro">debug_assert!</span>(!input.is_empty(), <span class="string">&quot;empty chunks below the root&quot;</span>);
+    <span class="macro">debug_assert!</span>(!input.is_empty(), <span class="string">"empty chunks below the root"</span>);
     <span class="macro">debug_assert!</span>(input.len() &lt;= MAX_SIMD_DEGREE * CHUNK_LEN);
 
     <span class="kw">let </span><span class="kw-2">mut </span>chunks_exact = input.chunks_exact(CHUNK_LEN);
@@ -2290,7 +2291,7 @@
 
 <span class="comment">// Use SIMD parallelism to hash up to MAX_SIMD_DEGREE parents at the same time
 // on a single thread. Write out the parent chaining values and return the
-// number of parents hashed. (If there&#39;s an odd input chaining value left over,
+// number of parents hashed. (If there's an odd input chaining value left over,
 // return it as an additional output.) These parents are never the root and
 // never empty; those cases use a different codepath.
 </span><span class="kw">fn </span>compress_parents_parallel(
@@ -2300,10 +2301,10 @@
     platform: Platform,
     out: <span class="kw-2">&amp;mut </span>[u8],
 ) -&gt; usize {
-    <span class="macro">debug_assert_eq!</span>(child_chaining_values.len() % OUT_LEN, <span class="number">0</span>, <span class="string">&quot;wacky hash bytes&quot;</span>);
+    <span class="macro">debug_assert_eq!</span>(child_chaining_values.len() % OUT_LEN, <span class="number">0</span>, <span class="string">"wacky hash bytes"</span>);
     <span class="kw">let </span>num_children = child_chaining_values.len() / OUT_LEN;
-    <span class="macro">debug_assert!</span>(num_children &gt;= <span class="number">2</span>, <span class="string">&quot;not enough children&quot;</span>);
-    <span class="macro">debug_assert!</span>(num_children &lt;= <span class="number">2 </span>* MAX_SIMD_DEGREE_OR_2, <span class="string">&quot;too many&quot;</span>);
+    <span class="macro">debug_assert!</span>(num_children &gt;= <span class="number">2</span>, <span class="string">"not enough children"</span>);
+    <span class="macro">debug_assert!</span>(num_children &lt;= <span class="number">2 </span>* MAX_SIMD_DEGREE_OR_2, <span class="string">"too many"</span>);
 
     <span class="kw">let </span><span class="kw-2">mut </span>parents_exact = child_chaining_values.chunks_exact(BLOCK_LEN);
     <span class="comment">// Use MAX_SIMD_DEGREE_OR_2 rather than MAX_SIMD_DEGREE here, because of
@@ -2323,7 +2324,7 @@
         </span>out,
     );
 
-    <span class="comment">// If there&#39;s an odd child left over, it becomes an output.
+    <span class="comment">// If there's an odd child left over, it becomes an output.
     </span><span class="kw">let </span>parents_so_far = parents_array.len();
     <span class="kw">if </span>!parents_exact.remainder().is_empty() {
         out[parents_so_far * OUT_LEN..][..OUT_LEN].copy_from_slice(parents_exact.remainder());
@@ -2341,14 +2342,14 @@
 // implementation to hash as many parents in parallel as possible.
 //
 // As a special case when the SIMD degree is 1, this function will still return
-// at least 2 outputs. This guarantees that this function doesn&#39;t perform the
+// at least 2 outputs. This guarantees that this function doesn't perform the
 // root compression. (If it did, it would use the wrong flags, and also we
-// wouldn&#39;t be able to implement extendable output.) Note that this function is
-// not used when the whole input is only 1 chunk long; that&#39;s a different
+// wouldn't be able to implement extendable output.) Note that this function is
+// not used when the whole input is only 1 chunk long; that's a different
 // codepath.
 //
 // Why not just have the caller split the input on the first update(), instead
-// of implementing this special rule? Because we don&#39;t want to limit SIMD or
+// of implementing this special rule? Because we don't want to limit SIMD or
 // multithreading parallelism for that update().
 </span><span class="kw">fn </span>compress_subtree_wide&lt;J: join::Join&gt;(
     input: <span class="kw-2">&amp;</span>[u8],
@@ -2368,8 +2369,8 @@
     <span class="comment">// With more than simd_degree chunks, we need to recurse. Start by dividing
     // the input into left and right subtrees. (Note that this is only optimal
     // as long as the SIMD degree is a power of 2. If we ever get a SIMD degree
-    // of 3 or something, we&#39;ll need a more complicated strategy.)
-    </span><span class="macro">debug_assert_eq!</span>(platform.simd_degree().count_ones(), <span class="number">1</span>, <span class="string">&quot;power of 2&quot;</span>);
+    // of 3 or something, we'll need a more complicated strategy.)
+    </span><span class="macro">debug_assert_eq!</span>(platform.simd_degree().count_ones(), <span class="number">1</span>, <span class="string">"power of 2"</span>);
     <span class="kw">let </span>(left, right) = input.split_at(left_len(input.len()));
     <span class="kw">let </span>right_chunk_counter = chunk_counter + (left.len() / CHUNK_LEN) <span class="kw">as </span>u64;
 
@@ -2378,7 +2379,7 @@
     // is 1.
     </span><span class="kw">let </span><span class="kw-2">mut </span>cv_array = [<span class="number">0</span>; <span class="number">2 </span>* MAX_SIMD_DEGREE_OR_2 * OUT_LEN];
     <span class="kw">let </span>degree = <span class="kw">if </span>left.len() == CHUNK_LEN {
-        <span class="comment">// The &quot;simd_degree=1 and we&#39;re at the leaf nodes&quot; case.
+        <span class="comment">// The "simd_degree=1 and we're at the leaf nodes" case.
         </span><span class="macro">debug_assert_eq!</span>(platform.simd_degree(), <span class="number">1</span>);
         <span class="number">1
     </span>} <span class="kw">else </span>{
@@ -2393,7 +2394,7 @@
         || compress_subtree_wide::&lt;J&gt;(right, key, right_chunk_counter, flags, platform, right_out),
     );
 
-    <span class="comment">// The special case again. If simd_degree=1, then we&#39;ll have left_n=1 and
+    <span class="comment">// The special case again. If simd_degree=1, then we'll have left_n=1 and
     // right_n=1. Rather than compressing them into a single output, return
     // them directly, to make sure we always have at least two outputs.
     </span><span class="macro">debug_assert_eq!</span>(left_n, degree);
@@ -2415,15 +2416,15 @@
 }
 
 <span class="comment">// Hash a subtree with compress_subtree_wide(), and then condense the resulting
-// list of chaining values down to a single parent node. Don&#39;t compress that
+// list of chaining values down to a single parent node. Don't compress that
 // last parent node, however. Instead, return its message bytes (the
 // concatenated chaining values of its children). This is necessary when the
 // first call to update() supplies a complete subtree, because the topmost
-// parent node of that subtree could end up being the root. It&#39;s also necessary
+// parent node of that subtree could end up being the root. It's also necessary
 // for extended output in the general case.
 //
 // As with compress_subtree_wide(), this function is not used on inputs of 1
-// chunk or less. That&#39;s a different codepath.
+// chunk or less. That's a different codepath.
 </span><span class="kw">fn </span>compress_subtree_to_parent_node&lt;J: join::Join&gt;(
     input: <span class="kw-2">&amp;</span>[u8],
     key: <span class="kw-2">&amp;</span>CVWords,
@@ -2437,7 +2438,7 @@
         compress_subtree_wide::&lt;J&gt;(input, <span class="kw-2">&amp;</span>key, chunk_counter, flags, platform, <span class="kw-2">&amp;mut </span>cv_array);
     <span class="macro">debug_assert!</span>(num_cvs &gt;= <span class="number">2</span>);
 
-    <span class="comment">// If MAX_SIMD_DEGREE is greater than 2 and there&#39;s enough input,
+    <span class="comment">// If MAX_SIMD_DEGREE is greater than 2 and there's enough input,
     // compress_subtree_wide() returns more than 2 chaining values. Condense
     // them into 2 by forming parent nodes repeatedly.
     </span><span class="kw">let </span><span class="kw-2">mut </span>out_array = [<span class="number">0</span>; MAX_SIMD_DEGREE_OR_2 * OUT_LEN / <span class="number">2</span>];
@@ -2511,8 +2512,8 @@
 /// Given cryptographic key material of any length and a context string of any
 /// length, this function outputs a 32-byte derived subkey. **The context string
 /// should be hardcoded, globally unique, and application-specific.** A good
-/// default format for such strings is `&quot;[application] [commit timestamp]
-/// [purpose]&quot;`, e.g., `&quot;example.com 2019-12-25 16:18:03 session tokens v1&quot;`.
+/// default format for such strings is `"[application] [commit timestamp]
+/// [purpose]"`, e.g., `"example.com 2019-12-25 16:18:03 session tokens v1"`.
 ///
 /// Key derivation is important when you want to use the same key in multiple
 /// algorithms or use cases. Using the same key with different cryptographic
@@ -2522,7 +2523,7 @@
 ///
 /// As a rare exception to that general rule, however, it is possible to use
 /// `derive_key` itself with key material that you are already using with
-/// another algorithm. You might need to do this if you&#39;re adding features to
+/// another algorithm. You might need to do this if you're adding features to
 /// an existing application, which does not yet use key derivation internally.
 /// However, you still must not share key material with algorithms that forbid
 /// key reuse entirely, like a one-time pad. For more on this, see sections 6.2
@@ -2579,7 +2580,7 @@
 /// When the `traits-preview` Cargo feature is enabled, this type implements
 /// several commonly used traits from the
 /// [`digest`](https://crates.io/crates/digest) crate. However, those
-/// traits aren&#39;t stable, and they&#39;re expected to change in incompatible ways
+/// traits aren't stable, and they're expected to change in incompatible ways
 /// before that crate reaches 1.0. For that reason, this crate makes no SemVer
 /// guarantees for this feature, and callers who use it should expect breaking
 /// changes between patch versions.
@@ -2590,30 +2591,30 @@
 /// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 /// // Hash an input incrementally.
 /// let mut hasher = blake3::Hasher::new();
-/// hasher.update(b&quot;foo&quot;);
-/// hasher.update(b&quot;bar&quot;);
-/// hasher.update(b&quot;baz&quot;);
-/// assert_eq!(hasher.finalize(), blake3::hash(b&quot;foobarbaz&quot;));
+/// hasher.update(b"foo");
+/// hasher.update(b"bar");
+/// hasher.update(b"baz");
+/// assert_eq!(hasher.finalize(), blake3::hash(b"foobarbaz"));
 ///
 /// // Extended output. OutputReader also implements Read and Seek.
-/// # #[cfg(feature = &quot;std&quot;)] {
+/// # #[cfg(feature = "std")] {
 /// let mut output = [0; 1000];
 /// let mut output_reader = hasher.finalize_xof();
 /// output_reader.fill(&amp;mut output);
-/// assert_eq!(&amp;output[..32], blake3::hash(b&quot;foobarbaz&quot;).as_bytes());
+/// assert_eq!(&amp;output[..32], blake3::hash(b"foobarbaz").as_bytes());
 /// # }
 /// # Ok(())
 /// # }
 /// ```
 </span><span class="attr">#[derive(Clone)]
-#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
+#[cfg_attr(feature = <span class="string">"zeroize"</span>, derive(zeroize::Zeroize))]
 </span><span class="kw">pub struct </span>Hasher {
     key: CVWords,
     chunk_state: ChunkState,
     <span class="comment">// The stack size is MAX_DEPTH + 1 because we do lazy merging. For example,
     // with 7 chunks, we have 3 entries in the stack. Adding an 8th chunk
     // requires a 4th entry, rather than merging everything down to 1, because
-    // we don&#39;t know whether more input is coming. This is different from how
+    // we don't know whether more input is coming. This is different from how
     // the reference implementation does things.
     </span>cv_stack: ArrayVec&lt;CVBytes, { MAX_DEPTH + <span class="number">1 </span>}&gt;,
 }
@@ -2669,14 +2670,14 @@
         <span class="self">self
     </span>}
 
-    <span class="comment">// As described in push_cv() below, we do &quot;lazy merging&quot;, delaying merges
+    <span class="comment">// As described in push_cv() below, we do "lazy merging", delaying merges
     // until right before the next CV is about to be added. This is different
-    // from the reference implementation. Another difference is that we aren&#39;t
+    // from the reference implementation. Another difference is that we aren't
     // always merging 1 chunk at a time. Instead, each CV might represent any
     // power-of-two number of chunks, as long as the smaller-above-larger stack
-    // order is maintained. Instead of the &quot;count the trailing 0-bits&quot;
-    // algorithm described in the spec, we use a &quot;count the total number of
-    // 1-bits&quot; variant that doesn&#39;t require us to retain the subtree size of
+    // order is maintained. Instead of the "count the trailing 0-bits"
+    // algorithm described in the spec, we use a "count the total number of
+    // 1-bits" variant that doesn't require us to retain the subtree size of
     // the CV on top of the stack. The principle is the same: each CV that
     // should remain in the stack is represented by a 1-bit in the total number
     // of chunks (or bytes) so far.
@@ -2709,15 +2710,15 @@
     // 1) This 64 KiB input might be the only call that ever gets made to
     //    update. In this case, the root node of the 64 KiB subtree would be
     //    the root node of the whole tree, and it would need to be ROOT
-    //    finalized. We can&#39;t compress it until we know.
+    //    finalized. We can't compress it until we know.
     // 2) This 64 KiB input might complete a larger tree, whose root node is
     //    similarly going to be the the root of the whole tree. For example,
-    //    maybe we have 196 KiB (that is, 128 + 64) hashed so far. We can&#39;t
+    //    maybe we have 196 KiB (that is, 128 + 64) hashed so far. We can't
     //    compress the node at the root of the 256 KiB subtree until we know
     //    how to finalize it.
     //
-    // The second problem is solved with &quot;lazy merging&quot;. That is, when we&#39;re
-    // about to add a CV to the stack, we don&#39;t merge it with anything first,
+    // The second problem is solved with "lazy merging". That is, when we're
+    // about to add a CV to the stack, we don't merge it with anything first,
     // as the reference impl does. Instead we do merges using the *previous* CV
     // that was added, which is sitting on top of the stack, and we put the new
     // CV (unmerged) on top of the stack afterwards. This guarantees that we
@@ -2725,10 +2726,10 @@
     //
     // Solving the first problem requires an additional tool,
     // compress_subtree_to_parent_node(). That function always returns the top
-    // *two* chaining values of the subtree it&#39;s compressing. We then do lazy
+    // *two* chaining values of the subtree it's compressing. We then do lazy
     // merging with each of them separately, so that the second CV will always
     // remain unmerged. (That also helps us support extendable output when
-    // we&#39;re hashing an input all-at-once.)
+    // we're hashing an input all-at-once.)
     </span><span class="kw">fn </span>push_cv(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_cv: <span class="kw-2">&amp;</span>CVBytes, chunk_counter: u64) {
         <span class="self">self</span>.merge_cv_stack(chunk_counter);
         <span class="self">self</span>.cv_stack.push(<span class="kw-2">*</span>new_cv);
@@ -2754,9 +2755,9 @@
             <span class="self">self</span>.chunk_state.update(<span class="kw-2">&amp;</span>input[..take]);
             input = <span class="kw-2">&amp;</span>input[take..];
             <span class="kw">if </span>!input.is_empty() {
-                <span class="comment">// We&#39;ve filled the current chunk, and there&#39;s more input
-                // coming, so we know it&#39;s not the root and we can finalize it.
-                // Then we&#39;ll proceed to hashing whole chunks below.
+                <span class="comment">// We've filled the current chunk, and there's more input
+                // coming, so we know it's not the root and we can finalize it.
+                // Then we'll proceed to hashing whole chunks below.
                 </span><span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.chunk_state.len(), CHUNK_LEN);
                 <span class="kw">let </span>chunk_cv = <span class="self">self</span>.chunk_state.output().chaining_value();
                 <span class="self">self</span>.push_cv(<span class="kw-2">&amp;</span>chunk_cv, <span class="self">self</span>.chunk_state.chunk_counter);
@@ -2771,22 +2772,22 @@
             }
         }
 
-        <span class="comment">// Now the chunk_state is clear, and we have more input. If there&#39;s
+        <span class="comment">// Now the chunk_state is clear, and we have more input. If there's
         // more than a single chunk (so, definitely not the root chunk), hash
         // the largest whole subtree we can, with the full benefits of SIMD and
         // multithreading parallelism. Two restrictions:
         // - The subtree has to be a power-of-2 number of chunks. Only subtrees
-        //   along the right edge can be incomplete, and we don&#39;t know where
+        //   along the right edge can be incomplete, and we don't know where
         //   the right edge is going to be until we get to finalize().
         // - The subtree must evenly divide the total number of chunks up until
         //   this point (if total is not 0). If the current incomplete subtree
-        //   is only waiting for 1 more chunk, we can&#39;t hash a subtree of 4
+        //   is only waiting for 1 more chunk, we can't hash a subtree of 4
         //   chunks. We have to complete the current subtree first.
         // Because we might need to break up the input to form powers of 2, or
         // to evenly divide what we already have, this part runs in a loop.
         </span><span class="kw">while </span>input.len() &gt; CHUNK_LEN {
-            <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.chunk_state.len(), <span class="number">0</span>, <span class="string">&quot;no partial chunk data&quot;</span>);
-            <span class="macro">debug_assert_eq!</span>(CHUNK_LEN.count_ones(), <span class="number">1</span>, <span class="string">&quot;power of 2 chunk len&quot;</span>);
+            <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.chunk_state.len(), <span class="number">0</span>, <span class="string">"no partial chunk data"</span>);
+            <span class="macro">debug_assert_eq!</span>(CHUNK_LEN.count_ones(), <span class="number">1</span>, <span class="string">"power of 2 chunk len"</span>);
             <span class="kw">let </span><span class="kw-2">mut </span>subtree_len = largest_power_of_two_leq(input.len());
             <span class="kw">let </span>count_so_far = <span class="self">self</span>.chunk_state.chunk_counter * CHUNK_LEN <span class="kw">as </span>u64;
             <span class="comment">// Shrink the subtree_len until it evenly divides the count so far.
@@ -2797,13 +2798,13 @@
             // always fail, and subtree_len will always be the full length of
             // the input.)
             //
-            // An aside: We don&#39;t have to shrink subtree_len quite this much.
+            // An aside: We don't have to shrink subtree_len quite this much.
             // For example, if count_so_far is 1, we could pass 2 chunks to
-            // compress_subtree_to_parent_node. Since we&#39;ll get 2 CVs back,
-            // we&#39;ll still get the right answer in the end, and we might get to
+            // compress_subtree_to_parent_node. Since we'll get 2 CVs back,
+            // we'll still get the right answer in the end, and we might get to
             // use 2-way SIMD parallelism. The problem with this optimization,
             // is that it gets us stuck always hashing 2 chunks. The total
-            // number of chunks will remain odd, and we&#39;ll never graduate to
+            // number of chunks will remain odd, and we'll never graduate to
             // higher degrees of parallelism. See
             // https://github.com/BLAKE3-team/BLAKE3/issues/69.
             </span><span class="kw">while </span>(subtree_len - <span class="number">1</span>) <span class="kw">as </span>u64 &amp; count_so_far != <span class="number">0 </span>{
@@ -2840,7 +2841,7 @@
                 <span class="kw">let </span>left_cv = <span class="macro">array_ref!</span>(cv_pair, <span class="number">0</span>, <span class="number">32</span>);
                 <span class="kw">let </span>right_cv = <span class="macro">array_ref!</span>(cv_pair, <span class="number">32</span>, <span class="number">32</span>);
                 <span class="comment">// Push the two CVs we received into the CV stack in order. Because
-                // the stack merges lazily, this guarantees we aren&#39;t merging the
+                // the stack merges lazily, this guarantees we aren't merging the
                 // root.
                 </span><span class="self">self</span>.push_cv(left_cv, <span class="self">self</span>.chunk_state.chunk_counter);
                 <span class="self">self</span>.push_cv(
@@ -2856,8 +2857,8 @@
         </span><span class="macro">debug_assert!</span>(input.len() &lt;= CHUNK_LEN);
         <span class="kw">if </span>!input.is_empty() {
             <span class="self">self</span>.chunk_state.update(input);
-            <span class="comment">// Having added some input to the chunk_state, we know what&#39;s in
-            // the CV stack won&#39;t become the root node, and we can do an extra
+            <span class="comment">// Having added some input to the chunk_state, we know what's in
+            // the CV stack won't become the root node, and we can do an extra
             // merge. This simplifies finalize().
             </span><span class="self">self</span>.merge_cv_stack(<span class="self">self</span>.chunk_state.chunk_counter);
         }
@@ -2877,14 +2878,14 @@
         <span class="comment">// If there are any bytes in the ChunkState, finalize that chunk and
         // merge its CV with everything in the CV stack. In that case, the work
         // we did at the end of update() above guarantees that the stack
-        // doesn&#39;t contain any unmerged subtrees that need to be merged first.
+        // doesn't contain any unmerged subtrees that need to be merged first.
         // (This is important, because if there were two chunk hashes sitting
         // on top of the stack, they would need to merge with each other, and
         // merging a new chunk hash into them would be incorrect.)
         //
-        // If there are no bytes in the ChunkState, we&#39;ll merge what&#39;s already
-        // in the stack. In this case it&#39;s fine if there are unmerged chunks on
-        // top, because we&#39;ll merge them with each other. Note that the case of
+        // If there are no bytes in the ChunkState, we'll merge what's already
+        // in the stack. In this case it's fine if there are unmerged chunks on
+        // top, because we'll merge them with each other. Note that the case of
         // the empty chunk is taken care of above.
         </span><span class="kw">let </span><span class="kw-2">mut </span>output: Output;
         <span class="kw">let </span><span class="kw-2">mut </span>num_cvs_remaining = <span class="self">self</span>.cv_stack.len();
@@ -2892,7 +2893,7 @@
             <span class="macro">debug_assert_eq!</span>(
                 <span class="self">self</span>.cv_stack.len(),
                 <span class="self">self</span>.chunk_state.chunk_counter.count_ones() <span class="kw">as </span>usize,
-                <span class="string">&quot;cv stack does not need a merge&quot;
+                <span class="string">"cv stack does not need a merge"
             </span>);
             output = <span class="self">self</span>.chunk_state.output();
         } <span class="kw">else </span>{
@@ -2948,17 +2949,17 @@
     /// [`std::io::Read`](https://doc.rust-lang.org/std/io/trait.Read.html) implementation.
     ///
     /// [`Hasher`] implements
-    /// [`std::io::Write`](https://doc.rust-lang.org/std/io/trait.Write.html), so it&#39;s possible to
+    /// [`std::io::Write`](https://doc.rust-lang.org/std/io/trait.Write.html), so it's possible to
     /// use [`std::io::copy`](https://doc.rust-lang.org/std/io/fn.copy.html) to update a [`Hasher`]
     /// from any reader. Unfortunately, this standard approach can limit performance, because
-    /// `copy` currently uses an internal 8 KiB buffer that isn&#39;t big enough to take advantage of
+    /// `copy` currently uses an internal 8 KiB buffer that isn't big enough to take advantage of
     /// all SIMD instruction sets. (In particular, [AVX-512](https://en.wikipedia.org/wiki/AVX-512)
     /// needs a 16 KiB buffer.) `update_reader` avoids this performance problem and is slightly
     /// more convenient.
     ///
     /// The internal buffer size this method uses may change at any time, and it may be different
     /// for different targets. The only guarantee is that it will be large enough for all of this
-    /// crate&#39;s SIMD implementations on the current platform.
+    /// crate's SIMD implementations on the current platform.
     ///
     /// The most common implementer of
     /// [`std::io::Read`](https://doc.rust-lang.org/std/io/trait.Read.html) might be
@@ -2978,11 +2979,11 @@
     /// // Hash standard input.
     /// let mut hasher = blake3::Hasher::new();
     /// hasher.update_reader(std::io::stdin().lock())?;
-    /// println!(&quot;{}&quot;, hasher.finalize());
+    /// println!("{}", hasher.finalize());
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub fn </span>update_reader(<span class="kw-2">&amp;mut </span><span class="self">self</span>, reader: <span class="kw">impl </span>std::io::Read) -&gt; std::io::Result&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt; {
         io::copy_wide(reader, <span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
@@ -2997,7 +2998,7 @@
     /// To get any performance benefit from multithreading, the input buffer
     /// needs to be large. As a rule of thumb on x86_64, `update_rayon` is
     /// _slower_ than `update` for inputs under 128 KiB. That threshold varies
-    /// quite a lot across different processors, and it&#39;s important to benchmark
+    /// quite a lot across different processors, and it's important to benchmark
     /// your specific use case. See also the performance warning associated with
     /// [`update_mmap_rayon`](Hasher::update_mmap_rayon).
     ///
@@ -3008,7 +3009,7 @@
     /// reads can be slow. For hashing whole files, see
     /// [`update_mmap_rayon`](Hasher::update_mmap_rayon), which is gated by both
     /// the `rayon` and `mmap` Cargo features.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rayon&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"rayon"</span>)]
     </span><span class="kw">pub fn </span>update_rayon(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.update_with_join::&lt;join::RayonJoin&gt;(input)
     }
@@ -3020,18 +3021,18 @@
     /// The heuristic for whether to use memory mapping is currently very simple (file size &gt;=
     /// 16 KiB), and it might change at any time.
     ///
-    /// Like [`update`](Hasher::update), this method is single-threaded. In this author&#39;s
+    /// Like [`update`](Hasher::update), this method is single-threaded. In this author's
     /// experience, memory mapping improves single-threaded performance by ~10% for large files
-    /// that are already in cache. This probably varies between platforms, and as always it&#39;s a
+    /// that are already in cache. This probably varies between platforms, and as always it's a
     /// good idea to benchmark your own use case. In comparison, the multithreaded
     /// [`update_mmap_rayon`](Hasher::update_mmap_rayon) method can have a much larger impact on
     /// performance.
     ///
-    /// There&#39;s a correctness reason that this method takes
+    /// There's a correctness reason that this method takes
     /// [`Path`](https://doc.rust-lang.org/stable/std/path/struct.Path.html) instead of
     /// [`File`](https://doc.rust-lang.org/std/fs/struct.File.html): reading from a memory-mapped
     /// file ignores the seek position of the original file handle (it neither respects the current
-    /// position nor updates the position). This difference in behavior would&#39;ve caused
+    /// position nor updates the position). This difference in behavior would've caused
     /// `update_mmap` and [`update_reader`](Hasher::update_reader) to give different answers and
     /// have different side effects in some cases. Taking a
     /// [`Path`](https://doc.rust-lang.org/stable/std/path/struct.Path.html) avoids this problem by
@@ -3047,14 +3048,14 @@
     /// # use std::io;
     /// # use std::path::Path;
     /// # fn main() -&gt; io::Result&lt;()&gt; {
-    /// let path = Path::new(&quot;file.dat&quot;);
+    /// let path = Path::new("file.dat");
     /// let mut hasher = blake3::Hasher::new();
     /// hasher.update_mmap(path)?;
-    /// println!(&quot;{}&quot;, hasher.finalize());
+    /// println!("{}", hasher.finalize());
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;mmap&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"mmap"</span>)]
     </span><span class="kw">pub fn </span>update_mmap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: <span class="kw">impl </span>AsRef&lt;std::path::Path&gt;) -&gt; std::io::Result&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt; {
         <span class="kw">let </span>file = std::fs::File::open(path.as_ref())<span class="question-mark">?</span>;
         <span class="kw">if let </span><span class="prelude-val">Some</span>(mmap) = io::maybe_mmap_file(<span class="kw-2">&amp;</span>file)<span class="question-mark">? </span>{
@@ -3070,16 +3071,16 @@
     ///
     /// For large files that are likely to be in cache, this can be much faster than
     /// single-threaded hashing. When benchmarks report that BLAKE3 is 10x or 20x faster than other
-    /// cryptographic hashes, this is usually what they&#39;re measuring. However...
+    /// cryptographic hashes, this is usually what they're measuring. However...
     ///
     /// **Performance Warning:** There are cases where multithreading hurts performance. The worst
     /// case is [a large file on a spinning disk](https://github.com/BLAKE3-team/BLAKE3/issues/31),
-    /// where simultaneous reads from multiple threads can cause &quot;thrashing&quot; (i.e. the disk spends
+    /// where simultaneous reads from multiple threads can cause "thrashing" (i.e. the disk spends
     /// more time seeking around than reading data). Windows tends to be somewhat worse about this,
-    /// in part because it&#39;s less likely than Linux to keep very large files in cache. More
+    /// in part because it's less likely than Linux to keep very large files in cache. More
     /// generally, if your CPU cores are already busy, then multithreading will add overhead
-    /// without improving performance. If your code runs in different environments that you don&#39;t
-    /// control and can&#39;t measure, then unfortunately there&#39;s no one-size-fits-all answer for
+    /// without improving performance. If your code runs in different environments that you don't
+    /// control and can't measure, then unfortunately there's no one-size-fits-all answer for
     /// whether multithreading is a good idea.
     ///
     /// The memory mapping behavior of this function is the same as
@@ -3095,18 +3096,18 @@
     /// # use std::io;
     /// # use std::path::Path;
     /// # fn main() -&gt; io::Result&lt;()&gt; {
-    /// # #[cfg(feature = &quot;rayon&quot;)]
+    /// # #[cfg(feature = "rayon")]
     /// # {
-    /// let path = Path::new(&quot;big_file.dat&quot;);
+    /// let path = Path::new("big_file.dat");
     /// let mut hasher = blake3::Hasher::new();
     /// hasher.update_mmap_rayon(path)?;
-    /// println!(&quot;{}&quot;, hasher.finalize());
+    /// println!("{}", hasher.finalize());
     /// # }
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;mmap&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;rayon&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"mmap"</span>)]
+    #[cfg(feature = <span class="string">"rayon"</span>)]
     </span><span class="kw">pub fn </span>update_mmap_rayon(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         path: <span class="kw">impl </span>AsRef&lt;std::path::Path&gt;,
@@ -3121,12 +3122,12 @@
     }
 }
 
-<span class="comment">// Don&#39;t derive(Debug), because the state may be secret.
+<span class="comment">// Don't derive(Debug), because the state may be secret.
 </span><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Hasher {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;Hasher&quot;</span>)
-            .field(<span class="string">&quot;flags&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.chunk_state.flags)
-            .field(<span class="string">&quot;platform&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.chunk_state.platform)
+        f.debug_struct(<span class="string">"Hasher"</span>)
+            .field(<span class="string">"flags"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.chunk_state.flags)
+            .field(<span class="string">"platform"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.chunk_state.platform)
             .finish()
     }
 }
@@ -3138,7 +3139,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::io::Write <span class="kw">for </span>Hasher {
     <span class="doccomment">/// This is equivalent to [`update`](#method.update).
     </span><span class="attr">#[inline]
@@ -3164,7 +3165,7 @@
 ///
 /// Outputs shorter than the default length of 32 bytes (256 bits) provide less security. An N-bit
 /// BLAKE3 output is intended to provide N bits of first and second preimage resistance and N/2
-/// bits of collision resistance, for any N up to 256. Longer outputs don&#39;t provide any additional
+/// bits of collision resistance, for any N up to 256. Longer outputs don't provide any additional
 /// security.
 ///
 /// Avoid relying on the secrecy of the output offset, that is, the number of output bytes read or
@@ -3174,9 +3175,9 @@
 /// both the message and the key (if any) can easily determine the offset of an extended output.
 /// For comparison, AES-CTR has a similar property: if you know the key, you can decrypt a block
 /// from an unknown position in the output stream to recover its block index. Callers with strong
-/// secret keys aren&#39;t affected in practice, but secret offsets are a [design
+/// secret keys aren't affected in practice, but secret offsets are a [design
 /// smell](https://en.wikipedia.org/wiki/Design_smell) in any case.
-</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;zeroize&quot;</span>, derive(zeroize::Zeroize))]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">"zeroize"</span>, derive(zeroize::Zeroize))]
 #[derive(Clone)]
 </span><span class="kw">pub struct </span>OutputReader {
     inner: Output,
@@ -3193,12 +3194,12 @@
 
     <span class="doccomment">/// Fill a buffer with output bytes and advance the position of the
     /// `OutputReader`. This is equivalent to [`Read::read`], except that it
-    /// doesn&#39;t return a `Result`. Both methods always fill the entire buffer.
+    /// doesn't return a `Result`. Both methods always fill the entire buffer.
     ///
-    /// Note that `OutputReader` doesn&#39;t buffer output bytes internally, so
+    /// Note that `OutputReader` doesn't buffer output bytes internally, so
     /// calling `fill` repeatedly with a short-length or odd-length slice will
-    /// end up performing the same compression multiple times. If you&#39;re
-    /// reading output in a loop, prefer a slice length that&#39;s a multiple of
+    /// end up performing the same compression multiple times. If you're
+    /// reading output in a loop, prefer a slice length that's a multiple of
     /// 64.
     ///
     /// The maximum output size of BLAKE3 is 2&lt;sup&gt;64&lt;/sup&gt;-1 bytes. If you try
@@ -3222,7 +3223,7 @@
     }
 
     <span class="doccomment">/// Return the current read position in the output stream. This is
-    /// equivalent to [`Seek::stream_position`], except that it doesn&#39;t return
+    /// equivalent to [`Seek::stream_position`], except that it doesn't return
     /// a `Result`. The position of a new `OutputReader` starts at 0, and each
     /// call to [`fill`] or [`Read::read`] moves the position forward by the
     /// number of bytes read.
@@ -3235,7 +3236,7 @@
     }
 
     <span class="doccomment">/// Seek to a new read position in the output stream. This is equivalent to
-    /// calling [`Seek::seek`] with [`SeekFrom::Start`], except that it doesn&#39;t
+    /// calling [`Seek::seek`] with [`SeekFrom::Start`], except that it doesn't
     /// return a `Result`.
     ///
     /// [`Seek::seek`]: #method.seek
@@ -3246,16 +3247,16 @@
     }
 }
 
-<span class="comment">// Don&#39;t derive(Debug), because the state may be secret.
+<span class="comment">// Don't derive(Debug), because the state may be secret.
 </span><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>OutputReader {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;OutputReader&quot;</span>)
-            .field(<span class="string">&quot;position&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.position())
+        f.debug_struct(<span class="string">"OutputReader"</span>)
+            .field(<span class="string">"position"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.position())
             .finish()
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::io::Read <span class="kw">for </span>OutputReader {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; std::io::Result&lt;usize&gt; {
@@ -3264,7 +3265,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::io::Seek <span class="kw">for </span>OutputReader {
     <span class="kw">fn </span>seek(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pos: std::io::SeekFrom) -&gt; std::io::Result&lt;u64&gt; {
         <span class="kw">let </span>max_position = u64::max_value() <span class="kw">as </span>i128;
@@ -3274,14 +3275,14 @@
             std::io::SeekFrom::End(<span class="kw">_</span>) =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
                     std::io::ErrorKind::InvalidInput,
-                    <span class="string">&quot;seek from end not supported&quot;</span>,
+                    <span class="string">"seek from end not supported"</span>,
                 ));
             }
         };
         <span class="kw">if </span>target_position &lt; <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                <span class="string">&quot;seek before start&quot;</span>,
+                <span class="string">"seek before start"</span>,
             ));
         }
         <span class="self">self</span>.set_position(cmp::min(target_position, max_position) <span class="kw">as </span>u64);

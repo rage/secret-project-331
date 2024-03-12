@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/async-compression-0.4.6/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="async_compression" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/async-compression-0.4.6/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="async_compression" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -250,7 +251,7 @@
 <a href="#250" id="250">250</a>
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! Adaptors between compression crates and Rust&#39;s modern asynchronous IO types.
+</pre></div><pre class="rust"><code><span class="doccomment">//! Adaptors between compression crates and Rust's modern asynchronous IO types.
 //!
 
 //! # Feature Organization
@@ -280,22 +281,22 @@
 //!  Feature | Type
 //! ---------|------
 </span><span class="comment">// TODO: Kill rustfmt on this section, `#![rustfmt::skip::attributes(cfg_attr)]` should do it, but
-// that&#39;s unstable
+// that's unstable
 </span><span class="attr">#![cfg_attr(
-    feature = <span class="string">&quot;futures-io&quot;</span>,
-    doc = <span class="string">&quot;[`futures-io`](crate::futures) | [`futures::io::AsyncBufRead`](futures_io::AsyncBufRead), [`futures::io::AsyncWrite`](futures_io::AsyncWrite)&quot;
+    feature = <span class="string">"futures-io"</span>,
+    doc = <span class="string">"[`futures-io`](crate::futures) | [`futures::io::AsyncBufRead`](futures_io::AsyncBufRead), [`futures::io::AsyncWrite`](futures_io::AsyncWrite)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;futures-io&quot;</span>),
-    doc = <span class="string">&quot;`futures-io` (*inactive*) | `futures::io::AsyncBufRead`, `futures::io::AsyncWrite`&quot;
+    not(feature = <span class="string">"futures-io"</span>),
+    doc = <span class="string">"`futures-io` (*inactive*) | `futures::io::AsyncBufRead`, `futures::io::AsyncWrite`"
 </span>)]
 #![cfg_attr(
-    feature = <span class="string">&quot;tokio&quot;</span>,
-    doc = <span class="string">&quot;[`tokio`](crate::tokio) | [`tokio::io::AsyncBufRead`](::tokio::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio::io::AsyncWrite)&quot;
+    feature = <span class="string">"tokio"</span>,
+    doc = <span class="string">"[`tokio`](crate::tokio) | [`tokio::io::AsyncBufRead`](::tokio::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio::io::AsyncWrite)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;tokio&quot;</span>),
-    doc = <span class="string">&quot;`tokio` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`&quot;
+    not(feature = <span class="string">"tokio"</span>),
+    doc = <span class="string">"`tokio` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`"
 </span>)]
 </span><span class="doccomment">//!
 
@@ -308,76 +309,76 @@
 //!  Feature | Types
 //! ---------|------
 </span><span class="attr">#![cfg_attr(
-    feature = <span class="string">&quot;brotli&quot;</span>,
-    doc = <span class="string">&quot;`brotli` | [`BrotliEncoder`](?search=BrotliEncoder), [`BrotliDecoder`](?search=BrotliDecoder)&quot;
+    feature = <span class="string">"brotli"</span>,
+    doc = <span class="string">"`brotli` | [`BrotliEncoder`](?search=BrotliEncoder), [`BrotliDecoder`](?search=BrotliDecoder)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;brotli&quot;</span>),
-    doc = <span class="string">&quot;`brotli` (*inactive*) | `BrotliEncoder`, `BrotliDecoder`&quot;
+    not(feature = <span class="string">"brotli"</span>),
+    doc = <span class="string">"`brotli` (*inactive*) | `BrotliEncoder`, `BrotliDecoder`"
 </span>)]
 #![cfg_attr(
-    feature = <span class="string">&quot;bzip2&quot;</span>,
-    doc = <span class="string">&quot;`bzip2` | [`BzEncoder`](?search=BzEncoder), [`BzDecoder`](?search=BzDecoder)&quot;
+    feature = <span class="string">"bzip2"</span>,
+    doc = <span class="string">"`bzip2` | [`BzEncoder`](?search=BzEncoder), [`BzDecoder`](?search=BzDecoder)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;bzip2&quot;</span>),
-    doc = <span class="string">&quot;`bzip2` (*inactive*) | `BzEncoder`, `BzDecoder`&quot;
+    not(feature = <span class="string">"bzip2"</span>),
+    doc = <span class="string">"`bzip2` (*inactive*) | `BzEncoder`, `BzDecoder`"
 </span>)]
 #![cfg_attr(
-    feature = <span class="string">&quot;deflate&quot;</span>,
-    doc = <span class="string">&quot;`deflate` | [`DeflateEncoder`](?search=DeflateEncoder), [`DeflateDecoder`](?search=DeflateDecoder)&quot;
+    feature = <span class="string">"deflate"</span>,
+    doc = <span class="string">"`deflate` | [`DeflateEncoder`](?search=DeflateEncoder), [`DeflateDecoder`](?search=DeflateDecoder)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;deflate&quot;</span>),
-    doc = <span class="string">&quot;`deflate` (*inactive*) | `DeflateEncoder`, `DeflateDecoder`&quot;
+    not(feature = <span class="string">"deflate"</span>),
+    doc = <span class="string">"`deflate` (*inactive*) | `DeflateEncoder`, `DeflateDecoder`"
 </span>)]
 #![cfg_attr(
-    feature = <span class="string">&quot;gzip&quot;</span>,
-    doc = <span class="string">&quot;`gzip` | [`GzipEncoder`](?search=GzipEncoder), [`GzipDecoder`](?search=GzipDecoder)&quot;
+    feature = <span class="string">"gzip"</span>,
+    doc = <span class="string">"`gzip` | [`GzipEncoder`](?search=GzipEncoder), [`GzipDecoder`](?search=GzipDecoder)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;gzip&quot;</span>),
-    doc = <span class="string">&quot;`gzip` (*inactive*) | `GzipEncoder`, `GzipDecoder`&quot;
+    not(feature = <span class="string">"gzip"</span>),
+    doc = <span class="string">"`gzip` (*inactive*) | `GzipEncoder`, `GzipDecoder`"
 </span>)]
 #![cfg_attr(
-    feature = <span class="string">&quot;lzma&quot;</span>,
-    doc = <span class="string">&quot;`lzma` | [`LzmaEncoder`](?search=LzmaEncoder), [`LzmaDecoder`](?search=LzmaDecoder)&quot;
+    feature = <span class="string">"lzma"</span>,
+    doc = <span class="string">"`lzma` | [`LzmaEncoder`](?search=LzmaEncoder), [`LzmaDecoder`](?search=LzmaDecoder)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;lzma&quot;</span>),
-    doc = <span class="string">&quot;`lzma` (*inactive*) | `LzmaEncoder`, `LzmaDecoder`&quot;
+    not(feature = <span class="string">"lzma"</span>),
+    doc = <span class="string">"`lzma` (*inactive*) | `LzmaEncoder`, `LzmaDecoder`"
 </span>)]
 #![cfg_attr(
-    feature = <span class="string">&quot;xz&quot;</span>,
-    doc = <span class="string">&quot;`xz` | [`XzEncoder`](?search=XzEncoder), [`XzDecoder`](?search=XzDecoder)&quot;
+    feature = <span class="string">"xz"</span>,
+    doc = <span class="string">"`xz` | [`XzEncoder`](?search=XzEncoder), [`XzDecoder`](?search=XzDecoder)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;xz&quot;</span>),
-    doc = <span class="string">&quot;`xz` (*inactive*) | `XzEncoder`, `XzDecoder`&quot;
+    not(feature = <span class="string">"xz"</span>),
+    doc = <span class="string">"`xz` (*inactive*) | `XzEncoder`, `XzDecoder`"
 </span>)]
 #![cfg_attr(
-    feature = <span class="string">&quot;zlib&quot;</span>,
-    doc = <span class="string">&quot;`zlib` | [`ZlibEncoder`](?search=ZlibEncoder), [`ZlibDecoder`](?search=ZlibDecoder)&quot;
+    feature = <span class="string">"zlib"</span>,
+    doc = <span class="string">"`zlib` | [`ZlibEncoder`](?search=ZlibEncoder), [`ZlibDecoder`](?search=ZlibDecoder)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;zlib&quot;</span>),
-    doc = <span class="string">&quot;`zlib` (*inactive*) | `ZlibEncoder`, `ZlibDecoder`&quot;
+    not(feature = <span class="string">"zlib"</span>),
+    doc = <span class="string">"`zlib` (*inactive*) | `ZlibEncoder`, `ZlibDecoder`"
 </span>)]
 #![cfg_attr(
-    feature = <span class="string">&quot;zstd&quot;</span>,
-    doc = <span class="string">&quot;`zstd` | [`ZstdEncoder`](?search=ZstdEncoder), [`ZstdDecoder`](?search=ZstdDecoder)&quot;
+    feature = <span class="string">"zstd"</span>,
+    doc = <span class="string">"`zstd` | [`ZstdEncoder`](?search=ZstdEncoder), [`ZstdDecoder`](?search=ZstdDecoder)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;zstd&quot;</span>),
-    doc = <span class="string">&quot;`zstd` (*inactive*) | `ZstdEncoder`, `ZstdDecoder`&quot;
+    not(feature = <span class="string">"zstd"</span>),
+    doc = <span class="string">"`zstd` (*inactive*) | `ZstdEncoder`, `ZstdDecoder`"
 </span>)]
 #![cfg_attr(
-    feature = <span class="string">&quot;deflate64&quot;</span>,
-    doc = <span class="string">&quot;`deflate64` | (encoder not implemented), [`Deflate64Decoder`](?search=Deflate64Decoder)&quot;
+    feature = <span class="string">"deflate64"</span>,
+    doc = <span class="string">"`deflate64` | (encoder not implemented), [`Deflate64Decoder`](?search=Deflate64Decoder)"
 </span>)]
 #![cfg_attr(
-    not(feature = <span class="string">&quot;deflate64&quot;</span>),
-    doc = <span class="string">&quot;`deflate64` (*inactive*) | (encoder not implemented), `Deflate64Decoder`&quot;
+    not(feature = <span class="string">"deflate64"</span>),
+    doc = <span class="string">"`deflate64` (*inactive*) | (encoder not implemented), `Deflate64Decoder`"
 </span>)]
 </span><span class="doccomment">//!
 
@@ -390,24 +391,24 @@
 )]
 #![cfg_attr(not(all), allow(unused))]
 
-#[cfg(any(feature = <span class="string">&quot;bzip2&quot;</span>, feature = <span class="string">&quot;flate2&quot;</span>, feature = <span class="string">&quot;xz2&quot;</span>))]
+#[cfg(any(feature = <span class="string">"bzip2"</span>, feature = <span class="string">"flate2"</span>, feature = <span class="string">"xz2"</span>))]
 </span><span class="kw">use </span>std::convert::TryInto;
 
 <span class="attr">#[macro_use]
 </span><span class="kw">mod </span>macros;
 <span class="kw">mod </span>codec;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;futures-io&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"futures-io"</span>)]
 </span><span class="kw">pub mod </span>futures;
-<span class="attr">#[cfg(feature = <span class="string">&quot;tokio&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"tokio"</span>)]
 </span><span class="kw">pub mod </span>tokio;
 
 <span class="kw">mod </span>unshared;
 <span class="kw">mod </span>util;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;brotli&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
 </span><span class="kw">pub mod </span>brotli;
-<span class="attr">#[cfg(feature = <span class="string">&quot;zstd&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
 </span><span class="kw">pub mod </span>zstd;
 
 <span class="doccomment">/// Level of compression data should be compressed with.
@@ -423,14 +424,14 @@
     <span class="doccomment">/// Default quality of compression defined by the selected compression algorithm.
     </span>Default,
 
-    <span class="doccomment">/// Precise quality based on the underlying compression algorithms&#39; qualities. The
+    <span class="doccomment">/// Precise quality based on the underlying compression algorithms' qualities. The
     /// interpretation of this depends on the algorithm chosen and the specific implementation
-    /// backing it. Qualities are implicitly clamped to the algorithm&#39;s maximum.
+    /// backing it. Qualities are implicitly clamped to the algorithm's maximum.
     </span>Precise(i32),
 }
 
 <span class="kw">impl </span>Level {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;brotli&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
     </span><span class="kw">fn </span>into_brotli(
         <span class="self">self</span>,
         <span class="kw-2">mut </span>params: ::brotli::enc::backward_references::BrotliEncoderParams,
@@ -445,7 +446,7 @@
         params
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;bzip2&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"bzip2"</span>)]
     </span><span class="kw">fn </span>into_bzip2(<span class="self">self</span>) -&gt; bzip2::Compression {
         <span class="kw">let </span>fastest = bzip2::Compression::fast();
         <span class="kw">let </span>best = bzip2::Compression::best();
@@ -463,7 +464,7 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;flate2&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"flate2"</span>)]
     </span><span class="kw">fn </span>into_flate2(<span class="self">self</span>) -&gt; flate2::Compression {
         <span class="kw">let </span>fastest = flate2::Compression::fast();
         <span class="kw">let </span>best = flate2::Compression::best();
@@ -481,7 +482,7 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;zstd&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
     </span><span class="kw">fn </span>into_zstd(<span class="self">self</span>) -&gt; i32 {
         <span class="kw">let </span>(fastest, best) = libzstd::compression_level_range().into_inner();
         <span class="kw">match </span><span class="self">self </span>{
@@ -492,7 +493,7 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;xz2&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"xz2"</span>)]
     </span><span class="kw">fn </span>into_xz2(<span class="self">self</span>) -&gt; u32 {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Fastest =&gt; <span class="number">0</span>,

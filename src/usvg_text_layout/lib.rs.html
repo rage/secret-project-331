@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-text-layout-0.38.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_text_layout" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-text-layout-0.38.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_text_layout" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2134,10 +2135,10 @@ An [SVG] text layout implementation on top of [usvg] crate.
     <span class="comment">// The `alignment-baseline` property is a mess.
     //
     // The SVG 1.1 spec (https://www.w3.org/TR/SVG11/text.html#BaselineAlignmentProperties)
-    // goes on and on about what this property suppose to do, but doesn&#39;t actually explain
-    // how it should be implemented. It&#39;s just a very verbose overview.
+    // goes on and on about what this property suppose to do, but doesn't actually explain
+    // how it should be implemented. It's just a very verbose overview.
     //
-    // As of Nov 2022, only Chrome and Safari support `alignment-baseline`. Firefox isn&#39;t.
+    // As of Nov 2022, only Chrome and Safari support `alignment-baseline`. Firefox isn't.
     // Same goes for basically every SVG library in existence.
     // Meaning we have no idea how exactly it should be implemented.
     //
@@ -2158,8 +2159,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
     // we do what Chrome does - use hardcoded values. And it seems like Safari does the same.
     //
     //
-    // But that&#39;s not all! SVG 2 and CSS Inline Layout 3 did a baseline handling overhaul,
-    // and it&#39;s far more complex now. Not sure if anyone actually supports it.
+    // But that's not all! SVG 2 and CSS Inline Layout 3 did a baseline handling overhaul,
+    // and it's far more complex now. Not sure if anyone actually supports it.
     </span><span class="kw">fn </span>alignment_baseline_shift(<span class="kw-2">&amp;</span><span class="self">self</span>, alignment: AlignmentBaseline, font_size: f32) -&gt; f32 {
         <span class="kw">match </span>alignment {
             AlignmentBaseline::Auto =&gt; <span class="number">0.0</span>,
@@ -2254,11 +2255,11 @@ An [SVG] text layout implementation on top of [usvg] crate.
 }
 
 <span class="comment">// Baseline resolving in SVG is a mess.
-// Not only it&#39;s poorly documented, but as soon as you start mixing
+// Not only it's poorly documented, but as soon as you start mixing
 // `dominant-baseline` and `alignment-baseline` each application/browser will produce
 // different results.
 //
-// For now, resvg simply tries to match Chrome&#39;s output and not the mythical SVG spec output.
+// For now, resvg simply tries to match Chrome's output and not the mythical SVG spec output.
 //
 // See `alignment_baseline_shift` method comment for more details.
 </span><span class="kw">fn </span>resolve_baseline(span: <span class="kw-2">&amp;</span>TextSpan, font: <span class="kw-2">&amp;</span>ResolvedFont, writing_mode: WritingMode) -&gt; f32 {
@@ -2356,7 +2357,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
                 <span class="comment">// TODO: No idea what offset should be used for top-to-bottom layout.
                 // There is
                 // https://www.w3.org/TR/css-text-decor-3/#text-underline-position-property
-                // but it doesn&#39;t go into details.
+                // but it doesn't go into details.
                 </span><span class="kw">let </span>offset = <span class="kw">match </span>text_node.writing_mode {
                     WritingMode::LeftToRight =&gt; -font.underline_position(span.font_size.get()),
                     WritingMode::TopToBottom =&gt; font.height(span.font_size.get()) / <span class="number">2.0</span>,
@@ -2434,11 +2435,11 @@ An [SVG] text layout implementation on top of [usvg] crate.
     <span class="kw">let </span><span class="kw-2">mut </span>name_list = Vec::new();
     <span class="kw">for </span>family <span class="kw">in </span><span class="kw-2">&amp;</span>font.families {
         name_list.push(<span class="kw">match </span>family.as_str() {
-            <span class="string">&quot;serif&quot; </span>=&gt; fontdb::Family::Serif,
-            <span class="string">&quot;sans-serif&quot; </span>=&gt; fontdb::Family::SansSerif,
-            <span class="string">&quot;cursive&quot; </span>=&gt; fontdb::Family::Cursive,
-            <span class="string">&quot;fantasy&quot; </span>=&gt; fontdb::Family::Fantasy,
-            <span class="string">&quot;monospace&quot; </span>=&gt; fontdb::Family::Monospace,
+            <span class="string">"serif" </span>=&gt; fontdb::Family::Serif,
+            <span class="string">"sans-serif" </span>=&gt; fontdb::Family::SansSerif,
+            <span class="string">"cursive" </span>=&gt; fontdb::Family::Cursive,
+            <span class="string">"fantasy" </span>=&gt; fontdb::Family::Fantasy,
+            <span class="string">"monospace" </span>=&gt; fontdb::Family::Monospace,
             <span class="kw">_ </span>=&gt; fontdb::Family::Name(family),
         });
     }
@@ -2473,7 +2474,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
     <span class="kw">let </span>id = fontdb.query(<span class="kw-2">&amp;</span>query);
     <span class="kw">if </span>id.is_none() {
-        <span class="macro">log::warn!</span>(<span class="string">&quot;No match for &#39;{}&#39; font-family.&quot;</span>, font.families.join(<span class="string">&quot;, &quot;</span>));
+        <span class="macro">log::warn!</span>(<span class="string">"No match for '{}' font-family."</span>, font.families.join(<span class="string">", "</span>));
     }
 
     fontdb.load_font(id<span class="question-mark">?</span>)
@@ -2529,8 +2530,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
         <span class="comment">// The `fill-rule` should be ignored.
         // https://www.w3.org/TR/SVG2/text.html#TextRenderingOrder
         //
-        // &#39;Since the fill-rule property does not apply to SVG text elements,
-        // the specific order of the subpaths within the equivalent path does not matter.&#39;
+        // 'Since the fill-rule property does not apply to SVG text elements,
+        // the specific order of the subpaths within the equivalent path does not matter.'
         </span>fill.rule = FillRule::NonZero;
     }
 
@@ -2602,7 +2603,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
         <span class="kw">let </span>rect = <span class="kw">match </span>NonZeroRect::from_xywh(<span class="number">0.0</span>, -thickness / <span class="number">2.0</span>, dec_span.width, thickness) {
             <span class="prelude-val">Some</span>(v) =&gt; v,
             <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">log::warn!</span>(<span class="string">&quot;a decoration span has a malformed bbox&quot;</span>);
+                <span class="macro">log::warn!</span>(<span class="string">"a decoration span has a malformed bbox"</span>);
                 <span class="kw">continue</span>;
             }
         };
@@ -2628,7 +2629,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     <span class="prelude-val">Some</span>(path)
 }
 
-<span class="doccomment">/// By the SVG spec, `tspan` doesn&#39;t have a bbox and uses the parent `text` bbox.
+<span class="doccomment">/// By the SVG spec, `tspan` doesn't have a bbox and uses the parent `text` bbox.
 /// Since we converted `text` and `tspan` to `path`, we have to update
 /// all linked paint servers (gradients and patterns) too.
 </span><span class="kw">fn </span>fix_obj_bounding_box(path: <span class="kw-2">&amp;mut </span>Path, bbox: NonZeroRect) {
@@ -2645,7 +2646,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     }
 }
 
-<span class="doccomment">/// Converts a selected paint server&#39;s units to `UserSpaceOnUse`.
+<span class="doccomment">/// Converts a selected paint server's units to `UserSpaceOnUse`.
 ///
 /// Creates a deep copy of a selected paint server and returns its ID.
 ///
@@ -2655,7 +2656,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// TODO: is `pattern` copying safe? Maybe we should reset id&#39;s on all `pattern` children.
+    <span class="comment">// TODO: is `pattern` copying safe? Maybe we should reset id's on all `pattern` children.
     // We have to clone a paint server, in case some other element is already using it.
 
     // Update id, transform and units.
@@ -2715,7 +2716,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 <span class="doccomment">/// A text decoration span.
 ///
 /// Basically a horizontal line, that will be used for underline, overline and line-through.
-/// It doesn&#39;t have a height, since it depends on the Font metrics.
+/// It doesn't have a height, since it depends on the Font metrics.
 </span><span class="attr">#[derive(Clone, Copy)]
 </span><span class="kw">struct </span>DecorationSpan {
     width: f32,
@@ -2724,7 +2725,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
 <span class="doccomment">/// A glyph.
 ///
-/// Basically, a glyph ID and it&#39;s metrics.
+/// Basically, a glyph ID and it's metrics.
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">struct </span>Glyph {
     <span class="doccomment">/// The glyph ID in the font.
@@ -2746,7 +2747,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
     <span class="doccomment">/// Reference to the source font.
     ///
-    /// Each glyph can have it&#39;s own source font.
+    /// Each glyph can have it's own source font.
     </span>font: Rc&lt;ResolvedFont&gt;,
 }
 
@@ -2761,7 +2762,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 /// Cluster/grapheme is a single, unbroken, renderable character.
 /// It can be positioned, rotated, spaced, etc.
 ///
-/// Let&#39;s say we have `й` which is *CYRILLIC SMALL LETTER I* and *COMBINING BREVE*.
+/// Let's say we have `й` which is *CYRILLIC SMALL LETTER I* and *COMBINING BREVE*.
 /// It consists of two code points, will be shaped (via harfbuzz) as two glyphs into one cluster,
 /// and then will be combined into the one `OutlinedCluster`.
 </span><span class="attr">#[derive(Clone)]
@@ -2771,15 +2772,15 @@ An [SVG] text layout implementation on top of [usvg] crate.
     /// We use it to match a cluster with a character in the text chunk and therefore with the style.
     </span>byte_idx: ByteIndex,
 
-    <span class="doccomment">/// Cluster&#39;s original codepoint.
+    <span class="doccomment">/// Cluster's original codepoint.
     ///
     /// Technically, a cluster can contain multiple codepoints,
     /// but we are storing only the first one.
     </span>codepoint: char,
 
-    <span class="doccomment">/// Cluster&#39;s width.
+    <span class="doccomment">/// Cluster's width.
     ///
-    /// It&#39;s different from advance in that it&#39;s not affected by letter spacing and word spacing.
+    /// It's different from advance in that it's not affected by letter spacing and word spacing.
     </span>width: f32,
 
     <span class="doccomment">/// An advance along the X axis.
@@ -2805,7 +2806,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     <span class="doccomment">/// An actual outline.
     </span>path: <span class="prelude-ty">Option</span>&lt;tiny_skia_path::Path&gt;,
 
-    <span class="doccomment">/// A cluster&#39;s transform that contains it&#39;s position, rotation, etc.
+    <span class="doccomment">/// A cluster's transform that contains it's position, rotation, etc.
     </span>transform: Transform,
 
     <span class="doccomment">/// Not all clusters should be rendered.
@@ -2824,18 +2825,18 @@ An [SVG] text layout implementation on top of [usvg] crate.
 ///
 /// Input:  0 2 2 2 3 4 4 5 5
 /// Result: 0 1     4 5   7
-</span><span class="kw">struct </span>GlyphClusters&lt;<span class="lifetime">&#39;a</span>&gt; {
-    data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Glyph],
+</span><span class="kw">struct </span>GlyphClusters&lt;<span class="lifetime">'a</span>&gt; {
+    data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Glyph],
     idx: usize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; GlyphClusters&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Glyph]) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; GlyphClusters&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>new(data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Glyph]) -&gt; <span class="self">Self </span>{
         GlyphClusters { data, idx: <span class="number">0 </span>}
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>GlyphClusters&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>GlyphClusters&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Item = (std::ops::Range&lt;usize&gt;, ByteIndex);
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -2890,11 +2891,11 @@ An [SVG] text layout implementation on top of [usvg] crate.
         <span class="comment">// We assume, that shaping with an any font will produce the same amount of glyphs.
         // Otherwise an error.
         </span><span class="kw">if </span>glyphs.len() != tmp_glyphs.len() {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;Text layouting failed.&quot;</span>);
+            <span class="macro">log::warn!</span>(<span class="string">"Text layouting failed."</span>);
             <span class="kw">return </span>Vec::new();
         }
 
-        <span class="comment">// Copy span&#39;s glyphs.
+        <span class="comment">// Copy span's glyphs.
         </span><span class="kw">for </span>(i, glyph) <span class="kw">in </span>tmp_glyphs.iter().enumerate() {
             <span class="kw">if </span>span_contains(span, glyph.byte_idx) {
                 glyphs[i] = glyph.clone();
@@ -2933,7 +2934,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     </span><span class="kw">let </span><span class="kw-2">mut </span>used_fonts = <span class="macro">vec!</span>[font.id];
 
     <span class="comment">// Loop until all glyphs become resolved or until no more fonts are left.
-    </span><span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
+    </span><span class="lifetime">'outer</span>: <span class="kw">loop </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>missing = <span class="prelude-val">None</span>;
         <span class="kw">for </span>glyph <span class="kw">in </span><span class="kw-2">&amp;</span>glyphs {
             <span class="kw">if </span>glyph.is_missing() {
@@ -2945,7 +2946,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
         <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = missing {
             <span class="kw">let </span>fallback_font = <span class="kw">match </span>find_font_for_char(c, <span class="kw-2">&amp;</span>used_fonts, fontdb) {
                 <span class="prelude-val">Some</span>(v) =&gt; Rc::new(v),
-                <span class="prelude-val">None </span>=&gt; <span class="kw">break </span><span class="lifetime">&#39;outer</span>,
+                <span class="prelude-val">None </span>=&gt; <span class="kw">break </span><span class="lifetime">'outer</span>,
             };
 
             <span class="comment">// Shape again, using a new font.
@@ -2962,13 +2963,13 @@ An [SVG] text layout implementation on top of [usvg] crate.
             <span class="kw">if </span>all_matched {
                 <span class="comment">// Replace all glyphs when all of them were matched.
                 </span>glyphs = fallback_glyphs;
-                <span class="kw">break </span><span class="lifetime">&#39;outer</span>;
+                <span class="kw">break </span><span class="lifetime">'outer</span>;
             }
 
             <span class="comment">// We assume, that shaping with an any font will produce the same amount of glyphs.
             // This is incorrect, but good enough for now.
             </span><span class="kw">if </span>glyphs.len() != fallback_glyphs.len() {
-                <span class="kw">break </span><span class="lifetime">&#39;outer</span>;
+                <span class="kw">break </span><span class="lifetime">'outer</span>;
             }
 
             <span class="comment">// TODO: Replace clusters and not glyphs. This should be more accurate.
@@ -2983,7 +2984,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
             <span class="comment">// Remember this font.
             </span>used_fonts.push(fallback_font.id);
         } <span class="kw">else </span>{
-            <span class="kw">break </span><span class="lifetime">&#39;outer</span>;
+            <span class="kw">break </span><span class="lifetime">'outer</span>;
         }
     }
 
@@ -2993,7 +2994,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
             <span class="kw">let </span>c = glyph.byte_idx.char_from(text);
             <span class="comment">// TODO: print a full grapheme
             </span><span class="macro">log::warn!</span>(
-                <span class="string">&quot;No fonts with a {}/U+{:X} character were found.&quot;</span>,
+                <span class="string">"No fonts with a {}/U+{:X} character were found."</span>,
                 c,
                 c <span class="kw">as </span>u32
             );
@@ -3042,7 +3043,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
             <span class="kw">let </span><span class="kw-2">mut </span>features = Vec::new();
             <span class="kw">if </span>small_caps {
                 features.push(rustybuzz::Feature::new(
-                    rustybuzz::Tag::from_bytes(<span class="string">b&quot;smcp&quot;</span>),
+                    rustybuzz::Tag::from_bytes(<span class="string">b"smcp"</span>),
                     <span class="number">1</span>,
                     ..,
                 ));
@@ -3050,7 +3051,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
             <span class="kw">if </span>!apply_kerning {
                 features.push(rustybuzz::Feature::new(
-                    rustybuzz::Tag::from_bytes(<span class="string">b&quot;kern&quot;</span>),
+                    rustybuzz::Tag::from_bytes(<span class="string">b"kern"</span>),
                     <span class="number">0</span>,
                     ..,
                 ));
@@ -3108,7 +3109,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
             <span class="comment">// Apply offset.
             //
             // The first glyph in the cluster will have an offset from 0x0,
-            // but the later one will have an offset from the &quot;current position&quot;.
+            // but the later one will have an offset from the "current position".
             // So we have to keep an advance.
             // TODO: should be done only inside a single text span
             </span>ts = ts.pre_translate(x + glyph.dx <span class="kw">as </span>f32, glyph.dy <span class="kw">as </span>f32);
@@ -3185,7 +3186,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
             .find(|f| f.<span class="number">1 </span>== fontdb::Language::English_UnitedStates)
             .unwrap_or(<span class="kw-2">&amp;</span>base_face.families[<span class="number">0</span>]);
 
-        <span class="macro">log::warn!</span>(<span class="string">&quot;Fallback from {} to {}.&quot;</span>, base_family.<span class="number">0</span>, new_family.<span class="number">0</span>);
+        <span class="macro">log::warn!</span>(<span class="string">"Fallback from {} to {}."</span>, base_family.<span class="number">0</span>, new_family.<span class="number">0</span>);
         <span class="kw">return </span>fontdb.load_font(face.id);
     }
 
@@ -3273,7 +3274,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
     <span class="kw">let </span><span class="kw-2">mut </span>dy = <span class="number">0.0</span>;
 
-    <span class="comment">// In the text path mode, chunk&#39;s x/y coordinates provide an additional offset along the path.
+    <span class="comment">// In the text path mode, chunk's x/y coordinates provide an additional offset along the path.
     // The X coordinate is used in a horizontal mode, and Y in vertical.
     </span><span class="kw">let </span>chunk_offset = <span class="kw">match </span>writing_mode {
         WritingMode::LeftToRight =&gt; chunk.x.unwrap_or(<span class="number">0.0</span>),
@@ -3521,7 +3522,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
                 }
 
                 <span class="comment">// If the cluster advance became negative - clear it.
-                // This is an UB so we can do whatever we want, and we mimic Chrome&#39;s behavior.
+                // This is an UB so we can do whatever we want, and we mimic Chrome's behavior.
                 </span><span class="kw">if </span>!cluster.advance.is_valid_length() {
                     cluster.width = <span class="number">0.0</span>;
                     cluster.advance = <span class="number">0.0</span>;
@@ -3577,8 +3578,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
     <span class="kw">for </span>cluster <span class="kw">in </span>clusters {
         <span class="kw">if </span>is_word_separator_characters(cluster.codepoint) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = chunk_span_at(chunk, cluster.byte_idx) {
-                <span class="comment">// Technically, word spacing &#39;should be applied half on each
-                // side of the character&#39;, but it doesn&#39;t affect us in any way,
+                <span class="comment">// Technically, word spacing 'should be applied half on each
+                // side of the character', but it doesn't affect us in any way,
                 // so we are ignoring this.
                 </span>cluster.advance += span.word_spacing;
 
@@ -3681,12 +3682,12 @@ An [SVG] text layout implementation on top of [usvg] crate.
                 cluster.path = path.transform(ts);
             }
 
-            <span class="comment">// Move &quot;baseline&quot; to the middle and make height equal to width.
+            <span class="comment">// Move "baseline" to the middle and make height equal to width.
             </span>cluster.ascent = cluster.width / <span class="number">2.0</span>;
             cluster.descent = -cluster.width / <span class="number">2.0</span>;
         } <span class="kw">else </span>{
             <span class="comment">// Could not find a spec that explains this,
-            // but this is how other applications are shifting the &quot;rotated&quot; characters
+            // but this is how other applications are shifting the "rotated" characters
             // in the top-to-bottom mode.
             </span>cluster.transform = cluster.transform.pre_translate(<span class="number">0.0</span>, cluster.x_height / <span class="number">2.0</span>);
         }

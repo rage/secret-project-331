@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.2.2/src/map/core.rs`."><title>core.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="indexmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/indexmap-2.2.5/src/map/core.rs`."><title>core.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="indexmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -606,11 +607,45 @@
 <a href="#606" id="606">606</a>
 <a href="#607" id="607">607</a>
 <a href="#608" id="608">608</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! This is the core implementation that doesn&#39;t depend on the hasher at all.
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! This is the core implementation that doesn't depend on the hasher at all.
 //!
-//! The methods of `IndexMapCore` don&#39;t use any Hash properties of K.
+//! The methods of `IndexMapCore` don't use any Hash properties of K.
 //!
-//! It&#39;s cleaner to separate them out, then the compiler checks that we are not
+//! It's cleaner to separate them out, then the compiler checks that we are not
 //! using Hash at all in these methods.
 //!
 //! However, we should probably not let this show in the public API or docs.
@@ -624,7 +659,6 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::vec::{<span class="self">self</span>, Vec};
 <span class="kw">use </span><span class="kw">crate</span>::TryReserveError;
-<span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::mem;
 <span class="kw">use </span>core::ops::RangeBounds;
 
@@ -642,15 +676,15 @@
 }
 
 <span class="attr">#[inline(always)]
-</span><span class="kw">fn </span>get_hash&lt;K, V&gt;(entries: <span class="kw-2">&amp;</span>[Bucket&lt;K, V&gt;]) -&gt; <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>usize) -&gt; u64 + <span class="lifetime">&#39;_ </span>{
+</span><span class="kw">fn </span>get_hash&lt;K, V&gt;(entries: <span class="kw-2">&amp;</span>[Bucket&lt;K, V&gt;]) -&gt; <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>usize) -&gt; u64 + <span class="lifetime">'_ </span>{
     <span class="kw">move </span>|<span class="kw-2">&amp;</span>i| entries[i].hash.get()
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">fn </span>equivalent&lt;<span class="lifetime">&#39;a</span>, K, V, Q: <span class="question-mark">?</span>Sized + Equivalent&lt;K&gt;&gt;(
-    key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Q,
-    entries: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Bucket&lt;K, V&gt;],
-) -&gt; <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>usize) -&gt; bool + <span class="lifetime">&#39;a </span>{
+</span><span class="kw">fn </span>equivalent&lt;<span class="lifetime">'a</span>, K, V, Q: <span class="question-mark">?</span>Sized + Equivalent&lt;K&gt;&gt;(
+    key: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Q,
+    entries: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[Bucket&lt;K, V&gt;],
+) -&gt; <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>usize) -&gt; bool + <span class="lifetime">'a </span>{
     <span class="kw">move </span>|<span class="kw-2">&amp;</span>i| Q::equivalent(key, <span class="kw-2">&amp;</span>entries[i].key)
 }
 
@@ -664,7 +698,7 @@
 </span><span class="kw">fn </span>update_index(table: <span class="kw-2">&amp;mut </span>RawTable&lt;usize&gt;, hash: HashValue, old: usize, new: usize) {
     <span class="kw">let </span>index = table
         .get_mut(hash.get(), <span class="kw">move </span>|<span class="kw-2">&amp;</span>i| i == old)
-        .expect(<span class="string">&quot;index not found&quot;</span>);
+        .expect(<span class="string">"index not found"</span>);
     <span class="kw-2">*</span>index = new;
 }
 
@@ -691,15 +725,16 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K, V&gt; fmt::Debug <span class="kw">for </span>IndexMapCore&lt;K, V&gt;
+<span class="attr">#[cfg(feature = <span class="string">"test_debug"</span>)]
+</span><span class="kw">impl</span>&lt;K, V&gt; core::fmt::Debug <span class="kw">for </span>IndexMapCore&lt;K, V&gt;
 <span class="kw">where
-    </span>K: fmt::Debug,
-    V: fmt::Debug,
+    </span>K: core::fmt::Debug,
+    V: core::fmt::Debug,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;IndexMapCore&quot;</span>)
-            .field(<span class="string">&quot;indices&quot;</span>, <span class="kw-2">&amp;</span>raw::DebugIndices(<span class="kw-2">&amp;</span><span class="self">self</span>.indices))
-            .field(<span class="string">&quot;entries&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.entries)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"IndexMapCore"</span>)
+            .field(<span class="string">"indices"</span>, <span class="kw-2">&amp;</span>raw::DebugIndices(<span class="kw-2">&amp;</span><span class="self">self</span>.indices))
+            .field(<span class="string">"entries"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.entries)
             .finish()
     }
 }
@@ -773,7 +808,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>drain&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: R) -&gt; vec::Drain&lt;<span class="lifetime">&#39;_</span>, Bucket&lt;K, V&gt;&gt;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>drain&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: R) -&gt; vec::Drain&lt;<span class="lifetime">'_</span>, Bucket&lt;K, V&gt;&gt;
     <span class="kw">where
         </span>R: RangeBounds&lt;usize&gt;,
     {
@@ -782,8 +817,8 @@
         <span class="self">self</span>.entries.drain(range)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;rayon&quot;</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>par_drain&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: R) -&gt; rayon::vec::Drain&lt;<span class="lifetime">&#39;_</span>, Bucket&lt;K, V&gt;&gt;
+    <span class="attr">#[cfg(feature = <span class="string">"rayon"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>par_drain&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: R) -&gt; rayon::vec::Drain&lt;<span class="lifetime">'_</span>, Bucket&lt;K, V&gt;&gt;
     <span class="kw">where
         </span>K: Send,
         V: Send,
@@ -919,6 +954,17 @@
         <span class="self">self</span>.entries.push(Bucket { hash, key, value });
     }
 
+    <span class="doccomment">/// Insert a key-value pair in `entries` at a particular index,
+    /// *without* checking whether it already exists.
+    </span><span class="kw">fn </span>insert_entry(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, hash: HashValue, key: K, value: V) {
+        <span class="kw">if </span><span class="self">self</span>.entries.len() == <span class="self">self</span>.entries.capacity() {
+            <span class="comment">// Reserve our own capacity synced to the indices,
+            // rather than letting `Vec::insert` just double it.
+            </span><span class="self">self</span>.reserve_entries(<span class="number">1</span>);
+        }
+        <span class="self">self</span>.entries.insert(index, Bucket { hash, key, value });
+    }
+
     <span class="doccomment">/// Return the index in `entries` where an equivalent key can be found
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_index_of&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, hash: HashValue, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt;
     <span class="kw">where
@@ -967,6 +1013,29 @@
                 (i, <span class="prelude-val">None</span>)
             }
         }
+    }
+
+    <span class="kw">fn </span>insert_unique(<span class="kw-2">&amp;mut </span><span class="self">self</span>, hash: HashValue, key: K, value: V) -&gt; usize {
+        <span class="kw">let </span>i = <span class="self">self</span>.indices.len();
+        <span class="self">self</span>.indices.insert(hash.get(), i, get_hash(<span class="kw-2">&amp;</span><span class="self">self</span>.entries));
+        <span class="macro">debug_assert_eq!</span>(i, <span class="self">self</span>.entries.len());
+        <span class="self">self</span>.push_entry(hash, key, value);
+        i
+    }
+
+    <span class="kw">fn </span>shift_insert_unique(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, hash: HashValue, key: K, value: V) {
+        <span class="kw">let </span>end = <span class="self">self</span>.indices.len();
+        <span class="macro">assert!</span>(index &lt;= end);
+        <span class="comment">// Increment others first so we don't have duplicate indices.
+        </span><span class="self">self</span>.increment_indices(index, end);
+        <span class="kw">let </span>entries = <span class="kw-2">&amp;*</span><span class="self">self</span>.entries;
+        <span class="self">self</span>.indices.insert(hash.get(), index, <span class="kw">move </span>|<span class="kw-2">&amp;</span>i| {
+            <span class="comment">// Adjust for the incremented indices to find hashes.
+            </span><span class="macro">debug_assert_ne!</span>(i, index);
+            <span class="kw">let </span>i = <span class="kw">if </span>i &lt; index { i } <span class="kw">else </span>{ i - <span class="number">1 </span>};
+            entries[i].hash.get()
+        });
+        <span class="self">self</span>.insert_entry(index, hash, key, value);
     }
 
     <span class="doccomment">/// Remove an entry by shifting all entries that follow it
@@ -1055,7 +1124,7 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>move_index(<span class="kw-2">&amp;mut </span><span class="self">self</span>, from: usize, to: usize) {
         <span class="kw">let </span>from_hash = <span class="self">self</span>.entries[from].hash;
         <span class="kw">if </span>from != to {
-            <span class="comment">// Use a sentinel index so other indices don&#39;t collide.
+            <span class="comment">// Use a sentinel index so other indices don't collide.
             </span>update_index(<span class="kw-2">&amp;mut </span><span class="self">self</span>.indices, from_hash, from, usize::MAX);
 
             <span class="comment">// Update all other indices and rotate the entry positions.
@@ -1073,12 +1142,12 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>swap_indices(<span class="kw-2">&amp;mut </span><span class="self">self</span>, a: usize, b: usize) {
-        <span class="comment">// If they&#39;re equal and in-bounds, there&#39;s nothing to do.
+        <span class="comment">// If they're equal and in-bounds, there's nothing to do.
         </span><span class="kw">if </span>a == b &amp;&amp; a &lt; <span class="self">self</span>.entries.len() {
             <span class="kw">return</span>;
         }
 
-        <span class="comment">// We&#39;ll get a &quot;nice&quot; bounds-check from indexing `self.entries`,
+        <span class="comment">// We'll get a "nice" bounds-check from indexing `self.entries`,
         // and then we expect to find it in the table as well.
         </span><span class="kw">let </span>[ref_a, ref_b] = <span class="self">self
             </span>.indices
@@ -1086,7 +1155,7 @@
                 [<span class="self">self</span>.entries[a].hash.get(), <span class="self">self</span>.entries[b].hash.get()],
                 <span class="kw">move </span>|i, <span class="kw-2">&amp;</span>x| <span class="kw">if </span>i == <span class="number">0 </span>{ x == a } <span class="kw">else </span>{ x == b },
             )
-            .expect(<span class="string">&quot;indices not found&quot;</span>);
+            .expect(<span class="string">"indices not found"</span>);
 
         mem::swap(ref_a, ref_b);
         <span class="self">self</span>.entries.swap(a, b);
@@ -1211,7 +1280,7 @@
 </span><span class="kw">fn </span>assert_send_sync() {
     <span class="kw">fn </span>assert_send_sync&lt;T: Send + Sync&gt;() {}
     assert_send_sync::&lt;IndexMapCore&lt;i32, i32&gt;&gt;();
-    assert_send_sync::&lt;Entry&lt;<span class="lifetime">&#39;_</span>, i32, i32&gt;&gt;();
-    assert_send_sync::&lt;IndexedEntry&lt;<span class="lifetime">&#39;_</span>, i32, i32&gt;&gt;();
+    assert_send_sync::&lt;Entry&lt;<span class="lifetime">'_</span>, i32, i32&gt;&gt;();
+    assert_send_sync::&lt;IndexedEntry&lt;<span class="lifetime">'_</span>, i32, i32&gt;&gt;();
 }
 </code></pre></div></section></main></body></html>

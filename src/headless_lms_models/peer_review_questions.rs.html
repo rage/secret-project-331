@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/peer_review_questions.rs`."><title>peer_review_questions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/peer_review_questions.rs`."><title>peer_review_questions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -430,15 +431,15 @@
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[sqlx(type_name = <span class="string">&quot;peer_review_question_type&quot;</span>, rename_all = <span class="string">&quot;snake_case&quot;</span>)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">"peer_review_question_type"</span>, rename_all = <span class="string">"snake_case"</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub enum </span>PeerReviewQuestionType {
     Essay,
     Scale,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CmsPeerReviewQuestion {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>peer_review_config_id: Uuid,
@@ -464,7 +465,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>PeerReviewQuestion {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -484,7 +485,7 @@
     new_peer_review_question: <span class="kw-2">&amp;</span>CmsPeerReviewQuestion,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO peer_review_questions (
     id,
     peer_review_config_id,
@@ -494,7 +495,7 @@ INSERT INTO peer_review_questions (
   )
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id
-        &quot;</span>,
+        "</span>,
         pkey_policy.into_uuid(),
         new_peer_review_question.peer_review_config_id,
         new_peer_review_question.order_number,
@@ -509,7 +510,7 @@ RETURNING id
 <span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;PeerReviewQuestion&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         PeerReviewQuestion,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -517,13 +518,13 @@ SELECT id,
   peer_review_config_id,
   order_number,
   question,
-  question_type AS &quot;question_type: _&quot;,
+  question_type AS "question_type: _",
   answer_required,
   weight
 FROM peer_review_questions
 WHERE id = $1
   AND deleted_at IS NULL;
-        &quot;#</span>,
+        "#</span>,
         id,
     )
     .fetch_one(conn)
@@ -537,7 +538,7 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;Vec&lt;PeerReviewQuestion&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         PeerReviewQuestion,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -545,7 +546,7 @@ SELECT id,
   peer_review_config_id,
   order_number,
   question,
-  question_type AS &quot;question_type: _&quot;,
+  question_type AS "question_type: _",
   answer_required,
   weight
 FROM peer_review_questions
@@ -553,7 +554,7 @@ WHERE id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND deleted_at IS NULL;
-        &quot;#</span>,
+        "#</span>,
         id,
     )
     .fetch_all(conn)
@@ -567,7 +568,7 @@ WHERE id IN (
 ) -&gt; ModelResult&lt;Vec&lt;PeerReviewQuestion&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         PeerReviewQuestion,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
     created_at,
     updated_at,
@@ -575,13 +576,13 @@ SELECT id,
     peer_review_config_id,
     order_number,
     question,
-    question_type AS &quot;question_type: _&quot;,
+    question_type AS "question_type: _",
     answer_required,
     weight
 FROM peer_review_questions
 WHERE peer_review_config_id = $1
   AND deleted_at IS NULL;
-        &quot;#</span>,
+        "#</span>,
         peer_review_id,
     )
     .fetch_all(conn)
@@ -595,7 +596,7 @@ WHERE peer_review_config_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;PeerReviewQuestion&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         PeerReviewQuestion,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
     created_at,
     updated_at,
@@ -603,13 +604,13 @@ SELECT id,
     peer_review_config_id,
     order_number,
     question,
-    question_type AS &quot;question_type: _&quot;,
+    question_type AS "question_type: _",
     answer_required,
     weight
 FROM peer_review_questions
 WHERE peer_review_config_id = $1
     AND deleted_at IS NULL;
-        &quot;#</span>,
+        "#</span>,
         peer_review_config_id
     )
     .fetch_all(conn)
@@ -635,12 +636,12 @@ WHERE peer_review_config_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;CmsPeerReviewQuestion&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         CmsPeerReviewQuestion,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT prq.id as id,
   prq.peer_review_config_id as peer_review_config_id,
   prq.order_number as order_number,
   prq.question as question,
-  prq.question_type AS &quot;question_type: _&quot;,
+  prq.question_type AS "question_type: _",
   prq.answer_required as answer_required,
   prq.weight
 from pages p
@@ -652,7 +653,7 @@ where p.id = $1
   AND e.deleted_at IS NULL
   AND pr.deleted_at IS NULL
   AND prq.deleted_at IS NULL;
-  &quot;#</span>,
+  "#</span>,
         page_id
     )
     .fetch_all(conn)
@@ -666,13 +667,13 @@ where p.id = $1
     peer_review_config_ids: <span class="kw-2">&amp;</span>[Uuid],
 ) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE peer_review_questions
 SET deleted_at = now()
 WHERE peer_review_config_id = ANY ($1)
 AND deleted_at IS NULL
 RETURNING id;
-    &quot;</span>,
+    "</span>,
         peer_review_config_ids
     )
     .fetch_all(conn)
@@ -689,18 +690,18 @@ RETURNING id;
 ) -&gt; ModelResult&lt;Vec&lt;CmsPeerReviewQuestion&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         CmsPeerReviewQuestion,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   peer_review_config_id,
   order_number,
-  question_type AS &quot;question_type: _&quot;,
+  question_type AS "question_type: _",
   question,
   answer_required,
   weight
 FROM peer_review_questions
 where peer_review_config_id = $1
   AND deleted_at IS NULL;
-    &quot;#</span>,
+    "#</span>,
         peer_review_config_id
     )
     .fetch_all(conn)
@@ -713,7 +714,7 @@ where peer_review_config_id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     peer_review_questions: <span class="kw-2">&amp;</span>[CmsPeerReviewQuestion],
 ) -&gt; ModelResult&lt;Vec&lt;CmsPeerReviewQuestion&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>sql:QueryBuilder&lt;Postgres&gt; = sqlx::QueryBuilder::new(<span class="string">&quot;INSERT INTO peer_review_questions (id, peer_review_config_id, order_number, question_type, question, answer_required) &quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>sql:QueryBuilder&lt;Postgres&gt; = sqlx::QueryBuilder::new(<span class="string">"INSERT INTO peer_review_questions (id, peer_review_config_id, order_number, question_type, question, answer_required) "</span>);
 
     sql.push_values(peer_review_questions, |<span class="kw-2">mut </span>x, prq| {
         x.push_bind(prq.id)
@@ -724,7 +725,7 @@ where peer_review_config_id = $1
             .push_bind(prq.answer_required);
     });
     sql.push(
-        <span class="string">r#&quot; ON CONFLICT (id) DO
+        <span class="string">r#" ON CONFLICT (id) DO
 UPDATE
 SET peer_review_config_id = excluded.peer_review_config_id,
   order_number = excluded.order_number,
@@ -733,7 +734,7 @@ SET peer_review_config_id = excluded.peer_review_config_id,
   answer_required = excluded.answer_required,
   deleted_at = NULL
 RETURNING id;
-&quot;#</span>,
+"#</span>,
     );
 
     <span class="kw">let </span>ids = sql
@@ -746,12 +747,12 @@ RETURNING id;
 
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         CmsPeerReviewQuestion,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   peer_review_config_id,
   order_number,
   question,
-  question_type AS &quot;question_type: _&quot;,
+  question_type AS "question_type: _",
   answer_required,
   weight
 from peer_review_questions
@@ -759,7 +760,7 @@ WHERE id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND deleted_at IS NULL;
-    &quot;#</span>,
+    "#</span>,
         <span class="kw-2">&amp;</span>ids
     )
     .fetch_all(conn)
@@ -777,7 +778,7 @@ WHERE id IN (
     }
     peer_review_questions.sort_by(|a, b| a.order_number.cmp(<span class="kw-2">&amp;</span>b.order_number));
     <span class="macro">info!</span>(
-        <span class="string">&quot;Peer review question weights before normalization: {:?}&quot;</span>,
+        <span class="string">"Peer review question weights before normalization: {:?}"</span>,
         peer_review_questions
             .iter()
             .map(|x| x.weight)
@@ -797,7 +798,7 @@ WHERE id IN (
         question.weight = <span class="number">0.0</span>;
     }
     <span class="macro">info!</span>(
-        <span class="string">&quot;Peer review question weights after normalization: {:?}&quot;</span>,
+        <span class="string">"Peer review question weights after normalization: {:?}"</span>,
         peer_review_questions
             .iter()
             .map(|x| x.weight)
@@ -816,7 +817,7 @@ WHERE id IN (
                 id: Uuid::new_v4(),
                 peer_review_config_id: Uuid::new_v4(),
                 order_number: <span class="number">1</span>,
-                question: String::from(<span class="string">&quot;Question 1&quot;</span>),
+                question: String::from(<span class="string">"Question 1"</span>),
                 question_type: PeerReviewQuestionType::Scale,
                 answer_required: <span class="bool-val">true</span>,
                 weight: <span class="number">2.0</span>,
@@ -825,7 +826,7 @@ WHERE id IN (
                 id: Uuid::new_v4(),
                 peer_review_config_id: Uuid::new_v4(),
                 order_number: <span class="number">2</span>,
-                question: String::from(<span class="string">&quot;Question 2&quot;</span>),
+                question: String::from(<span class="string">"Question 2"</span>),
                 question_type: PeerReviewQuestionType::Scale,
                 answer_required: <span class="bool-val">true</span>,
                 weight: <span class="number">3.0</span>,
@@ -834,7 +835,7 @@ WHERE id IN (
                 id: Uuid::new_v4(),
                 peer_review_config_id: Uuid::new_v4(),
                 order_number: <span class="number">3</span>,
-                question: String::from(<span class="string">&quot;Question 3&quot;</span>),
+                question: String::from(<span class="string">"Question 3"</span>),
                 question_type: PeerReviewQuestionType::Essay,
                 answer_required: <span class="bool-val">true</span>,
                 weight: <span class="number">1.0</span>,

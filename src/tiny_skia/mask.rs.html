@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/mask.rs`."><title>mask.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/mask.rs`."><title>mask.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -401,7 +402,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-</span><span class="attr">#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), feature = <span class="string">&quot;no-std-float&quot;</span>))]
+</span><span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"no-std-float"</span>))]
 </span><span class="kw">use </span>tiny_skia_path::NoStdFloat;
 
 <span class="kw">use </span>alloc::vec;
@@ -429,12 +430,12 @@
 
 <span class="doccomment">/// A mask.
 ///
-/// During drawing over `Pixmap`, mask&#39;s black (0) &quot;pixels&quot; would block rendering
+/// During drawing over `Pixmap`, mask's black (0) "pixels" would block rendering
 /// and white (255) will allow it.
 /// Anything in between is used for gradual masking and anti-aliasing.
 ///
-/// Unlike Skia, we&#39;re using just a simple 8bit alpha mask.
-/// It&#39;s way slower, but easier to implement.
+/// Unlike Skia, we're using just a simple 8bit alpha mask.
+/// It's way slower, but easier to implement.
 </span><span class="attr">#[derive(Clone, PartialEq)]
 </span><span class="kw">pub struct </span>Mask {
     data: Vec&lt;u8&gt;,
@@ -504,19 +505,19 @@
         <span class="prelude-val">Some</span>(Mask { data, size })
     }
 
-    <span class="doccomment">/// Returns mask&#39;s width.
+    <span class="doccomment">/// Returns mask's width.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.size.width()
     }
 
-    <span class="doccomment">/// Returns mask&#39;s height.
+    <span class="doccomment">/// Returns mask's height.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.size.height()
     }
 
-    <span class="doccomment">/// Returns mask&#39;s size.
+    <span class="doccomment">/// Returns mask's size.
     </span><span class="attr">#[allow(dead_code)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IntSize {
         <span class="self">self</span>.size
@@ -532,7 +533,7 @@
         <span class="self">self</span>.data.as_mut_slice()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_submask(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SubMaskRef&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_submask(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SubMaskRef&lt;<span class="lifetime">'_</span>&gt; {
         SubMaskRef {
             size: <span class="self">self</span>.size,
             real_width: <span class="self">self</span>.size.width(),
@@ -540,7 +541,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>submask(<span class="kw-2">&amp;</span><span class="self">self</span>, rect: IntRect) -&gt; <span class="prelude-ty">Option</span>&lt;SubMaskRef&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>submask(<span class="kw-2">&amp;</span><span class="self">self</span>, rect: IntRect) -&gt; <span class="prelude-ty">Option</span>&lt;SubMaskRef&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">let </span>rect = <span class="self">self</span>.size.to_int_rect(<span class="number">0</span>, <span class="number">0</span>).intersect(<span class="kw-2">&amp;</span>rect)<span class="question-mark">?</span>;
         <span class="kw">let </span>row_bytes = <span class="self">self</span>.width() <span class="kw">as </span>usize;
         <span class="kw">let </span>offset = rect.top() <span class="kw">as </span>usize * row_bytes + rect.left() <span class="kw">as </span>usize;
@@ -552,7 +553,7 @@
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_subpixmap(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; SubPixmapMut&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_subpixmap(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; SubPixmapMut&lt;<span class="lifetime">'_</span>&gt; {
         SubPixmapMut {
             size: <span class="self">self</span>.size,
             real_width: <span class="self">self</span>.size.width() <span class="kw">as </span>usize,
@@ -560,7 +561,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>subpixmap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rect: IntRect) -&gt; <span class="prelude-ty">Option</span>&lt;SubPixmapMut&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>subpixmap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rect: IntRect) -&gt; <span class="prelude-ty">Option</span>&lt;SubPixmapMut&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">let </span>rect = <span class="self">self</span>.size.to_int_rect(<span class="number">0</span>, <span class="number">0</span>).intersect(<span class="kw-2">&amp;</span>rect)<span class="question-mark">?</span>;
         <span class="kw">let </span>row_bytes = <span class="self">self</span>.width() <span class="kw">as </span>usize;
         <span class="kw">let </span>offset = rect.top() <span class="kw">as </span>usize * row_bytes + rect.left() <span class="kw">as </span>usize;
@@ -575,7 +576,7 @@
     <span class="doccomment">/// Loads a PNG file into a `Mask`.
     ///
     /// Only grayscale images are supported.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>decode_png(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, png::DecodingError&gt; {
         <span class="kw">fn </span>make_custom_png_error(msg: <span class="kw-2">&amp;</span>str) -&gt; png::DecodingError {
             std::io::Error::new(std::io::ErrorKind::Other, msg).into()
@@ -588,34 +589,34 @@
         <span class="kw">let </span>info = reader.next_frame(<span class="kw-2">&amp;mut </span>img_data)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>info.bit_depth != png::BitDepth::Eight {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(make_custom_png_error(<span class="string">&quot;unsupported bit depth&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(make_custom_png_error(<span class="string">"unsupported bit depth"</span>));
         }
 
         <span class="kw">if </span>info.color_type != png::ColorType::Grayscale {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(make_custom_png_error(<span class="string">&quot;only grayscale masks are supported&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(make_custom_png_error(<span class="string">"only grayscale masks are supported"</span>));
         }
 
         <span class="kw">let </span>size = IntSize::from_wh(info.width, info.height)
-            .ok_or_else(|| make_custom_png_error(<span class="string">&quot;invalid image size&quot;</span>))<span class="question-mark">?</span>;
+            .ok_or_else(|| make_custom_png_error(<span class="string">"invalid image size"</span>))<span class="question-mark">?</span>;
 
         Mask::from_vec(img_data, size)
-            .ok_or_else(|| make_custom_png_error(<span class="string">&quot;failed to create a mask&quot;</span>))
+            .ok_or_else(|| make_custom_png_error(<span class="string">"failed to create a mask"</span>))
     }
 
     <span class="doccomment">/// Loads a PNG file into a `Mask`.
     ///
     /// Only grayscale images are supported.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>load_png&lt;P: AsRef&lt;std::path::Path&gt;&gt;(path: P) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, png::DecodingError&gt; {
         <span class="comment">// `png::Decoder` is generic over input, which means that it will instance
         // two copies: one for `&amp;[]` and one for `File`. Which will simply bloat the code.
-        // Therefore we&#39;re using only one type for input.
+        // Therefore we're using only one type for input.
         </span><span class="kw">let </span>data = std::fs::read(path)<span class="question-mark">?</span>;
         <span class="self">Self</span>::decode_png(<span class="kw-2">&amp;</span>data)
     }
 
     <span class="doccomment">/// Encodes mask into a PNG data.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>encode_png(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, png::EncodingError&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>data = Vec::new();
         {
@@ -630,7 +631,7 @@
     }
 
     <span class="doccomment">/// Saves mask as a PNG file.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>save_png&lt;P: AsRef&lt;std::path::Path&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, path: P) -&gt; <span class="prelude-ty">Result</span>&lt;(), png::EncodingError&gt; {
         <span class="kw">let </span>data = <span class="self">self</span>.encode_png()<span class="question-mark">?</span>;
         std::fs::write(path, data)<span class="question-mark">?</span>;
@@ -642,7 +643,7 @@
     ///
     /// In terms of RGB (no alpha) image, draws a white path on top of black mask.
     ///
-    /// Doesn&#39;t reset the existing mask content and draws the path on top of existing data.
+    /// Doesn't reset the existing mask content and draws the path on top of existing data.
     ///
     /// If the above behavior is undesired, [`Mask::clear()`] should be called first.
     ///
@@ -661,12 +662,12 @@
             // Skip empty paths and horizontal/vertical lines.
             </span><span class="kw">let </span>path_bounds = path.bounds();
             <span class="kw">if </span>path_bounds.width().is_nearly_zero() || path_bounds.height().is_nearly_zero() {
-                <span class="macro">log::warn!</span>(<span class="string">&quot;empty paths and horizontal/vertical lines cannot be filled&quot;</span>);
+                <span class="macro">log::warn!</span>(<span class="string">"empty paths and horizontal/vertical lines cannot be filled"</span>);
                 <span class="kw">return</span>;
             }
 
             <span class="kw">if </span><span class="kw">crate</span>::painter::is_too_big_for_math(path) {
-                <span class="macro">log::warn!</span>(<span class="string">&quot;path coordinates are too big&quot;</span>);
+                <span class="macro">log::warn!</span>(<span class="string">"path coordinates are too big"</span>);
                 <span class="kw">return</span>;
             }
 
@@ -680,7 +681,7 @@
                     path = <span class="kw">match </span>path.transform(ts) {
                         <span class="prelude-val">Some</span>(v) =&gt; v,
                         <span class="prelude-val">None </span>=&gt; {
-                            <span class="macro">log::warn!</span>(<span class="string">&quot;path transformation failed&quot;</span>);
+                            <span class="macro">log::warn!</span>(<span class="string">"path transformation failed"</span>);
                             <span class="kw">return</span>;
                         }
                     };
@@ -696,8 +697,8 @@
                         <span class="prelude-val">None </span>=&gt; <span class="kw">continue</span>, <span class="comment">// nothing to do, all good
                     </span>};
 
-                    <span class="comment">// We&#39;re ignoring &quot;errors&quot; here, because `fill_path` will return `None`
-                    // when rendering a tile that doesn&#39;t have a path on it.
+                    <span class="comment">// We're ignoring "errors" here, because `fill_path` will return `None`
+                    // when rendering a tile that doesn't have a path on it.
                     // Which is not an error in this case.
                     </span><span class="kw">if </span>anti_alias {
                         scan::path_aa::fill_path(<span class="kw-2">&amp;</span>path, fill_rule, <span class="kw-2">&amp;</span>clip_rect, <span class="kw-2">&amp;mut </span>blitter);
@@ -729,7 +730,7 @@
             <span class="kw">let </span>path = <span class="kw">match </span>path.clone().transform(transform) {
                 <span class="prelude-val">Some</span>(v) =&gt; v,
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="macro">log::warn!</span>(<span class="string">&quot;path transformation failed&quot;</span>);
+                    <span class="macro">log::warn!</span>(<span class="string">"path transformation failed"</span>);
                     <span class="kw">return</span>;
                 }
             };
@@ -770,24 +771,24 @@
 }
 
 <span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>Mask {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;Mask&quot;</span>)
-            .field(<span class="string">&quot;data&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;...&quot;</span>)
-            .field(<span class="string">&quot;width&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.width())
-            .field(<span class="string">&quot;height&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.height())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"Mask"</span>)
+            .field(<span class="string">"data"</span>, <span class="kw-2">&amp;</span><span class="string">"..."</span>)
+            .field(<span class="string">"width"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.width())
+            .field(<span class="string">"height"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.height())
             .finish()
     }
 }
 
 <span class="attr">#[derive(Clone, Copy)]
-</span><span class="kw">pub struct </span>SubMaskRef&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+</span><span class="kw">pub struct </span>SubMaskRef&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
     <span class="kw">pub </span>size: IntSize,
     <span class="kw">pub </span>real_width: u32,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SubMaskRef&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>mask_ctx(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::pipeline::MaskCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SubMaskRef&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>mask_ctx(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::pipeline::MaskCtx&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">crate</span>::pipeline::MaskCtx {
             data: <span class="self">self</span>.data,
             real_width: <span class="self">self</span>.real_width,

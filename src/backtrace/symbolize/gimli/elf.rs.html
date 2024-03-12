@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/symbolize/gimli/elf.rs`."><title>elf.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/symbolize/gimli/elf.rs`."><title>elf.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -507,9 +508,9 @@
 <span class="kw">use </span>object::read::StringTable;
 <span class="kw">use </span>object::{BigEndian, Bytes, NativeEndian};
 
-<span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
+<span class="attr">#[cfg(target_pointer_width = <span class="string">"32"</span>)]
 </span><span class="kw">type </span>Elf = object::elf::FileHeader32&lt;NativeEndian&gt;;
-<span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+<span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
 </span><span class="kw">type </span>Elf = object::elf::FileHeader64&lt;NativeEndian&gt;;
 
 <span class="kw">impl </span>Mapping {
@@ -568,16 +569,16 @@
     }
 
     <span class="doccomment">/// Try to locate a DWARF package file.
-    </span><span class="kw">fn </span>load_dwarf_package&lt;<span class="lifetime">&#39;data</span>&gt;(path: <span class="kw-2">&amp;</span>Path, stash: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Stash) -&gt; <span class="prelude-ty">Option</span>&lt;Object&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+    </span><span class="kw">fn </span>load_dwarf_package&lt;<span class="lifetime">'data</span>&gt;(path: <span class="kw-2">&amp;</span>Path, stash: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Stash) -&gt; <span class="prelude-ty">Option</span>&lt;Object&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>path_dwp = path.to_path_buf();
         <span class="kw">let </span>dwp_extension = path
             .extension()
             .map(|previous_extension| {
                 <span class="kw">let </span><span class="kw-2">mut </span>previous_extension = previous_extension.to_os_string();
-                previous_extension.push(<span class="string">&quot;.dwp&quot;</span>);
+                previous_extension.push(<span class="string">".dwp"</span>);
                 previous_extension
             })
-            .unwrap_or_else(|| <span class="string">&quot;dwp&quot;</span>.into());
+            .unwrap_or_else(|| <span class="string">"dwp"</span>.into());
         path_dwp.set_extension(dwp_extension);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(map_dwp) = <span class="kw">super</span>::mmap(<span class="kw-2">&amp;</span>path_dwp) {
             <span class="kw">let </span>map_dwp = stash.cache_mmap(map_dwp);
@@ -596,21 +597,21 @@
     name: u32,
 }
 
-<span class="kw">pub struct </span>Object&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub struct </span>Object&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Zero-sized type representing the native endianness.
     ///
     /// We could use a literal instead, but this helps ensure correctness.
     </span>endian: NativeEndian,
     <span class="doccomment">/// The entire file data.
-    </span>data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-    sections: SectionTable&lt;<span class="lifetime">&#39;a</span>, Elf&gt;,
-    strings: StringTable&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
+    sections: SectionTable&lt;<span class="lifetime">'a</span>, Elf&gt;,
+    strings: StringTable&lt;<span class="lifetime">'a</span>&gt;,
     <span class="doccomment">/// List of pre-parsed and sorted symbols by base address.
     </span>syms: Vec&lt;ParsedSym&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Object&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>parse(data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Object&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Object&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>parse(data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Object&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">let </span>elf = Elf::parse(data).ok()<span class="question-mark">?</span>;
         <span class="kw">let </span>endian = elf.endian().ok()<span class="question-mark">?</span>;
         <span class="kw">let </span>sections = elf.sections(endian, data).ok()<span class="question-mark">?</span>;
@@ -627,16 +628,16 @@
         <span class="kw">let </span><span class="kw-2">mut </span>syms = syms
             .iter()
             <span class="comment">// Only look at function/object symbols. This mirrors what
-            // libbacktrace does and in general we&#39;re only symbolicating
+            // libbacktrace does and in general we're only symbolicating
             // function addresses in theory. Object symbols correspond
-            // to data, and maybe someone&#39;s crazy enough to have a
+            // to data, and maybe someone's crazy enough to have a
             // function go into static data?
             </span>.filter(|sym| {
                 <span class="kw">let </span>st_type = sym.st_type();
                 st_type == object::elf::STT_FUNC || st_type == object::elf::STT_OBJECT
             })
-            <span class="comment">// skip anything that&#39;s in an undefined section header,
-            // since it means it&#39;s an imported function and we&#39;re only
+            <span class="comment">// skip anything that's in an undefined section header,
+            // since it means it's an imported function and we're only
             // symbolicating with locally defined functions.
             </span>.filter(|sym| sym.st_shndx(endian) != object::elf::SHN_UNDEF)
             .map(|sym| {
@@ -660,12 +661,12 @@
         })
     }
 
-    <span class="kw">pub fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>, stash: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stash, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+    <span class="kw">pub fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>, stash: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stash, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(section) = <span class="self">self</span>.section_header(name) {
             <span class="kw">let </span><span class="kw-2">mut </span>data = Bytes(section.data(<span class="self">self</span>.endian, <span class="self">self</span>.data).ok()<span class="question-mark">?</span>);
 
             <span class="comment">// Check for DWARF-standard (gABI) compression, i.e., as generated
-            // by ld&#39;s `--compress-debug-sections=zlib-gabi` flag.
+            // by ld's `--compress-debug-sections=zlib-gabi` flag.
             </span><span class="kw">let </span>flags: u64 = section.sh_flags(<span class="self">self</span>.endian).into();
             <span class="kw">if </span>(flags &amp; u64::from(SHF_COMPRESSED)) == <span class="number">0 </span>{
                 <span class="comment">// Not compressed.
@@ -684,10 +685,10 @@
         }
 
         <span class="comment">// Check for the nonstandard GNU compression format, i.e., as generated
-        // by ld&#39;s `--compress-debug-sections=zlib-gnu` flag. This means that if
-        // we&#39;re actually asking for `.debug_info` then we need to look up a
+        // by ld's `--compress-debug-sections=zlib-gnu` flag. This means that if
+        // we're actually asking for `.debug_info` then we need to look up a
         // section named `.zdebug_info`.
-        </span><span class="kw">if </span>!name.starts_with(<span class="string">&quot;.debug_&quot;</span>) {
+        </span><span class="kw">if </span>!name.starts_with(<span class="string">".debug_"</span>) {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
         <span class="kw">let </span>debug_name = name[<span class="number">7</span>..].as_bytes();
@@ -696,7 +697,7 @@
             .iter()
             .filter_map(|header| {
                 <span class="kw">let </span>name = <span class="self">self</span>.sections.section_name(<span class="self">self</span>.endian, header).ok()<span class="question-mark">?</span>;
-                <span class="kw">if </span>name.starts_with(<span class="string">b&quot;.zdebug_&quot;</span>) &amp;&amp; <span class="kw-2">&amp;</span>name[<span class="number">8</span>..] == debug_name {
+                <span class="kw">if </span>name.starts_with(<span class="string">b".zdebug_"</span>) &amp;&amp; <span class="kw-2">&amp;</span>name[<span class="number">8</span>..] == debug_name {
                     <span class="prelude-val">Some</span>(header)
                 } <span class="kw">else </span>{
                     <span class="prelude-val">None
@@ -704,7 +705,7 @@
             })
             .next()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>data = Bytes(compressed_section.data(<span class="self">self</span>.endian, <span class="self">self</span>.data).ok()<span class="question-mark">?</span>);
-        <span class="kw">if </span>data.read_bytes(<span class="number">8</span>).ok()<span class="question-mark">?</span>.<span class="number">0 </span>!= <span class="string">b&quot;ZLIB\0\0\0\0&quot; </span>{
+        <span class="kw">if </span>data.read_bytes(<span class="number">8</span>).ok()<span class="question-mark">?</span>.<span class="number">0 </span>!= <span class="string">b"ZLIB\0\0\0\0" </span>{
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
         <span class="kw">let </span>size = usize::try_from(data.read::&lt;object::U32Bytes&lt;<span class="kw">_</span>&gt;&gt;().ok()<span class="question-mark">?</span>.get(BigEndian)).ok()<span class="question-mark">?</span>;
@@ -719,7 +720,7 @@
             .map(|(_index, section)| section)
     }
 
-    <span class="kw">pub fn </span>search_symtab&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">self</span>, addr: u64) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>[u8]&gt; {
+    <span class="kw">pub fn </span>search_symtab&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="self">self</span>, addr: u64) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8]&gt; {
         <span class="comment">// Same sort of binary search as Windows above
         </span><span class="kw">let </span>i = <span class="kw">match </span><span class="self">self</span>.syms.binary_search_by_key(<span class="kw-2">&amp;</span>addr, |sym| sym.address) {
             <span class="prelude-val">Ok</span>(i) =&gt; i,
@@ -733,11 +734,11 @@
         </span>}
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>search_object_map(<span class="kw-2">&amp;</span><span class="self">self</span>, _addr: u64) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>&gt;, u64)&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>search_object_map(<span class="kw-2">&amp;</span><span class="self">self</span>, _addr: u64) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>&gt;, u64)&gt; {
         <span class="prelude-val">None
     </span>}
 
-    <span class="kw">fn </span>build_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+    <span class="kw">fn </span>build_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
         <span class="kw">for </span>section <span class="kw">in </span><span class="self">self</span>.sections.iter() {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="kw-2">mut </span>notes)) = section.notes(<span class="self">self</span>.endian, <span class="self">self</span>.data) {
                 <span class="kw">while let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(note)) = notes.next() {
@@ -750,10 +751,10 @@
         <span class="prelude-val">None
     </span>}
 
-    <span class="comment">// The contents of the &quot;.gnu_debuglink&quot; section is documented at:
+    <span class="comment">// The contents of the ".gnu_debuglink" section is documented at:
     // https://sourceware.org/gdb/onlinedocs/gdb/Separate-Debug-Files.html
     </span><span class="kw">fn </span>gnu_debuglink_path(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Option</span>&lt;(PathBuf, u32)&gt; {
-        <span class="kw">let </span>section = <span class="self">self</span>.section_header(<span class="string">&quot;.gnu_debuglink&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>section = <span class="self">self</span>.section_header(<span class="string">".gnu_debuglink"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>data = section.data(<span class="self">self</span>.endian, <span class="self">self</span>.data).ok()<span class="question-mark">?</span>;
         <span class="kw">let </span>len = data.iter().position(|x| <span class="kw-2">*</span>x == <span class="number">0</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>filename = <span class="kw-2">&amp;</span>data[..len];
@@ -766,9 +767,9 @@
         <span class="prelude-val">Some</span>((path_debug, crc))
     }
 
-    <span class="comment">// The format of the &quot;.gnu_debugaltlink&quot; section is based on gdb.
-    </span><span class="kw">fn </span>gnu_debugaltlink_path(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Option</span>&lt;(PathBuf, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8])&gt; {
-        <span class="kw">let </span>section = <span class="self">self</span>.section_header(<span class="string">&quot;.gnu_debugaltlink&quot;</span>)<span class="question-mark">?</span>;
+    <span class="comment">// The format of the ".gnu_debugaltlink" section is based on gdb.
+    </span><span class="kw">fn </span>gnu_debugaltlink_path(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Option</span>&lt;(PathBuf, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8])&gt; {
+        <span class="kw">let </span>section = <span class="self">self</span>.section_header(<span class="string">".gnu_debugaltlink"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>data = section.data(<span class="self">self</span>.endian, <span class="self">self</span>.data).ok()<span class="question-mark">?</span>;
         <span class="kw">let </span>len = data.iter().position(|x| <span class="kw-2">*</span>x == <span class="number">0</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>filename = <span class="kw-2">&amp;</span>data[..len];
@@ -799,11 +800,11 @@
     </span>}
 }
 
-<span class="kw">const </span>DEBUG_PATH: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;/usr/lib/debug&quot;</span>;
+<span class="kw">const </span>DEBUG_PATH: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"/usr/lib/debug"</span>;
 
 <span class="kw">fn </span>debug_path_exists() -&gt; bool {
     <span class="macro">cfg_if::cfg_if! </span>{
-        <span class="kw">if </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>, target_os = <span class="string">&quot;linux&quot;</span>))] </span>{
+        <span class="kw">if </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>, target_os = <span class="string">"linux"</span>))] </span>{
             <span class="kw">use </span>core::sync::atomic::{AtomicU8, Ordering};
             <span class="kw">static </span>DEBUG_PATH_EXISTS: AtomicU8 = AtomicU8::new(<span class="number">0</span>);
 
@@ -828,8 +829,8 @@
 /// The format of build id paths is documented at:
 /// https://sourceware.org/gdb/onlinedocs/gdb/Separate-Debug-Files.html
 </span><span class="kw">fn </span>locate_build_id(build_id: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
-    <span class="kw">const </span>BUILD_ID_PATH: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;/usr/lib/debug/.build-id/&quot;</span>;
-    <span class="kw">const </span>BUILD_ID_SUFFIX: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;.debug&quot;</span>;
+    <span class="kw">const </span>BUILD_ID_PATH: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"/usr/lib/debug/.build-id/"</span>;
+    <span class="kw">const </span>BUILD_ID_SUFFIX: <span class="kw-2">&amp;</span>[u8] = <span class="string">b".debug"</span>;
 
     <span class="kw">if </span>build_id.len() &lt; <span class="number">2 </span>{
         <span class="kw">return </span><span class="prelude-val">None</span>;
@@ -844,7 +845,7 @@
     path.extend(BUILD_ID_PATH);
     path.push(hex(build_id[<span class="number">0</span>] &gt;&gt; <span class="number">4</span>));
     path.push(hex(build_id[<span class="number">0</span>] &amp; <span class="number">0xf</span>));
-    path.push(<span class="string">b&#39;/&#39;</span>);
+    path.push(<span class="string">b'/'</span>);
     <span class="kw">for </span>byte <span class="kw">in </span><span class="kw-2">&amp;</span>build_id[<span class="number">1</span>..] {
         path.push(hex(byte &gt;&gt; <span class="number">4</span>));
         path.push(hex(byte &amp; <span class="number">0xf</span>));
@@ -855,9 +856,9 @@
 
 <span class="kw">fn </span>hex(byte: u8) -&gt; u8 {
     <span class="kw">if </span>byte &lt; <span class="number">10 </span>{
-        <span class="string">b&#39;0&#39; </span>+ byte
+        <span class="string">b'0' </span>+ byte
     } <span class="kw">else </span>{
-        <span class="string">b&#39;a&#39; </span>+ byte - <span class="number">10
+        <span class="string">b'a' </span>+ byte - <span class="number">10
     </span>}
 }
 
@@ -869,9 +870,9 @@
 /// Search order is based on gdb, documented at:
 /// https://sourceware.org/gdb/onlinedocs/gdb/Separate-Debug-Files.html
 ///
-/// gdb also allows the user to customize the debug search path, but we don&#39;t.
+/// gdb also allows the user to customize the debug search path, but we don't.
 ///
-/// gdb also supports debuginfod, but we don&#39;t yet.
+/// gdb also supports debuginfod, but we don't yet.
 </span><span class="kw">fn </span>locate_debuglink(path: <span class="kw-2">&amp;</span>Path, filename: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
     <span class="kw">let </span>path = fs::canonicalize(path).ok()<span class="question-mark">?</span>;
     <span class="kw">let </span>parent = path.parent()<span class="question-mark">?</span>;
@@ -880,31 +881,31 @@
     ));
     <span class="kw">let </span>filename = Path::new(OsStr::from_bytes(filename));
 
-    <span class="comment">// Try &quot;/parent/filename&quot; if it differs from &quot;path&quot;
+    <span class="comment">// Try "/parent/filename" if it differs from "path"
     </span>f.push(parent);
     f.push(filename);
     <span class="kw">if </span>f != path &amp;&amp; f.is_file() {
         <span class="kw">return </span><span class="prelude-val">Some</span>(f);
     }
 
-    <span class="comment">// Try &quot;/parent/.debug/filename&quot;
+    <span class="comment">// Try "/parent/.debug/filename"
     </span><span class="kw">let </span><span class="kw-2">mut </span>s = OsString::from(f);
     s.clear();
     f = PathBuf::from(s);
     f.push(parent);
-    f.push(<span class="string">&quot;.debug&quot;</span>);
+    f.push(<span class="string">".debug"</span>);
     f.push(filename);
     <span class="kw">if </span>f.is_file() {
         <span class="kw">return </span><span class="prelude-val">Some</span>(f);
     }
 
     <span class="kw">if </span>debug_path_exists() {
-        <span class="comment">// Try &quot;/usr/lib/debug/parent/filename&quot;
+        <span class="comment">// Try "/usr/lib/debug/parent/filename"
         </span><span class="kw">let </span><span class="kw-2">mut </span>s = OsString::from(f);
         s.clear();
         f = PathBuf::from(s);
         f.push(OsStr::from_bytes(DEBUG_PATH));
-        f.push(parent.strip_prefix(<span class="string">&quot;/&quot;</span>).unwrap());
+        f.push(parent.strip_prefix(<span class="string">"/"</span>).unwrap());
         f.push(filename);
         <span class="kw">if </span>f.is_file() {
             <span class="kw">return </span><span class="prelude-val">Some</span>(f);
@@ -923,9 +924,9 @@
 /// - filename, which is either absolute or relative to `path`
 /// - the build ID path under `BUILD_ID_PATH`
 ///
-/// gdb also allows the user to customize the debug search path, but we don&#39;t.
+/// gdb also allows the user to customize the debug search path, but we don't.
 ///
-/// gdb also supports debuginfod, but we don&#39;t yet.
+/// gdb also supports debuginfod, but we don't yet.
 </span><span class="kw">fn </span>locate_debugaltlink(path: <span class="kw-2">&amp;</span>Path, filename: <span class="kw-2">&amp;</span>[u8], build_id: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
     <span class="kw">let </span>filename = Path::new(OsStr::from_bytes(filename));
     <span class="kw">if </span>filename.is_absolute() {
@@ -950,11 +951,11 @@
     <span class="prelude-val">Ok</span>(PathBuf::from(OsStr::from_bytes(<span class="kw-2">&amp;</span>bytes)))
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>handle_split_dwarf&lt;<span class="lifetime">&#39;data</span>&gt;(
-    package: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>gimli::DwarfPackage&lt;EndianSlice&lt;<span class="lifetime">&#39;data</span>, Endian&gt;&gt;&gt;,
-    stash: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Stash,
-    load: addr2line::SplitDwarfLoad&lt;EndianSlice&lt;<span class="lifetime">&#39;data</span>, Endian&gt;&gt;,
-) -&gt; <span class="prelude-ty">Option</span>&lt;Arc&lt;gimli::Dwarf&lt;EndianSlice&lt;<span class="lifetime">&#39;data</span>, Endian&gt;&gt;&gt;&gt; {
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>handle_split_dwarf&lt;<span class="lifetime">'data</span>&gt;(
+    package: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>gimli::DwarfPackage&lt;EndianSlice&lt;<span class="lifetime">'data</span>, Endian&gt;&gt;&gt;,
+    stash: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Stash,
+    load: addr2line::SplitDwarfLoad&lt;EndianSlice&lt;<span class="lifetime">'data</span>, Endian&gt;&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;Arc&lt;gimli::Dwarf&lt;EndianSlice&lt;<span class="lifetime">'data</span>, Endian&gt;&gt;&gt;&gt; {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(dwp) = package.as_ref() {
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(cu)) = dwp.find_cu(load.dwo_id, <span class="kw-2">&amp;</span>load.parent) {
             <span class="kw">return </span><span class="prelude-val">Some</span>(Arc::new(cu));

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hkdf-0.12.4/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hkdf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../hkdf/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="hkdf"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hkdf-0.12.4/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hkdf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../hkdf/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="hkdf"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -294,7 +295,7 @@
 //!
 //! The most common way to use HKDF is as follows: you provide the Initial Key
 //! Material (IKM) and an optional salt, then you expand it (perhaps multiple times)
-//! into some Output Key Material (OKM) bound to an &quot;info&quot; context string.
+//! into some Output Key Material (OKM) bound to an "info" context string.
 //!
 //! There are two usage options for the salt:
 //!
@@ -308,20 +309,20 @@
 //! use hkdf::Hkdf;
 //! use hex_literal::hex;
 //!
-//! let ikm = hex!(&quot;0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b&quot;);
-//! let salt = hex!(&quot;000102030405060708090a0b0c&quot;);
-//! let info = hex!(&quot;f0f1f2f3f4f5f6f7f8f9&quot;);
+//! let ikm = hex!("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b");
+//! let salt = hex!("000102030405060708090a0b0c");
+//! let info = hex!("f0f1f2f3f4f5f6f7f8f9");
 //!
 //! let hk = Hkdf::&lt;Sha256&gt;::new(Some(&amp;salt[..]), &amp;ikm);
 //! let mut okm = [0u8; 42];
 //! hk.expand(&amp;info, &amp;mut okm)
-//!     .expect(&quot;42 is a valid length for Sha256 to output&quot;);
+//!     .expect("42 is a valid length for Sha256 to output");
 //!
-//! let expected = hex!(&quot;
+//! let expected = hex!("
 //!     3cb25f25faacd57a90434f64d0362f2a
 //!     2d2d0a90cf1a5a4c5db02d56ecc4c5bf
 //!     34007208d5b887185865
-//! &quot;);
+//! ");
 //! assert_eq!(okm[..], expected[..]);
 //! ```
 //!
@@ -333,14 +334,14 @@
 //! # use sha2::Sha256;
 //! # use hkdf::Hkdf;
 //! # use hex_literal::hex;
-//! # let ikm = hex!(&quot;0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b&quot;);
-//! # let salt = hex!(&quot;000102030405060708090a0b0c&quot;);
+//! # let ikm = hex!("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b");
+//! # let salt = hex!("000102030405060708090a0b0c");
 //!
 //! let (prk, hk) = Hkdf::&lt;Sha256&gt;::extract(Some(&amp;salt[..]), &amp;ikm);
-//! let expected = hex!(&quot;
+//! let expected = hex!("
 //!     077709362c2e32df0ddc3f0dc47bba63
 //!     90b6c73bb50f9c3122ec844ad7c2b3e5
-//! &quot;);
+//! ");
 //! assert_eq!(prk[..], expected[..]);
 //! ```
 //!
@@ -354,23 +355,23 @@
 //! # use sha2::Sha256;
 //! # use hkdf::Hkdf;
 //! # use hex_literal::hex;
-//! # let salt = hex!(&quot;000102030405060708090a0b0c&quot;);
-//! # let info = hex!(&quot;f0f1f2f3f4f5f6f7f8f9&quot;);
-//! let prk = hex!(&quot;
+//! # let salt = hex!("000102030405060708090a0b0c");
+//! # let info = hex!("f0f1f2f3f4f5f6f7f8f9");
+//! let prk = hex!("
 //!     077709362c2e32df0ddc3f0dc47bba63
 //!     90b6c73bb50f9c3122ec844ad7c2b3e5
-//! &quot;);
+//! ");
 //!
-//! let hk = Hkdf::&lt;Sha256&gt;::from_prk(&amp;prk).expect(&quot;PRK should be large enough&quot;);
+//! let hk = Hkdf::&lt;Sha256&gt;::from_prk(&amp;prk).expect("PRK should be large enough");
 //! let mut okm = [0u8; 42];
 //! hk.expand(&amp;info, &amp;mut okm)
-//!     .expect(&quot;42 is a valid length for Sha256 to output&quot;);
+//!     .expect("42 is a valid length for Sha256 to output");
 //!
-//! let expected = hex!(&quot;
+//! let expected = hex!("
 //!     3cb25f25faacd57a90434f64d0362f2a
 //!     2d2d0a90cf1a5a4c5db02d56ecc4c5bf
 //!     34007208d5b887185865
-//! &quot;);
+//! ");
 //! assert_eq!(okm[..], expected[..]);
 //! ```
 //!
@@ -378,14 +379,14 @@
 
 </span><span class="attr">#![no_std]
 #![doc(
-    html_logo_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg&quot;</span>,
-    html_favicon_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg&quot;
+    html_logo_url = <span class="string">"https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"</span>,
+    html_favicon_url = <span class="string">"https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"
 </span>)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms)]
 
-#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">extern crate </span>std;
 
 <span class="kw">pub use </span>hmac;
@@ -413,12 +414,12 @@
 /// ```rust
 /// # use hkdf::{Hkdf, HkdfExtract};
 /// # use sha2::Sha256;
-/// let mut extract_ctx = HkdfExtract::&lt;Sha256&gt;::new(Some(b&quot;mysalt&quot;));
-/// extract_ctx.input_ikm(b&quot;hello&quot;);
-/// extract_ctx.input_ikm(b&quot; world&quot;);
+/// let mut extract_ctx = HkdfExtract::&lt;Sha256&gt;::new(Some(b"mysalt"));
+/// extract_ctx.input_ikm(b"hello");
+/// extract_ctx.input_ikm(b" world");
 /// let (streamed_res, _) = extract_ctx.finalize();
 ///
-/// let (oneshot_res, _) = Hkdf::&lt;Sha256&gt;::extract(Some(b&quot;mysalt&quot;), b&quot;hello world&quot;);
+/// let (oneshot_res, _) = Hkdf::&lt;Sha256&gt;::extract(Some(b"mysalt"), b"hello world");
 /// assert_eq!(streamed_res, oneshot_res);
 /// ```
 </span><span class="attr">#[derive(Clone)]
@@ -455,7 +456,7 @@
     /// `Hkdf` struct for expanding.
     </span><span class="kw">pub fn </span>finalize(<span class="self">self</span>) -&gt; (Output&lt;H&gt;, Hkdf&lt;H, I&gt;) {
         <span class="kw">let </span>prk = <span class="self">self</span>.hmac.finalize();
-        <span class="kw">let </span>hkdf = Hkdf::from_prk(<span class="kw-2">&amp;</span>prk).expect(<span class="string">&quot;PRK size is correct&quot;</span>);
+        <span class="kw">let </span>hkdf = Hkdf::from_prk(<span class="kw-2">&amp;</span>prk).expect(<span class="string">"PRK size is correct"</span>);
         (prk, hkdf)
     }
 }
@@ -466,10 +467,10 @@
     I: HmacImpl&lt;H&gt;,
     I::Core: AlgorithmName,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;HkdfExtract&lt;&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"HkdfExtract&lt;"</span>)<span class="question-mark">?</span>;
         &lt;I::Core <span class="kw">as </span>AlgorithmName&gt;::write_alg_name(f)<span class="question-mark">?</span>;
-        f.write_str(<span class="string">&quot;&gt; { ... }&quot;</span>)
+        f.write_str(<span class="string">"&gt; { ... }"</span>)
     }
 }
 
@@ -494,7 +495,7 @@
     <span class="doccomment">/// Create `Hkdf` from an already cryptographically strong pseudorandom key
     /// as per section 3.3 from RFC5869.
     </span><span class="kw">pub fn </span>from_prk(prk: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidPrkLength&gt; {
-        <span class="comment">// section 2.3 specifies that prk must be &quot;at least HashLen octets&quot;
+        <span class="comment">// section 2.3 specifies that prk must be "at least HashLen octets"
         </span><span class="kw">if </span>prk.len() &lt; &lt;H <span class="kw">as </span>OutputSizeUser&gt;::OutputSize::to_usize() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidPrkLength);
         }
@@ -555,7 +556,7 @@
 
     <span class="doccomment">/// The RFC5869 HKDF-Expand operation
     ///
-    /// If you don&#39;t have any `info` to pass, use an empty slice.
+    /// If you don't have any `info` to pass, use an empty slice.
     </span><span class="kw">pub fn </span>expand(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>[u8], okm: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), InvalidLength&gt; {
         <span class="self">self</span>.expand_multi_info(<span class="kw-2">&amp;</span>[info], okm)
     }
@@ -567,10 +568,10 @@
     I: HmacImpl&lt;H&gt;,
     I::Core: AlgorithmName,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;Hkdf&lt;&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"Hkdf&lt;"</span>)<span class="question-mark">?</span>;
         &lt;I::Core <span class="kw">as </span>AlgorithmName&gt;::write_alg_name(f)<span class="question-mark">?</span>;
-        f.write_str(<span class="string">&quot;&gt; { ... }&quot;</span>)
+        f.write_str(<span class="string">"&gt; { ... }"</span>)
     }
 }
 

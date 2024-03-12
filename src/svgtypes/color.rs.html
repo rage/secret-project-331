@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/svgtypes-0.13.0/src/color.rs`."><title>color.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="svgtypes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/svgtypes-0.13.0/src/color.rs`."><title>color.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="svgtypes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -684,7 +685,7 @@
     /// # Errors
     ///
     ///  - Returns error if a color has an invalid format.
-    ///  - Returns error if `&lt;color&gt;` is followed by `&lt;icccolor&gt;`. It&#39;s not supported.
+    ///  - Returns error if `&lt;color&gt;` is followed by `&lt;icccolor&gt;`. It's not supported.
     ///
     /// # Notes
     ///
@@ -712,8 +713,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Stream&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="doccomment">/// Tries to parse a color, but doesn&#39;t advance on error.
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Stream&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="doccomment">/// Tries to parse a color, but doesn't advance on error.
     </span><span class="kw">pub fn </span>try_parse_color(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Color&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="kw-2">*</span><span class="self">self</span>;
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(color) = s.parse_color() {
@@ -730,7 +731,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>color = Color::black();
 
-        <span class="kw">if </span><span class="self">self</span>.curr_byte()<span class="question-mark">? </span>== <span class="string">b&#39;#&#39; </span>{
+        <span class="kw">if </span><span class="self">self</span>.curr_byte()<span class="question-mark">? </span>== <span class="string">b'#' </span>{
             <span class="comment">// See https://www.w3.org/TR/css-color-4/#hex-notation
             </span><span class="self">self</span>.advance(<span class="number">1</span>);
             <span class="kw">let </span>color_str = <span class="self">self</span>.consume_bytes(|<span class="kw">_</span>, c| c.is_hex_digit()).as_bytes();
@@ -769,12 +770,12 @@
         } <span class="kw">else </span>{
             <span class="comment">// TODO: remove allocation
             </span><span class="kw">let </span>name = <span class="self">self</span>.consume_ident().to_ascii_lowercase();
-            <span class="kw">if </span>name == <span class="string">&quot;rgb&quot; </span>|| name == <span class="string">&quot;rgba&quot; </span>{
-                <span class="self">self</span>.consume_byte(<span class="string">b&#39;(&#39;</span>)<span class="question-mark">?</span>;
+            <span class="kw">if </span>name == <span class="string">"rgb" </span>|| name == <span class="string">"rgba" </span>{
+                <span class="self">self</span>.consume_byte(<span class="string">b'('</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">let </span><span class="kw-2">mut </span>is_percent = <span class="bool-val">false</span>;
                 <span class="kw">let </span>value = <span class="self">self</span>.parse_number()<span class="question-mark">?</span>;
-                <span class="kw">if </span><span class="self">self</span>.starts_with(<span class="string">b&quot;%&quot;</span>) {
+                <span class="kw">if </span><span class="self">self</span>.starts_with(<span class="string">b"%"</span>) {
                     <span class="self">self</span>.advance(<span class="number">1</span>);
                     is_percent = <span class="bool-val">true</span>;
                 }
@@ -797,14 +798,14 @@
                 }
 
                 <span class="self">self</span>.skip_spaces();
-                <span class="kw">if </span>!<span class="self">self</span>.starts_with(<span class="string">b&quot;)&quot;</span>) {
+                <span class="kw">if </span>!<span class="self">self</span>.starts_with(<span class="string">b")"</span>) {
                     color.alpha = (f64_bound(<span class="number">0.0</span>, <span class="self">self</span>.parse_list_number()<span class="question-mark">?</span>, <span class="number">1.0</span>) * <span class="number">255.0</span>) <span class="kw">as </span>u8;
                 }
 
                 <span class="self">self</span>.skip_spaces();
-                <span class="self">self</span>.consume_byte(<span class="string">b&#39;)&#39;</span>)<span class="question-mark">?</span>;
-            } <span class="kw">else if </span>name == <span class="string">&quot;hsl&quot; </span>|| name == <span class="string">&quot;hsla&quot; </span>{
-                <span class="self">self</span>.consume_byte(<span class="string">b&#39;(&#39;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.consume_byte(<span class="string">b')'</span>)<span class="question-mark">?</span>;
+            } <span class="kw">else if </span>name == <span class="string">"hsl" </span>|| name == <span class="string">"hsla" </span>{
+                <span class="self">self</span>.consume_byte(<span class="string">b'('</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">let </span><span class="kw-2">mut </span>hue = <span class="self">self</span>.parse_list_integer()<span class="question-mark">?</span>;
                 hue = ((hue % <span class="number">360</span>) + <span class="number">360</span>) % <span class="number">360</span>;
@@ -815,12 +816,12 @@
                 color = hsl_to_rgb(hue <span class="kw">as </span>f32 / <span class="number">60.0</span>, saturation <span class="kw">as </span>f32, lightness <span class="kw">as </span>f32);
 
                 <span class="self">self</span>.skip_spaces();
-                <span class="kw">if </span>!<span class="self">self</span>.starts_with(<span class="string">b&quot;)&quot;</span>) {
+                <span class="kw">if </span>!<span class="self">self</span>.starts_with(<span class="string">b")"</span>) {
                     color.alpha = (f64_bound(<span class="number">0.0</span>, <span class="self">self</span>.parse_list_number()<span class="question-mark">?</span>, <span class="number">1.0</span>) * <span class="number">255.0</span>) <span class="kw">as </span>u8;
                 }
 
                 <span class="self">self</span>.skip_spaces();
-                <span class="self">self</span>.consume_byte(<span class="string">b&#39;)&#39;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.consume_byte(<span class="string">b')'</span>)<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
                 <span class="kw">match </span>colors::from_str(<span class="kw-2">&amp;</span>name) {
                     <span class="prelude-val">Some</span>(c) =&gt; {
@@ -840,10 +841,10 @@
 <span class="attr">#[inline]
 </span><span class="kw">fn </span>from_hex(c: u8) -&gt; u8 {
     <span class="kw">match </span>c {
-        <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; c - <span class="string">b&#39;0&#39;</span>,
-        <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;f&#39; </span>=&gt; c - <span class="string">b&#39;a&#39; </span>+ <span class="number">10</span>,
-        <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;F&#39; </span>=&gt; c - <span class="string">b&#39;A&#39; </span>+ <span class="number">10</span>,
-        <span class="kw">_ </span>=&gt; <span class="string">b&#39;0&#39;</span>,
+        <span class="string">b'0'</span>..=<span class="string">b'9' </span>=&gt; c - <span class="string">b'0'</span>,
+        <span class="string">b'a'</span>..=<span class="string">b'f' </span>=&gt; c - <span class="string">b'a' </span>+ <span class="number">10</span>,
+        <span class="string">b'A'</span>..=<span class="string">b'F' </span>=&gt; c - <span class="string">b'A' </span>+ <span class="number">10</span>,
+        <span class="kw">_ </span>=&gt; <span class="string">b'0'</span>,
     }
 }
 
@@ -929,229 +930,229 @@
 
     <span class="macro">test!</span>(
         rrggbb,
-        <span class="string">&quot;#ff0000&quot;</span>,
+        <span class="string">"#ff0000"</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         rrggbb_upper,
-        <span class="string">&quot;#FF0000&quot;</span>,
+        <span class="string">"#FF0000"</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_hex,
-        <span class="string">&quot;#f00&quot;</span>,
+        <span class="string">"#f00"</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         rrggbbaa,
-        <span class="string">&quot;#ff0000ff&quot;</span>,
+        <span class="string">"#ff0000ff"</span>,
         Color::new_rgba(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         rrggbbaa_upper,
-        <span class="string">&quot;#FF0000FF&quot;</span>,
+        <span class="string">"#FF0000FF"</span>,
         Color::new_rgba(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         rgba_hex,
-        <span class="string">&quot;#f00f&quot;</span>,
+        <span class="string">"#f00f"</span>,
         Color::new_rgba(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         rrggbb_spaced,
-        <span class="string">&quot;  #ff0000  &quot;</span>,
+        <span class="string">"  #ff0000  "</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric,
-        <span class="string">&quot;rgb(254, 203, 231)&quot;</span>,
+        <span class="string">"rgb(254, 203, 231)"</span>,
         Color::new_rgb(<span class="number">254</span>, <span class="number">203</span>, <span class="number">231</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric_spaced,
-        <span class="string">&quot; rgb( 77 , 77 , 77 ) &quot;</span>,
+        <span class="string">" rgb( 77 , 77 , 77 ) "</span>,
         Color::new_rgb(<span class="number">77</span>, <span class="number">77</span>, <span class="number">77</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_percentage,
-        <span class="string">&quot;rgb(50%, 50%, 50%)&quot;</span>,
+        <span class="string">"rgb(50%, 50%, 50%)"</span>,
         Color::new_rgb(<span class="number">128</span>, <span class="number">128</span>, <span class="number">128</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_percentage_overflow,
-        <span class="string">&quot;rgb(140%, -10%, 130%)&quot;</span>,
+        <span class="string">"rgb(140%, -10%, 130%)"</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_percentage_float,
-        <span class="string">&quot;rgb(33.333%,46.666%,93.333%)&quot;</span>,
+        <span class="string">"rgb(33.333%,46.666%,93.333%)"</span>,
         Color::new_rgb(<span class="number">85</span>, <span class="number">119</span>, <span class="number">238</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric_upper_case,
-        <span class="string">&quot;RGB(254, 203, 231)&quot;</span>,
+        <span class="string">"RGB(254, 203, 231)"</span>,
         Color::new_rgb(<span class="number">254</span>, <span class="number">203</span>, <span class="number">231</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric_mixed_case,
-        <span class="string">&quot;RgB(254, 203, 231)&quot;</span>,
+        <span class="string">"RgB(254, 203, 231)"</span>,
         Color::new_rgb(<span class="number">254</span>, <span class="number">203</span>, <span class="number">231</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric_red_float,
-        <span class="string">&quot;rgb(3.141592653, 110, 201)&quot;</span>,
+        <span class="string">"rgb(3.141592653, 110, 201)"</span>,
         Color::new_rgb(<span class="number">3</span>, <span class="number">110</span>, <span class="number">201</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric_green_float,
-        <span class="string">&quot;rgb(254, 150.829521289232389, 210)&quot;</span>,
+        <span class="string">"rgb(254, 150.829521289232389, 210)"</span>,
         Color::new_rgb(<span class="number">254</span>, <span class="number">151</span>, <span class="number">210</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric_blue_float,
-        <span class="string">&quot;rgb(96, 255, 0.2)&quot;</span>,
+        <span class="string">"rgb(96, 255, 0.2)"</span>,
         Color::new_rgb(<span class="number">96</span>, <span class="number">255</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric_all_float,
-        <span class="string">&quot;rgb(0.0, 129.82, 231.092)&quot;</span>,
+        <span class="string">"rgb(0.0, 129.82, 231.092)"</span>,
         Color::new_rgb(<span class="number">0</span>, <span class="number">130</span>, <span class="number">231</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric_all_float_with_alpha,
-        <span class="string">&quot;rgb(0.0, 129.82, 231.092, 0.5)&quot;</span>,
+        <span class="string">"rgb(0.0, 129.82, 231.092, 0.5)"</span>,
         Color::new_rgba(<span class="number">0</span>, <span class="number">130</span>, <span class="number">231</span>, <span class="number">127</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_numeric_all_float_overflow,
-        <span class="string">&quot;rgb(290.2, 255.9, 300.0)&quot;</span>,
+        <span class="string">"rgb(290.2, 255.9, 300.0)"</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         name_red,
-        <span class="string">&quot;red&quot;</span>,
+        <span class="string">"red"</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         name_red_spaced,
-        <span class="string">&quot; red &quot;</span>,
+        <span class="string">" red "</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         name_red_upper_case,
-        <span class="string">&quot;RED&quot;</span>,
+        <span class="string">"RED"</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         name_red_mixed_case,
-        <span class="string">&quot;ReD&quot;</span>,
+        <span class="string">"ReD"</span>,
         Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         name_cornflowerblue,
-        <span class="string">&quot;cornflowerblue&quot;</span>,
+        <span class="string">"cornflowerblue"</span>,
         Color::new_rgb(<span class="number">100</span>, <span class="number">149</span>, <span class="number">237</span>)
     );
 
     <span class="macro">test!</span>(
         transparent,
-        <span class="string">&quot;transparent&quot;</span>,
+        <span class="string">"transparent"</span>,
         Color::new_rgba(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         rgba_half,
-        <span class="string">&quot;rgba(10, 20, 30, 0.5)&quot;</span>,
+        <span class="string">"rgba(10, 20, 30, 0.5)"</span>,
         Color::new_rgba(<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">127</span>)
     );
 
     <span class="macro">test!</span>(
         rgba_numeric_red_float,
-        <span class="string">&quot;rgba(3.141592653, 110, 201, 1.0)&quot;</span>,
+        <span class="string">"rgba(3.141592653, 110, 201, 1.0)"</span>,
         Color::new_rgba(<span class="number">3</span>, <span class="number">110</span>, <span class="number">201</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         rgba_numeric_all_float,
-        <span class="string">&quot;rgba(0.0, 129.82, 231.092, 1.5)&quot;</span>,
+        <span class="string">"rgba(0.0, 129.82, 231.092, 1.5)"</span>,
         Color::new_rgba(<span class="number">0</span>, <span class="number">130</span>, <span class="number">231</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         rgba_negative,
-        <span class="string">&quot;rgba(10, 20, 30, -2)&quot;</span>,
+        <span class="string">"rgba(10, 20, 30, -2)"</span>,
         Color::new_rgba(<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">0</span>)
     );
 
     <span class="macro">test!</span>(
         rgba_large_alpha,
-        <span class="string">&quot;rgba(10, 20, 30, 2)&quot;</span>,
+        <span class="string">"rgba(10, 20, 30, 2)"</span>,
         Color::new_rgba(<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         rgb_with_alpha,
-        <span class="string">&quot;rgb(10, 20, 30, 0.5)&quot;</span>,
+        <span class="string">"rgb(10, 20, 30, 0.5)"</span>,
         Color::new_rgba(<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">127</span>)
     );
 
     <span class="macro">test!</span>(
         hsl_green,
-        <span class="string">&quot;hsl(120, 100%, 75%)&quot;</span>,
+        <span class="string">"hsl(120, 100%, 75%)"</span>,
         Color::new_rgba(<span class="number">127</span>, <span class="number">255</span>, <span class="number">127</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         hsl_yellow,
-        <span class="string">&quot;hsl(60, 100%, 50%)&quot;</span>,
+        <span class="string">"hsl(60, 100%, 50%)"</span>,
         Color::new_rgba(<span class="number">255</span>, <span class="number">255</span>, <span class="number">0</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         hsl_hue_360,
-        <span class="string">&quot;hsl(360, 100%, 100%)&quot;</span>,
+        <span class="string">"hsl(360, 100%, 100%)"</span>,
         Color::new_rgba(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         hsl_out_of_bounds,
-        <span class="string">&quot;hsl(800, 150%, -50%)&quot;</span>,
+        <span class="string">"hsl(800, 150%, -50%)"</span>,
         Color::new_rgba(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>)
     );
 
     <span class="macro">test!</span>(
         hsla_green,
-        <span class="string">&quot;hsla(120, 100%, 75%, 0.5)&quot;</span>,
+        <span class="string">"hsla(120, 100%, 75%, 0.5)"</span>,
         Color::new_rgba(<span class="number">127</span>, <span class="number">255</span>, <span class="number">127</span>, <span class="number">127</span>)
     );
 
     <span class="macro">test!</span>(
         hsl_with_alpha,
-        <span class="string">&quot;hsl(120, 100%, 75%, 0.5)&quot;</span>,
+        <span class="string">"hsl(120, 100%, 75%, 0.5)"</span>,
         Color::new_rgba(<span class="number">127</span>, <span class="number">255</span>, <span class="number">127</span>, <span class="number">127</span>)
     );
 
@@ -1166,44 +1167,44 @@
 
     <span class="macro">test_err!</span>(
         not_a_color_1,
-        <span class="string">&quot;text&quot;</span>,
-        <span class="string">&quot;invalid value&quot;
+        <span class="string">"text"</span>,
+        <span class="string">"invalid value"
     </span>);
 
     <span class="macro">test_err!</span>(
         icc_color_not_supported_1,
-        <span class="string">&quot;#CD853F icc-color(acmecmyk, 0.11, 0.48, 0.83, 0.00)&quot;</span>,
-        <span class="string">&quot;unexpected data at position 9&quot;
+        <span class="string">"#CD853F icc-color(acmecmyk, 0.11, 0.48, 0.83, 0.00)"</span>,
+        <span class="string">"unexpected data at position 9"
     </span>);
 
     <span class="macro">test_err!</span>(
         icc_color_not_supported_2,
-        <span class="string">&quot;red icc-color(acmecmyk, 0.11, 0.48, 0.83, 0.00)&quot;</span>,
-        <span class="string">&quot;unexpected data at position 5&quot;
+        <span class="string">"red icc-color(acmecmyk, 0.11, 0.48, 0.83, 0.00)"</span>,
+        <span class="string">"unexpected data at position 5"
     </span>);
 
     <span class="macro">test_err!</span>(
         invalid_input_1,
-        <span class="string">&quot;rgb(-0\x0d&quot;</span>,
-        <span class="string">&quot;unexpected end of stream&quot;
+        <span class="string">"rgb(-0\x0d"</span>,
+        <span class="string">"unexpected end of stream"
     </span>);
 
     <span class="macro">test_err!</span>(
         invalid_input_2,
-        <span class="string">&quot;#9ߞpx! ;&quot;</span>,
-        <span class="string">&quot;invalid value&quot;
+        <span class="string">"#9ߞpx! ;"</span>,
+        <span class="string">"invalid value"
     </span>);
 
     <span class="macro">test_err!</span>(
         rgba_with_percent_alpha,
-        <span class="string">&quot;rgba(10, 20, 30, 5%)&quot;</span>,
-        <span class="string">&quot;expected &#39;)&#39; not &#39;%&#39; at position 19&quot;
+        <span class="string">"rgba(10, 20, 30, 5%)"</span>,
+        <span class="string">"expected ')' not '%' at position 19"
     </span>);
 
     <span class="macro">test_err!</span>(
         rgb_mixed_units,
-        <span class="string">&quot;rgb(140%, -10mm, 130pt)&quot;</span>,
-        <span class="string">&quot;invalid number at position 14&quot;
+        <span class="string">"rgb(140%, -10mm, 130pt)"</span>,
+        <span class="string">"invalid number at position 14"
     </span>);
 }
 </code></pre></div></section></main></body></html>

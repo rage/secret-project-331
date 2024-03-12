@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/key.rs`."><title>key.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/key.rs`."><title>key.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -733,7 +734,7 @@
 #[macro_export]
 </span><span class="macro">macro_rules! </span>leading_tag {
     () =&gt; {
-        <span class="string">&quot;\nicu4x_key_tag&quot;
+        <span class="string">"\nicu4x_key_tag"
     </span>};
 }
 
@@ -741,7 +742,7 @@
 #[macro_export]
 </span><span class="macro">macro_rules! </span>trailing_tag {
     () =&gt; {
-        <span class="string">&quot;\n&quot;
+        <span class="string">"\n"
     </span>};
 }
 
@@ -761,7 +762,7 @@
 ///
 /// The hash will be stable over time within major releases.
 </span><span class="attr">#[<span class="macro-nonterminal">derive</span>(Debug, PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Hash, ULE)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 #[repr(transparent)]
 </span><span class="kw">pub struct </span>DataKeyHash([u8; <span class="number">4</span>]);
 
@@ -796,7 +797,7 @@
 /// 4. FxHash is designed to output 32-bit or 64-bit values, whereas SHA outputs more bits,
 ///    such that truncation would be required in order to fit into a u32, partially reducing
 ///    the benefit of a cryptographically secure algorithm
-</span><span class="comment">// The indexing operations in this function have been reviewed in detail and won&#39;t panic.
+</span><span class="comment">// The indexing operations in this function have been reviewed in detail and won't panic.
 </span><span class="attr">#[allow(clippy::indexing_slicing)]
 </span><span class="kw">const fn </span>fxhash_32(bytes: <span class="kw-2">&amp;</span>[u8], ignore_leading: usize, ignore_trailing: usize) -&gt; u32 {
     <span class="comment">// This code is adapted from https://github.com/rust-lang/rustc-hash,
@@ -854,8 +855,8 @@
     hash
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; zerovec::maps::ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>DataKeyHash {
-    <span class="kw">type </span>Container = zerovec::ZeroVec&lt;<span class="lifetime">&#39;a</span>, DataKeyHash&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; zerovec::maps::ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>DataKeyHash {
+    <span class="kw">type </span>Container = zerovec::ZeroVec&lt;<span class="lifetime">'a</span>, DataKeyHash&gt;;
     <span class="kw">type </span>Slice = zerovec::ZeroSlice&lt;DataKeyHash&gt;;
     <span class="kw">type </span>GetType = &lt;DataKeyHash <span class="kw">as </span>AsULE&gt;::ULE;
     <span class="kw">type </span>OwnedType = DataKeyHash;
@@ -876,18 +877,18 @@
 <span class="comment">// Safe since the ULE type is `self`.
 </span><span class="kw">unsafe impl </span>EqULE <span class="kw">for </span>DataKeyHash {}
 
-<span class="doccomment">/// The string path of a data key. For example, &quot;foo@1&quot;
+<span class="doccomment">/// The string path of a data key. For example, "foo@1"
 </span><span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 </span><span class="kw">pub struct </span>DataKeyPath {
     <span class="comment">// This string literal is wrapped in leading_tag!() and trailing_tag!() to make it detectable
     // in a compiled binary.
-    </span>tagged: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    </span>tagged: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
 }
 
 <span class="kw">impl </span>DataKeyPath {
     <span class="doccomment">/// Gets the path as a static string slice.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>get(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub const fn </span>get(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">unsafe </span>{
             <span class="comment">// Safe due to invariant that self.path is tagged correctly
             </span>core::str::from_utf8_unchecked(core::mem::transmute((
@@ -969,7 +970,7 @@
 ///
 /// ```
 /// # use icu_provider::DataKey;
-/// const K: DataKey = icu_provider::data_key!(&quot;foo/bar@1&quot;);
+/// const K: DataKey = icu_provider::data_key!("foo/bar@1");
 /// ```
 ///
 /// The human-readable path string ends with `@` followed by one or more digits (the version
@@ -979,7 +980,7 @@
 ///
 /// ```compile_fail,E0080
 /// # use icu_provider::DataKey;
-/// const K: DataKey = icu_provider::data_key!(&quot;foo/../bar@1&quot;);
+/// const K: DataKey = icu_provider::data_key!("foo/../bar@1");
 /// ```
 </span><span class="attr">#[derive(Copy, Clone)]
 </span><span class="kw">pub struct </span>DataKey {
@@ -1041,7 +1042,7 @@
     /// use icu_provider::DataKey;
     /// use icu_provider::DataKeyHash;
     ///
-    /// const KEY: DataKey = icu_provider::data_key!(&quot;foo@1&quot;);
+    /// const KEY: DataKey = icu_provider::data_key!("foo@1");
     /// const KEY_HASH: DataKeyHash = KEY.hashed();
     ///
     /// assert_eq!(KEY_HASH.to_bytes(), [0xe2, 0xb6, 0x17, 0x71]);
@@ -1075,7 +1076,7 @@
     /// use icu_provider::data_key;
     /// use icu_provider::DataKey;
     ///
-    /// const CONST_KEY: DataKey = data_key!(&quot;foo@1&quot;);
+    /// const CONST_KEY: DataKey = data_key!("foo@1");
     ///
     /// let runtime_key =
     ///     DataKey::from_path_and_metadata(CONST_KEY.path(), CONST_KEY.metadata());
@@ -1092,15 +1093,15 @@
     }
 
     <span class="attr">#[doc(hidden)]
-    </span><span class="comment">// Error is a str of the expected character class and the index where it wasn&#39;t encountered
-    // The indexing operations in this function have been reviewed in detail and won&#39;t panic.
+    </span><span class="comment">// Error is a str of the expected character class and the index where it wasn't encountered
+    // The indexing operations in this function have been reviewed in detail and won't panic.
     </span><span class="attr">#[allow(clippy::indexing_slicing)]
     </span><span class="kw">pub const fn </span>construct_internal(
-        path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        path: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         metadata: DataKeyMetadata,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, usize)&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, usize)&gt; {
         <span class="kw">if </span>path.len() &lt; <span class="macro">leading_tag!</span>().len() + <span class="macro">trailing_tag!</span>().len() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">&quot;tag&quot;</span>, <span class="number">0</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">"tag"</span>, <span class="number">0</span>));
         }
         <span class="comment">// Start and end of the untagged part
         </span><span class="kw">let </span>start = <span class="macro">leading_tag!</span>().len();
@@ -1110,14 +1111,14 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
         <span class="kw">while </span>i &lt; <span class="macro">leading_tag!</span>().len() {
             <span class="kw">if </span>path.as_bytes()[i] != <span class="macro">leading_tag!</span>().as_bytes()[i] {
-                <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">&quot;tag&quot;</span>, <span class="number">0</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">"tag"</span>, <span class="number">0</span>));
             }
             i += <span class="number">1</span>;
         }
         i = <span class="number">0</span>;
         <span class="kw">while </span>i &lt; <span class="macro">trailing_tag!</span>().len() {
             <span class="kw">if </span>path.as_bytes()[end + i] != <span class="macro">trailing_tag!</span>().as_bytes()[i] {
-                <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">&quot;tag&quot;</span>, end + <span class="number">1</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">"tag"</span>, end + <span class="number">1</span>));
             }
             i += <span class="number">1</span>;
         }
@@ -1137,10 +1138,10 @@
     }
 
     <span class="kw">const fn </span>validate_path_manual_slice(
-        path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        path: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         start: usize,
         end: usize,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, usize)&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, usize)&gt; {
         <span class="macro">debug_assert!</span>(start &lt;= end);
         <span class="macro">debug_assert!</span>(end &lt;= path.len());
         <span class="comment">// Regex: [a-zA-Z0-9_][a-zA-Z0-9_/]*@[0-9]+
@@ -1161,19 +1162,19 @@
                 <span class="prelude-val">None
             </span>};
             state = <span class="kw">match </span>(state, byte) {
-                (Empty | Body, <span class="prelude-val">Some</span>(<span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;z&#39; </span>| <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;Z&#39; </span>| <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>| <span class="string">b&#39;_&#39;</span>)) =&gt; Body,
-                (Body, <span class="prelude-val">Some</span>(<span class="string">b&#39;/&#39;</span>)) =&gt; Body,
-                (Body, <span class="prelude-val">Some</span>(<span class="string">b&#39;@&#39;</span>)) =&gt; At,
-                (At | Version, <span class="prelude-val">Some</span>(<span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>)) =&gt; Version,
+                (Empty | Body, <span class="prelude-val">Some</span>(<span class="string">b'a'</span>..=<span class="string">b'z' </span>| <span class="string">b'A'</span>..=<span class="string">b'Z' </span>| <span class="string">b'0'</span>..=<span class="string">b'9' </span>| <span class="string">b'_'</span>)) =&gt; Body,
+                (Body, <span class="prelude-val">Some</span>(<span class="string">b'/'</span>)) =&gt; Body,
+                (Body, <span class="prelude-val">Some</span>(<span class="string">b'@'</span>)) =&gt; At,
+                (At | Version, <span class="prelude-val">Some</span>(<span class="string">b'0'</span>..=<span class="string">b'9'</span>)) =&gt; Version,
                 <span class="comment">// One of these cases will be hit at the latest when i == end, so the loop converges.
                 </span>(Version, <span class="prelude-val">None</span>) =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 }
 
-                (Empty, <span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">&quot;[a-zA-Z0-9_]&quot;</span>, i)),
-                (Body, <span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">&quot;[a-zA-z0-9_/@]&quot;</span>, i)),
-                (At, <span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, i)),
-                (Version, <span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, i)),
+                (Empty, <span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">"[a-zA-Z0-9_]"</span>, i)),
+                (Body, <span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">"[a-zA-z0-9_/@]"</span>, i)),
+                (At, <span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, i)),
+                (Version, <span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, i)),
             };
             i += <span class="number">1</span>;
         }
@@ -1188,9 +1189,9 @@
     /// ```
     /// use icu_provider::prelude::*;
     ///
-    /// const FOO_BAR: DataKey = icu_provider::data_key!(&quot;foo/bar@1&quot;);
-    /// const FOO_BAZ: DataKey = icu_provider::data_key!(&quot;foo/baz@1&quot;);
-    /// const BAR_BAZ: DataKey = icu_provider::data_key!(&quot;bar/baz@1&quot;);
+    /// const FOO_BAR: DataKey = icu_provider::data_key!("foo/bar@1");
+    /// const FOO_BAZ: DataKey = icu_provider::data_key!("foo/baz@1");
+    /// const BAR_BAZ: DataKey = icu_provider::data_key!("bar/baz@1");
     ///
     /// assert!(matches!(FOO_BAR.match_key(FOO_BAR), Ok(())));
     /// assert!(matches!(
@@ -1232,10 +1233,10 @@
             <span class="kw">match </span><span class="macro-nonterminal">$crate::DataKey::construct_internal</span>(<span class="macro-nonterminal">$</span><span class="macro">crate::tagged!</span>(<span class="macro-nonterminal">$path</span>), <span class="macro-nonterminal">$metadata</span>) {
                 <span class="prelude-val">Ok</span>(v) =&gt; v,
                 <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// Const context
-                </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="macro">concat!</span>(<span class="string">&quot;Invalid resource key: &quot;</span>, <span class="macro-nonterminal">$path</span>)),
+                </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="macro">concat!</span>(<span class="string">"Invalid resource key: "</span>, <span class="macro-nonterminal">$path</span>)),
                 <span class="comment">// TODO Once formatting is const:
                 // Err((expected, index)) =&gt; panic!(
-                //     &quot;Invalid resource key {:?}: expected {:?}, found {:?} &quot;,
+                //     "Invalid resource key {:?}: expected {:?}, found {:?} ",
                 //     $path,
                 //     expected,
                 //     $crate::tagged!($path).get(index..))
@@ -1248,9 +1249,9 @@
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>DataKey {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;DataKey{&quot;</span>)<span class="question-mark">?</span>;
+        f.write_str(<span class="string">"DataKey{"</span>)<span class="question-mark">?</span>;
         fmt::Display::fmt(<span class="self">self</span>, f)<span class="question-mark">?</span>;
-        f.write_char(<span class="string">&#39;}&#39;</span>)<span class="question-mark">?</span>;
+        f.write_char(<span class="string">'}'</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }
@@ -1274,92 +1275,92 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_path_syntax() {
     <span class="comment">// Valid keys:
-    </span>DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello/world@1&quot;</span>), Default::default()).unwrap();
-    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello/world/foo@1&quot;</span>), Default::default()).unwrap();
-    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello/world@999&quot;</span>), Default::default()).unwrap();
-    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello_world/foo@1&quot;</span>), Default::default()).unwrap();
-    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello_458/world@1&quot;</span>), Default::default()).unwrap();
-    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello_world@1&quot;</span>), Default::default()).unwrap();
+    </span>DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello/world@1"</span>), Default::default()).unwrap();
+    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello/world/foo@1"</span>), Default::default()).unwrap();
+    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello/world@999"</span>), Default::default()).unwrap();
+    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello_world/foo@1"</span>), Default::default()).unwrap();
+    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello_458/world@1"</span>), Default::default()).unwrap();
+    DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello_world@1"</span>), Default::default()).unwrap();
 
     <span class="comment">// No version:
     </span><span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello/world&quot;</span>), Default::default()),
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello/world"</span>), Default::default()),
         <span class="prelude-val">Err</span>((
-            <span class="string">&quot;[a-zA-z0-9_/@]&quot;</span>,
-            <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;hello/world&quot;</span>).len()
+            <span class="string">"[a-zA-z0-9_/@]"</span>,
+            <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"hello/world"</span>).len()
         ))
     );
 
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello/world@&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;hello/world@&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello/world@"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"hello/world@"</span>).len()))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello/world@foo&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;hello/world@&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello/world@foo"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"hello/world@"</span>).len()))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;hello/world@1foo&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;hello/world@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"hello/world@1foo"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"hello/world@1"</span>).len()))
     );
 
     <span class="comment">// Meta no longer accepted:
     </span><span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;foo@1[R]&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;foo@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"foo@1[R]"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"foo@1"</span>).len()))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;foo@1[u-ca]&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;foo@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"foo@1[u-ca]"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"foo@1"</span>).len()))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;foo@1[R][u-ca]&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;foo@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"foo@1[R][u-ca]"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"foo@1"</span>).len()))
     );
 
     <span class="comment">// Invalid meta:
     </span><span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;foo@1[U]&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;foo@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"foo@1[U]"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"foo@1"</span>).len()))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;foo@1[uca]&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;foo@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"foo@1[uca]"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"foo@1"</span>).len()))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;foo@1[u-&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;foo@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"foo@1[u-"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"foo@1"</span>).len()))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;foo@1[u-caa]&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;foo@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"foo@1[u-caa]"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"foo@1"</span>).len()))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;foo@1[R&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[0-9]&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;foo@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"foo@1[R"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[0-9]"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"foo@1"</span>).len()))
     );
 
     <span class="comment">// Invalid characters:
     </span><span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">&quot;你好/世界@1&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;[a-zA-Z0-9_]&quot;</span>, <span class="macro">leading_tag!</span>().len()))
+        DataKey::construct_internal(<span class="macro">tagged!</span>(<span class="string">"你好/世界@1"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"[a-zA-Z0-9_]"</span>, <span class="macro">leading_tag!</span>().len()))
     );
 
     <span class="comment">// Invalid tag:
     </span><span class="macro">assert_eq!</span>(
         DataKey::construct_internal(
-            <span class="macro">concat!</span>(<span class="string">&quot;hello/world@1&quot;</span>, <span class="macro">trailing_tag!</span>()),
+            <span class="macro">concat!</span>(<span class="string">"hello/world@1"</span>, <span class="macro">trailing_tag!</span>()),
             Default::default()
         ),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;tag&quot;</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>((<span class="string">"tag"</span>, <span class="number">0</span>))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;hello/world@1&quot;</span>), Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;tag&quot;</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">&quot;hello/world@1&quot;</span>).len()))
+        DataKey::construct_internal(<span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"hello/world@1"</span>), Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"tag"</span>, <span class="macro">concat!</span>(<span class="macro">leading_tag!</span>(), <span class="string">"hello/world@1"</span>).len()))
     );
     <span class="macro">assert_eq!</span>(
-        DataKey::construct_internal(<span class="string">&quot;hello/world@1&quot;</span>, Default::default()),
-        <span class="prelude-val">Err</span>((<span class="string">&quot;tag&quot;</span>, <span class="number">0</span>))
+        DataKey::construct_internal(<span class="string">"hello/world@1"</span>, Default::default()),
+        <span class="prelude-val">Err</span>((<span class="string">"tag"</span>, <span class="number">0</span>))
     );
 }
 
@@ -1367,21 +1368,21 @@
 </span><span class="kw">fn </span>test_key_to_string() {
     <span class="kw">struct </span>KeyTestCase {
         <span class="kw">pub </span>key: DataKey,
-        <span class="kw">pub </span>expected: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        <span class="kw">pub </span>expected: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     }
 
     <span class="kw">for </span>cas <span class="kw">in </span>[
         KeyTestCase {
-            key: <span class="macro">data_key!</span>(<span class="string">&quot;core/cardinal@1&quot;</span>),
-            expected: <span class="string">&quot;core/cardinal@1&quot;</span>,
+            key: <span class="macro">data_key!</span>(<span class="string">"core/cardinal@1"</span>),
+            expected: <span class="string">"core/cardinal@1"</span>,
         },
         KeyTestCase {
-            key: <span class="macro">data_key!</span>(<span class="string">&quot;core/maxlengthsubcatg@1&quot;</span>),
-            expected: <span class="string">&quot;core/maxlengthsubcatg@1&quot;</span>,
+            key: <span class="macro">data_key!</span>(<span class="string">"core/maxlengthsubcatg@1"</span>),
+            expected: <span class="string">"core/maxlengthsubcatg@1"</span>,
         },
         KeyTestCase {
-            key: <span class="macro">data_key!</span>(<span class="string">&quot;core/cardinal@65535&quot;</span>),
-            expected: <span class="string">&quot;core/cardinal@65535&quot;</span>,
+            key: <span class="macro">data_key!</span>(<span class="string">"core/cardinal@65535"</span>),
+            expected: <span class="string">"core/cardinal@65535"</span>,
         },
     ] {
         <span class="macro">writeable::assert_writeable_eq!</span>(<span class="kw-2">&amp;</span>cas.key, cas.expected);
@@ -1391,21 +1392,21 @@
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_hash_word_32() {
-    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b&quot;&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b&quot;a&quot;</span>, <span class="number">1</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b&quot;a&quot;</span>, <span class="number">0</span>, <span class="number">1</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b&quot;a&quot;</span>, <span class="number">0</span>, <span class="number">10</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b&quot;a&quot;</span>, <span class="number">10</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b&quot;a&quot;</span>, <span class="number">1</span>, <span class="number">1</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0xF3051F19</span>, fxhash_32(<span class="string">b&quot;a&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0x2F9DF119</span>, fxhash_32(<span class="string">b&quot;ab&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0xCB1D9396</span>, fxhash_32(<span class="string">b&quot;abc&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0x8628F119</span>, fxhash_32(<span class="string">b&quot;abcd&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0xBEBDB56D</span>, fxhash_32(<span class="string">b&quot;abcde&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0x1CE8476D</span>, fxhash_32(<span class="string">b&quot;abcdef&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0xC0F176A4</span>, fxhash_32(<span class="string">b&quot;abcdefg&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0x09AB476D</span>, fxhash_32(<span class="string">b&quot;abcdefgh&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
-    <span class="macro">assert_eq!</span>(<span class="number">0xB72F5D88</span>, fxhash_32(<span class="string">b&quot;abcdefghi&quot;</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b""</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b"a"</span>, <span class="number">1</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b"a"</span>, <span class="number">0</span>, <span class="number">1</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b"a"</span>, <span class="number">0</span>, <span class="number">10</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b"a"</span>, <span class="number">10</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0</span>, fxhash_32(<span class="string">b"a"</span>, <span class="number">1</span>, <span class="number">1</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0xF3051F19</span>, fxhash_32(<span class="string">b"a"</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0x2F9DF119</span>, fxhash_32(<span class="string">b"ab"</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0xCB1D9396</span>, fxhash_32(<span class="string">b"abc"</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0x8628F119</span>, fxhash_32(<span class="string">b"abcd"</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0xBEBDB56D</span>, fxhash_32(<span class="string">b"abcde"</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0x1CE8476D</span>, fxhash_32(<span class="string">b"abcdef"</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0xC0F176A4</span>, fxhash_32(<span class="string">b"abcdefg"</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0x09AB476D</span>, fxhash_32(<span class="string">b"abcdefgh"</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="macro">assert_eq!</span>(<span class="number">0xB72F5D88</span>, fxhash_32(<span class="string">b"abcdefghi"</span>, <span class="number">0</span>, <span class="number">0</span>));
 }
 
 <span class="attr">#[test]
@@ -1417,19 +1418,19 @@
 
     <span class="kw">for </span>cas <span class="kw">in </span>[
         KeyTestCase {
-            key: <span class="macro">data_key!</span>(<span class="string">&quot;core/cardinal@1&quot;</span>),
+            key: <span class="macro">data_key!</span>(<span class="string">"core/cardinal@1"</span>),
             hash: DataKeyHash([<span class="number">172</span>, <span class="number">207</span>, <span class="number">42</span>, <span class="number">236</span>]),
         },
         KeyTestCase {
-            key: <span class="macro">data_key!</span>(<span class="string">&quot;core/maxlengthsubcatg@1&quot;</span>),
+            key: <span class="macro">data_key!</span>(<span class="string">"core/maxlengthsubcatg@1"</span>),
             hash: DataKeyHash([<span class="number">193</span>, <span class="number">6</span>, <span class="number">79</span>, <span class="number">61</span>]),
         },
         KeyTestCase {
-            key: <span class="macro">data_key!</span>(<span class="string">&quot;core/cardinal@65535&quot;</span>),
+            key: <span class="macro">data_key!</span>(<span class="string">"core/cardinal@65535"</span>),
             hash: DataKeyHash([<span class="number">176</span>, <span class="number">131</span>, <span class="number">182</span>, <span class="number">223</span>]),
         },
     ] {
-        <span class="macro">assert_eq!</span>(cas.hash, cas.key.hashed(), <span class="string">&quot;{}&quot;</span>, cas.key);
+        <span class="macro">assert_eq!</span>(cas.hash, cas.key.hashed(), <span class="string">"{}"</span>, cas.key);
     }
 }
 </code></pre></div></section></main></body></html>

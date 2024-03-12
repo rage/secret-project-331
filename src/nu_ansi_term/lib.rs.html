@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nu-ansi-term-0.46.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nu_ansi_term" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nu-ansi-term-0.46.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nu_ansi_term" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -293,7 +294,7 @@
 //! ```
 //! use nu_ansi_term::Color::Red;
 //!
-//! println!(&quot;This is in red: {}&quot;, Red.paint(&quot;a red string&quot;));
+//! println!("This is in red: {}", Red.paint("a red string"));
 //! ```
 //!
 //! It’s important to note that the `paint` method does *not* actually return a
@@ -308,7 +309,7 @@
 //! ```
 //! use nu_ansi_term::Color::Red;
 //!
-//! let red_string = Red.paint(&quot;a red string&quot;).to_string();
+//! let red_string = Red.paint("a red string").to_string();
 //! ```
 //!
 //!
@@ -323,9 +324,9 @@
 //! ```
 //! use nu_ansi_term::Style;
 //!
-//! println!(&quot;How about some {} and {}?&quot;,
-//!          Style::new().bold().paint(&quot;bold&quot;),
-//!          Style::new().underline().paint(&quot;underline&quot;));
+//! println!("How about some {} and {}?",
+//!          Style::new().bold().paint("bold"),
+//!          Style::new().underline().paint("underline"));
 //! ```
 //!
 //! For brevity, these methods have also been implemented for `Color` values,
@@ -335,11 +336,11 @@
 //! ```
 //! use nu_ansi_term::Color::{Blue, Yellow};
 //!
-//! println!(&quot;Demonstrating {} and {}!&quot;,
-//!          Blue.bold().paint(&quot;blue bold&quot;),
-//!          Yellow.underline().paint(&quot;yellow underline&quot;));
+//! println!("Demonstrating {} and {}!",
+//!          Blue.bold().paint("blue bold"),
+//!          Yellow.underline().paint("yellow underline"));
 //!
-//! println!(&quot;Yellow on blue: {}&quot;, Yellow.on(Blue).paint(&quot;wow!&quot;));
+//! println!("Yellow on blue: {}", Yellow.on(Blue).paint("wow!"));
 //! ```
 //!
 //! The complete list of styles you can use are: [`bold`], [`dimmed`], [`italic`],
@@ -354,8 +355,8 @@
 //! use nu_ansi_term::Style;
 //! use nu_ansi_term::Color::{Blue, Cyan, Yellow};
 //!
-//! println!(&quot;Yellow on blue: {}&quot;, Style::new().on(Blue).fg(Yellow).paint(&quot;yow!&quot;));
-//! println!(&quot;Also yellow on blue: {}&quot;, Cyan.on(Blue).fg(Yellow).paint(&quot;zow!&quot;));
+//! println!("Yellow on blue: {}", Style::new().on(Blue).fg(Yellow).paint("yow!"));
+//! println!("Also yellow on blue: {}", Cyan.on(Blue).fg(Yellow).paint("zow!"));
 //! ```
 //!
 //! You can turn a `Color` into a `Style` with the [`normal`] method.
@@ -370,8 +371,8 @@
 //! use nu_ansi_term::Style;
 //! use nu_ansi_term::Color::Red;
 //!
-//! Red.normal().paint(&quot;yet another red string&quot;);
-//! Style::default().paint(&quot;a completely regular string&quot;);
+//! Red.normal().paint("yet another red string");
+//! Style::default().paint("a completely regular string");
 //! ```
 //!
 //!
@@ -384,8 +385,8 @@
 //! ```
 //! use nu_ansi_term::Color::Fixed;
 //!
-//! Fixed(134).paint(&quot;A sort of light purple&quot;);
-//! Fixed(221).on(Fixed(124)).paint(&quot;Mustard in the ketchup&quot;);
+//! Fixed(134).paint("A sort of light purple");
+//! Fixed(221).on(Fixed(124)).paint("Mustard in the ketchup");
 //! ```
 //!
 //! The first sixteen of these values are the same as the normal and bold
@@ -399,7 +400,7 @@
 //! ```
 //! use nu_ansi_term::Color::Rgb;
 //!
-//! Rgb(70, 130, 180).paint(&quot;Steel blue&quot;);
+//! Rgb(70, 130, 180).paint("Steel blue");
 //! ```
 //!
 //! ## Combining successive colored strings
@@ -425,14 +426,14 @@
 //! use nu_ansi_term::Color::Red;
 //! use nu_ansi_term::{AnsiString, AnsiStrings};
 //!
-//! let some_value = format!(&quot;{:b}&quot;, 42);
-//! let strings: &amp;[AnsiString&lt;&#39;static&gt;] = &amp;[
-//!     Red.paint(&quot;[&quot;),
+//! let some_value = format!("{:b}", 42);
+//! let strings: &amp;[AnsiString&lt;'static&gt;] = &amp;[
+//!     Red.paint("["),
 //!     Red.bold().paint(some_value),
-//!     Red.paint(&quot;]&quot;),
+//!     Red.paint("]"),
 //! ];
 //!
-//! println!(&quot;Value: {}&quot;, AnsiStrings(strings));
+//! println!("Value: {}", AnsiStrings(strings));
 //! ```
 //!
 //! There are several things to note here. Firstly, the [`paint`] method can take
@@ -456,7 +457,7 @@
 //! ```
 //! use nu_ansi_term::Color::Green;
 //!
-//! Green.paint(&quot;user data&quot;.as_bytes()).write_to(&amp;mut std::io::stdout()).unwrap();
+//! Green.paint("user data".as_bytes()).write_to(&amp;mut std::io::stdout()).unwrap();
 //! ```
 //!
 //! Similarly, the type [`AnsiByteStrings`] supports writing a list of
@@ -467,8 +468,8 @@
 //! use nu_ansi_term::AnsiByteStrings;
 //!
 //! AnsiByteStrings(&amp;[
-//!     Green.paint(&quot;user data 1\n&quot;.as_bytes()),
-//!     Green.bold().paint(&quot;user data 2\n&quot;.as_bytes()),
+//!     Green.paint("user data 1\n".as_bytes()),
+//!     Green.bold().paint("user data 2\n".as_bytes()),
 //! ]).write_to(&amp;mut std::io::stdout()).unwrap();
 //! ```
 //!
@@ -501,21 +502,21 @@
 //! [`fg`]: struct.Style.html#method.fg
 //! [`on`]: struct.Style.html#method.on
 
-</span><span class="attr">#![crate_name = <span class="string">&quot;nu_ansi_term&quot;</span>]
-#![crate_type = <span class="string">&quot;rlib&quot;</span>]
+</span><span class="attr">#![crate_name = <span class="string">"nu_ansi_term"</span>]
+#![crate_type = <span class="string">"rlib"</span>]
 #![warn(missing_copy_implementations)]
 </span><span class="comment">// #![warn(missing_docs)]
 </span><span class="attr">#![warn(trivial_casts, trivial_numeric_casts)]
 </span><span class="comment">// #![warn(unused_extern_crates, unused_qualifications)]
 
-</span><span class="attr">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)]
+</span><span class="attr">#[cfg(target_os = <span class="string">"windows"</span>)]
 </span><span class="kw">extern crate </span>winapi;
 <span class="attr">#[cfg(test)]
 #[macro_use]
 </span><span class="kw">extern crate </span>doc_comment;
 
 <span class="attr">#[cfg(test)]
-</span><span class="macro">doctest!</span>(<span class="string">&quot;../README.md&quot;</span>);
+</span><span class="macro">doctest!</span>(<span class="string">"../README.md"</span>);
 
 <span class="kw">pub mod </span>ansi;
 <span class="kw">pub use </span>ansi::{Infix, Prefix, Suffix};

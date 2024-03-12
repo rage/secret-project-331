@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/ule/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/ule/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -398,7 +399,7 @@
 
 </span><span class="attr">#![allow(clippy::upper_case_acronyms)]
 
-</span><span class="doccomment">//! Traits over unaligned little-endian data (ULE, pronounced &quot;yule&quot;).
+</span><span class="doccomment">//! Traits over unaligned little-endian data (ULE, pronounced "yule").
 //!
 //! The main traits for this module are [`ULE`], [`AsULE`] and, [`VarULE`].
 //!
@@ -438,7 +439,7 @@
 ///
 /// Types that are not fixed-width can implement [`VarULE`] instead.
 ///
-/// &quot;ULE&quot; stands for &quot;Unaligned little-endian&quot;
+/// "ULE" stands for "Unaligned little-endian"
 ///
 /// # Safety
 ///
@@ -462,10 +463,10 @@
 /// A non-safety invariant is that if `Self` implements `PartialEq`, the it *must* be logically
 /// equivalent to byte equality on [`Self::as_byte_slice()`].
 ///
-/// It may be necessary to introduce a &quot;canonical form&quot; of the ULE if logical equality does not
+/// It may be necessary to introduce a "canonical form" of the ULE if logical equality does not
 /// equal byte equality. In such a case, [`Self::validate_byte_slice()`] should return an error
-/// for any values that are not in canonical form. For example, the decimal strings &quot;1.23e4&quot; and
-/// &quot;12.3e3&quot; are logically equal, but not byte-for-byte equal, so we could define a canonical form
+/// for any values that are not in canonical form. For example, the decimal strings "1.23e4" and
+/// "12.3e3" are logically equal, but not byte-for-byte equal, so we could define a canonical form
 /// where only a single digit is allowed before `.`.
 ///
 /// Failure to follow this invariant will cause surprising behavior in `PartialEq`, which may
@@ -473,7 +474,7 @@
 </span><span class="kw">pub unsafe trait </span>ULE
 <span class="kw">where
     </span><span class="self">Self</span>: Sized,
-    <span class="self">Self</span>: Copy + <span class="lifetime">&#39;static</span>,
+    <span class="self">Self</span>: Copy + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Validates a byte slice, `&amp;[u8]`.
     ///
@@ -514,7 +515,7 @@
     /// ## Implementors
     ///
     /// Implementations of this method may call unsafe functions to cast the pointer to the correct
-    /// type, assuming the &quot;Callers&quot; invariant above.
+    /// type, assuming the "Callers" invariant above.
     ///
     /// Keep in mind that `&amp;[Self]` and `&amp;[u8]` may have different lengths.
     ///
@@ -588,7 +589,7 @@
 ///
 /// # Implementation safety
 ///
-/// This trait is safe to implement if the type&#39;s ULE (as defined by `impl `[`AsULE`]` for T`)
+/// This trait is safe to implement if the type's ULE (as defined by `impl `[`AsULE`]` for T`)
 /// has an equal byte sequence as the type itself on little-endian platforms; i.e., one where
 /// `*const T` can be cast to a valid `*const T::ULE`.
 </span><span class="kw">pub unsafe trait </span>EqULE: AsULE {}
@@ -606,7 +607,7 @@
     </span><span class="kw">fn </span>slice_to_unaligned(slice: <span class="kw-2">&amp;</span>[<span class="self">Self</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[<span class="self">Self</span>::ULE]&gt;;
 }
 
-<span class="attr">#[cfg(target_endian = <span class="string">&quot;little&quot;</span>)]
+<span class="attr">#[cfg(target_endian = <span class="string">"little"</span>)]
 </span><span class="kw">impl</span>&lt;T&gt; SliceAsULE <span class="kw">for </span>T
 <span class="kw">where
     </span>T: EqULE,
@@ -622,7 +623,7 @@
     }
 }
 
-<span class="attr">#[cfg(not(target_endian = <span class="string">&quot;little&quot;</span>))]
+<span class="attr">#[cfg(not(target_endian = <span class="string">"little"</span>))]
 </span><span class="kw">impl</span>&lt;T&gt; SliceAsULE <span class="kw">for </span>T
 <span class="kw">where
     </span>T: EqULE,
@@ -672,10 +673,10 @@
 /// A non-safety invariant is that if `Self` implements `PartialEq`, the it *must* be logically
 /// equivalent to byte equality on [`Self::as_byte_slice()`].
 ///
-/// It may be necessary to introduce a &quot;canonical form&quot; of the ULE if logical equality does not
+/// It may be necessary to introduce a "canonical form" of the ULE if logical equality does not
 /// equal byte equality. In such a case, [`Self::validate_byte_slice()`] should return an error
-/// for any values that are not in canonical form. For example, the decimal strings &quot;1.23e4&quot; and
-/// &quot;12.3e3&quot; are logically equal, but not byte-for-byte equal, so we could define a canonical form
+/// for any values that are not in canonical form. For example, the decimal strings "1.23e4" and
+/// "12.3e3" are logically equal, but not byte-for-byte equal, so we could define a canonical form
 /// where only a single digit is allowed before `.`.
 ///
 /// There may also be cases where a `VarULE` has muiltiple canonical forms, such as a faster
@@ -686,7 +687,7 @@
 ///
 /// Failure to follow this invariant will cause surprising behavior in `PartialEq`, which may
 /// result in unpredictable operations on `ZeroVec`, `VarZeroVec`, and `ZeroMap`.
-</span><span class="kw">pub unsafe trait </span>VarULE: <span class="lifetime">&#39;static </span>{
+</span><span class="kw">pub unsafe trait </span>VarULE: <span class="lifetime">'static </span>{
     <span class="doccomment">/// Validates a byte slice, `&amp;[u8]`.
     ///
     /// If `Self` is not well-defined for all possible bit values, the bytes should be validated.
@@ -726,7 +727,7 @@
     /// ## Implementors
     ///
     /// Implementations of this method may call unsafe functions to cast the pointer to the correct
-    /// type, assuming the &quot;Callers&quot; invariant above.
+    /// type, assuming the "Callers" invariant above.
     ///
     /// Safety checklist:
     ///
@@ -775,7 +776,7 @@
 ///
 /// Most of the time, it is recommended one use [`#[make_ule]`](crate::make_ule) instead of defining
 /// a custom ULE type.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;derive&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"derive"</span>)]
 </span><span class="kw">pub use </span>zerovec_derive::ULE;
 
 <span class="doccomment">/// Custom derive for [`VarULE`]
@@ -784,6 +785,6 @@
 ///
 /// Most of the time, it is recommended one use [`#[make_varule]`](crate::make_varule) instead of defining
 /// a custom [`VarULE`] type.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;derive&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"derive"</span>)]
 </span><span class="kw">pub use </span>zerovec_derive::VarULE;
 </code></pre></div></section></main></body></html>

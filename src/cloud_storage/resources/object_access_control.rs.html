@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/object_access_control.rs`."><title>object_access_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/object_access_control.rs`."><title>object_access_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -487,7 +488,7 @@
 /// For more information, see Access Control, with the caveat that this API uses READER and OWNER
 /// instead of READ and FULL_CONTROL.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>ObjectAccessControl {
     <span class="doccomment">/// The kind of item this is. For object access control entries, this is always
     /// `storage#objectAccessControl`.
@@ -536,7 +537,7 @@
 
 <span class="doccomment">/// Used to create a new `ObjectAccessControl` object.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>NewObjectAccessControl {
     <span class="doccomment">/// The entity holding the permission, in one of the following forms:
     ///
@@ -562,7 +563,7 @@
 
 <span class="attr">#[allow(unused)]
 #[derive(Debug, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">struct </span>ObjectAccessControlList {
     kind: String,
     items: Vec&lt;ObjectAccessControl&gt;,
@@ -575,7 +576,7 @@
     /// This method fails with a 400 Bad Request response for buckets with uniform
     /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
     /// control access instead.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>create(
         bucket: <span class="kw-2">&amp;</span>str,
         object: <span class="kw-2">&amp;</span>str,
@@ -591,7 +592,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>create_sync(
         bucket: <span class="kw-2">&amp;</span>str,
         object: <span class="kw-2">&amp;</span>str,
@@ -606,7 +607,7 @@
     /// Important: This method fails with a 400 Bad Request response for buckets with uniform
     /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
     /// control access instead.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>list(bucket: <span class="kw-2">&amp;</span>str, object: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .object_access_control()
@@ -618,7 +619,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>list_sync(bucket: <span class="kw-2">&amp;</span>str, object: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::list(bucket, object))
     }
@@ -629,7 +630,7 @@
     /// Important: This method fails with a 400 Bad Request response for buckets with uniform
     /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
     /// control access instead.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>read(bucket: <span class="kw-2">&amp;</span>str, object: <span class="kw-2">&amp;</span>str, entity: <span class="kw-2">&amp;</span>Entity) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .object_access_control()
@@ -641,7 +642,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>read_sync(bucket: <span class="kw-2">&amp;</span>str, object: <span class="kw-2">&amp;</span>str, entity: <span class="kw-2">&amp;</span>Entity) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::read(bucket, object, entity))
     }
@@ -652,7 +653,7 @@
     /// Important: This method fails with a 400 Bad Request response for buckets with uniform
     /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
     /// control access instead.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .object_access_control()
@@ -664,7 +665,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>update_sync(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.update())
     }
@@ -675,7 +676,7 @@
     /// Important: This method fails with a 400 Bad Request response for buckets with uniform
     /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
     /// control access instead.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>delete(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .object_access_control()
@@ -687,13 +688,13 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>delete_sync(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.delete())
     }
 }
 
-<span class="attr">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>))]
+<span class="attr">#[cfg(all(test, feature = <span class="string">"global-client"</span>))]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::Object;
@@ -704,8 +705,8 @@
         Object::create(
             <span class="kw-2">&amp;</span>bucket.name,
             <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>],
-            <span class="string">&quot;test-object-access-controls-create&quot;</span>,
-            <span class="string">&quot;text/plain&quot;</span>,
+            <span class="string">"test-object-access-controls-create"</span>,
+            <span class="string">"text/plain"</span>,
         )
         .<span class="kw">await
         </span>.unwrap();
@@ -715,7 +716,7 @@
         };
         ObjectAccessControl::create(
             <span class="kw-2">&amp;</span>bucket.name,
-            <span class="string">&quot;test-object-access-controls-create&quot;</span>,
+            <span class="string">"test-object-access-controls-create"</span>,
             <span class="kw-2">&amp;</span>new_bucket_access_control,
         )
         .<span class="kw">await
@@ -728,12 +729,12 @@
         Object::create(
             <span class="kw-2">&amp;</span>bucket.name,
             <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>],
-            <span class="string">&quot;test-object-access-controls-list&quot;</span>,
-            <span class="string">&quot;text/plain&quot;</span>,
+            <span class="string">"test-object-access-controls-list"</span>,
+            <span class="string">"text/plain"</span>,
         )
         .<span class="kw">await
         </span>.unwrap();
-        ObjectAccessControl::list(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-object-access-controls-list&quot;</span>)
+        ObjectAccessControl::list(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-object-access-controls-list"</span>)
             .<span class="kw">await
             </span>.unwrap();
     }
@@ -744,8 +745,8 @@
         Object::create(
             <span class="kw-2">&amp;</span>bucket.name,
             <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>],
-            <span class="string">&quot;test-object-access-controls-read&quot;</span>,
-            <span class="string">&quot;text/plain&quot;</span>,
+            <span class="string">"test-object-access-controls-read"</span>,
+            <span class="string">"text/plain"</span>,
         )
         .<span class="kw">await
         </span>.unwrap();
@@ -755,14 +756,14 @@
         };
         ObjectAccessControl::create(
             <span class="kw-2">&amp;</span>bucket.name,
-            <span class="string">&quot;test-object-access-controls-read&quot;</span>,
+            <span class="string">"test-object-access-controls-read"</span>,
             <span class="kw-2">&amp;</span>new_bucket_access_control,
         )
         .<span class="kw">await
         </span>.unwrap();
         ObjectAccessControl::read(
             <span class="kw-2">&amp;</span>bucket.name,
-            <span class="string">&quot;test-object-access-controls-read&quot;</span>,
+            <span class="string">"test-object-access-controls-read"</span>,
             <span class="kw-2">&amp;</span>Entity::AllUsers,
         )
         .<span class="kw">await
@@ -772,49 +773,49 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>update() {
         <span class="comment">// use a seperate bucket to prevent synchronization issues
-        </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">&quot;test-object-access-controls-update&quot;</span>).<span class="kw">await</span>;
+        </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">"test-object-access-controls-update"</span>).<span class="kw">await</span>;
         <span class="kw">let </span>new_bucket_access_control = NewObjectAccessControl {
             entity: Entity::AllUsers,
             role: Role::Reader,
         };
-        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-update&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)
+        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-update"</span>, <span class="string">"text/plain"</span>)
             .<span class="kw">await
             </span>.unwrap();
-        ObjectAccessControl::create(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-update&quot;</span>, <span class="kw-2">&amp;</span>new_bucket_access_control)
+        ObjectAccessControl::create(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-update"</span>, <span class="kw-2">&amp;</span>new_bucket_access_control)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>acl = ObjectAccessControl::read(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-update&quot;</span>, <span class="kw-2">&amp;</span>Entity::AllUsers)
+        <span class="kw">let </span><span class="kw-2">mut </span>acl = ObjectAccessControl::read(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-update"</span>, <span class="kw-2">&amp;</span>Entity::AllUsers)
             .<span class="kw">await
             </span>.unwrap();
         acl.entity = Entity::AllAuthenticatedUsers;
         acl.update().<span class="kw">await</span>.unwrap();
-        Object::delete(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-update&quot;</span>).<span class="kw">await</span>.unwrap();
+        Object::delete(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-update"</span>).<span class="kw">await</span>.unwrap();
         bucket.delete().<span class="kw">await</span>.unwrap();
     }
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>delete() {
         <span class="comment">// use a seperate bucket to prevent synchronization issues
-        </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">&quot;test-object-access-controls-delete&quot;</span>).<span class="kw">await</span>;
+        </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">"test-object-access-controls-delete"</span>).<span class="kw">await</span>;
         <span class="kw">let </span>new_bucket_access_control = NewObjectAccessControl {
             entity: Entity::AllUsers,
             role: Role::Reader,
         };
-        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-delete&quot;</span>, <span class="string">&quot;text/plain&quot;</span>)
+        Object::create(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-delete"</span>, <span class="string">"text/plain"</span>)
             .<span class="kw">await
             </span>.unwrap();
-        ObjectAccessControl::create(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-delete&quot;</span>, <span class="kw-2">&amp;</span>new_bucket_access_control)
+        ObjectAccessControl::create(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-delete"</span>, <span class="kw-2">&amp;</span>new_bucket_access_control)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>acl = ObjectAccessControl::read(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-delete&quot;</span>, <span class="kw-2">&amp;</span>Entity::AllUsers)
+        <span class="kw">let </span>acl = ObjectAccessControl::read(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-delete"</span>, <span class="kw-2">&amp;</span>Entity::AllUsers)
             .<span class="kw">await
             </span>.unwrap();
         acl.delete().<span class="kw">await</span>.unwrap();
-        Object::delete(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-delete&quot;</span>).<span class="kw">await</span>.unwrap();
+        Object::delete(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-delete"</span>).<span class="kw">await</span>.unwrap();
         bucket.delete().<span class="kw">await</span>.unwrap();
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">mod </span>sync {
         <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -824,8 +825,8 @@
             Object::create_sync(
                 <span class="kw-2">&amp;</span>bucket.name,
                 <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>],
-                <span class="string">&quot;test-object-access-controls-create&quot;</span>,
-                <span class="string">&quot;text/plain&quot;</span>,
+                <span class="string">"test-object-access-controls-create"</span>,
+                <span class="string">"text/plain"</span>,
             )
             .unwrap();
             <span class="kw">let </span>new_bucket_access_control = NewObjectAccessControl {
@@ -834,7 +835,7 @@
             };
             ObjectAccessControl::create_sync(
                 <span class="kw-2">&amp;</span>bucket.name,
-                <span class="string">&quot;test-object-access-controls-create&quot;</span>,
+                <span class="string">"test-object-access-controls-create"</span>,
                 <span class="kw-2">&amp;</span>new_bucket_access_control,
             )
             .unwrap();
@@ -846,11 +847,11 @@
             Object::create_sync(
                 <span class="kw-2">&amp;</span>bucket.name,
                 <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>],
-                <span class="string">&quot;test-object-access-controls-list&quot;</span>,
-                <span class="string">&quot;text/plain&quot;</span>,
+                <span class="string">"test-object-access-controls-list"</span>,
+                <span class="string">"text/plain"</span>,
             )
             .unwrap();
-            ObjectAccessControl::list_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-object-access-controls-list&quot;</span>)
+            ObjectAccessControl::list_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-object-access-controls-list"</span>)
                 .unwrap();
         }
 
@@ -860,8 +861,8 @@
             Object::create_sync(
                 <span class="kw-2">&amp;</span>bucket.name,
                 <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>],
-                <span class="string">&quot;test-object-access-controls-read&quot;</span>,
-                <span class="string">&quot;text/plain&quot;</span>,
+                <span class="string">"test-object-access-controls-read"</span>,
+                <span class="string">"text/plain"</span>,
             )
             .unwrap();
             <span class="kw">let </span>new_bucket_access_control = NewObjectAccessControl {
@@ -870,13 +871,13 @@
             };
             ObjectAccessControl::create_sync(
                 <span class="kw-2">&amp;</span>bucket.name,
-                <span class="string">&quot;test-object-access-controls-read&quot;</span>,
+                <span class="string">"test-object-access-controls-read"</span>,
                 <span class="kw-2">&amp;</span>new_bucket_access_control,
             )
             .unwrap();
             ObjectAccessControl::read_sync(
                 <span class="kw-2">&amp;</span>bucket.name,
-                <span class="string">&quot;test-object-access-controls-read&quot;</span>,
+                <span class="string">"test-object-access-controls-read"</span>,
                 <span class="kw-2">&amp;</span>Entity::AllUsers,
             )
             .unwrap();
@@ -885,47 +886,47 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>update() {
             <span class="comment">// use a seperate bucket to prevent synchronization issues
-            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-object-access-controls-update&quot;</span>);
+            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-object-access-controls-update"</span>);
             <span class="kw">let </span>new_bucket_access_control = NewObjectAccessControl {
                 entity: Entity::AllUsers,
                 role: Role::Reader,
             };
-            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-update&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).unwrap();
+            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-update"</span>, <span class="string">"text/plain"</span>).unwrap();
             ObjectAccessControl::create_sync(
                 <span class="kw-2">&amp;</span>bucket.name,
-                <span class="string">&quot;test-update&quot;</span>,
+                <span class="string">"test-update"</span>,
                 <span class="kw-2">&amp;</span>new_bucket_access_control,
             )
             .unwrap();
             <span class="kw">let </span><span class="kw-2">mut </span>acl =
-                ObjectAccessControl::read_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-update&quot;</span>, <span class="kw-2">&amp;</span>Entity::AllUsers)
+                ObjectAccessControl::read_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-update"</span>, <span class="kw-2">&amp;</span>Entity::AllUsers)
                     .unwrap();
             acl.entity = Entity::AllAuthenticatedUsers;
             acl.update_sync().unwrap();
-            Object::delete_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-update&quot;</span>).unwrap();
+            Object::delete_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-update"</span>).unwrap();
             bucket.delete_sync().unwrap();
         }
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>delete() {
             <span class="comment">// use a seperate bucket to prevent synchronization issues
-            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-object-access-controls-delete&quot;</span>);
+            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-object-access-controls-delete"</span>);
             <span class="kw">let </span>new_bucket_access_control = NewObjectAccessControl {
                 entity: Entity::AllUsers,
                 role: Role::Reader,
             };
-            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">&quot;test-delete&quot;</span>, <span class="string">&quot;text/plain&quot;</span>).unwrap();
+            Object::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="string">"test-delete"</span>, <span class="string">"text/plain"</span>).unwrap();
             ObjectAccessControl::create_sync(
                 <span class="kw-2">&amp;</span>bucket.name,
-                <span class="string">&quot;test-delete&quot;</span>,
+                <span class="string">"test-delete"</span>,
                 <span class="kw-2">&amp;</span>new_bucket_access_control,
             )
             .unwrap();
             <span class="kw">let </span>acl =
-                ObjectAccessControl::read_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-delete&quot;</span>, <span class="kw-2">&amp;</span>Entity::AllUsers)
+                ObjectAccessControl::read_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-delete"</span>, <span class="kw-2">&amp;</span>Entity::AllUsers)
                     .unwrap();
             acl.delete_sync().unwrap();
-            Object::delete_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">&quot;test-delete&quot;</span>).unwrap();
+            Object::delete_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="string">"test-delete"</span>).unwrap();
             bucket.delete_sync().unwrap();
         }
     }

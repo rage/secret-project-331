@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/bezpath.rs`."><title>bezpath.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/bezpath.rs`."><title>bezpath.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1522,21 +1523,21 @@
     ParamCurveExtrema, ParamCurveNearest, Point, QuadBez, Rect, Shape, TranslateScale, Vec2,
 };
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::common::FloatFuncs;
 
 <span class="doccomment">/// A Bézier path.
 ///
 /// These docs assume basic familiarity with Bézier curves; for an introduction,
-/// see Pomax&#39;s wonderful [A Primer on Bézier Curves].
+/// see Pomax's wonderful [A Primer on Bézier Curves].
 ///
 /// This path can contain lines, quadratics ([`QuadBez`]) and cubics
 /// ([`CubicBez`]), and may contain multiple subpaths.
 ///
 /// # Elements and Segments
 ///
-/// A Bézier path can be represented in terms of either &#39;elements&#39; ([`PathEl`])
-/// or &#39;segments&#39; ([`PathSeg`]). Elements map closely to how Béziers are
+/// A Bézier path can be represented in terms of either 'elements' ([`PathEl`])
+/// or 'segments' ([`PathSeg`]). Elements map closely to how Béziers are
 /// generally used in PostScript-style drawing APIs; they can be thought of as
 /// instructions for drawing the path. Segments more directly describe the
 /// path itself, with each segment being an independent line or curve.
@@ -1603,16 +1604,16 @@
 /// [`FromIterator&lt;PathEl&gt;`]: std::iter::FromIterator
 /// [`Extend&lt;PathEl&gt;`]: std::iter::Extend
 </span><span class="attr">#[derive(Clone, Default, Debug, PartialEq)]
-#[cfg_attr(feature = <span class="string">&quot;schemars&quot;</span>, derive(schemars::JsonSchema))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"schemars"</span>, derive(schemars::JsonSchema))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>BezPath(Vec&lt;PathEl&gt;);
 
 <span class="doccomment">/// The element of a Bézier path.
 ///
 /// A valid path has `MoveTo` at the beginning of each subpath.
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
-#[cfg_attr(feature = <span class="string">&quot;schemars&quot;</span>, derive(schemars::JsonSchema))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"schemars"</span>, derive(schemars::JsonSchema))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub enum </span>PathEl {
     <span class="doccomment">/// Move directly to the point without drawing anything, starting a new
     /// subpath.
@@ -1629,8 +1630,8 @@
 
 <span class="doccomment">/// A segment of a Bézier path.
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
-#[cfg_attr(feature = <span class="string">&quot;schemars&quot;</span>, derive(schemars::JsonSchema))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"schemars"</span>, derive(schemars::JsonSchema))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub enum </span>PathSeg {
     <span class="doccomment">/// A line segment.
     </span>Line(Line),
@@ -1645,12 +1646,12 @@
 /// This can be generated with the [`PathSeg::intersect_line`] method.
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 </span><span class="kw">pub struct </span>LineIntersection {
-    <span class="doccomment">/// The &#39;time&#39; that the intersection occurs, on the line.
+    <span class="doccomment">/// The 'time' that the intersection occurs, on the line.
     ///
     /// This value is in the range 0..1.
     </span><span class="kw">pub </span>line_t: f64,
 
-    <span class="doccomment">/// The &#39;time&#39; that the intersection occurs, on the path segment.
+    <span class="doccomment">/// The 'time' that the intersection occurs, on the path segment.
     ///
     /// This value is nominally in the range 0..1, although it may slightly exceed
     /// that range at the boundaries of segments.
@@ -1696,7 +1697,7 @@
     </span><span class="kw">pub fn </span>from_vec(v: Vec&lt;PathEl&gt;) -&gt; BezPath {
         <span class="macro">debug_assert!</span>(
             v.first().is_none() || <span class="macro">matches!</span>(v.first(), <span class="prelude-val">Some</span>(PathEl::MoveTo(<span class="kw">_</span>))),
-            <span class="string">&quot;BezPath must begin with MoveTo&quot;
+            <span class="string">"BezPath must begin with MoveTo"
         </span>);
         BezPath(v)
     }
@@ -1711,48 +1712,48 @@
         <span class="self">self</span>.<span class="number">0</span>.push(el);
         <span class="macro">debug_assert!</span>(
             <span class="macro">matches!</span>(<span class="self">self</span>.<span class="number">0</span>.first(), <span class="prelude-val">Some</span>(PathEl::MoveTo(<span class="kw">_</span>))),
-            <span class="string">&quot;BezPath must begin with MoveTo&quot;
+            <span class="string">"BezPath must begin with MoveTo"
         </span>)
     }
 
-    <span class="doccomment">/// Push a &quot;move to&quot; element onto the path.
+    <span class="doccomment">/// Push a "move to" element onto the path.
     </span><span class="kw">pub fn </span>move_to&lt;P: Into&lt;Point&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p: P) {
         <span class="self">self</span>.push(PathEl::MoveTo(p.into()));
     }
 
-    <span class="doccomment">/// Push a &quot;line to&quot; element onto the path.
+    <span class="doccomment">/// Push a "line to" element onto the path.
     ///
     /// Will panic with a debug assert when the current subpath does not
     /// start with `move_to`.
     </span><span class="kw">pub fn </span>line_to&lt;P: Into&lt;Point&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p: P) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">&quot;no open subpath (missing MoveTo)&quot;</span>);
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">"no open subpath (missing MoveTo)"</span>);
         <span class="self">self</span>.push(PathEl::LineTo(p.into()));
     }
 
-    <span class="doccomment">/// Push a &quot;quad to&quot; element onto the path.
+    <span class="doccomment">/// Push a "quad to" element onto the path.
     ///
     /// Will panic with a debug assert when the current subpath does not
     /// start with `move_to`.
     </span><span class="kw">pub fn </span>quad_to&lt;P: Into&lt;Point&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p1: P, p2: P) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">&quot;no open subpath (missing MoveTo)&quot;</span>);
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">"no open subpath (missing MoveTo)"</span>);
         <span class="self">self</span>.push(PathEl::QuadTo(p1.into(), p2.into()));
     }
 
-    <span class="doccomment">/// Push a &quot;curve to&quot; element onto the path.
+    <span class="doccomment">/// Push a "curve to" element onto the path.
     ///
     /// Will panic with a debug assert when the current subpath does not
     /// start with `move_to`.
     </span><span class="kw">pub fn </span>curve_to&lt;P: Into&lt;Point&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p1: P, p2: P, p3: P) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">&quot;no open subpath (missing MoveTo)&quot;</span>);
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">"no open subpath (missing MoveTo)"</span>);
         <span class="self">self</span>.push(PathEl::CurveTo(p1.into(), p2.into(), p3.into()));
     }
 
-    <span class="doccomment">/// Push a &quot;close path&quot; element onto the path.
+    <span class="doccomment">/// Push a "close path" element onto the path.
     ///
     /// Will panic with a debug assert when the current subpath does not
     /// start with `move_to`.
     </span><span class="kw">pub fn </span>close_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">&quot;no open subpath (missing MoveTo)&quot;</span>);
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">"no open subpath (missing MoveTo)"</span>);
         <span class="self">self</span>.push(PathEl::ClosePath);
     }
 
@@ -1770,13 +1771,13 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
     </span>}
 
-    <span class="doccomment">/// Returns an iterator over the path&#39;s elements.
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PathEl&gt; + Clone + <span class="lifetime">&#39;_ </span>{
+    <span class="doccomment">/// Returns an iterator over the path's elements.
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PathEl&gt; + Clone + <span class="lifetime">'_ </span>{
         <span class="self">self</span>.<span class="number">0</span>.iter().copied()
     }
 
     <span class="doccomment">/// Iterate over the path segments.
-    </span><span class="kw">pub fn </span>segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PathSeg&gt; + Clone + <span class="lifetime">&#39;_ </span>{
+    </span><span class="kw">pub fn </span>segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PathSeg&gt; + Clone + <span class="lifetime">'_ </span>{
         segments(<span class="self">self</span>.iter())
     }
 
@@ -1789,31 +1790,31 @@
     ///
     /// Flattening is the action of approximating a curve with a succession of line segments.
     ///
-    /// &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 120 30&quot; height=&quot;30mm&quot; width=&quot;120mm&quot;&gt;
-    ///   &lt;path d=&quot;M26.7 24.94l.82-11.15M44.46 5.1L33.8 7.34&quot; fill=&quot;none&quot; stroke=&quot;#55d400&quot; stroke-width=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M26.7 24.94c.97-11.13 7.17-17.6 17.76-19.84M75.27 24.94l1.13-5.5 2.67-5.48 4-4.42L88 6.7l5.02-1.6&quot; fill=&quot;none&quot; stroke=&quot;#000&quot;/&gt;
-    ///   &lt;path d=&quot;M77.57 19.37a1.1 1.1 0 0 1-1.08 1.08 1.1 1.1 0 0 1-1.1-1.08 1.1 1.1 0 0 1 1.08-1.1 1.1 1.1 0 0 1 1.1 1.1&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M77.57 19.37a1.1 1.1 0 0 1-1.08 1.08 1.1 1.1 0 0 1-1.1-1.08 1.1 1.1 0 0 1 1.08-1.1 1.1 1.1 0 0 1 1.1 1.1&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;path d=&quot;M80.22 13.93a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.08 1.1 1.1 0 0 1 1.08 1.08&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M80.22 13.93a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.08 1.1 1.1 0 0 1 1.08 1.08&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;path d=&quot;M84.08 9.55a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.1-1.1 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M84.08 9.55a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.1-1.1 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;path d=&quot;M89.1 6.66a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.08-1.08 1.1 1.1 0 0 1 1.1 1.08&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M89.1 6.66a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.08-1.08 1.1 1.1 0 0 1 1.1 1.08&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;path d=&quot;M94.4 5a1.1 1.1 0 0 1-1.1 1.1A1.1 1.1 0 0 1 92.23 5a1.1 1.1 0 0 1 1.08-1.08A1.1 1.1 0 0 1 94.4 5&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M94.4 5a1.1 1.1 0 0 1-1.1 1.1A1.1 1.1 0 0 1 92.23 5a1.1 1.1 0 0 1 1.08-1.08A1.1 1.1 0 0 1 94.4 5&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;path d=&quot;M76.44 25.13a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M76.44 25.13a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;path d=&quot;M27.78 24.9a1.1 1.1 0 0 1-1.08 1.08 1.1 1.1 0 0 1-1.1-1.08 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M27.78 24.9a1.1 1.1 0 0 1-1.08 1.08 1.1 1.1 0 0 1-1.1-1.08 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;path d=&quot;M45.4 5.14a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.1-1.1 1.1 1.1 0 0 1 1.1-1.08 1.1 1.1 0 0 1 1.1 1.08&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M45.4 5.14a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.1-1.1 1.1 1.1 0 0 1 1.1-1.08 1.1 1.1 0 0 1 1.1 1.08&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;path d=&quot;M28.67 13.8a1.1 1.1 0 0 1-1.1 1.08 1.1 1.1 0 0 1-1.08-1.08 1.1 1.1 0 0 1 1.08-1.1 1.1 1.1 0 0 1 1.1 1.1&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M28.67 13.8a1.1 1.1 0 0 1-1.1 1.08 1.1 1.1 0 0 1-1.08-1.08 1.1 1.1 0 0 1 1.08-1.1 1.1 1.1 0 0 1 1.1 1.1&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;path d=&quot;M35 7.32a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.1A1.1 1.1 0 0 1 35 7.33&quot; color=&quot;#000&quot; fill=&quot;none&quot; stroke=&quot;#030303&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M35 7.32a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.1A1.1 1.1 0 0 1 35 7.33&quot; color=&quot;#000&quot; fill=&quot;#fff&quot;/&gt;
-    ///   &lt;text style=&quot;line-height:6.61458302px&quot; x=&quot;35.74&quot; y=&quot;284.49&quot; font-size=&quot;5.29&quot; font-family=&quot;Sans&quot; letter-spacing=&quot;0&quot; word-spacing=&quot;0&quot; fill=&quot;#b3b3b3&quot; stroke-width=&quot;.26&quot; transform=&quot;translate(19.595 -267)&quot;&gt;
-    ///     &lt;tspan x=&quot;35.74&quot; y=&quot;284.49&quot; font-size=&quot;10.58&quot;&gt;→&lt;/tspan&gt;
+    /// &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 30" height="30mm" width="120mm"&gt;
+    ///   &lt;path d="M26.7 24.94l.82-11.15M44.46 5.1L33.8 7.34" fill="none" stroke="#55d400" stroke-width=".5"/&gt;
+    ///   &lt;path d="M26.7 24.94c.97-11.13 7.17-17.6 17.76-19.84M75.27 24.94l1.13-5.5 2.67-5.48 4-4.42L88 6.7l5.02-1.6" fill="none" stroke="#000"/&gt;
+    ///   &lt;path d="M77.57 19.37a1.1 1.1 0 0 1-1.08 1.08 1.1 1.1 0 0 1-1.1-1.08 1.1 1.1 0 0 1 1.08-1.1 1.1 1.1 0 0 1 1.1 1.1" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M77.57 19.37a1.1 1.1 0 0 1-1.08 1.08 1.1 1.1 0 0 1-1.1-1.08 1.1 1.1 0 0 1 1.08-1.1 1.1 1.1 0 0 1 1.1 1.1" color="#000" fill="#fff"/&gt;
+    ///   &lt;path d="M80.22 13.93a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.08 1.1 1.1 0 0 1 1.08 1.08" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M80.22 13.93a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.08 1.1 1.1 0 0 1 1.08 1.08" color="#000" fill="#fff"/&gt;
+    ///   &lt;path d="M84.08 9.55a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.1-1.1 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M84.08 9.55a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.1-1.1 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1" color="#000" fill="#fff"/&gt;
+    ///   &lt;path d="M89.1 6.66a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.08-1.08 1.1 1.1 0 0 1 1.1 1.08" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M89.1 6.66a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.08-1.08 1.1 1.1 0 0 1 1.1 1.08" color="#000" fill="#fff"/&gt;
+    ///   &lt;path d="M94.4 5a1.1 1.1 0 0 1-1.1 1.1A1.1 1.1 0 0 1 92.23 5a1.1 1.1 0 0 1 1.08-1.08A1.1 1.1 0 0 1 94.4 5" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M94.4 5a1.1 1.1 0 0 1-1.1 1.1A1.1 1.1 0 0 1 92.23 5a1.1 1.1 0 0 1 1.08-1.08A1.1 1.1 0 0 1 94.4 5" color="#000" fill="#fff"/&gt;
+    ///   &lt;path d="M76.44 25.13a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M76.44 25.13a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1" color="#000" fill="#fff"/&gt;
+    ///   &lt;path d="M27.78 24.9a1.1 1.1 0 0 1-1.08 1.08 1.1 1.1 0 0 1-1.1-1.08 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M27.78 24.9a1.1 1.1 0 0 1-1.08 1.08 1.1 1.1 0 0 1-1.1-1.08 1.1 1.1 0 0 1 1.1-1.1 1.1 1.1 0 0 1 1.08 1.1" color="#000" fill="#fff"/&gt;
+    ///   &lt;path d="M45.4 5.14a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.1-1.1 1.1 1.1 0 0 1 1.1-1.08 1.1 1.1 0 0 1 1.1 1.08" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M45.4 5.14a1.1 1.1 0 0 1-1.08 1.1 1.1 1.1 0 0 1-1.1-1.1 1.1 1.1 0 0 1 1.1-1.08 1.1 1.1 0 0 1 1.1 1.08" color="#000" fill="#fff"/&gt;
+    ///   &lt;path d="M28.67 13.8a1.1 1.1 0 0 1-1.1 1.08 1.1 1.1 0 0 1-1.08-1.08 1.1 1.1 0 0 1 1.08-1.1 1.1 1.1 0 0 1 1.1 1.1" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M28.67 13.8a1.1 1.1 0 0 1-1.1 1.08 1.1 1.1 0 0 1-1.08-1.08 1.1 1.1 0 0 1 1.08-1.1 1.1 1.1 0 0 1 1.1 1.1" color="#000" fill="#fff"/&gt;
+    ///   &lt;path d="M35 7.32a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.1A1.1 1.1 0 0 1 35 7.33" color="#000" fill="none" stroke="#030303" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M35 7.32a1.1 1.1 0 0 1-1.1 1.1 1.1 1.1 0 0 1-1.08-1.1 1.1 1.1 0 0 1 1.1-1.1A1.1 1.1 0 0 1 35 7.33" color="#000" fill="#fff"/&gt;
+    ///   &lt;text style="line-height:6.61458302px" x="35.74" y="284.49" font-size="5.29" font-family="Sans" letter-spacing="0" word-spacing="0" fill="#b3b3b3" stroke-width=".26" transform="translate(19.595 -267)"&gt;
+    ///     &lt;tspan x="35.74" y="284.49" font-size="10.58"&gt;→&lt;/tspan&gt;
     ///   &lt;/text&gt;
     /// &lt;/svg&gt;
     ///
@@ -1825,14 +1826,14 @@
     /// determined to give good results. The number of segments tends to scale as the
     /// inverse square root of tolerance.
     ///
-    /// &lt;svg viewBox=&quot;0 0 47.5 13.2&quot; height=&quot;100&quot; width=&quot;350&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
-    ///   &lt;path d=&quot;M-2.44 9.53c16.27-8.5 39.68-7.93 52.13 1.9&quot; fill=&quot;none&quot; stroke=&quot;#dde9af&quot; stroke-width=&quot;4.6&quot;/&gt;
-    ///   &lt;path d=&quot;M-1.97 9.3C14.28 1.03 37.36 1.7 49.7 11.4&quot; fill=&quot;none&quot; stroke=&quot;#00d400&quot; stroke-width=&quot;.57&quot; stroke-linecap=&quot;round&quot; stroke-dasharray=&quot;4.6, 2.291434&quot;/&gt;
-    ///   &lt;path d=&quot;M-1.94 10.46L6.2 6.08l28.32-1.4 15.17 6.74&quot; fill=&quot;none&quot; stroke=&quot;#000&quot; stroke-width=&quot;.6&quot;/&gt;
-    ///   &lt;path d=&quot;M6.83 6.57a.9.9 0 0 1-1.25.15.9.9 0 0 1-.15-1.25.9.9 0 0 1 1.25-.15.9.9 0 0 1 .15 1.25&quot; color=&quot;#000&quot; stroke=&quot;#000&quot; stroke-width=&quot;.57&quot; stroke-linecap=&quot;round&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;path d=&quot;M35.35 5.3a.9.9 0 0 1-1.25.15.9.9 0 0 1-.15-1.25.9.9 0 0 1 1.25-.15.9.9 0 0 1 .15 1.24&quot; color=&quot;#000&quot; stroke=&quot;#000&quot; stroke-width=&quot;.6&quot; stroke-opacity=&quot;.5&quot;/&gt;
-    ///   &lt;g fill=&quot;none&quot; stroke=&quot;#ff7f2a&quot; stroke-width=&quot;.26&quot;&gt;
-    ///     &lt;path d=&quot;M20.4 3.8l.1 1.83M19.9 4.28l.48-.56.57.52M21.02 5.18l-.5.56-.6-.53&quot; stroke-width=&quot;.2978872&quot;/&gt;
+    /// &lt;svg viewBox="0 0 47.5 13.2" height="100" width="350" xmlns="http://www.w3.org/2000/svg"&gt;
+    ///   &lt;path d="M-2.44 9.53c16.27-8.5 39.68-7.93 52.13 1.9" fill="none" stroke="#dde9af" stroke-width="4.6"/&gt;
+    ///   &lt;path d="M-1.97 9.3C14.28 1.03 37.36 1.7 49.7 11.4" fill="none" stroke="#00d400" stroke-width=".57" stroke-linecap="round" stroke-dasharray="4.6, 2.291434"/&gt;
+    ///   &lt;path d="M-1.94 10.46L6.2 6.08l28.32-1.4 15.17 6.74" fill="none" stroke="#000" stroke-width=".6"/&gt;
+    ///   &lt;path d="M6.83 6.57a.9.9 0 0 1-1.25.15.9.9 0 0 1-.15-1.25.9.9 0 0 1 1.25-.15.9.9 0 0 1 .15 1.25" color="#000" stroke="#000" stroke-width=".57" stroke-linecap="round" stroke-opacity=".5"/&gt;
+    ///   &lt;path d="M35.35 5.3a.9.9 0 0 1-1.25.15.9.9 0 0 1-.15-1.25.9.9 0 0 1 1.25-.15.9.9 0 0 1 .15 1.24" color="#000" stroke="#000" stroke-width=".6" stroke-opacity=".5"/&gt;
+    ///   &lt;g fill="none" stroke="#ff7f2a" stroke-width=".26"&gt;
+    ///     &lt;path d="M20.4 3.8l.1 1.83M19.9 4.28l.48-.56.57.52M21.02 5.18l-.5.56-.6-.53" stroke-width=".2978872"/&gt;
     ///   &lt;/g&gt;
     /// &lt;/svg&gt;
     ///
@@ -1930,9 +1931,9 @@
 ///
 /// Note: the semantics are slightly different from simply iterating over the
 /// slice, as it returns `PathEl` items, rather than references.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BezPath {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BezPath {
     <span class="kw">type </span>Item = PathEl;
-    <span class="kw">type </span>IntoIter = core::iter::Cloned&lt;core::slice::Iter&lt;<span class="lifetime">&#39;a</span>, PathEl&gt;&gt;;
+    <span class="kw">type </span>IntoIter = core::iter::Cloned&lt;core::slice::Iter&lt;<span class="lifetime">'a</span>, PathEl&gt;&gt;;
 
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
         <span class="self">self</span>.elements().iter().cloned()
@@ -2083,7 +2084,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Mul&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BezPath&gt; <span class="kw">for </span>Affine {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Mul&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BezPath&gt; <span class="kw">for </span>Affine {
     <span class="kw">type </span>Output = BezPath;
 
     <span class="kw">fn </span>mul(<span class="self">self</span>, other: <span class="kw-2">&amp;</span>BezPath) -&gt; BezPath {
@@ -2125,7 +2126,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Mul&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BezPath&gt; <span class="kw">for </span>TranslateScale {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Mul&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BezPath&gt; <span class="kw">for </span>TranslateScale {
     <span class="kw">type </span>Output = BezPath;
 
     <span class="kw">fn </span>mul(<span class="self">self</span>, other: <span class="kw-2">&amp;</span>BezPath) -&gt; BezPath {
@@ -2171,7 +2172,7 @@
                     PathEl::LineTo(p) =&gt; p,
                     PathEl::QuadTo(<span class="kw">_</span>, p2) =&gt; p2,
                     PathEl::CurveTo(<span class="kw">_</span>, <span class="kw">_</span>, p3) =&gt; p3,
-                    PathEl::ClosePath =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t start a segment on a ClosePath&quot;</span>),
+                    PathEl::ClosePath =&gt; <span class="macro">panic!</span>(<span class="string">"Can't start a segment on a ClosePath"</span>),
                 };
                 (point, point)
             });
@@ -2691,9 +2692,9 @@
 }
 
 <span class="kw">impl </span>Shape <span class="kw">for </span>BezPath {
-    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">&#39;iter</span>&gt; = core::iter::Copied&lt;core::slice::Iter&lt;<span class="lifetime">&#39;iter</span>, PathEl&gt;&gt;;
+    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">'iter</span>&gt; = core::iter::Copied&lt;core::slice::Iter&lt;<span class="lifetime">'iter</span>, PathEl&gt;&gt;;
 
-    <span class="kw">fn </span>path_elements(<span class="kw-2">&amp;</span><span class="self">self</span>, _tolerance: f64) -&gt; <span class="self">Self</span>::PathElementsIter&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>path_elements(<span class="kw-2">&amp;</span><span class="self">self</span>, _tolerance: f64) -&gt; <span class="self">Self</span>::PathElementsIter&lt;<span class="lifetime">'_</span>&gt; {
         <span class="self">self</span>.<span class="number">0</span>.iter().copied()
     }
 
@@ -2758,13 +2759,13 @@
 /// not a `PathEl::ClosePath`. If it is, several of these functions will panic.
 ///
 /// If the slice starts with `LineTo`, `QuadTo`, or `CurveTo`, it will be treated as a `MoveTo`.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Shape <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[PathEl] {
-    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">&#39;iter</span>&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Shape <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[PathEl] {
+    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">'iter</span>&gt;
 
-    = core::iter::Copied&lt;core::slice::Iter&lt;<span class="lifetime">&#39;a</span>, PathEl&gt;&gt; <span class="kw">where </span><span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;iter</span>;
+    = core::iter::Copied&lt;core::slice::Iter&lt;<span class="lifetime">'a</span>, PathEl&gt;&gt; <span class="kw">where </span><span class="lifetime">'a</span>: <span class="lifetime">'iter</span>;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>path_elements(<span class="kw-2">&amp;</span><span class="self">self</span>, _tolerance: f64) -&gt; <span class="self">Self</span>::PathElementsIter&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">fn </span>path_elements(<span class="kw-2">&amp;</span><span class="self">self</span>, _tolerance: f64) -&gt; <span class="self">Self</span>::PathElementsIter&lt;<span class="lifetime">'_</span>&gt; {
         <span class="self">self</span>.iter().copied()
     }
 
@@ -2801,10 +2802,10 @@
 ///
 /// If the array starts with `LineTo`, `QuadTo`, or `CurveTo`, it will be treated as a `MoveTo`.
 </span><span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize&gt; Shape <span class="kw">for </span>[PathEl; N] {
-    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">&#39;iter</span>&gt; = core::iter::Copied&lt;core::slice::Iter&lt;<span class="lifetime">&#39;iter</span>, PathEl&gt;&gt;;
+    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">'iter</span>&gt; = core::iter::Copied&lt;core::slice::Iter&lt;<span class="lifetime">'iter</span>, PathEl&gt;&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>path_elements(<span class="kw-2">&amp;</span><span class="self">self</span>, _tolerance: f64) -&gt; <span class="self">Self</span>::PathElementsIter&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">fn </span>path_elements(<span class="kw-2">&amp;</span><span class="self">self</span>, _tolerance: f64) -&gt; <span class="self">Self</span>::PathElementsIter&lt;<span class="lifetime">'_</span>&gt; {
         <span class="self">self</span>.iter().copied()
     }
 
@@ -2843,7 +2844,7 @@
 }
 
 <span class="kw">impl </span>Shape <span class="kw">for </span>PathSeg {
-    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">&#39;iter</span>&gt; = PathSegIter;
+    <span class="kw">type </span>PathElementsIter&lt;<span class="lifetime">'iter</span>&gt; = PathSegIter;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>path_elements(<span class="kw-2">&amp;</span><span class="self">self</span>, _tolerance: f64) -&gt; PathSegIter {
@@ -2905,11 +2906,11 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="kw">fn </span>assert_approx_eq(x: f64, y: f64) {
-        <span class="macro">assert!</span>((x - y).abs() &lt; <span class="number">1e-8</span>, <span class="string">&quot;{x} != {y}&quot;</span>);
+        <span class="macro">assert!</span>((x - y).abs() &lt; <span class="number">1e-8</span>, <span class="string">"{x} != {y}"</span>);
     }
 
     <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;no open subpath&quot;</span>)]
+    #[should_panic(expected = <span class="string">"no open subpath"</span>)]
     </span><span class="kw">fn </span>test_elements_to_segments_starts_on_closepath() {
         <span class="kw">let </span><span class="kw-2">mut </span>path = BezPath::new();
         path.close_path();
@@ -2931,7 +2932,7 @@
     }
 
     <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;no open subpath&quot;</span>)]
+    #[should_panic(expected = <span class="string">"no open subpath"</span>)]
     </span><span class="kw">fn </span>test_must_not_start_on_quad() {
         <span class="kw">let </span><span class="kw-2">mut </span>path = BezPath::new();
         path.quad_to((<span class="number">5.0</span>, <span class="number">5.0</span>), (<span class="number">10.0</span>, <span class="number">10.0</span>));

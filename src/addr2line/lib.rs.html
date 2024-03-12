@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/addr2line-0.21.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="addr2line" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/addr2line-0.21.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="addr2line" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1754,22 +1755,22 @@
 </span><span class="attr">#![deny(missing_docs)]
 #![no_std]
 
-#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">extern crate </span>std;
 
 <span class="attr">#[allow(unused_imports)]
 #[macro_use]
 </span><span class="kw">extern crate </span>alloc;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;fallible-iterator&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"fallible-iterator"</span>)]
 </span><span class="kw">pub extern crate </span>fallible_iterator;
 <span class="kw">pub extern crate </span>gimli;
-<span class="attr">#[cfg(feature = <span class="string">&quot;object&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"object"</span>)]
 </span><span class="kw">pub extern crate </span>object;
 
 <span class="kw">use </span>alloc::borrow::Cow;
 <span class="kw">use </span>alloc::boxed::Box;
-<span class="attr">#[cfg(feature = <span class="string">&quot;object&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"object"</span>)]
 </span><span class="kw">use </span>alloc::rc::Rc;
 <span class="kw">use </span>alloc::string::{String, ToString};
 <span class="kw">use </span>alloc::sync::Arc;
@@ -1786,18 +1787,18 @@
 <span class="kw">use </span><span class="kw">crate</span>::function::{Function, Functions, InlinedFunction};
 <span class="kw">use </span><span class="kw">crate</span>::lazy::LazyCell;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;smallvec&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"smallvec"</span>)]
 </span><span class="kw">mod </span>maybe_small {
     <span class="kw">pub type </span>Vec&lt;T&gt; = smallvec::SmallVec&lt;[T; <span class="number">16</span>]&gt;;
     <span class="kw">pub type </span>IntoIter&lt;T&gt; = smallvec::IntoIter&lt;[T; <span class="number">16</span>]&gt;;
 }
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;smallvec&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"smallvec"</span>))]
 </span><span class="kw">mod </span>maybe_small {
     <span class="kw">pub type </span>Vec&lt;T&gt; = alloc::vec::Vec&lt;T&gt;;
     <span class="kw">pub type </span>IntoIter&lt;T&gt; = alloc::vec::IntoIter&lt;T&gt;;
 }
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, feature = <span class="string">&quot;object&quot;</span>, feature = <span class="string">&quot;memmap2&quot;</span>))]
+<span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"object"</span>, feature = <span class="string">"memmap2"</span>))]
 </span><span class="doccomment">/// A simple builtin split DWARF loader.
 </span><span class="kw">pub mod </span>builtin_split_dwarf_loader;
 <span class="kw">mod </span>function;
@@ -1901,7 +1902,7 @@
     <span class="kw">fn </span>unwrap(<span class="self">self</span>) -&gt; L::Output {
         <span class="kw">match </span><span class="self">self </span>{
             LookupResult::Output(t) =&gt; t,
-            LookupResult::Load { .. } =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Internal API misuse&quot;</span>),
+            LookupResult::Load { .. } =&gt; <span class="macro">unreachable!</span>(<span class="string">"Internal API misuse"</span>),
         }
     }
 }
@@ -1918,10 +1919,10 @@
 }
 
 <span class="doccomment">/// The type of `Context` that supports the `new` method.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std-object&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"std-object"</span>)]
 </span><span class="kw">pub type </span>ObjectContext = Context&lt;gimli::EndianRcSlice&lt;gimli::RunTimeEndian&gt;&gt;;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std-object&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std-object"</span>)]
 </span><span class="kw">impl </span>Context&lt;gimli::EndianRcSlice&lt;gimli::RunTimeEndian&gt;&gt; {
     <span class="doccomment">/// Construct a new `Context`.
     ///
@@ -1932,8 +1933,8 @@
     /// Performance sensitive applications may want to use `Context::from_dwarf`
     /// with a more specialised `gimli::Reader` implementation.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>new&lt;<span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>, <span class="lifetime">&#39;file</span>, O: object::Object&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>&gt;&gt;(
-        file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>O,
+    </span><span class="kw">pub fn </span>new&lt;<span class="lifetime">'data</span>: <span class="lifetime">'file</span>, <span class="lifetime">'file</span>, O: object::Object&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>&gt;&gt;(
+        file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>O,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="self">Self</span>::new_with_sup(file, <span class="prelude-val">None</span>)
     }
@@ -1948,9 +1949,9 @@
     ///
     /// Performance sensitive applications may want to use `Context::from_dwarf`
     /// with a more specialised `gimli::Reader` implementation.
-    </span><span class="kw">pub fn </span>new_with_sup&lt;<span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>, <span class="lifetime">&#39;file</span>, O: object::Object&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>&gt;&gt;(
-        file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>O,
-        sup_file: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>O&gt;,
+    </span><span class="kw">pub fn </span>new_with_sup&lt;<span class="lifetime">'data</span>: <span class="lifetime">'file</span>, <span class="lifetime">'file</span>, O: object::Object&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>&gt;&gt;(
+        file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>O,
+        sup_file: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'file </span>O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span>endian = <span class="kw">if </span>file.is_little_endian() {
             gimli::RunTimeEndian::Little
@@ -1958,13 +1959,13 @@
             gimli::RunTimeEndian::Big
         };
 
-        <span class="kw">fn </span>load_section&lt;<span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>, <span class="lifetime">&#39;file</span>, O, Endian&gt;(
+        <span class="kw">fn </span>load_section&lt;<span class="lifetime">'data</span>: <span class="lifetime">'file</span>, <span class="lifetime">'file</span>, O, Endian&gt;(
             id: gimli::SectionId,
-            file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>O,
+            file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>O,
             endian: Endian,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;gimli::EndianRcSlice&lt;Endian&gt;, Error&gt;
         <span class="kw">where
-            </span>O: object::Object&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>&gt;,
+            </span>O: object::Object&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>&gt;,
             Endian: gimli::Endianity,
         {
             <span class="kw">use </span>object::ObjectSection;
@@ -2086,19 +2087,19 @@
             .iter()
             .rev()
             .take_while(<span class="kw">move </span>|i| {
-                <span class="comment">// We know that this CU&#39;s start is beneath the probe already because
+                <span class="comment">// We know that this CU's start is beneath the probe already because
                 // of our sorted array.
                 </span><span class="macro">debug_assert!</span>(i.range.begin &lt;= probe_high);
 
                 <span class="comment">// Each entry keeps track of the maximum end address seen so far,
-                // starting from the beginning of the array of unit ranges. We&#39;re
+                // starting from the beginning of the array of unit ranges. We're
                 // iterating in reverse so if our probe is beyond the maximum range
-                // of this entry, then it&#39;s guaranteed to not fit in any prior
+                // of this entry, then it's guaranteed to not fit in any prior
                 // entries, so we break out.
                 </span>probe_low &lt; i.max_end
             })
             .filter_map(<span class="kw">move </span>|i| {
-                <span class="comment">// If this CU doesn&#39;t actually contain this address, move to the
+                <span class="comment">// If this CU doesn't actually contain this address, move to the
                 // next CU.
                 </span><span class="kw">if </span>probe_low &gt;= i.range.end || probe_high &lt;= i.range.begin {
                     <span class="kw">return </span><span class="prelude-val">None</span>;
@@ -2123,7 +2124,7 @@
                         <span class="prelude-val">Ok</span>((<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>)) | <span class="prelude-val">Ok</span>((<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>))) =&gt; {
                             <span class="kw">let </span>(_file, sections, unit) = unit
                                 .dwarf_and_unit_dwo(<span class="self">self</span>)
-                                <span class="comment">// We&#39;ve already been through both error cases here to get to this point.
+                                <span class="comment">// We've already been through both error cases here to get to this point.
                                 </span>.unwrap()
                                 .unwrap();
                             <span class="prelude-val">Some</span>((sections, unit))
@@ -2145,7 +2146,7 @@
     }
 
     <span class="doccomment">/// Find the source file and line corresponding to the given virtual memory address.
-    </span><span class="kw">pub fn </span>find_location(<span class="kw-2">&amp;</span><span class="self">self</span>, probe: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>find_location(<span class="kw-2">&amp;</span><span class="self">self</span>, probe: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">'_</span>&gt;&gt;, Error&gt; {
         <span class="kw">for </span>unit <span class="kw">in </span><span class="self">self</span>.find_units(probe) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(location) = unit.find_location(probe, <span class="kw-2">&amp;</span><span class="self">self</span>.sections)<span class="question-mark">? </span>{
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(location));
@@ -2160,7 +2161,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         probe_low: u64,
         probe_high: u64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;LocationRangeIter&lt;<span class="lifetime">&#39;_</span>, R&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;LocationRangeIter&lt;<span class="lifetime">'_</span>, R&gt;, Error&gt; {
         LocationRangeIter::new(<span class="self">self</span>, probe_low, probe_high)
     }
 
@@ -2176,7 +2177,7 @@
     </span><span class="kw">pub fn </span>find_frames(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         probe: u64,
-    ) -&gt; LookupResult&lt;<span class="kw">impl </span>LookupContinuation&lt;Output = <span class="prelude-ty">Result</span>&lt;FrameIter&lt;<span class="lifetime">&#39;_</span>, R&gt;, Error&gt;, Buf = R&gt;&gt;
+    ) -&gt; LookupResult&lt;<span class="kw">impl </span>LookupContinuation&lt;Output = <span class="prelude-ty">Result</span>&lt;FrameIter&lt;<span class="lifetime">'_</span>, R&gt;, Error&gt;, Buf = R&gt;&gt;
     {
         <span class="kw">let </span><span class="kw-2">mut </span>units_iter = <span class="self">self</span>.find_units(probe);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(unit) = units_iter.next() {
@@ -2234,18 +2235,18 @@
     ///
     ///   let frames_iter = match ctx.find_frames(ADDRESS) {
     ///     LookupResult::Output(result) =&gt; result,
-    ///     LookupResult::Load { .. } =&gt; unreachable!(&quot;addr2line promised we wouldn&#39;t get here&quot;),
+    ///     LookupResult::Load { .. } =&gt; unreachable!("addr2line promised we wouldn't get here"),
     ///   };
     ///
     ///   // ...
     /// ```
     </span><span class="kw">pub fn </span>preload_units(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>,
+        <span class="kw-2">&amp;</span><span class="lifetime">'_ </span><span class="self">self</span>,
         probe: u64,
     ) -&gt; <span class="kw">impl </span>Iterator&lt;
         Item = (
             SplitDwarfLoad&lt;R&gt;,
-            <span class="kw">impl </span>FnOnce(<span class="prelude-ty">Option</span>&lt;Arc&lt;gimli::Dwarf&lt;R&gt;&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), gimli::Error&gt; + <span class="lifetime">&#39;_</span>,
+            <span class="kw">impl </span>FnOnce(<span class="prelude-ty">Option</span>&lt;Arc&lt;gimli::Dwarf&lt;R&gt;&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), gimli::Error&gt; + <span class="lifetime">'_</span>,
         ),
     &gt; {
         <span class="self">self</span>.find_units(probe)
@@ -2327,7 +2328,7 @@
                 <span class="prelude-val">None </span>=&gt; <span class="kw">continue</span>,
             };
             <span class="comment">// We mainly want compile units, but we may need to follow references to entries
-            // within other units for function names.  We don&#39;t need anything from type units.
+            // within other units for function names.  We don't need anything from type units.
             </span><span class="kw">match </span>header.type_() {
                 gimli::UnitType::Type { .. } | gimli::UnitType::SplitType { .. } =&gt; <span class="kw">continue</span>,
                 <span class="kw">_ </span>=&gt; {}
@@ -2463,7 +2464,7 @@
         <span class="comment">// Sort this for faster lookup in `find_unit_and_address` below.
         </span>unit_ranges.sort_by_key(|i| i.range.begin);
 
-        <span class="comment">// Calculate the `max_end` field now that we&#39;ve determined the order of
+        <span class="comment">// Calculate the `max_end` field now that we've determined the order of
         // CUs.
         </span><span class="kw">let </span><span class="kw-2">mut </span>max = <span class="number">0</span>;
         <span class="kw">for </span>i <span class="kw">in </span>unit_ranges.iter_mut() {
@@ -2587,7 +2588,7 @@
         <span class="kw">let </span>header = rows.header();
         <span class="kw">match </span>header.file(<span class="number">0</span>) {
             <span class="prelude-val">Some</span>(file) =&gt; files.push(render_file(dw_unit, file, header, sections)<span class="question-mark">?</span>),
-            <span class="prelude-val">None </span>=&gt; files.push(String::from(<span class="string">&quot;&quot;</span>)), <span class="comment">// DWARF version &lt;= 4 may not have 0th index
+            <span class="prelude-val">None </span>=&gt; files.push(String::from(<span class="string">""</span>)), <span class="comment">// DWARF version &lt;= 4 may not have 0th index
         </span>}
         <span class="kw">let </span><span class="kw-2">mut </span>index = <span class="number">1</span>;
         <span class="kw">while let </span><span class="prelude-val">Some</span>(file) = header.file(index) {
@@ -2810,17 +2811,17 @@
 }
 
 <span class="kw">impl</span>&lt;R: gimli::Reader&gt; ResUnit&lt;R&gt; {
-    <span class="kw">fn </span>dwarf_and_unit_dwo&lt;<span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;ctx</span>: <span class="lifetime">&#39;unit</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span><span class="self">self</span>,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>Context&lt;R&gt;,
+    <span class="kw">fn </span>dwarf_and_unit_dwo&lt;<span class="lifetime">'unit</span>, <span class="lifetime">'ctx</span>: <span class="lifetime">'unit</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'unit </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>Context&lt;R&gt;,
     ) -&gt; LookupResult&lt;
         SimpleLookup&lt;
-            <span class="prelude-ty">Result</span>&lt;(DebugFile, <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>gimli::Dwarf&lt;R&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>gimli::Unit&lt;R&gt;), Error&gt;,
+            <span class="prelude-ty">Result</span>&lt;(DebugFile, <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>gimli::Dwarf&lt;R&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>gimli::Unit&lt;R&gt;), Error&gt;,
             R,
             <span class="kw">impl </span>FnOnce(
                 <span class="prelude-ty">Option</span>&lt;Arc&lt;gimli::Dwarf&lt;R&gt;&gt;&gt;,
             )
-                -&gt; <span class="prelude-ty">Result</span>&lt;(DebugFile, <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>gimli::Dwarf&lt;R&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>gimli::Unit&lt;R&gt;), Error&gt;,
+                -&gt; <span class="prelude-ty">Result</span>&lt;(DebugFile, <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>gimli::Dwarf&lt;R&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'unit </span>gimli::Unit&lt;R&gt;), Error&gt;,
         &gt;,
     &gt; {
         <span class="kw">loop </span>{
@@ -2914,20 +2915,20 @@
             .map_err(Error::clone)
     }
 
-    <span class="kw">fn </span>parse_functions&lt;<span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;ctx</span>: <span class="lifetime">&#39;unit</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span><span class="self">self</span>,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>Context&lt;R&gt;,
-    ) -&gt; LookupResult&lt;<span class="kw">impl </span>LookupContinuation&lt;Output = <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>Functions&lt;R&gt;, Error&gt;, Buf = R&gt;&gt;
+    <span class="kw">fn </span>parse_functions&lt;<span class="lifetime">'unit</span>, <span class="lifetime">'ctx</span>: <span class="lifetime">'unit</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'unit </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>Context&lt;R&gt;,
+    ) -&gt; LookupResult&lt;<span class="kw">impl </span>LookupContinuation&lt;Output = <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'unit </span>Functions&lt;R&gt;, Error&gt;, Buf = R&gt;&gt;
     {
         <span class="self">self</span>.dwarf_and_unit_dwo(ctx).map(<span class="kw">move </span>|r| {
             <span class="kw">let </span>(_file, sections, unit) = r<span class="question-mark">?</span>;
             <span class="self">self</span>.parse_functions_dwarf_and_unit(unit, sections)
         })
     }
-    <span class="kw">fn </span>parse_inlined_functions&lt;<span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;ctx</span>: <span class="lifetime">&#39;unit</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span><span class="self">self</span>,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>Context&lt;R&gt;,
-    ) -&gt; LookupResult&lt;<span class="kw">impl </span>LookupContinuation&lt;Output = <span class="prelude-ty">Result</span>&lt;(), Error&gt;, Buf = R&gt; + <span class="lifetime">&#39;unit</span>&gt; {
+    <span class="kw">fn </span>parse_inlined_functions&lt;<span class="lifetime">'unit</span>, <span class="lifetime">'ctx</span>: <span class="lifetime">'unit</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'unit </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>Context&lt;R&gt;,
+    ) -&gt; LookupResult&lt;<span class="kw">impl </span>LookupContinuation&lt;Output = <span class="prelude-ty">Result</span>&lt;(), Error&gt;, Buf = R&gt; + <span class="lifetime">'unit</span>&gt; {
         <span class="self">self</span>.dwarf_and_unit_dwo(ctx).map(<span class="kw">move </span>|r| {
             <span class="kw">let </span>(file, sections, unit) = r<span class="question-mark">?</span>;
             <span class="self">self</span>.funcs
@@ -2942,7 +2943,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         probe: u64,
         sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">'_</span>&gt;&gt;, Error&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>iter) = LocationRangeUnitIter::new(<span class="self">self</span>, sections, probe, probe + <span class="number">1</span>)<span class="question-mark">? </span>{
             <span class="kw">match </span>iter.next() {
                 <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
@@ -2959,17 +2960,17 @@
         probe_low: u64,
         probe_high: u64,
         sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;LocationRangeUnitIter&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;LocationRangeUnitIter&lt;<span class="lifetime">'_</span>&gt;&gt;, Error&gt; {
         LocationRangeUnitIter::new(<span class="self">self</span>, sections, probe_low, probe_high)
     }
 
-    <span class="kw">fn </span>find_function_or_location&lt;<span class="lifetime">&#39;unit</span>, <span class="lifetime">&#39;ctx</span>: <span class="lifetime">&#39;unit</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span><span class="self">self</span>,
+    <span class="kw">fn </span>find_function_or_location&lt;<span class="lifetime">'unit</span>, <span class="lifetime">'ctx</span>: <span class="lifetime">'unit</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'unit </span><span class="self">self</span>,
         probe: u64,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>Context&lt;R&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>Context&lt;R&gt;,
     ) -&gt; LookupResult&lt;
         <span class="kw">impl </span>LookupContinuation&lt;
-            Output = <span class="prelude-ty">Result</span>&lt;(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;unit </span>Function&lt;R&gt;&gt;, <span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">&#39;unit</span>&gt;&gt;), Error&gt;,
+            Output = <span class="prelude-ty">Result</span>&lt;(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'unit </span>Function&lt;R&gt;&gt;, <span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">'unit</span>&gt;&gt;), Error&gt;,
             Buf = R,
         &gt;,
     &gt; {
@@ -2996,18 +2997,18 @@
 }
 
 <span class="doccomment">/// Iterator over `Location`s in a range of addresses, returned by `Context::find_location_range`.
-</span><span class="kw">pub struct </span>LocationRangeIter&lt;<span class="lifetime">&#39;ctx</span>, R: gimli::Reader&gt; {
-    unit_iter: Box&lt;<span class="kw">dyn </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>ResUnit&lt;R&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>gimli::Range)&gt; + <span class="lifetime">&#39;ctx</span>&gt;,
-    iter: <span class="prelude-ty">Option</span>&lt;LocationRangeUnitIter&lt;<span class="lifetime">&#39;ctx</span>&gt;&gt;,
+</span><span class="kw">pub struct </span>LocationRangeIter&lt;<span class="lifetime">'ctx</span>, R: gimli::Reader&gt; {
+    unit_iter: Box&lt;<span class="kw">dyn </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>ResUnit&lt;R&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>gimli::Range)&gt; + <span class="lifetime">'ctx</span>&gt;,
+    iter: <span class="prelude-ty">Option</span>&lt;LocationRangeUnitIter&lt;<span class="lifetime">'ctx</span>&gt;&gt;,
 
     probe_low: u64,
     probe_high: u64,
-    sections: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>gimli::Dwarf&lt;R&gt;,
+    sections: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>gimli::Dwarf&lt;R&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;ctx</span>, R: gimli::Reader&gt; LocationRangeIter&lt;<span class="lifetime">&#39;ctx</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'ctx</span>, R: gimli::Reader&gt; LocationRangeIter&lt;<span class="lifetime">'ctx</span>, R&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>new(ctx: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>Context&lt;R&gt;, probe_low: u64, probe_high: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">fn </span>new(ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>Context&lt;R&gt;, probe_low: u64, probe_high: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span>sections = <span class="kw-2">&amp;</span>ctx.sections;
         <span class="kw">let </span>unit_iter = ctx.find_units_range(probe_low, probe_high);
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
@@ -3019,7 +3020,7 @@
         })
     }
 
-    <span class="kw">fn </span>next_loc(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(u64, u64, Location&lt;<span class="lifetime">&#39;ctx</span>&gt;)&gt;, Error&gt; {
+    <span class="kw">fn </span>next_loc(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(u64, u64, Location&lt;<span class="lifetime">'ctx</span>&gt;)&gt;, Error&gt; {
         <span class="kw">loop </span>{
             <span class="kw">let </span>iter = <span class="self">self</span>.iter.take();
             <span class="kw">match </span>iter {
@@ -3044,11 +3045,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;ctx</span>, R&gt; Iterator <span class="kw">for </span>LocationRangeIter&lt;<span class="lifetime">&#39;ctx</span>, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'ctx</span>, R&gt; Iterator <span class="kw">for </span>LocationRangeIter&lt;<span class="lifetime">'ctx</span>, R&gt;
 <span class="kw">where
-    </span>R: gimli::Reader + <span class="lifetime">&#39;ctx</span>,
+    </span>R: gimli::Reader + <span class="lifetime">'ctx</span>,
 {
-    <span class="kw">type </span>Item = (u64, u64, Location&lt;<span class="lifetime">&#39;ctx</span>&gt;);
+    <span class="kw">type </span>Item = (u64, u64, Location&lt;<span class="lifetime">'ctx</span>&gt;);
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -3059,12 +3060,12 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;fallible-iterator&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;ctx</span>, R&gt; fallible_iterator::FallibleIterator <span class="kw">for </span>LocationRangeIter&lt;<span class="lifetime">&#39;ctx</span>, R&gt;
+<span class="attr">#[cfg(feature = <span class="string">"fallible-iterator"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'ctx</span>, R&gt; fallible_iterator::FallibleIterator <span class="kw">for </span>LocationRangeIter&lt;<span class="lifetime">'ctx</span>, R&gt;
 <span class="kw">where
-    </span>R: gimli::Reader + <span class="lifetime">&#39;ctx</span>,
+    </span>R: gimli::Reader + <span class="lifetime">'ctx</span>,
 {
-    <span class="kw">type </span>Item = (u64, u64, Location&lt;<span class="lifetime">&#39;ctx</span>&gt;);
+    <span class="kw">type </span>Item = (u64, u64, Location&lt;<span class="lifetime">'ctx</span>&gt;);
     <span class="kw">type </span>Error = Error;
 
     <span class="attr">#[inline]
@@ -3073,17 +3074,17 @@
     }
 }
 
-<span class="kw">struct </span>LocationRangeUnitIter&lt;<span class="lifetime">&#39;ctx</span>&gt; {
-    lines: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>Lines,
-    seqs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>[LineSequence],
+<span class="kw">struct </span>LocationRangeUnitIter&lt;<span class="lifetime">'ctx</span>&gt; {
+    lines: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>Lines,
+    seqs: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>[LineSequence],
     seq_idx: usize,
     row_idx: usize,
     probe_high: u64,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;ctx</span>&gt; LocationRangeUnitIter&lt;<span class="lifetime">&#39;ctx</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'ctx</span>&gt; LocationRangeUnitIter&lt;<span class="lifetime">'ctx</span>&gt; {
     <span class="kw">fn </span>new&lt;R: gimli::Reader&gt;(
-        resunit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>ResUnit&lt;R&gt;,
+        resunit: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>ResUnit&lt;R&gt;,
         sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
         probe_low: u64,
         probe_high: u64,
@@ -3131,10 +3132,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;ctx</span>&gt; Iterator <span class="kw">for </span>LocationRangeUnitIter&lt;<span class="lifetime">&#39;ctx</span>&gt; {
-    <span class="kw">type </span>Item = (u64, u64, Location&lt;<span class="lifetime">&#39;ctx</span>&gt;);
+<span class="kw">impl</span>&lt;<span class="lifetime">'ctx</span>&gt; Iterator <span class="kw">for </span>LocationRangeUnitIter&lt;<span class="lifetime">'ctx</span>&gt; {
+    <span class="kw">type </span>Item = (u64, u64, Location&lt;<span class="lifetime">'ctx</span>&gt;);
 
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(u64, u64, Location&lt;<span class="lifetime">&#39;ctx</span>&gt;)&gt; {
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(u64, u64, Location&lt;<span class="lifetime">'ctx</span>&gt;)&gt; {
         <span class="kw">while let </span><span class="prelude-val">Some</span>(seq) = <span class="self">self</span>.seqs.get(<span class="self">self</span>.seq_idx) {
             <span class="kw">if </span>seq.start &gt;= <span class="self">self</span>.probe_high {
                 <span class="kw">break</span>;
@@ -3189,9 +3190,9 @@
         <span class="kw-2">*</span>path = p.to_string();
     } <span class="kw">else </span>{
         <span class="kw">let </span>dir_separator = <span class="kw">if </span>has_windows_root(path.as_str()) {
-            <span class="string">&#39;\\&#39;
+            <span class="string">'\\'
         </span>} <span class="kw">else </span>{
-            <span class="string">&#39;/&#39;
+            <span class="string">'/'
         </span>};
 
         <span class="kw">if </span>!path.is_empty() &amp;&amp; !path.ends_with(dir_separator) {
@@ -3203,12 +3204,12 @@
 
 <span class="doccomment">/// Check if the path in the given string has a unix style root
 </span><span class="kw">fn </span>has_unix_root(p: <span class="kw-2">&amp;</span>str) -&gt; bool {
-    p.starts_with(<span class="string">&#39;/&#39;</span>)
+    p.starts_with(<span class="string">'/'</span>)
 }
 
 <span class="doccomment">/// Check if the path in the given string has a windows style root
 </span><span class="kw">fn </span>has_windows_root(p: <span class="kw-2">&amp;</span>str) -&gt; bool {
-    p.starts_with(<span class="string">&#39;\\&#39;</span>) || p.get(<span class="number">1</span>..<span class="number">3</span>) == <span class="prelude-val">Some</span>(<span class="string">&quot;:\\&quot;</span>)
+    p.starts_with(<span class="string">'\\'</span>) || p.get(<span class="number">1</span>..<span class="number">3</span>) == <span class="prelude-val">Some</span>(<span class="string">":\\"</span>)
 }
 <span class="kw">struct </span>RangeAttributes&lt;R: gimli::Reader&gt; {
     low_pc: <span class="prelude-ty">Option</span>&lt;u64&gt;,
@@ -3260,40 +3261,40 @@
 }
 
 <span class="doccomment">/// An iterator over function frames.
-</span><span class="kw">pub struct </span>FrameIter&lt;<span class="lifetime">&#39;ctx</span>, R&gt;(FrameIterState&lt;<span class="lifetime">&#39;ctx</span>, R&gt;)
+</span><span class="kw">pub struct </span>FrameIter&lt;<span class="lifetime">'ctx</span>, R&gt;(FrameIterState&lt;<span class="lifetime">'ctx</span>, R&gt;)
 <span class="kw">where
     </span>R: gimli::Reader;
 
-<span class="kw">enum </span>FrameIterState&lt;<span class="lifetime">&#39;ctx</span>, R&gt;
+<span class="kw">enum </span>FrameIterState&lt;<span class="lifetime">'ctx</span>, R&gt;
 <span class="kw">where
     </span>R: gimli::Reader,
 {
     Empty,
-    Location(<span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">&#39;ctx</span>&gt;&gt;),
-    Frames(FrameIterFrames&lt;<span class="lifetime">&#39;ctx</span>, R&gt;),
+    Location(<span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">'ctx</span>&gt;&gt;),
+    Frames(FrameIterFrames&lt;<span class="lifetime">'ctx</span>, R&gt;),
 }
 
-<span class="kw">struct </span>FrameIterFrames&lt;<span class="lifetime">&#39;ctx</span>, R&gt;
+<span class="kw">struct </span>FrameIterFrames&lt;<span class="lifetime">'ctx</span>, R&gt;
 <span class="kw">where
     </span>R: gimli::Reader,
 {
-    unit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>ResUnit&lt;R&gt;,
-    sections: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>gimli::Dwarf&lt;R&gt;,
-    function: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>Function&lt;R&gt;,
-    inlined_functions: iter::Rev&lt;maybe_small::IntoIter&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;ctx </span>InlinedFunction&lt;R&gt;&gt;&gt;,
-    next: <span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">&#39;ctx</span>&gt;&gt;,
+    unit: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>ResUnit&lt;R&gt;,
+    sections: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>gimli::Dwarf&lt;R&gt;,
+    function: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>Function&lt;R&gt;,
+    inlined_functions: iter::Rev&lt;maybe_small::IntoIter&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>InlinedFunction&lt;R&gt;&gt;&gt;,
+    next: <span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">'ctx</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;ctx</span>, R&gt; FrameIter&lt;<span class="lifetime">&#39;ctx</span>, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'ctx</span>, R&gt; FrameIter&lt;<span class="lifetime">'ctx</span>, R&gt;
 <span class="kw">where
-    </span>R: gimli::Reader + <span class="lifetime">&#39;ctx</span>,
+    </span>R: gimli::Reader + <span class="lifetime">'ctx</span>,
 {
     <span class="doccomment">/// Advances the iterator and returns the next frame.
-    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Frame&lt;<span class="lifetime">&#39;ctx</span>, R&gt;&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Frame&lt;<span class="lifetime">'ctx</span>, R&gt;&gt;, Error&gt; {
         <span class="kw">let </span>frames = <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
             FrameIterState::Empty =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             FrameIterState::Location(location) =&gt; {
-                <span class="comment">// We can&#39;t move out of a mutable reference, so use `take` instead.
+                <span class="comment">// We can't move out of a mutable reference, so use `take` instead.
                 </span><span class="kw">let </span>location = location.take();
                 <span class="self">self</span>.<span class="number">0 </span>= FrameIterState::Empty;
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame {
@@ -3353,28 +3354,28 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;fallible-iterator&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;ctx</span>, R&gt; fallible_iterator::FallibleIterator <span class="kw">for </span>FrameIter&lt;<span class="lifetime">&#39;ctx</span>, R&gt;
+<span class="attr">#[cfg(feature = <span class="string">"fallible-iterator"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'ctx</span>, R&gt; fallible_iterator::FallibleIterator <span class="kw">for </span>FrameIter&lt;<span class="lifetime">'ctx</span>, R&gt;
 <span class="kw">where
-    </span>R: gimli::Reader + <span class="lifetime">&#39;ctx</span>,
+    </span>R: gimli::Reader + <span class="lifetime">'ctx</span>,
 {
-    <span class="kw">type </span>Item = Frame&lt;<span class="lifetime">&#39;ctx</span>, R&gt;;
+    <span class="kw">type </span>Item = Frame&lt;<span class="lifetime">'ctx</span>, R&gt;;
     <span class="kw">type </span>Error = Error;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Frame&lt;<span class="lifetime">&#39;ctx</span>, R&gt;&gt;, Error&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Frame&lt;<span class="lifetime">'ctx</span>, R&gt;&gt;, Error&gt; {
         <span class="self">self</span>.next()
     }
 }
 
 <span class="doccomment">/// A function frame.
-</span><span class="kw">pub struct </span>Frame&lt;<span class="lifetime">&#39;ctx</span>, R: gimli::Reader&gt; {
+</span><span class="kw">pub struct </span>Frame&lt;<span class="lifetime">'ctx</span>, R: gimli::Reader&gt; {
     <span class="doccomment">/// The DWARF unit offset corresponding to the DIE of the function.
     </span><span class="kw">pub </span>dw_die_offset: <span class="prelude-ty">Option</span>&lt;gimli::UnitOffset&lt;R::Offset&gt;&gt;,
     <span class="doccomment">/// The name of the function.
     </span><span class="kw">pub </span>function: <span class="prelude-ty">Option</span>&lt;FunctionName&lt;R&gt;&gt;,
     <span class="doccomment">/// The source location corresponding to this frame.
-    </span><span class="kw">pub </span>location: <span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">&#39;ctx</span>&gt;&gt;,
+    </span><span class="kw">pub </span>location: <span class="prelude-ty">Option</span>&lt;Location&lt;<span class="lifetime">'ctx</span>&gt;&gt;,
 }
 
 <span class="doccomment">/// A function name.
@@ -3387,12 +3388,12 @@
 
 <span class="kw">impl</span>&lt;R: gimli::Reader&gt; FunctionName&lt;R&gt; {
     <span class="doccomment">/// The raw name of this function before demangling.
-    </span><span class="kw">pub fn </span>raw_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;<span class="lifetime">&#39;_</span>, str&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>raw_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;<span class="lifetime">'_</span>, str&gt;, Error&gt; {
         <span class="self">self</span>.name.to_string_lossy()
     }
 
     <span class="doccomment">/// The name of this function after demangling (if applicable).
-    </span><span class="kw">pub fn </span>demangle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;<span class="lifetime">&#39;_</span>, str&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>demangle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;<span class="lifetime">'_</span>, str&gt;, Error&gt; {
         <span class="self">self</span>.raw_name().map(|x| demangle_auto(x, <span class="self">self</span>.language))
     }
 }
@@ -3403,12 +3404,12 @@
 </span><span class="attr">#[allow(unused_variables)]
 </span><span class="kw">pub fn </span>demangle(name: <span class="kw-2">&amp;</span>str, language: gimli::DwLang) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
     <span class="kw">match </span>language {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;rustc-demangle&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"rustc-demangle"</span>)]
         </span>gimli::DW_LANG_Rust =&gt; rustc_demangle::try_demangle(name)
             .ok()
             .as_ref()
-            .map(|x| <span class="macro">format!</span>(<span class="string">&quot;{:#}&quot;</span>, x)),
-        <span class="attr">#[cfg(feature = <span class="string">&quot;cpp_demangle&quot;</span>)]
+            .map(|x| <span class="macro">format!</span>(<span class="string">"{:#}"</span>, x)),
+        <span class="attr">#[cfg(feature = <span class="string">"cpp_demangle"</span>)]
         </span>gimli::DW_LANG_C_plus_plus
         | gimli::DW_LANG_C_plus_plus_03
         | gimli::DW_LANG_C_plus_plus_11
@@ -3419,7 +3420,7 @@
     }
 }
 
-<span class="doccomment">/// Apply &#39;best effort&#39; demangling of a symbol name.
+<span class="doccomment">/// Apply 'best effort' demangling of a symbol name.
 ///
 /// If `language` is given, then only the demangling scheme for that language
 /// is used.
@@ -3428,7 +3429,7 @@
 /// demangle the name. Currently, these heuristics are very basic.
 ///
 /// If demangling fails or is not required, then `name` is returned unchanged.
-</span><span class="kw">pub fn </span>demangle_auto(name: Cow&lt;<span class="lifetime">&#39;_</span>, str&gt;, language: <span class="prelude-ty">Option</span>&lt;gimli::DwLang&gt;) -&gt; Cow&lt;<span class="lifetime">&#39;_</span>, str&gt; {
+</span><span class="kw">pub fn </span>demangle_auto(name: Cow&lt;<span class="lifetime">'_</span>, str&gt;, language: <span class="prelude-ty">Option</span>&lt;gimli::DwLang&gt;) -&gt; Cow&lt;<span class="lifetime">'_</span>, str&gt; {
     <span class="kw">match </span>language {
         <span class="prelude-val">Some</span>(language) =&gt; demangle(name.as_ref(), language),
         <span class="prelude-val">None </span>=&gt; demangle(name.as_ref(), gimli::DW_LANG_Rust)
@@ -3439,9 +3440,9 @@
 }
 
 <span class="doccomment">/// A source location.
-</span><span class="kw">pub struct </span>Location&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Location&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The file name.
-    </span><span class="kw">pub </span>file: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+    </span><span class="kw">pub </span>file: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;,
     <span class="doccomment">/// The line number.
     </span><span class="kw">pub </span>line: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     <span class="doccomment">/// The column number.
@@ -3453,7 +3454,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>context_is_send() {
         <span class="kw">fn </span>assert_is_send&lt;T: Send&gt;() {}
-        assert_is_send::&lt;<span class="kw">crate</span>::Context&lt;gimli::read::EndianSlice&lt;<span class="lifetime">&#39;_</span>, gimli::LittleEndian&gt;&gt;&gt;();
+        assert_is_send::&lt;<span class="kw">crate</span>::Context&lt;gimli::read::EndianSlice&lt;<span class="lifetime">'_</span>, gimli::LittleEndian&gt;&gt;&gt;();
     }
 }
 </code></pre></div></section></main></body></html>

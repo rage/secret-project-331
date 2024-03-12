@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_slides.rs`."><title>exercise_slides.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_slides.rs`."><title>exercise_slides.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -253,7 +254,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlide {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -264,7 +265,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseMaterialExerciseSlide {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>exercise_tasks: Vec&lt;CourseMaterialExerciseTask&gt;,
@@ -277,11 +278,11 @@
     order_number: i32,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exercise_slides (id, exercise_id, order_number)
 VALUES ($1, $2, $3)
 RETURNING id
-        &quot;</span>,
+        "</span>,
         pkey_policy.into_uuid(),
         exercise_id,
         order_number
@@ -297,11 +298,11 @@ RETURNING id
 ) -&gt; ModelResult&lt;ExerciseSlide&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlide,
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exercise_slides (exercise_id, order_number)
 VALUES ($1, $2)
 RETURNING *;
-    &quot;</span>,
+    "</span>,
         new_slide.exercise_id,
         new_slide.order_number
     )
@@ -317,7 +318,7 @@ RETURNING *;
     order_number: i32,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exercise_slides (id, exercise_id, order_number)
 VALUES ($1, $2, $3) ON CONFLICT (id) DO
 UPDATE
@@ -325,7 +326,7 @@ SET exercise_id = $2,
     order_number = $3,
     deleted_at = NULL
 RETURNING id;
-    &quot;</span>,
+    "</span>,
         id,
         exercise_id,
         order_number
@@ -338,11 +339,11 @@ RETURNING id;
 <span class="kw">pub async fn </span>get_exercise_slides(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; ModelResult&lt;Vec&lt;ExerciseSlide&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlide,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM exercise_slides
 WHERE deleted_at IS NULL;
-    &quot;
+    "
     </span>)
     .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -355,12 +356,12 @@ WHERE deleted_at IS NULL;
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseSlide&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlide,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM exercise_slides
 WHERE exercise_id = ANY($1)
   AND deleted_at IS NULL;
-        &quot;</span>,
+        "</span>,
         exercise_ids,
     )
     .fetch_all(conn)
@@ -371,12 +372,12 @@ WHERE exercise_id = ANY($1)
 <span class="kw">pub async fn </span>get_exercise_slide(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;ExerciseSlide&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlide,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM exercise_slides
 WHERE id = $1
   AND deleted_at IS NULL;
-    &quot;</span>,
+    "</span>,
         id
     )
     .fetch_one(conn)
@@ -390,14 +391,14 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;ExerciseSlide&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlide,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM exercise_slides
 WHERE exercise_id = $1
   AND deleted_at IS NULL
 ORDER BY random()
 LIMIT 1;
-        &quot;</span>,
+        "</span>,
         exercise_id
     )
     .fetch_one(conn)
@@ -411,14 +412,14 @@ LIMIT 1;
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExerciseSlide&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlide,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT s.*
 FROM exercise_slides s
   JOIN exercise_tasks t ON (s.id = t.exercise_slide_id)
 WHERE t.id = $1
   AND t.deleted_at IS NULL
   AND s.deleted_at IS NULL;
-    &quot;</span>,
+    "</span>,
         exercise_task_id,
     )
     .fetch_optional(conn)
@@ -432,12 +433,12 @@ WHERE t.id = $1
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseSlide&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlide,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM exercise_slides
 WHERE exercise_id = $1
   AND deleted_at IS NULL;
-    &quot;</span>,
+    "</span>,
         exercise_id
     )
     .fetch_all(conn)
@@ -449,7 +450,7 @@ WHERE exercise_id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     id: Uuid,
     user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialExerciseSlide&gt; {
     <span class="kw">let </span>exercise_tasks =
         exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id, fetch_service_info)
@@ -462,13 +463,13 @@ WHERE exercise_id = $1
     exercise_ids: <span class="kw-2">&amp;</span>[Uuid],
 ) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
     <span class="kw">let </span>deleted_ids = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE exercise_slides
 SET deleted_at = now()
 WHERE exercise_id = ANY($1)
 AND deleted_at IS NULL
 RETURNING id;
-        &quot;</span>,
+        "</span>,
         exercise_ids,
     )
     .fetch_all(conn)

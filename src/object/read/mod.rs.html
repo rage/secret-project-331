@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -890,11 +891,11 @@
 //!
 //! /// Reads a file and displays the name of each section.
 //! fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-//! #   #[cfg(feature = &quot;std&quot;)] {
-//!     let data = fs::read(&quot;path/to/binary&quot;)?;
+//! #   #[cfg(feature = "std")] {
+//!     let data = fs::read("path/to/binary")?;
 //!     let file = object::File::parse(&amp;*data)?;
 //!     for section in file.sections() {
-//!         println!(&quot;{}&quot;, section.name()?);
+//!         println!("{}", section.name()?);
 //!     }
 //! #   }
 //!     Ok(())
@@ -910,52 +911,52 @@
 <span class="kw">mod </span>read_ref;
 <span class="kw">pub use </span>read_ref::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">mod </span>read_cache;
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">pub use </span>read_cache::<span class="kw-2">*</span>;
 
 <span class="kw">mod </span>util;
 <span class="kw">pub use </span>util::<span class="kw-2">*</span>;
 
 <span class="attr">#[cfg(any(
-    feature = <span class="string">&quot;coff&quot;</span>,
-    feature = <span class="string">&quot;elf&quot;</span>,
-    feature = <span class="string">&quot;macho&quot;</span>,
-    feature = <span class="string">&quot;pe&quot;</span>,
-    feature = <span class="string">&quot;wasm&quot;</span>,
-    feature = <span class="string">&quot;xcoff&quot;
+    feature = <span class="string">"coff"</span>,
+    feature = <span class="string">"elf"</span>,
+    feature = <span class="string">"macho"</span>,
+    feature = <span class="string">"pe"</span>,
+    feature = <span class="string">"wasm"</span>,
+    feature = <span class="string">"xcoff"
 </span>))]
 </span><span class="kw">mod </span>any;
 <span class="attr">#[cfg(any(
-    feature = <span class="string">&quot;coff&quot;</span>,
-    feature = <span class="string">&quot;elf&quot;</span>,
-    feature = <span class="string">&quot;macho&quot;</span>,
-    feature = <span class="string">&quot;pe&quot;</span>,
-    feature = <span class="string">&quot;wasm&quot;</span>,
-    feature = <span class="string">&quot;xcoff&quot;
+    feature = <span class="string">"coff"</span>,
+    feature = <span class="string">"elf"</span>,
+    feature = <span class="string">"macho"</span>,
+    feature = <span class="string">"pe"</span>,
+    feature = <span class="string">"wasm"</span>,
+    feature = <span class="string">"xcoff"
 </span>))]
 </span><span class="kw">pub use </span>any::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;archive&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"archive"</span>)]
 </span><span class="kw">pub mod </span>archive;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
 </span><span class="kw">pub mod </span>coff;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"elf"</span>)]
 </span><span class="kw">pub mod </span>elf;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
 </span><span class="kw">pub mod </span>macho;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;pe&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"pe"</span>)]
 </span><span class="kw">pub mod </span>pe;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;wasm&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"wasm"</span>)]
 </span><span class="kw">pub mod </span>wasm;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;xcoff&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"xcoff"</span>)]
 </span><span class="kw">pub mod </span>xcoff;
 
 <span class="kw">mod </span>traits;
@@ -967,39 +968,39 @@
 
 <span class="doccomment">/// The error type used within the read module.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>Error(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str);
+</span><span class="kw">pub struct </span>Error(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str);
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.write_str(<span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {}
 
 <span class="doccomment">/// The result type used within the read module.
 </span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = result::Result&lt;T, Error&gt;;
 
 <span class="kw">trait </span>ReadError&lt;T&gt; {
-    <span class="kw">fn </span>read_error(<span class="self">self</span>, error: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;;
+    <span class="kw">fn </span>read_error(<span class="self">self</span>, error: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;;
 }
 
 <span class="kw">impl</span>&lt;T&gt; ReadError&lt;T&gt; <span class="kw">for </span>result::Result&lt;T, ()&gt; {
-    <span class="kw">fn </span>read_error(<span class="self">self</span>, error: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
+    <span class="kw">fn </span>read_error(<span class="self">self</span>, error: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
         <span class="self">self</span>.map_err(|()| Error(error))
     }
 }
 
 <span class="kw">impl</span>&lt;T&gt; ReadError&lt;T&gt; <span class="kw">for </span>result::Result&lt;T, Error&gt; {
-    <span class="kw">fn </span>read_error(<span class="self">self</span>, error: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
+    <span class="kw">fn </span>read_error(<span class="self">self</span>, error: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
         <span class="self">self</span>.map_err(|<span class="kw">_</span>| Error(error))
     }
 }
 
 <span class="kw">impl</span>&lt;T&gt; ReadError&lt;T&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {
-    <span class="kw">fn </span>read_error(<span class="self">self</span>, error: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
+    <span class="kw">fn </span>read_error(<span class="self">self</span>, error: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
         <span class="self">self</span>.ok_or(Error(error))
     }
 }
@@ -1007,40 +1008,40 @@
 <span class="doccomment">/// The native executable file for the target platform.
 </span><span class="attr">#[cfg(all(
     unix,
-    not(target_os = <span class="string">&quot;macos&quot;</span>),
-    target_pointer_width = <span class="string">&quot;32&quot;</span>,
-    feature = <span class="string">&quot;elf&quot;
+    not(target_os = <span class="string">"macos"</span>),
+    target_pointer_width = <span class="string">"32"</span>,
+    feature = <span class="string">"elf"
 </span>))]
-</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = elf::ElfFile32&lt;<span class="lifetime">&#39;data</span>, <span class="kw">crate</span>::Endianness, R&gt;;
+</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">'data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; = elf::ElfFile32&lt;<span class="lifetime">'data</span>, <span class="kw">crate</span>::Endianness, R&gt;;
 
 <span class="doccomment">/// The native executable file for the target platform.
 </span><span class="attr">#[cfg(all(
     unix,
-    not(target_os = <span class="string">&quot;macos&quot;</span>),
-    target_pointer_width = <span class="string">&quot;64&quot;</span>,
-    feature = <span class="string">&quot;elf&quot;
+    not(target_os = <span class="string">"macos"</span>),
+    target_pointer_width = <span class="string">"64"</span>,
+    feature = <span class="string">"elf"
 </span>))]
-</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = elf::ElfFile64&lt;<span class="lifetime">&#39;data</span>, <span class="kw">crate</span>::Endianness, R&gt;;
+</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">'data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; = elf::ElfFile64&lt;<span class="lifetime">'data</span>, <span class="kw">crate</span>::Endianness, R&gt;;
 
 <span class="doccomment">/// The native executable file for the target platform.
-</span><span class="attr">#[cfg(all(target_os = <span class="string">&quot;macos&quot;</span>, target_pointer_width = <span class="string">&quot;32&quot;</span>, feature = <span class="string">&quot;macho&quot;</span>))]
-</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = macho::MachOFile32&lt;<span class="lifetime">&#39;data</span>, <span class="kw">crate</span>::Endianness, R&gt;;
+</span><span class="attr">#[cfg(all(target_os = <span class="string">"macos"</span>, target_pointer_width = <span class="string">"32"</span>, feature = <span class="string">"macho"</span>))]
+</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">'data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; = macho::MachOFile32&lt;<span class="lifetime">'data</span>, <span class="kw">crate</span>::Endianness, R&gt;;
 
 <span class="doccomment">/// The native executable file for the target platform.
-</span><span class="attr">#[cfg(all(target_os = <span class="string">&quot;macos&quot;</span>, target_pointer_width = <span class="string">&quot;64&quot;</span>, feature = <span class="string">&quot;macho&quot;</span>))]
-</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = macho::MachOFile64&lt;<span class="lifetime">&#39;data</span>, <span class="kw">crate</span>::Endianness, R&gt;;
+</span><span class="attr">#[cfg(all(target_os = <span class="string">"macos"</span>, target_pointer_width = <span class="string">"64"</span>, feature = <span class="string">"macho"</span>))]
+</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">'data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; = macho::MachOFile64&lt;<span class="lifetime">'data</span>, <span class="kw">crate</span>::Endianness, R&gt;;
 
 <span class="doccomment">/// The native executable file for the target platform.
-</span><span class="attr">#[cfg(all(target_os = <span class="string">&quot;windows&quot;</span>, target_pointer_width = <span class="string">&quot;32&quot;</span>, feature = <span class="string">&quot;pe&quot;</span>))]
-</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = pe::PeFile32&lt;<span class="lifetime">&#39;data</span>, R&gt;;
+</span><span class="attr">#[cfg(all(target_os = <span class="string">"windows"</span>, target_pointer_width = <span class="string">"32"</span>, feature = <span class="string">"pe"</span>))]
+</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">'data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; = pe::PeFile32&lt;<span class="lifetime">'data</span>, R&gt;;
 
 <span class="doccomment">/// The native executable file for the target platform.
-</span><span class="attr">#[cfg(all(target_os = <span class="string">&quot;windows&quot;</span>, target_pointer_width = <span class="string">&quot;64&quot;</span>, feature = <span class="string">&quot;pe&quot;</span>))]
-</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = pe::PeFile64&lt;<span class="lifetime">&#39;data</span>, R&gt;;
+</span><span class="attr">#[cfg(all(target_os = <span class="string">"windows"</span>, target_pointer_width = <span class="string">"64"</span>, feature = <span class="string">"pe"</span>))]
+</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">'data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; = pe::PeFile64&lt;<span class="lifetime">'data</span>, R&gt;;
 
 <span class="doccomment">/// The native executable file for the target platform.
-</span><span class="attr">#[cfg(all(feature = <span class="string">&quot;wasm&quot;</span>, target_arch = <span class="string">&quot;wasm32&quot;</span>, feature = <span class="string">&quot;wasm&quot;</span>))]
-</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = wasm::WasmFile&lt;<span class="lifetime">&#39;data</span>, R&gt;;
+</span><span class="attr">#[cfg(all(feature = <span class="string">"wasm"</span>, target_arch = <span class="string">"wasm32"</span>, feature = <span class="string">"wasm"</span>))]
+</span><span class="kw">pub type </span>NativeFile&lt;<span class="lifetime">'data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; = wasm::WasmFile&lt;<span class="lifetime">'data</span>, R&gt;;
 
 <span class="doccomment">/// A file format kind.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -1049,125 +1050,125 @@
     <span class="doccomment">/// A Unix archive.
     ///
     /// See [`archive::ArchiveFile`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;archive&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"archive"</span>)]
     </span>Archive,
     <span class="doccomment">/// A COFF object file.
     ///
     /// See [`coff::CoffFile`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
     </span>Coff,
     <span class="doccomment">/// A COFF bigobj object file.
     ///
     /// This supports a larger number of sections.
     ///
     /// See [`coff::CoffBigFile`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
     </span>CoffBig,
     <span class="doccomment">/// A Windows short import file.
     ///
     /// See [`coff::ImportFile`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
     </span>CoffImport,
     <span class="doccomment">/// A dyld cache file containing Mach-O images.
     ///
     /// See [`macho::DyldCache`]
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
     </span>DyldCache,
     <span class="doccomment">/// A 32-bit ELF file.
     ///
     /// See [`elf::ElfFile32`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"elf"</span>)]
     </span>Elf32,
     <span class="doccomment">/// A 64-bit ELF file.
     ///
     /// See [`elf::ElfFile64`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"elf"</span>)]
     </span>Elf64,
     <span class="doccomment">/// A 32-bit Mach-O file.
     ///
     /// See [`macho::MachOFile32`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
     </span>MachO32,
     <span class="doccomment">/// A 64-bit Mach-O file.
     ///
     /// See [`macho::MachOFile64`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
     </span>MachO64,
     <span class="doccomment">/// A 32-bit Mach-O fat binary.
     ///
     /// See [`macho::FatHeader::parse_arch32`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
     </span>MachOFat32,
     <span class="doccomment">/// A 64-bit Mach-O fat binary.
     ///
     /// See [`macho::FatHeader::parse_arch64`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
     </span>MachOFat64,
     <span class="doccomment">/// A 32-bit PE file.
     ///
     /// See [`pe::PeFile32`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;pe&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"pe"</span>)]
     </span>Pe32,
     <span class="doccomment">/// A 64-bit PE file.
     ///
     /// See [`pe::PeFile64`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;pe&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"pe"</span>)]
     </span>Pe64,
     <span class="doccomment">/// A Wasm file.
     ///
     /// See [`wasm::WasmFile`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;wasm&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"wasm"</span>)]
     </span>Wasm,
     <span class="doccomment">/// A 32-bit XCOFF file.
     ///
     /// See [`xcoff::XcoffFile32`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;xcoff&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"xcoff"</span>)]
     </span>Xcoff32,
     <span class="doccomment">/// A 64-bit XCOFF file.
     ///
     /// See [`xcoff::XcoffFile64`].
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;xcoff&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"xcoff"</span>)]
     </span>Xcoff64,
 }
 
 <span class="kw">impl </span>FileKind {
     <span class="doccomment">/// Determine a file kind by parsing the start of the file.
-    </span><span class="kw">pub fn </span>parse&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;FileKind&gt; {
+    </span><span class="kw">pub fn </span>parse&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;FileKind&gt; {
         <span class="self">Self</span>::parse_at(data, <span class="number">0</span>)
     }
 
     <span class="doccomment">/// Determine a file kind by parsing at the given offset.
-    </span><span class="kw">pub fn </span>parse_at&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R, offset: u64) -&gt; <span class="prelude-ty">Result</span>&lt;FileKind&gt; {
+    </span><span class="kw">pub fn </span>parse_at&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R, offset: u64) -&gt; <span class="prelude-ty">Result</span>&lt;FileKind&gt; {
         <span class="kw">let </span>magic = data
             .read_bytes_at(offset, <span class="number">16</span>)
-            .read_error(<span class="string">&quot;Could not read file magic&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Could not read file magic"</span>)<span class="question-mark">?</span>;
         <span class="kw">if </span>magic.len() &lt; <span class="number">16 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;File too short&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"File too short"</span>));
         }
 
         <span class="kw">let </span>kind = <span class="kw">match </span>[magic[<span class="number">0</span>], magic[<span class="number">1</span>], magic[<span class="number">2</span>], magic[<span class="number">3</span>], magic[<span class="number">4</span>], magic[<span class="number">5</span>], magic[<span class="number">6</span>], magic[<span class="number">7</span>]] {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;archive&quot;</span>)]
-            </span>[<span class="string">b&#39;!&#39;</span>, <span class="string">b&#39;&lt;&#39;</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;r&#39;</span>, <span class="string">b&#39;c&#39;</span>, <span class="string">b&#39;h&#39;</span>, <span class="string">b&#39;&gt;&#39;</span>, <span class="string">b&#39;\n&#39;</span>] =&gt; FileKind::Archive,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
-            </span>[<span class="string">b&#39;d&#39;</span>, <span class="string">b&#39;y&#39;</span>, <span class="string">b&#39;l&#39;</span>, <span class="string">b&#39;d&#39;</span>, <span class="string">b&#39;_&#39;</span>, <span class="string">b&#39;v&#39;</span>, <span class="string">b&#39;1&#39;</span>, <span class="string">b&#39; &#39;</span>] =&gt; FileKind::DyldCache,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
-            </span>[<span class="number">0x7f</span>, <span class="string">b&#39;E&#39;</span>, <span class="string">b&#39;L&#39;</span>, <span class="string">b&#39;F&#39;</span>, <span class="number">1</span>, ..] =&gt; FileKind::Elf32,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
-            </span>[<span class="number">0x7f</span>, <span class="string">b&#39;E&#39;</span>, <span class="string">b&#39;L&#39;</span>, <span class="string">b&#39;F&#39;</span>, <span class="number">2</span>, ..] =&gt; FileKind::Elf64,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"archive"</span>)]
+            </span>[<span class="string">b'!'</span>, <span class="string">b'&lt;'</span>, <span class="string">b'a'</span>, <span class="string">b'r'</span>, <span class="string">b'c'</span>, <span class="string">b'h'</span>, <span class="string">b'&gt;'</span>, <span class="string">b'\n'</span>] =&gt; FileKind::Archive,
+            <span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
+            </span>[<span class="string">b'd'</span>, <span class="string">b'y'</span>, <span class="string">b'l'</span>, <span class="string">b'd'</span>, <span class="string">b'_'</span>, <span class="string">b'v'</span>, <span class="string">b'1'</span>, <span class="string">b' '</span>] =&gt; FileKind::DyldCache,
+            <span class="attr">#[cfg(feature = <span class="string">"elf"</span>)]
+            </span>[<span class="number">0x7f</span>, <span class="string">b'E'</span>, <span class="string">b'L'</span>, <span class="string">b'F'</span>, <span class="number">1</span>, ..] =&gt; FileKind::Elf32,
+            <span class="attr">#[cfg(feature = <span class="string">"elf"</span>)]
+            </span>[<span class="number">0x7f</span>, <span class="string">b'E'</span>, <span class="string">b'L'</span>, <span class="string">b'F'</span>, <span class="number">2</span>, ..] =&gt; FileKind::Elf64,
+            <span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
             </span>[<span class="number">0xfe</span>, <span class="number">0xed</span>, <span class="number">0xfa</span>, <span class="number">0xce</span>, ..]
             | [<span class="number">0xce</span>, <span class="number">0xfa</span>, <span class="number">0xed</span>, <span class="number">0xfe</span>, ..] =&gt; FileKind::MachO32,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
             </span>| [<span class="number">0xfe</span>, <span class="number">0xed</span>, <span class="number">0xfa</span>, <span class="number">0xcf</span>, ..]
             | [<span class="number">0xcf</span>, <span class="number">0xfa</span>, <span class="number">0xed</span>, <span class="number">0xfe</span>, ..] =&gt; FileKind::MachO64,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
             </span>[<span class="number">0xca</span>, <span class="number">0xfe</span>, <span class="number">0xba</span>, <span class="number">0xbe</span>, ..] =&gt; FileKind::MachOFat32,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
             </span>[<span class="number">0xca</span>, <span class="number">0xfe</span>, <span class="number">0xba</span>, <span class="number">0xbf</span>, ..] =&gt; FileKind::MachOFat64,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;wasm&quot;</span>)]
-            </span>[<span class="number">0x00</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;s&#39;</span>, <span class="string">b&#39;m&#39;</span>, ..] =&gt; FileKind::Wasm,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;pe&quot;</span>)]
-            </span>[<span class="string">b&#39;M&#39;</span>, <span class="string">b&#39;Z&#39;</span>, ..] <span class="kw">if </span>offset == <span class="number">0 </span>=&gt; {
+            <span class="attr">#[cfg(feature = <span class="string">"wasm"</span>)]
+            </span>[<span class="number">0x00</span>, <span class="string">b'a'</span>, <span class="string">b's'</span>, <span class="string">b'm'</span>, ..] =&gt; FileKind::Wasm,
+            <span class="attr">#[cfg(feature = <span class="string">"pe"</span>)]
+            </span>[<span class="string">b'M'</span>, <span class="string">b'Z'</span>, ..] <span class="kw">if </span>offset == <span class="number">0 </span>=&gt; {
                 <span class="comment">// offset == 0 restriction is because optional_header_magic only looks at offset 0
                 </span><span class="kw">match </span>pe::optional_header_magic(data) {
                     <span class="prelude-val">Ok</span>(<span class="kw">crate</span>::pe::IMAGE_NT_OPTIONAL_HDR32_MAGIC) =&gt; {
@@ -1176,11 +1177,11 @@
                     <span class="prelude-val">Ok</span>(<span class="kw">crate</span>::pe::IMAGE_NT_OPTIONAL_HDR64_MAGIC) =&gt; {
                         FileKind::Pe64
                     }
-                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unknown MS-DOS file&quot;</span>)),
+                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unknown MS-DOS file"</span>)),
                 }
             }
             <span class="comment">// TODO: more COFF machines
-            </span><span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            </span><span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
             </span><span class="comment">// COFF arm
             </span>[<span class="number">0xc4</span>, <span class="number">0x01</span>, ..]
             <span class="comment">// COFF arm64
@@ -1191,21 +1192,21 @@
             </span>| [<span class="number">0x4c</span>, <span class="number">0x01</span>, ..]
             <span class="comment">// COFF x86-64
             </span>| [<span class="number">0x64</span>, <span class="number">0x86</span>, ..] =&gt; FileKind::Coff,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
             </span>[<span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, ..] =&gt; FileKind::CoffImport,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
             </span>[<span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, ..] <span class="kw">if </span>offset == <span class="number">0 </span>=&gt; {
                 <span class="comment">// offset == 0 restriction is because anon_object_class_id only looks at offset 0
                 </span><span class="kw">match </span>coff::anon_object_class_id(data) {
                     <span class="prelude-val">Ok</span>(<span class="kw">crate</span>::pe::ANON_OBJECT_HEADER_BIGOBJ_CLASS_ID) =&gt; FileKind::CoffBig,
-                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unknown anon object file&quot;</span>)),
+                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unknown anon object file"</span>)),
                 }
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;xcoff&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"xcoff"</span>)]
             </span>[<span class="number">0x01</span>, <span class="number">0xdf</span>, ..] =&gt; FileKind::Xcoff32,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;xcoff&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"xcoff"</span>)]
             </span>[<span class="number">0x01</span>, <span class="number">0xf7</span>, ..] =&gt; FileKind::Xcoff64,
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unknown file magic&quot;</span>)),
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unknown file magic"</span>)),
         };
         <span class="prelude-val">Ok</span>(kind)
     }
@@ -1315,14 +1316,14 @@
 
 <span class="doccomment">/// The type used for entries in a [`SymbolMap`] that maps from addresses to names.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-</span><span class="kw">pub struct </span>SymbolMapName&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub struct </span>SymbolMapName&lt;<span class="lifetime">'data</span>&gt; {
     address: u64,
-    name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>str,
+    name: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>str,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; SymbolMapName&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; SymbolMapName&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Construct a `SymbolMapName`.
-    </span><span class="kw">pub fn </span>new(address: u64, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(address: u64, name: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>str) -&gt; <span class="self">Self </span>{
         SymbolMapName { address, name }
     }
 
@@ -1334,12 +1335,12 @@
 
     <span class="doccomment">/// The symbol name.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>str {
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>str {
         <span class="self">self</span>.name
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; SymbolMapEntry <span class="kw">for </span>SymbolMapName&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; SymbolMapEntry <span class="kw">for </span>SymbolMapName&lt;<span class="lifetime">'data</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.address
@@ -1352,14 +1353,14 @@
 ///
 /// Returned by [`Object::object_map`].
 </span><span class="attr">#[derive(Debug, Default, Clone)]
-</span><span class="kw">pub struct </span>ObjectMap&lt;<span class="lifetime">&#39;data</span>&gt; {
-    symbols: SymbolMap&lt;ObjectMapEntry&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
-    objects: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;,
+</span><span class="kw">pub struct </span>ObjectMap&lt;<span class="lifetime">'data</span>&gt; {
+    symbols: SymbolMap&lt;ObjectMapEntry&lt;<span class="lifetime">'data</span>&gt;&gt;,
+    objects: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; ObjectMap&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; ObjectMap&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Get the entry containing the given address.
-    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ObjectMapEntry&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ObjectMapEntry&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="self">self</span>.symbols
             .get(address)
             .filter(|entry| entry.size == <span class="number">0 </span>|| address.wrapping_sub(entry.address) &lt; entry.size)
@@ -1367,27 +1368,27 @@
 
     <span class="doccomment">/// Get all symbols in the map.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[ObjectMapEntry&lt;<span class="lifetime">&#39;data</span>&gt;] {
+    </span><span class="kw">pub fn </span>symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[ObjectMapEntry&lt;<span class="lifetime">'data</span>&gt;] {
         <span class="self">self</span>.symbols.symbols()
     }
 
     <span class="doccomment">/// Get all objects in the map.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>objects(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]] {
+    </span><span class="kw">pub fn </span>objects(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.objects
     }
 }
 
 <span class="doccomment">/// An [`ObjectMap`] entry.
 </span><span class="attr">#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
-</span><span class="kw">pub struct </span>ObjectMapEntry&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub struct </span>ObjectMapEntry&lt;<span class="lifetime">'data</span>&gt; {
     address: u64,
     size: u64,
-    name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8],
+    name: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8],
     object: usize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; ObjectMapEntry&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; ObjectMapEntry&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Get the symbol address.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
@@ -1404,7 +1405,7 @@
 
     <span class="doccomment">/// Get the symbol name.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.name
     }
 
@@ -1416,12 +1417,12 @@
 
     <span class="doccomment">/// Get the object file name.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>object(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>ObjectMap&lt;<span class="lifetime">&#39;data</span>&gt;) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>object(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>ObjectMap&lt;<span class="lifetime">'data</span>&gt;) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         map.objects[<span class="self">self</span>.object]
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; SymbolMapEntry <span class="kw">for </span>ObjectMapEntry&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; SymbolMapEntry <span class="kw">for </span>ObjectMapEntry&lt;<span class="lifetime">'data</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.address
@@ -1432,22 +1433,22 @@
 ///
 /// Returned by [`Object::imports`].
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>Import&lt;<span class="lifetime">&#39;data</span>&gt; {
-    library: ByteString&lt;<span class="lifetime">&#39;data</span>&gt;,
+</span><span class="kw">pub struct </span>Import&lt;<span class="lifetime">'data</span>&gt; {
+    library: ByteString&lt;<span class="lifetime">'data</span>&gt;,
     <span class="comment">// TODO: or ordinal
-    </span>name: ByteString&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>name: ByteString&lt;<span class="lifetime">'data</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; Import&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; Import&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// The symbol name.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.name.<span class="number">0
     </span>}
 
     <span class="doccomment">/// The name of the library to import the symbol from.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>library(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>library(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.library.<span class="number">0
     </span>}
 }
@@ -1456,16 +1457,16 @@
 ///
 /// Returned by [`Object::exports`].
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>Export&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub struct </span>Export&lt;<span class="lifetime">'data</span>&gt; {
     <span class="comment">// TODO: and ordinal?
-    </span>name: ByteString&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>name: ByteString&lt;<span class="lifetime">'data</span>&gt;,
     address: u64,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; Export&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; Export&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// The symbol name.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.name.<span class="number">0
     </span>}
 
@@ -1478,16 +1479,16 @@
 
 <span class="doccomment">/// PDB information from the debug directory in a PE file.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>CodeView&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub struct </span>CodeView&lt;<span class="lifetime">'data</span>&gt; {
     guid: [u8; <span class="number">16</span>],
-    path: ByteString&lt;<span class="lifetime">&#39;data</span>&gt;,
+    path: ByteString&lt;<span class="lifetime">'data</span>&gt;,
     age: u32,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; CodeView&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; CodeView&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// The path to the PDB as stored in CodeView.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.path.<span class="number">0
     </span>}
 
@@ -1631,10 +1632,10 @@
     }
 
     <span class="doccomment">/// Convert to [`CompressedData`] by reading from the file.
-    </span><span class="kw">pub fn </span>data&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(<span class="self">self</span>, file: R) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedData&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>data&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(<span class="self">self</span>, file: R) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedData&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="kw">let </span>data = file
             .read_bytes_at(<span class="self">self</span>.offset, <span class="self">self</span>.compressed_size)
-            .read_error(<span class="string">&quot;Invalid compressed data size or offset&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid compressed data size or offset"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(CompressedData {
             format: <span class="self">self</span>.format,
             data,
@@ -1647,19 +1648,19 @@
 ///
 /// Returned by [`ObjectSection::compressed_data`].
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-</span><span class="kw">pub struct </span>CompressedData&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub struct </span>CompressedData&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// The data compression format.
     </span><span class="kw">pub </span>format: CompressionFormat,
     <span class="doccomment">/// The compressed data.
-    </span><span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8],
+    </span><span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8],
     <span class="doccomment">/// The uncompressed data size.
     </span><span class="kw">pub </span>uncompressed_size: u64,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; CompressedData&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; CompressedData&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Data that is uncompressed.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>none(data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>none(data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]) -&gt; <span class="self">Self </span>{
         CompressedData {
             format: CompressionFormat::None,
             data,
@@ -1672,17 +1673,17 @@
     /// Returns an error for invalid data or unsupported compression.
     /// This includes if the data is compressed but the `compression` feature
     /// for this crate is disabled.
-    </span><span class="kw">pub fn </span>decompress(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;<span class="lifetime">&#39;data</span>, [u8]&gt;&gt; {
+    </span><span class="kw">pub fn </span>decompress(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;<span class="lifetime">'data</span>, [u8]&gt;&gt; {
         <span class="kw">match </span><span class="self">self</span>.format {
             CompressionFormat::None =&gt; <span class="prelude-val">Ok</span>(Cow::Borrowed(<span class="self">self</span>.data)),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compression&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compression"</span>)]
             </span>CompressionFormat::Zlib =&gt; {
                 <span class="kw">use </span>core::convert::TryInto;
                 <span class="kw">let </span>size = <span class="self">self
                     </span>.uncompressed_size
                     .try_into()
                     .ok()
-                    .read_error(<span class="string">&quot;Uncompressed data size is too large.&quot;</span>)<span class="question-mark">?</span>;
+                    .read_error(<span class="string">"Uncompressed data size is too large."</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span><span class="kw-2">mut </span>decompressed = Vec::with_capacity(size);
                 <span class="kw">let </span><span class="kw-2">mut </span>decompress = flate2::Decompress::new(<span class="bool-val">true</span>);
                 decompress
@@ -1692,10 +1693,10 @@
                         flate2::FlushDecompress::Finish,
                     )
                     .ok()
-                    .read_error(<span class="string">&quot;Invalid zlib compressed data&quot;</span>)<span class="question-mark">?</span>;
+                    .read_error(<span class="string">"Invalid zlib compressed data"</span>)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(Cow::Owned(decompressed))
             }
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compression&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compression"</span>)]
             </span>CompressionFormat::Zstandard =&gt; {
                 <span class="kw">use </span>core::convert::TryInto;
                 <span class="kw">use </span>std::io::Read;
@@ -1703,18 +1704,18 @@
                     </span>.uncompressed_size
                     .try_into()
                     .ok()
-                    .read_error(<span class="string">&quot;Uncompressed data size is too large.&quot;</span>)<span class="question-mark">?</span>;
+                    .read_error(<span class="string">"Uncompressed data size is too large."</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span><span class="kw-2">mut </span>decompressed = Vec::with_capacity(size);
                 <span class="kw">let </span><span class="kw-2">mut </span>decoder = ruzstd::StreamingDecoder::new(<span class="self">self</span>.data)
                     .ok()
-                    .read_error(<span class="string">&quot;Invalid zstd compressed data&quot;</span>)<span class="question-mark">?</span>;
+                    .read_error(<span class="string">"Invalid zstd compressed data"</span>)<span class="question-mark">?</span>;
                 decoder
                     .read_to_end(<span class="kw-2">&amp;mut </span>decompressed)
                     .ok()
-                    .read_error(<span class="string">&quot;Invalid zstd compressed data&quot;</span>)<span class="question-mark">?</span>;
+                    .read_error(<span class="string">"Invalid zstd compressed data"</span>)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(Cow::Owned(decompressed))
             }
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unsupported compressed data.&quot;</span>)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error(<span class="string">"Unsupported compressed data."</span>)),
         }
     }
 }

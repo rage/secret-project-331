@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/wide/f32x4_t.rs`."><title>f32x4_t.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/wide/f32x4_t.rs`."><title>f32x4_t.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -647,29 +648,29 @@
 
 </span><span class="kw">use </span>bytemuck::cast;
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), feature = <span class="string">&quot;no-std-float&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"no-std-float"</span>))]
 </span><span class="kw">use </span>tiny_skia_path::NoStdFloat;
 
 <span class="kw">use </span><span class="kw">super</span>::i32x4;
 
 <span class="macro">cfg_if::cfg_if! </span>{
-    <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
-        <span class="attr">#[cfg(target_arch = <span class="string">&quot;x86&quot;</span>)]
+    <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
+        <span class="attr">#[cfg(target_arch = <span class="string">"x86"</span>)]
         </span><span class="kw">use </span>core::arch::x86::<span class="kw-2">*</span>;
-        <span class="attr">#[cfg(target_arch = <span class="string">&quot;x86_64&quot;</span>)]
+        <span class="attr">#[cfg(target_arch = <span class="string">"x86_64"</span>)]
         </span><span class="kw">use </span>core::arch::x86_64::<span class="kw-2">*</span>;
 
         <span class="attr">#[derive(Clone, Copy, Debug)]
         #[repr(C, align(<span class="number">16</span>))]
         </span><span class="kw">pub struct </span>f32x4(__m128);
-    } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
         <span class="kw">use </span>core::arch::wasm32::<span class="kw-2">*</span>;
 
         <span class="comment">// repr(transparent) allows for directly passing the v128 on the WASM stack.
         </span><span class="attr">#[derive(Clone, Copy, Debug)]
         #[repr(transparent)]
         </span><span class="kw">pub struct </span>f32x4(v128);
-    } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
         <span class="kw">use </span>core::arch::aarch64::<span class="kw-2">*</span>;
 
         <span class="attr">#[derive(Clone, Copy, Debug)]
@@ -700,9 +701,9 @@
 
     <span class="kw">pub fn </span>floor(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_floor(<span class="self">self</span>.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vrndmq_f32(<span class="self">self</span>.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="kw">let </span>roundtrip: f32x4 = cast(<span class="self">self</span>.trunc_int().to_f32x4());
@@ -713,9 +714,9 @@
 
     <span class="kw">pub fn </span>abs(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_abs(<span class="self">self</span>.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vabsq_f32(<span class="self">self</span>.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="kw">let </span>non_sign_bits = f32x4::splat(f32::from_bits(i32::MAX <span class="kw">as </span>u32));
@@ -725,14 +726,14 @@
     }
 
     <span class="kw">pub fn </span>max(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="comment">// These technically don&#39;t have the same semantics for NaN and 0, but it
-        // doesn&#39;t seem to matter as Skia does it the same way.
+        <span class="comment">// These technically don't have the same semantics for NaN and 0, but it
+        // doesn't seem to matter as Skia does it the same way.
         </span><span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_max_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_pmax(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vmaxq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -746,14 +747,14 @@
     }
 
     <span class="kw">pub fn </span>min(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="comment">// These technically don&#39;t have the same semantics for NaN and 0, but it
-        // doesn&#39;t seem to matter as Skia does it the same way.
+        <span class="comment">// These technically don't have the same semantics for NaN and 0, but it
+        // doesn't seem to matter as Skia does it the same way.
         </span><span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_min_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_pmin(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vminq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -768,11 +769,11 @@
 
     <span class="kw">pub fn </span>cmp_eq(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_cmpeq_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_eq(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ vceqq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) }))
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -787,11 +788,11 @@
 
     <span class="kw">pub fn </span>cmp_ne(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_cmpneq_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_ne(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ vmvnq_u32(vceqq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>)) }))
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -806,11 +807,11 @@
 
     <span class="kw">pub fn </span>cmp_ge(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_cmpge_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_ge(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ vcgeq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) }))
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -825,11 +826,11 @@
 
     <span class="kw">pub fn </span>cmp_gt(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_cmpgt_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_gt(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ vcgtq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) }))
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -844,11 +845,11 @@
 
     <span class="kw">pub fn </span>cmp_le(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_cmple_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_le(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ vcleq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) }))
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -863,11 +864,11 @@
 
     <span class="kw">pub fn </span>cmp_lt(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_cmplt_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_lt(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ vcltq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) }))
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -883,11 +884,11 @@
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>blend(<span class="self">self</span>, t: <span class="self">Self</span>, f: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse4.1&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse4.1"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_blendv_ps(f.<span class="number">0</span>, t.<span class="number">0</span>, <span class="self">self</span>.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(v128_bitselect(t.<span class="number">0</span>, f.<span class="number">0</span>, <span class="self">self</span>.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ cast(vbslq_u32( cast(<span class="self">self</span>.<span class="number">0</span>), cast(t.<span class="number">0</span>), cast(f.<span class="number">0</span>))) })
             } <span class="kw">else </span>{
                 <span class="kw">super</span>::generic_bit_blend(<span class="self">self</span>, t, f)
@@ -897,13 +898,13 @@
 
     <span class="kw">pub fn </span>round(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse4.1&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse4.1"</span>))] </span>{
                 <span class="self">Self</span>(
                     <span class="kw">unsafe </span>{ _mm_round_ps(<span class="self">self</span>.<span class="number">0</span>, _MM_FROUND_NO_EXC | _MM_FROUND_TO_NEAREST_INT) },
                 )
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_nearest(<span class="self">self</span>.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vrndnq_f32(<span class="self">self</span>.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="kw">use </span><span class="kw">super</span>::u32x4;
@@ -936,15 +937,15 @@
     }
 
     <span class="kw">pub fn </span>round_int(<span class="self">self</span>) -&gt; i32x4 {
-        <span class="comment">// These technically don&#39;t have the same semantics for NaN and out of
-        // range values, but it doesn&#39;t seem to matter as Skia does it the same
+        <span class="comment">// These technically don't have the same semantics for NaN and out of
+        // range values, but it doesn't seem to matter as Skia does it the same
         // way.
         </span><span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 i32x4(<span class="kw">unsafe </span>{ _mm_cvtps_epi32(<span class="self">self</span>.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 i32x4(i32x4_trunc_sat_f32x4(<span class="self">self</span>.round().<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 i32x4(<span class="kw">unsafe </span>{ vcvtnq_s32_f32(<span class="self">self</span>.<span class="number">0</span>) } )
             } <span class="kw">else </span>{
                 <span class="kw">let </span>rounded: [f32; <span class="number">4</span>] = cast(<span class="self">self</span>.round());
@@ -959,15 +960,15 @@
     }
 
     <span class="kw">pub fn </span>trunc_int(<span class="self">self</span>) -&gt; i32x4 {
-        <span class="comment">// These technically don&#39;t have the same semantics for NaN and out of
-        // range values, but it doesn&#39;t seem to matter as Skia does it the same
+        <span class="comment">// These technically don't have the same semantics for NaN and out of
+        // range values, but it doesn't seem to matter as Skia does it the same
         // way.
         </span><span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 i32x4(<span class="kw">unsafe </span>{ _mm_cvttps_epi32(<span class="self">self</span>.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 i32x4(i32x4_trunc_sat_f32x4(<span class="self">self</span>.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 i32x4(<span class="kw">unsafe </span>{ vcvtq_s32_f32(<span class="self">self</span>.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 cast([
@@ -982,11 +983,11 @@
 
     <span class="kw">pub fn </span>recip_fast(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_rcp_ps(<span class="self">self</span>.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_div(f32x4_splat(<span class="number">1.0</span>), <span class="self">self</span>.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="kw">unsafe </span>{
                     <span class="kw">let </span>a = vrecpeq_f32(<span class="self">self</span>.<span class="number">0</span>);
                     <span class="kw">let </span>a = vmulq_f32(vrecpsq_f32(<span class="self">self</span>.<span class="number">0</span>, a), a);
@@ -1005,11 +1006,11 @@
 
     <span class="kw">pub fn </span>recip_sqrt(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_rsqrt_ps(<span class="self">self</span>.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_div(f32x4_splat(<span class="number">1.0</span>), f32x4_sqrt(<span class="self">self</span>.<span class="number">0</span>)))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="kw">unsafe </span>{
                     <span class="kw">let </span>a = vrsqrteq_f32(<span class="self">self</span>.<span class="number">0</span>);
                     <span class="kw">let </span>a = vmulq_f32(vrsqrtsq_f32(<span class="self">self</span>.<span class="number">0</span>, vmulq_f32(a, a)), a);
@@ -1028,11 +1029,11 @@
 
     <span class="kw">pub fn </span>sqrt(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_sqrt_ps(<span class="self">self</span>.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_sqrt(<span class="self">self</span>.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vsqrtq_f32(<span class="self">self</span>.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="self">Self</span>::from([
@@ -1063,11 +1064,11 @@
 
     <span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_add_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_add(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vaddq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -1092,11 +1093,11 @@
 
     <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_sub_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_sub(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vsubq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -1115,11 +1116,11 @@
 
     <span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_mul_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_mul(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vmulq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -1144,11 +1145,11 @@
 
     <span class="kw">fn </span>div(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_div_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(f32x4_div(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ vdivq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -1168,11 +1169,11 @@
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>bitand(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_and_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(v128_and(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ vandq_u32(cast(<span class="self">self</span>.<span class="number">0</span>), cast(rhs.<span class="number">0</span>)) }))
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -1192,11 +1193,11 @@
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>bitor(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_or_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(v128_or(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ vorrq_u32(cast(<span class="self">self</span>.<span class="number">0</span>), cast(rhs.<span class="number">0</span>)) }))
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -1216,11 +1217,11 @@
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>bitxor(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="self">Self</span>(<span class="kw">unsafe </span>{ _mm_xor_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>) })
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(v128_xor(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ veorq_u32(cast(<span class="self">self</span>.<span class="number">0</span>), cast(rhs.<span class="number">0</span>)) }))
             } <span class="kw">else </span>{
                 <span class="self">Self</span>([
@@ -1247,14 +1248,14 @@
 
     <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="kw">unsafe </span>{
                     <span class="kw">let </span>all_bits = _mm_set1_ps(f32::from_bits(u32::MAX));
                     <span class="self">Self</span>(_mm_xor_ps(<span class="self">self</span>.<span class="number">0</span>, all_bits))
                 }
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 <span class="self">Self</span>(v128_not(<span class="self">self</span>.<span class="number">0</span>))
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="self">Self</span>(cast(<span class="kw">unsafe </span>{ vmvnq_u32(cast(<span class="self">self</span>.<span class="number">0</span>)) }))
             } <span class="kw">else </span>{
                 <span class="self">self </span>^ <span class="self">Self</span>::splat(cast(u32::MAX))
@@ -1266,11 +1267,11 @@
 <span class="kw">impl </span>core::cmp::PartialEq <span class="kw">for </span>f32x4 {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, rhs: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="macro">cfg_if::cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;sse2&quot;</span>))] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"sse2"</span>))] </span>{
                 <span class="kw">unsafe </span>{ _mm_movemask_ps(_mm_cmpeq_ps(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>)) == <span class="number">0b1111 </span>}
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_arch = <span class="string">&quot;aarch64&quot;</span>, target_feature = <span class="string">&quot;neon&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_arch = <span class="string">"aarch64"</span>, target_feature = <span class="string">"neon"</span>))] </span>{
                 <span class="kw">unsafe </span>{ vminvq_u32(vceqq_f32(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>)) != <span class="number">0 </span>}
-            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;simd&quot;</span>, target_feature = <span class="string">&quot;simd128&quot;</span>))] </span>{
+            } <span class="kw">else if </span><span class="attr">#[cfg(all(feature = <span class="string">"simd"</span>, target_feature = <span class="string">"simd128"</span>))] </span>{
                 u32x4_all_true(f32x4_eq(<span class="self">self</span>.<span class="number">0</span>, rhs.<span class="number">0</span>))
             } <span class="kw">else </span>{
                 <span class="self">self</span>.<span class="number">0 </span>== rhs.<span class="number">0

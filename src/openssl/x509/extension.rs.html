@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.63/src/x509/extension.rs`."><title>extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/x509/extension.rs`."><title>extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -635,16 +636,16 @@
     </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;X509Extension, ErrorStack&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>value = String::new();
         <span class="kw">if </span><span class="self">self</span>.critical {
-            value.push_str(<span class="string">&quot;critical,&quot;</span>);
+            value.push_str(<span class="string">"critical,"</span>);
         }
-        value.push_str(<span class="string">&quot;CA:&quot;</span>);
+        value.push_str(<span class="string">"CA:"</span>);
         <span class="kw">if </span><span class="self">self</span>.ca {
-            value.push_str(<span class="string">&quot;TRUE&quot;</span>);
+            value.push_str(<span class="string">"TRUE"</span>);
         } <span class="kw">else </span>{
-            value.push_str(<span class="string">&quot;FALSE&quot;</span>);
+            value.push_str(<span class="string">"FALSE"</span>);
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(pathlen) = <span class="self">self</span>.pathlen {
-            <span class="macro">write!</span>(value, <span class="string">&quot;,pathlen:{}&quot;</span>, pathlen).unwrap();
+            <span class="macro">write!</span>(value, <span class="string">",pathlen:{}"</span>, pathlen).unwrap();
         }
         X509Extension::new_nid(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, Nid::BASIC_CONSTRAINTS, <span class="kw-2">&amp;</span>value)
     }
@@ -754,36 +755,36 @@
     </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;X509Extension, ErrorStack&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>value = String::new();
         <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
-        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.critical, <span class="string">&quot;critical&quot;</span>);
+        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.critical, <span class="string">"critical"</span>);
         append(
             <span class="kw-2">&amp;mut </span>value,
             <span class="kw-2">&amp;mut </span>first,
             <span class="self">self</span>.digital_signature,
-            <span class="string">&quot;digitalSignature&quot;</span>,
+            <span class="string">"digitalSignature"</span>,
         );
         append(
             <span class="kw-2">&amp;mut </span>value,
             <span class="kw-2">&amp;mut </span>first,
             <span class="self">self</span>.non_repudiation,
-            <span class="string">&quot;nonRepudiation&quot;</span>,
+            <span class="string">"nonRepudiation"</span>,
         );
         append(
             <span class="kw-2">&amp;mut </span>value,
             <span class="kw-2">&amp;mut </span>first,
             <span class="self">self</span>.key_encipherment,
-            <span class="string">&quot;keyEncipherment&quot;</span>,
+            <span class="string">"keyEncipherment"</span>,
         );
         append(
             <span class="kw-2">&amp;mut </span>value,
             <span class="kw-2">&amp;mut </span>first,
             <span class="self">self</span>.data_encipherment,
-            <span class="string">&quot;dataEncipherment&quot;</span>,
+            <span class="string">"dataEncipherment"</span>,
         );
-        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.key_agreement, <span class="string">&quot;keyAgreement&quot;</span>);
-        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.key_cert_sign, <span class="string">&quot;keyCertSign&quot;</span>);
-        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.crl_sign, <span class="string">&quot;cRLSign&quot;</span>);
-        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.encipher_only, <span class="string">&quot;encipherOnly&quot;</span>);
-        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.decipher_only, <span class="string">&quot;decipherOnly&quot;</span>);
+        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.key_agreement, <span class="string">"keyAgreement"</span>);
+        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.key_cert_sign, <span class="string">"keyCertSign"</span>);
+        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.crl_sign, <span class="string">"cRLSign"</span>);
+        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.encipher_only, <span class="string">"encipherOnly"</span>);
+        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.decipher_only, <span class="string">"decipherOnly"</span>);
         X509Extension::new_nid(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, Nid::KEY_USAGE, <span class="kw-2">&amp;</span>value)
     }
 }
@@ -818,57 +819,57 @@
 
     <span class="doccomment">/// Sets the `serverAuth` flag to `true`.
     </span><span class="kw">pub fn </span>server_auth(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;serverAuth&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"serverAuth"</span>)
     }
 
     <span class="doccomment">/// Sets the `clientAuth` flag to `true`.
     </span><span class="kw">pub fn </span>client_auth(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;clientAuth&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"clientAuth"</span>)
     }
 
     <span class="doccomment">/// Sets the `codeSigning` flag to `true`.
     </span><span class="kw">pub fn </span>code_signing(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;codeSigning&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"codeSigning"</span>)
     }
 
     <span class="doccomment">/// Sets the `emailProtection` flag to `true`.
     </span><span class="kw">pub fn </span>email_protection(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;emailProtection&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"emailProtection"</span>)
     }
 
     <span class="doccomment">/// Sets the `timeStamping` flag to `true`.
     </span><span class="kw">pub fn </span>time_stamping(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;timeStamping&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"timeStamping"</span>)
     }
 
     <span class="doccomment">/// Sets the `msCodeInd` flag to `true`.
     </span><span class="kw">pub fn </span>ms_code_ind(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;msCodeInd&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"msCodeInd"</span>)
     }
 
     <span class="doccomment">/// Sets the `msCodeCom` flag to `true`.
     </span><span class="kw">pub fn </span>ms_code_com(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;msCodeCom&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"msCodeCom"</span>)
     }
 
     <span class="doccomment">/// Sets the `msCTLSign` flag to `true`.
     </span><span class="kw">pub fn </span>ms_ctl_sign(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;msCTLSign&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"msCTLSign"</span>)
     }
 
     <span class="doccomment">/// Sets the `msSGC` flag to `true`.
     </span><span class="kw">pub fn </span>ms_sgc(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;msSGC&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"msSGC"</span>)
     }
 
     <span class="doccomment">/// Sets the `msEFS` flag to `true`.
     </span><span class="kw">pub fn </span>ms_efs(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;msEFS&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"msEFS"</span>)
     }
 
     <span class="doccomment">/// Sets the `nsSGC` flag to `true`.
     </span><span class="kw">pub fn </span>ns_sgc(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ExtendedKeyUsage {
-        <span class="self">self</span>.other(<span class="string">&quot;nsSGC&quot;</span>)
+        <span class="self">self</span>.other(<span class="string">"nsSGC"</span>)
     }
 
     <span class="doccomment">/// Sets a flag not already defined.
@@ -917,11 +918,11 @@
     </span><span class="comment">// Temporarily silence the deprecation warning - this should be ported to
     // `X509Extension::new_internal`.
     </span><span class="attr">#[allow(deprecated)]
-    </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>X509v3Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;X509Extension, ErrorStack&gt; {
+    </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>X509v3Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;X509Extension, ErrorStack&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>value = String::new();
         <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
-        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.critical, <span class="string">&quot;critical&quot;</span>);
-        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">&quot;hash&quot;</span>);
+        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.critical, <span class="string">"critical"</span>);
+        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">"hash"</span>);
         X509Extension::new_nid(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(ctx), Nid::SUBJECT_KEY_IDENTIFIER, <span class="kw-2">&amp;</span>value)
     }
 }
@@ -972,18 +973,18 @@
     </span><span class="comment">// Temporarily silence the deprecation warning - this should be ported to
     // `X509Extension::new_internal`.
     </span><span class="attr">#[allow(deprecated)]
-    </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>X509v3Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;X509Extension, ErrorStack&gt; {
+    </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>X509v3Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;X509Extension, ErrorStack&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>value = String::new();
         <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
-        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.critical, <span class="string">&quot;critical&quot;</span>);
+        append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="self">self</span>.critical, <span class="string">"critical"</span>);
         <span class="kw">match </span><span class="self">self</span>.keyid {
-            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) =&gt; append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">&quot;keyid:always&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) =&gt; append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">&quot;keyid&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) =&gt; append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">"keyid:always"</span>),
+            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) =&gt; append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">"keyid"</span>),
             <span class="prelude-val">None </span>=&gt; {}
         }
         <span class="kw">match </span><span class="self">self</span>.issuer {
-            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) =&gt; append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">&quot;issuer:always&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) =&gt; append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">&quot;issuer&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) =&gt; append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">"issuer:always"</span>),
+            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) =&gt; append(<span class="kw-2">&amp;mut </span>value, <span class="kw-2">&amp;mut </span>first, <span class="bool-val">true</span>, <span class="string">"issuer"</span>),
             <span class="prelude-val">None </span>=&gt; {}
         }
         X509Extension::new_nid(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(ctx), Nid::AUTHORITY_KEY_IDENTIFIER, <span class="kw-2">&amp;</span>value)
@@ -1060,19 +1061,19 @@
     <span class="doccomment">/// Sets the `dirName` flag.
     ///
     /// Not currently actually supported, always panics.
-    </span><span class="attr">#[deprecated = <span class="string">&quot;dir_name is deprecated and always panics. Please file a bug if you have a use case for this.&quot;</span>]
+    </span><span class="attr">#[deprecated = <span class="string">"dir_name is deprecated and always panics. Please file a bug if you have a use case for this."</span>]
     </span><span class="kw">pub fn </span>dir_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _dir_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>SubjectAlternativeName {
         <span class="macro">unimplemented!</span>(
-            <span class="string">&quot;This has not yet been adapted for the new internals. File a bug if you need this.&quot;
+            <span class="string">"This has not yet been adapted for the new internals. File a bug if you need this."
         </span>);
     }
 
     <span class="doccomment">/// Sets the `otherName` flag.
     ///
     /// Not currently actually supported, always panics. Please use other_name2
-    </span><span class="attr">#[deprecated = <span class="string">&quot;other_name is deprecated and always panics. Please use other_name2.&quot;</span>]
+    </span><span class="attr">#[deprecated = <span class="string">"other_name is deprecated and always panics. Please use other_name2."</span>]
     </span><span class="kw">pub fn </span>other_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _other_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;mut </span>SubjectAlternativeName {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;This has not yet been adapted for the new internals. Use other_name2.&quot;</span>);
+        <span class="macro">unimplemented!</span>(<span class="string">"This has not yet been adapted for the new internals. Use other_name2."</span>);
     }
 
     <span class="doccomment">/// Sets the `otherName` flag.
@@ -1087,7 +1088,7 @@
     </span>}
 
     <span class="doccomment">/// Return a `SubjectAlternativeName` extension as an `X509Extension`.
-    </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, _ctx: <span class="kw-2">&amp;</span>X509v3Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;X509Extension, ErrorStack&gt; {
+    </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, _ctx: <span class="kw-2">&amp;</span>X509v3Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;X509Extension, ErrorStack&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>stack = Stack::new()<span class="question-mark">?</span>;
         <span class="kw">for </span>item <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.items {
             <span class="kw">let </span>gn = <span class="kw">match </span>item {
@@ -1117,7 +1118,7 @@
     }
 
     <span class="kw">if </span>!<span class="kw-2">*</span>first {
-        value.push(<span class="string">&#39;,&#39;</span>);
+        value.push(<span class="string">','</span>);
     }
     <span class="kw-2">*</span>first = <span class="bool-val">false</span>;
     value.push_str(element);

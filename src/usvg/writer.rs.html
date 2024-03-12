@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.38.0/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.38.0/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1868,8 +1869,8 @@
     }
 }
 
-<span class="kw">struct </span>WriterContext&lt;<span class="lifetime">&#39;a</span>&gt; {
-    opt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>XmlOptions,
+<span class="kw">struct </span>WriterContext&lt;<span class="lifetime">'a</span>&gt; {
+    opt: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>XmlOptions,
 
     all_ids: HashSet&lt;u64&gt;,
     id_map: HashMap&lt;usize, String&gt;,
@@ -1884,7 +1885,7 @@
     text_path_map: HashMap&lt;String, String&gt;,
 }
 
-<span class="kw">impl </span>WriterContext&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>WriterContext&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>push_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>str) {
         <span class="kw">if </span>id.is_empty() {
             <span class="kw">return</span>;
@@ -1896,7 +1897,7 @@
     <span class="kw">fn </span>gen_id(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, <span class="kw-2">mut </span>index: usize) -&gt; (usize, String) {
         <span class="kw">loop </span>{
             index += <span class="number">1</span>;
-            <span class="kw">let </span>new_id = <span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, name, index);
+            <span class="kw">let </span>new_id = <span class="macro">format!</span>(<span class="string">"{}{}"</span>, name, index);
             <span class="kw">let </span>new_hash = string_hash(<span class="kw-2">&amp;</span>new_id);
             <span class="kw">if </span>!<span class="self">self</span>.all_ids.contains(<span class="kw-2">&amp;</span>new_hash) {
                 <span class="kw">return </span>(index, new_id);
@@ -1905,43 +1906,43 @@
     }
 
     <span class="kw">fn </span>gen_filter_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
-        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">&quot;filter&quot;</span>, <span class="self">self</span>.next_filter_index);
+        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">"filter"</span>, <span class="self">self</span>.next_filter_index);
         <span class="self">self</span>.next_filter_index = new_index;
         id
     }
 
     <span class="kw">fn </span>gen_clip_path_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
-        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">&quot;clip-path&quot;</span>, <span class="self">self</span>.next_clip_path_index);
+        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">"clip-path"</span>, <span class="self">self</span>.next_clip_path_index);
         <span class="self">self</span>.next_clip_path_index = new_index;
         id
     }
 
     <span class="kw">fn </span>gen_mask_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
-        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">&quot;mask&quot;</span>, <span class="self">self</span>.next_mask_index);
+        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">"mask"</span>, <span class="self">self</span>.next_mask_index);
         <span class="self">self</span>.next_mask_index = new_index;
         id
     }
 
     <span class="kw">fn </span>gen_linear_gradient_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
-        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">&quot;linearGradient&quot;</span>, <span class="self">self</span>.next_linear_gradient_index);
+        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">"linearGradient"</span>, <span class="self">self</span>.next_linear_gradient_index);
         <span class="self">self</span>.next_linear_gradient_index = new_index;
         id
     }
 
     <span class="kw">fn </span>gen_radial_gradient_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
-        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">&quot;radialGradient&quot;</span>, <span class="self">self</span>.next_radial_gradient_index);
+        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">"radialGradient"</span>, <span class="self">self</span>.next_radial_gradient_index);
         <span class="self">self</span>.next_radial_gradient_index = new_index;
         id
     }
 
     <span class="kw">fn </span>gen_pattern_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
-        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">&quot;pattern&quot;</span>, <span class="self">self</span>.next_pattern_index);
+        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">"pattern"</span>, <span class="self">self</span>.next_pattern_index);
         <span class="self">self</span>.next_pattern_index = new_index;
         id
     }
 
     <span class="kw">fn </span>gen_path_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
-        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">&quot;path&quot;</span>, <span class="self">self</span>.next_path_index);
+        <span class="kw">let </span>(new_index, id) = <span class="self">self</span>.gen_id(<span class="string">"path"</span>, <span class="self">self</span>.next_path_index);
         <span class="self">self</span>.next_path_index = new_index;
         id
     }
@@ -2005,9 +2006,9 @@
     xml.write_svg_attribute(AId::Width, <span class="kw-2">&amp;</span>tree.size.width());
     xml.write_svg_attribute(AId::Height, <span class="kw-2">&amp;</span>tree.size.height());
     xml.write_viewbox(<span class="kw-2">&amp;</span>tree.view_box);
-    xml.write_attribute(<span class="string">&quot;xmlns&quot;</span>, <span class="string">&quot;http://www.w3.org/2000/svg&quot;</span>);
+    xml.write_attribute(<span class="string">"xmlns"</span>, <span class="string">"http://www.w3.org/2000/svg"</span>);
     <span class="kw">if </span>has_xlink(<span class="kw-2">&amp;</span>tree.root) {
-        xml.write_attribute(<span class="string">&quot;xmlns:xlink&quot;</span>, <span class="string">&quot;http://www.w3.org/1999/xlink&quot;</span>);
+        xml.write_attribute(<span class="string">"xmlns:xlink"</span>, <span class="string">"http://www.w3.org/1999/xlink"</span>);
     }
 
     xml.start_svg_element(EId::Defs);
@@ -2106,7 +2107,7 @@
                     xml.write_filter_input(AId::In, <span class="kw-2">&amp;</span>shadow.input);
                     xml.write_attribute_fmt(
                         AId::StdDeviation.to_str(),
-                        <span class="macro">format_args!</span>(<span class="string">&quot;{} {}&quot;</span>, shadow.std_dev_x.get(), shadow.std_dev_y.get()),
+                        <span class="macro">format_args!</span>(<span class="string">"{} {}"</span>, shadow.std_dev_x.get(), shadow.std_dev_y.get()),
                     );
                     xml.write_svg_attribute(AId::Dx, <span class="kw-2">&amp;</span>shadow.dx);
                     xml.write_svg_attribute(AId::Dy, <span class="kw-2">&amp;</span>shadow.dy);
@@ -2121,7 +2122,7 @@
                     xml.write_filter_input(AId::In, <span class="kw-2">&amp;</span>blur.input);
                     xml.write_attribute_fmt(
                         AId::StdDeviation.to_str(),
-                        <span class="macro">format_args!</span>(<span class="string">&quot;{} {}&quot;</span>, blur.std_dev_x.get(), blur.std_dev_y.get()),
+                        <span class="macro">format_args!</span>(<span class="string">"{} {}"</span>, blur.std_dev_x.get(), blur.std_dev_y.get()),
                     );
                     xml.write_svg_attribute(AId::Result, <span class="kw-2">&amp;</span>fe.result);
                     xml.end_element();
@@ -2143,22 +2144,22 @@
                     xml.write_svg_attribute(
                         AId::Mode,
                         <span class="kw">match </span>blend.mode {
-                            BlendMode::Normal =&gt; <span class="string">&quot;normal&quot;</span>,
-                            BlendMode::Multiply =&gt; <span class="string">&quot;multiply&quot;</span>,
-                            BlendMode::Screen =&gt; <span class="string">&quot;screen&quot;</span>,
-                            BlendMode::Overlay =&gt; <span class="string">&quot;overlay&quot;</span>,
-                            BlendMode::Darken =&gt; <span class="string">&quot;darken&quot;</span>,
-                            BlendMode::Lighten =&gt; <span class="string">&quot;lighten&quot;</span>,
-                            BlendMode::ColorDodge =&gt; <span class="string">&quot;color-dodge&quot;</span>,
-                            BlendMode::ColorBurn =&gt; <span class="string">&quot;color-burn&quot;</span>,
-                            BlendMode::HardLight =&gt; <span class="string">&quot;hard-light&quot;</span>,
-                            BlendMode::SoftLight =&gt; <span class="string">&quot;soft-light&quot;</span>,
-                            BlendMode::Difference =&gt; <span class="string">&quot;difference&quot;</span>,
-                            BlendMode::Exclusion =&gt; <span class="string">&quot;exclusion&quot;</span>,
-                            BlendMode::Hue =&gt; <span class="string">&quot;hue&quot;</span>,
-                            BlendMode::Saturation =&gt; <span class="string">&quot;saturation&quot;</span>,
-                            BlendMode::Color =&gt; <span class="string">&quot;color&quot;</span>,
-                            BlendMode::Luminosity =&gt; <span class="string">&quot;luminosity&quot;</span>,
+                            BlendMode::Normal =&gt; <span class="string">"normal"</span>,
+                            BlendMode::Multiply =&gt; <span class="string">"multiply"</span>,
+                            BlendMode::Screen =&gt; <span class="string">"screen"</span>,
+                            BlendMode::Overlay =&gt; <span class="string">"overlay"</span>,
+                            BlendMode::Darken =&gt; <span class="string">"darken"</span>,
+                            BlendMode::Lighten =&gt; <span class="string">"lighten"</span>,
+                            BlendMode::ColorDodge =&gt; <span class="string">"color-dodge"</span>,
+                            BlendMode::ColorBurn =&gt; <span class="string">"color-burn"</span>,
+                            BlendMode::HardLight =&gt; <span class="string">"hard-light"</span>,
+                            BlendMode::SoftLight =&gt; <span class="string">"soft-light"</span>,
+                            BlendMode::Difference =&gt; <span class="string">"difference"</span>,
+                            BlendMode::Exclusion =&gt; <span class="string">"exclusion"</span>,
+                            BlendMode::Hue =&gt; <span class="string">"hue"</span>,
+                            BlendMode::Saturation =&gt; <span class="string">"saturation"</span>,
+                            BlendMode::Color =&gt; <span class="string">"color"</span>,
+                            BlendMode::Luminosity =&gt; <span class="string">"luminosity"</span>,
                         },
                     );
                     xml.write_svg_attribute(AId::Result, <span class="kw-2">&amp;</span>fe.result);
@@ -2180,12 +2181,12 @@
                     xml.write_svg_attribute(
                         AId::Operator,
                         <span class="kw">match </span>composite.operator {
-                            filter::CompositeOperator::Over =&gt; <span class="string">&quot;over&quot;</span>,
-                            filter::CompositeOperator::In =&gt; <span class="string">&quot;in&quot;</span>,
-                            filter::CompositeOperator::Out =&gt; <span class="string">&quot;out&quot;</span>,
-                            filter::CompositeOperator::Atop =&gt; <span class="string">&quot;atop&quot;</span>,
-                            filter::CompositeOperator::Xor =&gt; <span class="string">&quot;xor&quot;</span>,
-                            filter::CompositeOperator::Arithmetic { .. } =&gt; <span class="string">&quot;arithmetic&quot;</span>,
+                            filter::CompositeOperator::Over =&gt; <span class="string">"over"</span>,
+                            filter::CompositeOperator::In =&gt; <span class="string">"in"</span>,
+                            filter::CompositeOperator::Out =&gt; <span class="string">"out"</span>,
+                            filter::CompositeOperator::Atop =&gt; <span class="string">"atop"</span>,
+                            filter::CompositeOperator::Xor =&gt; <span class="string">"xor"</span>,
+                            filter::CompositeOperator::Arithmetic { .. } =&gt; <span class="string">"arithmetic"</span>,
                         },
                     );
 
@@ -2227,8 +2228,8 @@
                     xml.write_svg_attribute(
                         AId::ImageRendering,
                         <span class="kw">match </span>img.rendering_mode {
-                            ImageRendering::OptimizeQuality =&gt; <span class="string">&quot;optimizeQuality&quot;</span>,
-                            ImageRendering::OptimizeSpeed =&gt; <span class="string">&quot;optimizeSpeed&quot;</span>,
+                            ImageRendering::OptimizeQuality =&gt; <span class="string">"optimizeQuality"</span>,
+                            ImageRendering::OptimizeSpeed =&gt; <span class="string">"optimizeSpeed"</span>,
                         },
                     );
                     <span class="kw">match </span>img.data {
@@ -2239,8 +2240,8 @@
                             <span class="kw">if let </span><span class="prelude-val">Some</span>(child) = node.children.first() {
                                 <span class="kw">let </span>prefix = ctx.opt.id_prefix.as_deref().unwrap_or_default();
                                 xml.write_attribute_fmt(
-                                    <span class="string">&quot;xlink:href&quot;</span>,
-                                    <span class="macro">format_args!</span>(<span class="string">&quot;#{}{}&quot;</span>, prefix, child.id()),
+                                    <span class="string">"xlink:href"</span>,
+                                    <span class="macro">format_args!</span>(<span class="string">"#{}{}"</span>, prefix, child.id()),
                                 );
                             }
                         }
@@ -2270,19 +2271,19 @@
 
                     <span class="kw">match </span>matrix.kind {
                         filter::ColorMatrixKind::Matrix(<span class="kw-2">ref </span>values) =&gt; {
-                            xml.write_svg_attribute(AId::Type, <span class="string">&quot;matrix&quot;</span>);
+                            xml.write_svg_attribute(AId::Type, <span class="string">"matrix"</span>);
                             xml.write_numbers(AId::Values, values);
                         }
                         filter::ColorMatrixKind::Saturate(value) =&gt; {
-                            xml.write_svg_attribute(AId::Type, <span class="string">&quot;saturate&quot;</span>);
+                            xml.write_svg_attribute(AId::Type, <span class="string">"saturate"</span>);
                             xml.write_svg_attribute(AId::Values, <span class="kw-2">&amp;</span>value.get());
                         }
                         filter::ColorMatrixKind::HueRotate(angle) =&gt; {
-                            xml.write_svg_attribute(AId::Type, <span class="string">&quot;hueRotate&quot;</span>);
+                            xml.write_svg_attribute(AId::Type, <span class="string">"hueRotate"</span>);
                             xml.write_svg_attribute(AId::Values, <span class="kw-2">&amp;</span>angle);
                         }
                         filter::ColorMatrixKind::LuminanceToAlpha =&gt; {
-                            xml.write_svg_attribute(AId::Type, <span class="string">&quot;luminanceToAlpha&quot;</span>);
+                            xml.write_svg_attribute(AId::Type, <span class="string">"luminanceToAlpha"</span>);
                         }
                     }
 
@@ -2296,7 +2297,7 @@
 
                     xml.write_attribute_fmt(
                         AId::Order.to_str(),
-                        <span class="macro">format_args!</span>(<span class="string">&quot;{} {}&quot;</span>, matrix.matrix.columns, matrix.matrix.rows),
+                        <span class="macro">format_args!</span>(<span class="string">"{} {}"</span>, matrix.matrix.columns, matrix.matrix.rows),
                     );
                     xml.write_numbers(AId::KernelMatrix, <span class="kw-2">&amp;</span>matrix.matrix.data);
                     xml.write_svg_attribute(AId::Divisor, <span class="kw-2">&amp;</span>matrix.divisor.get());
@@ -2306,17 +2307,17 @@
                     xml.write_svg_attribute(
                         AId::EdgeMode,
                         <span class="kw">match </span>matrix.edge_mode {
-                            filter::EdgeMode::None =&gt; <span class="string">&quot;none&quot;</span>,
-                            filter::EdgeMode::Duplicate =&gt; <span class="string">&quot;duplicate&quot;</span>,
-                            filter::EdgeMode::Wrap =&gt; <span class="string">&quot;wrap&quot;</span>,
+                            filter::EdgeMode::None =&gt; <span class="string">"none"</span>,
+                            filter::EdgeMode::Duplicate =&gt; <span class="string">"duplicate"</span>,
+                            filter::EdgeMode::Wrap =&gt; <span class="string">"wrap"</span>,
                         },
                     );
                     xml.write_svg_attribute(
                         AId::PreserveAlpha,
                         <span class="kw">if </span>matrix.preserve_alpha {
-                            <span class="string">&quot;true&quot;
+                            <span class="string">"true"
                         </span>} <span class="kw">else </span>{
-                            <span class="string">&quot;false&quot;
+                            <span class="string">"false"
                         </span>},
                     );
 
@@ -2331,14 +2332,14 @@
                     xml.write_svg_attribute(
                         AId::Operator,
                         <span class="kw">match </span>morphology.operator {
-                            filter::MorphologyOperator::Erode =&gt; <span class="string">&quot;erode&quot;</span>,
-                            filter::MorphologyOperator::Dilate =&gt; <span class="string">&quot;dilate&quot;</span>,
+                            filter::MorphologyOperator::Erode =&gt; <span class="string">"erode"</span>,
+                            filter::MorphologyOperator::Dilate =&gt; <span class="string">"dilate"</span>,
                         },
                     );
                     xml.write_attribute_fmt(
                         AId::Radius.to_str(),
                         <span class="macro">format_args!</span>(
-                            <span class="string">&quot;{} {}&quot;</span>,
+                            <span class="string">"{} {}"</span>,
                             morphology.radius_x.get(),
                             morphology.radius_y.get()
                         ),
@@ -2359,10 +2360,10 @@
                         xml.write_svg_attribute(
                             aid,
                             <span class="kw">match </span>c {
-                                filter::ColorChannel::R =&gt; <span class="string">&quot;R&quot;</span>,
-                                filter::ColorChannel::G =&gt; <span class="string">&quot;G&quot;</span>,
-                                filter::ColorChannel::B =&gt; <span class="string">&quot;B&quot;</span>,
-                                filter::ColorChannel::A =&gt; <span class="string">&quot;A&quot;</span>,
+                                filter::ColorChannel::R =&gt; <span class="string">"R"</span>,
+                                filter::ColorChannel::G =&gt; <span class="string">"G"</span>,
+                                filter::ColorChannel::B =&gt; <span class="string">"B"</span>,
+                                filter::ColorChannel::A =&gt; <span class="string">"A"</span>,
                             },
                         );
                     };
@@ -2379,7 +2380,7 @@
                     xml.write_attribute_fmt(
                         AId::BaseFrequency.to_str(),
                         <span class="macro">format_args!</span>(
-                            <span class="string">&quot;{} {}&quot;</span>,
+                            <span class="string">"{} {}"</span>,
                             turbulence.base_frequency_x.get(),
                             turbulence.base_frequency_y.get()
                         ),
@@ -2389,15 +2390,15 @@
                     xml.write_svg_attribute(
                         AId::StitchTiles,
                         <span class="kw">match </span>turbulence.stitch_tiles {
-                            <span class="bool-val">true </span>=&gt; <span class="string">&quot;stitch&quot;</span>,
-                            <span class="bool-val">false </span>=&gt; <span class="string">&quot;noStitch&quot;</span>,
+                            <span class="bool-val">true </span>=&gt; <span class="string">"stitch"</span>,
+                            <span class="bool-val">false </span>=&gt; <span class="string">"noStitch"</span>,
                         },
                     );
                     xml.write_svg_attribute(
                         AId::Type,
                         <span class="kw">match </span>turbulence.kind {
-                            filter::TurbulenceKind::FractalNoise =&gt; <span class="string">&quot;fractalNoise&quot;</span>,
-                            filter::TurbulenceKind::Turbulence =&gt; <span class="string">&quot;turbulence&quot;</span>,
+                            filter::TurbulenceKind::FractalNoise =&gt; <span class="string">"fractalNoise"</span>,
+                            filter::TurbulenceKind::Turbulence =&gt; <span class="string">"turbulence"</span>,
                         },
                     );
 
@@ -2545,7 +2546,7 @@
         xml.start_svg_element(EId::Mask);
         ctx.prepare_defs_id(mask_ptr, <span class="kw-2">&amp;</span>mask.id, xml, |ctx| ctx.gen_mask_id());
         <span class="kw">if </span>mask.kind == MaskType::Alpha {
-            xml.write_svg_attribute(AId::MaskType, <span class="string">&quot;alpha&quot;</span>);
+            xml.write_svg_attribute(AId::MaskType, <span class="string">"alpha"</span>);
         }
         xml.write_units(AId::MaskUnits, mask.units, Units::ObjectBoundingBox);
         xml.write_units(
@@ -2629,7 +2630,7 @@
             <span class="kw">match </span>img.rendering_mode {
                 ImageRendering::OptimizeQuality =&gt; {}
                 ImageRendering::OptimizeSpeed =&gt; {
-                    xml.write_svg_attribute(AId::ImageRendering, <span class="string">&quot;optimizeSpeed&quot;</span>);
+                    xml.write_svg_attribute(AId::ImageRendering, <span class="string">"optimizeSpeed"</span>);
                 }
             }
 
@@ -2650,19 +2651,19 @@
                     xml.write_id_attribute(<span class="kw-2">&amp;</span>text.id, ctx);
                 }
 
-                xml.write_attribute(<span class="string">&quot;xml:space&quot;</span>, <span class="string">&quot;preserve&quot;</span>);
+                xml.write_attribute(<span class="string">"xml:space"</span>, <span class="string">"preserve"</span>);
 
                 <span class="kw">match </span>text.writing_mode {
                     WritingMode::LeftToRight =&gt; {}
-                    WritingMode::TopToBottom =&gt; xml.write_svg_attribute(AId::WritingMode, <span class="string">&quot;tb&quot;</span>),
+                    WritingMode::TopToBottom =&gt; xml.write_svg_attribute(AId::WritingMode, <span class="string">"tb"</span>),
                 }
 
                 <span class="kw">match </span>text.rendering_mode {
                     TextRendering::OptimizeSpeed =&gt; {
-                        xml.write_svg_attribute(AId::TextRendering, <span class="string">&quot;optimizeSpeed&quot;</span>)
+                        xml.write_svg_attribute(AId::TextRendering, <span class="string">"optimizeSpeed"</span>)
                     }
                     TextRendering::GeometricPrecision =&gt; {
-                        xml.write_svg_attribute(AId::TextRendering, <span class="string">&quot;geometricPrecision&quot;</span>)
+                        xml.write_svg_attribute(AId::TextRendering, <span class="string">"geometricPrecision"</span>)
                     }
                     TextRendering::OptimizeLegibility =&gt; {}
                 }
@@ -2688,8 +2689,8 @@
                         <span class="kw">let </span>prefix = ctx.opt.id_prefix.as_deref().unwrap_or_default();
                         <span class="kw">let </span>ref_path = ctx.text_path_map.get(<span class="kw-2">&amp;</span>text_path.id).unwrap();
                         xml.write_attribute_fmt(
-                            <span class="string">&quot;xlink:href&quot;</span>,
-                            <span class="macro">format_args!</span>(<span class="string">&quot;#{}{}&quot;</span>, prefix, ref_path),
+                            <span class="string">"xlink:href"</span>,
+                            <span class="macro">format_args!</span>(<span class="string">"#{}{}"</span>, prefix, ref_path),
                         );
 
                         <span class="kw">if </span>text_path.start_offset != <span class="number">0.0 </span>{
@@ -2709,15 +2710,15 @@
 
                     <span class="kw">match </span>chunk.anchor {
                         TextAnchor::Start =&gt; {}
-                        TextAnchor::Middle =&gt; xml.write_svg_attribute(AId::TextAnchor, <span class="string">&quot;middle&quot;</span>),
-                        TextAnchor::End =&gt; xml.write_svg_attribute(AId::TextAnchor, <span class="string">&quot;end&quot;</span>),
+                        TextAnchor::Middle =&gt; xml.write_svg_attribute(AId::TextAnchor, <span class="string">"middle"</span>),
+                        TextAnchor::End =&gt; xml.write_svg_attribute(AId::TextAnchor, <span class="string">"end"</span>),
                     }
 
                     <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>chunk.spans {
                         <span class="kw">let </span>decorations: Vec&lt;<span class="kw">_</span>&gt; = [
-                            (<span class="string">&quot;underline&quot;</span>, <span class="kw-2">&amp;</span>span.decoration.underline),
-                            (<span class="string">&quot;line-through&quot;</span>, <span class="kw-2">&amp;</span>span.decoration.line_through),
-                            (<span class="string">&quot;overline&quot;</span>, <span class="kw-2">&amp;</span>span.decoration.overline),
+                            (<span class="string">"underline"</span>, <span class="kw-2">&amp;</span>span.decoration.underline),
+                            (<span class="string">"line-through"</span>, <span class="kw-2">&amp;</span>span.decoration.line_through),
+                            (<span class="string">"overline"</span>, <span class="kw-2">&amp;</span>span.decoration.overline),
                         ]
                         .iter()
                         .filter_map(|<span class="kw-2">&amp;</span>(key, option_value)| {
@@ -2726,7 +2727,7 @@
                         .collect();
 
                         <span class="comment">// Decorations need to be dumped BEFORE we write the actual span data
-                        // (so that for example stroke color of span doesn&#39;t affect the text
+                        // (so that for example stroke color of span doesn't affect the text
                         // itself while baseline shifts need to be written after (since they are
                         // affected by the font size)
                         </span><span class="kw">for </span>(deco_name, deco) <span class="kw">in </span><span class="kw-2">&amp;</span>decorations {
@@ -2765,28 +2766,28 @@
     xml: <span class="kw-2">&amp;mut </span>XmlWriter,
 ) {
     <span class="kw">if </span>is_clip_path {
-        <span class="comment">// The `clipPath` element in SVG doesn&#39;t allow groups, only shapes and text.
+        <span class="comment">// The `clipPath` element in SVG doesn't allow groups, only shapes and text.
         // The problem is that in `usvg` we can set a `clip-path` only on groups.
         // So in cases when a `clipPath` child has a `clip-path` as well,
         // it would be inside a group. And we have to skip this group during writing.
         //
         // Basically, the following SVG:
         //
-        // &lt;clipPath id=&quot;clip&quot;&gt;
-        //   &lt;path clip-path=&quot;url(#clip-nested)&quot;/&gt;
+        // &lt;clipPath id="clip"&gt;
+        //   &lt;path clip-path="url(#clip-nested)"/&gt;
         // &lt;/clipPath&gt;
         //
         // will be represented in usvg as:
         //
-        // &lt;clipPath id=&quot;clip&quot;&gt;
-        //   &lt;g clip-path=&quot;url(#clip-nested)&quot;&gt;
+        // &lt;clipPath id="clip"&gt;
+        //   &lt;g clip-path="url(#clip-nested)"&gt;
         //      &lt;path/&gt;
         //   &lt;/g&gt;
         // &lt;/clipPath&gt;
         //
         //
         // Same with text. Text elements will be converted into groups,
-        // but only the group&#39;s children should be written.
+        // but only the group's children should be written.
         </span><span class="kw">for </span>child <span class="kw">in </span><span class="kw-2">&amp;</span>g.children {
             <span class="kw">if let </span>Node::Path(<span class="kw-2">ref </span>path) = child {
                 <span class="kw">let </span>clip_id = g.clip_path.as_ref().map(|cp| cp.borrow().id.to_string());
@@ -2826,9 +2827,9 @@
             .filters
             .iter()
             .filter_map(|filter| ctx.get_defs_id(filter))
-            .map(|id| <span class="macro">format!</span>(<span class="string">&quot;url(#{}{})&quot;</span>, prefix, id))
+            .map(|id| <span class="macro">format!</span>(<span class="string">"url(#{}{})"</span>, prefix, id))
             .collect();
-        xml.write_svg_attribute(AId::Filter, <span class="kw-2">&amp;</span>ids.join(<span class="string">&quot; &quot;</span>));
+        xml.write_svg_attribute(AId::Filter, <span class="kw-2">&amp;</span>ids.join(<span class="string">" "</span>));
     }
 
     <span class="kw">if </span>g.opacity != Opacity::ONE {
@@ -2839,30 +2840,30 @@
 
     <span class="kw">if </span>g.blend_mode != BlendMode::Normal || g.isolate {
         <span class="kw">let </span>blend_mode = <span class="kw">match </span>g.blend_mode {
-            BlendMode::Normal =&gt; <span class="string">&quot;normal&quot;</span>,
-            BlendMode::Multiply =&gt; <span class="string">&quot;multiply&quot;</span>,
-            BlendMode::Screen =&gt; <span class="string">&quot;screen&quot;</span>,
-            BlendMode::Overlay =&gt; <span class="string">&quot;overlay&quot;</span>,
-            BlendMode::Darken =&gt; <span class="string">&quot;darken&quot;</span>,
-            BlendMode::Lighten =&gt; <span class="string">&quot;lighten&quot;</span>,
-            BlendMode::ColorDodge =&gt; <span class="string">&quot;color-dodge&quot;</span>,
-            BlendMode::ColorBurn =&gt; <span class="string">&quot;color-burn&quot;</span>,
-            BlendMode::HardLight =&gt; <span class="string">&quot;hard-light&quot;</span>,
-            BlendMode::SoftLight =&gt; <span class="string">&quot;soft-light&quot;</span>,
-            BlendMode::Difference =&gt; <span class="string">&quot;difference&quot;</span>,
-            BlendMode::Exclusion =&gt; <span class="string">&quot;exclusion&quot;</span>,
-            BlendMode::Hue =&gt; <span class="string">&quot;hue&quot;</span>,
-            BlendMode::Saturation =&gt; <span class="string">&quot;saturation&quot;</span>,
-            BlendMode::Color =&gt; <span class="string">&quot;color&quot;</span>,
-            BlendMode::Luminosity =&gt; <span class="string">&quot;luminosity&quot;</span>,
+            BlendMode::Normal =&gt; <span class="string">"normal"</span>,
+            BlendMode::Multiply =&gt; <span class="string">"multiply"</span>,
+            BlendMode::Screen =&gt; <span class="string">"screen"</span>,
+            BlendMode::Overlay =&gt; <span class="string">"overlay"</span>,
+            BlendMode::Darken =&gt; <span class="string">"darken"</span>,
+            BlendMode::Lighten =&gt; <span class="string">"lighten"</span>,
+            BlendMode::ColorDodge =&gt; <span class="string">"color-dodge"</span>,
+            BlendMode::ColorBurn =&gt; <span class="string">"color-burn"</span>,
+            BlendMode::HardLight =&gt; <span class="string">"hard-light"</span>,
+            BlendMode::SoftLight =&gt; <span class="string">"soft-light"</span>,
+            BlendMode::Difference =&gt; <span class="string">"difference"</span>,
+            BlendMode::Exclusion =&gt; <span class="string">"exclusion"</span>,
+            BlendMode::Hue =&gt; <span class="string">"hue"</span>,
+            BlendMode::Saturation =&gt; <span class="string">"saturation"</span>,
+            BlendMode::Color =&gt; <span class="string">"color"</span>,
+            BlendMode::Luminosity =&gt; <span class="string">"luminosity"</span>,
         };
 
         <span class="comment">// For reasons unknown, `mix-blend-mode` and `isolation` must be written
         // as `style` attribute.
-        </span><span class="kw">let </span>isolation = <span class="kw">if </span>g.isolate { <span class="string">&quot;isolate&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;auto&quot; </span>};
+        </span><span class="kw">let </span>isolation = <span class="kw">if </span>g.isolate { <span class="string">"isolate" </span>} <span class="kw">else </span>{ <span class="string">"auto" </span>};
         xml.write_attribute_fmt(
             AId::Style.to_str(),
-            <span class="macro">format_args!</span>(<span class="string">&quot;mix-blend-mode:{};isolation:{}&quot;</span>, blend_mode, isolation),
+            <span class="macro">format_args!</span>(<span class="string">"mix-blend-mode:{};isolation:{}"</span>, blend_mode, isolation),
         );
     }
 
@@ -2906,18 +2907,18 @@
         <span class="macro">debug_assert!</span>(!id.is_empty());
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>prefix) = ctx.opt.id_prefix {
-            <span class="kw">let </span>full_id = <span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, prefix, id);
-            <span class="self">self</span>.write_attribute(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span>full_id);
+            <span class="kw">let </span>full_id = <span class="macro">format!</span>(<span class="string">"{}{}"</span>, prefix, id);
+            <span class="self">self</span>.write_attribute(<span class="string">"id"</span>, <span class="kw-2">&amp;</span>full_id);
             ctx.push_id(<span class="kw-2">&amp;</span>full_id);
         } <span class="kw">else </span>{
-            <span class="self">self</span>.write_attribute(<span class="string">&quot;id&quot;</span>, id);
+            <span class="self">self</span>.write_attribute(<span class="string">"id"</span>, id);
             ctx.push_id(id);
         }
     }
 
     <span class="attr">#[inline(never)]
     </span><span class="kw">fn </span>write_color(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: AId, c: Color) {
-        <span class="kw">static </span>CHARS: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;0123456789abcdef&quot;</span>;
+        <span class="kw">static </span>CHARS: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"0123456789abcdef"</span>;
 
         <span class="attr">#[inline]
         </span><span class="kw">fn </span>int2hex(n: u8) -&gt; (u8, u8) {
@@ -2929,7 +2930,7 @@
         <span class="kw">let </span>(b1, b2) = int2hex(c.blue);
 
         <span class="self">self</span>.write_attribute_raw(id.to_str(), |buf| {
-            buf.extend_from_slice(<span class="kw-2">&amp;</span>[<span class="string">b&#39;#&#39;</span>, r1, r2, g1, g2, b1, b2])
+            buf.extend_from_slice(<span class="kw-2">&amp;</span>[<span class="string">b'#'</span>, r1, r2, g1, g2, b1, b2])
         });
     }
 
@@ -2937,7 +2938,7 @@
         <span class="kw">let </span>r = view_box.rect;
         <span class="self">self</span>.write_attribute_fmt(
             AId::ViewBox.to_str(),
-            <span class="macro">format_args!</span>(<span class="string">&quot;{} {} {} {}&quot;</span>, r.x(), r.y(), r.width(), r.height()),
+            <span class="macro">format_args!</span>(<span class="string">"{} {} {} {}"</span>, r.x(), r.y(), r.width(), r.height()),
         );
 
         <span class="kw">if </span>!view_box.aspect.is_default() {
@@ -2949,26 +2950,26 @@
         <span class="kw">let </span><span class="kw-2">mut </span>value = Vec::new();
 
         <span class="kw">if </span>aspect.defer {
-            value.extend_from_slice(<span class="string">b&quot;defer &quot;</span>);
+            value.extend_from_slice(<span class="string">b"defer "</span>);
         }
 
         <span class="kw">let </span>align = <span class="kw">match </span>aspect.align {
-            Align::None =&gt; <span class="string">&quot;none&quot;</span>,
-            Align::XMinYMin =&gt; <span class="string">&quot;xMinYMin&quot;</span>,
-            Align::XMidYMin =&gt; <span class="string">&quot;xMidYMin&quot;</span>,
-            Align::XMaxYMin =&gt; <span class="string">&quot;xMaxYMin&quot;</span>,
-            Align::XMinYMid =&gt; <span class="string">&quot;xMinYMid&quot;</span>,
-            Align::XMidYMid =&gt; <span class="string">&quot;xMidYMid&quot;</span>,
-            Align::XMaxYMid =&gt; <span class="string">&quot;xMaxYMid&quot;</span>,
-            Align::XMinYMax =&gt; <span class="string">&quot;xMinYMax&quot;</span>,
-            Align::XMidYMax =&gt; <span class="string">&quot;xMidYMax&quot;</span>,
-            Align::XMaxYMax =&gt; <span class="string">&quot;xMaxYMax&quot;</span>,
+            Align::None =&gt; <span class="string">"none"</span>,
+            Align::XMinYMin =&gt; <span class="string">"xMinYMin"</span>,
+            Align::XMidYMin =&gt; <span class="string">"xMidYMin"</span>,
+            Align::XMaxYMin =&gt; <span class="string">"xMaxYMin"</span>,
+            Align::XMinYMid =&gt; <span class="string">"xMinYMid"</span>,
+            Align::XMidYMid =&gt; <span class="string">"xMidYMid"</span>,
+            Align::XMaxYMid =&gt; <span class="string">"xMaxYMid"</span>,
+            Align::XMinYMax =&gt; <span class="string">"xMinYMax"</span>,
+            Align::XMidYMax =&gt; <span class="string">"xMidYMax"</span>,
+            Align::XMaxYMax =&gt; <span class="string">"xMaxYMax"</span>,
         };
 
         value.extend_from_slice(align.as_bytes());
 
         <span class="kw">if </span>aspect.slice {
-            value.extend_from_slice(<span class="string">b&quot; slice&quot;</span>);
+            value.extend_from_slice(<span class="string">b" slice"</span>);
         }
 
         <span class="self">self</span>.write_attribute_raw(AId::PreserveAspectRatio.to_str(), |buf| {
@@ -2981,8 +2982,8 @@
             <span class="self">self</span>.write_attribute(
                 id.to_str(),
                 <span class="kw">match </span>units {
-                    Units::UserSpaceOnUse =&gt; <span class="string">&quot;userSpaceOnUse&quot;</span>,
-                    Units::ObjectBoundingBox =&gt; <span class="string">&quot;objectBoundingBox&quot;</span>,
+                    Units::UserSpaceOnUse =&gt; <span class="string">"userSpaceOnUse"</span>,
+                    Units::ObjectBoundingBox =&gt; <span class="string">"objectBoundingBox"</span>,
                 },
             );
         }
@@ -2991,19 +2992,19 @@
     <span class="kw">fn </span>write_transform(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: AId, ts: Transform, ctx: <span class="kw-2">&amp;</span>WriterContext) {
         <span class="kw">if </span>!ts.is_default() {
             <span class="self">self</span>.write_attribute_raw(id.to_str(), |buf| {
-                buf.extend_from_slice(<span class="string">b&quot;matrix(&quot;</span>);
+                buf.extend_from_slice(<span class="string">b"matrix("</span>);
                 write_num(ts.sx, buf, ctx.opt.transforms_precision);
-                buf.push(<span class="string">b&#39; &#39;</span>);
+                buf.push(<span class="string">b' '</span>);
                 write_num(ts.ky, buf, ctx.opt.transforms_precision);
-                buf.push(<span class="string">b&#39; &#39;</span>);
+                buf.push(<span class="string">b' '</span>);
                 write_num(ts.kx, buf, ctx.opt.transforms_precision);
-                buf.push(<span class="string">b&#39; &#39;</span>);
+                buf.push(<span class="string">b' '</span>);
                 write_num(ts.sy, buf, ctx.opt.transforms_precision);
-                buf.push(<span class="string">b&#39; &#39;</span>);
+                buf.push(<span class="string">b' '</span>);
                 write_num(ts.tx, buf, ctx.opt.transforms_precision);
-                buf.push(<span class="string">b&#39; &#39;</span>);
+                buf.push(<span class="string">b' '</span>);
                 write_num(ts.ty, buf, ctx.opt.transforms_precision);
-                buf.extend_from_slice(<span class="string">b&quot;)&quot;</span>);
+                buf.extend_from_slice(<span class="string">b")"</span>);
             });
         }
     }
@@ -3011,15 +3012,15 @@
     <span class="kw">fn </span>write_visibility(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: Visibility) {
         <span class="kw">match </span>value {
             Visibility::Visible =&gt; {}
-            Visibility::Hidden =&gt; <span class="self">self</span>.write_attribute(AId::Visibility.to_str(), <span class="string">&quot;hidden&quot;</span>),
-            Visibility::Collapse =&gt; <span class="self">self</span>.write_attribute(AId::Visibility.to_str(), <span class="string">&quot;collapse&quot;</span>),
+            Visibility::Hidden =&gt; <span class="self">self</span>.write_attribute(AId::Visibility.to_str(), <span class="string">"hidden"</span>),
+            Visibility::Collapse =&gt; <span class="self">self</span>.write_attribute(AId::Visibility.to_str(), <span class="string">"collapse"</span>),
         }
     }
 
     <span class="kw">fn </span>write_func_iri(<span class="kw-2">&amp;mut </span><span class="self">self</span>, aid: AId, id: <span class="kw-2">&amp;</span>str, ctx: <span class="kw-2">&amp;</span>WriterContext) {
         <span class="macro">debug_assert!</span>(!id.is_empty());
         <span class="kw">let </span>prefix = ctx.opt.id_prefix.as_deref().unwrap_or_default();
-        <span class="self">self</span>.write_attribute_fmt(aid.to_str(), <span class="macro">format_args!</span>(<span class="string">&quot;url(#{}{})&quot;</span>, prefix, id));
+        <span class="self">self</span>.write_attribute_fmt(aid.to_str(), <span class="macro">format_args!</span>(<span class="string">"url(#{}{})"</span>, prefix, id));
     }
 
     <span class="kw">fn </span>write_rect_attrs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, r: NonZeroRect) {
@@ -3032,7 +3033,7 @@
     <span class="kw">fn </span>write_numbers(<span class="kw-2">&amp;mut </span><span class="self">self</span>, aid: AId, list: <span class="kw-2">&amp;</span>[f32]) {
         <span class="self">self</span>.write_attribute_raw(aid.to_str(), |buf| {
             <span class="kw">for </span>n <span class="kw">in </span>list {
-                buf.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{} &quot;</span>, n)).unwrap();
+                buf.write_fmt(<span class="macro">format_args!</span>(<span class="string">"{} "</span>, n)).unwrap();
             }
 
             <span class="kw">if </span>!list.is_empty() {
@@ -3045,8 +3046,8 @@
         <span class="self">self</span>.write_attribute(
             id.to_str(),
             <span class="kw">match </span>input {
-                filter::Input::SourceGraphic =&gt; <span class="string">&quot;SourceGraphic&quot;</span>,
-                filter::Input::SourceAlpha =&gt; <span class="string">&quot;SourceAlpha&quot;</span>,
+                filter::Input::SourceGraphic =&gt; <span class="string">"SourceGraphic"</span>,
+                filter::Input::SourceAlpha =&gt; <span class="string">"SourceAlpha"</span>,
                 filter::Input::Reference(<span class="kw-2">ref </span>s) =&gt; s,
             },
         );
@@ -3069,8 +3070,8 @@
         <span class="self">self</span>.write_attribute(
             AId::ColorInterpolationFilters.to_str(),
             <span class="kw">match </span>fe.color_interpolation {
-                filter::ColorInterpolation::SRGB =&gt; <span class="string">&quot;sRGB&quot;</span>,
-                filter::ColorInterpolation::LinearRGB =&gt; <span class="string">&quot;linearRGB&quot;</span>,
+                filter::ColorInterpolation::SRGB =&gt; <span class="string">"sRGB"</span>,
+                filter::ColorInterpolation::LinearRGB =&gt; <span class="string">"linearRGB"</span>,
             },
         );
     }
@@ -3080,18 +3081,18 @@
 
         <span class="kw">match </span>fe {
             filter::TransferFunction::Identity =&gt; {
-                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">&quot;identity&quot;</span>);
+                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">"identity"</span>);
             }
             filter::TransferFunction::Table(<span class="kw-2">ref </span>values) =&gt; {
-                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">&quot;table&quot;</span>);
+                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">"table"</span>);
                 <span class="self">self</span>.write_numbers(AId::TableValues, values);
             }
             filter::TransferFunction::Discrete(<span class="kw-2">ref </span>values) =&gt; {
-                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">&quot;discrete&quot;</span>);
+                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">"discrete"</span>);
                 <span class="self">self</span>.write_numbers(AId::TableValues, values);
             }
             filter::TransferFunction::Linear { slope, intercept } =&gt; {
-                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">&quot;linear&quot;</span>);
+                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">"linear"</span>);
                 <span class="self">self</span>.write_svg_attribute(AId::Slope, <span class="kw-2">&amp;</span>slope);
                 <span class="self">self</span>.write_svg_attribute(AId::Intercept, <span class="kw-2">&amp;</span>intercept);
             }
@@ -3100,7 +3101,7 @@
                 exponent,
                 offset,
             } =&gt; {
-                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">&quot;gamma&quot;</span>);
+                <span class="self">self</span>.write_svg_attribute(AId::Type, <span class="string">"gamma"</span>);
                 <span class="self">self</span>.write_svg_attribute(AId::Amplitude, <span class="kw-2">&amp;</span>amplitude);
                 <span class="self">self</span>.write_svg_attribute(AId::Exponent, <span class="kw-2">&amp;</span>exponent);
                 <span class="self">self</span>.write_svg_attribute(AId::Offset, <span class="kw-2">&amp;</span>offset);
@@ -3113,19 +3114,19 @@
     <span class="kw">fn </span>write_image_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: <span class="kw-2">&amp;</span>usvg_tree::ImageKind) {
         <span class="kw">let </span>svg_string;
         <span class="kw">let </span>(mime, data) = <span class="kw">match </span>kind {
-            usvg_tree::ImageKind::JPEG(<span class="kw-2">ref </span>data) =&gt; (<span class="string">&quot;jpeg&quot;</span>, data.as_slice()),
-            usvg_tree::ImageKind::PNG(<span class="kw-2">ref </span>data) =&gt; (<span class="string">&quot;png&quot;</span>, data.as_slice()),
-            usvg_tree::ImageKind::GIF(<span class="kw-2">ref </span>data) =&gt; (<span class="string">&quot;gif&quot;</span>, data.as_slice()),
+            usvg_tree::ImageKind::JPEG(<span class="kw-2">ref </span>data) =&gt; (<span class="string">"jpeg"</span>, data.as_slice()),
+            usvg_tree::ImageKind::PNG(<span class="kw-2">ref </span>data) =&gt; (<span class="string">"png"</span>, data.as_slice()),
+            usvg_tree::ImageKind::GIF(<span class="kw-2">ref </span>data) =&gt; (<span class="string">"gif"</span>, data.as_slice()),
             usvg_tree::ImageKind::SVG(<span class="kw-2">ref </span>tree) =&gt; {
                 svg_string = tree.to_string(<span class="kw-2">&amp;</span>XmlOptions::default());
-                (<span class="string">&quot;svg+xml&quot;</span>, svg_string.as_bytes())
+                (<span class="string">"svg+xml"</span>, svg_string.as_bytes())
             }
         };
 
-        <span class="self">self</span>.write_attribute_raw(<span class="string">&quot;xlink:href&quot;</span>, |buf| {
-            buf.extend_from_slice(<span class="string">b&quot;data:image/&quot;</span>);
+        <span class="self">self</span>.write_attribute_raw(<span class="string">"xlink:href"</span>, |buf| {
+            buf.extend_from_slice(<span class="string">b"data:image/"</span>);
             buf.extend_from_slice(mime.as_bytes());
-            buf.extend_from_slice(<span class="string">b&quot;;base64, &quot;</span>);
+            buf.extend_from_slice(<span class="string">b";base64, "</span>);
 
             <span class="kw">let </span><span class="kw-2">mut </span>enc =
                 base64::write::EncoderWriter::new(buf, <span class="kw-2">&amp;</span>base64::engine::general_purpose::STANDARD);
@@ -3197,8 +3198,8 @@
 
     <span class="kw">match </span>g.spread_method {
         SpreadMethod::Pad =&gt; {}
-        SpreadMethod::Reflect =&gt; xml.write_svg_attribute(AId::SpreadMethod, <span class="string">&quot;reflect&quot;</span>),
-        SpreadMethod::Repeat =&gt; xml.write_svg_attribute(AId::SpreadMethod, <span class="string">&quot;repeat&quot;</span>),
+        SpreadMethod::Reflect =&gt; xml.write_svg_attribute(AId::SpreadMethod, <span class="string">"reflect"</span>),
+        SpreadMethod::Repeat =&gt; xml.write_svg_attribute(AId::SpreadMethod, <span class="string">"repeat"</span>),
     }
 
     <span class="kw">for </span>s <span class="kw">in </span><span class="kw-2">&amp;</span>g.stops {
@@ -3232,14 +3233,14 @@
     xml.write_visibility(path.visibility);
 
     <span class="kw">if </span>path.paint_order == PaintOrder::StrokeAndFill {
-        xml.write_svg_attribute(AId::PaintOrder, <span class="string">&quot;stroke&quot;</span>);
+        xml.write_svg_attribute(AId::PaintOrder, <span class="string">"stroke"</span>);
     }
 
     <span class="kw">match </span>path.rendering_mode {
         ShapeRendering::OptimizeSpeed =&gt; {
-            xml.write_svg_attribute(AId::ShapeRendering, <span class="string">&quot;optimizeSpeed&quot;</span>);
+            xml.write_svg_attribute(AId::ShapeRendering, <span class="string">"optimizeSpeed"</span>);
         }
-        ShapeRendering::CrispEdges =&gt; xml.write_svg_attribute(AId::ShapeRendering, <span class="string">&quot;crispEdges&quot;</span>),
+        ShapeRendering::CrispEdges =&gt; xml.write_svg_attribute(AId::ShapeRendering, <span class="string">"crispEdges"</span>),
         ShapeRendering::GeometricPrecision =&gt; {}
     }
 
@@ -3251,53 +3252,53 @@
 
     xml.write_transform(AId::Transform, path_transform, ctx);
 
-    xml.write_attribute_raw(<span class="string">&quot;d&quot;</span>, |buf| {
+    xml.write_attribute_raw(<span class="string">"d"</span>, |buf| {
         <span class="kw">use </span>tiny_skia_path::PathSegment;
 
         <span class="kw">for </span>seg <span class="kw">in </span>path.data.segments() {
             <span class="kw">match </span>seg {
                 PathSegment::MoveTo(p) =&gt; {
-                    buf.extend_from_slice(<span class="string">b&quot;M &quot;</span>);
+                    buf.extend_from_slice(<span class="string">b"M "</span>);
                     write_num(p.x, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p.y, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                 }
                 PathSegment::LineTo(p) =&gt; {
-                    buf.extend_from_slice(<span class="string">b&quot;L &quot;</span>);
+                    buf.extend_from_slice(<span class="string">b"L "</span>);
                     write_num(p.x, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p.y, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                 }
                 PathSegment::QuadTo(p1, p) =&gt; {
-                    buf.extend_from_slice(<span class="string">b&quot;Q &quot;</span>);
+                    buf.extend_from_slice(<span class="string">b"Q "</span>);
                     write_num(p1.x, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p1.y, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p.x, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p.y, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                 }
                 PathSegment::CubicTo(p1, p2, p) =&gt; {
-                    buf.extend_from_slice(<span class="string">b&quot;C &quot;</span>);
+                    buf.extend_from_slice(<span class="string">b"C "</span>);
                     write_num(p1.x, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p1.y, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p2.x, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p2.y, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p.x, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                     write_num(p.y, buf, ctx.opt.coordinates_precision);
-                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    buf.push(<span class="string">b' '</span>);
                 }
                 PathSegment::Close =&gt; {
-                    buf.extend_from_slice(<span class="string">b&quot;Z &quot;</span>);
+                    buf.extend_from_slice(<span class="string">b"Z "</span>);
                 }
             }
         }
@@ -3323,10 +3324,10 @@
                 AId::FillRule
             };
 
-            xml.write_svg_attribute(name, <span class="string">&quot;evenodd&quot;</span>);
+            xml.write_svg_attribute(name, <span class="string">"evenodd"</span>);
         }
     } <span class="kw">else </span>{
-        xml.write_svg_attribute(AId::Fill, <span class="string">&quot;none&quot;</span>);
+        xml.write_svg_attribute(AId::Fill, <span class="string">"none"</span>);
     }
 }
 
@@ -3352,15 +3353,15 @@
 
         <span class="kw">match </span>stroke.linecap {
             LineCap::Butt =&gt; {}
-            LineCap::Round =&gt; xml.write_svg_attribute(AId::StrokeLinecap, <span class="string">&quot;round&quot;</span>),
-            LineCap::Square =&gt; xml.write_svg_attribute(AId::StrokeLinecap, <span class="string">&quot;square&quot;</span>),
+            LineCap::Round =&gt; xml.write_svg_attribute(AId::StrokeLinecap, <span class="string">"round"</span>),
+            LineCap::Square =&gt; xml.write_svg_attribute(AId::StrokeLinecap, <span class="string">"square"</span>),
         }
 
         <span class="kw">match </span>stroke.linejoin {
             LineJoin::Miter =&gt; {}
-            LineJoin::MiterClip =&gt; xml.write_svg_attribute(AId::StrokeLinejoin, <span class="string">&quot;miter-clip&quot;</span>),
-            LineJoin::Round =&gt; xml.write_svg_attribute(AId::StrokeLinejoin, <span class="string">&quot;round&quot;</span>),
-            LineJoin::Bevel =&gt; xml.write_svg_attribute(AId::StrokeLinejoin, <span class="string">&quot;bevel&quot;</span>),
+            LineJoin::MiterClip =&gt; xml.write_svg_attribute(AId::StrokeLinejoin, <span class="string">"miter-clip"</span>),
+            LineJoin::Round =&gt; xml.write_svg_attribute(AId::StrokeLinejoin, <span class="string">"round"</span>),
+            LineJoin::Bevel =&gt; xml.write_svg_attribute(AId::StrokeLinejoin, <span class="string">"bevel"</span>),
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>array) = stroke.dasharray {
@@ -3368,9 +3369,9 @@
         }
     } <span class="kw">else </span>{
         <span class="comment">// Always set `stroke` to `none` to override the parent value.
-        // In 99.9% of the cases it&#39;s redundant, but a group with `filter` with `StrokePaint`
+        // In 99.9% of the cases it's redundant, but a group with `filter` with `StrokePaint`
         // will set `stroke`, which will interfere with children nodes.
-        </span>xml.write_svg_attribute(AId::Stroke, <span class="string">&quot;none&quot;</span>);
+        </span>xml.write_svg_attribute(AId::Stroke, <span class="string">"none"</span>);
     }
 }
 
@@ -3443,22 +3444,22 @@
 ];
 
 <span class="kw">fn </span>write_num(num: f32, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;, precision: u8) {
-    <span class="comment">// If number is an integer, it&#39;s faster to write it as i32.
+    <span class="comment">// If number is an integer, it's faster to write it as i32.
     </span><span class="kw">if </span>num.fract().approx_zero_ulps(<span class="number">4</span>) {
-        <span class="macro">write!</span>(buf, <span class="string">&quot;{}&quot;</span>, num <span class="kw">as </span>i32).unwrap();
+        <span class="macro">write!</span>(buf, <span class="string">"{}"</span>, num <span class="kw">as </span>i32).unwrap();
         <span class="kw">return</span>;
     }
 
     <span class="comment">// Round numbers up to the specified precision to prevent writing
     // ugly numbers like 29.999999999999996.
-    // It&#39;s not 100% correct, but differences are insignificant.
+    // It's not 100% correct, but differences are insignificant.
     //
     // Note that at least in Rust 1.64 the number formatting in debug and release modes
     // can be slightly different. So having a lower precision makes
     // our output and tests reproducible.
     </span><span class="kw">let </span>v = (num * POW_VEC[precision <span class="kw">as </span>usize]).round() / POW_VEC[precision <span class="kw">as </span>usize];
 
-    <span class="macro">write!</span>(buf, <span class="string">&quot;{}&quot;</span>, v).unwrap();
+    <span class="macro">write!</span>(buf, <span class="string">"{}"</span>, v).unwrap();
 }
 
 <span class="doccomment">/// Write all of the tspan attributes except for decorations.
@@ -3480,21 +3481,21 @@
                 .iter()
                 .map(|family| {
                     <span class="kw">if </span>ctx.opt.writer_opts.use_single_quote {
-                        <span class="macro">format!</span>(<span class="string">&quot;\&quot;{}\&quot;&quot;</span>, family)
+                        <span class="macro">format!</span>(<span class="string">"\"{}\""</span>, family)
                     } <span class="kw">else </span>{
-                        <span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, family)
+                        <span class="macro">format!</span>(<span class="string">"'{}'"</span>, family)
                     }
                 })
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-                .join(<span class="string">&quot;, &quot;</span>)
+                .join(<span class="string">", "</span>)
         };
         xml.write_svg_attribute(AId::FontFamily, <span class="kw-2">&amp;</span>families);
     }
 
     <span class="kw">match </span>span.font.style {
         FontStyle::Normal =&gt; {}
-        FontStyle::Italic =&gt; xml.write_svg_attribute(AId::FontStyle, <span class="string">&quot;italic&quot;</span>),
-        FontStyle::Oblique =&gt; xml.write_svg_attribute(AId::FontStyle, <span class="string">&quot;oblique&quot;</span>),
+        FontStyle::Italic =&gt; xml.write_svg_attribute(AId::FontStyle, <span class="string">"italic"</span>),
+        FontStyle::Oblique =&gt; xml.write_svg_attribute(AId::FontStyle, <span class="string">"oblique"</span>),
     }
 
     <span class="kw">if </span>span.font.weight != <span class="number">400 </span>{
@@ -3503,14 +3504,14 @@
 
     <span class="kw">if </span>span.font.stretch != FontStretch::Normal {
         <span class="kw">let </span>name = <span class="kw">match </span>span.font.stretch {
-            FontStretch::Condensed =&gt; <span class="string">&quot;condensed&quot;</span>,
-            FontStretch::ExtraCondensed =&gt; <span class="string">&quot;extra-condensed&quot;</span>,
-            FontStretch::UltraCondensed =&gt; <span class="string">&quot;ultra-condensed&quot;</span>,
-            FontStretch::SemiCondensed =&gt; <span class="string">&quot;semi-condensed&quot;</span>,
-            FontStretch::Expanded =&gt; <span class="string">&quot;expanded&quot;</span>,
-            FontStretch::SemiExpanded =&gt; <span class="string">&quot;semi-expanded&quot;</span>,
-            FontStretch::ExtraExpanded =&gt; <span class="string">&quot;extra-expanded&quot;</span>,
-            FontStretch::UltraExpanded =&gt; <span class="string">&quot;ultra-expanded&quot;</span>,
+            FontStretch::Condensed =&gt; <span class="string">"condensed"</span>,
+            FontStretch::ExtraCondensed =&gt; <span class="string">"extra-condensed"</span>,
+            FontStretch::UltraCondensed =&gt; <span class="string">"ultra-condensed"</span>,
+            FontStretch::SemiCondensed =&gt; <span class="string">"semi-condensed"</span>,
+            FontStretch::Expanded =&gt; <span class="string">"expanded"</span>,
+            FontStretch::SemiExpanded =&gt; <span class="string">"semi-expanded"</span>,
+            FontStretch::ExtraExpanded =&gt; <span class="string">"extra-expanded"</span>,
+            FontStretch::UltraExpanded =&gt; <span class="string">"ultra-expanded"</span>,
             FontStretch::Normal =&gt; <span class="macro">unreachable!</span>(),
         };
         xml.write_svg_attribute(AId::FontStretch, name);
@@ -3520,8 +3521,8 @@
 
     <span class="kw">match </span>span.visibility {
         Visibility::Visible =&gt; {}
-        Visibility::Hidden =&gt; xml.write_svg_attribute(AId::Visibility, <span class="string">&quot;hidden&quot;</span>),
-        Visibility::Collapse =&gt; xml.write_svg_attribute(AId::Visibility, <span class="string">&quot;collapse&quot;</span>),
+        Visibility::Hidden =&gt; xml.write_svg_attribute(AId::Visibility, <span class="string">"hidden"</span>),
+        Visibility::Collapse =&gt; xml.write_svg_attribute(AId::Visibility, <span class="string">"collapse"</span>),
     }
 
     <span class="kw">if </span>span.letter_spacing != <span class="number">0.0 </span>{
@@ -3537,34 +3538,34 @@
     }
 
     <span class="kw">if </span>span.length_adjust == LengthAdjust::SpacingAndGlyphs {
-        xml.write_svg_attribute(AId::LengthAdjust, <span class="string">&quot;spacingAndGlyphs&quot;</span>);
+        xml.write_svg_attribute(AId::LengthAdjust, <span class="string">"spacingAndGlyphs"</span>);
     }
 
     <span class="kw">if </span>span.small_caps {
-        xml.write_svg_attribute(AId::FontVariant, <span class="string">&quot;small-caps&quot;</span>);
+        xml.write_svg_attribute(AId::FontVariant, <span class="string">"small-caps"</span>);
     }
 
     <span class="kw">if </span>span.paint_order == PaintOrder::StrokeAndFill {
-        xml.write_svg_attribute(AId::PaintOrder, <span class="string">&quot;stroke fill&quot;</span>);
+        xml.write_svg_attribute(AId::PaintOrder, <span class="string">"stroke fill"</span>);
     }
 
     <span class="kw">if </span>!span.apply_kerning {
-        xml.write_attribute(<span class="string">&quot;style&quot;</span>, <span class="string">&quot;font-kerning:none&quot;</span>)
+        xml.write_attribute(<span class="string">"style"</span>, <span class="string">"font-kerning:none"</span>)
     }
 
     <span class="kw">if </span>span.dominant_baseline != DominantBaseline::Auto {
         <span class="kw">let </span>name = <span class="kw">match </span>span.dominant_baseline {
-            DominantBaseline::UseScript =&gt; <span class="string">&quot;use-script&quot;</span>,
-            DominantBaseline::NoChange =&gt; <span class="string">&quot;no-change&quot;</span>,
-            DominantBaseline::ResetSize =&gt; <span class="string">&quot;reset-size&quot;</span>,
-            DominantBaseline::TextBeforeEdge =&gt; <span class="string">&quot;text-before-edge&quot;</span>,
-            DominantBaseline::Middle =&gt; <span class="string">&quot;middle&quot;</span>,
-            DominantBaseline::Central =&gt; <span class="string">&quot;central&quot;</span>,
-            DominantBaseline::TextAfterEdge =&gt; <span class="string">&quot;text-after-edge&quot;</span>,
-            DominantBaseline::Ideographic =&gt; <span class="string">&quot;ideographic&quot;</span>,
-            DominantBaseline::Alphabetic =&gt; <span class="string">&quot;alphabetic&quot;</span>,
-            DominantBaseline::Hanging =&gt; <span class="string">&quot;hanging&quot;</span>,
-            DominantBaseline::Mathematical =&gt; <span class="string">&quot;mathematical&quot;</span>,
+            DominantBaseline::UseScript =&gt; <span class="string">"use-script"</span>,
+            DominantBaseline::NoChange =&gt; <span class="string">"no-change"</span>,
+            DominantBaseline::ResetSize =&gt; <span class="string">"reset-size"</span>,
+            DominantBaseline::TextBeforeEdge =&gt; <span class="string">"text-before-edge"</span>,
+            DominantBaseline::Middle =&gt; <span class="string">"middle"</span>,
+            DominantBaseline::Central =&gt; <span class="string">"central"</span>,
+            DominantBaseline::TextAfterEdge =&gt; <span class="string">"text-after-edge"</span>,
+            DominantBaseline::Ideographic =&gt; <span class="string">"ideographic"</span>,
+            DominantBaseline::Alphabetic =&gt; <span class="string">"alphabetic"</span>,
+            DominantBaseline::Hanging =&gt; <span class="string">"hanging"</span>,
+            DominantBaseline::Mathematical =&gt; <span class="string">"mathematical"</span>,
             DominantBaseline::Auto =&gt; <span class="macro">unreachable!</span>(),
         };
         xml.write_svg_attribute(AId::DominantBaseline, name);
@@ -3572,17 +3573,17 @@
 
     <span class="kw">if </span>span.alignment_baseline != AlignmentBaseline::Auto {
         <span class="kw">let </span>name = <span class="kw">match </span>span.alignment_baseline {
-            AlignmentBaseline::Baseline =&gt; <span class="string">&quot;baseline&quot;</span>,
-            AlignmentBaseline::BeforeEdge =&gt; <span class="string">&quot;before-edge&quot;</span>,
-            AlignmentBaseline::TextBeforeEdge =&gt; <span class="string">&quot;text-before-edge&quot;</span>,
-            AlignmentBaseline::Middle =&gt; <span class="string">&quot;middle&quot;</span>,
-            AlignmentBaseline::Central =&gt; <span class="string">&quot;central&quot;</span>,
-            AlignmentBaseline::AfterEdge =&gt; <span class="string">&quot;after-edge&quot;</span>,
-            AlignmentBaseline::TextAfterEdge =&gt; <span class="string">&quot;text-after-edge&quot;</span>,
-            AlignmentBaseline::Ideographic =&gt; <span class="string">&quot;ideographic&quot;</span>,
-            AlignmentBaseline::Alphabetic =&gt; <span class="string">&quot;alphabetic&quot;</span>,
-            AlignmentBaseline::Hanging =&gt; <span class="string">&quot;hanging&quot;</span>,
-            AlignmentBaseline::Mathematical =&gt; <span class="string">&quot;mathematical&quot;</span>,
+            AlignmentBaseline::Baseline =&gt; <span class="string">"baseline"</span>,
+            AlignmentBaseline::BeforeEdge =&gt; <span class="string">"before-edge"</span>,
+            AlignmentBaseline::TextBeforeEdge =&gt; <span class="string">"text-before-edge"</span>,
+            AlignmentBaseline::Middle =&gt; <span class="string">"middle"</span>,
+            AlignmentBaseline::Central =&gt; <span class="string">"central"</span>,
+            AlignmentBaseline::AfterEdge =&gt; <span class="string">"after-edge"</span>,
+            AlignmentBaseline::TextAfterEdge =&gt; <span class="string">"text-after-edge"</span>,
+            AlignmentBaseline::Ideographic =&gt; <span class="string">"ideographic"</span>,
+            AlignmentBaseline::Alphabetic =&gt; <span class="string">"alphabetic"</span>,
+            AlignmentBaseline::Hanging =&gt; <span class="string">"hanging"</span>,
+            AlignmentBaseline::Mathematical =&gt; <span class="string">"mathematical"</span>,
             AlignmentBaseline::Auto =&gt; <span class="macro">unreachable!</span>(),
         };
         xml.write_svg_attribute(AId::AlignmentBaseline, name);
@@ -3596,14 +3597,14 @@
         <span class="kw">match </span>baseline_shift {
             BaselineShift::Baseline =&gt; {}
             BaselineShift::Number(num) =&gt; xml.write_svg_attribute(AId::BaselineShift, num),
-            BaselineShift::Subscript =&gt; xml.write_svg_attribute(AId::BaselineShift, <span class="string">&quot;sub&quot;</span>),
-            BaselineShift::Superscript =&gt; xml.write_svg_attribute(AId::BaselineShift, <span class="string">&quot;super&quot;</span>),
+            BaselineShift::Subscript =&gt; xml.write_svg_attribute(AId::BaselineShift, <span class="string">"sub"</span>),
+            BaselineShift::Superscript =&gt; xml.write_svg_attribute(AId::BaselineShift, <span class="string">"super"</span>),
         }
     }
 
     <span class="kw">let </span>cur_text = <span class="kw-2">&amp;</span>chunk.text[span.start..span.end];
 
-    xml.write_text(<span class="kw-2">&amp;</span>cur_text.replace(<span class="string">&#39;&amp;&#39;</span>, <span class="string">&quot;&amp;amp;&quot;</span>));
+    xml.write_text(<span class="kw-2">&amp;</span>cur_text.replace(<span class="string">'&amp;'</span>, <span class="string">"&amp;amp;"</span>));
 
     <span class="comment">// End for each tspan we needed to create for baseline_shift
     </span><span class="kw">for _ in </span><span class="kw-2">&amp;</span>span.baseline_shift {

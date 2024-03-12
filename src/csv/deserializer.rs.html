@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/deserializer.rs`."><title>deserializer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/deserializer.rs`."><title>deserializer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1268,9 +1269,9 @@
 
 <span class="kw">use </span><span class="self">self</span>::DeserializeErrorKind <span class="kw">as </span>DEK;
 
-<span class="kw">pub fn </span>deserialize_string_record&lt;<span class="lifetime">&#39;de</span>, D: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
-    record: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>StringRecord,
-    headers: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>StringRecord&gt;,
+<span class="kw">pub fn </span>deserialize_string_record&lt;<span class="lifetime">'de</span>, D: Deserialize&lt;<span class="lifetime">'de</span>&gt;&gt;(
+    record: <span class="kw-2">&amp;</span><span class="lifetime">'de </span>StringRecord,
+    headers: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>StringRecord&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;D, Error&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>deser = DeRecordWrap(DeStringRecord {
         it: record.iter().peekable(),
@@ -1285,9 +1286,9 @@
     })
 }
 
-<span class="kw">pub fn </span>deserialize_byte_record&lt;<span class="lifetime">&#39;de</span>, D: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
-    record: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>ByteRecord,
-    headers: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>ByteRecord&gt;,
+<span class="kw">pub fn </span>deserialize_byte_record&lt;<span class="lifetime">'de</span>, D: Deserialize&lt;<span class="lifetime">'de</span>&gt;&gt;(
+    record: <span class="kw-2">&amp;</span><span class="lifetime">'de </span>ByteRecord,
+    headers: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>ByteRecord&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;D, Error&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>deser = DeRecordWrap(DeByteRecord {
         it: record.iter().peekable(),
@@ -1317,33 +1318,33 @@
 /// between deserializing into a `ByteRecord` and deserializing into a
 /// `StringRecord`.
 ///
-/// The lifetime `&#39;r` refers to the lifetime of the underlying record.
-</span><span class="kw">trait </span>DeRecord&lt;<span class="lifetime">&#39;r</span>&gt; {
+/// The lifetime `'r` refers to the lifetime of the underlying record.
+</span><span class="kw">trait </span>DeRecord&lt;<span class="lifetime">'r</span>&gt; {
     <span class="doccomment">/// Returns true if and only if this deserialize has access to headers.
     </span><span class="kw">fn </span>has_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Extracts the next string header value from the underlying record.
-    </span><span class="kw">fn </span>next_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str&gt;, DeserializeError&gt;;
+    </span><span class="kw">fn </span>next_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>str&gt;, DeserializeError&gt;;
 
     <span class="doccomment">/// Extracts the next raw byte header value from the underlying record.
     </span><span class="kw">fn </span>next_header_bytes(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt;, DeserializeError&gt;;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt;, DeserializeError&gt;;
 
     <span class="doccomment">/// Extracts the next string field from the underlying record.
-    </span><span class="kw">fn </span>next_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str, DeserializeError&gt;;
+    </span><span class="kw">fn </span>next_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>str, DeserializeError&gt;;
 
     <span class="doccomment">/// Extracts the next raw byte field from the underlying record.
-    </span><span class="kw">fn </span>next_field_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8], DeserializeError&gt;;
+    </span><span class="kw">fn </span>next_field_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8], DeserializeError&gt;;
 
     <span class="doccomment">/// Peeks at the next field from the underlying record.
-    </span><span class="kw">fn </span>peek_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt;;
+    </span><span class="kw">fn </span>peek_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt;;
 
     <span class="doccomment">/// Returns an error corresponding to the most recently extracted field.
     </span><span class="kw">fn </span>error(<span class="kw-2">&amp;</span><span class="self">self</span>, kind: DeserializeErrorKind) -&gt; DeserializeError;
 
     <span class="doccomment">/// Infer the type of the next field and deserialize it.
-    </span><span class="kw">fn </span>infer_deserialize&lt;<span class="lifetime">&#39;de</span>, V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    </span><span class="kw">fn </span>infer_deserialize&lt;<span class="lifetime">'de</span>, V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, DeserializeError&gt;;
@@ -1351,36 +1352,36 @@
 
 <span class="kw">struct </span>DeRecordWrap&lt;T&gt;(T);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, T: DeRecord&lt;<span class="lifetime">&#39;r</span>&gt;&gt; DeRecord&lt;<span class="lifetime">&#39;r</span>&gt; <span class="kw">for </span>DeRecordWrap&lt;T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, T: DeRecord&lt;<span class="lifetime">'r</span>&gt;&gt; DeRecord&lt;<span class="lifetime">'r</span>&gt; <span class="kw">for </span>DeRecordWrap&lt;T&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>has_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0</span>.has_headers()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str&gt;, DeserializeError&gt; {
+    </span><span class="kw">fn </span>next_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>str&gt;, DeserializeError&gt; {
         <span class="self">self</span>.<span class="number">0</span>.next_header()
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next_header_bytes(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt;, DeserializeError&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt;, DeserializeError&gt; {
         <span class="self">self</span>.<span class="number">0</span>.next_header_bytes()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str, DeserializeError&gt; {
+    </span><span class="kw">fn </span>next_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>str, DeserializeError&gt; {
         <span class="self">self</span>.<span class="number">0</span>.next_field()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_field_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8], DeserializeError&gt; {
+    </span><span class="kw">fn </span>next_field_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8], DeserializeError&gt; {
         <span class="self">self</span>.<span class="number">0</span>.next_field_bytes()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>peek_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt; {
+    </span><span class="kw">fn </span>peek_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt; {
         <span class="self">self</span>.<span class="number">0</span>.peek_field()
     }
 
@@ -1390,7 +1391,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>infer_deserialize&lt;<span class="lifetime">&#39;de</span>, V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    </span><span class="kw">fn </span>infer_deserialize&lt;<span class="lifetime">'de</span>, V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, DeserializeError&gt; {
@@ -1398,32 +1399,32 @@
     }
 }
 
-<span class="kw">struct </span>DeStringRecord&lt;<span class="lifetime">&#39;r</span>&gt; {
-    it: iter::Peekable&lt;StringRecordIter&lt;<span class="lifetime">&#39;r</span>&gt;&gt;,
-    headers: <span class="prelude-ty">Option</span>&lt;StringRecordIter&lt;<span class="lifetime">&#39;r</span>&gt;&gt;,
+<span class="kw">struct </span>DeStringRecord&lt;<span class="lifetime">'r</span>&gt; {
+    it: iter::Peekable&lt;StringRecordIter&lt;<span class="lifetime">'r</span>&gt;&gt;,
+    headers: <span class="prelude-ty">Option</span>&lt;StringRecordIter&lt;<span class="lifetime">'r</span>&gt;&gt;,
     field: u64,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; DeRecord&lt;<span class="lifetime">&#39;r</span>&gt; <span class="kw">for </span>DeStringRecord&lt;<span class="lifetime">&#39;r</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>&gt; DeRecord&lt;<span class="lifetime">'r</span>&gt; <span class="kw">for </span>DeStringRecord&lt;<span class="lifetime">'r</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>has_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.headers.is_some()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str&gt;, DeserializeError&gt; {
+    </span><span class="kw">fn </span>next_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>str&gt;, DeserializeError&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.headers.as_mut().and_then(|it| it.next()))
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next_header_bytes(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt;, DeserializeError&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt;, DeserializeError&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.next_header()<span class="question-mark">?</span>.map(|s| s.as_bytes()))
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str, DeserializeError&gt; {
+    </span><span class="kw">fn </span>next_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>str, DeserializeError&gt; {
         <span class="kw">match </span><span class="self">self</span>.it.next() {
             <span class="prelude-val">Some</span>(field) =&gt; {
                 <span class="self">self</span>.field += <span class="number">1</span>;
@@ -1437,12 +1438,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_field_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8], DeserializeError&gt; {
+    </span><span class="kw">fn </span>next_field_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8], DeserializeError&gt; {
         <span class="self">self</span>.next_field().map(|s| s.as_bytes())
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>peek_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt; {
+    </span><span class="kw">fn </span>peek_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt; {
         <span class="self">self</span>.it.peek().map(|s| s.as_bytes())
     }
 
@@ -1450,14 +1451,14 @@
         DeserializeError { field: <span class="prelude-val">Some</span>(<span class="self">self</span>.field.saturating_sub(<span class="number">1</span>)), kind }
     }
 
-    <span class="kw">fn </span>infer_deserialize&lt;<span class="lifetime">&#39;de</span>, V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>infer_deserialize&lt;<span class="lifetime">'de</span>, V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, DeserializeError&gt; {
         <span class="kw">let </span>x = <span class="self">self</span>.next_field()<span class="question-mark">?</span>;
-        <span class="kw">if </span>x == <span class="string">&quot;true&quot; </span>{
+        <span class="kw">if </span>x == <span class="string">"true" </span>{
             <span class="kw">return </span>visitor.visit_bool(<span class="bool-val">true</span>);
-        } <span class="kw">else if </span>x == <span class="string">&quot;false&quot; </span>{
+        } <span class="kw">else if </span>x == <span class="string">"false" </span>{
             <span class="kw">return </span>visitor.visit_bool(<span class="bool-val">false</span>);
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(n) = try_positive_integer64(x) {
             <span class="kw">return </span>visitor.visit_u64(n);
@@ -1479,20 +1480,20 @@
     }
 }
 
-<span class="kw">struct </span>DeByteRecord&lt;<span class="lifetime">&#39;r</span>&gt; {
-    it: iter::Peekable&lt;ByteRecordIter&lt;<span class="lifetime">&#39;r</span>&gt;&gt;,
-    headers: <span class="prelude-ty">Option</span>&lt;ByteRecordIter&lt;<span class="lifetime">&#39;r</span>&gt;&gt;,
+<span class="kw">struct </span>DeByteRecord&lt;<span class="lifetime">'r</span>&gt; {
+    it: iter::Peekable&lt;ByteRecordIter&lt;<span class="lifetime">'r</span>&gt;&gt;,
+    headers: <span class="prelude-ty">Option</span>&lt;ByteRecordIter&lt;<span class="lifetime">'r</span>&gt;&gt;,
     field: u64,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; DeRecord&lt;<span class="lifetime">&#39;r</span>&gt; <span class="kw">for </span>DeByteRecord&lt;<span class="lifetime">&#39;r</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>&gt; DeRecord&lt;<span class="lifetime">'r</span>&gt; <span class="kw">for </span>DeByteRecord&lt;<span class="lifetime">'r</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>has_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.headers.is_some()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str&gt;, DeserializeError&gt; {
+    </span><span class="kw">fn </span>next_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>str&gt;, DeserializeError&gt; {
         <span class="kw">match </span><span class="self">self</span>.next_header_bytes() {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(field)) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(
                 str::from_utf8(field)
@@ -1506,12 +1507,12 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next_header_bytes(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt;, DeserializeError&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt;, DeserializeError&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.headers.as_mut().and_then(|it| it.next()))
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str, DeserializeError&gt; {
+    </span><span class="kw">fn </span>next_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>str, DeserializeError&gt; {
         <span class="self">self</span>.next_field_bytes().and_then(|field| {
             str::from_utf8(field)
                 .map_err(|err| <span class="self">self</span>.error(DEK::InvalidUtf8(err)))
@@ -1519,7 +1520,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_field_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8], DeserializeError&gt; {
+    </span><span class="kw">fn </span>next_field_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8], DeserializeError&gt; {
         <span class="kw">match </span><span class="self">self</span>.it.next() {
             <span class="prelude-val">Some</span>(field) =&gt; {
                 <span class="self">self</span>.field += <span class="number">1</span>;
@@ -1533,7 +1534,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>peek_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt; {
+    </span><span class="kw">fn </span>peek_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt; {
         <span class="self">self</span>.it.peek().map(|s| <span class="kw-2">*</span>s)
     }
 
@@ -1541,14 +1542,14 @@
         DeserializeError { field: <span class="prelude-val">Some</span>(<span class="self">self</span>.field.saturating_sub(<span class="number">1</span>)), kind }
     }
 
-    <span class="kw">fn </span>infer_deserialize&lt;<span class="lifetime">&#39;de</span>, V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>infer_deserialize&lt;<span class="lifetime">'de</span>, V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, DeserializeError&gt; {
         <span class="kw">let </span>x = <span class="self">self</span>.next_field_bytes()<span class="question-mark">?</span>;
-        <span class="kw">if </span>x == <span class="string">b&quot;true&quot; </span>{
+        <span class="kw">if </span>x == <span class="string">b"true" </span>{
             <span class="kw">return </span>visitor.visit_bool(<span class="bool-val">true</span>);
-        } <span class="kw">else if </span>x == <span class="string">b&quot;false&quot; </span>{
+        } <span class="kw">else if </span>x == <span class="string">b"false" </span>{
             <span class="kw">return </span>visitor.visit_bool(<span class="bool-val">false</span>);
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(n) = try_positive_integer64_bytes(x) {
             <span class="kw">return </span>visitor.visit_u64(n);
@@ -1574,12 +1575,12 @@
 
 <span class="macro">macro_rules! </span>deserialize_int {
     (<span class="macro-nonterminal">$method</span>:ident, <span class="macro-nonterminal">$visit</span>:ident, <span class="macro-nonterminal">$inttype</span>:ty) =&gt; {
-        <span class="kw">fn </span><span class="macro-nonterminal">$method</span>&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+        <span class="kw">fn </span><span class="macro-nonterminal">$method</span>&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
             <span class="self">self</span>,
             visitor: V,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
             <span class="kw">let </span>field = <span class="self">self</span>.next_field()<span class="question-mark">?</span>;
-            <span class="kw">let </span>num = <span class="kw">if </span>field.starts_with(<span class="string">&quot;0x&quot;</span>) {
+            <span class="kw">let </span>num = <span class="kw">if </span>field.starts_with(<span class="string">"0x"</span>) {
                 &lt;<span class="macro-nonterminal">$inttype</span>&gt;::from_str_radix(<span class="kw-2">&amp;</span>field[<span class="number">2</span>..], <span class="number">16</span>)
             } <span class="kw">else </span>{
                 field.parse()
@@ -1589,19 +1590,19 @@
     };
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>, T: DeRecord&lt;<span class="lifetime">&#39;de</span>&gt;&gt; Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;
-    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'de</span>: <span class="lifetime">'a</span>, T: DeRecord&lt;<span class="lifetime">'de</span>&gt;&gt; Deserializer&lt;<span class="lifetime">'de</span>&gt;
+    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
 {
     <span class="kw">type </span>Error = DeserializeError;
 
-    <span class="kw">fn </span>deserialize_any&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_any&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         <span class="self">self</span>.infer_deserialize(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_bool&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_bool&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
@@ -1627,7 +1628,7 @@
         <span class="macro">deserialize_int!</span>(deserialize_i128, visit_i128, i128);
     }
 
-    <span class="kw">fn </span>deserialize_f32&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_f32&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
@@ -1638,7 +1639,7 @@
         )
     }
 
-    <span class="kw">fn </span>deserialize_f64&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_f64&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
@@ -1649,7 +1650,7 @@
         )
     }
 
-    <span class="kw">fn </span>deserialize_char&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_char&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
@@ -1657,35 +1658,35 @@
         <span class="kw">let </span>len = field.chars().count();
         <span class="kw">if </span>len != <span class="number">1 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.error(DEK::Message(<span class="macro">format!</span>(
-                <span class="string">&quot;expected single character but got {} characters in &#39;{}&#39;&quot;</span>,
+                <span class="string">"expected single character but got {} characters in '{}'"</span>,
                 len, field
             ))));
         }
         visitor.visit_char(field.chars().next().unwrap())
     }
 
-    <span class="kw">fn </span>deserialize_str&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_str&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         <span class="self">self</span>.next_field().and_then(|f| visitor.visit_borrowed_str(f))
     }
 
-    <span class="kw">fn </span>deserialize_string&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_string&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         <span class="self">self</span>.next_field().and_then(|f| visitor.visit_str(f.into()))
     }
 
-    <span class="kw">fn </span>deserialize_bytes&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_bytes&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         <span class="self">self</span>.next_field_bytes().and_then(|f| visitor.visit_borrowed_bytes(f))
     }
 
-    <span class="kw">fn </span>deserialize_byte_buf&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_byte_buf&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
@@ -1693,51 +1694,51 @@
             .and_then(|f| visitor.visit_byte_buf(f.to_vec()))
     }
 
-    <span class="kw">fn </span>deserialize_option&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_option&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span><span class="self">self</span>.peek_field() {
             <span class="prelude-val">None </span>=&gt; visitor.visit_none(),
             <span class="prelude-val">Some</span>(f) <span class="kw">if </span>f.is_empty() =&gt; {
-                <span class="self">self</span>.next_field().expect(<span class="string">&quot;empty field&quot;</span>);
+                <span class="self">self</span>.next_field().expect(<span class="string">"empty field"</span>);
                 visitor.visit_none()
             }
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; visitor.visit_some(<span class="self">self</span>),
         }
     }
 
-    <span class="kw">fn </span>deserialize_unit&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_unit&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         visitor.visit_unit()
     }
 
-    <span class="kw">fn </span>deserialize_unit_struct&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_unit_struct&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         visitor.visit_unit()
     }
 
-    <span class="kw">fn </span>deserialize_newtype_struct&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_newtype_struct&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         visitor.visit_newtype_struct(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>deserialize_seq&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_seq&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         visitor.visit_seq(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>deserialize_tuple&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_tuple&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         _len: usize,
         visitor: V,
@@ -1745,16 +1746,16 @@
         visitor.visit_seq(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>deserialize_tuple_struct&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_tuple_struct&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         _len: usize,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         visitor.visit_seq(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>deserialize_map&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_map&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
@@ -1765,10 +1766,10 @@
         }
     }
 
-    <span class="kw">fn </span>deserialize_struct&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_struct&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        _fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+        _fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.has_headers() {
@@ -1778,41 +1779,41 @@
         }
     }
 
-    <span class="kw">fn </span>deserialize_identifier&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_identifier&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         _visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.error(DEK::Unsupported(<span class="string">&quot;deserialize_identifier&quot;</span>.into())))
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.error(DEK::Unsupported(<span class="string">"deserialize_identifier"</span>.into())))
     }
 
-    <span class="kw">fn </span>deserialize_enum&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_enum&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        _variants: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+        _variants: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         visitor.visit_enum(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>deserialize_ignored_any&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_ignored_any&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         <span class="comment">// Read and drop the next field.
         // This code is reached, e.g., when trying to deserialize a header
-        // that doesn&#39;t exist in the destination struct.
+        // that doesn't exist in the destination struct.
         </span><span class="kw">let _ </span>= <span class="self">self</span>.next_field_bytes()<span class="question-mark">?</span>;
         visitor.visit_unit()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>, T: DeRecord&lt;<span class="lifetime">&#39;de</span>&gt;&gt; EnumAccess&lt;<span class="lifetime">&#39;de</span>&gt;
-    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'de</span>: <span class="lifetime">'a</span>, T: DeRecord&lt;<span class="lifetime">'de</span>&gt;&gt; EnumAccess&lt;<span class="lifetime">'de</span>&gt;
+    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
 {
     <span class="kw">type </span>Error = DeserializeError;
     <span class="kw">type </span>Variant = <span class="self">Self</span>;
 
-    <span class="kw">fn </span>variant_seed&lt;V: DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>variant_seed&lt;V: DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         seed: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(V::Value, <span class="self">Self</span>::Variant), <span class="self">Self</span>::Error&gt; {
@@ -1821,8 +1822,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>, T: DeRecord&lt;<span class="lifetime">&#39;de</span>&gt;&gt; VariantAccess&lt;<span class="lifetime">&#39;de</span>&gt;
-    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'de</span>: <span class="lifetime">'a</span>, T: DeRecord&lt;<span class="lifetime">'de</span>&gt;&gt; VariantAccess&lt;<span class="lifetime">'de</span>&gt;
+    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
 {
     <span class="kw">type </span>Error = DeserializeError;
 
@@ -1830,39 +1831,39 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>newtype_variant_seed&lt;U: DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>newtype_variant_seed&lt;U: DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         _seed: U,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;U::Value, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>unexp = Unexpected::UnitVariant;
-        <span class="prelude-val">Err</span>(DeserializeError::invalid_type(unexp, <span class="kw-2">&amp;</span><span class="string">&quot;newtype variant&quot;</span>))
+        <span class="prelude-val">Err</span>(DeserializeError::invalid_type(unexp, <span class="kw-2">&amp;</span><span class="string">"newtype variant"</span>))
     }
 
-    <span class="kw">fn </span>tuple_variant&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>tuple_variant&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         _len: usize,
         _visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>unexp = Unexpected::UnitVariant;
-        <span class="prelude-val">Err</span>(DeserializeError::invalid_type(unexp, <span class="kw-2">&amp;</span><span class="string">&quot;tuple variant&quot;</span>))
+        <span class="prelude-val">Err</span>(DeserializeError::invalid_type(unexp, <span class="kw-2">&amp;</span><span class="string">"tuple variant"</span>))
     }
 
-    <span class="kw">fn </span>struct_variant&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>struct_variant&lt;V: Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        _fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
         _visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>unexp = Unexpected::UnitVariant;
-        <span class="prelude-val">Err</span>(DeserializeError::invalid_type(unexp, <span class="kw-2">&amp;</span><span class="string">&quot;struct variant&quot;</span>))
+        <span class="prelude-val">Err</span>(DeserializeError::invalid_type(unexp, <span class="kw-2">&amp;</span><span class="string">"struct variant"</span>))
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>, T: DeRecord&lt;<span class="lifetime">&#39;de</span>&gt;&gt; SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt;
-    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'de</span>: <span class="lifetime">'a</span>, T: DeRecord&lt;<span class="lifetime">'de</span>&gt;&gt; SeqAccess&lt;<span class="lifetime">'de</span>&gt;
+    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
 {
     <span class="kw">type </span>Error = DeserializeError;
 
-    <span class="kw">fn </span>next_element_seed&lt;U: DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>next_element_seed&lt;U: DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         seed: U,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;U::Value&gt;, <span class="self">Self</span>::Error&gt; {
@@ -1874,12 +1875,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>, T: DeRecord&lt;<span class="lifetime">&#39;de</span>&gt;&gt; MapAccess&lt;<span class="lifetime">&#39;de</span>&gt;
-    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'de</span>: <span class="lifetime">'a</span>, T: DeRecord&lt;<span class="lifetime">'de</span>&gt;&gt; MapAccess&lt;<span class="lifetime">'de</span>&gt;
+    <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>DeRecordWrap&lt;T&gt;
 {
     <span class="kw">type </span>Error = DeserializeError;
 
-    <span class="kw">fn </span>next_key_seed&lt;K: DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>next_key_seed&lt;K: DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         seed: K,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;, <span class="self">Self</span>::Error&gt; {
@@ -1891,7 +1892,7 @@
         seed.deserialize(BorrowedBytesDeserializer::new(field)).map(<span class="prelude-val">Some</span>)
     }
 
-    <span class="kw">fn </span>next_value_seed&lt;K: DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>next_value_seed&lt;K: DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         seed: K,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;K::Value, <span class="self">Self</span>::Error&gt; {
@@ -1943,9 +1944,9 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DeserializeError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(field) = <span class="self">self</span>.field {
-            <span class="macro">write!</span>(f, <span class="string">&quot;field {}: {}&quot;</span>, field, <span class="self">self</span>.kind)
+            <span class="macro">write!</span>(f, <span class="string">"field {}: {}"</span>, field, <span class="self">self</span>.kind)
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.kind)
+            <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.kind)
         }
     }
 }
@@ -1955,11 +1956,11 @@
         <span class="kw">use </span><span class="self">self</span>::DeserializeErrorKind::<span class="kw-2">*</span>;
 
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Message(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, msg),
+            Message(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, msg),
             Unsupported(<span class="kw-2">ref </span>which) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;unsupported deserializer method: {}&quot;</span>, which)
+                <span class="macro">write!</span>(f, <span class="string">"unsupported deserializer method: {}"</span>, which)
             }
-            UnexpectedEndOfRow =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.description()),
+            UnexpectedEndOfRow =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.description()),
             InvalidUtf8(<span class="kw-2">ref </span>err) =&gt; err.fmt(f),
             ParseBool(<span class="kw-2">ref </span>err) =&gt; err.fmt(f),
             ParseInt(<span class="kw-2">ref </span>err) =&gt; err.fmt(f),
@@ -1986,9 +1987,9 @@
         <span class="kw">use </span><span class="self">self</span>::DeserializeErrorKind::<span class="kw-2">*</span>;
 
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Message(<span class="kw">_</span>) =&gt; <span class="string">&quot;deserialization error&quot;</span>,
-            Unsupported(<span class="kw">_</span>) =&gt; <span class="string">&quot;unsupported deserializer method&quot;</span>,
-            UnexpectedEndOfRow =&gt; <span class="string">&quot;expected field, but got end of row&quot;</span>,
+            Message(<span class="kw">_</span>) =&gt; <span class="string">"deserialization error"</span>,
+            Unsupported(<span class="kw">_</span>) =&gt; <span class="string">"unsupported deserializer method"</span>,
+            UnexpectedEndOfRow =&gt; <span class="string">"expected field, but got end of row"</span>,
             InvalidUtf8(<span class="kw-2">ref </span>err) =&gt; err.description(),
             ParseBool(<span class="kw-2">ref </span>err) =&gt; err.description(),
             ParseInt(<span class="kw-2">ref </span>err) =&gt; err.description(),
@@ -2070,7 +2071,7 @@
         deserialize_string_record(<span class="kw-2">&amp;</span>record, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>headers))
     }
 
-    <span class="kw">fn </span>b&lt;<span class="lifetime">&#39;a</span>, T: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized&gt;(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+    <span class="kw">fn </span>b&lt;<span class="lifetime">'a</span>, T: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized&gt;(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
         bytes.as_ref()
     }
 
@@ -2084,8 +2085,8 @@
         }
 
         <span class="kw">let </span>got: Foo =
-            de_headers(<span class="kw-2">&amp;</span>[<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>], <span class="kw-2">&amp;</span>[<span class="string">&quot;hi&quot;</span>, <span class="string">&quot;42&quot;</span>, <span class="string">&quot;1.3&quot;</span>]).unwrap();
-        <span class="macro">assert_eq!</span>(got, Foo { x: <span class="string">&quot;hi&quot;</span>.into(), y: <span class="number">42</span>, z: <span class="number">1.3 </span>});
+            de_headers(<span class="kw-2">&amp;</span>[<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>], <span class="kw-2">&amp;</span>[<span class="string">"hi"</span>, <span class="string">"42"</span>, <span class="string">"1.3"</span>]).unwrap();
+        <span class="macro">assert_eq!</span>(got, Foo { x: <span class="string">"hi"</span>.into(), y: <span class="number">42</span>, z: <span class="number">1.3 </span>});
     }
 
     <span class="attr">#[test]
@@ -2098,8 +2099,8 @@
             x: String,
         }
         <span class="macro">assert!</span>(de_headers::&lt;Foo&gt;(
-            <span class="kw-2">&amp;</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>],
-            <span class="kw-2">&amp;</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;hi&quot;</span>, <span class="string">&quot;42&quot;</span>, <span class="string">&quot;1.3&quot;</span>],
+            <span class="kw-2">&amp;</span>[<span class="string">"a"</span>, <span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>],
+            <span class="kw-2">&amp;</span>[<span class="string">"foo"</span>, <span class="string">"hi"</span>, <span class="string">"42"</span>, <span class="string">"1.3"</span>],
         )
         .is_err());
     }
@@ -2112,7 +2113,7 @@
             y: i32,
             x: String,
         }
-        <span class="macro">assert!</span>(de_headers::&lt;Foo&gt;(<span class="kw-2">&amp;</span>[<span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>], <span class="kw-2">&amp;</span>[<span class="string">&quot;42&quot;</span>, <span class="string">&quot;1.3&quot;</span>],).is_err());
+        <span class="macro">assert!</span>(de_headers::&lt;Foo&gt;(<span class="kw-2">&amp;</span>[<span class="string">"y"</span>, <span class="string">"z"</span>], <span class="kw-2">&amp;</span>[<span class="string">"42"</span>, <span class="string">"1.3"</span>],).is_err());
     }
 
     <span class="attr">#[test]
@@ -2124,7 +2125,7 @@
             x: <span class="prelude-ty">Option</span>&lt;String&gt;,
         }
 
-        <span class="kw">let </span>got: Foo = de_headers(<span class="kw-2">&amp;</span>[<span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>], <span class="kw-2">&amp;</span>[<span class="string">&quot;42&quot;</span>, <span class="string">&quot;1.3&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: Foo = de_headers(<span class="kw-2">&amp;</span>[<span class="string">"y"</span>, <span class="string">"z"</span>], <span class="kw-2">&amp;</span>[<span class="string">"42"</span>, <span class="string">"1.3"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, Foo { x: <span class="prelude-val">None</span>, y: <span class="number">42</span>, z: <span class="number">1.3 </span>});
     }
 
@@ -2137,7 +2138,7 @@
             x: <span class="prelude-ty">Option</span>&lt;String&gt;,
         }
 
-        <span class="kw">let </span>got = de_headers::&lt;Foo&gt;(<span class="kw-2">&amp;</span>[<span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>], <span class="kw-2">&amp;</span>[]);
+        <span class="kw">let </span>got = de_headers::&lt;Foo&gt;(<span class="kw-2">&amp;</span>[<span class="string">"y"</span>, <span class="string">"z"</span>], <span class="kw-2">&amp;</span>[]);
         <span class="macro">assert!</span>(got.is_err());
     }
 
@@ -2181,8 +2182,8 @@
             x: String,
         }
 
-        <span class="kw">let </span>got: Foo = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;1.3&quot;</span>, <span class="string">&quot;42&quot;</span>, <span class="string">&quot;hi&quot;</span>]).unwrap();
-        <span class="macro">assert_eq!</span>(got, Foo { x: <span class="string">&quot;hi&quot;</span>.into(), y: <span class="number">42</span>, z: <span class="number">1.3 </span>});
+        <span class="kw">let </span>got: Foo = de(<span class="kw-2">&amp;</span>[<span class="string">"1.3"</span>, <span class="string">"42"</span>, <span class="string">"hi"</span>]).unwrap();
+        <span class="macro">assert_eq!</span>(got, Foo { x: <span class="string">"hi"</span>.into(), y: <span class="number">42</span>, z: <span class="number">1.3 </span>});
     }
 
     <span class="attr">#[test]
@@ -2192,78 +2193,78 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>one_field() {
-        <span class="kw">let </span>got: i32 = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;42&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: i32 = de(<span class="kw-2">&amp;</span>[<span class="string">"42"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, <span class="number">42</span>);
     }
 
     <span class="macro">serde_if_integer128! </span>{
         <span class="attr">#[test]
         </span><span class="kw">fn </span>one_field_128() {
-            <span class="kw">let </span>got: i128 = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;2010223372036854775808&quot;</span>]).unwrap();
+            <span class="kw">let </span>got: i128 = de(<span class="kw-2">&amp;</span>[<span class="string">"2010223372036854775808"</span>]).unwrap();
             <span class="macro">assert_eq!</span>(got, <span class="number">2010223372036854775808</span>);
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>two_fields() {
-        <span class="kw">let </span>got: (i32, bool) = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;42&quot;</span>, <span class="string">&quot;true&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: (i32, bool) = de(<span class="kw-2">&amp;</span>[<span class="string">"42"</span>, <span class="string">"true"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, (<span class="number">42</span>, <span class="bool-val">true</span>));
 
         <span class="attr">#[derive(Deserialize, Debug, PartialEq)]
         </span><span class="kw">struct </span>Foo(i32, bool);
 
-        <span class="kw">let </span>got: Foo = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;42&quot;</span>, <span class="string">&quot;true&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: Foo = de(<span class="kw-2">&amp;</span>[<span class="string">"42"</span>, <span class="string">"true"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, Foo(<span class="number">42</span>, <span class="bool-val">true</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>two_fields_too_many() {
-        <span class="kw">let </span>got: (i32, bool) = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;42&quot;</span>, <span class="string">&quot;true&quot;</span>, <span class="string">&quot;z&quot;</span>, <span class="string">&quot;z&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: (i32, bool) = de(<span class="kw-2">&amp;</span>[<span class="string">"42"</span>, <span class="string">"true"</span>, <span class="string">"z"</span>, <span class="string">"z"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, (<span class="number">42</span>, <span class="bool-val">true</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>two_fields_too_few() {
-        <span class="macro">assert!</span>(de::&lt;(i32, bool)&gt;(<span class="kw-2">&amp;</span>[<span class="string">&quot;42&quot;</span>]).is_err());
+        <span class="macro">assert!</span>(de::&lt;(i32, bool)&gt;(<span class="kw-2">&amp;</span>[<span class="string">"42"</span>]).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>one_char() {
-        <span class="kw">let </span>got: char = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;a&quot;</span>]).unwrap();
-        <span class="macro">assert_eq!</span>(got, <span class="string">&#39;a&#39;</span>);
+        <span class="kw">let </span>got: char = de(<span class="kw-2">&amp;</span>[<span class="string">"a"</span>]).unwrap();
+        <span class="macro">assert_eq!</span>(got, <span class="string">'a'</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>no_chars() {
-        <span class="macro">assert!</span>(de::&lt;char&gt;(<span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>]).is_err());
+        <span class="macro">assert!</span>(de::&lt;char&gt;(<span class="kw-2">&amp;</span>[<span class="string">""</span>]).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>too_many_chars() {
-        <span class="macro">assert!</span>(de::&lt;char&gt;(<span class="kw-2">&amp;</span>[<span class="string">&quot;ab&quot;</span>]).is_err());
+        <span class="macro">assert!</span>(de::&lt;char&gt;(<span class="kw-2">&amp;</span>[<span class="string">"ab"</span>]).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>simple_seq() {
-        <span class="kw">let </span>got: Vec&lt;i32&gt; = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;10&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: Vec&lt;i32&gt; = de(<span class="kw-2">&amp;</span>[<span class="string">"1"</span>, <span class="string">"5"</span>, <span class="string">"10"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">5</span>, <span class="number">10</span>]);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>simple_hex_seq() {
-        <span class="kw">let </span>got: Vec&lt;i32&gt; = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;0x7F&quot;</span>, <span class="string">&quot;0xA9&quot;</span>, <span class="string">&quot;0x10&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: Vec&lt;i32&gt; = de(<span class="kw-2">&amp;</span>[<span class="string">"0x7F"</span>, <span class="string">"0xA9"</span>, <span class="string">"0x10"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, <span class="macro">vec!</span>[<span class="number">0x7F</span>, <span class="number">0xA9</span>, <span class="number">0x10</span>]);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>mixed_hex_seq() {
-        <span class="kw">let </span>got: Vec&lt;i32&gt; = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;0x7F&quot;</span>, <span class="string">&quot;0xA9&quot;</span>, <span class="string">&quot;10&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: Vec&lt;i32&gt; = de(<span class="kw-2">&amp;</span>[<span class="string">"0x7F"</span>, <span class="string">"0xA9"</span>, <span class="string">"10"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, <span class="macro">vec!</span>[<span class="number">0x7F</span>, <span class="number">0xA9</span>, <span class="number">10</span>]);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bad_hex_seq() {
-        <span class="macro">assert!</span>(de::&lt;Vec&lt;u8&gt;&gt;(<span class="kw-2">&amp;</span>[<span class="string">&quot;7F&quot;</span>, <span class="string">&quot;0xA9&quot;</span>, <span class="string">&quot;10&quot;</span>]).is_err());
+        <span class="macro">assert!</span>(de::&lt;Vec&lt;u8&gt;&gt;(<span class="kw-2">&amp;</span>[<span class="string">"7F"</span>, <span class="string">"0xA9"</span>, <span class="string">"10"</span>]).is_err());
     }
 
     <span class="attr">#[test]
@@ -2272,7 +2273,7 @@
         </span><span class="kw">struct </span>Foo {
             xs: Vec&lt;i32&gt;,
         }
-        <span class="kw">let </span>got: Foo = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;10&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: Foo = de(<span class="kw-2">&amp;</span>[<span class="string">"1"</span>, <span class="string">"5"</span>, <span class="string">"10"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, Foo { xs: <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">5</span>, <span class="number">10</span>] });
     }
 
@@ -2283,35 +2284,35 @@
             label: String,
             xs: Vec&lt;i32&gt;,
         }
-        <span class="kw">let </span>got: Foo = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;10&quot;</span>]).unwrap();
-        <span class="macro">assert_eq!</span>(got, Foo { label: <span class="string">&quot;foo&quot;</span>.into(), xs: <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">5</span>, <span class="number">10</span>] });
+        <span class="kw">let </span>got: Foo = de(<span class="kw-2">&amp;</span>[<span class="string">"foo"</span>, <span class="string">"1"</span>, <span class="string">"5"</span>, <span class="string">"10"</span>]).unwrap();
+        <span class="macro">assert_eq!</span>(got, Foo { label: <span class="string">"foo"</span>.into(), xs: <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">5</span>, <span class="number">10</span>] });
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>map_headers() {
         <span class="kw">let </span>got: HashMap&lt;String, i32&gt; =
-            de_headers(<span class="kw-2">&amp;</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], <span class="kw-2">&amp;</span>[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;10&quot;</span>]).unwrap();
+            de_headers(<span class="kw-2">&amp;</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="kw-2">&amp;</span>[<span class="string">"1"</span>, <span class="string">"5"</span>, <span class="string">"10"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got.len(), <span class="number">3</span>);
-        <span class="macro">assert_eq!</span>(got[<span class="string">&quot;a&quot;</span>], <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(got[<span class="string">&quot;b&quot;</span>], <span class="number">5</span>);
-        <span class="macro">assert_eq!</span>(got[<span class="string">&quot;c&quot;</span>], <span class="number">10</span>);
+        <span class="macro">assert_eq!</span>(got[<span class="string">"a"</span>], <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(got[<span class="string">"b"</span>], <span class="number">5</span>);
+        <span class="macro">assert_eq!</span>(got[<span class="string">"c"</span>], <span class="number">10</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>map_no_headers() {
-        <span class="kw">let </span>got = de::&lt;HashMap&lt;String, i32&gt;&gt;(<span class="kw-2">&amp;</span>[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;10&quot;</span>]);
+        <span class="kw">let </span>got = de::&lt;HashMap&lt;String, i32&gt;&gt;(<span class="kw-2">&amp;</span>[<span class="string">"1"</span>, <span class="string">"5"</span>, <span class="string">"10"</span>]);
         <span class="macro">assert!</span>(got.is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bytes() {
-        <span class="kw">let </span>got: Vec&lt;u8&gt; = de::&lt;BString&gt;(<span class="kw-2">&amp;</span>[<span class="string">&quot;foobar&quot;</span>]).unwrap().into();
-        <span class="macro">assert_eq!</span>(got, <span class="string">b&quot;foobar&quot;</span>.to_vec());
+        <span class="kw">let </span>got: Vec&lt;u8&gt; = de::&lt;BString&gt;(<span class="kw-2">&amp;</span>[<span class="string">"foobar"</span>]).unwrap().into();
+        <span class="macro">assert_eq!</span>(got, <span class="string">b"foobar"</span>.to_vec());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>adjacent_fixed_arrays() {
-        <span class="kw">let </span>got: ([u32; <span class="number">2</span>], [u32; <span class="number">2</span>]) = de(<span class="kw-2">&amp;</span>[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;10&quot;</span>, <span class="string">&quot;15&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: ([u32; <span class="number">2</span>], [u32; <span class="number">2</span>]) = de(<span class="kw-2">&amp;</span>[<span class="string">"1"</span>, <span class="string">"5"</span>, <span class="string">"10"</span>, <span class="string">"15"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, ([<span class="number">1</span>, <span class="number">5</span>], [<span class="number">10</span>, <span class="number">15</span>]));
     }
 
@@ -2324,14 +2325,14 @@
         }
 
         <span class="attr">#[derive(Deserialize, Debug, PartialEq)]
-        #[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+        #[serde(rename_all = <span class="string">"snake_case"</span>)]
         </span><span class="kw">enum </span>Label {
             Foo,
             Bar,
             Baz,
         }
 
-        <span class="kw">let </span>got: Row = de_headers(<span class="kw-2">&amp;</span>[<span class="string">&quot;label&quot;</span>, <span class="string">&quot;x&quot;</span>], <span class="kw-2">&amp;</span>[<span class="string">&quot;bar&quot;</span>, <span class="string">&quot;5&quot;</span>]).unwrap();
+        <span class="kw">let </span>got: Row = de_headers(<span class="kw-2">&amp;</span>[<span class="string">"label"</span>, <span class="string">"x"</span>], <span class="kw-2">&amp;</span>[<span class="string">"bar"</span>, <span class="string">"5"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, Row { label: Label::Bar, x: <span class="number">5.0 </span>});
     }
 
@@ -2345,7 +2346,7 @@
         }
 
         <span class="attr">#[derive(Deserialize, Debug, PartialEq)]
-        #[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+        #[serde(rename_all = <span class="string">"snake_case"</span>)]
         #[serde(untagged)]
         </span><span class="kw">enum </span>Boolish {
             Bool(bool),
@@ -2354,12 +2355,12 @@
         }
 
         <span class="kw">let </span>got: Row =
-            de_headers(<span class="kw-2">&amp;</span>[<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>], <span class="kw-2">&amp;</span>[<span class="string">&quot;true&quot;</span>, <span class="string">&quot;null&quot;</span>, <span class="string">&quot;1&quot;</span>]).unwrap();
+            de_headers(<span class="kw-2">&amp;</span>[<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"z"</span>], <span class="kw-2">&amp;</span>[<span class="string">"true"</span>, <span class="string">"null"</span>, <span class="string">"1"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(
             got,
             Row {
                 x: Boolish::Bool(<span class="bool-val">true</span>),
-                y: Boolish::String(<span class="string">&quot;null&quot;</span>.into()),
+                y: Boolish::String(<span class="string">"null"</span>.into()),
                 z: Boolish::Number(<span class="number">1</span>),
             }
         );
@@ -2375,49 +2376,49 @@
         }
 
         <span class="kw">let </span>got: Foo =
-            de_headers(<span class="kw-2">&amp;</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], <span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>, <span class="string">&quot;foo&quot;</span>, <span class="string">&quot;5&quot;</span>]).unwrap();
-        <span class="macro">assert_eq!</span>(got, Foo { a: <span class="prelude-val">None</span>, b: <span class="string">&quot;foo&quot;</span>.into(), c: <span class="prelude-val">Some</span>(<span class="number">5</span>) });
+            de_headers(<span class="kw-2">&amp;</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="kw-2">&amp;</span>[<span class="string">""</span>, <span class="string">"foo"</span>, <span class="string">"5"</span>]).unwrap();
+        <span class="macro">assert_eq!</span>(got, Foo { a: <span class="prelude-val">None</span>, b: <span class="string">"foo"</span>.into(), c: <span class="prelude-val">Some</span>(<span class="number">5</span>) });
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>option_invalid_field() {
         <span class="attr">#[derive(Deserialize, Debug, PartialEq)]
         </span><span class="kw">struct </span>Foo {
-            <span class="attr">#[serde(deserialize_with = <span class="string">&quot;crate::invalid_option&quot;</span>)]
+            <span class="attr">#[serde(deserialize_with = <span class="string">"crate::invalid_option"</span>)]
             </span>a: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-            <span class="attr">#[serde(deserialize_with = <span class="string">&quot;crate::invalid_option&quot;</span>)]
+            <span class="attr">#[serde(deserialize_with = <span class="string">"crate::invalid_option"</span>)]
             </span>b: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-            <span class="attr">#[serde(deserialize_with = <span class="string">&quot;crate::invalid_option&quot;</span>)]
+            <span class="attr">#[serde(deserialize_with = <span class="string">"crate::invalid_option"</span>)]
             </span>c: <span class="prelude-ty">Option</span>&lt;i32&gt;,
         }
 
         <span class="kw">let </span>got: Foo =
-            de_headers(<span class="kw-2">&amp;</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>], <span class="kw-2">&amp;</span>[<span class="string">&quot;xyz&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;5&quot;</span>]).unwrap();
+            de_headers(<span class="kw-2">&amp;</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="kw-2">&amp;</span>[<span class="string">"xyz"</span>, <span class="string">""</span>, <span class="string">"5"</span>]).unwrap();
         <span class="macro">assert_eq!</span>(got, Foo { a: <span class="prelude-val">None</span>, b: <span class="prelude-val">None</span>, c: <span class="prelude-val">Some</span>(<span class="number">5</span>) });
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>borrowed() {
         <span class="attr">#[derive(Deserialize, Debug, PartialEq)]
-        </span><span class="kw">struct </span>Foo&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
-            a: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        </span><span class="kw">struct </span>Foo&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; {
+            a: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
             b: i32,
-            c: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>str,
+            c: <span class="kw-2">&amp;</span><span class="lifetime">'c </span>str,
         }
 
-        <span class="kw">let </span>headers = StringRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]);
-        <span class="kw">let </span>record = StringRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;bar&quot;</span>]);
+        <span class="kw">let </span>headers = StringRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]);
+        <span class="kw">let </span>record = StringRecord::from(<span class="macro">vec!</span>[<span class="string">"foo"</span>, <span class="string">"5"</span>, <span class="string">"bar"</span>]);
         <span class="kw">let </span>got: Foo =
             deserialize_string_record(<span class="kw-2">&amp;</span>record, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>headers)).unwrap();
-        <span class="macro">assert_eq!</span>(got, Foo { a: <span class="string">&quot;foo&quot;</span>, b: <span class="number">5</span>, c: <span class="string">&quot;bar&quot; </span>});
+        <span class="macro">assert_eq!</span>(got, Foo { a: <span class="string">"foo"</span>, b: <span class="number">5</span>, c: <span class="string">"bar" </span>});
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>borrowed_map() {
         <span class="kw">use </span>std::collections::HashMap;
 
-        <span class="kw">let </span>headers = StringRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]);
-        <span class="kw">let </span>record = StringRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;aardvark&quot;</span>, <span class="string">&quot;bee&quot;</span>, <span class="string">&quot;cat&quot;</span>]);
+        <span class="kw">let </span>headers = StringRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]);
+        <span class="kw">let </span>record = StringRecord::from(<span class="macro">vec!</span>[<span class="string">"aardvark"</span>, <span class="string">"bee"</span>, <span class="string">"cat"</span>]);
         <span class="kw">let </span>got: HashMap&lt;<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str&gt; =
             deserialize_string_record(<span class="kw-2">&amp;</span>record, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>headers)).unwrap();
 
@@ -2430,8 +2431,8 @@
     </span><span class="kw">fn </span>borrowed_map_bytes() {
         <span class="kw">use </span>std::collections::HashMap;
 
-        <span class="kw">let </span>headers = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b&quot;a&quot;</span>, <span class="string">b&quot;\xFF&quot;</span>, <span class="string">b&quot;c&quot;</span>]);
-        <span class="kw">let </span>record = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;aardvark&quot;</span>, <span class="string">&quot;bee&quot;</span>, <span class="string">&quot;cat&quot;</span>]);
+        <span class="kw">let </span>headers = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b"a"</span>, <span class="string">b"\xFF"</span>, <span class="string">b"c"</span>]);
+        <span class="kw">let </span>record = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"aardvark"</span>, <span class="string">"bee"</span>, <span class="string">"cat"</span>]);
         <span class="kw">let </span>got: HashMap&lt;<span class="kw-2">&amp;</span>[u8], <span class="kw-2">&amp;</span>[u8]&gt; =
             deserialize_byte_record(<span class="kw-2">&amp;</span>record, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>headers)).unwrap();
 
@@ -2462,8 +2463,8 @@
             </span>properties: Properties,
         }
 
-        <span class="kw">let </span>header = StringRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;prop1&quot;</span>, <span class="string">&quot;prop2&quot;</span>]);
-        <span class="kw">let </span>record = StringRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;4&quot;</span>]);
+        <span class="kw">let </span>header = StringRecord::from(<span class="macro">vec!</span>[<span class="string">"x"</span>, <span class="string">"y"</span>, <span class="string">"prop1"</span>, <span class="string">"prop2"</span>]);
+        <span class="kw">let </span>record = StringRecord::from(<span class="macro">vec!</span>[<span class="string">"1"</span>, <span class="string">"2"</span>, <span class="string">"3"</span>, <span class="string">"4"</span>]);
         <span class="kw">let </span>got: Row = record.deserialize(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>header)).unwrap();
         <span class="macro">assert_eq!</span>(
             got,
@@ -2483,17 +2484,17 @@
             h3: String,
         }
 
-        <span class="kw">let </span>headers = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b&quot;h1&quot;</span>, <span class="string">b&quot;h2&quot;</span>, <span class="string">b&quot;h3&quot;</span>]);
+        <span class="kw">let </span>headers = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b"h1"</span>, <span class="string">b"h2"</span>, <span class="string">b"h3"</span>]);
         <span class="kw">let </span>record =
-            ByteRecord::from(<span class="macro">vec!</span>[b(<span class="string">b&quot;baz&quot;</span>), b(<span class="string">b&quot;foo\xFFbar&quot;</span>), b(<span class="string">b&quot;quux&quot;</span>)]);
+            ByteRecord::from(<span class="macro">vec!</span>[b(<span class="string">b"baz"</span>), b(<span class="string">b"foo\xFFbar"</span>), b(<span class="string">b"quux"</span>)]);
         <span class="kw">let </span>got: Row =
             deserialize_byte_record(<span class="kw-2">&amp;</span>record, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>headers)).unwrap();
         <span class="macro">assert_eq!</span>(
             got,
             Row {
-                h1: <span class="string">&quot;baz&quot;</span>.to_string(),
-                h2: BString::from(<span class="string">b&quot;foo\xFFbar&quot;</span>.to_vec()),
-                h3: <span class="string">&quot;quux&quot;</span>.to_string(),
+                h1: <span class="string">"baz"</span>.to_string(),
+                h2: BString::from(<span class="string">b"foo\xFFbar"</span>.to_vec()),
+                h3: <span class="string">"quux"</span>.to_string(),
             }
         );
     }

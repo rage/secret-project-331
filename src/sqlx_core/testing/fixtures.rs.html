@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/testing/fixtures.rs`."><title>fixtures.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/testing/fixtures.rs`."><title>fixtures.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -303,7 +304,7 @@
 }
 
 <span class="attr">#[derive(Debug, thiserror::Error)]
-#[error(<span class="string">&quot;could not create fixture: {0}&quot;</span>)]
+#[error(<span class="string">"could not create fixture: {0}"</span>)]
 </span><span class="kw">pub struct </span>FixtureError(String);
 
 <span class="kw">pub struct </span>Fixture&lt;DB&gt; {
@@ -342,8 +343,8 @@
 <span class="kw">impl</span>&lt;DB: Database&gt; FixtureSnapshot&lt;DB&gt; {
     <span class="doccomment">/// Generate a fixture to reproduce this snapshot from an empty database using `INSERT`s.
     ///
-    /// Note that this doesn&#39;t take into account any triggers that might modify the data before
-    /// it&#39;s stored.
+    /// Note that this doesn't take into account any triggers that might modify the data before
+    /// it's stored.
     ///
     /// The `INSERT` statements are ordered on a best-effort basis to satisfy any foreign key
     /// constraints (data from tables with no foreign keys are inserted first, then the tables
@@ -391,10 +392,10 @@
 /// which appends to an internal string.
 </span><span class="kw">impl</span>&lt;DB: Database&gt; ToString <span class="kw">for </span>Fixture&lt;DB&gt;
 <span class="kw">where
-    for</span>&lt;<span class="lifetime">&#39;a</span>&gt; &lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Arguments: Default,
+    for</span>&lt;<span class="lifetime">'a</span>&gt; &lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">'a</span>&gt;&gt;::Arguments: Default,
 {
     <span class="kw">fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="kw">let </span><span class="kw-2">mut </span>query = QueryBuilder::&lt;DB&gt;::new(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>query = QueryBuilder::&lt;DB&gt;::new(<span class="string">""</span>);
 
         <span class="kw">for </span>op <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.ops {
             <span class="kw">match </span>op {
@@ -403,20 +404,20 @@
                     columns,
                     rows,
                 } =&gt; {
-                    <span class="comment">// Sanity check, empty tables shouldn&#39;t appear in snapshots anyway.
+                    <span class="comment">// Sanity check, empty tables shouldn't appear in snapshots anyway.
                     </span><span class="kw">if </span>columns.is_empty() || rows.is_empty() {
                         <span class="kw">continue</span>;
                     }
 
-                    query.push(<span class="macro">format_args!</span>(<span class="string">&quot;INSERT INTO {table} (&quot;</span>));
+                    query.push(<span class="macro">format_args!</span>(<span class="string">"INSERT INTO {table} ("</span>));
 
-                    <span class="kw">let </span><span class="kw-2">mut </span>separated = query.separated(<span class="string">&quot;, &quot;</span>);
+                    <span class="kw">let </span><span class="kw-2">mut </span>separated = query.separated(<span class="string">", "</span>);
 
                     <span class="kw">for </span>column <span class="kw">in </span>columns {
                         separated.push(column);
                     }
 
-                    query.push(<span class="string">&quot;)\n&quot;</span>);
+                    query.push(<span class="string">")\n"</span>);
 
                     query.push_values(rows, |<span class="kw-2">mut </span>separated, row| {
                         <span class="kw">for </span>value <span class="kw">in </span>row {
@@ -424,7 +425,7 @@
                         }
                     });
 
-                    query.push(<span class="string">&quot;;\n&quot;</span>);
+                    query.push(<span class="string">";\n"</span>);
                 }
             }
         }
@@ -446,7 +447,7 @@
     <span class="comment">// This keeps us from looping forever.
     </span><span class="macro">fixture_assert!</span>(
         visited_set.insert(table.name.clone()),
-        <span class="string">&quot;foreign key cycle detected: {:?} -&gt; {:?}&quot;</span>,
+        <span class="string">"foreign key cycle detected: {:?} -&gt; {:?}"</span>,
         visited_set,
         table.name
     );
@@ -456,7 +457,7 @@
     <span class="kw">for </span>(colname, (refname, refcol)) <span class="kw">in </span><span class="kw-2">&amp;</span>table.foreign_keys {
         <span class="kw">let </span>referenced = tables.get(refname).ok_or_else(|| {
             FixtureError(<span class="macro">format!</span>(
-                <span class="string">&quot;table {:?} in foreign key `{}.{} references {}.{}` does not exist&quot;</span>,
+                <span class="string">"table {:?} in foreign key `{}.{} references {}.{}` does not exist"</span>,
                 refname, table.name, colname, refname, refcol
             ))
         })<span class="question-mark">?</span>;
@@ -475,7 +476,7 @@
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+#[cfg(feature = <span class="string">"postgres"</span>)]
 </span><span class="kw">fn </span>test_additive_fixture() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">use </span><span class="kw">crate</span>::postgres::Postgres;
 
@@ -485,14 +486,14 @@
     };
 
     snapshot.tables.insert(
-        <span class="string">&quot;foo&quot;</span>.into(),
+        <span class="string">"foo"</span>.into(),
         Table {
-            name: <span class="string">&quot;foo&quot;</span>.into(),
-            columns: [<span class="string">&quot;foo_id&quot;</span>, <span class="string">&quot;foo_a&quot;</span>, <span class="string">&quot;foo_b&quot;</span>]
+            name: <span class="string">"foo"</span>.into(),
+            columns: [<span class="string">"foo_id"</span>, <span class="string">"foo_a"</span>, <span class="string">"foo_b"</span>]
                 .into_iter()
                 .map(Arc::&lt;str&gt;::from)
                 .collect(),
-            rows: <span class="macro">vec!</span>[<span class="macro">vec!</span>[<span class="string">&quot;1&quot;</span>.into(), <span class="string">&quot;&#39;asdf&#39;&quot;</span>.into(), <span class="string">&quot;true&quot;</span>.into()]],
+            rows: <span class="macro">vec!</span>[<span class="macro">vec!</span>[<span class="string">"1"</span>.into(), <span class="string">"'asdf'"</span>.into(), <span class="string">"true"</span>.into()]],
             foreign_keys: HashMap::new(),
         },
     );
@@ -500,20 +501,20 @@
     <span class="comment">// foreign-keyed to `foo`
     // since `tables` is a `BTreeMap` we would expect a naive algorithm to visit this first.
     </span>snapshot.tables.insert(
-        <span class="string">&quot;bar&quot;</span>.into(),
+        <span class="string">"bar"</span>.into(),
         Table {
-            name: <span class="string">&quot;bar&quot;</span>.into(),
-            columns: [<span class="string">&quot;bar_id&quot;</span>, <span class="string">&quot;foo_id&quot;</span>, <span class="string">&quot;bar_a&quot;</span>, <span class="string">&quot;bar_b&quot;</span>]
+            name: <span class="string">"bar"</span>.into(),
+            columns: [<span class="string">"bar_id"</span>, <span class="string">"foo_id"</span>, <span class="string">"bar_a"</span>, <span class="string">"bar_b"</span>]
                 .into_iter()
                 .map(Arc::&lt;str&gt;::from)
                 .collect(),
             rows: <span class="macro">vec!</span>[<span class="macro">vec!</span>[
-                <span class="string">&quot;1234&quot;</span>.into(),
-                <span class="string">&quot;1&quot;</span>.into(),
-                <span class="string">&quot;&#39;2022-07-22 23:27:48.775113301+00:00&#39;&quot;</span>.into(),
-                <span class="string">&quot;3.14&quot;</span>.into(),
+                <span class="string">"1234"</span>.into(),
+                <span class="string">"1"</span>.into(),
+                <span class="string">"'2022-07-22 23:27:48.775113301+00:00'"</span>.into(),
+                <span class="string">"3.14"</span>.into(),
             ]],
-            foreign_keys: [(<span class="string">&quot;foo_id&quot;</span>.into(), (<span class="string">&quot;foo&quot;</span>.into(), <span class="string">&quot;foo_id&quot;</span>.into()))]
+            foreign_keys: [(<span class="string">"foo_id"</span>.into(), (<span class="string">"foo"</span>.into(), <span class="string">"foo_id"</span>.into()))]
                 .into_iter()
                 .collect(),
         },
@@ -521,23 +522,23 @@
 
     <span class="comment">// foreign-keyed to both `foo` and `bar`
     </span>snapshot.tables.insert(
-        <span class="string">&quot;baz&quot;</span>.into(),
+        <span class="string">"baz"</span>.into(),
         Table {
-            name: <span class="string">&quot;baz&quot;</span>.into(),
-            columns: [<span class="string">&quot;baz_id&quot;</span>, <span class="string">&quot;bar_id&quot;</span>, <span class="string">&quot;foo_id&quot;</span>, <span class="string">&quot;baz_a&quot;</span>, <span class="string">&quot;baz_b&quot;</span>]
+            name: <span class="string">"baz"</span>.into(),
+            columns: [<span class="string">"baz_id"</span>, <span class="string">"bar_id"</span>, <span class="string">"foo_id"</span>, <span class="string">"baz_a"</span>, <span class="string">"baz_b"</span>]
                 .into_iter()
                 .map(Arc::&lt;str&gt;::from)
                 .collect(),
             rows: <span class="macro">vec!</span>[<span class="macro">vec!</span>[
-                <span class="string">&quot;5678&quot;</span>.into(),
-                <span class="string">&quot;1234&quot;</span>.into(),
-                <span class="string">&quot;1&quot;</span>.into(),
-                <span class="string">&quot;&#39;2022-07-22 23:27:48.775113301+00:00&#39;&quot;</span>.into(),
-                <span class="string">&quot;3.14&quot;</span>.into(),
+                <span class="string">"5678"</span>.into(),
+                <span class="string">"1234"</span>.into(),
+                <span class="string">"1"</span>.into(),
+                <span class="string">"'2022-07-22 23:27:48.775113301+00:00'"</span>.into(),
+                <span class="string">"3.14"</span>.into(),
             ]],
             foreign_keys: [
-                (<span class="string">&quot;foo_id&quot;</span>.into(), (<span class="string">&quot;foo&quot;</span>.into(), <span class="string">&quot;foo_id&quot;</span>.into())),
-                (<span class="string">&quot;bar_id&quot;</span>.into(), (<span class="string">&quot;bar&quot;</span>.into(), <span class="string">&quot;bar_id&quot;</span>.into())),
+                (<span class="string">"foo_id"</span>.into(), (<span class="string">"foo"</span>.into(), <span class="string">"foo_id"</span>.into())),
+                (<span class="string">"bar_id"</span>.into(), (<span class="string">"bar"</span>.into(), <span class="string">"bar_id"</span>.into())),
             ]
             .into_iter()
             .collect(),
@@ -548,12 +549,12 @@
 
     <span class="macro">assert_eq!</span>(
         fixture.to_string(),
-        <span class="string">&quot;INSERT INTO foo (foo_id, foo_a, foo_b)\n\
-         VALUES (1, &#39;asdf&#39;, true);\n\
+        <span class="string">"INSERT INTO foo (foo_id, foo_a, foo_b)\n\
+         VALUES (1, 'asdf', true);\n\
          INSERT INTO bar (bar_id, foo_id, bar_a, bar_b)\n\
-         VALUES (1234, 1, &#39;2022-07-22 23:27:48.775113301+00:00&#39;, 3.14);\n\
+         VALUES (1234, 1, '2022-07-22 23:27:48.775113301+00:00', 3.14);\n\
          INSERT INTO baz (baz_id, bar_id, foo_id, baz_a, baz_b)\n\
-         VALUES (5678, 1234, 1, &#39;2022-07-22 23:27:48.775113301+00:00&#39;, 3.14);\n&quot;
+         VALUES (5678, 1234, 1, '2022-07-22 23:27:48.775113301+00:00', 3.14);\n"
     </span>);
 
     <span class="prelude-val">Ok</span>(())

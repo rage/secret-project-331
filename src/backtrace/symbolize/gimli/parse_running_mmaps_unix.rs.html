@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/symbolize/gimli/parse_running_mmaps_unix.rs`."><title>parse_running_mmaps_unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/symbolize/gimli/parse_running_mmaps_unix.rs`."><title>parse_running_mmaps_unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -295,7 +296,7 @@
 <a href="#295" id="295">295</a>
 </pre></div><pre class="rust"><code><span class="comment">// Note: This file is only currently used on targets that call out to the code
 // in `mod libs_dl_iterate_phdr` (e.g. linux, freebsd, ...); it may be more
-// general purpose, but it hasn&#39;t been tested elsewhere.
+// general purpose, but it hasn't been tested elsewhere.
 
 </span><span class="kw">use </span><span class="kw">super</span>::mystd::fs::File;
 <span class="kw">use </span><span class="kw">super</span>::mystd::io::Read;
@@ -314,7 +315,7 @@
     /// s = shared
     /// p = private (copy on write)
     </span>perms: [char; <span class="number">4</span>],
-    <span class="doccomment">/// Offset into the file (or &quot;whatever&quot;).
+    <span class="doccomment">/// Offset into the file (or "whatever").
     </span>offset: usize,
     <span class="doccomment">/// device (major, minor)
     </span>dev: (usize, usize),
@@ -322,40 +323,40 @@
     </span>inode: usize,
     <span class="doccomment">/// Usually the file backing the mapping.
     ///
-    /// Note: The man page for proc includes a note about &quot;coordination&quot; by
+    /// Note: The man page for proc includes a note about "coordination" by
     /// using readelf to see the Offset field in ELF program headers. pnkfelix
     /// is not yet sure if that is intended to be a comment on pathname, or what
     /// form/purpose such coordination is meant to have.
     ///
     /// There are also some pseudo-paths:
-    /// &quot;[stack]&quot;: The initial process&#39;s (aka main thread&#39;s) stack.
-    /// &quot;[stack:&lt;tid&gt;]&quot;: a specific thread&#39;s stack. (This was only present for a limited range of Linux verisons; it was determined to be too expensive to provide.)
-    /// &quot;[vdso]&quot;: Virtual dynamically linked shared object
-    /// &quot;[heap]&quot;: The process&#39;s heap
+    /// "[stack]": The initial process's (aka main thread's) stack.
+    /// "[stack:&lt;tid&gt;]": a specific thread's stack. (This was only present for a limited range of Linux verisons; it was determined to be too expensive to provide.)
+    /// "[vdso]": Virtual dynamically linked shared object
+    /// "[heap]": The process's heap
     ///
     /// The pathname can be blank, which means it is an anonymous mapping
     /// obtained via mmap.
     ///
     /// Newlines in pathname are replaced with an octal escape sequence.
     ///
-    /// The pathname may have &quot;(deleted)&quot; appended onto it if the file-backed
+    /// The pathname may have "(deleted)" appended onto it if the file-backed
     /// path has been deleted.
     ///
     /// Note that modifications like the latter two indicated above imply that
     /// in general the pathname may be ambiguous. (I.e. you cannot tell if the
-    /// denoted filename actually ended with the text &quot;(deleted)&quot;, or if that
+    /// denoted filename actually ended with the text "(deleted)", or if that
     /// was added by the maps rendering.
     </span>pathname: OsString,
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_maps() -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;MapsEntry&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_maps() -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;MapsEntry&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>v = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>proc_self_maps =
-        File::open(<span class="string">&quot;/proc/self/maps&quot;</span>).map_err(|<span class="kw">_</span>| <span class="string">&quot;Couldn&#39;t open /proc/self/maps&quot;</span>)<span class="question-mark">?</span>;
+        File::open(<span class="string">"/proc/self/maps"</span>).map_err(|<span class="kw">_</span>| <span class="string">"Couldn't open /proc/self/maps"</span>)<span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>buf = String::new();
     <span class="kw">let </span>_bytes_read = proc_self_maps
         .read_to_string(<span class="kw-2">&amp;mut </span>buf)
-        .map_err(|<span class="kw">_</span>| <span class="string">&quot;Couldn&#39;t read /proc/self/maps&quot;</span>)<span class="question-mark">?</span>;
+        .map_err(|<span class="kw">_</span>| <span class="string">"Couldn't read /proc/self/maps"</span>)<span class="question-mark">?</span>;
     <span class="kw">for </span>line <span class="kw">in </span>buf.lines() {
         v.push(line.parse()<span class="question-mark">?</span>);
     }
@@ -374,64 +375,64 @@
 }
 
 <span class="kw">impl </span>FromStr <span class="kw">for </span>MapsEntry {
-    <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="comment">// Format: address perms offset dev inode pathname
-    // e.g.: &quot;ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]&quot;
-    // e.g.: &quot;7f5985f46000-7f5985f48000 rw-p 00039000 103:06 76021795                  /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2&quot;
-    // e.g.: &quot;35b1a21000-35b1a22000 rw-p 00000000 00:00 0&quot;
+    // e.g.: "ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]"
+    // e.g.: "7f5985f46000-7f5985f48000 rw-p 00039000 103:06 76021795                  /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+    // e.g.: "35b1a21000-35b1a22000 rw-p 00000000 00:00 0"
     //
-    // Note that paths may contain spaces, so we can&#39;t use `str::split` for parsing (until
+    // Note that paths may contain spaces, so we can't use `str::split` for parsing (until
     // Split::remainder is stabilized #77998).
     </span><span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
-        <span class="kw">let </span>(range_str, s) = s.trim_start().split_once(<span class="string">&#39; &#39;</span>).unwrap_or((s, <span class="string">&quot;&quot;</span>));
+        <span class="kw">let </span>(range_str, s) = s.trim_start().split_once(<span class="string">' '</span>).unwrap_or((s, <span class="string">""</span>));
         <span class="kw">if </span>range_str.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Couldn&#39;t find address&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Couldn't find address"</span>);
         }
 
-        <span class="kw">let </span>(perms_str, s) = s.trim_start().split_once(<span class="string">&#39; &#39;</span>).unwrap_or((s, <span class="string">&quot;&quot;</span>));
+        <span class="kw">let </span>(perms_str, s) = s.trim_start().split_once(<span class="string">' '</span>).unwrap_or((s, <span class="string">""</span>));
         <span class="kw">if </span>perms_str.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Couldn&#39;t find permissions&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Couldn't find permissions"</span>);
         }
 
-        <span class="kw">let </span>(offset_str, s) = s.trim_start().split_once(<span class="string">&#39; &#39;</span>).unwrap_or((s, <span class="string">&quot;&quot;</span>));
+        <span class="kw">let </span>(offset_str, s) = s.trim_start().split_once(<span class="string">' '</span>).unwrap_or((s, <span class="string">""</span>));
         <span class="kw">if </span>offset_str.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Couldn&#39;t find offset&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Couldn't find offset"</span>);
         }
 
-        <span class="kw">let </span>(dev_str, s) = s.trim_start().split_once(<span class="string">&#39; &#39;</span>).unwrap_or((s, <span class="string">&quot;&quot;</span>));
+        <span class="kw">let </span>(dev_str, s) = s.trim_start().split_once(<span class="string">' '</span>).unwrap_or((s, <span class="string">""</span>));
         <span class="kw">if </span>dev_str.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Couldn&#39;t find dev&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Couldn't find dev"</span>);
         }
 
-        <span class="kw">let </span>(inode_str, s) = s.trim_start().split_once(<span class="string">&#39; &#39;</span>).unwrap_or((s, <span class="string">&quot;&quot;</span>));
+        <span class="kw">let </span>(inode_str, s) = s.trim_start().split_once(<span class="string">' '</span>).unwrap_or((s, <span class="string">""</span>));
         <span class="kw">if </span>inode_str.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Couldn&#39;t find inode&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Couldn't find inode"</span>);
         }
 
         <span class="comment">// Pathname may be omitted in which case it will be empty
         </span><span class="kw">let </span>pathname_str = s.trim_start();
 
-        <span class="kw">let </span>hex = |s| usize::from_str_radix(s, <span class="number">16</span>).map_err(|<span class="kw">_</span>| <span class="string">&quot;Couldn&#39;t parse hex number&quot;</span>);
-        <span class="kw">let </span>address = <span class="kw">if let </span><span class="prelude-val">Some</span>((start, limit)) = range_str.split_once(<span class="string">&#39;-&#39;</span>) {
+        <span class="kw">let </span>hex = |s| usize::from_str_radix(s, <span class="number">16</span>).map_err(|<span class="kw">_</span>| <span class="string">"Couldn't parse hex number"</span>);
+        <span class="kw">let </span>address = <span class="kw">if let </span><span class="prelude-val">Some</span>((start, limit)) = range_str.split_once(<span class="string">'-'</span>) {
             (hex(start)<span class="question-mark">?</span>, hex(limit)<span class="question-mark">?</span>)
         } <span class="kw">else </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Couldn&#39;t parse address range&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Couldn't parse address range"</span>);
         };
         <span class="kw">let </span>perms: [char; <span class="number">4</span>] = {
             <span class="kw">let </span><span class="kw-2">mut </span>chars = perms_str.chars();
-            <span class="kw">let </span><span class="kw-2">mut </span>c = || chars.next().ok_or(<span class="string">&quot;insufficient perms&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>c = || chars.next().ok_or(<span class="string">"insufficient perms"</span>);
             <span class="kw">let </span>perms = [c()<span class="question-mark">?</span>, c()<span class="question-mark">?</span>, c()<span class="question-mark">?</span>, c()<span class="question-mark">?</span>];
             <span class="kw">if </span>chars.next().is_some() {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;too many perms&quot;</span>);
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"too many perms"</span>);
             }
             perms
         };
         <span class="kw">let </span>offset = hex(offset_str)<span class="question-mark">?</span>;
-        <span class="kw">let </span>dev = <span class="kw">if let </span><span class="prelude-val">Some</span>((major, minor)) = dev_str.split_once(<span class="string">&#39;:&#39;</span>) {
+        <span class="kw">let </span>dev = <span class="kw">if let </span><span class="prelude-val">Some</span>((major, minor)) = dev_str.split_once(<span class="string">':'</span>) {
             (hex(major)<span class="question-mark">?</span>, hex(minor)<span class="question-mark">?</span>)
         } <span class="kw">else </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Couldn&#39;t parse dev&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Couldn't parse dev"</span>);
         };
         <span class="kw">let </span>inode = hex(inode_str)<span class="question-mark">?</span>;
         <span class="kw">let </span>pathname = pathname_str.into();
@@ -447,46 +448,46 @@
     }
 }
 
-<span class="comment">// Make sure we can parse 64-bit sample output if we&#39;re on a 64-bit target.
-</span><span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+<span class="comment">// Make sure we can parse 64-bit sample output if we're on a 64-bit target.
+</span><span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
 #[test]
 </span><span class="kw">fn </span>check_maps_entry_parsing_64bit() {
     <span class="macro">assert_eq!</span>(
-        <span class="string">&quot;ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  \
-                [vsyscall]&quot;
+        <span class="string">"ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  \
+                [vsyscall]"
             </span>.parse::&lt;MapsEntry&gt;()
             .unwrap(),
         MapsEntry {
             address: (<span class="number">0xffffffffff600000</span>, <span class="number">0xffffffffff601000</span>),
-            perms: [<span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;x&#39;</span>, <span class="string">&#39;p&#39;</span>],
+            perms: [<span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'x'</span>, <span class="string">'p'</span>],
             offset: <span class="number">0x00000000</span>,
             dev: (<span class="number">0x00</span>, <span class="number">0x00</span>),
             inode: <span class="number">0x0</span>,
-            pathname: <span class="string">&quot;[vsyscall]&quot;</span>.into(),
+            pathname: <span class="string">"[vsyscall]"</span>.into(),
         }
     );
 
     <span class="macro">assert_eq!</span>(
-        <span class="string">&quot;7f5985f46000-7f5985f48000 rw-p 00039000 103:06 76021795                  \
-                /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2&quot;
+        <span class="string">"7f5985f46000-7f5985f48000 rw-p 00039000 103:06 76021795                  \
+                /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
             </span>.parse::&lt;MapsEntry&gt;()
             .unwrap(),
         MapsEntry {
             address: (<span class="number">0x7f5985f46000</span>, <span class="number">0x7f5985f48000</span>),
-            perms: [<span class="string">&#39;r&#39;</span>, <span class="string">&#39;w&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;p&#39;</span>],
+            perms: [<span class="string">'r'</span>, <span class="string">'w'</span>, <span class="string">'-'</span>, <span class="string">'p'</span>],
             offset: <span class="number">0x00039000</span>,
             dev: (<span class="number">0x103</span>, <span class="number">0x06</span>),
             inode: <span class="number">0x76021795</span>,
-            pathname: <span class="string">&quot;/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2&quot;</span>.into(),
+            pathname: <span class="string">"/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"</span>.into(),
         }
     );
     <span class="macro">assert_eq!</span>(
-        <span class="string">&quot;35b1a21000-35b1a22000 rw-p 00000000 00:00 0&quot;
+        <span class="string">"35b1a21000-35b1a22000 rw-p 00000000 00:00 0"
             </span>.parse::&lt;MapsEntry&gt;()
             .unwrap(),
         MapsEntry {
             address: (<span class="number">0x35b1a21000</span>, <span class="number">0x35b1a22000</span>),
-            perms: [<span class="string">&#39;r&#39;</span>, <span class="string">&#39;w&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;p&#39;</span>],
+            perms: [<span class="string">'r'</span>, <span class="string">'w'</span>, <span class="string">'-'</span>, <span class="string">'p'</span>],
             offset: <span class="number">0x00000000</span>,
             dev: (<span class="number">0x00</span>, <span class="number">0x00</span>),
             inode: <span class="number">0x0</span>,
@@ -504,41 +505,41 @@
     b7e02000-b7e03000 rw-p 00000000 00:00 0
         */
     </span><span class="macro">assert_eq!</span>(
-        <span class="string">&quot;08056000-08077000 rw-p 00000000 00:00 0          \
-                [heap]&quot;
+        <span class="string">"08056000-08077000 rw-p 00000000 00:00 0          \
+                [heap]"
             </span>.parse::&lt;MapsEntry&gt;()
             .unwrap(),
         MapsEntry {
             address: (<span class="number">0x08056000</span>, <span class="number">0x08077000</span>),
-            perms: [<span class="string">&#39;r&#39;</span>, <span class="string">&#39;w&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;p&#39;</span>],
+            perms: [<span class="string">'r'</span>, <span class="string">'w'</span>, <span class="string">'-'</span>, <span class="string">'p'</span>],
             offset: <span class="number">0x00000000</span>,
             dev: (<span class="number">0x00</span>, <span class="number">0x00</span>),
             inode: <span class="number">0x0</span>,
-            pathname: <span class="string">&quot;[heap]&quot;</span>.into(),
+            pathname: <span class="string">"[heap]"</span>.into(),
         }
     );
 
     <span class="macro">assert_eq!</span>(
-        <span class="string">&quot;b7c79000-b7e02000 r--p 00000000 08:01 60662705   \
-                /usr/lib/locale/locale-archive&quot;
+        <span class="string">"b7c79000-b7e02000 r--p 00000000 08:01 60662705   \
+                /usr/lib/locale/locale-archive"
             </span>.parse::&lt;MapsEntry&gt;()
             .unwrap(),
         MapsEntry {
             address: (<span class="number">0xb7c79000</span>, <span class="number">0xb7e02000</span>),
-            perms: [<span class="string">&#39;r&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;p&#39;</span>],
+            perms: [<span class="string">'r'</span>, <span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'p'</span>],
             offset: <span class="number">0x00000000</span>,
             dev: (<span class="number">0x08</span>, <span class="number">0x01</span>),
             inode: <span class="number">0x60662705</span>,
-            pathname: <span class="string">&quot;/usr/lib/locale/locale-archive&quot;</span>.into(),
+            pathname: <span class="string">"/usr/lib/locale/locale-archive"</span>.into(),
         }
     );
     <span class="macro">assert_eq!</span>(
-        <span class="string">&quot;b7e02000-b7e03000 rw-p 00000000 00:00 0&quot;
+        <span class="string">"b7e02000-b7e03000 rw-p 00000000 00:00 0"
             </span>.parse::&lt;MapsEntry&gt;()
             .unwrap(),
         MapsEntry {
             address: (<span class="number">0xb7e02000</span>, <span class="number">0xb7e03000</span>),
-            perms: [<span class="string">&#39;r&#39;</span>, <span class="string">&#39;w&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;p&#39;</span>],
+            perms: [<span class="string">'r'</span>, <span class="string">'w'</span>, <span class="string">'-'</span>, <span class="string">'p'</span>],
             offset: <span class="number">0x00000000</span>,
             dev: (<span class="number">0x00</span>, <span class="number">0x00</span>),
             inode: <span class="number">0x0</span>,
@@ -546,45 +547,45 @@
         }
     );
     <span class="macro">assert_eq!</span>(
-        <span class="string">&quot;b7c79000-b7e02000 r--p 00000000 08:01 60662705   \
-                /executable/path/with some spaces&quot;
+        <span class="string">"b7c79000-b7e02000 r--p 00000000 08:01 60662705   \
+                /executable/path/with some spaces"
             </span>.parse::&lt;MapsEntry&gt;()
             .unwrap(),
         MapsEntry {
             address: (<span class="number">0xb7c79000</span>, <span class="number">0xb7e02000</span>),
-            perms: [<span class="string">&#39;r&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;p&#39;</span>],
+            perms: [<span class="string">'r'</span>, <span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'p'</span>],
             offset: <span class="number">0x00000000</span>,
             dev: (<span class="number">0x08</span>, <span class="number">0x01</span>),
             inode: <span class="number">0x60662705</span>,
-            pathname: <span class="string">&quot;/executable/path/with some spaces&quot;</span>.into(),
+            pathname: <span class="string">"/executable/path/with some spaces"</span>.into(),
         }
     );
     <span class="macro">assert_eq!</span>(
-        <span class="string">&quot;b7c79000-b7e02000 r--p 00000000 08:01 60662705   \
-                /executable/path/with  multiple-continuous    spaces  &quot;
+        <span class="string">"b7c79000-b7e02000 r--p 00000000 08:01 60662705   \
+                /executable/path/with  multiple-continuous    spaces  "
             </span>.parse::&lt;MapsEntry&gt;()
             .unwrap(),
         MapsEntry {
             address: (<span class="number">0xb7c79000</span>, <span class="number">0xb7e02000</span>),
-            perms: [<span class="string">&#39;r&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;p&#39;</span>],
+            perms: [<span class="string">'r'</span>, <span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'p'</span>],
             offset: <span class="number">0x00000000</span>,
             dev: (<span class="number">0x08</span>, <span class="number">0x01</span>),
             inode: <span class="number">0x60662705</span>,
-            pathname: <span class="string">&quot;/executable/path/with  multiple-continuous    spaces  &quot;</span>.into(),
+            pathname: <span class="string">"/executable/path/with  multiple-continuous    spaces  "</span>.into(),
         }
     );
     <span class="macro">assert_eq!</span>(
-        <span class="string">&quot;  b7c79000-b7e02000  r--p  00000000  08:01  60662705   \
-                /executable/path/starts-with-spaces&quot;
+        <span class="string">"  b7c79000-b7e02000  r--p  00000000  08:01  60662705   \
+                /executable/path/starts-with-spaces"
             </span>.parse::&lt;MapsEntry&gt;()
             .unwrap(),
         MapsEntry {
             address: (<span class="number">0xb7c79000</span>, <span class="number">0xb7e02000</span>),
-            perms: [<span class="string">&#39;r&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;p&#39;</span>],
+            perms: [<span class="string">'r'</span>, <span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'p'</span>],
             offset: <span class="number">0x00000000</span>,
             dev: (<span class="number">0x08</span>, <span class="number">0x01</span>),
             inode: <span class="number">0x60662705</span>,
-            pathname: <span class="string">&quot;/executable/path/starts-with-spaces&quot;</span>.into(),
+            pathname: <span class="string">"/executable/path/starts-with-spaces"</span>.into(),
         }
     );
 }

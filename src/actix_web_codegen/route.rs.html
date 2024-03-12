@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-codegen-4.2.2/src/route.rs`."><title>route.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web_codegen/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web_codegen"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-codegen-4.2.2/src/route.rs`."><title>route.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_web_codegen/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web_codegen"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -569,12 +570,12 @@
 }
 
 <span class="kw">impl </span>syn::parse::Parse <span class="kw">for </span>RouteArgs {
-    <span class="kw">fn </span>parse(input: syn::parse::ParseStream&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; syn::Result&lt;<span class="self">Self</span>&gt; {
-        <span class="comment">// path to match: &quot;/foo&quot;
+    <span class="kw">fn </span>parse(input: syn::parse::ParseStream&lt;<span class="lifetime">'_</span>&gt;) -&gt; syn::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="comment">// path to match: "/foo"
         </span><span class="kw">let </span>path = input.parse::&lt;syn::LitStr&gt;().map_err(|<span class="kw-2">mut </span>err| {
             err.combine(syn::Error::new(
                 err.span(),
-                <span class="string">r#&quot;invalid service definition, expected #[&lt;method&gt;(&quot;&lt;path&gt;&quot;)]&quot;#</span>,
+                <span class="string">r#"invalid service definition, expected #[&lt;method&gt;("&lt;path&gt;")]"#</span>,
             ));
 
             err
@@ -583,7 +584,7 @@
         <span class="comment">// verify that path pattern is valid
         </span><span class="kw">let _ </span>= ResourceDef::new(path.value());
 
-        <span class="comment">// if there&#39;s no comma, assume that no options are provided
+        <span class="comment">// if there's no comma, assume that no options are provided
         </span><span class="kw">if </span>!input.peek(<span class="macro">Token!</span>[,]) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">Self </span>{
                 path,
@@ -598,11 +599,11 @@
         </span><span class="kw">if </span>input.cursor().literal().is_some() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new(
                 Span::call_site(),
-                <span class="string">r#&quot;Multiple paths specified! There should be only one.&quot;#</span>,
+                <span class="string">r#"Multiple paths specified! There should be only one."#</span>,
             ));
         }
 
-        <span class="comment">// zero or more options: name = &quot;foo&quot;
+        <span class="comment">// zero or more options: name = "foo"
         </span><span class="kw">let </span>options = input.parse_terminated(syn::MetaNameValue::parse, <span class="macro">Token!</span>[,])<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ path, options })
@@ -621,7 +622,7 @@
         }
 
         <span class="kw">impl </span>MethodType {
-            <span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+            <span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
                 <span class="kw">match </span><span class="self">self </span>{
                     $(<span class="self">Self</span>::<span class="macro-nonterminal">$variant </span>=&gt; <span class="macro">stringify!</span>(<span class="macro-nonterminal">$variant</span>),)+
                 }
@@ -630,7 +631,7 @@
             <span class="kw">fn </span>parse(method: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
                 <span class="kw">match </span>method {
                     $(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$upper</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$variant</span>),)+
-                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;HTTP method must be uppercase: `{}`&quot;</span>, method)),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"HTTP method must be uppercase: `{}`"</span>, method)),
                 }
             }
 
@@ -701,7 +702,7 @@
     </span><span class="kw">fn </span>to_tokens_multi_guard(<span class="kw-2">&amp;</span><span class="self">self</span>, or_chain: Vec&lt;<span class="kw">impl </span>ToTokens&gt;) -&gt; TokenStream2 {
         <span class="macro">debug_assert!</span>(
             !or_chain.is_empty(),
-            <span class="string">&quot;empty or_chain passed to multi-guard constructor&quot;
+            <span class="string">"empty or_chain passed to multi-guard constructor"
         </span>);
 
         <span class="kw">match </span><span class="self">self </span>{
@@ -797,7 +798,7 @@
         }
 
         <span class="kw">for </span>nv <span class="kw">in </span>args.options {
-            <span class="kw">if </span>nv.path.is_ident(<span class="string">&quot;name&quot;</span>) {
+            <span class="kw">if </span>nv.path.is_ident(<span class="string">"name"</span>) {
                 <span class="kw">if let </span>syn::Expr::Lit(syn::ExprLit {
                     lit: syn::Lit::Str(lit),
                     ..
@@ -807,10 +808,10 @@
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                         nv.value,
-                        <span class="string">&quot;Attribute name expects literal string&quot;</span>,
+                        <span class="string">"Attribute name expects literal string"</span>,
                     ));
                 }
-            } <span class="kw">else if </span>nv.path.is_ident(<span class="string">&quot;guard&quot;</span>) {
+            } <span class="kw">else if </span>nv.path.is_ident(<span class="string">"guard"</span>) {
                 <span class="kw">if let </span>syn::Expr::Lit(syn::ExprLit {
                     lit: syn::Lit::Str(lit),
                     ..
@@ -820,10 +821,10 @@
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                         nv.value,
-                        <span class="string">&quot;Attribute guard expects literal string&quot;</span>,
+                        <span class="string">"Attribute guard expects literal string"</span>,
                     ));
                 }
-            } <span class="kw">else if </span>nv.path.is_ident(<span class="string">&quot;wrap&quot;</span>) {
+            } <span class="kw">else if </span>nv.path.is_ident(<span class="string">"wrap"</span>) {
                 <span class="kw">if let </span>syn::Expr::Lit(syn::ExprLit {
                     lit: syn::Lit::Str(lit),
                     ..
@@ -833,14 +834,14 @@
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                         nv.value,
-                        <span class="string">&quot;Attribute wrap expects type&quot;</span>,
+                        <span class="string">"Attribute wrap expects type"</span>,
                     ));
                 }
-            } <span class="kw">else if </span>nv.path.is_ident(<span class="string">&quot;method&quot;</span>) {
+            } <span class="kw">else if </span>nv.path.is_ident(<span class="string">"method"</span>) {
                 <span class="kw">if </span>!is_route_macro {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                         <span class="kw-2">&amp;</span>nv,
-                        <span class="string">&quot;HTTP method forbidden here; to handle multiple methods, use `route` instead&quot;</span>,
+                        <span class="string">"HTTP method forbidden here; to handle multiple methods, use `route` instead"</span>,
                     ));
                 } <span class="kw">else if let </span>syn::Expr::Lit(syn::ExprLit {
                     lit: syn::Lit::Str(lit),
@@ -850,19 +851,19 @@
                     <span class="kw">if </span>!methods.insert(MethodTypeExt::try_from(<span class="kw-2">&amp;</span>lit)<span class="question-mark">?</span>) {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                             nv.value,
-                            <span class="macro">format!</span>(<span class="string">&quot;HTTP method defined more than once: `{}`&quot;</span>, lit.value()),
+                            <span class="macro">format!</span>(<span class="string">"HTTP method defined more than once: `{}`"</span>, lit.value()),
                         ));
                     }
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                         nv.value,
-                        <span class="string">&quot;Attribute method expects literal string&quot;</span>,
+                        <span class="string">"Attribute method expects literal string"</span>,
                     ));
                 }
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                     nv.path,
-                    <span class="string">&quot;Unknown attribute key is specified; allowed: guard, method and wrap&quot;</span>,
+                    <span class="string">"Unknown attribute key is specified; allowed: guard, method and wrap"</span>,
                 ));
             }
         }
@@ -902,7 +903,7 @@
         </span><span class="kw">let </span>doc_attributes = ast
             .attrs
             .iter()
-            .filter(|attr| attr.path().is_ident(<span class="string">&quot;doc&quot;</span>))
+            .filter(|attr| attr.path().is_ident(<span class="string">"doc"</span>))
             .cloned()
             .collect();
 
@@ -911,14 +912,14 @@
         <span class="kw">if </span>args.methods.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new(
                 Span::call_site(),
-                <span class="string">&quot;The #[route(..)] macro requires at least one `method` attribute&quot;</span>,
+                <span class="string">"The #[route(..)] macro requires at least one `method` attribute"</span>,
             ));
         }
 
         <span class="kw">if </span><span class="macro">matches!</span>(ast.sig.output, syn::ReturnType::Default) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                 ast,
-                <span class="string">&quot;Function has no return type. Cannot be used as handler&quot;</span>,
+                <span class="string">"Function has no return type. Cannot be used as handler"</span>,
             ));
         }
 
@@ -938,14 +939,14 @@
         </span><span class="kw">let </span>doc_attributes = ast
             .attrs
             .iter()
-            .filter(|attr| attr.path().is_ident(<span class="string">&quot;doc&quot;</span>))
+            .filter(|attr| attr.path().is_ident(<span class="string">"doc"</span>))
             .cloned()
             .collect();
 
         <span class="kw">if </span><span class="macro">matches!</span>(ast.sig.output, syn::ReturnType::Default) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                 ast,
-                <span class="string">&quot;Function has no return type. Cannot be used as handler&quot;</span>,
+                <span class="string">"Function has no return type. Cannot be used as handler"</span>,
             ));
         }
 
@@ -983,7 +984,7 @@
                     .map_or_else(|| name.to_string(), LitStr::value);
 
                 <span class="kw">let </span>method_guards = {
-                    <span class="macro">debug_assert!</span>(!methods.is_empty(), <span class="string">&quot;Args::methods should not be empty&quot;</span>);
+                    <span class="macro">debug_assert!</span>(!methods.is_empty(), <span class="string">"Args::methods should not be empty"</span>);
 
                     <span class="kw">let </span><span class="kw-2">mut </span>others = methods.iter();
                     <span class="kw">let </span>first = others.next().unwrap();
@@ -1084,7 +1085,7 @@
                 input,
                 syn::Error::new(
                     Span::call_site(),
-                    <span class="string">&quot;The #[routes] macro requires at least one `#[&lt;method&gt;(..)]` attribute.&quot;</span>,
+                    <span class="string">"The #[routes] macro requires at least one `#[&lt;method&gt;(..)]` attribute."</span>,
                 ),
             )
         }

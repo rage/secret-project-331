@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/macros.rs`."><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/macros.rs`."><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -202,9 +203,9 @@
 /// ```
 /// use icu::locid::{langid, LanguageIdentifier};
 ///
-/// const DE_AT: LanguageIdentifier = langid!(&quot;de_at&quot;);
+/// const DE_AT: LanguageIdentifier = langid!("de_at");
 ///
-/// let de_at: LanguageIdentifier = &quot;de_at&quot;.parse().unwrap();
+/// let de_at: LanguageIdentifier = "de_at".parse().unwrap();
 ///
 /// assert_eq!(DE_AT, de_at);
 /// ```
@@ -213,12 +214,12 @@
 /// limitations (see [`Heap Allocations in Constants`]):
 ///
 /// ```compile_fail,E0080
-/// icu::locid::langid!(&quot;und-variant1-variant2&quot;);
+/// icu::locid::langid!("und-variant1-variant2");
 /// ```
 ///
 /// Use runtime parsing instead:
 /// ```
-/// &quot;und-variant1-variant2&quot;
+/// "und-variant1-variant2"
 ///     .parse::&lt;icu::locid::LanguageIdentifier&gt;()
 ///     .unwrap();
 /// ```
@@ -240,7 +241,7 @@
                     }
                 },
                 <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// const context
-                </span><span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="macro">concat!</span>(<span class="string">&quot;Invalid language code: &quot;</span>, <span class="macro-nonterminal">$langid</span>, <span class="string">&quot; . Note langid! macro can only support up to a single variant tag. Use runtime parsing instead.&quot;</span>)),
+                </span><span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="macro">concat!</span>(<span class="string">"Invalid language code: "</span>, <span class="macro-nonterminal">$langid</span>, <span class="string">" . Note langid! macro can only support up to a single variant tag. Use runtime parsing instead."</span>)),
             };
         R
     }};
@@ -255,9 +256,9 @@
 /// ```
 /// use icu::locid::{locale, Locale};
 ///
-/// const DE_AT: Locale = locale!(&quot;de_at&quot;);
+/// const DE_AT: Locale = locale!("de_at");
 ///
-/// let de_at: Locale = &quot;de_at&quot;.parse().unwrap();
+/// let de_at: Locale = "de_at".parse().unwrap();
 ///
 /// assert_eq!(DE_AT, de_at);
 /// ```
@@ -267,44 +268,44 @@
 /// limitations (see [`Heap Allocations in Constants`]):
 ///
 /// ```compile_fail,E0080
-/// icu::locid::locale!(&quot;sl-IT-rozaj-biske-1994&quot;);
+/// icu::locid::locale!("sl-IT-rozaj-biske-1994");
 /// ```
 /// Use runtime parsing instead:
 /// ```
-/// &quot;sl-IT-rozaj-biske-1994&quot;
+/// "sl-IT-rozaj-biske-1994"
 ///     .parse::&lt;icu::locid::Locale&gt;()
 ///     .unwrap();
 /// ```
 ///
 /// Locales with multiple keys are not supported
 /// ```compile_fail,E0080
-/// icu::locid::locale!(&quot;th-TH-u-ca-buddhist-nu-thai&quot;);
+/// icu::locid::locale!("th-TH-u-ca-buddhist-nu-thai");
 /// ```
 /// Use runtime parsing instead:
 /// ```
-/// &quot;th-TH-u-ca-buddhist-nu-thai&quot;
+/// "th-TH-u-ca-buddhist-nu-thai"
 ///     .parse::&lt;icu::locid::Locale&gt;()
 ///     .unwrap();
 /// ```
 ///
 /// Locales with attributes are not supported
 /// ```compile_fail,E0080
-/// icu::locid::locale!(&quot;en-US-u-foobar-ca-buddhist&quot;);
+/// icu::locid::locale!("en-US-u-foobar-ca-buddhist");
 /// ```
 /// Use runtime parsing instead:
 /// ```
-/// &quot;en-US-u-foobar-ca-buddhist&quot;
+/// "en-US-u-foobar-ca-buddhist"
 ///     .parse::&lt;icu::locid::Locale&gt;()
 ///     .unwrap();
 /// ```
 ///
 /// Locales with single key but multiple types are not supported
 /// ```compile_fail,E0080
-/// icu::locid::locale!(&quot;en-US-u-ca-islamic-umalqura&quot;);
+/// icu::locid::locale!("en-US-u-ca-islamic-umalqura");
 /// ```
 /// Use runtime parsing instead:
 /// ```
-/// &quot;en-US-u-ca-islamic-umalqura&quot;
+/// "en-US-u-ca-islamic-umalqura"
 ///     .parse::&lt;icu::locid::Locale&gt;()
 ///     .unwrap();
 /// ```
@@ -343,11 +344,11 @@
                 },
                 <span class="attr">#[allow(clippy::panic)] </span><span class="comment">// const context
                 </span><span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="macro">concat!</span>(
-                    <span class="string">&quot;Invalid language code: &quot;</span>,
+                    <span class="string">"Invalid language code: "</span>,
                     <span class="macro-nonterminal">$locale</span>,
-                    <span class="string">&quot; . Note the locale! macro only supports up to one variant tag; \
+                    <span class="string">" . Note the locale! macro only supports up to one variant tag; \
                                         unicode extensions are not supported. Use \
-                                        runtime parsing instead.&quot;
+                                        runtime parsing instead."
                 </span>)),
             };
         R
@@ -361,22 +362,22 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_langid_macro_can_parse_langid_with_single_variant() {
-        <span class="kw">const </span>DE_AT_FOOBAR: LanguageIdentifier = <span class="macro">langid!</span>(<span class="string">&quot;de_at-foobar&quot;</span>);
-        <span class="kw">let </span>de_at_foobar: LanguageIdentifier = <span class="string">&quot;de_at-foobar&quot;</span>.parse().unwrap();
+        <span class="kw">const </span>DE_AT_FOOBAR: LanguageIdentifier = <span class="macro">langid!</span>(<span class="string">"de_at-foobar"</span>);
+        <span class="kw">let </span>de_at_foobar: LanguageIdentifier = <span class="string">"de_at-foobar"</span>.parse().unwrap();
         <span class="macro">assert_eq!</span>(DE_AT_FOOBAR, de_at_foobar);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_locale_macro_can_parse_locale_with_single_variant() {
-        <span class="kw">const </span>DE_AT_FOOBAR: Locale = <span class="macro">locale!</span>(<span class="string">&quot;de_at-foobar&quot;</span>);
-        <span class="kw">let </span>de_at_foobar: Locale = <span class="string">&quot;de_at-foobar&quot;</span>.parse().unwrap();
+        <span class="kw">const </span>DE_AT_FOOBAR: Locale = <span class="macro">locale!</span>(<span class="string">"de_at-foobar"</span>);
+        <span class="kw">let </span>de_at_foobar: Locale = <span class="string">"de_at-foobar"</span>.parse().unwrap();
         <span class="macro">assert_eq!</span>(DE_AT_FOOBAR, de_at_foobar);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_locale_macro_can_parse_locale_with_single_keyword_unicode_extension() {
-        <span class="kw">const </span>DE_AT_U_CA_FOOBAR: Locale = <span class="macro">locale!</span>(<span class="string">&quot;de_at-u-ca-foobar&quot;</span>);
-        <span class="kw">let </span>de_at_u_ca_foobar: Locale = <span class="string">&quot;de_at-u-ca-foobar&quot;</span>.parse().unwrap();
+        <span class="kw">const </span>DE_AT_U_CA_FOOBAR: Locale = <span class="macro">locale!</span>(<span class="string">"de_at-u-ca-foobar"</span>);
+        <span class="kw">let </span>de_at_u_ca_foobar: Locale = <span class="string">"de_at-u-ca-foobar"</span>.parse().unwrap();
         <span class="macro">assert_eq!</span>(DE_AT_U_CA_FOOBAR, de_at_u_ca_foobar);
     }
 }

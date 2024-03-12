@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jpeg-decoder-0.3.1/src/idct.rs`."><title>idct.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jpeg_decoder" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jpeg-decoder-0.3.1/src/idct.rs`."><title>idct.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jpeg_decoder" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -657,7 +658,7 @@
 <a href="#657" id="657">657</a>
 </pre></div><pre class="rust"><code><span class="comment">// Malicious JPEG files can cause operations in the idct to overflow.
 // One example is tests/crashtest/images/imagetestsuite/b0b8914cc5f7a6eff409f16d8cc236c5.jpg
-// That&#39;s why wrapping operators are needed.
+// That's why wrapping operators are needed.
 
 // Note: we have many values that are straight from a reference.
 // Do not warn on them or try to automatically change them.
@@ -891,7 +892,7 @@
             output_linestride,
             output,
         ),
-        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unsupported IDCT scale {scale}/8&quot;</span>),
+        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unsupported IDCT scale {scale}/8"</span>),
     }
 }
 
@@ -901,7 +902,7 @@
     output_linestride: usize,
     output: <span class="kw-2">&amp;mut </span>[u8],
 ) {
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;platform_independent&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"platform_independent"</span>))]
     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(idct) = <span class="kw">crate</span>::arch::get_dequantize_and_idct_block_8x8() {
         <span class="attr">#[allow(unsafe_code)]
         </span><span class="kw">unsafe </span>{
@@ -913,19 +914,19 @@
     dequantize_and_idct_block_8x8_inner(coefficients, quantization_table, output)
 }
 
-<span class="comment">// This is based on stb_image&#39;s &#39;stbi__idct_block&#39;.
-</span><span class="kw">fn </span>dequantize_and_idct_block_8x8_inner&lt;<span class="lifetime">&#39;a</span>, I&gt;(
+<span class="comment">// This is based on stb_image's 'stbi__idct_block'.
+</span><span class="kw">fn </span>dequantize_and_idct_block_8x8_inner&lt;<span class="lifetime">'a</span>, I&gt;(
     coefficients: <span class="kw-2">&amp;</span>[i16; <span class="number">64</span>],
     quantization_table: <span class="kw-2">&amp;</span>[u16; <span class="number">64</span>],
     output: I,
 ) <span class="kw">where
-    </span>I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]&gt;,
-    I::IntoIter: ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]&gt;,
+    </span>I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8]&gt;,
+    I::IntoIter: ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8]&gt;,
 {
     <span class="kw">let </span>output = output.into_iter();
     <span class="macro">debug_assert!</span>(
         output.len() &gt;= <span class="number">8</span>,
-        <span class="string">&quot;Output iterator has the wrong length: {}&quot;</span>,
+        <span class="string">"Output iterator has the wrong length: {}"</span>,
         output.len()
     );
 
@@ -965,7 +966,7 @@
                 ts: [t0, t1, t2, t3],
             } = kernel(
                 [s0, s1, s2, s3, s4, s5, s6, s7],
-                <span class="comment">// constants scaled things up by 1&lt;&lt;12; let&#39;s bring them back
+                <span class="comment">// constants scaled things up by 1&lt;&lt;12; let's bring them back
                 // down, but keep 2 extra bits of precision
                 </span><span class="number">512</span>,
             );
@@ -986,10 +987,10 @@
 
         <span class="comment">// constants scaled things up by 1&lt;&lt;12, plus we had 1&lt;&lt;2 from first
         // loop, plus horizontal and vertical each scale by sqrt(8) so together
-        // we&#39;ve got an extra 1&lt;&lt;3, so 1&lt;&lt;17 total we need to remove.
+        // we've got an extra 1&lt;&lt;3, so 1&lt;&lt;17 total we need to remove.
         // so we want to round that, which means adding 0.5 * 1&lt;&lt;17,
-        // aka 65536. Also, we&#39;ll end up with -128 to 127 that we want
-        // to encode as 0..255 by adding 128, so we&#39;ll add that before the shift
+        // aka 65536. Also, we'll end up with -128 to 127 that we want
+        // to encode as 0..255 by adding 128, so we'll add that before the shift
         </span><span class="kw">const </span>X_SCALE: i32 = <span class="number">65536 </span>+ (<span class="number">128 </span>&lt;&lt; <span class="number">17</span>);
 
         <span class="comment">// eliminate downstream bounds checks
@@ -1108,7 +1109,7 @@
     Wrapping(i32::from(c) * i32::from(q))
 }
 
-<span class="comment">// 4x4 and 2x2 IDCT based on Rakesh Dugad and Narendra Ahuja: &quot;A Fast Scheme for Image Size Change in the Compressed Domain&quot; (2001).
+<span class="comment">// 4x4 and 2x2 IDCT based on Rakesh Dugad and Narendra Ahuja: "A Fast Scheme for Image Size Change in the Compressed Domain" (2001).
 // http://sylvana.net/jpegcrop/jidctred/
 </span><span class="kw">fn </span>dequantize_and_idct_block_4x4(
     coefficients: <span class="kw-2">&amp;</span>[i16; <span class="number">64</span>],
@@ -1158,10 +1159,10 @@
 
         <span class="comment">// constants scaled things up by 1&lt;&lt;12, plus we had 1&lt;&lt;2 from first
         // loop, plus horizontal and vertical each scale by sqrt(8) so together
-        // we&#39;ve got an extra 1&lt;&lt;3, so 1&lt;&lt;17 total we need to remove.
+        // we've got an extra 1&lt;&lt;3, so 1&lt;&lt;17 total we need to remove.
         // so we want to round that, which means adding 0.5 * 1&lt;&lt;17,
-        // aka 65536. Also, we&#39;ll end up with -128 to 127 that we want
-        // to encode as 0..255 by adding 128, so we&#39;ll add that before the shift
+        // aka 65536. Also, we'll end up with -128 to 127 that we want
+        // to encode as 0..255 by adding 128, so we'll add that before the shift
         </span><span class="kw">let </span>x0 = x0 + Wrapping(<span class="number">1 </span>&lt;&lt; (FINAL_BITS - <span class="number">1</span>)) + Wrapping(<span class="number">128 </span>&lt;&lt; FINAL_BITS);
         <span class="kw">let </span>x2 = x2 + Wrapping(<span class="number">1 </span>&lt;&lt; (FINAL_BITS - <span class="number">1</span>)) + Wrapping(<span class="number">128 </span>&lt;&lt; FINAL_BITS);
 
@@ -1293,7 +1294,7 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_dequantize_and_idct_block_8x8_saturated() {
     <span class="comment">// Arch-specific IDCT implementations need not handle i16::MAX values.
-    </span><span class="attr">#[cfg(not(feature = <span class="string">&quot;platform_independent&quot;</span>))]
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"platform_independent"</span>))]
     </span><span class="kw">if </span><span class="kw">crate</span>::arch::get_dequantize_and_idct_block_8x8().is_some() {
         <span class="kw">return</span>;
     }

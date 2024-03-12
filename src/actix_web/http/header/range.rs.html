@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/range.rs`."><title>range.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/range.rs`."><title>range.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -438,22 +439,22 @@
 <span class="doccomment">/// `Range` header, defined
 /// in [RFC 7233 §3.1](https://datatracker.ietf.org/doc/html/rfc7233#section-3.1)
 ///
-/// The &quot;Range&quot; header field on a GET request modifies the method semantics to request transfer of
+/// The "Range" header field on a GET request modifies the method semantics to request transfer of
 /// only one or more sub-ranges of the selected representation data, rather than the entire selected
 /// representation data.
 ///
 /// # ABNF
 /// ```plain
 /// Range = byte-ranges-specifier / other-ranges-specifier
-/// other-ranges-specifier = other-range-unit &quot;=&quot; other-range-set
+/// other-ranges-specifier = other-range-unit "=" other-range-set
 /// other-range-set = 1*VCHAR
 ///
-/// bytes-unit = &quot;bytes&quot;
+/// bytes-unit = "bytes"
 ///
-/// byte-ranges-specifier = bytes-unit &quot;=&quot; byte-range-set
+/// byte-ranges-specifier = bytes-unit "=" byte-range-set
 /// byte-range-set = 1#(byte-range-spec / suffix-byte-range-spec)
-/// byte-range-spec = first-byte-pos &quot;-&quot; [last-byte-pos]
-/// suffix-byte-range-spec = &quot;-&quot; suffix-length
+/// byte-range-spec = first-byte-pos "-" [last-byte-pos]
+/// suffix-byte-range-spec = "-" suffix-length
 /// suffix-length = 1*DIGIT
 /// first-byte-pos = 1*DIGIT
 /// last-byte-pos = 1*DIGIT
@@ -476,7 +477,7 @@
 /// builder.insert_header(Range::Bytes(
 ///     vec![ByteRangeSpec::FromTo(1, 100), ByteRangeSpec::From(200)]
 /// ));
-/// builder.insert_header(Range::Unregistered(&quot;letters&quot;.to_owned(), &quot;a-f&quot;.to_owned()));
+/// builder.insert_header(Range::Unregistered("letters".to_owned(), "a-f".to_owned()));
 /// builder.insert_header(Range::bytes(1, 100));
 /// builder.insert_header(Range::bytes_multi(vec![(1, 100), (200, 300)]));
 /// ```
@@ -608,24 +609,24 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ByteRangeSpec {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            ByteRangeSpec::FromTo(from, to) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}-{}&quot;</span>, from, to),
-            ByteRangeSpec::Last(pos) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;-{}&quot;</span>, pos),
-            ByteRangeSpec::From(pos) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}-&quot;</span>, pos),
+            ByteRangeSpec::FromTo(from, to) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}-{}"</span>, from, to),
+            ByteRangeSpec::Last(pos) =&gt; <span class="macro">write!</span>(f, <span class="string">"-{}"</span>, pos),
+            ByteRangeSpec::From(pos) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}-"</span>, pos),
         }
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Range {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             Range::Bytes(ranges) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;bytes=&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">"bytes="</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">for </span>(i, range) <span class="kw">in </span>ranges.iter().enumerate() {
                     <span class="kw">if </span>i != <span class="number">0 </span>{
-                        f.write_str(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
+                        f.write_str(<span class="string">","</span>)<span class="question-mark">?</span>;
                     }
 
                     Display::fmt(range, f)<span class="question-mark">?</span>;
@@ -634,7 +635,7 @@
             }
 
             Range::Unregistered(unit, range_str) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}={}&quot;</span>, unit, range_str)
+                <span class="macro">write!</span>(f, <span class="string">"{}={}"</span>, unit, range_str)
             }
         }
     }
@@ -644,10 +645,10 @@
     <span class="kw">type </span><span class="prelude-val">Err </span>= ParseError;
 
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; {
-        <span class="kw">let </span>(unit, val) = s.split_once(<span class="string">&#39;=&#39;</span>).ok_or(ParseError::Header)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(unit, val) = s.split_once(<span class="string">'='</span>).ok_or(ParseError::Header)<span class="question-mark">?</span>;
 
         <span class="kw">match </span>(unit, val) {
-            (<span class="string">&quot;bytes&quot;</span>, ranges) =&gt; {
+            (<span class="string">"bytes"</span>, ranges) =&gt; {
                 <span class="kw">let </span>ranges = from_comma_delimited(ranges);
 
                 <span class="kw">if </span>ranges.is_empty() {
@@ -657,8 +658,8 @@
                 <span class="prelude-val">Ok</span>(Range::Bytes(ranges))
             }
 
-            (<span class="kw">_</span>, <span class="string">&quot;&quot;</span>) =&gt; <span class="prelude-val">Err</span>(ParseError::Header),
-            (<span class="string">&quot;&quot;</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ParseError::Header),
+            (<span class="kw">_</span>, <span class="string">""</span>) =&gt; <span class="prelude-val">Err</span>(ParseError::Header),
+            (<span class="string">""</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ParseError::Header),
 
             (unit, range_str) =&gt; <span class="prelude-val">Ok</span>(Range::Unregistered(unit.to_owned(), range_str.to_owned())),
         }
@@ -669,15 +670,15 @@
     <span class="kw">type </span><span class="prelude-val">Err </span>= ParseError;
 
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ByteRangeSpec, ParseError&gt; {
-        <span class="kw">let </span>(start, end) = s.split_once(<span class="string">&#39;-&#39;</span>).ok_or(ParseError::Header)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(start, end) = s.split_once(<span class="string">'-'</span>).ok_or(ParseError::Header)<span class="question-mark">?</span>;
 
         <span class="kw">match </span>(start, end) {
-            (<span class="string">&quot;&quot;</span>, end) =&gt; end
+            (<span class="string">""</span>, end) =&gt; end
                 .parse()
                 .or(<span class="prelude-val">Err</span>(ParseError::Header))
                 .map(ByteRangeSpec::Last),
 
-            (start, <span class="string">&quot;&quot;</span>) =&gt; start
+            (start, <span class="string">""</span>) =&gt; start
                 .parse()
                 .or(<span class="prelude-val">Err</span>(ParseError::Header))
                 .map(ByteRangeSpec::From),
@@ -706,16 +707,16 @@
 
     <span class="kw">fn </span>try_into_value(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HeaderValue, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>wrt = Writer::new();
-        <span class="kw">let _ </span>= <span class="macro">write!</span>(wrt, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>);
+        <span class="kw">let _ </span>= <span class="macro">write!</span>(wrt, <span class="string">"{}"</span>, <span class="self">self</span>);
         HeaderValue::from_maybe_shared(wrt.take())
     }
 }
 
 <span class="doccomment">/// Parses 0 or more items out of a comma delimited string, ignoring invalid items.
 </span><span class="kw">fn </span>from_comma_delimited&lt;T: FromStr&gt;(s: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;T&gt; {
-    s.split(<span class="string">&#39;,&#39;</span>)
+    s.split(<span class="string">','</span>)
         .filter_map(|x| <span class="kw">match </span>x.trim() {
-            <span class="string">&quot;&quot; </span>=&gt; <span class="prelude-val">None</span>,
+            <span class="string">"" </span>=&gt; <span class="prelude-val">None</span>,
             y =&gt; <span class="prelude-val">Some</span>(y),
         })
         .filter_map(|x| x.parse().ok())
@@ -736,14 +737,14 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_bytes_range_valid() {
-        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100&quot;</span>)).unwrap();
-        <span class="kw">let </span>r2: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100,-&quot;</span>)).unwrap();
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes=1-100"</span>)).unwrap();
+        <span class="kw">let </span>r2: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes=1-100,-"</span>)).unwrap();
         <span class="kw">let </span>r3 = Range::bytes(<span class="number">1</span>, <span class="number">100</span>);
         <span class="macro">assert_eq!</span>(r, r2);
         <span class="macro">assert_eq!</span>(r2, r3);
 
-        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100,200-&quot;</span>)).unwrap();
-        <span class="kw">let </span>r2: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes= 1-100 , 101-xxx,  200- &quot;</span>)).unwrap();
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes=1-100,200-"</span>)).unwrap();
+        <span class="kw">let </span>r2: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes= 1-100 , 101-xxx,  200- "</span>)).unwrap();
         <span class="kw">let </span>r3 = Range::Bytes(<span class="macro">vec!</span>[
             ByteRangeSpec::FromTo(<span class="number">1</span>, <span class="number">100</span>),
             ByteRangeSpec::From(<span class="number">200</span>),
@@ -751,8 +752,8 @@
         <span class="macro">assert_eq!</span>(r, r2);
         <span class="macro">assert_eq!</span>(r2, r3);
 
-        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100,-100&quot;</span>)).unwrap();
-        <span class="kw">let </span>r2: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100, ,,-100&quot;</span>)).unwrap();
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes=1-100,-100"</span>)).unwrap();
+        <span class="kw">let </span>r2: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes=1-100, ,,-100"</span>)).unwrap();
         <span class="kw">let </span>r3 = Range::Bytes(<span class="macro">vec!</span>[
             ByteRangeSpec::FromTo(<span class="number">1</span>, <span class="number">100</span>),
             ByteRangeSpec::Last(<span class="number">100</span>),
@@ -760,47 +761,47 @@
         <span class="macro">assert_eq!</span>(r, r2);
         <span class="macro">assert_eq!</span>(r2, r3);
 
-        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=1-100,-100&quot;</span>)).unwrap();
-        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;1-100,-100&quot;</span>.to_owned());
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"custom=1-100,-100"</span>)).unwrap();
+        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">"custom"</span>.to_owned(), <span class="string">"1-100,-100"</span>.to_owned());
         <span class="macro">assert_eq!</span>(r, r2);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_unregistered_range_valid() {
-        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=1-100,-100&quot;</span>)).unwrap();
-        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;1-100,-100&quot;</span>.to_owned());
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"custom=1-100,-100"</span>)).unwrap();
+        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">"custom"</span>.to_owned(), <span class="string">"1-100,-100"</span>.to_owned());
         <span class="macro">assert_eq!</span>(r, r2);
 
-        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=abcd&quot;</span>)).unwrap();
-        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;abcd&quot;</span>.to_owned());
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"custom=abcd"</span>)).unwrap();
+        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">"custom"</span>.to_owned(), <span class="string">"abcd"</span>.to_owned());
         <span class="macro">assert_eq!</span>(r, r2);
 
-        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=xxx-yyy&quot;</span>)).unwrap();
-        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;xxx-yyy&quot;</span>.to_owned());
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"custom=xxx-yyy"</span>)).unwrap();
+        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">"custom"</span>.to_owned(), <span class="string">"xxx-yyy"</span>.to_owned());
         <span class="macro">assert_eq!</span>(r, r2);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_invalid() {
-        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-a,-&quot;</span>));
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes=1-a,-"</span>));
         <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-2-3&quot;</span>));
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes=1-2-3"</span>));
         <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;abc&quot;</span>));
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"abc"</span>));
         <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100=&quot;</span>));
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes=1-100="</span>));
         <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=&quot;</span>));
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"bytes="</span>));
         <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=&quot;</span>));
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"custom="</span>));
         <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;=1-100&quot;</span>));
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">"=1-100"</span>));
         <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
     }
 
@@ -810,15 +811,15 @@
             ByteRangeSpec::FromTo(<span class="number">0</span>, <span class="number">1000</span>),
             ByteRangeSpec::From(<span class="number">2000</span>),
         ]);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>range.to_string(), <span class="string">&quot;bytes=0-1000,2000-&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>range.to_string(), <span class="string">"bytes=0-1000,2000-"</span>);
 
         <span class="kw">let </span>range = Range::Bytes(<span class="macro">vec!</span>[]);
 
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>range.to_string(), <span class="string">&quot;bytes=&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>range.to_string(), <span class="string">"bytes="</span>);
 
-        <span class="kw">let </span>range = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;1-xxx&quot;</span>.to_owned());
+        <span class="kw">let </span>range = Range::Unregistered(<span class="string">"custom"</span>.to_owned(), <span class="string">"1-xxx"</span>.to_owned());
 
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>range.to_string(), <span class="string">&quot;custom=1-xxx&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>range.to_string(), <span class="string">"custom=1-xxx"</span>);
     }
 
     <span class="attr">#[test]

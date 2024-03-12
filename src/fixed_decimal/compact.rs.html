@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixed_decimal-0.5.5/src/compact.rs`."><title>compact.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fixed_decimal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixed_decimal-0.5.5/src/compact.rs`."><title>compact.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fixed_decimal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -263,8 +264,8 @@
     /// # use std::str::FromStr;
     /// #
     /// assert_eq!(
-    ///     CompactDecimal::from_str(&quot;+1.20c6&quot;).unwrap().significand(),
-    ///     &amp;FixedDecimal::from_str(&quot;+1.20&quot;).unwrap()
+    ///     CompactDecimal::from_str("+1.20c6").unwrap().significand(),
+    ///     &amp;FixedDecimal::from_str("+1.20").unwrap()
     /// );
     /// ```
     </span><span class="kw">pub fn </span>significand(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>FixedDecimal {
@@ -278,10 +279,10 @@
     /// # use std::str::FromStr;
     /// #
     /// assert_eq!(
-    ///     CompactDecimal::from_str(&quot;+1.20c6&quot;)
+    ///     CompactDecimal::from_str("+1.20c6")
     ///         .unwrap()
     ///         .into_significand(),
-    ///     FixedDecimal::from_str(&quot;+1.20&quot;).unwrap()
+    ///     FixedDecimal::from_str("+1.20").unwrap()
     /// );
     /// ```
     </span><span class="kw">pub fn </span>into_significand(<span class="self">self</span>) -&gt; FixedDecimal {
@@ -294,8 +295,8 @@
     /// # use fixed_decimal::FixedDecimal;
     /// # use std::str::FromStr;
     /// #
-    /// assert_eq!(CompactDecimal::from_str(&quot;+1.20c6&quot;).unwrap().exponent(), 6);
-    /// assert_eq!(CompactDecimal::from_str(&quot;1729&quot;).unwrap().exponent(), 0);
+    /// assert_eq!(CompactDecimal::from_str("+1.20c6").unwrap().exponent(), 6);
+    /// assert_eq!(CompactDecimal::from_str("1729").unwrap().exponent(), 0);
     /// ```
     </span><span class="kw">pub fn </span>exponent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i16 {
         <span class="self">self</span>.exponent
@@ -313,16 +314,16 @@
 /// # use writeable::assert_writeable_eq;
 /// #
 /// assert_writeable_eq!(
-///     CompactDecimal::from_str(&quot;+1.20c6&quot;).unwrap(),
-///     &quot;+1.20c6&quot;
+///     CompactDecimal::from_str("+1.20c6").unwrap(),
+///     "+1.20c6"
 /// );
-/// assert_writeable_eq!(CompactDecimal::from_str(&quot;+1729&quot;).unwrap(), &quot;+1729&quot;);
+/// assert_writeable_eq!(CompactDecimal::from_str("+1729").unwrap(), "+1729");
 /// ```
 </span><span class="kw">impl </span>writeable::Writeable <span class="kw">for </span>CompactDecimal {
     <span class="kw">fn </span>write_to&lt;W: fmt::Write + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sink: <span class="kw-2">&amp;mut </span>W) -&gt; fmt::Result {
         <span class="self">self</span>.significand.write_to(sink)<span class="question-mark">?</span>;
         <span class="kw">if </span><span class="self">self</span>.exponent != <span class="number">0 </span>{
-            sink.write_char(<span class="string">&#39;c&#39;</span>)<span class="question-mark">?</span>;
+            sink.write_char(<span class="string">'c'</span>)<span class="question-mark">?</span>;
             <span class="self">self</span>.exponent.write_to(sink)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
@@ -350,10 +351,10 @@
 </span><span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>[u8]&gt; <span class="kw">for </span>CompactDecimal {
     <span class="kw">type </span>Error = Error;
     <span class="kw">fn </span>try_from(input_str: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">if </span>input_str.iter().any(|<span class="kw-2">&amp;</span>c| c == <span class="string">b&#39;e&#39; </span>|| c == <span class="string">b&#39;E&#39;</span>) {
+        <span class="kw">if </span>input_str.iter().any(|<span class="kw-2">&amp;</span>c| c == <span class="string">b'e' </span>|| c == <span class="string">b'E'</span>) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Syntax);
         }
-        <span class="kw">let </span><span class="kw-2">mut </span>parts = input_str.split(|<span class="kw-2">&amp;</span>c| c == <span class="string">b&#39;c&#39;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parts = input_str.split(|<span class="kw-2">&amp;</span>c| c == <span class="string">b'c'</span>);
         <span class="kw">let </span>significand = FixedDecimal::try_from(parts.next().ok_or(Error::Syntax)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
         <span class="kw">match </span>parts.next() {
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(CompactDecimal {
@@ -366,7 +367,7 @@
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Syntax);
                 }
                 <span class="kw">if </span>exponent_str.is_empty()
-                    || exponent_str.bytes().next() == <span class="prelude-val">Some</span>(<span class="string">b&#39;0&#39;</span>)
+                    || exponent_str.bytes().next() == <span class="prelude-val">Some</span>(<span class="string">b'0'</span>)
                     || !exponent_str.bytes().all(|c| c.is_ascii_digit())
                 {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Syntax);
@@ -385,59 +386,59 @@
 </span><span class="kw">fn </span>test_compact_syntax_error() {
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">struct </span>TestCase {
-        <span class="kw">pub </span>input_str: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        <span class="kw">pub </span>input_str: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         <span class="kw">pub </span>expected_err: <span class="prelude-ty">Option</span>&lt;Error&gt;,
     }
     <span class="kw">let </span>cases = [
         TestCase {
-            input_str: <span class="string">&quot;-123e4&quot;</span>,
+            input_str: <span class="string">"-123e4"</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Syntax),
         },
         TestCase {
-            input_str: <span class="string">&quot;-123c&quot;</span>,
+            input_str: <span class="string">"-123c"</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Syntax),
         },
         TestCase {
-            input_str: <span class="string">&quot;1c10&quot;</span>,
+            input_str: <span class="string">"1c10"</span>,
             expected_err: <span class="prelude-val">None</span>,
         },
         TestCase {
-            input_str: <span class="string">&quot;1E1c1&quot;</span>,
+            input_str: <span class="string">"1E1c1"</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Syntax),
         },
         TestCase {
-            input_str: <span class="string">&quot;1e1c1&quot;</span>,
+            input_str: <span class="string">"1e1c1"</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Syntax),
         },
         TestCase {
-            input_str: <span class="string">&quot;1c1e1&quot;</span>,
+            input_str: <span class="string">"1c1e1"</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Syntax),
         },
         TestCase {
-            input_str: <span class="string">&quot;1c1E1&quot;</span>,
+            input_str: <span class="string">"1c1E1"</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Syntax),
         },
         TestCase {
-            input_str: <span class="string">&quot;-1c01&quot;</span>,
+            input_str: <span class="string">"-1c01"</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Syntax),
         },
         TestCase {
-            input_str: <span class="string">&quot;-1c-1&quot;</span>,
+            input_str: <span class="string">"-1c-1"</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Syntax),
         },
         TestCase {
-            input_str: <span class="string">&quot;-1c1&quot;</span>,
+            input_str: <span class="string">"-1c1"</span>,
             expected_err: <span class="prelude-val">None</span>,
         },
     ];
     <span class="kw">for </span>cas <span class="kw">in </span><span class="kw-2">&amp;</span>cases {
         <span class="kw">match </span>CompactDecimal::from_str(cas.input_str) {
             <span class="prelude-val">Ok</span>(dec) =&gt; {
-                <span class="macro">assert_eq!</span>(cas.expected_err, <span class="prelude-val">None</span>, <span class="string">&quot;{cas:?}&quot;</span>);
-                <span class="macro">assert_eq!</span>(cas.input_str, dec.to_string(), <span class="string">&quot;{cas:?}&quot;</span>);
+                <span class="macro">assert_eq!</span>(cas.expected_err, <span class="prelude-val">None</span>, <span class="string">"{cas:?}"</span>);
+                <span class="macro">assert_eq!</span>(cas.input_str, dec.to_string(), <span class="string">"{cas:?}"</span>);
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">assert_eq!</span>(cas.expected_err, <span class="prelude-val">Some</span>(err), <span class="string">&quot;{cas:?}&quot;</span>);
+                <span class="macro">assert_eq!</span>(cas.expected_err, <span class="prelude-val">Some</span>(err), <span class="string">"{cas:?}"</span>);
             }
         }
     }

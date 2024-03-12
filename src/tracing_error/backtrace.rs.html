@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-error-0.2.0/src/backtrace.rs`."><title>backtrace.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_error" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../tracing_error/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_error"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-error-0.2.0/src/backtrace.rs`."><title>backtrace.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tracing_error" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../tracing_error/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_error"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -344,7 +345,7 @@
 ///   frames of the executor that is responsible for running that future. This
 ///   means that if an `async fn` calls another `async fn` which generates an
 ///   error, the calling async function will not appear in the stack trace (and
-///   often, the callee won&#39;t either!). On the other hand, when the
+///   often, the callee won't either!). On the other hand, when the
 ///   [`tracing-futures`] crate is used to instrument async code, the span trace
 ///   will represent the logical application context a future was running in,
 ///   rather than the stack trace of the executor that was polling a future when
@@ -353,7 +354,7 @@
 /// Finally, unlike stack [`Backtrace`]s, capturing a `SpanTrace` is fairly
 /// lightweight, and the resulting struct is not large. The `SpanTrace` struct
 /// is formatted lazily; instead, it simply stores a copy of the current span,
-/// and allows visiting the spans in that span&#39;s trace tree by calling the
+/// and allows visiting the spans in that span's trace tree by calling the
 /// [`with_spans` method][`with_spans`].
 ///
 /// # Formatting
@@ -366,7 +367,7 @@
 ///         with answer=42 will_succeed=false
 ///           at examples/examples/custom_error.rs:42
 ///    1: custom_error::do_something
-///         with foo=&quot;hello world&quot;
+///         with foo="hello world"
 ///           at examples/examples/custom_error.rs:37
 /// ```
 ///
@@ -436,7 +437,7 @@
     ///
     /// [fields]: https://docs.rs/tracing/latest/tracing/field/index.html
     /// [`Metadata`]: https://docs.rs/tracing/latest/tracing/struct.Metadata.html
-    </span><span class="kw">pub fn </span>with_spans(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;, <span class="kw-2">&amp;</span>str) -&gt; bool) {
+    </span><span class="kw">pub fn </span>with_spans(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;, <span class="kw-2">&amp;</span>str) -&gt; bool) {
         <span class="self">self</span>.span.with_subscriber(|(id, s)| {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(getcx) = s.downcast_ref::&lt;WithContext&gt;() {
                 getcx.with_context(s, id, f);
@@ -508,29 +509,29 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>SpanTrace {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>err = <span class="prelude-val">Ok</span>(());
         <span class="kw">let </span><span class="kw-2">mut </span>span = <span class="number">0</span>;
 
         <span class="self">self</span>.with_spans(|metadata, fields| {
             <span class="kw">if </span>span &gt; <span class="number">0 </span>{
-                <span class="macro">try_bool!</span>(<span class="macro">write!</span>(f, <span class="string">&quot;\n&quot;</span>,), err);
+                <span class="macro">try_bool!</span>(<span class="macro">write!</span>(f, <span class="string">"\n"</span>,), err);
             }
 
             <span class="macro">try_bool!</span>(
-                <span class="macro">write!</span>(f, <span class="string">&quot;{:&gt;4}: {}::{}&quot;</span>, span, metadata.target(), metadata.name()),
+                <span class="macro">write!</span>(f, <span class="string">"{:&gt;4}: {}::{}"</span>, span, metadata.target(), metadata.name()),
                 err
             );
 
             <span class="kw">if </span>!fields.is_empty() {
-                <span class="macro">try_bool!</span>(<span class="macro">write!</span>(f, <span class="string">&quot;\n           with {}&quot;</span>, fields), err);
+                <span class="macro">try_bool!</span>(<span class="macro">write!</span>(f, <span class="string">"\n           with {}"</span>, fields), err);
             }
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>((file, line)) = metadata
                 .file()
                 .and_then(|file| metadata.line().map(|line| (file, line)))
             {
-                <span class="macro">try_bool!</span>(<span class="macro">write!</span>(f, <span class="string">&quot;\n             at {}:{}&quot;</span>, file, line), err);
+                <span class="macro">try_bool!</span>(<span class="macro">write!</span>(f, <span class="string">"\n             at {}:{}"</span>, file, line), err);
             }
 
             span += <span class="number">1</span>;
@@ -542,23 +543,23 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>SpanTrace {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">struct </span>DebugSpan&lt;<span class="lifetime">&#39;a</span>&gt; {
-            metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Metadata&lt;<span class="lifetime">&#39;a</span>&gt;,
-            fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">struct </span>DebugSpan&lt;<span class="lifetime">'a</span>&gt; {
+            metadata: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Metadata&lt;<span class="lifetime">'a</span>&gt;,
+            fields: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Debug <span class="kw">for </span>DebugSpan&lt;<span class="lifetime">&#39;a</span>&gt; {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Debug <span class="kw">for </span>DebugSpan&lt;<span class="lifetime">'a</span>&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;{{ target: {:?}, name: {:?}&quot;</span>,
+                    <span class="string">"{{ target: {:?}, name: {:?}"</span>,
                     <span class="self">self</span>.metadata.target(),
                     <span class="self">self</span>.metadata.name()
                 )<span class="question-mark">?</span>;
 
                 <span class="kw">if </span>!<span class="self">self</span>.fields.is_empty() {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;, fields: {:?}&quot;</span>, <span class="self">self</span>.fields)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">", fields: {:?}"</span>, <span class="self">self</span>.fields)<span class="question-mark">?</span>;
                 }
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>((file, line)) = <span class="self">self
@@ -566,16 +567,16 @@
                     .file()
                     .and_then(|file| <span class="self">self</span>.metadata.line().map(|line| (file, line)))
                 {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;, file: {:?}, line: {:?}&quot;</span>, file, line)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">", file: {:?}, line: {:?}"</span>, file, line)<span class="question-mark">?</span>;
                 }
 
-                <span class="macro">write!</span>(f, <span class="string">&quot; }}&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">" }}"</span>)<span class="question-mark">?</span>;
 
                 <span class="prelude-val">Ok</span>(())
             }
         }
 
-        <span class="macro">write!</span>(f, <span class="string">&quot;SpanTrace &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">"SpanTrace "</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>dbg = f.debug_list();
         <span class="self">self</span>.with_spans(|metadata, fields| {
             dbg.entry(<span class="kw-2">&amp;</span>DebugSpan { metadata, fields });
@@ -598,7 +599,7 @@
         <span class="kw">let </span>subscriber = Registry::default().with(ErrorLayer::default());
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span = <span class="macro">span!</span>(Level::ERROR, <span class="string">&quot;test span&quot;</span>);
+            <span class="kw">let </span>span = <span class="macro">span!</span>(Level::ERROR, <span class="string">"test span"</span>);
             <span class="kw">let </span>_guard = span.enter();
 
             <span class="kw">let </span>span_trace = SpanTrace::capture();
@@ -627,7 +628,7 @@
         <span class="kw">let </span>subscriber = Registry::default();
 
         with_default(subscriber, || {
-            <span class="kw">let </span>span = <span class="macro">span!</span>(Level::ERROR, <span class="string">&quot;test span&quot;</span>);
+            <span class="kw">let </span>span = <span class="macro">span!</span>(Level::ERROR, <span class="string">"test span"</span>);
             <span class="kw">let </span>_guard = span.enter();
 
             <span class="kw">let </span>span_trace = SpanTrace::capture();

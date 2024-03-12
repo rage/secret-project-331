@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1234,7 +1235,7 @@
     sequence::{skip, with, Skip, With},
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::boxed::Box;
 
 <span class="doccomment">/// Internal API. May break without a semver bump
@@ -1269,8 +1270,8 @@
 <span class="kw">pub mod </span>error;
 <span class="kw">pub mod </span>function;
 <span class="kw">pub mod </span>range;
-<span class="attr">#[cfg(feature = <span class="string">&quot;regex&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;regex&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"regex"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"regex"</span>)))]
 </span><span class="kw">pub mod </span>regex;
 <span class="kw">pub mod </span>repeat;
 <span class="kw">pub mod </span>sequence;
@@ -1391,7 +1392,7 @@
         <span class="kw">if </span>input.is_partial() {
             <span class="comment">// If a partial parser were called from a non-partial parser (as it is here) we must
             // reset the input to before the partial parser were called on errors that committed
-            // data as that parser&#39;s partial state was just temporary and it will not be able to
+            // data as that parser's partial state was just temporary and it will not be able to
             // resume itself
             </span><span class="kw">let </span>before = input.checkpoint();
             <span class="kw">let </span>result = <span class="self">self</span>.parse_first(input, <span class="kw-2">&amp;mut </span>Default::default());
@@ -1546,7 +1547,7 @@
     /// # use combine::*;
     /// # use combine::error::Commit;
     /// # use combine::parser::char::{digit, letter};
-    /// fn test(input: &amp;mut &amp;&#39;static str) -&gt; StdParseResult&lt;(char, char), &amp;&#39;static str&gt; {
+    /// fn test(input: &amp;mut &amp;'static str) -&gt; StdParseResult&lt;(char, char), &amp;'static str&gt; {
     ///     let mut p = digit();
     ///     let ((d, _), committed) = (p.by_ref(), letter()).parse_stream(input).into_result()?;
     ///     let (d2, committed) = committed.combine(|_| p.parse_stream(input).into_result())?;
@@ -1554,10 +1555,10 @@
     /// }
     ///
     /// fn main() {
-    ///     let mut input = &quot;1a23&quot;;
+    ///     let mut input = "1a23";
     ///     assert_eq!(
     ///         test(&amp;mut input).map(|(t, c)| (t, c.map(|_| input))),
-    ///         Ok(((&#39;1&#39;, &#39;2&#39;), Commit::Commit(&quot;3&quot;)))
+    ///         Ok((('1', '2'), Commit::Commit("3")))
     ///     );
     /// }
     /// ```
@@ -1577,10 +1578,10 @@
     /// # use combine::parser::char::digit;
     /// # fn main() {
     /// let result = digit()
-    ///     .with(token(&#39;i&#39;))
-    ///     .parse(&quot;9i&quot;)
+    ///     .with(token('i'))
+    ///     .parse("9i")
     ///     .map(|x| x.0);
-    /// assert_eq!(result, Ok(&#39;i&#39;));
+    /// assert_eq!(result, Ok('i'));
     /// # }
     /// ```
     </span><span class="kw">fn </span>with&lt;P2&gt;(<span class="self">self</span>, p: P2) -&gt; With&lt;<span class="self">Self</span>, P2&gt;
@@ -1600,10 +1601,10 @@
     /// # use combine::parser::char::digit;
     /// # fn main() {
     /// let result = digit()
-    ///     .skip(token(&#39;i&#39;))
-    ///     .parse(&quot;9i&quot;)
+    ///     .skip(token('i'))
+    ///     .parse("9i")
     ///     .map(|x| x.0);
-    /// assert_eq!(result, Ok(&#39;9&#39;));
+    /// assert_eq!(result, Ok('9'));
     /// # }
     /// ```
     </span><span class="kw">fn </span>skip&lt;P2&gt;(<span class="self">self</span>, p: P2) -&gt; Skip&lt;<span class="self">Self</span>, P2&gt;
@@ -1624,10 +1625,10 @@
     /// # use combine::parser::char::digit;
     /// # fn main() {
     /// let result = digit()
-    ///     .and(token(&#39;i&#39;))
-    ///     .parse(&quot;9i&quot;)
+    ///     .and(token('i'))
+    ///     .parse("9i")
     ///     .map(|x| x.0);
-    /// assert_eq!(result, Ok((&#39;9&#39;, &#39;i&#39;)));
+    /// assert_eq!(result, Ok(('9', 'i')));
     /// # }
     /// ```
     </span><span class="kw">fn </span>and&lt;P2&gt;(<span class="self">self</span>, p: P2) -&gt; (<span class="self">Self</span>, P2)
@@ -1649,20 +1650,20 @@
     /// # use combine::*;
     /// # use combine::parser::char::{digit, string};
     /// # fn main() {
-    /// let mut parser = string(&quot;let&quot;)
-    ///     .or(digit().map(|_| &quot;digit&quot;))
-    ///     .or(string(&quot;led&quot;));
-    /// assert_eq!(parser.parse(&quot;let&quot;), Ok((&quot;let&quot;, &quot;&quot;)));
-    /// assert_eq!(parser.parse(&quot;1&quot;), Ok((&quot;digit&quot;, &quot;&quot;)));
-    /// assert!(parser.parse(&quot;led&quot;).is_err());
+    /// let mut parser = string("let")
+    ///     .or(digit().map(|_| "digit"))
+    ///     .or(string("led"));
+    /// assert_eq!(parser.parse("let"), Ok(("let", "")));
+    /// assert_eq!(parser.parse("1"), Ok(("digit", "")));
+    /// assert!(parser.parse("led").is_err());
     ///
-    /// let mut parser2 = string(&quot;two&quot;).or(string(&quot;three&quot;));
-    /// // Fails as the parser for &quot;two&quot; consumes the first &#39;t&#39; before failing
-    /// assert!(parser2.parse(&quot;three&quot;).is_err());
+    /// let mut parser2 = string("two").or(string("three"));
+    /// // Fails as the parser for "two" consumes the first 't' before failing
+    /// assert!(parser2.parse("three").is_err());
     ///
-    /// // Use &#39;attempt&#39; to make failing parsers always act as if they have not committed any input
-    /// let mut parser3 = attempt(string(&quot;two&quot;)).or(attempt(string(&quot;three&quot;)));
-    /// assert_eq!(parser3.parse(&quot;three&quot;), Ok((&quot;three&quot;, &quot;&quot;)));
+    /// // Use 'attempt' to make failing parsers always act as if they have not committed any input
+    /// let mut parser3 = attempt(string("two")).or(attempt(string("three")));
+    /// assert_eq!(parser3.parse("three"), Ok(("three", "")));
     /// # }
     /// ```
     ///
@@ -1684,7 +1685,7 @@
     /// If you are using partial parsing you may want to use [`then_partial`](Parser::then_partial) instead.
     ///
     /// ```
-    /// # #![cfg(feature = &quot;std&quot;)]
+    /// # #![cfg(feature = "std")]
     /// # extern crate combine;
     /// # use combine::*;
     /// # use combine::parser::char::digit;
@@ -1693,15 +1694,15 @@
     /// # fn main() {
     /// let result = digit()
     ///     .then(|d| {
-    ///         if d == &#39;9&#39; {
+    ///         if d == '9' {
     ///             value(9).left()
     ///         }
     ///         else {
-    ///             unexpected_any(d).message(&quot;Not a nine&quot;).right()
+    ///             unexpected_any(d).message("Not a nine").right()
     ///         }
     ///     })
-    ///     .easy_parse(&quot;9&quot;);
-    /// assert_eq!(result, Ok((9, &quot;&quot;)));
+    ///     .easy_parse("9");
+    /// assert_eq!(result, Ok((9, "")));
     /// # }
     /// ```
     </span><span class="kw">fn </span>then&lt;N, F&gt;(<span class="self">self</span>, f: F) -&gt; Then&lt;<span class="self">Self</span>, F&gt;
@@ -1723,7 +1724,7 @@
     /// [`left`](Parser::left) and [`right`](Parser::right) methods to merge parsers of differing types into one.
     ///
     /// ```
-    /// # #![cfg(feature = &quot;std&quot;)]
+    /// # #![cfg(feature = "std")]
     /// # extern crate combine;
     /// # use combine::*;
     /// # use combine::parser::char::digit;
@@ -1732,15 +1733,15 @@
     /// # fn main() {
     /// let result = digit()
     ///     .then_partial(|d| {
-    ///         if *d == &#39;9&#39; {
+    ///         if *d == '9' {
     ///             value(9).left()
     ///         }
     ///         else {
-    ///             unexpected_any(*d).message(&quot;Not a nine&quot;).right()
+    ///             unexpected_any(*d).message("Not a nine").right()
     ///         }
     ///     })
-    ///     .easy_parse(&quot;9&quot;);
-    /// assert_eq!(result, Ok((9, &quot;&quot;)));
+    ///     .easy_parse("9");
+    /// assert_eq!(result, Ok((9, "")));
     /// # }
     /// ```
     </span><span class="kw">fn </span>then_partial&lt;N, F&gt;(<span class="self">self</span>, f: F) -&gt; ThenPartial&lt;<span class="self">Self</span>, F&gt;
@@ -1759,7 +1760,7 @@
     /// `left` and `right` methods to merge parsers of differing types into one.
     ///
     /// ```
-    /// # #![cfg(feature = &quot;std&quot;)]
+    /// # #![cfg(feature = "std")]
     /// # extern crate combine;
     /// # use combine::*;
     /// # use combine::parser::char::digit;
@@ -1768,15 +1769,15 @@
     /// # fn main() {
     /// let result = digit()
     ///     .then_ref(|d| {
-    ///         if *d == &#39;9&#39; {
+    ///         if *d == '9' {
     ///             digit().left()
     ///         }
     ///         else {
-    ///             unexpected_any(*d).message(&quot;Not a nine&quot;).right()
+    ///             unexpected_any(*d).message("Not a nine").right()
     ///         }
     ///     })
-    ///     .easy_parse(&quot;98&quot;);
-    /// assert_eq!(result, Ok(((&#39;9&#39;, &#39;8&#39;), &quot;&quot;)));
+    ///     .easy_parse("98");
+    /// assert_eq!(result, Ok((('9', '8'), "")));
     /// # }
     /// ```
     </span><span class="kw">fn </span>then_ref&lt;N, F&gt;(<span class="self">self</span>, f: F) -&gt; ThenRef&lt;<span class="self">Self</span>, F&gt;
@@ -1796,8 +1797,8 @@
     /// # use combine::parser::char::digit;
     /// # fn main() {
     /// let result = digit()
-    ///     .map(|c| c == &#39;9&#39;)
-    ///     .parse(&quot;9&quot;)
+    ///     .map(|c| c == '9')
+    ///     .parse("9")
     ///     .map(|x| x.0);
     /// assert_eq!(result, Ok(true));
     /// # }
@@ -1828,8 +1829,8 @@
     /// # fn main() {
     /// let result = take(4)
     ///     .flat_map(|bs| many(digit()).parse(bs).map(|t| t.0))
-    ///     .parse(&quot;12abcd&quot;);
-    /// assert_eq!(result, Ok((String::from(&quot;12&quot;), &quot;cd&quot;)));
+    ///     .parse("12abcd");
+    /// assert_eq!(result, Ok((String::from("12"), "cd")));
     /// # }
     /// ```
     </span><span class="kw">fn </span>flat_map&lt;F, B&gt;(<span class="self">self</span>, f: F) -&gt; FlatMap&lt;<span class="self">Self</span>, F&gt;
@@ -1843,21 +1844,21 @@
     <span class="doccomment">/// Parses with `self` and if it fails, adds the message `msg` to the error.
     ///
     /// ```
-    /// # #![cfg(feature = &quot;std&quot;)]
+    /// # #![cfg(feature = "std")]
     /// # extern crate combine;
     /// # use combine::*;
     /// # use combine::stream::easy;
     /// # use combine::stream::position::{self, SourcePosition};
     /// # fn main() {
-    /// let result = token(&#39;9&#39;)
-    ///     .message(&quot;Not a nine&quot;)
-    ///     .easy_parse(position::Stream::new(&quot;8&quot;));
+    /// let result = token('9')
+    ///     .message("Not a nine")
+    ///     .easy_parse(position::Stream::new("8"));
     /// assert_eq!(result, Err(easy::Errors {
     ///     position: SourcePosition::default(),
     ///     errors: vec![
-    ///         easy::Error::Unexpected(&#39;8&#39;.into()),
-    ///         easy::Error::Expected(&#39;9&#39;.into()),
-    ///         easy::Error::Message(&quot;Not a nine&quot;.into())
+    ///         easy::Error::Unexpected('8'.into()),
+    ///         easy::Error::Expected('9'.into()),
+    ///         easy::Error::Message("Not a nine".into())
     ///     ]
     /// }));
     /// # }
@@ -1865,41 +1866,41 @@
     </span><span class="kw">fn </span>message&lt;S&gt;(<span class="self">self</span>, msg: S) -&gt; Message&lt;<span class="self">Self</span>, S&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
-        S: <span class="kw">for</span>&lt;<span class="lifetime">&#39;s</span>&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, Input::Token, Input::Range&gt;,
+        S: <span class="kw">for</span>&lt;<span class="lifetime">'s</span>&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, Input::Token, Input::Range&gt;,
     {
         message(<span class="self">self</span>, msg)
     }
 
     <span class="doccomment">/// Parses with `self` and if it fails without consuming any input any expected errors are
-    /// replaced by `msg`. `msg` is then used in error messages as &quot;Expected `msg`&quot;.
+    /// replaced by `msg`. `msg` is then used in error messages as "Expected `msg`".
     ///
     /// ```
-    /// # #![cfg(feature = &quot;std&quot;)]
+    /// # #![cfg(feature = "std")]
     /// # extern crate combine;
     /// # use combine::*;
     /// # use combine::error;
     /// # use combine::stream::easy;
     /// # use combine::stream::position::{self, SourcePosition};
     /// # fn main() {
-    /// let result = token(&#39;9&#39;)
-    ///     .expected(&quot;nine&quot;)
-    ///     .easy_parse(position::Stream::new(&quot;8&quot;));
+    /// let result = token('9')
+    ///     .expected("nine")
+    ///     .easy_parse(position::Stream::new("8"));
     /// assert_eq!(result, Err(easy::Errors {
     ///     position: SourcePosition::default(),
     ///     errors: vec![
-    ///         easy::Error::Unexpected(&#39;8&#39;.into()),
-    ///         easy::Error::Expected(&quot;nine&quot;.into())
+    ///         easy::Error::Unexpected('8'.into()),
+    ///         easy::Error::Expected("nine".into())
     ///     ]
     /// }));
     ///
-    /// let result = token(&#39;9&#39;)
-    ///     .expected(error::Format(format_args!(&quot;That is not a nine!&quot;)))
-    ///     .easy_parse(position::Stream::new(&quot;8&quot;));
+    /// let result = token('9')
+    ///     .expected(error::Format(format_args!("That is not a nine!")))
+    ///     .easy_parse(position::Stream::new("8"));
     /// assert_eq!(result, Err(easy::Errors {
     ///     position: SourcePosition::default(),
     ///     errors: vec![
-    ///         easy::Error::Unexpected(&#39;8&#39;.into()),
-    ///         easy::Error::Expected(&quot;That is not a nine!&quot;.to_string().into())
+    ///         easy::Error::Unexpected('8'.into()),
+    ///         easy::Error::Expected("That is not a nine!".to_string().into())
     ///     ]
     /// }));
     /// # }
@@ -1907,7 +1908,7 @@
     </span><span class="kw">fn </span>expected&lt;S&gt;(<span class="self">self</span>, msg: S) -&gt; Expected&lt;<span class="self">Self</span>, S&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
-        S: <span class="kw">for</span>&lt;<span class="lifetime">&#39;s</span>&gt; ErrorInfo&lt;<span class="lifetime">&#39;s</span>, Input::Token, Input::Range&gt;,
+        S: <span class="kw">for</span>&lt;<span class="lifetime">'s</span>&gt; ErrorInfo&lt;<span class="lifetime">'s</span>, Input::Token, Input::Range&gt;,
     {
         expected(<span class="self">self</span>, msg)
     }
@@ -1916,20 +1917,20 @@
     /// otherwise be emitted by `self` are suppressed.
     ///
     /// ```
-    /// # #![cfg(feature = &quot;std&quot;)]
+    /// # #![cfg(feature = "std")]
     /// # extern crate combine;
     /// # use combine::*;
     /// # use combine::stream::easy;
     /// # use combine::stream::position::{self, SourcePosition};
     /// # fn main() {
-    /// let result = token(&#39;9&#39;)
-    ///     .expected(&quot;nine&quot;)
+    /// let result = token('9')
+    ///     .expected("nine")
     ///     .silent()
-    ///     .easy_parse(position::Stream::new(&quot;8&quot;));
+    ///     .easy_parse(position::Stream::new("8"));
     /// assert_eq!(result, Err(easy::Errors {
     ///     position: SourcePosition::default(),
     ///     errors: vec![
-    ///         easy::Error::Unexpected(&#39;8&#39;.into()),
+    ///         easy::Error::Unexpected('8'.into()),
     ///     ]
     /// }));
     /// # }
@@ -1952,9 +1953,9 @@
     /// # fn main() {
     /// let mut parser = many1(digit())
     ///     .and_then(|s: String| s.parse::&lt;i32&gt;());
-    /// let result = parser.easy_parse(position::Stream::new(&quot;1234&quot;)).map(|(x, state)| (x, state.input));
-    /// assert_eq!(result, Ok((1234, &quot;&quot;)));
-    /// let result = parser.easy_parse(position::Stream::new(&quot;999999999999999999999999&quot;));
+    /// let result = parser.easy_parse(position::Stream::new("1234")).map(|(x, state)| (x, state.input));
+    /// assert_eq!(result, Ok((1234, "")));
+    /// let result = parser.easy_parse(position::Stream::new("999999999999999999999999"));
     /// assert!(result.is_err());
     /// // Errors are report as if they occurred at the start of the parse
     /// assert_eq!(result.unwrap_err().position, SourcePosition { line: 1, column: 1 });
@@ -1987,14 +1988,14 @@
     ///     let i = buffer.parse::&lt;i32&gt;().unwrap();
     ///     iter.into_result(i)
     /// });
-    /// let result = sep_by(number, char(&#39;,&#39;))
-    ///     .parse(&quot;123,45,6&quot;);
-    /// assert_eq!(result, Ok((vec![123, 45, 6], &quot;&quot;)));
+    /// let result = sep_by(number, char(','))
+    ///     .parse("123,45,6");
+    /// assert_eq!(result, Ok((vec![123, 45, 6], "")));
     /// # }
     /// ```
     ///
     /// [`many`]: repeat::many
-    </span><span class="kw">fn </span>iter(<span class="self">self</span>, input: <span class="kw-2">&amp;mut </span>Input) -&gt; Iter&lt;<span class="lifetime">&#39;_</span>, Input, <span class="self">Self</span>, <span class="self">Self</span>::PartialState, FirstMode&gt;
+    </span><span class="kw">fn </span>iter(<span class="self">self</span>, input: <span class="kw-2">&amp;mut </span>Input) -&gt; Iter&lt;<span class="lifetime">'_</span>, Input, <span class="self">Self</span>, <span class="self">Self</span>::PartialState, FirstMode&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Parser&lt;Input&gt; + Sized,
     {
@@ -2017,19 +2018,19 @@
     ///     let i = buffer.parse::&lt;i32&gt;().unwrap();
     ///     iter.into_result(i)
     /// });
-    /// let result = sep_by(number, char(&#39;,&#39;))
-    ///     .parse(&quot;123,45,6&quot;);
-    /// assert_eq!(result, Ok((vec![123, 45, 6], &quot;&quot;)));
+    /// let result = sep_by(number, char(','))
+    ///     .parse("123,45,6");
+    /// assert_eq!(result, Ok((vec![123, 45, 6], "")));
     /// # }
     /// ```
     ///
     /// [`many`]: repeat::many
-    </span><span class="kw">fn </span>partial_iter&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;s</span>, M&gt;(
+    </span><span class="kw">fn </span>partial_iter&lt;<span class="lifetime">'a</span>, <span class="lifetime">'s</span>, M&gt;(
         <span class="self">self</span>,
         mode: M,
-        input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Input,
-        partial_state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="kw-2">mut </span><span class="self">Self</span>::PartialState,
-    ) -&gt; Iter&lt;<span class="lifetime">&#39;a</span>, Input, <span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="kw-2">mut </span><span class="self">Self</span>::PartialState, M&gt;
+        input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Input,
+        partial_state: <span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="kw-2">mut </span><span class="self">Self</span>::PartialState,
+    ) -&gt; Iter&lt;<span class="lifetime">'a</span>, Input, <span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="kw-2">mut </span><span class="self">Self</span>::PartialState, M&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Parser&lt;Input&gt; + Sized,
         M: ParseMode,
@@ -2043,26 +2044,26 @@
     /// ```
     /// # use combine::*;
     /// # fn main() {
-    /// fn test&lt;&#39;input, F&gt;(
+    /// fn test&lt;'input, F&gt;(
     ///     c: char,
     ///     f: F)
-    ///     -&gt; Box&lt;dyn Parser&lt;&amp;&#39;input str, Output = (char, char), PartialState = ()&gt; + &#39;input&gt;
-    ///     where F: FnMut(char) -&gt; bool + &#39;static
+    ///     -&gt; Box&lt;dyn Parser&lt;&amp;'input str, Output = (char, char), PartialState = ()&gt; + 'input&gt;
+    ///     where F: FnMut(char) -&gt; bool + 'static
     /// {
     ///     combine::parser::combinator::no_partial((token(c), satisfy(f))).boxed()
     /// }
-    /// let result = test(&#39;a&#39;, |c| c &gt;= &#39;a&#39; &amp;&amp; c &lt;= &#39;f&#39;)
-    ///     .parse(&quot;ac&quot;);
-    /// assert_eq!(result, Ok(((&#39;a&#39;, &#39;c&#39;), &quot;&quot;)));
+    /// let result = test('a', |c| c &gt;= 'a' &amp;&amp; c &lt;= 'f')
+    ///     .parse("ac");
+    /// assert_eq!(result, Ok((('a', 'c'), "")));
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
-    </span><span class="kw">fn </span>boxed&lt;<span class="lifetime">&#39;a</span>&gt;(
+    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
+    </span><span class="kw">fn </span>boxed&lt;<span class="lifetime">'a</span>&gt;(
         <span class="self">self</span>,
-    ) -&gt; Box&lt;<span class="kw">dyn </span>Parser&lt;Input, Output = <span class="self">Self</span>::Output, PartialState = <span class="self">Self</span>::PartialState&gt; + <span class="lifetime">&#39;a</span>&gt;
+    ) -&gt; Box&lt;<span class="kw">dyn </span>Parser&lt;Input, Output = <span class="self">Self</span>::Output, PartialState = <span class="self">Self</span>::PartialState&gt; + <span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span><span class="self">Self</span>: Sized + <span class="lifetime">&#39;a</span>,
+        </span><span class="self">Self</span>: Sized + <span class="lifetime">'a</span>,
     {
         Box::new(<span class="self">self</span>)
     }
@@ -2076,9 +2077,9 @@
     /// # use combine::parser::char::{digit, letter};
     /// # fn main() {
     /// let mut parser = any().then(|c|
-    ///     if c == &#39;#&#39; {
-    ///         skip_many(satisfy(|c| c != &#39;\n&#39;))
-    ///             .with(value(&quot;&quot;.to_string()))
+    ///     if c == '#' {
+    ///         skip_many(satisfy(|c| c != '\n'))
+    ///             .with(value("".to_string()))
     ///             .left()
     ///     } else {
     ///         many1(letter())
@@ -2086,11 +2087,11 @@
     ///             .right()
     ///     });
     ///
-    /// let result = parser.parse(&quot;ac2&quot;);
-    /// assert_eq!(result, Ok((&quot;ac&quot;.to_string(), &quot;2&quot;)));
+    /// let result = parser.parse("ac2");
+    /// assert_eq!(result, Ok(("ac".to_string(), "2")));
     ///
-    /// let result = parser.parse(&quot;# ac2&quot;);
-    /// assert_eq!(result, Ok((&quot;&quot;.to_string(), &quot;&quot;)));
+    /// let result = parser.parse("# ac2");
+    /// assert_eq!(result, Ok(("".to_string(), "")));
     /// # }
     /// ```
     </span><span class="kw">fn </span>left&lt;R&gt;(<span class="self">self</span>) -&gt; Either&lt;<span class="self">Self</span>, R&gt;
@@ -2110,9 +2111,9 @@
     /// # use combine::parser::char::{digit, letter};
     /// # fn main() {
     /// let mut parser = any().then(|c|
-    ///     if c == &#39;#&#39; {
-    ///         skip_many(satisfy(|c| c != &#39;\n&#39;))
-    ///             .with(value(&quot;&quot;.to_string()))
+    ///     if c == '#' {
+    ///         skip_many(satisfy(|c| c != '\n'))
+    ///             .with(value("".to_string()))
     ///             .left()
     ///     } else {
     ///         many1(letter())
@@ -2120,11 +2121,11 @@
     ///             .right()
     ///     });
     ///
-    /// let result = parser.parse(&quot;ac2&quot;);
-    /// assert_eq!(result, Ok((&quot;ac&quot;.to_string(), &quot;2&quot;)));
+    /// let result = parser.parse("ac2");
+    /// assert_eq!(result, Ok(("ac".to_string(), "2")));
     ///
-    /// let result = parser.parse(&quot;# ac2&quot;);
-    /// assert_eq!(result, Ok((&quot;&quot;.to_string(), &quot;&quot;)));
+    /// let result = parser.parse("# ac2");
+    /// assert_eq!(result, Ok(("".to_string(), "")));
     /// # }
     /// ```
     </span><span class="kw">fn </span>right&lt;L&gt;(<span class="self">self</span>) -&gt; Either&lt;L, <span class="self">Self</span>&gt;
@@ -2144,8 +2145,8 @@
     /// use combine::{*, parser::{char::string, combinator::spanned}};
     /// use combine::stream::{easy, span};
     ///
-    /// let input = &quot;hel&quot;;
-    /// let result = spanned(string(&quot;hello&quot;)).parse(
+    /// let input = "hel";
+    /// let result = spanned(string("hello")).parse(
     ///     span::Stream::&lt;_, easy::Errors&lt;_, _, span::Span&lt;_&gt;&gt;&gt;::from(easy::Stream::from(input)),
     /// );
     /// assert!(result.is_err());
@@ -2163,8 +2164,8 @@
 }
 
 <span class="doccomment">/// Provides the `easy_parse` method which provides good error messages by default
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub trait </span>EasyParser&lt;Input: Stream&gt;: Parser&lt;<span class="kw">crate</span>::easy::Stream&lt;Input&gt;&gt;
 <span class="kw">where
     </span>Input::Token: PartialEq,
@@ -2195,19 +2196,19 @@
     /// }
     /// }
     ///
-    /// // Won&#39;t compile with `easy_parse` since it is specialized on `&amp;str`
+    /// // Won't compile with `easy_parse` since it is specialized on `&amp;str`
     /// parser!{
-    /// fn my_parser2[&#39;a]()(&amp;&#39;a str) -&gt; String
-    ///     where [&amp;&#39;a str: Stream&lt;Token = char, Range = &amp;&#39;a str&gt;]
+    /// fn my_parser2['a]()(&amp;'a str) -&gt; String
+    ///     where [&amp;'a str: Stream&lt;Token = char, Range = &amp;'a str&gt;]
     /// {
     ///     many1(letter())
     /// }
     /// }
     ///
     /// fn main() {
-    ///     assert_eq!(my_parser().parse(&quot;abc&quot;), Ok((&quot;abc&quot;.to_string(), &quot;&quot;)));
+    ///     assert_eq!(my_parser().parse("abc"), Ok(("abc".to_string(), "")));
     ///     // Would fail to compile if uncommented
-    ///     // my_parser2().parse(&quot;abc&quot;)
+    ///     // my_parser2().parse("abc")
     /// }
     /// ```
     ///
@@ -2235,7 +2236,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl</span>&lt;Input, P&gt; EasyParser&lt;Input&gt; <span class="kw">for </span>P
 <span class="kw">where
     </span>P: <span class="question-mark">?</span>Sized + Parser&lt;<span class="kw">crate</span>::easy::Stream&lt;Input&gt;&gt;,
@@ -2288,7 +2289,7 @@
     };
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, P, Input&gt; Parser&lt;Input&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>P
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, P, Input&gt; Parser&lt;Input&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>P
 <span class="kw">where
     </span>P: <span class="question-mark">?</span>Sized + Parser&lt;Input&gt;,
     Input: Stream,
@@ -2296,7 +2297,7 @@
     <span class="macro">forward_deref!</span>(Input);
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl</span>&lt;P, Input&gt; Parser&lt;Input&gt; <span class="kw">for </span>Box&lt;P&gt;
 <span class="kw">where
     </span>P: <span class="question-mark">?</span>Sized + Parser&lt;Input&gt;,

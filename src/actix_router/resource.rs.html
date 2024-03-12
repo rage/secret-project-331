@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-router-0.5.2/src/resource.rs`."><title>resource.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_router" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_router/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_router"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-router-0.5.2/src/resource.rs`."><title>resource.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_router" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_router/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_router"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1787,10 +1788,10 @@
 
 <span class="kw">const </span>MAX_DYNAMIC_SEGMENTS: usize = <span class="number">16</span>;
 
-<span class="doccomment">/// Regex flags to allow &#39;.&#39; in regex to match &#39;\n&#39;
+<span class="doccomment">/// Regex flags to allow '.' in regex to match '\n'
 ///
 /// See the docs under: https://docs.rs/regex/1/regex/#grouping-and-flags
-</span><span class="kw">const </span>REGEX_FLAGS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;(?s-m)&quot;</span>;
+</span><span class="kw">const </span>REGEX_FLAGS: <span class="kw-2">&amp;</span>str = <span class="string">"(?s-m)"</span>;
 
 <span class="doccomment">/// Describes the set of paths that match to a resource.
 ///
@@ -1806,12 +1807,12 @@
 ///
 /// This means that pattern string __must__ either be empty or begin with a slash (`/`). This also
 /// implies that a trailing slash in pattern defines an empty segment. For example, the pattern
-/// `&quot;/user/&quot;` has two segments: `[&quot;user&quot;, &quot;&quot;]`
+/// `"/user/"` has two segments: `["user", ""]`
 ///
 /// A key point to understand is that `ResourceDef` matches segments, not strings. Segments are
 /// matched individually. For example, the pattern `/user/` is not considered a prefix for the path
-/// `/user/123/456`, because the second segment doesn&#39;t match: `[&quot;user&quot;, &quot;&quot;]`
-/// vs `[&quot;user&quot;, &quot;123&quot;, &quot;456&quot;]`.
+/// `/user/123/456`, because the second segment doesn't match: `["user", ""]`
+/// vs `["user", "123", "456"]`.
 ///
 /// This definition is consistent with the definition of absolute URL path in
 /// [RFC 3986 §3.3](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)
@@ -1824,23 +1825,23 @@
 /// ## Examples
 /// ```
 /// # use actix_router::ResourceDef;
-/// let resource = ResourceDef::new(&quot;/home&quot;);
+/// let resource = ResourceDef::new("/home");
 ///
-/// assert!(resource.is_match(&quot;/home&quot;));
+/// assert!(resource.is_match("/home"));
 ///
-/// assert!(!resource.is_match(&quot;/home/&quot;));
-/// assert!(!resource.is_match(&quot;/home/new&quot;));
-/// assert!(!resource.is_match(&quot;/homes&quot;));
-/// assert!(!resource.is_match(&quot;/search&quot;));
+/// assert!(!resource.is_match("/home/"));
+/// assert!(!resource.is_match("/home/new"));
+/// assert!(!resource.is_match("/homes"));
+/// assert!(!resource.is_match("/search"));
 /// ```
 ///
 /// # Dynamic Segments
-/// Also known as &quot;path parameters&quot;. Resources can define sections of a pattern that be extracted
+/// Also known as "path parameters". Resources can define sections of a pattern that be extracted
 /// from a conforming path, if it conforms to (one of) the resource pattern(s).
 ///
 /// The marker for a dynamic segment is curly braces wrapping an identifier. For example,
 /// `/user/{id}` would match paths like `/user/123` or `/user/james` and be able to extract the user
-/// IDs &quot;123&quot; and &quot;james&quot;, respectively.
+/// IDs "123" and "james", respectively.
 ///
 /// However, this resource pattern (`/user/{id}`) would, not cover `/user/123/stars` (unless
 /// constructed as a prefix; see next section) since the default pattern for segments matches all
@@ -1861,15 +1862,15 @@
 /// ```
 /// use actix_router::{Path, ResourceDef};
 ///
-/// let resource = ResourceDef::prefix(&quot;/user/{id}&quot;);
+/// let resource = ResourceDef::prefix("/user/{id}");
 ///
-/// assert!(resource.is_match(&quot;/user/123&quot;));
-/// assert!(!resource.is_match(&quot;/user&quot;));
-/// assert!(!resource.is_match(&quot;/user/&quot;));
+/// assert!(resource.is_match("/user/123"));
+/// assert!(!resource.is_match("/user"));
+/// assert!(!resource.is_match("/user/"));
 ///
-/// let mut path = Path::new(&quot;/user/123&quot;);
+/// let mut path = Path::new("/user/123");
 /// resource.capture_match_info(&amp;mut path);
-/// assert_eq!(path.get(&quot;id&quot;).unwrap(), &quot;123&quot;);
+/// assert_eq!(path.get("id").unwrap(), "123");
 /// ```
 ///
 /// # Prefix Resources
@@ -1880,24 +1881,24 @@
 /// They define and therefore require an empty segment in order to match. It is easier to understand
 /// this behavior after reading the [matching behavior section]. Examples are given below.
 ///
-/// The empty pattern (`&quot;&quot;`), as a prefix, matches any path.
+/// The empty pattern (`""`), as a prefix, matches any path.
 ///
 /// Prefix resources can contain dynamic segments.
 ///
 /// ## Examples
 /// ```
 /// # use actix_router::ResourceDef;
-/// let resource = ResourceDef::prefix(&quot;/home&quot;);
-/// assert!(resource.is_match(&quot;/home&quot;));
-/// assert!(resource.is_match(&quot;/home/new&quot;));
-/// assert!(!resource.is_match(&quot;/homes&quot;));
+/// let resource = ResourceDef::prefix("/home");
+/// assert!(resource.is_match("/home"));
+/// assert!(resource.is_match("/home/new"));
+/// assert!(!resource.is_match("/homes"));
 ///
 /// // prefix pattern with a trailing slash
-/// let resource = ResourceDef::prefix(&quot;/user/{id}/&quot;);
-/// assert!(resource.is_match(&quot;/user/123/&quot;));
-/// assert!(resource.is_match(&quot;/user/123//stars&quot;));
-/// assert!(!resource.is_match(&quot;/user/123/stars&quot;));
-/// assert!(!resource.is_match(&quot;/user/123&quot;));
+/// let resource = ResourceDef::prefix("/user/{id}/");
+/// assert!(resource.is_match("/user/123/"));
+/// assert!(resource.is_match("/user/123//stars"));
+/// assert!(!resource.is_match("/user/123/stars"));
+/// assert!(!resource.is_match("/user/123"));
 /// ```
 ///
 /// # Custom Regex Segments
@@ -1911,7 +1912,7 @@
 ///
 /// The regex could potentially match multiple segments. If this is not wanted, then care must be
 /// taken to avoid matching a slash `/`. It is guaranteed, however, that the match ends at a
-/// segment boundary; the pattern `r&quot;(/|$)` is always appended to the regex.
+/// segment boundary; the pattern `r"(/|$)` is always appended to the regex.
 ///
 /// By default, dynamic segments use this regex: `[^/]+`. This shows why it is the case, as shown in
 /// the earlier section, that segments capture a slice of the path up to the next `/` character.
@@ -1921,10 +1922,10 @@
 /// ## Examples
 /// ```
 /// # use actix_router::ResourceDef;
-/// let resource = ResourceDef::new(r&quot;/user/{id:\d+}&quot;);
-/// assert!(resource.is_match(&quot;/user/123&quot;));
-/// assert!(resource.is_match(&quot;/user/314159&quot;));
-/// assert!(!resource.is_match(&quot;/user/abc&quot;));
+/// let resource = ResourceDef::new(r"/user/{id:\d+}");
+/// assert!(resource.is_match("/user/123"));
+/// assert!(resource.is_match("/user/314159"));
+/// assert!(!resource.is_match("/user/abc"));
 /// ```
 ///
 /// # Tail Segments
@@ -1938,13 +1939,13 @@
 /// ## Examples
 /// ```
 /// # use actix_router::{Path, ResourceDef};
-/// let resource = ResourceDef::new(&quot;/blob/{tail}*&quot;);
-/// assert!(resource.is_match(&quot;/blob/HEAD/Cargo.toml&quot;));
-/// assert!(resource.is_match(&quot;/blob/HEAD/README.md&quot;));
+/// let resource = ResourceDef::new("/blob/{tail}*");
+/// assert!(resource.is_match("/blob/HEAD/Cargo.toml"));
+/// assert!(resource.is_match("/blob/HEAD/README.md"));
 ///
-/// let mut path = Path::new(&quot;/blob/main/LICENSE&quot;);
+/// let mut path = Path::new("/blob/main/LICENSE");
 /// resource.capture_match_info(&amp;mut path);
-/// assert_eq!(path.get(&quot;tail&quot;).unwrap(), &quot;main/LICENSE&quot;);
+/// assert_eq!(path.get("tail").unwrap(), "main/LICENSE");
 /// ```
 ///
 /// # Multi-Pattern Resources
@@ -1960,23 +1961,23 @@
 /// ## Examples
 /// ```
 /// # use actix_router::ResourceDef;
-/// let resource = ResourceDef::new([&quot;/home&quot;, &quot;/index&quot;]);
-/// assert!(resource.is_match(&quot;/home&quot;));
-/// assert!(resource.is_match(&quot;/index&quot;));
+/// let resource = ResourceDef::new(["/home", "/index"]);
+/// assert!(resource.is_match("/home"));
+/// assert!(resource.is_match("/index"));
 /// ```
 ///
 /// # Trailing Slashes
 /// It should be noted that this library takes no steps to normalize intra-path or trailing slashes.
 /// As such, all resource definitions implicitly expect a pre-processing step to normalize paths if
-/// you wish to accommodate &quot;recoverable&quot; path errors. Below are several examples of resource-path
+/// you wish to accommodate "recoverable" path errors. Below are several examples of resource-path
 /// pairs that would not be compatible.
 ///
 /// ## Examples
 /// ```
 /// # use actix_router::ResourceDef;
-/// assert!(!ResourceDef::new(&quot;/root&quot;).is_match(&quot;/root/&quot;));
-/// assert!(!ResourceDef::new(&quot;/root/&quot;).is_match(&quot;/root&quot;));
-/// assert!(!ResourceDef::prefix(&quot;/root/&quot;).is_match(&quot;/root&quot;));
+/// assert!(!ResourceDef::new("/root").is_match("/root/"));
+/// assert!(!ResourceDef::new("/root/").is_match("/root"));
+/// assert!(!ResourceDef::prefix("/root/").is_match("/root"));
 /// ```
 ///
 /// [matching behavior section]: #pattern-format-and-matching-behavior
@@ -2015,10 +2016,10 @@
     </span>Static(String),
 
     <span class="doccomment">/// Single regular expression and list of dynamic segment names.
-    </span>Dynamic(Regex, Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;),
+    </span>Dynamic(Regex, Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;),
 
     <span class="doccomment">/// Regular expression set and list of component expressions plus dynamic segment names.
-    </span>DynamicSet(RegexSet, Vec&lt;(Regex, Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;)&gt;),
+    </span>DynamicSet(RegexSet, Vec&lt;(Regex, Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;)&gt;),
 }
 
 <span class="kw">impl </span>ResourceDef {
@@ -2033,17 +2034,17 @@
     /// ```
     /// use actix_router::ResourceDef;
     ///
-    /// let resource = ResourceDef::new(&quot;/user/{id}&quot;);
-    /// assert!(resource.is_match(&quot;/user/123&quot;));
-    /// assert!(!resource.is_match(&quot;/user/123/stars&quot;));
-    /// assert!(!resource.is_match(&quot;user/1234&quot;));
-    /// assert!(!resource.is_match(&quot;/foo&quot;));
+    /// let resource = ResourceDef::new("/user/{id}");
+    /// assert!(resource.is_match("/user/123"));
+    /// assert!(!resource.is_match("/user/123/stars"));
+    /// assert!(!resource.is_match("user/1234"));
+    /// assert!(!resource.is_match("/foo"));
     ///
-    /// let resource = ResourceDef::new([&quot;/profile&quot;, &quot;/user/{id}&quot;]);
-    /// assert!(resource.is_match(&quot;/profile&quot;));
-    /// assert!(resource.is_match(&quot;/user/123&quot;));
-    /// assert!(!resource.is_match(&quot;user/123&quot;));
-    /// assert!(!resource.is_match(&quot;/foo&quot;));
+    /// let resource = ResourceDef::new(["/profile", "/user/{id}"]);
+    /// assert!(resource.is_match("/profile"));
+    /// assert!(resource.is_match("/user/123"));
+    /// assert!(!resource.is_match("user/123"));
+    /// assert!(!resource.is_match("/foo"));
     /// ```
     </span><span class="kw">pub fn </span>new&lt;T: IntoPatterns&gt;(paths: T) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::construct(paths, <span class="bool-val">false</span>)
@@ -2065,12 +2066,12 @@
     /// ```
     /// use actix_router::ResourceDef;
     ///
-    /// let resource = ResourceDef::prefix(&quot;/user/{id}&quot;);
-    /// assert!(resource.is_match(&quot;/user/123&quot;));
-    /// assert!(resource.is_match(&quot;/user/123/stars&quot;));
-    /// assert!(!resource.is_match(&quot;user/123&quot;));
-    /// assert!(!resource.is_match(&quot;user/123/stars&quot;));
-    /// assert!(!resource.is_match(&quot;/foo&quot;));
+    /// let resource = ResourceDef::prefix("/user/{id}");
+    /// assert!(resource.is_match("/user/123"));
+    /// assert!(resource.is_match("/user/123/stars"));
+    /// assert!(!resource.is_match("user/123"));
+    /// assert!(!resource.is_match("user/123/stars"));
+    /// assert!(!resource.is_match("/foo"));
     /// ```
     </span><span class="kw">pub fn </span>prefix&lt;T: IntoPatterns&gt;(paths: T) -&gt; <span class="self">Self </span>{
         ResourceDef::construct(paths, <span class="bool-val">true</span>)
@@ -2086,15 +2087,15 @@
     /// ```
     /// use actix_router::ResourceDef;
     ///
-    /// let resource = ResourceDef::root_prefix(&quot;user/{id}&quot;);
+    /// let resource = ResourceDef::root_prefix("user/{id}");
     ///
-    /// assert_eq!(&amp;resource, &amp;ResourceDef::prefix(&quot;/user/{id}&quot;));
-    /// assert_eq!(&amp;resource, &amp;ResourceDef::root_prefix(&quot;/user/{id}&quot;));
-    /// assert_ne!(&amp;resource, &amp;ResourceDef::new(&quot;user/{id}&quot;));
-    /// assert_ne!(&amp;resource, &amp;ResourceDef::new(&quot;/user/{id}&quot;));
+    /// assert_eq!(&amp;resource, &amp;ResourceDef::prefix("/user/{id}"));
+    /// assert_eq!(&amp;resource, &amp;ResourceDef::root_prefix("/user/{id}"));
+    /// assert_ne!(&amp;resource, &amp;ResourceDef::new("user/{id}"));
+    /// assert_ne!(&amp;resource, &amp;ResourceDef::new("/user/{id}"));
     ///
-    /// assert!(resource.is_match(&quot;/user/123&quot;));
-    /// assert!(!resource.is_match(&quot;user/123&quot;));
+    /// assert!(resource.is_match("/user/123"));
+    /// assert!(!resource.is_match("user/123"));
     /// ```
     </span><span class="kw">pub fn </span>root_prefix(path: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         ResourceDef::prefix(insert_slash(path).into_owned())
@@ -2107,7 +2108,7 @@
     /// # Examples
     /// ```
     /// # use actix_router::ResourceDef;
-    /// let mut resource = ResourceDef::new(&quot;/root&quot;);
+    /// let mut resource = ResourceDef::new("/root");
     /// assert_eq!(resource.id(), 0);
     ///
     /// resource.set_id(42);
@@ -2122,7 +2123,7 @@
     /// # Examples
     /// ```
     /// # use actix_router::ResourceDef;
-    /// let mut resource = ResourceDef::new(&quot;/root&quot;);
+    /// let mut resource = ResourceDef::new("/root");
     /// resource.set_id(42);
     /// assert_eq!(resource.id(), 42);
     /// ```
@@ -2135,11 +2136,11 @@
     /// # Examples
     /// ```
     /// # use actix_router::ResourceDef;
-    /// let mut resource = ResourceDef::new(&quot;/root&quot;);
+    /// let mut resource = ResourceDef::new("/root");
     /// assert!(resource.name().is_none());
     ///
-    /// resource.set_name(&quot;root&quot;);
-    /// assert_eq!(resource.name().unwrap(), &quot;root&quot;);
+    /// resource.set_name("root");
+    /// assert_eq!(resource.name().unwrap(), "root");
     </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="self">self</span>.name.as_deref()
     }
@@ -2152,14 +2153,14 @@
     /// # Examples
     /// ```
     /// # use actix_router::ResourceDef;
-    /// let mut resource = ResourceDef::new(&quot;/root&quot;);
-    /// resource.set_name(&quot;root&quot;);
-    /// assert_eq!(resource.name().unwrap(), &quot;root&quot;);
+    /// let mut resource = ResourceDef::new("/root");
+    /// resource.set_name("root");
+    /// assert_eq!(resource.name().unwrap(), "root");
     /// ```
     </span><span class="kw">pub fn </span>set_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;String&gt;) {
         <span class="kw">let </span>name = name.into();
 
-        <span class="macro">assert!</span>(!name.is_empty(), <span class="string">&quot;resource name should not be empty&quot;</span>);
+        <span class="macro">assert!</span>(!name.is_empty(), <span class="string">"resource name should not be empty"</span>);
 
         <span class="self">self</span>.name = <span class="prelude-val">Some</span>(name)
     }
@@ -2169,8 +2170,8 @@
     /// # Examples
     /// ```
     /// # use actix_router::ResourceDef;
-    /// assert!(ResourceDef::prefix(&quot;/user&quot;).is_prefix());
-    /// assert!(!ResourceDef::new(&quot;/user&quot;).is_prefix());
+    /// assert!(ResourceDef::prefix("/user").is_prefix());
+    /// assert!(!ResourceDef::new("/user").is_prefix());
     /// ```
     </span><span class="kw">pub fn </span>is_prefix(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_prefix
@@ -2185,11 +2186,11 @@
     /// # Examples
     /// ```
     /// # use actix_router::ResourceDef;
-    /// let mut resource = ResourceDef::new(&quot;/user/{id}&quot;);
-    /// assert_eq!(resource.pattern().unwrap(), &quot;/user/{id}&quot;);
+    /// let mut resource = ResourceDef::new("/user/{id}");
+    /// assert_eq!(resource.pattern().unwrap(), "/user/{id}");
     ///
-    /// let mut resource = ResourceDef::new([&quot;/profile&quot;, &quot;/user/{id}&quot;]);
-    /// assert_eq!(resource.pattern(), Some(&quot;/profile&quot;));
+    /// let mut resource = ResourceDef::new(["/profile", "/user/{id}"]);
+    /// assert_eq!(resource.pattern(), Some("/profile"));
     </span><span class="kw">pub fn </span>pattern(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.patterns {
             Patterns::Single(pattern) =&gt; <span class="prelude-val">Some</span>(pattern.as_str()),
@@ -2202,25 +2203,25 @@
     /// # Examples
     /// ```
     /// # use actix_router::ResourceDef;
-    /// let mut resource = ResourceDef::new(&quot;/root&quot;);
+    /// let mut resource = ResourceDef::new("/root");
     /// let mut iter = resource.pattern_iter();
-    /// assert_eq!(iter.next().unwrap(), &quot;/root&quot;);
+    /// assert_eq!(iter.next().unwrap(), "/root");
     /// assert!(iter.next().is_none());
     ///
-    /// let mut resource = ResourceDef::new([&quot;/root&quot;, &quot;/backup&quot;]);
+    /// let mut resource = ResourceDef::new(["/root", "/backup"]);
     /// let mut iter = resource.pattern_iter();
-    /// assert_eq!(iter.next().unwrap(), &quot;/root&quot;);
-    /// assert_eq!(iter.next().unwrap(), &quot;/backup&quot;);
+    /// assert_eq!(iter.next().unwrap(), "/root");
+    /// assert_eq!(iter.next().unwrap(), "/backup");
     /// assert!(iter.next().is_none());
     </span><span class="kw">pub fn </span>pattern_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>str&gt; {
-        <span class="kw">struct </span>PatternIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-            patterns: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Patterns,
+        <span class="kw">struct </span>PatternIter&lt;<span class="lifetime">'a</span>&gt; {
+            patterns: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Patterns,
             list_idx: usize,
             done: bool,
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>PatternIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-            <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>PatternIter&lt;<span class="lifetime">'a</span>&gt; {
+            <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str;
 
             <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
                 <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.patterns {
@@ -2269,8 +2270,8 @@
     /// # Examples
     /// ```
     /// # use actix_router::ResourceDef;
-    /// let joined = ResourceDef::prefix(&quot;/root&quot;).join(&amp;ResourceDef::prefix(&quot;/seg&quot;));
-    /// assert_eq!(joined, ResourceDef::prefix(&quot;/root/seg&quot;));
+    /// let joined = ResourceDef::prefix("/root").join(&amp;ResourceDef::prefix("/seg"));
+    /// assert_eq!(joined, ResourceDef::prefix("/root/seg"));
     /// ```
     </span><span class="kw">pub fn </span>join(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>ResourceDef) -&gt; ResourceDef {
         <span class="kw">let </span>patterns = <span class="self">self
@@ -2304,22 +2305,22 @@
     /// use actix_router::ResourceDef;
     ///
     /// // static resource
-    /// let resource = ResourceDef::new(&quot;/user&quot;);
-    /// assert!(resource.is_match(&quot;/user&quot;));
-    /// assert!(!resource.is_match(&quot;/users&quot;));
-    /// assert!(!resource.is_match(&quot;/user/123&quot;));
-    /// assert!(!resource.is_match(&quot;/foo&quot;));
+    /// let resource = ResourceDef::new("/user");
+    /// assert!(resource.is_match("/user"));
+    /// assert!(!resource.is_match("/users"));
+    /// assert!(!resource.is_match("/user/123"));
+    /// assert!(!resource.is_match("/foo"));
     ///
     /// // dynamic resource
-    /// let resource = ResourceDef::new(&quot;/user/{user_id}&quot;);
-    /// assert!(resource.is_match(&quot;/user/123&quot;));
-    /// assert!(!resource.is_match(&quot;/user/123/stars&quot;));
+    /// let resource = ResourceDef::new("/user/{user_id}");
+    /// assert!(resource.is_match("/user/123"));
+    /// assert!(!resource.is_match("/user/123/stars"));
     ///
     /// // prefix resource
-    /// let resource = ResourceDef::prefix(&quot;/root&quot;);
-    /// assert!(resource.is_match(&quot;/root&quot;));
-    /// assert!(resource.is_match(&quot;/root/leaf&quot;));
-    /// assert!(!resource.is_match(&quot;/roots&quot;));
+    /// let resource = ResourceDef::prefix("/root");
+    /// assert!(resource.is_match("/root"));
+    /// assert!(resource.is_match("/root/leaf"));
+    /// assert!(!resource.is_match("/roots"));
     ///
     /// // more examples are shown in the `ResourceDef` struct docs
     /// ```
@@ -2347,29 +2348,29 @@
     /// use actix_router::ResourceDef;
     ///
     /// // static resource
-    /// let resource = ResourceDef::new(&quot;/user&quot;);
-    /// assert_eq!(resource.find_match(&quot;/user&quot;), Some(5));
-    /// assert!(resource.find_match(&quot;/user/&quot;).is_none());
-    /// assert!(resource.find_match(&quot;/user/123&quot;).is_none());
-    /// assert!(resource.find_match(&quot;/foo&quot;).is_none());
+    /// let resource = ResourceDef::new("/user");
+    /// assert_eq!(resource.find_match("/user"), Some(5));
+    /// assert!(resource.find_match("/user/").is_none());
+    /// assert!(resource.find_match("/user/123").is_none());
+    /// assert!(resource.find_match("/foo").is_none());
     ///
     /// // constant prefix resource
-    /// let resource = ResourceDef::prefix(&quot;/user&quot;);
-    /// assert_eq!(resource.find_match(&quot;/user&quot;), Some(5));
-    /// assert_eq!(resource.find_match(&quot;/user/&quot;), Some(5));
-    /// assert_eq!(resource.find_match(&quot;/user/123&quot;), Some(5));
+    /// let resource = ResourceDef::prefix("/user");
+    /// assert_eq!(resource.find_match("/user"), Some(5));
+    /// assert_eq!(resource.find_match("/user/"), Some(5));
+    /// assert_eq!(resource.find_match("/user/123"), Some(5));
     ///
     /// // dynamic prefix resource
-    /// let resource = ResourceDef::prefix(&quot;/user/{id}&quot;);
-    /// assert_eq!(resource.find_match(&quot;/user/123&quot;), Some(9));
-    /// assert_eq!(resource.find_match(&quot;/user/1234/&quot;), Some(10));
-    /// assert_eq!(resource.find_match(&quot;/user/12345/stars&quot;), Some(11));
-    /// assert!(resource.find_match(&quot;/user/&quot;).is_none());
+    /// let resource = ResourceDef::prefix("/user/{id}");
+    /// assert_eq!(resource.find_match("/user/123"), Some(9));
+    /// assert_eq!(resource.find_match("/user/1234/"), Some(10));
+    /// assert_eq!(resource.find_match("/user/12345/stars"), Some(11));
+    /// assert!(resource.find_match("/user/").is_none());
     ///
     /// // multi-pattern resource
-    /// let resource = ResourceDef::new([&quot;/user/{id}&quot;, &quot;/profile/{id}&quot;]);
-    /// assert_eq!(resource.find_match(&quot;/user/123&quot;), Some(9));
-    /// assert_eq!(resource.find_match(&quot;/profile/1234&quot;), Some(13));
+    /// let resource = ResourceDef::new(["/user/{id}", "/profile/{id}"]);
+    /// assert_eq!(resource.find_match("/user/123"), Some(9));
+    /// assert_eq!(resource.find_match("/profile/1234"), Some(13));
     /// ```
     </span><span class="kw">pub fn </span>find_match(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.pat_type {
@@ -2393,17 +2394,17 @@
     /// ```
     /// use actix_router::{Path, ResourceDef};
     ///
-    /// let resource = ResourceDef::prefix(&quot;/user/{id}&quot;);
-    /// let mut path = Path::new(&quot;/user/123/stars&quot;);
+    /// let resource = ResourceDef::prefix("/user/{id}");
+    /// let mut path = Path::new("/user/123/stars");
     /// assert!(resource.capture_match_info(&amp;mut path));
-    /// assert_eq!(path.get(&quot;id&quot;).unwrap(), &quot;123&quot;);
-    /// assert_eq!(path.unprocessed(), &quot;/stars&quot;);
+    /// assert_eq!(path.get("id").unwrap(), "123");
+    /// assert_eq!(path.unprocessed(), "/stars");
     ///
-    /// let resource = ResourceDef::new(&quot;/blob/{path}*&quot;);
-    /// let mut path = Path::new(&quot;/blob/HEAD/Cargo.toml&quot;);
+    /// let resource = ResourceDef::new("/blob/{path}*");
+    /// let mut path = Path::new("/blob/HEAD/Cargo.toml");
     /// assert!(resource.capture_match_info(&amp;mut path));
-    /// assert_eq!(path.get(&quot;path&quot;).unwrap(), &quot;HEAD/Cargo.toml&quot;);
-    /// assert_eq!(path.unprocessed(), &quot;&quot;);
+    /// assert_eq!(path.get("path").unwrap(), "HEAD/Cargo.toml");
+    /// assert_eq!(path.unprocessed(), "");
     /// ```
     </span><span class="kw">pub fn </span>capture_match_info&lt;R: Resource&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, resource: <span class="kw-2">&amp;mut </span>R) -&gt; bool {
         <span class="self">self</span>.capture_match_info_fn(resource, |<span class="kw">_</span>| <span class="bool-val">true</span>)
@@ -2424,27 +2425,27 @@
     /// use actix_router::{Path, ResourceDef};
     ///
     /// fn try_match(resource: &amp;ResourceDef, path: &amp;mut Path&lt;&amp;str&gt;) -&gt; bool {
-    ///     let admin_allowed = std::env::var(&quot;ADMIN_ALLOWED&quot;).is_ok();
+    ///     let admin_allowed = std::env::var("ADMIN_ALLOWED").is_ok();
     ///
     ///     resource.capture_match_info_fn(
     ///         path,
-    ///         // when env var is not set, reject when path contains &quot;admin&quot;
-    ///         |path| !(!admin_allowed &amp;&amp; path.as_str().contains(&quot;admin&quot;)),
+    ///         // when env var is not set, reject when path contains "admin"
+    ///         |path| !(!admin_allowed &amp;&amp; path.as_str().contains("admin")),
     ///     )
     /// }
     ///
-    /// let resource = ResourceDef::prefix(&quot;/user/{id}&quot;);
+    /// let resource = ResourceDef::prefix("/user/{id}");
     ///
     /// // path matches; segment values are collected into path
-    /// let mut path = Path::new(&quot;/user/james/stars&quot;);
+    /// let mut path = Path::new("/user/james/stars");
     /// assert!(try_match(&amp;resource, &amp;mut path));
-    /// assert_eq!(path.get(&quot;id&quot;).unwrap(), &quot;james&quot;);
-    /// assert_eq!(path.unprocessed(), &quot;/stars&quot;);
+    /// assert_eq!(path.get("id").unwrap(), "james");
+    /// assert_eq!(path.unprocessed(), "/stars");
     ///
     /// // path matches but fails check function; no segments are collected
-    /// let mut path = Path::new(&quot;/user/admin/stars&quot;);
+    /// let mut path = Path::new("/user/admin/stars");
     /// assert!(!try_match(&amp;resource, &amp;mut path));
-    /// assert_eq!(path.unprocessed(), &quot;/user/admin/stars&quot;);
+    /// assert_eq!(path.unprocessed(), "/user/admin/stars");
     /// ```
     </span><span class="kw">pub fn </span>capture_match_info_fn&lt;R, F&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, resource: <span class="kw-2">&amp;mut </span>R, check_fn: F) -&gt; bool
     <span class="kw">where
@@ -2471,7 +2472,7 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = captures.name(name) {
                         segments[no] = PathItem::Segment(m.start() <span class="kw">as </span>u16, m.end() <span class="kw">as </span>u16);
                     } <span class="kw">else </span>{
-                        <span class="macro">error!</span>(<span class="string">&quot;Dynamic path match but not all segments found: {}&quot;</span>, name);
+                        <span class="macro">error!</span>(<span class="string">"Dynamic path match but not all segments found: {}"</span>, name);
                         <span class="kw">return </span><span class="bool-val">false</span>;
                     }
                 }
@@ -2495,7 +2496,7 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = captures.name(name) {
                         segments[no] = PathItem::Segment(m.start() <span class="kw">as </span>u16, m.end() <span class="kw">as </span>u16);
                     } <span class="kw">else </span>{
-                        <span class="macro">error!</span>(<span class="string">&quot;Dynamic path match but not all segments found: {}&quot;</span>, name);
+                        <span class="macro">error!</span>(<span class="string">"Dynamic path match but not all segments found: {}"</span>, name);
                         <span class="kw">return </span><span class="bool-val">false</span>;
                     }
                 }
@@ -2552,10 +2553,10 @@
     /// ```
     /// # use actix_router::ResourceDef;
     /// let mut s = String::new();
-    /// let resource = ResourceDef::new(&quot;/user/{id}/post/{title}&quot;);
+    /// let resource = ResourceDef::new("/user/{id}/post/{title}");
     ///
-    /// assert!(resource.resource_path_from_iter(&amp;mut s, &amp;[&quot;123&quot;, &quot;my-post&quot;]));
-    /// assert_eq!(s, &quot;/user/123/post/my-post&quot;);
+    /// assert!(resource.resource_path_from_iter(&amp;mut s, &amp;["123", "my-post"]));
+    /// assert_eq!(s, "/user/123/post/my-post");
     /// ```
     </span><span class="kw">pub fn </span>resource_path_from_iter&lt;I&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;mut </span>String, values: I) -&gt; bool
     <span class="kw">where
@@ -2578,14 +2579,14 @@
     /// # use std::collections::HashMap;
     /// # use actix_router::ResourceDef;
     /// let mut s = String::new();
-    /// let resource = ResourceDef::new(&quot;/user/{id}/post/{title}&quot;);
+    /// let resource = ResourceDef::new("/user/{id}/post/{title}");
     ///
     /// let mut map = HashMap::new();
-    /// map.insert(&quot;id&quot;, &quot;123&quot;);
-    /// map.insert(&quot;title&quot;, &quot;my-post&quot;);
+    /// map.insert("id", "123");
+    /// map.insert("title", "my-post");
     ///
     /// assert!(resource.resource_path_from_map(&amp;mut s, &amp;map));
-    /// assert_eq!(s, &quot;/user/123/post/my-post&quot;);
+    /// assert_eq!(s, "/user/123/post/my-post");
     /// ```
     </span><span class="kw">pub fn </span>resource_path_from_map&lt;K, V, S&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -2609,7 +2610,7 @@
             </span><span class="bool-val">false </span><span class="kw">if </span>rem.is_empty() =&gt; <span class="prelude-val">Some</span>(pattern.len()),
 
             <span class="comment">// resource is a prefix so rem should start with a path delimiter
-            </span><span class="bool-val">true </span><span class="kw">if </span>rem.is_empty() || rem.starts_with(<span class="string">&#39;/&#39;</span>) =&gt; <span class="prelude-val">Some</span>(pattern.len()),
+            </span><span class="bool-val">true </span><span class="kw">if </span>rem.is_empty() || rem.starts_with(<span class="string">'/'</span>) =&gt; <span class="prelude-val">Some</span>(pattern.len()),
 
             <span class="comment">// otherwise, no match
             </span><span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -2669,24 +2670,24 @@
     ///
     /// The returned tuple includes:
     /// - the segment descriptor, either `Var` or `Tail`
-    /// - the segment&#39;s regex to check values against
+    /// - the segment's regex to check values against
     /// - the remaining, unprocessed string slice
     /// - whether the parsed parameter represents a tail pattern
     ///
     /// # Panics
     /// Panics if given patterns does not contain a dynamic segment.
     </span><span class="kw">fn </span>parse_param(pattern: <span class="kw-2">&amp;</span>str) -&gt; (PatternSegment, String, <span class="kw-2">&amp;</span>str, bool) {
-        <span class="kw">const </span>DEFAULT_PATTERN: <span class="kw-2">&amp;</span>str = <span class="string">&quot;[^/]+&quot;</span>;
-        <span class="kw">const </span>DEFAULT_PATTERN_TAIL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;.*&quot;</span>;
+        <span class="kw">const </span>DEFAULT_PATTERN: <span class="kw-2">&amp;</span>str = <span class="string">"[^/]+"</span>;
+        <span class="kw">const </span>DEFAULT_PATTERN_TAIL: <span class="kw-2">&amp;</span>str = <span class="string">".*"</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>params_nesting = <span class="number">0usize</span>;
         <span class="kw">let </span>close_idx = pattern
             .find(|c| <span class="kw">match </span>c {
-                <span class="string">&#39;{&#39; </span>=&gt; {
+                <span class="string">'{' </span>=&gt; {
                     params_nesting += <span class="number">1</span>;
                     <span class="bool-val">false
                 </span>}
-                <span class="string">&#39;}&#39; </span>=&gt; {
+                <span class="string">'}' </span>=&gt; {
                     params_nesting -= <span class="number">1</span>;
                     params_nesting == <span class="number">0
                 </span>}
@@ -2694,7 +2695,7 @@
             })
             .unwrap_or_else(|| {
                 <span class="macro">panic!</span>(
-                    <span class="string">r#&quot;pattern &quot;{}&quot; contains malformed dynamic segment&quot;#</span>,
+                    <span class="string">r#"pattern "{}" contains malformed dynamic segment"#</span>,
                     pattern
                 )
             });
@@ -2704,11 +2705,11 @@
         <span class="comment">// remove outer curly brackets
         </span>param = <span class="kw-2">&amp;</span>param[<span class="number">1</span>..param.len() - <span class="number">1</span>];
 
-        <span class="kw">let </span>tail = unprocessed == <span class="string">&quot;*&quot;</span>;
+        <span class="kw">let </span>tail = unprocessed == <span class="string">"*"</span>;
 
-        <span class="kw">let </span>(name, pattern) = <span class="kw">match </span>param.find(<span class="string">&#39;:&#39;</span>) {
+        <span class="kw">let </span>(name, pattern) = <span class="kw">match </span>param.find(<span class="string">':'</span>) {
             <span class="prelude-val">Some</span>(idx) =&gt; {
-                <span class="macro">assert!</span>(!tail, <span class="string">&quot;custom regex is not supported for tail match&quot;</span>);
+                <span class="macro">assert!</span>(!tail, <span class="string">"custom regex is not supported for tail match"</span>);
 
                 <span class="kw">let </span>(name, pattern) = param.split_at(idx);
                 (name, <span class="kw-2">&amp;</span>pattern[<span class="number">1</span>..])
@@ -2725,7 +2726,7 @@
         };
 
         <span class="kw">let </span>segment = PatternSegment::Var(name.to_string());
-        <span class="kw">let </span>regex = <span class="macro">format!</span>(<span class="string">r&quot;(?P&lt;{}&gt;{})&quot;</span>, <span class="kw-2">&amp;</span>name, <span class="kw-2">&amp;</span>pattern);
+        <span class="kw">let </span>regex = <span class="macro">format!</span>(<span class="string">r"(?P&lt;{}&gt;{})"</span>, <span class="kw-2">&amp;</span>name, <span class="kw-2">&amp;</span>pattern);
 
         (segment, regex, unprocessed, tail)
     }
@@ -2745,7 +2746,7 @@
         is_prefix: bool,
         force_dynamic: bool,
     ) -&gt; (PatternType, Vec&lt;PatternSegment&gt;) {
-        <span class="kw">if </span>!force_dynamic &amp;&amp; pattern.find(<span class="string">&#39;{&#39;</span>).is_none() &amp;&amp; !pattern.ends_with(<span class="string">&#39;*&#39;</span>) {
+        <span class="kw">if </span>!force_dynamic &amp;&amp; pattern.find(<span class="string">'{'</span>).is_none() &amp;&amp; !pattern.ends_with(<span class="string">'*'</span>) {
             <span class="comment">// pattern is static
             </span><span class="kw">return </span>(
                 PatternType::Static(pattern.to_owned()),
@@ -2755,11 +2756,11 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>unprocessed = pattern;
         <span class="kw">let </span><span class="kw-2">mut </span>segments = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>re = <span class="macro">format!</span>(<span class="string">&quot;{}^&quot;</span>, REGEX_FLAGS);
+        <span class="kw">let </span><span class="kw-2">mut </span>re = <span class="macro">format!</span>(<span class="string">"{}^"</span>, REGEX_FLAGS);
         <span class="kw">let </span><span class="kw-2">mut </span>dyn_segment_count = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>has_tail_segment = <span class="bool-val">false</span>;
 
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(idx) = unprocessed.find(<span class="string">&#39;{&#39;</span>) {
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(idx) = unprocessed.find(<span class="string">'{'</span>) {
             <span class="kw">let </span>(prefix, rem) = unprocessed.split_at(idx);
 
             segments.push(PatternSegment::Const(prefix.to_owned()));
@@ -2783,31 +2784,31 @@
 
             </span><span class="attr">#[cfg(not(test))]
             </span><span class="macro">tracing::warn!</span>(
-                <span class="string">&quot;Prefix resources should not have tail segments. \
+                <span class="string">"Prefix resources should not have tail segments. \
                 Use `ResourceDef::new` constructor. \
-                This may become a panic in the future.&quot;
+                This may become a panic in the future."
             </span>);
 
             <span class="comment">// panic in tests to make this case detectable
             </span><span class="attr">#[cfg(test)]
-            </span><span class="macro">panic!</span>(<span class="string">&quot;prefix resource definitions should not have tail segments&quot;</span>);
+            </span><span class="macro">panic!</span>(<span class="string">"prefix resource definitions should not have tail segments"</span>);
         }
 
-        <span class="kw">if </span>unprocessed.ends_with(<span class="string">&#39;*&#39;</span>) {
+        <span class="kw">if </span>unprocessed.ends_with(<span class="string">'*'</span>) {
             <span class="comment">// unnamed tail segment
 
             </span><span class="attr">#[cfg(not(test))]
             </span><span class="macro">tracing::warn!</span>(
-                <span class="string">&quot;Tail segments must have names. \
+                <span class="string">"Tail segments must have names. \
                 Consider `.../{{tail}}*`. \
-                This may become a panic in the future.&quot;
+                This may become a panic in the future."
             </span>);
 
             <span class="comment">// panic in tests to make this case detectable
             </span><span class="attr">#[cfg(test)]
-            </span><span class="macro">panic!</span>(<span class="string">&quot;tail segments must have names&quot;</span>);
+            </span><span class="macro">panic!</span>(<span class="string">"tail segments must have names"</span>);
         } <span class="kw">else if </span>!has_tail_segment &amp;&amp; !unprocessed.is_empty() {
-            <span class="comment">// prevent `Const(&quot;&quot;)` element from being added after last dynamic segment
+            <span class="comment">// prevent `Const("")` element from being added after last dynamic segment
 
             </span>segments.push(PatternSegment::Const(unprocessed.to_owned()));
             re.push_str(<span class="kw-2">&amp;</span>escape(unprocessed));
@@ -2815,31 +2816,31 @@
 
         <span class="macro">assert!</span>(
             dyn_segment_count &lt;= MAX_DYNAMIC_SEGMENTS,
-            <span class="string">&quot;Only {} dynamic segments are allowed, provided: {}&quot;</span>,
+            <span class="string">"Only {} dynamic segments are allowed, provided: {}"</span>,
             MAX_DYNAMIC_SEGMENTS,
             dyn_segment_count
         );
 
         <span class="comment">// Store the pattern in capture group #1 to have context info outside it
-        </span><span class="kw">let </span><span class="kw-2">mut </span>re = <span class="macro">format!</span>(<span class="string">&quot;({})&quot;</span>, re);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>re = <span class="macro">format!</span>(<span class="string">"({})"</span>, re);
 
         <span class="comment">// Ensure the match ends at a segment boundary
         </span><span class="kw">if </span>!has_tail_segment {
             <span class="kw">if </span>is_prefix {
-                re.push_str(<span class="string">r&quot;(/|$)&quot;</span>);
+                re.push_str(<span class="string">r"(/|$)"</span>);
             } <span class="kw">else </span>{
-                re.push(<span class="string">&#39;$&#39;</span>);
+                re.push(<span class="string">'$'</span>);
             }
         }
 
         <span class="kw">let </span>re = <span class="kw">match </span>Regex::new(<span class="kw-2">&amp;</span>re) {
             <span class="prelude-val">Ok</span>(re) =&gt; re,
-            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Wrong path pattern: \&quot;{}\&quot; {}&quot;</span>, pattern, err),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"Wrong path pattern: \"{}\" {}"</span>, pattern, err),
         };
 
         <span class="comment">// `Bok::leak(Box::new(name))` is an intentional memory leak. In typical applications the
         // routing table is only constructed once (per worker) so leak is bounded. If you are
-        // constructing `ResourceDef`s more than once in your application&#39;s lifecycle you would
+        // constructing `ResourceDef`s more than once in your application's lifecycle you would
         // expect a linear increase in leaked memory over time.
         </span><span class="kw">let </span>names = re
             .capture_names()
@@ -2864,8 +2865,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>ResourceDef {
-    <span class="kw">fn </span>from(path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; ResourceDef {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>ResourceDef {
+    <span class="kw">fn </span>from(path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; ResourceDef {
         ResourceDef::new(path)
     }
 }
@@ -2876,10 +2877,10 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>insert_slash(path: <span class="kw-2">&amp;</span>str) -&gt; Cow&lt;<span class="lifetime">&#39;_</span>, str&gt; {
-    <span class="kw">if </span>!path.is_empty() &amp;&amp; !path.starts_with(<span class="string">&#39;/&#39;</span>) {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>insert_slash(path: <span class="kw-2">&amp;</span>str) -&gt; Cow&lt;<span class="lifetime">'_</span>, str&gt; {
+    <span class="kw">if </span>!path.is_empty() &amp;&amp; !path.starts_with(<span class="string">'/'</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>new_path = String::with_capacity(path.len() + <span class="number">1</span>);
-        new_path.push(<span class="string">&#39;/&#39;</span>);
+        new_path.push(<span class="string">'/'</span>);
         new_path.push_str(path);
         Cow::Owned(new_path)
     } <span class="kw">else </span>{
@@ -2895,524 +2896,524 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>equivalence() {
         <span class="macro">assert_eq!</span>(
-            ResourceDef::root_prefix(<span class="string">&quot;/root&quot;</span>),
-            ResourceDef::prefix(<span class="string">&quot;/root&quot;</span>)
+            ResourceDef::root_prefix(<span class="string">"/root"</span>),
+            ResourceDef::prefix(<span class="string">"/root"</span>)
         );
         <span class="macro">assert_eq!</span>(
-            ResourceDef::root_prefix(<span class="string">&quot;root&quot;</span>),
-            ResourceDef::prefix(<span class="string">&quot;/root&quot;</span>)
+            ResourceDef::root_prefix(<span class="string">"root"</span>),
+            ResourceDef::prefix(<span class="string">"/root"</span>)
         );
         <span class="macro">assert_eq!</span>(
-            ResourceDef::root_prefix(<span class="string">&quot;/{id}&quot;</span>),
-            ResourceDef::prefix(<span class="string">&quot;/{id}&quot;</span>)
+            ResourceDef::root_prefix(<span class="string">"/{id}"</span>),
+            ResourceDef::prefix(<span class="string">"/{id}"</span>)
         );
         <span class="macro">assert_eq!</span>(
-            ResourceDef::root_prefix(<span class="string">&quot;{id}&quot;</span>),
-            ResourceDef::prefix(<span class="string">&quot;/{id}&quot;</span>)
+            ResourceDef::root_prefix(<span class="string">"{id}"</span>),
+            ResourceDef::prefix(<span class="string">"/{id}"</span>)
         );
 
-        <span class="macro">assert_eq!</span>(ResourceDef::new(<span class="string">&quot;/&quot;</span>), ResourceDef::new([<span class="string">&quot;/&quot;</span>]));
-        <span class="macro">assert_eq!</span>(ResourceDef::new(<span class="string">&quot;/&quot;</span>), ResourceDef::new(<span class="macro">vec!</span>[<span class="string">&quot;/&quot;</span>]));
+        <span class="macro">assert_eq!</span>(ResourceDef::new(<span class="string">"/"</span>), ResourceDef::new([<span class="string">"/"</span>]));
+        <span class="macro">assert_eq!</span>(ResourceDef::new(<span class="string">"/"</span>), ResourceDef::new(<span class="macro">vec!</span>[<span class="string">"/"</span>]));
 
-        <span class="macro">assert_ne!</span>(ResourceDef::new(<span class="string">&quot;&quot;</span>), ResourceDef::prefix(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert_ne!</span>(ResourceDef::new(<span class="string">&quot;/&quot;</span>), ResourceDef::prefix(<span class="string">&quot;/&quot;</span>));
-        <span class="macro">assert_ne!</span>(ResourceDef::new(<span class="string">&quot;/{id}&quot;</span>), ResourceDef::prefix(<span class="string">&quot;/{id}&quot;</span>));
+        <span class="macro">assert_ne!</span>(ResourceDef::new(<span class="string">""</span>), ResourceDef::prefix(<span class="string">""</span>));
+        <span class="macro">assert_ne!</span>(ResourceDef::new(<span class="string">"/"</span>), ResourceDef::prefix(<span class="string">"/"</span>));
+        <span class="macro">assert_ne!</span>(ResourceDef::new(<span class="string">"/{id}"</span>), ResourceDef::prefix(<span class="string">"/{id}"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse_static() {
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">""</span>);
 
         <span class="macro">assert!</span>(!re.is_prefix());
 
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/&quot;</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">""</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/"</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">""</span>), <span class="prelude-val">Some</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/"</span>), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/foo&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">""</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/foo"</span>));
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/name&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name1&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name/&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name~&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/name"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name1"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name/"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name~"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/name&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/name"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
 
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name1&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name/&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name~&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name"</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name1"</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name/"</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name~"</span>), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/name/&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name/&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name/gs&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/name/"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name/"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name/gs"</span>));
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/profile&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/profile&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/profile/profile&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/profile"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/profile"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/profile/profile"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/profile&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/profile"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse_param() {
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/{id}&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/profile&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/2345/&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/2345/sdg&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/{id}"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/profile"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/2345/"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/2345/sdg"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/profile&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/profile"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;profile&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"profile"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/1245125&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/1245125"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;1245125&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"1245125"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/v{version}/resource/{id}&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/v1/resource/320120&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/v/resource/1&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/resource&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/v{version}/resource/{id}"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/v1/resource/320120"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/v/resource/1"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/resource"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/v151/resource/adage32&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/v151/resource/adage32"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;version&quot;</span>).unwrap(), <span class="string">&quot;151&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;adage32&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"version"</span>).unwrap(), <span class="string">"151"</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"adage32"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/{id:[[:digit:]]{6}}&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/012345&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/012&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/01234567&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/XXXXXX&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/{id:[[:digit:]]{6}}"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/012345"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/012"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/01234567"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/XXXXXX"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/012345&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/012345"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;012345&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"012345"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
     }
 
     <span class="attr">#[allow(clippy::cognitive_complexity)]
     #[test]
     </span><span class="kw">fn </span>dynamic_set() {
         <span class="kw">let </span>re = ResourceDef::new(<span class="macro">vec!</span>[
-            <span class="string">&quot;/user/{id}&quot;</span>,
-            <span class="string">&quot;/v{version}/resource/{id}&quot;</span>,
-            <span class="string">&quot;/{id:[[:digit:]]{6}}&quot;</span>,
-            <span class="string">&quot;/static&quot;</span>,
+            <span class="string">"/user/{id}"</span>,
+            <span class="string">"/v{version}/resource/{id}"</span>,
+            <span class="string">"/{id:[[:digit:]]{6}}"</span>,
+            <span class="string">"/static"</span>,
         ]);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/profile&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/2345/&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/2345/sdg&quot;</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/profile"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/2345/"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/2345/sdg"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/profile&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/profile"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;profile&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"profile"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/1245125&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/1245125"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;1245125&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"1245125"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
 
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/v1/resource/320120&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/v/resource/1&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/resource&quot;</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/v1/resource/320120"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/v/resource/1"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/resource"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/v151/resource/adage32&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/v151/resource/adage32"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;version&quot;</span>).unwrap(), <span class="string">&quot;151&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;adage32&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"version"</span>).unwrap(), <span class="string">"151"</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"adage32"</span>);
 
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/012345&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/012&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/01234567&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/XXXXXX&quot;</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/012345"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/012"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/01234567"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/XXXXXX"</span>));
 
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/static&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/a/static&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/static/a&quot;</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/static"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/a/static"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/static/a"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/012345&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/012345"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;012345&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"012345"</span>);
 
         <span class="kw">let </span>re = ResourceDef::new([
-            <span class="string">&quot;/user/{id}&quot;</span>,
-            <span class="string">&quot;/v{version}/resource/{id}&quot;</span>,
-            <span class="string">&quot;/{id:[[:digit:]]{6}}&quot;</span>,
+            <span class="string">"/user/{id}"</span>,
+            <span class="string">"/v{version}/resource/{id}"</span>,
+            <span class="string">"/{id:[[:digit:]]{6}}"</span>,
         ]);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/profile&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/2345/&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/2345/sdg&quot;</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/profile"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/2345/"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/2345/sdg"</span>));
 
         <span class="kw">let </span>re = ResourceDef::new([
-            <span class="string">&quot;/user/{id}&quot;</span>.to_string(),
-            <span class="string">&quot;/v{version}/resource/{id}&quot;</span>.to_string(),
-            <span class="string">&quot;/{id:[[:digit:]]{6}}&quot;</span>.to_string(),
+            <span class="string">"/user/{id}"</span>.to_string(),
+            <span class="string">"/v{version}/resource/{id}"</span>.to_string(),
+            <span class="string">"/{id:[[:digit:]]{6}}"</span>.to_string(),
         ]);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/profile&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/2345/&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/2345/sdg&quot;</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/profile"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/2345/"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/2345/sdg"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>dynamic_set_prefix() {
-        <span class="kw">let </span>re = ResourceDef::prefix(<span class="macro">vec!</span>[<span class="string">&quot;/u/{id}&quot;</span>, <span class="string">&quot;/{id:[[:digit:]]{3}}&quot;</span>]);
+        <span class="kw">let </span>re = ResourceDef::prefix(<span class="macro">vec!</span>[<span class="string">"/u/{id}"</span>, <span class="string">"/{id:[[:digit:]]{3}}"</span>]);
 
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/u/abc&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">6</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/u/abc/123&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">6</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/s/user/profile&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/u/abc"</span>), <span class="prelude-val">Some</span>(<span class="number">6</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/u/abc/123"</span>), <span class="prelude-val">Some</span>(<span class="number">6</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/s/user/profile"</span>), <span class="prelude-val">None</span>);
 
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/123&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">4</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/123/456&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">4</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/12345&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/123"</span>), <span class="prelude-val">Some</span>(<span class="number">4</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/123/456"</span>), <span class="prelude-val">Some</span>(<span class="number">4</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/12345"</span>), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/151/res&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/151/res"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;151&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;/res&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"151"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">"/res"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse_tail() {
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/-{id}*&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/-{id}*"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/-profile&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/-profile"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;profile&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"profile"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/-2345&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/-2345"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;2345&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"2345"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/-2345/&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/-2345/"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;2345/&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"2345/"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/-2345/sdg&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/-2345/sdg"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;2345/sdg&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"2345/sdg"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>static_tail() {
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user{tail}*&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/users&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user-foo&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/profile&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345/&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345/sdg&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/foo/profile&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user{tail}*"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/users"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user-foo"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/profile"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345/"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345/sdg"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/foo/profile"</span>));
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/{tail}*&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/profile&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345/&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/2345/sdg&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/foo/profile&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/{tail}*"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/profile"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345/"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/2345/sdg"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/foo/profile"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>dynamic_tail() {
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/{id}/{tail}*&quot;</span>);
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/2345&quot;</span>));
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/2345/sdg&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/{id}/{tail}*"</span>);
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/2345"</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/2345/sdg"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;2345&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;tail&quot;</span>).unwrap(), <span class="string">&quot;sdg&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"2345"</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"tail"</span>).unwrap(), <span class="string">"sdg"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>newline_patterns_and_paths() {
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/a\nb&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/a\nb&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/user/a\nb/profile&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/a\nb"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/a\nb"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/user/a\nb/profile"</span>));
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/a{x}b/test/a{y}b&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/a\nb/test/a\nb&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/a{x}b/test/a{y}b"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/a\nb/test/a\nb"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;x&quot;</span>).unwrap(), <span class="string">&quot;\n&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;y&quot;</span>).unwrap(), <span class="string">&quot;\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"x"</span>).unwrap(), <span class="string">"\n"</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"y"</span>).unwrap(), <span class="string">"\n"</span>);
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/{tail}*&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/user/a\nb/&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/{tail}*"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/user/a\nb/"</span>));
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/{id}*&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/a\nb/a\nb&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/{id}*"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/a\nb/a\nb"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;a\nb/a\nb&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"a\nb/a\nb"</span>);
 
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/{id:.*}&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/a\nb/a\nb&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/{id:.*}"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/a\nb/a\nb"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;a\nb/a\nb&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"a\nb/a\nb"</span>);
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;http&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"http"</span>)]
     #[test]
     </span><span class="kw">fn </span>parse_urlencoded_param() {
-        <span class="kw">let </span>re = ResourceDef::new(<span class="string">&quot;/user/{id}/test&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::new(<span class="string">"/user/{id}/test"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/2345/test&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/2345/test"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;2345&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"2345"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/qwe%25/test&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/qwe%25/test"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;qwe%25&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"qwe%25"</span>);
 
-        <span class="kw">let </span>uri = http::Uri::try_from(<span class="string">&quot;/user/qwe%25/test&quot;</span>).unwrap();
+        <span class="kw">let </span>uri = http::Uri::try_from(<span class="string">"/user/qwe%25/test"</span>).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(uri);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;qwe%25&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"qwe%25"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>prefix_static() {
-        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">&quot;/name&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">"/name"</span>);
 
         <span class="macro">assert!</span>(re.is_prefix());
 
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name/&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name/test/test&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name1&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name~&quot;</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name/"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name/test/test"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name1"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name~"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/name&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/name"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">""</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/name/test&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/name/test"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;/test&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">"/test"</span>);
 
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name/&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name/test/test&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name1&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name~&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name"</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name/"</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name/test/test"</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name1"</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name~"</span>), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">&quot;/name/&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name/&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name//gs&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name/gs&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">"/name/"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name/"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name//gs"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name/gs"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/name/gs&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/name/gs"</span>);
         <span class="macro">assert!</span>(!re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/name//gs&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/name//gs"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;/gs&quot;</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">"/gs"</span>);
 
-        <span class="kw">let </span>re = ResourceDef::root_prefix(<span class="string">&quot;name/&quot;</span>);
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name/&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name//gs&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name/gs&quot;</span>));
-        <span class="macro">assert!</span>(!re.is_match(<span class="string">&quot;/name&quot;</span>));
+        <span class="kw">let </span>re = ResourceDef::root_prefix(<span class="string">"name/"</span>);
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name/"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name//gs"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name/gs"</span>));
+        <span class="macro">assert!</span>(!re.is_match(<span class="string">"/name"</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/name/gs&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/name/gs"</span>);
         <span class="macro">assert!</span>(!re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>prefix_dynamic() {
-        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">&quot;/{name}&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">"/{name}"</span>);
 
         <span class="macro">assert!</span>(re.is_prefix());
 
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name/&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name/gs&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name&quot;</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name/"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name/gs"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name"</span>));
 
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name/&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name/gs&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/name&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name/"</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name/gs"</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/name"</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">""</span>), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/test2/&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/test2/"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>path[<span class="string">&quot;name&quot;</span>], <span class="string">&quot;test2&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>path[<span class="number">0</span>], <span class="string">&quot;test2&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;/&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>path[<span class="string">"name"</span>], <span class="string">"test2"</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>path[<span class="number">0</span>], <span class="string">"test2"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">"/"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/test2/subpath1/subpath2/index.html&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/test2/subpath1/subpath2/index.html"</span>);
         <span class="macro">assert!</span>(re.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>path[<span class="string">&quot;name&quot;</span>], <span class="string">&quot;test2&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>path[<span class="number">0</span>], <span class="string">&quot;test2&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">&quot;/subpath1/subpath2/index.html&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>path[<span class="string">"name"</span>], <span class="string">"test2"</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>path[<span class="number">0</span>], <span class="string">"test2"</span>);
+        <span class="macro">assert_eq!</span>(path.unprocessed(), <span class="string">"/subpath1/subpath2/index.html"</span>);
 
-        <span class="kw">let </span>resource = ResourceDef::prefix(<span class="string">&quot;/user&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::prefix(<span class="string">"/user"</span>);
         <span class="comment">// input string shorter than prefix
-        </span><span class="macro">assert!</span>(resource.find_match(<span class="string">&quot;/foo&quot;</span>).is_none());
+        </span><span class="macro">assert!</span>(resource.find_match(<span class="string">"/foo"</span>).is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>prefix_empty() {
-        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">""</span>);
 
         <span class="macro">assert!</span>(re.is_prefix());
 
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/&quot;</span>));
-        <span class="macro">assert!</span>(re.is_match(<span class="string">&quot;/name/test/test&quot;</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">""</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/"</span>));
+        <span class="macro">assert!</span>(re.is_match(<span class="string">"/name/test/test"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>build_path_list() {
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/user/{item1}/test&quot;</span>);
-        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;user1&quot;</span>].iter()));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/user1/test&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/user/{item1}/test"</span>);
+        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">"user1"</span>].iter()));
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/user1/test"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/user/{item1}/{item2}/test&quot;</span>);
-        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>].iter()));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/item/item2/test&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/user/{item1}/{item2}/test"</span>);
+        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">"item"</span>, <span class="string">"item2"</span>].iter()));
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/item/item2/test"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/user/{item1}/{item2}&quot;</span>);
-        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>].iter()));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/item/item2&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/user/{item1}/{item2}"</span>);
+        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">"item"</span>, <span class="string">"item2"</span>].iter()));
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/item/item2"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/user/{item1}/{item2}/&quot;</span>);
-        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>].iter()));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/item/item2/&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/user/{item1}/{item2}/"</span>);
+        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">"item"</span>, <span class="string">"item2"</span>].iter()));
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/item/item2/"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        <span class="macro">assert!</span>(!resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;item&quot;</span>].iter()));
+        <span class="macro">assert!</span>(!resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">"item"</span>].iter()));
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>].iter()));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/item/item2/&quot;</span>);
-        <span class="macro">assert!</span>(!resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;item&quot;</span>].iter()));
+        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">"item"</span>, <span class="string">"item2"</span>].iter()));
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/item/item2/"</span>);
+        <span class="macro">assert!</span>(!resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">"item"</span>].iter()));
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
 
         <span class="macro">assert!</span>(resource.resource_path_from_iter(
             <span class="kw-2">&amp;mut </span>s,
             <span class="attr">#[allow(clippy::useless_vec)]
-            </span><span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>].iter()
+            </span><span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[<span class="string">"item"</span>, <span class="string">"item2"</span>].iter()
         ));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/item/item2/&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/item/item2/"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multi_pattern_build_path() {
-        <span class="kw">let </span>resource = ResourceDef::new([<span class="string">&quot;/user/{id}&quot;</span>, <span class="string">&quot;/profile/{id}&quot;</span>]);
+        <span class="kw">let </span>resource = ResourceDef::new([<span class="string">"/user/{id}"</span>, <span class="string">"/profile/{id}"</span>]);
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;123&quot;</span>].iter()));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/123&quot;</span>);
+        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">"123"</span>].iter()));
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/123"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multi_pattern_capture_segment_values() {
-        <span class="kw">let </span>resource = ResourceDef::new([<span class="string">&quot;/user/{id}&quot;</span>, <span class="string">&quot;/profile/{id}&quot;</span>]);
+        <span class="kw">let </span>resource = ResourceDef::new([<span class="string">"/user/{id}"</span>, <span class="string">"/profile/{id}"</span>]);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/123&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/123"</span>);
         <span class="macro">assert!</span>(resource.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert!</span>(path.get(<span class="string">&quot;id&quot;</span>).is_some());
+        <span class="macro">assert!</span>(path.get(<span class="string">"id"</span>).is_some());
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/profile/123&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/profile/123"</span>);
         <span class="macro">assert!</span>(resource.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert!</span>(path.get(<span class="string">&quot;id&quot;</span>).is_some());
+        <span class="macro">assert!</span>(path.get(<span class="string">"id"</span>).is_some());
 
-        <span class="kw">let </span>resource = ResourceDef::new([<span class="string">&quot;/user/{id}&quot;</span>, <span class="string">&quot;/profile/{uid}&quot;</span>]);
+        <span class="kw">let </span>resource = ResourceDef::new([<span class="string">"/user/{id}"</span>, <span class="string">"/profile/{uid}"</span>]);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/user/123&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/user/123"</span>);
         <span class="macro">assert!</span>(resource.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert!</span>(path.get(<span class="string">&quot;id&quot;</span>).is_some());
-        <span class="macro">assert!</span>(path.get(<span class="string">&quot;uid&quot;</span>).is_none());
+        <span class="macro">assert!</span>(path.get(<span class="string">"id"</span>).is_some());
+        <span class="macro">assert!</span>(path.get(<span class="string">"uid"</span>).is_none());
 
-        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">&quot;/profile/123&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(<span class="string">"/profile/123"</span>);
         <span class="macro">assert!</span>(resource.capture_match_info(<span class="kw-2">&amp;mut </span>path));
-        <span class="macro">assert!</span>(path.get(<span class="string">&quot;id&quot;</span>).is_none());
-        <span class="macro">assert!</span>(path.get(<span class="string">&quot;uid&quot;</span>).is_some());
+        <span class="macro">assert!</span>(path.get(<span class="string">"id"</span>).is_none());
+        <span class="macro">assert!</span>(path.get(<span class="string">"uid"</span>).is_some());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>dynamic_prefix_proper_segmentation() {
-        <span class="kw">let </span>resource = ResourceDef::prefix(<span class="string">r&quot;/id/{id:\d{3}}&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::prefix(<span class="string">r"/id/{id:\d{3}}"</span>);
 
-        <span class="macro">assert!</span>(resource.is_match(<span class="string">&quot;/id/123&quot;</span>));
-        <span class="macro">assert!</span>(resource.is_match(<span class="string">&quot;/id/123/foo&quot;</span>));
-        <span class="macro">assert!</span>(!resource.is_match(<span class="string">&quot;/id/1234&quot;</span>));
-        <span class="macro">assert!</span>(!resource.is_match(<span class="string">&quot;/id/123a&quot;</span>));
+        <span class="macro">assert!</span>(resource.is_match(<span class="string">"/id/123"</span>));
+        <span class="macro">assert!</span>(resource.is_match(<span class="string">"/id/123/foo"</span>));
+        <span class="macro">assert!</span>(!resource.is_match(<span class="string">"/id/1234"</span>));
+        <span class="macro">assert!</span>(!resource.is_match(<span class="string">"/id/123a"</span>));
 
-        <span class="macro">assert_eq!</span>(resource.find_match(<span class="string">&quot;/id/123&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">7</span>));
-        <span class="macro">assert_eq!</span>(resource.find_match(<span class="string">&quot;/id/123/foo&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">7</span>));
-        <span class="macro">assert_eq!</span>(resource.find_match(<span class="string">&quot;/id/1234&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(resource.find_match(<span class="string">&quot;/id/123a&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(resource.find_match(<span class="string">"/id/123"</span>), <span class="prelude-val">Some</span>(<span class="number">7</span>));
+        <span class="macro">assert_eq!</span>(resource.find_match(<span class="string">"/id/123/foo"</span>), <span class="prelude-val">Some</span>(<span class="number">7</span>));
+        <span class="macro">assert_eq!</span>(resource.find_match(<span class="string">"/id/1234"</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(resource.find_match(<span class="string">"/id/123a"</span>), <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>build_path_map() {
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/user/{item1}/{item2}/&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/user/{item1}/{item2}/"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>map = HashMap::new();
-        map.insert(<span class="string">&quot;item1&quot;</span>, <span class="string">&quot;item&quot;</span>);
+        map.insert(<span class="string">"item1"</span>, <span class="string">"item"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
         <span class="macro">assert!</span>(!resource.resource_path_from_map(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;</span>map));
 
-        map.insert(<span class="string">&quot;item2&quot;</span>, <span class="string">&quot;item2&quot;</span>);
+        map.insert(<span class="string">"item2"</span>, <span class="string">"item2"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
         <span class="macro">assert!</span>(resource.resource_path_from_map(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;</span>map));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/item/item2/&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/item/item2/"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>build_path_tail() {
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/user/{item1}*&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/user/{item1}*"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        <span class="macro">assert!</span>(!resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;&quot;</span>; <span class="number">0</span>].iter()));
+        <span class="macro">assert!</span>(!resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">""</span>; <span class="number">0</span>].iter()));
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">&quot;user1&quot;</span>].iter()));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/user1&quot;</span>);
+        <span class="macro">assert!</span>(resource.resource_path_from_iter(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;mut </span>[<span class="string">"user1"</span>].iter()));
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/user1"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
         <span class="kw">let </span><span class="kw-2">mut </span>map = HashMap::new();
-        map.insert(<span class="string">&quot;item1&quot;</span>, <span class="string">&quot;item&quot;</span>);
+        map.insert(<span class="string">"item1"</span>, <span class="string">"item"</span>);
         <span class="macro">assert!</span>(resource.resource_path_from_map(<span class="kw-2">&amp;mut </span>s, <span class="kw-2">&amp;</span>map));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;/user/item&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"/user/item"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>prefix_trailing_slash() {
-        <span class="comment">// The prefix &quot;/abc/&quot; matches two segments: [&quot;user&quot;, &quot;&quot;]
+        <span class="comment">// The prefix "/abc/" matches two segments: ["user", ""]
 
         // These are not prefixes
-        </span><span class="kw">let </span>re = ResourceDef::prefix(<span class="string">&quot;/abc/&quot;</span>);
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/abc/def&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/abc//def&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
+        </span><span class="kw">let </span>re = ResourceDef::prefix(<span class="string">"/abc/"</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/abc/def"</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/abc//def"</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
 
-        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">&quot;/{id}/&quot;</span>);
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/abc/def&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">&quot;/abc//def&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
+        <span class="kw">let </span>re = ResourceDef::prefix(<span class="string">"/{id}/"</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/abc/def"</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(re.find_match(<span class="string">"/abc//def"</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
     }
 
     <span class="attr">#[test]
@@ -3436,7 +3437,7 @@
                     <span class="kw">let </span>_join = re1.join(<span class="kw-2">&amp;</span>re2).find_match(_path);
                     <span class="macro">assert_eq!</span>(
                         _seq, _join,
-                        <span class="string">&quot;patterns: prefix {:?}, {:?}; mismatch on \&quot;{}\&quot;; seq={:?}; join={:?}&quot;</span>,
+                        <span class="string">"patterns: prefix {:?}, {:?}; mismatch on \"{}\"; seq={:?}; join={:?}"</span>,
                         pat1, pat2, _path, _seq, _join
                     );
                     <span class="macro">assert!</span>(!re1.join(<span class="kw-2">&amp;</span>re2).is_prefix());
@@ -3446,7 +3447,7 @@
                     <span class="kw">let </span>_join = re1.join(<span class="kw-2">&amp;</span>re2).find_match(_path);
                     <span class="macro">assert_eq!</span>(
                         _seq, _join,
-                        <span class="string">&quot;patterns: prefix {:?}, prefix {:?}; mismatch on \&quot;{}\&quot;; seq={:?}; join={:?}&quot;</span>,
+                        <span class="string">"patterns: prefix {:?}, prefix {:?}; mismatch on \"{}\"; seq={:?}; join={:?}"</span>,
                         pat1, pat2, _path, _seq, _join
                     );
                     <span class="macro">assert!</span>(re1.join(<span class="kw-2">&amp;</span>re2).is_prefix());
@@ -3454,14 +3455,14 @@
             }}
         }
 
-        <span class="macro">join_test!</span>(<span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot; </span>=&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/hello&quot;</span>, <span class="string">&quot;/&quot;</span>);
-        <span class="macro">join_test!</span>(<span class="string">&quot;/user&quot;</span>, <span class="string">&quot;&quot; </span>=&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/user11&quot;</span>, <span class="string">&quot;user&quot;</span>, <span class="string">&quot;user/123&quot;</span>);
-        <span class="macro">join_test!</span>(<span class="string">&quot;&quot;</span>,  <span class="string">&quot;/user&quot; </span>=&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;foo&quot;</span>, <span class="string">&quot;/user11&quot;</span>, <span class="string">&quot;user&quot;</span>, <span class="string">&quot;user/123&quot;</span>);
-        <span class="macro">join_test!</span>(<span class="string">&quot;/user&quot;</span>,  <span class="string">&quot;/xx&quot; </span>=&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>,  <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/xx&quot;</span>, <span class="string">&quot;/userxx&quot;</span>, <span class="string">&quot;/user/xx&quot;</span>);
+        <span class="macro">join_test!</span>(<span class="string">""</span>, <span class="string">"" </span>=&gt; <span class="string">""</span>, <span class="string">"/hello"</span>, <span class="string">"/"</span>);
+        <span class="macro">join_test!</span>(<span class="string">"/user"</span>, <span class="string">"" </span>=&gt; <span class="string">""</span>, <span class="string">"/user"</span>, <span class="string">"/user/123"</span>, <span class="string">"/user11"</span>, <span class="string">"user"</span>, <span class="string">"user/123"</span>);
+        <span class="macro">join_test!</span>(<span class="string">""</span>,  <span class="string">"/user" </span>=&gt; <span class="string">""</span>, <span class="string">"/user"</span>, <span class="string">"foo"</span>, <span class="string">"/user11"</span>, <span class="string">"user"</span>, <span class="string">"user/123"</span>);
+        <span class="macro">join_test!</span>(<span class="string">"/user"</span>,  <span class="string">"/xx" </span>=&gt; <span class="string">""</span>, <span class="string">""</span>,  <span class="string">"/"</span>, <span class="string">"/user"</span>, <span class="string">"/xx"</span>, <span class="string">"/userxx"</span>, <span class="string">"/user/xx"</span>);
 
-        <span class="macro">join_test!</span>([<span class="string">&quot;/ver/{v}&quot;</span>, <span class="string">&quot;/v{v}&quot;</span>], [<span class="string">&quot;/req/{req}&quot;</span>, <span class="string">&quot;/{req}&quot;</span>] =&gt; <span class="string">&quot;/v1/abc&quot;</span>, 
-                   <span class="string">&quot;/ver/1/abc&quot;</span>, <span class="string">&quot;/v1/req/abc&quot;</span>, <span class="string">&quot;/ver/1/req/abc&quot;</span>, <span class="string">&quot;/v1/abc/def&quot;</span>,
-                   <span class="string">&quot;/ver1/req/abc/def&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/v1/&quot;</span>);
+        <span class="macro">join_test!</span>([<span class="string">"/ver/{v}"</span>, <span class="string">"/v{v}"</span>], [<span class="string">"/req/{req}"</span>, <span class="string">"/{req}"</span>] =&gt; <span class="string">"/v1/abc"</span>, 
+                   <span class="string">"/ver/1/abc"</span>, <span class="string">"/v1/req/abc"</span>, <span class="string">"/ver/1/req/abc"</span>, <span class="string">"/v1/abc/def"</span>,
+                   <span class="string">"/ver1/req/abc/def"</span>, <span class="string">""</span>, <span class="string">"/"</span>, <span class="string">"/v1/"</span>);
     }
 
     <span class="attr">#[test]
@@ -3480,72 +3481,72 @@
                     <span class="kw">let </span>_find = re.find_match(<span class="macro-nonterminal">$test</span>).is_some();
                     <span class="macro">assert_eq!</span>(
                         _is, _find,
-                        <span class="string">&quot;pattern: {:?}; mismatch on \&quot;{}\&quot;; is={}; find={}&quot;</span>,
+                        <span class="string">"pattern: {:?}; mismatch on \"{}\"; is={}; find={}"</span>,
                         <span class="macro-nonterminal">$pat</span>, <span class="macro-nonterminal">$test</span>, _is, _find
                     );
                 })+
             }}
         }
 
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;&quot; </span>=&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/&quot; </span>=&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/user&quot; </span>=&gt; <span class="string">&quot;user&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/users&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/v{v}&quot; </span>=&gt; <span class="string">&quot;v&quot;</span>, <span class="string">&quot;/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/v222&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>([<span class="string">&quot;/v{v}&quot;</span>, <span class="string">&quot;/version/{v}&quot;</span>] =&gt; <span class="string">&quot;/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/version&quot;</span>, <span class="string">&quot;/version/1&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">"" </span>=&gt; <span class="string">""</span>, <span class="string">"/"</span>, <span class="string">"/foo"</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">"/" </span>=&gt; <span class="string">""</span>, <span class="string">"/"</span>, <span class="string">"/foo"</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">"/user" </span>=&gt; <span class="string">"user"</span>, <span class="string">"/user"</span>, <span class="string">"/users"</span>, <span class="string">"/user/123"</span>, <span class="string">"/foo"</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">"/v{v}" </span>=&gt; <span class="string">"v"</span>, <span class="string">"/v"</span>, <span class="string">"/v1"</span>, <span class="string">"/v222"</span>, <span class="string">"/foo"</span>);
+        <span class="macro">match_methods_agree!</span>([<span class="string">"/v{v}"</span>, <span class="string">"/version/{v}"</span>] =&gt; <span class="string">"/v"</span>, <span class="string">"/v1"</span>, <span class="string">"/version"</span>, <span class="string">"/version/1"</span>, <span class="string">"/foo"</span>);
 
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/path{tail}*&quot; </span>=&gt; <span class="string">&quot;/path&quot;</span>, <span class="string">&quot;/path1&quot;</span>, <span class="string">&quot;/path/123&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(<span class="string">&quot;/path/{tail}*&quot; </span>=&gt; <span class="string">&quot;/path&quot;</span>, <span class="string">&quot;/path1&quot;</span>, <span class="string">&quot;/path/123&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">"/path{tail}*" </span>=&gt; <span class="string">"/path"</span>, <span class="string">"/path1"</span>, <span class="string">"/path/123"</span>);
+        <span class="macro">match_methods_agree!</span>(<span class="string">"/path/{tail}*" </span>=&gt; <span class="string">"/path"</span>, <span class="string">"/path1"</span>, <span class="string">"/path/123"</span>);
 
-        <span class="macro">match_methods_agree!</span>(prefix <span class="string">&quot;&quot; </span>=&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(prefix <span class="string">&quot;/user&quot; </span>=&gt; <span class="string">&quot;user&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/users&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
-        <span class="macro">match_methods_agree!</span>(prefix <span class="string">r&quot;/id/{id:\d{3}}&quot; </span>=&gt; <span class="string">&quot;/id/123&quot;</span>, <span class="string">&quot;/id/1234&quot;</span>);
-        <span class="macro">match_methods_agree!</span>([<span class="string">&quot;/v{v}&quot;</span>, <span class="string">&quot;/ver/{v}&quot;</span>] =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;s/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/v1/xx&quot;</span>, <span class="string">&quot;/ver/i3/5&quot;</span>, <span class="string">&quot;/ver/1&quot;</span>);
+        <span class="macro">match_methods_agree!</span>(prefix <span class="string">"" </span>=&gt; <span class="string">""</span>, <span class="string">"/"</span>, <span class="string">"/foo"</span>);
+        <span class="macro">match_methods_agree!</span>(prefix <span class="string">"/user" </span>=&gt; <span class="string">"user"</span>, <span class="string">"/user"</span>, <span class="string">"/users"</span>, <span class="string">"/user/123"</span>, <span class="string">"/foo"</span>);
+        <span class="macro">match_methods_agree!</span>(prefix <span class="string">r"/id/{id:\d{3}}" </span>=&gt; <span class="string">"/id/123"</span>, <span class="string">"/id/1234"</span>);
+        <span class="macro">match_methods_agree!</span>([<span class="string">"/v{v}"</span>, <span class="string">"/ver/{v}"</span>] =&gt; <span class="string">""</span>, <span class="string">"s/v"</span>, <span class="string">"/v1"</span>, <span class="string">"/v1/xx"</span>, <span class="string">"/ver/i3/5"</span>, <span class="string">"/ver/1"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>duplicate_segment_name() {
-        ResourceDef::new(<span class="string">&quot;/user/{id}/post/{id}&quot;</span>);
+        ResourceDef::new(<span class="string">"/user/{id}/post/{id}"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>invalid_dynamic_segment_delimiter() {
-        ResourceDef::new(<span class="string">&quot;/user/{username&quot;</span>);
+        ResourceDef::new(<span class="string">"/user/{username"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>invalid_dynamic_segment_name() {
-        ResourceDef::new(<span class="string">&quot;/user/{}&quot;</span>);
+        ResourceDef::new(<span class="string">"/user/{}"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>invalid_too_many_dynamic_segments() {
         <span class="comment">// valid
-        </span>ResourceDef::new(<span class="string">&quot;/{a}/{b}/{c}/{d}/{e}/{f}/{g}/{h}/{i}/{j}/{k}/{l}/{m}/{n}/{o}/{p}&quot;</span>);
+        </span>ResourceDef::new(<span class="string">"/{a}/{b}/{c}/{d}/{e}/{f}/{g}/{h}/{i}/{j}/{k}/{l}/{m}/{n}/{o}/{p}"</span>);
 
         <span class="comment">// panics
-        </span>ResourceDef::new(<span class="string">&quot;/{a}/{b}/{c}/{d}/{e}/{f}/{g}/{h}/{i}/{j}/{k}/{l}/{m}/{n}/{o}/{p}/{q}&quot;</span>);
+        </span>ResourceDef::new(<span class="string">"/{a}/{b}/{c}/{d}/{e}/{f}/{g}/{h}/{i}/{j}/{k}/{l}/{m}/{n}/{o}/{p}/{q}"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>invalid_custom_regex_for_tail() {
-        ResourceDef::new(<span class="string">r&quot;/{tail:\d+}*&quot;</span>);
+        ResourceDef::new(<span class="string">r"/{tail:\d+}*"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>invalid_unnamed_tail_segment() {
-        ResourceDef::new(<span class="string">&quot;/*&quot;</span>);
+        ResourceDef::new(<span class="string">"/*"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>prefix_plus_tail_match_disallowed() {
-        ResourceDef::prefix(<span class="string">&quot;/user/{id}*&quot;</span>);
+        ResourceDef::prefix(<span class="string">"/user/{id}*"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/symbolize/gimli.rs`."><title>gimli.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/symbolize/gimli.rs`."><title>gimli.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -539,24 +540,24 @@
 
 <span class="macro">cfg_if::cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(windows)] </span>{
-        <span class="attr">#[path = <span class="string">&quot;gimli/mmap_windows.rs&quot;</span>]
+        <span class="attr">#[path = <span class="string">"gimli/mmap_windows.rs"</span>]
         </span><span class="kw">mod </span>mmap;
     } <span class="kw">else if </span><span class="attr">#[cfg(any(
-        target_os = <span class="string">&quot;android&quot;</span>,
-        target_os = <span class="string">&quot;freebsd&quot;</span>,
-        target_os = <span class="string">&quot;fuchsia&quot;</span>,
-        target_os = <span class="string">&quot;haiku&quot;</span>,
-        target_os = <span class="string">&quot;ios&quot;</span>,
-        target_os = <span class="string">&quot;linux&quot;</span>,
-        target_os = <span class="string">&quot;macos&quot;</span>,
-        target_os = <span class="string">&quot;openbsd&quot;</span>,
-        target_os = <span class="string">&quot;solaris&quot;</span>,
-        target_os = <span class="string">&quot;illumos&quot;</span>,
+        target_os = <span class="string">"android"</span>,
+        target_os = <span class="string">"freebsd"</span>,
+        target_os = <span class="string">"fuchsia"</span>,
+        target_os = <span class="string">"haiku"</span>,
+        target_os = <span class="string">"ios"</span>,
+        target_os = <span class="string">"linux"</span>,
+        target_os = <span class="string">"macos"</span>,
+        target_os = <span class="string">"openbsd"</span>,
+        target_os = <span class="string">"solaris"</span>,
+        target_os = <span class="string">"illumos"</span>,
     ))] </span>{
-        <span class="attr">#[path = <span class="string">&quot;gimli/mmap_unix.rs&quot;</span>]
+        <span class="attr">#[path = <span class="string">"gimli/mmap_unix.rs"</span>]
         </span><span class="kw">mod </span>mmap;
     } <span class="kw">else </span>{
-        <span class="attr">#[path = <span class="string">&quot;gimli/mmap_fake.rs&quot;</span>]
+        <span class="attr">#[path = <span class="string">"gimli/mmap_fake.rs"</span>]
         </span><span class="kw">mod </span>mmap;
     }
 }
@@ -566,8 +567,8 @@
 <span class="kw">const </span>MAPPINGS_CACHE_SIZE: usize = <span class="number">4</span>;
 
 <span class="kw">struct </span>Mapping {
-    <span class="comment">// &#39;static lifetime is a lie to hack around lack of support for self-referential structs.
-    </span>cx: Context&lt;<span class="lifetime">&#39;static</span>&gt;,
+    <span class="comment">// 'static lifetime is a lie to hack around lack of support for self-referential structs.
+    </span>cx: Context&lt;<span class="lifetime">'static</span>&gt;,
     _map: Mmap,
     stash: Stash,
 }
@@ -584,7 +585,7 @@
     /// decompressed sections or auxiliary data.
     </span><span class="kw">fn </span>mk&lt;F&gt;(data: Mmap, mk: F) -&gt; <span class="prelude-ty">Option</span>&lt;Mapping&gt;
     <span class="kw">where
-        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stash) -&gt; <span class="prelude-ty">Option</span>&lt;Context&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stash) -&gt; <span class="prelude-ty">Option</span>&lt;Context&lt;<span class="lifetime">'a</span>&gt;&gt;,
     {
         Mapping::mk_or_other(data, <span class="kw">move </span>|data, stash| {
             <span class="kw">let </span>cx = mk(data, stash)<span class="question-mark">?</span>;
@@ -596,7 +597,7 @@
     /// different mapping.
     </span><span class="kw">fn </span>mk_or_other&lt;F&gt;(data: Mmap, mk: F) -&gt; <span class="prelude-ty">Option</span>&lt;Mapping&gt;
     <span class="kw">where
-        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stash) -&gt; <span class="prelude-ty">Option</span>&lt;Either&lt;Mapping, Context&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stash) -&gt; <span class="prelude-ty">Option</span>&lt;Either&lt;Mapping, Context&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
     {
         <span class="kw">let </span>stash = Stash::new();
         <span class="kw">let </span>cx = <span class="kw">match </span>mk(<span class="kw-2">&amp;</span>data, <span class="kw-2">&amp;</span>stash)<span class="question-mark">? </span>{
@@ -604,28 +605,28 @@
             Either::B(cx) =&gt; cx,
         };
         <span class="prelude-val">Some</span>(Mapping {
-            <span class="comment">// Convert to &#39;static lifetimes since the symbols should
-            // only borrow `map` and `stash` and we&#39;re preserving them below.
-            </span>cx: <span class="kw">unsafe </span>{ core::mem::transmute::&lt;Context&lt;<span class="lifetime">&#39;_</span>&gt;, Context&lt;<span class="lifetime">&#39;static</span>&gt;&gt;(cx) },
+            <span class="comment">// Convert to 'static lifetimes since the symbols should
+            // only borrow `map` and `stash` and we're preserving them below.
+            </span>cx: <span class="kw">unsafe </span>{ core::mem::transmute::&lt;Context&lt;<span class="lifetime">'_</span>&gt;, Context&lt;<span class="lifetime">'static</span>&gt;&gt;(cx) },
             _map: data,
             stash: stash,
         })
     }
 }
 
-<span class="kw">struct </span>Context&lt;<span class="lifetime">&#39;a</span>&gt; {
-    dwarf: addr2line::Context&lt;EndianSlice&lt;<span class="lifetime">&#39;a</span>, Endian&gt;&gt;,
-    object: Object&lt;<span class="lifetime">&#39;a</span>&gt;,
-    package: <span class="prelude-ty">Option</span>&lt;gimli::DwarfPackage&lt;EndianSlice&lt;<span class="lifetime">&#39;a</span>, Endian&gt;&gt;&gt;,
+<span class="kw">struct </span>Context&lt;<span class="lifetime">'a</span>&gt; {
+    dwarf: addr2line::Context&lt;EndianSlice&lt;<span class="lifetime">'a</span>, Endian&gt;&gt;,
+    object: Object&lt;<span class="lifetime">'a</span>&gt;,
+    package: <span class="prelude-ty">Option</span>&lt;gimli::DwarfPackage&lt;EndianSlice&lt;<span class="lifetime">'a</span>, Endian&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; Context&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; Context&lt;<span class="lifetime">'data</span>&gt; {
     <span class="kw">fn </span>new(
-        stash: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Stash,
-        object: Object&lt;<span class="lifetime">&#39;data</span>&gt;,
-        sup: <span class="prelude-ty">Option</span>&lt;Object&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
-        dwp: <span class="prelude-ty">Option</span>&lt;Object&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;Context&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+        stash: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Stash,
+        object: Object&lt;<span class="lifetime">'data</span>&gt;,
+        sup: <span class="prelude-ty">Option</span>&lt;Object&lt;<span class="lifetime">'data</span>&gt;&gt;,
+        dwp: <span class="prelude-ty">Option</span>&lt;Object&lt;<span class="lifetime">'data</span>&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Context&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>sections = gimli::Dwarf::load(|id| -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, ()&gt; {
             <span class="kw">let </span>data = object.section(stash, id.name()).unwrap_or(<span class="kw-2">&amp;</span>[]);
             <span class="prelude-val">Ok</span>(EndianSlice::new(data, Endian))
@@ -667,10 +668,10 @@
     }
 
     <span class="kw">fn </span>find_frames(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>,
-        stash: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Stash,
+        <span class="kw-2">&amp;</span><span class="lifetime">'_ </span><span class="self">self</span>,
+        stash: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Stash,
         probe: u64,
-    ) -&gt; gimli::Result&lt;addr2line::FrameIter&lt;<span class="lifetime">&#39;_</span>, EndianSlice&lt;<span class="lifetime">&#39;data</span>, Endian&gt;&gt;&gt; {
+    ) -&gt; gimli::Result&lt;addr2line::FrameIter&lt;<span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'data</span>, Endian&gt;&gt;&gt; {
         <span class="kw">use </span>addr2line::{LookupContinuation, LookupResult};
 
         <span class="kw">let </span><span class="kw-2">mut </span>l = <span class="self">self</span>.dwarf.find_frames(probe);
@@ -696,10 +697,10 @@
         <span class="kw">mod </span>coff;
         <span class="kw">use </span><span class="self">self</span>::coff::{handle_split_dwarf, Object};
     } <span class="kw">else if </span><span class="attr">#[cfg(any(
-        target_os = <span class="string">&quot;macos&quot;</span>,
-        target_os = <span class="string">&quot;ios&quot;</span>,
-        target_os = <span class="string">&quot;tvos&quot;</span>,
-        target_os = <span class="string">&quot;watchos&quot;</span>,
+        target_os = <span class="string">"macos"</span>,
+        target_os = <span class="string">"ios"</span>,
+        target_os = <span class="string">"tvos"</span>,
+        target_os = <span class="string">"watchos"</span>,
     ))] </span>{
         <span class="kw">mod </span>macho;
         <span class="kw">use </span><span class="self">self</span>::macho::{handle_split_dwarf, Object};
@@ -714,39 +715,39 @@
         <span class="kw">mod </span>libs_windows;
         <span class="kw">use </span>libs_windows::native_libraries;
     } <span class="kw">else if </span><span class="attr">#[cfg(any(
-        target_os = <span class="string">&quot;macos&quot;</span>,
-        target_os = <span class="string">&quot;ios&quot;</span>,
-        target_os = <span class="string">&quot;tvos&quot;</span>,
-        target_os = <span class="string">&quot;watchos&quot;</span>,
+        target_os = <span class="string">"macos"</span>,
+        target_os = <span class="string">"ios"</span>,
+        target_os = <span class="string">"tvos"</span>,
+        target_os = <span class="string">"watchos"</span>,
     ))] </span>{
         <span class="kw">mod </span>libs_macos;
         <span class="kw">use </span>libs_macos::native_libraries;
-    } <span class="kw">else if </span><span class="attr">#[cfg(target_os = <span class="string">&quot;illumos&quot;</span>)] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(target_os = <span class="string">"illumos"</span>)] </span>{
         <span class="kw">mod </span>libs_illumos;
         <span class="kw">use </span>libs_illumos::native_libraries;
     } <span class="kw">else if </span><span class="attr">#[cfg(all(
         any(
-            target_os = <span class="string">&quot;linux&quot;</span>,
-            target_os = <span class="string">&quot;fuchsia&quot;</span>,
-            target_os = <span class="string">&quot;freebsd&quot;</span>,
-            target_os = <span class="string">&quot;openbsd&quot;</span>,
-            target_os = <span class="string">&quot;netbsd&quot;</span>,
-            all(target_os = <span class="string">&quot;android&quot;</span>, feature = <span class="string">&quot;dl_iterate_phdr&quot;</span>),
+            target_os = <span class="string">"linux"</span>,
+            target_os = <span class="string">"fuchsia"</span>,
+            target_os = <span class="string">"freebsd"</span>,
+            target_os = <span class="string">"openbsd"</span>,
+            target_os = <span class="string">"netbsd"</span>,
+            all(target_os = <span class="string">"android"</span>, feature = <span class="string">"dl_iterate_phdr"</span>),
         ),
-        not(target_env = <span class="string">&quot;uclibc&quot;</span>),
+        not(target_env = <span class="string">"uclibc"</span>),
     ))] </span>{
         <span class="kw">mod </span>libs_dl_iterate_phdr;
         <span class="kw">use </span>libs_dl_iterate_phdr::native_libraries;
-        <span class="attr">#[path = <span class="string">&quot;gimli/parse_running_mmaps_unix.rs&quot;</span>]
+        <span class="attr">#[path = <span class="string">"gimli/parse_running_mmaps_unix.rs"</span>]
         </span><span class="kw">mod </span>parse_running_mmaps;
-    } <span class="kw">else if </span><span class="attr">#[cfg(target_env = <span class="string">&quot;libnx&quot;</span>)] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(target_env = <span class="string">"libnx"</span>)] </span>{
         <span class="kw">mod </span>libs_libnx;
         <span class="kw">use </span>libs_libnx::native_libraries;
-    } <span class="kw">else if </span><span class="attr">#[cfg(target_os = <span class="string">&quot;haiku&quot;</span>)] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(target_os = <span class="string">"haiku"</span>)] </span>{
         <span class="kw">mod </span>libs_haiku;
         <span class="kw">use </span>libs_haiku::native_libraries;
     } <span class="kw">else </span>{
-        <span class="comment">// Everything else should doesn&#39;t know how to load native libraries.
+        <span class="comment">// Everything else should doesn't know how to load native libraries.
         </span><span class="kw">fn </span>native_libraries() -&gt; Vec&lt;Library&gt; {
             Vec::new()
         }
@@ -765,17 +766,17 @@
     /// above where `usize::max_value()` represents the current executable. The
     /// `Mapping` is corresponding parsed dwarf information.
     ///
-    /// Note that this is basically an LRU cache and we&#39;ll be shifting things
+    /// Note that this is basically an LRU cache and we'll be shifting things
     /// around in here as we symbolize addresses.
     </span>mappings: Vec&lt;(usize, Mapping)&gt;,
 }
 
 <span class="kw">struct </span>Library {
     name: OsString,
-    <span class="doccomment">/// Segments of this library loaded into memory, and where they&#39;re loaded.
+    <span class="doccomment">/// Segments of this library loaded into memory, and where they're loaded.
     </span>segments: Vec&lt;LibrarySegment&gt;,
-    <span class="doccomment">/// The &quot;bias&quot; of this library, typically where it&#39;s loaded into memory.
-    /// This value is added to each segment&#39;s stated address to get the actual
+    <span class="doccomment">/// The "bias" of this library, typically where it's loaded into memory.
+    /// This value is added to each segment's stated address to get the actual
     /// virtual memory address that the segment is loaded into. Additionally
     /// this bias is subtracted from real virtual memory addresses to index into
     /// debuginfo and the symbol table.
@@ -785,7 +786,7 @@
 <span class="kw">struct </span>LibrarySegment {
     <span class="doccomment">/// The stated address of this segment in the object file. This is not
     /// actually where the segment is loaded, but rather this address plus the
-    /// containing library&#39;s `bias` is where to find it.
+    /// containing library's `bias` is where to find it.
     </span>stated_virtual_memory_address: usize,
     <span class="doccomment">/// The size of this segment in memory.
     </span>len: usize,
@@ -808,13 +809,13 @@
     </span><span class="kw">unsafe fn </span>with_global(f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>)) {
         <span class="comment">// A very small, very simple LRU cache for debug info mappings.
         //
-        // The hit rate should be very high, since the typical stack doesn&#39;t cross
+        // The hit rate should be very high, since the typical stack doesn't cross
         // between many shared libraries.
         //
         // The `addr2line::Context` structures are pretty expensive to create. Its
         // cost is expected to be amortized by subsequent `locate` queries, which
         // leverage the structures built when constructing `addr2line::Context`s to
-        // get nice speedups. If we didn&#39;t have this cache, that amortization would
+        // get nice speedups. If we didn't have this cache, that amortization would
         // never happen, and symbolicating backtraces would be ssssllllooooowwww.
         </span><span class="kw">static </span><span class="kw-2">mut </span>MAPPINGS_CACHE: <span class="prelude-ty">Option</span>&lt;Cache&gt; = <span class="prelude-val">None</span>;
 
@@ -830,11 +831,11 @@
                 // `addr` (handling relocation). If this check passes then we
                 // can continue below and actually translate the address.
                 //
-                // Note that we&#39;re using `wrapping_add` here to avoid overflow
-                // checks. It&#39;s been seen in the wild that the SVMA + bias
+                // Note that we're using `wrapping_add` here to avoid overflow
+                // checks. It's been seen in the wild that the SVMA + bias
                 // computation overflows. It seems a bit odd that would happen
-                // but there&#39;s not a huge amount we can do about it other than
-                // probably just ignore those segments since they&#39;re likely
+                // but there's not a huge amount we can do about it other than
+                // probably just ignore those segments since they're likely
                 // pointing off into space. This originally came up in
                 // rust-lang/backtrace-rs#329.
                 </span><span class="kw">if </span>!lib.segments.iter().any(|s| {
@@ -855,7 +856,7 @@
             .next()
     }
 
-    <span class="kw">fn </span>mapping_for_lib&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, lib: usize) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Context&lt;<span class="lifetime">&#39;a</span>&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stash)&gt; {
+    <span class="kw">fn </span>mapping_for_lib&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, lib: usize) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Context&lt;<span class="lifetime">'a</span>&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stash)&gt; {
         <span class="kw">let </span>idx = <span class="self">self</span>.mappings.iter().position(|(idx, <span class="kw">_</span>)| <span class="kw-2">*</span>idx == lib);
 
         <span class="comment">// Invariant: after this conditional completes without early returning
@@ -882,24 +883,24 @@
         }
 
         <span class="kw">let </span>mapping = <span class="kw-2">&amp;mut </span><span class="self">self</span>.mappings[<span class="number">0</span>].<span class="number">1</span>;
-        <span class="kw">let </span>cx: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Context&lt;<span class="lifetime">&#39;static</span>&gt; = <span class="kw-2">&amp;mut </span>mapping.cx;
-        <span class="kw">let </span>stash: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stash = <span class="kw-2">&amp;</span>mapping.stash;
-        <span class="comment">// don&#39;t leak the `&#39;static` lifetime, make sure it&#39;s scoped to just
+        <span class="kw">let </span>cx: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Context&lt;<span class="lifetime">'static</span>&gt; = <span class="kw-2">&amp;mut </span>mapping.cx;
+        <span class="kw">let </span>stash: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stash = <span class="kw-2">&amp;</span>mapping.stash;
+        <span class="comment">// don't leak the `'static` lifetime, make sure it's scoped to just
         // ourselves
         </span><span class="prelude-val">Some</span>((
-            <span class="kw">unsafe </span>{ mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Context&lt;<span class="lifetime">&#39;static</span>&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Context&lt;<span class="lifetime">&#39;a</span>&gt;&gt;(cx) },
+            <span class="kw">unsafe </span>{ mem::transmute::&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Context&lt;<span class="lifetime">'static</span>&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Context&lt;<span class="lifetime">'a</span>&gt;&gt;(cx) },
             stash,
         ))
     }
 }
 
-<span class="kw">pub unsafe fn </span>resolve(what: ResolveWhat&lt;<span class="lifetime">&#39;_</span>&gt;, cb: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span><span class="kw">super</span>::Symbol)) {
+<span class="kw">pub unsafe fn </span>resolve(what: ResolveWhat&lt;<span class="lifetime">'_</span>&gt;, cb: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span><span class="kw">super</span>::Symbol)) {
     <span class="kw">let </span>addr = what.address_or_ip();
-    <span class="kw">let </span><span class="kw-2">mut </span>call = |sym: Symbol&lt;<span class="lifetime">&#39;_</span>&gt;| {
-        <span class="comment">// Extend the lifetime of `sym` to `&#39;static` since we are unfortunately
-        // required to here, but it&#39;s only ever going out as a reference so no
+    <span class="kw">let </span><span class="kw-2">mut </span>call = |sym: Symbol&lt;<span class="lifetime">'_</span>&gt;| {
+        <span class="comment">// Extend the lifetime of `sym` to `'static` since we are unfortunately
+        // required to here, but it's only ever going out as a reference so no
         // reference to it should be persisted beyond this frame anyway.
-        </span><span class="kw">let </span>sym = mem::transmute::&lt;Symbol&lt;<span class="lifetime">&#39;_</span>&gt;, Symbol&lt;<span class="lifetime">&#39;static</span>&gt;&gt;(sym);
+        </span><span class="kw">let </span>sym = mem::transmute::&lt;Symbol&lt;<span class="lifetime">'_</span>&gt;, Symbol&lt;<span class="lifetime">'static</span>&gt;&gt;(sym);
         (cb)(<span class="kw-2">&amp;</span><span class="kw">super</span>::Symbol { inner: sym });
     };
 
@@ -955,21 +956,21 @@
     });
 }
 
-<span class="kw">pub enum </span>Symbol&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub enum </span>Symbol&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// We were able to locate frame information for this symbol, and
-    /// `addr2line`&#39;s frame internally has all the nitty gritty details.
+    /// `addr2line`'s frame internally has all the nitty gritty details.
     </span>Frame {
         addr: <span class="kw-2">*mut </span>c_void,
-        location: <span class="prelude-ty">Option</span>&lt;addr2line::Location&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-        name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;,
+        location: <span class="prelude-ty">Option</span>&lt;addr2line::Location&lt;<span class="lifetime">'a</span>&gt;&gt;,
+        name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;,
     },
-    <span class="doccomment">/// Couldn&#39;t find debug information, but we found it in the symbol table of
+    <span class="doccomment">/// Couldn't find debug information, but we found it in the symbol table of
     /// the elf executable.
-    </span>Symtab { addr: <span class="kw-2">*mut </span>c_void, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] },
+    </span>Symtab { addr: <span class="kw-2">*mut </span>c_void, name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] },
 }
 
-<span class="kw">impl </span>Symbol&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+<span class="kw">impl </span>Symbol&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Symbol::Frame { name, .. } =&gt; {
                 <span class="kw">let </span>name = name.as_ref()<span class="question-mark">?</span>;
@@ -986,7 +987,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>filename_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    <span class="kw">pub fn </span>filename_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Symbol::Frame { location, .. } =&gt; {
                 <span class="kw">let </span>file = location.as_ref()<span class="question-mark">?</span>.file<span class="question-mark">?</span>;

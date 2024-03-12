@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-0.7.3/src/kinda_sorta_dangling.rs`."><title>kinda_sorta_dangling.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-0.7.3/src/kinda_sorta_dangling.rs`."><title>kinda_sorta_dangling.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -102,34 +103,34 @@
 <span class="doccomment">/// This type is intended to be similar to the type `MaybeDangling&lt;T&gt;`
 /// proposed in [RFC 3336].
 ///
-/// The effect of this is that in Rust&#39;s safety model, types inside here are not
+/// The effect of this is that in Rust's safety model, types inside here are not
 /// expected to have any memory dependent validity properties (`dereferenceable`, `noalias`).
 ///
-/// See [#3696] for a testcase where `Yoke` fails this under miri&#39;s field-retagging mode.
+/// See [#3696] for a testcase where `Yoke` fails this under miri's field-retagging mode.
 ///
-/// This has `T: &#39;static` since we don&#39;t need anything
-/// else and we don&#39;t want to have to think (more) about variance over lifetimes or dropck.
+/// This has `T: 'static` since we don't need anything
+/// else and we don't want to have to think (more) about variance over lifetimes or dropck.
 ///
 /// After [RFC 3336] lands we can use `MaybeDangling` instead.
 ///
 /// Note that a version of this type also exists publicly as the [`maybe_dangling`]
 /// crate; which also exports a patched `ManuallyDrop` with similar semantics and
-/// does not require `T: &#39;static`. Consider using this if you need something more general
+/// does not require `T: 'static`. Consider using this if you need something more general
 /// and are okay with adding dependencies.
 ///
 /// [RFC 3336]: https://github.com/rust-lang/rfcs/pull/3336
 /// [#3696]: https://github.com/unicode-org/icu4x/issues/3696
 /// [`maybe_dangling`](https://docs.rs/maybe-dangling/0.1.0/maybe_dangling/struct.MaybeDangling.html)
 </span><span class="attr">#[repr(transparent)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>KindaSortaDangling&lt;T: <span class="lifetime">&#39;static</span>&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>KindaSortaDangling&lt;T: <span class="lifetime">'static</span>&gt; {
     <span class="doccomment">/// Safety invariant: This is always an initialized T, never uninit or other
     /// invalid bit patterns. Its drop glue will execute during Drop::drop rather than
     /// during the drop glue for KindaSortaDangling, which means that we have to be careful about
-    /// not touching the values as initialized during `drop` after that, but that&#39;s a short period of time.
+    /// not touching the values as initialized during `drop` after that, but that's a short period of time.
     </span>dangle: MaybeUninit&lt;T&gt;,
 }
 
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; KindaSortaDangling&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <span class="lifetime">'static</span>&gt; KindaSortaDangling&lt;T&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>new(dangle: T) -&gt; <span class="self">Self </span>{
         KindaSortaDangling {
@@ -149,7 +150,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; Deref <span class="kw">for </span>KindaSortaDangling&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <span class="lifetime">'static</span>&gt; Deref <span class="kw">for </span>KindaSortaDangling&lt;T&gt; {
     <span class="kw">type </span>Target = T;
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
@@ -159,7 +160,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; DerefMut <span class="kw">for </span>KindaSortaDangling&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <span class="lifetime">'static</span>&gt; DerefMut <span class="kw">for </span>KindaSortaDangling&lt;T&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
         <span class="comment">// Safety: Safe due to the safety invariant on `dangle`;
@@ -168,20 +169,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static</span>&gt; Drop <span class="kw">for </span>KindaSortaDangling&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <span class="lifetime">'static</span>&gt; Drop <span class="kw">for </span>KindaSortaDangling&lt;T&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             <span class="comment">// Safety: We are reading and dropping a valid initialized T.
             //
-            // As `drop_in_place()` is a `read()`-like duplication operation we must be careful that the original value isn&#39;t
-            // used afterwards. It won&#39;t be because this is drop and the only
-            // code that will run after this is `self`&#39;s drop glue, and that drop glue is empty
+            // As `drop_in_place()` is a `read()`-like duplication operation we must be careful that the original value isn't
+            // used afterwards. It won't be because this is drop and the only
+            // code that will run after this is `self`'s drop glue, and that drop glue is empty
             // because MaybeUninit has no drop.
             //
             // We use `drop_in_place()` instead of `let _ = ... .assume_init_read()` to avoid creating a move
-            // of the inner `T` (without `KindaSortaDangling` protection!) type into a local -- we don&#39;t want to
-            // assert any of `T`&#39;s memory-related validity properties here.
+            // of the inner `T` (without `KindaSortaDangling` protection!) type into a local -- we don't want to
+            // assert any of `T`'s memory-related validity properties here.
             </span><span class="self">self</span>.dangle.as_mut_ptr().drop_in_place();
         }
     }

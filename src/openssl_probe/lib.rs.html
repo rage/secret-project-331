@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-probe-0.1.5/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl_probe" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-probe-0.1.5/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl_probe" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -138,10 +139,10 @@
 <span class="kw">use </span>std::path::{Path, PathBuf};
 
 <span class="doccomment">/// The OpenSSL environment variable to configure what certificate file to use.
-</span><span class="kw">pub const </span>ENV_CERT_FILE: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;SSL_CERT_FILE&quot;</span>;
+</span><span class="kw">pub const </span>ENV_CERT_FILE: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"SSL_CERT_FILE"</span>;
 
 <span class="doccomment">/// The OpenSSL environment variable to configure what certificates directory to use.
-</span><span class="kw">pub const </span>ENV_CERT_DIR: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;SSL_CERT_DIR&quot;</span>;
+</span><span class="kw">pub const </span>ENV_CERT_DIR: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"SSL_CERT_DIR"</span>;
 
 <span class="kw">pub struct </span>ProbeResult {
     <span class="kw">pub </span>cert_file: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
@@ -157,25 +158,25 @@
 }
 
 <span class="comment">// TODO: when we bump to 0.2, make this the `find_certs_dirs` function
-</span><span class="kw">fn </span>cert_dirs_iter() -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Path&gt; {
+</span><span class="kw">fn </span>cert_dirs_iter() -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Path&gt; {
     <span class="comment">// see http://gagravarr.org/writing/openssl-certs/others.shtml
     </span>[
-        <span class="string">&quot;/var/ssl&quot;</span>,
-        <span class="string">&quot;/usr/share/ssl&quot;</span>,
-        <span class="string">&quot;/usr/local/ssl&quot;</span>,
-        <span class="string">&quot;/usr/local/openssl&quot;</span>,
-        <span class="string">&quot;/usr/local/etc/openssl&quot;</span>,
-        <span class="string">&quot;/usr/local/share&quot;</span>,
-        <span class="string">&quot;/usr/lib/ssl&quot;</span>,
-        <span class="string">&quot;/usr/ssl&quot;</span>,
-        <span class="string">&quot;/etc/openssl&quot;</span>,
-        <span class="string">&quot;/etc/pki/ca-trust/extracted/pem&quot;</span>,
-        <span class="string">&quot;/etc/pki/tls&quot;</span>,
-        <span class="string">&quot;/etc/ssl&quot;</span>,
-        <span class="string">&quot;/etc/certs&quot;</span>,
-        <span class="string">&quot;/opt/etc/ssl&quot;</span>, <span class="comment">// Entware
-        </span><span class="string">&quot;/data/data/com.termux/files/usr/etc/tls&quot;</span>,
-        <span class="string">&quot;/boot/system/data/ssl&quot;</span>,
+        <span class="string">"/var/ssl"</span>,
+        <span class="string">"/usr/share/ssl"</span>,
+        <span class="string">"/usr/local/ssl"</span>,
+        <span class="string">"/usr/local/openssl"</span>,
+        <span class="string">"/usr/local/etc/openssl"</span>,
+        <span class="string">"/usr/local/share"</span>,
+        <span class="string">"/usr/lib/ssl"</span>,
+        <span class="string">"/usr/ssl"</span>,
+        <span class="string">"/etc/openssl"</span>,
+        <span class="string">"/etc/pki/ca-trust/extracted/pem"</span>,
+        <span class="string">"/etc/pki/tls"</span>,
+        <span class="string">"/etc/ssl"</span>,
+        <span class="string">"/etc/certs"</span>,
+        <span class="string">"/opt/etc/ssl"</span>, <span class="comment">// Entware
+        </span><span class="string">"/data/data/com.termux/files/usr/etc/tls"</span>,
+        <span class="string">"/boot/system/data/ssl"</span>,
     ]
     .iter().map(Path::new).filter(|p| p.exists())
 }
@@ -200,7 +201,7 @@
 /// variables are valid.
 </span><span class="kw">pub fn </span>try_init_ssl_cert_env_vars() -&gt; bool {
     <span class="kw">let </span>ProbeResult { cert_file, cert_dir } = probe();
-    <span class="comment">// we won&#39;t be overwriting existing env variables because if they&#39;re valid probe() will have
+    <span class="comment">// we won't be overwriting existing env variables because if they're valid probe() will have
     // returned them unchanged
     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>cert_file {
         env::set_var(ENV_CERT_FILE, path);
@@ -241,16 +242,16 @@
         <span class="comment">// cert.pem looks to be an openssl 1.0.1 thing, while
         // certs/ca-certificates.crt appears to be a 0.9.8 thing
         </span><span class="kw">let </span>cert_filenames = [
-            <span class="string">&quot;cert.pem&quot;</span>,
-            <span class="string">&quot;certs.pem&quot;</span>,
-            <span class="string">&quot;ca-bundle.pem&quot;</span>,
-            <span class="string">&quot;cacert.pem&quot;</span>,
-            <span class="string">&quot;ca-certificates.crt&quot;</span>,
-            <span class="string">&quot;certs/ca-certificates.crt&quot;</span>,
-            <span class="string">&quot;certs/ca-root-nss.crt&quot;</span>,
-            <span class="string">&quot;certs/ca-bundle.crt&quot;</span>,
-            <span class="string">&quot;CARootCertificates.pem&quot;</span>,
-            <span class="string">&quot;tls-ca-bundle.pem&quot;</span>,
+            <span class="string">"cert.pem"</span>,
+            <span class="string">"certs.pem"</span>,
+            <span class="string">"ca-bundle.pem"</span>,
+            <span class="string">"cacert.pem"</span>,
+            <span class="string">"ca-certificates.crt"</span>,
+            <span class="string">"certs/ca-certificates.crt"</span>,
+            <span class="string">"certs/ca-root-nss.crt"</span>,
+            <span class="string">"certs/ca-bundle.crt"</span>,
+            <span class="string">"CARootCertificates.pem"</span>,
+            <span class="string">"tls-ca-bundle.pem"</span>,
         ];
         <span class="kw">if </span>result.cert_file.is_none() {
             result.cert_file = cert_filenames
@@ -259,7 +260,7 @@
                 .find(|p| p.exists());
         }
         <span class="kw">if </span>result.cert_dir.is_none() {
-            <span class="kw">let </span>cert_dir = certs_dir.join(<span class="string">&quot;certs&quot;</span>);
+            <span class="kw">let </span>cert_dir = certs_dir.join(<span class="string">"certs"</span>);
             <span class="kw">if </span>cert_dir.exists() {
                 result.cert_dir = <span class="prelude-val">Some</span>(cert_dir);
             }

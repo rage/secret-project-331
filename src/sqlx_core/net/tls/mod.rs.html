@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/net/tls/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/net/tls/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -109,10 +110,10 @@
 <span class="kw">use </span><span class="kw">crate</span>::net::socket::WithSocket;
 <span class="kw">use </span><span class="kw">crate</span>::net::Socket;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;_tls-rustls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"_tls-rustls"</span>)]
 </span><span class="kw">mod </span>tls_rustls;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;_tls-native-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"_tls-native-tls"</span>)]
 </span><span class="kw">mod </span>tls_native_tls;
 
 <span class="kw">mod </span>util;
@@ -130,8 +131,8 @@
     <span class="kw">fn </span>from(value: String) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>trimmed = value.trim();
         <span class="comment">// Some heuristics according to https://tools.ietf.org/html/rfc7468
-        </span><span class="kw">if </span>trimmed.starts_with(<span class="string">&quot;-----BEGIN CERTIFICATE-----&quot;</span>)
-            &amp;&amp; trimmed.contains(<span class="string">&quot;-----END CERTIFICATE-----&quot;</span>)
+        </span><span class="kw">if </span>trimmed.starts_with(<span class="string">"-----BEGIN CERTIFICATE-----"</span>)
+            &amp;&amp; trimmed.contains(<span class="string">"-----END CERTIFICATE-----"</span>)
         {
             CertificateInput::Inline(value.as_bytes().to_vec())
         } <span class="kw">else </span>{
@@ -151,54 +152,54 @@
 }
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>CertificateInput {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            CertificateInput::Inline(v) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, String::from_utf8_lossy(v.as_slice())),
-            CertificateInput::File(path) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;file: {}&quot;</span>, path.display()),
+            CertificateInput::Inline(v) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, String::from_utf8_lossy(v.as_slice())),
+            CertificateInput::File(path) =&gt; <span class="macro">write!</span>(f, <span class="string">"file: {}"</span>, path.display()),
         }
     }
 }
 
-<span class="kw">pub struct </span>TlsConfig&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub struct </span>TlsConfig&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub </span>accept_invalid_certs: bool,
     <span class="kw">pub </span>accept_invalid_hostnames: bool,
-    <span class="kw">pub </span>hostname: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>root_cert_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CertificateInput&gt;,
-    <span class="kw">pub </span>client_cert_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CertificateInput&gt;,
-    <span class="kw">pub </span>client_key_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CertificateInput&gt;,
+    <span class="kw">pub </span>hostname: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    <span class="kw">pub </span>root_cert_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>CertificateInput&gt;,
+    <span class="kw">pub </span>client_cert_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>CertificateInput&gt;,
+    <span class="kw">pub </span>client_key_path: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>CertificateInput&gt;,
 }
 
 <span class="kw">pub async fn </span>handshake&lt;S, Ws&gt;(
     socket: S,
-    config: TlsConfig&lt;<span class="lifetime">&#39;_</span>&gt;,
+    config: TlsConfig&lt;<span class="lifetime">'_</span>&gt;,
     with_socket: Ws,
 ) -&gt; <span class="kw">crate</span>::Result&lt;Ws::Output&gt;
 <span class="kw">where
     </span>S: Socket,
     Ws: WithSocket,
 {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_tls-native-tls&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_tls-native-tls"</span>)]
     </span><span class="kw">return </span><span class="prelude-val">Ok</span>(with_socket.with_socket(tls_native_tls::handshake(socket, config).<span class="kw">await</span><span class="question-mark">?</span>));
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;_tls-rustls&quot;</span>, not(feature = <span class="string">&quot;_tls-native-tls&quot;</span>)))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"_tls-rustls"</span>, not(feature = <span class="string">"_tls-native-tls"</span>)))]
     </span><span class="kw">return </span><span class="prelude-val">Ok</span>(with_socket.with_socket(tls_rustls::handshake(socket, config).<span class="kw">await</span><span class="question-mark">?</span>));
 
-    <span class="attr">#[cfg(not(any(feature = <span class="string">&quot;_tls-native-tls&quot;</span>, feature = <span class="string">&quot;_tls-rustls&quot;</span>)))]
+    <span class="attr">#[cfg(not(any(feature = <span class="string">"_tls-native-tls"</span>, feature = <span class="string">"_tls-rustls"</span>)))]
     </span>{
         drop((socket, config, with_socket));
-        <span class="macro">panic!</span>(<span class="string">&quot;one of the `runtime-*-native-tls` or `runtime-*-rustls` features must be enabled&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"one of the `runtime-*-native-tls` or `runtime-*-rustls` features must be enabled"</span>)
     }
 }
 
 <span class="kw">pub fn </span>available() -&gt; bool {
-    <span class="macro">cfg!</span>(any(feature = <span class="string">&quot;_tls-native-tls&quot;</span>, feature = <span class="string">&quot;_tls-rustls&quot;</span>))
+    <span class="macro">cfg!</span>(any(feature = <span class="string">"_tls-native-tls"</span>, feature = <span class="string">"_tls-rustls"</span>))
 }
 
 <span class="kw">pub fn </span>error_if_unavailable() -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
     <span class="kw">if </span>!available() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::tls(
-            <span class="string">&quot;TLS upgrade required by connect options \
-                    but SQLx was built without TLS support enabled&quot;</span>,
+            <span class="string">"TLS upgrade required by connect options \
+                    but SQLx was built without TLS support enabled"</span>,
         ));
     }
 

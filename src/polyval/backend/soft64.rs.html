@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polyval-0.6.1/src/backend/soft64.rs`."><title>soft64.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="polyval" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../polyval/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="polyval"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/polyval-0.6.2/src/backend/soft64.rs`."><title>soft64.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="polyval" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../polyval/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="polyval"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -223,26 +224,43 @@
 <a href="#223" id="223">223</a>
 <a href="#224" id="224">224</a>
 <a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Constant-time software implementation of POLYVAL for 64-bit architectures.
-//! Adapted from BearSSL&#39;s `ghash_ctmul64.c`:
+//! Adapted from BearSSL's `ghash_ctmul64.c`:
 //!
 //! &lt;https://bearssl.org/gitweb/?p=BearSSL;a=blob;f=src/hash/ghash_ctmul64.c;hb=4b6046412&gt;
 //!
 //! Copyright (c) 2016 Thomas Pornin &lt;pornin@bolet.org&gt;
 
-</span><span class="kw">use crate</span>::{Block, Key, Tag};
-<span class="kw">use </span>core::{
+</span><span class="kw">use </span>core::{
     num::Wrapping,
     ops::{Add, Mul},
 };
+
 <span class="kw">use </span>universal_hash::{
     consts::{U1, U16},
     crypto_common::{BlockSizeUser, KeySizeUser, ParBlocksSizeUser},
     KeyInit, Reset, UhfBackend, UniversalHash,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"zeroize"</span>)]
 </span><span class="kw">use </span>zeroize::Zeroize;
+
+<span class="kw">use crate</span>::{Block, Key, Tag};
 
 <span class="doccomment">/// **POLYVAL**: GHASH-like universal hash over GF(2^128).
 </span><span class="attr">#[derive(Clone)]
@@ -254,6 +272,16 @@
     </span>s: U64x2,
 }
 
+<span class="kw">impl </span>Polyval {
+    <span class="doccomment">/// Initialize POLYVAL with the given `H` field element and initial block
+    </span><span class="kw">pub fn </span>new_with_init_block(h: <span class="kw-2">&amp;</span>Key, init_block: u128) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            h: h.into(),
+            s: init_block.into(),
+        }
+    }
+}
+
 <span class="kw">impl </span>KeySizeUser <span class="kw">for </span>Polyval {
     <span class="kw">type </span>KeySize = U16;
 }
@@ -261,10 +289,7 @@
 <span class="kw">impl </span>KeyInit <span class="kw">for </span>Polyval {
     <span class="doccomment">/// Initialize POLYVAL with the given `H` field element
     </span><span class="kw">fn </span>new(h: <span class="kw-2">&amp;</span>Key) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            h: h.into(),
-            s: U64x2::default(),
-        }
+        <span class="self">Self</span>::new_with_init_block(h, <span class="number">0</span>)
     }
 }
 
@@ -309,7 +334,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"zeroize"</span>)]
 </span><span class="kw">impl </span>Drop <span class="kw">for </span>Polyval {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.h.zeroize();
@@ -327,6 +352,12 @@
             u64::from_le_bytes(bytes[..<span class="number">8</span>].try_into().unwrap()),
             u64::from_le_bytes(bytes[<span class="number">8</span>..].try_into().unwrap()),
         )
+    }
+}
+
+<span class="kw">impl </span>From&lt;u128&gt; <span class="kw">for </span>U64x2 {
+    <span class="kw">fn </span>from(x: u128) -&gt; <span class="self">Self </span>{
+        U64x2((x &gt;&gt; <span class="number">64</span>) <span class="kw">as </span>u64, (x) <span class="kw">as </span>u64)
     }
 }
 
@@ -403,7 +434,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"zeroize"</span>)]
 </span><span class="kw">impl </span>Zeroize <span class="kw">for </span>U64x2 {
     <span class="kw">fn </span>zeroize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.<span class="number">0</span>.zeroize();
@@ -414,7 +445,7 @@
 <span class="doccomment">/// Multiplication in GF(2)[X], truncated to the low 64-bits, with “holes”
 /// (sequences of zeroes) to avoid carry spilling.
 ///
-/// When carries do occur, they wind up in a &quot;hole&quot; and are subsequently masked
+/// When carries do occur, they wind up in a "hole" and are subsequently masked
 /// out of the result.
 </span><span class="kw">fn </span>bmul64(x: u64, y: u64) -&gt; u64 {
     <span class="kw">let </span>x0 = Wrapping(x &amp; <span class="number">0x1111_1111_1111_1111</span>);

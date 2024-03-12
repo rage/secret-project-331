@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zstd-sys-2.0.9+zstd.1.5.5/src/bindings_zstd.rs`."><title>bindings_zstd.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zstd_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zstd-sys-2.0.9+zstd.1.5.5/src/bindings_zstd.rs`."><title>bindings_zstd.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zstd_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -600,7 +601,7 @@ are permitted provided that the following conditions are met:
    be used to endorse or promote products derived from this software without
    specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
@@ -626,16 +627,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <span class="kw">pub const </span>ZSTD_BLOCKSIZE_MAX: u32 = <span class="number">131072</span>;
 <span class="kw">pub const </span>ZSTD_CONTENTSIZE_UNKNOWN: i32 = -<span class="number">1</span>;
 <span class="kw">pub const </span>ZSTD_CONTENTSIZE_ERROR: i32 = -<span class="number">2</span>;
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_versionNumber() :\n  Return runtime library version, the value is (MAJOR*100*100 + MINOR*100 + RELEASE).&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_versionNumber() :\n  Return runtime library version, the value is (MAJOR*100*100 + MINOR*100 + RELEASE)."</span>]
     </span><span class="kw">pub fn </span>ZSTD_versionNumber() -&gt; ::core::ffi::c_uint;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_versionString() :\n  Return runtime library version, like \&quot;1.4.5\&quot;. Requires v1.3.0+.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_versionString() :\n  Return runtime library version, like \"1.4.5\". Requires v1.3.0+."</span>]
     </span><span class="kw">pub fn </span>ZSTD_versionString() -&gt; <span class="kw-2">*const </span>::core::ffi::c_char;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot;  Simple API\n/\n/*! ZSTD_compress() :\n  Compresses `src` content as a single zstd compressed frame into already allocated `dst`.\n  NOTE: Providing `dstCapacity &gt;= ZSTD_compressBound(srcSize)` guarantees that zstd will have\n        enough space to successfully compress the data.\n  @return : compressed size written into `dst` (&lt;= `dstCapacity),\n            or an error code if it fails (which can be tested using ZSTD_isError()).&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">"  Simple API\n/\n/*! ZSTD_compress() :\n  Compresses `src` content as a single zstd compressed frame into already allocated `dst`.\n  NOTE: Providing `dstCapacity &gt;= ZSTD_compressBound(srcSize)` guarantees that zstd will have\n        enough space to successfully compress the data.\n  @return : compressed size written into `dst` (&lt;= `dstCapacity),\n            or an error code if it fails (which can be tested using ZSTD_isError())."</span>]
     </span><span class="kw">pub fn </span>ZSTD_compress(
         dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
         dstCapacity: usize,
@@ -644,8 +645,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         compressionLevel: ::core::ffi::c_int,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_decompress() :\n  `compressedSize` : must be the _exact_ size of some number of compressed and/or skippable frames.\n  `dstCapacity` is an upper bound of originalSize to regenerate.\n  If user cannot imply a maximum upper bound, it&#39;s better to use streaming mode to decompress data.\n  @return : the number of bytes decompressed into `dst` (&lt;= `dstCapacity`),\n            or an errorCode if it fails (which can be tested using ZSTD_isError()).&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_decompress() :\n  `compressedSize` : must be the _exact_ size of some number of compressed and/or skippable frames.\n  `dstCapacity` is an upper bound of originalSize to regenerate.\n  If user cannot imply a maximum upper bound, it's better to use streaming mode to decompress data.\n  @return : the number of bytes decompressed into `dst` (&lt;= `dstCapacity`),\n            or an errorCode if it fails (which can be tested using ZSTD_isError())."</span>]
     </span><span class="kw">pub fn </span>ZSTD_decompress(
         dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
         dstCapacity: usize,
@@ -653,42 +654,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         compressedSize: usize,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_getFrameContentSize(
         src: <span class="kw-2">*const </span>::core::ffi::c_void,
         srcSize: usize,
     ) -&gt; ::core::ffi::c_ulonglong;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_getDecompressedSize() :\n  NOTE: This function is now obsolete, in favor of ZSTD_getFrameContentSize().\n  Both functions work the same way, but ZSTD_getDecompressedSize() blends\n  \&quot;empty\&quot;, \&quot;unknown\&quot; and \&quot;error\&quot; results to the same return value (0),\n  while ZSTD_getFrameContentSize() gives them separate return values.\n @return : decompressed size of `src` frame content _if known and not empty_, 0 otherwise.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_getDecompressedSize() :\n  NOTE: This function is now obsolete, in favor of ZSTD_getFrameContentSize().\n  Both functions work the same way, but ZSTD_getDecompressedSize() blends\n  \"empty\", \"unknown\" and \"error\" results to the same return value (0),\n  while ZSTD_getFrameContentSize() gives them separate return values.\n @return : decompressed size of `src` frame content _if known and not empty_, 0 otherwise."</span>]
     </span><span class="kw">pub fn </span>ZSTD_getDecompressedSize(
         src: <span class="kw-2">*const </span>::core::ffi::c_void,
         srcSize: usize,
     ) -&gt; ::core::ffi::c_ulonglong;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_findFrameCompressedSize() : Requires v1.4.0+\n `src` should point to the start of a ZSTD frame or skippable frame.\n `srcSize` must be &gt;= first frame size\n @return : the compressed size of the first frame starting at `src`,\n           suitable to pass as `srcSize` to `ZSTD_decompress` or similar,\n        or an error code if input is invalid&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_findFrameCompressedSize() : Requires v1.4.0+\n `src` should point to the start of a ZSTD frame or skippable frame.\n `srcSize` must be &gt;= first frame size\n @return : the compressed size of the first frame starting at `src`,\n           suitable to pass as `srcSize` to `ZSTD_decompress` or similar,\n        or an error code if input is invalid"</span>]
     </span><span class="kw">pub fn </span>ZSTD_findFrameCompressedSize(
         src: <span class="kw-2">*const </span>::core::ffi::c_void,
         srcSize: usize,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_compressBound(srcSize: usize) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_isError(code: usize) -&gt; ::core::ffi::c_uint;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_getErrorName(code: usize) -&gt; <span class="kw-2">*const </span>::core::ffi::c_char;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_minCLevel() -&gt; ::core::ffi::c_int;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_maxCLevel() -&gt; ::core::ffi::c_int;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_defaultCLevel() -&gt; ::core::ffi::c_int;
 }
 <span class="attr">#[repr(C)]
@@ -696,16 +697,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </span><span class="kw">pub struct </span>ZSTD_CCtx_s {
     _unused: [u8; <span class="number">0</span>],
 }
-<span class="attr">#[doc = <span class="string">&quot;  Explicit context&quot;</span>]
+<span class="attr">#[doc = <span class="string">"  Explicit context"</span>]
 </span><span class="kw">pub type </span>ZSTD_CCtx = ZSTD_CCtx_s;
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_createCCtx() -&gt; <span class="kw-2">*mut </span>ZSTD_CCtx;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_freeCCtx(cctx: <span class="kw-2">*mut </span>ZSTD_CCtx) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_compressCCtx() :\n  Same as ZSTD_compress(), using an explicit ZSTD_CCtx.\n  Important : in order to behave similarly to `ZSTD_compress()`,\n  this function compresses at requested compression level,\n  __ignoring any other parameter__ .\n  If any advanced parameter was set using the advanced API,\n  they will all be reset. Only `compressionLevel` remains.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_compressCCtx() :\n  Same as ZSTD_compress(), using an explicit ZSTD_CCtx.\n  Important : in order to behave similarly to `ZSTD_compress()`,\n  this function compresses at requested compression level,\n  __ignoring any other parameter__ .\n  If any advanced parameter was set using the advanced API,\n  they will all be reset. Only `compressionLevel` remains."</span>]
     </span><span class="kw">pub fn </span>ZSTD_compressCCtx(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
@@ -721,14 +722,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     _unused: [u8; <span class="number">0</span>],
 }
 <span class="kw">pub type </span>ZSTD_DCtx = ZSTD_DCtx_s;
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_createDCtx() -&gt; <span class="kw-2">*mut </span>ZSTD_DCtx;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_freeDCtx(dctx: <span class="kw-2">*mut </span>ZSTD_DCtx) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_decompressDCtx() :\n  Same as ZSTD_decompress(),\n  requires an allocated ZSTD_DCtx.\n  Compatible with sticky parameters.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_decompressDCtx() :\n  Same as ZSTD_decompress(),\n  requires an allocated ZSTD_DCtx.\n  Compatible with sticky parameters."</span>]
     </span><span class="kw">pub fn </span>ZSTD_decompressDCtx(
         dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
         dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
@@ -738,7 +739,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     ) -&gt; usize;
 }
 <span class="attr">#[repr(u32)]
-#[doc = <span class="string">&quot;  Advanced compression API (Requires v1.4.0+)&quot;</span>]
+#[doc = <span class="string">"  Advanced compression API (Requires v1.4.0+)"</span>]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>ZSTD_strategy {
     ZSTD_fast = <span class="number">1</span>,
@@ -800,20 +801,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <span class="kw">pub </span>lowerBound: ::core::ffi::c_int,
     <span class="kw">pub </span>upperBound: ::core::ffi::c_int,
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_cParam_getBounds() :\n  All parameters must belong to an interval with lower and upper bounds,\n  otherwise they will either trigger an error or be automatically clamped.\n @return : a structure, ZSTD_bounds, which contains\n         - an error status field, which must be tested using ZSTD_isError()\n         - lower and upper bounds, both inclusive&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_cParam_getBounds() :\n  All parameters must belong to an interval with lower and upper bounds,\n  otherwise they will either trigger an error or be automatically clamped.\n @return : a structure, ZSTD_bounds, which contains\n         - an error status field, which must be tested using ZSTD_isError()\n         - lower and upper bounds, both inclusive"</span>]
     </span><span class="kw">pub fn </span>ZSTD_cParam_getBounds(cParam: ZSTD_cParameter) -&gt; ZSTD_bounds;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_CCtx_setParameter() :\n  Set one compression parameter, selected by enum ZSTD_cParameter.\n  All parameters have valid bounds. Bounds can be queried using ZSTD_cParam_getBounds().\n  Providing a value beyond bound will either clamp it, or trigger an error (depending on parameter).\n  Setting a parameter is generally only possible during frame initialization (before starting compression).\n  Exception : when using multi-threading mode (nbWorkers &gt;= 1),\n              the following parameters can be updated _during_ compression (within same frame):\n              =&gt; compressionLevel, hashLog, chainLog, searchLog, minMatch, targetLength and strategy.\n              new parameters will be active for next job only (after a flush()).\n @return : an error code (which can be tested using ZSTD_isError()).&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_CCtx_setParameter() :\n  Set one compression parameter, selected by enum ZSTD_cParameter.\n  All parameters have valid bounds. Bounds can be queried using ZSTD_cParam_getBounds().\n  Providing a value beyond bound will either clamp it, or trigger an error (depending on parameter).\n  Setting a parameter is generally only possible during frame initialization (before starting compression).\n  Exception : when using multi-threading mode (nbWorkers &gt;= 1),\n              the following parameters can be updated _during_ compression (within same frame):\n              =&gt; compressionLevel, hashLog, chainLog, searchLog, minMatch, targetLength and strategy.\n              new parameters will be active for next job only (after a flush()).\n @return : an error code (which can be tested using ZSTD_isError())."</span>]
     </span><span class="kw">pub fn </span>ZSTD_CCtx_setParameter(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         param: ZSTD_cParameter,
         value: ::core::ffi::c_int,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_CCtx_setPledgedSrcSize() :\n  Total input data size to be compressed as a single frame.\n  Value will be written in frame header, unless if explicitly forbidden using ZSTD_c_contentSizeFlag.\n  This value will also be controlled at end of frame, and trigger an error if not respected.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Note 1 : pledgedSrcSize==0 actually means zero, aka an empty frame.\n           In order to mean \&quot;unknown content size\&quot;, pass constant ZSTD_CONTENTSIZE_UNKNOWN.\n           ZSTD_CONTENTSIZE_UNKNOWN is default value for any new frame.\n  Note 2 : pledgedSrcSize is only valid once, for the next frame.\n           It&#39;s discarded at the end of the frame, and replaced by ZSTD_CONTENTSIZE_UNKNOWN.\n  Note 3 : Whenever all input data is provided and consumed in a single round,\n           for example with ZSTD_compress2(),\n           or invoking immediately ZSTD_compressStream2(,,,ZSTD_e_end),\n           this value is automatically overridden by srcSize instead.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_CCtx_setPledgedSrcSize() :\n  Total input data size to be compressed as a single frame.\n  Value will be written in frame header, unless if explicitly forbidden using ZSTD_c_contentSizeFlag.\n  This value will also be controlled at end of frame, and trigger an error if not respected.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Note 1 : pledgedSrcSize==0 actually means zero, aka an empty frame.\n           In order to mean \"unknown content size\", pass constant ZSTD_CONTENTSIZE_UNKNOWN.\n           ZSTD_CONTENTSIZE_UNKNOWN is default value for any new frame.\n  Note 2 : pledgedSrcSize is only valid once, for the next frame.\n           It's discarded at the end of the frame, and replaced by ZSTD_CONTENTSIZE_UNKNOWN.\n  Note 3 : Whenever all input data is provided and consumed in a single round,\n           for example with ZSTD_compress2(),\n           or invoking immediately ZSTD_compressStream2(,,,ZSTD_e_end),\n           this value is automatically overridden by srcSize instead."</span>]
     </span><span class="kw">pub fn </span>ZSTD_CCtx_setPledgedSrcSize(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         pledgedSrcSize: ::core::ffi::c_ulonglong,
@@ -826,15 +827,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     ZSTD_reset_parameters = <span class="number">2</span>,
     ZSTD_reset_session_and_parameters = <span class="number">3</span>,
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_CCtx_reset() :\n  There are 2 different things that can be reset, independently or jointly :\n  - The session : will stop compressing current frame, and make CCtx ready to start a new one.\n                  Useful after an error, or to interrupt any ongoing compression.\n                  Any internal data not yet flushed is cancelled.\n                  Compression parameters and dictionary remain unchanged.\n                  They will be used to compress next frame.\n                  Resetting session never fails.\n  - The parameters : changes all parameters back to \&quot;default\&quot;.\n                  This also removes any reference to any dictionary or external sequence producer.\n                  Parameters can only be changed between 2 sessions (i.e. no compression is currently ongoing)\n                  otherwise the reset fails, and function returns an error value (which can be tested using ZSTD_isError())\n  - Both : similar to resetting the session, followed by resetting parameters.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_CCtx_reset() :\n  There are 2 different things that can be reset, independently or jointly :\n  - The session : will stop compressing current frame, and make CCtx ready to start a new one.\n                  Useful after an error, or to interrupt any ongoing compression.\n                  Any internal data not yet flushed is cancelled.\n                  Compression parameters and dictionary remain unchanged.\n                  They will be used to compress next frame.\n                  Resetting session never fails.\n  - The parameters : changes all parameters back to \"default\".\n                  This also removes any reference to any dictionary or external sequence producer.\n                  Parameters can only be changed between 2 sessions (i.e. no compression is currently ongoing)\n                  otherwise the reset fails, and function returns an error value (which can be tested using ZSTD_isError())\n  - Both : similar to resetting the session, followed by resetting parameters."</span>]
     </span><span class="kw">pub fn </span>ZSTD_CCtx_reset(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         reset: ZSTD_ResetDirective,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_compress2() :\n  Behave the same as ZSTD_compressCCtx(), but compression parameters are set using the advanced API.\n  ZSTD_compress2() always starts a new frame.\n  Should cctx hold data from a previously unfinished frame, everything about it is forgotten.\n  - Compression parameters are pushed into CCtx before starting compression, using ZSTD_CCtx_set*()\n  - The function is always blocking, returns when compression is completed.\n  NOTE: Providing `dstCapacity &gt;= ZSTD_compressBound(srcSize)` guarantees that zstd will have\n        enough space to successfully compress the data, though it is possible it fails for other reasons.\n @return : compressed size written into `dst` (&lt;= `dstCapacity),\n           or an error code if it fails (which can be tested using ZSTD_isError()).&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_compress2() :\n  Behave the same as ZSTD_compressCCtx(), but compression parameters are set using the advanced API.\n  ZSTD_compress2() always starts a new frame.\n  Should cctx hold data from a previously unfinished frame, everything about it is forgotten.\n  - Compression parameters are pushed into CCtx before starting compression, using ZSTD_CCtx_set*()\n  - The function is always blocking, returns when compression is completed.\n  NOTE: Providing `dstCapacity &gt;= ZSTD_compressBound(srcSize)` guarantees that zstd will have\n        enough space to successfully compress the data, though it is possible it fails for other reasons.\n @return : compressed size written into `dst` (&lt;= `dstCapacity),\n           or an error code if it fails (which can be tested using ZSTD_isError())."</span>]
     </span><span class="kw">pub fn </span>ZSTD_compress2(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
@@ -844,7 +845,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     ) -&gt; usize;
 }
 <span class="attr">#[repr(u32)]
-#[doc = <span class="string">&quot;  Advanced decompression API (Requires v1.4.0+)&quot;</span>]
+#[doc = <span class="string">"  Advanced decompression API (Requires v1.4.0+)"</span>]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>ZSTD_dParameter {
     ZSTD_d_windowLogMax = <span class="number">100</span>,
@@ -854,54 +855,54 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     ZSTD_d_experimentalParam4 = <span class="number">1003</span>,
     ZSTD_d_experimentalParam5 = <span class="number">1004</span>,
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_dParam_getBounds() :\n  All parameters must belong to an interval with lower and upper bounds,\n  otherwise they will either trigger an error or be automatically clamped.\n @return : a structure, ZSTD_bounds, which contains\n         - an error status field, which must be tested using ZSTD_isError()\n         - both lower and upper bounds, inclusive&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_dParam_getBounds() :\n  All parameters must belong to an interval with lower and upper bounds,\n  otherwise they will either trigger an error or be automatically clamped.\n @return : a structure, ZSTD_bounds, which contains\n         - an error status field, which must be tested using ZSTD_isError()\n         - both lower and upper bounds, inclusive"</span>]
     </span><span class="kw">pub fn </span>ZSTD_dParam_getBounds(dParam: ZSTD_dParameter) -&gt; ZSTD_bounds;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_DCtx_setParameter() :\n  Set one compression parameter, selected by enum ZSTD_dParameter.\n  All parameters have valid bounds. Bounds can be queried using ZSTD_dParam_getBounds().\n  Providing a value beyond bound will either clamp it, or trigger an error (depending on parameter).\n  Setting a parameter is only possible during frame initialization (before starting decompression).\n @return : 0, or an error code (which can be tested using ZSTD_isError()).&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_DCtx_setParameter() :\n  Set one compression parameter, selected by enum ZSTD_dParameter.\n  All parameters have valid bounds. Bounds can be queried using ZSTD_dParam_getBounds().\n  Providing a value beyond bound will either clamp it, or trigger an error (depending on parameter).\n  Setting a parameter is only possible during frame initialization (before starting decompression).\n @return : 0, or an error code (which can be tested using ZSTD_isError())."</span>]
     </span><span class="kw">pub fn </span>ZSTD_DCtx_setParameter(
         dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
         param: ZSTD_dParameter,
         value: ::core::ffi::c_int,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_DCtx_reset() :\n  Return a DCtx to clean state.\n  Session and parameters can be reset jointly or separately.\n  Parameters can only be reset when no active frame is being decompressed.\n @return : 0, or an error code, which can be tested with ZSTD_isError()&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_DCtx_reset() :\n  Return a DCtx to clean state.\n  Session and parameters can be reset jointly or separately.\n  Parameters can only be reset when no active frame is being decompressed.\n @return : 0, or an error code, which can be tested with ZSTD_isError()"</span>]
     </span><span class="kw">pub fn </span>ZSTD_DCtx_reset(
         dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
         reset: ZSTD_ResetDirective,
     ) -&gt; usize;
 }
-<span class="attr">#[doc = <span class="string">&quot;  Streaming&quot;</span>]
+<span class="attr">#[doc = <span class="string">"  Streaming"</span>]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 </span><span class="kw">pub struct </span>ZSTD_inBuffer_s {
-    <span class="attr">#[doc = <span class="string">&quot;&lt; start of input buffer&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"&lt; start of input buffer"</span>]
     </span><span class="kw">pub </span>src: <span class="kw-2">*const </span>::core::ffi::c_void,
-    <span class="attr">#[doc = <span class="string">&quot;&lt; size of input buffer&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"&lt; size of input buffer"</span>]
     </span><span class="kw">pub </span>size: usize,
-    <span class="attr">#[doc = <span class="string">&quot;&lt; position where reading stopped. Will be updated. Necessarily 0 &lt;= pos &lt;= size&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"&lt; position where reading stopped. Will be updated. Necessarily 0 &lt;= pos &lt;= size"</span>]
     </span><span class="kw">pub </span>pos: usize,
 }
-<span class="attr">#[doc = <span class="string">&quot;  Streaming&quot;</span>]
+<span class="attr">#[doc = <span class="string">"  Streaming"</span>]
 </span><span class="kw">pub type </span>ZSTD_inBuffer = ZSTD_inBuffer_s;
 <span class="attr">#[repr(C)]
 #[derive(Debug, Copy, Clone)]
 </span><span class="kw">pub struct </span>ZSTD_outBuffer_s {
-    <span class="attr">#[doc = <span class="string">&quot;&lt; start of output buffer&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"&lt; start of output buffer"</span>]
     </span><span class="kw">pub </span>dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
-    <span class="attr">#[doc = <span class="string">&quot;&lt; size of output buffer&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"&lt; size of output buffer"</span>]
     </span><span class="kw">pub </span>size: usize,
-    <span class="attr">#[doc = <span class="string">&quot;&lt; position where writing stopped. Will be updated. Necessarily 0 &lt;= pos &lt;= size&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"&lt; position where writing stopped. Will be updated. Necessarily 0 &lt;= pos &lt;= size"</span>]
     </span><span class="kw">pub </span>pos: usize,
 }
 <span class="kw">pub type </span>ZSTD_outBuffer = ZSTD_outBuffer_s;
 <span class="kw">pub type </span>ZSTD_CStream = ZSTD_CCtx;
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_createCStream() -&gt; <span class="kw-2">*mut </span>ZSTD_CStream;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_freeCStream(zcs: <span class="kw-2">*mut </span>ZSTD_CStream) -&gt; usize;
 }
 <span class="attr">#[repr(u32)]
@@ -911,8 +912,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     ZSTD_e_flush = <span class="number">1</span>,
     ZSTD_e_end = <span class="number">2</span>,
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_compressStream2() : Requires v1.4.0+\n  Behaves about the same as ZSTD_compressStream, with additional control on end directive.\n  - Compression parameters are pushed into CCtx before starting compression, using ZSTD_CCtx_set*()\n  - Compression parameters cannot be changed once compression is started (save a list of exceptions in multi-threading mode)\n  - output-&gt;pos must be &lt;= dstCapacity, input-&gt;pos must be &lt;= srcSize\n  - output-&gt;pos and input-&gt;pos will be updated. They are guaranteed to remain below their respective limit.\n  - endOp must be a valid directive\n  - When nbWorkers==0 (default), function is blocking : it completes its job before returning to caller.\n  - When nbWorkers&gt;=1, function is non-blocking : it copies a portion of input, distributes jobs to internal worker threads, flush to output whatever is available,\n                                                  and then immediately returns, just indicating that there is some data remaining to be flushed.\n                                                  The function nonetheless guarantees forward progress : it will return only after it reads or write at least 1+ byte.\n  - Exception : if the first call requests a ZSTD_e_end directive and provides enough dstCapacity, the function delegates to ZSTD_compress2() which is always blocking.\n  - @return provides a minimum amount of data remaining to be flushed from internal buffers\n            or an error code, which can be tested using ZSTD_isError().\n            if @return != 0, flush is not fully completed, there is still some data left within internal buffers.\n            This is useful for ZSTD_e_flush, since in this case more flushes are necessary to empty all buffers.\n            For ZSTD_e_end, @return == 0 when internal buffers are fully flushed and frame is completed.\n  - after a ZSTD_e_end directive, if internal buffer is not fully flushed (@return != 0),\n            only ZSTD_e_end or ZSTD_e_flush operations are allowed.\n            Before starting a new compression job, or changing compression parameters,\n            it is required to fully flush internal buffers.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_compressStream2() : Requires v1.4.0+\n  Behaves about the same as ZSTD_compressStream, with additional control on end directive.\n  - Compression parameters are pushed into CCtx before starting compression, using ZSTD_CCtx_set*()\n  - Compression parameters cannot be changed once compression is started (save a list of exceptions in multi-threading mode)\n  - output-&gt;pos must be &lt;= dstCapacity, input-&gt;pos must be &lt;= srcSize\n  - output-&gt;pos and input-&gt;pos will be updated. They are guaranteed to remain below their respective limit.\n  - endOp must be a valid directive\n  - When nbWorkers==0 (default), function is blocking : it completes its job before returning to caller.\n  - When nbWorkers&gt;=1, function is non-blocking : it copies a portion of input, distributes jobs to internal worker threads, flush to output whatever is available,\n                                                  and then immediately returns, just indicating that there is some data remaining to be flushed.\n                                                  The function nonetheless guarantees forward progress : it will return only after it reads or write at least 1+ byte.\n  - Exception : if the first call requests a ZSTD_e_end directive and provides enough dstCapacity, the function delegates to ZSTD_compress2() which is always blocking.\n  - @return provides a minimum amount of data remaining to be flushed from internal buffers\n            or an error code, which can be tested using ZSTD_isError().\n            if @return != 0, flush is not fully completed, there is still some data left within internal buffers.\n            This is useful for ZSTD_e_flush, since in this case more flushes are necessary to empty all buffers.\n            For ZSTD_e_end, @return == 0 when internal buffers are fully flushed and frame is completed.\n  - after a ZSTD_e_end directive, if internal buffer is not fully flushed (@return != 0),\n            only ZSTD_e_end or ZSTD_e_flush operations are allowed.\n            Before starting a new compression job, or changing compression parameters,\n            it is required to fully flush internal buffers."</span>]
     </span><span class="kw">pub fn </span>ZSTD_compressStream2(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
@@ -920,68 +921,68 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         endOp: ZSTD_EndDirective,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_CStreamInSize() -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_CStreamOutSize() -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; Equivalent to:\n\n     ZSTD_CCtx_reset(zcs, ZSTD_reset_session_only);\n     ZSTD_CCtx_refCDict(zcs, NULL); // clear the dictionary (if any)\n     ZSTD_CCtx_setParameter(zcs, ZSTD_c_compressionLevel, compressionLevel);\n\n Note that ZSTD_initCStream() clears any previously set dictionary. Use the new API\n to compress with a dictionary.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" Equivalent to:\n\n     ZSTD_CCtx_reset(zcs, ZSTD_reset_session_only);\n     ZSTD_CCtx_refCDict(zcs, NULL); // clear the dictionary (if any)\n     ZSTD_CCtx_setParameter(zcs, ZSTD_c_compressionLevel, compressionLevel);\n\n Note that ZSTD_initCStream() clears any previously set dictionary. Use the new API\n to compress with a dictionary."</span>]
     </span><span class="kw">pub fn </span>ZSTD_initCStream(
         zcs: <span class="kw-2">*mut </span>ZSTD_CStream,
         compressionLevel: ::core::ffi::c_int,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; Alternative for ZSTD_compressStream2(zcs, output, input, ZSTD_e_continue).\n NOTE: The return value is different. ZSTD_compressStream() returns a hint for\n the next read size (if non-zero and not an error). ZSTD_compressStream2()\n returns the minimum nb of bytes left to flush (if non-zero and not an error).&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" Alternative for ZSTD_compressStream2(zcs, output, input, ZSTD_e_continue).\n NOTE: The return value is different. ZSTD_compressStream() returns a hint for\n the next read size (if non-zero and not an error). ZSTD_compressStream2()\n returns the minimum nb of bytes left to flush (if non-zero and not an error)."</span>]
     </span><span class="kw">pub fn </span>ZSTD_compressStream(
         zcs: <span class="kw-2">*mut </span>ZSTD_CStream,
         output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
         input: <span class="kw-2">*mut </span>ZSTD_inBuffer,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_flush).&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_flush)."</span>]
     </span><span class="kw">pub fn </span>ZSTD_flushStream(
         zcs: <span class="kw-2">*mut </span>ZSTD_CStream,
         output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_end).&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_end)."</span>]
     </span><span class="kw">pub fn </span>ZSTD_endStream(
         zcs: <span class="kw-2">*mut </span>ZSTD_CStream,
         output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
     ) -&gt; usize;
 }
 <span class="kw">pub type </span>ZSTD_DStream = ZSTD_DCtx;
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_createDStream() -&gt; <span class="kw-2">*mut </span>ZSTD_DStream;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_freeDStream(zds: <span class="kw-2">*mut </span>ZSTD_DStream) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_initDStream() :\n Initialize/reset DStream state for new decompression operation.\n Call before new decompression operation using same DStream.\n\n Note : This function is redundant with the advanced API and equivalent to:\n     ZSTD_DCtx_reset(zds, ZSTD_reset_session_only);\n     ZSTD_DCtx_refDDict(zds, NULL);&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_initDStream() :\n Initialize/reset DStream state for new decompression operation.\n Call before new decompression operation using same DStream.\n\n Note : This function is redundant with the advanced API and equivalent to:\n     ZSTD_DCtx_reset(zds, ZSTD_reset_session_only);\n     ZSTD_DCtx_refDDict(zds, NULL);"</span>]
     </span><span class="kw">pub fn </span>ZSTD_initDStream(zds: <span class="kw-2">*mut </span>ZSTD_DStream) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_decompressStream() :\n Streaming decompression function.\n Call repetitively to consume full input updating it as necessary.\n Function will update both input and output `pos` fields exposing current state via these fields:\n - `input.pos &lt; input.size`, some input remaining and caller should provide remaining input\n   on the next call.\n - `output.pos &lt; output.size`, decoder finished and flushed all remaining buffers.\n - `output.pos == output.size`, potentially uncflushed data present in the internal buffers,\n   call ZSTD_decompressStream() again to flush remaining data to output.\n Note : with no additional input, amount of data flushed &lt;= ZSTD_BLOCKSIZE_MAX.\n\n @return : 0 when a frame is completely decoded and fully flushed,\n           or an error code, which can be tested using ZSTD_isError(),\n           or any other value &gt; 0, which means there is some decoding or flushing to do to complete current frame.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_decompressStream() :\n Streaming decompression function.\n Call repetitively to consume full input updating it as necessary.\n Function will update both input and output `pos` fields exposing current state via these fields:\n - `input.pos &lt; input.size`, some input remaining and caller should provide remaining input\n   on the next call.\n - `output.pos &lt; output.size`, decoder finished and flushed all remaining buffers.\n - `output.pos == output.size`, potentially uncflushed data present in the internal buffers,\n   call ZSTD_decompressStream() again to flush remaining data to output.\n Note : with no additional input, amount of data flushed &lt;= ZSTD_BLOCKSIZE_MAX.\n\n @return : 0 when a frame is completely decoded and fully flushed,\n           or an error code, which can be tested using ZSTD_isError(),\n           or any other value &gt; 0, which means there is some decoding or flushing to do to complete current frame."</span>]
     </span><span class="kw">pub fn </span>ZSTD_decompressStream(
         zds: <span class="kw-2">*mut </span>ZSTD_DStream,
         output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
         input: <span class="kw-2">*mut </span>ZSTD_inBuffer,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_DStreamInSize() -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_DStreamOutSize() -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot;  Simple dictionary API\n/\n/*! ZSTD_compress_usingDict() :\n  Compression at an explicit compression level using a Dictionary.\n  A dictionary can be any arbitrary data segment (also called a prefix),\n  or a buffer with specified information (see zdict.h).\n  Note : This function loads the dictionary, resulting in significant startup delay.\n         It&#39;s intended for a dictionary used only once.\n  Note 2 : When `dict == NULL || dictSize &lt; 8` no dictionary is used.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">"  Simple dictionary API\n/\n/*! ZSTD_compress_usingDict() :\n  Compression at an explicit compression level using a Dictionary.\n  A dictionary can be any arbitrary data segment (also called a prefix),\n  or a buffer with specified information (see zdict.h).\n  Note : This function loads the dictionary, resulting in significant startup delay.\n         It's intended for a dictionary used only once.\n  Note 2 : When `dict == NULL || dictSize &lt; 8` no dictionary is used."</span>]
     </span><span class="kw">pub fn </span>ZSTD_compress_usingDict(
         ctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
@@ -993,8 +994,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         compressionLevel: ::core::ffi::c_int,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_decompress_usingDict() :\n  Decompression using a known Dictionary.\n  Dictionary must be identical to the one used during compression.\n  Note : This function loads the dictionary, resulting in significant startup delay.\n         It&#39;s intended for a dictionary used only once.\n  Note : When `dict == NULL || dictSize &lt; 8` no dictionary is used.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_decompress_usingDict() :\n  Decompression using a known Dictionary.\n  Dictionary must be identical to the one used during compression.\n  Note : This function loads the dictionary, resulting in significant startup delay.\n         It's intended for a dictionary used only once.\n  Note : When `dict == NULL || dictSize &lt; 8` no dictionary is used."</span>]
     </span><span class="kw">pub fn </span>ZSTD_decompress_usingDict(
         dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
         dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
@@ -1010,22 +1011,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </span><span class="kw">pub struct </span>ZSTD_CDict_s {
     _unused: [u8; <span class="number">0</span>],
 }
-<span class="attr">#[doc = <span class="string">&quot;  Bulk processing dictionary API&quot;</span>]
+<span class="attr">#[doc = <span class="string">"  Bulk processing dictionary API"</span>]
 </span><span class="kw">pub type </span>ZSTD_CDict = ZSTD_CDict_s;
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_createCDict() :\n  When compressing multiple messages or blocks using the same dictionary,\n  it&#39;s recommended to digest the dictionary only once, since it&#39;s a costly operation.\n  ZSTD_createCDict() will create a state from digesting a dictionary.\n  The resulting state can be used for future compression operations with very limited startup cost.\n  ZSTD_CDict can be created once and shared by multiple threads concurrently, since its usage is read-only.\n @dictBuffer can be released after ZSTD_CDict creation, because its content is copied within CDict.\n  Note 1 : Consider experimental function `ZSTD_createCDict_byReference()` if you prefer to not duplicate @dictBuffer content.\n  Note 2 : A ZSTD_CDict can be created from an empty @dictBuffer,\n      in which case the only thing that it transports is the @compressionLevel.\n      This can be useful in a pipeline featuring ZSTD_compress_usingCDict() exclusively,\n      expecting a ZSTD_CDict parameter with any data, including those without a known dictionary.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_createCDict() :\n  When compressing multiple messages or blocks using the same dictionary,\n  it's recommended to digest the dictionary only once, since it's a costly operation.\n  ZSTD_createCDict() will create a state from digesting a dictionary.\n  The resulting state can be used for future compression operations with very limited startup cost.\n  ZSTD_CDict can be created once and shared by multiple threads concurrently, since its usage is read-only.\n @dictBuffer can be released after ZSTD_CDict creation, because its content is copied within CDict.\n  Note 1 : Consider experimental function `ZSTD_createCDict_byReference()` if you prefer to not duplicate @dictBuffer content.\n  Note 2 : A ZSTD_CDict can be created from an empty @dictBuffer,\n      in which case the only thing that it transports is the @compressionLevel.\n      This can be useful in a pipeline featuring ZSTD_compress_usingCDict() exclusively,\n      expecting a ZSTD_CDict parameter with any data, including those without a known dictionary."</span>]
     </span><span class="kw">pub fn </span>ZSTD_createCDict(
         dictBuffer: <span class="kw-2">*const </span>::core::ffi::c_void,
         dictSize: usize,
         compressionLevel: ::core::ffi::c_int,
     ) -&gt; <span class="kw-2">*mut </span>ZSTD_CDict;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_freeCDict() :\n  Function frees memory allocated by ZSTD_createCDict().\n  If a NULL pointer is passed, no operation is performed.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_freeCDict() :\n  Function frees memory allocated by ZSTD_createCDict().\n  If a NULL pointer is passed, no operation is performed."</span>]
     </span><span class="kw">pub fn </span>ZSTD_freeCDict(CDict: <span class="kw-2">*mut </span>ZSTD_CDict) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_compress_usingCDict() :\n  Compression using a digested Dictionary.\n  Recommended when same dictionary is used multiple times.\n  Note : compression level is _decided at dictionary creation time_,\n     and frame parameters are hardcoded (dictID=yes, contentSize=yes, checksum=no)&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_compress_usingCDict() :\n  Compression using a digested Dictionary.\n  Recommended when same dictionary is used multiple times.\n  Note : compression level is _decided at dictionary creation time_,\n     and frame parameters are hardcoded (dictID=yes, contentSize=yes, checksum=no)"</span>]
     </span><span class="kw">pub fn </span>ZSTD_compress_usingCDict(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
@@ -1041,19 +1042,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     _unused: [u8; <span class="number">0</span>],
 }
 <span class="kw">pub type </span>ZSTD_DDict = ZSTD_DDict_s;
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_createDDict() :\n  Create a digested dictionary, ready to start decompression operation without startup delay.\n  dictBuffer can be released after DDict creation, as its content is copied inside DDict.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_createDDict() :\n  Create a digested dictionary, ready to start decompression operation without startup delay.\n  dictBuffer can be released after DDict creation, as its content is copied inside DDict."</span>]
     </span><span class="kw">pub fn </span>ZSTD_createDDict(
         dictBuffer: <span class="kw-2">*const </span>::core::ffi::c_void,
         dictSize: usize,
     ) -&gt; <span class="kw-2">*mut </span>ZSTD_DDict;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_freeDDict() :\n  Function frees memory allocated with ZSTD_createDDict()\n  If a NULL pointer is passed, no operation is performed.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_freeDDict() :\n  Function frees memory allocated with ZSTD_createDDict()\n  If a NULL pointer is passed, no operation is performed."</span>]
     </span><span class="kw">pub fn </span>ZSTD_freeDDict(ddict: <span class="kw-2">*mut </span>ZSTD_DDict) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_decompress_usingDDict() :\n  Decompression using a digested Dictionary.\n  Recommended when same dictionary is used multiple times.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_decompress_usingDDict() :\n  Decompression using a digested Dictionary.\n  Recommended when same dictionary is used multiple times."</span>]
     </span><span class="kw">pub fn </span>ZSTD_decompress_usingDDict(
         dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
         dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
@@ -1063,95 +1064,95 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ddict: <span class="kw-2">*const </span>ZSTD_DDict,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_getDictID_fromDict() : Requires v1.4.0+\n  Provides the dictID stored within dictionary.\n  if @return == 0, the dictionary is not conformant with Zstandard specification.\n  It can still be loaded, but as a content-only dictionary.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_getDictID_fromDict() : Requires v1.4.0+\n  Provides the dictID stored within dictionary.\n  if @return == 0, the dictionary is not conformant with Zstandard specification.\n  It can still be loaded, but as a content-only dictionary."</span>]
     </span><span class="kw">pub fn </span>ZSTD_getDictID_fromDict(
         dict: <span class="kw-2">*const </span>::core::ffi::c_void,
         dictSize: usize,
     ) -&gt; ::core::ffi::c_uint;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_getDictID_fromCDict() : Requires v1.5.0+\n  Provides the dictID of the dictionary loaded into `cdict`.\n  If @return == 0, the dictionary is not conformant to Zstandard specification, or empty.\n  Non-conformant dictionaries can still be loaded, but as content-only dictionaries.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_getDictID_fromCDict() : Requires v1.5.0+\n  Provides the dictID of the dictionary loaded into `cdict`.\n  If @return == 0, the dictionary is not conformant to Zstandard specification, or empty.\n  Non-conformant dictionaries can still be loaded, but as content-only dictionaries."</span>]
     </span><span class="kw">pub fn </span>ZSTD_getDictID_fromCDict(
         cdict: <span class="kw-2">*const </span>ZSTD_CDict,
     ) -&gt; ::core::ffi::c_uint;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_getDictID_fromDDict() : Requires v1.4.0+\n  Provides the dictID of the dictionary loaded into `ddict`.\n  If @return == 0, the dictionary is not conformant to Zstandard specification, or empty.\n  Non-conformant dictionaries can still be loaded, but as content-only dictionaries.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_getDictID_fromDDict() : Requires v1.4.0+\n  Provides the dictID of the dictionary loaded into `ddict`.\n  If @return == 0, the dictionary is not conformant to Zstandard specification, or empty.\n  Non-conformant dictionaries can still be loaded, but as content-only dictionaries."</span>]
     </span><span class="kw">pub fn </span>ZSTD_getDictID_fromDDict(
         ddict: <span class="kw-2">*const </span>ZSTD_DDict,
     ) -&gt; ::core::ffi::c_uint;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_getDictID_fromFrame() : Requires v1.4.0+\n  Provides the dictID required to decompressed the frame stored within `src`.\n  If @return == 0, the dictID could not be decoded.\n  This could for one of the following reasons :\n  - The frame does not require a dictionary to be decoded (most common case).\n  - The frame was built with dictID intentionally removed. Whatever dictionary is necessary is a hidden piece of information.\n    Note : this use case also happens when using a non-conformant dictionary.\n  - `srcSize` is too small, and as a result, the frame header could not be decoded (only possible if `srcSize &lt; ZSTD_FRAMEHEADERSIZE_MAX`).\n  - This is not a Zstandard frame.\n  When identifying the exact failure cause, it&#39;s possible to use ZSTD_getFrameHeader(), which will provide a more precise error code.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_getDictID_fromFrame() : Requires v1.4.0+\n  Provides the dictID required to decompressed the frame stored within `src`.\n  If @return == 0, the dictID could not be decoded.\n  This could for one of the following reasons :\n  - The frame does not require a dictionary to be decoded (most common case).\n  - The frame was built with dictID intentionally removed. Whatever dictionary is necessary is a hidden piece of information.\n    Note : this use case also happens when using a non-conformant dictionary.\n  - `srcSize` is too small, and as a result, the frame header could not be decoded (only possible if `srcSize &lt; ZSTD_FRAMEHEADERSIZE_MAX`).\n  - This is not a Zstandard frame.\n  When identifying the exact failure cause, it's possible to use ZSTD_getFrameHeader(), which will provide a more precise error code."</span>]
     </span><span class="kw">pub fn </span>ZSTD_getDictID_fromFrame(
         src: <span class="kw-2">*const </span>::core::ffi::c_void,
         srcSize: usize,
     ) -&gt; ::core::ffi::c_uint;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_CCtx_loadDictionary() : Requires v1.4.0+\n  Create an internal CDict from `dict` buffer.\n  Decompression will have to use same dictionary.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special: Loading a NULL (or 0-size) dictionary invalidates previous dictionary,\n           meaning \&quot;return to no-dictionary mode\&quot;.\n  Note 1 : Dictionary is sticky, it will be used for all future compressed frames,\n           until parameters are reset, a new dictionary is loaded, or the dictionary\n           is explicitly invalidated by loading a NULL dictionary.\n  Note 2 : Loading a dictionary involves building tables.\n           It&#39;s also a CPU consuming operation, with non-negligible impact on latency.\n           Tables are dependent on compression parameters, and for this reason,\n           compression parameters can no longer be changed after loading a dictionary.\n  Note 3 :`dict` content will be copied internally.\n           Use experimental ZSTD_CCtx_loadDictionary_byReference() to reference content instead.\n           In such a case, dictionary buffer must outlive its users.\n  Note 4 : Use ZSTD_CCtx_loadDictionary_advanced()\n           to precisely select how dictionary content must be interpreted.\n  Note 5 : This method does not benefit from LDM (long distance mode).\n           If you want to employ LDM on some large dictionary content,\n           prefer employing ZSTD_CCtx_refPrefix() described below.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_CCtx_loadDictionary() : Requires v1.4.0+\n  Create an internal CDict from `dict` buffer.\n  Decompression will have to use same dictionary.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special: Loading a NULL (or 0-size) dictionary invalidates previous dictionary,\n           meaning \"return to no-dictionary mode\".\n  Note 1 : Dictionary is sticky, it will be used for all future compressed frames,\n           until parameters are reset, a new dictionary is loaded, or the dictionary\n           is explicitly invalidated by loading a NULL dictionary.\n  Note 2 : Loading a dictionary involves building tables.\n           It's also a CPU consuming operation, with non-negligible impact on latency.\n           Tables are dependent on compression parameters, and for this reason,\n           compression parameters can no longer be changed after loading a dictionary.\n  Note 3 :`dict` content will be copied internally.\n           Use experimental ZSTD_CCtx_loadDictionary_byReference() to reference content instead.\n           In such a case, dictionary buffer must outlive its users.\n  Note 4 : Use ZSTD_CCtx_loadDictionary_advanced()\n           to precisely select how dictionary content must be interpreted.\n  Note 5 : This method does not benefit from LDM (long distance mode).\n           If you want to employ LDM on some large dictionary content,\n           prefer employing ZSTD_CCtx_refPrefix() described below."</span>]
     </span><span class="kw">pub fn </span>ZSTD_CCtx_loadDictionary(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         dict: <span class="kw-2">*const </span>::core::ffi::c_void,
         dictSize: usize,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_CCtx_refCDict() : Requires v1.4.0+\n  Reference a prepared dictionary, to be used for all future compressed frames.\n  Note that compression parameters are enforced from within CDict,\n  and supersede any compression parameter previously set within CCtx.\n  The parameters ignored are labelled as \&quot;superseded-by-cdict\&quot; in the ZSTD_cParameter enum docs.\n  The ignored parameters will be used again if the CCtx is returned to no-dictionary mode.\n  The dictionary will remain valid for future compressed frames using same CCtx.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special : Referencing a NULL CDict means \&quot;return to no-dictionary mode\&quot;.\n  Note 1 : Currently, only one dictionary can be managed.\n           Referencing a new dictionary effectively \&quot;discards\&quot; any previous one.\n  Note 2 : CDict is just referenced, its lifetime must outlive its usage within CCtx.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_CCtx_refCDict() : Requires v1.4.0+\n  Reference a prepared dictionary, to be used for all future compressed frames.\n  Note that compression parameters are enforced from within CDict,\n  and supersede any compression parameter previously set within CCtx.\n  The parameters ignored are labelled as \"superseded-by-cdict\" in the ZSTD_cParameter enum docs.\n  The ignored parameters will be used again if the CCtx is returned to no-dictionary mode.\n  The dictionary will remain valid for future compressed frames using same CCtx.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special : Referencing a NULL CDict means \"return to no-dictionary mode\".\n  Note 1 : Currently, only one dictionary can be managed.\n           Referencing a new dictionary effectively \"discards\" any previous one.\n  Note 2 : CDict is just referenced, its lifetime must outlive its usage within CCtx."</span>]
     </span><span class="kw">pub fn </span>ZSTD_CCtx_refCDict(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         cdict: <span class="kw-2">*const </span>ZSTD_CDict,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_CCtx_refPrefix() : Requires v1.4.0+\n  Reference a prefix (single-usage dictionary) for next compressed frame.\n  A prefix is **only used once**. Tables are discarded at end of frame (ZSTD_e_end).\n  Decompression will need same prefix to properly regenerate data.\n  Compressing with a prefix is similar in outcome as performing a diff and compressing it,\n  but performs much faster, especially during decompression (compression speed is tunable with compression level).\n  This method is compatible with LDM (long distance mode).\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special: Adding any prefix (including NULL) invalidates any previous prefix or dictionary\n  Note 1 : Prefix buffer is referenced. It **must** outlive compression.\n           Its content must remain unmodified during compression.\n  Note 2 : If the intention is to diff some large src data blob with some prior version of itself,\n           ensure that the window size is large enough to contain the entire source.\n           See ZSTD_c_windowLog.\n  Note 3 : Referencing a prefix involves building tables, which are dependent on compression parameters.\n           It&#39;s a CPU consuming operation, with non-negligible impact on latency.\n           If there is a need to use the same prefix multiple times, consider loadDictionary instead.\n  Note 4 : By default, the prefix is interpreted as raw content (ZSTD_dct_rawContent).\n           Use experimental ZSTD_CCtx_refPrefix_advanced() to alter dictionary interpretation.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_CCtx_refPrefix() : Requires v1.4.0+\n  Reference a prefix (single-usage dictionary) for next compressed frame.\n  A prefix is **only used once**. Tables are discarded at end of frame (ZSTD_e_end).\n  Decompression will need same prefix to properly regenerate data.\n  Compressing with a prefix is similar in outcome as performing a diff and compressing it,\n  but performs much faster, especially during decompression (compression speed is tunable with compression level).\n  This method is compatible with LDM (long distance mode).\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special: Adding any prefix (including NULL) invalidates any previous prefix or dictionary\n  Note 1 : Prefix buffer is referenced. It **must** outlive compression.\n           Its content must remain unmodified during compression.\n  Note 2 : If the intention is to diff some large src data blob with some prior version of itself,\n           ensure that the window size is large enough to contain the entire source.\n           See ZSTD_c_windowLog.\n  Note 3 : Referencing a prefix involves building tables, which are dependent on compression parameters.\n           It's a CPU consuming operation, with non-negligible impact on latency.\n           If there is a need to use the same prefix multiple times, consider loadDictionary instead.\n  Note 4 : By default, the prefix is interpreted as raw content (ZSTD_dct_rawContent).\n           Use experimental ZSTD_CCtx_refPrefix_advanced() to alter dictionary interpretation."</span>]
     </span><span class="kw">pub fn </span>ZSTD_CCtx_refPrefix(
         cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
         prefix: <span class="kw-2">*const </span>::core::ffi::c_void,
         prefixSize: usize,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_DCtx_loadDictionary() : Requires v1.4.0+\n  Create an internal DDict from dict buffer, to be used to decompress all future frames.\n  The dictionary remains valid for all future frames, until explicitly invalidated, or\n  a new dictionary is loaded.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special : Adding a NULL (or 0-size) dictionary invalidates any previous dictionary,\n            meaning \&quot;return to no-dictionary mode\&quot;.\n  Note 1 : Loading a dictionary involves building tables,\n           which has a non-negligible impact on CPU usage and latency.\n           It&#39;s recommended to \&quot;load once, use many times\&quot;, to amortize the cost\n  Note 2 :`dict` content will be copied internally, so `dict` can be released after loading.\n           Use ZSTD_DCtx_loadDictionary_byReference() to reference dictionary content instead.\n  Note 3 : Use ZSTD_DCtx_loadDictionary_advanced() to take control of\n           how dictionary content is loaded and interpreted.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_DCtx_loadDictionary() : Requires v1.4.0+\n  Create an internal DDict from dict buffer, to be used to decompress all future frames.\n  The dictionary remains valid for all future frames, until explicitly invalidated, or\n  a new dictionary is loaded.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special : Adding a NULL (or 0-size) dictionary invalidates any previous dictionary,\n            meaning \"return to no-dictionary mode\".\n  Note 1 : Loading a dictionary involves building tables,\n           which has a non-negligible impact on CPU usage and latency.\n           It's recommended to \"load once, use many times\", to amortize the cost\n  Note 2 :`dict` content will be copied internally, so `dict` can be released after loading.\n           Use ZSTD_DCtx_loadDictionary_byReference() to reference dictionary content instead.\n  Note 3 : Use ZSTD_DCtx_loadDictionary_advanced() to take control of\n           how dictionary content is loaded and interpreted."</span>]
     </span><span class="kw">pub fn </span>ZSTD_DCtx_loadDictionary(
         dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
         dict: <span class="kw-2">*const </span>::core::ffi::c_void,
         dictSize: usize,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_DCtx_refDDict() : Requires v1.4.0+\n  Reference a prepared dictionary, to be used to decompress next frames.\n  The dictionary remains active for decompression of future frames using same DCtx.\n\n  If called with ZSTD_d_refMultipleDDicts enabled, repeated calls of this function\n  will store the DDict references in a table, and the DDict used for decompression\n  will be determined at decompression time, as per the dict ID in the frame.\n  The memory for the table is allocated on the first call to refDDict, and can be\n  freed with ZSTD_freeDCtx().\n\n  If called with ZSTD_d_refMultipleDDicts disabled (the default), only one dictionary\n  will be managed, and referencing a dictionary effectively \&quot;discards\&quot; any previous one.\n\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special: referencing a NULL DDict means \&quot;return to no-dictionary mode\&quot;.\n  Note 2 : DDict is just referenced, its lifetime must outlive its usage from DCtx.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_DCtx_refDDict() : Requires v1.4.0+\n  Reference a prepared dictionary, to be used to decompress next frames.\n  The dictionary remains active for decompression of future frames using same DCtx.\n\n  If called with ZSTD_d_refMultipleDDicts enabled, repeated calls of this function\n  will store the DDict references in a table, and the DDict used for decompression\n  will be determined at decompression time, as per the dict ID in the frame.\n  The memory for the table is allocated on the first call to refDDict, and can be\n  freed with ZSTD_freeDCtx().\n\n  If called with ZSTD_d_refMultipleDDicts disabled (the default), only one dictionary\n  will be managed, and referencing a dictionary effectively \"discards\" any previous one.\n\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Special: referencing a NULL DDict means \"return to no-dictionary mode\".\n  Note 2 : DDict is just referenced, its lifetime must outlive its usage from DCtx."</span>]
     </span><span class="kw">pub fn </span>ZSTD_DCtx_refDDict(
         dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
         ddict: <span class="kw-2">*const </span>ZSTD_DDict,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_DCtx_refPrefix() : Requires v1.4.0+\n  Reference a prefix (single-usage dictionary) to decompress next frame.\n  This is the reverse operation of ZSTD_CCtx_refPrefix(),\n  and must use the same prefix as the one used during compression.\n  Prefix is **only used once**. Reference is discarded at end of frame.\n  End of frame is reached when ZSTD_decompressStream() returns 0.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Note 1 : Adding any prefix (including NULL) invalidates any previously set prefix or dictionary\n  Note 2 : Prefix buffer is referenced. It **must** outlive decompression.\n           Prefix buffer must remain unmodified up to the end of frame,\n           reached when ZSTD_decompressStream() returns 0.\n  Note 3 : By default, the prefix is treated as raw content (ZSTD_dct_rawContent).\n           Use ZSTD_CCtx_refPrefix_advanced() to alter dictMode (Experimental section)\n  Note 4 : Referencing a raw content prefix has almost no cpu nor memory cost.\n           A full dictionary is more costly, as it requires building tables.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_DCtx_refPrefix() : Requires v1.4.0+\n  Reference a prefix (single-usage dictionary) to decompress next frame.\n  This is the reverse operation of ZSTD_CCtx_refPrefix(),\n  and must use the same prefix as the one used during compression.\n  Prefix is **only used once**. Reference is discarded at end of frame.\n  End of frame is reached when ZSTD_decompressStream() returns 0.\n @result : 0, or an error code (which can be tested with ZSTD_isError()).\n  Note 1 : Adding any prefix (including NULL) invalidates any previously set prefix or dictionary\n  Note 2 : Prefix buffer is referenced. It **must** outlive decompression.\n           Prefix buffer must remain unmodified up to the end of frame,\n           reached when ZSTD_decompressStream() returns 0.\n  Note 3 : By default, the prefix is treated as raw content (ZSTD_dct_rawContent).\n           Use ZSTD_CCtx_refPrefix_advanced() to alter dictMode (Experimental section)\n  Note 4 : Referencing a raw content prefix has almost no cpu nor memory cost.\n           A full dictionary is more costly, as it requires building tables."</span>]
     </span><span class="kw">pub fn </span>ZSTD_DCtx_refPrefix(
         dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
         prefix: <span class="kw-2">*const </span>::core::ffi::c_void,
         prefixSize: usize,
     ) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    <span class="attr">#[doc = <span class="string">&quot; ZSTD_sizeof_*() : Requires v1.4.0+\n  These functions give the _current_ memory usage of selected object.\n  Note that object memory usage can evolve (increase or decrease) over time.&quot;</span>]
+<span class="kw">extern </span><span class="string">"C" </span>{
+    <span class="attr">#[doc = <span class="string">" ZSTD_sizeof_*() : Requires v1.4.0+\n  These functions give the _current_ memory usage of selected object.\n  Note that object memory usage can evolve (increase or decrease) over time."</span>]
     </span><span class="kw">pub fn </span>ZSTD_sizeof_CCtx(cctx: <span class="kw-2">*const </span>ZSTD_CCtx) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_sizeof_DCtx(dctx: <span class="kw-2">*const </span>ZSTD_DCtx) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_sizeof_CStream(zcs: <span class="kw-2">*const </span>ZSTD_CStream) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_sizeof_DStream(zds: <span class="kw-2">*const </span>ZSTD_DStream) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_sizeof_CDict(cdict: <span class="kw-2">*const </span>ZSTD_CDict) -&gt; usize;
 }
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+<span class="kw">extern </span><span class="string">"C" </span>{
     <span class="kw">pub fn </span>ZSTD_sizeof_DDict(ddict: <span class="kw-2">*const </span>ZSTD_DDict) -&gt; usize;
 }
 </code></pre></div></section></main></body></html>

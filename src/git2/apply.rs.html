@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/apply.rs`."><title>apply.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/apply.rs`."><title>apply.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -232,7 +233,7 @@
             raw::GIT_APPLY_LOCATION_WORKDIR =&gt; <span class="self">Self</span>::WorkDir,
             raw::GIT_APPLY_LOCATION_INDEX =&gt; <span class="self">Self</span>::Index,
             raw::GIT_APPLY_LOCATION_BOTH =&gt; <span class="self">Self</span>::Both,
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown git diff binary kind&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unknown git diff binary kind"</span>),
         }
     }
     <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_apply_location_t {
@@ -245,20 +246,20 @@
 }
 
 <span class="doccomment">/// Options to specify when applying a diff
-</span><span class="kw">pub struct </span>ApplyOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+</span><span class="kw">pub struct </span>ApplyOptions&lt;<span class="lifetime">'cb</span>&gt; {
     raw: raw::git_apply_options,
-    hunk_cb: <span class="prelude-ty">Option</span>&lt;Box&lt;HunkCB&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;&gt;,
-    delta_cb: <span class="prelude-ty">Option</span>&lt;Box&lt;DeltaCB&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;&gt;,
+    hunk_cb: <span class="prelude-ty">Option</span>&lt;Box&lt;HunkCB&lt;<span class="lifetime">'cb</span>&gt;&gt;&gt;,
+    delta_cb: <span class="prelude-ty">Option</span>&lt;Box&lt;DeltaCB&lt;<span class="lifetime">'cb</span>&gt;&gt;&gt;,
 }
 
-<span class="kw">type </span>HunkCB&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">&#39;_</span>&gt;&gt;) -&gt; bool + <span class="lifetime">&#39;a</span>;
-<span class="kw">type </span>DeltaCB&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;&gt;) -&gt; bool + <span class="lifetime">&#39;a</span>;
+<span class="kw">type </span>HunkCB&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; bool + <span class="lifetime">'a</span>;
+<span class="kw">type </span>DeltaCB&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; bool + <span class="lifetime">'a</span>;
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>delta_cb_c(delta: <span class="kw-2">*const </span>raw::git_diff_delta, data: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>delta_cb_c(delta: <span class="kw-2">*const </span>raw::git_diff_delta, data: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
     panic::wrap(|| <span class="kw">unsafe </span>{
         <span class="kw">let </span>delta = Binding::from_raw_opt(delta <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>);
 
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>ApplyOptions&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>ApplyOptions&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.delta_cb {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>-<span class="number">1</span>,
@@ -274,11 +275,11 @@
     .unwrap_or(-<span class="number">1</span>)
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>hunk_cb_c(hunk: <span class="kw-2">*const </span>raw::git_diff_hunk, data: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>hunk_cb_c(hunk: <span class="kw-2">*const </span>raw::git_diff_hunk, data: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
     panic::wrap(|| <span class="kw">unsafe </span>{
         <span class="kw">let </span>hunk = Binding::from_raw_opt(hunk);
 
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>ApplyOptions&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>ApplyOptions&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.hunk_cb {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>-<span class="number">1</span>,
@@ -294,7 +295,7 @@
     .unwrap_or(-<span class="number">1</span>)
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; ApplyOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; ApplyOptions&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="doccomment">/// Creates a new set of empty options (zeroed).
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>opts = <span class="self">Self </span>{
@@ -319,7 +320,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Don&#39;t actually make changes, just test that the patch applies.
+    <span class="doccomment">/// Don't actually make changes, just test that the patch applies.
     </span><span class="kw">pub fn </span>check(<span class="kw-2">&amp;mut </span><span class="self">self</span>, check: bool) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.flag(raw::GIT_APPLY_CHECK, check)
     }
@@ -327,9 +328,9 @@
     <span class="doccomment">/// When applying a patch, callback that will be made per hunk.
     </span><span class="kw">pub fn </span>hunk_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
     </span><span class="kw">where
-        </span>F: FnMut(<span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">&#39;_</span>&gt;&gt;) -&gt; bool + <span class="lifetime">&#39;cb</span>,
+        </span>F: FnMut(<span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; bool + <span class="lifetime">'cb</span>,
     {
-        <span class="self">self</span>.hunk_cb = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;HunkCB&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;);
+        <span class="self">self</span>.hunk_cb = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;HunkCB&lt;<span class="lifetime">'cb</span>&gt;&gt;);
 
         <span class="self">self</span>.raw.hunk_cb = <span class="prelude-val">Some</span>(hunk_cb_c);
         <span class="self">self</span>.raw.payload = <span class="self">self </span><span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span><span class="kw-2">*mut </span><span class="kw">_</span>;
@@ -340,9 +341,9 @@
     <span class="doccomment">/// When applying a patch, callback that will be made per delta (file).
     </span><span class="kw">pub fn </span>delta_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
     </span><span class="kw">where
-        </span>F: FnMut(<span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;&gt;) -&gt; bool + <span class="lifetime">&#39;cb</span>,
+        </span>F: FnMut(<span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; bool + <span class="lifetime">'cb</span>,
     {
-        <span class="self">self</span>.delta_cb = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;DeltaCB&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;);
+        <span class="self">self</span>.delta_cb = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;DeltaCB&lt;<span class="lifetime">'cb</span>&gt;&gt;);
 
         <span class="self">self</span>.raw.delta_cb = <span class="prelude-val">Some</span>(delta_cb_c);
         <span class="self">self</span>.raw.payload = <span class="self">self </span><span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span><span class="kw-2">*mut </span><span class="kw">_</span>;
@@ -385,14 +386,14 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>apply_hunks_and_delta() {
-        <span class="kw">let </span>file_path = Path::new(<span class="string">&quot;foo.txt&quot;</span>);
+        <span class="kw">let </span>file_path = Path::new(<span class="string">"foo.txt"</span>);
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
         <span class="comment">// create new file
-        </span><span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(file_path))).write_all(<span class="string">b&quot;bar&quot;</span>));
+        </span><span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(file_path))).write_all(<span class="string">b"bar"</span>));
         <span class="comment">// stage the new file
         </span><span class="macro">t!</span>(<span class="macro">t!</span>(repo.index()).add_path(file_path));
         <span class="comment">// now change workdir version
-        </span><span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(file_path))).write_all(<span class="string">b&quot;foo\nbar&quot;</span>));
+        </span><span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(file_path))).write_all(<span class="string">b"foo\nbar"</span>));
 
         <span class="kw">let </span>diff = <span class="macro">t!</span>(repo.diff_index_to_workdir(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>));
         <span class="macro">assert_eq!</span>(diff.deltas().len(), <span class="number">1</span>);

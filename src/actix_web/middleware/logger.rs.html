@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/middleware/logger.rs`."><title>logger.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/middleware/logger.rs`."><title>logger.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1037,17 +1038,17 @@
 
 <span class="doccomment">/// Middleware for logging request and response summaries to the terminal.
 ///
-/// This middleware uses the `log` crate to output information. Enable `log`&#39;s output for the
-/// &quot;actix_web&quot; scope using [`env_logger`](https://docs.rs/env_logger) or similar crate.
+/// This middleware uses the `log` crate to output information. Enable `log`'s output for the
+/// "actix_web" scope using [`env_logger`](https://docs.rs/env_logger) or similar crate.
 ///
 /// # Default Format
 /// The [`default`](Logger::default) Logger uses the following format:
 ///
 /// ```plain
-/// %a &quot;%r&quot; %s %b &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; %T
+/// %a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T
 ///
 /// Example Output:
-/// 127.0.0.1:54278 &quot;GET /test HTTP/1.1&quot; 404 20 &quot;-&quot; &quot;HTTPie/2.2.0&quot; 0.001074
+/// 127.0.0.1:54278 "GET /test HTTP/1.1" 404 20 "-" "HTTPie/2.2.0" 0.001074
 /// ```
 ///
 /// # Examples
@@ -1055,11 +1056,11 @@
 /// use actix_web::{middleware::Logger, App};
 ///
 /// // access logs are printed with the INFO level so ensure it is enabled by default
-/// env_logger::init_from_env(env_logger::Env::new().default_filter_or(&quot;info&quot;));
+/// env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 ///
 /// let app = App::new()
 ///     // .wrap(Logger::default())
-///     .wrap(Logger::new(&quot;%a %{User-Agent}i&quot;));
+///     .wrap(Logger::new("%a %{User-Agent}i"));
 /// ```
 ///
 /// # Format
@@ -1074,15 +1075,15 @@
 /// `%T` | Time taken to serve the request, in seconds to 6 decimal places
 /// `%D` | Time taken to serve the request, in milliseconds
 /// `%U` | Request URL
-/// `%{r}a` | &quot;Real IP&quot; remote address **\***
-/// `%{FOO}i` | `request.headers[&quot;FOO&quot;]`
-/// `%{FOO}o` | `response.headers[&quot;FOO&quot;]`
-/// `%{FOO}e` | `env_var[&quot;FOO&quot;]`
-/// `%{FOO}xi` | [Custom request replacement](Logger::custom_request_replace) labelled &quot;FOO&quot;
-/// `%{FOO}xo` | [Custom response replacement](Logger::custom_response_replace) labelled &quot;FOO&quot;
+/// `%{r}a` | "Real IP" remote address **\***
+/// `%{FOO}i` | `request.headers["FOO"]`
+/// `%{FOO}o` | `response.headers["FOO"]`
+/// `%{FOO}e` | `env_var["FOO"]`
+/// `%{FOO}xi` | [Custom request replacement](Logger::custom_request_replace) labelled "FOO"
+/// `%{FOO}xo` | [Custom response replacement](Logger::custom_response_replace) labelled "FOO"
 ///
 /// # Security
-/// **\*** &quot;Real IP&quot; remote address is calculated using
+/// **\*** "Real IP" remote address is calculated using
 /// [`ConnectionInfo::realip_remote_addr()`](crate::dev::ConnectionInfo::realip_remote_addr())
 ///
 /// If you use this value, ensure that all requests come from trusted hosts. Otherwise, it is
@@ -1095,7 +1096,7 @@
     format: Format,
     exclude: HashSet&lt;String&gt;,
     exclude_regex: RegexSet,
-    log_target: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
+    log_target: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
 }
 
 <span class="kw">impl </span>Logger {
@@ -1134,13 +1135,13 @@
     /// would be `actix_web::middleware::logger`.
     ///
     /// # Examples
-    /// Using `.log_target(&quot;http_log&quot;)` would have this effect on request logs:
+    /// Using `.log_target("http_log")` would have this effect on request logs:
     /// ```diff
-    /// - [2015-10-21T07:28:00Z INFO  actix_web::middleware::logger] 127.0.0.1 &quot;GET / HTTP/1.1&quot; 200 88 &quot;-&quot; &quot;dmc/1.0&quot; 0.001985
-    /// + [2015-10-21T07:28:00Z INFO  http_log] 127.0.0.1 &quot;GET / HTTP/1.1&quot; 200 88 &quot;-&quot; &quot;dmc/1.0&quot; 0.001985
+    /// - [2015-10-21T07:28:00Z INFO  actix_web::middleware::logger] 127.0.0.1 "GET / HTTP/1.1" 200 88 "-" "dmc/1.0" 0.001985
+    /// + [2015-10-21T07:28:00Z INFO  http_log] 127.0.0.1 "GET / HTTP/1.1" 200 88 "-" "dmc/1.0" 0.001985
     ///                               ^^^^^^^^
     /// ```
-    </span><span class="kw">pub fn </span>log_target(<span class="kw-2">mut </span><span class="self">self</span>, target: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>log_target(<span class="kw-2">mut </span><span class="self">self</span>, target: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>inner = Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).unwrap();
         inner.log_target = target.into();
         <span class="self">self
@@ -1150,20 +1151,20 @@
     /// log line. The label passed as the first argument should match a replacement substring in
     /// the logger format like `%{label}xi`.
     ///
-    /// It is convention to print &quot;-&quot; to indicate no output instead of an empty string.
+    /// It is convention to print "-" to indicate no output instead of an empty string.
     ///
     /// # Examples
     /// ```
     /// # use actix_web::http::{header::HeaderValue};
     /// # use actix_web::middleware::Logger;
-    /// # fn parse_jwt_id (_req: Option&lt;&amp;HeaderValue&gt;) -&gt; String { &quot;jwt_uid&quot;.to_owned() }
-    /// Logger::new(&quot;example %{JWT_ID}xi&quot;)
-    ///     .custom_request_replace(&quot;JWT_ID&quot;, |req| parse_jwt_id(req.headers().get(&quot;Authorization&quot;)));
+    /// # fn parse_jwt_id (_req: Option&lt;&amp;HeaderValue&gt;) -&gt; String { "jwt_uid".to_owned() }
+    /// Logger::new("example %{JWT_ID}xi")
+    ///     .custom_request_replace("JWT_ID", |req| parse_jwt_id(req.headers().get("Authorization")));
     /// ```
     </span><span class="kw">pub fn </span>custom_request_replace(
         <span class="kw-2">mut </span><span class="self">self</span>,
         label: <span class="kw-2">&amp;</span>str,
-        f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>ServiceRequest) -&gt; String + <span class="lifetime">&#39;static</span>,
+        f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>ServiceRequest) -&gt; String + <span class="lifetime">'static</span>,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>inner = Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).unwrap();
 
@@ -1179,7 +1180,7 @@
         } <span class="kw">else </span>{
             <span class="comment">// non-printed request replacement function diagnostic
             </span><span class="macro">debug!</span>(
-                <span class="string">&quot;Attempted to register custom request logging function for nonexistent label: {}&quot;</span>,
+                <span class="string">"Attempted to register custom request logging function for nonexistent label: {}"</span>,
                 label
             );
         }
@@ -1193,7 +1194,7 @@
     /// The label passed as the first argument should match a replacement substring in
     /// the logger format like `%{label}xo`.
     ///
-    /// It is convention to print &quot;-&quot; to indicate no output instead of an empty string.
+    /// It is convention to print "-" to indicate no output instead of an empty string.
     ///
     /// The replacement function does not have access to the response body.
     ///
@@ -1202,19 +1203,19 @@
     /// # use actix_web::{dev::ServiceResponse, middleware::Logger};
     /// fn log_if_error(res: &amp;ServiceResponse) -&gt; String {
     ///     if res.status().as_u16() &gt;= 400 {
-    ///         &quot;ERROR&quot;.to_string()
+    ///         "ERROR".to_string()
     ///     } else {
-    ///         &quot;-&quot;.to_string()
+    ///         "-".to_string()
     ///     }
     /// }
     ///
-    /// Logger::new(&quot;example %{ERROR_STATUS}xo&quot;)
-    ///     .custom_response_replace(&quot;ERROR_STATUS&quot;, |res| log_if_error(res) );
+    /// Logger::new("example %{ERROR_STATUS}xo")
+    ///     .custom_response_replace("ERROR_STATUS", |res| log_if_error(res) );
     /// ```
     </span><span class="kw">pub fn </span>custom_response_replace(
         <span class="kw-2">mut </span><span class="self">self</span>,
         label: <span class="kw-2">&amp;</span>str,
-        f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>ServiceResponse) -&gt; String + <span class="lifetime">&#39;static</span>,
+        f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>ServiceResponse) -&gt; String + <span class="lifetime">'static</span>,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>inner = Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).unwrap();
 
@@ -1228,7 +1229,7 @@
             });
         } <span class="kw">else </span>{
             <span class="macro">debug!</span>(
-                <span class="string">&quot;Attempted to register custom response logging function for non-existent label: {}&quot;</span>,
+                <span class="string">"Attempted to register custom response logging function for non-existent label: {}"</span>,
                 label
             );
         }
@@ -1241,7 +1242,7 @@
     <span class="doccomment">/// Create `Logger` middleware with format:
     ///
     /// ```plain
-    /// %a &quot;%r&quot; %s %b &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; %T
+    /// %a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T
     /// ```
     </span><span class="kw">fn </span>default() -&gt; Logger {
         Logger(Rc::new(Inner {
@@ -1268,14 +1269,14 @@
         <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.format.<span class="number">0 </span>{
             <span class="kw">if let </span>FormatText::CustomRequest(label, <span class="prelude-val">None</span>) = unit {
                 <span class="macro">warn!</span>(
-                    <span class="string">&quot;No custom request replacement function was registered for label: {}&quot;</span>,
+                    <span class="string">"No custom request replacement function was registered for label: {}"</span>,
                     label
                 );
             }
 
             <span class="kw">if let </span>FormatText::CustomResponse(label, <span class="prelude-val">None</span>) = unit {
                 <span class="macro">warn!</span>(
-                    <span class="string">&quot;No custom response replacement function was registered for label: {}&quot;</span>,
+                    <span class="string">"No custom response replacement function was registered for label: {}"</span>,
                     label
                 );
             }
@@ -1314,7 +1315,7 @@
                 fut: <span class="self">self</span>.service.call(req),
                 format: <span class="prelude-val">None</span>,
                 time: OffsetDateTime::now_utc(),
-                log_target: Cow::Borrowed(<span class="string">&quot;&quot;</span>),
+                log_target: Cow::Borrowed(<span class="string">""</span>),
                 _phantom: PhantomData,
             }
         } <span class="kw">else </span>{
@@ -1346,7 +1347,7 @@
         </span>fut: S::Future,
         time: OffsetDateTime,
         format: <span class="prelude-ty">Option</span>&lt;Format&gt;,
-        log_target: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
+        log_target: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
         _phantom: PhantomData&lt;B&gt;,
     }
 }
@@ -1358,7 +1359,7 @@
 {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;StreamLog&lt;B&gt;&gt;, Error&gt;;
 
-    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.project();
 
         <span class="kw">let </span>res = <span class="kw">match </span><span class="macro">ready!</span>(this.fut.poll(cx)) {
@@ -1367,12 +1368,12 @@
         };
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(error) = res.response().error() {
-            <span class="macro">debug!</span>(<span class="string">&quot;Error in response: {:?}&quot;</span>, error);
+            <span class="macro">debug!</span>(<span class="string">"Error in response: {:?}"</span>, error);
         }
 
         <span class="kw">let </span>res = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>format) = this.format {
             <span class="comment">// to avoid polluting all the Logger types with the body parameter we swap the body
-            // out temporarily since it&#39;s not usable in custom response functions anyway
+            // out temporarily since it's not usable in custom response functions anyway
 
             </span><span class="kw">let </span>(req, res) = res.into_parts();
             <span class="kw">let </span>(res, body) = res.into_parts();
@@ -1411,13 +1412,13 @@
         format: <span class="prelude-ty">Option</span>&lt;Format&gt;,
         size: usize,
         time: OffsetDateTime,
-        log_target: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
+        log_target: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
     }
 
     <span class="kw">impl</span>&lt;B&gt; PinnedDrop <span class="kw">for </span>StreamLog&lt;B&gt; {
         <span class="kw">fn </span>drop(this: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>format) = this.format {
-                <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+                <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;| {
                     <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
                         unit.render(fmt, this.size, this.time)<span class="question-mark">?</span>;
                     }
@@ -1426,7 +1427,7 @@
 
                 <span class="macro">log::info!</span>(
                     target: this.log_target.as_ref(),
-                    <span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render)
+                    <span class="string">"{}"</span>, FormatDisplay(<span class="kw-2">&amp;</span>render)
                 );
             }
         }
@@ -1443,7 +1444,7 @@
 
     <span class="kw">fn </span>poll_next(
         <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.project();
 
@@ -1465,7 +1466,7 @@
 <span class="kw">impl </span>Default <span class="kw">for </span>Format {
     <span class="doccomment">/// Return the default formatting style for the `Logger`:
     </span><span class="kw">fn </span>default() -&gt; Format {
-        Format::new(<span class="string">r#&quot;%a &quot;%r&quot; %s %b &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; %T&quot;#</span>)
+        Format::new(<span class="string">r#"%a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#</span>)
     }
 }
 
@@ -1474,8 +1475,8 @@
     ///
     /// Returns `None` if the format string syntax is incorrect.
     </span><span class="kw">pub fn </span>new(s: <span class="kw-2">&amp;</span>str) -&gt; Format {
-        <span class="macro">log::trace!</span>(<span class="string">&quot;Access log format: {}&quot;</span>, s);
-        <span class="kw">let </span>fmt = Regex::new(<span class="string">r&quot;%(\{([A-Za-z0-9\-_]+)\}([aioe]|x[io])|[%atPrUsbTD]?)&quot;</span>).unwrap();
+        <span class="macro">log::trace!</span>(<span class="string">"Access log format: {}"</span>, s);
+        <span class="kw">let </span>fmt = Regex::new(<span class="string">r"%(\{([A-Za-z0-9\-_]+)\}([aioe]|x[io])|[%atPrUsbTD]?)"</span>).unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>idx = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
@@ -1489,32 +1490,32 @@
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = cap.get(<span class="number">2</span>) {
                 results.push(<span class="kw">match </span>cap.get(<span class="number">3</span>).unwrap().as_str() {
-                    <span class="string">&quot;a&quot; </span>=&gt; {
-                        <span class="kw">if </span>key.as_str() == <span class="string">&quot;r&quot; </span>{
+                    <span class="string">"a" </span>=&gt; {
+                        <span class="kw">if </span>key.as_str() == <span class="string">"r" </span>{
                             FormatText::RealIpRemoteAddr
                         } <span class="kw">else </span>{
-                            <span class="macro">unreachable!</span>(<span class="string">&quot;regex and code mismatch&quot;</span>)
+                            <span class="macro">unreachable!</span>(<span class="string">"regex and code mismatch"</span>)
                         }
                     }
-                    <span class="string">&quot;i&quot; </span>=&gt; FormatText::RequestHeader(HeaderName::try_from(key.as_str()).unwrap()),
-                    <span class="string">&quot;o&quot; </span>=&gt; FormatText::ResponseHeader(HeaderName::try_from(key.as_str()).unwrap()),
-                    <span class="string">&quot;e&quot; </span>=&gt; FormatText::EnvironHeader(key.as_str().to_owned()),
-                    <span class="string">&quot;xi&quot; </span>=&gt; FormatText::CustomRequest(key.as_str().to_owned(), <span class="prelude-val">None</span>),
-                    <span class="string">&quot;xo&quot; </span>=&gt; FormatText::CustomResponse(key.as_str().to_owned(), <span class="prelude-val">None</span>),
+                    <span class="string">"i" </span>=&gt; FormatText::RequestHeader(HeaderName::try_from(key.as_str()).unwrap()),
+                    <span class="string">"o" </span>=&gt; FormatText::ResponseHeader(HeaderName::try_from(key.as_str()).unwrap()),
+                    <span class="string">"e" </span>=&gt; FormatText::EnvironHeader(key.as_str().to_owned()),
+                    <span class="string">"xi" </span>=&gt; FormatText::CustomRequest(key.as_str().to_owned(), <span class="prelude-val">None</span>),
+                    <span class="string">"xo" </span>=&gt; FormatText::CustomResponse(key.as_str().to_owned(), <span class="prelude-val">None</span>),
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 })
             } <span class="kw">else </span>{
                 <span class="kw">let </span>m = cap.get(<span class="number">1</span>).unwrap();
                 results.push(<span class="kw">match </span>m.as_str() {
-                    <span class="string">&quot;%&quot; </span>=&gt; FormatText::Percent,
-                    <span class="string">&quot;a&quot; </span>=&gt; FormatText::RemoteAddr,
-                    <span class="string">&quot;t&quot; </span>=&gt; FormatText::RequestTime,
-                    <span class="string">&quot;r&quot; </span>=&gt; FormatText::RequestLine,
-                    <span class="string">&quot;s&quot; </span>=&gt; FormatText::ResponseStatus,
-                    <span class="string">&quot;b&quot; </span>=&gt; FormatText::ResponseSize,
-                    <span class="string">&quot;U&quot; </span>=&gt; FormatText::UrlPath,
-                    <span class="string">&quot;T&quot; </span>=&gt; FormatText::Time,
-                    <span class="string">&quot;D&quot; </span>=&gt; FormatText::TimeMillis,
+                    <span class="string">"%" </span>=&gt; FormatText::Percent,
+                    <span class="string">"a" </span>=&gt; FormatText::RemoteAddr,
+                    <span class="string">"t" </span>=&gt; FormatText::RequestTime,
+                    <span class="string">"r" </span>=&gt; FormatText::RequestLine,
+                    <span class="string">"s" </span>=&gt; FormatText::ResponseStatus,
+                    <span class="string">"b" </span>=&gt; FormatText::ResponseSize,
+                    <span class="string">"U" </span>=&gt; FormatText::UrlPath,
+                    <span class="string">"T" </span>=&gt; FormatText::Time,
+                    <span class="string">"D" </span>=&gt; FormatText::TimeMillis,
                     <span class="kw">_ </span>=&gt; FormatText::Str(m.as_str().to_owned()),
                 });
             }
@@ -1563,8 +1564,8 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>CustomRequestFn {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;custom_request_fn&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"custom_request_fn"</span>)
     }
 }
 
@@ -1580,37 +1581,37 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>CustomResponseFn {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;custom_response_fn&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"custom_response_fn"</span>)
     }
 }
 
 <span class="kw">impl </span>FormatText {
     <span class="kw">fn </span>render(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;,
+        fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;,
         size: usize,
         entry_time: OffsetDateTime,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             FormatText::Str(<span class="kw-2">ref </span>string) =&gt; fmt.write_str(string),
-            FormatText::Percent =&gt; <span class="string">&quot;%&quot;</span>.fmt(fmt),
+            FormatText::Percent =&gt; <span class="string">"%"</span>.fmt(fmt),
             FormatText::ResponseSize =&gt; size.fmt(fmt),
             FormatText::Time =&gt; {
                 <span class="kw">let </span>rt = OffsetDateTime::now_utc() - entry_time;
                 <span class="kw">let </span>rt = rt.as_seconds_f64();
-                fmt.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{:.6}&quot;</span>, rt))
+                fmt.write_fmt(<span class="macro">format_args!</span>(<span class="string">"{:.6}"</span>, rt))
             }
             FormatText::TimeMillis =&gt; {
                 <span class="kw">let </span>rt = OffsetDateTime::now_utc() - entry_time;
                 <span class="kw">let </span>rt = (rt.whole_nanoseconds() <span class="kw">as </span>f64) / <span class="number">1_000_000.0</span>;
-                fmt.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{:.6}&quot;</span>, rt))
+                fmt.write_fmt(<span class="macro">format_args!</span>(<span class="string">"{:.6}"</span>, rt))
             }
             FormatText::EnvironHeader(<span class="kw-2">ref </span>name) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = env::var(name) {
-                    fmt.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, val))
+                    fmt.write_fmt(<span class="macro">format_args!</span>(<span class="string">"{}"</span>, val))
                 } <span class="kw">else </span>{
-                    <span class="string">&quot;-&quot;</span>.fmt(fmt)
+                    <span class="string">"-"</span>.fmt(fmt)
                 }
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(()),
@@ -1620,7 +1621,7 @@
     <span class="kw">fn </span>render_response(<span class="kw-2">&amp;mut </span><span class="self">self</span>, res: <span class="kw-2">&amp;</span>ServiceResponse) {
         <span class="kw">match </span><span class="self">self </span>{
             FormatText::ResponseStatus =&gt; {
-                <span class="kw-2">*</span><span class="self">self </span>= FormatText::Str(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, res.status().as_u16()))
+                <span class="kw-2">*</span><span class="self">self </span>= FormatText::Str(<span class="macro">format!</span>(<span class="string">"{}"</span>, res.status().as_u16()))
             }
 
             FormatText::ResponseHeader(<span class="kw-2">ref </span>name) =&gt; {
@@ -1628,10 +1629,10 @@
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = val.to_str() {
                         s
                     } <span class="kw">else </span>{
-                        <span class="string">&quot;-&quot;
+                        <span class="string">"-"
                     </span>}
                 } <span class="kw">else </span>{
-                    <span class="string">&quot;-&quot;
+                    <span class="string">"-"
                 </span>};
                 <span class="kw-2">*</span><span class="self">self </span>= FormatText::Str(s.to_string())
             }
@@ -1639,7 +1640,7 @@
             FormatText::CustomResponse(<span class="kw">_</span>, res_fn) =&gt; {
                 <span class="kw">let </span>text = <span class="kw">match </span>res_fn {
                     <span class="prelude-val">Some</span>(res_fn) =&gt; FormatText::Str(res_fn.call(res)),
-                    <span class="prelude-val">None </span>=&gt; FormatText::Str(<span class="string">&quot;-&quot;</span>.to_owned()),
+                    <span class="prelude-val">None </span>=&gt; FormatText::Str(<span class="string">"-"</span>.to_owned()),
                 };
 
                 <span class="kw-2">*</span><span class="self">self </span>= text;
@@ -1654,14 +1655,14 @@
             FormatText::RequestLine =&gt; {
                 <span class="kw-2">*</span><span class="self">self </span>= <span class="kw">if </span>req.query_string().is_empty() {
                     FormatText::Str(<span class="macro">format!</span>(
-                        <span class="string">&quot;{} {} {:?}&quot;</span>,
+                        <span class="string">"{} {} {:?}"</span>,
                         req.method(),
                         req.path(),
                         req.version()
                     ))
                 } <span class="kw">else </span>{
                     FormatText::Str(<span class="macro">format!</span>(
-                        <span class="string">&quot;{} {}?{} {:?}&quot;</span>,
+                        <span class="string">"{} {}?{} {:?}"</span>,
                         req.method(),
                         req.path(),
                         req.query_string(),
@@ -1676,10 +1677,10 @@
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = val.to_str() {
                         s
                     } <span class="kw">else </span>{
-                        <span class="string">&quot;-&quot;
+                        <span class="string">"-"
                     </span>}
                 } <span class="kw">else </span>{
-                    <span class="string">&quot;-&quot;
+                    <span class="string">"-"
                 </span>};
                 <span class="kw-2">*</span><span class="self">self </span>= FormatText::Str(s.to_string());
             }
@@ -1687,7 +1688,7 @@
                 <span class="kw">let </span>s = <span class="kw">if let </span><span class="prelude-val">Some</span>(peer) = req.connection_info().peer_addr() {
                     FormatText::Str((<span class="kw-2">*</span>peer).to_string())
                 } <span class="kw">else </span>{
-                    FormatText::Str(<span class="string">&quot;-&quot;</span>.to_string())
+                    FormatText::Str(<span class="string">"-"</span>.to_string())
                 };
                 <span class="kw-2">*</span><span class="self">self </span>= s;
             }
@@ -1695,14 +1696,14 @@
                 <span class="kw">let </span>s = <span class="kw">if let </span><span class="prelude-val">Some</span>(remote) = req.connection_info().realip_remote_addr() {
                     FormatText::Str(remote.to_string())
                 } <span class="kw">else </span>{
-                    FormatText::Str(<span class="string">&quot;-&quot;</span>.to_string())
+                    FormatText::Str(<span class="string">"-"</span>.to_string())
                 };
                 <span class="kw-2">*</span><span class="self">self </span>= s;
             }
             FormatText::CustomRequest(<span class="kw">_</span>, request_fn) =&gt; {
                 <span class="kw">let </span>s = <span class="kw">match </span>request_fn {
                     <span class="prelude-val">Some</span>(f) =&gt; FormatText::Str(f.call(req)),
-                    <span class="prelude-val">None </span>=&gt; FormatText::Str(<span class="string">&quot;-&quot;</span>.to_owned()),
+                    <span class="prelude-val">None </span>=&gt; FormatText::Str(<span class="string">"-"</span>.to_owned()),
                 };
 
                 <span class="kw-2">*</span><span class="self">self </span>= s;
@@ -1713,10 +1714,10 @@
 }
 
 <span class="doccomment">/// Converter to get a String from something that writes to a Formatter.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FormatDisplay&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt;);
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FormatDisplay&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt;);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Display <span class="kw">for </span>FormatDisplay&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Display <span class="kw">for </span>FormatDisplay&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
         (<span class="self">self</span>.<span class="number">0</span>)(fmt)
     }
 }
@@ -1738,18 +1739,18 @@
         <span class="kw">let </span>srv = |req: ServiceRequest| {
             ok(req.into_response(
                 HttpResponse::build(StatusCode::OK)
-                    .insert_header((<span class="string">&quot;X-Test&quot;</span>, <span class="string">&quot;ttt&quot;</span>))
+                    .insert_header((<span class="string">"X-Test"</span>, <span class="string">"ttt"</span>))
                     .finish(),
             ))
         };
-        <span class="kw">let </span>logger = Logger::new(<span class="string">&quot;%% %{User-Agent}i %{X-Test}o %{HOME}e %D test&quot;</span>);
+        <span class="kw">let </span>logger = Logger::new(<span class="string">"%% %{User-Agent}i %{X-Test}o %{HOME}e %D test"</span>);
 
         <span class="kw">let </span>srv = logger.new_transform(srv.into_service()).<span class="kw">await</span>.unwrap();
 
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::USER_AGENT,
-                header::HeaderValue::from_static(<span class="string">&quot;ACTIX-WEB&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"ACTIX-WEB"</span>),
             ))
             .to_srv_request();
         <span class="kw">let </span>_res = srv.call(req).<span class="kw">await</span>;
@@ -1760,19 +1761,19 @@
         <span class="kw">let </span>srv = |req: ServiceRequest| {
             ok(req.into_response(
                 HttpResponse::build(StatusCode::OK)
-                    .insert_header((<span class="string">&quot;X-Test&quot;</span>, <span class="string">&quot;ttt&quot;</span>))
+                    .insert_header((<span class="string">"X-Test"</span>, <span class="string">"ttt"</span>))
                     .finish(),
             ))
         };
         <span class="kw">let </span>logger =
-            Logger::new(<span class="string">&quot;%% %{User-Agent}i %{X-Test}o %{HOME}e %D test&quot;</span>).exclude_regex(<span class="string">&quot;\\w&quot;</span>);
+            Logger::new(<span class="string">"%% %{User-Agent}i %{X-Test}o %{HOME}e %D test"</span>).exclude_regex(<span class="string">"\\w"</span>);
 
         <span class="kw">let </span>srv = logger.new_transform(srv.into_service()).<span class="kw">await</span>.unwrap();
 
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::USER_AGENT,
-                header::HeaderValue::from_static(<span class="string">&quot;ACTIX-WEB&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"ACTIX-WEB"</span>),
             ))
             .to_srv_request();
         <span class="kw">let </span>_res = srv.call(req).<span class="kw">await</span>.unwrap();
@@ -1780,12 +1781,12 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_escape_percent() {
-        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">&quot;%%{r}a&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">"%%{r}a"</span>);
 
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::FORWARDED,
-                header::HeaderValue::from_static(<span class="string">&quot;for=192.0.2.60;proto=http;by=203.0.113.43&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"for=192.0.2.60;proto=http;by=203.0.113.43"</span>),
             ))
             .to_srv_request();
 
@@ -1801,25 +1802,25 @@
         }
 
         <span class="kw">let </span>entry_time = OffsetDateTime::now_utc();
-        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;| {
             <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
                 unit.render(fmt, <span class="number">1024</span>, entry_time)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;%{r}a&quot;</span>);
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{}"</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="macro">assert_eq!</span>(s, <span class="string">"%{r}a"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_url_path() {
-        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">&quot;%T %U&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">"%T %U"</span>);
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::USER_AGENT,
-                header::HeaderValue::from_static(<span class="string">&quot;ACTIX-WEB&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"ACTIX-WEB"</span>),
             ))
-            .uri(<span class="string">&quot;/test/route/yeah&quot;</span>)
+            .uri(<span class="string">"/test/route/yeah"</span>)
             .to_srv_request();
 
         <span class="kw">let </span>now = OffsetDateTime::now_utc();
@@ -1833,14 +1834,14 @@
             unit.render_response(<span class="kw-2">&amp;</span>res);
         }
 
-        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;| {
             <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
                 unit.render(fmt, <span class="number">1024</span>, now)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;/test/route/yeah&quot;</span>));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{}"</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="macro">assert!</span>(s.contains(<span class="string">"/test/route/yeah"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1850,9 +1851,9 @@
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::USER_AGENT,
-                header::HeaderValue::from_static(<span class="string">&quot;ACTIX-WEB&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"ACTIX-WEB"</span>),
             ))
-            .peer_addr(<span class="string">&quot;127.0.0.1:8081&quot;</span>.parse().unwrap())
+            .peer_addr(<span class="string">"127.0.0.1:8081"</span>.parse().unwrap())
             .to_srv_request();
 
         <span class="kw">let </span>now = OffsetDateTime::now_utc();
@@ -1867,22 +1868,22 @@
         }
 
         <span class="kw">let </span>entry_time = OffsetDateTime::now_utc();
-        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;| {
             <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
                 unit.render(fmt, <span class="number">1024</span>, entry_time)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;GET / HTTP/1.1&quot;</span>));
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;127.0.0.1&quot;</span>));
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;200 1024&quot;</span>));
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;ACTIX-WEB&quot;</span>));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{}"</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="macro">assert!</span>(s.contains(<span class="string">"GET / HTTP/1.1"</span>));
+        <span class="macro">assert!</span>(s.contains(<span class="string">"127.0.0.1"</span>));
+        <span class="macro">assert!</span>(s.contains(<span class="string">"200 1024"</span>));
+        <span class="macro">assert!</span>(s.contains(<span class="string">"ACTIX-WEB"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_request_time_format() {
-        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">&quot;%t&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">"%t"</span>);
         <span class="kw">let </span>req = TestRequest::default().to_srv_request();
 
         <span class="kw">let </span>now = OffsetDateTime::now_utc();
@@ -1896,24 +1897,24 @@
             unit.render_response(<span class="kw-2">&amp;</span>res);
         }
 
-        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;| {
             <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
                 unit.render(fmt, <span class="number">1024</span>, now)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{}"</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
         <span class="macro">assert!</span>(s.contains(<span class="kw-2">&amp;</span>now.format(<span class="kw-2">&amp;</span>Rfc3339).unwrap()));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_remote_addr_format() {
-        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">&quot;%{r}a&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">"%{r}a"</span>);
 
         <span class="kw">let </span>req = TestRequest::default()
             .insert_header((
                 header::FORWARDED,
-                header::HeaderValue::from_static(<span class="string">&quot;for=192.0.2.60;proto=http;by=203.0.113.43&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"for=192.0.2.60;proto=http;by=203.0.113.43"</span>),
             ))
             .to_srv_request();
 
@@ -1929,51 +1930,51 @@
         }
 
         <span class="kw">let </span>entry_time = OffsetDateTime::now_utc();
-        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;| {
             <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
                 unit.render(fmt, <span class="number">1024</span>, entry_time)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;192.0.2.60&quot;</span>));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{}"</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="macro">assert!</span>(s.contains(<span class="string">"192.0.2.60"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_custom_closure_req_log() {
-        <span class="kw">let </span><span class="kw-2">mut </span>logger = Logger::new(<span class="string">&quot;test %{CUSTOM}xi&quot;</span>)
-            .custom_request_replace(<span class="string">&quot;CUSTOM&quot;</span>, |_req: <span class="kw-2">&amp;</span>ServiceRequest| -&gt; String {
-                String::from(<span class="string">&quot;custom_log&quot;</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>logger = Logger::new(<span class="string">"test %{CUSTOM}xi"</span>)
+            .custom_request_replace(<span class="string">"CUSTOM"</span>, |_req: <span class="kw-2">&amp;</span>ServiceRequest| -&gt; String {
+                String::from(<span class="string">"custom_log"</span>)
             });
         <span class="kw">let </span><span class="kw-2">mut </span>unit = Rc::get_mut(<span class="kw-2">&amp;mut </span>logger.<span class="number">0</span>).unwrap().format.<span class="number">0</span>[<span class="number">1</span>].clone();
 
         <span class="kw">let </span>label = <span class="kw">match </span><span class="kw-2">&amp;</span>unit {
             FormatText::CustomRequest(label, <span class="kw">_</span>) =&gt; label,
-            ft =&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected CustomRequest, found {:?}&quot;</span>, ft),
+            ft =&gt; <span class="macro">panic!</span>(<span class="string">"expected CustomRequest, found {:?}"</span>, ft),
         };
 
-        <span class="macro">assert_eq!</span>(label, <span class="string">&quot;CUSTOM&quot;</span>);
+        <span class="macro">assert_eq!</span>(label, <span class="string">"CUSTOM"</span>);
 
         <span class="kw">let </span>req = TestRequest::default().to_srv_request();
         <span class="kw">let </span>now = OffsetDateTime::now_utc();
 
         unit.render_request(now, <span class="kw-2">&amp;</span>req);
 
-        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| unit.render(fmt, <span class="number">1024</span>, now);
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;| unit.render(fmt, <span class="number">1024</span>, now);
 
         <span class="kw">let </span>log_output = FormatDisplay(<span class="kw-2">&amp;</span>render).to_string();
-        <span class="macro">assert_eq!</span>(log_output, <span class="string">&quot;custom_log&quot;</span>);
+        <span class="macro">assert_eq!</span>(log_output, <span class="string">"custom_log"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_custom_closure_response_log() {
-        <span class="kw">let </span><span class="kw-2">mut </span>logger = Logger::new(<span class="string">&quot;test %{CUSTOM}xo&quot;</span>).custom_response_replace(
-            <span class="string">&quot;CUSTOM&quot;</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>logger = Logger::new(<span class="string">"test %{CUSTOM}xo"</span>).custom_response_replace(
+            <span class="string">"CUSTOM"</span>,
             |res: <span class="kw-2">&amp;</span>ServiceResponse| -&gt; String {
                 <span class="kw">if </span>res.status().as_u16() == <span class="number">200 </span>{
-                    String::from(<span class="string">&quot;custom_log&quot;</span>)
+                    String::from(<span class="string">"custom_log"</span>)
                 } <span class="kw">else </span>{
-                    String::from(<span class="string">&quot;-&quot;</span>)
+                    String::from(<span class="string">"-"</span>)
                 }
             },
         );
@@ -1981,28 +1982,28 @@
 
         <span class="kw">let </span>label = <span class="kw">match </span><span class="kw-2">&amp;</span>unit {
             FormatText::CustomResponse(label, <span class="kw">_</span>) =&gt; label,
-            ft =&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected CustomResponse, found {:?}&quot;</span>, ft),
+            ft =&gt; <span class="macro">panic!</span>(<span class="string">"expected CustomResponse, found {:?}"</span>, ft),
         };
 
-        <span class="macro">assert_eq!</span>(label, <span class="string">&quot;CUSTOM&quot;</span>);
+        <span class="macro">assert_eq!</span>(label, <span class="string">"CUSTOM"</span>);
 
         <span class="kw">let </span>req = TestRequest::default().to_http_request();
         <span class="kw">let </span>resp_ok = ServiceResponse::new(req, HttpResponse::Ok().finish());
         <span class="kw">let </span>now = OffsetDateTime::now_utc();
         unit.render_response(<span class="kw-2">&amp;</span>resp_ok);
 
-        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| unit.render(fmt, <span class="number">1024</span>, now);
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;| unit.render(fmt, <span class="number">1024</span>, now);
 
         <span class="kw">let </span>log_output = FormatDisplay(<span class="kw-2">&amp;</span>render).to_string();
-        <span class="macro">assert_eq!</span>(log_output, <span class="string">&quot;custom_log&quot;</span>);
+        <span class="macro">assert_eq!</span>(log_output, <span class="string">"custom_log"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_closure_logger_in_middleware() {
-        <span class="kw">let </span>captured = <span class="string">&quot;custom log replacement&quot;</span>;
+        <span class="kw">let </span>captured = <span class="string">"custom log replacement"</span>;
 
-        <span class="kw">let </span>logger = Logger::new(<span class="string">&quot;%{CUSTOM}xi&quot;</span>)
-            .custom_request_replace(<span class="string">&quot;CUSTOM&quot;</span>, <span class="kw">move </span>|_req: <span class="kw-2">&amp;</span>ServiceRequest| -&gt; String {
+        <span class="kw">let </span>logger = Logger::new(<span class="string">"%{CUSTOM}xi"</span>)
+            .custom_request_replace(<span class="string">"CUSTOM"</span>, <span class="kw">move </span>|_req: <span class="kw-2">&amp;</span>ServiceRequest| -&gt; String {
                 captured.to_owned()
             });
 

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/chinese.rs`."><title>chinese.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/chinese.rs`."><title>chinese.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1054,13 +1055,13 @@
 //! // `Date` type
 //! let chinese_date =
 //!     Date::try_new_chinese_date_with_calendar(4660, 6, 6, chinese)
-//!         .expect(&quot;Failed to initialize Chinese Date instance.&quot;);
+//!         .expect("Failed to initialize Chinese Date instance.");
 //!
 //! // `DateTime` type
 //! let chinese_datetime = DateTime::try_new_chinese_datetime_with_calendar(
 //!     4660, 6, 6, 13, 1, 0, chinese,
 //! )
-//! .expect(&quot;Failed to initialize Chinese DateTime instance&quot;);
+//! .expect("Failed to initialize Chinese DateTime instance");
 //!
 //! // `Date` checks
 //! assert_eq!(chinese_date.year().number, 4660);
@@ -1119,14 +1120,14 @@
 /// # Year and Era codes
 ///
 /// Unlike the Gregorian calendar, the Chinese calendar does not traditionally count years in an infinitely
-/// increasing sequence. Instead, 10 &quot;celestial stems&quot; and 12 &quot;terrestrial branches&quot; are combined to form a
+/// increasing sequence. Instead, 10 "celestial stems" and 12 "terrestrial branches" are combined to form a
 /// cycle of year names which repeats every 60 years. However, for the purposes of calendar calculations and
 /// conversions, this module counts Chinese years in an infinite system similar to ISO, with year 1 in the
 /// calendar corresponding to the inception of the calendar, marked as 2637 BCE (ISO: -2636), and negative
 /// years marking Chinese years before February 15, 2637 BCE.
 ///
 /// Because the Chinese calendar does not traditionally count years, era codes are not used in this calendar;
-/// this crate supports a single era code &quot;chinese&quot;.
+/// this crate supports a single era code "chinese".
 ///
 /// This Chinese calendar implementation also supports a related ISO year, which marks the ISO year in which a
 /// Chinese year begins, and a cyclic year corresponding to the year in the 60 year cycle as described above.
@@ -1138,13 +1139,13 @@
 ///
 /// # Month codes
 ///
-/// This calendar is a lunisolar calendar. It supports regular month codes `&quot;M01&quot; - &quot;M12&quot;` as well
-/// as leap month codes `&quot;M01L&quot; - &quot;M12L&quot;`.
+/// This calendar is a lunisolar calendar. It supports regular month codes `"M01" - "M12"` as well
+/// as leap month codes `"M01L" - "M12L"`.
 ///
 /// This calendar is currently in a preview state: formatting for this calendar is not
 /// going to be perfect.
 </span><span class="attr">#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[non_exhaustive] </span><span class="comment">// we&#39;ll be adding precompiled data to this
+#[non_exhaustive] </span><span class="comment">// we'll be adding precompiled data to this
 </span><span class="kw">pub struct </span>Chinese;
 
 <span class="doccomment">/// The inner date type used for representing [`Date`]s of [`Chinese`]. See [`Date`] and [`Chinese`] for more details.
@@ -1195,7 +1196,7 @@
             ));
         };
 
-        <span class="kw">if </span>era.<span class="number">0 </span>!= <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;chinese&quot;</span>) {
+        <span class="kw">if </span>era.<span class="number">0 </span>!= <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"chinese"</span>) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownEra(era.<span class="number">0</span>, <span class="self">self</span>.debug_name()));
         }
 
@@ -1258,8 +1259,8 @@
     }
 
     <span class="doccomment">/// Obtain a name for the calendar for debug printing
-    </span><span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;Chinese&quot;
+    </span><span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        <span class="string">"Chinese"
     </span>}
 
     <span class="doccomment">/// The calendar-specific year represented by `date`
@@ -1272,9 +1273,9 @@
     }
 
     <span class="doccomment">/// The calendar-specific month code represented by `date`;
-    /// since the Chinese calendar has leap months, an &quot;L&quot; is appended to the month code for
+    /// since the Chinese calendar has leap months, an "L" is appended to the month code for
     /// leap months. For example, in a year where an intercalary month is added after the second
-    /// month, the month codes for ordinal months 1, 2, 3, 4, 5 would be &quot;M01&quot;, &quot;M02&quot;, &quot;M02L&quot;, &quot;M03&quot;, &quot;M04&quot;.
+    /// month, the month codes for ordinal months 1, 2, 3, 4, 5 would be "M01", "M02", "M02L", "M03", "M04".
     </span><span class="kw">fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableMonth {
         <span class="kw">let </span>ordinal = date.<span class="number">0 </span>.<span class="number">0</span>.month;
         <span class="kw">let </span>leap_month_option = date.<span class="number">0 </span>.<span class="number">1</span>.get_leap_month();
@@ -1288,19 +1289,19 @@
             // and the maximum num of months ina leap year is 13.
             </span><span class="macro">debug_assert!</span>((<span class="number">2</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>ordinal));
             <span class="kw">match </span>ordinal {
-                <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M01L&quot;</span>),
-                <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M02L&quot;</span>),
-                <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M03L&quot;</span>),
-                <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M04L&quot;</span>),
-                <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M05L&quot;</span>),
-                <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M06L&quot;</span>),
-                <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M07L&quot;</span>),
-                <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M08L&quot;</span>),
-                <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M09L&quot;</span>),
-                <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M10L&quot;</span>),
-                <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M11L&quot;</span>),
-                <span class="number">13 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M12L&quot;</span>),
-                <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;und&quot;</span>),
+                <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M01L"</span>),
+                <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02L"</span>),
+                <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M03L"</span>),
+                <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04L"</span>),
+                <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05L"</span>),
+                <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M06L"</span>),
+                <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M07L"</span>),
+                <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M08L"</span>),
+                <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M09L"</span>),
+                <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M10L"</span>),
+                <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M11L"</span>),
+                <span class="number">13 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M12L"</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"und"</span>),
             }
         } <span class="kw">else </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>adjusted_ordinal = ordinal;
@@ -1314,19 +1315,19 @@
             }
             <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">12</span>).contains(<span class="kw-2">&amp;</span>adjusted_ordinal));
             <span class="kw">match </span>adjusted_ordinal {
-                <span class="number">1 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M01&quot;</span>),
-                <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M02&quot;</span>),
-                <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M03&quot;</span>),
-                <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M04&quot;</span>),
-                <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M05&quot;</span>),
-                <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M06&quot;</span>),
-                <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M07&quot;</span>),
-                <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M08&quot;</span>),
-                <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M09&quot;</span>),
-                <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M10&quot;</span>),
-                <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M11&quot;</span>),
-                <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M12&quot;</span>),
-                <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;und&quot;</span>),
+                <span class="number">1 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M01"</span>),
+                <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02"</span>),
+                <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M03"</span>),
+                <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04"</span>),
+                <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05"</span>),
+                <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M06"</span>),
+                <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M07"</span>),
+                <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M08"</span>),
+                <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M09"</span>),
+                <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M10"</span>),
+                <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M11"</span>),
+                <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M12"</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"und"</span>),
             }
         };
         <span class="kw">let </span>code = types::MonthCode(code_inner);
@@ -1380,7 +1381,7 @@
     ///
     /// let date_chinese =
     ///     Date::try_new_chinese_date_with_calendar(4660, 6, 11, chinese)
-    ///         .expect(&quot;Failed to initialize Chinese Date instance.&quot;);
+    ///         .expect("Failed to initialize Chinese Date instance.");
     ///
     /// assert_eq!(date_chinese.year().number, 4660);
     /// assert_eq!(date_chinese.year().cyclic.unwrap().get(), 40);
@@ -1418,7 +1419,7 @@
     /// let chinese_datetime = DateTime::try_new_chinese_datetime_with_calendar(
     ///     4660, 6, 11, 13, 1, 0, chinese,
     /// )
-    /// .expect(&quot;Failed to initialize Chinese DateTime instance.&quot;);
+    /// .expect("Failed to initialize Chinese DateTime instance.");
     ///
     /// assert_eq!(chinese_datetime.date.year().number, 4660);
     /// assert_eq!(chinese_datetime.date.year().related_iso, Some(2023));
@@ -1459,7 +1460,7 @@
     <span class="doccomment">/// Get a FormattableYear from an integer Chinese year; optionally, a `ChineseBasedYearInfo`
     /// can be passed in for faster results.
     ///
-    /// `era` is always `Era(tinystr!(16, &quot;chinese&quot;))`
+    /// `era` is always `Era(tinystr!(16, "chinese"))`
     /// `number` is the year since the inception of the Chinese calendar (see [`Chinese`])
     /// `cyclic` is an option with the current year in the sexagesimal cycle (see [`Chinese`])
     /// `related_iso` is the ISO year in which the given Chinese year begins (see [`Chinese`])
@@ -1467,7 +1468,7 @@
         year: i32,
         year_info_option: <span class="prelude-ty">Option</span>&lt;ChineseBasedYearInfo&gt;,
     ) -&gt; FormattableYear {
-        <span class="kw">let </span>era = Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;chinese&quot;</span>));
+        <span class="kw">let </span>era = Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"chinese"</span>));
         <span class="kw">let </span>number = year;
         <span class="kw">let </span>cyclic = (number - <span class="number">1</span>).rem_euclid(<span class="number">60</span>) <span class="kw">as </span>u8;
         <span class="kw">let </span>cyclic = NonZeroU8::new(cyclic + <span class="number">1</span>); <span class="comment">// 1-indexed
@@ -1585,15 +1586,15 @@
             <span class="kw">let </span>chinese = Inner::chinese_based_date_from_fixed(rata_die, iso.year().number);
             <span class="macro">assert_eq!</span>(
                 case.expected_year, chinese.<span class="number">0</span>.year,
-                <span class="string">&quot;Chinese from fixed failed for case: {case:?}&quot;
+                <span class="string">"Chinese from fixed failed for case: {case:?}"
             </span>);
             <span class="macro">assert_eq!</span>(
                 case.expected_month, chinese.<span class="number">0</span>.month,
-                <span class="string">&quot;Chinese from fixed failed for case: {case:?}&quot;
+                <span class="string">"Chinese from fixed failed for case: {case:?}"
             </span>);
             <span class="macro">assert_eq!</span>(
                 case.expected_day, chinese.<span class="number">0</span>.day,
-                <span class="string">&quot;Chinese from fixed failed for case: {case:?}&quot;
+                <span class="string">"Chinese from fixed failed for case: {case:?}"
             </span>);
         }
     }
@@ -1631,7 +1632,7 @@
                     .unwrap();
             <span class="kw">let </span>fixed = Inner::fixed_from_chinese_based_date_inner(date.inner.<span class="number">0</span>).to_i64_date();
             <span class="kw">let </span>expected = case.expected;
-            <span class="macro">assert_eq!</span>(fixed, expected, <span class="string">&quot;Fixed from Chinese failed with expected: {fixed} and calculated: {expected}, for test case: {case:?}&quot;</span>);
+            <span class="macro">assert_eq!</span>(fixed, expected, <span class="string">"Fixed from Chinese failed with expected: {fixed} and calculated: {expected}, for test case: {case:?}"</span>);
         }
     }
 
@@ -1647,7 +1648,7 @@
             <span class="kw">let </span>chinese = Inner::chinese_based_date_from_fixed(rata_die, iso.year().number);
             <span class="kw">let </span>result = Inner::fixed_from_chinese_based_date_inner(chinese);
             <span class="kw">let </span>result_debug = result.to_i64_date();
-            <span class="macro">assert_eq!</span>(result, rata_die, <span class="string">&quot;Failed roundtrip fixed -&gt; Chinese -&gt; fixed for fixed: {fixed}, with calculated: {result_debug} from Chinese date:\n{chinese:?}&quot;</span>);
+            <span class="macro">assert_eq!</span>(result, rata_die, <span class="string">"Failed roundtrip fixed -&gt; Chinese -&gt; fixed for fixed: {fixed}, with calculated: {result_debug} from Chinese date:\n{chinese:?}"</span>);
             fixed += <span class="number">7043</span>;
             iters += <span class="number">1</span>;
         }
@@ -1659,7 +1660,7 @@
         <span class="kw">let </span>chinese = iso.to_calendar(Chinese);
         <span class="macro">assert_eq!</span>(chinese.year().number, <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(chinese.month().ordinal, <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(chinese.month().code.<span class="number">0</span>, <span class="string">&quot;M01&quot;</span>);
+        <span class="macro">assert_eq!</span>(chinese.month().code.<span class="number">0</span>, <span class="string">"M01"</span>);
         <span class="macro">assert_eq!</span>(chinese.day_of_month().<span class="number">0</span>, <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(chinese.year().cyclic.unwrap().get(), <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(chinese.year().related_iso, <span class="prelude-val">Some</span>(-<span class="number">2636</span>));
@@ -1702,17 +1703,17 @@
             <span class="macro">assert_eq!</span>(
                 case.expected_year,
                 chinese.year().number,
-                <span class="string">&quot;ISO to Chinese failed for case: {case:?}&quot;
+                <span class="string">"ISO to Chinese failed for case: {case:?}"
             </span>);
             <span class="macro">assert_eq!</span>(
                 case.expected_month,
                 chinese.month().ordinal,
-                <span class="string">&quot;ISO to Chinese failed for case: {case:?}&quot;
+                <span class="string">"ISO to Chinese failed for case: {case:?}"
             </span>);
             <span class="macro">assert_eq!</span>(
                 case.expected_day,
                 chinese.day_of_month().<span class="number">0</span>,
-                <span class="string">&quot;ISO to Chinese failed for case: {case:?}&quot;
+                <span class="string">"ISO to Chinese failed for case: {case:?}"
             </span>);
         }
     }
@@ -1765,7 +1766,7 @@
             <span class="kw">let </span>days_in_month = Chinese::month_days(year, case.<span class="number">0</span>);
             <span class="macro">assert_eq!</span>(
                 case.<span class="number">1</span>, days_in_month,
-                <span class="string">&quot;month_days test failed for case: {case:?}&quot;
+                <span class="string">"month_days test failed for case: {case:?}"
             </span>);
         }
     }
@@ -1777,7 +1778,7 @@
             year: i32,
             month: u8,
             day: u8,
-            expected_code: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            expected_code: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         }
 
         <span class="kw">let </span>cases = [
@@ -1785,91 +1786,91 @@
                 year: <span class="number">2023</span>,
                 month: <span class="number">1</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M12&quot;</span>,
+                expected_code: <span class="string">"M12"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">2</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M01&quot;</span>,
+                expected_code: <span class="string">"M01"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">3</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M02&quot;</span>,
+                expected_code: <span class="string">"M02"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">4</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M02L&quot;</span>,
+                expected_code: <span class="string">"M02L"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">5</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M03&quot;</span>,
+                expected_code: <span class="string">"M03"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">6</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M04&quot;</span>,
+                expected_code: <span class="string">"M04"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">7</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M05&quot;</span>,
+                expected_code: <span class="string">"M05"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">8</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M06&quot;</span>,
+                expected_code: <span class="string">"M06"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">9</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M07&quot;</span>,
+                expected_code: <span class="string">"M07"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">10</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M08&quot;</span>,
+                expected_code: <span class="string">"M08"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">11</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M09&quot;</span>,
+                expected_code: <span class="string">"M09"</span>,
             },
             TestCase {
                 year: <span class="number">2023</span>,
                 month: <span class="number">12</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M10&quot;</span>,
+                expected_code: <span class="string">"M10"</span>,
             },
             TestCase {
                 year: <span class="number">2024</span>,
                 month: <span class="number">1</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M11&quot;</span>,
+                expected_code: <span class="string">"M11"</span>,
             },
             TestCase {
                 year: <span class="number">2024</span>,
                 month: <span class="number">2</span>,
                 day: <span class="number">9</span>,
-                expected_code: <span class="string">&quot;M12&quot;</span>,
+                expected_code: <span class="string">"M12"</span>,
             },
             TestCase {
                 year: <span class="number">2024</span>,
                 month: <span class="number">2</span>,
                 day: <span class="number">10</span>,
-                expected_code: <span class="string">&quot;M01&quot;</span>,
+                expected_code: <span class="string">"M01"</span>,
             },
         ];
 
@@ -1880,7 +1881,7 @@
             <span class="kw">let </span>expected_code = case.expected_code.to_string();
             <span class="macro">assert_eq!</span>(
                 expected_code, result_code,
-                <span class="string">&quot;Month codes did not match for test case: {case:?}&quot;
+                <span class="string">"Month codes did not match for test case: {case:?}"
             </span>);
         }
     }
@@ -1890,19 +1891,19 @@
         <span class="kw">let </span>year = <span class="number">4660</span>;
         <span class="kw">let </span>cache = Inner::compute_cache(year);
         <span class="kw">let </span>codes = [
-            (<span class="number">1</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M01&quot;</span>)),
-            (<span class="number">2</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M02&quot;</span>)),
-            (<span class="number">3</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M02L&quot;</span>)),
-            (<span class="number">4</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M03&quot;</span>)),
-            (<span class="number">5</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M04&quot;</span>)),
-            (<span class="number">6</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M05&quot;</span>)),
-            (<span class="number">7</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M06&quot;</span>)),
-            (<span class="number">8</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M07&quot;</span>)),
-            (<span class="number">9</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M08&quot;</span>)),
-            (<span class="number">10</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M09&quot;</span>)),
-            (<span class="number">11</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M10&quot;</span>)),
-            (<span class="number">12</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M11&quot;</span>)),
-            (<span class="number">13</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M12&quot;</span>)),
+            (<span class="number">1</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M01"</span>)),
+            (<span class="number">2</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02"</span>)),
+            (<span class="number">3</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02L"</span>)),
+            (<span class="number">4</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M03"</span>)),
+            (<span class="number">5</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04"</span>)),
+            (<span class="number">6</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05"</span>)),
+            (<span class="number">7</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M06"</span>)),
+            (<span class="number">8</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M07"</span>)),
+            (<span class="number">9</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M08"</span>)),
+            (<span class="number">10</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M09"</span>)),
+            (<span class="number">11</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M10"</span>)),
+            (<span class="number">12</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M11"</span>)),
+            (<span class="number">13</span>, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M12"</span>)),
         ];
         <span class="kw">for </span>ordinal_code_pair <span class="kw">in </span>codes {
             <span class="kw">let </span>code = MonthCode(ordinal_code_pair.<span class="number">1</span>);
@@ -1913,7 +1914,7 @@
             <span class="macro">assert_eq!</span>(
                 ordinal,
                 <span class="prelude-val">Some</span>(ordinal_code_pair.<span class="number">0</span>),
-                <span class="string">&quot;Code to ordinal failed for year: {year}, code: {code}&quot;
+                <span class="string">"Code to ordinal failed for year: {year}, code: {code}"
             </span>);
         }
     }
@@ -1923,14 +1924,14 @@
         <span class="kw">let </span>non_leap_year = <span class="number">4659</span>;
         <span class="kw">let </span>leap_year = <span class="number">4660</span>;
         <span class="kw">let </span>invalid_codes = [
-            (non_leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M2&quot;</span>)),
-            (leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M0&quot;</span>)),
-            (non_leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;J01&quot;</span>)),
-            (leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;3M&quot;</span>)),
-            (non_leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M04L&quot;</span>)),
-            (leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M04L&quot;</span>)),
-            (non_leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M13&quot;</span>)),
-            (leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">&quot;M13&quot;</span>)),
+            (non_leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M2"</span>)),
+            (leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M0"</span>)),
+            (non_leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"J01"</span>)),
+            (leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"3M"</span>)),
+            (non_leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04L"</span>)),
+            (leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04L"</span>)),
+            (non_leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M13"</span>)),
+            (leap_year, <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M13"</span>)),
         ];
         <span class="kw">for </span>year_code_pair <span class="kw">in </span>invalid_codes {
             <span class="kw">let </span>year = year_code_pair.<span class="number">0</span>;
@@ -1942,7 +1943,7 @@
             );
             <span class="macro">assert_eq!</span>(
                 ordinal, <span class="prelude-val">None</span>,
-                <span class="string">&quot;Invalid month code failed for year: {year}, code: {code}&quot;
+                <span class="string">"Invalid month code failed for year: {year}, code: {code}"
             </span>);
         }
     }
@@ -1956,7 +1957,7 @@
             <span class="kw">let </span>iso = Date::try_new_iso_date(year, month, day).unwrap();
             <span class="kw">let </span>chinese = iso.to_calendar(Chinese);
             <span class="kw">let </span>result = chinese.to_calendar(Iso);
-            <span class="macro">assert_eq!</span>(iso, result, <span class="string">&quot;ISO to Chinese roundtrip failed!\nIso: {iso:?}\nChinese: {chinese:?}\nResult: {result:?}&quot;</span>);
+            <span class="macro">assert_eq!</span>(iso, result, <span class="string">"ISO to Chinese roundtrip failed!\nIso: {iso:?}\nChinese: {chinese:?}\nResult: {result:?}"</span>);
         }
     }
 
@@ -2062,20 +2063,20 @@
             <span class="macro">assert_eq!</span>(
                 chinese_rel_iso,
                 <span class="prelude-val">Some</span>(case.expected_rel_iso),
-                <span class="string">&quot;Related ISO failed for test case: {case:?}&quot;
+                <span class="string">"Related ISO failed for test case: {case:?}"
             </span>);
             <span class="macro">assert_eq!</span>(
                 chinese_cyclic.unwrap().get(),
                 case.expected_cyclic,
-                <span class="string">&quot;Cyclic year failed for test case: {case:?}&quot;
+                <span class="string">"Cyclic year failed for test case: {case:?}"
             </span>);
             <span class="macro">assert_eq!</span>(
                 chinese_month, case.expected_month,
-                <span class="string">&quot;Month failed for test case: {case:?}&quot;
+                <span class="string">"Month failed for test case: {case:?}"
             </span>);
             <span class="macro">assert_eq!</span>(
                 chinese_day, case.expected_day,
-                <span class="string">&quot;Day failed for test case: {case:?}&quot;
+                <span class="string">"Day failed for test case: {case:?}"
             </span>);
         }
     }

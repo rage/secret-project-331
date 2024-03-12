@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/helpers/file_uploading.rs`."><title>file_uploading.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/helpers/file_uploading.rs`."><title>file_uploading.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -491,10 +492,10 @@
         <span class="kw">let </span>field_name = field.name().to_string();
 
         <span class="kw">let </span>random_filename = generate_random_string(<span class="number">32</span>);
-        <span class="kw">let </span>path = <span class="macro">format!</span>(<span class="string">&quot;{exercise_service_slug}/{random_filename}&quot;</span>);
+        <span class="kw">let </span>path = <span class="macro">format!</span>(<span class="string">"{exercise_service_slug}/{random_filename}"</span>);
 
         upload_field_to_storage(<span class="kw-2">&amp;mut </span>tx, Path::new(<span class="kw-2">&amp;</span>path), field, file_store, uploader).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{base_url}/api/v0/files/{path}&quot;</span>);
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{base_url}/api/v0/files/{path}"</span>);
         paths.insert(field_name, url);
     }
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -502,7 +503,7 @@
 }
 
 <span class="attr">#[derive(Debug, Clone, Copy, Deserialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub enum </span>StoreKind {
     Organization(Uuid),
     Course(Uuid),
@@ -521,7 +522,7 @@
     <span class="kw">let </span>file_payload = payload.next().<span class="kw">await</span>.ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Missing form data&quot;</span>.into(),
+            <span class="string">"Missing form data"</span>.into(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
@@ -556,7 +557,7 @@
     <span class="prelude-val">Ok</span>(path)
 }
 
-<span class="doccomment">/// Processes an upload for an organization&#39;s image.
+<span class="doccomment">/// Processes an upload for an organization's image.
 </span><span class="kw">pub async fn </span>upload_image_for_organization(
     headers: <span class="kw-2">&amp;</span>HeaderMap,
     <span class="kw-2">mut </span>payload: Multipart,
@@ -570,7 +571,7 @@
         payload.next().<span class="kw">await</span>.ok_or_else(|| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="string">&quot;Missing form data&quot;</span>.into(),
+                <span class="string">"Missing form data"</span>.into(),
                 <span class="prelude-val">None</span>,
             )
         })<span class="question-mark">?</span>;
@@ -582,12 +583,12 @@
                 }
                 <span class="prelude-val">Some</span>(unsupported) =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
                     ControllerErrorType::BadRequest,
-                    <span class="macro">format!</span>(<span class="string">&quot;Unsupported image Mime type: {}&quot;</span>, unsupported),
+                    <span class="macro">format!</span>(<span class="string">"Unsupported image Mime type: {}"</span>, unsupported),
                     <span class="prelude-val">None</span>,
                 )),
                 <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(ControllerError::new(
                     ControllerErrorType::BadRequest,
-                    <span class="string">&quot;Missing image Mime type&quot;</span>.into(),
+                    <span class="string">"Missing image Mime type"</span>.into(),
                     <span class="prelude-val">None</span>,
                 )),
             }<span class="question-mark">?</span>;
@@ -645,7 +646,7 @@
         conn,
         <span class="kw-2">&amp;</span>safe_path,
         file_name,
-        <span class="string">&quot;image/svg+xml&quot;</span>,
+        <span class="string">"image/svg+xml"</span>,
         file,
         file_store,
         <span class="prelude-val">Some</span>(uploader.id),
@@ -654,29 +655,29 @@
     <span class="prelude-val">Ok</span>((id, safe_path))
 }
 
-<span class="kw">pub struct </span>ExerciseTaskInfo&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub struct </span>ExerciseTaskInfo&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub </span>course_id: Uuid,
-    <span class="kw">pub </span>exercise: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Exercise,
-    <span class="kw">pub </span>exercise_slide: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ExerciseSlide,
-    <span class="kw">pub </span>exercise_task: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ExerciseTask,
+    <span class="kw">pub </span>exercise: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Exercise,
+    <span class="kw">pub </span>exercise_slide: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ExerciseSlide,
+    <span class="kw">pub </span>exercise_task: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ExerciseTask,
 }
 
 <span class="kw">pub async fn </span>upload_exercise_archive(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     file: GenericPayload,
     file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
-    exercise: ExerciseTaskInfo&lt;<span class="lifetime">&#39;_</span>&gt;,
+    exercise: ExerciseTaskInfo&lt;<span class="lifetime">'_</span>&gt;,
     uploader: Uuid,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Uuid, PathBuf), ControllerError&gt; {
     <span class="kw">let </span>file_name = <span class="kw-2">&amp;</span>exercise.exercise.name;
     <span class="kw">let </span>path = nested_path(
         <span class="kw-2">&amp;</span>[
-            <span class="string">&quot;user-exercise-uploads&quot;</span>,
-            <span class="string">&quot;exercise&quot;</span>,
+            <span class="string">"user-exercise-uploads"</span>,
+            <span class="string">"exercise"</span>,
             <span class="kw-2">&amp;</span>exercise.exercise.id.to_string(),
-            <span class="string">&quot;slide&quot;</span>,
+            <span class="string">"slide"</span>,
             <span class="kw-2">&amp;</span>exercise.exercise_slide.id.to_string(),
-            <span class="string">&quot;task&quot;</span>,
+            <span class="string">"task"</span>,
             <span class="kw-2">&amp;</span>exercise.exercise_task.id.to_string(),
             file_name,
         ],
@@ -688,7 +689,7 @@
         conn,
         <span class="kw-2">&amp;</span>safe_path,
         file_name,
-        <span class="string">&quot;image/svg+xml&quot;</span>,
+        <span class="string">"image/svg+xml"</span>,
         file,
         file_store,
         <span class="prelude-val">Some</span>(uploader),
@@ -707,7 +708,7 @@
     uploader: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid, ControllerError&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>path_string = path.to_str().context(<span class="string">&quot;invalid path&quot;</span>)<span class="question-mark">?</span>.to_string();
+    <span class="kw">let </span>path_string = path.to_str().context(<span class="string">"invalid path"</span>)<span class="question-mark">?</span>.to_string();
     <span class="kw">let </span>id =
         models::file_uploads::insert(<span class="kw-2">&amp;mut </span>tx, file_name, <span class="kw-2">&amp;</span>path_string, mime_type, uploader).<span class="kw">await</span><span class="question-mark">?</span>;
     file_store.upload_stream(path, file, mime_type).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -720,10 +721,10 @@
     <span class="kw">let </span>random_string = Alphanumeric.sample_string(<span class="kw-2">&amp;mut </span>rand::thread_rng(), <span class="number">25</span>);
     path_buf.set_file_name(random_string);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(ext) = path.extension() {
-        <span class="comment">// For convenience, we&#39;ll keep the original extension in most cases. We&#39;ll just filter out any potentially problematic characters.
+        <span class="comment">// For convenience, we'll keep the original extension in most cases. We'll just filter out any potentially problematic characters.
         </span><span class="kw">let </span>ext = ext
             .to_str()
-            .unwrap_or(<span class="string">&quot;&quot;</span>)
+            .unwrap_or(<span class="string">""</span>)
             .chars()
             .filter(|c| c.is_alphanumeric())
             .collect::&lt;String&gt;();
@@ -750,18 +751,18 @@
         .unwrap_or_default()
         .as_str()
     {
-        <span class="string">&quot;audio/aac&quot; </span>=&gt; <span class="string">&quot;.aac&quot;</span>,
-        <span class="string">&quot;audio/mpeg&quot; </span>=&gt; <span class="string">&quot;.mp3&quot;</span>,
-        <span class="string">&quot;audio/ogg&quot; </span>=&gt; <span class="string">&quot;.oga&quot;</span>,
-        <span class="string">&quot;audio/opus&quot; </span>=&gt; <span class="string">&quot;.opus&quot;</span>,
-        <span class="string">&quot;audio/wav&quot; </span>=&gt; <span class="string">&quot;.wav&quot;</span>,
-        <span class="string">&quot;audio/webm&quot; </span>=&gt; <span class="string">&quot;.weba&quot;</span>,
-        <span class="string">&quot;audio/midi&quot; </span>=&gt; <span class="string">&quot;.mid&quot;</span>,
-        <span class="string">&quot;audio/x-midi&quot; </span>=&gt; <span class="string">&quot;.mid&quot;</span>,
+        <span class="string">"audio/aac" </span>=&gt; <span class="string">".aac"</span>,
+        <span class="string">"audio/mpeg" </span>=&gt; <span class="string">".mp3"</span>,
+        <span class="string">"audio/ogg" </span>=&gt; <span class="string">".oga"</span>,
+        <span class="string">"audio/opus" </span>=&gt; <span class="string">".opus"</span>,
+        <span class="string">"audio/wav" </span>=&gt; <span class="string">".wav"</span>,
+        <span class="string">"audio/webm" </span>=&gt; <span class="string">".weba"</span>,
+        <span class="string">"audio/midi" </span>=&gt; <span class="string">".mid"</span>,
+        <span class="string">"audio/x-midi" </span>=&gt; <span class="string">".mid"</span>,
         unsupported =&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="macro">format!</span>(<span class="string">&quot;Unsupported audio Mime type: {}&quot;</span>, unsupported),
+                <span class="macro">format!</span>(<span class="string">"Unsupported audio Mime type: {}"</span>, unsupported),
                 <span class="prelude-val">None</span>,
             ))
         }
@@ -778,7 +779,7 @@
     <span class="kw">let </span>field_content_name = field_content.get_filename().ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Missing file name in content-disposition&quot;</span>.into(),
+            <span class="string">"Missing file name in content-disposition"</span>.into(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
@@ -786,7 +787,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>file_name = generate_random_string(<span class="number">30</span>);
     <span class="kw">let </span>uploaded_file_extension = get_extension_from_filename(field_content_name);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(extension) = uploaded_file_extension {
-        file_name.push_str(<span class="macro">format!</span>(<span class="string">&quot;.{}&quot;</span>, extension).as_str());
+        file_name.push_str(<span class="macro">format!</span>(<span class="string">".{}"</span>, extension).as_str());
     }
 
     <span class="kw">let </span>path = path(<span class="kw-2">&amp;</span>file_name, FileType::File, store_kind);
@@ -801,25 +802,25 @@
         .unwrap_or_default()
         .as_str()
     {
-        <span class="string">&quot;image/jpeg&quot; </span>=&gt; <span class="string">&quot;.jpg&quot;</span>,
-        <span class="string">&quot;image/png&quot; </span>=&gt; <span class="string">&quot;.png&quot;</span>,
-        <span class="string">&quot;image/svg+xml&quot; </span>=&gt; <span class="string">&quot;.svg&quot;</span>,
-        <span class="string">&quot;image/tiff&quot; </span>=&gt; <span class="string">&quot;.tif&quot;</span>,
-        <span class="string">&quot;image/bmp&quot; </span>=&gt; <span class="string">&quot;.bmp&quot;</span>,
-        <span class="string">&quot;image/webp&quot; </span>=&gt; <span class="string">&quot;.webp&quot;</span>,
-        <span class="string">&quot;image/gif&quot; </span>=&gt; <span class="string">&quot;.gif&quot;</span>,
+        <span class="string">"image/jpeg" </span>=&gt; <span class="string">".jpg"</span>,
+        <span class="string">"image/png" </span>=&gt; <span class="string">".png"</span>,
+        <span class="string">"image/svg+xml" </span>=&gt; <span class="string">".svg"</span>,
+        <span class="string">"image/tiff" </span>=&gt; <span class="string">".tif"</span>,
+        <span class="string">"image/bmp" </span>=&gt; <span class="string">".bmp"</span>,
+        <span class="string">"image/webp" </span>=&gt; <span class="string">".webp"</span>,
+        <span class="string">"image/gif" </span>=&gt; <span class="string">".gif"</span>,
         unsupported =&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="macro">format!</span>(<span class="string">&quot;Unsupported image Mime type: {}&quot;</span>, unsupported),
+                <span class="macro">format!</span>(<span class="string">"Unsupported image Mime type: {}"</span>, unsupported),
                 <span class="prelude-val">None</span>,
             ))
         }
     };
 
     <span class="comment">// using a random string for the image name because
-    // a) we don&#39;t want the filename to be user controllable
-    // b) we don&#39;t want the filename to be too easily guessable (so no uuid)
+    // a) we don't want the filename to be user controllable
+    // b) we don't want the filename to be too easily guessable (so no uuid)
     </span><span class="kw">let </span><span class="kw-2">mut </span>file_name = generate_random_string(<span class="number">30</span>);
     file_name.push_str(extension);
     <span class="kw">let </span>path = path(<span class="kw-2">&amp;</span>file_name, FileType::Image, store_kind);
@@ -835,16 +836,16 @@
     <span class="kw">let </span>content_type = headers.get(header::CONTENT_TYPE).ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Please provide a Content-Type header&quot;</span>.into(),
+            <span class="string">"Please provide a Content-Type header"</span>.into(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
     <span class="kw">let </span>content_type_string = String::from_utf8_lossy(content_type.as_bytes()).to_string();
 
-    <span class="kw">if </span>!content_type_string.contains(<span class="string">&quot;multipart/form-data&quot;</span>) {
+    <span class="kw">if </span>!content_type_string.contains(<span class="string">"multipart/form-data"</span>) {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="macro">format!</span>(<span class="string">&quot;Unsupported type: {}&quot;</span>, content_type_string),
+            <span class="macro">format!</span>(<span class="string">"Unsupported type: {}"</span>, content_type_string),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -852,7 +853,7 @@
     <span class="kw">let </span>content_length = headers.get(header::CONTENT_LENGTH).ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Please provide a Content-Length in header&quot;</span>.into(),
+            <span class="string">"Please provide a Content-Length in header"</span>.into(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
@@ -871,7 +872,7 @@
     </span><span class="kw">if </span>content_length_number &gt; <span class="number">10485760 </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">&quot;Content length over 10 MB&quot;</span>.into(),
+            <span class="string">"Content length over 10 MB"</span>.into(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -892,14 +893,14 @@
 
 <span class="kw">fn </span>nested_path(components: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str], file_type: FileType, store_kind: StoreKind) -&gt; PathBuf {
     <span class="kw">let </span>(base_dir, base_id) = <span class="kw">match </span>store_kind {
-        StoreKind::Organization(id) =&gt; (<span class="string">&quot;organization&quot;</span>, id),
-        StoreKind::Course(id) =&gt; (<span class="string">&quot;course&quot;</span>, id),
-        StoreKind::Exam(id) =&gt; (<span class="string">&quot;exam&quot;</span>, id),
+        StoreKind::Organization(id) =&gt; (<span class="string">"organization"</span>, id),
+        StoreKind::Course(id) =&gt; (<span class="string">"course"</span>, id),
+        StoreKind::Exam(id) =&gt; (<span class="string">"exam"</span>, id),
     };
     <span class="kw">let </span>file_type_subdir = <span class="kw">match </span>file_type {
-        FileType::Image =&gt; <span class="string">&quot;images&quot;</span>,
-        FileType::Audio =&gt; <span class="string">&quot;audios&quot;</span>,
-        FileType::File =&gt; <span class="string">&quot;files&quot;</span>,
+        FileType::Image =&gt; <span class="string">"images"</span>,
+        FileType::Audio =&gt; <span class="string">"audios"</span>,
+        FileType::File =&gt; <span class="string">"files"</span>,
     };
     [base_dir, <span class="kw-2">&amp;</span>base_id.to_string(), file_type_subdir]
         .iter()

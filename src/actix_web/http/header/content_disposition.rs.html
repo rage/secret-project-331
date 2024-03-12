@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/content_disposition.rs`."><title>content_disposition.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/content_disposition.rs`."><title>content_disposition.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1005,11 +1006,11 @@
 </pre></div><pre class="rust"><code><span class="doccomment">//! The `Content-Disposition` header and associated types.
 //!
 //! # References
-//! - &quot;The Content-Disposition Header Field&quot;:
+//! - "The Content-Disposition Header Field":
 //!   &lt;https://datatracker.ietf.org/doc/html/rfc2183&gt;
-//! - &quot;The Content-Disposition Header Field in the Hypertext Transfer Protocol (HTTP)&quot;:
+//! - "The Content-Disposition Header Field in the Hypertext Transfer Protocol (HTTP)":
 //!   &lt;https://datatracker.ietf.org/doc/html/rfc6266&gt;
-//! - &quot;Returning Values from Forms: multipart/form-data&quot;:
+//! - "Returning Values from Forms: multipart/form-data":
 //!   &lt;https://datatracker.ietf.org/doc/html/rfc7578&gt;
 //! - Browser conformance tests at: &lt;http://greenbytes.de/tech/tc2231/&gt;
 //! - IANA assignment: &lt;http://www.iana.org/assignments/cont-disp/cont-disp.xhtml&gt;
@@ -1025,7 +1026,7 @@
 <span class="doccomment">/// Split at the index of the first `needle` if it exists or at the end.
 </span><span class="kw">fn </span>split_once(haystack: <span class="kw-2">&amp;</span>str, needle: char) -&gt; (<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str) {
     haystack.find(needle).map_or_else(
-        || (haystack, <span class="string">&quot;&quot;</span>),
+        || (haystack, <span class="string">""</span>),
         |sc| {
             <span class="kw">let </span>(first, last) = haystack.split_at(sc);
             (first, last.split_at(<span class="number">1</span>).<span class="number">1</span>)
@@ -1059,13 +1060,13 @@
     </span>Ext(String),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>DispositionType {
-    <span class="kw">fn </span>from(origin: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; DispositionType {
-        <span class="kw">if </span>origin.eq_ignore_ascii_case(<span class="string">&quot;inline&quot;</span>) {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>DispositionType {
+    <span class="kw">fn </span>from(origin: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; DispositionType {
+        <span class="kw">if </span>origin.eq_ignore_ascii_case(<span class="string">"inline"</span>) {
             DispositionType::Inline
-        } <span class="kw">else if </span>origin.eq_ignore_ascii_case(<span class="string">&quot;attachment&quot;</span>) {
+        } <span class="kw">else if </span>origin.eq_ignore_ascii_case(<span class="string">"attachment"</span>) {
             DispositionType::Attachment
-        } <span class="kw">else if </span>origin.eq_ignore_ascii_case(<span class="string">&quot;form-data&quot;</span>) {
+        } <span class="kw">else if </span>origin.eq_ignore_ascii_case(<span class="string">"form-data"</span>) {
             DispositionType::FormData
         } <span class="kw">else </span>{
             DispositionType::Ext(origin.to_owned())
@@ -1079,9 +1080,9 @@
 /// ```
 /// use actix_web::http::header::DispositionParam;
 ///
-/// let param = DispositionParam::Filename(String::from(&quot;sample.txt&quot;));
+/// let param = DispositionParam::Filename(String::from("sample.txt"));
 /// assert!(param.is_filename());
-/// assert_eq!(param.as_filename().unwrap(), &quot;sample.txt&quot;);
+/// assert_eq!(param.as_filename().unwrap(), "sample.txt");
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(clippy::large_enum_variant)]
@@ -1106,14 +1107,14 @@
     /// [RFC 5987 §3.2.1](https://datatracker.ietf.org/doc/html/rfc5987#section-3.2.1) as
     /// `reg-parameter`, in
     /// [RFC 6266 §4.1](https://datatracker.ietf.org/doc/html/rfc6266#section-4.1) as
-    /// `token &quot;=&quot; value`. Recipients should ignore unrecognizable parameters.
+    /// `token "=" value`. Recipients should ignore unrecognizable parameters.
     </span>Unknown(String, String),
 
     <span class="doccomment">/// An unrecognized extended parameter as defined in
     /// [RFC 5987 §3.2.1](https://datatracker.ietf.org/doc/html/rfc5987#section-3.2.1) as
     /// `ext-parameter`, in
     /// [RFC 6266 §4.1](https://datatracker.ietf.org/doc/html/rfc6266#section-4.1) as
-    /// `ext-token &quot;=&quot; ext-value`. The single trailing asterisk is not included. Recipients should
+    /// `ext-token "=" ext-value`. The single trailing asterisk is not included. Recipients should
     /// ignore unrecognizable parameters.
     </span>UnknownExt(String, ExtendedValue),
 }
@@ -1226,23 +1227,23 @@
 ///
 /// # ABNF
 /// ```plain
-/// content-disposition = &quot;Content-Disposition&quot; &quot;:&quot;
-///                       disposition-type *( &quot;;&quot; disposition-parm )
+/// content-disposition = "Content-Disposition" ":"
+///                       disposition-type *( ";" disposition-parm )
 ///
-/// disposition-type    = &quot;inline&quot; | &quot;attachment&quot; | disp-ext-type
+/// disposition-type    = "inline" | "attachment" | disp-ext-type
 ///                       ; case-insensitive
 ///
 /// disp-ext-type       = token
 ///
 /// disposition-parm    = filename-parm | disp-ext-parm
 ///
-/// filename-parm       = &quot;filename&quot; &quot;=&quot; value
-///                     | &quot;filename*&quot; &quot;=&quot; ext-value
+/// filename-parm       = "filename" "=" value
+///                     | "filename*" "=" ext-value
 ///
-/// disp-ext-parm       = token &quot;=&quot; value
-///                     | ext-token &quot;=&quot; ext-value
+/// disp-ext-parm       = token "=" value
+///                     | ext-token "=" ext-value
 ///
-/// ext-token           = &lt;the characters in token, followed by &quot;*&quot;&gt;
+/// ext-token           = &lt;the characters in token, followed by "*"&gt;
 /// ```
 ///
 /// # Note
@@ -1268,7 +1269,7 @@
 ///     parameters: vec![DispositionParam::FilenameExt(ExtendedValue {
 ///         charset: Charset::Iso_8859_1, // The character set for the bytes of the filename
 ///         language_tag: None, // The optional language tag (see `language-tag` crate)
-///         value: b&quot;\xa9 Copyright 1989.txt&quot;.to_vec(), // the actual bytes of the filename
+///         value: b"\xa9 Copyright 1989.txt".to_vec(), // the actual bytes of the filename
 ///     })],
 /// };
 /// assert!(cd1.is_attachment());
@@ -1277,32 +1278,32 @@
 /// let cd2 = ContentDisposition {
 ///     disposition: DispositionType::FormData,
 ///     parameters: vec![
-///         DispositionParam::Name(String::from(&quot;file&quot;)),
-///         DispositionParam::Filename(String::from(&quot;bill.odt&quot;)),
+///         DispositionParam::Name(String::from("file")),
+///         DispositionParam::Filename(String::from("bill.odt")),
 ///     ],
 /// };
-/// assert_eq!(cd2.get_name(), Some(&quot;file&quot;)); // field name
-/// assert_eq!(cd2.get_filename(), Some(&quot;bill.odt&quot;));
+/// assert_eq!(cd2.get_name(), Some("file")); // field name
+/// assert_eq!(cd2.get_filename(), Some("bill.odt"));
 ///
 /// // HTTP response header with Unicode characters in file names
 /// let cd3 = ContentDisposition {
 ///     disposition: DispositionType::Attachment,
 ///     parameters: vec![
 ///         DispositionParam::FilenameExt(ExtendedValue {
-///             charset: Charset::Ext(String::from(&quot;UTF-8&quot;)),
+///             charset: Charset::Ext(String::from("UTF-8")),
 ///             language_tag: None,
-///             value: String::from(&quot;\u{1f600}.svg&quot;).into_bytes(),
+///             value: String::from("\u{1f600}.svg").into_bytes(),
 ///         }),
 ///         // fallback for better compatibility
-///         DispositionParam::Filename(String::from(&quot;Grinning-Face-Emoji.svg&quot;))
+///         DispositionParam::Filename(String::from("Grinning-Face-Emoji.svg"))
 ///     ],
 /// };
 /// assert_eq!(cd3.get_filename_ext().map(|ev| ev.value.as_ref()),
-///            Some(&quot;\u{1f600}.svg&quot;.as_bytes()));
+///            Some("\u{1f600}.svg".as_bytes()));
 /// ```
 ///
 /// # Security Note
-/// If &quot;filename&quot; parameter is supplied, do not use the file name blindly, check and possibly
+/// If "filename" parameter is supplied, do not use the file name blindly, check and possibly
 /// change to match local file system conventions if applicable, and do not use directory path
 /// information that may be present.
 /// See [RFC 2183 §2.3](https://datatracker.ietf.org/doc/html/rfc2183#section-2.3).
@@ -1322,10 +1323,10 @@
     /// ```
     /// use actix_web::http::header::{ContentDisposition, TryIntoHeaderValue as _};
     ///
-    /// let cd = ContentDisposition::attachment(&quot;files.zip&quot;);
+    /// let cd = ContentDisposition::attachment("files.zip");
     ///
     /// let cd_val = cd.try_into_value().unwrap();
-    /// assert_eq!(cd_val, &quot;attachment; filename=\&quot;files.zip\&quot;&quot;);
+    /// assert_eq!(cd_val, "attachment; filename=\"files.zip\"");
     /// ```
     </span><span class="kw">pub fn </span>attachment(filename: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -1341,7 +1342,7 @@
         </span><span class="kw">let </span>hv = String::from_utf8(hv.as_bytes().to_vec())
             .map_err(|<span class="kw">_</span>| <span class="kw">crate</span>::error::ParseError::Header)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>(disp_type, <span class="kw-2">mut </span>left) = split_once_and_trim(hv.as_str().trim(), <span class="string">&#39;;&#39;</span>);
+        <span class="kw">let </span>(disp_type, <span class="kw-2">mut </span>left) = split_once_and_trim(hv.as_str().trim(), <span class="string">';'</span>);
         <span class="kw">if </span>disp_type.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::ParseError::Header);
         }
@@ -1352,18 +1353,18 @@
         };
 
         <span class="kw">while </span>!left.is_empty() {
-            <span class="kw">let </span>(param_name, new_left) = split_once_and_trim(left, <span class="string">&#39;=&#39;</span>);
-            <span class="kw">if </span>param_name.is_empty() || param_name == <span class="string">&quot;*&quot; </span>|| new_left.is_empty() {
+            <span class="kw">let </span>(param_name, new_left) = split_once_and_trim(left, <span class="string">'='</span>);
+            <span class="kw">if </span>param_name.is_empty() || param_name == <span class="string">"*" </span>|| new_left.is_empty() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::ParseError::Header);
             }
             left = new_left;
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(param_name) = param_name.strip_suffix(<span class="string">&#39;*&#39;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(param_name) = param_name.strip_suffix(<span class="string">'*'</span>) {
                 <span class="comment">// extended parameters
-                </span><span class="kw">let </span>(ext_value, new_left) = split_once_and_trim(left, <span class="string">&#39;;&#39;</span>);
+                </span><span class="kw">let </span>(ext_value, new_left) = split_once_and_trim(left, <span class="string">';'</span>);
                 left = new_left;
                 <span class="kw">let </span>ext_value = header::parse_extended_value(ext_value)<span class="question-mark">?</span>;
 
-                <span class="kw">let </span>param = <span class="kw">if </span>param_name.eq_ignore_ascii_case(<span class="string">&quot;filename&quot;</span>) {
+                <span class="kw">let </span>param = <span class="kw">if </span>param_name.eq_ignore_ascii_case(<span class="string">"filename"</span>) {
                     DispositionParam::FilenameExt(ext_value)
                 } <span class="kw">else </span>{
                     DispositionParam::UnknownExt(param_name.to_owned(), ext_value)
@@ -1371,7 +1372,7 @@
                 cd.parameters.push(param);
             } <span class="kw">else </span>{
                 <span class="comment">// regular parameters
-                </span><span class="kw">let </span>value = <span class="kw">if </span>left.starts_with(<span class="string">&#39;\&quot;&#39;</span>) {
+                </span><span class="kw">let </span>value = <span class="kw">if </span>left.starts_with(<span class="string">'\"'</span>) {
                     <span class="comment">// quoted-string: defined in RFC 6266 -&gt; RFC 2616 Section 3.6
                     </span><span class="kw">let </span><span class="kw-2">mut </span>escaping = <span class="bool-val">false</span>;
                     <span class="kw">let </span><span class="kw-2">mut </span>quoted_string = <span class="macro">vec!</span>[];
@@ -1393,13 +1394,13 @@
                         }
                     }
                     left = <span class="kw-2">&amp;</span>left[end.ok_or(<span class="kw">crate</span>::error::ParseError::Header)<span class="question-mark">? </span>+ <span class="number">1</span>..];
-                    left = split_once(left, <span class="string">&#39;;&#39;</span>).<span class="number">1</span>.trim_start();
+                    left = split_once(left, <span class="string">';'</span>).<span class="number">1</span>.trim_start();
                     <span class="comment">// In fact, it should not be Err if the above code is correct.
                     </span>String::from_utf8(quoted_string)
                         .map_err(|<span class="kw">_</span>| <span class="kw">crate</span>::error::ParseError::Header)<span class="question-mark">?
                 </span>} <span class="kw">else </span>{
-                    <span class="comment">// token: won&#39;t contains semicolon according to RFC 2616 Section 2.2
-                    </span><span class="kw">let </span>(token, new_left) = split_once_and_trim(left, <span class="string">&#39;;&#39;</span>);
+                    <span class="comment">// token: won't contains semicolon according to RFC 2616 Section 2.2
+                    </span><span class="kw">let </span>(token, new_left) = split_once_and_trim(left, <span class="string">';'</span>);
                     left = new_left;
                     <span class="kw">if </span>token.is_empty() {
                         <span class="comment">// quoted-string can be empty, but token cannot be empty
@@ -1408,9 +1409,9 @@
                     token.to_owned()
                 };
 
-                <span class="kw">let </span>param = <span class="kw">if </span>param_name.eq_ignore_ascii_case(<span class="string">&quot;name&quot;</span>) {
+                <span class="kw">let </span>param = <span class="kw">if </span>param_name.eq_ignore_ascii_case(<span class="string">"name"</span>) {
                     DispositionParam::Name(value)
-                } <span class="kw">else if </span>param_name.eq_ignore_ascii_case(<span class="string">&quot;filename&quot;</span>) {
+                } <span class="kw">else if </span>param_name.eq_ignore_ascii_case(<span class="string">"filename"</span>) {
                     <span class="comment">// See also comments in test_from_raw_unnecessary_percent_decode.
                     </span>DispositionParam::Filename(value)
                 } <span class="kw">else </span>{
@@ -1483,7 +1484,7 @@
 
     <span class="kw">fn </span>try_into_value(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;header::HeaderValue, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>writer = Writer::new();
-        <span class="kw">let _ </span>= <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>writer, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>);
+        <span class="kw">let _ </span>= <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>writer, <span class="string">"{}"</span>, <span class="self">self</span>);
         header::HeaderValue::from_maybe_shared(writer.take())
     }
 }
@@ -1503,28 +1504,28 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DispositionType {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            DispositionType::Inline =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;inline&quot;</span>),
-            DispositionType::Attachment =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;attachment&quot;</span>),
-            DispositionType::FormData =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;form-data&quot;</span>),
-            DispositionType::Ext(<span class="kw-2">ref </span>s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, s),
+            DispositionType::Inline =&gt; <span class="macro">write!</span>(f, <span class="string">"inline"</span>),
+            DispositionType::Attachment =&gt; <span class="macro">write!</span>(f, <span class="string">"attachment"</span>),
+            DispositionType::FormData =&gt; <span class="macro">write!</span>(f, <span class="string">"form-data"</span>),
+            DispositionType::Ext(<span class="kw-2">ref </span>s) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, s),
         }
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DispositionParam {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="comment">// All ASCII control characters (0-30, 127) including horizontal tab, double quote, and
-        // backslash should be escaped in quoted-string (i.e. &quot;foobar&quot;).
+        // backslash should be escaped in quoted-string (i.e. "foobar").
         //
         // Ref: RFC 6266 §4.1 -&gt; RFC 2616 §3.6
         //
-        // filename-parm  = &quot;filename&quot; &quot;=&quot; value
+        // filename-parm  = "filename" "=" value
         // value          = token | quoted-string
-        // quoted-string  = ( &lt;&quot;&gt; *(qdtext | quoted-pair ) &lt;&quot;&gt; )
-        // qdtext         = &lt;any TEXT except &lt;&quot;&gt;&gt;
-        // quoted-pair    = &quot;\&quot; CHAR
+        // quoted-string  = ( &lt;"&gt; *(qdtext | quoted-pair ) &lt;"&gt; )
+        // qdtext         = &lt;any TEXT except &lt;"&gt;&gt;
+        // quoted-pair    = "\" CHAR
         // TEXT           = &lt;any OCTET except CTLs,
         //                  but including LWS&gt;
         // LWS            = [CRLF] 1*( SP | HT )
@@ -1534,16 +1535,16 @@
         //                  (octets 0 - 31) and DEL (127)&gt;
         //
         // Ref: RFC 7578 S4.2 -&gt; RFC 2183 S2 -&gt; RFC 2045 S5.1
-        // parameter := attribute &quot;=&quot; value
+        // parameter := attribute "=" value
         // attribute := token
         //              ; Matching of attributes
         //              ; is ALWAYS case-insensitive.
         // value := token / quoted-string
         // token := 1*&lt;any (US-ASCII) CHAR except SPACE, CTLs,
         //             or tspecials&gt;
-        // tspecials :=  &quot;(&quot; / &quot;)&quot; / &quot;&lt;&quot; / &quot;&gt;&quot; / &quot;@&quot; /
-        //               &quot;,&quot; / &quot;;&quot; / &quot;:&quot; / &quot;\&quot; / &lt;&quot;&gt;
-        //               &quot;/&quot; / &quot;[&quot; / &quot;]&quot; / &quot;?&quot; / &quot;=&quot;
+        // tspecials :=  "(" / ")" / "&lt;" / "&gt;" / "@" /
+        //               "," / ";" / ":" / "\" / &lt;"&gt;
+        //               "/" / "[" / "]" / "?" / "="
         //               ; Must be in quoted-string,
         //               ; to use within parameter values
         //
@@ -1551,39 +1552,39 @@
         // See also comments in test_from_raw_unnecessary_percent_decode.
 
         </span><span class="kw">static </span>RE: Lazy&lt;Regex&gt; =
-            Lazy::new(|| Regex::new(<span class="string">&quot;[\x00-\x08\x10-\x1F\x7F\&quot;\\\\]&quot;</span>).unwrap());
+            Lazy::new(|| Regex::new(<span class="string">"[\x00-\x08\x10-\x1F\x7F\"\\\\]"</span>).unwrap());
 
         <span class="kw">match </span><span class="self">self </span>{
-            DispositionParam::Name(<span class="kw-2">ref </span>value) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;name={}&quot;</span>, value),
+            DispositionParam::Name(<span class="kw-2">ref </span>value) =&gt; <span class="macro">write!</span>(f, <span class="string">"name={}"</span>, value),
 
             DispositionParam::Filename(<span class="kw-2">ref </span>value) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;filename=\&quot;{}\&quot;&quot;</span>, RE.replace_all(value, <span class="string">&quot;\\$0&quot;</span>).as_ref())
+                <span class="macro">write!</span>(f, <span class="string">"filename=\"{}\""</span>, RE.replace_all(value, <span class="string">"\\$0"</span>).as_ref())
             }
 
             DispositionParam::Unknown(<span class="kw-2">ref </span>name, <span class="kw-2">ref </span>value) =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;{}=\&quot;{}\&quot;&quot;</span>,
+                <span class="string">"{}=\"{}\""</span>,
                 name,
-                <span class="kw-2">&amp;</span>RE.replace_all(value, <span class="string">&quot;\\$0&quot;</span>).as_ref()
+                <span class="kw-2">&amp;</span>RE.replace_all(value, <span class="string">"\\$0"</span>).as_ref()
             ),
 
             DispositionParam::FilenameExt(<span class="kw-2">ref </span>ext_value) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;filename*={}&quot;</span>, ext_value)
+                <span class="macro">write!</span>(f, <span class="string">"filename*={}"</span>, ext_value)
             }
 
             DispositionParam::UnknownExt(<span class="kw-2">ref </span>name, <span class="kw-2">ref </span>ext_value) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}*={}&quot;</span>, name, ext_value)
+                <span class="macro">write!</span>(f, <span class="string">"{}*={}"</span>, name, ext_value)
             }
         }
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ContentDisposition {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.disposition)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.disposition)<span class="question-mark">?</span>;
         <span class="self">self</span>.parameters
             .iter()
-            .try_for_each(|param| <span class="macro">write!</span>(f, <span class="string">&quot;; {}&quot;</span>, param))
+            .try_for_each(|param| <span class="macro">write!</span>(f, <span class="string">"; {}"</span>, param))
     }
 }
 
@@ -1594,46 +1595,46 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_raw_basic() {
-        <span class="macro">assert!</span>(ContentDisposition::from_raw(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;&quot;</span>)).is_err());
+        <span class="macro">assert!</span>(ContentDisposition::from_raw(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">""</span>)).is_err());
 
         <span class="kw">let </span>a =
-            HeaderValue::from_static(<span class="string">&quot;form-data; dummy=3; name=upload; filename=\&quot;sample.png\&quot;&quot;</span>);
+            HeaderValue::from_static(<span class="string">"form-data; dummy=3; name=upload; filename=\"sample.png\""</span>);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[
-                DispositionParam::Unknown(<span class="string">&quot;dummy&quot;</span>.to_owned(), <span class="string">&quot;3&quot;</span>.to_owned()),
-                DispositionParam::Name(<span class="string">&quot;upload&quot;</span>.to_owned()),
-                DispositionParam::Filename(<span class="string">&quot;sample.png&quot;</span>.to_owned()),
+                DispositionParam::Unknown(<span class="string">"dummy"</span>.to_owned(), <span class="string">"3"</span>.to_owned()),
+                DispositionParam::Name(<span class="string">"upload"</span>.to_owned()),
+                DispositionParam::Filename(<span class="string">"sample.png"</span>.to_owned()),
             ],
         };
         <span class="macro">assert_eq!</span>(a, b);
 
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;attachment; filename=\&quot;image.jpg\&quot;&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"attachment; filename=\"image.jpg\""</span>);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::Attachment,
-            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(<span class="string">&quot;image.jpg&quot;</span>.to_owned())],
+            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(<span class="string">"image.jpg"</span>.to_owned())],
         };
         <span class="macro">assert_eq!</span>(a, b);
 
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;inline; filename=image.jpg&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"inline; filename=image.jpg"</span>);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::Inline,
-            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(<span class="string">&quot;image.jpg&quot;</span>.to_owned())],
+            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(<span class="string">"image.jpg"</span>.to_owned())],
         };
         <span class="macro">assert_eq!</span>(a, b);
 
         <span class="kw">let </span>a = HeaderValue::from_static(
-            <span class="string">&quot;attachment; creation-date=\&quot;Wed, 12 Feb 1997 16:29:51 -0500\&quot;&quot;</span>,
+            <span class="string">"attachment; creation-date=\"Wed, 12 Feb 1997 16:29:51 -0500\""</span>,
         );
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::Attachment,
             parameters: <span class="macro">vec!</span>[DispositionParam::Unknown(
-                String::from(<span class="string">&quot;creation-date&quot;</span>),
-                <span class="string">&quot;Wed, 12 Feb 1997 16:29:51 -0500&quot;</span>.to_owned(),
+                String::from(<span class="string">"creation-date"</span>),
+                <span class="string">"Wed, 12 Feb 1997 16:29:51 -0500"</span>.to_owned(),
             )],
         };
         <span class="macro">assert_eq!</span>(a, b);
@@ -1642,34 +1643,34 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_raw_extended() {
         <span class="kw">let </span>a = HeaderValue::from_static(
-            <span class="string">&quot;attachment; filename*=UTF-8&#39;&#39;%c2%a3%20and%20%e2%82%ac%20rates&quot;</span>,
+            <span class="string">"attachment; filename*=UTF-8''%c2%a3%20and%20%e2%82%ac%20rates"</span>,
         );
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::Attachment,
             parameters: <span class="macro">vec!</span>[DispositionParam::FilenameExt(ExtendedValue {
-                charset: Charset::Ext(String::from(<span class="string">&quot;UTF-8&quot;</span>)),
+                charset: Charset::Ext(String::from(<span class="string">"UTF-8"</span>)),
                 language_tag: <span class="prelude-val">None</span>,
                 value: <span class="macro">vec!</span>[
-                    <span class="number">0xc2</span>, <span class="number">0xa3</span>, <span class="number">0x20</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;n&#39;</span>, <span class="string">b&#39;d&#39;</span>, <span class="number">0x20</span>, <span class="number">0xe2</span>, <span class="number">0x82</span>, <span class="number">0xac</span>, <span class="number">0x20</span>, <span class="string">b&#39;r&#39;</span>, <span class="string">b&#39;a&#39;</span>,
-                    <span class="string">b&#39;t&#39;</span>, <span class="string">b&#39;e&#39;</span>, <span class="string">b&#39;s&#39;</span>,
+                    <span class="number">0xc2</span>, <span class="number">0xa3</span>, <span class="number">0x20</span>, <span class="string">b'a'</span>, <span class="string">b'n'</span>, <span class="string">b'd'</span>, <span class="number">0x20</span>, <span class="number">0xe2</span>, <span class="number">0x82</span>, <span class="number">0xac</span>, <span class="number">0x20</span>, <span class="string">b'r'</span>, <span class="string">b'a'</span>,
+                    <span class="string">b't'</span>, <span class="string">b'e'</span>, <span class="string">b's'</span>,
                 ],
             })],
         };
         <span class="macro">assert_eq!</span>(a, b);
 
         <span class="kw">let </span>a = HeaderValue::from_static(
-            <span class="string">&quot;attachment; filename*=UTF-8&#39;&#39;%c2%a3%20and%20%e2%82%ac%20rates&quot;</span>,
+            <span class="string">"attachment; filename*=UTF-8''%c2%a3%20and%20%e2%82%ac%20rates"</span>,
         );
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::Attachment,
             parameters: <span class="macro">vec!</span>[DispositionParam::FilenameExt(ExtendedValue {
-                charset: Charset::Ext(String::from(<span class="string">&quot;UTF-8&quot;</span>)),
+                charset: Charset::Ext(String::from(<span class="string">"UTF-8"</span>)),
                 language_tag: <span class="prelude-val">None</span>,
                 value: <span class="macro">vec!</span>[
-                    <span class="number">0xc2</span>, <span class="number">0xa3</span>, <span class="number">0x20</span>, <span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;n&#39;</span>, <span class="string">b&#39;d&#39;</span>, <span class="number">0x20</span>, <span class="number">0xe2</span>, <span class="number">0x82</span>, <span class="number">0xac</span>, <span class="number">0x20</span>, <span class="string">b&#39;r&#39;</span>, <span class="string">b&#39;a&#39;</span>,
-                    <span class="string">b&#39;t&#39;</span>, <span class="string">b&#39;e&#39;</span>, <span class="string">b&#39;s&#39;</span>,
+                    <span class="number">0xc2</span>, <span class="number">0xa3</span>, <span class="number">0x20</span>, <span class="string">b'a'</span>, <span class="string">b'n'</span>, <span class="string">b'd'</span>, <span class="number">0x20</span>, <span class="number">0xe2</span>, <span class="number">0x82</span>, <span class="number">0xac</span>, <span class="number">0x20</span>, <span class="string">b'r'</span>, <span class="string">b'a'</span>,
+                    <span class="string">b't'</span>, <span class="string">b'e'</span>, <span class="string">b's'</span>,
                 ],
             })],
         };
@@ -1679,15 +1680,15 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_raw_extra_whitespace() {
         <span class="kw">let </span>a = HeaderValue::from_static(
-            <span class="string">&quot;form-data  ; du-mmy= 3  ; name =upload ; filename =  \&quot;sample.png\&quot;  ; &quot;</span>,
+            <span class="string">"form-data  ; du-mmy= 3  ; name =upload ; filename =  \"sample.png\"  ; "</span>,
         );
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[
-                DispositionParam::Unknown(<span class="string">&quot;du-mmy&quot;</span>.to_owned(), <span class="string">&quot;3&quot;</span>.to_owned()),
-                DispositionParam::Name(<span class="string">&quot;upload&quot;</span>.to_owned()),
-                DispositionParam::Filename(<span class="string">&quot;sample.png&quot;</span>.to_owned()),
+                DispositionParam::Unknown(<span class="string">"du-mmy"</span>.to_owned(), <span class="string">"3"</span>.to_owned()),
+                DispositionParam::Name(<span class="string">"upload"</span>.to_owned()),
+                DispositionParam::Filename(<span class="string">"sample.png"</span>.to_owned()),
             ],
         };
         <span class="macro">assert_eq!</span>(a, b);
@@ -1696,22 +1697,22 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_raw_unordered() {
         <span class="kw">let </span>a = HeaderValue::from_static(
-            <span class="string">&quot;form-data; dummy=3; filename=\&quot;sample.png\&quot; ; name=upload;&quot;</span>,
+            <span class="string">"form-data; dummy=3; filename=\"sample.png\" ; name=upload;"</span>,
             <span class="comment">// Actually, a trailing semicolon is not compliant. But it is fine to accept.
         </span>);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[
-                DispositionParam::Unknown(<span class="string">&quot;dummy&quot;</span>.to_owned(), <span class="string">&quot;3&quot;</span>.to_owned()),
-                DispositionParam::Filename(<span class="string">&quot;sample.png&quot;</span>.to_owned()),
-                DispositionParam::Name(<span class="string">&quot;upload&quot;</span>.to_owned()),
+                DispositionParam::Unknown(<span class="string">"dummy"</span>.to_owned(), <span class="string">"3"</span>.to_owned()),
+                DispositionParam::Filename(<span class="string">"sample.png"</span>.to_owned()),
+                DispositionParam::Name(<span class="string">"upload"</span>.to_owned()),
             ],
         };
         <span class="macro">assert_eq!</span>(a, b);
 
         <span class="kw">let </span>a = HeaderValue::from_str(
-            <span class="string">&quot;attachment; filename*=iso-8859-1&#39;&#39;foo-%E4.html; filename=\&quot;foo-ä.html\&quot;&quot;</span>,
+            <span class="string">"attachment; filename*=iso-8859-1''foo-%E4.html; filename=\"foo-ä.html\""</span>,
         )
         .unwrap();
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
@@ -1721,9 +1722,9 @@
                 DispositionParam::FilenameExt(ExtendedValue {
                     charset: Charset::Iso_8859_1,
                     language_tag: <span class="prelude-val">None</span>,
-                    value: <span class="string">b&quot;foo-\xe4.html&quot;</span>.to_vec(),
+                    value: <span class="string">b"foo-\xe4.html"</span>.to_vec(),
                 }),
-                DispositionParam::Filename(<span class="string">&quot;foo-ä.html&quot;</span>.to_owned()),
+                DispositionParam::Filename(<span class="string">"foo-ä.html"</span>.to_owned()),
             ],
         };
         <span class="macro">assert_eq!</span>(a, b);
@@ -1731,14 +1732,14 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_raw_only_disp() {
-        <span class="kw">let </span>a = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;attachment&quot;</span>)).unwrap();
+        <span class="kw">let </span>a = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"attachment"</span>)).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::Attachment,
             parameters: <span class="macro">vec!</span>[],
         };
         <span class="macro">assert_eq!</span>(a, b);
 
-        <span class="kw">let </span>a = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;inline ;&quot;</span>)).unwrap();
+        <span class="kw">let </span>a = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"inline ;"</span>)).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::Inline,
             parameters: <span class="macro">vec!</span>[],
@@ -1746,9 +1747,9 @@
         <span class="macro">assert_eq!</span>(a, b);
 
         <span class="kw">let </span>a =
-            ContentDisposition::from_raw(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;unknown-disp-param&quot;</span>)).unwrap();
+            ContentDisposition::from_raw(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"unknown-disp-param"</span>)).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
-            disposition: DispositionType::Ext(String::from(<span class="string">&quot;unknown-disp-param&quot;</span>)),
+            disposition: DispositionType::Ext(String::from(<span class="string">"unknown-disp-param"</span>)),
             parameters: <span class="macro">vec!</span>[],
         };
         <span class="macro">assert_eq!</span>(a, b);
@@ -1757,7 +1758,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>from_raw_with_mixed_case() {
         <span class="kw">let </span>a = HeaderValue::from_str(
-            <span class="string">&quot;InLInE; fIlenAME*=iso-8859-1&#39;&#39;foo-%E4.html; filEName=\&quot;foo-ä.html\&quot;&quot;</span>,
+            <span class="string">"InLInE; fIlenAME*=iso-8859-1''foo-%E4.html; filEName=\"foo-ä.html\""</span>,
         )
         .unwrap();
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
@@ -1767,9 +1768,9 @@
                 DispositionParam::FilenameExt(ExtendedValue {
                     charset: Charset::Iso_8859_1,
                     language_tag: <span class="prelude-val">None</span>,
-                    value: <span class="string">b&quot;foo-\xe4.html&quot;</span>.to_vec(),
+                    value: <span class="string">b"foo-\xe4.html"</span>.to_vec(),
                 }),
-                DispositionParam::Filename(<span class="string">&quot;foo-ä.html&quot;</span>.to_owned()),
+                DispositionParam::Filename(<span class="string">"foo-ä.html"</span>.to_owned()),
             ],
         };
         <span class="macro">assert_eq!</span>(a, b);
@@ -1785,27 +1786,27 @@
         Mainstream browsers like Firefox (gecko) and Chrome use UTF-8 directly as above.
         (And now, only UTF-8 is handled by this implementation.)
         */
-        </span><span class="kw">let </span>a = HeaderValue::from_str(<span class="string">&quot;form-data; name=upload; filename=\&quot;文件.webp\&quot;&quot;</span>).unwrap();
+        </span><span class="kw">let </span>a = HeaderValue::from_str(<span class="string">"form-data; name=upload; filename=\"文件.webp\""</span>).unwrap();
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[
-                DispositionParam::Name(String::from(<span class="string">&quot;upload&quot;</span>)),
-                DispositionParam::Filename(String::from(<span class="string">&quot;文件.webp&quot;</span>)),
+                DispositionParam::Name(String::from(<span class="string">"upload"</span>)),
+                DispositionParam::Filename(String::from(<span class="string">"文件.webp"</span>)),
             ],
         };
         <span class="macro">assert_eq!</span>(a, b);
 
         <span class="kw">let </span>a = HeaderValue::from_str(
-            <span class="string">&quot;form-data; name=upload; filename=\&quot;余固知謇謇之為患兮，忍而不能舍也.pptx\&quot;&quot;</span>,
+            <span class="string">"form-data; name=upload; filename=\"余固知謇謇之為患兮，忍而不能舍也.pptx\""</span>,
         )
         .unwrap();
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[
-                DispositionParam::Name(String::from(<span class="string">&quot;upload&quot;</span>)),
-                DispositionParam::Filename(String::from(<span class="string">&quot;余固知謇謇之為患兮，忍而不能舍也.pptx&quot;</span>)),
+                DispositionParam::Name(String::from(<span class="string">"upload"</span>)),
+                DispositionParam::Filename(String::from(<span class="string">"余固知謇謇之為患兮，忍而不能舍也.pptx"</span>)),
             ],
         };
         <span class="macro">assert_eq!</span>(a, b);
@@ -1814,16 +1815,16 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_raw_escape() {
         <span class="kw">let </span>a = HeaderValue::from_static(
-            <span class="string">&quot;form-data; dummy=3; name=upload; filename=\&quot;s\\amp\\\&quot;le.png\&quot;&quot;</span>,
+            <span class="string">"form-data; dummy=3; name=upload; filename=\"s\\amp\\\"le.png\""</span>,
         );
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[
-                DispositionParam::Unknown(<span class="string">&quot;dummy&quot;</span>.to_owned(), <span class="string">&quot;3&quot;</span>.to_owned()),
-                DispositionParam::Name(<span class="string">&quot;upload&quot;</span>.to_owned()),
+                DispositionParam::Unknown(<span class="string">"dummy"</span>.to_owned(), <span class="string">"3"</span>.to_owned()),
+                DispositionParam::Name(<span class="string">"upload"</span>.to_owned()),
                 DispositionParam::Filename(
-                    [<span class="string">&#39;s&#39;</span>, <span class="string">&#39;a&#39;</span>, <span class="string">&#39;m&#39;</span>, <span class="string">&#39;p&#39;</span>, <span class="string">&#39;\&quot;&#39;</span>, <span class="string">&#39;l&#39;</span>, <span class="string">&#39;e&#39;</span>, <span class="string">&#39;.&#39;</span>, <span class="string">&#39;p&#39;</span>, <span class="string">&#39;n&#39;</span>, <span class="string">&#39;g&#39;</span>]
+                    [<span class="string">'s'</span>, <span class="string">'a'</span>, <span class="string">'m'</span>, <span class="string">'p'</span>, <span class="string">'\"'</span>, <span class="string">'l'</span>, <span class="string">'e'</span>, <span class="string">'.'</span>, <span class="string">'p'</span>, <span class="string">'n'</span>, <span class="string">'g'</span>]
                         .iter()
                         .collect(),
                 ),
@@ -1834,12 +1835,12 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_raw_semicolon() {
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;form-data; filename=\&quot;A semicolon here;.pdf\&quot;&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"form-data; filename=\"A semicolon here;.pdf\""</span>);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[DispositionParam::Filename(String::from(
-                <span class="string">&quot;A semicolon here;.pdf&quot;</span>,
+                <span class="string">"A semicolon here;.pdf"</span>,
             ))],
         };
         <span class="macro">assert_eq!</span>(a, b);
@@ -1858,25 +1859,25 @@
         // names in quoted-string format (tested on Edge, IE11, Chrome and Firefox) without
         // percent-encoding. So we do not bother to attempt to percent-decode.
         </span><span class="kw">let </span>a = HeaderValue::from_static(
-            <span class="string">&quot;form-data; name=photo; filename=\&quot;%74%65%73%74%2e%70%6e%67\&quot;&quot;</span>,
+            <span class="string">"form-data; name=photo; filename=\"%74%65%73%74%2e%70%6e%67\""</span>,
         );
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[
-                DispositionParam::Name(<span class="string">&quot;photo&quot;</span>.to_owned()),
-                DispositionParam::Filename(String::from(<span class="string">&quot;%74%65%73%74%2e%70%6e%67&quot;</span>)),
+                DispositionParam::Name(<span class="string">"photo"</span>.to_owned()),
+                DispositionParam::Filename(String::from(<span class="string">"%74%65%73%74%2e%70%6e%67"</span>)),
             ],
         };
         <span class="macro">assert_eq!</span>(a, b);
 
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;form-data; name=photo; filename=\&quot;%74%65%73%74.png\&quot;&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"form-data; name=photo; filename=\"%74%65%73%74.png\""</span>);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
         <span class="kw">let </span>b = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[
-                DispositionParam::Name(<span class="string">&quot;photo&quot;</span>.to_owned()),
-                DispositionParam::Filename(String::from(<span class="string">&quot;%74%65%73%74.png&quot;</span>)),
+                DispositionParam::Name(<span class="string">"photo"</span>.to_owned()),
+                DispositionParam::Filename(String::from(<span class="string">"%74%65%73%74.png"</span>)),
             ],
         };
         <span class="macro">assert_eq!</span>(a, b);
@@ -1884,109 +1885,109 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_raw_param_value_missing() {
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;form-data; name=upload ; filename=&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"form-data; name=upload ; filename="</span>);
         <span class="macro">assert!</span>(ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).is_err());
 
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;attachment; dummy=; filename=invoice.pdf&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"attachment; dummy=; filename=invoice.pdf"</span>);
         <span class="macro">assert!</span>(ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).is_err());
 
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;inline; filename=  &quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"inline; filename=  "</span>);
         <span class="macro">assert!</span>(ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).is_err());
 
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;inline; filename=\&quot;\&quot;&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"inline; filename=\"\""</span>);
         <span class="macro">assert!</span>(ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a)
-            .expect(<span class="string">&quot;parse cd&quot;</span>)
+            .expect(<span class="string">"parse cd"</span>)
             .get_filename()
-            .expect(<span class="string">&quot;filename&quot;</span>)
+            .expect(<span class="string">"filename"</span>)
             .is_empty());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_from_raw_param_name_missing() {
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;inline; =\&quot;test.txt\&quot;&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"inline; =\"test.txt\""</span>);
         <span class="macro">assert!</span>(ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).is_err());
 
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;inline; =diary.odt&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"inline; =diary.odt"</span>);
         <span class="macro">assert!</span>(ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).is_err());
 
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;inline; =&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"inline; ="</span>);
         <span class="macro">assert!</span>(ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_display_extended() {
-        <span class="kw">let </span>as_string = <span class="string">&quot;attachment; filename*=UTF-8&#39;en&#39;%C2%A3%20and%20%E2%82%AC%20rates&quot;</span>;
+        <span class="kw">let </span>as_string = <span class="string">"attachment; filename*=UTF-8'en'%C2%A3%20and%20%E2%82%AC%20rates"</span>;
         <span class="kw">let </span>a = HeaderValue::from_static(as_string);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
-        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, a);
+        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">"{}"</span>, a);
         <span class="macro">assert_eq!</span>(as_string, display_rendered);
 
-        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">&quot;attachment; filename=colourful.csv&quot;</span>);
+        <span class="kw">let </span>a = HeaderValue::from_static(<span class="string">"attachment; filename=colourful.csv"</span>);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
-        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, a);
+        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">"{}"</span>, a);
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;attachment; filename=\&quot;colourful.csv\&quot;&quot;</span>.to_owned(),
+            <span class="string">"attachment; filename=\"colourful.csv\""</span>.to_owned(),
             display_rendered
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_display_quote() {
-        <span class="kw">let </span>as_string = <span class="string">&quot;form-data; name=upload; filename=\&quot;Quote\\\&quot;here.png\&quot;&quot;</span>;
+        <span class="kw">let </span>as_string = <span class="string">"form-data; name=upload; filename=\"Quote\\\"here.png\""</span>;
         as_string
-            .find([<span class="string">&#39;\\&#39;</span>, <span class="string">&#39;\&quot;&#39;</span>].iter().collect::&lt;String&gt;().as_str())
-            .unwrap(); <span class="comment">// ensure `\&quot;` is there
+            .find([<span class="string">'\\'</span>, <span class="string">'\"'</span>].iter().collect::&lt;String&gt;().as_str())
+            .unwrap(); <span class="comment">// ensure `\"` is there
         </span><span class="kw">let </span>a = HeaderValue::from_static(as_string);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
-        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, a);
+        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">"{}"</span>, a);
         <span class="macro">assert_eq!</span>(as_string, display_rendered);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_display_space_tab() {
-        <span class="kw">let </span>as_string = <span class="string">&quot;form-data; name=upload; filename=\&quot;Space here.png\&quot;&quot;</span>;
+        <span class="kw">let </span>as_string = <span class="string">"form-data; name=upload; filename=\"Space here.png\""</span>;
         <span class="kw">let </span>a = HeaderValue::from_static(as_string);
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition::from_raw(<span class="kw-2">&amp;</span>a).unwrap();
-        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, a);
+        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">"{}"</span>, a);
         <span class="macro">assert_eq!</span>(as_string, display_rendered);
 
         <span class="kw">let </span>a: ContentDisposition = ContentDisposition {
             disposition: DispositionType::Inline,
-            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(String::from(<span class="string">&quot;Tab\there.png&quot;</span>))],
+            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(String::from(<span class="string">"Tab\there.png"</span>))],
         };
-        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, a);
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;inline; filename=\&quot;Tab\x09here.png\&quot;&quot;</span>, display_rendered);
+        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">"{}"</span>, a);
+        <span class="macro">assert_eq!</span>(<span class="string">"inline; filename=\"Tab\x09here.png\""</span>, display_rendered);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_display_control_characters() {
-        <span class="comment">/* let a = &quot;attachment; filename=\&quot;carriage\rreturn.png\&quot;&quot;;
+        <span class="comment">/* let a = "attachment; filename=\"carriage\rreturn.png\"";
         let a = HeaderValue::from_static(a);
         let a: ContentDisposition = ContentDisposition::from_raw(&amp;a).unwrap();
-        let display_rendered = format!(&quot;{}&quot;, a);
+        let display_rendered = format!("{}", a);
         assert_eq!(
-            &quot;attachment; filename=\&quot;carriage\\\rreturn.png\&quot;&quot;,
+            "attachment; filename=\"carriage\\\rreturn.png\"",
             display_rendered
         );*/
         // No way to create a HeaderValue containing a carriage return.
 
         </span><span class="kw">let </span>a: ContentDisposition = ContentDisposition {
             disposition: DispositionType::Inline,
-            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(String::from(<span class="string">&quot;bell\x07.png&quot;</span>))],
+            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(String::from(<span class="string">"bell\x07.png"</span>))],
         };
-        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, a);
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;inline; filename=\&quot;bell\\\x07.png\&quot;&quot;</span>, display_rendered);
+        <span class="kw">let </span>display_rendered = <span class="macro">format!</span>(<span class="string">"{}"</span>, a);
+        <span class="macro">assert_eq!</span>(<span class="string">"inline; filename=\"bell\\\x07.png\""</span>, display_rendered);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_param_methods() {
-        <span class="kw">let </span>param = DispositionParam::Filename(String::from(<span class="string">&quot;sample.txt&quot;</span>));
+        <span class="kw">let </span>param = DispositionParam::Filename(String::from(<span class="string">"sample.txt"</span>));
         <span class="macro">assert!</span>(param.is_filename());
-        <span class="macro">assert_eq!</span>(param.as_filename().unwrap(), <span class="string">&quot;sample.txt&quot;</span>);
+        <span class="macro">assert_eq!</span>(param.as_filename().unwrap(), <span class="string">"sample.txt"</span>);
 
-        <span class="kw">let </span>param = DispositionParam::Unknown(String::from(<span class="string">&quot;foo&quot;</span>), String::from(<span class="string">&quot;bar&quot;</span>));
-        <span class="macro">assert!</span>(param.is_unknown(<span class="string">&quot;foo&quot;</span>));
-        <span class="macro">assert_eq!</span>(param.as_unknown(<span class="string">&quot;fOo&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>));
+        <span class="kw">let </span>param = DispositionParam::Unknown(String::from(<span class="string">"foo"</span>), String::from(<span class="string">"bar"</span>));
+        <span class="macro">assert!</span>(param.is_unknown(<span class="string">"foo"</span>));
+        <span class="macro">assert_eq!</span>(param.as_unknown(<span class="string">"fOo"</span>), <span class="prelude-val">Some</span>(<span class="string">"bar"</span>));
     }
 
     <span class="attr">#[test]
@@ -1994,16 +1995,16 @@
         <span class="kw">let </span>cd = ContentDisposition {
             disposition: DispositionType::FormData,
             parameters: <span class="macro">vec!</span>[
-                DispositionParam::Unknown(<span class="string">&quot;dummy&quot;</span>.to_owned(), <span class="string">&quot;3&quot;</span>.to_owned()),
-                DispositionParam::Name(<span class="string">&quot;upload&quot;</span>.to_owned()),
-                DispositionParam::Filename(<span class="string">&quot;sample.png&quot;</span>.to_owned()),
+                DispositionParam::Unknown(<span class="string">"dummy"</span>.to_owned(), <span class="string">"3"</span>.to_owned()),
+                DispositionParam::Name(<span class="string">"upload"</span>.to_owned()),
+                DispositionParam::Filename(<span class="string">"sample.png"</span>.to_owned()),
             ],
         };
-        <span class="macro">assert_eq!</span>(cd.get_name(), <span class="prelude-val">Some</span>(<span class="string">&quot;upload&quot;</span>));
-        <span class="macro">assert_eq!</span>(cd.get_unknown(<span class="string">&quot;dummy&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;3&quot;</span>));
-        <span class="macro">assert_eq!</span>(cd.get_filename(), <span class="prelude-val">Some</span>(<span class="string">&quot;sample.png&quot;</span>));
-        <span class="macro">assert_eq!</span>(cd.get_unknown_ext(<span class="string">&quot;dummy&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(cd.get_unknown(<span class="string">&quot;duMMy&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;3&quot;</span>));
+        <span class="macro">assert_eq!</span>(cd.get_name(), <span class="prelude-val">Some</span>(<span class="string">"upload"</span>));
+        <span class="macro">assert_eq!</span>(cd.get_unknown(<span class="string">"dummy"</span>), <span class="prelude-val">Some</span>(<span class="string">"3"</span>));
+        <span class="macro">assert_eq!</span>(cd.get_filename(), <span class="prelude-val">Some</span>(<span class="string">"sample.png"</span>));
+        <span class="macro">assert_eq!</span>(cd.get_unknown_ext(<span class="string">"dummy"</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(cd.get_unknown(<span class="string">"duMMy"</span>), <span class="prelude-val">Some</span>(<span class="string">"3"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

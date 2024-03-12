@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.4.0/src/line.rs`."><title>line.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.4.0/src/line.rs`."><title>line.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1703,11 +1704,11 @@
     /// &lt;https://drafts.csswg.org/css-text-3/#valdef-word-break-normal&gt;.
     </span>Normal,
 
-    <span class="doccomment">/// Breaking is allowed within &quot;words&quot;.
+    <span class="doccomment">/// Breaking is allowed within "words".
     /// &lt;https://drafts.csswg.org/css-text-3/#valdef-word-break-break-all&gt;
     </span>BreakAll,
 
-    <span class="doccomment">/// Breaking is forbidden within &quot;word&quot;.
+    <span class="doccomment">/// Breaking is forbidden within "word".
     /// &lt;https://drafts.csswg.org/css-text-3/#valdef-word-break-keep-all&gt;
     </span>KeepAll,
 }
@@ -1744,23 +1745,23 @@
 <span class="doccomment">/// Line break iterator for an `str` (a UTF-8 string).
 ///
 /// For examples of use, see [`LineSegmenter`].
-</span><span class="kw">pub type </span>LineBreakIteratorUtf8&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; = LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, LineBreakTypeUtf8&gt;;
+</span><span class="kw">pub type </span>LineBreakIteratorUtf8&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; = LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, LineBreakTypeUtf8&gt;;
 
 <span class="doccomment">/// Line break iterator for a potentially invalid UTF-8 string.
 ///
 /// For examples of use, see [`LineSegmenter`].
-</span><span class="kw">pub type </span>LineBreakIteratorPotentiallyIllFormedUtf8&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; =
-    LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, LineBreakTypePotentiallyIllFormedUtf8&gt;;
+</span><span class="kw">pub type </span>LineBreakIteratorPotentiallyIllFormedUtf8&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; =
+    LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, LineBreakTypePotentiallyIllFormedUtf8&gt;;
 
 <span class="doccomment">/// Line break iterator for a Latin-1 (8-bit) string.
 ///
 /// For examples of use, see [`LineSegmenter`].
-</span><span class="kw">pub type </span>LineBreakIteratorLatin1&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; = LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, LineBreakTypeLatin1&gt;;
+</span><span class="kw">pub type </span>LineBreakIteratorLatin1&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; = LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, LineBreakTypeLatin1&gt;;
 
 <span class="doccomment">/// Line break iterator for a UTF-16 string.
 ///
 /// For examples of use, see [`LineSegmenter`].
-</span><span class="kw">pub type </span>LineBreakIteratorUtf16&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; = LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, LineBreakTypeUtf16&gt;;
+</span><span class="kw">pub type </span>LineBreakIteratorUtf16&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; = LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, LineBreakTypeUtf16&gt;;
 
 <span class="doccomment">/// Supports loading line break data, and creating line break iterators for different string
 /// encodings.
@@ -1788,7 +1789,7 @@
 /// #
 /// # let segmenter = LineSegmenter::new_auto();
 /// #
-/// let text = &quot;Summary\r\nThis annex…&quot;;
+/// let text = "Summary\r\nThis annex…";
 /// let breakpoints: Vec&lt;usize&gt; = segmenter.segment_str(text).collect();
 /// // 9 and 22 are mandatory breaks, 14 is a line break opportunity.
 /// assert_eq!(&amp;breakpoints, &amp;[0, 9, 14, 22]);
@@ -1804,7 +1805,7 @@
 /// let segmenter = LineSegmenter::new_auto();
 ///
 /// let breakpoints: Vec&lt;usize&gt; =
-///     segmenter.segment_str(&quot;Hello World&quot;).collect();
+///     segmenter.segment_str("Hello World").collect();
 /// assert_eq!(&amp;breakpoints, &amp;[0, 6, 11]);
 /// ```
 ///
@@ -1823,7 +1824,7 @@
 /// let segmenter = LineSegmenter::new_auto_with_options(options);
 ///
 /// let breakpoints: Vec&lt;usize&gt; =
-///     segmenter.segment_str(&quot;Hello World&quot;).collect();
+///     segmenter.segment_str("Hello World").collect();
 /// assert_eq!(&amp;breakpoints, &amp;[0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11]);
 /// ```
 ///
@@ -1835,7 +1836,7 @@
 /// let segmenter = LineSegmenter::new_auto();
 ///
 /// let breakpoints: Vec&lt;usize&gt; =
-///     segmenter.segment_latin1(b&quot;Hello World&quot;).collect();
+///     segmenter.segment_latin1(b"Hello World").collect();
 /// assert_eq!(&amp;breakpoints, &amp;[0, 6, 11]);
 /// ```
 ///
@@ -1847,7 +1848,7 @@
 ///
 /// # let segmenter = LineSegmenter::new_auto();
 /// #
-/// let text = &quot;Summary\r\nThis annex…&quot;;
+/// let text = "Summary\r\nThis annex…";
 ///
 /// let mandatory_breaks: Vec&lt;usize&gt; = segmenter
 ///     .segment_str(text)
@@ -1884,13 +1885,13 @@
     /// ✨ *Enabled with the `compiled_data` and `auto` Cargo features.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+    #[cfg(feature = <span class="string">"auto"</span>)]
     </span><span class="kw">pub fn </span>new_auto() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new_auto_with_options(Default::default())
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"auto"</span>)]
     </span><span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
         locale: skip,
         options: skip,
@@ -1906,7 +1907,7 @@
     );
 
     <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_auto)]
-    #[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    #[cfg(feature = <span class="string">"auto"</span>)]
     </span><span class="kw">pub fn </span>try_new_auto_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SegmenterError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;LineBreakDataV1Marker&gt;
@@ -1928,13 +1929,13 @@
     /// ✨ *Enabled with the `compiled_data` and `lstm` Cargo features.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+    #[cfg(feature = <span class="string">"lstm"</span>)]
     </span><span class="kw">pub fn </span>new_lstm() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new_lstm_with_options(Default::default())
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"lstm"</span>)]
     </span><span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
         locale: skip,
         options: skip,
@@ -1949,7 +1950,7 @@
         ]
     );
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"lstm"</span>)]
     #[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_lstm)]
     </span><span class="kw">pub fn </span>try_new_lstm_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SegmenterError&gt;
     <span class="kw">where
@@ -1972,7 +1973,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>new_dictionary() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new_dictionary_with_options(Default::default())
     }
@@ -2012,13 +2013,13 @@
     /// ✨ *Enabled with the `compiled_data` and `auto` Cargo features.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"auto"</span>)]
+    #[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>new_auto_with_options(options: LineBreakOptions) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new_lstm_with_options(options)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"auto"</span>)]
     </span><span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
         locale: skip,
         options: LineBreakOptions,
@@ -2033,7 +2034,7 @@
         ]
     );
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;auto&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"auto"</span>)]
     #[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_auto_with_options)]
     </span><span class="kw">pub fn </span>try_new_auto_with_options_unstable&lt;D&gt;(
         provider: <span class="kw-2">&amp;</span>D,
@@ -2059,8 +2060,8 @@
     /// ✨ *Enabled with the `compiled_data` and `lstm` Cargo features.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"lstm"</span>)]
+    #[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>new_lstm_with_options(options: LineBreakOptions) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             options,
@@ -2071,7 +2072,7 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"lstm"</span>)]
     </span><span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
         locale: skip,
         options: LineBreakOptions,
@@ -2086,7 +2087,7 @@
         ]
     );
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"lstm"</span>)]
     #[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_lstm_with_options)]
     </span><span class="kw">pub fn </span>try_new_lstm_with_options_unstable&lt;D&gt;(
         provider: <span class="kw-2">&amp;</span>D,
@@ -2116,14 +2117,14 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>new_dictionary_with_options(options: LineBreakOptions) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             options,
             payload: DataPayload::from_static_ref(
                 <span class="kw">crate</span>::provider::Baked::SINGLETON_SEGMENTER_LINE_V1,
             ),
-            <span class="comment">// Line segmenter doesn&#39;t need to load CJ dictionary because UAX 14 rules handles CJK
+            <span class="comment">// Line segmenter doesn't need to load CJ dictionary because UAX 14 rules handles CJK
             // characters [1]. Southeast Asian languages however require complex context analysis
             // [2].
             //
@@ -2161,7 +2162,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             options,
             payload: provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>,
-            <span class="comment">// Line segmenter doesn&#39;t need to load CJ dictionary because UAX 14 rules handles CJK
+            <span class="comment">// Line segmenter doesn't need to load CJ dictionary because UAX 14 rules handles CJK
             // characters [1]. Southeast Asian languages however require complex context analysis
             // [2].
             //
@@ -2174,7 +2175,7 @@
     <span class="doccomment">/// Creates a line break iterator for an `str` (a UTF-8 string).
     ///
     /// There are always breakpoints at 0 and the string length, or only at 0 for the empty string.
-    </span><span class="kw">pub fn </span>segment_str&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>str) -&gt; LineBreakIteratorUtf8&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; {
+    </span><span class="kw">pub fn </span>segment_str&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'s </span>str) -&gt; LineBreakIteratorUtf8&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; {
         LineBreakIterator {
             iter: input.char_indices(),
             len: input.len(),
@@ -2190,10 +2191,10 @@
     /// Invalid characters are treated as REPLACEMENT CHARACTER
     ///
     /// There are always breakpoints at 0 and the string length, or only at 0 for the empty string.
-    </span><span class="kw">pub fn </span>segment_utf8&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>,
-        input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>[u8],
-    ) -&gt; LineBreakIteratorPotentiallyIllFormedUtf8&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; {
+    </span><span class="kw">pub fn </span>segment_utf8&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;</span><span class="lifetime">'s </span>[u8],
+    ) -&gt; LineBreakIteratorPotentiallyIllFormedUtf8&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; {
         LineBreakIterator {
             iter: Utf8CharIndices::new(input),
             len: input.len(),
@@ -2207,7 +2208,7 @@
     <span class="doccomment">/// Creates a line break iterator for a Latin-1 (8-bit) string.
     ///
     /// There are always breakpoints at 0 and the string length, or only at 0 for the empty string.
-    </span><span class="kw">pub fn </span>segment_latin1&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>[u8]) -&gt; LineBreakIteratorLatin1&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; {
+    </span><span class="kw">pub fn </span>segment_latin1&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'s </span>[u8]) -&gt; LineBreakIteratorLatin1&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; {
         LineBreakIterator {
             iter: Latin1Indices::new(input),
             len: input.len(),
@@ -2222,7 +2223,7 @@
     <span class="doccomment">/// Creates a line break iterator for a UTF-16 string.
     ///
     /// There are always breakpoints at 0 and the string length, or only at 0 for the empty string.
-    </span><span class="kw">pub fn </span>segment_utf16&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>[u16]) -&gt; LineBreakIteratorUtf16&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; {
+    </span><span class="kw">pub fn </span>segment_utf16&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'s </span>[u16]) -&gt; LineBreakIteratorUtf16&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; {
         LineBreakIterator {
             iter: Utf16Indices::new(input),
             len: input.len(),
@@ -2236,7 +2237,7 @@
 }
 
 <span class="kw">fn </span>get_linebreak_property_utf32_with_rule(
-    property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">&#39;_</span>&gt;,
+    property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">'_</span>&gt;,
     codepoint: u32,
     strictness: LineBreakStrictness,
     word_option: LineBreakWordOption,
@@ -2249,7 +2250,7 @@
         || strictness == LineBreakStrictness::Normal
     {
         <span class="kw">return match </span>prop {
-            CJ =&gt; ID, <span class="comment">// All CJ&#39;s General_Category is Other_Letter (Lo).
+            CJ =&gt; ID, <span class="comment">// All CJ's General_Category is Other_Letter (Lo).
             </span><span class="kw">_ </span>=&gt; prop,
         };
     }
@@ -2260,14 +2261,14 @@
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">fn </span>get_linebreak_property_latin1(property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">&#39;_</span>&gt;, codepoint: u8) -&gt; u8 {
+</span><span class="kw">fn </span>get_linebreak_property_latin1(property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">'_</span>&gt;, codepoint: u8) -&gt; u8 {
     <span class="comment">// Note: Default value is 0 == UNKNOWN
     </span>property_table.<span class="number">0</span>.get32(codepoint <span class="kw">as </span>u32)
 }
 
 <span class="attr">#[inline]
 </span><span class="kw">fn </span>get_linebreak_property_with_rule(
-    property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">&#39;_</span>&gt;,
+    property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">'_</span>&gt;,
     codepoint: char,
     linebreak_rule: LineBreakStrictness,
     wordbreak_rule: LineBreakWordOption,
@@ -2353,7 +2354,7 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">fn </span>is_break_from_table(
-    break_state_table: <span class="kw-2">&amp;</span>RuleBreakStateTable&lt;<span class="lifetime">&#39;_</span>&gt;,
+    break_state_table: <span class="kw-2">&amp;</span>RuleBreakStateTable&lt;<span class="lifetime">'_</span>&gt;,
     property_count: u8,
     left: u8,
     right: u8,
@@ -2371,7 +2372,7 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">fn </span>is_non_break_by_keepall(left: u8, right: u8) -&gt; bool {
-    <span class="comment">//  typographic letter units shouldn&#39;t be break
+    <span class="comment">//  typographic letter units shouldn't be break
     </span>(left == AI
         || left == AL
         || left == ID
@@ -2398,7 +2399,7 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">fn </span>get_break_state_from_table(
-    break_state_table: <span class="kw-2">&amp;</span>RuleBreakStateTable&lt;<span class="lifetime">&#39;_</span>&gt;,
+    break_state_table: <span class="kw-2">&amp;</span>RuleBreakStateTable&lt;<span class="lifetime">'_</span>&gt;,
     property_count: u8,
     left: u8,
     right: u8,
@@ -2409,7 +2410,7 @@
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">fn </span>use_complex_breaking_utf32(property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">&#39;_</span>&gt;, codepoint: u32) -&gt; bool {
+</span><span class="kw">fn </span>use_complex_breaking_utf32(property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">'_</span>&gt;, codepoint: u32) -&gt; bool {
     <span class="kw">let </span>line_break_property = get_linebreak_property_utf32_with_rule(
         property_table,
         codepoint,
@@ -2431,24 +2432,24 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 </span><span class="doccomment">/// A trait allowing for LineBreakIterator to be generalized to multiple string iteration methods.
 ///
 /// This is implemented by ICU4X for several common string types.
-</span><span class="kw">pub trait </span>LineBreakType&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; {
+</span><span class="kw">pub trait </span>LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; {
     <span class="doccomment">/// The iterator over characters.
     </span><span class="kw">type </span>IterAttr: Iterator&lt;Item = (usize, <span class="self">Self</span>::CharType)&gt; + Clone;
 
     <span class="doccomment">/// The character type.
     </span><span class="kw">type </span>CharType: Copy + Into&lt;u32&gt;;
 
-    <span class="kw">fn </span>use_complex_breaking(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, <span class="self">Self</span>&gt;, c: <span class="self">Self</span>::CharType) -&gt; bool;
+    <span class="kw">fn </span>use_complex_breaking(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, <span class="self">Self</span>&gt;, c: <span class="self">Self</span>::CharType) -&gt; bool;
 
     <span class="kw">fn </span>get_linebreak_property_with_rule(
-        iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, <span class="self">Self</span>&gt;,
+        iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, <span class="self">Self</span>&gt;,
         c: <span class="self">Self</span>::CharType,
     ) -&gt; u8;
 
-    <span class="kw">fn </span>get_current_position_character_len(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, <span class="self">Self</span>&gt;) -&gt; usize;
+    <span class="kw">fn </span>get_current_position_character_len(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, <span class="self">Self</span>&gt;) -&gt; usize;
 
     <span class="kw">fn </span>handle_complex_language(
-        iterator: <span class="kw-2">&amp;mut </span>LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, <span class="self">Self</span>&gt;,
+        iterator: <span class="kw-2">&amp;mut </span>LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, <span class="self">Self</span>&gt;,
         left_codepoint: <span class="self">Self</span>::CharType,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt;;
 }
@@ -2457,8 +2458,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 ///
 /// Lifetimes:
 ///
-/// - `&#39;l` = lifetime of the [`LineSegmenter`] object from which this iterator was created
-/// - `&#39;s` = lifetime of the string being segmented
+/// - `'l` = lifetime of the [`LineSegmenter`] object from which this iterator was created
+/// - `'s` = lifetime of the string being segmented
 ///
 /// The [`Iterator::Item`] is an [`usize`] representing index of a code unit
 /// _after_ the break (for a break at the end of text, this index is the length
@@ -2466,17 +2467,17 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 ///
 /// For examples of use, see [`LineSegmenter`].
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, Y: LineBreakType&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; + <span class="question-mark">?</span>Sized&gt; {
+</span><span class="kw">pub struct </span>LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, Y: LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; + <span class="question-mark">?</span>Sized&gt; {
     iter: Y::IterAttr,
     len: usize,
     current_pos_data: <span class="prelude-ty">Option</span>&lt;(usize, Y::CharType)&gt;,
     result_cache: Vec&lt;usize&gt;,
-    data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>RuleBreakDataV1&lt;<span class="lifetime">&#39;l</span>&gt;,
-    options: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>LineBreakOptions,
-    complex: <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>ComplexPayloads,
+    data: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>RuleBreakDataV1&lt;<span class="lifetime">'l</span>&gt;,
+    options: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>LineBreakOptions,
+    complex: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>ComplexPayloads,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, Y: LineBreakType&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt;&gt; Iterator <span class="kw">for </span>LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, Y&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, Y: LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt;&gt; Iterator <span class="kw">for </span>LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, Y&gt; {
     <span class="kw">type </span>Item = usize;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
@@ -2558,7 +2559,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
                 <span class="kw">_ </span>=&gt; (),
             };
 
-            <span class="comment">// UAX14 doesn&#39;t have Thai etc, so use another way.
+            <span class="comment">// UAX14 doesn't have Thai etc, so use another way.
             </span><span class="kw">if </span><span class="self">self</span>.options.word_option != LineBreakWordOption::BreakAll
                 &amp;&amp; Y::use_complex_breaking(<span class="self">self</span>, left_codepoint)
                 &amp;&amp; Y::use_complex_breaking(<span class="self">self</span>, right_codepoint)
@@ -2624,7 +2625,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     End,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, Y: LineBreakType&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt;&gt; LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, Y&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, Y: LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt;&gt; LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, Y&gt; {
     <span class="kw">fn </span>advance_iter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.current_pos_data = <span class="self">self</span>.iter.next();
     }
@@ -2698,8 +2699,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>LineBreakTypeUtf8;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; LineBreakType&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; <span class="kw">for </span>LineBreakTypeUtf8 {
-    <span class="kw">type </span>IterAttr = CharIndices&lt;<span class="lifetime">&#39;s</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; <span class="kw">for </span>LineBreakTypeUtf8 {
+    <span class="kw">type </span>IterAttr = CharIndices&lt;<span class="lifetime">'s</span>&gt;;
     <span class="kw">type </span>CharType = char;
 
     <span class="kw">fn </span>get_linebreak_property_with_rule(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: char) -&gt; u8 {
@@ -2721,7 +2722,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     }
 
     <span class="kw">fn </span>handle_complex_language(
-        iter: <span class="kw-2">&amp;mut </span>LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, <span class="self">Self</span>&gt;,
+        iter: <span class="kw-2">&amp;mut </span>LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, <span class="self">Self</span>&gt;,
         left_codepoint: char,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         handle_complex_language_utf8(iter, left_codepoint)
@@ -2731,8 +2732,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>LineBreakTypePotentiallyIllFormedUtf8;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; LineBreakType&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; <span class="kw">for </span>LineBreakTypePotentiallyIllFormedUtf8 {
-    <span class="kw">type </span>IterAttr = Utf8CharIndices&lt;<span class="lifetime">&#39;s</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; <span class="kw">for </span>LineBreakTypePotentiallyIllFormedUtf8 {
+    <span class="kw">type </span>IterAttr = Utf8CharIndices&lt;<span class="lifetime">'s</span>&gt;;
     <span class="kw">type </span>CharType = char;
 
     <span class="kw">fn </span>get_linebreak_property_with_rule(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: char) -&gt; u8 {
@@ -2754,21 +2755,21 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     }
 
     <span class="kw">fn </span>handle_complex_language(
-        iter: <span class="kw-2">&amp;mut </span>LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, <span class="self">Self</span>&gt;,
+        iter: <span class="kw-2">&amp;mut </span>LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, <span class="self">Self</span>&gt;,
         left_codepoint: char,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         handle_complex_language_utf8(iter, left_codepoint)
     }
 }
 <span class="doccomment">/// handle_complex_language impl for UTF8 iterators
-</span><span class="kw">fn </span>handle_complex_language_utf8&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, T&gt;(
-    iter: <span class="kw-2">&amp;mut </span>LineBreakIterator&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, T&gt;,
+</span><span class="kw">fn </span>handle_complex_language_utf8&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, T&gt;(
+    iter: <span class="kw-2">&amp;mut </span>LineBreakIterator&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, T&gt;,
     left_codepoint: char,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt;
 <span class="kw">where
-    </span>T: LineBreakType&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>, CharType = char&gt;,
+    </span>T: LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>, CharType = char&gt;,
 {
-    <span class="comment">// word segmenter doesn&#39;t define break rules for some languages such as Thai.
+    <span class="comment">// word segmenter doesn't define break rules for some languages such as Thai.
     </span><span class="kw">let </span>start_iter = iter.iter.clone();
     <span class="kw">let </span>start_point = iter.current_pos_data;
     <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
@@ -2802,7 +2803,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         }
         <span class="macro">debug_assert!</span>(
             i &lt; first_pos,
-            <span class="string">&quot;we should always arrive at first_pos: near index {:?}&quot;</span>,
+            <span class="string">"we should always arrive at first_pos: near index {:?}"</span>,
             iter.get_current_position()
         );
         i += T::get_current_position_character_len(iter);
@@ -2817,8 +2818,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>LineBreakTypeLatin1;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; LineBreakType&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; <span class="kw">for </span>LineBreakTypeLatin1 {
-    <span class="kw">type </span>IterAttr = Latin1Indices&lt;<span class="lifetime">&#39;s</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; <span class="kw">for </span>LineBreakTypeLatin1 {
+    <span class="kw">type </span>IterAttr = Latin1Indices&lt;<span class="lifetime">'s</span>&gt;;
     <span class="kw">type </span>CharType = u8;
 
     <span class="kw">fn </span>get_linebreak_property_with_rule(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: u8) -&gt; u8 {
@@ -2846,8 +2847,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>LineBreakTypeUtf16;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; LineBreakType&lt;<span class="lifetime">&#39;l</span>, <span class="lifetime">&#39;s</span>&gt; <span class="kw">for </span>LineBreakTypeUtf16 {
-    <span class="kw">type </span>IterAttr = Utf16Indices&lt;<span class="lifetime">&#39;s</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; <span class="kw">for </span>LineBreakTypeUtf16 {
+    <span class="kw">type </span>IterAttr = Utf16Indices&lt;<span class="lifetime">'s</span>&gt;;
     <span class="kw">type </span>CharType = u32;
 
     <span class="kw">fn </span>get_linebreak_property_with_rule(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: u32) -&gt; u8 {
@@ -2876,7 +2877,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         iterator: <span class="kw-2">&amp;mut </span>LineBreakIterator&lt;<span class="self">Self</span>&gt;,
         left_codepoint: <span class="self">Self</span>::CharType,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-        <span class="comment">// word segmenter doesn&#39;t define break rules for some languages such as Thai.
+        <span class="comment">// word segmenter doesn't define break rules for some languages such as Thai.
         </span><span class="kw">let </span>start_iter = iterator.iter.clone();
         <span class="kw">let </span>start_point = iterator.current_pos_data;
         <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="macro">vec!</span>[left_codepoint <span class="kw">as </span>u16];
@@ -2915,7 +2916,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
             }
             <span class="macro">debug_assert!</span>(
                 i &lt; first_pos,
-                <span class="string">&quot;we should always arrive at first_pos: near index {:?}&quot;</span>,
+                <span class="string">"we should always arrive at first_pos: near index {:?}"</span>,
                 iterator.get_current_position()
             );
             i += <span class="number">1</span>;
@@ -2929,7 +2930,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 }
 
 <span class="attr">#[cfg(test)]
-#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::LineSegmenter;
@@ -2940,9 +2941,9 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
             <span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked,
             Default::default(),
         )
-        .expect(<span class="string">&quot;Loading should succeed!&quot;</span>)
+        .expect(<span class="string">"Loading should succeed!"</span>)
         .take_payload()
-        .expect(<span class="string">&quot;Data should be present!&quot;</span>);
+        .expect(<span class="string">"Data should be present!"</span>);
 
         <span class="kw">let </span>get_linebreak_property = |codepoint| {
             get_linebreak_property_with_rule(
@@ -2953,32 +2954,32 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
             )
         };
 
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{0020}&#39;</span>), SP);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{0022}&#39;</span>), QU);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;(&#39;</span>), OP_OP30);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{0030}&#39;</span>), NU);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;[&#39;</span>), OP_OP30);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{1f3fb}&#39;</span>), EM);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{20000}&#39;</span>), ID);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{e0020}&#39;</span>), CM);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{3041}&#39;</span>), CJ);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{0025}&#39;</span>), PO);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{00A7}&#39;</span>), AI);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{50005}&#39;</span>), XX);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{17D6}&#39;</span>), NS);
-        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">&#39;\u{2014}&#39;</span>), B2);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{0020}'</span>), SP);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{0022}'</span>), QU);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'('</span>), OP_OP30);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{0030}'</span>), NU);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'['</span>), OP_OP30);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{1f3fb}'</span>), EM);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{20000}'</span>), ID);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{e0020}'</span>), CM);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{3041}'</span>), CJ);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{0025}'</span>), PO);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{00A7}'</span>), AI);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{50005}'</span>), XX);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{17D6}'</span>), NS);
+        <span class="macro">assert_eq!</span>(get_linebreak_property(<span class="string">'\u{2014}'</span>), B2);
     }
 
     <span class="attr">#[test]
-    #[allow(clippy::bool_assert_comparison)] </span><span class="comment">// clearer when we&#39;re testing bools directly
+    #[allow(clippy::bool_assert_comparison)] </span><span class="comment">// clearer when we're testing bools directly
     </span><span class="kw">fn </span>break_rule() {
         <span class="kw">let </span>payload = DataProvider::&lt;LineBreakDataV1Marker&gt;::load(
             <span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked,
             Default::default(),
         )
-        .expect(<span class="string">&quot;Loading should succeed!&quot;</span>)
+        .expect(<span class="string">"Loading should succeed!"</span>)
         .take_payload()
-        .expect(<span class="string">&quot;Data should be present!&quot;</span>);
+        .expect(<span class="string">"Data should be present!"</span>);
         <span class="kw">let </span>lb_data: <span class="kw-2">&amp;</span>RuleBreakDataV1 = payload.get();
 
         <span class="kw">let </span>is_break = |left, right| {
@@ -3084,15 +3085,15 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     <span class="attr">#[test]
     </span><span class="kw">fn </span>linebreak() {
         <span class="kw">let </span>segmenter = LineSegmenter::try_new_dictionary_unstable(<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::Baked)
-            .expect(<span class="string">&quot;Data exists&quot;</span>);
+            .expect(<span class="string">"Data exists"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = segmenter.segment_str(<span class="string">&quot;hello world&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = segmenter.segment_str(<span class="string">"hello world"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">6</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">11</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter.next());
 
-        iter = segmenter.segment_str(<span class="string">&quot;$10 $10&quot;</span>);
+        iter = segmenter.segment_str(<span class="string">"$10 $10"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">4</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">7</span>), iter.next());
@@ -3101,7 +3102,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         <span class="comment">// LB10
 
         // LB14
-        </span>iter = segmenter.segment_str(<span class="string">&quot;[  abc def&quot;</span>);
+        </span>iter = segmenter.segment_str(<span class="string">"[  abc def"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">7</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">10</span>), iter.next());
@@ -3122,7 +3123,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter_u16.next());
 
         <span class="comment">// LB15
-        </span>iter = segmenter.segment_str(<span class="string">&quot;abc\u{0022}  (def&quot;</span>);
+        </span>iter = segmenter.segment_str(<span class="string">"abc\u{0022}  (def"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">10</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter.next());
@@ -3140,11 +3141,11 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter_u16.next());
 
         <span class="comment">// LB16
-        </span>iter = segmenter.segment_str(<span class="string">&quot;\u{0029}\u{203C}&quot;</span>);
+        </span>iter = segmenter.segment_str(<span class="string">"\u{0029}\u{203C}"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">4</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter.next());
-        iter = segmenter.segment_str(<span class="string">&quot;\u{0029}  \u{203C}&quot;</span>);
+        iter = segmenter.segment_str(<span class="string">"\u{0029}  \u{203C}"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">6</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter.next());
@@ -3156,18 +3157,18 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter_u16.next());
 
         <span class="comment">// LB17
-        </span>iter = segmenter.segment_str(<span class="string">&quot;\u{2014}\u{2014}aa&quot;</span>);
+        </span>iter = segmenter.segment_str(<span class="string">"\u{2014}\u{2014}aa"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">6</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">8</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter.next());
-        iter = segmenter.segment_str(<span class="string">&quot;\u{2014}  \u{2014}aa&quot;</span>);
+        iter = segmenter.segment_str(<span class="string">"\u{2014}  \u{2014}aa"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">8</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">10</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter.next());
 
-        iter = segmenter.segment_str(<span class="string">&quot;\u{2014}\u{2014}  \u{2014}\u{2014}123 abc&quot;</span>);
+        iter = segmenter.segment_str(<span class="string">"\u{2014}\u{2014}  \u{2014}\u{2014}123 abc"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">14</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">18</span>), iter.next());
@@ -3175,7 +3176,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter.next());
 
         <span class="comment">// LB25
-        </span><span class="kw">let </span><span class="kw-2">mut </span>iter = segmenter.segment_str(<span class="string">&quot;(0,1)+(2,3)&quot;</span>);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>iter = segmenter.segment_str(<span class="string">"(0,1)+(2,3)"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">11</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter.next());
@@ -3197,7 +3198,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">13</span>), iter_u16.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, iter_u16.next());
 
-        iter = segmenter.segment_str(<span class="string">&quot;\u{1F3FB} \u{1F3FB}&quot;</span>);
+        iter = segmenter.segment_str(<span class="string">"\u{1F3FB} \u{1F3FB}"</span>);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">5</span>), iter.next());
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">9</span>), iter.next());
@@ -3205,78 +3206,78 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    #[cfg(feature = <span class="string">"lstm"</span>)]
     </span><span class="kw">fn </span>thai_line_break() {
-        <span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;ภาษาไทยภาษาไทย&quot;</span>;
+        <span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">"ภาษาไทยภาษาไทย"</span>;
 
         <span class="kw">let </span>segmenter = LineSegmenter::new_lstm();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(TEST_STR).collect();
-        <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">12</span>, <span class="number">21</span>, <span class="number">33</span>, TEST_STR.len()], <span class="string">&quot;Thai test&quot;</span>);
+        <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">12</span>, <span class="number">21</span>, <span class="number">33</span>, TEST_STR.len()], <span class="string">"Thai test"</span>);
 
         <span class="kw">let </span>utf16: Vec&lt;u16&gt; = TEST_STR.encode_utf16().collect();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_utf16(<span class="kw-2">&amp;</span>utf16).collect();
-        <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">4</span>, <span class="number">7</span>, <span class="number">11</span>, utf16.len()], <span class="string">&quot;Thai test&quot;</span>);
+        <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">4</span>, <span class="number">7</span>, <span class="number">11</span>, utf16.len()], <span class="string">"Thai test"</span>);
 
         <span class="kw">let </span>utf16: [u16; <span class="number">4</span>] = [<span class="number">0x0e20</span>, <span class="number">0x0e32</span>, <span class="number">0x0e29</span>, <span class="number">0x0e32</span>];
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_utf16(<span class="kw-2">&amp;</span>utf16).collect();
-        <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">4</span>], <span class="string">&quot;Thai test&quot;</span>);
+        <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">4</span>], <span class="string">"Thai test"</span>);
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    #[cfg(feature = <span class="string">"lstm"</span>)]
     </span><span class="kw">fn </span>burmese_line_break() {
-        <span class="comment">// &quot;Burmese Language&quot; in Burmese
-        </span><span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;မြန်မာဘာသာစကား&quot;</span>;
+        <span class="comment">// "Burmese Language" in Burmese
+        </span><span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">"မြန်မာဘာသာစကား"</span>;
 
         <span class="kw">let </span>segmenter = LineSegmenter::new_lstm();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(TEST_STR).collect();
         <span class="comment">// LSTM model breaks more characters, but it is better to return [30].
-        </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">12</span>, <span class="number">18</span>, <span class="number">30</span>, TEST_STR.len()], <span class="string">&quot;Burmese test&quot;</span>);
+        </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">12</span>, <span class="number">18</span>, <span class="number">30</span>, TEST_STR.len()], <span class="string">"Burmese test"</span>);
 
         <span class="kw">let </span>utf16: Vec&lt;u16&gt; = TEST_STR.encode_utf16().collect();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_utf16(<span class="kw-2">&amp;</span>utf16).collect();
         <span class="comment">// LSTM model breaks more characters, but it is better to return [10].
-        </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">10</span>, utf16.len()], <span class="string">&quot;Burmese utf-16 test&quot;</span>);
+        </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">10</span>, utf16.len()], <span class="string">"Burmese utf-16 test"</span>);
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    #[cfg(feature = <span class="string">"lstm"</span>)]
     </span><span class="kw">fn </span>khmer_line_break() {
-        <span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;សេចក្ដីប្រកាសជាសកលស្ដីពីសិទ្ធិមនុស្ស&quot;</span>;
+        <span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">"សេចក្ដីប្រកាសជាសកលស្ដីពីសិទ្ធិមនុស្ស"</span>;
 
         <span class="kw">let </span>segmenter = LineSegmenter::new_lstm();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(TEST_STR).collect();
         <span class="comment">// Note: This small sample matches the ICU dictionary segmenter
-        </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">39</span>, <span class="number">48</span>, <span class="number">54</span>, <span class="number">72</span>, TEST_STR.len()], <span class="string">&quot;Khmer test&quot;</span>);
+        </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">39</span>, <span class="number">48</span>, <span class="number">54</span>, <span class="number">72</span>, TEST_STR.len()], <span class="string">"Khmer test"</span>);
 
         <span class="kw">let </span>utf16: Vec&lt;u16&gt; = TEST_STR.encode_utf16().collect();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_utf16(<span class="kw-2">&amp;</span>utf16).collect();
         <span class="macro">assert_eq!</span>(
             breaks,
             [<span class="number">0</span>, <span class="number">13</span>, <span class="number">16</span>, <span class="number">18</span>, <span class="number">24</span>, utf16.len()],
-            <span class="string">&quot;Khmer utf-16 test&quot;
+            <span class="string">"Khmer utf-16 test"
         </span>);
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;lstm&quot;</span>)]
+    #[cfg(feature = <span class="string">"lstm"</span>)]
     </span><span class="kw">fn </span>lao_line_break() {
-        <span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;ກ່ຽວກັບສິດຂອງມະນຸດ&quot;</span>;
+        <span class="kw">const </span>TEST_STR: <span class="kw-2">&amp;</span>str = <span class="string">"ກ່ຽວກັບສິດຂອງມະນຸດ"</span>;
 
         <span class="kw">let </span>segmenter = LineSegmenter::new_lstm();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(TEST_STR).collect();
-        <span class="comment">// Note: LSTM finds a break at &#39;12&#39; that the dictionary does not find
-        </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">12</span>, <span class="number">21</span>, <span class="number">30</span>, <span class="number">39</span>, TEST_STR.len()], <span class="string">&quot;Lao test&quot;</span>);
+        <span class="comment">// Note: LSTM finds a break at '12' that the dictionary does not find
+        </span><span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">12</span>, <span class="number">21</span>, <span class="number">30</span>, <span class="number">39</span>, TEST_STR.len()], <span class="string">"Lao test"</span>);
 
         <span class="kw">let </span>utf16: Vec&lt;u16&gt; = TEST_STR.encode_utf16().collect();
         <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_utf16(<span class="kw-2">&amp;</span>utf16).collect();
-        <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">4</span>, <span class="number">7</span>, <span class="number">10</span>, <span class="number">13</span>, utf16.len()], <span class="string">&quot;Lao utf-16 test&quot;</span>);
+        <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>, <span class="number">4</span>, <span class="number">7</span>, <span class="number">10</span>, <span class="number">13</span>, utf16.len()], <span class="string">"Lao utf-16 test"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty_string() {
         <span class="kw">let </span>segmenter = LineSegmenter::new_auto();
-        <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(<span class="string">&quot;&quot;</span>).collect();
+        <span class="kw">let </span>breaks: Vec&lt;usize&gt; = segmenter.segment_str(<span class="string">""</span>).collect();
         <span class="macro">assert_eq!</span>(breaks, [<span class="number">0</span>]);
     }
 }

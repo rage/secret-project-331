@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/flexzerovec/serde.rs`."><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/flexzerovec/serde.rs`."><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -181,20 +182,20 @@
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>serde::de::{<span class="self">self</span>, Deserialize, Deserializer, SeqAccess, Visitor};
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">use </span>serde::ser::{Serialize, SerializeSeq, Serializer};
 
 <span class="attr">#[derive(Default)]
 </span><span class="kw">struct </span>FlexZeroVecVisitor {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>FlexZeroVecVisitor {
-    <span class="kw">type </span>Value = FlexZeroVec&lt;<span class="lifetime">&#39;de</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>FlexZeroVecVisitor {
+    <span class="kw">type </span>Value = FlexZeroVec&lt;<span class="lifetime">'de</span>&gt;;
 
     <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        formatter.write_str(<span class="string">&quot;a sequence or borrowed buffer of bytes&quot;</span>)
+        formatter.write_str(<span class="string">"a sequence or borrowed buffer of bytes"</span>)
     }
 
-    <span class="kw">fn </span>visit_borrowed_bytes&lt;E&gt;(<span class="self">self</span>, bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
+    <span class="kw">fn </span>visit_borrowed_bytes&lt;E&gt;(<span class="self">self</span>, bytes: <span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
     <span class="kw">where
         </span>E: de::Error,
     {
@@ -203,7 +204,7 @@
 
     <span class="kw">fn </span>visit_seq&lt;A&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>seq: A) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, A::Error&gt;
     <span class="kw">where
-        </span>A: SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>A: SeqAccess&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>vec: Vec&lt;usize&gt; = <span class="kw">if let </span><span class="prelude-val">Some</span>(capacity) = seq.size_hint() {
             Vec::with_capacity(capacity)
@@ -218,13 +219,13 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">&#39;a</span>&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">'a</span>&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>,
+    </span><span class="lifetime">'de</span>: <span class="lifetime">'a</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span>visitor = FlexZeroVecVisitor::default();
         <span class="kw">if </span>deserializer.is_human_readable() {
@@ -236,25 +237,25 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FlexZeroSlice
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>FlexZeroSlice
 <span class="kw">where
-    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>,
+    </span><span class="lifetime">'de</span>: <span class="lifetime">'a</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="prelude-val">Err</span>(de::Error::custom(
-                <span class="string">&quot;&amp;FlexZeroSlice cannot be deserialized from human-readable formats&quot;</span>,
+                <span class="string">"&amp;FlexZeroSlice cannot be deserialized from human-readable formats"</span>,
             ))
         } <span class="kw">else </span>{
-            <span class="kw">let </span>deserialized: FlexZeroVec&lt;<span class="lifetime">&#39;a</span>&gt; = FlexZeroVec::deserialize(deserializer)<span class="question-mark">?</span>;
+            <span class="kw">let </span>deserialized: FlexZeroVec&lt;<span class="lifetime">'a</span>&gt; = FlexZeroVec::deserialize(deserializer)<span class="question-mark">?</span>;
             <span class="kw">let </span>borrowed = <span class="kw">if let </span>FlexZeroVec::Borrowed(b) = deserialized {
                 b
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;&amp;FlexZeroSlice can only deserialize in zero-copy ways&quot;</span>,
+                    <span class="string">"&amp;FlexZeroSlice can only deserialize in zero-copy ways"</span>,
                 ));
             };
             <span class="prelude-val">Ok</span>(borrowed)
@@ -263,7 +264,7 @@
 }
 
 <span class="doccomment">/// This impl requires enabling the optional `serde` Cargo feature of the `zerovec` crate
-</span><span class="kw">impl </span>Serialize <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">&#39;_</span>&gt; {
+</span><span class="kw">impl </span>Serialize <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
         </span>S: Serializer,
@@ -296,55 +297,55 @@
     <span class="kw">use super</span>::{FlexZeroSlice, FlexZeroVec};
 
     <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
-    </span><span class="kw">struct </span>DeriveTest_FlexZeroVec&lt;<span class="lifetime">&#39;data</span>&gt; {
+    </span><span class="kw">struct </span>DeriveTest_FlexZeroVec&lt;<span class="lifetime">'data</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span>_data: FlexZeroVec&lt;<span class="lifetime">&#39;data</span>&gt;,
+        </span>_data: FlexZeroVec&lt;<span class="lifetime">'data</span>&gt;,
     }
 
     <span class="attr">#[derive(serde::Serialize, serde::Deserialize)]
-    </span><span class="kw">struct </span>DeriveTest_FlexZeroSlice&lt;<span class="lifetime">&#39;data</span>&gt; {
+    </span><span class="kw">struct </span>DeriveTest_FlexZeroSlice&lt;<span class="lifetime">'data</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span>_data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>FlexZeroSlice,
+        </span>_data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>FlexZeroSlice,
     }
 
     <span class="comment">// [1, 22, 333, 4444];
     </span><span class="kw">const </span>BYTES: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x16</span>, <span class="number">0x00</span>, <span class="number">0x4D</span>, <span class="number">0x01</span>, <span class="number">0x5C</span>, <span class="number">0x11</span>];
-    <span class="kw">const </span>JSON_STR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;[1,22,333,4444]&quot;</span>;
+    <span class="kw">const </span>JSON_STR: <span class="kw-2">&amp;</span>str = <span class="string">"[1,22,333,4444]"</span>;
     <span class="kw">const </span>BINCODE_BUF: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[<span class="number">9</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">22</span>, <span class="number">0</span>, <span class="number">77</span>, <span class="number">1</span>, <span class="number">92</span>, <span class="number">17</span>];
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serde_json() {
-        <span class="kw">let </span>zerovec_orig: FlexZeroVec = FlexZeroVec::parse_byte_slice(BYTES).expect(<span class="string">&quot;parse&quot;</span>);
-        <span class="kw">let </span>json_str = serde_json::to_string(<span class="kw-2">&amp;</span>zerovec_orig).expect(<span class="string">&quot;serialize&quot;</span>);
+        <span class="kw">let </span>zerovec_orig: FlexZeroVec = FlexZeroVec::parse_byte_slice(BYTES).expect(<span class="string">"parse"</span>);
+        <span class="kw">let </span>json_str = serde_json::to_string(<span class="kw-2">&amp;</span>zerovec_orig).expect(<span class="string">"serialize"</span>);
         <span class="macro">assert_eq!</span>(JSON_STR, json_str);
         <span class="comment">// FlexZeroVec should deserialize from JSON to either Vec or FlexZeroVec
         </span><span class="kw">let </span>vec_new: Vec&lt;usize&gt; =
-            serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">&quot;deserialize from buffer to Vec&quot;</span>);
+            serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">"deserialize from buffer to Vec"</span>);
         <span class="macro">assert_eq!</span>(zerovec_orig.to_vec(), vec_new);
         <span class="kw">let </span>zerovec_new: FlexZeroVec =
-            serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">&quot;deserialize from buffer to FlexZeroVec&quot;</span>);
+            serde_json::from_str(<span class="kw-2">&amp;</span>json_str).expect(<span class="string">"deserialize from buffer to FlexZeroVec"</span>);
         <span class="macro">assert_eq!</span>(zerovec_orig.to_vec(), zerovec_new.to_vec());
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(zerovec_new, FlexZeroVec::Owned(<span class="kw">_</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serde_bincode() {
-        <span class="kw">let </span>zerovec_orig: FlexZeroVec = FlexZeroVec::parse_byte_slice(BYTES).expect(<span class="string">&quot;parse&quot;</span>);
-        <span class="kw">let </span>bincode_buf = bincode::serialize(<span class="kw-2">&amp;</span>zerovec_orig).expect(<span class="string">&quot;serialize&quot;</span>);
+        <span class="kw">let </span>zerovec_orig: FlexZeroVec = FlexZeroVec::parse_byte_slice(BYTES).expect(<span class="string">"parse"</span>);
+        <span class="kw">let </span>bincode_buf = bincode::serialize(<span class="kw-2">&amp;</span>zerovec_orig).expect(<span class="string">"serialize"</span>);
         <span class="macro">assert_eq!</span>(BINCODE_BUF, bincode_buf);
         <span class="kw">let </span>zerovec_new: FlexZeroVec =
-            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_buf).expect(<span class="string">&quot;deserialize from buffer to FlexZeroVec&quot;</span>);
+            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_buf).expect(<span class="string">"deserialize from buffer to FlexZeroVec"</span>);
         <span class="macro">assert_eq!</span>(zerovec_orig.to_vec(), zerovec_new.to_vec());
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(zerovec_new, FlexZeroVec::Borrowed(<span class="kw">_</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_vzv_borrowed() {
-        <span class="kw">let </span>zerovec_orig: <span class="kw-2">&amp;</span>FlexZeroSlice = FlexZeroSlice::parse_byte_slice(BYTES).expect(<span class="string">&quot;parse&quot;</span>);
-        <span class="kw">let </span>bincode_buf = bincode::serialize(<span class="kw-2">&amp;</span>zerovec_orig).expect(<span class="string">&quot;serialize&quot;</span>);
+        <span class="kw">let </span>zerovec_orig: <span class="kw-2">&amp;</span>FlexZeroSlice = FlexZeroSlice::parse_byte_slice(BYTES).expect(<span class="string">"parse"</span>);
+        <span class="kw">let </span>bincode_buf = bincode::serialize(<span class="kw-2">&amp;</span>zerovec_orig).expect(<span class="string">"serialize"</span>);
         <span class="macro">assert_eq!</span>(BINCODE_BUF, bincode_buf);
         <span class="kw">let </span>zerovec_new: <span class="kw-2">&amp;</span>FlexZeroSlice =
-            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_buf).expect(<span class="string">&quot;deserialize from buffer to FlexZeroSlice&quot;</span>);
+            bincode::deserialize(<span class="kw-2">&amp;</span>bincode_buf).expect(<span class="string">"deserialize from buffer to FlexZeroSlice"</span>);
         <span class="macro">assert_eq!</span>(zerovec_orig.to_vec(), zerovec_new.to_vec());
     }
 }

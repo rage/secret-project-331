@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/serde.rs`."><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/serde.rs`."><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -566,10 +567,10 @@
 <span class="kw">use </span>serde::Serializer;
 
 <span class="kw">struct </span>ByteStrVisitor;
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ByteStrVisitor {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ByteStrVisitor {
     <span class="kw">type </span>Value = Box&lt;[u8]&gt;;
     <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(formatter, <span class="string">&quot;a slice of borrowed bytes or a string&quot;</span>)
+        <span class="macro">write!</span>(formatter, <span class="string">"a slice of borrowed bytes or a string"</span>)
     }
     <span class="kw">fn </span>visit_bytes&lt;E&gt;(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt; {
         <span class="prelude-val">Ok</span>(Box::from(v))
@@ -579,7 +580,7 @@
     }
     <span class="kw">fn </span>visit_seq&lt;A&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>v: A) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, A::Error&gt;
     <span class="kw">where
-        </span>A: serde::de::SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>A: serde::de::SeqAccess&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::with_capacity(v.size_hint().unwrap_or(<span class="number">0</span>));
         <span class="kw">while let </span><span class="prelude-val">Some</span>(x) = v.next_element::&lt;u8&gt;()<span class="question-mark">? </span>{
@@ -589,26 +590,26 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;data</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ByteStr
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'data</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'data </span>ByteStr
 <span class="kw">where
-    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>,
+    </span><span class="lifetime">'de</span>: <span class="lifetime">'data</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
-        <span class="kw">let </span>s = &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
+        <span class="kw">let </span>s = &lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ByteStr::from_bytes(s))
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;data</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Box&lt;ByteStr&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'data</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Box&lt;ByteStr&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>,
+    </span><span class="lifetime">'de</span>: <span class="lifetime">'data</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="kw">let </span>s = deserializer.deserialize_any(ByteStrVisitor)<span class="question-mark">?</span>;
@@ -620,7 +621,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; Serialize <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ByteStr {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; Serialize <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'data </span>ByteStr {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
         </span>S: Serializer,
@@ -637,18 +638,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;data</span>, Store&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ZeroTrieSimpleAscii&lt;Store&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'data</span>, Store&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ZeroTrieSimpleAscii&lt;Store&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>,
+    </span><span class="lifetime">'de</span>: <span class="lifetime">'data</span>,
     <span class="comment">// DISCUSS: There are several possibilities for the bounds here that would
     // get the job done. I could look for Deserialize, but this would require
     // creating a custom Deserializer for the map case. I also considered
     // introducing a new trait instead of relying on From.
-    </span>Store: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; + From&lt;Vec&lt;u8&gt;&gt; + <span class="lifetime">&#39;data</span>,
+    </span>Store: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; + From&lt;Vec&lt;u8&gt;&gt; + <span class="lifetime">'data</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="kw">let </span>lm = LiteMap::&lt;Box&lt;ByteStr&gt;, usize&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
@@ -682,14 +683,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;data</span>, Store&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ZeroTriePerfectHash&lt;Store&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'data</span>, Store&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ZeroTriePerfectHash&lt;Store&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>,
-    Store: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; + From&lt;Vec&lt;u8&gt;&gt; + <span class="lifetime">&#39;data</span>,
+    </span><span class="lifetime">'de</span>: <span class="lifetime">'data</span>,
+    Store: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; + From&lt;Vec&lt;u8&gt;&gt; + <span class="lifetime">'data</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="kw">let </span>lm = LiteMap::&lt;Box&lt;ByteStr&gt;, usize&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
@@ -727,14 +728,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;data</span>, Store&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ZeroTrieExtendedCapacity&lt;Store&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'data</span>, Store&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ZeroTrieExtendedCapacity&lt;Store&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>,
-    Store: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; + From&lt;Vec&lt;u8&gt;&gt; + <span class="lifetime">&#39;data</span>,
+    </span><span class="lifetime">'de</span>: <span class="lifetime">'data</span>,
+    Store: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; + From&lt;Vec&lt;u8&gt;&gt; + <span class="lifetime">'data</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="kw">let </span>lm = LiteMap::&lt;Box&lt;ByteStr&gt;, usize&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
@@ -782,14 +783,14 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>EXTENDED_CAPACITY: u8 = USE_PHF | BINARY_SPANS | EXTENDED;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;data</span>, Store&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ZeroTrie&lt;Store&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'data</span>, Store&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ZeroTrie&lt;Store&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>,
-    Store: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; + From&lt;Vec&lt;u8&gt;&gt; + <span class="lifetime">&#39;data</span>,
+    </span><span class="lifetime">'de</span>: <span class="lifetime">'data</span>,
+    Store: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; + From&lt;Vec&lt;u8&gt;&gt; + <span class="lifetime">'data</span>,
 {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">if </span>deserializer.is_human_readable() {
             <span class="kw">let </span>lm = LiteMap::&lt;Box&lt;ByteStr&gt;, usize&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
@@ -801,7 +802,7 @@
             </span><span class="kw">let </span>bytes = &lt;<span class="kw-2">&amp;</span>[u8]&gt;::deserialize(deserializer)<span class="question-mark">?</span>;
             <span class="kw">let </span>(tag, trie_bytes) = bytes
                 .split_first()
-                .ok_or(D::Error::custom(<span class="string">&quot;expected at least 1 byte for ZeroTrie&quot;</span>))<span class="question-mark">?</span>;
+                .ok_or(D::Error::custom(<span class="string">"expected at least 1 byte for ZeroTrie"</span>))<span class="question-mark">?</span>;
             <span class="kw">let </span>store = Store::from(trie_bytes);
             <span class="kw">let </span>zerotrie = <span class="kw">match </span><span class="kw-2">*</span>tag {
                 tags::SIMPLE_ASCII =&gt; ZeroTrieSimpleAscii::from_store(store).into_zerotrie(),
@@ -809,7 +810,7 @@
                 tags::EXTENDED_CAPACITY =&gt; {
                     ZeroTrieExtendedCapacity::from_store(store).into_zerotrie()
                 }
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(D::Error::custom(<span class="string">&quot;invalid ZeroTrie tag&quot;</span>)),
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(D::Error::custom(<span class="string">"invalid ZeroTrie tag"</span>)),
             };
             <span class="prelude-val">Ok</span>(zerotrie)
         }
@@ -847,7 +848,7 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>testdata {
-    <span class="macro">include!</span>(<span class="string">&quot;../tests/data/data.rs&quot;</span>);
+    <span class="macro">include!</span>(<span class="string">"../tests/data/data.rs"</span>);
 }
 
 <span class="attr">#[cfg(test)]
@@ -856,9 +857,9 @@
     <span class="kw">use </span>alloc::borrow::Cow;
 
     <span class="attr">#[derive(Serialize, Deserialize)]
-    </span><span class="kw">pub struct </span>ZeroTrieSimpleAsciiCow&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub struct </span>ZeroTrieSimpleAsciiCow&lt;<span class="lifetime">'a</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span>trie: ZeroTrieSimpleAscii&lt;Cow&lt;<span class="lifetime">&#39;a</span>, [u8]&gt;&gt;,
+        </span>trie: ZeroTrieSimpleAscii&lt;Cow&lt;<span class="lifetime">'a</span>, [u8]&gt;&gt;,
     }
 
     <span class="attr">#[test]
@@ -886,9 +887,9 @@
     }
 
     <span class="attr">#[derive(Serialize, Deserialize)]
-    </span><span class="kw">pub struct </span>ZeroTriePerfectHashCow&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub struct </span>ZeroTriePerfectHashCow&lt;<span class="lifetime">'a</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span>trie: ZeroTriePerfectHash&lt;Cow&lt;<span class="lifetime">&#39;a</span>, [u8]&gt;&gt;,
+        </span>trie: ZeroTriePerfectHash&lt;Cow&lt;<span class="lifetime">'a</span>, [u8]&gt;&gt;,
     }
 
     <span class="attr">#[test]
@@ -964,9 +965,9 @@
     }
 
     <span class="attr">#[derive(Serialize, Deserialize)]
-    </span><span class="kw">pub struct </span>ZeroTrieAnyCow&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub struct </span>ZeroTrieAnyCow&lt;<span class="lifetime">'a</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span>trie: ZeroTrie&lt;Cow&lt;<span class="lifetime">&#39;a</span>, [u8]&gt;&gt;,
+        </span>trie: ZeroTrie&lt;Cow&lt;<span class="lifetime">'a</span>, [u8]&gt;&gt;,
     }
 
     <span class="attr">#[test]
@@ -1029,15 +1030,15 @@
 }
 
 <span class="attr">#[cfg(test)]
-#[cfg(feature = <span class="string">&quot;zerovec&quot;</span>)]
+#[cfg(feature = <span class="string">"zerovec"</span>)]
 </span><span class="kw">mod </span>tests_zerovec {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>zerovec::ZeroVec;
 
     <span class="attr">#[derive(Serialize, Deserialize)]
-    </span><span class="kw">pub struct </span>ZeroTrieSimpleAsciiZeroVec&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub struct </span>ZeroTrieSimpleAsciiZeroVec&lt;<span class="lifetime">'a</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span>trie: ZeroTrieSimpleAscii&lt;ZeroVec&lt;<span class="lifetime">&#39;a</span>, u8&gt;&gt;,
+        </span>trie: ZeroTrieSimpleAscii&lt;ZeroVec&lt;<span class="lifetime">'a</span>, u8&gt;&gt;,
     }
 
     <span class="attr">#[test]
@@ -1063,9 +1064,9 @@
     }
 
     <span class="attr">#[derive(Serialize, Deserialize)]
-    </span><span class="kw">pub struct </span>ZeroTriePerfectHashZeroVec&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub struct </span>ZeroTriePerfectHashZeroVec&lt;<span class="lifetime">'a</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span>trie: ZeroTriePerfectHash&lt;ZeroVec&lt;<span class="lifetime">&#39;a</span>, u8&gt;&gt;,
+        </span>trie: ZeroTriePerfectHash&lt;ZeroVec&lt;<span class="lifetime">'a</span>, u8&gt;&gt;,
     }
 
     <span class="attr">#[test]

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/recursive.rs`."><title>recursive.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/recursive.rs`."><title>recursive.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -226,11 +227,11 @@
 <a href="#226" id="226">226</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Recursive parsers (parser that include themselves within their patterns).
 //!
-//! *“It&#39;s unpleasantly like being drunk.&quot;
-//! &quot;What&#39;s so unpleasant about being drunk?&quot;
-//! &quot;You ask a glass of water.”*
+//! *“It's unpleasantly like being drunk."
+//! "What's so unpleasant about being drunk?"
+//! "You ask a glass of water.”*
 //!
-//! The [`recursive()`] function covers most cases, but sometimes it&#39;s necessary to manually control the declaration and
+//! The [`recursive()`] function covers most cases, but sometimes it's necessary to manually control the declaration and
 //! definition of parsers more corefully, particularly for mutually-recursive parsers. In such cases, the functions on
 //! [`Recursive`] allow for this.
 
@@ -266,22 +267,22 @@
     Unowned(Weak&lt;T&gt;),
 }
 
-<span class="kw">type </span>OnceParser&lt;<span class="lifetime">&#39;a</span>, I, O, E&gt; = OnceCell&lt;Box&lt;<span class="kw">dyn </span>Parser&lt;I, O, Error = E&gt; + <span class="lifetime">&#39;a</span>&gt;&gt;;
+<span class="kw">type </span>OnceParser&lt;<span class="lifetime">'a</span>, I, O, E&gt; = OnceCell&lt;Box&lt;<span class="kw">dyn </span>Parser&lt;I, O, Error = E&gt; + <span class="lifetime">'a</span>&gt;&gt;;
 
 <span class="doccomment">/// A parser that can be defined in terms of itself by separating its [declaration](Recursive::declare) from its
 /// [definition](Recursive::define).
 ///
 /// Prefer to use [`recursive()`], which exists as a convenient wrapper around both operations, if possible.
 </span><span class="attr">#[must_use]
-</span><span class="kw">pub struct </span>Recursive&lt;<span class="lifetime">&#39;a</span>, I, O, E: Error&lt;I&gt;&gt;(RecursiveInner&lt;OnceParser&lt;<span class="lifetime">&#39;a</span>, I, O, E&gt;&gt;);
+</span><span class="kw">pub struct </span>Recursive&lt;<span class="lifetime">'a</span>, I, O, E: Error&lt;I&gt;&gt;(RecursiveInner&lt;OnceParser&lt;<span class="lifetime">'a</span>, I, O, E&gt;&gt;);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, I: Clone, O, E: Error&lt;I&gt;&gt; Recursive&lt;<span class="lifetime">&#39;a</span>, I, O, E&gt; {
-    <span class="kw">fn </span>cell(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rc&lt;OnceParser&lt;<span class="lifetime">&#39;a</span>, I, O, E&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, I: Clone, O, E: Error&lt;I&gt;&gt; Recursive&lt;<span class="lifetime">'a</span>, I, O, E&gt; {
+    <span class="kw">fn </span>cell(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rc&lt;OnceParser&lt;<span class="lifetime">'a</span>, I, O, E&gt;&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
             RecursiveInner::Owned(x) =&gt; x.clone(),
             RecursiveInner::Unowned(x) =&gt; x
                 .upgrade()
-                .expect(<span class="string">&quot;Recursive parser used before being defined&quot;</span>),
+                .expect(<span class="string">"Recursive parser used before being defined"</span>),
         }
     }
 
@@ -310,17 +311,17 @@
     /// let mut chain = Recursive::&lt;_, _, Simple&lt;char&gt;&gt;::declare();
     ///
     /// // Define the parser in terms of itself.
-    /// // In this case, the parser parses a right-recursive list of &#39;+&#39; into a singly linked list
-    /// chain.define(just(&#39;+&#39;)
+    /// // In this case, the parser parses a right-recursive list of '+' into a singly linked list
+    /// chain.define(just('+')
     ///     .then(chain.clone())
     ///     .map(|(c, chain)| Chain::Link(c, Box::new(chain)))
     ///     .or_not()
     ///     .map(|chain| chain.unwrap_or(Chain::End)));
     ///
-    /// assert_eq!(chain.parse(&quot;&quot;), Ok(Chain::End));
+    /// assert_eq!(chain.parse(""), Ok(Chain::End));
     /// assert_eq!(
-    ///     chain.parse(&quot;++&quot;),
-    ///     Ok(Chain::Link(&#39;+&#39;, Box::new(Chain::Link(&#39;+&#39;, Box::new(Chain::End))))),
+    ///     chain.parse("++"),
+    ///     Ok(Chain::Link('+', Box::new(Chain::Link('+', Box::new(Chain::End))))),
     /// );
     /// ```
     </span><span class="kw">pub fn </span>declare() -&gt; <span class="self">Self </span>{
@@ -328,14 +329,14 @@
     }
 
     <span class="doccomment">/// Defines the parser after declaring it, allowing it to be used for parsing.
-    </span><span class="kw">pub fn </span>define&lt;P: Parser&lt;I, O, Error = E&gt; + <span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, parser: P) {
+    </span><span class="kw">pub fn </span>define&lt;P: Parser&lt;I, O, Error = E&gt; + <span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, parser: P) {
         <span class="self">self</span>.cell()
             .set(Box::new(parser))
-            .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Parser defined more than once&quot;</span>));
+            .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"Parser defined more than once"</span>));
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, I: Clone, O, E: Error&lt;I&gt;&gt; Clone <span class="kw">for </span>Recursive&lt;<span class="lifetime">&#39;a</span>, I, O, E&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, I: Clone, O, E: Error&lt;I&gt;&gt; Clone <span class="kw">for </span>Recursive&lt;<span class="lifetime">'a</span>, I, O, E&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(<span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
             RecursiveInner::Owned(x) =&gt; RecursiveInner::Owned(x.clone()),
@@ -344,7 +345,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, I: Clone, O, E: Error&lt;I&gt;&gt; Parser&lt;I, O&gt; <span class="kw">for </span>Recursive&lt;<span class="lifetime">&#39;a</span>, I, O, E&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, I: Clone, O, E: Error&lt;I&gt;&gt; Parser&lt;I, O&gt; <span class="kw">for </span>Recursive&lt;<span class="lifetime">'a</span>, I, O, E&gt; {
     <span class="kw">type </span>Error = E;
 
     <span class="kw">fn </span>parse_inner&lt;D: Debugger&gt;(
@@ -352,12 +353,12 @@
         debugger: <span class="kw-2">&amp;mut </span>D,
         stream: <span class="kw-2">&amp;mut </span>StreamOf&lt;I, <span class="self">Self</span>::Error&gt;,
     ) -&gt; PResult&lt;I, O, <span class="self">Self</span>::Error&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;stacker&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"stacker"</span>)]
         #[inline(always)]
         </span><span class="kw">fn </span>recurse&lt;R, F: FnOnce() -&gt; R&gt;(f: F) -&gt; R {
             stacker::maybe_grow(<span class="number">1024 </span>* <span class="number">1024</span>, <span class="number">1024 </span>* <span class="number">1024</span>, f)
         }
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;stacker&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"stacker"</span>))]
         #[inline(always)]
         </span><span class="kw">fn </span>recurse&lt;R, F: FnOnce() -&gt; R&gt;(f: F) -&gt; R {
             f()
@@ -368,7 +369,7 @@
             </span>debugger.invoke(
                 <span class="self">self</span>.cell()
                     .get()
-                    .expect(<span class="string">&quot;Recursive parser used before being defined&quot;</span>)
+                    .expect(<span class="string">"Recursive parser used before being defined"</span>)
                     .as_ref(),
                 stream,
             )
@@ -405,44 +406,44 @@
 ///
 /// // Parser that recursively parses nested lists
 /// let tree = recursive::&lt;_, _, _, _, Simple&lt;char&gt;&gt;(|tree| tree
-///     .separated_by(just(&#39;,&#39;))
-///     .delimited_by(just(&#39;[&#39;), just(&#39;]&#39;))
+///     .separated_by(just(','))
+///     .delimited_by(just('['), just(']'))
 ///     .map(Tree::Branch)
 ///     .or(text::ident().map(Tree::Leaf))
 ///     .padded());
 ///
-/// assert_eq!(tree.parse(&quot;hello&quot;), Ok(Tree::Leaf(&quot;hello&quot;.to_string())));
-/// assert_eq!(tree.parse(&quot;[a, b, c]&quot;), Ok(Tree::Branch(vec![
-///     Tree::Leaf(&quot;a&quot;.to_string()),
-///     Tree::Leaf(&quot;b&quot;.to_string()),
-///     Tree::Leaf(&quot;c&quot;.to_string()),
+/// assert_eq!(tree.parse("hello"), Ok(Tree::Leaf("hello".to_string())));
+/// assert_eq!(tree.parse("[a, b, c]"), Ok(Tree::Branch(vec![
+///     Tree::Leaf("a".to_string()),
+///     Tree::Leaf("b".to_string()),
+///     Tree::Leaf("c".to_string()),
 /// ])));
 /// // The parser can deal with arbitrarily complex nested lists
-/// assert_eq!(tree.parse(&quot;[[a, b], c, [d, [e, f]]]&quot;), Ok(Tree::Branch(vec![
+/// assert_eq!(tree.parse("[[a, b], c, [d, [e, f]]]"), Ok(Tree::Branch(vec![
 ///     Tree::Branch(vec![
-///         Tree::Leaf(&quot;a&quot;.to_string()),
-///         Tree::Leaf(&quot;b&quot;.to_string()),
+///         Tree::Leaf("a".to_string()),
+///         Tree::Leaf("b".to_string()),
 ///     ]),
-///     Tree::Leaf(&quot;c&quot;.to_string()),
+///     Tree::Leaf("c".to_string()),
 ///     Tree::Branch(vec![
-///         Tree::Leaf(&quot;d&quot;.to_string()),
+///         Tree::Leaf("d".to_string()),
 ///         Tree::Branch(vec![
-///             Tree::Leaf(&quot;e&quot;.to_string()),
-///             Tree::Leaf(&quot;f&quot;.to_string()),
+///             Tree::Leaf("e".to_string()),
+///             Tree::Leaf("f".to_string()),
 ///         ]),
 ///     ]),
 /// ])));
 /// ```
 </span><span class="kw">pub fn </span>recursive&lt;
-    <span class="lifetime">&#39;a</span>,
+    <span class="lifetime">'a</span>,
     I: Clone,
     O,
-    P: Parser&lt;I, O, Error = E&gt; + <span class="lifetime">&#39;a</span>,
-    F: FnOnce(Recursive&lt;<span class="lifetime">&#39;a</span>, I, O, E&gt;) -&gt; P,
+    P: Parser&lt;I, O, Error = E&gt; + <span class="lifetime">'a</span>,
+    F: FnOnce(Recursive&lt;<span class="lifetime">'a</span>, I, O, E&gt;) -&gt; P,
     E: Error&lt;I&gt;,
 &gt;(
     f: F,
-) -&gt; Recursive&lt;<span class="lifetime">&#39;a</span>, I, O, E&gt; {
+) -&gt; Recursive&lt;<span class="lifetime">'a</span>, I, O, E&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>parser = Recursive::declare();
     parser.define(f(Recursive(<span class="kw">match </span><span class="kw-2">&amp;</span>parser.<span class="number">0 </span>{
         RecursiveInner::Owned(x) =&gt; RecursiveInner::Unowned(Rc::downgrade(x)),

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/transport.rs`."><title>transport.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/transport.rs`."><title>transport.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -426,26 +427,26 @@
 <a href="#426" id="426">426</a>
 <a href="#427" id="427">427</a>
 <a href="#428" id="428">428</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
 </span><span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::{fmt::Debug, time::Duration};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
 </span><span class="kw">use </span><span class="kw">super</span>::pool::sync_impl::Pool;
-<span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
 </span><span class="kw">use </span><span class="kw">super</span>::PoolConfig;
 <span class="kw">use super</span>::{ClientId, Credentials, Error, Mechanism, Response, SmtpConnection, SmtpInfo};
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
 </span><span class="kw">use super</span>::{Tls, TlsParameters, SUBMISSIONS_PORT, SUBMISSION_PORT};
 <span class="kw">use crate</span>::{address::Envelope, Transport};
 
 <span class="doccomment">/// Sends emails using the SMTP protocol
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;smtp-transport&quot;</span>)))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"smtp-transport"</span>)))]
 #[derive(Clone)]
 </span><span class="kw">pub struct </span>SmtpTransport {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
     </span>inner: Arc&lt;Pool&gt;,
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;pool&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"pool"</span>))]
     </span>inner: SmtpClient,
 }
 
@@ -459,7 +460,7 @@
 
         <span class="kw">let </span>result = conn.send(envelope, email)<span class="question-mark">?</span>;
 
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;pool&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"pool"</span>))]
         </span>conn.quit()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(result)
@@ -467,9 +468,9 @@
 }
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>SmtpTransport {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>builder = f.debug_struct(<span class="string">&quot;SmtpTransport&quot;</span>);
-        builder.field(<span class="string">&quot;inner&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.inner);
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>builder = f.debug_struct(<span class="string">"SmtpTransport"</span>);
+        builder.field(<span class="string">"inner"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.inner);
         builder.finish()
     }
 }
@@ -481,10 +482,10 @@
     ///
     /// Creates an encrypted transport over submissions port, using the provided domain
     /// to validate TLS certificates.
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,
-        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+        doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>)))
     )]
     </span><span class="kw">pub fn </span>relay(relay: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;SmtpTransportBuilder, Error&gt; {
         <span class="kw">let </span>tls_parameters = TlsParameters::new(relay.into())<span class="question-mark">?</span>;
@@ -497,18 +498,18 @@
     <span class="doccomment">/// Simple and secure transport, using STARTTLS to obtain encrypted connections
     ///
     /// Alternative to [`SmtpTransport::relay`](#method.relay), for SMTP servers
-    /// that don&#39;t take SMTPS connections.
+    /// that don't take SMTPS connections.
     ///
     /// Creates an encrypted transport over submissions port, by first connecting using
     /// an unencrypted connection and then upgrading it with STARTTLS. The provided
     /// domain is used to validate TLS certificates.
     ///
-    /// An error is returned if the connection can&#39;t be upgraded. No credentials
+    /// An error is returned if the connection can't be upgraded. No credentials
     /// or emails will be sent to the server, protecting from downgrade attacks.
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,
-        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+        doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>)))
     )]
     </span><span class="kw">pub fn </span>starttls_relay(relay: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;SmtpTransportBuilder, Error&gt; {
         <span class="kw">let </span>tls_parameters = TlsParameters::new(relay.into())<span class="question-mark">?</span>;
@@ -522,7 +523,7 @@
     ///
     /// Shortcut for local unencrypted relay (typical local email daemon that will handle relaying)
     </span><span class="kw">pub fn </span>unencrypted_localhost() -&gt; SmtpTransport {
-        <span class="self">Self</span>::builder_dangerous(<span class="string">&quot;localhost&quot;</span>).build()
+        <span class="self">Self</span>::builder_dangerous(<span class="string">"localhost"</span>).build()
     }
 
     <span class="doccomment">/// Creates a new SMTP client
@@ -599,29 +600,29 @@
     /// };
     ///
     /// let email = Message::builder()
-    ///     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse().unwrap())
-    ///     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse().unwrap())
-    ///     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse().unwrap())
-    ///     .subject(&quot;Happy new year&quot;)
+    ///     .from("NoBody &lt;nobody@domain.tld&gt;".parse().unwrap())
+    ///     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse().unwrap())
+    ///     .to("Hei &lt;hei@domain.tld&gt;".parse().unwrap())
+    ///     .subject("Happy new year")
     ///     .header(ContentType::TEXT_PLAIN)
-    ///     .body(String::from(&quot;Be happy!&quot;))
+    ///     .body(String::from("Be happy!"))
     ///     .unwrap();
     ///
     /// // Open a remote connection to example
-    /// let mailer = SmtpTransport::from_url(&quot;smtps://username:password@smtp.example.com:465&quot;)
+    /// let mailer = SmtpTransport::from_url("smtps://username:password@smtp.example.com:465")
     ///     .unwrap()
     ///     .build();
     ///
     /// // Send the email
     /// match mailer.send(&amp;email) {
-    ///     Ok(_) =&gt; println!(&quot;Email sent successfully!&quot;),
-    ///     Err(e) =&gt; panic!(&quot;Could not send email: {e:?}&quot;),
+    ///     Ok(_) =&gt; println!("Email sent successfully!"),
+    ///     Err(e) =&gt; panic!("Could not send email: {e:?}"),
     /// }
     /// ```
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,
-        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+        doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>)))
     )]
     </span><span class="kw">pub fn </span>from_url(connection_url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;SmtpTransportBuilder, Error&gt; {
         <span class="kw">super</span>::connection_url::from_connection_url(connection_url)
@@ -636,7 +637,7 @@
 
         <span class="kw">let </span>is_connected = conn.test_connected();
 
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;pool&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"pool"</span>))]
         </span>conn.quit()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(is_connected)
@@ -648,7 +649,7 @@
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>SmtpTransportBuilder {
     info: SmtpInfo,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
     </span>pool_config: PoolConfig,
 }
 
@@ -663,7 +664,7 @@
 
         <span class="self">Self </span>{
             info: new,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
             </span>pool_config: PoolConfig::default(),
         }
     }
@@ -699,10 +700,10 @@
     </span>}
 
     <span class="doccomment">/// Set the TLS settings to use
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
     #[cfg_attr(
         docsrs,
-        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+        doc(cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>)))
     )]
     </span><span class="kw">pub fn </span>tls(<span class="kw-2">mut </span><span class="self">self</span>, tls: Tls) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.info.tls = tls;
@@ -712,8 +713,8 @@
     <span class="doccomment">/// Use a custom configuration for the connection pool
     ///
     /// Defaults can be found at [`PoolConfig`]
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;pool&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"pool"</span>)))]
     </span><span class="kw">pub fn </span>pool_config(<span class="kw-2">mut </span><span class="self">self</span>, pool_config: PoolConfig) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.pool_config = pool_config;
         <span class="self">self
@@ -726,7 +727,7 @@
     </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; SmtpTransport {
         <span class="kw">let </span>client = SmtpClient { info: <span class="self">self</span>.info };
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
         </span><span class="kw">let </span>client = Pool::new(<span class="self">self</span>.pool_config, client);
 
         SmtpTransport { inner: client }
@@ -746,7 +747,7 @@
     </span><span class="kw">pub fn </span>connection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SmtpConnection, Error&gt; {
         <span class="attr">#[allow(clippy::match_single_binding)]
         </span><span class="kw">let </span>tls_parameters = <span class="kw">match </span><span class="self">self</span>.info.tls {
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
             </span>Tls::Wrapper(<span class="kw-2">ref </span>tls_parameters) =&gt; <span class="prelude-val">Some</span>(tls_parameters),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         };
@@ -760,7 +761,7 @@
             <span class="prelude-val">None</span>,
         )<span class="question-mark">?</span>;
 
-        <span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+        <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
         </span><span class="kw">match </span><span class="self">self</span>.info.tls {
             Tls::Opportunistic(<span class="kw-2">ref </span>tls_parameters) =&gt; {
                 <span class="kw">if </span>conn.can_starttls() {
@@ -789,28 +790,28 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>transport_from_url() {
-        <span class="kw">let </span>builder = SmtpTransport::from_url(<span class="string">&quot;smtp://127.0.0.1:2525&quot;</span>).unwrap();
+        <span class="kw">let </span>builder = SmtpTransport::from_url(<span class="string">"smtp://127.0.0.1:2525"</span>).unwrap();
 
         <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">2525</span>);
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::None));
-        <span class="macro">assert_eq!</span>(builder.info.server, <span class="string">&quot;127.0.0.1&quot;</span>);
+        <span class="macro">assert_eq!</span>(builder.info.server, <span class="string">"127.0.0.1"</span>);
 
         <span class="kw">let </span>builder =
-            SmtpTransport::from_url(<span class="string">&quot;smtps://username:password@smtp.example.com:465&quot;</span>).unwrap();
+            SmtpTransport::from_url(<span class="string">"smtps://username:password@smtp.example.com:465"</span>).unwrap();
 
         <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">465</span>);
         <span class="macro">assert_eq!</span>(
             builder.info.credentials,
             <span class="prelude-val">Some</span>(Credentials::new(
-                <span class="string">&quot;username&quot;</span>.to_owned(),
-                <span class="string">&quot;password&quot;</span>.to_owned()
+                <span class="string">"username"</span>.to_owned(),
+                <span class="string">"password"</span>.to_owned()
             ))
         );
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::Wrapper(<span class="kw">_</span>)));
-        <span class="macro">assert_eq!</span>(builder.info.server, <span class="string">&quot;smtp.example.com&quot;</span>);
+        <span class="macro">assert_eq!</span>(builder.info.server, <span class="string">"smtp.example.com"</span>);
 
         <span class="kw">let </span>builder = SmtpTransport::from_url(
-            <span class="string">&quot;smtps://user%40example.com:pa$$word%3F%22!@smtp.example.com:465&quot;</span>,
+            <span class="string">"smtps://user%40example.com:pa$$word%3F%22!@smtp.example.com:465"</span>,
         )
         .unwrap();
 
@@ -818,36 +819,36 @@
         <span class="macro">assert_eq!</span>(
             builder.info.credentials,
             <span class="prelude-val">Some</span>(Credentials::new(
-                <span class="string">&quot;user@example.com&quot;</span>.to_owned(),
-                <span class="string">&quot;pa$$word?\&quot;!&quot;</span>.to_owned()
+                <span class="string">"user@example.com"</span>.to_owned(),
+                <span class="string">"pa$$word?\"!"</span>.to_owned()
             ))
         );
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::Wrapper(<span class="kw">_</span>)));
-        <span class="macro">assert_eq!</span>(builder.info.server, <span class="string">&quot;smtp.example.com&quot;</span>);
+        <span class="macro">assert_eq!</span>(builder.info.server, <span class="string">"smtp.example.com"</span>);
 
         <span class="kw">let </span>builder =
-            SmtpTransport::from_url(<span class="string">&quot;smtp://username:password@smtp.example.com:587?tls=required&quot;</span>)
+            SmtpTransport::from_url(<span class="string">"smtp://username:password@smtp.example.com:587?tls=required"</span>)
                 .unwrap();
 
         <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">587</span>);
         <span class="macro">assert_eq!</span>(
             builder.info.credentials,
             <span class="prelude-val">Some</span>(Credentials::new(
-                <span class="string">&quot;username&quot;</span>.to_owned(),
-                <span class="string">&quot;password&quot;</span>.to_owned()
+                <span class="string">"username"</span>.to_owned(),
+                <span class="string">"password"</span>.to_owned()
             ))
         );
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::Required(<span class="kw">_</span>)));
 
         <span class="kw">let </span>builder = SmtpTransport::from_url(
-            <span class="string">&quot;smtp://username:password@smtp.example.com:587?tls=opportunistic&quot;</span>,
+            <span class="string">"smtp://username:password@smtp.example.com:587?tls=opportunistic"</span>,
         )
         .unwrap();
 
         <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">587</span>);
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(builder.info.tls, Tls::Opportunistic(<span class="kw">_</span>)));
 
-        <span class="kw">let </span>builder = SmtpTransport::from_url(<span class="string">&quot;smtps://smtp.example.com&quot;</span>).unwrap();
+        <span class="kw">let </span>builder = SmtpTransport::from_url(<span class="string">"smtps://smtp.example.com"</span>).unwrap();
 
         <span class="macro">assert_eq!</span>(builder.info.port, <span class="number">465</span>);
         <span class="macro">assert_eq!</span>(builder.info.credentials, <span class="prelude-val">None</span>);

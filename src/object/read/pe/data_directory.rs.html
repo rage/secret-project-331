@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/pe/data_directory.rs`."><title>data_directory.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/pe/data_directory.rs`."><title>data_directory.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -225,21 +226,21 @@
 ///
 /// Returned by [`ImageNtHeaders::parse`](super::ImageNtHeaders::parse).
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
-</span><span class="kw">pub struct </span>DataDirectories&lt;<span class="lifetime">&#39;data</span>&gt; {
-    entries: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[pe::ImageDataDirectory],
+</span><span class="kw">pub struct </span>DataDirectories&lt;<span class="lifetime">'data</span>&gt; {
+    entries: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[pe::ImageDataDirectory],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; DataDirectories&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; DataDirectories&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Parse the data directory table.
     ///
     /// `data` must be the remaining optional data following the
     /// [optional header](pe::ImageOptionalHeader64).  `number` must be from the
     /// [`number_of_rva_and_sizes`](pe::ImageOptionalHeader64::number_of_rva_and_sizes)
     /// field of the optional header.
-    </span><span class="kw">pub fn </span>parse(data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], number: u32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>parse(data: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], number: u32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>entries = data
             .read_slice_at(<span class="number">0</span>, number <span class="kw">as </span>usize)
-            .read_error(<span class="string">&quot;Invalid PE number of RVA and sizes&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid PE number of RVA and sizes"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(DataDirectories { entries })
     }
 
@@ -250,12 +251,12 @@
     }
 
     <span class="doccomment">/// Iterator over the data directories.
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; slice::Iter&lt;<span class="lifetime">&#39;data</span>, pe::ImageDataDirectory&gt; {
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; slice::Iter&lt;<span class="lifetime">'data</span>, pe::ImageDataDirectory&gt; {
         <span class="self">self</span>.entries.iter()
     }
 
     <span class="doccomment">/// Iterator which gives the directories as well as their index (one of the IMAGE_DIRECTORY_ENTRY_* constants).
-    </span><span class="kw">pub fn </span>enumerate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; core::iter::Enumerate&lt;slice::Iter&lt;<span class="lifetime">&#39;data</span>, pe::ImageDataDirectory&gt;&gt; {
+    </span><span class="kw">pub fn </span>enumerate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; core::iter::Enumerate&lt;slice::Iter&lt;<span class="lifetime">'data</span>, pe::ImageDataDirectory&gt;&gt; {
         <span class="self">self</span>.entries.iter().enumerate()
     }
 
@@ -265,7 +266,7 @@
     ///
     /// Returns `None` if the index is larger than the table size,
     /// or if the entry at the index has a zero virtual address.
-    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>pe::ImageDataDirectory&gt; {
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageDataDirectory&gt; {
         <span class="self">self</span>.entries
             .get(index)
             .filter(|d| d.virtual_address.get(LE) != <span class="number">0</span>)
@@ -274,11 +275,11 @@
     <span class="doccomment">/// Returns the unparsed export directory.
     ///
     /// `data` must be the entire file data.
-    </span><span class="kw">pub fn </span>export_directory&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>export_directory&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
-        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">&#39;data</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>pe::ImageExportDirectory&gt;&gt; {
+        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'data</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageExportDirectory&gt;&gt; {
         <span class="kw">let </span>data_dir = <span class="kw">match </span><span class="self">self</span>.get(pe::IMAGE_DIRECTORY_ENTRY_EXPORT) {
             <span class="prelude-val">Some</span>(data_dir) =&gt; data_dir,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
@@ -290,11 +291,11 @@
     <span class="doccomment">/// Returns the partially parsed export directory.
     ///
     /// `data` must be the entire file data.
-    </span><span class="kw">pub fn </span>export_table&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>export_table&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
-        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">&#39;data</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ExportTable&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'data</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ExportTable&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="kw">let </span>data_dir = <span class="kw">match </span><span class="self">self</span>.get(pe::IMAGE_DIRECTORY_ENTRY_EXPORT) {
             <span class="prelude-val">Some</span>(data_dir) =&gt; data_dir,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
@@ -307,11 +308,11 @@
     <span class="doccomment">/// Returns the partially parsed import directory.
     ///
     /// `data` must be the entire file data.
-    </span><span class="kw">pub fn </span>import_table&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>import_table&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
-        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">&#39;data</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ImportTable&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'data</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ImportTable&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="kw">let </span>data_dir = <span class="kw">match </span><span class="self">self</span>.get(pe::IMAGE_DIRECTORY_ENTRY_IMPORT) {
             <span class="prelude-val">Some</span>(data_dir) =&gt; data_dir,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
@@ -319,18 +320,18 @@
         <span class="kw">let </span>import_va = data_dir.virtual_address.get(LE);
         <span class="kw">let </span>(section_data, section_va) = sections
             .pe_data_containing(data, import_va)
-            .read_error(<span class="string">&quot;Invalid import data dir virtual address&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid import data dir virtual address"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ImportTable::new(section_data, section_va, import_va)))
     }
 
     <span class="doccomment">/// Returns the partially parsed delay-load import directory.
     ///
     /// `data` must be the entire file data.
-    </span><span class="kw">pub fn </span>delay_load_import_table&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>delay_load_import_table&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
-        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">&#39;data</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;DelayLoadImportTable&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'data</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;DelayLoadImportTable&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="kw">let </span>data_dir = <span class="kw">match </span><span class="self">self</span>.get(pe::IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT) {
             <span class="prelude-val">Some</span>(data_dir) =&gt; data_dir,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
@@ -338,7 +339,7 @@
         <span class="kw">let </span>import_va = data_dir.virtual_address.get(LE);
         <span class="kw">let </span>(section_data, section_va) = sections
             .pe_data_containing(data, import_va)
-            .read_error(<span class="string">&quot;Invalid import data dir virtual address&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid import data dir virtual address"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(DelayLoadImportTable::new(
             section_data,
             section_va,
@@ -349,11 +350,11 @@
     <span class="doccomment">/// Returns the blocks in the base relocation directory.
     ///
     /// `data` must be the entire file data.
-    </span><span class="kw">pub fn </span>relocation_blocks&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>relocation_blocks&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
-        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">&#39;data</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;RelocationBlockIterator&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'data</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;RelocationBlockIterator&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="kw">let </span>data_dir = <span class="kw">match </span><span class="self">self</span>.get(pe::IMAGE_DIRECTORY_ENTRY_BASERELOC) {
             <span class="prelude-val">Some</span>(data_dir) =&gt; data_dir,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
@@ -365,11 +366,11 @@
     <span class="doccomment">/// Returns the resource directory.
     ///
     /// `data` must be the entire file data.
-    </span><span class="kw">pub fn </span>resource_directory&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>resource_directory&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
-        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">&#39;data</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ResourceDirectory&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'data</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ResourceDirectory&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="kw">let </span>data_dir = <span class="kw">match </span><span class="self">self</span>.get(pe::IMAGE_DIRECTORY_ENTRY_RESOURCE) {
             <span class="prelude-val">Some</span>(data_dir) =&gt; data_dir,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
@@ -393,13 +394,13 @@
     /// not desirable for all data directories.
     /// - It uses the `virtual_address` of the directory entry as an address,
     /// which is not valid for `IMAGE_DIRECTORY_ENTRY_SECURITY`.
-    </span><span class="kw">pub fn </span>file_range(<span class="kw-2">&amp;</span><span class="self">self</span>, sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, u32)&gt; {
+    </span><span class="kw">pub fn </span>file_range(<span class="kw-2">&amp;</span><span class="self">self</span>, sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, u32)&gt; {
         <span class="kw">let </span>(offset, section_size) = sections
             .pe_file_range_at(<span class="self">self</span>.virtual_address.get(LE))
-            .read_error(<span class="string">&quot;Invalid data dir virtual address&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid data dir virtual address"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>size = <span class="self">self</span>.size.get(LE);
         <span class="kw">if </span>size &gt; section_size {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Invalid data dir size&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid data dir size"</span>));
         }
         <span class="prelude-val">Ok</span>((offset, size))
     }
@@ -412,16 +413,16 @@
     /// not desirable for all data directories.
     /// - It uses the `virtual_address` of the directory entry as an address,
     /// which is not valid for `IMAGE_DIRECTORY_ENTRY_SECURITY`.
-    </span><span class="kw">pub fn </span>data&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>data&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
-        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">&#39;data</span>&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+        sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'data</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         sections
             .pe_data_at(data, <span class="self">self</span>.virtual_address.get(LE))
-            .read_error(<span class="string">&quot;Invalid data dir virtual address&quot;</span>)<span class="question-mark">?
+            .read_error(<span class="string">"Invalid data dir virtual address"</span>)<span class="question-mark">?
             </span>.get(..<span class="self">self</span>.size.get(LE) <span class="kw">as </span>usize)
-            .read_error(<span class="string">&quot;Invalid data dir size&quot;</span>)
+            .read_error(<span class="string">"Invalid data dir size"</span>)
     }
 }
 </code></pre></div></section></main></body></html>

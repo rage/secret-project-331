@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/pattern/common/serde.rs`."><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/pattern/common/serde.rs`."><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -468,7 +469,7 @@
 <span class="kw">use </span>::serde::{de, Deserialize, Deserializer};
 <span class="kw">use </span>alloc::{fmt, format, vec::Vec};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
 </span><span class="kw">use </span>::serde::{ser, Serialize};
 
 <span class="kw">mod </span>reference {
@@ -478,7 +479,7 @@
     <span class="doccomment">/// A helper struct that is shaped exactly like `runtime::Pattern`
     /// and is used to aid in quick deserialization.
     </span><span class="attr">#[derive(Debug, Clone, PartialEq, Deserialize)]
-    #[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(Serialize))]
+    #[cfg_attr(feature = <span class="string">"datagen"</span>, derive(Serialize))]
     </span><span class="kw">struct </span>PatternForSerde {
         items: Vec&lt;PatternItem&gt;,
         time_granularity: TimeGranularity,
@@ -505,11 +506,11 @@
     <span class="attr">#[allow(clippy::upper_case_acronyms)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>DeserializePatternUTS35String;
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>DeserializePatternUTS35String {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>DeserializePatternUTS35String {
         <span class="kw">type </span>Value = Pattern;
 
         <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-            <span class="macro">write!</span>(formatter, <span class="string">&quot;a valid pattern.&quot;</span>)
+            <span class="macro">write!</span>(formatter, <span class="string">"a valid pattern."</span>)
         }
 
         <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, pattern_string: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
@@ -519,17 +520,17 @@
             <span class="comment">// Parse a string into a list of fields.
             </span>pattern_string.parse().map_err(|err| {
                 de::Error::invalid_value(
-                    de::Unexpected::Other(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>)),
-                    <span class="kw-2">&amp;</span><span class="string">&quot;a valid UTS 35 pattern string&quot;</span>,
+                    de::Unexpected::Other(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{err}"</span>)),
+                    <span class="kw-2">&amp;</span><span class="string">"a valid UTS 35 pattern string"</span>,
                 )
             })
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Pattern {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Pattern {
         <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
         <span class="kw">where
-            </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+            </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
         {
             <span class="kw">if </span>deserializer.is_human_readable() {
                 deserializer.deserialize_str(DeserializePatternUTS35String)
@@ -540,7 +541,7 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
     </span><span class="kw">impl </span>Serialize <span class="kw">for </span>Pattern {
         <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
         <span class="kw">where
@@ -555,25 +556,25 @@
         }
     }
 
-    <span class="attr">#[cfg(all(test, feature = <span class="string">&quot;datagen&quot;</span>))]
+    <span class="attr">#[cfg(all(test, feature = <span class="string">"datagen"</span>))]
     </span><span class="kw">mod </span>test {
         <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>reference_pattern_serde_human_readable_test() {
-            <span class="kw">let </span>pattern: Pattern = <span class="string">&quot;Y-m-d HH:mm&quot;</span>.parse().expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
-            <span class="kw">let </span>json = serde_json::to_string(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">&quot;Failed to serialize pattern&quot;</span>);
+            <span class="kw">let </span>pattern: Pattern = <span class="string">"Y-m-d HH:mm"</span>.parse().expect(<span class="string">"Failed to parse pattern"</span>);
+            <span class="kw">let </span>json = serde_json::to_string(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">"Failed to serialize pattern"</span>);
             <span class="kw">let </span>result: Pattern =
-                serde_json::from_str(<span class="kw-2">&amp;</span>json).expect(<span class="string">&quot;Failed to deserialize pattern&quot;</span>);
+                serde_json::from_str(<span class="kw-2">&amp;</span>json).expect(<span class="string">"Failed to deserialize pattern"</span>);
             <span class="macro">assert_eq!</span>(pattern, result);
         }
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>reference_pattern_serde_bincode_test() {
-            <span class="kw">let </span>pattern: Pattern = <span class="string">&quot;Y-m-d HH:mm&quot;</span>.parse().expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
-            <span class="kw">let </span>bytes = bincode::serialize(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">&quot;Failed to serialize pattern&quot;</span>);
+            <span class="kw">let </span>pattern: Pattern = <span class="string">"Y-m-d HH:mm"</span>.parse().expect(<span class="string">"Failed to parse pattern"</span>);
+            <span class="kw">let </span>bytes = bincode::serialize(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">"Failed to serialize pattern"</span>);
             <span class="kw">let </span>result: Pattern =
-                bincode::deserialize(<span class="kw-2">&amp;</span>bytes).expect(<span class="string">&quot;Failed to deserialize pattern&quot;</span>);
+                bincode::deserialize(<span class="kw-2">&amp;</span>bytes).expect(<span class="string">"Failed to deserialize pattern"</span>);
             <span class="macro">assert_eq!</span>(pattern, result);
         }
     }
@@ -587,15 +588,15 @@
     <span class="doccomment">/// A helper struct that is shaped exactly like `runtime::Pattern`
     /// and is used to aid in quick deserialization.
     </span><span class="attr">#[derive(Debug, Clone, PartialEq, Deserialize)]
-    #[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(Serialize))]
-    </span><span class="kw">struct </span>PatternForSerde&lt;<span class="lifetime">&#39;data</span>&gt; {
+    #[cfg_attr(feature = <span class="string">"datagen"</span>, derive(Serialize))]
+    </span><span class="kw">struct </span>PatternForSerde&lt;<span class="lifetime">'data</span>&gt; {
         <span class="attr">#[serde(borrow)]
-        </span><span class="kw">pub </span>items: ZeroVec&lt;<span class="lifetime">&#39;data</span>, PatternItem&gt;,
+        </span><span class="kw">pub </span>items: ZeroVec&lt;<span class="lifetime">'data</span>, PatternItem&gt;,
         <span class="kw">pub </span>time_granularity: TimeGranularity,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; From&lt;PatternForSerde&lt;<span class="lifetime">&#39;data</span>&gt;&gt; <span class="kw">for </span>Pattern&lt;<span class="lifetime">&#39;data</span>&gt; {
-        <span class="kw">fn </span>from(pfs: PatternForSerde&lt;<span class="lifetime">&#39;data</span>&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; From&lt;PatternForSerde&lt;<span class="lifetime">'data</span>&gt;&gt; <span class="kw">for </span>Pattern&lt;<span class="lifetime">'data</span>&gt; {
+        <span class="kw">fn </span>from(pfs: PatternForSerde&lt;<span class="lifetime">'data</span>&gt;) -&gt; <span class="self">Self </span>{
             <span class="self">Self </span>{
                 items: pfs.items,
                 time_granularity: pfs.time_granularity,
@@ -606,11 +607,11 @@
     <span class="attr">#[allow(clippy::upper_case_acronyms)]
     </span><span class="kw">struct </span>DeserializePatternUTS35String;
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>DeserializePatternUTS35String {
-        <span class="kw">type </span>Value = Pattern&lt;<span class="lifetime">&#39;de</span>&gt;;
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>DeserializePatternUTS35String {
+        <span class="kw">type </span>Value = Pattern&lt;<span class="lifetime">'de</span>&gt;;
 
         <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-            <span class="macro">write!</span>(formatter, <span class="string">&quot;a valid pattern.&quot;</span>)
+            <span class="macro">write!</span>(formatter, <span class="string">"a valid pattern."</span>)
         }
 
         <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, pattern_string: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
@@ -625,10 +626,10 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;data</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Pattern&lt;<span class="lifetime">&#39;data</span>&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>: <span class="lifetime">'data</span>, <span class="lifetime">'data</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Pattern&lt;<span class="lifetime">'data</span>&gt; {
         <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
         <span class="kw">where
-            </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+            </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
         {
             <span class="kw">if </span>deserializer.is_human_readable() {
                 deserializer.deserialize_str(DeserializePatternUTS35String)
@@ -639,8 +640,8 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
-    </span><span class="kw">impl </span>Serialize <span class="kw">for </span>Pattern&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
+    </span><span class="kw">impl </span>Serialize <span class="kw">for </span>Pattern&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
         <span class="kw">where
             </span>S: ser::Serializer,
@@ -657,32 +658,32 @@
         }
     }
 
-    <span class="attr">#[cfg(all(test, feature = <span class="string">&quot;datagen&quot;</span>))]
+    <span class="attr">#[cfg(all(test, feature = <span class="string">"datagen"</span>))]
     </span><span class="kw">mod </span>test {
         <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>runtime_pattern_serde_human_readable_test() {
-            <span class="kw">let </span>pattern: Pattern = <span class="string">&quot;Y-m-d HH:mm&quot;</span>.parse().expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
-            <span class="kw">let </span>json = serde_json::to_string(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">&quot;Failed to serialize pattern&quot;</span>);
+            <span class="kw">let </span>pattern: Pattern = <span class="string">"Y-m-d HH:mm"</span>.parse().expect(<span class="string">"Failed to parse pattern"</span>);
+            <span class="kw">let </span>json = serde_json::to_string(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">"Failed to serialize pattern"</span>);
             <span class="kw">let </span>result: Pattern =
-                serde_json::from_str(<span class="kw-2">&amp;</span>json).expect(<span class="string">&quot;Failed to deserialize pattern&quot;</span>);
+                serde_json::from_str(<span class="kw-2">&amp;</span>json).expect(<span class="string">"Failed to deserialize pattern"</span>);
             <span class="macro">assert_eq!</span>(pattern, result);
         }
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>runtime_pattern_serde_bincode_test() {
-            <span class="kw">let </span>pattern: Pattern = <span class="string">&quot;Y-m-d HH:mm&quot;</span>.parse().expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
-            <span class="kw">let </span>bytes = bincode::serialize(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">&quot;Failed to serialize pattern&quot;</span>);
+            <span class="kw">let </span>pattern: Pattern = <span class="string">"Y-m-d HH:mm"</span>.parse().expect(<span class="string">"Failed to parse pattern"</span>);
+            <span class="kw">let </span>bytes = bincode::serialize(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">"Failed to serialize pattern"</span>);
             <span class="kw">let </span>result: Pattern =
-                bincode::deserialize(<span class="kw-2">&amp;</span>bytes).expect(<span class="string">&quot;Failed to deserialize pattern&quot;</span>);
+                bincode::deserialize(<span class="kw-2">&amp;</span>bytes).expect(<span class="string">"Failed to deserialize pattern"</span>);
             <span class="macro">assert_eq!</span>(pattern, result);
         }
     }
 
     <span class="kw">mod </span>plural {
-        <span class="comment">// Can&#39;t use `serde(untagged)` on `PatternPlurals` because
-        // Postcard can&#39;t handle enums not discriminated at compilation time.
+        <span class="comment">// Can't use `serde(untagged)` on `PatternPlurals` because
+        // Postcard can't handle enums not discriminated at compilation time.
         </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::pattern::runtime::{PatternPlurals, PluralPattern};
         <span class="kw">use </span>core::fmt;
@@ -690,17 +691,17 @@
         <span class="doccomment">/// A helper struct that is shaped exactly like `runtime::PatternPlurals`
         /// and is used to aid in quick deserialization.
         </span><span class="attr">#[derive(Debug, Clone, PartialEq, Deserialize)]
-        #[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(Serialize))]
+        #[cfg_attr(feature = <span class="string">"datagen"</span>, derive(Serialize))]
         #[allow(clippy::large_enum_variant)]
-        </span><span class="kw">enum </span>PatternPluralsForSerde&lt;<span class="lifetime">&#39;data</span>&gt; {
+        </span><span class="kw">enum </span>PatternPluralsForSerde&lt;<span class="lifetime">'data</span>&gt; {
             <span class="attr">#[serde(borrow)]
-            </span>MultipleVariants(PluralPattern&lt;<span class="lifetime">&#39;data</span>&gt;),
+            </span>MultipleVariants(PluralPattern&lt;<span class="lifetime">'data</span>&gt;),
             <span class="attr">#[serde(borrow)]
-            </span>SinglePattern(Pattern&lt;<span class="lifetime">&#39;data</span>&gt;),
+            </span>SinglePattern(Pattern&lt;<span class="lifetime">'data</span>&gt;),
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; From&lt;PatternPluralsForSerde&lt;<span class="lifetime">&#39;data</span>&gt;&gt; <span class="kw">for </span>PatternPlurals&lt;<span class="lifetime">&#39;data</span>&gt; {
-            <span class="kw">fn </span>from(pfs: PatternPluralsForSerde&lt;<span class="lifetime">&#39;data</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; From&lt;PatternPluralsForSerde&lt;<span class="lifetime">'data</span>&gt;&gt; <span class="kw">for </span>PatternPlurals&lt;<span class="lifetime">'data</span>&gt; {
+            <span class="kw">fn </span>from(pfs: PatternPluralsForSerde&lt;<span class="lifetime">'data</span>&gt;) -&gt; <span class="self">Self </span>{
                 <span class="kw">match </span>pfs {
                     PatternPluralsForSerde::MultipleVariants(variants) =&gt; {
                         <span class="self">Self</span>::MultipleVariants(variants)
@@ -710,8 +711,8 @@
             }
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; From&lt;<span class="kw-2">&amp;</span>PatternPlurals&lt;<span class="lifetime">&#39;data</span>&gt;&gt; <span class="kw">for </span>PatternPluralsForSerde&lt;<span class="lifetime">&#39;data</span>&gt; {
-            <span class="kw">fn </span>from(pfs: <span class="kw-2">&amp;</span>PatternPlurals&lt;<span class="lifetime">&#39;data</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; From&lt;<span class="kw-2">&amp;</span>PatternPlurals&lt;<span class="lifetime">'data</span>&gt;&gt; <span class="kw">for </span>PatternPluralsForSerde&lt;<span class="lifetime">'data</span>&gt; {
+            <span class="kw">fn </span>from(pfs: <span class="kw-2">&amp;</span>PatternPlurals&lt;<span class="lifetime">'data</span>&gt;) -&gt; <span class="self">Self </span>{
                 <span class="kw">match </span>pfs.clone() {
                     PatternPlurals::MultipleVariants(variants) =&gt; <span class="self">Self</span>::MultipleVariants(variants),
                     PatternPlurals::SinglePattern(pattern) =&gt; <span class="self">Self</span>::SinglePattern(pattern),
@@ -721,11 +722,11 @@
 
         <span class="kw">struct </span>DeserializePatternPlurals;
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>DeserializePatternPlurals {
-            <span class="kw">type </span>Value = PatternPlurals&lt;<span class="lifetime">&#39;de</span>&gt;;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>DeserializePatternPlurals {
+            <span class="kw">type </span>Value = PatternPlurals&lt;<span class="lifetime">'de</span>&gt;;
 
             <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-                <span class="macro">write!</span>(formatter, <span class="string">&quot;a valid pattern.&quot;</span>)
+                <span class="macro">write!</span>(formatter, <span class="string">"a valid pattern."</span>)
             }
 
             <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, pattern_string: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
@@ -740,7 +741,7 @@
 
             <span class="kw">fn </span>visit_map&lt;V&gt;(<span class="self">self</span>, map: V) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, V::Error&gt;
             <span class="kw">where
-                </span>V: de::MapAccess&lt;<span class="lifetime">&#39;de</span>&gt;,
+                </span>V: de::MapAccess&lt;<span class="lifetime">'de</span>&gt;,
             {
                 <span class="prelude-val">Ok</span>(PatternPlurals::MultipleVariants(
                     PluralPattern::deserialize(de::value::MapAccessDeserializer::new(map))<span class="question-mark">?</span>,
@@ -748,13 +749,13 @@
             }
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;data</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>PatternPlurals&lt;<span class="lifetime">&#39;data</span>&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>: <span class="lifetime">'data</span>, <span class="lifetime">'data</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>PatternPlurals&lt;<span class="lifetime">'data</span>&gt; {
             <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
             <span class="kw">where
-                </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+                </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
             {
                 <span class="kw">if </span>deserializer.is_human_readable() {
-                    <span class="comment">// deserializer.deserialize_enum(&quot;PatternPlurals&quot;, &amp;[&quot;Single&quot;, &quot;Multiple&quot;], DeserializePatternPlurals)
+                    <span class="comment">// deserializer.deserialize_enum("PatternPlurals", &amp;["Single", "Multiple"], DeserializePatternPlurals)
                     </span>deserializer.deserialize_any(DeserializePatternPlurals)
                 } <span class="kw">else </span>{
                     <span class="kw">let </span>pattern = PatternPluralsForSerde::deserialize(deserializer)<span class="question-mark">?</span>;
@@ -763,16 +764,16 @@
             }
         }
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
-        </span><span class="kw">impl </span>Serialize <span class="kw">for </span>PatternPlurals&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
+        </span><span class="kw">impl </span>Serialize <span class="kw">for </span>PatternPlurals&lt;<span class="lifetime">'_</span>&gt; {
             <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
             <span class="kw">where
                 </span>S: ser::Serializer,
             {
                 <span class="kw">if </span>serializer.is_human_readable() {
                     <span class="comment">// match self {
-                    //     Self::SinglePattern(pattern) =&gt; serializer.serialize_newtype_variant(&quot;PatternPlurals&quot;, 0, &quot;Single&quot;, pattern),
-                    //     Self::MultipleVariants(variants) =&gt; serializer.serialize_newtype_variant(&quot;PatternPlurals&quot;, 1, &quot;Multiple&quot;, variants),
+                    //     Self::SinglePattern(pattern) =&gt; serializer.serialize_newtype_variant("PatternPlurals", 0, "Single", pattern),
+                    //     Self::MultipleVariants(variants) =&gt; serializer.serialize_newtype_variant("PatternPlurals", 1, "Multiple", variants),
                     // }
                     </span><span class="kw">match </span><span class="self">self </span>{
                         <span class="self">Self</span>::SinglePattern(pattern) =&gt; {
@@ -787,54 +788,54 @@
             }
         }
 
-        <span class="attr">#[cfg(all(test, feature = <span class="string">&quot;datagen&quot;</span>))]
+        <span class="attr">#[cfg(all(test, feature = <span class="string">"datagen"</span>))]
         </span><span class="kw">mod </span>test {
             <span class="kw">use super</span>::<span class="kw-2">*</span>;
             <span class="kw">use </span>icu_plurals::PluralCategory;
 
             <span class="attr">#[test]
             </span><span class="kw">fn </span>runtime_pattern_plurals_serde_human_readable_test() {
-                <span class="kw">let </span>pattern_other: Pattern = <span class="string">&quot;Y-m-d w &#39;other&#39; HH:mm&quot;
+                <span class="kw">let </span>pattern_other: Pattern = <span class="string">"Y-m-d w 'other' HH:mm"
                     </span>.parse()
-                    .expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
-                <span class="kw">let </span>pattern_two: Pattern = <span class="string">&quot;Y-m-d w &#39;two&#39; HH:mm&quot;
+                    .expect(<span class="string">"Failed to parse pattern"</span>);
+                <span class="kw">let </span>pattern_two: Pattern = <span class="string">"Y-m-d w 'two' HH:mm"
                     </span>.parse()
-                    .expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
+                    .expect(<span class="string">"Failed to parse pattern"</span>);
 
                 <span class="kw">let </span><span class="kw-2">mut </span>plural_pattern =
-                    PluralPattern::new(pattern_other).expect(<span class="string">&quot;Failed to create PluralPattern&quot;</span>);
+                    PluralPattern::new(pattern_other).expect(<span class="string">"Failed to create PluralPattern"</span>);
 
                 plural_pattern.maybe_set_variant(PluralCategory::Two, pattern_two);
 
                 <span class="kw">let </span>pattern_plurals = PatternPlurals::from(plural_pattern);
 
                 <span class="kw">let </span>json = serde_json::to_string(<span class="kw-2">&amp;</span>pattern_plurals)
-                    .expect(<span class="string">&quot;Failed to serialize pattern plurals&quot;</span>);
+                    .expect(<span class="string">"Failed to serialize pattern plurals"</span>);
                 <span class="kw">let </span>result: PatternPlurals =
-                    serde_json::from_str(<span class="kw-2">&amp;</span>json).expect(<span class="string">&quot;Failed to deserialize pattern plurals&quot;</span>);
+                    serde_json::from_str(<span class="kw-2">&amp;</span>json).expect(<span class="string">"Failed to deserialize pattern plurals"</span>);
                 <span class="macro">assert_eq!</span>(pattern_plurals, result);
             }
 
             <span class="attr">#[test]
             </span><span class="kw">fn </span>runtime_pattern_plurals_serde_bincode_test() {
-                <span class="kw">let </span>pattern_other: Pattern = <span class="string">&quot;Y-m-d w &#39;other&#39; HH:mm&quot;
+                <span class="kw">let </span>pattern_other: Pattern = <span class="string">"Y-m-d w 'other' HH:mm"
                     </span>.parse()
-                    .expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
-                <span class="kw">let </span>pattern_two: Pattern = <span class="string">&quot;Y-m-d w &#39;two&#39; HH:mm&quot;
+                    .expect(<span class="string">"Failed to parse pattern"</span>);
+                <span class="kw">let </span>pattern_two: Pattern = <span class="string">"Y-m-d w 'two' HH:mm"
                     </span>.parse()
-                    .expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
+                    .expect(<span class="string">"Failed to parse pattern"</span>);
 
                 <span class="kw">let </span><span class="kw-2">mut </span>plural_pattern =
-                    PluralPattern::new(pattern_other).expect(<span class="string">&quot;Failed to create PluralPattern&quot;</span>);
+                    PluralPattern::new(pattern_other).expect(<span class="string">"Failed to create PluralPattern"</span>);
 
                 plural_pattern.maybe_set_variant(PluralCategory::Two, pattern_two);
 
                 <span class="kw">let </span>pattern_plurals = PatternPlurals::from(plural_pattern);
 
                 <span class="kw">let </span>bytes = bincode::serialize(<span class="kw-2">&amp;</span>pattern_plurals)
-                    .expect(<span class="string">&quot;Failed to serialize pattern plurals&quot;</span>);
+                    .expect(<span class="string">"Failed to serialize pattern plurals"</span>);
                 <span class="kw">let </span>result: PatternPlurals =
-                    bincode::deserialize(<span class="kw-2">&amp;</span>bytes).expect(<span class="string">&quot;Failed to deserialize pattern plurals&quot;</span>);
+                    bincode::deserialize(<span class="kw-2">&amp;</span>bytes).expect(<span class="string">"Failed to deserialize pattern plurals"</span>);
                 <span class="macro">assert_eq!</span>(pattern_plurals, result);
             }
         }
@@ -847,11 +848,11 @@
         <span class="attr">#[allow(clippy::upper_case_acronyms)]
         </span><span class="kw">struct </span>DeserializeGenericPatternUTS35String;
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>DeserializeGenericPatternUTS35String {
-            <span class="kw">type </span>Value = GenericPattern&lt;<span class="lifetime">&#39;de</span>&gt;;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>DeserializeGenericPatternUTS35String {
+            <span class="kw">type </span>Value = GenericPattern&lt;<span class="lifetime">'de</span>&gt;;
 
             <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-                <span class="macro">write!</span>(formatter, <span class="string">&quot;a valid pattern.&quot;</span>)
+                <span class="macro">write!</span>(formatter, <span class="string">"a valid pattern."</span>)
             }
 
             <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, pattern_string: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
@@ -861,15 +862,15 @@
                 <span class="comment">// Parse a string into a list of fields.
                 </span><span class="kw">let </span>pattern = pattern_string
                     .parse()
-                    .map_err(|<span class="kw">_</span>| E::custom(<span class="string">&quot;Failed to parse pattern&quot;</span>))<span class="question-mark">?</span>;
+                    .map_err(|<span class="kw">_</span>| E::custom(<span class="string">"Failed to parse pattern"</span>))<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(GenericPattern::from(<span class="kw-2">&amp;</span>pattern))
             }
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;data</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>GenericPattern&lt;<span class="lifetime">&#39;data</span>&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>: <span class="lifetime">'data</span>, <span class="lifetime">'data</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>GenericPattern&lt;<span class="lifetime">'data</span>&gt; {
             <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
             <span class="kw">where
-                </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+                </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
             {
                 <span class="kw">if </span>deserializer.is_human_readable() {
                     deserializer.deserialize_str(DeserializeGenericPatternUTS35String)
@@ -880,8 +881,8 @@
             }
         }
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
-        </span><span class="kw">impl </span>Serialize <span class="kw">for </span>GenericPattern&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
+        </span><span class="kw">impl </span>Serialize <span class="kw">for </span>GenericPattern&lt;<span class="lifetime">'_</span>&gt; {
             <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
             <span class="kw">where
                 </span>S: ser::Serializer,
@@ -896,27 +897,27 @@
             }
         }
 
-        <span class="attr">#[cfg(all(test, feature = <span class="string">&quot;datagen&quot;</span>))]
+        <span class="attr">#[cfg(all(test, feature = <span class="string">"datagen"</span>))]
         </span><span class="kw">mod </span>test {
             <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
             <span class="attr">#[test]
             </span><span class="kw">fn </span>runtime_generic_pattern_serde_human_readable_test() {
                 <span class="kw">let </span>pattern: GenericPattern =
-                    <span class="string">&quot;{0} &#39;and&#39; {1}&quot;</span>.parse().expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
-                <span class="kw">let </span>json = serde_json::to_string(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">&quot;Failed to serialize pattern&quot;</span>);
+                    <span class="string">"{0} 'and' {1}"</span>.parse().expect(<span class="string">"Failed to parse pattern"</span>);
+                <span class="kw">let </span>json = serde_json::to_string(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">"Failed to serialize pattern"</span>);
                 <span class="kw">let </span>result: GenericPattern =
-                    serde_json::from_str(<span class="kw-2">&amp;</span>json).expect(<span class="string">&quot;Failed to deserialize pattern&quot;</span>);
+                    serde_json::from_str(<span class="kw-2">&amp;</span>json).expect(<span class="string">"Failed to deserialize pattern"</span>);
                 <span class="macro">assert_eq!</span>(pattern, result);
             }
 
             <span class="attr">#[test]
             </span><span class="kw">fn </span>runtime_generic_pattern_serde_bincode_test() {
                 <span class="kw">let </span>pattern: GenericPattern =
-                    <span class="string">&quot;{0} &#39;and&#39; {1}&quot;</span>.parse().expect(<span class="string">&quot;Failed to parse pattern&quot;</span>);
-                <span class="kw">let </span>bytes = bincode::serialize(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">&quot;Failed to serialize pattern&quot;</span>);
+                    <span class="string">"{0} 'and' {1}"</span>.parse().expect(<span class="string">"Failed to parse pattern"</span>);
+                <span class="kw">let </span>bytes = bincode::serialize(<span class="kw-2">&amp;</span>pattern).expect(<span class="string">"Failed to serialize pattern"</span>);
                 <span class="kw">let </span>result: GenericPattern =
-                    bincode::deserialize(<span class="kw-2">&amp;</span>bytes).expect(<span class="string">&quot;Failed to deserialize pattern&quot;</span>);
+                    bincode::deserialize(<span class="kw-2">&amp;</span>bytes).expect(<span class="string">"Failed to deserialize pattern"</span>);
                 <span class="macro">assert_eq!</span>(pattern, result);
             }
         }

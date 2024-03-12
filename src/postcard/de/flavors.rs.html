@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.8/src/de/flavors.rs`."><title>flavors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.8/src/de/flavors.rs`."><title>flavors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -468,14 +469,14 @@
 <a href="#468" id="468">468</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Deserialization Flavors
 //!
-//! &quot;Flavors&quot; in `postcard` are used as modifiers to the serialization or deserialization
+//! "Flavors" in `postcard` are used as modifiers to the serialization or deserialization
 //! process. Flavors typically modify one or both of the following:
 //!
 //! 1. The source medium of the deserialization, e.g. whether the data is serialized from a `[u8]` slice, or some other container
 //! 2. The format of the deserialization, such as if the original data is encoded in a COBS format, contains a CRC32 checksum
 //!      appended to the message, etc.
 //!
-//! Flavors are implemented using the [`Flavor`] trait, which acts as a &quot;middleware&quot; for retrieving the bytes before they
+//! Flavors are implemented using the [`Flavor`] trait, which acts as a "middleware" for retrieving the bytes before they
 //! are passed to `serde` for deserialization
 //!
 //! Multiple flavors may be combined to obtain a desired combination of behavior and storage.
@@ -501,8 +502,8 @@
 //! ## When NOT to use (multiple) flavors
 //!
 //! The downside of passing deserialization through multiple steps is that it is typically slower than
-//! performing each step serially. Said simply, &quot;cobs decoding while deserializing&quot; is often slower
-//! than &quot;cobs decode then deserialize&quot;, due to the ability to handle longer &quot;runs&quot; of data in each
+//! performing each step serially. Said simply, "cobs decoding while deserializing" is often slower
+//! than "cobs decode then deserialize", due to the ability to handle longer "runs" of data in each
 //! stage. The downside is that if these stages can not be performed in-place on the buffer, you
 //! will need additional buffers for each stage.
 //!
@@ -545,26 +546,26 @@
 /// or modify that data in a middleware style pattern.
 ///
 /// See the module level docs for an example of how flavors are used.
-</span><span class="kw">pub trait </span>Flavor&lt;<span class="lifetime">&#39;de</span>&gt;: <span class="lifetime">&#39;de </span>{
+</span><span class="kw">pub trait </span>Flavor&lt;<span class="lifetime">'de</span>&gt;: <span class="lifetime">'de </span>{
     <span class="doccomment">/// The remaining data of this flavor after deserializing has completed.
     ///
     /// Typically, this includes the remaining buffer that was not used for
     /// deserialization, and in cases of more complex flavors, any additional
     /// information that was decoded or otherwise calculated during
     /// the deserialization process.
-    </span><span class="kw">type </span>Remainder: <span class="lifetime">&#39;de</span>;
+    </span><span class="kw">type </span>Remainder: <span class="lifetime">'de</span>;
 
     <span class="doccomment">/// The source of data retrieved for deserialization.
     ///
     /// This is typically some sort of data buffer, or another Flavor, when
     /// chained behavior is desired
-    </span><span class="kw">type </span>Source: <span class="lifetime">&#39;de</span>;
+    </span><span class="kw">type </span>Source: <span class="lifetime">'de</span>;
 
     <span class="doccomment">/// Obtain the next byte for deserialization
     </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt;;
 
     <span class="doccomment">/// Attempt to take the next `ct` bytes from the serialized message
-    </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt;;
+    </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]&gt;;
 
     <span class="doccomment">/// Complete the deserialization process.
     ///
@@ -574,17 +575,17 @@
 }
 
 <span class="doccomment">/// A simple [`Flavor`] representing the deserialization from a borrowed slice
-</span><span class="kw">pub struct </span>Slice&lt;<span class="lifetime">&#39;de</span>&gt; {
+</span><span class="kw">pub struct </span>Slice&lt;<span class="lifetime">'de</span>&gt; {
     <span class="comment">// This string starts with the input data and characters are truncated off
     // the beginning as data is parsed.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) cursor: <span class="kw-2">*const </span>u8,
     <span class="kw">pub</span>(<span class="kw">crate</span>) end: <span class="kw-2">*const </span>u8,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) _pl: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) _pl: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Slice&lt;<span class="lifetime">&#39;de</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Slice&lt;<span class="lifetime">'de</span>&gt; {
     <span class="doccomment">/// Create a new [Slice] from the given buffer
-    </span><span class="kw">pub fn </span>new(sli: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(sli: <span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             cursor: sli.as_ptr(),
             end: <span class="kw">unsafe </span>{ sli.as_ptr().add(sli.len()) },
@@ -593,9 +594,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Flavor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Slice&lt;<span class="lifetime">&#39;de</span>&gt; {
-    <span class="kw">type </span>Remainder = <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8];
-    <span class="kw">type </span>Source = <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8];
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Flavor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Slice&lt;<span class="lifetime">'de</span>&gt; {
+    <span class="kw">type </span>Remainder = <span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8];
+    <span class="kw">type </span>Source = <span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8];
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt; {
@@ -611,7 +612,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt; {
+    </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]&gt; {
         <span class="kw">let </span>remain = (<span class="self">self</span>.end <span class="kw">as </span>usize) - (<span class="self">self</span>.cursor <span class="kw">as </span>usize);
         <span class="kw">if </span>remain &lt; ct {
             <span class="prelude-val">Err</span>(Error::DeserializeUnexpectedEnd)
@@ -625,26 +626,26 @@
     }
 
     <span class="doccomment">/// Return the remaining (unused) bytes in the Deserializer
-    </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt; {
+    </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]&gt; {
         <span class="kw">let </span>remain = (<span class="self">self</span>.end <span class="kw">as </span>usize) - (<span class="self">self</span>.cursor <span class="kw">as </span>usize);
         <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(core::slice::from_raw_parts(<span class="self">self</span>.cursor, remain)) }
     }
 }
 
 <span class="doccomment">/// Support for [std::io] or [embedded-io] traits
-</span><span class="attr">#[cfg(any(feature = <span class="string">&quot;embedded-io&quot;</span>, feature = <span class="string">&quot;use-std&quot;</span>))]
+</span><span class="attr">#[cfg(any(feature = <span class="string">"embedded-io"</span>, feature = <span class="string">"use-std"</span>))]
 </span><span class="kw">pub mod </span>io {
     <span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
     <span class="kw">use </span>core::marker::PhantomData;
 
-    <span class="kw">struct </span>SlidingBuffer&lt;<span class="lifetime">&#39;de</span>&gt; {
+    <span class="kw">struct </span>SlidingBuffer&lt;<span class="lifetime">'de</span>&gt; {
         cursor: <span class="kw-2">*mut </span>u8,
         end: <span class="kw-2">*const </span>u8,
-        _pl: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt;,
+        _pl: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]&gt;,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; SlidingBuffer&lt;<span class="lifetime">&#39;de</span>&gt; {
-        <span class="kw">pub fn </span>new(sli: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; SlidingBuffer&lt;<span class="lifetime">'de</span>&gt; {
+        <span class="kw">pub fn </span>new(sli: <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
             <span class="self">Self </span>{
                 cursor: sli.as_mut_ptr(),
                 end: <span class="kw">unsafe </span>{ sli.as_ptr().add(sli.len()) },
@@ -653,7 +654,7 @@
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="kw-2">mut </span>[u8]&gt; {
+        </span><span class="kw">fn </span>take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]&gt; {
             <span class="kw">let </span>remain = (<span class="self">self</span>.end <span class="kw">as </span>usize) - (<span class="self">self</span>.cursor <span class="kw">as </span>usize);
             <span class="kw">let </span>buff = <span class="kw">if </span>remain &lt; ct {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DeserializeUnexpectedEnd);
@@ -668,33 +669,33 @@
             <span class="prelude-val">Ok</span>(buff)
         }
 
-        <span class="kw">fn </span>complete(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="kw-2">mut </span>[u8]&gt; {
+        <span class="kw">fn </span>complete(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]&gt; {
             <span class="kw">let </span>remain = (<span class="self">self</span>.end <span class="kw">as </span>usize) - (<span class="self">self</span>.cursor <span class="kw">as </span>usize);
             <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(core::slice::from_raw_parts_mut(<span class="self">self</span>.cursor, remain)) }
         }
     }
 
     <span class="doccomment">/// Support for [embedded_io] traits
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;embedded-io&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"embedded-io"</span>)]
     </span><span class="kw">pub mod </span>eio {
         <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::Flavor;
         <span class="kw">use </span><span class="kw">super</span>::SlidingBuffer;
         <span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 
         <span class="doccomment">/// Wrapper over a [embedded_io::blocking::Read] and a sliding buffer to implement the [Flavor] trait
-        </span><span class="kw">pub struct </span>EIOReader&lt;<span class="lifetime">&#39;de</span>, T&gt;
+        </span><span class="kw">pub struct </span>EIOReader&lt;<span class="lifetime">'de</span>, T&gt;
         <span class="kw">where
             </span>T: embedded_io::blocking::Read,
         {
             reader: T,
-            buff: SlidingBuffer&lt;<span class="lifetime">&#39;de</span>&gt;,
+            buff: SlidingBuffer&lt;<span class="lifetime">'de</span>&gt;,
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, T&gt; EIOReader&lt;<span class="lifetime">&#39;de</span>, T&gt;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, T&gt; EIOReader&lt;<span class="lifetime">'de</span>, T&gt;
         <span class="kw">where
             </span>T: embedded_io::blocking::Read,
         {
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(reader: T, buff: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
+            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(reader: T, buff: <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
                 <span class="self">Self </span>{
                     reader,
                     buff: SlidingBuffer::new(buff),
@@ -702,12 +703,12 @@
             }
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, T&gt; Flavor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>EIOReader&lt;<span class="lifetime">&#39;de</span>, T&gt;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, T&gt; Flavor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>EIOReader&lt;<span class="lifetime">'de</span>, T&gt;
         <span class="kw">where
-            </span>T: embedded_io::blocking::Read + <span class="lifetime">&#39;de</span>,
+            </span>T: embedded_io::blocking::Read + <span class="lifetime">'de</span>,
         {
-            <span class="kw">type </span>Remainder = (T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="kw-2">mut </span>[u8]);
-            <span class="kw">type </span>Source = <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8];
+            <span class="kw">type </span>Remainder = (T, <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]);
+            <span class="kw">type </span>Source = <span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8];
 
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt; {
@@ -719,7 +720,7 @@
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt; {
+            </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]&gt; {
                 <span class="kw">let </span>buff = <span class="self">self</span>.buff.take_n(ct)<span class="question-mark">?</span>;
                 <span class="self">self</span>.reader
                     .read_exact(buff)
@@ -728,7 +729,7 @@
             }
 
             <span class="doccomment">/// Return the remaining (unused) bytes in the Deserializer
-            </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="kw-2">mut </span>[u8])&gt; {
+            </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(T, <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8])&gt; {
                 <span class="kw">let </span>buf = <span class="self">self</span>.buff.complete()<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>((<span class="self">self</span>.reader, buf))
             }
@@ -736,26 +737,26 @@
     }
 
     <span class="doccomment">/// Support for [std::io] traits
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;use-std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"use-std"</span>)]
     </span><span class="kw">pub mod </span>io {
         <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::Flavor;
         <span class="kw">use </span><span class="kw">super</span>::SlidingBuffer;
         <span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 
         <span class="doccomment">/// Wrapper over a [std::io::Read] and a sliding buffer to implement the [Flavor] trait
-        </span><span class="kw">pub struct </span>IOReader&lt;<span class="lifetime">&#39;de</span>, T&gt;
+        </span><span class="kw">pub struct </span>IOReader&lt;<span class="lifetime">'de</span>, T&gt;
         <span class="kw">where
             </span>T: std::io::Read,
         {
             reader: T,
-            buff: SlidingBuffer&lt;<span class="lifetime">&#39;de</span>&gt;,
+            buff: SlidingBuffer&lt;<span class="lifetime">'de</span>&gt;,
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, T&gt; IOReader&lt;<span class="lifetime">&#39;de</span>, T&gt;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, T&gt; IOReader&lt;<span class="lifetime">'de</span>, T&gt;
         <span class="kw">where
             </span>T: std::io::Read,
         {
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(reader: T, buff: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
+            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(reader: T, buff: <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
                 <span class="self">Self </span>{
                     reader,
                     buff: SlidingBuffer::new(buff),
@@ -763,12 +764,12 @@
             }
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, T&gt; Flavor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>IOReader&lt;<span class="lifetime">&#39;de</span>, T&gt;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, T&gt; Flavor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>IOReader&lt;<span class="lifetime">'de</span>, T&gt;
         <span class="kw">where
-            </span>T: std::io::Read + <span class="lifetime">&#39;de</span>,
+            </span>T: std::io::Read + <span class="lifetime">'de</span>,
         {
-            <span class="kw">type </span>Remainder = (T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="kw-2">mut </span>[u8]);
-            <span class="kw">type </span>Source = <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8];
+            <span class="kw">type </span>Remainder = (T, <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8]);
+            <span class="kw">type </span>Source = <span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8];
 
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt; {
@@ -780,7 +781,7 @@
             }
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt; {
+            </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]&gt; {
                 <span class="kw">let </span>buff = <span class="self">self</span>.buff.take_n(ct)<span class="question-mark">?</span>;
                 <span class="self">self</span>.reader
                     .read_exact(buff)
@@ -789,7 +790,7 @@
             }
 
             <span class="doccomment">/// Return the remaining (unused) bytes in the Deserializer
-            </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="kw-2">mut </span>[u8])&gt; {
+            </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(T, <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="kw-2">mut </span>[u8])&gt; {
                 <span class="kw">let </span>buf = <span class="self">self</span>.buff.complete()<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>((<span class="self">self</span>.reader, buf))
             }
@@ -801,7 +802,7 @@
 // CRC
 ////////////////////////////////////////
 
-</span><span class="doccomment">/// This Cyclic Redundancy Check flavor applies [the CRC crate&#39;s `Algorithm`](https://docs.rs/crc/latest/crc/struct.Algorithm.html) struct on
+</span><span class="doccomment">/// This Cyclic Redundancy Check flavor applies [the CRC crate's `Algorithm`](https://docs.rs/crc/latest/crc/struct.Algorithm.html) struct on
 /// the serialized data. The flavor will check the CRC assuming that it has been appended to the bytes.
 ///
 /// CRCs are used for error detection when reading data back.
@@ -809,8 +810,8 @@
 /// The `crc` feature requires enabling to use this module.
 ///
 /// More on CRCs: &lt;https://en.wikipedia.org/wiki/Cyclic_redundancy_check&gt;.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;use-crc&quot;</span>)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">&quot;use-crc&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"use-crc"</span>)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"use-crc"</span>)))]
 </span><span class="kw">pub mod </span>crc {
     <span class="kw">use </span>core::convert::TryInto;
 
@@ -827,22 +828,22 @@
     <span class="kw">use </span>paste::paste;
 
     <span class="doccomment">/// Manages CRC modifications as a flavor.
-    </span><span class="kw">pub struct </span>CrcModifier&lt;<span class="lifetime">&#39;de</span>, B, W&gt;
+    </span><span class="kw">pub struct </span>CrcModifier&lt;<span class="lifetime">'de</span>, B, W&gt;
     <span class="kw">where
-        </span>B: Flavor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>B: Flavor&lt;<span class="lifetime">'de</span>&gt;,
         W: Width,
     {
         flav: B,
-        digest: Digest&lt;<span class="lifetime">&#39;de</span>, W&gt;,
+        digest: Digest&lt;<span class="lifetime">'de</span>, W&gt;,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, B, W&gt; CrcModifier&lt;<span class="lifetime">&#39;de</span>, B, W&gt;
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, B, W&gt; CrcModifier&lt;<span class="lifetime">'de</span>, B, W&gt;
     <span class="kw">where
-        </span>B: Flavor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>B: Flavor&lt;<span class="lifetime">'de</span>&gt;,
         W: Width,
     {
         <span class="doccomment">/// Create a new Crc modifier Flavor.
-        </span><span class="kw">pub fn </span>new(bee: B, digest: Digest&lt;<span class="lifetime">&#39;de</span>, W&gt;) -&gt; <span class="self">Self </span>{
+        </span><span class="kw">pub fn </span>new(bee: B, digest: Digest&lt;<span class="lifetime">'de</span>, W&gt;) -&gt; <span class="self">Self </span>{
             <span class="self">Self </span>{ flav: bee, digest }
         }
     }
@@ -851,9 +852,9 @@
         ($( <span class="macro-nonterminal">$int</span>:ty ),<span class="kw-2">*</span>) =&gt; {
             $(
                 <span class="macro">paste! </span>{
-                    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, B&gt; Flavor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>CrcModifier&lt;<span class="lifetime">&#39;de</span>, B, <span class="macro-nonterminal">$int</span>&gt;
+                    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, B&gt; Flavor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>CrcModifier&lt;<span class="lifetime">'de</span>, B, <span class="macro-nonterminal">$int</span>&gt;
                     <span class="kw">where
-                        </span>B: Flavor&lt;<span class="lifetime">&#39;de</span>&gt;,
+                        </span>B: Flavor&lt;<span class="lifetime">'de</span>&gt;,
                     {
                         <span class="kw">type </span>Remainder = B::Remainder;
 
@@ -871,7 +872,7 @@
                         }
 
                         <span class="attr">#[inline]
-                        </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt; {
+                        </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8]&gt; {
                             <span class="kw">match </span><span class="self">self</span>.flav.try_take_n(ct) {
                                 <span class="prelude-val">Ok</span>(bytes) =&gt; {
                                     <span class="self">self</span>.digest.update(bytes);
@@ -905,9 +906,9 @@
 
                     <span class="doccomment">/// Deserialize a message of type `T` from a byte slice with a Crc. The unused portion (if any)
                     /// of the byte slice is not returned.
-                    </span><span class="kw">pub fn </span>[&lt;from_bytes_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">&#39;a</span>, T&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], digest: Digest&lt;<span class="lifetime">&#39;a</span>, <span class="macro-nonterminal">$int</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
+                    </span><span class="kw">pub fn </span>[&lt;from_bytes_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">'a</span>, T&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], digest: Digest&lt;<span class="lifetime">'a</span>, <span class="macro-nonterminal">$int</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
                     <span class="kw">where
-                        </span>T: Deserialize&lt;<span class="lifetime">&#39;a</span>&gt;,
+                        </span>T: Deserialize&lt;<span class="lifetime">'a</span>&gt;,
                     {
                         <span class="kw">let </span>flav = CrcModifier::new(Slice::new(s), digest);
                         <span class="kw">let </span><span class="kw-2">mut </span>deserializer = Deserializer::from_flavor(flav);
@@ -918,9 +919,9 @@
 
                     <span class="doccomment">/// Deserialize a message of type `T` from a byte slice with a Crc. The unused portion (if any)
                     /// of the byte slice is returned for further usage
-                    </span><span class="kw">pub fn </span>[&lt;take_from_bytes_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">&#39;a</span>, T&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], digest: Digest&lt;<span class="lifetime">&#39;a</span>, <span class="macro-nonterminal">$int</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8])&gt;
+                    </span><span class="kw">pub fn </span>[&lt;take_from_bytes_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">'a</span>, T&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], digest: Digest&lt;<span class="lifetime">'a</span>, <span class="macro-nonterminal">$int</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(T, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8])&gt;
                     <span class="kw">where
-                        </span>T: Deserialize&lt;<span class="lifetime">&#39;a</span>&gt;,
+                        </span>T: Deserialize&lt;<span class="lifetime">'a</span>&gt;,
                     {
                         <span class="kw">let </span>flav = CrcModifier::new(Slice::new(s), digest);
                         <span class="kw">let </span><span class="kw-2">mut </span>deserializer = Deserializer::from_flavor(flav);

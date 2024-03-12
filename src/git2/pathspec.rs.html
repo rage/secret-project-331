@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/pathspec.rs`."><title>pathspec.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/pathspec.rs`."><title>pathspec.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -383,27 +384,27 @@
 }
 
 <span class="doccomment">/// List of filenames matching a pathspec.
-</span><span class="kw">pub struct </span>PathspecMatchList&lt;<span class="lifetime">&#39;ps</span>&gt; {
+</span><span class="kw">pub struct </span>PathspecMatchList&lt;<span class="lifetime">'ps</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_pathspec_match_list,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;ps </span>Pathspec&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ps </span>Pathspec&gt;,
 }
 
 <span class="doccomment">/// Iterator over the matched paths in a pathspec.
-</span><span class="kw">pub struct </span>PathspecEntries&lt;<span class="lifetime">&#39;list</span>&gt; {
+</span><span class="kw">pub struct </span>PathspecEntries&lt;<span class="lifetime">'list</span>&gt; {
     range: Range&lt;usize&gt;,
-    list: <span class="kw-2">&amp;</span><span class="lifetime">&#39;list </span>PathspecMatchList&lt;<span class="lifetime">&#39;list</span>&gt;,
+    list: <span class="kw-2">&amp;</span><span class="lifetime">'list </span>PathspecMatchList&lt;<span class="lifetime">'list</span>&gt;,
 }
 
 <span class="doccomment">/// Iterator over the matching diff deltas.
-</span><span class="kw">pub struct </span>PathspecDiffEntries&lt;<span class="lifetime">&#39;list</span>&gt; {
+</span><span class="kw">pub struct </span>PathspecDiffEntries&lt;<span class="lifetime">'list</span>&gt; {
     range: Range&lt;usize&gt;,
-    list: <span class="kw-2">&amp;</span><span class="lifetime">&#39;list </span>PathspecMatchList&lt;<span class="lifetime">&#39;list</span>&gt;,
+    list: <span class="kw-2">&amp;</span><span class="lifetime">'list </span>PathspecMatchList&lt;<span class="lifetime">'list</span>&gt;,
 }
 
 <span class="doccomment">/// Iterator over the failed list of pathspec items that did not match.
-</span><span class="kw">pub struct </span>PathspecFailedEntries&lt;<span class="lifetime">&#39;list</span>&gt; {
+</span><span class="kw">pub struct </span>PathspecFailedEntries&lt;<span class="lifetime">'list</span>&gt; {
     range: Range&lt;usize&gt;,
-    list: <span class="kw-2">&amp;</span><span class="lifetime">&#39;list </span>PathspecMatchList&lt;<span class="lifetime">&#39;list</span>&gt;,
+    list: <span class="kw-2">&amp;</span><span class="lifetime">'list </span>PathspecMatchList&lt;<span class="lifetime">'list</span>&gt;,
 }
 
 <span class="kw">impl </span>Pathspec {
@@ -430,9 +431,9 @@
     /// specified.
     </span><span class="kw">pub fn </span>match_diff(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        diff: <span class="kw-2">&amp;</span>Diff&lt;<span class="lifetime">&#39;_</span>&gt;,
+        diff: <span class="kw-2">&amp;</span>Diff&lt;<span class="lifetime">'_</span>&gt;,
         flags: PathspecFlags,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathspecMatchList&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathspecMatchList&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_pathspec_match_diff(
@@ -453,9 +454,9 @@
     /// specified.
     </span><span class="kw">pub fn </span>match_tree(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;,
+        tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;,
         flags: PathspecFlags,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathspecMatchList&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathspecMatchList&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_pathspec_match_tree(
@@ -478,7 +479,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         index: <span class="kw-2">&amp;</span>Index,
         flags: PathspecFlags,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathspecMatchList&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathspecMatchList&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_pathspec_match_index(
@@ -507,7 +508,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         repo: <span class="kw-2">&amp;</span>Repository,
         flags: PathspecFlags,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathspecMatchList&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathspecMatchList&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_pathspec_match_workdir(
@@ -549,7 +550,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;ps</span>&gt; PathspecMatchList&lt;<span class="lifetime">&#39;ps</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'ps</span>&gt; PathspecMatchList&lt;<span class="lifetime">'ps</span>&gt; {
     <span class="kw">fn </span>entrycount(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="kw">unsafe </span>{ raw::git_pathspec_match_list_entrycount(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) <span class="kw">as </span>usize }
     }
@@ -559,7 +560,7 @@
     }
 
     <span class="doccomment">/// Returns an iterator over the matching filenames in this list.
-    </span><span class="kw">pub fn </span>entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathspecEntries&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathspecEntries&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">let </span>n = <span class="self">self</span>.entrycount();
         <span class="kw">let </span>n = <span class="kw">if </span>n &gt; <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.entry(<span class="number">0</span>).is_none() {
             <span class="number">0
@@ -584,7 +585,7 @@
     }
 
     <span class="doccomment">/// Returns an iterator over the matching diff entries in this list.
-    </span><span class="kw">pub fn </span>diff_entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathspecDiffEntries&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>diff_entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathspecDiffEntries&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">let </span>n = <span class="self">self</span>.entrycount();
         <span class="kw">let </span>n = <span class="kw">if </span>n &gt; <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.diff_entry(<span class="number">0</span>).is_none() {
             <span class="number">0
@@ -601,7 +602,7 @@
     ///
     /// If the list was not generated from a diff, then the return value will
     /// always be `None`.
-    </span><span class="kw">pub fn </span>diff_entry(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>diff_entry(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = raw::git_pathspec_match_list_diff_entry(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw, i <span class="kw">as </span>size_t);
             Binding::from_raw_opt(ptr <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>)
@@ -609,7 +610,7 @@
     }
 
     <span class="doccomment">/// Returns an iterator over the non-matching entries in this list.
-    </span><span class="kw">pub fn </span>failed_entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathspecFailedEntries&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>failed_entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathspecFailedEntries&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">let </span>n = <span class="self">self</span>.failed_entrycount();
         <span class="kw">let </span>n = <span class="kw">if </span>n &gt; <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.failed_entry(<span class="number">0</span>).is_none() {
             <span class="number">0
@@ -631,10 +632,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;ps</span>&gt; Binding <span class="kw">for </span>PathspecMatchList&lt;<span class="lifetime">&#39;ps</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'ps</span>&gt; Binding <span class="kw">for </span>PathspecMatchList&lt;<span class="lifetime">'ps</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_pathspec_match_list;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_pathspec_match_list) -&gt; PathspecMatchList&lt;<span class="lifetime">&#39;ps</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_pathspec_match_list) -&gt; PathspecMatchList&lt;<span class="lifetime">'ps</span>&gt; {
         PathspecMatchList {
             raw,
             _marker: marker::PhantomData,
@@ -645,64 +646,64 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;ps</span>&gt; Drop <span class="kw">for </span>PathspecMatchList&lt;<span class="lifetime">&#39;ps</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'ps</span>&gt; Drop <span class="kw">for </span>PathspecMatchList&lt;<span class="lifetime">'ps</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_pathspec_match_list_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; Iterator <span class="kw">for </span>PathspecEntries&lt;<span class="lifetime">&#39;list</span>&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;list </span>[u8];
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;list </span>[u8]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; Iterator <span class="kw">for </span>PathspecEntries&lt;<span class="lifetime">'list</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'list </span>[u8];
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'list </span>[u8]&gt; {
         <span class="self">self</span>.range.next().and_then(|i| <span class="self">self</span>.list.entry(i))
     }
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
         <span class="self">self</span>.range.size_hint()
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; DoubleEndedIterator <span class="kw">for </span>PathspecEntries&lt;<span class="lifetime">&#39;list</span>&gt; {
-    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;list </span>[u8]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; DoubleEndedIterator <span class="kw">for </span>PathspecEntries&lt;<span class="lifetime">'list</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'list </span>[u8]&gt; {
         <span class="self">self</span>.range.next_back().and_then(|i| <span class="self">self</span>.list.entry(i))
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; FusedIterator <span class="kw">for </span>PathspecEntries&lt;<span class="lifetime">&#39;list</span>&gt; {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; ExactSizeIterator <span class="kw">for </span>PathspecEntries&lt;<span class="lifetime">&#39;list</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; FusedIterator <span class="kw">for </span>PathspecEntries&lt;<span class="lifetime">'list</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; ExactSizeIterator <span class="kw">for </span>PathspecEntries&lt;<span class="lifetime">'list</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; Iterator <span class="kw">for </span>PathspecDiffEntries&lt;<span class="lifetime">&#39;list</span>&gt; {
-    <span class="kw">type </span>Item = DiffDelta&lt;<span class="lifetime">&#39;list</span>&gt;;
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;list</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; Iterator <span class="kw">for </span>PathspecDiffEntries&lt;<span class="lifetime">'list</span>&gt; {
+    <span class="kw">type </span>Item = DiffDelta&lt;<span class="lifetime">'list</span>&gt;;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'list</span>&gt;&gt; {
         <span class="self">self</span>.range.next().and_then(|i| <span class="self">self</span>.list.diff_entry(i))
     }
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
         <span class="self">self</span>.range.size_hint()
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; DoubleEndedIterator <span class="kw">for </span>PathspecDiffEntries&lt;<span class="lifetime">&#39;list</span>&gt; {
-    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;list</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; DoubleEndedIterator <span class="kw">for </span>PathspecDiffEntries&lt;<span class="lifetime">'list</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'list</span>&gt;&gt; {
         <span class="self">self</span>.range.next_back().and_then(|i| <span class="self">self</span>.list.diff_entry(i))
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; FusedIterator <span class="kw">for </span>PathspecDiffEntries&lt;<span class="lifetime">&#39;list</span>&gt; {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; ExactSizeIterator <span class="kw">for </span>PathspecDiffEntries&lt;<span class="lifetime">&#39;list</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; FusedIterator <span class="kw">for </span>PathspecDiffEntries&lt;<span class="lifetime">'list</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; ExactSizeIterator <span class="kw">for </span>PathspecDiffEntries&lt;<span class="lifetime">'list</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; Iterator <span class="kw">for </span>PathspecFailedEntries&lt;<span class="lifetime">&#39;list</span>&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;list </span>[u8];
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;list </span>[u8]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; Iterator <span class="kw">for </span>PathspecFailedEntries&lt;<span class="lifetime">'list</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'list </span>[u8];
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'list </span>[u8]&gt; {
         <span class="self">self</span>.range.next().and_then(|i| <span class="self">self</span>.list.failed_entry(i))
     }
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
         <span class="self">self</span>.range.size_hint()
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; DoubleEndedIterator <span class="kw">for </span>PathspecFailedEntries&lt;<span class="lifetime">&#39;list</span>&gt; {
-    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;list </span>[u8]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; DoubleEndedIterator <span class="kw">for </span>PathspecFailedEntries&lt;<span class="lifetime">'list</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'list </span>[u8]&gt; {
         <span class="self">self</span>.range
             .next_back()
             .and_then(|i| <span class="self">self</span>.list.failed_entry(i))
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; FusedIterator <span class="kw">for </span>PathspecFailedEntries&lt;<span class="lifetime">&#39;list</span>&gt; {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;list</span>&gt; ExactSizeIterator <span class="kw">for </span>PathspecFailedEntries&lt;<span class="lifetime">&#39;list</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; FusedIterator <span class="kw">for </span>PathspecFailedEntries&lt;<span class="lifetime">'list</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'list</span>&gt; ExactSizeIterator <span class="kw">for </span>PathspecFailedEntries&lt;<span class="lifetime">'list</span>&gt; {}
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
@@ -713,11 +714,11 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke() {
-        <span class="kw">let </span>ps = Pathspec::new([<span class="string">&quot;a&quot;</span>].iter()).unwrap();
-        <span class="macro">assert!</span>(ps.matches_path(Path::new(<span class="string">&quot;a&quot;</span>), PathspecFlags::DEFAULT));
-        <span class="macro">assert!</span>(ps.matches_path(Path::new(<span class="string">&quot;a/b&quot;</span>), PathspecFlags::DEFAULT));
-        <span class="macro">assert!</span>(!ps.matches_path(Path::new(<span class="string">&quot;b&quot;</span>), PathspecFlags::DEFAULT));
-        <span class="macro">assert!</span>(!ps.matches_path(Path::new(<span class="string">&quot;ab/c&quot;</span>), PathspecFlags::DEFAULT));
+        <span class="kw">let </span>ps = Pathspec::new([<span class="string">"a"</span>].iter()).unwrap();
+        <span class="macro">assert!</span>(ps.matches_path(Path::new(<span class="string">"a"</span>), PathspecFlags::DEFAULT));
+        <span class="macro">assert!</span>(ps.matches_path(Path::new(<span class="string">"a/b"</span>), PathspecFlags::DEFAULT));
+        <span class="macro">assert!</span>(!ps.matches_path(Path::new(<span class="string">"b"</span>), PathspecFlags::DEFAULT));
+        <span class="macro">assert!</span>(!ps.matches_path(Path::new(<span class="string">"ab/c"</span>), PathspecFlags::DEFAULT));
 
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
         <span class="kw">let </span>list = ps.match_workdir(<span class="kw-2">&amp;</span>repo, PathspecFlags::DEFAULT).unwrap();
@@ -725,13 +726,13 @@
         <span class="macro">assert_eq!</span>(list.diff_entries().len(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(list.failed_entries().len(), <span class="number">0</span>);
 
-        File::create(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;a&quot;</span>)).unwrap();
+        File::create(<span class="kw-2">&amp;</span>td.path().join(<span class="string">"a"</span>)).unwrap();
 
         <span class="kw">let </span>list = ps
             .match_workdir(<span class="kw-2">&amp;</span>repo, <span class="kw">crate</span>::PathspecFlags::FIND_FAILURES)
             .unwrap();
         <span class="macro">assert_eq!</span>(list.entries().len(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(list.entries().next(), <span class="prelude-val">Some</span>(<span class="string">&quot;a&quot;</span>.as_bytes()));
+        <span class="macro">assert_eq!</span>(list.entries().next(), <span class="prelude-val">Some</span>(<span class="string">"a"</span>.as_bytes()));
     }
 }
 </code></pre></div></section></main></body></html>

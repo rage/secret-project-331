@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/env/field.rs`."><title>field.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/env/field.rs`."><title>field.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -658,8 +659,8 @@
     has_matched: AtomicBool,
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>MatchVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
-    inner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SpanMatch,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>MatchVisitor&lt;<span class="lifetime">'a</span>&gt; {
+    inner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>SpanMatch,
 }
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -712,7 +713,7 @@
 
             (F64(this), F64(that)) =&gt; this
                 .partial_cmp(that)
-                .expect(<span class="string">&quot;`ValueMatch::F64` may not contain `NaN` values&quot;</span>),
+                .expect(<span class="string">"`ValueMatch::F64` may not contain `NaN` values"</span>),
             (F64(<span class="kw">_</span>), Bool(<span class="kw">_</span>)) =&gt; Ordering::Greater,
             (F64(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; Ordering::Less,
 
@@ -745,7 +746,7 @@
     }
 }
 
-<span class="doccomment">/// Matches a field&#39;s `fmt::Debug` output against a regular expression pattern.
+<span class="doccomment">/// Matches a field's `fmt::Debug` output against a regular expression pattern.
 ///
 /// This is used for matching all non-literal field value filters when regular
 /// expressions are enabled.
@@ -755,7 +756,7 @@
     pattern: Arc&lt;str&gt;,
 }
 
-<span class="doccomment">/// Matches a field&#39;s `fmt::Debug` output against a fixed string pattern.
+<span class="doccomment">/// Matches a field's `fmt::Debug` output against a fixed string pattern.
 ///
 /// This is used for matching all non-literal field value filters when regular
 /// expressions are disabled.
@@ -766,7 +767,7 @@
 
 <span class="doccomment">/// Indicates that a field name specified in a filter directive was invalid.
 </span><span class="attr">#[derive(Clone, Debug)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;env-filter&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"env-filter"</span>)))]
 </span><span class="kw">pub struct </span>BadName {
     name: String,
 }
@@ -784,11 +785,11 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse(s: <span class="kw-2">&amp;</span>str, regex: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Box&lt;<span class="kw">dyn </span>Error + Send + Sync&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>parts = s.split(<span class="string">&#39;=&#39;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parts = s.split(<span class="string">'='</span>);
         <span class="kw">let </span>name = parts
             .next()
             .ok_or_else(|| BadName {
-                name: <span class="string">&quot;&quot;</span>.to_string(),
+                name: <span class="string">""</span>.to_string(),
             })<span class="question-mark">?
             </span><span class="comment">// TODO: validate field name
             </span>.to_string();
@@ -804,10 +805,10 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Match {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.name, f)<span class="question-mark">?</span>;
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>value) = <span class="self">self</span>.value {
-            <span class="macro">write!</span>(f, <span class="string">&quot;={}&quot;</span>, value)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"={}"</span>, value)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -857,8 +858,8 @@
     <span class="doccomment">/// Parse a `ValueMatch` that will match `fmt::Debug` fields using regular
     /// expressions.
     ///
-    /// This returns an error if the string didn&#39;t contain a valid `bool`,
-    /// `u64`, `i64`, or `f64` literal, and couldn&#39;t be parsed as a regular
+    /// This returns an error if the string didn't contain a valid `bool`,
+    /// `u64`, `i64`, or `f64` literal, and couldn't be parsed as a regular
     /// expression.
     </span><span class="kw">fn </span>parse_regex(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, matchers::Error&gt; {
         s.parse::&lt;bool&gt;()
@@ -875,7 +876,7 @@
     <span class="doccomment">/// Parse a `ValueMatch` that will match `fmt::Debug` against a fixed
     /// string.
     ///
-    /// This does *not* return an error, because any string that isn&#39;t a valid
+    /// This does *not* return an error, because any string that isn't a valid
     /// `bool`, `u64`, `i64`, or `f64` literal is treated as expected
     /// `fmt::Debug` output.
     </span><span class="kw">fn </span>parse_non_regex(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
@@ -889,7 +890,7 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ValueMatch {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             ValueMatch::Bool(<span class="kw-2">ref </span>inner) =&gt; fmt::Display::fmt(inner, f),
             ValueMatch::F64(<span class="kw-2">ref </span>inner) =&gt; fmt::Display::fmt(inner, f),
@@ -917,7 +918,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>MatchPattern {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Display::fmt(<span class="kw-2">&amp;*</span><span class="self">self</span>.pattern, f)
     }
 }
@@ -981,7 +982,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>debug_matches(<span class="kw-2">&amp;</span><span class="self">self</span>, d: <span class="kw-2">&amp;</span><span class="kw">impl </span>fmt::Debug) -&gt; bool {
-        <span class="comment">// Naively, we would probably match a value&#39;s `fmt::Debug` output by
+        <span class="comment">// Naively, we would probably match a value's `fmt::Debug` output by
         // formatting it to a string, and then checking if the string is equal
         // to the expected pattern. However, this would require allocating every
         // time we want to match a field value against a `Debug` matcher, which
@@ -990,14 +991,14 @@
         // Instead, we implement `fmt::Write` for a type that, rather than
         // actually _writing_ the strings to something, matches them against the
         // expected pattern, and returns an error if the pattern does not match.
-        </span><span class="kw">struct </span>Matcher&lt;<span class="lifetime">&#39;a</span>&gt; {
-            pattern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        </span><span class="kw">struct </span>Matcher&lt;<span class="lifetime">'a</span>&gt; {
+            pattern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         }
 
-        <span class="kw">impl </span>fmt::Write <span class="kw">for </span>Matcher&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">impl </span>fmt::Write <span class="kw">for </span>Matcher&lt;<span class="lifetime">'_</span>&gt; {
             <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result {
                 <span class="comment">// If the string is longer than the remaining expected string,
-                // we know it won&#39;t match, so bail.
+                // we know it won't match, so bail.
                 </span><span class="kw">if </span>s.len() &gt; <span class="self">self</span>.pattern.len() {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(fmt::Error);
                 }
@@ -1011,10 +1012,10 @@
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 }
 
-                <span class="comment">// Otherwise, the expected string doesn&#39;t include the string
+                <span class="comment">// Otherwise, the expected string doesn't include the string
                 // that was written at the current position, so the `fmt::Debug`
-                // output doesn&#39;t match! Return an error signalling that this
-                // doesn&#39;t match.
+                // output doesn't match! Return an error signalling that this
+                // doesn't match.
                 </span><span class="prelude-val">Err</span>(fmt::Error)
             }
         }
@@ -1022,16 +1023,16 @@
             pattern: <span class="kw-2">&amp;</span><span class="self">self</span>.pattern,
         };
 
-        <span class="comment">// Try to &quot;write&quot; the value&#39;s `fmt::Debug` output to a `Matcher`. This
+        <span class="comment">// Try to "write" the value's `fmt::Debug` output to a `Matcher`. This
         // returns an error if the `fmt::Debug` implementation wrote any
         // characters that did not match the expected pattern.
-        </span><span class="macro">write!</span>(matcher, <span class="string">&quot;{:?}&quot;</span>, d).is_ok()
+        </span><span class="macro">write!</span>(matcher, <span class="string">"{:?}"</span>, d).is_ok()
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>MatchDebug {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Display::fmt(<span class="kw-2">&amp;*</span><span class="self">self</span>.pattern, f)
     }
 }
@@ -1071,8 +1072,8 @@
 </span><span class="kw">impl </span>Error <span class="kw">for </span>BadName {}
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>BadName {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;invalid field name `{}`&quot;</span>, <span class="self">self</span>.name)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"invalid field name `{}`"</span>, <span class="self">self</span>.name)
     }
 }
 
@@ -1092,7 +1093,7 @@
 }
 
 <span class="kw">impl </span>SpanMatch {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visitor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MatchVisitor&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visitor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MatchVisitor&lt;<span class="lifetime">'_</span>&gt; {
         MatchVisitor { inner: <span class="self">self </span>}
     }
 
@@ -1126,7 +1127,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Visit <span class="kw">for </span>MatchVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Visit <span class="kw">for </span>MatchVisitor&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>record_f64(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: <span class="kw-2">&amp;</span>Field, value: f64) {
         <span class="kw">match </span><span class="self">self</span>.inner.fields.get(field) {
             <span class="prelude-val">Some</span>((ValueMatch::NaN, <span class="kw-2">ref </span>matched)) <span class="kw">if </span>value.is_nan() =&gt; {
@@ -1205,22 +1206,22 @@
     #[allow(dead_code)]
     </span><span class="kw">struct </span>MyStruct {
         answer: usize,
-        question: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        question: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>debug_struct_match() {
         <span class="kw">let </span>my_struct = MyStruct {
             answer: <span class="number">42</span>,
-            question: <span class="string">&quot;life, the universe, and everything&quot;</span>,
+            question: <span class="string">"life, the universe, and everything"</span>,
         };
 
-        <span class="kw">let </span>pattern = <span class="string">&quot;MyStruct { answer: 42, question: \&quot;life, the universe, and everything\&quot; }&quot;</span>;
+        <span class="kw">let </span>pattern = <span class="string">"MyStruct { answer: 42, question: \"life, the universe, and everything\" }"</span>;
 
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, my_struct),
+            <span class="macro">format!</span>(<span class="string">"{:?}"</span>, my_struct),
             pattern,
-            <span class="string">&quot;`MyStruct`&#39;s `Debug` impl doesn&#39;t output the expected string&quot;
+            <span class="string">"`MyStruct`'s `Debug` impl doesn't output the expected string"
         </span>);
 
         <span class="kw">let </span>matcher = MatchDebug {
@@ -1233,15 +1234,15 @@
     </span><span class="kw">fn </span>debug_struct_not_match() {
         <span class="kw">let </span>my_struct = MyStruct {
             answer: <span class="number">42</span>,
-            question: <span class="string">&quot;what shall we have for lunch?&quot;</span>,
+            question: <span class="string">"what shall we have for lunch?"</span>,
         };
 
-        <span class="kw">let </span>pattern = <span class="string">&quot;MyStruct { answer: 42, question: \&quot;life, the universe, and everything\&quot; }&quot;</span>;
+        <span class="kw">let </span>pattern = <span class="string">"MyStruct { answer: 42, question: \"life, the universe, and everything\" }"</span>;
 
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, my_struct),
-            <span class="string">&quot;MyStruct { answer: 42, question: \&quot;what shall we have for lunch?\&quot; }&quot;</span>,
-            <span class="string">&quot;`MyStruct`&#39;s `Debug` impl doesn&#39;t output the expected string&quot;
+            <span class="macro">format!</span>(<span class="string">"{:?}"</span>, my_struct),
+            <span class="string">"MyStruct { answer: 42, question: \"what shall we have for lunch?\" }"</span>,
+            <span class="string">"`MyStruct`'s `Debug` impl doesn't output the expected string"
         </span>);
 
         <span class="kw">let </span>matcher = MatchDebug {

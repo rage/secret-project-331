@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/print.rs`."><title>print.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/print.rs`."><title>print.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -318,7 +319,7 @@
 <a href="#318" id="318">318</a>
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use super</span>::{BacktraceFrame, BacktraceSymbol};
 <span class="kw">use super</span>::{BytesOrWideString, Frame, SymbolName};
 <span class="kw">use </span>core::ffi::c_void;
@@ -326,7 +327,7 @@
 
 <span class="kw">const </span>HEX_WIDTH: usize = <span class="number">2 </span>+ <span class="number">2 </span>* core::mem::size_of::&lt;usize&gt;();
 
-<span class="attr">#[cfg(target_os = <span class="string">&quot;fuchsia&quot;</span>)]
+<span class="attr">#[cfg(target_os = <span class="string">"fuchsia"</span>)]
 </span><span class="kw">mod </span>fuchsia;
 
 <span class="doccomment">/// A formatter for backtraces.
@@ -334,12 +335,12 @@
 /// This type can be used to print a backtrace regardless of where the backtrace
 /// itself comes from. If you have a `Backtrace` type then its `Debug`
 /// implementation already uses this printing format.
-</span><span class="kw">pub struct </span>BacktraceFmt&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
-    fmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;b</span>&gt;,
+</span><span class="kw">pub struct </span>BacktraceFmt&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
+    fmt: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>fmt::Formatter&lt;<span class="lifetime">'b</span>&gt;,
     frame_index: usize,
     format: PrintFmt,
     print_path:
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;, BytesOrWideString&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result + <span class="lifetime">&#39;b</span>),
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;, BytesOrWideString&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result + <span class="lifetime">'b</span>),
 }
 
 <span class="doccomment">/// The styles of printing that we can print
@@ -353,19 +354,19 @@
     </span>__Nonexhaustive,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; BacktraceFmt&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; BacktraceFmt&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
     <span class="doccomment">/// Create a new `BacktraceFmt` which will write output to the provided
     /// `fmt`.
     ///
     /// The `format` argument will control the style in which the backtrace is
     /// printed, and the `print_path` argument will be used to print the
-    /// `BytesOrWideString` instances of filenames. This type itself doesn&#39;t do
+    /// `BytesOrWideString` instances of filenames. This type itself doesn't do
     /// any printing of filenames, but this callback is required to do so.
     </span><span class="kw">pub fn </span>new(
-        fmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;b</span>&gt;,
+        fmt: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>fmt::Formatter&lt;<span class="lifetime">'b</span>&gt;,
         format: PrintFmt,
-        print_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;, BytesOrWideString&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result
-                     + <span class="lifetime">&#39;b</span>),
+        print_path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;, BytesOrWideString&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result
+                     + <span class="lifetime">'b</span>),
     ) -&gt; <span class="self">Self </span>{
         BacktraceFmt {
             fmt,
@@ -381,7 +382,7 @@
     /// symbolicated later, and otherwise this should just be the first method
     /// you call after creating a `BacktraceFmt`.
     </span><span class="kw">pub fn </span>add_context(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
-        <span class="attr">#[cfg(target_os = <span class="string">&quot;fuchsia&quot;</span>)]
+        <span class="attr">#[cfg(target_os = <span class="string">"fuchsia"</span>)]
         </span>fuchsia::print_dso_context(<span class="self">self</span>.fmt)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
@@ -391,7 +392,7 @@
     /// This commit returns an RAII instance of a `BacktraceFrameFmt` which can be used
     /// to actually print a frame, and on destruction it will increment the
     /// frame counter.
-    </span><span class="kw">pub fn </span>frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BacktraceFrameFmt&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+    </span><span class="kw">pub fn </span>frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BacktraceFrameFmt&lt;<span class="lifetime">'_</span>, <span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
         BacktraceFrameFmt {
             fmt: <span class="self">self</span>,
             symbol_index: <span class="number">0</span>,
@@ -403,7 +404,7 @@
     /// This is currently a no-op but is added for future compatibility with
     /// backtrace formats.
     </span><span class="kw">pub fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
-        <span class="attr">#[cfg(target_os = <span class="string">&quot;fuchsia&quot;</span>)]
+        <span class="attr">#[cfg(target_os = <span class="string">"fuchsia"</span>)]
         </span>fuchsia::finish_context(<span class="self">self</span>.fmt)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
@@ -411,7 +412,7 @@
     <span class="doccomment">/// Inserts a message in the backtrace output.
     ///
     /// This allows information to be inserted between frames,
-    /// and won&#39;t increment the `frame_index` unlike the `frame`
+    /// and won't increment the `frame_index` unlike the `frame`
     /// method.
     </span><span class="kw">pub fn </span>message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result {
         <span class="self">self</span>.fmt.write_str(msg)
@@ -420,8 +421,8 @@
     <span class="doccomment">/// Return the inner formatter.
     ///
     /// This is used for writing custom information between frames with `write!` and `writeln!`,
-    /// and won&#39;t increment the `frame_index` unlike the `frame` method.
-    </span><span class="kw">pub fn </span>formatter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;b</span>&gt; {
+    /// and won't increment the `frame_index` unlike the `frame` method.
+    </span><span class="kw">pub fn </span>formatter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'b</span>&gt; {
         <span class="self">self</span>.fmt
     }
 }
@@ -429,12 +430,12 @@
 <span class="doccomment">/// A formatter for just one frame of a backtrace.
 ///
 /// This type is created by the `BacktraceFmt::frame` function.
-</span><span class="kw">pub struct </span>BacktraceFrameFmt&lt;<span class="lifetime">&#39;fmt</span>, <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
-    fmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;fmt </span><span class="kw-2">mut </span>BacktraceFmt&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;,
+</span><span class="kw">pub struct </span>BacktraceFrameFmt&lt;<span class="lifetime">'fmt</span>, <span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
+    fmt: <span class="kw-2">&amp;</span><span class="lifetime">'fmt </span><span class="kw-2">mut </span>BacktraceFmt&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt;,
     symbol_index: usize,
 }
 
-<span class="kw">impl </span>BacktraceFrameFmt&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>BacktraceFrameFmt&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt; {
     <span class="doccomment">/// Prints a `BacktraceFrame` with this frame formatter.
     ///
     /// This will recursively print all `BacktraceSymbol` instances within the
@@ -444,7 +445,7 @@
     ///
     /// This function requires the `std` feature of the `backtrace` crate to be
     /// enabled, and the `std` feature is enabled by default.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub fn </span>backtrace_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>BacktraceFrame) -&gt; fmt::Result {
         <span class="kw">let </span>symbols = frame.symbols();
         <span class="kw">for </span>symbol <span class="kw">in </span>symbols {
@@ -462,7 +463,7 @@
     ///
     /// This function requires the `std` feature of the `backtrace` crate to be
     /// enabled, and the `std` feature is enabled by default.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub fn </span>backtrace_symbol(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         frame: <span class="kw-2">&amp;</span>BacktraceFrame,
@@ -471,9 +472,9 @@
         <span class="self">self</span>.print_raw_with_column(
             frame.ip(),
             symbol.name(),
-            <span class="comment">// TODO: this isn&#39;t great that we don&#39;t end up printing anything
+            <span class="comment">// TODO: this isn't great that we don't end up printing anything
             // with non-utf8 filenames. Thankfully almost everything is utf8 so
-            // this shouldn&#39;t be too bad.
+            // this shouldn't be too bad.
             </span>symbol
                 .filename()
                 .and_then(|p| <span class="prelude-val">Some</span>(BytesOrWideString::Bytes(p.to_str()<span class="question-mark">?</span>.as_bytes()))),
@@ -499,13 +500,13 @@
     <span class="doccomment">/// Adds a raw frame to the backtrace output.
     ///
     /// This method, unlike the previous, takes the raw arguments in case
-    /// they&#39;re being source from different locations. Note that this may be
+    /// they're being source from different locations. Note that this may be
     /// called multiple times for one frame.
     </span><span class="kw">pub fn </span>print_raw(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         frame_ip: <span class="kw-2">*mut </span>c_void,
-        symbol_name: <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        filename: <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        symbol_name: <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        filename: <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">'_</span>&gt;&gt;,
         lineno: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     ) -&gt; fmt::Result {
         <span class="self">self</span>.print_raw_with_column(frame_ip, symbol_name, filename, lineno, <span class="prelude-val">None</span>)
@@ -514,20 +515,20 @@
     <span class="doccomment">/// Adds a raw frame to the backtrace output, including column information.
     ///
     /// This method, like the previous, takes the raw arguments in case
-    /// they&#39;re being source from different locations. Note that this may be
+    /// they're being source from different locations. Note that this may be
     /// called multiple times for one frame.
     </span><span class="kw">pub fn </span>print_raw_with_column(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         frame_ip: <span class="kw-2">*mut </span>c_void,
-        symbol_name: <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        filename: <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        symbol_name: <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        filename: <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">'_</span>&gt;&gt;,
         lineno: <span class="prelude-ty">Option</span>&lt;u32&gt;,
         colno: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     ) -&gt; fmt::Result {
         <span class="comment">// Fuchsia is unable to symbolize within a process so it has a special
         // format which can be used to symbolize later. Print that instead of
         // printing addresses in our own format here.
-        </span><span class="kw">if </span><span class="macro">cfg!</span>(target_os = <span class="string">&quot;fuchsia&quot;</span>) {
+        </span><span class="kw">if </span><span class="macro">cfg!</span>(target_os = <span class="string">"fuchsia"</span>) {
             <span class="self">self</span>.print_raw_fuchsia(frame_ip)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="self">self</span>.print_raw_generic(frame_ip, symbol_name, filename, lineno, colno)<span class="question-mark">?</span>;
@@ -540,12 +541,12 @@
     </span><span class="kw">fn </span>print_raw_generic(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         <span class="kw-2">mut </span>frame_ip: <span class="kw-2">*mut </span>c_void,
-        symbol_name: <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        filename: <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        symbol_name: <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        filename: <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">'_</span>&gt;&gt;,
         lineno: <span class="prelude-ty">Option</span>&lt;u32&gt;,
         colno: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     ) -&gt; fmt::Result {
-        <span class="comment">// No need to print &quot;null&quot; frames, it basically just means that the
+        <span class="comment">// No need to print "null" frames, it basically just means that the
         // system backtrace was a bit eager to trace back super far.
         </span><span class="kw">if let </span>PrintFmt::Short = <span class="self">self</span>.fmt.format {
             <span class="kw">if </span>frame_ip.is_null() {
@@ -556,38 +557,38 @@
         <span class="comment">// To reduce TCB size in Sgx enclave, we do not want to implement symbol
         // resolution functionality.  Rather, we can print the offset of the
         // address here, which could be later mapped to correct function.
-        </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, target_env = <span class="string">&quot;sgx&quot;</span>, target_vendor = <span class="string">&quot;fortanix&quot;</span>))]
+        </span><span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, target_env = <span class="string">"sgx"</span>, target_vendor = <span class="string">"fortanix"</span>))]
         </span>{
             <span class="kw">let </span>image_base = std::os::fortanix_sgx::mem::image_base();
             frame_ip = usize::wrapping_sub(frame_ip <span class="kw">as </span>usize, image_base <span class="kw">as _</span>) <span class="kw">as _</span>;
         }
 
         <span class="comment">// Print the index of the frame as well as the optional instruction
-        // pointer of the frame. If we&#39;re beyond the first symbol of this frame
+        // pointer of the frame. If we're beyond the first symbol of this frame
         // though we just print appropriate whitespace.
         </span><span class="kw">if </span><span class="self">self</span>.symbol_index == <span class="number">0 </span>{
-            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;{:4}: &quot;</span>, <span class="self">self</span>.fmt.frame_index)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"{:4}: "</span>, <span class="self">self</span>.fmt.frame_index)<span class="question-mark">?</span>;
             <span class="kw">if let </span>PrintFmt::Full = <span class="self">self</span>.fmt.format {
-                <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;{:1$?} - &quot;</span>, frame_ip, HEX_WIDTH)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"{:1$?} - "</span>, frame_ip, HEX_WIDTH)<span class="question-mark">?</span>;
             }
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;      &quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"      "</span>)<span class="question-mark">?</span>;
             <span class="kw">if let </span>PrintFmt::Full = <span class="self">self</span>.fmt.format {
-                <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;{:1$}&quot;</span>, <span class="string">&quot;&quot;</span>, HEX_WIDTH + <span class="number">3</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"{:1$}"</span>, <span class="string">""</span>, HEX_WIDTH + <span class="number">3</span>)<span class="question-mark">?</span>;
             }
         }
 
         <span class="comment">// Next up write out the symbol name, using the alternate formatting for
-        // more information if we&#39;re a full backtrace. Here we also handle
-        // symbols which don&#39;t have a name,
+        // more information if we're a full backtrace. Here we also handle
+        // symbols which don't have a name,
         </span><span class="kw">match </span>(symbol_name, <span class="kw-2">&amp;</span><span class="self">self</span>.fmt.format) {
-            (<span class="prelude-val">Some</span>(name), PrintFmt::Short) =&gt; <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;{:#}&quot;</span>, name)<span class="question-mark">?</span>,
-            (<span class="prelude-val">Some</span>(name), PrintFmt::Full) =&gt; <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;{}&quot;</span>, name)<span class="question-mark">?</span>,
-            (<span class="prelude-val">None</span>, <span class="kw">_</span>) | (<span class="kw">_</span>, PrintFmt::__Nonexhaustive) =&gt; <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;&lt;unknown&gt;&quot;</span>)<span class="question-mark">?</span>,
+            (<span class="prelude-val">Some</span>(name), PrintFmt::Short) =&gt; <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"{:#}"</span>, name)<span class="question-mark">?</span>,
+            (<span class="prelude-val">Some</span>(name), PrintFmt::Full) =&gt; <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"{}"</span>, name)<span class="question-mark">?</span>,
+            (<span class="prelude-val">None</span>, <span class="kw">_</span>) | (<span class="kw">_</span>, PrintFmt::__Nonexhaustive) =&gt; <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"&lt;unknown&gt;"</span>)<span class="question-mark">?</span>,
         }
-        <span class="self">self</span>.fmt.fmt.write_str(<span class="string">&quot;\n&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.fmt.fmt.write_str(<span class="string">"\n"</span>)<span class="question-mark">?</span>;
 
-        <span class="comment">// And last up, print out the filename/line number if they&#39;re available.
+        <span class="comment">// And last up, print out the filename/line number if they're available.
         </span><span class="kw">if let </span>(<span class="prelude-val">Some</span>(file), <span class="prelude-val">Some</span>(line)) = (filename, lineno) {
             <span class="self">self</span>.print_fileline(file, line, colno)<span class="question-mark">?</span>;
         }
@@ -597,43 +598,43 @@
 
     <span class="kw">fn </span>print_fileline(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        file: BytesOrWideString&lt;<span class="lifetime">&#39;_</span>&gt;,
+        file: BytesOrWideString&lt;<span class="lifetime">'_</span>&gt;,
         line: u32,
         colno: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     ) -&gt; fmt::Result {
         <span class="comment">// Filename/line are printed on lines under the symbol name, so print
         // some appropriate whitespace to sort of right-align ourselves.
         </span><span class="kw">if let </span>PrintFmt::Full = <span class="self">self</span>.fmt.format {
-            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;{:1$}&quot;</span>, <span class="string">&quot;&quot;</span>, HEX_WIDTH)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"{:1$}"</span>, <span class="string">""</span>, HEX_WIDTH)<span class="question-mark">?</span>;
         }
-        <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;             at &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"             at "</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Delegate to our internal callback to print the filename and then
         // print out the line number.
         </span>(<span class="self">self</span>.fmt.print_path)(<span class="self">self</span>.fmt.fmt, file)<span class="question-mark">?</span>;
-        <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;:{}&quot;</span>, line)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">":{}"</span>, line)<span class="question-mark">?</span>;
 
         <span class="comment">// Add column number, if available.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(colno) = colno {
-            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;:{}&quot;</span>, colno)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">":{}"</span>, colno)<span class="question-mark">?</span>;
         }
 
-        <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;\n&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"\n"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>print_raw_fuchsia(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame_ip: <span class="kw-2">*mut </span>c_void) -&gt; fmt::Result {
         <span class="comment">// We only care about the first symbol of a frame
         </span><span class="kw">if </span><span class="self">self</span>.symbol_index == <span class="number">0 </span>{
-            <span class="self">self</span>.fmt.fmt.write_str(<span class="string">&quot;{{{bt:&quot;</span>)<span class="question-mark">?</span>;
-            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">&quot;{}:{:?}&quot;</span>, <span class="self">self</span>.fmt.frame_index, frame_ip)<span class="question-mark">?</span>;
-            <span class="self">self</span>.fmt.fmt.write_str(<span class="string">&quot;}}}\n&quot;</span>)<span class="question-mark">?</span>;
+            <span class="self">self</span>.fmt.fmt.write_str(<span class="string">"{{{bt:"</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="self">self</span>.fmt.fmt, <span class="string">"{}:{:?}"</span>, <span class="self">self</span>.fmt.frame_index, frame_ip)<span class="question-mark">?</span>;
+            <span class="self">self</span>.fmt.fmt.write_str(<span class="string">"}}}\n"</span>)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl </span>Drop <span class="kw">for </span>BacktraceFrameFmt&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Drop <span class="kw">for </span>BacktraceFrameFmt&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.fmt.frame_index += <span class="number">1</span>;
     }

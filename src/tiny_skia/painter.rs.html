@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/painter.rs`."><title>painter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/painter.rs`."><title>painter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -746,15 +747,15 @@
 <span class="kw">use </span><span class="kw">crate</span>::scan;
 
 <span class="kw">use </span><span class="kw">crate</span>::geom::IntSizeExt;
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), feature = <span class="string">&quot;no-std-float&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"no-std-float"</span>))]
 </span><span class="kw">use </span>tiny_skia_path::NoStdFloat;
 
 <span class="doccomment">/// A path filling rule.
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, Debug)]
 </span><span class="kw">pub enum </span>FillRule {
-    <span class="doccomment">/// Specifies that &quot;inside&quot; is computed by a non-zero sum of signed edge crossings.
+    <span class="doccomment">/// Specifies that "inside" is computed by a non-zero sum of signed edge crossings.
     </span>Winding,
-    <span class="doccomment">/// Specifies that &quot;inside&quot; is computed by an odd number of edge crossings.
+    <span class="doccomment">/// Specifies that "inside" is computed by an odd number of edge crossings.
     </span>EvenOdd,
 }
 
@@ -766,11 +767,11 @@
 
 <span class="doccomment">/// Controls how a shape should be painted.
 </span><span class="attr">#[derive(Clone, PartialEq, Debug)]
-</span><span class="kw">pub struct </span>Paint&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Paint&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// A paint shader.
     ///
     /// Default: black color
-    </span><span class="kw">pub </span>shader: Shader&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span><span class="kw">pub </span>shader: Shader&lt;<span class="lifetime">'a</span>&gt;,
 
     <span class="doccomment">/// Paint blending mode.
     ///
@@ -794,14 +795,14 @@
     ///
     /// This feature is especially useful during testing.
     ///
-    /// Unlike high quality pipeline, the low quality one doesn&#39;t support all
+    /// Unlike high quality pipeline, the low quality one doesn't support all
     /// rendering stages, therefore we cannot force it like hq one.
     ///
     /// Default: false
     </span><span class="kw">pub </span>force_hq_pipeline: bool,
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>Paint&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Default <span class="kw">for </span>Paint&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         Paint {
             shader: Shader::SolidColor(Color::BLACK),
@@ -812,7 +813,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Paint&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Paint&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Sets a paint source to a solid color.
     </span><span class="kw">pub fn </span>set_color(<span class="kw-2">&amp;mut </span><span class="self">self</span>, color: Color) {
         <span class="self">self</span>.shader = Shader::SolidColor(color);
@@ -899,12 +900,12 @@
     }
 }
 
-<span class="kw">impl </span>PixmapMut&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>PixmapMut&lt;<span class="lifetime">'_</span>&gt; {
     <span class="comment">// TODO: accept NonZeroRect?
     </span><span class="doccomment">/// Draws a filled rectangle onto the pixmap.
     ///
     /// This function is usually slower than filling a rectangular path,
-    /// but it produces better results. Mainly it doesn&#39;t suffer from weird
+    /// but it produces better results. Mainly it doesn't suffer from weird
     /// clipping of horizontal/vertical edges.
     ///
     /// Used mainly to render a pixmap onto a pixmap.
@@ -956,12 +957,12 @@
             // Skip empty paths and horizontal/vertical lines.
             </span><span class="kw">let </span>path_bounds = path.bounds();
             <span class="kw">if </span>path_bounds.width().is_nearly_zero() || path_bounds.height().is_nearly_zero() {
-                <span class="macro">log::warn!</span>(<span class="string">&quot;empty paths and horizontal/vertical lines cannot be filled&quot;</span>);
+                <span class="macro">log::warn!</span>(<span class="string">"empty paths and horizontal/vertical lines cannot be filled"</span>);
                 <span class="kw">return</span>;
             }
 
             <span class="kw">if </span>is_too_big_for_math(path) {
-                <span class="macro">log::warn!</span>(<span class="string">&quot;path coordinates are too big&quot;</span>);
+                <span class="macro">log::warn!</span>(<span class="string">"path coordinates are too big"</span>);
                 <span class="kw">return</span>;
             }
 
@@ -976,7 +977,7 @@
                     path = <span class="kw">match </span>path.transform(ts) {
                         <span class="prelude-val">Some</span>(v) =&gt; v,
                         <span class="prelude-val">None </span>=&gt; {
-                            <span class="macro">log::warn!</span>(<span class="string">&quot;path transformation failed&quot;</span>);
+                            <span class="macro">log::warn!</span>(<span class="string">"path transformation failed"</span>);
                             <span class="kw">return</span>;
                         }
                     };
@@ -995,8 +996,8 @@
                         <span class="prelude-val">None </span>=&gt; <span class="kw">continue</span>, <span class="comment">// nothing to do, all good
                     </span>};
 
-                    <span class="comment">// We&#39;re ignoring &quot;errors&quot; here, because `fill_path` will return `None`
-                    // when rendering a tile that doesn&#39;t have a path on it.
+                    <span class="comment">// We're ignoring "errors" here, because `fill_path` will return `None`
+                    // when rendering a tile that doesn't have a path on it.
                     // Which is not an error in this case.
                     </span><span class="kw">if </span>paint.anti_alias {
                         scan::path_aa::fill_path(<span class="kw-2">&amp;</span>path, fill_rule, <span class="kw-2">&amp;</span>clip_rect, <span class="kw-2">&amp;mut </span>blitter);
@@ -1030,7 +1031,7 @@
             <span class="kw">let </span>path = <span class="kw">match </span>path.clone().transform(transform) {
                 <span class="prelude-val">Some</span>(v) =&gt; v,
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="macro">log::warn!</span>(<span class="string">&quot;path transformation failed&quot;</span>);
+                    <span class="macro">log::warn!</span>(<span class="string">"path transformation failed"</span>);
                     <span class="kw">return</span>;
                 }
             };
@@ -1051,7 +1052,7 @@
     ///    Which means that we have to allocate a separate `Path`, that can be 2-3x larger
     ///    then the original path.
     /// 2. If a stroke width is thinner than 1px (after applying the transformation),
-    ///    we will use hairline stroking, which doesn&#39;t involve a separate path allocation.
+    ///    we will use hairline stroking, which doesn't involve a separate path allocation.
     ///
     /// Also, if a `stroke` has a dash array, then path will be converted into
     /// a dashed path first and then stroked. Which means a yet another allocation.
@@ -1064,7 +1065,7 @@
         mask: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Mask&gt;,
     ) {
         <span class="kw">if </span>stroke.width &lt; <span class="number">0.0 </span>{
-            <span class="macro">log::warn!</span>(<span class="string">&quot;negative stroke width isn&#39;t allowed&quot;</span>);
+            <span class="macro">log::warn!</span>(<span class="string">"negative stroke width isn't allowed"</span>);
             <span class="kw">return</span>;
         }
 
@@ -1075,7 +1076,7 @@
             dash_path = <span class="kw">match </span>path.dash(dash, res_scale) {
                 <span class="prelude-val">Some</span>(v) =&gt; v,
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="macro">log::warn!</span>(<span class="string">&quot;path dashing failed&quot;</span>);
+                    <span class="macro">log::warn!</span>(<span class="string">"path dashing failed"</span>);
                     <span class="kw">return</span>;
                 }
             };
@@ -1090,7 +1091,7 @@
                 <span class="comment">// No changes to the `paint`.
             </span>} <span class="kw">else if </span>paint.blend_mode.should_pre_scale_coverage() {
                 <span class="comment">// This is the old technique, which we preserve for now so
-                // we don&#39;t change previous results (testing)
+                // we don't change previous results (testing)
                 // the new way seems fine, its just (a tiny bit) different.
                 </span><span class="kw">let </span>scale = (coverage * <span class="number">256.0</span>) <span class="kw">as </span>i32;
                 <span class="kw">let </span>new_alpha = (<span class="number">255 </span>* scale) &gt;&gt; <span class="number">8</span>;
@@ -1106,7 +1107,7 @@
                     path = <span class="kw">match </span>path.transform(transform) {
                         <span class="prelude-val">Some</span>(v) =&gt; v,
                         <span class="prelude-val">None </span>=&gt; {
-                            <span class="macro">log::warn!</span>(<span class="string">&quot;path transformation failed&quot;</span>);
+                            <span class="macro">log::warn!</span>(<span class="string">"path transformation failed"</span>);
                             <span class="kw">return</span>;
                         }
                     };
@@ -1117,7 +1118,7 @@
                     path = <span class="kw">match </span>path.transform(ts) {
                         <span class="prelude-val">Some</span>(v) =&gt; v,
                         <span class="prelude-val">None </span>=&gt; {
-                            <span class="macro">log::warn!</span>(<span class="string">&quot;path transformation failed&quot;</span>);
+                            <span class="macro">log::warn!</span>(<span class="string">"path transformation failed"</span>);
                             <span class="kw">return</span>;
                         }
                     };
@@ -1129,8 +1130,8 @@
                     </span>};
                     <span class="kw">let </span>submask = mask.and_then(|mask| mask.submask(tile.to_int_rect()));
 
-                    <span class="comment">// We&#39;re ignoring &quot;errors&quot; here, because `stroke_hairline` will return `None`
-                    // when rendering a tile that doesn&#39;t have a path on it.
+                    <span class="comment">// We're ignoring "errors" here, because `stroke_hairline` will return `None`
+                    // when rendering a tile that doesn't have a path on it.
                     // Which is not an error in this case.
                     </span><span class="self">Self</span>::stroke_hairline(<span class="kw-2">&amp;</span>path, <span class="kw-2">&amp;</span>paint, stroke.line_cap, submask, <span class="kw-2">&amp;mut </span>subpix);
 
@@ -1151,7 +1152,7 @@
                     </span><span class="kw">let </span>path = <span class="kw">match </span>path.clone().transform(transform) {
                         <span class="prelude-val">Some</span>(v) =&gt; v,
                         <span class="prelude-val">None </span>=&gt; {
-                            <span class="macro">log::warn!</span>(<span class="string">&quot;path transformation failed&quot;</span>);
+                            <span class="macro">log::warn!</span>(<span class="string">"path transformation failed"</span>);
                             <span class="kw">return</span>;
                         }
                     };
@@ -1165,7 +1166,7 @@
             <span class="kw">let </span>path = <span class="kw">match </span>path.stroke(stroke, res_scale) {
                 <span class="prelude-val">Some</span>(v) =&gt; v,
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="macro">log::warn!</span>(<span class="string">&quot;path stroking failed&quot;</span>);
+                    <span class="macro">log::warn!</span>(<span class="string">"path stroking failed"</span>);
                     <span class="kw">return</span>;
                 }
             };
@@ -1224,7 +1225,7 @@
                 patt_transform,
             ),
             blend_mode: paint.blend_mode,
-            anti_alias: <span class="bool-val">false</span>,        <span class="comment">// Skia doesn&#39;t use it too.
+            anti_alias: <span class="bool-val">false</span>,        <span class="comment">// Skia doesn't use it too.
             </span>force_hq_pipeline: <span class="bool-val">false</span>, <span class="comment">// Pattern will use hq anyway.
         </span>};
 
@@ -1234,9 +1235,9 @@
     <span class="doccomment">/// Applies a masks.
     ///
     /// When a `Mask` is passed to drawing methods, it will be used to mask-out
-    /// content we&#39;re about to draw.
+    /// content we're about to draw.
     /// This method masks-out an already drawn content.
-    /// It&#39;s not as fast, but can be useful when a mask is not available during drawing.
+    /// It's not as fast, but can be useful when a mask is not available during drawing.
     ///
     /// This method is similar to filling the whole pixmap with an another,
     /// mask-like pixmap using the `DestinationOut` blend mode.
@@ -1244,7 +1245,7 @@
     /// `Mask` must have the same size as `Pixmap`. No transform or offset are allowed.
     </span><span class="kw">pub fn </span>apply_mask(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mask: <span class="kw-2">&amp;</span>Mask) {
         <span class="kw">if </span><span class="self">self</span>.size() != mask.size() {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;Pixmap and Mask are expected to have the same size&quot;</span>);
+            <span class="macro">log::warn!</span>(<span class="string">"Pixmap and Mask are expected to have the same size"</span>);
             <span class="kw">return</span>;
         }
 
@@ -1289,7 +1290,7 @@
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// We don&#39;t care about translate.
+    <span class="comment">// We don't care about translate.
     </span>ts.tx = <span class="number">0.0</span>;
     ts.ty = <span class="number">0.0</span>;
 
@@ -1317,8 +1318,8 @@
 /// finite path values into infinities (or NaNs), we allow the upper drawing code to reject
 /// the path if its bounds (in device coordinates) is too close to max float.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_too_big_for_math(path: <span class="kw-2">&amp;</span>Path) -&gt; bool {
-    <span class="comment">// This value is just a guess. smaller is safer, but we don&#39;t want to reject largish paths
-    // that we don&#39;t have to.
+    <span class="comment">// This value is just a guess. smaller is safer, but we don't want to reject largish paths
+    // that we don't have to.
     </span><span class="kw">const </span>SCALE_DOWN_TO_ALLOW_FOR_SMALL_MULTIPLIES: f32 = <span class="number">0.25</span>;
     <span class="kw">const </span>MAX: f32 = SCALAR_MAX * SCALE_DOWN_TO_ALLOW_FOR_SMALL_MULTIPLIES;
 

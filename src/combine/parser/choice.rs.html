@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/choice.rs`."><title>choice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/choice.rs`."><title>choice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -873,11 +874,11 @@
 /// # fn main() {
 /// let mut parser = choice!(
 ///     many1(digit()),
-///     string(&quot;let&quot;).map(|s| s.to_string()),
+///     string("let").map(|s| s.to_string()),
 ///     many1(letter()));
-/// assert_eq!(parser.parse(&quot;let&quot;), Ok((&quot;let&quot;.to_string(), &quot;&quot;)));
-/// assert_eq!(parser.parse(&quot;123abc&quot;), Ok((&quot;123&quot;.to_string(), &quot;abc&quot;)));
-/// assert!(parser.parse(&quot;:123&quot;).is_err());
+/// assert_eq!(parser.parse("let"), Ok(("let".to_string(), "")));
+/// assert_eq!(parser.parse("123abc"), Ok(("123".to_string(), "abc")));
+/// assert!(parser.parse(":123").is_err());
 /// # }
 /// ```
 </span><span class="attr">#[macro_export]
@@ -945,7 +946,7 @@
     <span class="kw">fn </span>add_error_choice(<span class="kw-2">&amp;mut </span><span class="self">self</span>, error: <span class="kw-2">&amp;mut </span>Tracked&lt;&lt;Input <span class="kw">as </span>StreamOnce&gt;::Error&gt;);
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Input, P&gt; ChoiceParser&lt;Input&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>P
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Input, P&gt; ChoiceParser&lt;Input&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>P
 <span class="kw">where
     </span>Input: Stream,
     P: <span class="question-mark">?</span>Sized + ChoiceParser&lt;Input&gt;,
@@ -1137,7 +1138,7 @@
                 <span class="kw">if </span>error.offset != ErrorOffset(<span class="number">0</span>) {
                     <span class="kw">let </span>($(<span class="kw-2">ref mut </span><span class="macro-nonterminal">$id</span>,)+) = <span class="kw-2">*</span><span class="self">self</span>;
                     <span class="comment">// Reset the offset to 1 on every add so that we always (and only) takes the
-                    // error of the first parser. If we don&#39;t do this the first parser will consume
+                    // error of the first parser. If we don't do this the first parser will consume
                     // the offset to the detriment for all the other parsers.
                     </span>$(
                         error.offset = ErrorOffset(<span class="number">1</span>);
@@ -1298,7 +1299,7 @@
     PeekErr(<span class="kw">match </span>prev_err {
         <span class="prelude-val">None </span>=&gt; Input::Error::from_error(
             input.position(),
-            StreamError::message_static_message(<span class="string">&quot;parser choice is empty&quot;</span>),
+            StreamError::message_static_message(<span class="string">"parser choice is empty"</span>),
         )
         .into(),
         <span class="prelude-val">Some</span>(<span class="kw-2">mut </span>prev_err) =&gt; {
@@ -1378,24 +1379,24 @@
 /// // `choice` is overloaded on tuples so that different types of parsers can be used
 /// // (each parser must still have the same input and output types)
 /// let mut parser = choice((
-///     string(&quot;Apple&quot;).map(|s| s.to_string()),
+///     string("Apple").map(|s| s.to_string()),
 ///     many1(digit()),
-///     string(&quot;Orange&quot;).map(|s| s.to_string()),
+///     string("Orange").map(|s| s.to_string()),
 /// ));
-/// assert_eq!(parser.parse(&quot;1234&quot;), Ok((&quot;1234&quot;.to_string(), &quot;&quot;)));
-/// assert_eq!(parser.parse(&quot;Orangexx&quot;), Ok((&quot;Orange&quot;.to_string(), &quot;xx&quot;)));
-/// assert!(parser.parse(&quot;Appl&quot;).is_err());
-/// assert!(parser.parse(&quot;Pear&quot;).is_err());
+/// assert_eq!(parser.parse("1234"), Ok(("1234".to_string(), "")));
+/// assert_eq!(parser.parse("Orangexx"), Ok(("Orange".to_string(), "xx")));
+/// assert!(parser.parse("Appl").is_err());
+/// assert!(parser.parse("Pear").is_err());
 ///
 /// // If arrays or slices are used then all parsers must have the same type
 /// // (`string` in this case)
-/// let mut parser2 = choice([string(&quot;one&quot;), string(&quot;two&quot;), string(&quot;three&quot;)]);
-/// // Fails as the parser for &quot;two&quot; consumes the first &#39;t&#39; before failing
-/// assert!(parser2.parse(&quot;three&quot;).is_err());
+/// let mut parser2 = choice([string("one"), string("two"), string("three")]);
+/// // Fails as the parser for "two" consumes the first 't' before failing
+/// assert!(parser2.parse("three").is_err());
 ///
-/// // Use &#39;attempt&#39; to make failing parsers always act as if they have not committed any input
-/// let mut parser3 = choice([attempt(string(&quot;one&quot;)), attempt(string(&quot;two&quot;)), attempt(string(&quot;three&quot;))]);
-/// assert_eq!(parser3.parse(&quot;three&quot;), Ok((&quot;three&quot;, &quot;&quot;)));
+/// // Use 'attempt' to make failing parsers always act as if they have not committed any input
+/// let mut parser3 = choice([attempt(string("one")), attempt(string("two")), attempt(string("three"))]);
+/// assert_eq!(parser3.parse("three"), Ok(("three", "")));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>choice&lt;Input, P&gt;(ps: P) -&gt; Choice&lt;P&gt;
@@ -1451,20 +1452,20 @@
 /// # use combine::parser::char::{digit, string};
 /// # fn main() {
 /// let mut parser = or(
-///     string(&quot;let&quot;),
-///     or(digit().map(|_| &quot;digit&quot;), string(&quot;led&quot;)),
+///     string("let"),
+///     or(digit().map(|_| "digit"), string("led")),
 /// );
-/// assert_eq!(parser.parse(&quot;let&quot;), Ok((&quot;let&quot;, &quot;&quot;)));
-/// assert_eq!(parser.parse(&quot;1&quot;), Ok((&quot;digit&quot;, &quot;&quot;)));
-/// assert!(parser.parse(&quot;led&quot;).is_err());
+/// assert_eq!(parser.parse("let"), Ok(("let", "")));
+/// assert_eq!(parser.parse("1"), Ok(("digit", "")));
+/// assert!(parser.parse("led").is_err());
 ///
-/// let mut parser2 = or(string(&quot;two&quot;), string(&quot;three&quot;));
-/// // Fails as the parser for &quot;two&quot; consumes the first &#39;t&#39; before failing
-/// assert!(parser2.parse(&quot;three&quot;).is_err());
+/// let mut parser2 = or(string("two"), string("three"));
+/// // Fails as the parser for "two" consumes the first 't' before failing
+/// assert!(parser2.parse("three").is_err());
 ///
-/// // Use &#39;attempt&#39; to make failing parsers always act as if they have not committed any input
-/// let mut parser3 = or(attempt(string(&quot;two&quot;)), attempt(string(&quot;three&quot;)));
-/// assert_eq!(parser3.parse(&quot;three&quot;), Ok((&quot;three&quot;, &quot;&quot;)));
+/// // Use 'attempt' to make failing parsers always act as if they have not committed any input
+/// let mut parser3 = or(attempt(string("two")), attempt(string("three")));
+/// assert_eq!(parser3.parse("three"), Ok(("three", "")));
 /// # }
 /// ```
 ///
@@ -1523,10 +1524,10 @@
 /// # use combine::*;
 /// # use combine::parser::char::string;
 /// # fn main() {
-/// let mut parser = optional(string(&quot;hello&quot;));
-/// assert_eq!(parser.parse(&quot;hello&quot;), Ok((Some(&quot;hello&quot;), &quot;&quot;)));
-/// assert_eq!(parser.parse(&quot;world&quot;), Ok((None, &quot;world&quot;)));
-/// assert!(parser.parse(&quot;heya&quot;).is_err());
+/// let mut parser = optional(string("hello"));
+/// assert_eq!(parser.parse("hello"), Ok((Some("hello"), "")));
+/// assert_eq!(parser.parse("world"), Ok((None, "world")));
+/// assert!(parser.parse("heya").is_err());
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>optional&lt;Input, P&gt;(parser: P) -&gt; Optional&lt;P&gt;
@@ -1654,16 +1655,16 @@
 ///
 /// let mut parser = any().then(|e| {
 ///     dispatch!(e;
-///         &#39;a&#39; =&gt; token(&#39;a&#39;),
-///         &#39;b&#39; =&gt; satisfy(|b| b == &#39;b&#39;),
-///         t if t == &#39;c&#39; =&gt; any(),
-///         _ =&gt; token(&#39;d&#39;)
+///         'a' =&gt; token('a'),
+///         'b' =&gt; satisfy(|b| b == 'b'),
+///         t if t == 'c' =&gt; any(),
+///         _ =&gt; token('d')
 ///     )
 /// });
-/// assert_eq!(parser.easy_parse(&quot;aa&quot;), Ok((&#39;a&#39;, &quot;&quot;)));
-/// assert_eq!(parser.easy_parse(&quot;cc&quot;), Ok((&#39;c&#39;, &quot;&quot;)));
-/// assert_eq!(parser.easy_parse(&quot;cd&quot;), Ok((&#39;d&#39;, &quot;&quot;)));
-/// assert!(parser.easy_parse(&quot;ab&quot;).is_err());
+/// assert_eq!(parser.easy_parse("aa"), Ok(('a', "")));
+/// assert_eq!(parser.easy_parse("cc"), Ok(('c', "")));
+/// assert_eq!(parser.easy_parse("cd"), Ok(('d', "")));
+/// assert!(parser.easy_parse("ab").is_err());
 /// ```
 </span><span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>dispatch {
@@ -1684,7 +1685,7 @@
     }
 }
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, test))]
+<span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, test))]
 </span><span class="kw">mod </span>tests {
 
     <span class="kw">use </span><span class="kw">crate</span>::parser::{token::any, EasyParser};
@@ -1693,7 +1694,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>choice_single_parser() {
-        <span class="macro">assert!</span>(choice((any(),),).easy_parse(<span class="string">&quot;a&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(choice((any(),),).easy_parse(<span class="string">"a"</span>).is_ok());
     }
 }
 </code></pre></div></section></main></body></html>

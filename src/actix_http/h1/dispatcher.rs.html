@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/h1/dispatcher.rs`."><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/h1/dispatcher.rs`."><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1308,10 +1309,10 @@
     }
 }
 
-<span class="comment">// there&#39;s 2 versions of Dispatcher state because of:
+<span class="comment">// there's 2 versions of Dispatcher state because of:
 // https://github.com/taiki-e/pin-project-lite/issues/3
 //
-// tl;dr: pin-project-lite doesn&#39;t play well with other attribute macros
+// tl;dr: pin-project-lite doesn't play well with other attribute macros
 
 </span><span class="attr">#[cfg(not(test))]
 </span><span class="macro">pin_project! </span>{
@@ -1456,18 +1457,18 @@
     X: Service&lt;Request, Response = Request&gt;,
     B: MessageBody,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::None =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;State::None&quot;</span>),
-            <span class="self">Self</span>::ExpectCall { .. } =&gt; f.debug_struct(<span class="string">&quot;State::ExpectCall&quot;</span>).finish_non_exhaustive(),
+            <span class="self">Self</span>::None =&gt; <span class="macro">write!</span>(f, <span class="string">"State::None"</span>),
+            <span class="self">Self</span>::ExpectCall { .. } =&gt; f.debug_struct(<span class="string">"State::ExpectCall"</span>).finish_non_exhaustive(),
             <span class="self">Self</span>::ServiceCall { .. } =&gt; {
-                f.debug_struct(<span class="string">&quot;State::ServiceCall&quot;</span>).finish_non_exhaustive()
+                f.debug_struct(<span class="string">"State::ServiceCall"</span>).finish_non_exhaustive()
             }
             <span class="self">Self</span>::SendPayload { .. } =&gt; {
-                f.debug_struct(<span class="string">&quot;State::SendPayload&quot;</span>).finish_non_exhaustive()
+                f.debug_struct(<span class="string">"State::SendPayload"</span>).finish_non_exhaustive()
             }
             <span class="self">Self</span>::SendErrorPayload { .. } =&gt; f
-                .debug_struct(<span class="string">&quot;State::SendErrorPayload&quot;</span>)
+                .debug_struct(<span class="string">"State::SendErrorPayload"</span>)
                 .finish_non_exhaustive(),
         }
     }
@@ -1551,7 +1552,7 @@
     U: Service&lt;(Request, Framed&lt;T, Codec&gt;), Response = ()&gt;,
     U::Error: fmt::Display,
 {
-    <span class="kw">fn </span>can_read(<span class="kw-2">&amp;</span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>can_read(<span class="kw-2">&amp;</span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::READ_DISCONNECT) {
             <span class="bool-val">false
         </span>} <span class="kw">else if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>info) = <span class="self">self</span>.payload {
@@ -1572,7 +1573,7 @@
         }
     }
 
-    <span class="kw">fn </span>poll_flush(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+    <span class="kw">fn </span>poll_flush(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
         <span class="kw">let </span>InnerDispatcherProj { io, write_buf, .. } = <span class="self">self</span>.project();
         <span class="kw">let </span><span class="kw-2">mut </span>io = Pin::new(io.as_mut().unwrap());
 
@@ -1582,8 +1583,8 @@
         <span class="kw">while </span>written &lt; len {
             <span class="kw">match </span>io.as_mut().poll_write(cx, <span class="kw-2">&amp;</span>write_buf[written..])<span class="question-mark">? </span>{
                 Poll::Ready(<span class="number">0</span>) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;write zero; closing&quot;</span>);
-                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::WriteZero, <span class="string">&quot;&quot;</span>)));
+                    <span class="macro">error!</span>(<span class="string">"write zero; closing"</span>);
+                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::WriteZero, <span class="string">""</span>)));
                 }
 
                 Poll::Ready(n) =&gt; written += n,
@@ -1663,14 +1664,14 @@
     <span class="kw">fn </span>send_continue(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) {
         <span class="self">self</span>.project()
             .write_buf
-            .extend_from_slice(<span class="string">b&quot;HTTP/1.1 100 Continue\r\n\r\n&quot;</span>);
+            .extend_from_slice(<span class="string">b"HTTP/1.1 100 Continue\r\n\r\n"</span>);
     }
 
     <span class="kw">fn </span>poll_response(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;PollResponse, DispatchError&gt; {
-        <span class="lifetime">&#39;res</span>: <span class="kw">loop </span>{
+        <span class="lifetime">'res</span>: <span class="kw">loop </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.as_mut().project();
             <span class="kw">match </span>this.state.as_mut().project() {
                 <span class="comment">// no future is in InnerDispatcher state; pop next message
@@ -1755,7 +1756,7 @@
                                 </span>this.state.set(State::None);
                                 this.flags.insert(Flags::FINISHED);
 
-                                <span class="kw">continue </span><span class="lifetime">&#39;res</span>;
+                                <span class="kw">continue </span><span class="lifetime">'res</span>;
                             }
 
                             Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err))) =&gt; {
@@ -1792,7 +1793,7 @@
                                 </span>this.state.set(State::None);
                                 this.flags.insert(Flags::FINISHED);
 
-                                <span class="kw">continue </span><span class="lifetime">&#39;res</span>;
+                                <span class="kw">continue </span><span class="lifetime">'res</span>;
                             }
 
                             Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err))) =&gt; {
@@ -1812,14 +1813,14 @@
                 }
 
                 StateProj::ExpectCall { fut } =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;  calling expect service&quot;</span>);
+                    <span class="macro">trace!</span>(<span class="string">"  calling expect service"</span>);
 
                     <span class="kw">match </span>fut.poll(cx) {
                         <span class="comment">// expect resolved. write continue to buffer and set InnerDispatcher state
                         // to service call.
                         </span>Poll::Ready(<span class="prelude-val">Ok</span>(req)) =&gt; {
                             this.write_buf
-                                .extend_from_slice(<span class="string">b&quot;HTTP/1.1 100 Continue\r\n\r\n&quot;</span>);
+                                .extend_from_slice(<span class="string">b"HTTP/1.1 100 Continue\r\n\r\n"</span>);
                             <span class="kw">let </span>fut = this.flow.service.call(req);
                             this.state.set(State::ServiceCall { fut });
                         }
@@ -1842,7 +1843,7 @@
     <span class="kw">fn </span>handle_request(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         req: Request,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt; {
         <span class="comment">// initialize dispatcher state
         </span>{
@@ -1892,7 +1893,7 @@
                 }
 
                 StateProj::ServiceCall { fut } =&gt; {
-                    <span class="comment">// return no matter the service call future&#39;s result.
+                    <span class="comment">// return no matter the service call future's result.
                     </span><span class="kw">return match </span>fut.poll(cx) {
                         <span class="comment">// Future is resolved. Send response and return a result. On success
                         // to notify the dispatcher a new state is set and the outer loop
@@ -1902,10 +1903,10 @@
                             <span class="self">self</span>.as_mut().send_response(res, body)
                         }
 
-                        <span class="comment">// see the comment on ExpectCall state branch&#39;s Pending
+                        <span class="comment">// see the comment on ExpectCall state branch's Pending
                         </span>Poll::Pending =&gt; <span class="prelude-val">Ok</span>(()),
 
-                        <span class="comment">// see the comment on ExpectCall state branch&#39;s Ready(Err(_))
+                        <span class="comment">// see the comment on ExpectCall state branch's Ready(Err(_))
                         </span>Poll::Ready(<span class="prelude-val">Err</span>(err)) =&gt; {
                             <span class="kw">let </span>res: Response&lt;BoxBody&gt; = err.into();
                             <span class="kw">let </span>(res, body) = res.replace_body(());
@@ -1915,7 +1916,7 @@
                 }
 
                 <span class="kw">_ </span>=&gt; {
-                    <span class="macro">unreachable!</span>(<span class="string">&quot;State must be set to ServiceCall or ExceptCall in handle_request&quot;</span>)
+                    <span class="macro">unreachable!</span>(<span class="string">"State must be set to ServiceCall or ExceptCall in handle_request"</span>)
                 }
             }
         }
@@ -1924,7 +1925,7 @@
     <span class="doccomment">/// Process one incoming request.
     ///
     /// Returns true if any meaningful work was done.
-    </span><span class="kw">fn </span>poll_request(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;bool, DispatchError&gt; {
+    </span><span class="kw">fn </span>poll_request(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;bool, DispatchError&gt; {
         <span class="kw">let </span>pipeline_queue_full = <span class="self">self</span>.messages.len() &gt;= MAX_PIPELINED_MESSAGES;
         <span class="kw">let </span>can_not_read = !<span class="self">self</span>.can_read(cx);
 
@@ -1990,7 +1991,7 @@
                             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>payload) = this.payload {
                                 payload.feed_data(chunk);
                             } <span class="kw">else </span>{
-                                <span class="macro">error!</span>(<span class="string">&quot;Internal server error: unexpected payload chunk&quot;</span>);
+                                <span class="macro">error!</span>(<span class="string">"Internal server error: unexpected payload chunk"</span>);
                                 this.flags.insert(Flags::READ_DISCONNECT);
                                 this.messages.push_back(DispatcherMessage::Error(
                                     Response::internal_server_error().drop_body(),
@@ -2004,7 +2005,7 @@
                             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>payload) = this.payload.take() {
                                 payload.feed_eof();
                             } <span class="kw">else </span>{
-                                <span class="macro">error!</span>(<span class="string">&quot;Internal server error: unexpected eof&quot;</span>);
+                                <span class="macro">error!</span>(<span class="string">"Internal server error: unexpected eof"</span>);
                                 this.flags.insert(Flags::READ_DISCONNECT);
                                 this.messages.push_back(DispatcherMessage::Error(
                                     Response::internal_server_error().drop_body(),
@@ -2021,7 +2022,7 @@
                 </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="kw">break</span>,
 
                 <span class="prelude-val">Err</span>(ParseError::Io(err)) =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;I/O error: {}&quot;</span>, <span class="kw-2">&amp;</span>err);
+                    <span class="macro">trace!</span>(<span class="string">"I/O error: {}"</span>, <span class="kw-2">&amp;</span>err);
                     <span class="self">self</span>.as_mut().client_disconnected();
                     this = <span class="self">self</span>.as_mut().project();
                     <span class="kw-2">*</span>this.error = <span class="prelude-val">Some</span>(DispatchError::Io(err));
@@ -2029,7 +2030,7 @@
                 }
 
                 <span class="prelude-val">Err</span>(ParseError::TooLarge) =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;request head was too big; returning 431 response&quot;</span>);
+                    <span class="macro">trace!</span>(<span class="string">"request head was too big; returning 431 response"</span>);
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>payload) = this.payload.take() {
                         payload.set_error(PayloadError::Overflow);
@@ -2049,7 +2050,7 @@
                 }
 
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;parse error {}&quot;</span>, <span class="kw-2">&amp;</span>err);
+                    <span class="macro">trace!</span>(<span class="string">"parse error {}"</span>, <span class="kw-2">&amp;</span>err);
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>payload) = this.payload.take() {
                         payload.set_error(PayloadError::EncodingCorrupted);
@@ -2072,7 +2073,7 @@
 
     <span class="kw">fn </span>poll_head_timer(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.as_mut().project();
 
@@ -2080,7 +2081,7 @@
             <span class="kw">if </span>timer.as_mut().poll(cx).is_ready() {
                 <span class="comment">// timeout on first request (slow request) return 408
 
-                </span><span class="macro">trace!</span>(<span class="string">&quot;timed out on slow request; replying with 408 and closing connection&quot;</span>);
+                </span><span class="macro">trace!</span>(<span class="string">"timed out on slow request; replying with 408 and closing connection"</span>);
 
                 <span class="kw">let _ </span>= <span class="self">self</span>.as_mut().send_error_response(
                     Response::with_body(StatusCode::REQUEST_TIMEOUT, ()),
@@ -2094,16 +2095,16 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>poll_ka_timer(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt; {
+    <span class="kw">fn </span>poll_ka_timer(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.as_mut().project();
         <span class="kw">if let </span>TimerState::Active { timer } = this.ka_timer {
             <span class="macro">debug_assert!</span>(
                 this.flags.contains(Flags::KEEP_ALIVE),
-                <span class="string">&quot;keep-alive flag should be set when timer is active&quot;</span>,
+                <span class="string">"keep-alive flag should be set when timer is active"</span>,
             );
             <span class="macro">debug_assert!</span>(
                 this.state.is_none(),
-                <span class="string">&quot;dispatcher should not be in keep-alive phase if state is not none: {:?}&quot;</span>,
+                <span class="string">"dispatcher should not be in keep-alive phase if state is not none: {:?}"</span>,
                 this.state,
             );
 
@@ -2114,13 +2115,13 @@
             // the behavior.
             // debug_assert!(
             //     this.write_buf.is_empty(),
-            //     &quot;dispatcher should not be in keep-alive phase if write_buf is not empty&quot;,
+            //     "dispatcher should not be in keep-alive phase if write_buf is not empty",
             // );
 
             // keep-alive timer has timed out
             </span><span class="kw">if </span>timer.as_mut().poll(cx).is_ready() {
                 <span class="comment">// no tasks at hand
-                </span><span class="macro">trace!</span>(<span class="string">&quot;timer timed out; closing connection&quot;</span>);
+                </span><span class="macro">trace!</span>(<span class="string">"timer timed out; closing connection"</span>);
                 this.flags.insert(Flags::SHUTDOWN);
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(deadline) = this.config.client_disconnect_deadline() {
@@ -2139,18 +2140,18 @@
 
     <span class="kw">fn </span>poll_shutdown_timer(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.as_mut().project();
         <span class="kw">if let </span>TimerState::Active { timer } = this.shutdown_timer {
             <span class="macro">debug_assert!</span>(
                 this.flags.contains(Flags::SHUTDOWN),
-                <span class="string">&quot;shutdown flag should be set when timer is active&quot;</span>,
+                <span class="string">"shutdown flag should be set when timer is active"</span>,
             );
 
             <span class="comment">// timed-out during shutdown; drop connection
             </span><span class="kw">if </span>timer.as_mut().poll(cx).is_ready() {
-                <span class="macro">trace!</span>(<span class="string">&quot;timed-out during shutdown&quot;</span>);
+                <span class="macro">trace!</span>(<span class="string">"timed-out during shutdown"</span>);
                 <span class="kw">return </span><span class="prelude-val">Err</span>(DispatchError::DisconnectTimeout);
             }
         }
@@ -2159,7 +2160,7 @@
     }
 
     <span class="doccomment">/// Poll head, keep-alive, and disconnect timer.
-    </span><span class="kw">fn </span>poll_timers(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt; {
+    </span><span class="kw">fn </span>poll_timers(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt; {
         <span class="self">self</span>.as_mut().poll_head_timer(cx)<span class="question-mark">?</span>;
         <span class="self">self</span>.as_mut().poll_ka_timer(cx)<span class="question-mark">?</span>;
         <span class="self">self</span>.as_mut().poll_shutdown_timer(cx)<span class="question-mark">?</span>;
@@ -2173,7 +2174,7 @@
     /// - `std::io::ErrorKind::ConnectionReset` after partial read;
     /// - all data read done.
     </span><span class="attr">#[inline(always)] </span><span class="comment">// TODO: bench this inline
-    </span><span class="kw">fn </span>read_available(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;bool, DispatchError&gt; {
+    </span><span class="kw">fn </span>read_available(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;bool, DispatchError&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.project();
 
         <span class="kw">if </span>this.flags.contains(Flags::READ_DISCONNECT) {
@@ -2185,9 +2186,9 @@
         <span class="kw">let </span><span class="kw-2">mut </span>read_some = <span class="bool-val">false</span>;
 
         <span class="kw">loop </span>{
-            <span class="comment">// Return early when read buf exceed decoder&#39;s max buffer size.
+            <span class="comment">// Return early when read buf exceed decoder's max buffer size.
             </span><span class="kw">if </span>this.read_buf.len() &gt;= MAX_BUFFER_SIZE {
-                <span class="comment">// At this point it&#39;s not known IO stream is still scheduled to be waked up so
+                <span class="comment">// At this point it's not known IO stream is still scheduled to be waked up so
                 // force wake up dispatcher just in case.
                 //
                 // Reason:
@@ -2296,7 +2297,7 @@
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.as_mut().project();
 
         <span class="attr">#[cfg(test)]
@@ -2306,15 +2307,15 @@
 
         <span class="kw">match </span>this.inner.project() {
             DispatcherStateProj::Upgrade { fut: upgrade } =&gt; upgrade.poll(cx).map_err(|err| {
-                <span class="macro">error!</span>(<span class="string">&quot;Upgrade handler error: {}&quot;</span>, err);
+                <span class="macro">error!</span>(<span class="string">"Upgrade handler error: {}"</span>, err);
                 DispatchError::Upgrade
             }),
 
             DispatcherStateProj::Normal { <span class="kw-2">mut </span>inner } =&gt; {
-                <span class="macro">trace!</span>(<span class="string">&quot;start flags: {:?}&quot;</span>, <span class="kw-2">&amp;</span>inner.flags);
+                <span class="macro">trace!</span>(<span class="string">"start flags: {:?}"</span>, <span class="kw-2">&amp;</span>inner.flags);
 
                 trace_timer_states(
-                    <span class="string">&quot;start&quot;</span>,
+                    <span class="string">"start"</span>,
                     <span class="kw-2">&amp;</span>inner.head_timer,
                     <span class="kw-2">&amp;</span>inner.ka_timer,
                     <span class="kw-2">&amp;</span>inner.shutdown_timer,
@@ -2399,7 +2400,7 @@
                             }
                         };
 
-                        <span class="comment">// we didn&#39;t get WouldBlock from write operation, so data get written to
+                        <span class="comment">// we didn't get WouldBlock from write operation, so data get written to
                         // kernel completely (macOS) and we have to write again otherwise response
                         // can get stuck
                         //
@@ -2418,7 +2419,7 @@
 
                     <span class="comment">// client is gone
                     </span><span class="kw">if </span>inner.flags.contains(Flags::WRITE_DISCONNECT) {
-                        <span class="macro">trace!</span>(<span class="string">&quot;client is gone; disconnecting&quot;</span>);
+                        <span class="macro">trace!</span>(<span class="string">"client is gone; disconnecting"</span>);
                         <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(()));
                     }
 
@@ -2427,14 +2428,14 @@
 
                     <span class="comment">// read half is closed; we do not process any responses
                     </span><span class="kw">if </span>inner_p.flags.contains(Flags::READ_DISCONNECT) &amp;&amp; state_is_none {
-                        <span class="macro">trace!</span>(<span class="string">&quot;read half closed; start shutdown&quot;</span>);
+                        <span class="macro">trace!</span>(<span class="string">"read half closed; start shutdown"</span>);
                         inner_p.flags.insert(Flags::SHUTDOWN);
                     }
 
                     <span class="comment">// keep-alive and stream errors
                     </span><span class="kw">if </span>state_is_none &amp;&amp; inner_p.write_buf.is_empty() {
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = inner_p.error.take() {
-                            <span class="macro">error!</span>(<span class="string">&quot;stream error: {}&quot;</span>, <span class="kw-2">&amp;</span>err);
+                            <span class="macro">error!</span>(<span class="string">"stream error: {}"</span>, <span class="kw-2">&amp;</span>err);
                             <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(err));
                         }
 
@@ -2454,7 +2455,7 @@
                     }
 
                     trace_timer_states(
-                        <span class="string">&quot;end&quot;</span>,
+                        <span class="string">"end"</span>,
                         inner_p.head_timer,
                         inner_p.ka_timer,
                         inner_p.shutdown_timer,
@@ -2463,7 +2464,7 @@
                     Poll::Pending
                 };
 
-                <span class="macro">trace!</span>(<span class="string">&quot;end flags: {:?}&quot;</span>, <span class="kw-2">&amp;</span>inner.flags);
+                <span class="macro">trace!</span>(<span class="string">"end flags: {:?}"</span>, <span class="kw-2">&amp;</span>inner.flags);
 
                 poll
             }
@@ -2478,18 +2479,18 @@
     ka_timer: <span class="kw-2">&amp;</span>TimerState,
     shutdown_timer: <span class="kw-2">&amp;</span>TimerState,
 ) {
-    <span class="macro">trace!</span>(<span class="string">&quot;{} timers:&quot;</span>, label);
+    <span class="macro">trace!</span>(<span class="string">"{} timers:"</span>, label);
 
     <span class="kw">if </span>head_timer.is_enabled() {
-        <span class="macro">trace!</span>(<span class="string">&quot;  head {}&quot;</span>, <span class="kw-2">&amp;</span>head_timer);
+        <span class="macro">trace!</span>(<span class="string">"  head {}"</span>, <span class="kw-2">&amp;</span>head_timer);
     }
 
     <span class="kw">if </span>ka_timer.is_enabled() {
-        <span class="macro">trace!</span>(<span class="string">&quot;  keep-alive {}&quot;</span>, <span class="kw-2">&amp;</span>ka_timer);
+        <span class="macro">trace!</span>(<span class="string">"  keep-alive {}"</span>, <span class="kw-2">&amp;</span>ka_timer);
     }
 
     <span class="kw">if </span>shutdown_timer.is_enabled() {
-        <span class="macro">trace!</span>(<span class="string">&quot;  shutdown {}&quot;</span>, <span class="kw-2">&amp;</span>shutdown_timer);
+        <span class="macro">trace!</span>(<span class="string">"  shutdown {}"</span>, <span class="kw-2">&amp;</span>shutdown_timer);
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/data-url-0.3.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="data_url" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/data-url-0.3.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="data_url" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -352,26 +353,26 @@
 //! ```rust
 //! use data_url::{DataUrl, mime};
 //!
-//! let url = DataUrl::process(&quot;data:,Hello%20World!&quot;).unwrap();
+//! let url = DataUrl::process("data:,Hello%20World!").unwrap();
 //! let (body, fragment) = url.decode_to_vec().unwrap();
 //!
-//! assert_eq!(url.mime_type().type_, &quot;text&quot;);
-//! assert_eq!(url.mime_type().subtype, &quot;plain&quot;);
-//! assert_eq!(url.mime_type().get_parameter(&quot;charset&quot;), Some(&quot;US-ASCII&quot;));
-//! assert_eq!(body, b&quot;Hello World!&quot;);
+//! assert_eq!(url.mime_type().type_, "text");
+//! assert_eq!(url.mime_type().subtype, "plain");
+//! assert_eq!(url.mime_type().get_parameter("charset"), Some("US-ASCII"));
+//! assert_eq!(body, b"Hello World!");
 //! assert!(fragment.is_none());
 //! ```
 </span><span class="attr">#![no_std]
 
 </span><span class="comment">// For forwards compatibility
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">extern crate </span>std;
 
 <span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>alloc;
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;alloc&quot;</span>))]
-</span><span class="macro">compile_error!</span>(<span class="string">&quot;the `alloc` feature must be enabled&quot;</span>);
+<span class="attr">#[cfg(not(feature = <span class="string">"alloc"</span>))]
+</span><span class="macro">compile_error!</span>(<span class="string">"the `alloc` feature must be enabled"</span>);
 
 <span class="kw">use </span>alloc::{string::String, vec::Vec};
 <span class="kw">use </span>core::fmt;
@@ -387,10 +388,10 @@
 <span class="kw">pub mod </span>forgiving_base64;
 <span class="kw">pub mod </span>mime;
 
-<span class="kw">pub struct </span>DataUrl&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub struct </span>DataUrl&lt;<span class="lifetime">'a</span>&gt; {
     mime_type: mime::Mime,
     base64: bool,
-    encoded_body_plus_fragment: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    encoded_body_plus_fragment: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
 }
 
 <span class="attr">#[derive(Debug)]
@@ -400,24 +401,24 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DataUrlError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::NotADataUrl =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;not a valid data url&quot;</span>),
+            <span class="self">Self</span>::NotADataUrl =&gt; <span class="macro">write!</span>(f, <span class="string">"not a valid data url"</span>),
             <span class="self">Self</span>::NoComma =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;data url is missing comma delimiting attributes and body&quot;
+                <span class="string">"data url is missing comma delimiting attributes and body"
             </span>),
         }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>DataUrlError {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DataUrl&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DataUrl&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// &lt;https://fetch.spec.whatwg.org/#data-url-processor&gt;
     /// but starting from a string rather than a parsed `Url`, to avoid extra string copies.
-    </span><span class="kw">pub fn </span>process(input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataUrlError&gt; {
+    </span><span class="kw">pub fn </span>process(input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DataUrlError&gt; {
         <span class="kw">use </span><span class="kw">crate</span>::DataUrlError::<span class="kw-2">*</span>;
 
         <span class="kw">let </span>after_colon = pretend_parse_data_url(input).ok_or(NotADataUrl)<span class="question-mark">?</span>;
@@ -443,7 +444,7 @@
     </span><span class="kw">pub fn </span>decode&lt;F, E&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         write_body_bytes: F,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;FragmentIdentifier&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, forgiving_base64::DecodeError&lt;E&gt;&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;FragmentIdentifier&lt;<span class="lifetime">'a</span>&gt;&gt;, forgiving_base64::DecodeError&lt;E&gt;&gt;
     <span class="kw">where
         </span>F: FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), E&gt;,
     {
@@ -458,7 +459,7 @@
     <span class="doccomment">/// Return the decoded body, and the URL’s fragment identifier if it has one.
     </span><span class="kw">pub fn </span>decode_to_vec(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, <span class="prelude-ty">Option</span>&lt;FragmentIdentifier&lt;<span class="lifetime">&#39;a</span>&gt;&gt;), forgiving_base64::InvalidBase64&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;u8&gt;, <span class="prelude-ty">Option</span>&lt;FragmentIdentifier&lt;<span class="lifetime">'a</span>&gt;&gt;), forgiving_base64::InvalidBase64&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>body = Vec::new();
         <span class="kw">let </span>fragment = <span class="self">self</span>.decode(|bytes| {
             body.extend_from_slice(bytes);
@@ -469,18 +470,18 @@
 }
 
 <span class="doccomment">/// The URL’s fragment identifier (after `#`)
-</span><span class="kw">pub struct </span>FragmentIdentifier&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str);
+</span><span class="kw">pub struct </span>FragmentIdentifier&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; FragmentIdentifier&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FragmentIdentifier&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Like in a parsed URL
     </span><span class="kw">pub fn </span>to_percent_encoded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>string = String::new();
         <span class="kw">for </span>byte <span class="kw">in </span><span class="self">self</span>.<span class="number">0</span>.bytes() {
             <span class="kw">match </span>byte {
                 <span class="comment">// Ignore ASCII tabs or newlines like the URL parser would
-                </span><span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\r&#39; </span>=&gt; <span class="kw">continue</span>,
+                </span><span class="string">b'\t' </span>| <span class="string">b'\n' </span>| <span class="string">b'\r' </span>=&gt; <span class="kw">continue</span>,
                 <span class="comment">// https://url.spec.whatwg.org/#fragment-percent-encode-set
-                </span><span class="string">b&#39;\0&#39;</span>..=<span class="string">b&#39; &#39; </span>| <span class="string">b&#39;&quot;&#39; </span>| <span class="string">b&#39;&lt;&#39; </span>| <span class="string">b&#39;&gt;&#39; </span>| <span class="string">b&#39;`&#39; </span>| <span class="string">b&#39;\x7F&#39;</span>..=<span class="string">b&#39;\xFF&#39; </span>=&gt; {
+                </span><span class="string">b'\0'</span>..=<span class="string">b' ' </span>| <span class="string">b'"' </span>| <span class="string">b'&lt;' </span>| <span class="string">b'&gt;' </span>| <span class="string">b'`' </span>| <span class="string">b'\x7F'</span>..=<span class="string">b'\xFF' </span>=&gt; {
                     percent_encode(byte, <span class="kw-2">&amp;mut </span>string)
                 }
                 <span class="comment">// Printable ASCII
@@ -504,33 +505,33 @@
 ///   - ASCII tabs and newlines in the middle are **not** removed
 </span><span class="kw">fn </span>pretend_parse_data_url(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
     <span class="comment">// Trim C0 control or space
-    </span><span class="kw">let </span>left_trimmed = input.trim_start_matches(|ch| ch &lt;= <span class="string">&#39; &#39;</span>);
+    </span><span class="kw">let </span>left_trimmed = input.trim_start_matches(|ch| ch &lt;= <span class="string">' '</span>);
 
     <span class="kw">let </span><span class="kw-2">mut </span>bytes = left_trimmed.bytes();
     {
         <span class="comment">// Ignore ASCII tabs or newlines like the URL parser would
         </span><span class="kw">let </span><span class="kw-2">mut </span>iter = bytes
             .by_ref()
-            .filter(|<span class="kw-2">&amp;</span>byte| !<span class="macro">matches!</span>(byte, <span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\r&#39;</span>));
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b&#39;d&#39;</span>);
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b&#39;a&#39;</span>);
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b&#39;t&#39;</span>);
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b&#39;a&#39;</span>);
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">? </span>== <span class="string">b&#39;:&#39;</span>);
+            .filter(|<span class="kw-2">&amp;</span>byte| !<span class="macro">matches!</span>(byte, <span class="string">b'\t' </span>| <span class="string">b'\n' </span>| <span class="string">b'\r'</span>));
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b'd'</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b'a'</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b't'</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b'a'</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">? </span>== <span class="string">b':'</span>);
     }
     <span class="kw">let </span>bytes_consumed = left_trimmed.len() - bytes.len();
     <span class="kw">let </span>after_colon = <span class="kw-2">&amp;</span>left_trimmed[bytes_consumed..];
 
     <span class="comment">// Trim C0 control or space
-    </span><span class="prelude-val">Some</span>(after_colon.trim_end_matches(|ch| ch &lt;= <span class="string">&#39; &#39;</span>))
+    </span><span class="prelude-val">Some</span>(after_colon.trim_end_matches(|ch| ch &lt;= <span class="string">' '</span>))
 }
 
 <span class="kw">fn </span>find_comma_before_fragment(after_colon: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt; {
     <span class="kw">for </span>(i, byte) <span class="kw">in </span>after_colon.bytes().enumerate() {
-        <span class="kw">if </span>byte == <span class="string">b&#39;,&#39; </span>{
+        <span class="kw">if </span>byte == <span class="string">b',' </span>{
             <span class="kw">return </span><span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>after_colon[..i], <span class="kw-2">&amp;</span>after_colon[i + <span class="number">1</span>..]));
         }
-        <span class="kw">if </span>byte == <span class="string">b&#39;#&#39; </span>{
+        <span class="kw">if </span>byte == <span class="string">b'#' </span>{
             <span class="kw">break</span>;
         }
     }
@@ -538,38 +539,38 @@
 </span>}
 
 <span class="kw">fn </span>parse_header(from_colon_to_comma: <span class="kw-2">&amp;</span>str) -&gt; (mime::Mime, bool) {
-    <span class="comment">// &quot;Strip leading and trailing ASCII whitespace&quot;
+    <span class="comment">// "Strip leading and trailing ASCII whitespace"
     //     \t, \n, and \r would have been filtered by the URL parser
     //     \f percent-encoded by the URL parser
     //     space is the only remaining ASCII whitespace
-    </span><span class="kw">let </span>trimmed = from_colon_to_comma.trim_matches(|c| <span class="macro">matches!</span>(c, <span class="string">&#39; &#39; </span>| <span class="string">&#39;\t&#39; </span>| <span class="string">&#39;\n&#39; </span>| <span class="string">&#39;\r&#39;</span>));
+    </span><span class="kw">let </span>trimmed = from_colon_to_comma.trim_matches(|c| <span class="macro">matches!</span>(c, <span class="string">' ' </span>| <span class="string">'\t' </span>| <span class="string">'\n' </span>| <span class="string">'\r'</span>));
 
     <span class="kw">let </span>without_base64_suffix = remove_base64_suffix(trimmed);
     <span class="kw">let </span>base64 = without_base64_suffix.is_some();
     <span class="kw">let </span>mime_type = without_base64_suffix.unwrap_or(trimmed);
 
     <span class="kw">let </span><span class="kw-2">mut </span>string = String::new();
-    <span class="kw">if </span>mime_type.starts_with(<span class="string">&#39;;&#39;</span>) {
-        string.push_str(<span class="string">&quot;text/plain&quot;</span>)
+    <span class="kw">if </span>mime_type.starts_with(<span class="string">';'</span>) {
+        string.push_str(<span class="string">"text/plain"</span>)
     }
     <span class="kw">let </span><span class="kw-2">mut </span>in_query = <span class="bool-val">false</span>;
     <span class="kw">for </span>byte <span class="kw">in </span>mime_type.bytes() {
         <span class="kw">match </span>byte {
             <span class="comment">// Ignore ASCII tabs or newlines like the URL parser would
-            </span><span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\r&#39; </span>=&gt; <span class="kw">continue</span>,
+            </span><span class="string">b'\t' </span>| <span class="string">b'\n' </span>| <span class="string">b'\r' </span>=&gt; <span class="kw">continue</span>,
 
             <span class="comment">// https://url.spec.whatwg.org/#c0-control-percent-encode-set
-            </span><span class="string">b&#39;\0&#39;</span>..=<span class="string">b&#39;\x1F&#39; </span>| <span class="string">b&#39;\x7F&#39;</span>..=<span class="string">b&#39;\xFF&#39; </span>=&gt; percent_encode(byte, <span class="kw-2">&amp;mut </span>string),
+            </span><span class="string">b'\0'</span>..=<span class="string">b'\x1F' </span>| <span class="string">b'\x7F'</span>..=<span class="string">b'\xFF' </span>=&gt; percent_encode(byte, <span class="kw-2">&amp;mut </span>string),
 
             <span class="comment">// Bytes other than the C0 percent-encode set that are percent-encoded
             // by the URL parser in the query state.
-            // &#39;#&#39; is also in that list but cannot occur here
+            // '#' is also in that list but cannot occur here
             // since it indicates the start of the URL’s fragment.
-            </span><span class="string">b&#39; &#39; </span>| <span class="string">b&#39;&quot;&#39; </span>| <span class="string">b&#39;&lt;&#39; </span>| <span class="string">b&#39;&gt;&#39; </span><span class="kw">if </span>in_query =&gt; percent_encode(byte, <span class="kw-2">&amp;mut </span>string),
+            </span><span class="string">b' ' </span>| <span class="string">b'"' </span>| <span class="string">b'&lt;' </span>| <span class="string">b'&gt;' </span><span class="kw">if </span>in_query =&gt; percent_encode(byte, <span class="kw-2">&amp;mut </span>string),
 
-            <span class="string">b&#39;?&#39; </span>=&gt; {
+            <span class="string">b'?' </span>=&gt; {
                 in_query = <span class="bool-val">true</span>;
-                string.push(<span class="string">&#39;?&#39;</span>)
+                string.push(<span class="string">'?'</span>)
             }
 
             <span class="comment">// Printable ASCII
@@ -580,9 +581,9 @@
     <span class="comment">// FIXME: does Mime::from_str match the MIME Sniffing Standard’s parsing algorithm?
     // &lt;https://mimesniff.spec.whatwg.org/#parse-a-mime-type&gt;
     </span><span class="kw">let </span>mime_type = string.parse().unwrap_or_else(|<span class="kw">_</span>| mime::Mime {
-        type_: String::from(<span class="string">&quot;text&quot;</span>),
-        subtype: String::from(<span class="string">&quot;plain&quot;</span>),
-        parameters: <span class="macro">vec!</span>[(String::from(<span class="string">&quot;charset&quot;</span>), String::from(<span class="string">&quot;US-ASCII&quot;</span>))],
+        type_: String::from(<span class="string">"text"</span>),
+        subtype: String::from(<span class="string">"plain"</span>),
+        parameters: <span class="macro">vec!</span>[(String::from(<span class="string">"charset"</span>), String::from(<span class="string">"US-ASCII"</span>))],
     });
 
     (mime_type, base64)
@@ -596,25 +597,25 @@
         <span class="comment">// Ignore ASCII tabs or newlines like the URL parser would
         </span><span class="kw">let </span>iter = bytes
             .by_ref()
-            .filter(|<span class="kw-2">&amp;</span>byte| !<span class="macro">matches!</span>(byte, <span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\r&#39;</span>));
+            .filter(|<span class="kw-2">&amp;</span>byte| !<span class="macro">matches!</span>(byte, <span class="string">b'\t' </span>| <span class="string">b'\n' </span>| <span class="string">b'\r'</span>));
 
         <span class="comment">// Search from the end
         </span><span class="kw">let </span><span class="kw-2">mut </span>iter = iter.rev();
 
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">? </span>== <span class="string">b&#39;4&#39;</span>);
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">? </span>== <span class="string">b&#39;6&#39;</span>);
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b&#39;e&#39;</span>);
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b&#39;s&#39;</span>);
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b&#39;a&#39;</span>);
-        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b&#39;b&#39;</span>);
-        <span class="macro">require!</span>(iter.skip_while(|<span class="kw-2">&amp;</span>byte| byte == <span class="string">b&#39; &#39;</span>).next()<span class="question-mark">? </span>== <span class="string">b&#39;;&#39;</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">? </span>== <span class="string">b'4'</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">? </span>== <span class="string">b'6'</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b'e'</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b's'</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b'a'</span>);
+        <span class="macro">require!</span>(iter.next()<span class="question-mark">?</span>.to_ascii_lowercase() == <span class="string">b'b'</span>);
+        <span class="macro">require!</span>(iter.skip_while(|<span class="kw-2">&amp;</span>byte| byte == <span class="string">b' '</span>).next()<span class="question-mark">? </span>== <span class="string">b';'</span>);
     }
     <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>s[..bytes.len()])
 }
 
 <span class="kw">fn </span>percent_encode(byte: u8, string: <span class="kw-2">&amp;mut </span>String) {
-    <span class="kw">const </span>HEX_UPPER: [u8; <span class="number">16</span>] = <span class="kw-2">*</span><span class="string">b&quot;0123456789ABCDEF&quot;</span>;
-    string.push(<span class="string">&#39;%&#39;</span>);
+    <span class="kw">const </span>HEX_UPPER: [u8; <span class="number">16</span>] = <span class="kw-2">*</span><span class="string">b"0123456789ABCDEF"</span>;
+    string.push(<span class="string">'%'</span>);
     string.push(HEX_UPPER[(byte &gt;&gt; <span class="number">4</span>) <span class="kw">as </span>usize] <span class="kw">as </span>char);
     string.push(HEX_UPPER[(byte &amp; <span class="number">0x0f</span>) <span class="kw">as </span>usize] <span class="kw">as </span>char);
 }
@@ -622,7 +623,7 @@
 <span class="doccomment">/// This is &lt;https://url.spec.whatwg.org/#string-percent-decode&gt; while also:
 ///
 /// * Ignoring ASCII tab or newlines
-/// * Stopping at the first &#39;#&#39; (which indicates the start of the fragment)
+/// * Stopping at the first '#' (which indicates the start of the fragment)
 ///
 /// Anything that would have been UTF-8 percent-encoded by the URL parser
 /// would be percent-decoded here.
@@ -630,29 +631,29 @@
 </span><span class="kw">fn </span>decode_without_base64&lt;F, E&gt;(
     encoded_body_plus_fragment: <span class="kw-2">&amp;</span>str,
     <span class="kw-2">mut </span>write_bytes: F,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;FragmentIdentifier&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, E&gt;
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;FragmentIdentifier&lt;<span class="lifetime">'_</span>&gt;&gt;, E&gt;
 <span class="kw">where
     </span>F: FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), E&gt;,
 {
     <span class="kw">let </span>bytes = encoded_body_plus_fragment.as_bytes();
     <span class="kw">let </span><span class="kw-2">mut </span>slice_start = <span class="number">0</span>;
     <span class="kw">for </span>(i, <span class="kw-2">&amp;</span>byte) <span class="kw">in </span>bytes.iter().enumerate() {
-        <span class="comment">// We only need to look for 5 different &quot;special&quot; byte values.
+        <span class="comment">// We only need to look for 5 different "special" byte values.
         // For everything else we make slices as large as possible, borrowing the input,
         // in order to make fewer write_all() calls.
-        </span><span class="kw">if </span><span class="macro">matches!</span>(byte, <span class="string">b&#39;%&#39; </span>| <span class="string">b&#39;#&#39; </span>| <span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\r&#39;</span>) {
-            <span class="comment">// Write everything (if anything) &quot;non-special&quot; we’ve accumulated
+        </span><span class="kw">if </span><span class="macro">matches!</span>(byte, <span class="string">b'%' </span>| <span class="string">b'#' </span>| <span class="string">b'\t' </span>| <span class="string">b'\n' </span>| <span class="string">b'\r'</span>) {
+            <span class="comment">// Write everything (if anything) "non-special" we’ve accumulated
             // before this special byte
             </span><span class="kw">if </span>i &gt; slice_start {
                 write_bytes(<span class="kw-2">&amp;</span>bytes[slice_start..i])<span class="question-mark">?</span>;
             }
             <span class="comment">// Then deal with the special byte.
             </span><span class="kw">match </span>byte {
-                <span class="string">b&#39;%&#39; </span>=&gt; {
+                <span class="string">b'%' </span>=&gt; {
                     <span class="kw">let </span>l = bytes.get(i + <span class="number">2</span>).and_then(|<span class="kw-2">&amp;</span>b| (b <span class="kw">as </span>char).to_digit(<span class="number">16</span>));
                     <span class="kw">let </span>h = bytes.get(i + <span class="number">1</span>).and_then(|<span class="kw-2">&amp;</span>b| (b <span class="kw">as </span>char).to_digit(<span class="number">16</span>));
                     <span class="kw">if let </span>(<span class="prelude-val">Some</span>(h), <span class="prelude-val">Some</span>(l)) = (h, l) {
-                        <span class="comment">// &#39;%&#39; followed by two ASCII hex digits
+                        <span class="comment">// '%' followed by two ASCII hex digits
                         </span><span class="kw">let </span>one_byte = h <span class="kw">as </span>u8 * <span class="number">0x10 </span>+ l <span class="kw">as </span>u8;
                         write_bytes(<span class="kw-2">&amp;</span>[one_byte])<span class="question-mark">?</span>;
                         slice_start = i + <span class="number">3</span>;
@@ -662,13 +663,13 @@
                     </span>}
                 }
 
-                <span class="string">b&#39;#&#39; </span>=&gt; {
+                <span class="string">b'#' </span>=&gt; {
                     <span class="kw">let </span>fragment_start = i + <span class="number">1</span>;
                     <span class="kw">let </span>fragment = <span class="kw-2">&amp;</span>encoded_body_plus_fragment[fragment_start..];
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(FragmentIdentifier(fragment)));
                 }
 
-                <span class="comment">// Ignore over &#39;\t&#39; | &#39;\n&#39; | &#39;\r&#39;
+                <span class="comment">// Ignore over '\t' | '\n' | '\r'
                 </span><span class="kw">_ </span>=&gt; slice_start = i + <span class="number">1</span>,
             }
         }
@@ -683,7 +684,7 @@
 </span><span class="kw">fn </span>decode_with_base64&lt;F, E&gt;(
     encoded_body_plus_fragment: <span class="kw-2">&amp;</span>str,
     write_bytes: F,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;FragmentIdentifier&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, forgiving_base64::DecodeError&lt;E&gt;&gt;
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;FragmentIdentifier&lt;<span class="lifetime">'_</span>&gt;&gt;, forgiving_base64::DecodeError&lt;E&gt;&gt;
 <span class="kw">where
     </span>F: FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), E&gt;,
 {

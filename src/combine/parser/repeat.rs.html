@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/repeat.rs`."><title>repeat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/repeat.rs`."><title>repeat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1650,10 +1651,10 @@
 /// # use combine::error::Info;
 /// # use combine::stream::easy::Error;
 /// # fn main() {
-/// let mut parser = count(2, token(b&#39;a&#39;));
+/// let mut parser = count(2, token(b'a'));
 ///
-/// let result = parser.parse(&amp;b&quot;aaab&quot;[..]);
-/// assert_eq!(result, Ok((b&quot;aa&quot;[..].to_owned(), &amp;b&quot;ab&quot;[..])));
+/// let result = parser.parse(&amp;b"aaab"[..]);
+/// assert_eq!(result, Ok((b"aa"[..].to_owned(), &amp;b"ab"[..])));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>count[F, Input, P](count: usize, parser: P)(Input) -&gt; F
@@ -1677,10 +1678,10 @@
     /// # use combine::*;
     /// # use combine::stream::easy::{Error, Info};
     /// # fn main() {
-    /// let mut parser = skip_count(2, token(b&#39;a&#39;));
+    /// let mut parser = skip_count(2, token(b'a'));
     ///
-    /// let result = parser.parse(&amp;b&quot;aaab&quot;[..]);
-    /// assert_eq!(result, Ok(((), &amp;b&quot;ab&quot;[..])));
+    /// let result = parser.parse(&amp;b"aaab"[..]);
+    /// assert_eq!(result, Ok(((), &amp;b"ab"[..])));
     /// # }
     /// ```
     </span><span class="kw">pub fn </span>skip_count[Input, P](count: usize, parser: P)(Input) -&gt; ()
@@ -1767,7 +1768,7 @@
         ));
         <span class="kw">if </span><span class="kw-2">*</span>count &lt; <span class="self">self</span>.min {
             <span class="kw">let </span>err = StreamError::message_format(<span class="macro">format_args!</span>(
-                <span class="string">&quot;expected {} more elements&quot;</span>,
+                <span class="string">"expected {} more elements"</span>,
                 <span class="self">self</span>.min - <span class="kw-2">*</span>count
             ));
             iter.fail(err)
@@ -1791,11 +1792,11 @@
 /// # use combine::*;
 /// # use combine::stream::easy::{Error, Info};
 /// # fn main() {
-/// let mut parser = count_min_max(2, 2, token(b&#39;a&#39;));
+/// let mut parser = count_min_max(2, 2, token(b'a'));
 ///
-/// let result = parser.parse(&amp;b&quot;aaab&quot;[..]);
-/// assert_eq!(result, Ok((b&quot;aa&quot;[..].to_owned(), &amp;b&quot;ab&quot;[..])));
-/// let result = parser.parse(&amp;b&quot;ab&quot;[..]);
+/// let result = parser.parse(&amp;b"aaab"[..]);
+/// assert_eq!(result, Ok((b"aa"[..].to_owned(), &amp;b"ab"[..])));
+/// let result = parser.parse(&amp;b"ab"[..]);
 /// assert!(result.is_err());
 /// # }
 /// ```
@@ -1829,11 +1830,11 @@
     /// # extern crate combine;
     /// # use combine::*;
     /// # fn main() {
-    /// let mut parser = skip_count_min_max(2, 2, token(b&#39;a&#39;));
+    /// let mut parser = skip_count_min_max(2, 2, token(b'a'));
     ///
-    /// let result = parser.parse(&amp;b&quot;aaab&quot;[..]);
-    /// assert_eq!(result, Ok(((), &amp;b&quot;ab&quot;[..])));
-    /// let result = parser.parse(&amp;b&quot;ab&quot;[..]);
+    /// let result = parser.parse(&amp;b"aaab"[..]);
+    /// assert_eq!(result, Ok(((), &amp;b"ab"[..])));
+    /// let result = parser.parse(&amp;b"ab"[..]);
     /// assert!(result.is_err());
     /// # }
     /// ```
@@ -1850,13 +1851,13 @@
     }
 }
 
-<span class="kw">pub struct </span>Iter&lt;<span class="lifetime">&#39;a</span>, Input, P, S, M&gt;
+<span class="kw">pub struct </span>Iter&lt;<span class="lifetime">'a</span>, Input, P, S, M&gt;
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
 {
     parser: P,
-    input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Input,
+    input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Input,
     committed: bool,
     state: State&lt;&lt;Input <span class="kw">as </span>StreamOnce&gt;::Error&gt;,
     partial_state: S,
@@ -1869,13 +1870,13 @@
     CommitErr(E),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Input, P, S, M&gt; Iter&lt;<span class="lifetime">&#39;a</span>, Input, P, S, M&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Input, P, S, M&gt; Iter&lt;<span class="lifetime">'a</span>, Input, P, S, M&gt;
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
     S: BorrowMut&lt;P::PartialState&gt;,
 {
-    <span class="kw">pub fn </span>new(parser: P, mode: M, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Input, partial_state: S) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>new(parser: P, mode: M, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Input, partial_state: S) -&gt; <span class="self">Self </span>{
         Iter {
             parser,
             input,
@@ -1955,7 +1956,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Input, P, S, M&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, Input, P, S, M&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Input, P, S, M&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, Input, P, S, M&gt;
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
@@ -2053,9 +2054,9 @@
 /// # use combine::parser::char::digit;
 /// # fn main() {
 /// let result = many(digit())
-///     .parse(&quot;123A&quot;)
+///     .parse("123A")
 ///     .map(|x| x.0);
-/// assert_eq!(result, Ok(vec![&#39;1&#39;, &#39;2&#39;, &#39;3&#39;]));
+/// assert_eq!(result, Ok(vec!['1', '2', '3']));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>many&lt;F, Input, P&gt;(p: P) -&gt; Many&lt;F, P&gt;
@@ -2142,7 +2143,7 @@
 /// # use combine::parser::char::digit;
 /// # fn main() {
 /// let result = many1::&lt;Vec&lt;_&gt;, _, _&gt;(digit())
-///     .parse(&quot;A123&quot;);
+///     .parse("A123");
 /// assert!(result.is_err());
 /// # }
 /// ```
@@ -2189,8 +2190,8 @@
 /// # use combine::parser::char::digit;
 /// # fn main() {
 /// let result = skip_many(digit())
-///     .parse(&quot;A&quot;);
-/// assert_eq!(result, Ok(((), &quot;A&quot;)));
+///     .parse("A");
+/// assert_eq!(result, Ok(((), "A")));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>skip_many[Input, P](p: P)(Input) -&gt; ()
@@ -2216,8 +2217,8 @@
 /// # use combine::parser::char::digit;
 /// # fn main() {
 /// let result = skip_many1(digit())
-///     .parse(&quot;123A&quot;);
-/// assert_eq!(result, Ok(((), &quot;A&quot;)));
+///     .parse("123A");
+/// assert_eq!(result, Ok(((), "A")));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>skip_many1[Input, P](p: P)(Input) -&gt; ()
@@ -2283,11 +2284,11 @@
 /// # use combine::*;
 /// # use combine::parser::char::digit;
 /// # fn main() {
-/// let mut parser = sep_by(digit(), token(&#39;,&#39;));
-/// let result_ok = parser.parse(&quot;1,2,3&quot;);
-/// assert_eq!(result_ok, Ok((vec![&#39;1&#39;, &#39;2&#39;, &#39;3&#39;], &quot;&quot;)));
-/// let result_ok2 = parser.parse(&quot;&quot;);
-/// assert_eq!(result_ok2, Ok((vec![], &quot;&quot;)));
+/// let mut parser = sep_by(digit(), token(','));
+/// let result_ok = parser.parse("1,2,3");
+/// assert_eq!(result_ok, Ok((vec!['1', '2', '3'], "")));
+/// let result_ok2 = parser.parse("");
+/// assert_eq!(result_ok2, Ok((vec![], "")));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>sep_by&lt;F, Input, P, S&gt;(parser: P, separator: S) -&gt; SepBy&lt;F, P, S&gt;
@@ -2383,16 +2384,16 @@
 /// # use combine::stream::easy;
 /// # use combine::stream::position::{self, SourcePosition};
 /// # fn main() {
-/// let mut parser = sep_by1(digit(), token(&#39;,&#39;));
-/// let result_ok = parser.easy_parse(position::Stream::new(&quot;1,2,3&quot;))
+/// let mut parser = sep_by1(digit(), token(','));
+/// let result_ok = parser.easy_parse(position::Stream::new("1,2,3"))
 ///                       .map(|(vec, state)| (vec, state.input));
-/// assert_eq!(result_ok, Ok((vec![&#39;1&#39;, &#39;2&#39;, &#39;3&#39;], &quot;&quot;)));
-/// let result_err = parser.easy_parse(position::Stream::new(&quot;&quot;));
+/// assert_eq!(result_ok, Ok((vec!['1', '2', '3'], "")));
+/// let result_err = parser.easy_parse(position::Stream::new(""));
 /// assert_eq!(result_err, Err(easy::Errors {
 ///     position: SourcePosition::default(),
 ///     errors: vec![
 ///         easy::Error::end_of_input(),
-///         easy::Error::Expected(&quot;digit&quot;.into())
+///         easy::Error::Expected("digit".into())
 ///     ]
 /// }));
 /// # }
@@ -2464,11 +2465,11 @@
 /// # use combine::*;
 /// # use combine::parser::char::digit;
 /// # fn main() {
-/// let mut parser = sep_end_by(digit(), token(&#39;;&#39;));
-/// let result_ok = parser.parse(&quot;1;2;3;&quot;);
-/// assert_eq!(result_ok, Ok((vec![&#39;1&#39;, &#39;2&#39;, &#39;3&#39;], &quot;&quot;)));
-/// let result_ok2 = parser.parse(&quot;1;2;3&quot;);
-/// assert_eq!(result_ok2, Ok((vec![&#39;1&#39;, &#39;2&#39;, &#39;3&#39;], &quot;&quot;)));
+/// let mut parser = sep_end_by(digit(), token(';'));
+/// let result_ok = parser.parse("1;2;3;");
+/// assert_eq!(result_ok, Ok((vec!['1', '2', '3'], "")));
+/// let result_ok2 = parser.parse("1;2;3");
+/// assert_eq!(result_ok2, Ok((vec!['1', '2', '3'], "")));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>sep_end_by&lt;F, Input, P, S&gt;(parser: P, separator: S) -&gt; SepEndBy&lt;F, P, S&gt;
@@ -2569,16 +2570,16 @@
 /// # use combine::stream::easy;
 /// # use combine::stream::position::{self, SourcePosition};
 /// # fn main() {
-/// let mut parser = sep_end_by1(digit(), token(&#39;;&#39;));
-/// let result_ok = parser.easy_parse(position::Stream::new(&quot;1;2;3;&quot;))
+/// let mut parser = sep_end_by1(digit(), token(';'));
+/// let result_ok = parser.easy_parse(position::Stream::new("1;2;3;"))
 ///                       .map(|(vec, state)| (vec, state.input));
-/// assert_eq!(result_ok, Ok((vec![&#39;1&#39;, &#39;2&#39;, &#39;3&#39;], &quot;&quot;)));
-/// let result_err = parser.easy_parse(position::Stream::new(&quot;&quot;));
+/// assert_eq!(result_ok, Ok((vec!['1', '2', '3'], "")));
+/// let result_err = parser.easy_parse(position::Stream::new(""));
 /// assert_eq!(result_err, Err(easy::Errors {
 ///     position: SourcePosition::default(),
 ///     errors: vec![
 ///         easy::Error::end_of_input(),
-///         easy::Error::Expected(&quot;digit&quot;.into())
+///         easy::Error::Expected("digit".into())
 ///     ]
 /// }));
 /// # }
@@ -2672,9 +2673,9 @@
 /// # use combine::parser::char::digit;
 /// # fn main() {
 /// let number = digit().map(|c: char| c.to_digit(10).unwrap());
-/// let sub = token(&#39;-&#39;).map(|_| |l: u32, r: u32| l - r);
+/// let sub = token('-').map(|_| |l: u32, r: u32| l - r);
 /// let mut parser = chainl1(number, sub);
-/// assert_eq!(parser.parse(&quot;9-3-5&quot;), Ok((1, &quot;&quot;)));
+/// assert_eq!(parser.parse("9-3-5"), Ok((1, "")));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>chainl1&lt;Input, P, Op&gt;(parser: P, op: Op) -&gt; Chainl1&lt;P, Op&gt;
@@ -2744,9 +2745,9 @@
 /// # use combine::parser::char::digit;
 /// # fn main() {
 /// let number = digit().map(|c: char| c.to_digit(10).unwrap());
-/// let pow = token(&#39;^&#39;).map(|_| |l: u32, r: u32| l.pow(r));
+/// let pow = token('^').map(|_| |l: u32, r: u32| l.pow(r));
 /// let mut parser = chainr1(number, pow);
-///     assert_eq!(parser.parse(&quot;2^3^2&quot;), Ok((512, &quot;&quot;)));
+///     assert_eq!(parser.parse("2^3^2"), Ok((512, "")));
 /// }
 /// ```
 </span><span class="kw">pub fn </span>chainr1&lt;Input, P, Op&gt;(parser: P, op: Op) -&gt; Chainr1&lt;P, Op&gt;
@@ -2823,15 +2824,15 @@
 /// # use combine::parser::repeat::take_until;
 /// # fn main() {
 /// let mut char_parser = take_until(char::digit());
-/// assert_eq!(char_parser.parse(&quot;abc123&quot;), Ok((&quot;abc&quot;.to_string(), &quot;123&quot;)));
+/// assert_eq!(char_parser.parse("abc123"), Ok(("abc".to_string(), "123")));
 ///
-/// let mut byte_parser = take_until(byte::bytes(&amp;b&quot;TAG&quot;[..]));
-/// assert_eq!(byte_parser.parse(&amp;b&quot;123TAG&quot;[..]), Ok((b&quot;123&quot;.to_vec(), &amp;b&quot;TAG&quot;[..])));
-/// assert!(byte_parser.parse(&amp;b&quot;123TATAG&quot;[..]).is_err());
+/// let mut byte_parser = take_until(byte::bytes(&amp;b"TAG"[..]));
+/// assert_eq!(byte_parser.parse(&amp;b"123TAG"[..]), Ok((b"123".to_vec(), &amp;b"TAG"[..])));
+/// assert!(byte_parser.parse(&amp;b"123TATAG"[..]).is_err());
 ///
 /// // `attempt` must be used if the `end` should be consume input before failing
-/// let mut byte_parser = take_until(attempt(byte::bytes(&amp;b&quot;TAG&quot;[..])));
-/// assert_eq!(byte_parser.parse(&amp;b&quot;123TATAG&quot;[..]), Ok((b&quot;123TA&quot;.to_vec(), &amp;b&quot;TAG&quot;[..])));
+/// let mut byte_parser = take_until(attempt(byte::bytes(&amp;b"TAG"[..])));
+/// assert_eq!(byte_parser.parse(&amp;b"123TATAG"[..]), Ok((b"123TA".to_vec(), &amp;b"TAG"[..])));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>take_until&lt;F, Input, P&gt;(end: P) -&gt; TakeUntil&lt;F, P&gt;
@@ -2861,15 +2862,15 @@
     /// # use combine::parser::repeat::skip_until;
     /// # fn main() {
     /// let mut char_parser = skip_until(char::digit());
-    /// assert_eq!(char_parser.parse(&quot;abc123&quot;), Ok(((), &quot;123&quot;)));
+    /// assert_eq!(char_parser.parse("abc123"), Ok(((), "123")));
     ///
-    /// let mut byte_parser = skip_until(byte::bytes(&amp;b&quot;TAG&quot;[..]));
-    /// assert_eq!(byte_parser.parse(&amp;b&quot;123TAG&quot;[..]), Ok(((), &amp;b&quot;TAG&quot;[..])));
-    /// assert!(byte_parser.parse(&amp;b&quot;123TATAG&quot;[..]).is_err());
+    /// let mut byte_parser = skip_until(byte::bytes(&amp;b"TAG"[..]));
+    /// assert_eq!(byte_parser.parse(&amp;b"123TAG"[..]), Ok(((), &amp;b"TAG"[..])));
+    /// assert!(byte_parser.parse(&amp;b"123TATAG"[..]).is_err());
     ///
     /// // `attempt` must be used if the `end` should consume input before failing
-    /// let mut byte_parser = skip_until(attempt(byte::bytes(&amp;b&quot;TAG&quot;[..])));
-    /// assert_eq!(byte_parser.parse(&amp;b&quot;123TATAG&quot;[..]), Ok(((), &amp;b&quot;TAG&quot;[..])));
+    /// let mut byte_parser = skip_until(attempt(byte::bytes(&amp;b"TAG"[..])));
+    /// assert_eq!(byte_parser.parse(&amp;b"123TATAG"[..]), Ok(((), &amp;b"TAG"[..])));
     /// # }
     /// ```
     </span><span class="kw">pub fn </span>skip_until[Input, P](end: P)(Input) -&gt; ()
@@ -2971,16 +2972,16 @@
     /// # use combine::parser::repeat::skip_until;
     /// # fn main() {
     ///     let mut char_parser = skip_until(char::digit());
-    ///     assert_eq!(char_parser.parse(&quot;abc123&quot;), Ok(((), &quot;123&quot;)));
+    ///     assert_eq!(char_parser.parse("abc123"), Ok(((), "123")));
     ///
-    ///     let mut byte_parser = skip_until(byte::bytes(&amp;b&quot;TAG&quot;[..]));
-    ///     assert_eq!(byte_parser.parse(&amp;b&quot;123TAG&quot;[..]), Ok(((), &amp;b&quot;TAG&quot;[..])));
-    ///     assert!(byte_parser.parse(&amp;b&quot;123TATAG&quot;[..]).is_err());
+    ///     let mut byte_parser = skip_until(byte::bytes(&amp;b"TAG"[..]));
+    ///     assert_eq!(byte_parser.parse(&amp;b"123TAG"[..]), Ok(((), &amp;b"TAG"[..])));
+    ///     assert!(byte_parser.parse(&amp;b"123TATAG"[..]).is_err());
     ///
     ///     // `attempt` must be used because the `end` will commit to `TA` before failing,
     ///     // but we want to continue skipping
-    ///     let mut byte_parser = skip_until(attempt(byte::bytes(&amp;b&quot;TAG&quot;[..])));
-    ///     assert_eq!(byte_parser.parse(&amp;b&quot;123TATAG&quot;[..]), Ok(((), &amp;b&quot;TAG&quot;[..])));
+    ///     let mut byte_parser = skip_until(attempt(byte::bytes(&amp;b"TAG"[..])));
+    ///     assert_eq!(byte_parser.parse(&amp;b"123TATAG"[..]), Ok(((), &amp;b"TAG"[..])));
     /// }
     /// ```
     </span><span class="kw">pub fn </span>repeat_skip_until[Input, P, E](parser: P, end: E)(Input) -&gt; ()
@@ -3071,7 +3072,7 @@
 /// resumes parsing using `parser`. If `escape` was not found then the parser finishes
 /// successfully.
 ///
-/// This returns `()` since there isn&#39;t a good way to collect the output of the parsers so it is
+/// This returns `()` since there isn't a good way to collect the output of the parsers so it is
 /// best paired with one of the `recognize` parsers.
 ///
 /// ```
@@ -3082,11 +3083,11 @@
 /// # use combine::parser::range::{recognize, take_while1};
 /// # fn main() {
 ///     let mut parser = recognize(
-///         escaped(take_while1(|c| c != &#39;&quot;&#39; &amp;&amp; c != &#39;\\&#39;), &#39;\\&#39;, one_of(r#&quot;nr&quot;\&quot;#.chars()))
+///         escaped(take_while1(|c| c != '"' &amp;&amp; c != '\\'), '\\', one_of(r#"nr"\"#.chars()))
 ///     );
-///     assert_eq!(parser.parse(r#&quot;ab\&quot;12\n\rc&quot;&quot;#), Ok((r#&quot;ab\&quot;12\n\rc&quot;#, r#&quot;&quot;&quot;#)));
-///     assert!(parser.parse(r#&quot;\&quot;#).is_err());
-///     assert!(parser.parse(r#&quot;\a&quot;#).is_err());
+///     assert_eq!(parser.parse(r#"ab\"12\n\rc""#), Ok((r#"ab\"12\n\rc"#, r#"""#)));
+///     assert!(parser.parse(r#"\"#).is_err());
+///     assert!(parser.parse(r#"\a"#).is_err());
 /// }
 /// ```
 </span><span class="kw">pub fn </span>escaped&lt;Input, P, Q&gt;(
@@ -3112,7 +3113,7 @@
     iterable: I,
     _marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; F&gt;,
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;s</span>, <span class="lifetime">&#39;a</span>, P, Q, I, J, F&gt; Parser&lt;I&gt; <span class="kw">for </span>Iterate&lt;F, J, P&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'s</span>, <span class="lifetime">'a</span>, P, Q, I, J, F&gt; Parser&lt;I&gt; <span class="kw">for </span>Iterate&lt;F, J, P&gt;
 <span class="kw">where
     </span>P: FnMut(<span class="kw-2">&amp;</span>J::Item, <span class="kw-2">&amp;mut </span>I) -&gt; Q,
     Q: Parser&lt;I&gt;,
@@ -3220,8 +3221,8 @@
 /// # use combine::*;
 ///
 /// assert_eq!(
-///     iterate(0..3, |&amp;i, _| count_min_max(i, i, any())).parse(&quot;abbccc&quot;),
-///     Ok((vec![&quot;&quot;.to_string(), &quot;a&quot;.to_string(), &quot;bb&quot;.to_string()], &quot;ccc&quot;)),
+///     iterate(0..3, |&amp;i, _| count_min_max(i, i, any())).parse("abbccc"),
+///     Ok((vec!["".to_string(), "a".to_string(), "bb".to_string()], "ccc")),
 /// );
 /// ```
 </span><span class="kw">pub fn </span>iterate&lt;F, J, P, I, Q&gt;(iterable: J, parser: P) -&gt; Iterate&lt;F, J, P&gt;

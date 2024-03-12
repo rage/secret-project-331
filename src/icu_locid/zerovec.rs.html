@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/zerovec.rs`."><title>zerovec.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/zerovec.rs`."><title>zerovec.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -160,16 +161,16 @@
 //!
 //! // ZeroMap from locales to integers
 //! let data: &amp;[(&amp;UnvalidatedStr, u32)] = &amp;[
-//!     (&quot;de-DE-u-hc-h12&quot;.into(), 5),
-//!     (&quot;en-US-u-ca-buddhist&quot;.into(), 10),
-//!     (&quot;my-MM&quot;.into(), 15),
-//!     (&quot;sr-Cyrl-ME&quot;.into(), 20),
-//!     (&quot;zh-TW&quot;.into(), 25),
+//!     ("de-DE-u-hc-h12".into(), 5),
+//!     ("en-US-u-ca-buddhist".into(), 10),
+//!     ("my-MM".into(), 15),
+//!     ("sr-Cyrl-ME".into(), 20),
+//!     ("zh-TW".into(), 25),
 //! ];
 //! let zm: ZeroMap&lt;UnvalidatedStr, u32&gt; = data.iter().copied().collect();
 //!
 //! // Get the value associated with a locale
-//! let loc: Locale = &quot;en-US-u-ca-buddhist&quot;.parse().unwrap();
+//! let loc: Locale = "en-US-u-ca-buddhist".parse().unwrap();
 //! let value = zm.get_copied_by(|uvstr| loc.strict_cmp(uvstr).reverse());
 //! assert_eq!(value, Some(10));
 //! ```
@@ -199,23 +200,23 @@
 //!
 //! // ZeroMap from integer to LSR (language-script-region)
 //! let zm: ZeroMap&lt;u32, (Language, Option&lt;Script&gt;, Option&lt;Region&gt;)&gt; = [
-//!     (5, (language!(&quot;de&quot;), None, Some(region!(&quot;DE&quot;)))),
-//!     (10, (language!(&quot;en&quot;), None, Some(region!(&quot;US&quot;)))),
-//!     (15, (language!(&quot;my&quot;), None, Some(region!(&quot;MM&quot;)))),
+//!     (5, (language!("de"), None, Some(region!("DE")))),
+//!     (10, (language!("en"), None, Some(region!("US")))),
+//!     (15, (language!("my"), None, Some(region!("MM")))),
 //!     (
 //!         20,
-//!         (language!(&quot;sr&quot;), Some(script!(&quot;Cyrl&quot;)), Some(region!(&quot;ME&quot;))),
+//!         (language!("sr"), Some(script!("Cyrl")), Some(region!("ME"))),
 //!     ),
-//!     (25, (language!(&quot;zh&quot;), None, Some(region!(&quot;TW&quot;)))),
+//!     (25, (language!("zh"), None, Some(region!("TW")))),
 //! ]
 //! .into_iter()
 //! .collect();
 //!
 //! // Construct a LanguageIdentifier from a tuple entry
 //! let lid: LanguageIdentifier =
-//!     zm.get_copied(&amp;25).expect(&quot;element is present&quot;).into();
+//!     zm.get_copied(&amp;25).expect("element is present").into();
 //!
-//! assert_eq!(lid, langid!(&quot;zh-TW&quot;));
+//! assert_eq!(lid, langid!("zh-TW"));
 //! ```
 //!
 //! ## Storing Strings
@@ -238,22 +239,22 @@
 //!
 //! // ZeroMap from integer to locale string
 //! let data: &amp;[(u32, &amp;UnvalidatedStr)] = &amp;[
-//!     (5, &quot;de-DE-u-hc-h12&quot;.into()),
-//!     (10, &quot;en-US-u-ca-buddhist&quot;.into()),
-//!     (15, &quot;my-MM&quot;.into()),
-//!     (20, &quot;sr-Cyrl-ME&quot;.into()),
-//!     (25, &quot;zh-TW&quot;.into()),
-//!     (30, &quot;INVALID&quot;.into()),
+//!     (5, "de-DE-u-hc-h12".into()),
+//!     (10, "en-US-u-ca-buddhist".into()),
+//!     (15, "my-MM".into()),
+//!     (20, "sr-Cyrl-ME".into()),
+//!     (25, "zh-TW".into()),
+//!     (30, "INVALID".into()),
 //! ];
 //! let zm: ZeroMap&lt;u32, UnvalidatedStr&gt; = data.iter().copied().collect();
 //!
 //! // Construct a Locale by parsing the string.
-//! let value = zm.get(&amp;25).expect(&quot;element is present&quot;);
+//! let value = zm.get(&amp;25).expect("element is present");
 //! let loc = Locale::try_from_bytes(value);
-//! assert_eq!(loc, Ok(langid!(&quot;zh-TW&quot;).into()));
+//! assert_eq!(loc, Ok(langid!("zh-TW").into()));
 //!
 //! // Invalid entries are fallible
-//! let err_value = zm.get(&amp;30).expect(&quot;element is present&quot;);
+//! let err_value = zm.get(&amp;30).expect("element is present");
 //! let err_loc = Locale::try_from_bytes(err_value);
 //! assert!(matches!(err_loc, Err(_)));
 //! ```

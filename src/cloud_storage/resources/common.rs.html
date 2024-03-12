@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/common.rs`."><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/common.rs`."><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -260,7 +261,7 @@
 
 <span class="doccomment">/// Contains information about the team related to this `DefaultObjectAccessControls`
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>ProjectTeam {
     <span class="doccomment">/// The project number.
     </span>project_number: String,
@@ -270,7 +271,7 @@
 
 <span class="doccomment">/// Any type of team we can encounter.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;lowercase&quot;</span>)]
+#[serde(rename_all = <span class="string">"lowercase"</span>)]
 </span><span class="kw">pub enum </span>Team {
     <span class="doccomment">/// The team consists of `Editors`.
     </span>Editors,
@@ -283,9 +284,9 @@
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Team {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Team::Editors =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;editors&quot;</span>),
-            Team::Owners =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;owners&quot;</span>),
-            Team::Viewers =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;viewers&quot;</span>),
+            Team::Editors =&gt; <span class="macro">write!</span>(f, <span class="string">"editors"</span>),
+            Team::Owners =&gt; <span class="macro">write!</span>(f, <span class="string">"owners"</span>),
+            Team::Viewers =&gt; <span class="macro">write!</span>(f, <span class="string">"viewers"</span>),
         }
     }
 }
@@ -295,17 +296,17 @@
 
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         <span class="kw">match </span>s {
-            <span class="string">&quot;editors&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Editors),
-            <span class="string">&quot;owners&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Owners),
-            <span class="string">&quot;viewers&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Viewers),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid `Team`: {}&quot;</span>, s)),
+            <span class="string">"editors" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Editors),
+            <span class="string">"owners" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Owners),
+            <span class="string">"viewers" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Viewers),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"Invalid `Team`: {}"</span>, s)),
         }
     }
 }
 
 <span class="doccomment">/// Any type of role we can encounter.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;UPPERCASE&quot;</span>)]
+#[serde(rename_all = <span class="string">"UPPERCASE"</span>)]
 </span><span class="kw">pub enum </span>Role {
     <span class="doccomment">/// Full access.
     </span>Owner,
@@ -316,9 +317,9 @@
 }
 
 <span class="attr">#[derive(Debug, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ListResponse&lt;T&gt; {
-    <span class="attr">#[serde(default = <span class="string">&quot;Vec::new&quot;</span>)]
+    <span class="attr">#[serde(default = <span class="string">"Vec::new"</span>)]
     </span><span class="kw">pub </span>items: Vec&lt;T&gt;,
     <span class="comment">// pub next_page_token: Option&lt;String&gt;,
 </span>}
@@ -350,14 +351,14 @@
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Entity {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            UserId(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;user-{}&quot;</span>, s),
-            UserEmail(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;user-{}&quot;</span>, s),
-            GroupId(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;group-{}&quot;</span>, s),
-            GroupEmail(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;group-{}&quot;</span>, s),
-            Domain(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;domain-{}&quot;</span>, s),
-            Project(team, project_id) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;project-{}-{}&quot;</span>, team, project_id),
-            AllUsers =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;allUsers&quot;</span>),
-            AllAuthenticatedUsers =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;allAuthenticatedUsers&quot;</span>),
+            UserId(s) =&gt; <span class="macro">write!</span>(f, <span class="string">"user-{}"</span>, s),
+            UserEmail(s) =&gt; <span class="macro">write!</span>(f, <span class="string">"user-{}"</span>, s),
+            GroupId(s) =&gt; <span class="macro">write!</span>(f, <span class="string">"group-{}"</span>, s),
+            GroupEmail(s) =&gt; <span class="macro">write!</span>(f, <span class="string">"group-{}"</span>, s),
+            Domain(s) =&gt; <span class="macro">write!</span>(f, <span class="string">"domain-{}"</span>, s),
+            Project(team, project_id) =&gt; <span class="macro">write!</span>(f, <span class="string">"project-{}-{}"</span>, team, project_id),
+            AllUsers =&gt; <span class="macro">write!</span>(f, <span class="string">"allUsers"</span>),
+            AllAuthenticatedUsers =&gt; <span class="macro">write!</span>(f, <span class="string">"allAuthenticatedUsers"</span>),
         }
     }
 }
@@ -367,49 +368,49 @@
     <span class="kw">where
         </span>S: Serializer,
     {
-        serializer.serialize_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>))
+        serializer.serialize_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}"</span>, <span class="self">self</span>))
     }
 }
 
 <span class="kw">struct </span>EntityVisitor;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>EntityVisitor {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>EntityVisitor {
     <span class="kw">type </span>Value = Entity;
 
     <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
-        f.write_str(<span class="string">&quot;an `Entity` resource&quot;</span>)
+        f.write_str(<span class="string">"an `Entity` resource"</span>)
     }
 
     <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
     <span class="kw">where
         </span>E: serde::de::Error,
     {
-        <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = value.split(<span class="string">&#39;-&#39;</span>).collect();
+        <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = value.split(<span class="string">'-'</span>).collect();
         <span class="kw">let </span>result = <span class="kw">match </span><span class="kw-2">&amp;</span>parts[..] {
-            [<span class="string">&quot;user&quot;</span>, rest @ ..] <span class="kw">if </span>is_email(rest) =&gt; UserEmail(rest.join(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;user&quot;</span>, rest @ ..] =&gt; UserId(rest.join(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;group&quot;</span>, rest @ ..] <span class="kw">if </span>is_email(rest) =&gt; GroupEmail(rest.join(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;group&quot;</span>, rest @ ..] =&gt; GroupId(rest.join(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;domain&quot;</span>, rest @ ..] =&gt; Domain(rest.join(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;project&quot;</span>, team, project_id] =&gt; {
+            [<span class="string">"user"</span>, rest @ ..] <span class="kw">if </span>is_email(rest) =&gt; UserEmail(rest.join(<span class="string">"-"</span>)),
+            [<span class="string">"user"</span>, rest @ ..] =&gt; UserId(rest.join(<span class="string">"-"</span>)),
+            [<span class="string">"group"</span>, rest @ ..] <span class="kw">if </span>is_email(rest) =&gt; GroupEmail(rest.join(<span class="string">"-"</span>)),
+            [<span class="string">"group"</span>, rest @ ..] =&gt; GroupId(rest.join(<span class="string">"-"</span>)),
+            [<span class="string">"domain"</span>, rest @ ..] =&gt; Domain(rest.join(<span class="string">"-"</span>)),
+            [<span class="string">"project"</span>, team, project_id] =&gt; {
                 Project(Team::from_str(team).unwrap(), project_id.to_string())
             }
-            [<span class="string">&quot;allUsers&quot;</span>] =&gt; AllUsers,
-            [<span class="string">&quot;allAuthenticatedUsers&quot;</span>] =&gt; AllAuthenticatedUsers,
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(E::custom(<span class="macro">format!</span>(<span class="string">&quot;Unexpected `Entity`: {}&quot;</span>, value))),
+            [<span class="string">"allUsers"</span>] =&gt; AllUsers,
+            [<span class="string">"allAuthenticatedUsers"</span>] =&gt; AllAuthenticatedUsers,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(E::custom(<span class="macro">format!</span>(<span class="string">"Unexpected `Entity`: {}"</span>, value))),
         };
         <span class="prelude-val">Ok</span>(result)
     }
 }
 
 <span class="kw">fn </span>is_email(pattern: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) -&gt; bool {
-    pattern.iter().any(|s| s.contains(<span class="string">&#39;@&#39;</span>))
+    pattern.iter().any(|s| s.contains(<span class="string">'@'</span>))
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Entity {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Entity {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         deserializer.deserialize_str(EntityVisitor)
     }
@@ -421,91 +422,91 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>serialize() {
-        <span class="kw">let </span>entity1 = UserId(<span class="string">&quot;some id&quot;</span>.to_string());
-        <span class="macro">assert_eq!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>entity1).unwrap(), <span class="string">&quot;\&quot;user-some id\&quot;&quot;</span>);
+        <span class="kw">let </span>entity1 = UserId(<span class="string">"some id"</span>.to_string());
+        <span class="macro">assert_eq!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>entity1).unwrap(), <span class="string">"\"user-some id\""</span>);
 
-        <span class="kw">let </span>entity2 = UserEmail(<span class="string">&quot;some@email&quot;</span>.to_string());
+        <span class="kw">let </span>entity2 = UserEmail(<span class="string">"some@email"</span>.to_string());
         <span class="macro">assert_eq!</span>(
             serde_json::to_string(<span class="kw-2">&amp;</span>entity2).unwrap(),
-            <span class="string">&quot;\&quot;user-some@email\&quot;&quot;
+            <span class="string">"\"user-some@email\""
         </span>);
 
-        <span class="kw">let </span>entity3 = GroupId(<span class="string">&quot;some group id&quot;</span>.to_string());
+        <span class="kw">let </span>entity3 = GroupId(<span class="string">"some group id"</span>.to_string());
         <span class="macro">assert_eq!</span>(
             serde_json::to_string(<span class="kw-2">&amp;</span>entity3).unwrap(),
-            <span class="string">&quot;\&quot;group-some group id\&quot;&quot;
+            <span class="string">"\"group-some group id\""
         </span>);
 
-        <span class="kw">let </span>entity4 = GroupEmail(<span class="string">&quot;some@group.email&quot;</span>.to_string());
+        <span class="kw">let </span>entity4 = GroupEmail(<span class="string">"some@group.email"</span>.to_string());
         <span class="macro">assert_eq!</span>(
             serde_json::to_string(<span class="kw-2">&amp;</span>entity4).unwrap(),
-            <span class="string">&quot;\&quot;group-some@group.email\&quot;&quot;
+            <span class="string">"\"group-some@group.email\""
         </span>);
 
-        <span class="kw">let </span>entity5 = Domain(<span class="string">&quot;example.com&quot;</span>.to_string());
+        <span class="kw">let </span>entity5 = Domain(<span class="string">"example.com"</span>.to_string());
         <span class="macro">assert_eq!</span>(
             serde_json::to_string(<span class="kw-2">&amp;</span>entity5).unwrap(),
-            <span class="string">&quot;\&quot;domain-example.com\&quot;&quot;
+            <span class="string">"\"domain-example.com\""
         </span>);
 
-        <span class="kw">let </span>entity6 = Project(Team::Viewers, <span class="string">&quot;project id&quot;</span>.to_string());
+        <span class="kw">let </span>entity6 = Project(Team::Viewers, <span class="string">"project id"</span>.to_string());
         <span class="macro">assert_eq!</span>(
             serde_json::to_string(<span class="kw-2">&amp;</span>entity6).unwrap(),
-            <span class="string">&quot;\&quot;project-viewers-project id\&quot;&quot;
+            <span class="string">"\"project-viewers-project id\""
         </span>);
 
         <span class="kw">let </span>entity7 = AllUsers;
-        <span class="macro">assert_eq!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>entity7).unwrap(), <span class="string">&quot;\&quot;allUsers\&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>entity7).unwrap(), <span class="string">"\"allUsers\""</span>);
 
         <span class="kw">let </span>entity8 = AllAuthenticatedUsers;
         <span class="macro">assert_eq!</span>(
             serde_json::to_string(<span class="kw-2">&amp;</span>entity8).unwrap(),
-            <span class="string">&quot;\&quot;allAuthenticatedUsers\&quot;&quot;
+            <span class="string">"\"allAuthenticatedUsers\""
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>deserialize() {
-        <span class="kw">let </span>str1 = <span class="string">&quot;\&quot;user-some id\&quot;&quot;</span>;
+        <span class="kw">let </span>str1 = <span class="string">"\"user-some id\""</span>;
         <span class="macro">assert_eq!</span>(
             serde_json::from_str::&lt;Entity&gt;(str1).unwrap(),
-            UserId(<span class="string">&quot;some id&quot;</span>.to_string())
+            UserId(<span class="string">"some id"</span>.to_string())
         );
 
-        <span class="kw">let </span>str2 = <span class="string">&quot;\&quot;user-some@email\&quot;&quot;</span>;
+        <span class="kw">let </span>str2 = <span class="string">"\"user-some@email\""</span>;
         <span class="macro">assert_eq!</span>(
             serde_json::from_str::&lt;Entity&gt;(str2).unwrap(),
-            UserEmail(<span class="string">&quot;some@email&quot;</span>.to_string())
+            UserEmail(<span class="string">"some@email"</span>.to_string())
         );
 
-        <span class="kw">let </span>str3 = <span class="string">&quot;\&quot;group-some group id\&quot;&quot;</span>;
+        <span class="kw">let </span>str3 = <span class="string">"\"group-some group id\""</span>;
         <span class="macro">assert_eq!</span>(
             serde_json::from_str::&lt;Entity&gt;(str3).unwrap(),
-            GroupId(<span class="string">&quot;some group id&quot;</span>.to_string())
+            GroupId(<span class="string">"some group id"</span>.to_string())
         );
 
-        <span class="kw">let </span>str4 = <span class="string">&quot;\&quot;group-some@group.email\&quot;&quot;</span>;
+        <span class="kw">let </span>str4 = <span class="string">"\"group-some@group.email\""</span>;
         <span class="macro">assert_eq!</span>(
             serde_json::from_str::&lt;Entity&gt;(str4).unwrap(),
-            GroupEmail(<span class="string">&quot;some@group.email&quot;</span>.to_string())
+            GroupEmail(<span class="string">"some@group.email"</span>.to_string())
         );
 
-        <span class="kw">let </span>str5 = <span class="string">&quot;\&quot;domain-example.com\&quot;&quot;</span>;
+        <span class="kw">let </span>str5 = <span class="string">"\"domain-example.com\""</span>;
         <span class="macro">assert_eq!</span>(
             serde_json::from_str::&lt;Entity&gt;(str5).unwrap(),
-            Domain(<span class="string">&quot;example.com&quot;</span>.to_string())
+            Domain(<span class="string">"example.com"</span>.to_string())
         );
 
-        <span class="kw">let </span>str6 = <span class="string">&quot;\&quot;project-viewers-project id\&quot;&quot;</span>;
+        <span class="kw">let </span>str6 = <span class="string">"\"project-viewers-project id\""</span>;
         <span class="macro">assert_eq!</span>(
             serde_json::from_str::&lt;Entity&gt;(str6).unwrap(),
-            Project(Team::Viewers, <span class="string">&quot;project id&quot;</span>.to_string())
+            Project(Team::Viewers, <span class="string">"project id"</span>.to_string())
         );
 
-        <span class="kw">let </span>str7 = <span class="string">&quot;\&quot;allUsers\&quot;&quot;</span>;
+        <span class="kw">let </span>str7 = <span class="string">"\"allUsers\""</span>;
         <span class="macro">assert_eq!</span>(serde_json::from_str::&lt;Entity&gt;(str7).unwrap(), AllUsers);
 
-        <span class="kw">let </span>str8 = <span class="string">&quot;\&quot;allAuthenticatedUsers\&quot;&quot;</span>;
+        <span class="kw">let </span>str8 = <span class="string">"\"allAuthenticatedUsers\""</span>;
         <span class="macro">assert_eq!</span>(
             serde_json::from_str::&lt;Entity&gt;(str8).unwrap(),
             AllAuthenticatedUsers

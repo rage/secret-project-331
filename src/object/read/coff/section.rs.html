@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/coff/section.rs`."><title>section.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/coff/section.rs`."><title>section.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -601,23 +602,23 @@
 /// Returned by [`CoffHeader::sections`] and
 /// [`ImageNtHeaders::sections`](crate::read::pe::ImageNtHeaders::sections).
 </span><span class="attr">#[derive(Debug, Default, Clone, Copy)]
-</span><span class="kw">pub struct </span>SectionTable&lt;<span class="lifetime">&#39;data</span>&gt; {
-    sections: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[pe::ImageSectionHeader],
+</span><span class="kw">pub struct </span>SectionTable&lt;<span class="lifetime">'data</span>&gt; {
+    sections: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[pe::ImageSectionHeader],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; SectionTable&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; SectionTable&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Parse the section table.
     ///
     /// `data` must be the entire file data.
     /// `offset` must be after the optional file header.
-    </span><span class="kw">pub fn </span>parse&lt;Coff: CoffHeader, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>parse&lt;Coff: CoffHeader, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         header: <span class="kw-2">&amp;</span>Coff,
         data: R,
         offset: u64,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>sections = data
             .read_slice_at(offset, header.number_of_sections() <span class="kw">as </span>usize)
-            .read_error(<span class="string">&quot;Invalid COFF/PE section headers&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid COFF/PE section headers"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SectionTable { sections })
     }
 
@@ -625,7 +626,7 @@
     ///
     /// Warning: sections indices start at 1.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; slice::Iter&lt;<span class="lifetime">&#39;data</span>, pe::ImageSectionHeader&gt; {
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; slice::Iter&lt;<span class="lifetime">'data</span>, pe::ImageSectionHeader&gt; {
         <span class="self">self</span>.sections.iter()
     }
 
@@ -644,10 +645,10 @@
     <span class="doccomment">/// Return the section header at the given index.
     ///
     /// The index is 1-based.
-    </span><span class="kw">pub fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>pe::ImageSectionHeader&gt; {
+    </span><span class="kw">pub fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader&gt; {
         <span class="self">self</span>.sections
             .get(index.wrapping_sub(<span class="number">1</span>))
-            .read_error(<span class="string">&quot;Invalid COFF/PE section index&quot;</span>)
+            .read_error(<span class="string">"Invalid COFF/PE section index"</span>)
     }
 
     <span class="doccomment">/// Return the section header with the given name.
@@ -655,11 +656,11 @@
     /// The returned index is 1-based.
     ///
     /// Ignores sections with invalid names.
-    </span><span class="kw">pub fn </span>section_by_name&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>section_by_name&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        strings: StringTable&lt;<span class="lifetime">&#39;data</span>, R&gt;,
+        strings: StringTable&lt;<span class="lifetime">'data</span>, R&gt;,
         name: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>pe::ImageSectionHeader)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader)&gt; {
         <span class="self">self</span>.sections
             .iter()
             .enumerate()
@@ -678,7 +679,7 @@
                 .checked_add(section.size_of_raw_data.get(LE) <span class="kw">as </span>u64)
             {
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="comment">// This cannot happen, we&#39;re suming two u32 into a u64
+                    <span class="comment">// This cannot happen, we're suming two u32 into a u64
                     </span><span class="kw">continue</span>;
                 }
                 <span class="prelude-val">Some</span>(end_of_section) =&gt; {
@@ -693,25 +694,25 @@
 }
 
 <span class="doccomment">/// An iterator for the loadable sections in a [`CoffBigFile`](super::CoffBigFile).
-</span><span class="kw">pub type </span>CoffBigSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    CoffSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
+</span><span class="kw">pub type </span>CoffBigSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    CoffSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
 
 <span class="doccomment">/// An iterator for the loadable sections in a [`CoffFile`].
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>CoffSegmentIterator&lt;
-    <span class="lifetime">&#39;data</span>,
-    <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8],
+    <span class="lifetime">'data</span>,
+    <span class="lifetime">'file</span>,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8],
     Coff: CoffHeader = pe::ImageFileHeader,
 &gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>CoffFile&lt;<span class="lifetime">&#39;data</span>, R, Coff&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) iter: slice::Iter&lt;<span class="lifetime">&#39;data</span>, pe::ImageSectionHeader&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffFile&lt;<span class="lifetime">'data</span>, R, Coff&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) iter: slice::Iter&lt;<span class="lifetime">'data</span>, pe::ImageSectionHeader&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; Iterator
-    <span class="kw">for </span>CoffSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; Iterator
+    <span class="kw">for </span>CoffSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;
 {
-    <span class="kw">type </span>Item = CoffSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
+    <span class="kw">type </span>Item = CoffSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="self">self</span>.iter.next().map(|section| CoffSegment {
@@ -724,38 +725,38 @@
 <span class="doccomment">/// A loadable section in a [`CoffBigFile`](super::CoffBigFile).
 ///
 /// Most functionality is provided by the [`ObjectSegment`] trait implementation.
-</span><span class="kw">pub type </span>CoffBigSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    CoffSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
+</span><span class="kw">pub type </span>CoffBigSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    CoffSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
 
 <span class="doccomment">/// A loadable section in a [`CoffFile`].
 ///
 /// Most functionality is provided by the [`ObjectSegment`] trait implementation.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>CoffSegment&lt;
-    <span class="lifetime">&#39;data</span>,
-    <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8],
+    <span class="lifetime">'data</span>,
+    <span class="lifetime">'file</span>,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8],
     Coff: CoffHeader = pe::ImageFileHeader,
 &gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>CoffFile&lt;<span class="lifetime">&#39;data</span>, R, Coff&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>pe::ImageSectionHeader,
+    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffFile&lt;<span class="lifetime">'data</span>, R, Coff&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) section: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; CoffSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt; {
-    <span class="kw">fn </span>bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; CoffSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
+    <span class="kw">fn </span>bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.section
             .coff_data(<span class="self">self</span>.file.data)
-            .read_error(<span class="string">&quot;Invalid COFF section offset or size&quot;</span>)
+            .read_error(<span class="string">"Invalid COFF section offset or size"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; read::private::Sealed
-    <span class="kw">for </span>CoffSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; read::private::Sealed
+    <span class="kw">for </span>CoffSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; ObjectSegment&lt;<span class="lifetime">&#39;data</span>&gt;
-    <span class="kw">for </span>CoffSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; ObjectSegment&lt;<span class="lifetime">'data</span>&gt;
+    <span class="kw">for </span>CoffSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;
 {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
@@ -778,11 +779,11 @@
         (u64::from(offset), u64::from(size))
     }
 
-    <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.bytes()
     }
 
-    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;&gt; {
+    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;&gt; {
         <span class="prelude-val">Ok</span>(read::util::data_range(
             <span class="self">self</span>.bytes()<span class="question-mark">?</span>,
             <span class="self">self</span>.address(),
@@ -803,7 +804,7 @@
         <span class="kw">let </span>name = <span class="self">self</span>.section.name(<span class="self">self</span>.file.common.symbols.strings())<span class="question-mark">?</span>;
         str::from_utf8(name)
             .ok()
-            .read_error(<span class="string">&quot;Non UTF-8 COFF section name&quot;</span>)
+            .read_error(<span class="string">"Non UTF-8 COFF section name"</span>)
             .map(<span class="prelude-val">Some</span>)
     }
 
@@ -815,25 +816,25 @@
 }
 
 <span class="doccomment">/// An iterator for the sections in a [`CoffBigFile`](super::CoffBigFile).
-</span><span class="kw">pub type </span>CoffBigSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    CoffSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
+</span><span class="kw">pub type </span>CoffBigSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    CoffSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
 
 <span class="doccomment">/// An iterator for the sections in a [`CoffFile`].
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>CoffSectionIterator&lt;
-    <span class="lifetime">&#39;data</span>,
-    <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8],
+    <span class="lifetime">'data</span>,
+    <span class="lifetime">'file</span>,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8],
     Coff: CoffHeader = pe::ImageFileHeader,
 &gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>CoffFile&lt;<span class="lifetime">&#39;data</span>, R, Coff&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) iter: iter::Enumerate&lt;slice::Iter&lt;<span class="lifetime">&#39;data</span>, pe::ImageSectionHeader&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffFile&lt;<span class="lifetime">'data</span>, R, Coff&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) iter: iter::Enumerate&lt;slice::Iter&lt;<span class="lifetime">'data</span>, pe::ImageSectionHeader&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; Iterator
-    <span class="kw">for </span>CoffSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; Iterator
+    <span class="kw">for </span>CoffSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;
 {
-    <span class="kw">type </span>Item = CoffSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
+    <span class="kw">type </span>Item = CoffSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="self">self</span>.iter.next().map(|(index, section)| CoffSection {
@@ -847,41 +848,41 @@
 <span class="doccomment">/// A section in a [`CoffBigFile`](super::CoffBigFile).
 ///
 /// Most functionality is provided by the [`ObjectSection`] trait implementation.
-</span><span class="kw">pub type </span>CoffBigSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    CoffSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
+</span><span class="kw">pub type </span>CoffBigSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    CoffSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, pe::AnonObjectHeaderBigobj&gt;;
 
 <span class="doccomment">/// A section in a [`CoffFile`].
 ///
 /// Most functionality is provided by the [`ObjectSection`] trait implementation.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>CoffSection&lt;
-    <span class="lifetime">&#39;data</span>,
-    <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8],
+    <span class="lifetime">'data</span>,
+    <span class="lifetime">'file</span>,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8],
     Coff: CoffHeader = pe::ImageFileHeader,
 &gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>CoffFile&lt;<span class="lifetime">&#39;data</span>, R, Coff&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffFile&lt;<span class="lifetime">'data</span>, R, Coff&gt;,
     <span class="kw">pub</span>(<span class="kw">super</span>) index: SectionIndex,
-    <span class="kw">pub</span>(<span class="kw">super</span>) section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>pe::ImageSectionHeader,
+    <span class="kw">pub</span>(<span class="kw">super</span>) section: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; CoffSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt; {
-    <span class="kw">fn </span>bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; CoffSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
+    <span class="kw">fn </span>bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.section
             .coff_data(<span class="self">self</span>.file.data)
-            .read_error(<span class="string">&quot;Invalid COFF section offset or size&quot;</span>)
+            .read_error(<span class="string">"Invalid COFF section offset or size"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; read::private::Sealed
-    <span class="kw">for </span>CoffSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; read::private::Sealed
+    <span class="kw">for </span>CoffSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; ObjectSection&lt;<span class="lifetime">&#39;data</span>&gt;
-    <span class="kw">for </span>CoffSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; ObjectSection&lt;<span class="lifetime">'data</span>&gt;
+    <span class="kw">for </span>CoffSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;
 {
-    <span class="kw">type </span>RelocationIterator = CoffRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
+    <span class="kw">type </span>RelocationIterator = CoffRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SectionIndex {
@@ -910,11 +911,11 @@
         <span class="prelude-val">Some</span>((u64::from(offset), u64::from(size)))
     }
 
-    <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.bytes()
     }
 
-    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;&gt; {
+    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;&gt; {
         <span class="prelude-val">Ok</span>(read::util::data_range(
             <span class="self">self</span>.bytes()<span class="question-mark">?</span>,
             <span class="self">self</span>.address(),
@@ -929,7 +930,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>compressed_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedData&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+    </span><span class="kw">fn </span>compressed_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedData&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="self">self</span>.data().map(CompressedData::none)
     }
 
@@ -943,7 +944,7 @@
         <span class="kw">let </span>name = <span class="self">self</span>.name_bytes()<span class="question-mark">?</span>;
         str::from_utf8(name)
             .ok()
-            .read_error(<span class="string">&quot;Non UTF-8 COFF section name&quot;</span>)
+            .read_error(<span class="string">"Non UTF-8 COFF section name"</span>)
     }
 
     <span class="attr">#[inline]
@@ -961,7 +962,7 @@
         <span class="self">self</span>.section.kind()
     }
 
-    <span class="kw">fn </span>relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CoffRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt; {
+    <span class="kw">fn </span>relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CoffRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
         <span class="kw">let </span>relocations = <span class="self">self</span>.section.coff_relocations(<span class="self">self</span>.file.data).unwrap_or(<span class="kw-2">&amp;</span>[]);
         CoffRelocationIterator {
             file: <span class="self">self</span>.file,
@@ -1002,38 +1003,38 @@
 <span class="kw">impl </span>pe::ImageSectionHeader {
     <span class="doccomment">/// Return the string table offset of the section name.
     ///
-    /// Returns `Ok(None)` if the name doesn&#39;t use the string table
+    /// Returns `Ok(None)` if the name doesn't use the string table
     /// and can be obtained with `raw_name` instead.
     </span><span class="kw">pub fn </span>name_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;u32&gt;&gt; {
         <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span><span class="self">self</span>.name;
-        <span class="kw">if </span>bytes[<span class="number">0</span>] != <span class="string">b&#39;/&#39; </span>{
+        <span class="kw">if </span>bytes[<span class="number">0</span>] != <span class="string">b'/' </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">if </span>bytes[<span class="number">1</span>] == <span class="string">b&#39;/&#39; </span>{
+        <span class="kw">if </span>bytes[<span class="number">1</span>] == <span class="string">b'/' </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
             <span class="kw">for </span>byte <span class="kw">in </span>bytes[<span class="number">2</span>..].iter() {
                 <span class="kw">let </span>digit = <span class="kw">match </span>byte {
-                    <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;Z&#39; </span>=&gt; byte - <span class="string">b&#39;A&#39;</span>,
-                    <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;z&#39; </span>=&gt; byte - <span class="string">b&#39;a&#39; </span>+ <span class="number">26</span>,
-                    <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; byte - <span class="string">b&#39;0&#39; </span>+ <span class="number">52</span>,
-                    <span class="string">b&#39;+&#39; </span>=&gt; <span class="number">62</span>,
-                    <span class="string">b&#39;/&#39; </span>=&gt; <span class="number">63</span>,
-                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Invalid COFF section name base-64 offset&quot;</span>)),
+                    <span class="string">b'A'</span>..=<span class="string">b'Z' </span>=&gt; byte - <span class="string">b'A'</span>,
+                    <span class="string">b'a'</span>..=<span class="string">b'z' </span>=&gt; byte - <span class="string">b'a' </span>+ <span class="number">26</span>,
+                    <span class="string">b'0'</span>..=<span class="string">b'9' </span>=&gt; byte - <span class="string">b'0' </span>+ <span class="number">52</span>,
+                    <span class="string">b'+' </span>=&gt; <span class="number">62</span>,
+                    <span class="string">b'/' </span>=&gt; <span class="number">63</span>,
+                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid COFF section name base-64 offset"</span>)),
                 };
                 offset = offset * <span class="number">64 </span>+ digit <span class="kw">as </span>u64;
             }
             u32::try_from(offset)
                 .ok()
-                .read_error(<span class="string">&quot;Invalid COFF section name base-64 offset&quot;</span>)
+                .read_error(<span class="string">"Invalid COFF section name base-64 offset"</span>)
                 .map(<span class="prelude-val">Some</span>)
         } <span class="kw">else </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
             <span class="kw">for </span>byte <span class="kw">in </span>bytes[<span class="number">1</span>..].iter() {
                 <span class="kw">let </span>digit = <span class="kw">match </span>byte {
-                    <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; byte - <span class="string">b&#39;0&#39;</span>,
+                    <span class="string">b'0'</span>..=<span class="string">b'9' </span>=&gt; byte - <span class="string">b'0'</span>,
                     <span class="number">0 </span>=&gt; <span class="kw">break</span>,
-                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Invalid COFF section name base-10 offset&quot;</span>)),
+                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid COFF section name base-10 offset"</span>)),
                 };
                 offset = offset * <span class="number">10 </span>+ digit <span class="kw">as </span>u32;
             }
@@ -1044,14 +1045,14 @@
     <span class="doccomment">/// Return the section name.
     ///
     /// This handles decoding names that are offsets into the symbol string table.
-    </span><span class="kw">pub fn </span>name&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">self</span>,
-        strings: StringTable&lt;<span class="lifetime">&#39;data</span>, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>name&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">self</span>,
+        strings: StringTable&lt;<span class="lifetime">'data</span>, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.name_offset()<span class="question-mark">? </span>{
             strings
                 .get(offset)
-                .read_error(<span class="string">&quot;Invalid COFF section name offset&quot;</span>)
+                .read_error(<span class="string">"Invalid COFF section name offset"</span>)
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<span class="self">self</span>.raw_name())
         }
@@ -1060,7 +1061,7 @@
     <span class="doccomment">/// Return the raw section name.
     </span><span class="kw">pub fn </span>raw_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span><span class="self">self</span>.name;
-        <span class="kw">match </span>memchr::memchr(<span class="string">b&#39;\0&#39;</span>, bytes) {
+        <span class="kw">match </span>memchr::memchr(<span class="string">b'\0'</span>, bytes) {
             <span class="prelude-val">Some</span>(end) =&gt; <span class="kw-2">&amp;</span>bytes[..end],
             <span class="prelude-val">None </span>=&gt; <span class="kw-2">&amp;</span>bytes[..],
         }
@@ -1084,7 +1085,7 @@
     ///
     /// Returns `Ok(&amp;[])` if the section has no data.
     /// Returns `Err` for invalid values.
-    </span><span class="kw">pub fn </span>coff_data&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: R) -&gt; result::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], ()&gt; {
+    </span><span class="kw">pub fn </span>coff_data&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: R) -&gt; result::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], ()&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>((offset, size)) = <span class="self">self</span>.coff_file_range() {
             data.read_bytes_at(offset.into(), size.into())
         } <span class="kw">else </span>{
@@ -1118,10 +1119,10 @@
     <span class="doccomment">/// Read the relocations in a COFF file.
     ///
     /// `data` must be the entire file data.
-    </span><span class="kw">pub fn </span>coff_relocations&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>coff_relocations&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
-    ) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[pe::ImageRelocation]&gt; {
+    ) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[pe::ImageRelocation]&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>pointer = <span class="self">self</span>.pointer_to_relocations.get(LE).into();
         <span class="kw">let </span><span class="kw-2">mut </span>number: usize = <span class="self">self</span>.number_of_relocations.get(LE).into();
         <span class="kw">if </span>number == core::u16::MAX.into()
@@ -1131,17 +1132,17 @@
             // relocations pointer.
             </span><span class="kw">let </span>extended_relocation_info = data
                 .read_at::&lt;pe::ImageRelocation&gt;(pointer)
-                .read_error(<span class="string">&quot;Invalid COFF relocation offset or number&quot;</span>)<span class="question-mark">?</span>;
+                .read_error(<span class="string">"Invalid COFF relocation offset or number"</span>)<span class="question-mark">?</span>;
             number = extended_relocation_info.virtual_address.get(LE) <span class="kw">as </span>usize;
             <span class="kw">if </span>number == <span class="number">0 </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Invalid COFF relocation number&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid COFF relocation number"</span>));
             }
             pointer += core::mem::size_of::&lt;pe::ImageRelocation&gt;() <span class="kw">as </span>u64;
             <span class="comment">// Extended relocation info does not contribute to the count of sections.
             </span>number -= <span class="number">1</span>;
         }
         data.read_slice_at(pointer, number)
-            .read_error(<span class="string">&quot;Invalid COFF relocation offset or number&quot;</span>)
+            .read_error(<span class="string">"Invalid COFF relocation offset or number"</span>)
     }
 }
 
@@ -1152,19 +1153,19 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>name_offset() {
         <span class="kw">let </span><span class="kw-2">mut </span>section = pe::ImageSectionHeader::default();
-        section.name = <span class="kw-2">*</span><span class="string">b&quot;xxxxxxxx&quot;</span>;
+        section.name = <span class="kw-2">*</span><span class="string">b"xxxxxxxx"</span>;
         <span class="macro">assert_eq!</span>(section.name_offset(), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
-        section.name = <span class="kw-2">*</span><span class="string">b&quot;/0\0\0\0\0\0\0&quot;</span>;
+        section.name = <span class="kw-2">*</span><span class="string">b"/0\0\0\0\0\0\0"</span>;
         <span class="macro">assert_eq!</span>(section.name_offset(), <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>)));
-        section.name = <span class="kw-2">*</span><span class="string">b&quot;/9999999&quot;</span>;
+        section.name = <span class="kw-2">*</span><span class="string">b"/9999999"</span>;
         <span class="macro">assert_eq!</span>(section.name_offset(), <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="number">999_9999</span>)));
-        section.name = <span class="kw-2">*</span><span class="string">b&quot;//AAAAAA&quot;</span>;
+        section.name = <span class="kw-2">*</span><span class="string">b"//AAAAAA"</span>;
         <span class="macro">assert_eq!</span>(section.name_offset(), <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>)));
-        section.name = <span class="kw-2">*</span><span class="string">b&quot;//D/////&quot;</span>;
+        section.name = <span class="kw-2">*</span><span class="string">b"//D/////"</span>;
         <span class="macro">assert_eq!</span>(section.name_offset(), <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="number">0xffff_ffff</span>)));
-        section.name = <span class="kw-2">*</span><span class="string">b&quot;//EAAAAA&quot;</span>;
+        section.name = <span class="kw-2">*</span><span class="string">b"//EAAAAA"</span>;
         <span class="macro">assert!</span>(section.name_offset().is_err());
-        section.name = <span class="kw-2">*</span><span class="string">b&quot;////////&quot;</span>;
+        section.name = <span class="kw-2">*</span><span class="string">b"////////"</span>;
         <span class="macro">assert!</span>(section.name_offset().is_err());
     }
 }

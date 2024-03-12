@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.63/src/ssl/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/ssl/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4400,13 +4401,13 @@
 //!
 //! let connector = SslConnector::builder(SslMethod::tls()).unwrap().build();
 //!
-//! let stream = TcpStream::connect(&quot;google.com:443&quot;).unwrap();
-//! let mut stream = connector.connect(&quot;google.com&quot;, stream).unwrap();
+//! let stream = TcpStream::connect("google.com:443").unwrap();
+//! let mut stream = connector.connect("google.com", stream).unwrap();
 //!
-//! stream.write_all(b&quot;GET / HTTP/1.0\r\n\r\n&quot;).unwrap();
+//! stream.write_all(b"GET / HTTP/1.0\r\n\r\n").unwrap();
 //! let mut res = vec![];
 //! stream.read_to_end(&amp;mut res).unwrap();
-//! println!(&quot;{}&quot;, String::from_utf8_lossy(&amp;res));
+//! println!("{}", String::from_utf8_lossy(&amp;res));
 //! ```
 //!
 //! To accept connections as a server from remote clients:
@@ -4419,12 +4420,12 @@
 //!
 //!
 //! let mut acceptor = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
-//! acceptor.set_private_key_file(&quot;key.pem&quot;, SslFiletype::PEM).unwrap();
-//! acceptor.set_certificate_chain_file(&quot;certs.pem&quot;).unwrap();
+//! acceptor.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
+//! acceptor.set_certificate_chain_file("certs.pem").unwrap();
 //! acceptor.check_private_key().unwrap();
 //! let acceptor = Arc::new(acceptor.build());
 //!
-//! let listener = TcpListener::bind(&quot;0.0.0.0:8443&quot;).unwrap();
+//! let listener = TcpListener::bind("0.0.0.0:8443").unwrap();
 //!
 //! fn handle_client(stream: SslStream&lt;TcpStream&gt;) {
 //!     // ...
@@ -4465,7 +4466,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::stack::{Stack, StackRef, Stackable};
 <span class="kw">use </span><span class="kw">crate</span>::util::{ForeignTypeExt, ForeignTypeRefExt};
 <span class="kw">use </span><span class="kw">crate</span>::x509::store::{X509Store, X509StoreBuilderRef, X509StoreRef};
-<span class="attr">#[cfg(any(ossl102, libressl261))]
+<span class="attr">#[cfg(any(ossl102, boringssl, libressl261))]
 </span><span class="kw">use </span><span class="kw">crate</span>::x509::verify::X509VerifyParamRef;
 <span class="kw">use </span><span class="kw">crate</span>::x509::{X509Name, X509Ref, X509StoreContextRef, X509VerifyResult, X509};
 <span class="kw">use crate</span>::{cvt, cvt_n, cvt_p, init};
@@ -4510,7 +4511,7 @@
 /// Requires OpenSSL 1.1.1 or newer.
 </span><span class="attr">#[corresponds(OPENSSL_cipher_name)]
 #[cfg(ossl111)]
-</span><span class="kw">pub fn </span>cipher_name(std_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+</span><span class="kw">pub fn </span>cipher_name(std_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
     <span class="kw">unsafe </span>{
         ffi::init();
 
@@ -4538,7 +4539,7 @@
         <span class="doccomment">/// Disables a countermeasure against an SSLv3/TLSv1.0 vulnerability affecting CBC ciphers.
         </span><span class="kw">const </span>DONT_INSERT_EMPTY_FRAGMENTS = ffi::SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS <span class="kw">as </span>SslOptionsRepr;
 
-        <span class="doccomment">/// A &quot;reasonable default&quot; set of options which enables compatibility flags.
+        <span class="doccomment">/// A "reasonable default" set of options which enables compatibility flags.
         </span><span class="attr">#[cfg(not(boringssl))]
         </span><span class="kw">const </span>ALL = ffi::SSL_OP_ALL <span class="kw">as </span>SslOptionsRepr;
 
@@ -4582,7 +4583,7 @@
         /// This is always enabled in OpenSSL 1.1.0.
         </span><span class="kw">const </span>SINGLE_DH_USE = ffi::SSL_OP_SINGLE_DH_USE <span class="kw">as </span>SslOptionsRepr;
 
-        <span class="doccomment">/// Use the server&#39;s preferences rather than the client&#39;s when selecting a cipher.
+        <span class="doccomment">/// Use the server's preferences rather than the client's when selecting a cipher.
         ///
         /// This has no effect on the client side.
         </span><span class="kw">const </span>CIPHER_SERVER_PREFERENCE = ffi::SSL_OP_CIPHER_SERVER_PREFERENCE <span class="kw">as </span>SslOptionsRepr;
@@ -4675,7 +4676,7 @@
     </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[repr(transparent)]
     </span><span class="kw">pub struct </span>SslMode: SslBitType {
-        <span class="doccomment">/// Enables &quot;short writes&quot;.
+        <span class="doccomment">/// Enables "short writes".
         ///
         /// Normally, a write in OpenSSL will always write out all of the requested data, even if it
         /// requires more than one TLS record or write to the underlying stream. This option will
@@ -4697,7 +4698,7 @@
         /// `SslStream::ssl_write`.
         </span><span class="kw">const </span>AUTO_RETRY = ffi::SSL_MODE_AUTO_RETRY;
 
-        <span class="doccomment">/// Disables automatic chain building when verifying a peer&#39;s certificate.
+        <span class="doccomment">/// Disables automatic chain building when verifying a peer's certificate.
         ///
         /// TLS peers are responsible for sending the entire certificate chain from the leaf to a
         /// trusted root, but some will incorrectly not do so. OpenSSL will try to build the chain
@@ -4715,7 +4716,7 @@
         /// This should only be enabled if a client has failed to connect to a server which
         /// attempted to downgrade the protocol version of the session.
         ///
-        /// Do not use this unless you know what you&#39;re doing!
+        /// Do not use this unless you know what you're doing!
         </span><span class="attr">#[cfg(not(libressl))]
         </span><span class="kw">const </span>SEND_FALLBACK_SCSV = ffi::SSL_MODE_SEND_FALLBACK_SCSV;
     }
@@ -4774,12 +4775,12 @@
     </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[repr(transparent)]
     </span><span class="kw">pub struct </span>SslVerifyMode: i32 {
-        <span class="doccomment">/// Verifies that the peer&#39;s certificate is trusted.
+        <span class="doccomment">/// Verifies that the peer's certificate is trusted.
         ///
         /// On the server side, this will cause OpenSSL to request a certificate from the client.
         </span><span class="kw">const </span>PEER = ffi::SSL_VERIFY_PEER;
 
-        <span class="doccomment">/// Disables verification of the peer&#39;s certificate.
+        <span class="doccomment">/// Disables verification of the peer's certificate.
         ///
         /// On the server side, this will cause OpenSSL to not request a certificate from the
         /// client. On the client side, the certificate will be checked for validity, but the
@@ -4851,7 +4852,7 @@
         </span><span class="kw">const </span>TLS_ONLY = ffi::SSL_EXT_TLS_ONLY;
         <span class="doccomment">/// This extension is only allowed in DTLS
         </span><span class="kw">const </span>DTLS_ONLY = ffi::SSL_EXT_DTLS_ONLY;
-        <span class="doccomment">/// Some extensions may be allowed in DTLS but we don&#39;t implement them for it
+        <span class="doccomment">/// Some extensions may be allowed in DTLS but we don't implement them for it
         </span><span class="kw">const </span>TLS_IMPLEMENTATION_ONLY = ffi::SSL_EXT_TLS_IMPLEMENTATION_ONLY;
         <span class="doccomment">/// Most extensions are not defined for SSLv3 but EXT_TYPE_renegotiate is
         </span><span class="kw">const </span>SSL3_ALLOWED = ffi::SSL_EXT_SSL3_ALLOWED;
@@ -4944,11 +4945,11 @@
 <span class="kw">static </span>SSL_INDEXES: Lazy&lt;Mutex&lt;HashMap&lt;TypeId, c_int&gt;&gt;&gt; = Lazy::new(|| Mutex::new(HashMap::new()));
 <span class="kw">static </span>SESSION_CTX_INDEX: OnceCell&lt;Index&lt;Ssl, SslContext&gt;&gt; = OnceCell::new();
 
-<span class="kw">fn </span>try_get_session_ctx_index() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Index&lt;Ssl, SslContext&gt;, ErrorStack&gt; {
+<span class="kw">fn </span>try_get_session_ctx_index() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Index&lt;Ssl, SslContext&gt;, ErrorStack&gt; {
     SESSION_CTX_INDEX.get_or_try_init(Ssl::new_ex_index)
 }
 
-<span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>free_data_box&lt;T&gt;(
+<span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>free_data_box&lt;T&gt;(
     _parent: <span class="kw-2">*mut </span>c_void,
     ptr: <span class="kw-2">*mut </span>c_void,
     _ad: <span class="kw-2">*mut </span>ffi::CRYPTO_EX_DATA,
@@ -5073,7 +5074,7 @@
 <span class="doccomment">/// A standard implementation of protocol selection for Application Layer Protocol Negotiation
 /// (ALPN).
 ///
-/// `server` should contain the server&#39;s list of supported protocols and `client` the client&#39;s. They
+/// `server` should contain the server's list of supported protocols and `client` the client's. They
 /// must both be in the ALPN wire format. See the documentation for
 /// [`SslContextBuilder::set_alpn_protos`] for details.
 ///
@@ -5081,7 +5082,7 @@
 ///
 /// [`SslContextBuilder::set_alpn_protos`]: struct.SslContextBuilder.html#method.set_alpn_protos
 </span><span class="attr">#[corresponds(SSL_select_next_proto)]
-</span><span class="kw">pub fn </span>select_next_proto&lt;<span class="lifetime">&#39;a</span>&gt;(server: <span class="kw-2">&amp;</span>[u8], client: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+</span><span class="kw">pub fn </span>select_next_proto&lt;<span class="lifetime">'a</span>&gt;(server: <span class="kw-2">&amp;</span>[u8], client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>out = ptr::null_mut();
         <span class="kw">let </span><span class="kw-2">mut </span>outlen = <span class="number">0</span>;
@@ -5141,13 +5142,13 @@
     <span class="doccomment">/// Configures the certificate verification method for new connections and
     /// registers a verification callback.
     ///
-    /// The callback is passed a boolean indicating if OpenSSL&#39;s internal verification succeeded as
+    /// The callback is passed a boolean indicating if OpenSSL's internal verification succeeded as
     /// well as a reference to the `X509StoreContext` which can be used to examine the certificate
     /// chain. It should return a boolean indicating if verification succeeded.
     </span><span class="attr">#[corresponds(SSL_CTX_set_verify)]
     </span><span class="kw">pub fn </span>set_verify_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mode: SslVerifyMode, verify: F)
     <span class="kw">where
-        </span>F: Fn(bool, <span class="kw-2">&amp;mut </span>X509StoreContextRef) -&gt; bool + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(bool, <span class="kw-2">&amp;mut </span>X509StoreContextRef) -&gt; bool + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), verify);
@@ -5166,13 +5167,13 @@
     </span><span class="comment">// FIXME tlsext prefix?
     </span><span class="kw">pub fn </span>set_servername_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>SslAlert) -&gt; <span class="prelude-ty">Result</span>&lt;(), SniError&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>SslAlert) -&gt; <span class="prelude-ty">Result</span>&lt;(), SniError&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="comment">// The SNI callback is somewhat unique in that the callback associated with the original
-            // context associated with an SSL can be used even if the SSL&#39;s context has been swapped
-            // out. When that happens, we wouldn&#39;t be able to look up the callback&#39;s state in the
-            // context&#39;s ex data. Instead, pass the pointer directly as the servername arg. It&#39;s
+            // context associated with an SSL can be used even if the SSL's context has been swapped
+            // out. When that happens, we wouldn't be able to look up the callback's state in the
+            // context's ex data. Instead, pass the pointer directly as the servername arg. It's
             // still stored in ex data to manage the lifetime.
             </span><span class="kw">let </span>arg = <span class="self">self</span>.set_ex_data_inner(SslContext::cached_ex_index::&lt;F&gt;(), callback);
             ffi::SSL_CTX_set_tlsext_servername_arg(<span class="self">self</span>.as_ptr(), arg);
@@ -5188,7 +5189,7 @@
 
     <span class="doccomment">/// Sets the certificate verification depth.
     ///
-    /// If the peer&#39;s certificate chain is longer than this value, verification will fail.
+    /// If the peer's certificate chain is longer than this value, verification will fail.
     </span><span class="attr">#[corresponds(SSL_CTX_set_verify_depth)]
     </span><span class="kw">pub fn </span>set_verify_depth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, depth: u32) {
         <span class="kw">unsafe </span>{
@@ -5211,7 +5212,7 @@
         }
     }
 
-    <span class="doccomment">/// Replaces the context&#39;s certificate store.
+    <span class="doccomment">/// Replaces the context's certificate store.
     </span><span class="attr">#[corresponds(SSL_CTX_set_cert_store)]
     </span><span class="kw">pub fn </span>set_cert_store(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cert_store: X509Store) {
         <span class="kw">unsafe </span>{
@@ -5257,7 +5258,7 @@
     </span><span class="attr">#[corresponds(SSL_CTX_set_tmp_dh_callback)]
     </span><span class="kw">pub fn </span>set_tmp_dh_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;Dh&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;Dh&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5285,10 +5286,10 @@
     /// Requires OpenSSL 1.0.1 or 1.0.2.
     </span><span class="attr">#[corresponds(SSL_CTX_set_tmp_ecdh_callback)]
     #[cfg(all(ossl101, not(ossl110)))]
-    #[deprecated(note = <span class="string">&quot;this function leaks memory and does not exist on newer OpenSSL versions&quot;</span>)]
+    #[deprecated(note = <span class="string">"this function leaks memory and does not exist on newer OpenSSL versions"</span>)]
     </span><span class="kw">pub fn </span>set_tmp_ecdh_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;EcKey&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;EcKey&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5342,7 +5343,7 @@
 
     <span class="doccomment">/// Set the context identifier for sessions.
     ///
-    /// This value identifies the server&#39;s session cache to clients, telling them when they&#39;re
+    /// This value identifies the server's session cache to clients, telling them when they're
     /// able to reuse sessions. It should be set to a unique value per server, unless multiple
     /// servers share a session cache.
     ///
@@ -5604,9 +5605,9 @@
 
     <span class="doccomment">/// Sets the protocols to sent to the server for Application Layer Protocol Negotiation (ALPN).
     ///
-    /// The input must be in ALPN &quot;wire format&quot;. It consists of a sequence of supported protocol
+    /// The input must be in ALPN "wire format". It consists of a sequence of supported protocol
     /// names prefixed by their byte length. For example, the protocol list consisting of `spdy/1`
-    /// and `http/1.1` is encoded as `b&quot;\x06spdy/1\x08http/1.1&quot;`. The protocols are ordered by
+    /// and `http/1.1` is encoded as `b"\x06spdy/1\x08http/1.1"`. The protocols are ordered by
     /// preference.
     ///
     /// Requires BoringSSL or OpenSSL 1.0.2 or LibreSSL 2.6.1 or newer.
@@ -5629,7 +5630,7 @@
         }
     }
 
-    <span class="doccomment">/// Enables the DTLS extension &quot;use_srtp&quot; as defined in RFC5764.
+    <span class="doccomment">/// Enables the DTLS extension "use_srtp" as defined in RFC5764.
     </span><span class="attr">#[corresponds(SSL_CTX_set_tlsext_use_srtp)]
     </span><span class="kw">pub fn </span>set_tlsext_use_srtp(<span class="kw-2">&amp;mut </span><span class="self">self</span>, protocols: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">unsafe </span>{
@@ -5648,7 +5649,7 @@
     <span class="doccomment">/// Sets the callback used by a server to select a protocol for Application Layer Protocol
     /// Negotiation (ALPN).
     ///
-    /// The callback is provided with the client&#39;s protocol list in ALPN wire format. See the
+    /// The callback is provided with the client's protocol list in ALPN wire format. See the
     /// documentation for [`SslContextBuilder::set_alpn_protos`] for details. It should return one
     /// of those protocols on success. The [`select_next_proto`] function implements the standard
     /// protocol selection algorithm.
@@ -5661,7 +5662,7 @@
     #[cfg(any(ossl102, libressl261))]
     </span><span class="kw">pub fn </span>set_alpn_select_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], AlpnError&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], AlpnError&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5679,13 +5680,13 @@
         <span class="kw">unsafe </span>{ cvt(ffi::SSL_CTX_check_private_key(<span class="self">self</span>.as_ptr())).map(|<span class="kw">_</span>| ()) }
     }
 
-    <span class="doccomment">/// Returns a shared reference to the context&#39;s certificate store.
+    <span class="doccomment">/// Returns a shared reference to the context's certificate store.
     </span><span class="attr">#[corresponds(SSL_CTX_get_cert_store)]
     </span><span class="kw">pub fn </span>cert_store(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>X509StoreBuilderRef {
         <span class="kw">unsafe </span>{ X509StoreBuilderRef::from_ptr(ffi::SSL_CTX_get_cert_store(<span class="self">self</span>.as_ptr())) }
     }
 
-    <span class="doccomment">/// Returns a mutable reference to the context&#39;s certificate store.
+    <span class="doccomment">/// Returns a mutable reference to the context's certificate store.
     </span><span class="attr">#[corresponds(SSL_CTX_get_cert_store)]
     </span><span class="kw">pub fn </span>cert_store_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>X509StoreBuilderRef {
         <span class="kw">unsafe </span>{ X509StoreBuilderRef::from_ptr_mut(ffi::SSL_CTX_get_cert_store(<span class="self">self</span>.as_ptr())) }
@@ -5693,18 +5694,18 @@
 
     <span class="doccomment">/// Returns a reference to the X509 verification configuration.
     ///
-    /// Requires OpenSSL 1.0.2 or newer.
+    /// Requires BoringSSL or OpenSSL 1.0.2 or newer.
     </span><span class="attr">#[corresponds(SSL_CTX_get0_param)]
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, boringssl, libressl261))]
     </span><span class="kw">pub fn </span>verify_param(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>X509VerifyParamRef {
         <span class="kw">unsafe </span>{ X509VerifyParamRef::from_ptr(ffi::SSL_CTX_get0_param(<span class="self">self</span>.as_ptr())) }
     }
 
     <span class="doccomment">/// Returns a mutable reference to the X509 verification configuration.
     ///
-    /// Requires OpenSSL 1.0.2 or newer.
+    /// Requires BoringSSL or OpenSSL 1.0.2 or newer.
     </span><span class="attr">#[corresponds(SSL_CTX_get0_param)]
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, boringssl, libressl261))]
     </span><span class="kw">pub fn </span>verify_param_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>X509VerifyParamRef {
         <span class="kw">unsafe </span>{ X509VerifyParamRef::from_ptr_mut(ffi::SSL_CTX_get0_param(<span class="self">self</span>.as_ptr())) }
     }
@@ -5724,7 +5725,7 @@
     </span><span class="attr">#[corresponds(SSL_CTX_set_tlsext_status_cb)]
     </span><span class="kw">pub fn </span>set_status_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt;
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef) -&gt; <span class="prelude-ty">Result</span>&lt;bool, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef) -&gt; <span class="prelude-ty">Result</span>&lt;bool, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5742,11 +5743,11 @@
     /// by the server, a mutable slice for each of the identity and pre-shared key bytes. The
     /// identity must be written as a null-terminated C string.
     </span><span class="attr">#[corresponds(SSL_CTX_set_psk_client_callback)]
-    #[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+    #[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
     </span><span class="kw">pub fn </span>set_psk_client_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
         </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;, <span class="kw-2">&amp;mut </span>[u8], <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt;
-            + <span class="lifetime">&#39;static
+            + <span class="lifetime">'static
             </span>+ Sync
             + Send,
     {
@@ -5756,12 +5757,12 @@
         }
     }
 
-    <span class="attr">#[deprecated(since = <span class="string">&quot;0.10.10&quot;</span>, note = <span class="string">&quot;renamed to `set_psk_client_callback`&quot;</span>)]
-    #[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+    <span class="attr">#[deprecated(since = <span class="string">"0.10.10"</span>, note = <span class="string">"renamed to `set_psk_client_callback`"</span>)]
+    #[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
     </span><span class="kw">pub fn </span>set_psk_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
         </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;, <span class="kw-2">&amp;mut </span>[u8], <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt;
-            + <span class="lifetime">&#39;static
+            + <span class="lifetime">'static
             </span>+ Sync
             + Send,
     {
@@ -5774,11 +5775,11 @@
     /// and, a mutable slice for the pre-shared key bytes. The callback returns the number of
     /// bytes in the pre-shared key.
     </span><span class="attr">#[corresponds(SSL_CTX_set_psk_server_callback)]
-    #[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+    #[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
     </span><span class="kw">pub fn </span>set_psk_server_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
         </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt;
-            + <span class="lifetime">&#39;static
+            + <span class="lifetime">'static
             </span>+ Sync
             + Send,
     {
@@ -5804,7 +5805,7 @@
     </span><span class="attr">#[corresponds(SSL_CTX_sess_set_new_cb)]
     </span><span class="kw">pub fn </span>set_new_session_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, SslSession) + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, SslSession) + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5818,7 +5819,7 @@
     </span><span class="attr">#[corresponds(SSL_CTX_sess_set_remove_cb)]
     </span><span class="kw">pub fn </span>set_remove_session_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;</span>SslContextRef, <span class="kw-2">&amp;</span>SslSessionRef) + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;</span>SslContextRef, <span class="kw-2">&amp;</span>SslSessionRef) + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5842,7 +5843,7 @@
     </span><span class="attr">#[corresponds(SSL_CTX_sess_set_get_cb)]
     </span><span class="kw">pub unsafe fn </span>set_get_session_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;SslSession&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;SslSession&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
         ffi::SSL_CTX_sess_set_get_cb(<span class="self">self</span>.as_ptr(), <span class="prelude-val">Some</span>(callbacks::raw_get_session::&lt;F&gt;));
@@ -5859,7 +5860,7 @@
     #[cfg(ossl111)]
     </span><span class="kw">pub fn </span>set_keylog_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;</span>SslRef, <span class="kw-2">&amp;</span>str) + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;</span>SslRef, <span class="kw-2">&amp;</span>str) + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5887,7 +5888,7 @@
     #[cfg(ossl111)]
     </span><span class="kw">pub fn </span>set_stateless_cookie_generate_cb&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5910,7 +5911,7 @@
     #[cfg(ossl111)]
     </span><span class="kw">pub fn </span>set_stateless_cookie_verify_cb&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5929,7 +5930,7 @@
     #[cfg(not(boringssl))]
     </span><span class="kw">pub fn </span>set_cookie_generate_cb&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -5945,7 +5946,7 @@
     #[cfg(not(boringssl))]
     </span><span class="kw">pub fn </span>set_cookie_verify_cb&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.set_ex_data(SslContext::cached_ex_index::&lt;F&gt;(), callback);
@@ -6006,17 +6007,17 @@
                 ExtensionContext,
                 <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span>X509Ref)&gt;,
             ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, SslAlert&gt;
-            + <span class="lifetime">&#39;static
+            + <span class="lifetime">'static
             </span>+ Sync
             + Send,
-        T: AsRef&lt;[u8]&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        T: AsRef&lt;[u8]&gt; + <span class="lifetime">'static </span>+ Sync + Send,
         ParseFn: Fn(
                 <span class="kw-2">&amp;mut </span>SslRef,
                 ExtensionContext,
                 <span class="kw-2">&amp;</span>[u8],
                 <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span>X509Ref)&gt;,
             ) -&gt; <span class="prelude-ty">Result</span>&lt;(), SslAlert&gt;
-            + <span class="lifetime">&#39;static
+            + <span class="lifetime">'static
             </span>+ Sync
             + Send,
     {
@@ -6057,7 +6058,7 @@
         }
     }
 
-    <span class="doccomment">/// Sets a callback which will be invoked just after the client&#39;s hello message is received.
+    <span class="doccomment">/// Sets a callback which will be invoked just after the client's hello message is received.
     ///
     /// Requires OpenSSL 1.1.1 or newer.
     </span><span class="attr">#[corresponds(SSL_CTX_set_client_hello_cb)]
@@ -6065,7 +6066,7 @@
     </span><span class="kw">pub fn </span>set_client_hello_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
         </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, <span class="kw-2">&amp;mut </span>SslAlert) -&gt; <span class="prelude-ty">Result</span>&lt;ClientHelloResponse, ErrorStack&gt;
-            + <span class="lifetime">&#39;static
+            + <span class="lifetime">'static
             </span>+ Sync
             + Send,
     {
@@ -6079,7 +6080,7 @@
         }
     }
 
-    <span class="doccomment">/// Sets the context&#39;s session cache size limit, returning the previous limit.
+    <span class="doccomment">/// Sets the context's session cache size limit, returning the previous limit.
     ///
     /// A value of 0 means that the cache size is unbounded.
     </span><span class="attr">#[corresponds(SSL_CTX_sess_set_cache_size)]
@@ -6090,7 +6091,7 @@
         }
     }
 
-    <span class="doccomment">/// Sets the context&#39;s supported signature algorithms.
+    <span class="doccomment">/// Sets the context's supported signature algorithms.
     ///
     /// Requires OpenSSL 1.0.2 or newer.
     </span><span class="attr">#[corresponds(SSL_CTX_set1_sigalgs_list)]
@@ -6103,11 +6104,11 @@
         }
     }
 
-    <span class="doccomment">/// Sets the context&#39;s supported elliptic curve groups.
+    <span class="doccomment">/// Sets the context's supported elliptic curve groups.
     ///
-    /// Requires OpenSSL 1.1.1 or LibreSSL 2.5.1 or newer.
+    /// Requires BoringSSL or OpenSSL 1.1.1 or LibreSSL 2.5.1 or newer.
     </span><span class="attr">#[corresponds(SSL_CTX_set1_groups_list)]
-    #[cfg(any(ossl111, libressl251))]
+    #[cfg(any(ossl111, boringssl, libressl251))]
     </span><span class="kw">pub fn </span>set_groups_list(<span class="kw-2">&amp;mut </span><span class="self">self</span>, groups: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">let </span>groups = CString::new(groups).unwrap();
         <span class="kw">unsafe </span>{
@@ -6125,7 +6126,7 @@
         <span class="kw">unsafe </span>{ cvt(ffi::SSL_CTX_set_num_tickets(<span class="self">self</span>.as_ptr(), num_tickets)).map(|<span class="kw">_</span>| ()) }
     }
 
-    <span class="doccomment">/// Set the context&#39;s security level to a value between 0 and 5, inclusive.
+    <span class="doccomment">/// Set the context's security level to a value between 0 and 5, inclusive.
     /// A security value of 0 allows allows all parameters and algorithms.
     ///
     /// Requires OpenSSL 1.1.0 or newer.
@@ -6176,8 +6177,8 @@
 
 <span class="comment">// TODO: add useful info here
 </span><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>SslContext {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(fmt, <span class="string">&quot;SslContext&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(fmt, <span class="string">"SslContext"</span>)
     }
 }
 
@@ -6194,7 +6195,7 @@
     </span><span class="attr">#[corresponds(SSL_CTX_get_ex_new_index)]
     </span><span class="kw">pub fn </span>new_ex_index&lt;T&gt;() -&gt; <span class="prelude-ty">Result</span>&lt;Index&lt;SslContext, T&gt;, ErrorStack&gt;
     <span class="kw">where
-        </span>T: <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>T: <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             ffi::init();
@@ -6209,7 +6210,7 @@
     <span class="comment">// FIXME should return a result?
     </span><span class="kw">fn </span>cached_ex_index&lt;T&gt;() -&gt; Index&lt;SslContext, T&gt;
     <span class="kw">where
-        </span>T: <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>T: <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>idx = <span class="kw-2">*</span>INDEXES
@@ -6259,7 +6260,7 @@
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>chain = ptr::null_mut();
             ffi::SSL_CTX_get_extra_chain_certs(<span class="self">self</span>.as_ptr(), <span class="kw-2">&amp;mut </span>chain);
-            StackRef::from_const_ptr_opt(chain).expect(<span class="string">&quot;extra chain certs must not be null&quot;</span>)
+            StackRef::from_const_ptr_opt(chain).expect(<span class="string">"extra chain certs must not be null"</span>)
         }
     }
 
@@ -6285,7 +6286,7 @@
         <span class="kw">unsafe </span>{ ffi::SSL_CTX_get_max_early_data(<span class="self">self</span>.as_ptr()) }
     }
 
-    <span class="doccomment">/// Adds a session to the context&#39;s cache.
+    <span class="doccomment">/// Adds a session to the context's cache.
     ///
     /// Returns `true` if the session was successfully added to the cache, and `false` if it was already present.
     ///
@@ -6298,7 +6299,7 @@
         ffi::SSL_CTX_add_session(<span class="self">self</span>.as_ptr(), session.as_ptr()) != <span class="number">0
     </span>}
 
-    <span class="doccomment">/// Removes a session from the context&#39;s cache and marks it as non-resumable.
+    <span class="doccomment">/// Removes a session from the context's cache and marks it as non-resumable.
     ///
     /// Returns `true` if the session was successfully found and removed, and `false` otherwise.
     ///
@@ -6311,7 +6312,7 @@
         ffi::SSL_CTX_remove_session(<span class="self">self</span>.as_ptr(), session.as_ptr()) != <span class="number">0
     </span>}
 
-    <span class="doccomment">/// Returns the context&#39;s session cache size limit.
+    <span class="doccomment">/// Returns the context's session cache size limit.
     ///
     /// A value of 0 means that the cache size is unbounded.
     </span><span class="attr">#[corresponds(SSL_CTX_sess_get_cache_size)]
@@ -6326,7 +6327,7 @@
     </span><span class="attr">#[corresponds(SSL_CTX_get_verify_mode)]
     </span><span class="kw">pub fn </span>verify_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SslVerifyMode {
         <span class="kw">let </span>mode = <span class="kw">unsafe </span>{ ffi::SSL_CTX_get_verify_mode(<span class="self">self</span>.as_ptr()) };
-        SslVerifyMode::from_bits(mode).expect(<span class="string">&quot;SSL_CTX_get_verify_mode returned invalid mode&quot;</span>)
+        SslVerifyMode::from_bits(mode).expect(<span class="string">"SSL_CTX_get_verify_mode returned invalid mode"</span>)
     }
 
     <span class="doccomment">/// Gets the number of TLS 1.3 session tickets that will be sent to a client after a full
@@ -6339,7 +6340,7 @@
         <span class="kw">unsafe </span>{ ffi::SSL_CTX_get_num_tickets(<span class="self">self</span>.as_ptr()) }
     }
 
-    <span class="doccomment">/// Get the context&#39;s security level, which controls the allowed parameters
+    <span class="doccomment">/// Get the context's security level, which controls the allowed parameters
     /// and algorithms.
     ///
     /// Requires OpenSSL 1.1.0 or newer.
@@ -6407,7 +6408,7 @@
 <span class="kw">impl </span>SslCipherRef {
     <span class="doccomment">/// Returns the name of the cipher.
     </span><span class="attr">#[corresponds(SSL_CIPHER_get_name)]
-    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = ffi::SSL_CIPHER_get_name(<span class="self">self</span>.as_ptr());
             CStr::from_ptr(ptr).to_str().unwrap()
@@ -6419,7 +6420,7 @@
     /// Requires OpenSSL 1.1.1 or newer.
     </span><span class="attr">#[corresponds(SSL_CIPHER_standard_name)]
     #[cfg(ossl111)]
-    </span><span class="kw">pub fn </span>standard_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    </span><span class="kw">pub fn </span>standard_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = ffi::SSL_CIPHER_standard_name(<span class="self">self</span>.as_ptr());
             <span class="kw">if </span>ptr.is_null() {
@@ -6432,7 +6433,7 @@
 
     <span class="doccomment">/// Returns the SSL/TLS protocol version that first defined the cipher.
     </span><span class="attr">#[corresponds(SSL_CIPHER_get_version)]
-    </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">let </span>version = <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = ffi::SSL_CIPHER_get_version(<span class="self">self</span>.as_ptr());
             CStr::from_ptr(ptr <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>)
@@ -6498,8 +6499,8 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>SslCipherRef {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(fmt, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.name())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(fmt, <span class="string">"{}"</span>, <span class="self">self</span>.name())
     }
 }
 
@@ -6603,7 +6604,7 @@
         <span class="kw">unsafe </span>{ ffi::SSL_SESSION_get_timeout(<span class="self">self</span>.as_ptr()).into() }
     }
 
-    <span class="doccomment">/// Returns the session&#39;s TLS protocol version.
+    <span class="doccomment">/// Returns the session's TLS protocol version.
     ///
     /// Requires OpenSSL 1.1.0 or LibreSSL 2.7.0 or newer.
     </span><span class="attr">#[corresponds(SSL_SESSION_get_protocol_version)]
@@ -6642,7 +6643,7 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Ssl {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Debug::fmt(<span class="kw-2">&amp;**</span><span class="self">self</span>, fmt)
     }
 }
@@ -6655,7 +6656,7 @@
     </span><span class="attr">#[corresponds(SSL_get_ex_new_index)]
     </span><span class="kw">pub fn </span>new_ex_index&lt;T&gt;() -&gt; <span class="prelude-ty">Result</span>&lt;Index&lt;Ssl, T&gt;, ErrorStack&gt;
     <span class="kw">where
-        </span>T: <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>T: <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             ffi::init();
@@ -6670,7 +6671,7 @@
     <span class="comment">// FIXME should return a result?
     </span><span class="kw">fn </span>cached_ex_index&lt;T&gt;() -&gt; Index&lt;Ssl, T&gt;
     <span class="kw">where
-        </span>T: <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>T: <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>idx = <span class="kw-2">*</span>SSL_INDEXES
@@ -6705,7 +6706,7 @@
     ///
     /// # Warning
     ///
-    /// OpenSSL&#39;s default configuration is insecure. It is highly recommended to use
+    /// OpenSSL's default configuration is insecure. It is highly recommended to use
     /// `SslConnector` rather than `Ssl` directly, as it manages that configuration.
     ///
     /// [`SSL_connect`]: https://www.openssl.org/docs/manmaster/man3/SSL_connect.html
@@ -6724,7 +6725,7 @@
     ///
     /// # Warning
     ///
-    /// OpenSSL&#39;s default configuration is insecure. It is highly recommended to use
+    /// OpenSSL's default configuration is insecure. It is highly recommended to use
     /// `SslAcceptor` rather than `Ssl` directly, as it manages that configuration.
     ///
     /// [`SSL_accept`]: https://www.openssl.org/docs/manmaster/man3/SSL_accept.html
@@ -6739,10 +6740,10 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>SslRef {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        fmt.debug_struct(<span class="string">&quot;Ssl&quot;</span>)
-            .field(<span class="string">&quot;state&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.state_string_long())
-            .field(<span class="string">&quot;verify_result&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.verify_result())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        fmt.debug_struct(<span class="string">"Ssl"</span>)
+            .field(<span class="string">"state"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.state_string_long())
+            .field(<span class="string">"verify_result"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.verify_result())
             .finish()
     }
 }
@@ -6780,7 +6781,7 @@
     </span><span class="attr">#[corresponds(SSL_set_verify_mode)]
     </span><span class="kw">pub fn </span>verify_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SslVerifyMode {
         <span class="kw">let </span>mode = <span class="kw">unsafe </span>{ ffi::SSL_get_verify_mode(<span class="self">self</span>.as_ptr()) };
-        SslVerifyMode::from_bits(mode).expect(<span class="string">&quot;SSL_get_verify_mode returned invalid mode&quot;</span>)
+        SslVerifyMode::from_bits(mode).expect(<span class="string">"SSL_get_verify_mode returned invalid mode"</span>)
     }
 
     <span class="doccomment">/// Like [`SslContextBuilder::set_verify_callback`].
@@ -6789,7 +6790,7 @@
     </span><span class="attr">#[corresponds(SSL_set_verify)]
     </span><span class="kw">pub fn </span>set_verify_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mode: SslVerifyMode, verify: F)
     <span class="kw">where
-        </span>F: Fn(bool, <span class="kw-2">&amp;mut </span>X509StoreContextRef) -&gt; bool + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(bool, <span class="kw-2">&amp;mut </span>X509StoreContextRef) -&gt; bool + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="comment">// this needs to be in an Arc since the callback can register a new callback!
@@ -6816,7 +6817,7 @@
     </span><span class="attr">#[corresponds(SSL_set_tmp_dh_callback)]
     </span><span class="kw">pub fn </span>set_tmp_dh_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;Dh&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;Dh&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="comment">// this needs to be in an Arc since the callback can register a new callback!
@@ -6841,10 +6842,10 @@
     /// Requires OpenSSL 1.0.1 or 1.0.2.
     </span><span class="attr">#[corresponds(SSL_set_tmp_ecdh_callback)]
     #[cfg(all(ossl101, not(ossl110)))]
-    #[deprecated(note = <span class="string">&quot;this function leaks memory and does not exist on newer OpenSSL versions&quot;</span>)]
+    #[deprecated(note = <span class="string">"this function leaks memory and does not exist on newer OpenSSL versions"</span>)]
     </span><span class="kw">pub fn </span>set_tmp_ecdh_callback&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callback: F)
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;EcKey&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">&#39;static </span>+ Sync + Send,
+        </span>F: Fn(<span class="kw-2">&amp;mut </span>SslRef, bool, u32) -&gt; <span class="prelude-ty">Result</span>&lt;EcKey&lt;Params&gt;, ErrorStack&gt; + <span class="lifetime">'static </span>+ Sync + Send,
     {
         <span class="kw">unsafe </span>{
             <span class="comment">// this needs to be in an Arc since the callback can register a new callback!
@@ -6897,7 +6898,7 @@
 
     <span class="doccomment">/// Returns a short string describing the state of the session.
     </span><span class="attr">#[corresponds(SSL_state_string)]
-    </span><span class="kw">pub fn </span>state_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>state_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">let </span>state = <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = ffi::SSL_state_string(<span class="self">self</span>.as_ptr());
             CStr::from_ptr(ptr <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>)
@@ -6908,7 +6909,7 @@
 
     <span class="doccomment">/// Returns a longer string describing the state of the session.
     </span><span class="attr">#[corresponds(SSL_state_string_long)]
-    </span><span class="kw">pub fn </span>state_string_long(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>state_string_long(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">let </span>state = <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = ffi::SSL_state_string_long(<span class="self">self</span>.as_ptr());
             CStr::from_ptr(ptr <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>)
@@ -6929,7 +6930,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the peer&#39;s certificate, if present.
+    <span class="doccomment">/// Returns the peer's certificate, if present.
     </span><span class="attr">#[corresponds(SSL_get_peer_certificate)]
     </span><span class="kw">pub fn </span>peer_certificate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;X509&gt; {
         <span class="kw">unsafe </span>{
@@ -6988,7 +6989,7 @@
         }
     }
 
-    <span class="attr">#[deprecated(since = <span class="string">&quot;0.10.5&quot;</span>, note = <span class="string">&quot;renamed to `version_str`&quot;</span>)]
+    <span class="attr">#[deprecated(since = <span class="string">"0.10.5"</span>, note = <span class="string">"renamed to `version_str`"</span>)]
     </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="self">self</span>.version_str()
     }
@@ -7008,7 +7009,7 @@
 
     <span class="doccomment">/// Returns a string describing the protocol version of the session.
     </span><span class="attr">#[corresponds(SSL_get_version)]
-    </span><span class="kw">pub fn </span>version_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>version_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">let </span>version = <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = ffi::SSL_get_version(<span class="self">self</span>.as_ptr());
             CStr::from_ptr(ptr <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>)
@@ -7019,7 +7020,7 @@
 
     <span class="doccomment">/// Returns the protocol selected via Application Layer Protocol Negotiation (ALPN).
     ///
-    /// The protocol&#39;s name is returned is an opaque sequence of bytes. It is up to the client
+    /// The protocol's name is returned is an opaque sequence of bytes. It is up to the client
     /// to interpret it.
     ///
     /// Requires BoringSSL or OpenSSL 1.0.2 or LibreSSL 2.6.1 or newer.
@@ -7041,7 +7042,7 @@
         }
     }
 
-    <span class="doccomment">/// Enables the DTLS extension &quot;use_srtp&quot; as defined in RFC5764.
+    <span class="doccomment">/// Enables the DTLS extension "use_srtp" as defined in RFC5764.
     ///
     /// This corresponds to [`SSL_set_tlsext_use_srtp`].
     ///
@@ -7063,7 +7064,7 @@
 
     <span class="doccomment">/// Gets all SRTP profiles that are enabled for handshake via set_tlsext_use_srtp
     ///
-    /// DTLS extension &quot;use_srtp&quot; as defined in RFC5764 has to be enabled.
+    /// DTLS extension "use_srtp" as defined in RFC5764 has to be enabled.
     ///
     /// This corresponds to [`SSL_get_srtp_profiles`].
     ///
@@ -7079,7 +7080,7 @@
 
     <span class="doccomment">/// Gets the SRTP profile selected by handshake.
     ///
-    /// DTLS extension &quot;use_srtp&quot; as defined in RFC5764 has to be enabled.
+    /// DTLS extension "use_srtp" as defined in RFC5764 has to be enabled.
     </span><span class="attr">#[corresponds(SSL_get_selected_srtp_profile)]
     </span><span class="kw">pub fn </span>selected_srtp_profile(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>SrtpProtectionProfileRef&gt; {
         <span class="kw">unsafe </span>{
@@ -7155,9 +7156,9 @@
 
     <span class="doccomment">/// Returns a mutable reference to the X509 verification configuration.
     ///
-    /// Requires OpenSSL 1.0.2 or newer.
+    /// Requires BoringSSL or OpenSSL 1.0.2 or newer.
     </span><span class="attr">#[corresponds(SSL_get0_param)]
-    #[cfg(any(ossl102, libressl261))]
+    #[cfg(any(ossl102, boringssl, libressl261))]
     </span><span class="kw">pub fn </span>param_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>X509VerifyParamRef {
         <span class="kw">unsafe </span>{ X509VerifyParamRef::from_ptr_mut(ffi::SSL_get0_param(<span class="self">self</span>.as_ptr())) }
     }
@@ -7303,7 +7304,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the server&#39;s OCSP response, if present.
+    <span class="doccomment">/// Returns the server's OCSP response, if present.
     </span><span class="attr">#[corresponds(SSL_get_tlsext_status_ocsp_resp)]
     #[cfg(not(boringssl))]
     </span><span class="kw">pub fn </span>ocsp_status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
@@ -7442,7 +7443,7 @@
         <span class="kw">unsafe </span>{ ffi::SSL_is_init_finished(<span class="self">self</span>.as_ptr()) != <span class="number">0 </span>}
     }
 
-    <span class="doccomment">/// Determines if the client&#39;s hello message is in the SSLv2 format.
+    <span class="doccomment">/// Determines if the client's hello message is in the SSLv2 format.
     ///
     /// This can only be used inside of the client hello callback. Otherwise, `false` is returned.
     ///
@@ -7453,7 +7454,7 @@
         <span class="kw">unsafe </span>{ ffi::SSL_client_hello_isv2(<span class="self">self</span>.as_ptr()) != <span class="number">0 </span>}
     }
 
-    <span class="doccomment">/// Returns the legacy version field of the client&#39;s hello message.
+    <span class="doccomment">/// Returns the legacy version field of the client's hello message.
     ///
     /// This can only be used inside of the client hello callback. Otherwise, `None` is returned.
     ///
@@ -7471,7 +7472,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the random field of the client&#39;s hello message.
+    <span class="doccomment">/// Returns the random field of the client's hello message.
     ///
     /// This can only be used inside of the client hello callback. Otherwise, `None` is returned.
     ///
@@ -7490,7 +7491,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the session ID field of the client&#39;s hello message.
+    <span class="doccomment">/// Returns the session ID field of the client's hello message.
     ///
     /// This can only be used inside of the client hello callback. Otherwise, `None` is returned.
     ///
@@ -7509,7 +7510,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the ciphers field of the client&#39;s hello message.
+    <span class="doccomment">/// Returns the ciphers field of the client's hello message.
     ///
     /// This can only be used inside of the client hello callback. Otherwise, `None` is returned.
     ///
@@ -7563,7 +7564,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the compression methods field of the client&#39;s hello message.
+    <span class="doccomment">/// Returns the compression methods field of the client's hello message.
     ///
     /// This can only be used inside of the client hello callback. Otherwise, `None` is returned.
     ///
@@ -7592,7 +7593,7 @@
     ///
     /// May return `None` if no PSK identity hint was used during the connection setup.
     </span><span class="attr">#[corresponds(SSL_get_psk_identity_hint)]
-    #[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+    #[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
     </span><span class="kw">pub fn </span>psk_identity_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = ffi::SSL_get_psk_identity_hint(<span class="self">self</span>.as_ptr());
@@ -7606,7 +7607,7 @@
 
     <span class="doccomment">/// Returns the PSK identity used during connection setup.
     </span><span class="attr">#[corresponds(SSL_get_psk_identity)]
-    #[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]
+    #[cfg(not(osslconf = <span class="string">"OPENSSL_NO_PSK"</span>))]
     </span><span class="kw">pub fn </span>psk_identity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = ffi::SSL_get_psk_identity(<span class="self">self</span>.as_ptr());
@@ -7819,7 +7820,7 @@
         <span class="kw">unsafe </span>{ ffi::SSL_get_num_tickets(<span class="self">self</span>.as_ptr()) }
     }
 
-    <span class="doccomment">/// Set the context&#39;s security level to a value between 0 and 5, inclusive.
+    <span class="doccomment">/// Set the context's security level to a value between 0 and 5, inclusive.
     /// A security value of 0 allows allows all parameters and algorithms.
     ///
     /// Requires OpenSSL 1.1.0 or newer.
@@ -7829,7 +7830,7 @@
         <span class="kw">unsafe </span>{ ffi::SSL_set_security_level(<span class="self">self</span>.as_ptr(), level <span class="kw">as </span>c_int) }
     }
 
-    <span class="doccomment">/// Get the connection&#39;s security level, which controls the allowed parameters
+    <span class="doccomment">/// Get the connection's security level, which controls the allowed parameters
     /// and algorithms.
     ///
     /// Requires OpenSSL 1.1.0 or newer.
@@ -7952,10 +7953,10 @@
 <span class="kw">where
     </span>S: fmt::Debug,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        fmt.debug_struct(<span class="string">&quot;SslStream&quot;</span>)
-            .field(<span class="string">&quot;stream&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.get_ref())
-            .field(<span class="string">&quot;ssl&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.ssl())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        fmt.debug_struct(<span class="string">"SslStream"</span>)
+            .field(<span class="string">"stream"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.get_ref())
+            .field(<span class="string">"ssl"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.ssl())
             .finish()
     }
 }
@@ -7990,8 +7991,8 @@
     ///
     /// The caller must ensure the pointer is valid.
     </span><span class="attr">#[deprecated(
-        since = <span class="string">&quot;0.10.32&quot;</span>,
-        note = <span class="string">&quot;use Ssl::from_ptr and SslStream::new instead&quot;
+        since = <span class="string">"0.10.32"</span>,
+        note = <span class="string">"use Ssl::from_ptr and SslStream::new instead"
     </span>)]
     </span><span class="kw">pub unsafe fn </span>from_raw_parts(ssl: <span class="kw-2">*mut </span>ffi::SSL, stream: S) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>ssl = Ssl::from_ptr(ssl);
@@ -8055,7 +8056,7 @@
     ///
     /// # Warning
     ///
-    /// OpenSSL&#39;s default configuration is insecure. It is highly recommended to use
+    /// OpenSSL's default configuration is insecure. It is highly recommended to use
     /// `SslConnector` rather than `Ssl` directly, as it manages that configuration.
     </span><span class="attr">#[corresponds(SSL_connect)]
     </span><span class="kw">pub fn </span>connect(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -8071,7 +8072,7 @@
     ///
     /// # Warning
     ///
-    /// OpenSSL&#39;s default configuration is insecure. It is highly recommended to use
+    /// OpenSSL's default configuration is insecure. It is highly recommended to use
     /// `SslAcceptor` rather than `Ssl` directly, as it manages that configuration.
     </span><span class="attr">#[corresponds(SSL_accept)]
     </span><span class="kw">pub fn </span>accept(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
@@ -8297,7 +8298,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the session&#39;s shutdown state.
+    <span class="doccomment">/// Returns the session's shutdown state.
     </span><span class="attr">#[corresponds(SSL_get_shutdown)]
     </span><span class="kw">pub fn </span>get_shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; ShutdownState {
         <span class="kw">unsafe </span>{
@@ -8306,7 +8307,7 @@
         }
     }
 
-    <span class="doccomment">/// Sets the session&#39;s shutdown state.
+    <span class="doccomment">/// Sets the session's shutdown state.
     ///
     /// This can be used to tell OpenSSL that the session should be cached even if a full two-way
     /// shutdown was not completed.
@@ -8413,8 +8414,8 @@
 
 <span class="doccomment">/// A partially constructed `SslStream`, useful for unusual handshakes.
 </span><span class="attr">#[deprecated(
-    since = <span class="string">&quot;0.10.32&quot;</span>,
-    note = <span class="string">&quot;use the methods directly on Ssl/SslStream instead&quot;
+    since = <span class="string">"0.10.32"</span>,
+    note = <span class="string">"use the methods directly on Ssl/SslStream instead"
 </span>)]
 </span><span class="kw">pub struct </span>SslStreamBuilder&lt;S&gt; {
     inner: SslStream&lt;S&gt;,
@@ -8605,8 +8606,8 @@
     /// the DTLS protocol requires.
     ///
     /// # Panics
-    /// This function panics if the given mtu size can&#39;t be represented in a positive `c_long` range
-    </span><span class="attr">#[deprecated(note = <span class="string">&quot;Use SslRef::set_mtu instead&quot;</span>, since = <span class="string">&quot;0.10.30&quot;</span>)]
+    /// This function panics if the given mtu size can't be represented in a positive `c_long` range
+    </span><span class="attr">#[deprecated(note = <span class="string">"Use SslRef::set_mtu instead"</span>, since = <span class="string">"0.10.30"</span>)]
     </span><span class="kw">pub fn </span>set_dtls_mtu_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mtu_size: usize) {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>bio = <span class="self">self</span>.inner.ssl.get_raw_rbio();
@@ -8647,7 +8648,7 @@
                 <span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span>ssl).references,
                 <span class="number">1</span>,
                 ffi::CRYPTO_LOCK_SSL_CTX,
-                <span class="string">&quot;mod.rs\0&quot;</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>,
+                <span class="string">"mod.rs\0"</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>,
                 <span class="macro">line!</span>() <span class="kw">as </span>c_int,
             );
             <span class="number">0
@@ -8680,7 +8681,7 @@
                 <span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span>ses).references,
                 <span class="number">1</span>,
                 ffi::CRYPTO_LOCK_SSL_CTX,
-                <span class="string">&quot;mod.rs\0&quot;</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>,
+                <span class="string">"mod.rs\0"</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>,
                 <span class="macro">line!</span>() <span class="kw">as </span>c_int,
             );
             <span class="number">0

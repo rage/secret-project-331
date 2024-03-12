@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/filter_fn.rs`."><title>filter_fn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/filter_fn.rs`."><title>filter_fn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -771,7 +772,7 @@
 /// [global]: crate::layer#global-filtering
 /// [filtering]: crate::layer#filtering-with-layers
 </span><span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>FilterFn&lt;F = <span class="kw">fn</span>(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool&gt; {
+</span><span class="kw">pub struct </span>FilterFn&lt;F = <span class="kw">fn</span>(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool&gt; {
     enabled: F,
     max_level_hint: <span class="prelude-ty">Option</span>&lt;LevelFilter&gt;,
 }
@@ -795,8 +796,8 @@
 </span><span class="kw">pub struct </span>DynFilterFn&lt;
     S,
     <span class="comment">// TODO(eliza): should these just be boxed functions?
-    </span>F = <span class="kw">fn</span>(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool,
-    R = <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest,
+    </span>F = <span class="kw">fn</span>(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool,
+    R = <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest,
 &gt; {
     enabled: F,
     register_callsite: <span class="prelude-ty">Option</span>&lt;R&gt;,
@@ -834,8 +835,8 @@
 /// };
 ///
 /// let my_filter = filter::filter_fn(|metadata| {
-///     // Only enable spans or events with the target &quot;interesting_things&quot;
-///     metadata.target() == &quot;interesting_things&quot;
+///     // Only enable spans or events with the target "interesting_things"
+///     metadata.target() == "interesting_things"
 /// });
 ///
 /// let my_layer = tracing_subscriber::fmt::layer();
@@ -845,14 +846,14 @@
 ///     .init();
 ///
 /// // This event will not be enabled.
-/// tracing::warn!(&quot;something important but uninteresting happened!&quot;);
+/// tracing::warn!("something important but uninteresting happened!");
 ///
 /// // This event will be enabled.
-/// tracing::debug!(target: &quot;interesting_things&quot;, &quot;an interesting minor detail...&quot;);
+/// tracing::debug!(target: "interesting_things", "an interesting minor detail...");
 /// ```
 </span><span class="kw">pub fn </span>filter_fn&lt;F&gt;(f: F) -&gt; FilterFn&lt;F&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
 {
     FilterFn::new(f)
 }
@@ -884,16 +885,16 @@
 ///     util::SubscriberInitExt,
 /// };
 ///
-/// // Only enable spans or events within a span named &quot;interesting_span&quot;.
+/// // Only enable spans or events within a span named "interesting_span".
 /// let my_filter = filter::dynamic_filter_fn(|metadata, cx| {
-///     // If this *is* &quot;interesting_span&quot;, make sure to enable it.
-///     if metadata.is_span() &amp;&amp; metadata.name() == &quot;interesting_span&quot; {
+///     // If this *is* "interesting_span", make sure to enable it.
+///     if metadata.is_span() &amp;&amp; metadata.name() == "interesting_span" {
 ///         return true;
 ///     }
 ///
 ///     // Otherwise, are we in an interesting span?
 ///     if let Some(current_span) = cx.lookup_current() {
-///         return current_span.name() == &quot;interesting_span&quot;;
+///         return current_span.name() == "interesting_span";
 ///     }
 ///
 ///     false
@@ -906,11 +907,11 @@
 ///     .init();
 ///
 /// // This event will not be enabled.
-/// tracing::info!(&quot;something happened&quot;);
+/// tracing::info!("something happened");
 ///
-/// tracing::info_span!(&quot;interesting_span&quot;).in_scope(|| {
+/// tracing::info_span!("interesting_span").in_scope(|| {
 ///     // This event will be enabled.
-///     tracing::debug!(&quot;something else happened&quot;);
+///     tracing::debug!("something else happened");
 /// });
 /// ```
 ///
@@ -923,14 +924,14 @@
 /// [`Metadata`]: tracing_core::Metadata
 </span><span class="kw">pub fn </span>dynamic_filter_fn&lt;S, F&gt;(f: F) -&gt; DynFilterFn&lt;S, F&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool,
 {
     DynFilterFn::new(f)
 }
 
 <span class="kw">impl</span>&lt;F&gt; FilterFn&lt;F&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
 {
     <span class="doccomment">/// Constructs a [`FilterFn`] from a function or closure that returns `true`
     /// if a span or event should be enabled, based on its [`Metadata`].
@@ -955,8 +956,8 @@
     /// };
     ///
     /// let my_filter = FilterFn::new(|metadata| {
-    ///     // Only enable spans or events with the target &quot;interesting_things&quot;
-    ///     metadata.target() == &quot;interesting_things&quot;
+    ///     // Only enable spans or events with the target "interesting_things"
+    ///     metadata.target() == "interesting_things"
     /// });
     ///
     /// let my_layer = tracing_subscriber::fmt::layer();
@@ -966,10 +967,10 @@
     ///     .init();
     ///
     /// // This event will not be enabled.
-    /// tracing::warn!(&quot;something important but uninteresting happened!&quot;);
+    /// tracing::warn!("something important but uninteresting happened!");
     ///
     /// // This event will be enabled.
-    /// tracing::debug!(target: &quot;interesting_things&quot;, &quot;an interesting minor detail...&quot;);
+    /// tracing::debug!(target: "interesting_things", "an interesting minor detail...");
     /// ```
     </span><span class="kw">pub fn </span>new(enabled: F) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -980,7 +981,7 @@
 
     <span class="doccomment">/// Sets the highest verbosity [`Level`] the filter function will enable.
     ///
-    /// The value passed to this method will be returned by this `FilterFn`&#39;s
+    /// The value passed to this method will be returned by this `FilterFn`'s
     /// [`Filter::max_level_hint`] method.
     ///
     /// If the provided function will not enable all levels, it is recommended
@@ -1000,7 +1001,7 @@
     /// let my_filter = filter_fn(|metadata| {
     ///     // Only enable spans or events with targets starting with `my_crate`
     ///     // and levels at or below `INFO`.
-    ///     metadata.level() &lt;= &amp;Level::INFO &amp;&amp; metadata.target().starts_with(&quot;my_crate&quot;)
+    ///     metadata.level() &lt;= &amp;Level::INFO &amp;&amp; metadata.target().starts_with("my_crate")
     /// })
     ///     // Since the filter closure will only enable the `INFO` level and
     ///     // below, set the max level hint
@@ -1023,12 +1024,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::filter) <span class="kw">fn </span>is_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::filter) <span class="kw">fn </span>is_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">let </span>enabled = (<span class="self">self</span>.enabled)(metadata);
         <span class="macro">debug_assert!</span>(
             !enabled || <span class="self">self</span>.is_below_max_level(metadata),
-            <span class="string">&quot;FilterFn&lt;{}&gt; claimed it would only enable {:?} and below, \
-            but it enabled metadata with the {:?} level\nmetadata={:#?}&quot;</span>,
+            <span class="string">"FilterFn&lt;{}&gt; claimed it would only enable {:?} and below, \
+            but it enabled metadata with the {:?} level\nmetadata={:#?}"</span>,
             type_name::&lt;F&gt;(),
             <span class="self">self</span>.max_level_hint.unwrap(),
             metadata.level(),
@@ -1041,7 +1042,7 @@
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::filter) <span class="kw">fn </span>is_callsite_enabled(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;,
+        metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;,
     ) -&gt; Interest {
         <span class="comment">// Because `self.enabled` takes a `Metadata` only (and no `Context`
         // parameter), we can reasonably assume its results are cachable, and
@@ -1049,8 +1050,8 @@
         </span><span class="kw">if </span>(<span class="self">self</span>.enabled)(metadata) {
             <span class="macro">debug_assert!</span>(
                 <span class="self">self</span>.is_below_max_level(metadata),
-                <span class="string">&quot;FilterFn&lt;{}&gt; claimed it was only interested in {:?} and below, \
-                but it enabled metadata with the {:?} level\nmetadata={:#?}&quot;</span>,
+                <span class="string">"FilterFn&lt;{}&gt; claimed it was only interested in {:?} and below, \
+                but it enabled metadata with the {:?} level\nmetadata={:#?}"</span>,
                 type_name::&lt;F&gt;(),
                 <span class="self">self</span>.max_level_hint.unwrap(),
                 metadata.level(),
@@ -1062,7 +1063,7 @@
         Interest::never()
     }
 
-    <span class="kw">fn </span>is_below_max_level(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>is_below_max_level(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="self">self</span>.max_level_hint
             .as_ref()
             .map(|hint| metadata.level() &lt;= hint)
@@ -1072,14 +1073,14 @@
 
 <span class="kw">impl</span>&lt;S, F&gt; Layer&lt;S&gt; <span class="kw">for </span>FilterFn&lt;F&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool + <span class="lifetime">'static</span>,
     S: Subscriber,
 {
-    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw">_</span>: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw">_</span>: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="self">self</span>.is_enabled(metadata)
     }
 
-    <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="self">self</span>.is_callsite_enabled(metadata)
     }
 
@@ -1090,7 +1091,7 @@
 
 <span class="kw">impl</span>&lt;F&gt; From&lt;F&gt; <span class="kw">for </span>FilterFn&lt;F&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
 {
     <span class="kw">fn </span>from(enabled: F) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(enabled)
@@ -1098,10 +1099,10 @@
 }
 
 <span class="kw">impl</span>&lt;F&gt; fmt::Debug <span class="kw">for </span>FilterFn&lt;F&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;FilterFn&quot;</span>)
-            .field(<span class="string">&quot;enabled&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, type_name::&lt;F&gt;()))
-            .field(<span class="string">&quot;max_level_hint&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.max_level_hint)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"FilterFn"</span>)
+            .field(<span class="string">"enabled"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{}"</span>, type_name::&lt;F&gt;()))
+            .field(<span class="string">"max_level_hint"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.max_level_hint)
             .finish()
     }
 }
@@ -1110,7 +1111,7 @@
 
 </span><span class="kw">impl</span>&lt;S, F&gt; DynFilterFn&lt;S, F&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool,
 {
     <span class="doccomment">/// Constructs a [`Filter`] from a function or closure that returns `true`
     /// if a span or event should be enabled in the current [span
@@ -1141,16 +1142,16 @@
     ///     util::SubscriberInitExt,
     /// };
     ///
-    /// // Only enable spans or events within a span named &quot;interesting_span&quot;.
+    /// // Only enable spans or events within a span named "interesting_span".
     /// let my_filter = DynFilterFn::new(|metadata, cx| {
-    ///     // If this *is* &quot;interesting_span&quot;, make sure to enable it.
-    ///     if metadata.is_span() &amp;&amp; metadata.name() == &quot;interesting_span&quot; {
+    ///     // If this *is* "interesting_span", make sure to enable it.
+    ///     if metadata.is_span() &amp;&amp; metadata.name() == "interesting_span" {
     ///         return true;
     ///     }
     ///
     ///     // Otherwise, are we in an interesting span?
     ///     if let Some(current_span) = cx.lookup_current() {
-    ///         return current_span.name() == &quot;interesting_span&quot;;
+    ///         return current_span.name() == "interesting_span";
     ///     }
     ///
     ///     false
@@ -1163,11 +1164,11 @@
     ///     .init();
     ///
     /// // This event will not be enabled.
-    /// tracing::info!(&quot;something happened&quot;);
+    /// tracing::info!("something happened");
     ///
-    /// tracing::info_span!(&quot;interesting_span&quot;).in_scope(|| {
+    /// tracing::info_span!("interesting_span").in_scope(|| {
     ///     // This event will be enabled.
-    ///     tracing::debug!(&quot;something else happened&quot;);
+    ///     tracing::debug!("something else happened");
     /// });
     /// ```
     </span><span class="kw">pub fn </span>new(enabled: F) -&gt; <span class="self">Self </span>{
@@ -1182,11 +1183,11 @@
 
 <span class="kw">impl</span>&lt;S, F, R&gt; DynFilterFn&lt;S, F, R&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool,
 {
     <span class="doccomment">/// Sets the highest verbosity [`Level`] the filter function will enable.
     ///
-    /// The value passed to this method will be returned by this `DynFilterFn`&#39;s
+    /// The value passed to this method will be returned by this `DynFilterFn`'s
     /// [`Filter::max_level_hint`] method.
     ///
     /// If the provided function will not enable all levels, it is recommended
@@ -1204,17 +1205,17 @@
     /// use tracing_core::Level;
     ///
     /// // Only enable spans or events with levels at or below `INFO`, if
-    /// // we are inside a span called &quot;interesting_span&quot;.
+    /// // we are inside a span called "interesting_span".
     /// let my_filter = DynFilterFn::new(|metadata, cx| {
     ///     // If the level is greater than INFO, disable it.
     ///     if metadata.level() &gt; &amp;Level::INFO {
     ///         return false;
     ///     }
     ///
-    ///     // If any span in the current scope is named &quot;interesting_span&quot;,
+    ///     // If any span in the current scope is named "interesting_span",
     ///     // enable this span or event.
     ///     for span in cx.lookup_current().iter().flat_map(|span| span.scope()) {
-    ///         if span.name() == &quot;interesting_span&quot; {
+    ///         if span.name() == "interesting_span" {
     ///             return true;
     ///          }
     ///     }
@@ -1244,7 +1245,7 @@
 
     <span class="doccomment">/// Adds a function for filtering callsites to this filter.
     ///
-    /// When this filter&#39;s [`Filter::callsite_enabled`][cse] method is called,
+    /// When this filter's [`Filter::callsite_enabled`][cse] method is called,
     /// the provided function will be used rather than the default.
     ///
     /// By default, `DynFilterFn` assumes that, because the filter _may_ depend
@@ -1255,9 +1256,9 @@
     ///
     /// For example, consider the filter given in the example for
     /// [`DynFilterFn::new`]. That filter enables all spans named
-    /// &quot;interesting_span&quot;, and any events and spans that occur inside of an
-    /// interesting span. Since the span&#39;s name is part of its static
-    /// [`Metadata`], the &quot;interesting_span&quot; can be enabled in
+    /// "interesting_span", and any events and spans that occur inside of an
+    /// interesting span. Since the span's name is part of its static
+    /// [`Metadata`], the "interesting_span" can be enabled in
     /// [`callsite_enabled`][cse]:
     ///
     /// ```
@@ -1268,28 +1269,28 @@
     /// };
     /// use tracing_core::subscriber::Interest;
     ///
-    /// // Only enable spans or events within a span named &quot;interesting_span&quot;.
+    /// // Only enable spans or events within a span named "interesting_span".
     /// let my_filter = DynFilterFn::new(|metadata, cx| {
-    ///     // If this *is* &quot;interesting_span&quot;, make sure to enable it.
-    ///     if metadata.is_span() &amp;&amp; metadata.name() == &quot;interesting_span&quot; {
+    ///     // If this *is* "interesting_span", make sure to enable it.
+    ///     if metadata.is_span() &amp;&amp; metadata.name() == "interesting_span" {
     ///         return true;
     ///     }
     ///
     ///     // Otherwise, are we in an interesting span?
     ///     if let Some(current_span) = cx.lookup_current() {
-    ///         return current_span.name() == &quot;interesting_span&quot;;
+    ///         return current_span.name() == "interesting_span";
     ///     }
     ///
     ///     false
     /// }).with_callsite_filter(|metadata| {
-    ///     // If this is an &quot;interesting_span&quot;, we know we will always
+    ///     // If this is an "interesting_span", we know we will always
     ///     // enable it.
-    ///     if metadata.is_span() &amp;&amp; metadata.name() == &quot;interesting_span&quot; {
+    ///     if metadata.is_span() &amp;&amp; metadata.name() == "interesting_span" {
     ///         return Interest::always();
     ///     }
     ///
-    ///     // Otherwise, it depends on whether or not we&#39;re in an interesting
-    ///     // span. You&#39;ll have to ask us again for each span/event!
+    ///     // Otherwise, it depends on whether or not we're in an interesting
+    ///     // span. You'll have to ask us again for each span/event!
     ///     Interest::sometimes()
     /// });
     ///
@@ -1306,7 +1307,7 @@
     /// [span context]: crate::layer::Context
     </span><span class="kw">pub fn </span>with_callsite_filter&lt;R2&gt;(<span class="self">self</span>, callsite_enabled: R2) -&gt; DynFilterFn&lt;S, F, R2&gt;
     <span class="kw">where
-        </span>R2: Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest,
+        </span>R2: Fn(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest,
     {
         <span class="kw">let </span>register_callsite = <span class="prelude-val">Some</span>(callsite_enabled);
         <span class="kw">let </span>DynFilterFn {
@@ -1323,14 +1324,14 @@
         }
     }
 
-    <span class="kw">fn </span>default_callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Interest {
-        <span class="comment">// If it&#39;s below the configured max level, assume that `enabled` will
+    <span class="kw">fn </span>default_callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; Interest {
+        <span class="comment">// If it's below the configured max level, assume that `enabled` will
         // never enable it...
         </span><span class="kw">if </span>!is_below_max_level(<span class="kw-2">&amp;</span><span class="self">self</span>.max_level_hint, metadata) {
             <span class="macro">debug_assert!</span>(
                 !(<span class="self">self</span>.enabled)(metadata, <span class="kw-2">&amp;</span>Context::none()),
-                <span class="string">&quot;DynFilterFn&lt;{}&gt; claimed it would only enable {:?} and below, \
-                but it enabled metadata with the {:?} level\nmetadata={:#?}&quot;</span>,
+                <span class="string">"DynFilterFn&lt;{}&gt; claimed it would only enable {:?} and below, \
+                but it enabled metadata with the {:?} level\nmetadata={:#?}"</span>,
                 type_name::&lt;F&gt;(),
                 <span class="self">self</span>.max_level_hint.unwrap(),
                 metadata.level(),
@@ -1340,24 +1341,24 @@
         }
 
         <span class="comment">// Otherwise, since this `enabled` function is dynamic and depends on
-        // the current context, we don&#39;t know whether this span or event will be
-        // enabled or not. Ask again every time it&#39;s recorded!
+        // the current context, we don't know whether this span or event will be
+        // enabled or not. Ask again every time it's recorded!
         </span>Interest::sometimes()
     }
 }
 
 <span class="kw">impl</span>&lt;S, F, R&gt; DynFilterFn&lt;S, F, R&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool,
-    R: Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool,
+    R: Fn(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>is_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>is_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="kw">let </span>enabled = (<span class="self">self</span>.enabled)(metadata, cx);
         <span class="macro">debug_assert!</span>(
             !enabled || is_below_max_level(<span class="kw-2">&amp;</span><span class="self">self</span>.max_level_hint, metadata),
-            <span class="string">&quot;DynFilterFn&lt;{}&gt; claimed it would only enable {:?} and below, \
-            but it enabled metadata with the {:?} level\nmetadata={:#?}&quot;</span>,
+            <span class="string">"DynFilterFn&lt;{}&gt; claimed it would only enable {:?} and below, \
+            but it enabled metadata with the {:?} level\nmetadata={:#?}"</span>,
             type_name::&lt;F&gt;(),
             <span class="self">self</span>.max_level_hint.unwrap(),
             metadata.level(),
@@ -1368,7 +1369,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>is_callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    </span><span class="kw">fn </span>is_callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="kw">let </span>interest = <span class="self">self
             </span>.register_callsite
             .as_ref()
@@ -1376,8 +1377,8 @@
             .unwrap_or_else(|| <span class="self">self</span>.default_callsite_enabled(metadata));
         <span class="macro">debug_assert!</span>(
             interest.is_never() || is_below_max_level(<span class="kw-2">&amp;</span><span class="self">self</span>.max_level_hint, metadata),
-            <span class="string">&quot;DynFilterFn&lt;{}, {}&gt; claimed it was only interested in {:?} and below, \
-            but it enabled metadata with the {:?} level\nmetadata={:#?}&quot;</span>,
+            <span class="string">"DynFilterFn&lt;{}, {}&gt; claimed it was only interested in {:?} and below, \
+            but it enabled metadata with the {:?} level\nmetadata={:#?}"</span>,
             type_name::&lt;F&gt;(),
             type_name::&lt;R&gt;(),
             <span class="self">self</span>.max_level_hint.unwrap(),
@@ -1391,15 +1392,15 @@
 
 <span class="kw">impl</span>&lt;S, F, R&gt; Layer&lt;S&gt; <span class="kw">for </span>DynFilterFn&lt;S, F, R&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool + <span class="lifetime">&#39;static</span>,
-    R: Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool + <span class="lifetime">'static</span>,
+    R: Fn(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest + <span class="lifetime">'static</span>,
     S: Subscriber,
 {
-    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, cx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, cx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="self">self</span>.is_enabled(metadata, <span class="kw-2">&amp;</span>cx)
     }
 
-    <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="self">self</span>.is_callsite_enabled(metadata)
     }
 
@@ -1409,19 +1410,19 @@
 }
 
 <span class="kw">impl</span>&lt;S, F, R&gt; fmt::Debug <span class="kw">for </span>DynFilterFn&lt;S, F, R&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = f.debug_struct(<span class="string">&quot;DynFilterFn&quot;</span>);
-        s.field(<span class="string">&quot;enabled&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, type_name::&lt;F&gt;()));
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = f.debug_struct(<span class="string">"DynFilterFn"</span>);
+        s.field(<span class="string">"enabled"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{}"</span>, type_name::&lt;F&gt;()));
         <span class="kw">if </span><span class="self">self</span>.register_callsite.is_some() {
             s.field(
-                <span class="string">&quot;register_callsite&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;Some({})&quot;</span>, type_name::&lt;R&gt;()),
+                <span class="string">"register_callsite"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"Some({})"</span>, type_name::&lt;R&gt;()),
             );
         } <span class="kw">else </span>{
-            s.field(<span class="string">&quot;register_callsite&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;None&quot;</span>));
+            s.field(<span class="string">"register_callsite"</span>, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"None"</span>));
         }
 
-        s.field(<span class="string">&quot;max_level_hint&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.max_level_hint).finish()
+        s.field(<span class="string">"max_level_hint"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.max_level_hint).finish()
     }
 }
 
@@ -1442,7 +1443,7 @@
 
 <span class="kw">impl</span>&lt;F, S&gt; From&lt;F&gt; <span class="kw">for </span>DynFilterFn&lt;S, F&gt;
 <span class="kw">where
-    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool,
+    </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool,
 {
     <span class="kw">fn </span>from(f: F) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(f)
@@ -1452,18 +1453,18 @@
 <span class="comment">// === PLF impls ===
 
 </span><span class="macro">feature! </span>{
-    <span class="attr">#![all(feature = <span class="string">&quot;registry&quot;</span>, feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#![all(feature = <span class="string">"registry"</span>, feature = <span class="string">"std"</span>)]
     </span><span class="kw">use </span><span class="kw">crate</span>::layer::Filter;
 
     <span class="kw">impl</span>&lt;S, F&gt; Filter&lt;S&gt; <span class="kw">for </span>FilterFn&lt;F&gt;
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+        </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
     {
-        <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+        <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
             <span class="self">self</span>.is_enabled(metadata)
         }
 
-        <span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+        <span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
             <span class="self">self</span>.is_callsite_enabled(metadata)
         }
 
@@ -1474,14 +1475,14 @@
 
     <span class="kw">impl</span>&lt;S, F, R&gt; Filter&lt;S&gt; <span class="kw">for </span>DynFilterFn&lt;S, F, R&gt;
     <span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool,
-        R: Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest,
+        </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool,
+        R: Fn(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest,
     {
-        <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+        <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
             <span class="self">self</span>.is_enabled(metadata, cx)
         }
 
-        <span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+        <span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
             <span class="self">self</span>.is_callsite_enabled(metadata)
         }
 
@@ -1491,7 +1492,7 @@
     }
 }
 
-<span class="kw">fn </span>is_below_max_level(hint: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;LevelFilter&gt;, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+<span class="kw">fn </span>is_below_max_level(hint: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;LevelFilter&gt;, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
     hint.as_ref()
         .map(|hint| metadata.level() &lt;= hint)
         .unwrap_or(<span class="bool-val">true</span>)

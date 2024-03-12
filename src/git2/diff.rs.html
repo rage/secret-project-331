@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/diff.rs`."><title>diff.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/diff.rs`."><title>diff.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1880,27 +1881,27 @@
 /// This is an opaque structure which will be allocated by one of the diff
 /// generator functions on the `Repository` structure (e.g. `diff_tree_to_tree`
 /// or other `diff_*` functions).
-</span><span class="kw">pub struct </span>Diff&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>Diff&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_diff,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;repo </span>Repository&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'repo </span>Repository&gt;,
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Send <span class="kw">for </span>Diff&lt;<span class="lifetime">&#39;repo</span>&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'repo</span>&gt; Send <span class="kw">for </span>Diff&lt;<span class="lifetime">'repo</span>&gt; {}
 
 <span class="doccomment">/// Description of changes to one entry.
-</span><span class="kw">pub struct </span>DiffDelta&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>DiffDelta&lt;<span class="lifetime">'a</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_diff_delta,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>raw::git_diff_delta&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>raw::git_diff_delta&gt;,
 }
 
 <span class="doccomment">/// Description of one side of a delta.
 ///
-/// Although this is called a &quot;file&quot; it could represent a file, a symbolic
+/// Although this is called a "file" it could represent a file, a symbolic
 /// link, a submodule commit id, or even a tree (although that only happens if
 /// you are tracking type changes or ignored/untracked directories).
-</span><span class="kw">pub struct </span>DiffFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>DiffFile&lt;<span class="lifetime">'a</span>&gt; {
     raw: <span class="kw-2">*const </span>raw::git_diff_file,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>raw::git_diff_file&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>raw::git_diff_file&gt;,
 }
 
 <span class="doccomment">/// Structure describing options about how the diff should be executed.
@@ -1928,21 +1929,21 @@
 }
 
 <span class="doccomment">/// An iterator over the diffs in a delta
-</span><span class="kw">pub struct </span>Deltas&lt;<span class="lifetime">&#39;diff</span>&gt; {
+</span><span class="kw">pub struct </span>Deltas&lt;<span class="lifetime">'diff</span>&gt; {
     range: Range&lt;usize&gt;,
-    diff: <span class="kw-2">&amp;</span><span class="lifetime">&#39;diff </span>Diff&lt;<span class="lifetime">&#39;diff</span>&gt;,
+    diff: <span class="kw-2">&amp;</span><span class="lifetime">'diff </span>Diff&lt;<span class="lifetime">'diff</span>&gt;,
 }
 
 <span class="doccomment">/// Structure describing a line (or data span) of a diff.
-</span><span class="kw">pub struct </span>DiffLine&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>DiffLine&lt;<span class="lifetime">'a</span>&gt; {
     raw: <span class="kw-2">*const </span>raw::git_diff_line,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>raw::git_diff_line&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>raw::git_diff_line&gt;,
 }
 
 <span class="doccomment">/// Structure describing a hunk of a diff.
-</span><span class="kw">pub struct </span>DiffHunk&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>DiffHunk&lt;<span class="lifetime">'a</span>&gt; {
     raw: <span class="kw-2">*const </span>raw::git_diff_hunk,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>raw::git_diff_hunk&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>raw::git_diff_hunk&gt;,
 }
 
 <span class="doccomment">/// Structure describing a hunk of a diff.
@@ -1951,19 +1952,19 @@
 }
 
 <span class="doccomment">/// Structure describing the binary contents of a diff.
-</span><span class="kw">pub struct </span>DiffBinary&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>DiffBinary&lt;<span class="lifetime">'a</span>&gt; {
     raw: <span class="kw-2">*const </span>raw::git_diff_binary,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>raw::git_diff_binary&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>raw::git_diff_binary&gt;,
 }
 
 <span class="doccomment">/// The contents of one of the files in a binary diff.
-</span><span class="kw">pub struct </span>DiffBinaryFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>DiffBinaryFile&lt;<span class="lifetime">'a</span>&gt; {
     raw: <span class="kw-2">*const </span>raw::git_diff_binary_file,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>raw::git_diff_binary_file&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>raw::git_diff_binary_file&gt;,
 }
 
 <span class="doccomment">/// When producing a binary diff, the binary data returned will be
-/// either the deflated full (&quot;literal&quot;) contents of the file, or
+/// either the deflated full ("literal") contents of the file, or
 /// the deflated binary delta between the two sides (whichever is
 /// smaller).
 </span><span class="attr">#[derive(Copy, Clone, Debug)]
@@ -1976,30 +1977,30 @@
     </span>Delta,
 }
 
-<span class="kw">type </span>PrintCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, DiffLine&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool + <span class="lifetime">&#39;a</span>;
+<span class="kw">type </span>PrintCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">'_</span>&gt;, <span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">'_</span>&gt;&gt;, DiffLine&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool + <span class="lifetime">'a</span>;
 
-<span class="kw">pub type </span>FileCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;, f32) -&gt; bool + <span class="lifetime">&#39;a</span>;
-<span class="kw">pub type </span>BinaryCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;, DiffBinary&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool + <span class="lifetime">&#39;a</span>;
-<span class="kw">pub type </span>HunkCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;, DiffHunk&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool + <span class="lifetime">&#39;a</span>;
-<span class="kw">pub type </span>LineCb&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, DiffLine&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool + <span class="lifetime">&#39;a</span>;
+<span class="kw">pub type </span>FileCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">'_</span>&gt;, f32) -&gt; bool + <span class="lifetime">'a</span>;
+<span class="kw">pub type </span>BinaryCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">'_</span>&gt;, DiffBinary&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool + <span class="lifetime">'a</span>;
+<span class="kw">pub type </span>HunkCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">'_</span>&gt;, DiffHunk&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool + <span class="lifetime">'a</span>;
+<span class="kw">pub type </span>LineCb&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(DiffDelta&lt;<span class="lifetime">'_</span>&gt;, <span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">'_</span>&gt;&gt;, DiffLine&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool + <span class="lifetime">'a</span>;
 
-<span class="kw">pub struct </span>DiffCallbacks&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>, <span class="lifetime">&#39;d</span>, <span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;f</span>, <span class="lifetime">&#39;g</span>, <span class="lifetime">&#39;h</span>&gt; {
-    <span class="kw">pub </span>file: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>FileCb&lt;<span class="lifetime">&#39;b</span>&gt;&gt;,
-    <span class="kw">pub </span>binary: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>BinaryCb&lt;<span class="lifetime">&#39;d</span>&gt;&gt;,
-    <span class="kw">pub </span>hunk: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;e </span><span class="kw-2">mut </span>HunkCb&lt;<span class="lifetime">&#39;f</span>&gt;&gt;,
-    <span class="kw">pub </span>line: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;g </span><span class="kw-2">mut </span>LineCb&lt;<span class="lifetime">&#39;h</span>&gt;&gt;,
+<span class="kw">pub struct </span>DiffCallbacks&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, <span class="lifetime">'c</span>, <span class="lifetime">'d</span>, <span class="lifetime">'e</span>, <span class="lifetime">'f</span>, <span class="lifetime">'g</span>, <span class="lifetime">'h</span>&gt; {
+    <span class="kw">pub </span>file: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>FileCb&lt;<span class="lifetime">'b</span>&gt;&gt;,
+    <span class="kw">pub </span>binary: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="kw-2">mut </span>BinaryCb&lt;<span class="lifetime">'d</span>&gt;&gt;,
+    <span class="kw">pub </span>hunk: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'e </span><span class="kw-2">mut </span>HunkCb&lt;<span class="lifetime">'f</span>&gt;&gt;,
+    <span class="kw">pub </span>line: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'g </span><span class="kw-2">mut </span>LineCb&lt;<span class="lifetime">'h</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Diff&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Diff&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="doccomment">/// Merge one diff into another.
     ///
-    /// This merges items from the &quot;from&quot; list into the &quot;self&quot; list.  The
+    /// This merges items from the "from" list into the "self" list.  The
     /// resulting diff will have all items that appear in either list.
-    /// If an item appears in both lists, then it will be &quot;merged&quot; to appear
-    /// as if the old version was from the &quot;onto&quot; list and the new version
-    /// is from the &quot;from&quot; list (with the exception that if the item has a
+    /// If an item appears in both lists, then it will be "merged" to appear
+    /// as if the old version was from the "onto" list and the new version
+    /// is from the "from" list (with the exception that if the item has a
     /// pending DELETE in the middle, then it will show as deleted).
-    </span><span class="kw">pub fn </span>merge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, from: <span class="kw-2">&amp;</span>Diff&lt;<span class="lifetime">&#39;repo</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">pub fn </span>merge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, from: <span class="kw-2">&amp;</span>Diff&lt;<span class="lifetime">'repo</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_diff_merge(<span class="self">self</span>.raw, <span class="kw-2">&amp;*</span>from.raw));
         }
@@ -2007,7 +2008,7 @@
     }
 
     <span class="doccomment">/// Returns an iterator over the deltas in this diff.
-    </span><span class="kw">pub fn </span>deltas(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Deltas&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>deltas(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Deltas&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">let </span>num_deltas = <span class="kw">unsafe </span>{ raw::git_diff_num_deltas(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) };
         Deltas {
             range: <span class="number">0</span>..(num_deltas <span class="kw">as </span>usize),
@@ -2016,7 +2017,7 @@
     }
 
     <span class="doccomment">/// Return the diff delta for an entry in the diff list.
-    </span><span class="kw">pub fn </span>get_delta(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get_delta(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = raw::git_diff_get_delta(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw, i <span class="kw">as </span>size_t);
             Binding::from_raw_opt(ptr <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>)
@@ -2034,9 +2035,9 @@
     /// return an error from this function.
     </span><span class="kw">pub fn </span>print&lt;F&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, format: DiffFormat, <span class="kw-2">mut </span>cb: F) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
-        </span>F: FnMut(DiffDelta&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, DiffLine&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+        </span>F: FnMut(DiffDelta&lt;<span class="lifetime">'_</span>&gt;, <span class="prelude-ty">Option</span>&lt;DiffHunk&lt;<span class="lifetime">'_</span>&gt;&gt;, DiffLine&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>cb: <span class="kw-2">&amp;mut </span>PrintCb&lt;<span class="lifetime">&#39;_</span>&gt; = <span class="kw-2">&amp;mut </span>cb;
+        <span class="kw">let </span><span class="kw-2">mut </span>cb: <span class="kw-2">&amp;mut </span>PrintCb&lt;<span class="lifetime">'_</span>&gt; = <span class="kw-2">&amp;mut </span>cb;
         <span class="kw">let </span>ptr = <span class="kw-2">&amp;mut </span>cb <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>;
         <span class="kw">let </span>print: raw::git_diff_line_cb = <span class="prelude-val">Some</span>(print_cb);
         <span class="kw">unsafe </span>{
@@ -2051,10 +2052,10 @@
     /// return an error from this function.
     </span><span class="kw">pub fn </span>foreach(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        file_cb: <span class="kw-2">&amp;mut </span>FileCb&lt;<span class="lifetime">&#39;_</span>&gt;,
-        binary_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>BinaryCb&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        hunk_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>HunkCb&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
-        line_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>LineCb&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        file_cb: <span class="kw-2">&amp;mut </span>FileCb&lt;<span class="lifetime">'_</span>&gt;,
+        binary_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>BinaryCb&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        hunk_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>HunkCb&lt;<span class="lifetime">'_</span>&gt;&gt;,
+        line_cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>LineCb&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>cbs = DiffCallbacks {
             file: <span class="prelude-val">Some</span>(file_cb),
@@ -2119,12 +2120,12 @@
     ///
     /// Matches the format created by `git format-patch`
     </span><span class="attr">#[doc(hidden)]
-    #[deprecated(note = <span class="string">&quot;refactored to `Email::from_diff` to match upstream&quot;</span>)]
+    #[deprecated(note = <span class="string">"refactored to `Email::from_diff` to match upstream"</span>)]
     </span><span class="kw">pub fn </span>format_email(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         patch_no: usize,
         total_patches: usize,
-        commit: <span class="kw-2">&amp;</span><span class="kw">crate</span>::Commit&lt;<span class="lifetime">&#39;repo</span>&gt;,
+        commit: <span class="kw-2">&amp;</span><span class="kw">crate</span>::Commit&lt;<span class="lifetime">'repo</span>&gt;,
         opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>DiffFormatEmailOptions&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Buf, Error&gt; {
         <span class="macro">assert!</span>(patch_no &gt; <span class="number">0</span>);
@@ -2150,7 +2151,7 @@
         <span class="prelude-val">Ok</span>(buf)
     }
 
-    <span class="doccomment">/// Create an patch ID from a diff.
+    <span class="doccomment">/// Create a patch ID from a diff.
     </span><span class="kw">pub fn </span>patchid(<span class="kw-2">&amp;</span><span class="self">self</span>, opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>DiffPatchidOptions&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>raw = raw::git_oid {
             id: [<span class="number">0</span>; raw::GIT_OID_RAWSZ],
@@ -2167,7 +2168,7 @@
 
     <span class="comment">// TODO: num_deltas_of_type, find_similar
 </span>}
-<span class="kw">impl </span>Diff&lt;<span class="lifetime">&#39;static</span>&gt; {
+<span class="kw">impl </span>Diff&lt;<span class="lifetime">'static</span>&gt; {
     <span class="doccomment">/// Read the contents of a git patch file into a `git_diff` object.
     ///
     /// The diff object produced is similar to the one that would be
@@ -2175,11 +2176,11 @@
     /// two trees, however there may be subtle differences. For example,
     /// a patch file likely contains abbreviated object IDs, so the
     /// object IDs parsed by this function will also be abbreviated.
-    </span><span class="kw">pub fn </span>from_buffer(buffer: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">&#39;static</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>from_buffer(buffer: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Diff&lt;<span class="lifetime">'static</span>&gt;, Error&gt; {
         <span class="kw">crate</span>::init();
         <span class="kw">let </span><span class="kw-2">mut </span>diff: <span class="kw-2">*mut </span>raw::git_diff = std::ptr::null_mut();
         <span class="kw">unsafe </span>{
-            <span class="comment">// NOTE: Doesn&#39;t depend on repo, so lifetime can be &#39;static
+            <span class="comment">// NOTE: Doesn't depend on repo, so lifetime can be 'static
             </span><span class="macro">try_call!</span>(raw::git_diff_from_buffer(
                 <span class="kw-2">&amp;mut </span>diff,
                 buffer.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char,
@@ -2190,7 +2191,7 @@
     }
 }
 
-<span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>print_cb(
+<span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>print_cb(
     delta: <span class="kw-2">*const </span>raw::git_diff_delta,
     hunk: <span class="kw-2">*const </span>raw::git_diff_hunk,
     line: <span class="kw-2">*const </span>raw::git_diff_line,
@@ -2202,7 +2203,7 @@
         <span class="kw">let </span>line = Binding::from_raw(line);
 
         <span class="kw">let </span>r = panic::wrap(|| {
-            <span class="kw">let </span>data = data <span class="kw">as </span><span class="kw-2">*mut &amp;mut </span>PrintCb&lt;<span class="lifetime">&#39;_</span>&gt;;
+            <span class="kw">let </span>data = data <span class="kw">as </span><span class="kw-2">*mut &amp;mut </span>PrintCb&lt;<span class="lifetime">'_</span>&gt;;
             (<span class="kw-2">*</span>data)(delta, hunk, line)
         });
         <span class="kw">if </span>r == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
@@ -2213,7 +2214,7 @@
     }
 }
 
-<span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>file_cb_c(
+<span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>file_cb_c(
     delta: <span class="kw-2">*const </span>raw::git_diff_delta,
     progress: f32,
     data: <span class="kw-2">*mut </span>c_void,
@@ -2222,7 +2223,7 @@
         <span class="kw">let </span>delta = Binding::from_raw(delta <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>);
 
         <span class="kw">let </span>r = panic::wrap(|| {
-            <span class="kw">let </span>cbs = data <span class="kw">as </span><span class="kw-2">*mut </span>DiffCallbacks&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;;
+            <span class="kw">let </span>cbs = data <span class="kw">as </span><span class="kw-2">*mut </span>DiffCallbacks&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt;;
             <span class="kw">match </span>(<span class="kw-2">*</span>cbs).file {
                 <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>cb) =&gt; cb(delta, progress),
                 <span class="prelude-val">None </span>=&gt; <span class="bool-val">false</span>,
@@ -2236,7 +2237,7 @@
     }
 }
 
-<span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>binary_cb_c(
+<span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>binary_cb_c(
     delta: <span class="kw-2">*const </span>raw::git_diff_delta,
     binary: <span class="kw-2">*const </span>raw::git_diff_binary,
     data: <span class="kw-2">*mut </span>c_void,
@@ -2246,7 +2247,7 @@
         <span class="kw">let </span>binary = Binding::from_raw(binary);
 
         <span class="kw">let </span>r = panic::wrap(|| {
-            <span class="kw">let </span>cbs = data <span class="kw">as </span><span class="kw-2">*mut </span>DiffCallbacks&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;;
+            <span class="kw">let </span>cbs = data <span class="kw">as </span><span class="kw-2">*mut </span>DiffCallbacks&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt;;
             <span class="kw">match </span>(<span class="kw-2">*</span>cbs).binary {
                 <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>cb) =&gt; cb(delta, binary),
                 <span class="prelude-val">None </span>=&gt; <span class="bool-val">false</span>,
@@ -2260,7 +2261,7 @@
     }
 }
 
-<span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>hunk_cb_c(
+<span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>hunk_cb_c(
     delta: <span class="kw-2">*const </span>raw::git_diff_delta,
     hunk: <span class="kw-2">*const </span>raw::git_diff_hunk,
     data: <span class="kw-2">*mut </span>c_void,
@@ -2270,7 +2271,7 @@
         <span class="kw">let </span>hunk = Binding::from_raw(hunk);
 
         <span class="kw">let </span>r = panic::wrap(|| {
-            <span class="kw">let </span>cbs = data <span class="kw">as </span><span class="kw-2">*mut </span>DiffCallbacks&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;;
+            <span class="kw">let </span>cbs = data <span class="kw">as </span><span class="kw-2">*mut </span>DiffCallbacks&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt;;
             <span class="kw">match </span>(<span class="kw-2">*</span>cbs).hunk {
                 <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>cb) =&gt; cb(delta, hunk),
                 <span class="prelude-val">None </span>=&gt; <span class="bool-val">false</span>,
@@ -2284,7 +2285,7 @@
     }
 }
 
-<span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>line_cb_c(
+<span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>line_cb_c(
     delta: <span class="kw-2">*const </span>raw::git_diff_delta,
     hunk: <span class="kw-2">*const </span>raw::git_diff_hunk,
     line: <span class="kw-2">*const </span>raw::git_diff_line,
@@ -2296,7 +2297,7 @@
         <span class="kw">let </span>line = Binding::from_raw(line);
 
         <span class="kw">let </span>r = panic::wrap(|| {
-            <span class="kw">let </span>cbs = data <span class="kw">as </span><span class="kw-2">*mut </span>DiffCallbacks&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;;
+            <span class="kw">let </span>cbs = data <span class="kw">as </span><span class="kw-2">*mut </span>DiffCallbacks&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt;;
             <span class="kw">match </span>(<span class="kw-2">*</span>cbs).line {
                 <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>cb) =&gt; cb(delta, hunk, line),
                 <span class="prelude-val">None </span>=&gt; <span class="bool-val">false</span>,
@@ -2310,9 +2311,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Diff&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>Diff&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_diff;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_diff) -&gt; Diff&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_diff) -&gt; Diff&lt;<span class="lifetime">'repo</span>&gt; {
         Diff {
             raw,
             _marker: marker::PhantomData,
@@ -2323,25 +2324,25 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Diff&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>Diff&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_diff_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DiffDelta&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DiffDelta&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns the flags on the delta.
     ///
-    /// For more information, see `DiffFlags`&#39;s documentation.
+    /// For more information, see `DiffFlags`'s documentation.
     </span><span class="kw">pub fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffFlags {
         <span class="kw">let </span>flags = <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).flags };
         <span class="kw">let </span><span class="kw-2">mut </span>result = DiffFlags::empty();
 
-        <span class="attr">#[cfg(target_env = <span class="string">&quot;msvc&quot;</span>)]
+        <span class="attr">#[cfg(target_env = <span class="string">"msvc"</span>)]
         </span><span class="kw">fn </span>as_u32(flag: i32) -&gt; u32 {
             flag <span class="kw">as </span>u32
         }
-        <span class="attr">#[cfg(not(target_env = <span class="string">&quot;msvc&quot;</span>))]
+        <span class="attr">#[cfg(not(target_env = <span class="string">"msvc"</span>))]
         </span><span class="kw">fn </span>as_u32(flag: u32) -&gt; u32 {
             flag
         }
@@ -2373,7 +2374,7 @@
 
     <span class="doccomment">/// Returns the status of this entry
     ///
-    /// For more information, see `Delta`&#39;s documentation
+    /// For more information, see `Delta`'s documentation
     </span><span class="kw">pub fn </span>status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Delta {
         <span class="kw">match unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).status } {
             raw::GIT_DELTA_UNMODIFIED =&gt; Delta::Unmodified,
@@ -2387,30 +2388,30 @@
             raw::GIT_DELTA_TYPECHANGE =&gt; Delta::Typechange,
             raw::GIT_DELTA_UNREADABLE =&gt; Delta::Unreadable,
             raw::GIT_DELTA_CONFLICTED =&gt; Delta::Conflicted,
-            n =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unknown diff status: {}&quot;</span>, n),
+            n =&gt; <span class="macro">panic!</span>(<span class="string">"unknown diff status: {}"</span>, n),
         }
     }
 
-    <span class="doccomment">/// Return the file which represents the &quot;from&quot; side of the diff.
+    <span class="doccomment">/// Return the file which represents the "from" side of the diff.
     ///
     /// What side this means depends on the function that was used to generate
     /// the diff and will be documented on the function itself.
-    </span><span class="kw">pub fn </span>old_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>old_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffFile&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">unsafe </span>{ Binding::from_raw(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw).old_file <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>) }
     }
 
-    <span class="doccomment">/// Return the file which represents the &quot;to&quot; side of the diff.
+    <span class="doccomment">/// Return the file which represents the "to" side of the diff.
     ///
     /// What side this means depends on the function that was used to generate
     /// the diff and will be documented on the function itself.
-    </span><span class="kw">pub fn </span>new_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>new_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffFile&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">unsafe </span>{ Binding::from_raw(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw).new_file <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>DiffDelta&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Binding <span class="kw">for </span>DiffDelta&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_diff_delta;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_diff_delta) -&gt; DiffDelta&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_diff_delta) -&gt; DiffDelta&lt;<span class="lifetime">'a</span>&gt; {
         DiffDelta {
             raw,
             _marker: marker::PhantomData,
@@ -2421,18 +2422,18 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; std::fmt::Debug <span class="kw">for </span>DiffDelta&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        f.debug_struct(<span class="string">&quot;DiffDelta&quot;</span>)
-            .field(<span class="string">&quot;nfiles&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.nfiles())
-            .field(<span class="string">&quot;status&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.status())
-            .field(<span class="string">&quot;old_file&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.old_file())
-            .field(<span class="string">&quot;new_file&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.new_file())
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; std::fmt::Debug <span class="kw">for </span>DiffDelta&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        f.debug_struct(<span class="string">"DiffDelta"</span>)
+            .field(<span class="string">"nfiles"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.nfiles())
+            .field(<span class="string">"status"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.status())
+            .field(<span class="string">"old_file"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.old_file())
+            .field(<span class="string">"new_file"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.new_file())
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DiffFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DiffFile&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns the Oid of this item.
     ///
     /// If this entry represents an absent side of a diff (e.g. the `old_file`
@@ -2443,14 +2444,14 @@
 
     <span class="doccomment">/// Returns the path, in bytes, of the entry relative to the working
     /// directory of the repository.
-    </span><span class="kw">pub fn </span>path_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>path_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
         <span class="kw">static </span>FOO: () = ();
         <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="kw-2">&amp;</span>FOO, (<span class="kw-2">*</span><span class="self">self</span>.raw).path) }
     }
 
     <span class="doccomment">/// Returns the path of the entry relative to the working directory of the
     /// repository.
-    </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Path&gt; {
+    </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Path&gt; {
         <span class="self">self</span>.path_bytes().map(util::bytes2path)
     }
 
@@ -2489,14 +2490,14 @@
             raw::GIT_FILEMODE_BLOB_EXECUTABLE =&gt; FileMode::BlobExecutable,
             raw::GIT_FILEMODE_LINK =&gt; FileMode::Link,
             raw::GIT_FILEMODE_COMMIT =&gt; FileMode::Commit,
-            mode =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unknown mode: {}&quot;</span>, mode),
+            mode =&gt; <span class="macro">panic!</span>(<span class="string">"unknown mode: {}"</span>, mode),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>DiffFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Binding <span class="kw">for </span>DiffFile&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*const </span>raw::git_diff_file;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_file) -&gt; DiffFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_file) -&gt; DiffFile&lt;<span class="lifetime">'a</span>&gt; {
         DiffFile {
             raw,
             _marker: marker::PhantomData,
@@ -2507,17 +2508,17 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; std::fmt::Debug <span class="kw">for </span>DiffFile&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>ds = f.debug_struct(<span class="string">&quot;DiffFile&quot;</span>);
-        ds.field(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id());
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; std::fmt::Debug <span class="kw">for </span>DiffFile&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ds = f.debug_struct(<span class="string">"DiffFile"</span>);
+        ds.field(<span class="string">"id"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id());
         <span class="kw">if let </span><span class="prelude-val">Some</span>(path_bytes) = <span class="kw-2">&amp;</span><span class="self">self</span>.path_bytes() {
-            ds.field(<span class="string">&quot;path_bytes&quot;</span>, path_bytes);
+            ds.field(<span class="string">"path_bytes"</span>, path_bytes);
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span><span class="self">self</span>.path() {
-            ds.field(<span class="string">&quot;path&quot;</span>, path);
+            ds.field(<span class="string">"path"</span>, path);
         }
-        ds.field(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size()).finish()
+        ds.field(<span class="string">"size"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size()).finish()
     }
 }
 
@@ -2592,7 +2593,7 @@
 
     <span class="doccomment">/// Event with `include_typechange`, the tree returned generally shows a
     /// deleted blob. This flag correctly labels the tree transitions as a
-    /// typechange record with the `new_file`&#39;s mode set to tree.
+    /// typechange record with the `new_file`'s mode set to tree.
     ///
     /// Note that the tree SHA will not be available.
     </span><span class="kw">pub fn </span>include_typechange_trees(<span class="kw-2">&amp;mut </span><span class="self">self</span>, include: bool) -&gt; <span class="kw-2">&amp;mut </span>DiffOptions {
@@ -2621,7 +2622,7 @@
     }
 
     <span class="doccomment">/// Disable updating the `binary` flag in delta records. This is useful when
-    /// iterating over a diff if you don&#39;t need hunk and data callbacks and want
+    /// iterating over a diff if you don't need hunk and data callbacks and want
     /// to avoid having to load a file completely.
     </span><span class="kw">pub fn </span>skip_binary_check(<span class="kw-2">&amp;mut </span><span class="self">self</span>, skip: bool) -&gt; <span class="kw-2">&amp;mut </span>DiffOptions {
         <span class="self">self</span>.flag(raw::GIT_DIFF_SKIP_BINARY_CHECK, skip)
@@ -2704,7 +2705,7 @@
         <span class="self">self</span>.flag(raw::GIT_DIFF_SHOW_UNMODIFIED, show)
     }
 
-    <span class="doccomment">/// Use the &quot;patience diff&quot; algorithm
+    <span class="doccomment">/// Use the "patience diff" algorithm
     </span><span class="kw">pub fn </span>patience(<span class="kw-2">&amp;mut </span><span class="self">self</span>, patience: bool) -&gt; <span class="kw-2">&amp;mut </span>DiffOptions {
         <span class="self">self</span>.flag(raw::GIT_DIFF_PATIENCE, patience)
     }
@@ -2762,17 +2763,17 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// The virtual &quot;directory&quot; to prefix old file names with in hunk headers.
+    <span class="doccomment">/// The virtual "directory" to prefix old file names with in hunk headers.
     ///
-    /// The default value for this is &quot;a&quot;.
+    /// The default value for this is "a".
     </span><span class="kw">pub fn </span>old_prefix&lt;T: IntoCString&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, t: T) -&gt; <span class="kw-2">&amp;mut </span>DiffOptions {
         <span class="self">self</span>.old_prefix = <span class="prelude-val">Some</span>(t.into_c_string().unwrap());
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// The virtual &quot;directory&quot; to prefix new file names with in hunk headers.
+    <span class="doccomment">/// The virtual "directory" to prefix new file names with in hunk headers.
     ///
-    /// The default value for this is &quot;b&quot;.
+    /// The default value for this is "b".
     </span><span class="kw">pub fn </span>new_prefix&lt;T: IntoCString&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, t: T) -&gt; <span class="kw-2">&amp;mut </span>DiffOptions {
         <span class="self">self</span>.new_prefix = <span class="prelude-val">Some</span>(t.into_c_string().unwrap());
         <span class="self">self
@@ -2809,23 +2810,23 @@
     <span class="comment">// TODO: expose ignore_submodules, notify_cb/notify_payload
 </span>}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;diff</span>&gt; Iterator <span class="kw">for </span>Deltas&lt;<span class="lifetime">&#39;diff</span>&gt; {
-    <span class="kw">type </span>Item = DiffDelta&lt;<span class="lifetime">&#39;diff</span>&gt;;
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;diff</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'diff</span>&gt; Iterator <span class="kw">for </span>Deltas&lt;<span class="lifetime">'diff</span>&gt; {
+    <span class="kw">type </span>Item = DiffDelta&lt;<span class="lifetime">'diff</span>&gt;;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'diff</span>&gt;&gt; {
         <span class="self">self</span>.range.next().and_then(|i| <span class="self">self</span>.diff.get_delta(i))
     }
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
         <span class="self">self</span>.range.size_hint()
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;diff</span>&gt; DoubleEndedIterator <span class="kw">for </span>Deltas&lt;<span class="lifetime">&#39;diff</span>&gt; {
-    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">&#39;diff</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'diff</span>&gt; DoubleEndedIterator <span class="kw">for </span>Deltas&lt;<span class="lifetime">'diff</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DiffDelta&lt;<span class="lifetime">'diff</span>&gt;&gt; {
         <span class="self">self</span>.range.next_back().and_then(|i| <span class="self">self</span>.diff.get_delta(i))
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;diff</span>&gt; FusedIterator <span class="kw">for </span>Deltas&lt;<span class="lifetime">&#39;diff</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'diff</span>&gt; FusedIterator <span class="kw">for </span>Deltas&lt;<span class="lifetime">'diff</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;diff</span>&gt; ExactSizeIterator <span class="kw">for </span>Deltas&lt;<span class="lifetime">&#39;diff</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'diff</span>&gt; ExactSizeIterator <span class="kw">for </span>Deltas&lt;<span class="lifetime">'diff</span>&gt; {}
 
 <span class="doccomment">/// Line origin constants.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq)]
@@ -2847,7 +2848,7 @@
     </span>FileHeader,
     <span class="doccomment">///
     </span>HunkHeader,
-    <span class="doccomment">/// For &quot;Binary files x and y differ&quot;
+    <span class="doccomment">/// For "Binary files x and y differ"
     </span>Binary,
 }
 
@@ -2864,7 +2865,7 @@
             raw::GIT_DIFF_LINE_FILE_HDR =&gt; DiffLineType::FileHeader,
             raw::GIT_DIFF_LINE_HUNK_HDR =&gt; DiffLineType::HunkHeader,
             raw::GIT_DIFF_LINE_BINARY =&gt; DiffLineType::Binary,
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown git diff line type&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unknown git diff line type"</span>),
         }
     }
     <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_diff_line_t {
@@ -2882,7 +2883,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DiffLine&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DiffLine&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Line number in old file or `None` for added line
     </span><span class="kw">pub fn </span>old_lineno(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
         <span class="kw">match unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).old_lineno } {
@@ -2910,7 +2911,7 @@
     }
 
     <span class="doccomment">/// Content of this line as bytes.
-    </span><span class="kw">pub fn </span>content(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+    </span><span class="kw">pub fn </span>content(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
         <span class="kw">unsafe </span>{
             slice::from_raw_parts(
                 (<span class="kw-2">*</span><span class="self">self</span>.raw).content <span class="kw">as </span><span class="kw-2">*const </span>u8,
@@ -2938,23 +2939,23 @@
     ///  * `B` - Line binary
     </span><span class="kw">pub fn </span>origin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; char {
         <span class="kw">match unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).origin <span class="kw">as </span>raw::git_diff_line_t } {
-            raw::GIT_DIFF_LINE_CONTEXT =&gt; <span class="string">&#39; &#39;</span>,
-            raw::GIT_DIFF_LINE_ADDITION =&gt; <span class="string">&#39;+&#39;</span>,
-            raw::GIT_DIFF_LINE_DELETION =&gt; <span class="string">&#39;-&#39;</span>,
-            raw::GIT_DIFF_LINE_CONTEXT_EOFNL =&gt; <span class="string">&#39;=&#39;</span>,
-            raw::GIT_DIFF_LINE_ADD_EOFNL =&gt; <span class="string">&#39;&gt;&#39;</span>,
-            raw::GIT_DIFF_LINE_DEL_EOFNL =&gt; <span class="string">&#39;&lt;&#39;</span>,
-            raw::GIT_DIFF_LINE_FILE_HDR =&gt; <span class="string">&#39;F&#39;</span>,
-            raw::GIT_DIFF_LINE_HUNK_HDR =&gt; <span class="string">&#39;H&#39;</span>,
-            raw::GIT_DIFF_LINE_BINARY =&gt; <span class="string">&#39;B&#39;</span>,
-            <span class="kw">_ </span>=&gt; <span class="string">&#39; &#39;</span>,
+            raw::GIT_DIFF_LINE_CONTEXT =&gt; <span class="string">' '</span>,
+            raw::GIT_DIFF_LINE_ADDITION =&gt; <span class="string">'+'</span>,
+            raw::GIT_DIFF_LINE_DELETION =&gt; <span class="string">'-'</span>,
+            raw::GIT_DIFF_LINE_CONTEXT_EOFNL =&gt; <span class="string">'='</span>,
+            raw::GIT_DIFF_LINE_ADD_EOFNL =&gt; <span class="string">'&gt;'</span>,
+            raw::GIT_DIFF_LINE_DEL_EOFNL =&gt; <span class="string">'&lt;'</span>,
+            raw::GIT_DIFF_LINE_FILE_HDR =&gt; <span class="string">'F'</span>,
+            raw::GIT_DIFF_LINE_HUNK_HDR =&gt; <span class="string">'H'</span>,
+            raw::GIT_DIFF_LINE_BINARY =&gt; <span class="string">'B'</span>,
+            <span class="kw">_ </span>=&gt; <span class="string">' '</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>DiffLine&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Binding <span class="kw">for </span>DiffLine&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*const </span>raw::git_diff_line;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_line) -&gt; DiffLine&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_line) -&gt; DiffLine&lt;<span class="lifetime">'a</span>&gt; {
         DiffLine {
             raw,
             _marker: marker::PhantomData,
@@ -2965,24 +2966,24 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; std::fmt::Debug <span class="kw">for </span>DiffLine&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>ds = f.debug_struct(<span class="string">&quot;DiffLine&quot;</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; std::fmt::Debug <span class="kw">for </span>DiffLine&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ds = f.debug_struct(<span class="string">"DiffLine"</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(old_lineno) = <span class="kw-2">&amp;</span><span class="self">self</span>.old_lineno() {
-            ds.field(<span class="string">&quot;old_lineno&quot;</span>, old_lineno);
+            ds.field(<span class="string">"old_lineno"</span>, old_lineno);
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(new_lineno) = <span class="kw-2">&amp;</span><span class="self">self</span>.new_lineno() {
-            ds.field(<span class="string">&quot;new_lineno&quot;</span>, new_lineno);
+            ds.field(<span class="string">"new_lineno"</span>, new_lineno);
         }
-        ds.field(<span class="string">&quot;num_lines&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.num_lines())
-            .field(<span class="string">&quot;content_offset&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.content_offset())
-            .field(<span class="string">&quot;content&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.content())
-            .field(<span class="string">&quot;origin&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.origin())
+        ds.field(<span class="string">"num_lines"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.num_lines())
+            .field(<span class="string">"content_offset"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.content_offset())
+            .field(<span class="string">"content"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.content())
+            .field(<span class="string">"origin"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.origin())
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DiffHunk&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DiffHunk&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Starting line number in old_file
     </span><span class="kw">pub fn </span>old_start(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).old_start <span class="kw">as </span>u32 }
@@ -3004,7 +3005,7 @@
     }
 
     <span class="doccomment">/// Header text
-    </span><span class="kw">pub fn </span>header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+    </span><span class="kw">pub fn </span>header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
         <span class="kw">unsafe </span>{
             slice::from_raw_parts(
                 (<span class="kw-2">*</span><span class="self">self</span>.raw).header.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>u8,
@@ -3014,9 +3015,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>DiffHunk&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Binding <span class="kw">for </span>DiffHunk&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*const </span>raw::git_diff_hunk;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_hunk) -&gt; DiffHunk&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_hunk) -&gt; DiffHunk&lt;<span class="lifetime">'a</span>&gt; {
         DiffHunk {
             raw,
             _marker: marker::PhantomData,
@@ -3027,14 +3028,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; std::fmt::Debug <span class="kw">for </span>DiffHunk&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        f.debug_struct(<span class="string">&quot;DiffHunk&quot;</span>)
-            .field(<span class="string">&quot;old_start&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.old_start())
-            .field(<span class="string">&quot;old_lines&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.old_lines())
-            .field(<span class="string">&quot;new_start&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.new_start())
-            .field(<span class="string">&quot;new_lines&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.new_lines())
-            .field(<span class="string">&quot;header&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.header())
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; std::fmt::Debug <span class="kw">for </span>DiffHunk&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        f.debug_struct(<span class="string">"DiffHunk"</span>)
+            .field(<span class="string">"old_start"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.old_start())
+            .field(<span class="string">"old_lines"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.old_lines())
+            .field(<span class="string">"new_start"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.new_start())
+            .field(<span class="string">"new_lines"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.new_lines())
+            .field(<span class="string">"header"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.header())
             .finish()
     }
 }
@@ -3088,16 +3089,16 @@
 }
 
 <span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>DiffStats {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        f.debug_struct(<span class="string">&quot;DiffStats&quot;</span>)
-            .field(<span class="string">&quot;files_changed&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.files_changed())
-            .field(<span class="string">&quot;insertions&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.insertions())
-            .field(<span class="string">&quot;deletions&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.deletions())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        f.debug_struct(<span class="string">"DiffStats"</span>)
+            .field(<span class="string">"files_changed"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.files_changed())
+            .field(<span class="string">"insertions"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.insertions())
+            .field(<span class="string">"deletions"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.deletions())
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DiffBinary&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DiffBinary&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns whether there is data in this binary structure or not.
     ///
     /// If this is `true`, then this was produced and included binary content.
@@ -3109,19 +3110,19 @@
     }
 
     <span class="doccomment">/// The contents of the old file.
-    </span><span class="kw">pub fn </span>old_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffBinaryFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>old_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffBinaryFile&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">unsafe </span>{ Binding::from_raw(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw).old_file <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>) }
     }
 
     <span class="doccomment">/// The contents of the new file.
-    </span><span class="kw">pub fn </span>new_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffBinaryFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>new_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffBinaryFile&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">unsafe </span>{ Binding::from_raw(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw).new_file <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>DiffBinary&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Binding <span class="kw">for </span>DiffBinary&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*const </span>raw::git_diff_binary;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_binary) -&gt; DiffBinary&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_binary) -&gt; DiffBinary&lt;<span class="lifetime">'a</span>&gt; {
         DiffBinary {
             raw,
             _marker: marker::PhantomData,
@@ -3132,7 +3133,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DiffBinaryFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DiffBinaryFile&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The type of binary data for this file
     </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DiffBinaryKind {
         <span class="kw">unsafe </span>{ Binding::from_raw((<span class="kw-2">*</span><span class="self">self</span>.raw).kind) }
@@ -3151,9 +3152,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>DiffBinaryFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Binding <span class="kw">for </span>DiffBinaryFile&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*const </span>raw::git_diff_binary_file;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_binary_file) -&gt; DiffBinaryFile&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_diff_binary_file) -&gt; DiffBinaryFile&lt;<span class="lifetime">'a</span>&gt; {
         DiffBinaryFile {
             raw,
             _marker: marker::PhantomData,
@@ -3171,7 +3172,7 @@
             raw::GIT_DIFF_BINARY_NONE =&gt; DiffBinaryKind::None,
             raw::GIT_DIFF_BINARY_LITERAL =&gt; DiffBinaryKind::Literal,
             raw::GIT_DIFF_BINARY_DELTA =&gt; DiffBinaryKind::Delta,
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown git diff binary kind&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unknown git diff binary kind"</span>),
         }
     }
     <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_diff_binary_t {
@@ -3341,7 +3342,7 @@
     </span>}
 
     <span class="doccomment">/// Maximum similarity sources to examine for a file (somewhat like
-    /// git-diff&#39;s `-l` option or `diff.renameLimit` config)
+    /// git-diff's `-l` option or `diff.renameLimit` config)
     ///
     /// Defaults to 200
     </span><span class="kw">pub fn </span>rename_limit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, limit: usize) -&gt; <span class="kw-2">&amp;mut </span>DiffFindOptions {
@@ -3455,9 +3456,9 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>foreach_file_only() {
-        <span class="kw">let </span>path = Path::new(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>path = Path::new(<span class="string">"foo"</span>);
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(path))).write_all(<span class="string">b&quot;bar&quot;</span>));
+        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(path))).write_all(<span class="string">b"bar"</span>));
         <span class="kw">let </span><span class="kw-2">mut </span>opts = DiffOptions::new();
         opts.include_untracked(<span class="bool-val">true</span>);
         <span class="kw">let </span>diff = <span class="macro">t!</span>(repo.diff_tree_to_workdir(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>opts)));
@@ -3479,9 +3480,9 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>foreach_file_and_hunk() {
-        <span class="kw">let </span>path = Path::new(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>path = Path::new(<span class="string">"foo"</span>);
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(path))).write_all(<span class="string">b&quot;bar&quot;</span>));
+        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(path))).write_all(<span class="string">b"bar"</span>));
         <span class="kw">let </span><span class="kw-2">mut </span>index = <span class="macro">t!</span>(repo.index());
         <span class="macro">t!</span>(index.add_path(path));
         <span class="kw">let </span><span class="kw-2">mut </span>opts = DiffOptions::new();
@@ -3506,10 +3507,10 @@
         <span class="comment">// Verified with a node implementation of deflate, might be worth
         // adding a deflate lib to do this inline here.
         </span><span class="kw">let </span>deflated_fib = <span class="macro">vec!</span>[<span class="number">120</span>, <span class="number">156</span>, <span class="number">99</span>, <span class="number">96</span>, <span class="number">100</span>, <span class="number">100</span>, <span class="number">98</span>, <span class="number">102</span>, <span class="number">229</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">53</span>, <span class="number">0</span>, <span class="number">21</span>];
-        <span class="kw">let </span>foo_path = Path::new(<span class="string">&quot;foo&quot;</span>);
-        <span class="kw">let </span>bin_path = Path::new(<span class="string">&quot;bin&quot;</span>);
+        <span class="kw">let </span>foo_path = Path::new(<span class="string">"foo"</span>);
+        <span class="kw">let </span>bin_path = Path::new(<span class="string">"bin"</span>);
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(foo_path))).write_all(<span class="string">b&quot;bar\n&quot;</span>));
+        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(foo_path))).write_all(<span class="string">b"bar\n"</span>));
         <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(bin_path))).write_all(<span class="kw-2">&amp;</span>fib));
         <span class="kw">let </span><span class="kw-2">mut </span>index = <span class="macro">t!</span>(repo.index());
         <span class="macro">t!</span>(index.add_path(foo_path));
@@ -3537,101 +3538,101 @@
         ));
         <span class="macro">assert_eq!</span>(bin_content, <span class="prelude-val">Some</span>(deflated_fib));
         <span class="macro">assert_eq!</span>(new_lines, <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(line_content, <span class="prelude-val">Some</span>(<span class="string">&quot;bar\n&quot;</span>.to_string()));
+        <span class="macro">assert_eq!</span>(line_content, <span class="prelude-val">Some</span>(<span class="string">"bar\n"</span>.to_string()));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>format_email_simple() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="kw">const </span>COMMIT_MESSAGE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;Modify some content&quot;</span>;
+        <span class="kw">const </span>COMMIT_MESSAGE: <span class="kw-2">&amp;</span>str = <span class="string">"Modify some content"</span>;
         <span class="kw">const </span>EXPECTED_EMAIL_START: <span class="kw-2">&amp;</span>str = <span class="macro">concat!</span>(
-            <span class="string">&quot;From f1234fb0588b6ed670779a34ba5c51ef962f285f Mon Sep 17 00:00:00 2001\n&quot;</span>,
-            <span class="string">&quot;From: Techcable &lt;dummy@dummy.org&gt;\n&quot;</span>,
-            <span class="string">&quot;Date: Tue, 11 Jan 1972 17:46:40 +0000\n&quot;</span>,
-            <span class="string">&quot;Subject: [PATCH] Modify some content\n&quot;</span>,
-            <span class="string">&quot;\n&quot;</span>,
-            <span class="string">&quot;---\n&quot;</span>,
-            <span class="string">&quot; file1.txt | 8 +++++---\n&quot;</span>,
-            <span class="string">&quot; 1 file changed, 5 insertions(+), 3 deletions(-)\n&quot;</span>,
-            <span class="string">&quot;\n&quot;</span>,
-            <span class="string">&quot;diff --git a/file1.txt b/file1.txt\n&quot;</span>,
-            <span class="string">&quot;index 94aaae8..af8f41d 100644\n&quot;</span>,
-            <span class="string">&quot;--- a/file1.txt\n&quot;</span>,
-            <span class="string">&quot;+++ b/file1.txt\n&quot;</span>,
-            <span class="string">&quot;@@ -1,15 +1,17 @@\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot;+_file1.txt_\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot;+\n&quot;</span>,
-            <span class="string">&quot;+\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot;-file1.txt\n&quot;</span>,
-            <span class="string">&quot;-file1.txt\n&quot;</span>,
-            <span class="string">&quot;-file1.txt\n&quot;</span>,
-            <span class="string">&quot;+_file1.txt_\n&quot;</span>,
-            <span class="string">&quot;+_file1.txt_\n&quot;</span>,
-            <span class="string">&quot; file1.txt\n&quot;</span>,
-            <span class="string">&quot;--\n&quot;
+            <span class="string">"From f1234fb0588b6ed670779a34ba5c51ef962f285f Mon Sep 17 00:00:00 2001\n"</span>,
+            <span class="string">"From: Techcable &lt;dummy@dummy.org&gt;\n"</span>,
+            <span class="string">"Date: Tue, 11 Jan 1972 17:46:40 +0000\n"</span>,
+            <span class="string">"Subject: [PATCH] Modify some content\n"</span>,
+            <span class="string">"\n"</span>,
+            <span class="string">"---\n"</span>,
+            <span class="string">" file1.txt | 8 +++++---\n"</span>,
+            <span class="string">" 1 file changed, 5 insertions(+), 3 deletions(-)\n"</span>,
+            <span class="string">"\n"</span>,
+            <span class="string">"diff --git a/file1.txt b/file1.txt\n"</span>,
+            <span class="string">"index 94aaae8..af8f41d 100644\n"</span>,
+            <span class="string">"--- a/file1.txt\n"</span>,
+            <span class="string">"+++ b/file1.txt\n"</span>,
+            <span class="string">"@@ -1,15 +1,17 @@\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">"+_file1.txt_\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">"+\n"</span>,
+            <span class="string">"+\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">"-file1.txt\n"</span>,
+            <span class="string">"-file1.txt\n"</span>,
+            <span class="string">"-file1.txt\n"</span>,
+            <span class="string">"+_file1.txt_\n"</span>,
+            <span class="string">"+_file1.txt_\n"</span>,
+            <span class="string">" file1.txt\n"</span>,
+            <span class="string">"--\n"
         </span>);
         <span class="kw">const </span>ORIGINAL_FILE: <span class="kw-2">&amp;</span>str = <span class="macro">concat!</span>(
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"
         </span>);
         <span class="kw">const </span>UPDATED_FILE: <span class="kw-2">&amp;</span>str = <span class="macro">concat!</span>(
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;_file1.txt_\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;\n&quot;</span>,
-            <span class="string">&quot;\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;</span>,
-            <span class="string">&quot;_file1.txt_\n&quot;</span>,
-            <span class="string">&quot;_file1.txt_\n&quot;</span>,
-            <span class="string">&quot;file1.txt\n&quot;
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"_file1.txt_\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"\n"</span>,
+            <span class="string">"\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"file1.txt\n"</span>,
+            <span class="string">"_file1.txt_\n"</span>,
+            <span class="string">"_file1.txt_\n"</span>,
+            <span class="string">"file1.txt\n"
         </span>);
         <span class="kw">const </span>FILE_MODE: i32 = <span class="number">0o100644</span>;
         <span class="kw">let </span>original_file = repo.blob(ORIGINAL_FILE.as_bytes()).unwrap();
         <span class="kw">let </span>updated_file = repo.blob(UPDATED_FILE.as_bytes()).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>original_tree = repo.treebuilder(<span class="prelude-val">None</span>).unwrap();
         original_tree
-            .insert(<span class="string">&quot;file1.txt&quot;</span>, original_file, FILE_MODE)
+            .insert(<span class="string">"file1.txt"</span>, original_file, FILE_MODE)
             .unwrap();
         <span class="kw">let </span>original_tree = original_tree.write().unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>updated_tree = repo.treebuilder(<span class="prelude-val">None</span>).unwrap();
         updated_tree
-            .insert(<span class="string">&quot;file1.txt&quot;</span>, updated_file, FILE_MODE)
+            .insert(<span class="string">"file1.txt"</span>, updated_file, FILE_MODE)
             .unwrap();
         <span class="kw">let </span>updated_tree = updated_tree.write().unwrap();
         <span class="kw">let </span>time = Time::new(<span class="number">64_000_000</span>, <span class="number">0</span>);
-        <span class="kw">let </span>author = Signature::new(<span class="string">&quot;Techcable&quot;</span>, <span class="string">&quot;dummy@dummy.org&quot;</span>, <span class="kw-2">&amp;</span>time).unwrap();
+        <span class="kw">let </span>author = Signature::new(<span class="string">"Techcable"</span>, <span class="string">"dummy@dummy.org"</span>, <span class="kw-2">&amp;</span>time).unwrap();
         <span class="kw">let </span>updated_commit = repo
             .commit(
                 <span class="prelude-val">None</span>,
@@ -3655,26 +3656,26 @@
         <span class="kw">let </span>actual_email = actual_email.as_str().unwrap();
         <span class="macro">assert!</span>(
             actual_email.starts_with(EXPECTED_EMAIL_START),
-            <span class="string">&quot;Unexpected email:\n{}&quot;</span>,
+            <span class="string">"Unexpected email:\n{}"</span>,
             actual_email
         );
         <span class="kw">let </span><span class="kw-2">mut </span>remaining_lines = actual_email[EXPECTED_EMAIL_START.len()..].lines();
         <span class="kw">let </span>version_line = remaining_lines.next();
         <span class="macro">assert!</span>(
-            version_line.unwrap().starts_with(<span class="string">&quot;libgit2&quot;</span>),
-            <span class="string">&quot;Invalid version line: {:?}&quot;</span>,
+            version_line.unwrap().starts_with(<span class="string">"libgit2"</span>),
+            <span class="string">"Invalid version line: {:?}"</span>,
             version_line
         );
         <span class="kw">while let </span><span class="prelude-val">Some</span>(line) = remaining_lines.next() {
-            <span class="macro">assert_eq!</span>(line.trim(), <span class="string">&quot;&quot;</span>)
+            <span class="macro">assert_eq!</span>(line.trim(), <span class="string">""</span>)
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>foreach_diff_line_origin_value() {
-        <span class="kw">let </span>foo_path = Path::new(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>foo_path = Path::new(<span class="string">"foo"</span>);
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(foo_path))).write_all(<span class="string">b&quot;bar\n&quot;</span>));
+        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(foo_path))).write_all(<span class="string">b"bar\n"</span>));
         <span class="kw">let </span><span class="kw-2">mut </span>index = <span class="macro">t!</span>(repo.index());
         <span class="macro">t!</span>(index.add_path(foo_path));
         <span class="kw">let </span><span class="kw-2">mut </span>opts = DiffOptions::new();
@@ -3696,11 +3697,11 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>foreach_exits_with_euser() {
-        <span class="kw">let </span>foo_path = Path::new(<span class="string">&quot;foo&quot;</span>);
-        <span class="kw">let </span>bar_path = Path::new(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>foo_path = Path::new(<span class="string">"foo"</span>);
+        <span class="kw">let </span>bar_path = Path::new(<span class="string">"foo"</span>);
 
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(foo_path))).write_all(<span class="string">b&quot;bar\n&quot;</span>));
+        <span class="macro">t!</span>(<span class="macro">t!</span>(File::create(<span class="kw-2">&amp;</span>td.path().join(foo_path))).write_all(<span class="string">b"bar\n"</span>));
 
         <span class="kw">let </span><span class="kw-2">mut </span>index = <span class="macro">t!</span>(repo.index());
         <span class="macro">t!</span>(index.add_path(foo_path));

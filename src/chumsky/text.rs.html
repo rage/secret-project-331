@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -440,8 +441,8 @@
 <a href="#440" id="440">440</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Text-specific parsers and utilities.
 //!
-//! *“Ford!&quot; he said, &quot;there&#39;s an infinite number of monkeys outside who want to talk to us about this script for
-//! Hamlet they&#39;ve worked out.”*
+//! *“Ford!" he said, "there's an infinite number of monkeys outside who want to talk to us about this script for
+//! Hamlet they've worked out.”*
 //!
 //! The parsers in this module are generic over both Unicode ([`char`]) and ASCII ([`u8`]) characters. Most parsers take
 //! a type parameter, `C`, that can be either [`u8`] or [`char`] in order to handle either case.
@@ -509,7 +510,7 @@
 
 <span class="doccomment">/// A trait implemented by textual character types (currently, [`u8`] and [`char`]).
 ///
-/// Avoid implementing this trait yourself if you can: it&#39;s *very* likely to be expanded in future versions!
+/// Avoid implementing this trait yourself if you can: it's *very* likely to be expanded in future versions!
 </span><span class="kw">pub trait </span>Character: private::Sealed + Copy + PartialEq {
     <span class="doccomment">/// The default unsized [`str`]-like type of a linear sequence of this character.
     ///
@@ -519,7 +520,7 @@
     <span class="doccomment">/// The default type that this character collects into.
     ///
     /// For [`char`], this is [`String`]. For [`u8`], this is [`Vec&lt;u8&gt;`].
-    </span><span class="kw">type </span>Collection: Chain&lt;<span class="self">Self</span>&gt; + FromIterator&lt;<span class="self">Self</span>&gt; + AsRef&lt;<span class="self">Self</span>::Str&gt; + <span class="lifetime">&#39;static</span>;
+    </span><span class="kw">type </span>Collection: Chain&lt;<span class="self">Self</span>&gt; + FromIterator&lt;<span class="self">Self</span>&gt; + AsRef&lt;<span class="self">Self</span>::Str&gt; + <span class="lifetime">'static</span>;
 
     <span class="doccomment">/// Convert the given ASCII character to this character type.
     </span><span class="kw">fn </span>from_ascii(c: u8) -&gt; <span class="self">Self</span>;
@@ -530,7 +531,7 @@
     <span class="doccomment">/// Returns true if the character is canonically considered to be whitespace.
     </span><span class="kw">fn </span>is_whitespace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
-    <span class="doccomment">/// Return the &#39;0&#39; digit of the character.
+    <span class="doccomment">/// Return the '0' digit of the character.
     </span><span class="kw">fn </span>digit_zero() -&gt; <span class="self">Self</span>;
 
     <span class="doccomment">/// Returns true if the character is canonically considered to be a numeric digit.
@@ -548,13 +549,13 @@
         c
     }
     <span class="kw">fn </span>is_inline_whitespace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw-2">*</span><span class="self">self </span>== <span class="string">b&#39; &#39; </span>|| <span class="kw-2">*</span><span class="self">self </span>== <span class="string">b&#39;\t&#39;
+        <span class="kw-2">*</span><span class="self">self </span>== <span class="string">b' ' </span>|| <span class="kw-2">*</span><span class="self">self </span>== <span class="string">b'\t'
     </span>}
     <span class="kw">fn </span>is_whitespace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_ascii_whitespace()
     }
     <span class="kw">fn </span>digit_zero() -&gt; <span class="self">Self </span>{
-        <span class="string">b&#39;0&#39;
+        <span class="string">b'0'
     </span>}
     <span class="kw">fn </span>is_digit(<span class="kw-2">&amp;</span><span class="self">self</span>, radix: u32) -&gt; bool {
         (<span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>char).is_digit(radix)
@@ -572,13 +573,13 @@
         c <span class="kw">as </span>char
     }
     <span class="kw">fn </span>is_inline_whitespace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw-2">*</span><span class="self">self </span>== <span class="string">&#39; &#39; </span>|| <span class="kw-2">*</span><span class="self">self </span>== <span class="string">&#39;\t&#39;
+        <span class="kw-2">*</span><span class="self">self </span>== <span class="string">' ' </span>|| <span class="kw-2">*</span><span class="self">self </span>== <span class="string">'\t'
     </span>}
     <span class="kw">fn </span>is_whitespace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         char::is_whitespace(<span class="kw-2">*</span><span class="self">self</span>)
     }
     <span class="kw">fn </span>digit_zero() -&gt; <span class="self">Self </span>{
-        <span class="string">&#39;0&#39;
+        <span class="string">'0'
     </span>}
     <span class="kw">fn </span>is_digit(<span class="kw-2">&amp;</span><span class="self">self</span>, radix: u32) -&gt; bool {
         char::is_digit(<span class="kw-2">*</span><span class="self">self</span>, radix)
@@ -601,9 +602,9 @@
     /// let ident = text::ident::&lt;_, Simple&lt;char&gt;&gt;().padded();
     ///
     /// // A pattern with no whitespace surrounding it is accepted
-    /// assert_eq!(ident.parse(&quot;hello&quot;), Ok(&quot;hello&quot;.to_string()));
+    /// assert_eq!(ident.parse("hello"), Ok("hello".to_string()));
     /// // A pattern with arbitrary whitespace surrounding it is also accepted
-    /// assert_eq!(ident.parse(&quot; \t \n  \t   world  \t  &quot;), Ok(&quot;world&quot;.to_string()));
+    /// assert_eq!(ident.parse(" \t \n  \t   world  \t  "), Ok("world".to_string()));
     /// ```
     </span><span class="kw">fn </span>padded(<span class="self">self</span>) -&gt; Padded&lt;<span class="self">Self</span>&gt;
     <span class="kw">where
@@ -629,12 +630,12 @@
 /// let whitespace = text::whitespace::&lt;_, Simple&lt;char&gt;&gt;();
 ///
 /// // Any amount of whitespace is parsed...
-/// assert_eq!(whitespace.parse(&quot;\t \n  \r &quot;), Ok(vec![(), (), (), (), (), (), ()]));
+/// assert_eq!(whitespace.parse("\t \n  \r "), Ok(vec![(), (), (), (), (), (), ()]));
 /// // ...including none at all!
-/// assert_eq!(whitespace.parse(&quot;&quot;), Ok(vec![]));
+/// assert_eq!(whitespace.parse(""), Ok(vec![]));
 /// ```
-</span><span class="kw">pub fn </span>whitespace&lt;<span class="lifetime">&#39;a</span>, C: Character + <span class="lifetime">&#39;a</span>, E: Error&lt;C&gt; + <span class="lifetime">&#39;a</span>&gt;(
-) -&gt; Repeated&lt;<span class="kw">impl </span>Parser&lt;C, (), Error = E&gt; + Copy + Clone + <span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub fn </span>whitespace&lt;<span class="lifetime">'a</span>, C: Character + <span class="lifetime">'a</span>, E: Error&lt;C&gt; + <span class="lifetime">'a</span>&gt;(
+) -&gt; Repeated&lt;<span class="kw">impl </span>Parser&lt;C, (), Error = E&gt; + Copy + Clone + <span class="lifetime">'a</span>&gt; {
     filter(|c: <span class="kw-2">&amp;</span>C| c.is_whitespace()).ignored().repeated()
 }
 
@@ -660,29 +661,29 @@
 /// let newline = text::newline::&lt;char, Simple&lt;char&gt;&gt;()
 ///     .then_ignore(end());
 ///
-/// assert_eq!(newline.parse(&quot;\n&quot;), Ok(()));
-/// assert_eq!(newline.parse(&quot;\r&quot;), Ok(()));
-/// assert_eq!(newline.parse(&quot;\r\n&quot;), Ok(()));
-/// assert_eq!(newline.parse(&quot;\x0B&quot;), Ok(()));
-/// assert_eq!(newline.parse(&quot;\x0C&quot;), Ok(()));
-/// assert_eq!(newline.parse(&quot;\u{0085}&quot;), Ok(()));
-/// assert_eq!(newline.parse(&quot;\u{2028}&quot;), Ok(()));
-/// assert_eq!(newline.parse(&quot;\u{2029}&quot;), Ok(()));
+/// assert_eq!(newline.parse("\n"), Ok(()));
+/// assert_eq!(newline.parse("\r"), Ok(()));
+/// assert_eq!(newline.parse("\r\n"), Ok(()));
+/// assert_eq!(newline.parse("\x0B"), Ok(()));
+/// assert_eq!(newline.parse("\x0C"), Ok(()));
+/// assert_eq!(newline.parse("\u{0085}"), Ok(()));
+/// assert_eq!(newline.parse("\u{2028}"), Ok(()));
+/// assert_eq!(newline.parse("\u{2029}"), Ok(()));
 /// ```
 </span><span class="attr">#[must_use]
-</span><span class="kw">pub fn </span>newline&lt;<span class="lifetime">&#39;a</span>, C: Character + <span class="lifetime">&#39;a</span>, E: Error&lt;C&gt; + <span class="lifetime">&#39;a</span>&gt;(
-) -&gt; <span class="kw">impl </span>Parser&lt;C, (), Error = E&gt; + Copy + Clone + <span class="lifetime">&#39;a </span>{
-    just(C::from_ascii(<span class="string">b&#39;\r&#39;</span>))
+</span><span class="kw">pub fn </span>newline&lt;<span class="lifetime">'a</span>, C: Character + <span class="lifetime">'a</span>, E: Error&lt;C&gt; + <span class="lifetime">'a</span>&gt;(
+) -&gt; <span class="kw">impl </span>Parser&lt;C, (), Error = E&gt; + Copy + Clone + <span class="lifetime">'a </span>{
+    just(C::from_ascii(<span class="string">b'\r'</span>))
         .or_not()
-        .ignore_then(just(C::from_ascii(<span class="string">b&#39;\n&#39;</span>)))
+        .ignore_then(just(C::from_ascii(<span class="string">b'\n'</span>)))
         .or(filter(|c: <span class="kw-2">&amp;</span>C| {
             [
-                <span class="string">&#39;\r&#39;</span>,       <span class="comment">// Carriage return
-                </span><span class="string">&#39;\x0B&#39;</span>,     <span class="comment">// Vertical tab
-                </span><span class="string">&#39;\x0C&#39;</span>,     <span class="comment">// Form feed
-                </span><span class="string">&#39;\u{0085}&#39;</span>, <span class="comment">// Next line
-                </span><span class="string">&#39;\u{2028}&#39;</span>, <span class="comment">// Line separator
-                </span><span class="string">&#39;\u{2029}&#39;</span>, <span class="comment">// Paragraph separator
+                <span class="string">'\r'</span>,       <span class="comment">// Carriage return
+                </span><span class="string">'\x0B'</span>,     <span class="comment">// Vertical tab
+                </span><span class="string">'\x0C'</span>,     <span class="comment">// Form feed
+                </span><span class="string">'\u{0085}'</span>, <span class="comment">// Next line
+                </span><span class="string">'\u{2028}'</span>, <span class="comment">// Line separator
+                </span><span class="string">'\u{2029}'</span>, <span class="comment">// Paragraph separator
             </span>]
             .contains(<span class="kw-2">&amp;</span>c.to_char())
         }))
@@ -702,13 +703,13 @@
 /// # use chumsky::prelude::*;
 /// let digits = text::digits::&lt;_, Simple&lt;char&gt;&gt;(10);
 ///
-/// assert_eq!(digits.parse(&quot;0&quot;), Ok(&quot;0&quot;.to_string()));
-/// assert_eq!(digits.parse(&quot;1&quot;), Ok(&quot;1&quot;.to_string()));
-/// assert_eq!(digits.parse(&quot;01234&quot;), Ok(&quot;01234&quot;.to_string()));
-/// assert_eq!(digits.parse(&quot;98345&quot;), Ok(&quot;98345&quot;.to_string()));
+/// assert_eq!(digits.parse("0"), Ok("0".to_string()));
+/// assert_eq!(digits.parse("1"), Ok("1".to_string()));
+/// assert_eq!(digits.parse("01234"), Ok("01234".to_string()));
+/// assert_eq!(digits.parse("98345"), Ok("98345".to_string()));
 /// // A string of zeroes is still valid. Use `int` if this is not desirable.
-/// assert_eq!(digits.parse(&quot;0000&quot;), Ok(&quot;0000&quot;.to_string()));
-/// assert!(digits.parse(&quot;&quot;).is_err());
+/// assert_eq!(digits.parse("0000"), Ok("0000".to_string()));
+/// assert!(digits.parse("").is_err());
 /// ```
 </span><span class="attr">#[must_use]
 </span><span class="kw">pub fn </span>digits&lt;C: Character, E: Error&lt;C&gt;&gt;(
@@ -737,19 +738,19 @@
 /// let dec = text::int::&lt;_, Simple&lt;char&gt;&gt;(10)
 ///     .then_ignore(end());
 ///
-/// assert_eq!(dec.parse(&quot;0&quot;), Ok(&quot;0&quot;.to_string()));
-/// assert_eq!(dec.parse(&quot;1&quot;), Ok(&quot;1&quot;.to_string()));
-/// assert_eq!(dec.parse(&quot;1452&quot;), Ok(&quot;1452&quot;.to_string()));
+/// assert_eq!(dec.parse("0"), Ok("0".to_string()));
+/// assert_eq!(dec.parse("1"), Ok("1".to_string()));
+/// assert_eq!(dec.parse("1452"), Ok("1452".to_string()));
 /// // No leading zeroes are permitted!
-/// assert!(dec.parse(&quot;04&quot;).is_err());
+/// assert!(dec.parse("04").is_err());
 ///
 /// let hex = text::int::&lt;_, Simple&lt;char&gt;&gt;(16)
 ///     .then_ignore(end());
 ///
-/// assert_eq!(hex.parse(&quot;2A&quot;), Ok(&quot;2A&quot;.to_string()));
-/// assert_eq!(hex.parse(&quot;d&quot;), Ok(&quot;d&quot;.to_string()));
-/// assert_eq!(hex.parse(&quot;b4&quot;), Ok(&quot;b4&quot;.to_string()));
-/// assert!(hex.parse(&quot;0B&quot;).is_err());
+/// assert_eq!(hex.parse("2A"), Ok("2A".to_string()));
+/// assert_eq!(hex.parse("d"), Ok("d".to_string()));
+/// assert_eq!(hex.parse("b4"), Ok("b4".to_string()));
+/// assert!(hex.parse("0B").is_err());
 /// ```
 </span><span class="attr">#[must_use]
 </span><span class="kw">pub fn </span>int&lt;C: Character, E: Error&lt;C&gt;&gt;(
@@ -772,10 +773,10 @@
 </span><span class="attr">#[must_use]
 </span><span class="kw">pub fn </span>ident&lt;C: Character, E: Error&lt;C&gt;&gt;() -&gt; <span class="kw">impl </span>Parser&lt;C, C::Collection, Error = E&gt; + Copy + Clone
 {
-    filter(|c: <span class="kw-2">&amp;</span>C| c.to_char().is_ascii_alphabetic() || c.to_char() == <span class="string">&#39;_&#39;</span>)
+    filter(|c: <span class="kw-2">&amp;</span>C| c.to_char().is_ascii_alphabetic() || c.to_char() == <span class="string">'_'</span>)
         .map(<span class="prelude-val">Some</span>)
         .chain::&lt;C, Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;(
-            filter(|c: <span class="kw-2">&amp;</span>C| c.to_char().is_ascii_alphanumeric() || c.to_char() == <span class="string">&#39;_&#39;</span>).repeated(),
+            filter(|c: <span class="kw-2">&amp;</span>C| c.to_char().is_ascii_alphanumeric() || c.to_char() == <span class="string">'_'</span>).repeated(),
         )
         .collect()
 }
@@ -788,19 +789,19 @@
 ///
 /// ```
 /// # use chumsky::prelude::*;
-/// let def = text::keyword::&lt;_, _, Simple&lt;char&gt;&gt;(&quot;def&quot;);
+/// let def = text::keyword::&lt;_, _, Simple&lt;char&gt;&gt;("def");
 ///
-/// // Exactly &#39;def&#39; was found
-/// assert_eq!(def.parse(&quot;def&quot;), Ok(()));
-/// // Exactly &#39;def&#39; was found, with non-identifier trailing characters
-/// assert_eq!(def.parse(&quot;def(foo, bar)&quot;), Ok(()));
-/// // &#39;def&#39; was found, but only as part of a larger identifier, so this fails to parse
-/// assert!(def.parse(&quot;define&quot;).is_err());
+/// // Exactly 'def' was found
+/// assert_eq!(def.parse("def"), Ok(()));
+/// // Exactly 'def' was found, with non-identifier trailing characters
+/// assert_eq!(def.parse("def(foo, bar)"), Ok(()));
+/// // 'def' was found, but only as part of a larger identifier, so this fails to parse
+/// assert!(def.parse("define").is_err());
 /// ```
 </span><span class="attr">#[must_use]
-</span><span class="kw">pub fn </span>keyword&lt;<span class="lifetime">&#39;a</span>, C: Character + <span class="lifetime">&#39;a</span>, S: AsRef&lt;C::Str&gt; + <span class="lifetime">&#39;a </span>+ Clone, E: Error&lt;C&gt; + <span class="lifetime">&#39;a</span>&gt;(
+</span><span class="kw">pub fn </span>keyword&lt;<span class="lifetime">'a</span>, C: Character + <span class="lifetime">'a</span>, S: AsRef&lt;C::Str&gt; + <span class="lifetime">'a </span>+ Clone, E: Error&lt;C&gt; + <span class="lifetime">'a</span>&gt;(
     keyword: S,
-) -&gt; <span class="kw">impl </span>Parser&lt;C, (), Error = E&gt; + Clone + <span class="lifetime">&#39;a </span>{
+) -&gt; <span class="kw">impl </span>Parser&lt;C, (), Error = E&gt; + Clone + <span class="lifetime">'a </span>{
     <span class="comment">// TODO: use .filter(...), improve error messages
     </span>ident().try_map(<span class="kw">move </span>|s: C::Collection, span| {
         <span class="kw">if </span>s.as_ref() == keyword.as_ref() {
@@ -815,15 +816,15 @@
 ///
 /// Also required is a function that collects a [`Vec`] of tokens into a whitespace-indicated token tree.
 </span><span class="attr">#[must_use]
-</span><span class="kw">pub fn </span>semantic_indentation&lt;<span class="lifetime">&#39;a</span>, C, Tok, T, F, E: Error&lt;C&gt; + <span class="lifetime">&#39;a</span>&gt;(
+</span><span class="kw">pub fn </span>semantic_indentation&lt;<span class="lifetime">'a</span>, C, Tok, T, F, E: Error&lt;C&gt; + <span class="lifetime">'a</span>&gt;(
     token: T,
     make_group: F,
-) -&gt; <span class="kw">impl </span>Parser&lt;C, Vec&lt;Tok&gt;, Error = E&gt; + Clone + <span class="lifetime">&#39;a
+) -&gt; <span class="kw">impl </span>Parser&lt;C, Vec&lt;Tok&gt;, Error = E&gt; + Clone + <span class="lifetime">'a
 </span><span class="kw">where
-    </span>C: Character + <span class="lifetime">&#39;a</span>,
-    Tok: <span class="lifetime">&#39;a</span>,
-    T: Parser&lt;C, Tok, Error = E&gt; + Clone + <span class="lifetime">&#39;a</span>,
-    F: Fn(Vec&lt;Tok&gt;, E::Span) -&gt; Tok + Clone + <span class="lifetime">&#39;a</span>,
+    </span>C: Character + <span class="lifetime">'a</span>,
+    Tok: <span class="lifetime">'a</span>,
+    T: Parser&lt;C, Tok, Error = E&gt; + Clone + <span class="lifetime">'a</span>,
+    F: Fn(Vec&lt;Tok&gt;, E::Span) -&gt; Tok + Clone + <span class="lifetime">'a</span>,
 {
     <span class="kw">let </span>line_ws = filter(|c: <span class="kw-2">&amp;</span>C| c.is_inline_whitespace());
 

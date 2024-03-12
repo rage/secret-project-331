@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.63/src/pkcs7.rs`."><title>pkcs7.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/pkcs7.rs`."><title>pkcs7.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -786,7 +787,7 @@
 
     <span class="doccomment">/// Decrypts data using the provided private key.
     ///
-    /// `pkey` is the recipient&#39;s private key, and `cert` is the recipient&#39;s
+    /// `pkey` is the recipient's private key, and `cert` is the recipient's
     /// certificate.
     ///
     /// Returns the decrypted message.
@@ -816,7 +817,7 @@
 
     <span class="doccomment">/// Verifies the PKCS#7 `signedData` structure contained by `&amp;self`.
     ///
-    /// `certs` is a set of certificates in which to search for the signer&#39;s
+    /// `certs` is a set of certificates in which to search for the signer's
     /// certificate. `store` is a trusted certificate store (used for chain
     /// verification). `indata` is the signed data if the content is not present
     /// in `&amp;self`. The content is written to `out` if it is not `None`.
@@ -857,7 +858,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Retrieve the signer&#39;s certificates from the PKCS#7 structure without verifying them.
+    <span class="doccomment">/// Retrieve the signer's certificates from the PKCS#7 structure without verifying them.
     </span><span class="attr">#[corresponds(PKCS7_get0_signers)]
     </span><span class="kw">pub fn </span>signers(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -871,7 +872,7 @@
                 flags.bits(),
             ))<span class="question-mark">?</span>;
 
-            <span class="comment">// The returned stack is owned by the caller, but the certs inside are not! Our stack interface can&#39;t deal
+            <span class="comment">// The returned stack is owned by the caller, but the certs inside are not! Our stack interface can't deal
             // with that, so instead we just manually bump the refcount of the certs so that the whole stack is properly
             // owned.
             </span><span class="kw">let </span>stack = Stack::&lt;X509&gt;::from_ptr(ptr);
@@ -928,66 +929,66 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>encrypt_decrypt_test() {
-        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/certs.pem&quot;</span>);
+        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">"../test/certs.pem"</span>);
         <span class="kw">let </span>cert = X509::from_pem(cert).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>certs = Stack::new().unwrap();
         certs.push(cert.clone()).unwrap();
-        <span class="kw">let </span>message: String = String::from(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>message: String = String::from(<span class="string">"foo"</span>);
         <span class="kw">let </span>cipher = Cipher::des_ede3_cbc();
         <span class="kw">let </span>flags = Pkcs7Flags::STREAM;
-        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/key.pem&quot;</span>);
+        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">"../test/key.pem"</span>);
         <span class="kw">let </span>pkey = PKey::private_key_from_pem(pkey).unwrap();
 
         <span class="kw">let </span>pkcs7 =
-            Pkcs7::encrypt(<span class="kw-2">&amp;</span>certs, message.as_bytes(), cipher, flags).expect(<span class="string">&quot;should succeed&quot;</span>);
+            Pkcs7::encrypt(<span class="kw-2">&amp;</span>certs, message.as_bytes(), cipher, flags).expect(<span class="string">"should succeed"</span>);
         <span class="macro">assert_eq!</span>(
-            pkcs7.type_().expect(<span class="string">&quot;PKCS7 should have a type&quot;</span>).nid(),
+            pkcs7.type_().expect(<span class="string">"PKCS7 should have a type"</span>).nid(),
             Nid::PKCS7_ENVELOPED
         );
 
         <span class="kw">let </span>encrypted = pkcs7
             .to_smime(message.as_bytes(), flags)
-            .expect(<span class="string">&quot;should succeed&quot;</span>);
+            .expect(<span class="string">"should succeed"</span>);
 
-        <span class="kw">let </span>(pkcs7_decoded, <span class="kw">_</span>) = Pkcs7::from_smime(encrypted.as_slice()).expect(<span class="string">&quot;should succeed&quot;</span>);
+        <span class="kw">let </span>(pkcs7_decoded, <span class="kw">_</span>) = Pkcs7::from_smime(encrypted.as_slice()).expect(<span class="string">"should succeed"</span>);
 
         <span class="kw">let </span>decoded = pkcs7_decoded
             .decrypt(<span class="kw-2">&amp;</span>pkey, <span class="kw-2">&amp;</span>cert, Pkcs7Flags::empty())
-            .expect(<span class="string">&quot;should succeed&quot;</span>);
+            .expect(<span class="string">"should succeed"</span>);
 
         <span class="macro">assert_eq!</span>(decoded, message.into_bytes());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>sign_verify_test_detached() {
-        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/cert.pem&quot;</span>);
+        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">"../test/cert.pem"</span>);
         <span class="kw">let </span>cert = X509::from_pem(cert).unwrap();
         <span class="kw">let </span>certs = Stack::new().unwrap();
-        <span class="kw">let </span>message = <span class="string">&quot;foo&quot;</span>;
+        <span class="kw">let </span>message = <span class="string">"foo"</span>;
         <span class="kw">let </span>flags = Pkcs7Flags::STREAM | Pkcs7Flags::DETACHED;
-        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/key.pem&quot;</span>);
+        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">"../test/key.pem"</span>);
         <span class="kw">let </span>pkey = PKey::private_key_from_pem(pkey).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>store_builder = X509StoreBuilder::new().expect(<span class="string">&quot;should succeed&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>store_builder = X509StoreBuilder::new().expect(<span class="string">"should succeed"</span>);
 
-        <span class="kw">let </span>root_ca = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/root-ca.pem&quot;</span>);
+        <span class="kw">let </span>root_ca = <span class="macro">include_bytes!</span>(<span class="string">"../test/root-ca.pem"</span>);
         <span class="kw">let </span>root_ca = X509::from_pem(root_ca).unwrap();
-        store_builder.add_cert(root_ca).expect(<span class="string">&quot;should succeed&quot;</span>);
+        store_builder.add_cert(root_ca).expect(<span class="string">"should succeed"</span>);
 
         <span class="kw">let </span>store = store_builder.build();
 
         <span class="kw">let </span>pkcs7 =
-            Pkcs7::sign(<span class="kw-2">&amp;</span>cert, <span class="kw-2">&amp;</span>pkey, <span class="kw-2">&amp;</span>certs, message.as_bytes(), flags).expect(<span class="string">&quot;should succeed&quot;</span>);
+            Pkcs7::sign(<span class="kw-2">&amp;</span>cert, <span class="kw-2">&amp;</span>pkey, <span class="kw-2">&amp;</span>certs, message.as_bytes(), flags).expect(<span class="string">"should succeed"</span>);
         <span class="macro">assert_eq!</span>(
-            pkcs7.type_().expect(<span class="string">&quot;PKCS7 should have a type&quot;</span>).nid(),
+            pkcs7.type_().expect(<span class="string">"PKCS7 should have a type"</span>).nid(),
             Nid::PKCS7_SIGNED
         );
 
         <span class="kw">let </span>signed = pkcs7
             .to_smime(message.as_bytes(), flags)
-            .expect(<span class="string">&quot;should succeed&quot;</span>);
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, String::from_utf8(signed.clone()).unwrap());
+            .expect(<span class="string">"should succeed"</span>);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, String::from_utf8(signed.clone()).unwrap());
         <span class="kw">let </span>(pkcs7_decoded, content) =
-            Pkcs7::from_smime(signed.as_slice()).expect(<span class="string">&quot;should succeed&quot;</span>);
+            Pkcs7::from_smime(signed.as_slice()).expect(<span class="string">"should succeed"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
         pkcs7_decoded
@@ -998,49 +999,49 @@
                 <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>output),
                 flags,
             )
-            .expect(<span class="string">&quot;should succeed&quot;</span>);
+            .expect(<span class="string">"should succeed"</span>);
 
         <span class="macro">assert_eq!</span>(output, message.as_bytes());
-        <span class="macro">assert_eq!</span>(content.expect(<span class="string">&quot;should be non-empty&quot;</span>), message.as_bytes());
+        <span class="macro">assert_eq!</span>(content.expect(<span class="string">"should be non-empty"</span>), message.as_bytes());
     }
 
     <span class="doccomment">/// https://marc.info/?l=openbsd-cvs&amp;m=166602943014106&amp;w=2
     </span><span class="attr">#[test]
     #[cfg_attr(all(libressl360, not(libressl361)), ignore)]
     </span><span class="kw">fn </span>sign_verify_test_normal() {
-        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/cert.pem&quot;</span>);
+        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">"../test/cert.pem"</span>);
         <span class="kw">let </span>cert = X509::from_pem(cert).unwrap();
         <span class="kw">let </span>certs = Stack::new().unwrap();
-        <span class="kw">let </span>message = <span class="string">&quot;foo&quot;</span>;
+        <span class="kw">let </span>message = <span class="string">"foo"</span>;
         <span class="kw">let </span>flags = Pkcs7Flags::STREAM;
-        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/key.pem&quot;</span>);
+        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">"../test/key.pem"</span>);
         <span class="kw">let </span>pkey = PKey::private_key_from_pem(pkey).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>store_builder = X509StoreBuilder::new().expect(<span class="string">&quot;should succeed&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>store_builder = X509StoreBuilder::new().expect(<span class="string">"should succeed"</span>);
 
-        <span class="kw">let </span>root_ca = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/root-ca.pem&quot;</span>);
+        <span class="kw">let </span>root_ca = <span class="macro">include_bytes!</span>(<span class="string">"../test/root-ca.pem"</span>);
         <span class="kw">let </span>root_ca = X509::from_pem(root_ca).unwrap();
-        store_builder.add_cert(root_ca).expect(<span class="string">&quot;should succeed&quot;</span>);
+        store_builder.add_cert(root_ca).expect(<span class="string">"should succeed"</span>);
 
         <span class="kw">let </span>store = store_builder.build();
 
         <span class="kw">let </span>pkcs7 =
-            Pkcs7::sign(<span class="kw-2">&amp;</span>cert, <span class="kw-2">&amp;</span>pkey, <span class="kw-2">&amp;</span>certs, message.as_bytes(), flags).expect(<span class="string">&quot;should succeed&quot;</span>);
+            Pkcs7::sign(<span class="kw-2">&amp;</span>cert, <span class="kw-2">&amp;</span>pkey, <span class="kw-2">&amp;</span>certs, message.as_bytes(), flags).expect(<span class="string">"should succeed"</span>);
         <span class="macro">assert_eq!</span>(
-            pkcs7.type_().expect(<span class="string">&quot;PKCS7 should have a type&quot;</span>).nid(),
+            pkcs7.type_().expect(<span class="string">"PKCS7 should have a type"</span>).nid(),
             Nid::PKCS7_SIGNED
         );
 
         <span class="kw">let </span>signed = pkcs7
             .to_smime(message.as_bytes(), flags)
-            .expect(<span class="string">&quot;should succeed&quot;</span>);
+            .expect(<span class="string">"should succeed"</span>);
 
         <span class="kw">let </span>(pkcs7_decoded, content) =
-            Pkcs7::from_smime(signed.as_slice()).expect(<span class="string">&quot;should succeed&quot;</span>);
+            Pkcs7::from_smime(signed.as_slice()).expect(<span class="string">"should succeed"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
         pkcs7_decoded
             .verify(<span class="kw-2">&amp;</span>certs, <span class="kw-2">&amp;</span>store, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>output), flags)
-            .expect(<span class="string">&quot;should succeed&quot;</span>);
+            .expect(<span class="string">"should succeed"</span>);
 
         <span class="macro">assert_eq!</span>(output, message.as_bytes());
         <span class="macro">assert!</span>(content.is_none());
@@ -1050,37 +1051,37 @@
     </span><span class="attr">#[test]
     #[cfg_attr(all(libressl360, not(libressl361)), ignore)]
     </span><span class="kw">fn </span>signers() {
-        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/cert.pem&quot;</span>);
+        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">"../test/cert.pem"</span>);
         <span class="kw">let </span>cert = X509::from_pem(cert).unwrap();
         <span class="kw">let </span>cert_digest = cert.digest(MessageDigest::sha256()).unwrap();
         <span class="kw">let </span>certs = Stack::new().unwrap();
-        <span class="kw">let </span>message = <span class="string">&quot;foo&quot;</span>;
+        <span class="kw">let </span>message = <span class="string">"foo"</span>;
         <span class="kw">let </span>flags = Pkcs7Flags::STREAM;
-        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/key.pem&quot;</span>);
+        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">"../test/key.pem"</span>);
         <span class="kw">let </span>pkey = PKey::private_key_from_pem(pkey).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>store_builder = X509StoreBuilder::new().expect(<span class="string">&quot;should succeed&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>store_builder = X509StoreBuilder::new().expect(<span class="string">"should succeed"</span>);
 
-        <span class="kw">let </span>root_ca = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/root-ca.pem&quot;</span>);
+        <span class="kw">let </span>root_ca = <span class="macro">include_bytes!</span>(<span class="string">"../test/root-ca.pem"</span>);
         <span class="kw">let </span>root_ca = X509::from_pem(root_ca).unwrap();
-        store_builder.add_cert(root_ca).expect(<span class="string">&quot;should succeed&quot;</span>);
+        store_builder.add_cert(root_ca).expect(<span class="string">"should succeed"</span>);
 
         <span class="kw">let </span>pkcs7 =
-            Pkcs7::sign(<span class="kw-2">&amp;</span>cert, <span class="kw-2">&amp;</span>pkey, <span class="kw-2">&amp;</span>certs, message.as_bytes(), flags).expect(<span class="string">&quot;should succeed&quot;</span>);
+            Pkcs7::sign(<span class="kw-2">&amp;</span>cert, <span class="kw-2">&amp;</span>pkey, <span class="kw-2">&amp;</span>certs, message.as_bytes(), flags).expect(<span class="string">"should succeed"</span>);
         <span class="macro">assert_eq!</span>(
-            pkcs7.type_().expect(<span class="string">&quot;PKCS7 should have a type&quot;</span>).nid(),
+            pkcs7.type_().expect(<span class="string">"PKCS7 should have a type"</span>).nid(),
             Nid::PKCS7_SIGNED
         );
 
         <span class="kw">let </span>signed = pkcs7
             .to_smime(message.as_bytes(), flags)
-            .expect(<span class="string">&quot;should succeed&quot;</span>);
+            .expect(<span class="string">"should succeed"</span>);
 
-        <span class="kw">let </span>(pkcs7_decoded, <span class="kw">_</span>) = Pkcs7::from_smime(signed.as_slice()).expect(<span class="string">&quot;should succeed&quot;</span>);
+        <span class="kw">let </span>(pkcs7_decoded, <span class="kw">_</span>) = Pkcs7::from_smime(signed.as_slice()).expect(<span class="string">"should succeed"</span>);
 
         <span class="kw">let </span>empty_certs = Stack::new().unwrap();
         <span class="kw">let </span>signer_certs = pkcs7_decoded
             .signers(<span class="kw-2">&amp;</span>empty_certs, flags)
-            .expect(<span class="string">&quot;should succeed&quot;</span>);
+            .expect(<span class="string">"should succeed"</span>);
         <span class="macro">assert_eq!</span>(empty_certs.len(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(signer_certs.len(), <span class="number">1</span>);
         <span class="kw">let </span>signer_digest = signer_certs[<span class="number">0</span>].digest(MessageDigest::sha256()).unwrap();
@@ -1089,7 +1090,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>invalid_from_smime() {
-        <span class="kw">let </span>input = String::from(<span class="string">&quot;Invalid SMIME Message&quot;</span>);
+        <span class="kw">let </span>input = String::from(<span class="string">"Invalid SMIME Message"</span>);
         <span class="kw">let </span>result = Pkcs7::from_smime(input.as_bytes());
 
         <span class="macro">assert!</span>(result.is_err());
@@ -1097,46 +1098,46 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>signed_data_certificates() {
-        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/cert.pem&quot;</span>);
+        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">"../test/cert.pem"</span>);
         <span class="kw">let </span>cert = X509::from_pem(cert).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>extra_certs = Stack::&lt;X509&gt;::new().unwrap();
         <span class="kw">for </span>cert <span class="kw">in
-            </span>X509::stack_from_pem(<span class="macro">include_bytes!</span>(<span class="string">&quot;../test/certs.pem&quot;</span>)).expect(<span class="string">&quot;should succeed&quot;</span>)
+            </span>X509::stack_from_pem(<span class="macro">include_bytes!</span>(<span class="string">"../test/certs.pem"</span>)).expect(<span class="string">"should succeed"</span>)
         {
-            extra_certs.push(cert).expect(<span class="string">&quot;should succeed&quot;</span>);
+            extra_certs.push(cert).expect(<span class="string">"should succeed"</span>);
         }
 
-        <span class="kw">let </span>message = <span class="string">&quot;foo&quot;</span>;
+        <span class="kw">let </span>message = <span class="string">"foo"</span>;
         <span class="kw">let </span>flags = Pkcs7Flags::STREAM;
-        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/key.pem&quot;</span>);
+        <span class="kw">let </span>pkey = <span class="macro">include_bytes!</span>(<span class="string">"../test/key.pem"</span>);
         <span class="kw">let </span>pkey = PKey::private_key_from_pem(pkey).unwrap();
 
         <span class="kw">let </span>pkcs7 = Pkcs7::sign(<span class="kw-2">&amp;</span>cert, <span class="kw-2">&amp;</span>pkey, <span class="kw-2">&amp;</span>extra_certs, message.as_bytes(), flags)
-            .expect(<span class="string">&quot;should succeed&quot;</span>);
+            .expect(<span class="string">"should succeed"</span>);
         <span class="macro">assert_eq!</span>(
-            pkcs7.type_().expect(<span class="string">&quot;PKCS7 should have a type&quot;</span>).nid(),
+            pkcs7.type_().expect(<span class="string">"PKCS7 should have a type"</span>).nid(),
             Nid::PKCS7_SIGNED
         );
         <span class="kw">let </span>signed_data_certs = pkcs7.signed().and_then(|x| x.certificates());
-        <span class="macro">assert_eq!</span>(signed_data_certs.expect(<span class="string">&quot;should succeed&quot;</span>).len(), <span class="number">3</span>);
+        <span class="macro">assert_eq!</span>(signed_data_certs.expect(<span class="string">"should succeed"</span>).len(), <span class="number">3</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>signed_data_certificates_no_signed_data() {
-        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/certs.pem&quot;</span>);
+        <span class="kw">let </span>cert = <span class="macro">include_bytes!</span>(<span class="string">"../test/certs.pem"</span>);
         <span class="kw">let </span>cert = X509::from_pem(cert).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>certs = Stack::new().unwrap();
         certs.push(cert).unwrap();
-        <span class="kw">let </span>message: String = String::from(<span class="string">&quot;foo&quot;</span>);
+        <span class="kw">let </span>message: String = String::from(<span class="string">"foo"</span>);
         <span class="kw">let </span>cipher = Cipher::des_ede3_cbc();
         <span class="kw">let </span>flags = Pkcs7Flags::STREAM;
 
         <span class="comment">// Use `Pkcs7::encrypt` since it populates the PKCS7_ENVELOPE struct rather than
         // PKCS7_SIGNED
         </span><span class="kw">let </span>pkcs7 =
-            Pkcs7::encrypt(<span class="kw-2">&amp;</span>certs, message.as_bytes(), cipher, flags).expect(<span class="string">&quot;should succeed&quot;</span>);
+            Pkcs7::encrypt(<span class="kw-2">&amp;</span>certs, message.as_bytes(), cipher, flags).expect(<span class="string">"should succeed"</span>);
         <span class="macro">assert_eq!</span>(
-            pkcs7.type_().expect(<span class="string">&quot;PKCS7 should have a type&quot;</span>).nid(),
+            pkcs7.type_().expect(<span class="string">"PKCS7 should have a type"</span>).nid(),
             Nid::PKCS7_ENVELOPED
         );
 

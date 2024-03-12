@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/reader.rs`."><title>reader.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/reader.rs`."><title>reader.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2687,19 +2688,19 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
     /// Concord,United States,42695
-    /// &quot;;
+    /// ";
     ///     let mut rdr = ReaderBuilder::new().from_reader(data.as_bytes());
     ///
     ///     let records = rdr
     ///         .records()
     ///         .collect::&lt;Result&lt;Vec&lt;StringRecord&gt;, csv::Error&gt;&gt;()?;
     ///     assert_eq!(records, vec![
-    ///         vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;],
-    ///         vec![&quot;Concord&quot;, &quot;United States&quot;, &quot;42695&quot;],
+    ///         vec!["Boston", "United States", "4628910"],
+    ///         vec!["Concord", "United States", "42695"],
     ///     ]);
     ///     Ok(())
     /// }
@@ -2722,10 +2723,10 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let mut rdr = ReaderBuilder::new().from_path(&quot;foo.csv&quot;)?;
+    ///     let mut rdr = ReaderBuilder::new().from_path("foo.csv")?;
     ///     for result in rdr.records() {
     ///         let record = result?;
-    ///         println!(&quot;{:?}&quot;, record);
+    ///         println!("{:?}", record);
     ///     }
     ///     Ok(())
     /// }
@@ -2747,15 +2748,15 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
     /// Concord,United States,42695
-    /// &quot;;
+    /// ";
     ///     let mut rdr = ReaderBuilder::new().from_reader(data.as_bytes());
     ///     for result in rdr.records() {
     ///         let record = result?;
-    ///         println!(&quot;{:?}&quot;, record);
+    ///         println!("{:?}", record);
     ///     }
     ///     Ok(())
     /// }
@@ -2766,7 +2767,7 @@
 
     <span class="doccomment">/// The field delimiter to use when parsing CSV.
     ///
-    /// The default is `b&#39;,&#39;`.
+    /// The default is `b','`.
     ///
     /// # Example
     ///
@@ -2776,20 +2777,20 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city;country;pop
     /// Boston;United States;4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
-    ///         .delimiter(b&#39;;&#39;)
+    ///         .delimiter(b';')
     ///         .from_reader(data.as_bytes());
     ///
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -2819,10 +2820,10 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
     ///         .has_headers(false)
     ///         .from_reader(data.as_bytes());
@@ -2831,19 +2832,19 @@
     ///     // Read the first record.
     ///     if let Some(result) = iter.next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;city&quot;, &quot;country&quot;, &quot;pop&quot;]);
+    ///         assert_eq!(record, vec!["city", "country", "pop"]);
     ///     } else {
     ///         return Err(From::from(
-    ///             &quot;expected at least two records but got none&quot;));
+    ///             "expected at least two records but got none"));
     ///     }
     ///
     ///     // Read the second record.
     ///     if let Some(result) = iter.next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///     } else {
     ///         return Err(From::from(
-    ///             &quot;expected at least two records but got one&quot;))
+    ///             "expected at least two records but got one"))
     ///     }
     ///     Ok(())
     /// }
@@ -2870,20 +2871,20 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     // Notice that the first row is missing the population count.
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States
-    /// &quot;;
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
     ///         .flexible(true)
     ///         .from_reader(data.as_bytes());
     ///
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -2901,10 +2902,10 @@
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     // Notice that the first row is missing the population count.
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States
-    /// &quot;;
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
     ///         .flexible(false)
     ///         .from_reader(data.as_bytes());
@@ -2920,13 +2921,13 @@
     ///             }
     ///             ref wrong =&gt; {
     ///                 Err(From::from(format!(
-    ///                     &quot;expected UnequalLengths error but got {:?}&quot;,
+    ///                     "expected UnequalLengths error but got {:?}",
     ///                     wrong)))
     ///             }
     ///         }
     ///     } else {
     ///         Err(From::from(
-    ///             &quot;expected at least one errored record but got none&quot;))
+    ///             "expected at least one errored record but got none"))
     ///     }
     /// }
     /// ```
@@ -2941,7 +2942,7 @@
     /// override that behavior and choose one of the following options:
     ///
     /// 1. `Trim::Headers` trims only header values.
-    /// 2. `Trim::Fields` trims only non-header or &quot;field&quot; values.
+    /// 2. `Trim::Fields` trims only non-header or "field" values.
     /// 3. `Trim::All` trims both header and non-header values.
     ///
     /// A value is only interpreted as a header value if this CSV reader is
@@ -2962,12 +2963,12 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city ,   country ,  pop
-    /// Boston,\&quot;
-    ///    United States\&quot;,4628910
+    /// Boston,\"
+    ///    United States\",4628910
     /// Concord,   United States   ,42695
-    /// &quot;;
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
     ///         .trim(Trim::All)
     ///         .from_reader(data.as_bytes());
@@ -2975,8 +2976,8 @@
     ///         .records()
     ///         .collect::&lt;Result&lt;Vec&lt;StringRecord&gt;, csv::Error&gt;&gt;()?;
     ///     assert_eq!(records, vec![
-    ///         vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;],
-    ///         vec![&quot;Concord&quot;, &quot;United States&quot;, &quot;42695&quot;],
+    ///         vec!["Boston", "United States", "4628910"],
+    ///         vec!["Concord", "United States", "42695"],
     ///     ]);
     ///     Ok(())
     /// }
@@ -3000,17 +3001,17 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;city,country,pop$Boston,United States,4628910&quot;;
+    ///     let data = "city,country,pop$Boston,United States,4628910";
     ///     let mut rdr = ReaderBuilder::new()
-    ///         .terminator(Terminator::Any(b&#39;$&#39;))
+    ///         .terminator(Terminator::Any(b'$'))
     ///         .from_reader(data.as_bytes());
     ///
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3021,7 +3022,7 @@
 
     <span class="doccomment">/// The quote character to use when parsing CSV.
     ///
-    /// The default is `b&#39;&quot;&#39;`.
+    /// The default is `b'"'`.
     ///
     /// # Example: single quotes instead of double quotes
     ///
@@ -3031,20 +3032,20 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
-    /// Boston,&#39;United States&#39;,4628910
-    /// &quot;;
+    /// Boston,'United States',4628910
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
-    ///         .quote(b&#39;\&#39;&#39;)
+    ///         .quote(b'\'')
     ///         .from_reader(data.as_bytes());
     ///
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3068,22 +3069,22 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
-    /// Boston,\&quot;The \\\&quot;United\\\&quot; States\&quot;,4628910
-    /// &quot;;
+    /// Boston,\"The \\\"United\\\" States\",4628910
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
-    ///         .escape(Some(b&#39;\\&#39;))
+    ///         .escape(Some(b'\\'))
     ///         .from_reader(data.as_bytes());
     ///
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
     ///         assert_eq!(record, vec![
-    ///             &quot;Boston&quot;, &quot;The \&quot;United\&quot; States&quot;, &quot;4628910&quot;,
+    ///             "Boston", "The \"United\" States", "4628910",
     ///         ]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3105,10 +3106,10 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
-    /// Boston,\&quot;The \&quot;\&quot;United\&quot;\&quot; States\&quot;,4628910
-    /// &quot;;
+    /// Boston,\"The \"\"United\"\" States\",4628910
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
     ///         .double_quote(false)
     ///         .from_reader(data.as_bytes());
@@ -3116,11 +3117,11 @@
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
     ///         assert_eq!(record, vec![
-    ///             &quot;Boston&quot;, &quot;The \&quot;United\&quot;\&quot; States\&quot;&quot;, &quot;4628910&quot;,
+    ///             "Boston", "The \"United\"\" States\"", "4628910",
     ///         ]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3142,10 +3143,10 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
-    /// Boston,\&quot;The United States,4628910
-    /// &quot;;
+    /// Boston,\"The United States,4628910
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
     ///         .quoting(false)
     ///         .from_reader(data.as_bytes());
@@ -3153,11 +3154,11 @@
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
     ///         assert_eq!(record, vec![
-    ///             &quot;Boston&quot;, &quot;\&quot;The United States&quot;, &quot;4628910&quot;,
+    ///             "Boston", "\"The United States", "4628910",
     ///         ]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3181,21 +3182,21 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// #Concord,United States,42695
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = ReaderBuilder::new()
-    ///         .comment(Some(b&#39;#&#39;))
+    ///         .comment(Some(b'#'))
     ///         .from_reader(data.as_bytes());
     ///
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3218,18 +3219,18 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
-    /// city\x1Fcountry\x1Fpop\x1EBoston\x1FUnited States\x1F4628910&quot;;
+    ///     let data = "\
+    /// city\x1Fcountry\x1Fpop\x1EBoston\x1FUnited States\x1F4628910";
     ///     let mut rdr = ReaderBuilder::new()
     ///         .ascii()
     ///         .from_reader(data.as_bytes());
     ///
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3279,20 +3280,20 @@
 ///
 /// # fn main() { example().unwrap(); }
 /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-///     let data = &quot;\
+///     let data = "\
 /// city;country;pop
 /// Boston;United States;4628910
-/// &quot;;
+/// ";
 ///     let mut rdr = ReaderBuilder::new()
-///         .delimiter(b&#39;;&#39;)
+///         .delimiter(b';')
 ///         .from_reader(data.as_bytes());
 ///
 ///     if let Some(result) = rdr.records().next() {
 ///         let record = result?;
-///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
 ///         Ok(())
 ///     } else {
-///         Err(From::from(&quot;expected at least one record but got none&quot;))
+///         Err(From::from("expected at least one record but got none"))
 ///     }
 /// }
 /// ```
@@ -3305,7 +3306,7 @@
 /// choice was inspired by other popular CSV parsers, but also because it is
 /// pragmatic. CSV data varies wildly, so even if the CSV data is malformed,
 /// it might still be possible to work with the data. In the land of CSV, there
-/// is no &quot;right&quot; or &quot;wrong,&quot; only &quot;right&quot; and &quot;less right.&quot;
+/// is no "right" or "wrong," only "right" and "less right."
 ///
 /// With that said, a number of errors can occur while reading CSV data:
 ///
@@ -3325,7 +3326,7 @@
 ///   enforced. If CSV data is invalid UTF-8, then an error is returned. If
 ///   you want to read invalid UTF-8, then you should use the byte oriented
 ///   APIs such as [`ByteRecord`](struct.ByteRecord.html). If you need explicit
-///   support for another encoding entirely, then you&#39;ll need to use another
+///   support for another encoding entirely, then you'll need to use another
 ///   crate to transcode your CSV data to UTF-8 before parsing it.
 /// * When using Serde to deserialize CSV data into Rust types, it is possible
 ///   for a number of additional errors to occur. For example, deserializing
@@ -3430,10 +3431,10 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let mut rdr = Reader::from_path(&quot;foo.csv&quot;)?;
+    ///     let mut rdr = Reader::from_path("foo.csv")?;
     ///     for result in rdr.records() {
     ///         let record = result?;
-    ///         println!(&quot;{:?}&quot;, record);
+    ///         println!("{:?}", record);
     ///     }
     ///     Ok(())
     /// }
@@ -3477,15 +3478,15 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
     /// Concord,United States,42695
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(data.as_bytes());
     ///     for result in rdr.records() {
     ///         let record = result?;
-    ///         println!(&quot;{:?}&quot;, record);
+    ///         println!("{:?}", record);
     ///     }
     ///     Ok(())
     /// }
@@ -3519,29 +3520,29 @@
     /// struct Row {
     ///     city: String,
     ///     country: String,
-    ///     #[serde(rename = &quot;popcount&quot;)]
+    ///     #[serde(rename = "popcount")]
     ///     population: u64,
     /// }
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,popcount
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = csv::Reader::from_reader(data.as_bytes());
     ///     let mut iter = rdr.deserialize();
     ///
     ///     if let Some(result) = iter.next() {
     ///         let record: Row = result?;
     ///         assert_eq!(record, Row {
-    ///             city: &quot;Boston&quot;.to_string(),
-    ///             country: &quot;United States&quot;.to_string(),
+    ///             city: "Boston".to_string(),
+    ///             country: "United States".to_string(),
     ///             population: 4628910,
     ///         });
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3563,8 +3564,8 @@
     /// deserializing into a map will result in an error.)
     ///
     /// Nested sequences are supported in a limited capacity. Namely, they
-    /// are flattened. As a result, it&#39;s often useful to use a `Vec` to capture
-    /// a &quot;tail&quot; of fields in a record:
+    /// are flattened. As a result, it's often useful to use a `Vec` to capture
+    /// a "tail" of fields in a record:
     ///
     /// ```
     /// use std::error::Error;
@@ -3577,7 +3578,7 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;foo,1,2,3&quot;;
+    ///     let data = "foo,1,2,3";
     ///     let mut rdr = csv::ReaderBuilder::new()
     ///         .has_headers(false)
     ///         .from_reader(data.as_bytes());
@@ -3586,19 +3587,19 @@
     ///     if let Some(result) = iter.next() {
     ///         let record: Row = result?;
     ///         assert_eq!(record, Row {
-    ///             label: &quot;foo&quot;.to_string(),
+    ///             label: "foo".to_string(),
     ///             values: vec![1, 2, 3],
     ///         });
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
     ///
     /// In the above example, adding another field to the `Row` struct after
     /// the `values` field will result in a deserialization error. This is
-    /// because the deserializer doesn&#39;t know when to stop reading fields
+    /// because the deserializer doesn't know when to stop reading fields
     /// into the `values` vector, so it will consume the rest of the fields in
     /// the record leaving none left over for the additional field.
     ///
@@ -3607,7 +3608,7 @@
     /// single argument. Variants with no arguments are deserialized based on
     /// which variant name the field matches. Variants with a single argument
     /// are deserialized based on which variant can store the data. The latter
-    /// is only supported when using &quot;untagged&quot; enum deserialization. The
+    /// is only supported when using "untagged" enum deserialization. The
     /// following example shows both forms in action:
     ///
     /// ```
@@ -3620,7 +3621,7 @@
     /// }
     ///
     /// #[derive(Debug, serde::Deserialize, PartialEq)]
-    /// #[serde(rename_all = &quot;lowercase&quot;)]
+    /// #[serde(rename_all = "lowercase")]
     /// enum Label {
     ///     Celsius,
     ///     Fahrenheit,
@@ -3635,11 +3636,11 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// label,value
     /// celsius,22.2222
     /// fahrenheit,72
-    /// &quot;;
+    /// ";
     ///     let mut rdr = csv::Reader::from_reader(data.as_bytes());
     ///     let mut iter = rdr.deserialize();
     ///
@@ -3652,7 +3653,7 @@
     ///         });
     ///     } else {
     ///         return Err(From::from(
-    ///             &quot;expected at least two records but got none&quot;));
+    ///             "expected at least two records but got none"));
     ///     }
     ///
     ///     // Read the second record.
@@ -3665,7 +3666,7 @@
     ///         Ok(())
     ///     } else {
     ///         Err(From::from(
-    ///             &quot;expected at least two records but got only one&quot;))
+    ///             "expected at least two records but got only one"))
     ///     }
     /// }
     /// ```
@@ -3703,29 +3704,29 @@
     /// struct Row {
     ///     city: String,
     ///     country: String,
-    ///     #[serde(rename = &quot;popcount&quot;)]
+    ///     #[serde(rename = "popcount")]
     ///     population: u64,
     /// }
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,popcount
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let rdr = csv::Reader::from_reader(data.as_bytes());
     ///     let mut iter = rdr.into_deserialize();
     ///
     ///     if let Some(result) = iter.next() {
     ///         let record: Row = result?;
     ///         assert_eq!(record, Row {
-    ///             city: &quot;Boston&quot;.to_string(),
-    ///             country: &quot;United States&quot;.to_string(),
+    ///             city: "Boston".to_string(),
+    ///             country: "United States".to_string(),
     ///             population: 4628910,
     ///         });
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3753,19 +3754,19 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(data.as_bytes());
     ///     let mut iter = rdr.records();
     ///
     ///     if let Some(result) = iter.next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3793,19 +3794,19 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let rdr = Reader::from_reader(data.as_bytes());
     ///     let mut iter = rdr.into_records();
     ///
     ///     if let Some(result) = iter.next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3830,19 +3831,19 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(data.as_bytes());
     ///     let mut iter = rdr.byte_records();
     ///
     ///     if let Some(result) = iter.next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3870,19 +3871,19 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let rdr = Reader::from_reader(data.as_bytes());
     ///     let mut iter = rdr.into_byte_records();
     ///
     ///     if let Some(result) = iter.next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -3895,7 +3896,7 @@
     /// If no row has been read yet, then this will force parsing of the first
     /// row.
     ///
-    /// If there was a problem parsing the row or if it wasn&#39;t valid UTF-8,
+    /// If there was a problem parsing the row or if it wasn't valid UTF-8,
     /// then this returns an error.
     ///
     /// If the underlying reader emits EOF before any data, then this returns
@@ -3915,10 +3916,10 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(data.as_bytes());
     ///
     ///     // We can read the headers before iterating.
@@ -3927,20 +3928,20 @@
     ///         // own scope. That way, the borrow ends before we try iterating
     ///         // below. Alternatively, we could clone the headers.
     ///         let headers = rdr.headers()?;
-    ///         assert_eq!(headers, vec![&quot;city&quot;, &quot;country&quot;, &quot;pop&quot;]);
+    ///         assert_eq!(headers, vec!["city", "country", "pop"]);
     ///     }
     ///
     ///     if let Some(result) = rdr.records().next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///     } else {
     ///         return Err(From::from(
-    ///             &quot;expected at least one record but got none&quot;))
+    ///             "expected at least one record but got none"))
     ///     }
     ///
     ///     // We can also read the headers after iterating.
     ///     let headers = rdr.headers()?;
-    ///     assert_eq!(headers, vec![&quot;city&quot;, &quot;country&quot;, &quot;pop&quot;]);
+    ///     assert_eq!(headers, vec!["city", "country", "pop"]);
     ///     Ok(())
     /// }
     /// ```
@@ -3984,10 +3985,10 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(data.as_bytes());
     ///
     ///     // We can read the headers before iterating.
@@ -3996,20 +3997,20 @@
     ///         // own scope. That way, the borrow ends before we try iterating
     ///         // below. Alternatively, we could clone the headers.
     ///         let headers = rdr.byte_headers()?;
-    ///         assert_eq!(headers, vec![&quot;city&quot;, &quot;country&quot;, &quot;pop&quot;]);
+    ///         assert_eq!(headers, vec!["city", "country", "pop"]);
     ///     }
     ///
     ///     if let Some(result) = rdr.byte_records().next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///     } else {
     ///         return Err(From::from(
-    ///             &quot;expected at least one record but got none&quot;))
+    ///             "expected at least one record but got none"))
     ///     }
     ///
     ///     // We can also read the headers after iterating.
     ///     let headers = rdr.byte_headers()?;
-    ///     assert_eq!(headers, vec![&quot;city&quot;, &quot;country&quot;, &quot;pop&quot;]);
+    ///     assert_eq!(headers, vec!["city", "country", "pop"]);
     ///     Ok(())
     /// }
     /// ```
@@ -4036,15 +4037,15 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(data.as_bytes());
     ///
-    ///     assert_eq!(rdr.headers()?, vec![&quot;city&quot;, &quot;country&quot;, &quot;pop&quot;]);
-    ///     rdr.set_headers(StringRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]));
-    ///     assert_eq!(rdr.headers()?, vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
+    ///     assert_eq!(rdr.headers()?, vec!["city", "country", "pop"]);
+    ///     rdr.set_headers(StringRecord::from(vec!["a", "b", "c"]));
+    ///     assert_eq!(rdr.headers()?, vec!["a", "b", "c"]);
     ///
     ///     Ok(())
     /// }
@@ -4067,15 +4068,15 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(data.as_bytes());
     ///
-    ///     assert_eq!(rdr.byte_headers()?, vec![&quot;city&quot;, &quot;country&quot;, &quot;pop&quot;]);
-    ///     rdr.set_byte_headers(ByteRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]));
-    ///     assert_eq!(rdr.byte_headers()?, vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
+    ///     assert_eq!(rdr.byte_headers()?, vec!["city", "country", "pop"]);
+    ///     rdr.set_byte_headers(ByteRecord::from(vec!["a", "b", "c"]));
+    ///     assert_eq!(rdr.byte_headers()?, vec!["a", "b", "c"]);
     ///
     ///     Ok(())
     /// }
@@ -4121,7 +4122,7 @@
     /// default), then this will never read the first record.
     ///
     /// This method is useful when you want to read records as fast as
-    /// as possible. It&#39;s less ergonomic than an iterator, but it permits the
+    /// as possible. It's less ergonomic than an iterator, but it permits the
     /// caller to reuse the `StringRecord` allocation, which usually results
     /// in higher throughput.
     ///
@@ -4136,18 +4137,18 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(data.as_bytes());
     ///     let mut record = StringRecord::new();
     ///
     ///     if rdr.read_record(&amp;mut record)? {
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -4169,7 +4170,7 @@
     /// default), then this will never read the first record.
     ///
     /// This method is useful when you want to read records as fast as
-    /// as possible. It&#39;s less ergonomic than an iterator, but it permits the
+    /// as possible. It's less ergonomic than an iterator, but it permits the
     /// caller to reuse the `ByteRecord` allocation, which usually results
     /// in higher throughput.
     ///
@@ -4184,18 +4185,18 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,pop
     /// Boston,United States,4628910
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(data.as_bytes());
     ///     let mut record = ByteRecord::new();
     ///
     ///     if rdr.read_byte_record(&amp;mut record)? {
-    ///         assert_eq!(record, vec![&quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;]);
+    ///         assert_eq!(record, vec!["Boston", "United States", "4628910"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -4204,7 +4205,7 @@
         record: <span class="kw-2">&amp;mut </span>ByteRecord,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.state.seeked &amp;&amp; !<span class="self">self</span>.state.has_headers &amp;&amp; !<span class="self">self</span>.state.first {
-            <span class="comment">// If the caller indicated &quot;no headers&quot; and we haven&#39;t yielded the
+            <span class="comment">// If the caller indicated "no headers" and we haven't yielded the
             // first record yet, then we should yield our header row if we have
             // one.
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>headers) = <span class="self">self</span>.state.headers {
@@ -4310,11 +4311,11 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,popcount
     /// Boston,United States,4628910
     /// Concord,United States,42695
-    /// &quot;;
+    /// ";
     ///     let rdr = Reader::from_reader(io::Cursor::new(data));
     ///     let mut iter = rdr.into_records();
     ///     let mut pos = Position::new();
@@ -4352,11 +4353,11 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,popcount
     /// Boston,United States,4628910
     /// Concord,United States,42695
-    /// &quot;;
+    /// ";
     ///     let mut rdr = Reader::from_reader(io::Cursor::new(data));
     ///     assert!(!rdr.is_done());
     ///     for result in rdr.records() {
@@ -4388,7 +4389,7 @@
 
     <span class="doccomment">/// Unwraps this CSV reader, returning the underlying reader.
     ///
-    /// Note that any leftover data inside this reader&#39;s internal buffer is
+    /// Note that any leftover data inside this reader's internal buffer is
     /// lost.
     </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; R {
         <span class="self">self</span>.rdr.into_inner()
@@ -4427,11 +4428,11 @@
     ///
     /// # fn main() { example().unwrap(); }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-    ///     let data = &quot;\
+    ///     let data = "\
     /// city,country,popcount
     /// Boston,United States,4628910
     /// Concord,United States,42695
-    /// &quot;;
+    /// ";
     ///     let rdr = Reader::from_reader(io::Cursor::new(data));
     ///     let mut iter = rdr.into_records();
     ///     let mut pos = Position::new();
@@ -4450,10 +4451,10 @@
     ///     let mut iter = iter.into_reader().into_records();
     ///     if let Some(result) = iter.next() {
     ///         let record = result?;
-    ///         assert_eq!(record, vec![&quot;Concord&quot;, &quot;United States&quot;, &quot;42695&quot;]);
+    ///         assert_eq!(record, vec!["Concord", "United States", "42695"]);
     ///         Ok(())
     ///     } else {
-    ///         Err(From::from(&quot;expected at least one record but got none&quot;))
+    ///         Err(From::from("expected at least one record but got none"))
     ///     }
     /// }
     /// ```
@@ -4581,19 +4582,19 @@
 
 <span class="doccomment">/// A borrowed iterator over deserialized records.
 ///
-/// The lifetime parameter `&#39;r` refers to the lifetime of the underlying
+/// The lifetime parameter `'r` refers to the lifetime of the underlying
 /// CSV `Reader`. The type parameter `R` refers to the underlying `io::Read`
 /// type, and `D` refers to the type that this iterator will deserialize a
 /// record into.
-</span><span class="kw">pub struct </span>DeserializeRecordsIter&lt;<span class="lifetime">&#39;r</span>, R: <span class="lifetime">&#39;r</span>, D&gt; {
-    rdr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="kw-2">mut </span>Reader&lt;R&gt;,
+</span><span class="kw">pub struct </span>DeserializeRecordsIter&lt;<span class="lifetime">'r</span>, R: <span class="lifetime">'r</span>, D&gt; {
+    rdr: <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="kw-2">mut </span>Reader&lt;R&gt;,
     rec: StringRecord,
     headers: <span class="prelude-ty">Option</span>&lt;StringRecord&gt;,
     _priv: PhantomData&lt;D&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, R: io::Read, D: DeserializeOwned&gt; DeserializeRecordsIter&lt;<span class="lifetime">&#39;r</span>, R, D&gt; {
-    <span class="kw">fn </span>new(rdr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="kw-2">mut </span>Reader&lt;R&gt;) -&gt; DeserializeRecordsIter&lt;<span class="lifetime">&#39;r</span>, R, D&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, R: io::Read, D: DeserializeOwned&gt; DeserializeRecordsIter&lt;<span class="lifetime">'r</span>, R, D&gt; {
+    <span class="kw">fn </span>new(rdr: <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="kw-2">mut </span>Reader&lt;R&gt;) -&gt; DeserializeRecordsIter&lt;<span class="lifetime">'r</span>, R, D&gt; {
         <span class="kw">let </span>headers = <span class="kw">if </span>!rdr.state.has_headers {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -4618,8 +4619,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, R: io::Read, D: DeserializeOwned&gt; Iterator
-    <span class="kw">for </span>DeserializeRecordsIter&lt;<span class="lifetime">&#39;r</span>, R, D&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, R: io::Read, D: DeserializeOwned&gt; Iterator
+    <span class="kw">for </span>DeserializeRecordsIter&lt;<span class="lifetime">'r</span>, R, D&gt;
 {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;D&gt;;
 
@@ -4673,15 +4674,15 @@
 
 <span class="doccomment">/// A borrowed iterator over records as strings.
 ///
-/// The lifetime parameter `&#39;r` refers to the lifetime of the underlying
+/// The lifetime parameter `'r` refers to the lifetime of the underlying
 /// CSV `Reader`.
-</span><span class="kw">pub struct </span>StringRecordsIter&lt;<span class="lifetime">&#39;r</span>, R: <span class="lifetime">&#39;r</span>&gt; {
-    rdr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="kw-2">mut </span>Reader&lt;R&gt;,
+</span><span class="kw">pub struct </span>StringRecordsIter&lt;<span class="lifetime">'r</span>, R: <span class="lifetime">'r</span>&gt; {
+    rdr: <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="kw-2">mut </span>Reader&lt;R&gt;,
     rec: StringRecord,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, R: io::Read&gt; StringRecordsIter&lt;<span class="lifetime">&#39;r</span>, R&gt; {
-    <span class="kw">fn </span>new(rdr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="kw-2">mut </span>Reader&lt;R&gt;) -&gt; StringRecordsIter&lt;<span class="lifetime">&#39;r</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, R: io::Read&gt; StringRecordsIter&lt;<span class="lifetime">'r</span>, R&gt; {
+    <span class="kw">fn </span>new(rdr: <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="kw-2">mut </span>Reader&lt;R&gt;) -&gt; StringRecordsIter&lt;<span class="lifetime">'r</span>, R&gt; {
         StringRecordsIter { rdr, rec: StringRecord::new() }
     }
 
@@ -4696,7 +4697,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, R: io::Read&gt; Iterator <span class="kw">for </span>StringRecordsIter&lt;<span class="lifetime">&#39;r</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, R: io::Read&gt; Iterator <span class="kw">for </span>StringRecordsIter&lt;<span class="lifetime">'r</span>, R&gt; {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;StringRecord&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;StringRecord&gt;&gt; {
@@ -4749,15 +4750,15 @@
 
 <span class="doccomment">/// A borrowed iterator over records as raw bytes.
 ///
-/// The lifetime parameter `&#39;r` refers to the lifetime of the underlying
+/// The lifetime parameter `'r` refers to the lifetime of the underlying
 /// CSV `Reader`.
-</span><span class="kw">pub struct </span>ByteRecordsIter&lt;<span class="lifetime">&#39;r</span>, R: <span class="lifetime">&#39;r</span>&gt; {
-    rdr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="kw-2">mut </span>Reader&lt;R&gt;,
+</span><span class="kw">pub struct </span>ByteRecordsIter&lt;<span class="lifetime">'r</span>, R: <span class="lifetime">'r</span>&gt; {
+    rdr: <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="kw-2">mut </span>Reader&lt;R&gt;,
     rec: ByteRecord,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, R: io::Read&gt; ByteRecordsIter&lt;<span class="lifetime">&#39;r</span>, R&gt; {
-    <span class="kw">fn </span>new(rdr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="kw-2">mut </span>Reader&lt;R&gt;) -&gt; ByteRecordsIter&lt;<span class="lifetime">&#39;r</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, R: io::Read&gt; ByteRecordsIter&lt;<span class="lifetime">'r</span>, R&gt; {
+    <span class="kw">fn </span>new(rdr: <span class="kw-2">&amp;</span><span class="lifetime">'r </span><span class="kw-2">mut </span>Reader&lt;R&gt;) -&gt; ByteRecordsIter&lt;<span class="lifetime">'r</span>, R&gt; {
         ByteRecordsIter { rdr, rec: ByteRecord::new() }
     }
 
@@ -4772,7 +4773,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, R: io::Read&gt; Iterator <span class="kw">for </span>ByteRecordsIter&lt;<span class="lifetime">&#39;r</span>, R&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>, R: io::Read&gt; Iterator <span class="kw">for </span>ByteRecordsIter&lt;<span class="lifetime">'r</span>, R&gt; {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;ByteRecord&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;ByteRecord&gt;&gt; {
@@ -4809,76 +4810,76 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_byte_record() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,\&quot;b,ar\&quot;,baz\nabc,mno,xyz&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,\"b,ar\",baz\nabc,mno,xyz"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr =
             ReaderBuilder::new().has_headers(<span class="bool-val">false</span>).from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
 
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;b,ar&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;baz&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"b,ar"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"baz"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
 
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;abc&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;mno&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;xyz&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"abc"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"mno"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"xyz"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
 
         <span class="macro">assert!</span>(!rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_trimmed_records_and_headers() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,  bar,\tbaz\n  1,  2,  3\n1\t,\t,3\t\t&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,  bar,\tbaz\n  1,  2,  3\n1\t,\t,3\t\t"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new()
             .has_headers(<span class="bool-val">true</span>)
             .trim(Trim::All)
             .from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;1&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;3&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"1"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"2"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"3"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
         <span class="kw">let </span><span class="kw-2">mut </span>rec = StringRecord::new();
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;1&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">1</span>]);
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;3&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">2</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"1"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">""</span>, <span class="kw-2">&amp;</span>rec[<span class="number">1</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"3"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">2</span>]);
         {
             <span class="kw">let </span>headers = rdr.headers().unwrap();
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, headers.len());
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;bar&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;baz&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"bar"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"baz"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_trimmed_header() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,  bar,\tbaz\n  1,  2,  3\n1\t,\t,3\t\t&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,  bar,\tbaz\n  1,  2,  3\n1\t,\t,3\t\t"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new()
             .has_headers(<span class="bool-val">true</span>)
             .trim(Trim::Headers)
             .from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;  1&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;  2&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;  3&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"  1"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"  2"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"  3"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
         {
             <span class="kw">let </span>headers = rdr.headers().unwrap();
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, headers.len());
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;bar&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;baz&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"bar"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"baz"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_trimed_header_invalid_utf8() {
-        <span class="kw">let </span>data = <span class="kw-2">&amp;</span><span class="string">b&quot;foo,  b\xFFar,\tbaz\na,b,c\nd,e,f&quot;</span>[..];
+        <span class="kw">let </span>data = <span class="kw-2">&amp;</span><span class="string">b"foo,  b\xFFar,\tbaz\na,b,c\nd,e,f"</span>[..];
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new()
             .has_headers(<span class="bool-val">true</span>)
             .trim(Trim::Headers)
@@ -4891,9 +4892,9 @@
         </span>{
             <span class="kw">let </span>headers = rdr.byte_headers().unwrap();
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, headers.len());
-            <span class="macro">assert_eq!</span>(<span class="string">b&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">b&quot;b\xFFar&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">b&quot;baz&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">b"foo"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">b"b\xFFar"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">b"baz"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
         }
         <span class="kw">match </span><span class="kw-2">*</span>rdr.headers().unwrap_err().kind() {
             ErrorKind::Utf8 { pos: <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pos), <span class="kw-2">ref </span>err } =&gt; {
@@ -4901,41 +4902,41 @@
                 <span class="macro">assert_eq!</span>(err.field(), <span class="number">1</span>);
                 <span class="macro">assert_eq!</span>(err.valid_up_to(), <span class="number">3</span>);
             }
-            <span class="kw-2">ref </span>err =&gt; <span class="macro">panic!</span>(<span class="string">&quot;match failed, got {:?}&quot;</span>, err),
+            <span class="kw-2">ref </span>err =&gt; <span class="macro">panic!</span>(<span class="string">"match failed, got {:?}"</span>, err),
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_trimmed_records() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,  bar,\tbaz\n  1,  2,  3\n1\t,\t,3\t\t&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,  bar,\tbaz\n  1,  2,  3\n1\t,\t,3\t\t"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new()
             .has_headers(<span class="bool-val">true</span>)
             .trim(Trim::Fields)
             .from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;1&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;3&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"1"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"2"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"3"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">2</span>]));
         {
             <span class="kw">let </span>headers = rdr.headers().unwrap();
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, headers.len());
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;  bar&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;\tbaz&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"  bar"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"\tbaz"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_record_unequal_fails() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo\nbar,baz&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo\nbar,baz"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr =
             ReaderBuilder::new().has_headers(<span class="bool-val">false</span>).from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
 
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
 
         <span class="kw">match </span>rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec) {
             <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">match </span><span class="kw-2">*</span>err.kind() {
@@ -4946,15 +4947,15 @@
                 } =&gt; {
                     <span class="macro">assert_eq!</span>(pos, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(newpos(<span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span>)));
                 }
-                <span class="kw-2">ref </span>wrong =&gt; <span class="macro">panic!</span>(<span class="string">&quot;match failed, got {:?}&quot;</span>, wrong),
+                <span class="kw-2">ref </span>wrong =&gt; <span class="macro">panic!</span>(<span class="string">"match failed, got {:?}"</span>, wrong),
             },
-            wrong =&gt; <span class="macro">panic!</span>(<span class="string">&quot;match failed, got {:?}&quot;</span>, wrong),
+            wrong =&gt; <span class="macro">panic!</span>(<span class="string">"match failed, got {:?}"</span>, wrong),
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_record_unequal_ok() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo\nbar,baz&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo\nbar,baz"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new()
             .has_headers(<span class="bool-val">false</span>)
             .flexible(<span class="bool-val">true</span>)
@@ -4963,12 +4964,12 @@
 
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
 
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;bar&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;baz&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"bar"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"baz"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">1</span>]));
 
         <span class="macro">assert!</span>(!rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
     }
@@ -4977,14 +4978,14 @@
     // if we want.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>read_record_unequal_continue() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo\nbar,baz\nquux&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo\nbar,baz\nquux"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr =
             ReaderBuilder::new().has_headers(<span class="bool-val">false</span>).from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
 
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
 
         <span class="kw">match </span>rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec) {
             <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">match </span>err.kind() {
@@ -4995,63 +4996,63 @@
                 } =&gt; {
                     <span class="macro">assert_eq!</span>(pos, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(newpos(<span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span>)));
                 }
-                wrong =&gt; <span class="macro">panic!</span>(<span class="string">&quot;match failed, got {:?}&quot;</span>, wrong),
+                wrong =&gt; <span class="macro">panic!</span>(<span class="string">"match failed, got {:?}"</span>, wrong),
             },
-            wrong =&gt; <span class="macro">panic!</span>(<span class="string">&quot;match failed, got {:?}&quot;</span>, wrong),
+            wrong =&gt; <span class="macro">panic!</span>(<span class="string">"match failed, got {:?}"</span>, wrong),
         }
 
         <span class="macro">assert!</span>(rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;quux&quot;</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
+        <span class="macro">assert_eq!</span>(<span class="string">"quux"</span>, s(<span class="kw-2">&amp;</span>rec[<span class="number">0</span>]));
 
         <span class="macro">assert!</span>(!rdr.read_byte_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_record_headers() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,bar,baz\na,b,c\nd,e,f&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,bar,baz\na,b,c\nd,e,f"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new().has_headers(<span class="bool-val">true</span>).from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = StringRecord::new();
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"a"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;d&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"d"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(!rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
 
         {
             <span class="kw">let </span>headers = rdr.byte_headers().unwrap();
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, headers.len());
-            <span class="macro">assert_eq!</span>(<span class="string">b&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">b&quot;bar&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">b&quot;baz&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">b"foo"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">b"bar"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">b"baz"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
         }
         {
             <span class="kw">let </span>headers = rdr.headers().unwrap();
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, headers.len());
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;bar&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;baz&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"bar"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"baz"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_record_headers_invalid_utf8() {
-        <span class="kw">let </span>data = <span class="kw-2">&amp;</span><span class="string">b&quot;foo,b\xFFar,baz\na,b,c\nd,e,f&quot;</span>[..];
+        <span class="kw">let </span>data = <span class="kw-2">&amp;</span><span class="string">b"foo,b\xFFar,baz\na,b,c\nd,e,f"</span>[..];
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new().has_headers(<span class="bool-val">true</span>).from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = StringRecord::new();
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"a"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;d&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"d"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(!rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
 
@@ -5060,9 +5061,9 @@
         </span>{
             <span class="kw">let </span>headers = rdr.byte_headers().unwrap();
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, headers.len());
-            <span class="macro">assert_eq!</span>(<span class="string">b&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">b&quot;b\xFFar&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">b&quot;baz&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">b"foo"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">b"b\xFFar"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">b"baz"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
         }
         <span class="kw">match </span><span class="kw-2">*</span>rdr.headers().unwrap_err().kind() {
             ErrorKind::Utf8 { pos: <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pos), <span class="kw-2">ref </span>err } =&gt; {
@@ -5070,13 +5071,13 @@
                 <span class="macro">assert_eq!</span>(err.field(), <span class="number">1</span>);
                 <span class="macro">assert_eq!</span>(err.valid_up_to(), <span class="number">1</span>);
             }
-            <span class="kw-2">ref </span>err =&gt; <span class="macro">panic!</span>(<span class="string">&quot;match failed, got {:?}&quot;</span>, err),
+            <span class="kw-2">ref </span>err =&gt; <span class="macro">panic!</span>(<span class="string">"match failed, got {:?}"</span>, err),
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_record_no_headers_before() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,bar,baz\na,b,c\nd,e,f&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,bar,baz\na,b,c\nd,e,f"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr =
             ReaderBuilder::new().has_headers(<span class="bool-val">false</span>).from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = StringRecord::new();
@@ -5084,57 +5085,57 @@
         {
             <span class="kw">let </span>headers = rdr.headers().unwrap();
             <span class="macro">assert_eq!</span>(<span class="number">3</span>, headers.len());
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;bar&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
-            <span class="macro">assert_eq!</span>(<span class="string">&quot;baz&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"bar"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
+            <span class="macro">assert_eq!</span>(<span class="string">"baz"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
         }
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"a"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;d&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"d"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(!rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_record_no_headers_after() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,bar,baz\na,b,c\nd,e,f&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,bar,baz\na,b,c\nd,e,f"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr =
             ReaderBuilder::new().has_headers(<span class="bool-val">false</span>).from_reader(data);
         <span class="kw">let </span><span class="kw-2">mut </span>rec = StringRecord::new();
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"a"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;d&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"d"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(!rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
 
         <span class="kw">let </span>headers = rdr.headers().unwrap();
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, headers.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;bar&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;baz&quot;</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"bar"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">1</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"baz"</span>, <span class="kw-2">&amp;</span>headers[<span class="number">2</span>]);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>seek() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,bar,baz\na,b,c\nd,e,f\ng,h,i&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,bar,baz\na,b,c\nd,e,f\ng,h,i"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new().from_reader(io::Cursor::new(data));
         rdr.seek(newpos(<span class="number">18</span>, <span class="number">3</span>, <span class="number">2</span>)).unwrap();
 
@@ -5143,48 +5144,48 @@
         <span class="macro">assert_eq!</span>(<span class="number">18</span>, rdr.position().byte());
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;d&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"d"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert_eq!</span>(<span class="number">24</span>, rdr.position().byte());
         <span class="macro">assert_eq!</span>(<span class="number">4</span>, rdr.position().line());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rdr.position().record());
         <span class="macro">assert!</span>(rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, rec.len());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;g&quot;</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"g"</span>, <span class="kw-2">&amp;</span>rec[<span class="number">0</span>]);
 
         <span class="macro">assert!</span>(!rdr.read_record(<span class="kw-2">&amp;mut </span>rec).unwrap());
     }
 
-    <span class="comment">// Test that we can read headers after seeking even if the headers weren&#39;t
+    <span class="comment">// Test that we can read headers after seeking even if the headers weren't
     // explicit read before seeking.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>seek_headers_after() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,bar,baz\na,b,c\nd,e,f\ng,h,i&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,bar,baz\na,b,c\nd,e,f\ng,h,i"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new().from_reader(io::Cursor::new(data));
         rdr.seek(newpos(<span class="number">18</span>, <span class="number">3</span>, <span class="number">2</span>)).unwrap();
-        <span class="macro">assert_eq!</span>(rdr.headers().unwrap(), <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;baz&quot;</span>]);
+        <span class="macro">assert_eq!</span>(rdr.headers().unwrap(), <span class="macro">vec!</span>[<span class="string">"foo"</span>, <span class="string">"bar"</span>, <span class="string">"baz"</span>]);
     }
 
     <span class="comment">// Test that we can read headers after seeking if the headers were read
     // before seeking.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>seek_headers_before_after() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,bar,baz\na,b,c\nd,e,f\ng,h,i&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,bar,baz\na,b,c\nd,e,f\ng,h,i"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new().from_reader(io::Cursor::new(data));
         <span class="kw">let </span>headers = rdr.headers().unwrap().clone();
         rdr.seek(newpos(<span class="number">18</span>, <span class="number">3</span>, <span class="number">2</span>)).unwrap();
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>headers, rdr.headers().unwrap());
     }
 
-    <span class="comment">// Test that even if we didn&#39;t read headers before seeking, if we seek to
+    <span class="comment">// Test that even if we didn't read headers before seeking, if we seek to
     // the current byte offset, then no seeking is done and therefore we can
     // still read headers after seeking.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>seek_headers_no_actual_seek() {
-        <span class="kw">let </span>data = b(<span class="string">&quot;foo,bar,baz\na,b,c\nd,e,f\ng,h,i&quot;</span>);
+        <span class="kw">let </span>data = b(<span class="string">"foo,bar,baz\na,b,c\nd,e,f\ng,h,i"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new().from_reader(io::Cursor::new(data));
         rdr.seek(Position::new()).unwrap();
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>rdr.headers().unwrap()[<span class="number">0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="string">"foo"</span>, <span class="kw-2">&amp;</span>rdr.headers().unwrap()[<span class="number">0</span>]);
     }
 
     <span class="comment">// Test that position info is reported correctly in absence of headers.
@@ -5192,7 +5193,7 @@
     </span><span class="kw">fn </span>positions_no_headers() {
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new()
             .has_headers(<span class="bool-val">false</span>)
-            .from_reader(<span class="string">&quot;a,b,c\nx,y,z&quot;</span>.as_bytes())
+            .from_reader(<span class="string">"a,b,c\nx,y,z"</span>.as_bytes())
             .into_records();
 
         <span class="kw">let </span>pos = rdr.next().unwrap().unwrap().position().unwrap().clone();
@@ -5211,7 +5212,7 @@
     </span><span class="kw">fn </span>positions_headers() {
         <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new()
             .has_headers(<span class="bool-val">true</span>)
-            .from_reader(<span class="string">&quot;a,b,c\nx,y,z&quot;</span>.as_bytes())
+            .from_reader(<span class="string">"a,b,c\nx,y,z"</span>.as_bytes())
             .into_records();
 
         <span class="kw">let </span>pos = rdr.next().unwrap().unwrap().position().unwrap().clone();
@@ -5223,7 +5224,7 @@
     <span class="comment">// Test that reading headers on empty data yields an empty record.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>headers_on_empty_data() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new().from_reader(<span class="string">&quot;&quot;</span>.as_bytes());
+        <span class="kw">let </span><span class="kw-2">mut </span>rdr = ReaderBuilder::new().from_reader(<span class="string">""</span>.as_bytes());
         <span class="kw">let </span>r = rdr.byte_headers().unwrap();
         <span class="macro">assert_eq!</span>(r.len(), <span class="number">0</span>);
     }
@@ -5232,16 +5233,16 @@
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>no_headers_on_empty_data() {
         <span class="kw">let </span><span class="kw-2">mut </span>rdr =
-            ReaderBuilder::new().has_headers(<span class="bool-val">false</span>).from_reader(<span class="string">&quot;&quot;</span>.as_bytes());
+            ReaderBuilder::new().has_headers(<span class="bool-val">false</span>).from_reader(<span class="string">""</span>.as_bytes());
         <span class="macro">assert_eq!</span>(rdr.records().count(), <span class="number">0</span>);
     }
 
     <span class="comment">// Test that reading the first record on empty data works, even if
-    // we&#39;ve tried to read headers before hand.
+    // we've tried to read headers before hand.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>no_headers_on_empty_data_after_headers() {
         <span class="kw">let </span><span class="kw-2">mut </span>rdr =
-            ReaderBuilder::new().has_headers(<span class="bool-val">false</span>).from_reader(<span class="string">&quot;&quot;</span>.as_bytes());
+            ReaderBuilder::new().has_headers(<span class="bool-val">false</span>).from_reader(<span class="string">""</span>.as_bytes());
         <span class="macro">assert_eq!</span>(rdr.headers().unwrap().len(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(rdr.records().count(), <span class="number">0</span>);
     }

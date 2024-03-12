@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/svgtypes-0.13.0/src/filter_functions.rs`."><title>filter_functions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="svgtypes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/svgtypes-0.13.0/src/filter_functions.rs`."><title>filter_functions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="svgtypes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -603,7 +604,7 @@
 /// [`&lt;url&gt;`]: https://www.w3.org/TR/filter-effects-1/#typedef-filter-url
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
 #[allow(missing_docs)]
-</span><span class="kw">pub enum </span>FilterValue&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub enum </span>FilterValue&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Cannot be negative and/or have a percentage units.
     </span>Blur(Length),
     DropShadow {
@@ -633,7 +634,7 @@
     <span class="doccomment">/// Normalized value. Cannot be negative.
     </span>Saturate(f64),
     <span class="doccomment">/// Cannot be empty.
-    </span>Url(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str),
+    </span>Url(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str),
 }
 
 <span class="doccomment">/// A list of possible [`FilterValueListParser`] errors.
@@ -668,26 +669,26 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             FilterValueListParserError::PercentageValue(pos) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;a percentage value detected at position {}&quot;</span>, pos)
+                <span class="macro">write!</span>(f, <span class="string">"a percentage value detected at position {}"</span>, pos)
             }
             FilterValueListParserError::NegativeValue(pos) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;a negative value detected at position {}&quot;</span>, pos)
+                <span class="macro">write!</span>(f, <span class="string">"a negative value detected at position {}"</span>, pos)
             }
             FilterValueListParserError::InvalidAngle(pos) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;an invalid angle at position {}&quot;</span>, pos)
+                <span class="macro">write!</span>(f, <span class="string">"an invalid angle at position {}"</span>, pos)
             }
             FilterValueListParserError::MissingDropShadowOffset(pos) =&gt; {
                 <span class="macro">write!</span>(
                     f,
-                    <span class="string">&quot;drop-shadow offset values are expected at position {}&quot;</span>,
+                    <span class="string">"drop-shadow offset values are expected at position {}"</span>,
                     pos
                 )
             }
             FilterValueListParserError::InvalidUrl(pos) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;an invalid url at position {}&quot;</span>, pos)
+                <span class="macro">write!</span>(f, <span class="string">"an invalid url at position {}"</span>, pos)
             }
             FilterValueListParserError::StreamErrors(<span class="kw-2">ref </span>e) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, e)
+                <span class="macro">write!</span>(f, <span class="string">"{}"</span>, e)
             }
         }
     }
@@ -695,7 +696,7 @@
 
 <span class="kw">impl </span>std::error::Error <span class="kw">for </span>FilterValueListParserError {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="string">&quot;filter-value-list parsing error&quot;
+        <span class="string">"filter-value-list parsing error"
     </span>}
 }
 
@@ -706,20 +707,20 @@
 ///
 /// [`&lt;filter-value-list&gt;`]: https://www.w3.org/TR/filter-effects-1/#typedef-filter-value-list
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-</span><span class="kw">pub struct </span>FilterValueListParser&lt;<span class="lifetime">&#39;a</span>&gt; {
-    stream: Stream&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>FilterValueListParser&lt;<span class="lifetime">'a</span>&gt; {
+    stream: Stream&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>FilterValueListParser&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>FilterValueListParser&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>from(text: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         FilterValueListParser {
             stream: Stream::from(text),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>FilterValueListParser&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;FilterValue&lt;<span class="lifetime">&#39;a</span>&gt;, FilterValueListParserError&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>FilterValueListParser&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;FilterValue&lt;<span class="lifetime">'a</span>&gt;, FilterValueListParserError&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="self">self</span>.stream.skip_spaces();
@@ -729,7 +730,7 @@
             </span><span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if </span><span class="self">self</span>.stream.starts_with(<span class="string">b&quot;none&quot;</span>) {
+        <span class="kw">if </span><span class="self">self</span>.stream.starts_with(<span class="string">b"none"</span>) {
             <span class="self">self</span>.stream.advance(<span class="number">4</span>);
             <span class="self">self</span>.stream.skip_spaces();
 
@@ -750,44 +751,44 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; FilterValueListParser&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>parse_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;FilterValue&lt;<span class="lifetime">&#39;a</span>&gt;, FilterValueListParserError&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FilterValueListParser&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>parse_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;FilterValue&lt;<span class="lifetime">'a</span>&gt;, FilterValueListParserError&gt; {
         <span class="kw">let </span>s = <span class="kw-2">&amp;mut </span><span class="self">self</span>.stream;
 
         <span class="kw">let </span>start = s.pos();
         <span class="kw">let </span>name = s.consume_ident();
         s.skip_spaces();
-        s.consume_byte(<span class="string">b&#39;(&#39;</span>)<span class="question-mark">?</span>;
+        s.consume_byte(<span class="string">b'('</span>)<span class="question-mark">?</span>;
         s.skip_spaces();
 
         <span class="kw">let </span>value = <span class="kw">match </span>name.as_bytes() {
-            <span class="string">b&quot;blur&quot; </span>=&gt; {
-                <span class="kw">if </span>s.is_curr_byte_eq(<span class="string">b&#39;)&#39;</span>) {
+            <span class="string">b"blur" </span>=&gt; {
+                <span class="kw">if </span>s.is_curr_byte_eq(<span class="string">b')'</span>) {
                     FilterValue::Blur(Length::zero())
                 } <span class="kw">else </span>{
                     <span class="kw">let </span>value = parse_filter_positive_length(s)<span class="question-mark">?</span>;
                     FilterValue::Blur(value)
                 }
             }
-            <span class="string">b&quot;drop-shadow&quot; </span>=&gt; parse_drop_shadow_func(s)<span class="question-mark">?</span>,
-            <span class="string">b&quot;hue-rotate&quot; </span>=&gt; {
-                <span class="kw">if </span>s.is_curr_byte_eq(<span class="string">b&#39;)&#39;</span>) {
+            <span class="string">b"drop-shadow" </span>=&gt; parse_drop_shadow_func(s)<span class="question-mark">?</span>,
+            <span class="string">b"hue-rotate" </span>=&gt; {
+                <span class="kw">if </span>s.is_curr_byte_eq(<span class="string">b')'</span>) {
                     FilterValue::HueRotate(Angle::new(<span class="number">0.0</span>, AngleUnit::Degrees))
                 } <span class="kw">else </span>{
                     <span class="kw">let </span>value = parse_filter_angle(s)<span class="question-mark">?</span>;
                     FilterValue::HueRotate(value)
                 }
             }
-            <span class="string">b&quot;brightness&quot; </span>=&gt; FilterValue::Brightness(parse_generic_color_func(s)<span class="question-mark">?</span>),
-            <span class="string">b&quot;contrast&quot; </span>=&gt; FilterValue::Contrast(parse_generic_color_func(s)<span class="question-mark">?</span>),
-            <span class="string">b&quot;grayscale&quot; </span>=&gt; FilterValue::Grayscale(parse_generic_color_func(s)<span class="question-mark">?</span>),
-            <span class="string">b&quot;invert&quot; </span>=&gt; FilterValue::Invert(parse_generic_color_func(s)<span class="question-mark">?</span>),
-            <span class="string">b&quot;opacity&quot; </span>=&gt; FilterValue::Opacity(parse_generic_color_func(s)<span class="question-mark">?</span>),
-            <span class="string">b&quot;saturate&quot; </span>=&gt; FilterValue::Saturate(parse_generic_color_func(s)<span class="question-mark">?</span>),
-            <span class="string">b&quot;sepia&quot; </span>=&gt; FilterValue::Sepia(parse_generic_color_func(s)<span class="question-mark">?</span>),
-            <span class="string">b&quot;url&quot; </span>=&gt; {
-                s.consume_byte(<span class="string">b&#39;#&#39;</span>)<span class="question-mark">?</span>;
-                <span class="kw">let </span>link = s.consume_bytes(|<span class="kw">_</span>, c| c != <span class="string">b&#39; &#39; </span>&amp;&amp; c != <span class="string">b&#39;)&#39;</span>);
+            <span class="string">b"brightness" </span>=&gt; FilterValue::Brightness(parse_generic_color_func(s)<span class="question-mark">?</span>),
+            <span class="string">b"contrast" </span>=&gt; FilterValue::Contrast(parse_generic_color_func(s)<span class="question-mark">?</span>),
+            <span class="string">b"grayscale" </span>=&gt; FilterValue::Grayscale(parse_generic_color_func(s)<span class="question-mark">?</span>),
+            <span class="string">b"invert" </span>=&gt; FilterValue::Invert(parse_generic_color_func(s)<span class="question-mark">?</span>),
+            <span class="string">b"opacity" </span>=&gt; FilterValue::Opacity(parse_generic_color_func(s)<span class="question-mark">?</span>),
+            <span class="string">b"saturate" </span>=&gt; FilterValue::Saturate(parse_generic_color_func(s)<span class="question-mark">?</span>),
+            <span class="string">b"sepia" </span>=&gt; FilterValue::Sepia(parse_generic_color_func(s)<span class="question-mark">?</span>),
+            <span class="string">b"url" </span>=&gt; {
+                s.consume_byte(<span class="string">b'#'</span>)<span class="question-mark">?</span>;
+                <span class="kw">let </span>link = s.consume_bytes(|<span class="kw">_</span>, c| c != <span class="string">b' ' </span>&amp;&amp; c != <span class="string">b')'</span>);
                 <span class="kw">if </span>!link.is_empty() {
                     FilterValue::Url(link)
                 } <span class="kw">else </span>{
@@ -802,7 +803,7 @@
         };
 
         s.skip_spaces();
-        s.consume_byte(<span class="string">b&#39;)&#39;</span>)<span class="question-mark">?</span>;
+        s.consume_byte(<span class="string">b')'</span>)<span class="question-mark">?</span>;
         s.skip_spaces();
 
         <span class="prelude-val">Ok</span>(value)
@@ -810,10 +811,10 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>parse_drop_shadow_func&lt;<span class="lifetime">&#39;a</span>&gt;(
-    s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">&#39;a</span>&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;FilterValue&lt;<span class="lifetime">&#39;a</span>&gt;, FilterValueListParserError&gt; {
-    <span class="kw">if </span>s.is_curr_byte_eq(<span class="string">b&#39;)&#39;</span>) {
+</span><span class="kw">fn </span>parse_drop_shadow_func&lt;<span class="lifetime">'a</span>&gt;(
+    s: <span class="kw-2">&amp;mut </span>Stream&lt;<span class="lifetime">'a</span>&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;FilterValue&lt;<span class="lifetime">'a</span>&gt;, FilterValueListParserError&gt; {
+    <span class="kw">if </span>s.is_curr_byte_eq(<span class="string">b')'</span>) {
         <span class="kw">let </span>pos = s.calc_char_pos();
         <span class="kw">return </span><span class="prelude-val">Err</span>(FilterValueListParserError::MissingDropShadowOffset(pos));
     }
@@ -824,7 +825,7 @@
     <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = s.try_parse_color() {
         color = <span class="prelude-val">Some</span>(c);
         s.skip_spaces();
-    } <span class="kw">else if </span>s.starts_with(<span class="string">b&quot;currentColor&quot;</span>) {
+    } <span class="kw">else if </span>s.starts_with(<span class="string">b"currentColor"</span>) {
         is_current_color = <span class="bool-val">true</span>;
         s.advance(<span class="number">12</span>);
         s.skip_spaces();
@@ -843,12 +844,12 @@
         s.skip_spaces();
     }
 
-    <span class="comment">// Try to parse a color after length, if it wasn&#39;t set before.
+    <span class="comment">// Try to parse a color after length, if it wasn't set before.
     </span><span class="kw">if </span>color.is_none() &amp;&amp; !is_current_color {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = s.try_parse_color() {
             color = <span class="prelude-val">Some</span>(c);
             s.skip_spaces();
-        } <span class="kw">else if </span>s.starts_with(<span class="string">b&quot;currentColor&quot;</span>) {
+        } <span class="kw">else if </span>s.starts_with(<span class="string">b"currentColor"</span>) {
             s.advance(<span class="number">12</span>);
         }
     }
@@ -863,7 +864,7 @@
 
 <span class="attr">#[inline(never)]
 </span><span class="kw">fn </span>parse_generic_color_func(s: <span class="kw-2">&amp;mut </span>Stream) -&gt; <span class="prelude-ty">Result</span>&lt;f64, FilterValueListParserError&gt; {
-    <span class="kw">if </span>s.is_curr_byte_eq(<span class="string">b&#39;)&#39;</span>) {
+    <span class="kw">if </span>s.is_curr_byte_eq(<span class="string">b')'</span>) {
         <span class="prelude-val">Ok</span>(<span class="number">1.0</span>)
     } <span class="kw">else </span>{
         <span class="kw">let </span>start = s.pos();
@@ -914,16 +915,16 @@
     <span class="kw">let </span>start = s.pos();
     <span class="kw">let </span>n = s.parse_number()<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>u = <span class="kw">if </span>s.starts_with(<span class="string">b&quot;deg&quot;</span>) {
+    <span class="kw">let </span>u = <span class="kw">if </span>s.starts_with(<span class="string">b"deg"</span>) {
         s.advance(<span class="number">3</span>);
         AngleUnit::Degrees
-    } <span class="kw">else if </span>s.starts_with(<span class="string">b&quot;grad&quot;</span>) {
+    } <span class="kw">else if </span>s.starts_with(<span class="string">b"grad"</span>) {
         s.advance(<span class="number">4</span>);
         AngleUnit::Gradians
-    } <span class="kw">else if </span>s.starts_with(<span class="string">b&quot;rad&quot;</span>) {
+    } <span class="kw">else if </span>s.starts_with(<span class="string">b"rad"</span>) {
         s.advance(<span class="number">3</span>);
         AngleUnit::Radians
-    } <span class="kw">else if </span>s.starts_with(<span class="string">b&quot;turn&quot;</span>) {
+    } <span class="kw">else if </span>s.starts_with(<span class="string">b"turn"</span>) {
         s.advance(<span class="number">4</span>);
         AngleUnit::Turns
     } <span class="kw">else </span>{
@@ -947,109 +948,109 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">""</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>none() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;none&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"none"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>blur_default() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;blur()&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"blur()"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Blur(Length::zero()));
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>blur_2() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;blur(2)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"blur(2)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Blur(Length::new(<span class="number">2.0</span>, LengthUnit::None)));
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>blur_2mm() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;blur(2mm)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"blur(2mm)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Blur(Length::new(<span class="number">2.0</span>, LengthUnit::Mm)));
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>blur_2percent() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;blur(2%)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"blur(2%)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;a percentage value detected at position 6&quot;</span>);
+                   <span class="string">"a percentage value detected at position 6"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>blur_negative() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;blur(-1)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"blur(-1)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;a negative value detected at position 6&quot;</span>);
+                   <span class="string">"a negative value detected at position 6"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>blur_two_values() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;blur(1 2)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"blur(1 2)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;expected &#39;)&#39; not &#39;2&#39; at position 8&quot;</span>);
+                   <span class="string">"expected ')' not '2' at position 8"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>brightness_default() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;brightness()&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"brightness()"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Brightness(<span class="number">1.0</span>));
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>brightness_2() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;brightness(2)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"brightness(2)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Brightness(<span class="number">2.0</span>));
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>brightness_50percent() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;brightness(50%)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"brightness(50%)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Brightness(<span class="number">0.5</span>));
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>brightness_negative() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;brightness(-1)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"brightness(-1)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;a negative value detected at position 12&quot;</span>);
+                   <span class="string">"a negative value detected at position 12"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>brightness_2mm() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;brightness(2mm)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"brightness(2mm)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;expected &#39;)&#39; not &#39;m&#39; at position 13&quot;</span>);
+                   <span class="string">"expected ')' not 'm' at position 13"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_no_values() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow()&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow()"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;drop-shadow offset values are expected at position 13&quot;</span>);
+                   <span class="string">"drop-shadow offset values are expected at position 13"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_default() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(2 3)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(2 3)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::DropShadow {
             color: <span class="prelude-val">None</span>,
             dx: Length::new_number(<span class="number">2.0</span>),
@@ -1061,7 +1062,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_color_first() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(red 2 3)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(red 2 3)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::DropShadow {
             color: <span class="prelude-val">Some</span>(Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)),
             dx: Length::new_number(<span class="number">2.0</span>),
@@ -1073,7 +1074,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_color_after() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(2 3 red)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(2 3 red)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::DropShadow {
             color: <span class="prelude-val">Some</span>(Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)),
             dx: Length::new_number(<span class="number">2.0</span>),
@@ -1085,7 +1086,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_curr_color_first() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(currentColor 2 3)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(currentColor 2 3)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::DropShadow {
             color: <span class="prelude-val">None</span>,
             dx: Length::new_number(<span class="number">2.0</span>),
@@ -1097,7 +1098,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_curr_color_after() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(2 3 currentColor)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(2 3 currentColor)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::DropShadow {
             color: <span class="prelude-val">None</span>,
             dx: Length::new_number(<span class="number">2.0</span>),
@@ -1109,7 +1110,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_with_dev() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(red 2 3 4)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(red 2 3 4)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::DropShadow {
             color: <span class="prelude-val">Some</span>(Color::new_rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>)),
             dx: Length::new_number(<span class="number">2.0</span>),
@@ -1121,31 +1122,31 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_color_twice() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(red 2 3 4 red)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(red 2 3 4 red)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;expected &#39;)&#39; not &#39;r&#39; at position 23&quot;</span>);
+                   <span class="string">"expected ')' not 'r' at position 23"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_curr_color_twice() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(currentColor 2 3 4 currentColor)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(currentColor 2 3 4 currentColor)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;expected &#39;)&#39; not &#39;c&#39; at position 32&quot;</span>);
+                   <span class="string">"expected ')' not 'c' at position 32"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_percent() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(2% 3% 4%)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(2% 3% 4%)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;a percentage value detected at position 13&quot;</span>);
+                   <span class="string">"a percentage value detected at position 13"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>drop_shadow_negative_offset() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;drop-shadow(-1 -2 3)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"drop-shadow(-1 -2 3)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::DropShadow {
             color: <span class="prelude-val">None</span>,
             dx: Length::new_number(-<span class="number">1.0</span>),
@@ -1157,22 +1158,22 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>hue_rotate_no_units() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;hue-rotate(45)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"hue-rotate(45)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap_err().to_string(),
-                   <span class="string">&quot;an invalid angle at position 12&quot;</span>);
+                   <span class="string">"an invalid angle at position 12"</span>);
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>url() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;url(#qwe)&quot;</span>);
-        <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Url(<span class="string">&quot;qwe&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"url(#qwe)"</span>);
+        <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Url(<span class="string">"qwe"</span>));
         <span class="macro">assert!</span>(parser.next().is_none());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multiple_1() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;blur() blur()&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"blur() blur()"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Blur(Length::zero()));
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Blur(Length::zero()));
         <span class="macro">assert!</span>(parser.next().is_none());
@@ -1180,7 +1181,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>multiple_2() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">&quot;blur() contrast(1)&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = FilterValueListParser::from(<span class="string">"blur() contrast(1)"</span>);
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Blur(Length::zero()));
         <span class="macro">assert_eq!</span>(parser.next().unwrap().unwrap(), FilterValue::Contrast(<span class="number">1.0</span>));
         <span class="macro">assert!</span>(parser.next().is_none());

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/map/vecs.rs`."><title>vecs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/map/vecs.rs`."><title>vecs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -746,12 +747,12 @@
 /// Methods are prefixed with `zvl_*` to avoid clashes with methods on the types themselves
 </span><span class="kw">pub trait </span>ZeroVecLike&lt;T: <span class="question-mark">?</span>Sized&gt; {
     <span class="doccomment">/// The type returned by `Self::get()`
-    </span><span class="kw">type </span>GetType: <span class="question-mark">?</span>Sized + <span class="lifetime">&#39;static</span>;
+    </span><span class="kw">type </span>GetType: <span class="question-mark">?</span>Sized + <span class="lifetime">'static</span>;
     <span class="doccomment">/// A fully borrowed version of this
     </span><span class="kw">type </span>SliceVariant: ZeroVecLike&lt;T, GetType = <span class="self">Self</span>::GetType&gt; + <span class="question-mark">?</span>Sized;
 
     <span class="doccomment">/// Create a new, empty borrowed variant
-    </span><span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self</span>::SliceVariant;
+    </span><span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self</span>::SliceVariant;
 
     <span class="doccomment">/// Search for a key in a sorted vector, returns `Ok(index)` if found,
     /// returns `Err(insert_index)` if not found, where `insert_index` is the
@@ -814,11 +815,11 @@
 
     <span class="doccomment">/// Construct a borrowed variant by borrowing from `&amp;self`.
     ///
-    /// This function behaves like `&amp;&#39;b self -&gt; Self::SliceVariant&lt;&#39;b&gt;`,
-    /// where `&#39;b` is the lifetime of the reference to this object.
+    /// This function behaves like `&amp;'b self -&gt; Self::SliceVariant&lt;'b&gt;`,
+    /// where `'b` is the lifetime of the reference to this object.
     ///
-    /// Note: We rely on the compiler recognizing `&#39;a` and `&#39;b` as covariant and
-    /// casting `&amp;&#39;b Self&lt;&#39;a&gt;` to `&amp;&#39;b Self&lt;&#39;b&gt;` when this gets called, which works
+    /// Note: We rely on the compiler recognizing `'a` and `'b` as covariant and
+    /// casting `&amp;'b Self&lt;'a&gt;` to `&amp;'b Self&lt;'b&gt;` when this gets called, which works
     /// out for `ZeroVec` and `VarZeroVec` containers just fine.
     </span><span class="kw">fn </span>zvl_as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::SliceVariant;
 
@@ -844,7 +845,7 @@
 
     <span class="doccomment">/// Obtain a reference to T, passed to a closure
     ///
-    /// This uses a callback because it&#39;s not possible to return owned-or-borrowed
+    /// This uses a callback because it's not possible to return owned-or-borrowed
     /// types without GATs
     ///
     /// Impls should guarantee that the callback function is be called exactly once.
@@ -858,7 +859,7 @@
 /// vector for owned vector types.
 ///
 /// Methods are prefixed with `zvl_*` to avoid clashes with methods on the types themselves
-</span><span class="kw">pub trait </span>MutableZeroVecLike&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized&gt;: ZeroVecLike&lt;T&gt; {
+</span><span class="kw">pub trait </span>MutableZeroVecLike&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>Sized&gt;: ZeroVecLike&lt;T&gt; {
     <span class="doccomment">/// The type returned by `Self::remove()` and `Self::replace()`
     </span><span class="kw">type </span>OwnedType;
 
@@ -888,25 +889,25 @@
     <span class="doccomment">/// Construct from the borrowed version of the type
     ///
     /// These are useful to ensure serialization parity between borrowed and owned versions
-    </span><span class="kw">fn </span>zvl_from_borrowed(b: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::SliceVariant) -&gt; <span class="self">Self</span>;
+    </span><span class="kw">fn </span>zvl_from_borrowed(b: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::SliceVariant) -&gt; <span class="self">Self</span>;
     <span class="doccomment">/// Extract the inner borrowed variant if possible. Returns `None` if the data is owned.
     ///
-    /// This function behaves like `&amp;&#39;_ self -&gt; Self::SliceVariant&lt;&#39;a&gt;`,
-    /// where `&#39;a` is the lifetime of this object&#39;s borrowed data.
+    /// This function behaves like `&amp;'_ self -&gt; Self::SliceVariant&lt;'a&gt;`,
+    /// where `'a` is the lifetime of this object's borrowed data.
     ///
     /// This function is similar to matching the `Borrowed` variant of `ZeroVec`
     /// or `VarZeroVec`, returning the inner borrowed type.
-    </span><span class="kw">fn </span>zvl_as_borrowed_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>::SliceVariant&gt;;
+    </span><span class="kw">fn </span>zvl_as_borrowed_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>::SliceVariant&gt;;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; ZeroVecLike&lt;T&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; ZeroVecLike&lt;T&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
-    </span>T: <span class="lifetime">&#39;a </span>+ AsULE + Copy,
+    </span>T: <span class="lifetime">'a </span>+ AsULE + Copy,
 {
     <span class="kw">type </span>GetType = T::ULE;
     <span class="kw">type </span>SliceVariant = ZeroSlice&lt;T&gt;;
 
-    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self</span>::SliceVariant {
+    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self</span>::SliceVariant {
         ZeroSlice::&lt;T&gt;::new_empty()
     }
     <span class="kw">fn </span>zvl_binary_search(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;usize, usize&gt;
@@ -958,7 +959,7 @@
     <span class="kw">type </span>GetType = T::ULE;
     <span class="kw">type </span>SliceVariant = ZeroSlice&lt;T&gt;;
 
-    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self</span>::SliceVariant {
+    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self</span>::SliceVariant {
         ZeroSlice::&lt;T&gt;::new_empty()
     }
     <span class="kw">fn </span>zvl_binary_search(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;usize, usize&gt;
@@ -1006,9 +1007,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; MutableZeroVecLike&lt;<span class="lifetime">&#39;a</span>, T&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; MutableZeroVecLike&lt;<span class="lifetime">'a</span>, T&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
-    </span>T: AsULE + Copy + <span class="lifetime">&#39;static</span>,
+    </span>T: AsULE + Copy + <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>OwnedType = T;
     <span class="kw">fn </span>zvl_insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, value: <span class="kw-2">&amp;</span>T) {
@@ -1046,10 +1047,10 @@
         o
     }
 
-    <span class="kw">fn </span>zvl_from_borrowed(b: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ZeroSlice&lt;T&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>zvl_from_borrowed(b: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ZeroSlice&lt;T&gt;) -&gt; <span class="self">Self </span>{
         b.as_zerovec()
     }
-    <span class="kw">fn </span>zvl_as_borrowed_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ZeroSlice&lt;T&gt;&gt; {
+    <span class="kw">fn </span>zvl_as_borrowed_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ZeroSlice&lt;T&gt;&gt; {
         <span class="self">self</span>.as_maybe_borrowed()
     }
 
@@ -1065,7 +1066,7 @@
 
             <span class="kw">while </span>next != cycle_start {
                 vec.swap(curr, next);
-                <span class="comment">// Make curr a self-cycle so we don&#39;t use it as a cycle_start later
+                <span class="comment">// Make curr a self-cycle so we don't use it as a cycle_start later
                 </span>permutation[curr] = curr;
                 curr = next;
                 next = permutation[next];
@@ -1075,7 +1076,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, F&gt; ZeroVecLike&lt;T&gt; <span class="kw">for </span>VarZeroVec&lt;<span class="lifetime">&#39;a</span>, T, F&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, F&gt; ZeroVecLike&lt;T&gt; <span class="kw">for </span>VarZeroVec&lt;<span class="lifetime">'a</span>, T, F&gt;
 <span class="kw">where
     </span>T: VarULE,
     T: <span class="question-mark">?</span>Sized,
@@ -1084,7 +1085,7 @@
     <span class="kw">type </span>GetType = T;
     <span class="kw">type </span>SliceVariant = VarZeroSlice&lt;T, F&gt;;
 
-    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self</span>::SliceVariant {
+    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self</span>::SliceVariant {
         VarZeroSlice::&lt;T, F&gt;::new_empty()
     }
     <span class="kw">fn </span>zvl_binary_search(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;usize, usize&gt;
@@ -1135,7 +1136,7 @@
     <span class="kw">type </span>GetType = T;
     <span class="kw">type </span>SliceVariant = VarZeroSlice&lt;T, F&gt;;
 
-    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self</span>::SliceVariant {
+    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self</span>::SliceVariant {
         VarZeroSlice::&lt;T, F&gt;::new_empty()
     }
     <span class="kw">fn </span>zvl_binary_search(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;usize, usize&gt;
@@ -1177,7 +1178,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, F&gt; MutableZeroVecLike&lt;<span class="lifetime">&#39;a</span>, T&gt; <span class="kw">for </span>VarZeroVec&lt;<span class="lifetime">&#39;a</span>, T, F&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, F&gt; MutableZeroVecLike&lt;<span class="lifetime">'a</span>, T&gt; <span class="kw">for </span>VarZeroVec&lt;<span class="lifetime">'a</span>, T, F&gt;
 <span class="kw">where
     </span>T: VarULE,
     T: <span class="question-mark">?</span>Sized,
@@ -1225,10 +1226,10 @@
         o
     }
 
-    <span class="kw">fn </span>zvl_from_borrowed(b: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VarZeroSlice&lt;T, F&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>zvl_from_borrowed(b: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>VarZeroSlice&lt;T, F&gt;) -&gt; <span class="self">Self </span>{
         b.as_varzerovec()
     }
-    <span class="kw">fn </span>zvl_as_borrowed_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VarZeroSlice&lt;T, F&gt;&gt; {
+    <span class="kw">fn </span>zvl_as_borrowed_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>VarZeroSlice&lt;T, F&gt;&gt; {
         <span class="kw">if let </span>VarZeroVec::Borrowed(b) = <span class="kw-2">*</span><span class="self">self </span>{
             <span class="prelude-val">Some</span>(b)
         } <span class="kw">else </span>{
@@ -1248,11 +1249,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ZeroVecLike&lt;usize&gt; <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ZeroVecLike&lt;usize&gt; <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>GetType = [u8];
     <span class="kw">type </span>SliceVariant = FlexZeroSlice;
 
-    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self</span>::SliceVariant {
+    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self</span>::SliceVariant {
         FlexZeroSlice::new_empty()
     }
     <span class="kw">fn </span>zvl_binary_search(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>usize) -&gt; <span class="prelude-ty">Result</span>&lt;usize, usize&gt; {
@@ -1299,7 +1300,7 @@
     <span class="kw">type </span>GetType = [u8];
     <span class="kw">type </span>SliceVariant = FlexZeroSlice;
 
-    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self</span>::SliceVariant {
+    <span class="kw">fn </span>zvl_new_borrowed() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self</span>::SliceVariant {
         FlexZeroSlice::new_empty()
     }
     <span class="kw">fn </span>zvl_binary_search(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>usize) -&gt; <span class="prelude-ty">Result</span>&lt;usize, usize&gt; {
@@ -1342,7 +1343,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MutableZeroVecLike&lt;<span class="lifetime">&#39;a</span>, usize&gt; <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MutableZeroVecLike&lt;<span class="lifetime">'a</span>, usize&gt; <span class="kw">for </span>FlexZeroVec&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>OwnedType = usize;
     <span class="kw">fn </span>zvl_insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, value: <span class="kw-2">&amp;</span>usize) {
         <span class="self">self</span>.to_mut().insert(index, <span class="kw-2">*</span>value)
@@ -1375,10 +1376,10 @@
         o
     }
 
-    <span class="kw">fn </span>zvl_from_borrowed(b: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FlexZeroSlice) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>zvl_from_borrowed(b: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FlexZeroSlice) -&gt; <span class="self">Self </span>{
         b.as_flexzerovec()
     }
-    <span class="kw">fn </span>zvl_as_borrowed_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FlexZeroSlice&gt; {
+    <span class="kw">fn </span>zvl_as_borrowed_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>FlexZeroSlice&gt; {
         <span class="kw">if let </span>FlexZeroVec::Borrowed(b) = <span class="kw-2">*</span><span class="self">self </span>{
             <span class="prelude-val">Some</span>(b)
         } <span class="kw">else </span>{
@@ -1430,12 +1431,12 @@
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>zv, <span class="kw-2">&amp;</span>[<span class="number">44</span>, <span class="number">33</span>, <span class="number">22</span>, <span class="number">11</span>, <span class="number">77</span>, <span class="number">66</span>, <span class="number">55</span>]);
 
         <span class="kw">let </span><span class="kw-2">mut </span>vzv: VarZeroVec&lt;str&gt; = VarZeroVec::Owned(
-            VarZeroVecOwned::try_from_elements(<span class="kw-2">&amp;</span>[<span class="string">&quot;11&quot;</span>, <span class="string">&quot;22&quot;</span>, <span class="string">&quot;33&quot;</span>, <span class="string">&quot;44&quot;</span>, <span class="string">&quot;55&quot;</span>, <span class="string">&quot;66&quot;</span>, <span class="string">&quot;77&quot;</span>])
+            VarZeroVecOwned::try_from_elements(<span class="kw-2">&amp;</span>[<span class="string">"11"</span>, <span class="string">"22"</span>, <span class="string">"33"</span>, <span class="string">"44"</span>, <span class="string">"55"</span>, <span class="string">"66"</span>, <span class="string">"77"</span>])
                 .unwrap(),
         );
         <span class="kw">let </span><span class="kw-2">mut </span>permutation = <span class="macro">vec!</span>[<span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>];
         vzv.zvl_permute(<span class="kw-2">&amp;mut </span>permutation);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>vzv, <span class="kw-2">&amp;</span>[<span class="string">&quot;44&quot;</span>, <span class="string">&quot;33&quot;</span>, <span class="string">&quot;22&quot;</span>, <span class="string">&quot;11&quot;</span>, <span class="string">&quot;77&quot;</span>, <span class="string">&quot;66&quot;</span>, <span class="string">&quot;55&quot;</span>]);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>vzv, <span class="kw-2">&amp;</span>[<span class="string">"44"</span>, <span class="string">"33"</span>, <span class="string">"22"</span>, <span class="string">"11"</span>, <span class="string">"77"</span>, <span class="string">"66"</span>, <span class="string">"55"</span>]);
 
         <span class="kw">let </span><span class="kw-2">mut </span>fzv: FlexZeroVec = [<span class="number">11</span>, <span class="number">22</span>, <span class="number">33</span>, <span class="number">44</span>, <span class="number">55</span>, <span class="number">66</span>, <span class="number">77</span>].into_iter().collect();
         <span class="kw">let </span><span class="kw-2">mut </span>permutation = <span class="macro">vec!</span>[<span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>];

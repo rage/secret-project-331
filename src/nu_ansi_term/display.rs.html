@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nu-ansi-term-0.46.0/src/display.rs`."><title>display.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nu_ansi_term" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nu-ansi-term-0.46.0/src/display.rs`."><title>display.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nu_ansi_term" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -300,12 +301,12 @@
 /// display that string.  `AnsiString` and `AnsiByteString` are aliases for
 /// this type on `str` and `\[u8]`, respectively.
 </span><span class="attr">#[derive(PartialEq, Debug)]
-</span><span class="kw">pub struct </span>AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S: <span class="lifetime">&#39;a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt;
+</span><span class="kw">pub struct </span>AnsiGenericString&lt;<span class="lifetime">'a</span>, S: <span class="lifetime">'a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt;
 <span class="kw">where
     </span>&lt;S <span class="kw">as </span>ToOwned&gt;::Owned: fmt::Debug,
 {
     <span class="kw">pub</span>(<span class="kw">crate</span>) style: Style,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) string: Cow&lt;<span class="lifetime">&#39;a</span>, S&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) string: Cow&lt;<span class="lifetime">'a</span>, S&gt;,
 }
 
 <span class="doccomment">/// Cloning an `AnsiGenericString` will clone its underlying string.
@@ -315,15 +316,15 @@
 /// ```
 /// use nu_ansi_term::AnsiString;
 ///
-/// let plain_string = AnsiString::from(&quot;a plain string&quot;);
+/// let plain_string = AnsiString::from("a plain string");
 /// let clone_string = plain_string.clone();
 /// assert_eq!(clone_string, plain_string);
 /// ```
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S: <span class="lifetime">&#39;a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; Clone <span class="kw">for </span>AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S: <span class="lifetime">'a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; Clone <span class="kw">for </span>AnsiGenericString&lt;<span class="lifetime">'a</span>, S&gt;
 <span class="kw">where
     </span>&lt;S <span class="kw">as </span>ToOwned&gt;::Owned: fmt::Debug,
 {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnsiGenericString&lt;<span class="lifetime">'a</span>, S&gt; {
         AnsiGenericString {
             style: <span class="self">self</span>.style,
             string: <span class="self">self</span>.string.clone(),
@@ -338,15 +339,15 @@
 // constraint on the S type parameter (generated using --pretty=expanded):
 //
 //                  ↓_________________↓
-//     impl &lt;&#39;a, S: ::std::clone::Clone + &#39;a + ToOwned + ?Sized&gt; ::std::clone::Clone
-//     for ANSIGenericString&lt;&#39;a, S&gt; where
+//     impl &lt;'a, S: ::std::clone::Clone + 'a + ToOwned + ?Sized&gt; ::std::clone::Clone
+//     for ANSIGenericString&lt;'a, S&gt; where
 //     &lt;S as ToOwned&gt;::Owned: fmt::Debug { ... }
 //
 // This resulted in compile errors when you tried to derive Clone on a type
 // that used it:
 //
 //     #[derive(PartialEq, Debug, Clone, Default)]
-//     pub struct TextCellContents(Vec&lt;AnsiString&lt;&#39;static&gt;&gt;);
+//     pub struct TextCellContents(Vec&lt;AnsiString&lt;'static&gt;&gt;);
 //                                 ^^^^^^^^^^^^^^^^^^^^^^^^^
 //     error[E0277]: the trait `std::clone::Clone` is not implemented for `str`
 //
@@ -364,27 +365,27 @@
 /// use nu_ansi_term::AnsiString;
 /// use nu_ansi_term::Color::Red;
 ///
-/// let red_string = Red.paint(&quot;a red string&quot;);
-/// println!(&quot;{}&quot;, red_string);
+/// let red_string = Red.paint("a red string");
+/// println!("{}", red_string);
 /// ```
 ///
 /// ```
 /// use nu_ansi_term::AnsiString;
 ///
-/// let plain_string = AnsiString::from(&quot;a plain string&quot;);
+/// let plain_string = AnsiString::from("a plain string");
 /// ```
-</span><span class="kw">pub type </span>AnsiString&lt;<span class="lifetime">&#39;a</span>&gt; = AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, str&gt;;
+</span><span class="kw">pub type </span>AnsiString&lt;<span class="lifetime">'a</span>&gt; = AnsiGenericString&lt;<span class="lifetime">'a</span>, str&gt;;
 
 <span class="doccomment">/// An `AnsiByteString` represents a formatted series of bytes.  Use
 /// `AnsiByteString` when styling text with an unknown encoding.
-</span><span class="kw">pub type </span>AnsiByteString&lt;<span class="lifetime">&#39;a</span>&gt; = AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, [u8]&gt;;
+</span><span class="kw">pub type </span>AnsiByteString&lt;<span class="lifetime">'a</span>&gt; = AnsiGenericString&lt;<span class="lifetime">'a</span>, [u8]&gt;;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, I, S: <span class="lifetime">&#39;a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; From&lt;I&gt; <span class="kw">for </span>AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, I, S: <span class="lifetime">'a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; From&lt;I&gt; <span class="kw">for </span>AnsiGenericString&lt;<span class="lifetime">'a</span>, S&gt;
 <span class="kw">where
-    </span>I: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, S&gt;&gt;,
+    </span>I: Into&lt;Cow&lt;<span class="lifetime">'a</span>, S&gt;&gt;,
     &lt;S <span class="kw">as </span>ToOwned&gt;::Owned: fmt::Debug,
 {
-    <span class="kw">fn </span>from(input: I) -&gt; AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S&gt; {
+    <span class="kw">fn </span>from(input: I) -&gt; AnsiGenericString&lt;<span class="lifetime">'a</span>, S&gt; {
         AnsiGenericString {
             string: input.into(),
             style: Style::default(),
@@ -392,7 +393,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S: <span class="lifetime">&#39;a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S: <span class="lifetime">'a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; AnsiGenericString&lt;<span class="lifetime">'a</span>, S&gt;
 <span class="kw">where
     </span>&lt;S <span class="kw">as </span>ToOwned&gt;::Owned: fmt::Debug,
 {
@@ -410,28 +411,28 @@
 <span class="doccomment">/// A set of `AnsiGenericStrings`s collected together, in order to be
 /// written with a minimum of control characters.
 </span><span class="attr">#[derive(Debug, PartialEq)]
-</span><span class="kw">pub struct </span>AnsiGenericStrings&lt;<span class="lifetime">&#39;a</span>, S: <span class="lifetime">&#39;a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt;(<span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S&gt;])
+</span><span class="kw">pub struct </span>AnsiGenericStrings&lt;<span class="lifetime">'a</span>, S: <span class="lifetime">'a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt;(<span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[AnsiGenericString&lt;<span class="lifetime">'a</span>, S&gt;])
 <span class="kw">where
     </span>&lt;S <span class="kw">as </span>ToOwned&gt;::Owned: fmt::Debug,
     S: PartialEq;
 
 <span class="doccomment">/// A set of `AnsiString`s collected together, in order to be written with a
 /// minimum of control characters.
-</span><span class="kw">pub type </span>AnsiStrings&lt;<span class="lifetime">&#39;a</span>&gt; = AnsiGenericStrings&lt;<span class="lifetime">&#39;a</span>, str&gt;;
+</span><span class="kw">pub type </span>AnsiStrings&lt;<span class="lifetime">'a</span>&gt; = AnsiGenericStrings&lt;<span class="lifetime">'a</span>, str&gt;;
 
 <span class="doccomment">/// A function to construct an `AnsiStrings` instance.
 </span><span class="attr">#[allow(non_snake_case)]
-</span><span class="kw">pub fn </span>AnsiStrings&lt;<span class="lifetime">&#39;a</span>&gt;(arg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[AnsiString&lt;<span class="lifetime">&#39;a</span>&gt;]) -&gt; AnsiStrings&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub fn </span>AnsiStrings&lt;<span class="lifetime">'a</span>&gt;(arg: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[AnsiString&lt;<span class="lifetime">'a</span>&gt;]) -&gt; AnsiStrings&lt;<span class="lifetime">'a</span>&gt; {
     AnsiGenericStrings(arg)
 }
 
 <span class="doccomment">/// A set of `AnsiByteString`s collected together, in order to be
 /// written with a minimum of control characters.
-</span><span class="kw">pub type </span>AnsiByteStrings&lt;<span class="lifetime">&#39;a</span>&gt; = AnsiGenericStrings&lt;<span class="lifetime">&#39;a</span>, [u8]&gt;;
+</span><span class="kw">pub type </span>AnsiByteStrings&lt;<span class="lifetime">'a</span>&gt; = AnsiGenericStrings&lt;<span class="lifetime">'a</span>, [u8]&gt;;
 
 <span class="doccomment">/// A function to construct an `AnsiByteStrings` instance.
 </span><span class="attr">#[allow(non_snake_case)]
-</span><span class="kw">pub fn </span>AnsiByteStrings&lt;<span class="lifetime">&#39;a</span>&gt;(arg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[AnsiByteString&lt;<span class="lifetime">&#39;a</span>&gt;]) -&gt; AnsiByteStrings&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub fn </span>AnsiByteStrings&lt;<span class="lifetime">'a</span>&gt;(arg: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[AnsiByteString&lt;<span class="lifetime">'a</span>&gt;]) -&gt; AnsiByteStrings&lt;<span class="lifetime">'a</span>&gt; {
     AnsiGenericStrings(arg)
 }
 
@@ -440,9 +441,9 @@
 </span><span class="kw">impl </span>Style {
     <span class="doccomment">/// Paints the given text with this color, returning an ANSI string.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>paint&lt;<span class="lifetime">&#39;a</span>, I, S: <span class="lifetime">&#39;a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, input: I) -&gt; AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S&gt;
+    </span><span class="kw">pub fn </span>paint&lt;<span class="lifetime">'a</span>, I, S: <span class="lifetime">'a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, input: I) -&gt; AnsiGenericString&lt;<span class="lifetime">'a</span>, S&gt;
     <span class="kw">where
-        </span>I: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, S&gt;&gt;,
+        </span>I: Into&lt;Cow&lt;<span class="lifetime">'a</span>, S&gt;&gt;,
         &lt;S <span class="kw">as </span>ToOwned&gt;::Owned: fmt::Debug,
     {
         AnsiGenericString {
@@ -459,12 +460,12 @@
     ///
     /// ```
     /// use nu_ansi_term::Color::Blue;
-    /// println!(&quot;{}&quot;, Blue.paint(&quot;da ba dee&quot;));
+    /// println!("{}", Blue.paint("da ba dee"));
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>paint&lt;<span class="lifetime">&#39;a</span>, I, S: <span class="lifetime">&#39;a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, input: I) -&gt; AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S&gt;
+    </span><span class="kw">pub fn </span>paint&lt;<span class="lifetime">'a</span>, I, S: <span class="lifetime">'a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, input: I) -&gt; AnsiGenericString&lt;<span class="lifetime">'a</span>, S&gt;
     <span class="kw">where
-        </span>I: Into&lt;Cow&lt;<span class="lifetime">&#39;a</span>, S&gt;&gt;,
+        </span>I: Into&lt;Cow&lt;<span class="lifetime">'a</span>, S&gt;&gt;,
         &lt;S <span class="kw">as </span>ToOwned&gt;::Owned: fmt::Debug,
     {
         AnsiGenericString {
@@ -476,14 +477,14 @@
 
 <span class="comment">// ---- writers for individual ANSI strings ----
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Display <span class="kw">for </span>AnsiString&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Display <span class="kw">for </span>AnsiString&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">let </span>w: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>fmt::Write = f;
         <span class="self">self</span>.write_to_any(w)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AnsiByteString&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; AnsiByteString&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Write an `AnsiByteString` to an `io::Write`.  This writes the escape
     /// sequences for the associated `Style` around the bytes.
     </span><span class="kw">pub fn </span>write_to&lt;W: io::Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, w: <span class="kw-2">&amp;mut </span>W) -&gt; io::Result&lt;()&gt; {
@@ -492,28 +493,28 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S: <span class="lifetime">&#39;a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; AnsiGenericString&lt;<span class="lifetime">&#39;a</span>, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S: <span class="lifetime">'a </span>+ ToOwned + <span class="question-mark">?</span>Sized&gt; AnsiGenericString&lt;<span class="lifetime">'a</span>, S&gt;
 <span class="kw">where
     </span>&lt;S <span class="kw">as </span>ToOwned&gt;::Owned: fmt::Debug,
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>S: AsRef&lt;[u8]&gt;,
+    <span class="kw-2">&amp;</span><span class="lifetime">'a </span>S: AsRef&lt;[u8]&gt;,
 {
     <span class="kw">fn </span>write_to_any&lt;W: AnyWrite&lt;Wstr = S&gt; + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, w: <span class="kw-2">&amp;mut </span>W) -&gt; <span class="prelude-ty">Result</span>&lt;(), W::Error&gt; {
-        <span class="macro">write!</span>(w, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.style.prefix())<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(w, <span class="string">"{}"</span>, <span class="self">self</span>.style.prefix())<span class="question-mark">?</span>;
         w.write_str(<span class="self">self</span>.string.as_ref())<span class="question-mark">?</span>;
-        <span class="macro">write!</span>(w, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.style.suffix())
+        <span class="macro">write!</span>(w, <span class="string">"{}"</span>, <span class="self">self</span>.style.suffix())
     }
 }
 
 <span class="comment">// ---- writers for combined ANSI strings ----
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Display <span class="kw">for </span>AnsiStrings&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Display <span class="kw">for </span>AnsiStrings&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">let </span>f: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>fmt::Write = f;
         <span class="self">self</span>.write_to_any(f)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AnsiByteStrings&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; AnsiByteStrings&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Write `AnsiByteStrings` to an `io::Write`.  This writes the minimal
     /// escape sequences for the associated `Style`s around each set of
     /// bytes.
@@ -523,10 +524,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S: <span class="lifetime">&#39;a </span>+ ToOwned + <span class="question-mark">?</span>Sized + PartialEq&gt; AnsiGenericStrings&lt;<span class="lifetime">&#39;a</span>, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, S: <span class="lifetime">'a </span>+ ToOwned + <span class="question-mark">?</span>Sized + PartialEq&gt; AnsiGenericStrings&lt;<span class="lifetime">'a</span>, S&gt;
 <span class="kw">where
     </span>&lt;S <span class="kw">as </span>ToOwned&gt;::Owned: fmt::Debug,
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>S: AsRef&lt;[u8]&gt;,
+    <span class="kw-2">&amp;</span><span class="lifetime">'a </span>S: AsRef&lt;[u8]&gt;,
 {
     <span class="kw">fn </span>write_to_any&lt;W: AnyWrite&lt;Wstr = S&gt; + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, w: <span class="kw-2">&amp;mut </span>W) -&gt; <span class="prelude-ty">Result</span>&lt;(), W::Error&gt; {
         <span class="kw">use </span><span class="self">self</span>::Difference::<span class="kw-2">*</span>;
@@ -536,13 +537,13 @@
             <span class="prelude-val">Some</span>(f) =&gt; f,
         };
 
-        <span class="macro">write!</span>(w, <span class="string">&quot;{}&quot;</span>, first.style.prefix())<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(w, <span class="string">"{}"</span>, first.style.prefix())<span class="question-mark">?</span>;
         w.write_str(first.string.as_ref())<span class="question-mark">?</span>;
 
         <span class="kw">for </span>window <span class="kw">in </span><span class="self">self</span>.<span class="number">0</span>.windows(<span class="number">2</span>) {
             <span class="kw">match </span>Difference::between(<span class="kw-2">&amp;</span>window[<span class="number">0</span>].style, <span class="kw-2">&amp;</span>window[<span class="number">1</span>].style) {
-                ExtraStyles(style) =&gt; <span class="macro">write!</span>(w, <span class="string">&quot;{}&quot;</span>, style.prefix())<span class="question-mark">?</span>,
-                Reset =&gt; <span class="macro">write!</span>(w, <span class="string">&quot;{}{}&quot;</span>, RESET, window[<span class="number">1</span>].style.prefix())<span class="question-mark">?</span>,
+                ExtraStyles(style) =&gt; <span class="macro">write!</span>(w, <span class="string">"{}"</span>, style.prefix())<span class="question-mark">?</span>,
+                Reset =&gt; <span class="macro">write!</span>(w, <span class="string">"{}{}"</span>, RESET, window[<span class="number">1</span>].style.prefix())<span class="question-mark">?</span>,
                 Empty =&gt; { <span class="comment">/* Do nothing! */ </span>}
             }
 
@@ -554,7 +555,7 @@
         // have already been written by this point.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(last) = <span class="self">self</span>.<span class="number">0</span>.last() {
             <span class="kw">if </span>!last.style.is_plain() {
-                <span class="macro">write!</span>(w, <span class="string">&quot;{}&quot;</span>, RESET)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(w, <span class="string">"{}"</span>, RESET)<span class="question-mark">?</span>;
             }
         }
 
@@ -572,10 +573,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>no_control_codes_for_plain() {
-        <span class="kw">let </span>one = Style::default().paint(<span class="string">&quot;one&quot;</span>);
-        <span class="kw">let </span>two = Style::default().paint(<span class="string">&quot;two&quot;</span>);
+        <span class="kw">let </span>one = Style::default().paint(<span class="string">"one"</span>);
+        <span class="kw">let </span>two = Style::default().paint(<span class="string">"two"</span>);
         <span class="kw">let </span>output = AnsiStrings(<span class="kw-2">&amp;</span>[one, two]).to_string();
-        <span class="macro">assert_eq!</span>(output, <span class="string">&quot;onetwo&quot;</span>);
+        <span class="macro">assert_eq!</span>(output, <span class="string">"onetwo"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

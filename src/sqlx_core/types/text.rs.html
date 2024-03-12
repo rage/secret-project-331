@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/types/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/types/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -139,7 +140,7 @@
 /// This can be useful for types that do not have a direct SQL equivalent, or are simply not
 /// supported by SQLx for one reason or another.
 ///
-/// For strongly typed databases like Postgres, this will report the value&#39;s type as `TEXT`.
+/// For strongly typed databases like Postgres, this will report the value's type as `TEXT`.
 /// Explicit conversion may be necessary on the SQL side depending on the desired type.
 ///
 /// [`Display`]: std::fmt::Display
@@ -183,23 +184,23 @@
 ///
 /// # async fn example() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 ///
-/// let mut conn: MySqlConnection = MySqlConnection::connect(&quot;&lt;DATABASE URL&gt;&quot;).await?;
+/// let mut conn: MySqlConnection = MySqlConnection::connect("&lt;DATABASE URL&gt;").await?;
 ///
-/// let user_id: Uuid = &quot;e9a72cdc-d907-48d6-a488-c64a91fd063c&quot;.parse().unwrap();
-/// let socket_addr: SocketAddr = &quot;198.51.100.47:31790&quot;.parse().unwrap();
+/// let user_id: Uuid = "e9a72cdc-d907-48d6-a488-c64a91fd063c".parse().unwrap();
+/// let socket_addr: SocketAddr = "198.51.100.47:31790".parse().unwrap();
 ///
 /// // CREATE TABLE user_login(user_id VARCHAR(36), socket_addr TEXT, login_at TIMESTAMP);
-/// sqlx::query(&quot;INSERT INTO user_login(user_id, socket_addr, login_at) VALUES (?, ?, NOW())&quot;)
+/// sqlx::query("INSERT INTO user_login(user_id, socket_addr, login_at) VALUES (?, ?, NOW())")
 ///     .bind(user_id)
 ///     .bind(Text(socket_addr))
 ///     .execute(&amp;mut conn)
 ///     .await?;
 ///
-/// let logins: Vec&lt;Login&gt; = sqlx::query_as(&quot;SELECT * FROM user_login&quot;)
+/// let logins: Vec&lt;Login&gt; = sqlx::query_as("SELECT * FROM user_login")
 ///     .fetch_all(&amp;mut conn)
 ///     .await?;
 ///
-/// println!(&quot;Logins for user ID {user_id}: {logins:?}&quot;);
+/// println!("Logins for user ID {user_id}: {logins:?}");
 ///
 /// # Ok(())
 /// # }
@@ -228,7 +229,7 @@
     </span>}
 }
 
-<span class="comment">/* We shouldn&#39;t use blanket impls so individual drivers can provide specialized ones.
+<span class="comment">/* We shouldn't use blanket impls so individual drivers can provide specialized ones.
 impl&lt;T, DB&gt; Type&lt;DB&gt; for Text&lt;T&gt;
 where
     String: Type&lt;DB&gt;,
@@ -243,26 +244,26 @@ where
     }
 }
 
-impl&lt;&#39;q, T, DB&gt; Encode&lt;&#39;q, DB&gt; for Text&lt;T&gt;
+impl&lt;'q, T, DB&gt; Encode&lt;'q, DB&gt; for Text&lt;T&gt;
 where
     T: Display,
-    String: Encode&lt;&#39;q, DB&gt;,
+    String: Encode&lt;'q, DB&gt;,
     DB: Database,
 {
-    fn encode_by_ref(&amp;self, buf: &amp;mut &lt;DB as HasArguments&lt;&#39;q&gt;&gt;::ArgumentBuffer) -&gt; IsNull {
+    fn encode_by_ref(&amp;self, buf: &amp;mut &lt;DB as HasArguments&lt;'q&gt;&gt;::ArgumentBuffer) -&gt; IsNull {
         self.0.to_string().encode(buf)
     }
 }
 
-impl&lt;&#39;r, T, DB&gt; Decode&lt;&#39;r, DB&gt; for Text&lt;T&gt;
+impl&lt;'r, T, DB&gt; Decode&lt;'r, DB&gt; for Text&lt;T&gt;
 where
     T: FromStr,
     BoxDynError: From&lt;&lt;T as FromStr&gt;::Err&gt;,
-    &amp;&#39;r str: Decode&lt;&#39;r, DB&gt;,
+    &amp;'r str: Decode&lt;'r, DB&gt;,
     DB: Database,
 {
-    fn decode(value: &lt;DB as HasValueRef&lt;&#39;r&gt;&gt;::ValueRef) -&gt; Result&lt;Self, BoxDynError&gt; {
-        Ok(Text(&lt;&amp;&#39;r str as Decode&lt;&#39;r, DB&gt;&gt;::decode(value)?.parse()?))
+    fn decode(value: &lt;DB as HasValueRef&lt;'r&gt;&gt;::ValueRef) -&gt; Result&lt;Self, BoxDynError&gt; {
+        Ok(Text(&lt;&amp;'r str as Decode&lt;'r, DB&gt;&gt;::decode(value)?.parse()?))
     }
 }
 */

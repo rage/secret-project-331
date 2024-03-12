@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/any/driver.rs`."><title>driver.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/any/driver.rs`."><title>driver.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -159,16 +160,16 @@
 <span class="kw">use </span>std::fmt::{Debug, Formatter};
 <span class="kw">use </span>url::Url;
 
-<span class="kw">static </span>DRIVERS: OnceCell&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[AnyDriver]&gt; = OnceCell::new();
+<span class="kw">static </span>DRIVERS: OnceCell&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[AnyDriver]&gt; = OnceCell::new();
 
 <span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>declare_driver_with_optional_migrate {
     (<span class="macro-nonterminal">$name</span>:ident = <span class="macro-nonterminal">$db</span>:path) =&gt; {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
         </span><span class="kw">pub const </span><span class="macro-nonterminal">$name</span>: <span class="macro-nonterminal">$crate::any::driver::AnyDriver </span>=
             <span class="macro-nonterminal">$crate::any::driver::AnyDriver::with_migrate</span>::&lt;<span class="macro-nonterminal">$db</span>&gt;();
 
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;migrate&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"migrate"</span>))]
         </span><span class="kw">pub const </span><span class="macro-nonterminal">$name</span>: <span class="macro-nonterminal">$crate::any::driver::AnyDriver </span>=
             <span class="macro-nonterminal">$crate::any::driver::AnyDriver::without_migrate</span>::&lt;<span class="macro-nonterminal">$db</span>&gt;();
     };
@@ -176,10 +177,10 @@
 
 <span class="attr">#[non_exhaustive]
 </span><span class="kw">pub struct </span>AnyDriver {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) url_schemes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+    <span class="kw">pub</span>(<span class="kw">crate</span>) name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) url_schemes: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
     <span class="kw">pub</span>(<span class="kw">crate</span>) connect:
-        DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>AnyConnectOptions) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="kw">crate</span>::Result&lt;AnyConnection&gt;&gt;&gt;,
+        DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>AnyConnectOptions) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="kw">crate</span>::Result&lt;AnyConnection&gt;&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) migrate_database: <span class="prelude-ty">Option</span>&lt;AnyMigrateDatabase&gt;,
 }
 
@@ -188,7 +189,7 @@
     </span><span class="kw">where
         </span>DB::Connection: AnyConnectionBackend,
         &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options:
-            <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AnyConnectOptions, Error = Error&gt;,
+            <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>AnyConnectOptions, Error = Error&gt;,
     {
         <span class="self">Self </span>{
             name: DB::NAME,
@@ -198,22 +199,22 @@
         }
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;migrate&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"migrate"</span>))]
     </span><span class="kw">pub const fn </span>with_migrate&lt;DB: Database&gt;() -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>DB::Connection: AnyConnectionBackend,
         &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options:
-            <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AnyConnectOptions, Error = Error&gt;,
+            <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>AnyConnectOptions, Error = Error&gt;,
     {
         <span class="self">Self</span>::without_migrate::&lt;DB&gt;()
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
     </span><span class="kw">pub const fn </span>with_migrate&lt;DB: Database + <span class="kw">crate</span>::migrate::MigrateDatabase&gt;() -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>DB::Connection: AnyConnectionBackend,
         &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options:
-            <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AnyConnectOptions, Error = Error&gt;,
+            <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>AnyConnectOptions, Error = Error&gt;,
     {
         <span class="self">Self </span>{
             migrate_database: <span class="prelude-val">Some</span>(AnyMigrateDatabase {
@@ -228,40 +229,40 @@
 
     <span class="kw">pub fn </span>get_migrate_database(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw-2">&amp;</span>AnyMigrateDatabase&gt; {
         <span class="self">self</span>.migrate_database.as_ref()
-            .ok_or_else(|| Error::Configuration(<span class="macro">format!</span>(<span class="string">&quot;{} driver does not support migrations or the `migrate` feature was not enabled for it&quot;</span>, <span class="self">self</span>.name).into()))
+            .ok_or_else(|| Error::Configuration(<span class="macro">format!</span>(<span class="string">"{} driver does not support migrations or the `migrate` feature was not enabled for it"</span>, <span class="self">self</span>.name).into()))
     }
 }
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>AnyDriver {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        f.debug_struct(<span class="string">&quot;AnyDriver&quot;</span>)
-            .field(<span class="string">&quot;name&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.name)
-            .field(<span class="string">&quot;url_schemes&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.url_schemes)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        f.debug_struct(<span class="string">"AnyDriver"</span>)
+            .field(<span class="string">"name"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.name)
+            .field(<span class="string">"url_schemes"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.url_schemes)
             .finish()
     }
 }
 
 <span class="kw">pub struct </span>AnyMigrateDatabase {
-    create_database: DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt;&gt;,
-    database_exists: DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="kw">crate</span>::Result&lt;bool&gt;&gt;&gt;,
-    drop_database: DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt;&gt;,
-    force_drop_database: DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt;&gt;,
+    create_database: DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt;&gt;,
+    database_exists: DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="kw">crate</span>::Result&lt;bool&gt;&gt;&gt;,
+    drop_database: DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt;&gt;,
+    force_drop_database: DebugFn&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">'_</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt;&gt;,
 }
 
 <span class="kw">impl </span>AnyMigrateDatabase {
-    <span class="kw">pub fn </span>create_database&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt; {
+    <span class="kw">pub fn </span>create_database&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; BoxFuture&lt;<span class="lifetime">'a</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt; {
         (<span class="self">self</span>.create_database)(url)
     }
 
-    <span class="kw">pub fn </span>database_exists&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="kw">crate</span>::Result&lt;bool&gt;&gt; {
+    <span class="kw">pub fn </span>database_exists&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; BoxFuture&lt;<span class="lifetime">'a</span>, <span class="kw">crate</span>::Result&lt;bool&gt;&gt; {
         (<span class="self">self</span>.database_exists)(url)
     }
 
-    <span class="kw">pub fn </span>drop_database&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt; {
+    <span class="kw">pub fn </span>drop_database&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; BoxFuture&lt;<span class="lifetime">'a</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt; {
         (<span class="self">self</span>.drop_database)(url)
     }
 
-    <span class="kw">pub fn </span>force_drop_database&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt; {
+    <span class="kw">pub fn </span>force_drop_database&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, url: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; BoxFuture&lt;<span class="lifetime">'a</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt; {
         (<span class="self">self</span>.force_drop_database)(url)
     }
 }
@@ -273,29 +274,29 @@
 /// ### Errors
 /// If called more than once.
 </span><span class="kw">pub fn </span>install_drivers(
-    drivers: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[AnyDriver],
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync + <span class="lifetime">&#39;static</span>&gt;&gt; {
+    drivers: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[AnyDriver],
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync + <span class="lifetime">'static</span>&gt;&gt; {
     DRIVERS
         .set(drivers)
-        .map_err(|<span class="kw">_</span>| <span class="string">&quot;drivers already installed&quot;</span>.into())
+        .map_err(|<span class="kw">_</span>| <span class="string">"drivers already installed"</span>.into())
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_url_str(url: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>AnyDriver&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_url_str(url: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>AnyDriver&gt; {
     from_url(<span class="kw-2">&amp;</span>url.parse().map_err(Error::config)<span class="question-mark">?</span>)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_url(url: <span class="kw-2">&amp;</span>Url) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>AnyDriver&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_url(url: <span class="kw-2">&amp;</span>Url) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>AnyDriver&gt; {
     <span class="kw">let </span>scheme = url.scheme();
 
     <span class="kw">let </span>drivers: <span class="kw-2">&amp;</span>[AnyDriver] = DRIVERS
         .get()
-        .expect(<span class="string">&quot;No drivers installed. Please see the documentation in `sqlx::any` for details.&quot;</span>);
+        .expect(<span class="string">"No drivers installed. Please see the documentation in `sqlx::any` for details."</span>);
 
     drivers
         .iter()
         .find(|driver| driver.url_schemes.contains(<span class="kw-2">&amp;</span>url.scheme()))
         .ok_or_else(|| {
-            Error::Configuration(<span class="macro">format!</span>(<span class="string">&quot;no driver found for URL scheme {scheme:?}&quot;</span>).into())
+            Error::Configuration(<span class="macro">format!</span>(<span class="string">"no driver found for URL scheme {scheme:?}"</span>).into())
         })
 }
 </code></pre></div></section></main></body></html>

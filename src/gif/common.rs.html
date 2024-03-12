@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.12.0/src/common.rs`."><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.12.0/src/common.rs`."><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -380,7 +381,7 @@
 /// Note that the block uniquely specifies the layout of bytes that follow and how they are
 /// framed. For example, the header always has a fixed length but is followed by a variable amount
 /// of additional data. An image descriptor may be followed by a local color table depending on
-/// information read in it. Therefore, it doesn&#39;t make sense to continue parsing after encountering
+/// information read in it. Therefore, it doesn't make sense to continue parsing after encountering
 /// an unknown block as the semantics of following bytes are unclear.
 ///
 /// The extension block provides a common framing for an arbitrary amount of application specific
@@ -474,7 +475,7 @@
 
 <span class="doccomment">/// A GIF frame
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>Frame&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Frame&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Frame delay in units of 10 ms.
     </span><span class="kw">pub </span>delay: u16,
     <span class="doccomment">/// Disposal method.
@@ -497,11 +498,11 @@
     </span><span class="kw">pub </span>palette: <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     <span class="doccomment">/// Buffer containing the image data.
     /// Only indices unless configured differently.
-    </span><span class="kw">pub </span>buffer: Cow&lt;<span class="lifetime">&#39;a</span>, [u8]&gt;
+    </span><span class="kw">pub </span>buffer: Cow&lt;<span class="lifetime">'a</span>, [u8]&gt;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Default <span class="kw">for </span>Frame&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>default() -&gt; Frame&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Default <span class="kw">for </span>Frame&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>default() -&gt; Frame&lt;<span class="lifetime">'a</span>&gt; {
         Frame {
             delay: <span class="number">0</span>,
             dispose: DisposalMethod::Keep,
@@ -518,7 +519,7 @@
     }
 }
 
-<span class="kw">impl </span>Frame&lt;<span class="lifetime">&#39;static</span>&gt; {
+<span class="kw">impl </span>Frame&lt;<span class="lifetime">'static</span>&gt; {
     <span class="doccomment">/// Creates a frame from pixels in RGBA format.
     ///
     /// This is a lossy method. The `gif` format does not support arbitrary alpha but only a 1-bit
@@ -530,8 +531,8 @@
     ///
     /// # Panics:
     /// *   If the length of pixels does not equal `width * height * 4`.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;color_quant&quot;</span>)]
-    </span><span class="kw">pub fn </span>from_rgba(width: u16, height: u16, pixels: <span class="kw-2">&amp;mut </span>[u8]) -&gt; Frame&lt;<span class="lifetime">&#39;static</span>&gt; {
+    </span><span class="attr">#[cfg(feature = <span class="string">"color_quant"</span>)]
+    </span><span class="kw">pub fn </span>from_rgba(width: u16, height: u16, pixels: <span class="kw-2">&amp;mut </span>[u8]) -&gt; Frame&lt;<span class="lifetime">'static</span>&gt; {
         Frame::from_rgba_speed(width, height, pixels, <span class="number">1</span>)
     }
 
@@ -549,10 +550,10 @@
     /// # Panics:
     /// *   If the length of pixels does not equal `width * height * 4`.
     /// *   If `speed &lt; 1` or `speed &gt; 30`
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;color_quant&quot;</span>)]
-    </span><span class="kw">pub fn </span>from_rgba_speed(width: u16, height: u16, pixels: <span class="kw-2">&amp;mut </span>[u8], speed: i32) -&gt; Frame&lt;<span class="lifetime">&#39;static</span>&gt; {
-        <span class="macro">assert_eq!</span>(width <span class="kw">as </span>usize * height <span class="kw">as </span>usize * <span class="number">4</span>, pixels.len(), <span class="string">&quot;Too much or too little pixel data for the given width and height to create a GIF Frame&quot;</span>);
-        <span class="macro">assert!</span>(speed &gt;= <span class="number">1 </span>&amp;&amp; speed &lt;= <span class="number">30</span>, <span class="string">&quot;speed needs to be in the range [1, 30]&quot;</span>);
+    </span><span class="attr">#[cfg(feature = <span class="string">"color_quant"</span>)]
+    </span><span class="kw">pub fn </span>from_rgba_speed(width: u16, height: u16, pixels: <span class="kw-2">&amp;mut </span>[u8], speed: i32) -&gt; Frame&lt;<span class="lifetime">'static</span>&gt; {
+        <span class="macro">assert_eq!</span>(width <span class="kw">as </span>usize * height <span class="kw">as </span>usize * <span class="number">4</span>, pixels.len(), <span class="string">"Too much or too little pixel data for the given width and height to create a GIF Frame"</span>);
+        <span class="macro">assert!</span>(speed &gt;= <span class="number">1 </span>&amp;&amp; speed &lt;= <span class="number">30</span>, <span class="string">"speed needs to be in the range [1, 30]"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>transparent = <span class="prelude-val">None</span>;
         <span class="kw">for </span>pix <span class="kw">in </span>pixels.chunks_exact_mut(<span class="number">4</span>) {
             <span class="kw">if </span>pix[<span class="number">3</span>] != <span class="number">0 </span>{
@@ -567,7 +568,7 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>colors: HashSet&lt;(u8, u8, u8, u8)&gt; = HashSet::new();
         <span class="kw">for </span>pixel <span class="kw">in </span>pixels.chunks_exact(<span class="number">4</span>) {
             <span class="kw">if </span>colors.insert((pixel[<span class="number">0</span>], pixel[<span class="number">1</span>], pixel[<span class="number">2</span>], pixel[<span class="number">3</span>])) &amp;&amp; colors.len() &gt; <span class="number">256 </span>{
-                <span class="comment">// &gt; 256 colours, let&#39;s use NeuQuant.
+                <span class="comment">// &gt; 256 colours, let's use NeuQuant.
                 </span><span class="kw">let </span>nq = color_quant::NeuQuant::new(speed, <span class="number">256</span>, pixels);
 
                 <span class="kw">return </span>Frame {
@@ -605,9 +606,9 @@
     /// # Panics:
     /// *   If the length of pixels does not equal `width * height`.
     /// *   If the length of palette &gt; `256 * 3`.
-    </span><span class="kw">pub fn </span>from_palette_pixels(width: u16, height: u16, pixels: <span class="kw-2">&amp;</span>[u8], palette: <span class="kw-2">&amp;</span>[u8], transparent: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; Frame&lt;<span class="lifetime">&#39;static</span>&gt; {
-        <span class="macro">assert_eq!</span>(width <span class="kw">as </span>usize * height <span class="kw">as </span>usize, pixels.len(), <span class="string">&quot;Too many or too little pixels for the given width and height to create a GIF Frame&quot;</span>);
-        <span class="macro">assert!</span>(palette.len() &lt;= <span class="number">256</span><span class="kw-2">*</span><span class="number">3</span>, <span class="string">&quot;Too many palette values to create a GIF Frame&quot;</span>);
+    </span><span class="kw">pub fn </span>from_palette_pixels(width: u16, height: u16, pixels: <span class="kw-2">&amp;</span>[u8], palette: <span class="kw-2">&amp;</span>[u8], transparent: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; Frame&lt;<span class="lifetime">'static</span>&gt; {
+        <span class="macro">assert_eq!</span>(width <span class="kw">as </span>usize * height <span class="kw">as </span>usize, pixels.len(), <span class="string">"Too many or too little pixels for the given width and height to create a GIF Frame"</span>);
+        <span class="macro">assert!</span>(palette.len() &lt;= <span class="number">256</span><span class="kw-2">*</span><span class="number">3</span>, <span class="string">"Too many palette values to create a GIF Frame"</span>);
 
         Frame {
             width,
@@ -623,8 +624,8 @@
     ///
     /// # Panics:
     /// *   If the length of pixels does not equal `width * height`.
-    </span><span class="kw">pub fn </span>from_indexed_pixels(width: u16, height: u16, pixels: <span class="kw-2">&amp;</span>[u8], transparent: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; Frame&lt;<span class="lifetime">&#39;static</span>&gt; {
-        <span class="macro">assert_eq!</span>(width <span class="kw">as </span>usize * height <span class="kw">as </span>usize, pixels.len(), <span class="string">&quot;Too many or too little pixels for the given width and height to create a GIF Frame&quot;</span>);
+    </span><span class="kw">pub fn </span>from_indexed_pixels(width: u16, height: u16, pixels: <span class="kw-2">&amp;</span>[u8], transparent: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; Frame&lt;<span class="lifetime">'static</span>&gt; {
+        <span class="macro">assert_eq!</span>(width <span class="kw">as </span>usize * height <span class="kw">as </span>usize, pixels.len(), <span class="string">"Too many or too little pixels for the given width and height to create a GIF Frame"</span>);
 
         Frame {
             width,
@@ -646,8 +647,8 @@
     ///
     /// # Panics:
     /// *   If the length of pixels does not equal `width * height * 3`.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;color_quant&quot;</span>)]
-    </span><span class="kw">pub fn </span>from_rgb(width: u16, height: u16, pixels: <span class="kw-2">&amp;</span>[u8]) -&gt; Frame&lt;<span class="lifetime">&#39;static</span>&gt; {
+    </span><span class="attr">#[cfg(feature = <span class="string">"color_quant"</span>)]
+    </span><span class="kw">pub fn </span>from_rgb(width: u16, height: u16, pixels: <span class="kw-2">&amp;</span>[u8]) -&gt; Frame&lt;<span class="lifetime">'static</span>&gt; {
         Frame::from_rgb_speed(width, height, pixels, <span class="number">1</span>)
     }
 
@@ -665,9 +666,9 @@
     /// # Panics:
     /// *   If the length of pixels does not equal `width * height * 3`.
     /// *   If `speed &lt; 1` or `speed &gt; 30`
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;color_quant&quot;</span>)]
-    </span><span class="kw">pub fn </span>from_rgb_speed(width: u16, height: u16, pixels: <span class="kw-2">&amp;</span>[u8], speed: i32) -&gt; Frame&lt;<span class="lifetime">&#39;static</span>&gt; {
-        <span class="macro">assert_eq!</span>(width <span class="kw">as </span>usize * height <span class="kw">as </span>usize * <span class="number">3</span>, pixels.len(), <span class="string">&quot;Too much or too little pixel data for the given width and height to create a GIF Frame&quot;</span>);
+    </span><span class="attr">#[cfg(feature = <span class="string">"color_quant"</span>)]
+    </span><span class="kw">pub fn </span>from_rgb_speed(width: u16, height: u16, pixels: <span class="kw-2">&amp;</span>[u8], speed: i32) -&gt; Frame&lt;<span class="lifetime">'static</span>&gt; {
+        <span class="macro">assert_eq!</span>(width <span class="kw">as </span>usize * height <span class="kw">as </span>usize * <span class="number">3</span>, pixels.len(), <span class="string">"Too much or too little pixel data for the given width and height to create a GIF Frame"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>vec: Vec&lt;u8&gt; = Vec::with_capacity(pixels.len() + width <span class="kw">as </span>usize * height <span class="kw">as </span>usize);
         <span class="kw">for </span>v <span class="kw">in </span>pixels.chunks_exact(<span class="number">3</span>) {
             vec.extend_from_slice(<span class="kw-2">&amp;</span>[v[<span class="number">0</span>], v[<span class="number">1</span>], v[<span class="number">2</span>], <span class="number">0xFF</span>])
@@ -681,7 +682,7 @@
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">&quot;color_quant&quot;</span>)]
+#[cfg(feature = <span class="string">"color_quant"</span>)]
 </span><span class="comment">// Creating the `colors_lookup` hashmap in Frame::from_rgba_speed panics due to
 // overflow while bypassing NeuQuant and zipping a RangeFrom with 256 colors.
 // Changing .zip(0_u8..) to .zip(0_u8..=255) fixes this issue.

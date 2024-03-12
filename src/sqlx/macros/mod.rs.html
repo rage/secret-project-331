@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.7.3/src/macros/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.7.3/src/macros/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -820,26 +821,26 @@
 ///
 /// ```rust,ignore
 /// # use sqlx::Connect;
-/// # #[cfg(all(feature = &quot;mysql&quot;, feature = &quot;_rt-async-std&quot;))]
+/// # #[cfg(all(feature = "mysql", feature = "_rt-async-std"))]
 /// # #[async_std::main]
 /// # async fn main() -&gt; sqlx::Result&lt;()&gt;{
-/// # let db_url = dotenvy::var(&quot;DATABASE_URL&quot;).expect(&quot;DATABASE_URL must be set&quot;);
+/// # let db_url = dotenvy::var("DATABASE_URL").expect("DATABASE_URL must be set");
 /// #
-/// # if !(db_url.starts_with(&quot;mysql&quot;) || db_url.starts_with(&quot;mariadb&quot;)) { return Ok(()) }
+/// # if !(db_url.starts_with("mysql") || db_url.starts_with("mariadb")) { return Ok(()) }
 /// # let mut conn = sqlx::MySqlConnection::connect(db_url).await?;
 /// // let mut conn = &lt;impl sqlx::Executor&gt;;
-/// let account = sqlx::query!(&quot;select (1) as id, &#39;Herp Derpinson&#39; as name&quot;)
+/// let account = sqlx::query!("select (1) as id, 'Herp Derpinson' as name")
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
 ///
 /// // anonymous struct has `#[derive(Debug)]` for convenience
-/// println!(&quot;{account:?}&quot;);
-/// println!(&quot;{}: {}&quot;, account.id, account.name);
+/// println!("{account:?}");
+/// println!("{}: {}", account.id, account.name);
 ///
 /// # Ok(())
 /// # }
 /// #
-/// # #[cfg(any(not(feature = &quot;mysql&quot;), not(feature = &quot;_rt-async-std&quot;)))]
+/// # #[cfg(any(not(feature = "mysql"), not(feature = "_rt-async-std")))]
 /// # fn main() {}
 /// ```
 ///
@@ -853,7 +854,7 @@
 ///       See the link above for details.
 /// * SQLite: [crate::sqlite::types]
 ///
-/// **The method you want to call on the result depends on how many rows you&#39;re expecting.**
+/// **The method you want to call on the result depends on how many rows you're expecting.**
 ///
 /// | Number of Rows | Method to Call*             | Returns                                             | Notes |
 /// |----------------| ----------------------------|-----------------------------------------------------|-------|
@@ -864,7 +865,7 @@
 /// | Multiple   | `.fetch_all(...)`               | `sqlx::Result&lt;Vec&lt;{adhoc struct}&gt;&gt;`  | |
 ///
 /// \* All methods accept one of `&amp;mut {connection type}`, `&amp;mut Transaction` or `&amp;Pool`.  
-/// † Only callable if the query returns no columns; otherwise it&#39;s assumed the query *may* return at least one row.
+/// † Only callable if the query returns no columns; otherwise it's assumed the query *may* return at least one row.
 /// ## Requirements
 /// * The `DATABASE_URL` environment variable must be set at build-time to point to a database
 /// server with the schema that the query string will be checked against. All variants of `query!()`
@@ -895,28 +896,28 @@
 ///
 /// ```rust,ignore
 /// # use sqlx::Connect;
-/// # #[cfg(all(feature = &quot;mysql&quot;, feature = &quot;_rt-async-std&quot;))]
+/// # #[cfg(all(feature = "mysql", feature = "_rt-async-std"))]
 /// # #[async_std::main]
 /// # async fn main() -&gt; sqlx::Result&lt;()&gt;{
-/// # let db_url = dotenvy::var(&quot;DATABASE_URL&quot;).expect(&quot;DATABASE_URL must be set&quot;);
+/// # let db_url = dotenvy::var("DATABASE_URL").expect("DATABASE_URL must be set");
 /// #
-/// # if !(db_url.starts_with(&quot;mysql&quot;) || db_url.starts_with(&quot;mariadb&quot;)) { return Ok(()) }
+/// # if !(db_url.starts_with("mysql") || db_url.starts_with("mariadb")) { return Ok(()) }
 /// # let mut conn = sqlx::mysql::MySqlConnection::connect(db_url).await?;
 /// // let mut conn = &lt;impl sqlx::Executor&gt;;
 /// let account = sqlx::query!(
-///         // just pretend &quot;accounts&quot; is a real table
-///         &quot;select * from (select (1) as id, &#39;Herp Derpinson&#39; as name) accounts where id = ?&quot;,
+///         // just pretend "accounts" is a real table
+///         "select * from (select (1) as id, 'Herp Derpinson' as name) accounts where id = ?",
 ///         1i32
 ///     )
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
 ///
-/// println!(&quot;{account:?}&quot;);
-/// println!(&quot;{}: {}&quot;, account.id, account.name);
+/// println!("{account:?}");
+/// println!("{}: {}", account.id, account.name);
 /// # Ok(())
 /// # }
 /// #
-/// # #[cfg(any(not(feature = &quot;mysql&quot;), not(feature = &quot;_rt-async-std&quot;)))]
+/// # #[cfg(any(not(feature = "mysql"), not(feature = "_rt-async-std")))]
 /// # fn main() {}
 /// ```
 ///
@@ -973,22 +974,22 @@
 ///
 /// let my_int = MyInt4(1);
 ///
-/// sqlx::query!(&quot;select $1::int4 as id&quot;, my_int as MyInt4)
+/// sqlx::query!("select $1::int4 as id", my_int as MyInt4)
 /// ```
 ///
 /// Using `expr as _` simply signals to the macro to not type-check that bind expression,
 /// and then that syntax is stripped from the expression so as to not trigger type errors.
 ///
 /// **NOTE:** type ascription syntax (`expr: _`) is deprecated and will be removed in a
-/// future release. This is due to Rust&#39;s [RFC 3307](https://github.com/rust-lang/rfcs/pull/3307)
+/// future release. This is due to Rust's [RFC 3307](https://github.com/rust-lang/rfcs/pull/3307)
 /// officially dropping support for the syntax.
 ///
 /// ## Type Overrides: Output Columns
-/// Type overrides are also available for output columns, utilizing the SQL standard&#39;s support
+/// Type overrides are also available for output columns, utilizing the SQL standard's support
 /// for arbitrary text in column names:
 ///
 /// ##### Force Not-Null
-/// Selecting a column `foo as &quot;foo!&quot;` (Postgres / SQLite) or `` foo as `foo!` `` (MySQL) overrides
+/// Selecting a column `foo as "foo!"` (Postgres / SQLite) or `` foo as `foo!` `` (MySQL) overrides
 /// inferred nullability and forces the column to be treated as `NOT NULL`; this is useful e.g. for
 /// selecting expressions in Postgres where we cannot infer nullability:
 ///
@@ -996,8 +997,8 @@
 /// # async fn main() {
 /// # let mut conn = panic!();
 /// // Postgres: using a raw query string lets us use unescaped double-quotes
-/// // Note that this query wouldn&#39;t work in SQLite as we still don&#39;t know the exact type of `id`
-/// let record = sqlx::query!(r#&quot;select 1 as &quot;id!&quot;&quot;#) // MySQL: use &quot;select 1 as `id!`&quot; instead
+/// // Note that this query wouldn't work in SQLite as we still don't know the exact type of `id`
+/// let record = sqlx::query!(r#"select 1 as "id!""#) // MySQL: use "select 1 as `id!`" instead
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
 ///
@@ -1008,7 +1009,7 @@
 /// ```
 ///
 /// ##### Force Nullable
-/// Selecting a column `foo as &quot;foo?&quot;` (Postgres / SQLite) or `` foo as `foo?` `` (MySQL) overrides
+/// Selecting a column `foo as "foo?"` (Postgres / SQLite) or `` foo as `foo?` `` (MySQL) overrides
 /// inferred nullability and forces the column to be treated as nullable; this is provided mainly
 /// for symmetry with `!`.
 ///
@@ -1016,7 +1017,7 @@
 /// # async fn main() {
 /// # let mut conn = panic!();
 /// // Postgres/SQLite:
-/// let record = sqlx::query!(r#&quot;select 1 as &quot;id?&quot;&quot;#) // MySQL: use &quot;select 1 as `id?`&quot; instead
+/// let record = sqlx::query!(r#"select 1 as "id?""#) // MySQL: use "select 1 as `id?`" instead
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
 ///
@@ -1049,7 +1050,7 @@
 /// # let mut conn = panic!();
 /// // Ironically this is the exact column we primarily look at to determine nullability in Postgres
 /// let record = sqlx::query!(
-///     r#&quot;select attnotnull as &quot;attnotnull?&quot; from (values (1)) ids left join pg_attribute on false&quot;#
+///     r#"select attnotnull as "attnotnull?" from (values (1)) ids left join pg_attribute on false"#
 /// )
 /// .fetch_one(&amp;mut conn)
 /// .await?;
@@ -1067,10 +1068,10 @@
 /// and the definitions of any relevant tables (or sufficiently anonymized equivalents).
 ///
 /// ##### Force a Different/Custom Type
-/// Selecting a column `foo as &quot;foo: T&quot;` (Postgres / SQLite) or `` foo as `foo: T` `` (MySQL)
+/// Selecting a column `foo as "foo: T"` (Postgres / SQLite) or `` foo as `foo: T` `` (MySQL)
 /// overrides the inferred type which is useful when selecting user-defined custom types
 /// (dynamic type checking is still done so if the types are incompatible this will be an error
-/// at runtime instead of compile-time). Note that this syntax alone doesn&#39;t override inferred nullability,
+/// at runtime instead of compile-time). Note that this syntax alone doesn't override inferred nullability,
 /// but it is compatible with the forced not-null and forced nullable annotations:
 ///
 /// ```rust,ignore
@@ -1083,13 +1084,13 @@
 /// let my_int = MyInt4(1);
 ///
 /// // Postgres/SQLite
-/// sqlx::query!(r#&quot;select 1 as &quot;id!: MyInt4&quot;&quot;#) // MySQL: use &quot;select 1 as `id: MyInt4`&quot; instead
+/// sqlx::query!(r#"select 1 as "id!: MyInt4""#) // MySQL: use "select 1 as `id: MyInt4`" instead
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
 ///
 /// // For Postgres this would have been inferred to be `Option&lt;i32&gt;`, MySQL/SQLite `i32`
 /// // Note that while using `id: MyInt4` (without the `!`) would work the same for MySQL/SQLite,
-/// // Postgres would expect `Some(MyInt4(1))` and the code wouldn&#39;t compile
+/// // Postgres would expect `Some(MyInt4(1))` and the code wouldn't compile
 /// assert_eq!(record.id, MyInt4(1));
 /// # }
 /// ```
@@ -1112,7 +1113,7 @@
 /// * In your project with `DATABASE_URL` set (or in a `.env` file) and the database server running,
 ///   run `cargo sqlx prepare`.
 /// * Check the generated `.sqlx` directory into version control.
-/// * Don&#39;t have `DATABASE_URL` set during compilation.
+/// * Don't have `DATABASE_URL` set during compilation.
 ///
 /// Your project can now be built without a database connection (you must omit `DATABASE_URL` or
 /// else it will still try to connect). To update the generated file simply run `cargo sqlx prepare`
@@ -1129,19 +1130,19 @@
 /// * [query_file!] if you want to define the SQL query out-of-line,
 /// * [query_file_as!] if you want both of the above.
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query (
     <span class="comment">// in Rust 1.45 we can now invoke proc macros in expression position
     </span>(<span class="macro-nonterminal">$query</span>:expr) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source </span>= <span class="macro-nonterminal">$query</span>)
     });
     <span class="comment">// RFC: this semantically should be `$($args:expr),*` (with `$(,)?` to allow trailing comma)
-    // but that doesn&#39;t work in 1.45 because `expr` fragments get wrapped in a way that changes
+    // but that doesn't work in 1.45 because `expr` fragments get wrapped in a way that changes
     // their hygiene, which is fixed in 1.46 so this is technically just a temp. workaround.
     // My question is: do we care?
-    // I was hoping using the `expr` fragment might aid code completion but it doesn&#39;t in my
+    // I was hoping using the `expr` fragment might aid code completion but it doesn't in my
     // experience, at least not with IntelliJ-Rust at the time of writing (version 0.3.126.3220-201)
-    // so really the only benefit is making the macros _slightly_ self-documenting, but it&#39;s
+    // so really the only benefit is making the macros _slightly_ self-documenting, but it's
     // not like it makes them magically understandable at-a-glance.
     </span>(<span class="macro-nonterminal">$query</span>:expr, $(<span class="macro-nonterminal">$args</span>:tt)<span class="kw-2">*</span>) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source </span>= <span class="macro-nonterminal">$query</span>, args = [$(<span class="macro-nonterminal">$args</span>)<span class="kw-2">*</span>])
@@ -1149,9 +1150,9 @@
 );
 
 <span class="doccomment">/// A variant of [query!] which does not check the input or output types. This still does parse
-/// the query to ensure it&#39;s syntactically and semantically valid for the current database.
+/// the query to ensure it's syntactically and semantically valid for the current database.
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_unchecked (
     (<span class="macro-nonterminal">$query</span>:expr) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source </span>= <span class="macro-nonterminal">$query</span>, checked = <span class="bool-val">false</span>)
@@ -1176,35 +1177,35 @@
 ///
 /// `examples/queries/account-by-id.sql`:
 /// ```text
-/// select * from (select (1) as id, &#39;Herp Derpinson&#39; as name) accounts
+/// select * from (select (1) as id, 'Herp Derpinson' as name) accounts
 /// where id = ?
 /// ```
 ///
 /// `src/my_query.rs`:
 /// ```rust,ignore
 /// # use sqlx::Connect;
-/// # #[cfg(all(feature = &quot;mysql&quot;, feature = &quot;_rt-async-std&quot;))]
+/// # #[cfg(all(feature = "mysql", feature = "_rt-async-std"))]
 /// # #[async_std::main]
 /// # async fn main() -&gt; sqlx::Result&lt;()&gt;{
-/// # let db_url = dotenvy::var(&quot;DATABASE_URL&quot;).expect(&quot;DATABASE_URL must be set&quot;);
+/// # let db_url = dotenvy::var("DATABASE_URL").expect("DATABASE_URL must be set");
 /// #
-/// # if !(db_url.starts_with(&quot;mysql&quot;) || db_url.starts_with(&quot;mariadb&quot;)) { return Ok(()) }
+/// # if !(db_url.starts_with("mysql") || db_url.starts_with("mariadb")) { return Ok(()) }
 /// # let mut conn = sqlx::MySqlConnection::connect(db_url).await?;
-/// let account = sqlx::query_file!(&quot;tests/test-query-account-by-id.sql&quot;, 1i32)
+/// let account = sqlx::query_file!("tests/test-query-account-by-id.sql", 1i32)
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
 ///
-/// println!(&quot;{account:?}&quot;);
-/// println!(&quot;{}: {}&quot;, account.id, account.name);
+/// println!("{account:?}");
+/// println!("{}: {}", account.id, account.name);
 ///
 /// # Ok(())
 /// # }
 /// #
-/// # #[cfg(any(not(feature = &quot;mysql&quot;), not(feature = &quot;_rt-async-std&quot;)))]
+/// # #[cfg(any(not(feature = "mysql"), not(feature = "_rt-async-std")))]
 /// # fn main() {}
 /// ```
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_file (
     (<span class="macro-nonterminal">$path</span>:literal) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source_file </span>= <span class="macro-nonterminal">$path</span>)
@@ -1215,9 +1216,9 @@
 );
 
 <span class="doccomment">/// A variant of [query_file!] which does not check the input or output types. This still does parse
-/// the query to ensure it&#39;s syntactically and semantically valid for the current database.
+/// the query to ensure it's syntactically and semantically valid for the current database.
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_file_unchecked (
     (<span class="macro-nonterminal">$path</span>:literal) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source_file </span>= <span class="macro-nonterminal">$path</span>, checked = <span class="bool-val">false</span>)
@@ -1250,19 +1251,19 @@
 ///           a column should be decoded as `bool`. It will be inferred to be `i8` instead.
 ///           See the link above for details.
 ///     * SQLite: [crate::sqlite::types]
-/// * If a column may be `NULL`, the corresponding field&#39;s type must be wrapped in `Option&lt;_&gt;`.
+/// * If a column may be `NULL`, the corresponding field's type must be wrapped in `Option&lt;_&gt;`.
 /// * Neither the query nor the struct may have unused fields.
 ///
 /// The only modification to the `query!()` syntax is that the struct name is given before the SQL
 /// string:
 /// ```rust,ignore
 /// # use sqlx::Connect;
-/// # #[cfg(all(feature = &quot;mysql&quot;, feature = &quot;_rt-async-std&quot;))]
+/// # #[cfg(all(feature = "mysql", feature = "_rt-async-std"))]
 /// # #[async_std::main]
 /// # async fn main() -&gt; sqlx::Result&lt;()&gt;{
-/// # let db_url = dotenvy::var(&quot;DATABASE_URL&quot;).expect(&quot;DATABASE_URL must be set&quot;);
+/// # let db_url = dotenvy::var("DATABASE_URL").expect("DATABASE_URL must be set");
 /// #
-/// # if !(db_url.starts_with(&quot;mysql&quot;) || db_url.starts_with(&quot;mariadb&quot;)) { return Ok(()) }
+/// # if !(db_url.starts_with("mysql") || db_url.starts_with("mariadb")) { return Ok(()) }
 /// # let mut conn = sqlx::MySqlConnection::connect(db_url).await?;
 /// #[derive(Debug)]
 /// struct Account {
@@ -1273,23 +1274,23 @@
 /// // let mut conn = &lt;impl sqlx::Executor&gt;;
 /// let account = sqlx::query_as!(
 ///         Account,
-///         &quot;select * from (select (1) as id, &#39;Herp Derpinson&#39; as name) accounts where id = ?&quot;,
+///         "select * from (select (1) as id, 'Herp Derpinson' as name) accounts where id = ?",
 ///         1i32
 ///     )
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
 ///
-/// println!(&quot;{account:?}&quot;);
-/// println!(&quot;{}: {}&quot;, account.id, account.name);
+/// println!("{account:?}");
+/// println!("{}: {}", account.id, account.name);
 ///
 /// # Ok(())
 /// # }
 /// #
-/// # #[cfg(any(not(feature = &quot;mysql&quot;), not(feature = &quot;_rt-async-std&quot;)))]
+/// # #[cfg(any(not(feature = "mysql"), not(feature = "_rt-async-std")))]
 /// # fn main() {}
 /// ```
 ///
-/// **The method you want to call depends on how many rows you&#39;re expecting.**
+/// **The method you want to call depends on how many rows you're expecting.**
 ///
 /// | Number of Rows | Method to Call*             | Returns (`T` being the given struct)   | Notes |
 /// |----------------| ----------------------------|----------------------------------------|-------|
@@ -1305,7 +1306,7 @@
 /// In addition to the column type overrides supported by [query!], `query_as!()` supports an
 /// additional override option:
 ///
-/// If you select a column `foo as &quot;foo: _&quot;` (Postgres/SQLite) or `` foo as `foo: _` `` (MySQL)
+/// If you select a column `foo as "foo: _"` (Postgres/SQLite) or `` foo as `foo: _` `` (MySQL)
 /// it causes that column to be inferred based on the type of the corresponding field in the given
 /// record struct. Runtime type-checking is still done so an error will be emitted if the types
 /// are not compatible.
@@ -1324,16 +1325,16 @@
 /// let my_int = MyInt4(1);
 ///
 /// // Postgres/SQLite
-/// sqlx::query_as!(Record, r#&quot;select 1 as &quot;id: _&quot;&quot;#) // MySQL: use &quot;select 1 as `id: _`&quot; instead
+/// sqlx::query_as!(Record, r#"select 1 as "id: _""#) // MySQL: use "select 1 as `id: _`" instead
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
 ///
 /// assert_eq!(record.id, MyInt4(1));
 /// ```
 ///
-/// ### Troubleshooting: &quot;error: mismatched types&quot;
-/// If you get a &quot;mismatched types&quot; error from an invocation of this macro and the error
-/// isn&#39;t pointing specifically at a parameter.
+/// ### Troubleshooting: "error: mismatched types"
+/// If you get a "mismatched types" error from an invocation of this macro and the error
+/// isn't pointing specifically at a parameter.
 ///
 /// For example, code like this (using a Postgres database):
 ///
@@ -1345,7 +1346,7 @@
 ///
 /// let account = sqlx::query_as!(
 ///     Account,
-///     r#&quot;SELECT id, name from (VALUES (1, &#39;Herp Derpinson&#39;)) accounts(id, name)&quot;#,
+///     r#"SELECT id, name from (VALUES (1, 'Herp Derpinson')) accounts(id, name)"#,
 /// )
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
@@ -1359,7 +1360,7 @@
 /// 126 |       let account = sqlx::query_as!(
 ///     |  ___________________^
 /// 127 | |         Account,
-/// 128 | |         r#&quot;SELECT id, name from (VALUES (1, &#39;Herp Derpinson&#39;)) accounts(id, name)&quot;#,
+/// 128 | |         r#"SELECT id, name from (VALUES (1, 'Herp Derpinson')) accounts(id, name)"#,
 /// 129 | |     )
 ///     | |_____^ expected `i32`, found enum `std::option::Option`
 ///     |
@@ -1367,22 +1368,22 @@
 ///                found enum `std::option::Option&lt;i32&gt;`
 /// ```
 ///
-/// This means that you need to check that any field of the &quot;expected&quot; type (here, `i32`) matches
+/// This means that you need to check that any field of the "expected" type (here, `i32`) matches
 /// the Rust type mapping for its corresponding SQL column (see the `types` module of your database,
-/// listed above, for mappings). The &quot;found&quot; type is the SQL-&gt;Rust mapping that the macro chose.
+/// listed above, for mappings). The "found" type is the SQL-&gt;Rust mapping that the macro chose.
 ///
-/// In the above example, the returned column is inferred to be nullable because it&#39;s being
+/// In the above example, the returned column is inferred to be nullable because it's being
 /// returned from a `VALUES` statement in Postgres, so the macro inferred the field to be nullable
 /// and so used `Option&lt;i32&gt;` instead of `i32`. **In this specific case** we could use
-/// `select id as &quot;id!&quot;` to override the inferred nullability because we know in practice
+/// `select id as "id!"` to override the inferred nullability because we know in practice
 /// that column will never be `NULL` and it will fix the error.
 ///
 /// Nullability inference and type overrides are discussed in detail in the docs for [query!].
 ///
-/// It unfortunately doesn&#39;t appear to be possible right now to make the error specifically mention
+/// It unfortunately doesn't appear to be possible right now to make the error specifically mention
 /// the field; this probably requires the `const-panic` feature (still unstable as of Rust 1.45).
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_as (
     (<span class="macro-nonterminal">$out_struct</span>:path, <span class="macro-nonterminal">$query</span>:expr) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record </span>= <span class="macro-nonterminal">$out_struct</span>, source = <span class="macro-nonterminal">$query</span>)
@@ -1398,12 +1399,12 @@
 ///
 /// ```rust,ignore
 /// # use sqlx::Connect;
-/// # #[cfg(all(feature = &quot;mysql&quot;, feature = &quot;_rt-async-std&quot;))]
+/// # #[cfg(all(feature = "mysql", feature = "_rt-async-std"))]
 /// # #[async_std::main]
 /// # async fn main() -&gt; sqlx::Result&lt;()&gt;{
-/// # let db_url = dotenvy::var(&quot;DATABASE_URL&quot;).expect(&quot;DATABASE_URL must be set&quot;);
+/// # let db_url = dotenvy::var("DATABASE_URL").expect("DATABASE_URL must be set");
 /// #
-/// # if !(db_url.starts_with(&quot;mysql&quot;) || db_url.starts_with(&quot;mariadb&quot;)) { return Ok(()) }
+/// # if !(db_url.starts_with("mysql") || db_url.starts_with("mariadb")) { return Ok(()) }
 /// # let mut conn = sqlx::MySqlConnection::connect(db_url).await?;
 /// #[derive(Debug)]
 /// struct Account {
@@ -1412,21 +1413,21 @@
 /// }
 ///
 /// // let mut conn = &lt;impl sqlx::Executor&gt;;
-/// let account = sqlx::query_file_as!(Account, &quot;tests/test-query-account-by-id.sql&quot;, 1i32)
+/// let account = sqlx::query_file_as!(Account, "tests/test-query-account-by-id.sql", 1i32)
 ///     .fetch_one(&amp;mut conn)
 ///     .await?;
 ///
-/// println!(&quot;{account:?}&quot;);
-/// println!(&quot;{}: {}&quot;, account.id, account.name);
+/// println!("{account:?}");
+/// println!("{}: {}", account.id, account.name);
 ///
 /// # Ok(())
 /// # }
 /// #
-/// # #[cfg(any(not(feature = &quot;mysql&quot;), not(feature = &quot;_rt-async-std&quot;)))]
+/// # #[cfg(any(not(feature = "mysql"), not(feature = "_rt-async-std")))]
 /// # fn main() {}
 /// ```
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_file_as (
     (<span class="macro-nonterminal">$out_struct</span>:path, <span class="macro-nonterminal">$path</span>:literal) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record </span>= <span class="macro-nonterminal">$out_struct</span>, source_file = <span class="macro-nonterminal">$path</span>)
@@ -1437,9 +1438,9 @@
 );
 
 <span class="doccomment">/// A variant of [query_as!] which does not check the input or output types. This still does parse
-/// the query to ensure it&#39;s syntactically and semantically valid for the current database.
+/// the query to ensure it's syntactically and semantically valid for the current database.
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_as_unchecked (
     (<span class="macro-nonterminal">$out_struct</span>:path, <span class="macro-nonterminal">$query</span>:expr) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record </span>= <span class="macro-nonterminal">$out_struct</span>, source = <span class="macro-nonterminal">$query</span>, checked = <span class="bool-val">false</span>)
@@ -1451,10 +1452,10 @@
 );
 
 <span class="doccomment">/// A variant of [query_file_as!] which does not check the input or output types. This
-/// still does parse the query to ensure it&#39;s syntactically and semantically valid
+/// still does parse the query to ensure it's syntactically and semantically valid
 /// for the current database.
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_file_as_unchecked (
     (<span class="macro-nonterminal">$out_struct</span>:path, <span class="macro-nonterminal">$path</span>:literal) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record </span>= <span class="macro-nonterminal">$out_struct</span>, source_file = <span class="macro-nonterminal">$path</span>, checked = <span class="bool-val">false</span>)
@@ -1471,7 +1472,7 @@
 /// The name of the column is not required to be a valid Rust identifier, however you can still
 /// use the column type override syntax in which case the column name _does_ have to be a valid
 /// Rust identifier for the override to parse properly. If the override parse fails the error
-/// is silently ignored (we just don&#39;t have a reliable way to tell the difference). **If you&#39;re
+/// is silently ignored (we just don't have a reliable way to tell the difference). **If you're
 /// getting a different type than expected, please check to see if your override syntax is correct
 /// before opening an issue.**
 ///
@@ -1480,7 +1481,7 @@
 ///
 /// See [query!] for more information.
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_scalar (
     (<span class="macro-nonterminal">$query</span>:expr) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar </span>= <span class="kw">_</span>, source = <span class="macro-nonterminal">$query</span>)
@@ -1492,7 +1493,7 @@
 
 <span class="doccomment">/// A variant of [query_scalar!] which takes a file path like [query_file!].
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_file_scalar (
     (<span class="macro-nonterminal">$path</span>:literal) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar </span>= <span class="kw">_</span>, source_file = <span class="macro-nonterminal">$path</span>)
@@ -1509,7 +1510,7 @@
 ///
 /// For this macro variant the name of the column is irrelevant.
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_scalar_unchecked (
     (<span class="macro-nonterminal">$query</span>:expr) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar </span>= <span class="kw">_</span>, source = <span class="macro-nonterminal">$query</span>, checked = <span class="bool-val">false</span>)
@@ -1526,7 +1527,7 @@
 ///
 /// For this macro variant the name of the column is irrelevant.
 </span><span class="attr">#[macro_export]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;macros&quot;</span>)))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
 </span><span class="macro">macro_rules! </span>query_file_scalar_unchecked (
     (<span class="macro-nonterminal">$path</span>:literal) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar </span>= <span class="kw">_</span>, source_file = <span class="macro-nonterminal">$path</span>, checked = <span class="bool-val">false</span>)
@@ -1539,7 +1540,7 @@
 <span class="doccomment">/// Embeds migrations into the binary by expanding to a static instance of [Migrator][crate::migrate::Migrator].
 ///
 /// ```rust,ignore
-/// sqlx::migrate!(&quot;db/migrations&quot;)
+/// sqlx::migrate!("db/migrations")
 ///     .run(&amp;pool)
 ///     .await?;
 /// ```
@@ -1547,7 +1548,7 @@
 /// ```rust,ignore
 /// use sqlx::migrate::Migrator;
 ///
-/// static MIGRATOR: Migrator = sqlx::migrate!(); // defaults to &quot;./migrations&quot;
+/// static MIGRATOR: Migrator = sqlx::migrate!(); // defaults to "./migrations"
 /// ```
 ///
 /// The directory must be relative to the project root (the directory containing `Cargo.toml`),
@@ -1558,12 +1559,12 @@
 ///
 /// ## Triggering Recompilation on Migration Changes
 /// In some cases when making changes to embedded migrations, such as adding a new migration without
-/// changing any Rust source files, you might find that `cargo build` doesn&#39;t actually do anything,
-/// or when you do `cargo run` your application isn&#39;t applying new migrations on startup.
+/// changing any Rust source files, you might find that `cargo build` doesn't actually do anything,
+/// or when you do `cargo run` your application isn't applying new migrations on startup.
 ///
 /// This is because our ability to tell the compiler to watch external files for changes
 /// from a proc-macro is very limited. The compiler by default only re-runs proc macros when
-/// one or more source files have changed, because normally it shouldn&#39;t have to otherwise. SQLx is
+/// one or more source files have changed, because normally it shouldn't have to otherwise. SQLx is
 /// just weird in that external factors can change the output of proc macros, much to the chagrin of
 /// the compiler team and IDE plugin authors.
 ///
@@ -1581,7 +1582,7 @@
 /// `build.rs`
 /// ```
 /// fn main() {
-///     println!(&quot;cargo:rerun-if-changed=migrations&quot;);
+///     println!("cargo:rerun-if-changed=migrations");
 /// }
 /// ```
 ///
@@ -1594,7 +1595,7 @@
 /// the `track_path` feature to directly tell the compiler to watch the `migrations/` directory:
 ///
 /// ```sh,ignore
-/// $ env RUSTFLAGS=&#39;--cfg sqlx_macros_unstable&#39; cargo build
+/// $ env RUSTFLAGS='--cfg sqlx_macros_unstable' cargo build
 /// ```
 ///
 /// Note that this unfortunately will trigger a fully recompile of your dependency tree, at least
@@ -1603,21 +1604,21 @@
 /// You can also set it in `build.rustflags` in `.cargo/config.toml`:
 /// ```toml,ignore
 /// [build]
-/// rustflags = [&quot;--cfg=sqlx_macros_unstable&quot;]
+/// rustflags = ["--cfg=sqlx_macros_unstable"]
 /// ```
 ///
 /// And then continue building and running your project normally.
 ///
-/// If you&#39;re building on nightly anyways, it would be extremely helpful to help us test
+/// If you're building on nightly anyways, it would be extremely helpful to help us test
 /// this feature and find any bugs in it.
 ///
 /// Subscribe to [the `track_path` tracking issue](https://github.com/rust-lang/rust/issues/73921)
 /// for discussion and the future stabilization of this feature.
 ///
 /// For brevity and because it involves the same commitment to unstable features in `proc_macro`,
-/// if you&#39;re using `--cfg procmacro2_semver_exempt` it will also enable this feature
+/// if you're using `--cfg procmacro2_semver_exempt` it will also enable this feature
 /// (see [`proc-macro2` docs / Unstable Features](https://docs.rs/proc-macro2/1.0.27/proc_macro2/#unstable-features)).
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 #[macro_export]
 </span><span class="macro">macro_rules! </span>migrate {
     (<span class="macro-nonterminal">$dir</span>:literal) =&gt; {{
@@ -1625,7 +1626,7 @@
     }};
 
     () =&gt; {{
-        <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::migrate!</span>(<span class="string">&quot;./migrations&quot;</span>)
+        <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::migrate!</span>(<span class="string">"./migrations"</span>)
     }};
 }
 </code></pre></div></section></main></body></html>

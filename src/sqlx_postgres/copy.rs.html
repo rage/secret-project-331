@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/copy.rs`."><title>copy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/copy.rs`."><title>copy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -411,16 +412,16 @@
     /// 2. by using another connection to kill the server process that is sending the data as shown
     /// [in this StackOverflow answer](https://stackoverflow.com/a/35319598).
     ///
-    /// If you don&#39;t read the stream to completion, the next time the connection is used it will
+    /// If you don't read the stream to completion, the next time the connection is used it will
     /// need to read and discard all the remaining queued data, which could take some time.
     ///
     /// Command examples and accepted formats for `COPY` data are shown here:
     /// https://www.postgresql.org/docs/current/sql-copy.html
     </span><span class="attr">#[allow(clippy::needless_lifetimes)]
-    </span><span class="kw">pub async fn </span>copy_out_raw&lt;<span class="lifetime">&#39;c</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span><span class="self">self</span>,
+    </span><span class="kw">pub async fn </span>copy_out_raw&lt;<span class="lifetime">'c</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="kw-2">mut </span><span class="self">self</span>,
         statement: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;BoxStream&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;Bytes&gt;&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;BoxStream&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;Bytes&gt;&gt;&gt; {
         pg_begin_copy_out(<span class="self">self</span>, statement).<span class="kw">await
     </span>}
 }
@@ -445,10 +446,10 @@
     /// ### Note
     /// [PgCopyIn::finish] or [PgCopyIn::abort] *must* be called when finished or the connection
     /// will return an error the next time it is used.
-    </span><span class="kw">fn </span>copy_in_raw&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        statement: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Result</span>&lt;PgCopyIn&lt;PoolConnection&lt;Postgres&gt;&gt;&gt;&gt;;
+    </span><span class="kw">fn </span>copy_in_raw&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        statement: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'a</span>, <span class="prelude-ty">Result</span>&lt;PgCopyIn&lt;PoolConnection&lt;Postgres&gt;&gt;&gt;&gt;;
 
     <span class="doccomment">/// Issue a `COPY TO STDOUT` statement and begin streaming data
     /// from Postgres. This is a more efficient way to export data from Postgres but
@@ -464,29 +465,29 @@
     /// 2. by using another connection to kill the server process that is sending the data as shown
     /// [in this StackOverflow answer](https://stackoverflow.com/a/35319598).
     ///
-    /// If you don&#39;t read the stream to completion, the next time the connection is used it will
+    /// If you don't read the stream to completion, the next time the connection is used it will
     /// need to read and discard all the remaining queued data, which could take some time.
     ///
     /// Command examples and accepted formats for `COPY` data are shown here:
     /// https://www.postgresql.org/docs/current/sql-copy.html
-    </span><span class="kw">fn </span>copy_out_raw&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        statement: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Result</span>&lt;BoxStream&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;Bytes&gt;&gt;&gt;&gt;;
+    </span><span class="kw">fn </span>copy_out_raw&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        statement: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'a</span>, <span class="prelude-ty">Result</span>&lt;BoxStream&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;Bytes&gt;&gt;&gt;&gt;;
 }
 
 <span class="kw">impl </span>PgPoolCopyExt <span class="kw">for </span>Pool&lt;Postgres&gt; {
-    <span class="kw">fn </span>copy_in_raw&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        statement: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Result</span>&lt;PgCopyIn&lt;PoolConnection&lt;Postgres&gt;&gt;&gt;&gt; {
+    <span class="kw">fn </span>copy_in_raw&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        statement: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'a</span>, <span class="prelude-ty">Result</span>&lt;PgCopyIn&lt;PoolConnection&lt;Postgres&gt;&gt;&gt;&gt; {
         Box::pin(<span class="kw">async </span>{ PgCopyIn::begin(<span class="self">self</span>.acquire().<span class="kw">await</span><span class="question-mark">?</span>, statement).<span class="kw">await </span>})
     }
 
-    <span class="kw">fn </span>copy_out_raw&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        statement: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Result</span>&lt;BoxStream&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;Bytes&gt;&gt;&gt;&gt; {
+    <span class="kw">fn </span>copy_out_raw&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        statement: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'a</span>, <span class="prelude-ty">Result</span>&lt;BoxStream&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;Bytes&gt;&gt;&gt;&gt; {
         Box::pin(<span class="kw">async </span>{ pg_begin_copy_out(<span class="self">self</span>.acquire().<span class="kw">await</span><span class="question-mark">?</span>, statement).<span class="kw">await </span>})
     }
 }
@@ -498,7 +499,7 @@
 /// ### Note
 /// [PgCopyIn::finish] or [PgCopyIn::abort] *must* be called when finished or the connection
 /// will return an error the next time it is used.
-</span><span class="attr">#[must_use = <span class="string">&quot;connection will error on next use if `.finish()` or `.abort()` is not called&quot;</span>]
+</span><span class="attr">#[must_use = <span class="string">"connection will error on next use if `.finish()` or `.abort()` is not called"</span>]
 </span><span class="kw">pub struct </span>PgCopyIn&lt;C: DerefMut&lt;Target = PgConnection&gt;&gt; {
     conn: <span class="prelude-ty">Option</span>&lt;C&gt;,
     response: CopyResponse,
@@ -533,7 +534,7 @@
         <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.response.num_columns <span class="kw">as </span>usize,
             <span class="self">self</span>.response.format_codes.len(),
-            <span class="string">&quot;num_columns does not match format_codes.len()&quot;
+            <span class="string">"num_columns does not match format_codes.len()"
         </span>);
         <span class="self">self</span>.response.format_codes.len()
     }
@@ -548,11 +549,11 @@
 
     <span class="doccomment">/// Send a chunk of `COPY` data.
     ///
-    /// If you&#39;re copying data from an `AsyncRead`, maybe consider [Self::read_from] instead.
+    /// If you're copying data from an `AsyncRead`, maybe consider [Self::read_from] instead.
     </span><span class="kw">pub async fn </span>send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw">impl </span>Deref&lt;Target = [u8]&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt; {
         <span class="self">self</span>.conn
             .as_deref_mut()
-            .expect(<span class="string">&quot;send_data: conn taken&quot;</span>)
+            .expect(<span class="string">"send_data: conn taken"</span>)
             .stream
             .send(CopyData(data))
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -576,15 +577,15 @@
     /// takes precedent.
     </span><span class="kw">pub async fn </span>read_from(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>source: <span class="kw">impl </span>AsyncRead + Unpin) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt; {
         <span class="comment">// this is a separate guard from WriteAndFlush so we can reuse the buffer without zeroing
-        </span><span class="kw">struct </span>BufGuard&lt;<span class="lifetime">&#39;s</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="kw-2">mut </span>Vec&lt;u8&gt;);
+        </span><span class="kw">struct </span>BufGuard&lt;<span class="lifetime">'s</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="kw-2">mut </span>Vec&lt;u8&gt;);
 
-        <span class="kw">impl </span>Drop <span class="kw">for </span>BufGuard&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">impl </span>Drop <span class="kw">for </span>BufGuard&lt;<span class="lifetime">'_</span>&gt; {
             <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
                 <span class="self">self</span>.<span class="number">0</span>.clear()
             }
         }
 
-        <span class="kw">let </span>conn: <span class="kw-2">&amp;mut </span>PgConnection = <span class="self">self</span>.conn.as_deref_mut().expect(<span class="string">&quot;copy_from: conn taken&quot;</span>);
+        <span class="kw">let </span>conn: <span class="kw-2">&amp;mut </span>PgConnection = <span class="self">self</span>.conn.as_deref_mut().expect(<span class="string">"copy_from: conn taken"</span>);
 
         <span class="comment">// flush any existing messages in the buffer and clear it
         </span>conn.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -593,13 +594,13 @@
             <span class="kw">let </span>buf = conn.stream.write_buffer_mut();
 
             <span class="comment">// CopyData format code and reserved space for length
-            </span>buf.put_slice(<span class="string">b&quot;d\0\0\0\x04&quot;</span>);
+            </span>buf.put_slice(<span class="string">b"d\0\0\0\x04"</span>);
 
             <span class="kw">let </span>read = <span class="kw">match </span>() {
                 <span class="comment">// Tokio lets us read into the buffer without zeroing first
-                </span><span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+                </span><span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
                 </span><span class="kw">_ </span>=&gt; source.read_buf(buf.buf_mut()).<span class="kw">await</span><span class="question-mark">?</span>,
-                <span class="attr">#[cfg(not(feature = <span class="string">&quot;_rt-tokio&quot;</span>))]
+                <span class="attr">#[cfg(not(feature = <span class="string">"_rt-tokio"</span>))]
                 </span><span class="kw">_ </span>=&gt; source.read(buf.init_remaining_mut()).<span class="kw">await</span><span class="question-mark">?</span>,
             };
 
@@ -612,7 +613,7 @@
 
             <span class="comment">// Write the length
             </span><span class="kw">let </span>read32 = u32::try_from(read)
-                .map_err(|<span class="kw">_</span>| <span class="macro">err_protocol!</span>(<span class="string">&quot;number of bytes read exceeds 2^32: {}&quot;</span>, read))<span class="question-mark">?</span>;
+                .map_err(|<span class="kw">_</span>| <span class="macro">err_protocol!</span>(<span class="string">"number of bytes read exceeds 2^32: {}"</span>, read))<span class="question-mark">?</span>;
 
             (<span class="kw-2">&amp;mut </span>buf.get_mut()[<span class="number">1</span>..]).put_u32(read32 + <span class="number">4</span>);
 
@@ -631,18 +632,18 @@
         <span class="kw">let </span><span class="kw-2">mut </span>conn = <span class="self">self
             </span>.conn
             .take()
-            .expect(<span class="string">&quot;PgCopyIn::fail_with: conn taken illegally&quot;</span>);
+            .expect(<span class="string">"PgCopyIn::fail_with: conn taken illegally"</span>);
 
         conn.stream.send(CopyFail::new(msg)).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">match </span>conn.stream.recv().<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(msg) =&gt; <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
-                <span class="string">&quot;fail_with: expected ErrorResponse, got: {:?}&quot;</span>,
+                <span class="string">"fail_with: expected ErrorResponse, got: {:?}"</span>,
                 msg.format
             )),
             <span class="prelude-val">Err</span>(Error::Database(e)) =&gt; {
                 <span class="kw">match </span>e.code() {
-                    <span class="prelude-val">Some</span>(Cow::Borrowed(<span class="string">&quot;57014&quot;</span>)) =&gt; {
+                    <span class="prelude-val">Some</span>(Cow::Borrowed(<span class="string">"57014"</span>)) =&gt; {
                         <span class="comment">// postgres abort received error code
                         </span>conn.stream
                             .recv_expect(MessageFormat::ReadyForQuery)
@@ -663,7 +664,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>conn = <span class="self">self
             </span>.conn
             .take()
-            .expect(<span class="string">&quot;CopyWriter::finish: conn taken illegally&quot;</span>);
+            .expect(<span class="string">"CopyWriter::finish: conn taken illegally"</span>);
 
         conn.stream.send(CopyDone).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>cc: CommandComplete = <span class="kw">match </span>conn
@@ -690,16 +691,16 @@
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>conn) = <span class="self">self</span>.conn.take() {
             conn.stream.write(CopyFail::new(
-                <span class="string">&quot;PgCopyIn dropped without calling finish() or fail()&quot;</span>,
+                <span class="string">"PgCopyIn dropped without calling finish() or fail()"</span>,
             ));
         }
     }
 }
 
-<span class="kw">async fn </span>pg_begin_copy_out&lt;<span class="lifetime">&#39;c</span>, C: DerefMut&lt;Target = PgConnection&gt; + Send + <span class="lifetime">&#39;c</span>&gt;(
+<span class="kw">async fn </span>pg_begin_copy_out&lt;<span class="lifetime">'c</span>, C: DerefMut&lt;Target = PgConnection&gt; + Send + <span class="lifetime">'c</span>&gt;(
     <span class="kw-2">mut </span>conn: C,
     statement: <span class="kw-2">&amp;</span>str,
-) -&gt; <span class="prelude-ty">Result</span>&lt;BoxStream&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;Bytes&gt;&gt;&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;BoxStream&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;Bytes&gt;&gt;&gt; {
     conn.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
     conn.stream.send(Query(statement)).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -708,7 +709,7 @@
         .recv_expect(MessageFormat::CopyOutResponse)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>stream: TryAsyncStream&lt;<span class="lifetime">&#39;c</span>, Bytes&gt; = <span class="macro">try_stream! </span>{
+    <span class="kw">let </span>stream: TryAsyncStream&lt;<span class="lifetime">'c</span>, Bytes&gt; = <span class="macro">try_stream! </span>{
         <span class="kw">loop </span>{
             <span class="kw">let </span>msg = conn.stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">match </span>msg.format {
@@ -719,7 +720,7 @@
                     conn.stream.recv_expect(MessageFormat::ReadyForQuery).<span class="kw">await</span><span class="question-mark">?</span>;
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(())
                 },
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(<span class="string">&quot;unexpected message format during copy out: {:?}&quot;</span>, msg.format))
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(<span class="string">"unexpected message format during copy out: {:?}"</span>, msg.format))
             }
         }
     };

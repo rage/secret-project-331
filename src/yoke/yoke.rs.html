@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-0.7.3/src/yoke.rs`."><title>yoke.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-0.7.3/src/yoke.rs`."><title>yoke.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1354,7 +1355,7 @@
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
 </span><span class="kw">use </span><span class="kw">crate</span>::either::EitherCart;
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::erased::{ErasedArcCart, ErasedBoxCart, ErasedRcCart};
 <span class="kw">use </span><span class="kw">crate</span>::kinda_sorta_dangling::KindaSortaDangling;
 <span class="kw">use </span><span class="kw">crate</span>::trait_hack::YokeTraitHack;
@@ -1363,33 +1364,33 @@
 <span class="kw">use </span>core::ops::Deref;
 <span class="kw">use </span>stable_deref_trait::StableDeref;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::boxed::Box;
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::rc::Rc;
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::sync::Arc;
 
-<span class="doccomment">/// A Cow-like borrowed object &quot;yoked&quot; to its backing data.
+<span class="doccomment">/// A Cow-like borrowed object "yoked" to its backing data.
 ///
 /// This allows things like zero copy deserialized data to carry around
-/// shared references to their backing buffer, by &quot;erasing&quot; their static lifetime
+/// shared references to their backing buffer, by "erasing" their static lifetime
 /// and turning it into a dynamically managed one.
 ///
 /// `Y` (the [`Yokeable`]) is the object containing the references,
-/// and will typically be of the form `Foo&lt;&#39;static&gt;`. The `&#39;static` is
+/// and will typically be of the form `Foo&lt;'static&gt;`. The `'static` is
 /// not the actual lifetime of the data, rather it is a convenient way to mark the
 /// erased lifetime and make it dynamic.
 ///
-/// `C` is the &quot;cart&quot;, which `Y` may contain references to. After the yoke is constructed,
-/// the cart serves little purpose except to guarantee that `Y`&#39;s references remain valid
+/// `C` is the "cart", which `Y` may contain references to. After the yoke is constructed,
+/// the cart serves little purpose except to guarantee that `Y`'s references remain valid
 /// for as long as the yoke remains in memory (by calling the destructor at the appropriate moment).
 ///
 /// The primary constructor for [`Yoke`] is [`Yoke::attach_to_cart()`]. Several variants of that
 /// constructor are provided to serve numerous types of call sites and `Yoke` signatures.
 ///
 /// The key behind this type is [`Yoke::get()`], where calling [`.get()`][Yoke::get] on a type like
-/// `Yoke&lt;Cow&lt;&#39;static, str&gt;, _&gt;` will get you a short-lived `&amp;&#39;a Cow&lt;&#39;a, str&gt;`, restricted to the
+/// `Yoke&lt;Cow&lt;'static, str&gt;, _&gt;` will get you a short-lived `&amp;'a Cow&lt;'a, str&gt;`, restricted to the
 /// lifetime of the borrow used during `.get()`. This is entirely safe since the `Cow` borrows from
 /// the cart type `C`, which cannot be interfered with as long as the `Yoke` is borrowed by `.get
 /// ()`. `.get()` protects access by essentially reifying the erased lifetime to a safe local one
@@ -1414,54 +1415,54 @@
 /// #     Rc::new([0x5, 0, 0, 0, 0, 0, 0, 0, 0x68, 0x65, 0x6c, 0x6c, 0x6f])
 /// # }
 ///
-/// fn load_object(filename: &amp;str) -&gt; Yoke&lt;Cow&lt;&#39;static, str&gt;, Rc&lt;[u8]&gt;&gt; {
+/// fn load_object(filename: &amp;str) -&gt; Yoke&lt;Cow&lt;'static, str&gt;, Rc&lt;[u8]&gt;&gt; {
 ///     let rc: Rc&lt;[u8]&gt; = load_from_cache(filename);
-///     Yoke::&lt;Cow&lt;&#39;static, str&gt;, Rc&lt;[u8]&gt;&gt;::attach_to_cart(rc, |data: &amp;[u8]| {
+///     Yoke::&lt;Cow&lt;'static, str&gt;, Rc&lt;[u8]&gt;&gt;::attach_to_cart(rc, |data: &amp;[u8]| {
 ///         // essentially forcing a #[serde(borrow)]
 ///         Cow::Borrowed(bincode::deserialize(data).unwrap())
 ///     })
 /// }
 ///
-/// let yoke = load_object(&quot;filename.bincode&quot;);
-/// assert_eq!(&amp;**yoke.get(), &quot;hello&quot;);
+/// let yoke = load_object("filename.bincode");
+/// assert_eq!(&amp;**yoke.get(), "hello");
 /// assert!(matches!(yoke.get(), &amp;Cow::Borrowed(_)));
 /// ```
-</span><span class="kw">pub struct </span>Yoke&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C&gt; {
+</span><span class="kw">pub struct </span>Yoke&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C&gt; {
     <span class="comment">// must be the first field for drop order
-    // this will have a &#39;static lifetime parameter, that parameter is a lie
+    // this will have a 'static lifetime parameter, that parameter is a lie
     </span>yokeable: KindaSortaDangling&lt;Y&gt;,
     cart: C,
 }
 
 <span class="comment">// Manual `Debug` implementation, since the derived one would be unsound.
 // See https://github.com/unicode-org/icu4x/issues/3685
-</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C: core::fmt::Debug&gt; core::fmt::Debug <span class="kw">for </span>Yoke&lt;Y, C&gt;
+</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C: core::fmt::Debug&gt; core::fmt::Debug <span class="kw">for </span>Yoke&lt;Y, C&gt;
 <span class="kw">where
-    for</span>&lt;<span class="lifetime">&#39;a</span>&gt; &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output: core::fmt::Debug,
+    for</span>&lt;<span class="lifetime">'a</span>&gt; &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output: core::fmt::Debug,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;Yoke&quot;</span>)
-            .field(<span class="string">&quot;yokeable&quot;</span>, <span class="self">self</span>.get())
-            .field(<span class="string">&quot;cart&quot;</span>, <span class="self">self</span>.backing_cart())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"Yoke"</span>)
+            .field(<span class="string">"yokeable"</span>, <span class="self">self</span>.get())
+            .field(<span class="string">"cart"</span>, <span class="self">self</span>.backing_cart())
             .finish()
     }
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_debug() {
-    <span class="kw">let </span>local_data = <span class="string">&quot;foo&quot;</span>.to_owned();
-    <span class="kw">let </span>y1 = Yoke::&lt;alloc::borrow::Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;, Rc&lt;String&gt;&gt;::attach_to_zero_copy_cart(
+    <span class="kw">let </span>local_data = <span class="string">"foo"</span>.to_owned();
+    <span class="kw">let </span>y1 = Yoke::&lt;alloc::borrow::Cow&lt;<span class="lifetime">'static</span>, str&gt;, Rc&lt;String&gt;&gt;::attach_to_zero_copy_cart(
         Rc::new(local_data),
     );
     <span class="macro">assert_eq!</span>(
-        <span class="macro">format!</span>(<span class="string">&quot;{y1:?}&quot;</span>),
-        <span class="string">r#&quot;Yoke { yokeable: &quot;foo&quot;, cart: &quot;foo&quot; }&quot;#</span>,
+        <span class="macro">format!</span>(<span class="string">"{y1:?}"</span>),
+        <span class="string">r#"Yoke { yokeable: "foo", cart: "foo" }"#</span>,
     );
 }
 
-<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C: StableDeref&gt; Yoke&lt;Y, C&gt;
+<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C: StableDeref&gt; Yoke&lt;Y, C&gt;
 <span class="kw">where
-    </span>&lt;C <span class="kw">as </span>Deref&gt;::Target: <span class="lifetime">&#39;static</span>,
+    </span>&lt;C <span class="kw">as </span>Deref&gt;::Target: <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Construct a [`Yoke`] by yokeing an object to a cart in a closure.
     ///
@@ -1481,28 +1482,28 @@
     /// #     Rc::new([0x5, 0, 0, 0, 0, 0, 0, 0, 0x68, 0x65, 0x6c, 0x6c, 0x6f])
     /// # }
     ///
-    /// fn load_object(filename: &amp;str) -&gt; Yoke&lt;Cow&lt;&#39;static, str&gt;, Rc&lt;[u8]&gt;&gt; {
+    /// fn load_object(filename: &amp;str) -&gt; Yoke&lt;Cow&lt;'static, str&gt;, Rc&lt;[u8]&gt;&gt; {
     ///     let rc: Rc&lt;[u8]&gt; = load_from_cache(filename);
-    ///     Yoke::&lt;Cow&lt;&#39;static, str&gt;, Rc&lt;[u8]&gt;&gt;::attach_to_cart(rc, |data: &amp;[u8]| {
+    ///     Yoke::&lt;Cow&lt;'static, str&gt;, Rc&lt;[u8]&gt;&gt;::attach_to_cart(rc, |data: &amp;[u8]| {
     ///         // essentially forcing a #[serde(borrow)]
     ///         Cow::Borrowed(bincode::deserialize(data).unwrap())
     ///     })
     /// }
     ///
-    /// let yoke: Yoke&lt;Cow&lt;str&gt;, _&gt; = load_object(&quot;filename.bincode&quot;);
-    /// assert_eq!(&amp;**yoke.get(), &quot;hello&quot;);
+    /// let yoke: Yoke&lt;Cow&lt;str&gt;, _&gt; = load_object("filename.bincode");
+    /// assert_eq!(&amp;**yoke.get(), "hello");
     /// assert!(matches!(yoke.get(), &amp;Cow::Borrowed(_)));
     /// ```
     </span><span class="kw">pub fn </span>attach_to_cart&lt;F&gt;(cart: C, f: F) -&gt; <span class="self">Self
     </span><span class="kw">where
         </span><span class="comment">// safety note: This works by enforcing that the *only* place the return value of F
-        // can borrow from is the cart, since `F` must be valid for all lifetimes `&#39;de`
+        // can borrow from is the cart, since `F` must be valid for all lifetimes `'de`
         //
-        // The &lt;C as Deref&gt;::Target: &#39;static on the impl is crucial for safety as well
+        // The &lt;C as Deref&gt;::Target: 'static on the impl is crucial for safety as well
         //
         // See safety docs at the bottom of this file for more information
-        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;de</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>&lt;C <span class="kw">as </span>Deref&gt;::Target) -&gt; &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Output,
-        &lt;C <span class="kw">as </span>Deref&gt;::Target: <span class="lifetime">&#39;static</span>,
+        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">'de</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'de </span>&lt;C <span class="kw">as </span>Deref&gt;::Target) -&gt; &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'de</span>&gt;&gt;::Output,
+        &lt;C <span class="kw">as </span>Deref&gt;::Target: <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>deserialized = f(cart.deref());
         <span class="self">Self </span>{
@@ -1518,7 +1519,7 @@
     /// [`Yoke::try_attach_to_cart_badly()`] and file a bug.
     </span><span class="kw">pub fn </span>try_attach_to_cart&lt;E, F&gt;(cart: C, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, E&gt;
     <span class="kw">where
-        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;de</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>&lt;C <span class="kw">as </span>Deref&gt;::Target) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Output, E&gt;,
+        </span>F: <span class="kw">for</span>&lt;<span class="lifetime">'de</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'de </span>&lt;C <span class="kw">as </span>Deref&gt;::Target) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'de</span>&gt;&gt;::Output, E&gt;,
     {
         <span class="kw">let </span>deserialized = f(cart.deref())<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
@@ -1529,34 +1530,34 @@
 
     <span class="doccomment">/// Use [`Yoke::attach_to_cart()`].
     ///
-    /// This was needed because the pre-1.61 compiler couldn&#39;t always handle the FnOnce trait bound.
+    /// This was needed because the pre-1.61 compiler couldn't always handle the FnOnce trait bound.
     </span><span class="attr">#[deprecated]
     </span><span class="kw">pub fn </span>attach_to_cart_badly(
         cart: C,
-        f: <span class="kw">for</span>&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>&lt;C <span class="kw">as </span>Deref&gt;::Target) -&gt; &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Output,
+        f: <span class="kw">for</span>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">'de </span>&lt;C <span class="kw">as </span>Deref&gt;::Target) -&gt; &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'de</span>&gt;&gt;::Output,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::attach_to_cart(cart, f)
     }
 
     <span class="doccomment">/// Use [`Yoke::try_attach_to_cart()`].
     ///
-    /// This was needed because the pre-1.61 compiler couldn&#39;t always handle the FnOnce trait bound.
+    /// This was needed because the pre-1.61 compiler couldn't always handle the FnOnce trait bound.
     </span><span class="attr">#[deprecated]
     </span><span class="kw">pub fn </span>try_attach_to_cart_badly&lt;E&gt;(
         cart: C,
-        f: <span class="kw">for</span>&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>&lt;C <span class="kw">as </span>Deref&gt;::Target) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Output, E&gt;,
+        f: <span class="kw">for</span>&lt;<span class="lifetime">'de</span>&gt; <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">'de </span>&lt;C <span class="kw">as </span>Deref&gt;::Target) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'de</span>&gt;&gt;::Output, E&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, E&gt; {
         <span class="self">Self</span>::try_attach_to_cart(cart, f)
     }
 }
 
-<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C&gt; Yoke&lt;Y, C&gt; {
+<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C&gt; Yoke&lt;Y, C&gt; {
     <span class="doccomment">/// Obtain a valid reference to the yokeable data
     ///
     /// This essentially transforms the lifetime of the internal yokeable data to
     /// be valid.
-    /// For example, if you&#39;re working with a `Yoke&lt;Cow&lt;&#39;static, T&gt;, C&gt;`, this
-    /// will return an `&amp;&#39;a Cow&lt;&#39;a, T&gt;`
+    /// For example, if you're working with a `Yoke&lt;Cow&lt;'static, T&gt;, C&gt;`, this
+    /// will return an `&amp;'a Cow&lt;'a, T&gt;`
     ///
     /// # Example
     ///
@@ -1569,19 +1570,19 @@
     /// #     Rc::new([0x5, 0, 0, 0, 0, 0, 0, 0, 0x68, 0x65, 0x6c, 0x6c, 0x6f])
     /// # }
     /// #
-    /// # fn load_object(filename: &amp;str) -&gt; Yoke&lt;Cow&lt;&#39;static, str&gt;, Rc&lt;[u8]&gt;&gt; {
+    /// # fn load_object(filename: &amp;str) -&gt; Yoke&lt;Cow&lt;'static, str&gt;, Rc&lt;[u8]&gt;&gt; {
     /// #     let rc: Rc&lt;[u8]&gt; = load_from_cache(filename);
-    /// #     Yoke::&lt;Cow&lt;&#39;static, str&gt;, Rc&lt;[u8]&gt;&gt;::attach_to_cart(rc, |data: &amp;[u8]| {
+    /// #     Yoke::&lt;Cow&lt;'static, str&gt;, Rc&lt;[u8]&gt;&gt;::attach_to_cart(rc, |data: &amp;[u8]| {
     /// #         Cow::Borrowed(bincode::deserialize(data).unwrap())
     /// #     })
     /// # }
     ///
     /// // load_object() defined in the example at the top of this page
-    /// let yoke: Yoke&lt;Cow&lt;str&gt;, _&gt; = load_object(&quot;filename.bincode&quot;);
-    /// assert_eq!(yoke.get(), &quot;hello&quot;);
+    /// let yoke: Yoke&lt;Cow&lt;str&gt;, _&gt; = load_object("filename.bincode");
+    /// assert_eq!(yoke.get(), "hello");
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>get&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output {
+    </span><span class="kw">pub fn </span>get&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output {
         <span class="self">self</span>.yokeable.transform()
     }
 
@@ -1606,15 +1607,15 @@
     /// ```
     /// use yoke::Yoke;
     ///
-    /// let local_data = &quot;foo&quot;.to_owned();
-    /// let yoke = Yoke::&lt;&amp;&#39;static str, Box&lt;String&gt;&gt;::attach_to_zero_copy_cart(
+    /// let local_data = "foo".to_owned();
+    /// let yoke = Yoke::&lt;&amp;'static str, Box&lt;String&gt;&gt;::attach_to_zero_copy_cart(
     ///     Box::new(local_data),
     /// );
-    /// assert_eq!(*yoke.get(), &quot;foo&quot;);
+    /// assert_eq!(*yoke.get(), "foo");
     ///
     /// // Get back the cart
     /// let cart = yoke.into_backing_cart();
-    /// assert_eq!(&amp;*cart, &quot;foo&quot;);
+    /// assert_eq!(&amp;*cart, "foo");
     /// ```
     ///
     /// Bad example: information specified in `.with_mut()` is lost.
@@ -1623,24 +1624,24 @@
     /// use std::borrow::Cow;
     /// use yoke::Yoke;
     ///
-    /// let local_data = &quot;foo&quot;.to_owned();
+    /// let local_data = "foo".to_owned();
     /// let mut yoke =
-    ///     Yoke::&lt;Cow&lt;&#39;static, str&gt;, Box&lt;String&gt;&gt;::attach_to_zero_copy_cart(
+    ///     Yoke::&lt;Cow&lt;'static, str&gt;, Box&lt;String&gt;&gt;::attach_to_zero_copy_cart(
     ///         Box::new(local_data),
     ///     );
-    /// assert_eq!(yoke.get(), &quot;foo&quot;);
+    /// assert_eq!(yoke.get(), "foo");
     ///
     /// // Override data in the cart
     /// yoke.with_mut(|cow| {
     ///     let mut_str = cow.to_mut();
     ///     mut_str.clear();
-    ///     mut_str.push_str(&quot;bar&quot;);
+    ///     mut_str.push_str("bar");
     /// });
-    /// assert_eq!(yoke.get(), &quot;bar&quot;);
+    /// assert_eq!(yoke.get(), "bar");
     ///
     /// // Get back the cart
     /// let cart = yoke.into_backing_cart();
-    /// assert_eq!(&amp;*cart, &quot;foo&quot;); // WHOOPS!
+    /// assert_eq!(&amp;*cart, "foo"); // WHOOPS!
     /// ```
     </span><span class="kw">pub fn </span>into_backing_cart(<span class="self">self</span>) -&gt; C {
         <span class="self">self</span>.cart
@@ -1656,11 +1657,11 @@
     /// - References from the yokeable `Y` should still be valid for the lifetime of the
     ///   returned cart type `C`.
     /// - Lifetimes inside C must not be lengthened, even if they are themselves contravariant.
-    ///   I.e., if C contains an `fn(&amp;&#39;a u8)`, it cannot be replaced with `fn(&amp;&#39;static u8),
+    ///   I.e., if C contains an `fn(&amp;'a u8)`, it cannot be replaced with `fn(&amp;'static u8),
     ///   even though that is typically safe.
     ///
     /// Typically, this means implementing `f` as something which _wraps_ the inner cart type `C`.
-    /// `Yoke` only really cares about destructors for its carts so it&#39;s fine to erase other
+    /// `Yoke` only really cares about destructors for its carts so it's fine to erase other
     /// information about the cart, as long as the backing data will still be destroyed at the
     /// same time.
     </span><span class="attr">#[inline]
@@ -1690,9 +1691,9 @@
     /// #     Rc::new([0x5, 0, 0, 0, 0, 0, 0, 0, 0x68, 0x65, 0x6c, 0x6c, 0x6f])
     /// # }
     /// #
-    /// # fn load_object(filename: &amp;str) -&gt; Yoke&lt;Bar&lt;&#39;static&gt;, Rc&lt;[u8]&gt;&gt; {
+    /// # fn load_object(filename: &amp;str) -&gt; Yoke&lt;Bar&lt;'static&gt;, Rc&lt;[u8]&gt;&gt; {
     /// #     let rc: Rc&lt;[u8]&gt; = load_from_cache(filename);
-    /// #     Yoke::&lt;Bar&lt;&#39;static&gt;, Rc&lt;[u8]&gt;&gt;::attach_to_cart(rc, |data: &amp;[u8]| {
+    /// #     Yoke::&lt;Bar&lt;'static&gt;, Rc&lt;[u8]&gt;&gt;::attach_to_cart(rc, |data: &amp;[u8]| {
     /// #         // A real implementation would properly deserialize `Bar` as a whole
     /// #         Bar {
     /// #             numbers: Cow::Borrowed(bincode::deserialize(data).unwrap()),
@@ -1703,60 +1704,60 @@
     /// # }
     ///
     /// // also implements Yokeable
-    /// struct Bar&lt;&#39;a&gt; {
-    ///     numbers: Cow&lt;&#39;a, [u8]&gt;,
-    ///     string: Cow&lt;&#39;a, str&gt;,
+    /// struct Bar&lt;'a&gt; {
+    ///     numbers: Cow&lt;'a, [u8]&gt;,
+    ///     string: Cow&lt;'a, str&gt;,
     ///     owned: Vec&lt;u8&gt;,
     /// }
     ///
     /// // `load_object()` deserializes an object from a file
-    /// let mut bar: Yoke&lt;Bar, _&gt; = load_object(&quot;filename.bincode&quot;);
-    /// assert_eq!(bar.get().string, &quot;hello&quot;);
+    /// let mut bar: Yoke&lt;Bar, _&gt; = load_object("filename.bincode");
+    /// assert_eq!(bar.get().string, "hello");
     /// assert!(matches!(bar.get().string, Cow::Borrowed(_)));
     /// assert_eq!(&amp;*bar.get().numbers, &amp;[0x68, 0x65, 0x6c, 0x6c, 0x6f]);
     /// assert!(matches!(bar.get().numbers, Cow::Borrowed(_)));
     /// assert_eq!(&amp;*bar.get().owned, &amp;[]);
     ///
     /// bar.with_mut(|bar| {
-    ///     bar.string.to_mut().push_str(&quot; world&quot;);
+    ///     bar.string.to_mut().push_str(" world");
     ///     bar.owned.extend_from_slice(&amp;[1, 4, 1, 5, 9]);
     /// });
     ///
-    /// assert_eq!(bar.get().string, &quot;hello world&quot;);
+    /// assert_eq!(bar.get().string, "hello world");
     /// assert!(matches!(bar.get().string, Cow::Owned(_)));
     /// assert_eq!(&amp;*bar.get().owned, &amp;[1, 4, 1, 5, 9]);
     /// // Unchanged and still Cow::Borrowed
     /// assert_eq!(&amp;*bar.get().numbers, &amp;[0x68, 0x65, 0x6c, 0x6c, 0x6f]);
     /// assert!(matches!(bar.get().numbers, Cow::Borrowed(_)));
     ///
-    /// # unsafe impl&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt; for Bar&lt;&#39;static&gt; {
-    /// #     type Output = Bar&lt;&#39;a&gt;;
-    /// #     fn transform(&amp;&#39;a self) -&gt; &amp;&#39;a Bar&lt;&#39;a&gt; {
+    /// # unsafe impl&lt;'a&gt; Yokeable&lt;'a&gt; for Bar&lt;'static&gt; {
+    /// #     type Output = Bar&lt;'a&gt;;
+    /// #     fn transform(&amp;'a self) -&gt; &amp;'a Bar&lt;'a&gt; {
     /// #         self
     /// #     }
     /// #
-    /// #     fn transform_owned(self) -&gt; Bar&lt;&#39;a&gt; {
+    /// #     fn transform_owned(self) -&gt; Bar&lt;'a&gt; {
     /// #         // covariant lifetime cast, can be done safely
     /// #         self
     /// #     }
     /// #
-    /// #     unsafe fn make(from: Bar&lt;&#39;a&gt;) -&gt; Self {
+    /// #     unsafe fn make(from: Bar&lt;'a&gt;) -&gt; Self {
     /// #         let ret = mem::transmute_copy(&amp;from);
     /// #         mem::forget(from);
     /// #         ret
     /// #     }
     /// #
-    /// #     fn transform_mut&lt;F&gt;(&amp;&#39;a mut self, f: F)
+    /// #     fn transform_mut&lt;F&gt;(&amp;'a mut self, f: F)
     /// #     where
-    /// #         F: &#39;static + FnOnce(&amp;&#39;a mut Self::Output),
+    /// #         F: 'static + FnOnce(&amp;'a mut Self::Output),
     /// #     {
     /// #         unsafe { f(mem::transmute(self)) }
     /// #     }
     /// # }
     /// ```
-    </span><span class="kw">pub fn </span>with_mut&lt;<span class="lifetime">&#39;a</span>, F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
+    </span><span class="kw">pub fn </span>with_mut&lt;<span class="lifetime">'a</span>, F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, f: F)
     <span class="kw">where
-        </span>F: <span class="lifetime">&#39;static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output),
+        </span>F: <span class="lifetime">'static </span>+ <span class="kw">for</span>&lt;<span class="lifetime">'b</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output),
     {
         <span class="self">self</span>.yokeable.transform_mut(f)
     }
@@ -1771,9 +1772,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt; Yoke&lt;Y, ()&gt; {
+<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt; Yoke&lt;Y, ()&gt; {
     <span class="doccomment">/// Construct a new [`Yoke`] from static data. There will be no
-    /// references to `cart` here since [`Yokeable`]s are `&#39;static`,
+    /// references to `cart` here since [`Yokeable`]s are `'static`,
     /// this is good for e.g. constructing fully owned
     /// [`Yoke`]s with no internal borrowing.
     ///
@@ -1788,11 +1789,11 @@
     /// # use std::borrow::Cow;
     /// # use std::rc::Rc;
     ///
-    /// let owned: Cow&lt;str&gt; = &quot;hello&quot;.to_owned().into();
+    /// let owned: Cow&lt;str&gt; = "hello".to_owned().into();
     /// // this yoke can be intermingled with actually-borrowed Yokes
     /// let yoke: Yoke&lt;Cow&lt;str&gt;, ()&gt; = Yoke::new_always_owned(owned);
     ///
-    /// assert_eq!(yoke.get(), &quot;hello&quot;);
+    /// assert_eq!(yoke.get(), "hello");
     /// ```
     </span><span class="kw">pub fn </span>new_always_owned(yokeable: Y) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -1803,7 +1804,7 @@
 
     <span class="doccomment">/// Obtain the yokeable out of a `Yoke&lt;Y, ()&gt;`
     ///
-    /// For most `Yoke` types this would be unsafe but it&#39;s
+    /// For most `Yoke` types this would be unsafe but it's
     /// fine for `Yoke&lt;Y, ()&gt;` since there are no actual internal
     /// references
     </span><span class="kw">pub fn </span>into_yokeable(<span class="self">self</span>) -&gt; Y {
@@ -1811,9 +1812,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C: StableDeref&gt; Yoke&lt;Y, <span class="prelude-ty">Option</span>&lt;C&gt;&gt; {
+<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C: StableDeref&gt; Yoke&lt;Y, <span class="prelude-ty">Option</span>&lt;C&gt;&gt; {
     <span class="doccomment">/// Construct a new [`Yoke`] from static data. There will be no
-    /// references to `cart` here since [`Yokeable`]s are `&#39;static`,
+    /// references to `cart` here since [`Yokeable`]s are `'static`,
     /// this is good for e.g. constructing fully owned
     /// [`Yoke`]s with no internal borrowing.
     ///
@@ -1830,11 +1831,11 @@
     /// # use std::borrow::Cow;
     /// # use std::rc::Rc;
     ///
-    /// let owned: Cow&lt;str&gt; = &quot;hello&quot;.to_owned().into();
+    /// let owned: Cow&lt;str&gt; = "hello".to_owned().into();
     /// // this yoke can be intermingled with actually-borrowed Yokes
     /// let yoke: Yoke&lt;Cow&lt;str&gt;, Option&lt;Rc&lt;[u8]&gt;&gt;&gt; = Yoke::new_owned(owned);
     ///
-    /// assert_eq!(yoke.get(), &quot;hello&quot;);
+    /// assert_eq!(yoke.get(), "hello");
     /// ```
     </span><span class="kw">pub const fn </span>new_owned(yokeable: Y) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -1859,9 +1860,9 @@
 ///
 /// This is conceptually similar to [`stable_deref_trait::CloneStableDeref`],
 /// however [`stable_deref_trait::CloneStableDeref`] is not (and should not) be
-/// implemented on [`Option`] (since it&#39;s not [`Deref`]). [`CloneableCart`] essentially is
-/// &quot;if there _is_ data to borrow from here, cloning the cart gives you an additional
-/// handle to the same data&quot;.
+/// implemented on [`Option`] (since it's not [`Deref`]). [`CloneableCart`] essentially is
+/// "if there _is_ data to borrow from here, cloning the cart gives you an additional
+/// handle to the same data".
 ///
 /// # Safety
 /// This trait is safe to implement `StableDeref` types which, once `Clone`d, point to the same underlying data.
@@ -1870,16 +1871,16 @@
 /// Yokes can be constructed for)
 </span><span class="kw">pub unsafe trait </span>CloneableCart: Clone {}
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">unsafe impl</span>&lt;T: <span class="question-mark">?</span>Sized&gt; CloneableCart <span class="kw">for </span>Rc&lt;T&gt; {}
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">unsafe impl</span>&lt;T: <span class="question-mark">?</span>Sized&gt; CloneableCart <span class="kw">for </span>Arc&lt;T&gt; {}
 <span class="kw">unsafe impl</span>&lt;T: CloneableCart&gt; CloneableCart <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {}
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized&gt; CloneableCart <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>Sized&gt; CloneableCart <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>T {}
 <span class="kw">unsafe impl </span>CloneableCart <span class="kw">for </span>() {}
 
 <span class="doccomment">/// Clone requires that the cart type `C` derefs to the same address after it is cloned. This works for
-/// Rc, Arc, and &amp;&#39;a T.
+/// Rc, Arc, and &amp;'a T.
 ///
 /// For other cart types, clone `.backing_cart()` and re-use `.attach_to_cart()`; however, doing
 /// so may lose mutations performed via `.with_mut()`.
@@ -1887,9 +1888,9 @@
 /// Cloning a `Yoke` is often a cheap operation requiring no heap allocations, in much the same
 /// way that cloning an `Rc` is a cheap operation. However, if the `yokeable` contains owned data
 /// (e.g., from `.with_mut()`), that data will need to be cloned.
-</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C: CloneableCart&gt; Clone <span class="kw">for </span>Yoke&lt;Y, C&gt;
+</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C: CloneableCart&gt; Clone <span class="kw">for </span>Yoke&lt;Y, C&gt;
 <span class="kw">where
-    for</span>&lt;<span class="lifetime">&#39;a</span>&gt; YokeTraitHack&lt;&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output&gt;: Clone,
+    for</span>&lt;<span class="lifetime">'a</span>&gt; YokeTraitHack&lt;&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output&gt;: Clone,
 {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>this: <span class="kw-2">&amp;</span>Y::Output = <span class="self">self</span>.get();
@@ -1904,38 +1905,38 @@
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_clone() {
-    <span class="kw">let </span>local_data = <span class="string">&quot;foo&quot;</span>.to_owned();
-    <span class="kw">let </span>y1 = Yoke::&lt;alloc::borrow::Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;, Rc&lt;String&gt;&gt;::attach_to_zero_copy_cart(
+    <span class="kw">let </span>local_data = <span class="string">"foo"</span>.to_owned();
+    <span class="kw">let </span>y1 = Yoke::&lt;alloc::borrow::Cow&lt;<span class="lifetime">'static</span>, str&gt;, Rc&lt;String&gt;&gt;::attach_to_zero_copy_cart(
         Rc::new(local_data),
     );
 
     <span class="comment">// Test basic clone
     </span><span class="kw">let </span>y2 = y1.clone();
-    <span class="macro">assert_eq!</span>(y1.get(), <span class="string">&quot;foo&quot;</span>);
-    <span class="macro">assert_eq!</span>(y2.get(), <span class="string">&quot;foo&quot;</span>);
+    <span class="macro">assert_eq!</span>(y1.get(), <span class="string">"foo"</span>);
+    <span class="macro">assert_eq!</span>(y2.get(), <span class="string">"foo"</span>);
 
     <span class="comment">// Test clone with mutation on target
     </span><span class="kw">let </span><span class="kw-2">mut </span>y3 = y1.clone();
     y3.with_mut(|y| {
-        y.to_mut().push_str(<span class="string">&quot;bar&quot;</span>);
+        y.to_mut().push_str(<span class="string">"bar"</span>);
     });
-    <span class="macro">assert_eq!</span>(y1.get(), <span class="string">&quot;foo&quot;</span>);
-    <span class="macro">assert_eq!</span>(y2.get(), <span class="string">&quot;foo&quot;</span>);
-    <span class="macro">assert_eq!</span>(y3.get(), <span class="string">&quot;foobar&quot;</span>);
+    <span class="macro">assert_eq!</span>(y1.get(), <span class="string">"foo"</span>);
+    <span class="macro">assert_eq!</span>(y2.get(), <span class="string">"foo"</span>);
+    <span class="macro">assert_eq!</span>(y3.get(), <span class="string">"foobar"</span>);
 
     <span class="comment">// Test that mutations on source do not affect target
     </span><span class="kw">let </span>y4 = y3.clone();
     y3.with_mut(|y| {
-        y.to_mut().push_str(<span class="string">&quot;baz&quot;</span>);
+        y.to_mut().push_str(<span class="string">"baz"</span>);
     });
-    <span class="macro">assert_eq!</span>(y1.get(), <span class="string">&quot;foo&quot;</span>);
-    <span class="macro">assert_eq!</span>(y2.get(), <span class="string">&quot;foo&quot;</span>);
-    <span class="macro">assert_eq!</span>(y3.get(), <span class="string">&quot;foobarbaz&quot;</span>);
-    <span class="macro">assert_eq!</span>(y4.get(), <span class="string">&quot;foobar&quot;</span>);
+    <span class="macro">assert_eq!</span>(y1.get(), <span class="string">"foo"</span>);
+    <span class="macro">assert_eq!</span>(y2.get(), <span class="string">"foo"</span>);
+    <span class="macro">assert_eq!</span>(y3.get(), <span class="string">"foobarbaz"</span>);
+    <span class="macro">assert_eq!</span>(y4.get(), <span class="string">"foobar"</span>);
 }
 
-<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C&gt; Yoke&lt;Y, C&gt; {
-    <span class="doccomment">/// Allows one to &quot;project&quot; a yoke to perform a transformation on the data, potentially
+<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C&gt; Yoke&lt;Y, C&gt; {
+    <span class="doccomment">/// Allows one to "project" a yoke to perform a transformation on the data, potentially
     /// looking at a subfield, and producing a new yoke. This will move cart, and the provided
     /// transformation is only allowed to use data known to be borrowed from the cart.
     ///
@@ -1949,7 +1950,7 @@
     /// # use std::rc::Rc;
     /// # use yoke::Yoke;
     /// #
-    /// fn slice(y: Yoke&lt;&amp;&#39;static str, Rc&lt;[u8]&gt;&gt;) -&gt; Yoke&lt;&amp;&#39;static [u8], Rc&lt;[u8]&gt;&gt; {
+    /// fn slice(y: Yoke&lt;&amp;'static str, Rc&lt;[u8]&gt;&gt;) -&gt; Yoke&lt;&amp;'static [u8], Rc&lt;[u8]&gt;&gt; {
     ///     y.map_project(move |yk, _| yk.as_bytes())
     /// }
     /// ```
@@ -1962,39 +1963,39 @@
     /// # use std::mem;
     /// # use std::rc::Rc;
     /// #
-    /// // also safely implements Yokeable&lt;&#39;a&gt;
-    /// struct Bar&lt;&#39;a&gt; {
-    ///     string_1: &amp;&#39;a str,
-    ///     string_2: &amp;&#39;a str,
+    /// // also safely implements Yokeable&lt;'a&gt;
+    /// struct Bar&lt;'a&gt; {
+    ///     string_1: &amp;'a str,
+    ///     string_2: &amp;'a str,
     /// }
     ///
     /// fn map_project_string_1(
-    ///     bar: Yoke&lt;Bar&lt;&#39;static&gt;, Rc&lt;[u8]&gt;&gt;,
-    /// ) -&gt; Yoke&lt;&amp;&#39;static str, Rc&lt;[u8]&gt;&gt; {
+    ///     bar: Yoke&lt;Bar&lt;'static&gt;, Rc&lt;[u8]&gt;&gt;,
+    /// ) -&gt; Yoke&lt;&amp;'static str, Rc&lt;[u8]&gt;&gt; {
     ///     bar.map_project(|bar, _| bar.string_1)
     /// }
     ///
     /// #
-    /// # unsafe impl&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt; for Bar&lt;&#39;static&gt; {
-    /// #     type Output = Bar&lt;&#39;a&gt;;
-    /// #     fn transform(&amp;&#39;a self) -&gt; &amp;&#39;a Bar&lt;&#39;a&gt; {
+    /// # unsafe impl&lt;'a&gt; Yokeable&lt;'a&gt; for Bar&lt;'static&gt; {
+    /// #     type Output = Bar&lt;'a&gt;;
+    /// #     fn transform(&amp;'a self) -&gt; &amp;'a Bar&lt;'a&gt; {
     /// #         self
     /// #     }
     /// #
-    /// #     fn transform_owned(self) -&gt; Bar&lt;&#39;a&gt; {
+    /// #     fn transform_owned(self) -&gt; Bar&lt;'a&gt; {
     /// #         // covariant lifetime cast, can be done safely
     /// #         self
     /// #     }
     /// #
-    /// #     unsafe fn make(from: Bar&lt;&#39;a&gt;) -&gt; Self {
+    /// #     unsafe fn make(from: Bar&lt;'a&gt;) -&gt; Self {
     /// #         let ret = mem::transmute_copy(&amp;from);
     /// #         mem::forget(from);
     /// #         ret
     /// #     }
     /// #
-    /// #     fn transform_mut&lt;F&gt;(&amp;&#39;a mut self, f: F)
+    /// #     fn transform_mut&lt;F&gt;(&amp;'a mut self, f: F)
     /// #     where
-    /// #         F: &#39;static + FnOnce(&amp;&#39;a mut Self::Output),
+    /// #         F: 'static + FnOnce(&amp;'a mut Self::Output),
     /// #     {
     /// #         unsafe { f(mem::transmute(self)) }
     /// #     }
@@ -2004,11 +2005,11 @@
     // Safety docs can be found below on `__project_safety_docs()`
     </span><span class="kw">pub fn </span>map_project&lt;P, F&gt;(<span class="self">self</span>, f: F) -&gt; Yoke&lt;P, C&gt;
     <span class="kw">where
-        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;,
-        F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnOnce(
-            &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
-            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
-        ) -&gt; &lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
+        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;,
+        F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(
+            &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
+            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
+        ) -&gt; &lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
     {
         <span class="kw">let </span>p = f(<span class="self">self</span>.yokeable.into_inner().transform_owned(), PhantomData);
         Yoke {
@@ -2022,14 +2023,14 @@
     ///
     /// This is a bit more efficient than cloning the [`Yoke`] and then calling [`Yoke::map_project`]
     /// because then it will not clone fields that are going to be discarded.
-    </span><span class="kw">pub fn </span>map_project_cloned&lt;<span class="lifetime">&#39;this</span>, P, F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;this </span><span class="self">self</span>, f: F) -&gt; Yoke&lt;P, C&gt;
+    </span><span class="kw">pub fn </span>map_project_cloned&lt;<span class="lifetime">'this</span>, P, F&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'this </span><span class="self">self</span>, f: F) -&gt; Yoke&lt;P, C&gt;
     <span class="kw">where
-        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;,
         C: CloneableCart,
-        F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnOnce(
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;this </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
-            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
-        ) -&gt; &lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
+        F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(
+            <span class="kw-2">&amp;</span><span class="lifetime">'this </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
+            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
+        ) -&gt; &lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
     {
         <span class="kw">let </span>p = f(<span class="self">self</span>.get(), PhantomData);
         Yoke {
@@ -2047,8 +2048,8 @@
     /// # use std::str::{self, Utf8Error};
     /// #
     /// fn slice(
-    ///     y: Yoke&lt;&amp;&#39;static [u8], Rc&lt;[u8]&gt;&gt;,
-    /// ) -&gt; Result&lt;Yoke&lt;&amp;&#39;static str, Rc&lt;[u8]&gt;&gt;, Utf8Error&gt; {
+    ///     y: Yoke&lt;&amp;'static [u8], Rc&lt;[u8]&gt;&gt;,
+    /// ) -&gt; Result&lt;Yoke&lt;&amp;'static str, Rc&lt;[u8]&gt;&gt;, Utf8Error&gt; {
     ///     y.try_map_project(move |bytes, _| str::from_utf8(bytes))
     /// }
     /// ```
@@ -2062,39 +2063,39 @@
     /// # use std::rc::Rc;
     /// # use std::str::{self, Utf8Error};
     /// #
-    /// // also safely implements Yokeable&lt;&#39;a&gt;
-    /// struct Bar&lt;&#39;a&gt; {
-    ///     bytes_1: &amp;&#39;a [u8],
-    ///     string_2: &amp;&#39;a str,
+    /// // also safely implements Yokeable&lt;'a&gt;
+    /// struct Bar&lt;'a&gt; {
+    ///     bytes_1: &amp;'a [u8],
+    ///     string_2: &amp;'a str,
     /// }
     ///
     /// fn map_project_string_1(
-    ///     bar: Yoke&lt;Bar&lt;&#39;static&gt;, Rc&lt;[u8]&gt;&gt;,
-    /// ) -&gt; Result&lt;Yoke&lt;&amp;&#39;static str, Rc&lt;[u8]&gt;&gt;, Utf8Error&gt; {
+    ///     bar: Yoke&lt;Bar&lt;'static&gt;, Rc&lt;[u8]&gt;&gt;,
+    /// ) -&gt; Result&lt;Yoke&lt;&amp;'static str, Rc&lt;[u8]&gt;&gt;, Utf8Error&gt; {
     ///     bar.try_map_project(|bar, _| str::from_utf8(bar.bytes_1))
     /// }
     ///
     /// #
-    /// # unsafe impl&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt; for Bar&lt;&#39;static&gt; {
-    /// #     type Output = Bar&lt;&#39;a&gt;;
-    /// #     fn transform(&amp;&#39;a self) -&gt; &amp;&#39;a Bar&lt;&#39;a&gt; {
+    /// # unsafe impl&lt;'a&gt; Yokeable&lt;'a&gt; for Bar&lt;'static&gt; {
+    /// #     type Output = Bar&lt;'a&gt;;
+    /// #     fn transform(&amp;'a self) -&gt; &amp;'a Bar&lt;'a&gt; {
     /// #         self
     /// #     }
     /// #
-    /// #     fn transform_owned(self) -&gt; Bar&lt;&#39;a&gt; {
+    /// #     fn transform_owned(self) -&gt; Bar&lt;'a&gt; {
     /// #         // covariant lifetime cast, can be done safely
     /// #         self
     /// #     }
     /// #
-    /// #     unsafe fn make(from: Bar&lt;&#39;a&gt;) -&gt; Self {
+    /// #     unsafe fn make(from: Bar&lt;'a&gt;) -&gt; Self {
     /// #         let ret = mem::transmute_copy(&amp;from);
     /// #         mem::forget(from);
     /// #         ret
     /// #     }
     /// #
-    /// #     fn transform_mut&lt;F&gt;(&amp;&#39;a mut self, f: F)
+    /// #     fn transform_mut&lt;F&gt;(&amp;'a mut self, f: F)
     /// #     where
-    /// #         F: &#39;static + FnOnce(&amp;&#39;a mut Self::Output),
+    /// #         F: 'static + FnOnce(&amp;'a mut Self::Output),
     /// #     {
     /// #         unsafe { f(mem::transmute(self)) }
     /// #     }
@@ -2102,11 +2103,11 @@
     /// ```
     </span><span class="kw">pub fn </span>try_map_project&lt;P, F, E&gt;(<span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;Yoke&lt;P, C&gt;, E&gt;
     <span class="kw">where
-        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;,
-        F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnOnce(
-            &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
-            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output, E&gt;,
+        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;,
+        F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(
+            &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
+            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output, E&gt;,
     {
         <span class="kw">let </span>p = f(<span class="self">self</span>.yokeable.into_inner().transform_owned(), PhantomData)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(Yoke {
@@ -2120,14 +2121,14 @@
     ///
     /// This is a bit more efficient than cloning the [`Yoke`] and then calling [`Yoke::map_project`]
     /// because then it will not clone fields that are going to be discarded.
-    </span><span class="kw">pub fn </span>try_map_project_cloned&lt;<span class="lifetime">&#39;this</span>, P, F, E&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;this </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;Yoke&lt;P, C&gt;, E&gt;
+    </span><span class="kw">pub fn </span>try_map_project_cloned&lt;<span class="lifetime">'this</span>, P, F, E&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'this </span><span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;Yoke&lt;P, C&gt;, E&gt;
     <span class="kw">where
-        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;,
         C: CloneableCart,
-        F: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnOnce(
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;this </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
-            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output, E&gt;,
+        F: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; FnOnce(
+            <span class="kw-2">&amp;</span><span class="lifetime">'this </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
+            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output, E&gt;,
     {
         <span class="kw">let </span>p = f(<span class="self">self</span>.get(), PhantomData)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(Yoke {
@@ -2143,14 +2144,14 @@
     </span><span class="kw">pub fn </span>map_project_with_explicit_capture&lt;P, T&gt;(
         <span class="self">self</span>,
         capture: T,
-        f: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">fn</span>(
-            &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
+        f: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">fn</span>(
+            &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
             capture: T,
-            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
-        ) -&gt; &lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
+            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
+        ) -&gt; &lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
     ) -&gt; Yoke&lt;P, C&gt;
     <span class="kw">where
-        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="kw">let </span>p = f(
             <span class="self">self</span>.yokeable.into_inner().transform_owned(),
@@ -2168,17 +2169,17 @@
     /// See [#1061](https://github.com/unicode-org/icu4x/issues/1061).
     ///
     /// See the docs of [`Yoke::map_project_cloned`] for how this works.
-    </span><span class="kw">pub fn </span>map_project_cloned_with_explicit_capture&lt;<span class="lifetime">&#39;this</span>, P, T&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;this </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>map_project_cloned_with_explicit_capture&lt;<span class="lifetime">'this</span>, P, T&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'this </span><span class="self">self</span>,
         capture: T,
-        f: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">fn</span>(
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;this </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
+        f: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">fn</span>(
+            <span class="kw-2">&amp;</span><span class="lifetime">'this </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
             capture: T,
-            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
-        ) -&gt; &lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
+            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
+        ) -&gt; &lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
     ) -&gt; Yoke&lt;P, C&gt;
     <span class="kw">where
-        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;,
         C: CloneableCart,
     {
         <span class="kw">let </span>p = f(<span class="self">self</span>.get(), capture, PhantomData);
@@ -2197,14 +2198,14 @@
     </span><span class="kw">pub fn </span>try_map_project_with_explicit_capture&lt;P, T, E&gt;(
         <span class="self">self</span>,
         capture: T,
-        f: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">fn</span>(
-            &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
+        f: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">fn</span>(
+            &lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
             capture: T,
-            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output, E&gt;,
+            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output, E&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Yoke&lt;P, C&gt;, E&gt;
     <span class="kw">where
-        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="kw">let </span>p = f(
             <span class="self">self</span>.yokeable.into_inner().transform_owned(),
@@ -2223,17 +2224,17 @@
     ///
     /// See the docs of [`Yoke::try_map_project_cloned`] for how this works.
     </span><span class="attr">#[allow(clippy::type_complexity)]
-    </span><span class="kw">pub fn </span>try_map_project_cloned_with_explicit_capture&lt;<span class="lifetime">&#39;this</span>, P, T, E&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;this </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>try_map_project_cloned_with_explicit_capture&lt;<span class="lifetime">'this</span>, P, T, E&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'this </span><span class="self">self</span>,
         capture: T,
-        f: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">fn</span>(
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;this </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output,
+        f: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">fn</span>(
+            <span class="kw-2">&amp;</span><span class="lifetime">'this </span>&lt;Y <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output,
             capture: T,
-            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output, E&gt;,
+            PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;P <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output, E&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Yoke&lt;P, C&gt;, E&gt;
     <span class="kw">where
-        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>P: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;,
         C: CloneableCart,
     {
         <span class="kw">let </span>p = f(<span class="self">self</span>.get(), capture, PhantomData)<span class="question-mark">?</span>;
@@ -2244,8 +2245,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C: <span class="lifetime">&#39;static </span>+ Sized&gt; Yoke&lt;Y, Rc&lt;C&gt;&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C: <span class="lifetime">'static </span>+ Sized&gt; Yoke&lt;Y, Rc&lt;C&gt;&gt; {
     <span class="doccomment">/// Allows type-erasing the cart in a `Yoke&lt;Y, Rc&lt;C&gt;&gt;`.
     ///
     /// The yoke only carries around a cart type `C` for its destructor,
@@ -2267,12 +2268,12 @@
     /// use yoke::erased::ErasedRcCart;
     /// use yoke::Yoke;
     ///
-    /// let buffer1: Rc&lt;String&gt; = Rc::new(&quot;   foo bar baz  &quot;.into());
-    /// let buffer2: Box&lt;String&gt; = Box::new(&quot;  baz quux  &quot;.into());
+    /// let buffer1: Rc&lt;String&gt; = Rc::new("   foo bar baz  ".into());
+    /// let buffer2: Box&lt;String&gt; = Box::new("  baz quux  ".into());
     ///
     /// let yoke1 =
-    ///     Yoke::&lt;&amp;&#39;static str, _&gt;::attach_to_cart(buffer1, |rc| rc.trim());
-    /// let yoke2 = Yoke::&lt;&amp;&#39;static str, _&gt;::attach_to_cart(buffer2, |b| b.trim());
+    ///     Yoke::&lt;&amp;'static str, _&gt;::attach_to_cart(buffer1, |rc| rc.trim());
+    /// let yoke2 = Yoke::&lt;&amp;'static str, _&gt;::attach_to_cart(buffer2, |b| b.trim());
     ///
     /// let erased1: Yoke&lt;_, ErasedRcCart&gt; = yoke1.erase_rc_cart();
     /// // Wrap the Box in an Rc to make it compatible
@@ -2290,8 +2291,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C: <span class="lifetime">&#39;static </span>+ Sized + Send + Sync&gt; Yoke&lt;Y, Arc&lt;C&gt;&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C: <span class="lifetime">'static </span>+ Sized + Send + Sync&gt; Yoke&lt;Y, Arc&lt;C&gt;&gt; {
     <span class="doccomment">/// Allows type-erasing the cart in a `Yoke&lt;Y, Arc&lt;C&gt;&gt;`.
     ///
     /// The yoke only carries around a cart type `C` for its destructor,
@@ -2313,12 +2314,12 @@
     /// use yoke::erased::ErasedArcCart;
     /// use yoke::Yoke;
     ///
-    /// let buffer1: Arc&lt;String&gt; = Arc::new(&quot;   foo bar baz  &quot;.into());
-    /// let buffer2: Box&lt;String&gt; = Box::new(&quot;  baz quux  &quot;.into());
+    /// let buffer1: Arc&lt;String&gt; = Arc::new("   foo bar baz  ".into());
+    /// let buffer2: Box&lt;String&gt; = Box::new("  baz quux  ".into());
     ///
     /// let yoke1 =
-    ///     Yoke::&lt;&amp;&#39;static str, _&gt;::attach_to_cart(buffer1, |arc| arc.trim());
-    /// let yoke2 = Yoke::&lt;&amp;&#39;static str, _&gt;::attach_to_cart(buffer2, |b| b.trim());
+    ///     Yoke::&lt;&amp;'static str, _&gt;::attach_to_cart(buffer1, |arc| arc.trim());
+    /// let yoke2 = Yoke::&lt;&amp;'static str, _&gt;::attach_to_cart(buffer2, |b| b.trim());
     ///
     /// let erased1: Yoke&lt;_, ErasedArcCart&gt; = yoke1.erase_arc_cart();
     /// // Wrap the Box in an Rc to make it compatible
@@ -2336,8 +2337,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C: <span class="lifetime">&#39;static </span>+ Sized&gt; Yoke&lt;Y, Box&lt;C&gt;&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C: <span class="lifetime">'static </span>+ Sized&gt; Yoke&lt;Y, Box&lt;C&gt;&gt; {
     <span class="doccomment">/// Allows type-erasing the cart in a `Yoke&lt;Y, Box&lt;C&gt;&gt;`.
     ///
     /// The yoke only carries around a cart type `C` for its destructor,
@@ -2359,12 +2360,12 @@
     /// use yoke::erased::ErasedBoxCart;
     /// use yoke::Yoke;
     ///
-    /// let buffer1: Rc&lt;String&gt; = Rc::new(&quot;   foo bar baz  &quot;.into());
-    /// let buffer2: Box&lt;String&gt; = Box::new(&quot;  baz quux  &quot;.into());
+    /// let buffer1: Rc&lt;String&gt; = Rc::new("   foo bar baz  ".into());
+    /// let buffer2: Box&lt;String&gt; = Box::new("  baz quux  ".into());
     ///
     /// let yoke1 =
-    ///     Yoke::&lt;&amp;&#39;static str, _&gt;::attach_to_cart(buffer1, |rc| rc.trim());
-    /// let yoke2 = Yoke::&lt;&amp;&#39;static str, _&gt;::attach_to_cart(buffer2, |b| b.trim());
+    ///     Yoke::&lt;&amp;'static str, _&gt;::attach_to_cart(buffer1, |rc| rc.trim());
+    /// let yoke2 = Yoke::&lt;&amp;'static str, _&gt;::attach_to_cart(buffer2, |b| b.trim());
     ///
     /// // Wrap the Rc in an Box to make it compatible
     /// let erased1: Yoke&lt;_, ErasedBoxCart&gt; =
@@ -2382,8 +2383,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C&gt; Yoke&lt;Y, C&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C&gt; Yoke&lt;Y, C&gt; {
     <span class="doccomment">/// Helper function allowing one to wrap the cart type `C` in a `Box&lt;T&gt;`.
     /// Can be paired with [`Yoke::erase_box_cart()`]
     ///
@@ -2421,7 +2422,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;, C&gt; Yoke&lt;Y, C&gt; {
+<span class="kw">impl</span>&lt;Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;, C&gt; Yoke&lt;Y, C&gt; {
     <span class="doccomment">/// Helper function allowing one to wrap the cart type `C` in an [`EitherCart`].
     ///
     /// This function wraps the cart into the `A` variant. To wrap it into the
@@ -2455,7 +2456,7 @@
 /// (Docs are on a private const to allow the use of compile_fail doctests)
 ///
 /// This is safe to perform because of the choice of lifetimes on `f`, that is,
-/// `for&lt;a&gt; fn(&lt;Y as Yokeable&lt;&#39;a&gt;&gt;::Output, &amp;&#39;a ()) -&gt; &lt;P as Yokeable&lt;&#39;a&gt;&gt;::Output`.
+/// `for&lt;a&gt; fn(&lt;Y as Yokeable&lt;'a&gt;&gt;::Output, &amp;'a ()) -&gt; &lt;P as Yokeable&lt;'a&gt;&gt;::Output`.
 ///
 /// What we want this function to do is take a Yokeable (`Y`) that is borrowing from the cart, and
 /// produce another Yokeable (`P`) that also borrows from the same cart. There are a couple potential
@@ -2466,26 +2467,26 @@
 ///   on data owned only by the `Yoke&lt;Y&gt;`.
 /// - Borrowed data from `Y` escapes with the wrong lifetime
 ///
-/// Let&#39;s walk through these and see how they&#39;re prevented.
+/// Let's walk through these and see how they're prevented.
 ///
 /// ```rust, compile_fail
 /// # use std::rc::Rc;
 /// # use yoke::Yoke;
 /// # use std::borrow::Cow;
-/// fn borrow_potentially_owned(y: &amp;Yoke&lt;Cow&lt;&#39;static, str&gt;, Rc&lt;[u8]&gt;&gt;) -&gt; Yoke&lt;&amp;&#39;static str, Rc&lt;[u8]&gt;&gt; {
+/// fn borrow_potentially_owned(y: &amp;Yoke&lt;Cow&lt;'static, str&gt;, Rc&lt;[u8]&gt;&gt;) -&gt; Yoke&lt;&amp;'static str, Rc&lt;[u8]&gt;&gt; {
 ///    y.map_project_cloned(|cow, _| &amp;*cow)   
 /// }
 /// ```
 ///
-/// In this case, the lifetime of `&amp;*cow` is `&amp;&#39;this str`, however the function needs to be able to return
-/// `&amp;&#39;a str` _for all `&#39;a`_, which isn&#39;t possible.
+/// In this case, the lifetime of `&amp;*cow` is `&amp;'this str`, however the function needs to be able to return
+/// `&amp;'a str` _for all `'a`_, which isn't possible.
 ///
 ///
 /// ```rust, compile_fail
 /// # use std::rc::Rc;
 /// # use yoke::Yoke;
 /// # use std::borrow::Cow;
-/// fn borrow_potentially_owned(y: Yoke&lt;Cow&lt;&#39;static, str&gt;, Rc&lt;[u8]&gt;&gt;) -&gt; Yoke&lt;&amp;&#39;static str, Rc&lt;[u8]&gt;&gt; {
+/// fn borrow_potentially_owned(y: Yoke&lt;Cow&lt;'static, str&gt;, Rc&lt;[u8]&gt;&gt;) -&gt; Yoke&lt;&amp;'static str, Rc&lt;[u8]&gt;&gt; {
 ///    y.map_project(|cow, _| &amp;*cow)   
 /// }
 /// ```
@@ -2500,123 +2501,123 @@
 /// # use std::mem;
 /// # use std::rc::Rc;
 /// #
-/// // also safely implements Yokeable&lt;&#39;a&gt;
-/// struct Bar&lt;&#39;a&gt; {
+/// // also safely implements Yokeable&lt;'a&gt;
+/// struct Bar&lt;'a&gt; {
 ///     owned: String,
-///     string_2: &amp;&#39;a str,
+///     string_2: &amp;'a str,
 /// }
 ///
-/// fn map_project_owned(bar: &amp;Yoke&lt;Bar&lt;&#39;static&gt;, Rc&lt;[u8]&gt;&gt;) -&gt; Yoke&lt;&amp;&#39;static str, Rc&lt;[u8]&gt;&gt; {
+/// fn map_project_owned(bar: &amp;Yoke&lt;Bar&lt;'static&gt;, Rc&lt;[u8]&gt;&gt;) -&gt; Yoke&lt;&amp;'static str, Rc&lt;[u8]&gt;&gt; {
 ///     // ERROR (but works if you replace owned with string_2)
 ///     bar.map_project_cloned(|bar, _| &amp;*bar.owned)   
 /// }
 ///
 /// #
-/// # unsafe impl&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt; for Bar&lt;&#39;static&gt; {
-/// #     type Output = Bar&lt;&#39;a&gt;;
-/// #     fn transform(&amp;&#39;a self) -&gt; &amp;&#39;a Bar&lt;&#39;a&gt; {
+/// # unsafe impl&lt;'a&gt; Yokeable&lt;'a&gt; for Bar&lt;'static&gt; {
+/// #     type Output = Bar&lt;'a&gt;;
+/// #     fn transform(&amp;'a self) -&gt; &amp;'a Bar&lt;'a&gt; {
 /// #         self
 /// #     }
 /// #
-/// #     fn transform_owned(self) -&gt; Bar&lt;&#39;a&gt; {
+/// #     fn transform_owned(self) -&gt; Bar&lt;'a&gt; {
 /// #         // covariant lifetime cast, can be done safely
 /// #         self
 /// #     }
 /// #
-/// #     unsafe fn make(from: Bar&lt;&#39;a&gt;) -&gt; Self {
+/// #     unsafe fn make(from: Bar&lt;'a&gt;) -&gt; Self {
 /// #         let ret = mem::transmute_copy(&amp;from);
 /// #         mem::forget(from);
 /// #         ret
 /// #     }
 /// #
-/// #     fn transform_mut&lt;F&gt;(&amp;&#39;a mut self, f: F)
+/// #     fn transform_mut&lt;F&gt;(&amp;'a mut self, f: F)
 /// #     where
-/// #         F: &#39;static + FnOnce(&amp;&#39;a mut Self::Output),
+/// #         F: 'static + FnOnce(&amp;'a mut Self::Output),
 /// #     {
 /// #         unsafe { f(mem::transmute(self)) }
 /// #     }
 /// # }
 /// ```
 ///
-/// Borrowed data from `Y` similarly cannot escape with the wrong lifetime because of the `for&lt;&#39;a&gt;`, since
-/// it will never be valid for the borrowed data to escape for all lifetimes of &#39;a. Internally, `.project()`
+/// Borrowed data from `Y` similarly cannot escape with the wrong lifetime because of the `for&lt;'a&gt;`, since
+/// it will never be valid for the borrowed data to escape for all lifetimes of 'a. Internally, `.project()`
 /// uses `.get()`, however the signature forces the callers to be able to handle every lifetime.
 ///
-///  `&#39;a` is the only lifetime that matters here; `Yokeable`s must be `&#39;static` and since
-/// `Output` is an associated type it can only have one lifetime, `&#39;a` (there&#39;s nowhere for it to get another from).
-/// `Yoke`s can get additional lifetimes via the cart, and indeed, `project()` can operate on `Yoke&lt;_, &amp;&#39;b [u8]&gt;`,
-/// however this lifetime is inaccessible to the closure, and even if it were accessible the `for&lt;&#39;a&gt;` would force
+///  `'a` is the only lifetime that matters here; `Yokeable`s must be `'static` and since
+/// `Output` is an associated type it can only have one lifetime, `'a` (there's nowhere for it to get another from).
+/// `Yoke`s can get additional lifetimes via the cart, and indeed, `project()` can operate on `Yoke&lt;_, &amp;'b [u8]&gt;`,
+/// however this lifetime is inaccessible to the closure, and even if it were accessible the `for&lt;'a&gt;` would force
 /// it out of the output. All external lifetimes (from other found outside the yoke/closures
 /// are similarly constrained here.
 ///
-/// Essentially, safety is achieved by using `for&lt;&#39;a&gt; fn(...)` with `&#39;a` used in both `Yokeable`s to ensure that
+/// Essentially, safety is achieved by using `for&lt;'a&gt; fn(...)` with `'a` used in both `Yokeable`s to ensure that
 /// the output yokeable can _only_ have borrowed data flow in to it from the input. All paths of unsoundness require the
-/// unification of an existential and universal lifetime, which isn&#39;t possible.
+/// unification of an existential and universal lifetime, which isn't possible.
 </span><span class="kw">const _</span>: () = ();
 
-<span class="doccomment">/// # Safety docs for attach_to_cart()&#39;s signature
+<span class="doccomment">/// # Safety docs for attach_to_cart()'s signature
 ///
 /// The `attach_to_cart()` family of methods get by by using the following bound:
 ///
 /// ```rust,ignore
-/// F: for&lt;&#39;de&gt; FnOnce(&amp;&#39;de &lt;C as Deref&gt;::Target) -&gt; &lt;Y as Yokeable&lt;&#39;de&gt;&gt;::Output,
-/// C::Target: &#39;static
+/// F: for&lt;'de&gt; FnOnce(&amp;'de &lt;C as Deref&gt;::Target) -&gt; &lt;Y as Yokeable&lt;'de&gt;&gt;::Output,
+/// C::Target: 'static
 /// ```
 ///
 /// to enforce that the yoking closure produces a yokeable that is *only* allowed to borrow from the cart.
-/// A way to be sure of this is as follows: imagine if `F` *did* borrow data of lifetime `&#39;a` and stuff it in
-/// its output. Then that lifetime `&#39;a` would have to live at least as long as `&#39;de` *for all `&#39;de`*.
-/// The only lifetime that satisfies that is `&#39;static` (since at least one of the potential `&#39;de`s is `&#39;static`),
-/// and we&#39;re fine with that.
+/// A way to be sure of this is as follows: imagine if `F` *did* borrow data of lifetime `'a` and stuff it in
+/// its output. Then that lifetime `'a` would have to live at least as long as `'de` *for all `'de`*.
+/// The only lifetime that satisfies that is `'static` (since at least one of the potential `'de`s is `'static`),
+/// and we're fine with that.
 ///
 /// ## Implied bounds and variance
 ///
-/// The `C::Target: &#39;static` bound is tricky, however. Let&#39;s imagine a situation where we *didn&#39;t* have that bound.
+/// The `C::Target: 'static` bound is tricky, however. Let's imagine a situation where we *didn't* have that bound.
 ///
 /// One thing to remember is that we are okay with the cart itself borrowing from places,
-/// e.g. `&amp;[u8]` is a valid cart, as is `Box&lt;&amp;[u8]&gt;`. `C` is not `&#39;static`.
+/// e.g. `&amp;[u8]` is a valid cart, as is `Box&lt;&amp;[u8]&gt;`. `C` is not `'static`.
 ///
-/// (I&#39;m going to use `CT` in prose to refer to `C::Target` here, since almost everything here has to do
+/// (I'm going to use `CT` in prose to refer to `C::Target` here, since almost everything here has to do
 /// with C::Target and not C itself.)
 ///
-/// Unfortunately, there&#39;s a sneaky additional bound inside `F`. The signature of `F` is *actually*
+/// Unfortunately, there's a sneaky additional bound inside `F`. The signature of `F` is *actually*
 ///
 /// ```rust,ignore
-/// F: for&lt;&#39;de&gt; where&lt;C::Target: &#39;de&gt; FnOnce(&amp;&#39;de C::Target) -&gt; &lt;Y as Yokeable&lt;&#39;de&gt;&gt;::Output
+/// F: for&lt;'de&gt; where&lt;C::Target: 'de&gt; FnOnce(&amp;'de C::Target) -&gt; &lt;Y as Yokeable&lt;'de&gt;&gt;::Output
 /// ```
 ///
-/// using made-up &quot;where clause inside HRTB&quot; syntax to represent a type that can be represented inside the compiler
-/// and type system but not in Rust code. The `CT: &#39;de` bond comes from the `&amp;&#39;de C::Target`: any time you
-/// write `&amp;&#39;a T`, an implied bound of `T: &#39;a` materializes and is stored alongside it, since references cannot refer
+/// using made-up "where clause inside HRTB" syntax to represent a type that can be represented inside the compiler
+/// and type system but not in Rust code. The `CT: 'de` bond comes from the `&amp;'de C::Target`: any time you
+/// write `&amp;'a T`, an implied bound of `T: 'a` materializes and is stored alongside it, since references cannot refer
 /// to data that itself refers to data of shorter lifetimes. If a reference is valid, its referent must be valid for
-/// the duration of the reference&#39;s lifetime, so every reference *inside* its referent must also be valid, giving us `T: &#39;a`.
-/// This kind of constraint is often called a &quot;well formedness&quot; constraint: `&amp;&#39;a T` is not &quot;well formed&quot; without that
+/// the duration of the reference's lifetime, so every reference *inside* its referent must also be valid, giving us `T: 'a`.
+/// This kind of constraint is often called a "well formedness" constraint: `&amp;'a T` is not "well formed" without that
 /// bound, and rustc is being helpful by giving it to us for free.
 ///
-/// Unfortunately, this messes with our universal quantification. The `for&lt;&#39;de&gt;` is no longer &quot;For all lifetimes `&#39;de`&quot;,
-/// it is &quot;for all lifetimes `&#39;de` *where `CT: &#39;de`*&quot;. And if `CT` borrows from somewhere (with lifetime `&#39;ct`), then we get a
-/// `&#39;ct: &#39;de` bound, and `&#39;de` candidates that live longer than `&#39;ct` won&#39;t actually be considered.
+/// Unfortunately, this messes with our universal quantification. The `for&lt;'de&gt;` is no longer "For all lifetimes `'de`",
+/// it is "for all lifetimes `'de` *where `CT: 'de`*". And if `CT` borrows from somewhere (with lifetime `'ct`), then we get a
+/// `'ct: 'de` bound, and `'de` candidates that live longer than `'ct` won't actually be considered.
 /// The neat little logic at the beginning stops working.
 ///
 /// `attach_to_cart()` will instead enforce that the produced yokeable *either* borrows from the cart (fine), or from
-/// data that has a lifetime that is at least `&#39;ct`. Which means that `attach_to_cart()` will allow us to borrow locals
-/// provided they live at least as long as `&#39;ct`.
+/// data that has a lifetime that is at least `'ct`. Which means that `attach_to_cart()` will allow us to borrow locals
+/// provided they live at least as long as `'ct`.
 ///
 /// Is this a problem?
 ///
-/// This is totally fine if CT&#39;s lifetime is covariant: if C is something like `Box&lt;&amp;&#39;ct [u8]&gt;`, even if our
-/// yoked object borrows from locals outliving `&#39;ct`, our Yoke can&#39;t outlive that
-/// lifetime `&#39;ct` anyway (since it&#39;s a part of the cart type), so we&#39;re fine.
+/// This is totally fine if CT's lifetime is covariant: if C is something like `Box&lt;&amp;'ct [u8]&gt;`, even if our
+/// yoked object borrows from locals outliving `'ct`, our Yoke can't outlive that
+/// lifetime `'ct` anyway (since it's a part of the cart type), so we're fine.
 ///
-/// However it&#39;s completely broken for contravariant carts (e.g. `Box&lt;fn(&amp;&#39;ct u8)&gt;`). In that case
-/// we still get `&#39;ct: &#39;de`, and we still end up being able to
-/// borrow from locals that outlive `&#39;ct`. However, our Yoke _can_ outlive
-/// that lifetime, because Yoke shares its variance over `&#39;ct`
-/// with the cart type, and the cart type is contravariant over `&#39;ct`.
-/// So the Yoke can be upcast to having a longer lifetime than `&#39;ct`, and *that* Yoke
-/// can outlive `&#39;ct`.
+/// However it's completely broken for contravariant carts (e.g. `Box&lt;fn(&amp;'ct u8)&gt;`). In that case
+/// we still get `'ct: 'de`, and we still end up being able to
+/// borrow from locals that outlive `'ct`. However, our Yoke _can_ outlive
+/// that lifetime, because Yoke shares its variance over `'ct`
+/// with the cart type, and the cart type is contravariant over `'ct`.
+/// So the Yoke can be upcast to having a longer lifetime than `'ct`, and *that* Yoke
+/// can outlive `'ct`.
 ///
-/// We fix this by forcing `C::Target: &#39;static` in `attach_to_cart()`, which would make it work
+/// We fix this by forcing `C::Target: 'static` in `attach_to_cart()`, which would make it work
 /// for fewer types, but would also allow Yoke to continue to be covariant over cart lifetimes if necessary.
 ///
 /// An alternate fix would be to not allowing yoke to ever be upcast over lifetimes contained in the cart
@@ -2629,7 +2630,7 @@
 ///
 /// # Tests
 ///
-/// Here&#39;s a broken `attach_to_cart()` that attempts to borrow from a local:
+/// Here's a broken `attach_to_cart()` that attempts to borrow from a local:
 ///
 /// ```rust,compile_fail
 /// use yoke::{Yoke, Yokeable};
@@ -2641,7 +2642,7 @@
 ///
 /// Fails as expected.
 ///
-/// And here&#39;s a working one with a local borrowed cart that does not do any sneaky borrows whilst attaching.
+/// And here's a working one with a local borrowed cart that does not do any sneaky borrows whilst attaching.
 ///
 /// ```rust
 /// use yoke::{Yoke, Yokeable};
@@ -2651,7 +2652,7 @@
 /// let yoke: Yoke&lt;&amp;[u8], &amp;[u8]&gt; = Yoke::attach_to_cart(&amp;cart, |c| &amp;*c);
 /// ```
 ///
-/// Here&#39;s an `attach_to_cart()` that attempts to borrow from a longer-lived local due to
+/// Here's an `attach_to_cart()` that attempts to borrow from a longer-lived local due to
 /// the cart being covariant. It fails, but would not if the alternate fix of forcing Yoke to be invariant
 /// were implemented. It is technically a safe operation:
 ///
@@ -2664,20 +2665,20 @@
 /// let cart = Box::new(&amp;*backing);
 ///
 /// let yoke: Yoke&lt;&amp;[u8], Box&lt;&amp;[u8]&gt;&gt; = Yoke::attach_to_cart(cart, |_| &amp;*local);
-/// println!(&quot;{:?}&quot;, yoke.get());
+/// println!("{:?}", yoke.get());
 /// ```
 ///
-/// Finally, here&#39;s an `attach_to_cart()` that attempts to borrow from a longer lived local
+/// Finally, here's an `attach_to_cart()` that attempts to borrow from a longer lived local
 /// in the case of a contravariant lifetime. It does not compile, but in and of itself is not dangerous:
 ///
 /// ```rust,compile_fail
 /// use yoke::Yoke;
 ///
-/// type Contra&lt;&#39;a&gt; = fn(&amp;&#39;a ());
+/// type Contra&lt;'a&gt; = fn(&amp;'a ());
 ///
-/// let local = String::from(&quot;Hello World!&quot;);
-/// let yoke: Yoke&lt;&amp;&#39;static str, Box&lt;Contra&lt;&#39;_&gt;&gt;&gt; = Yoke::attach_to_cart(Box::new((|_| {}) as _), |_| &amp;local[..]);
-/// println!(&quot;{:?}&quot;, yoke.get());
+/// let local = String::from("Hello World!");
+/// let yoke: Yoke&lt;&amp;'static str, Box&lt;Contra&lt;'_&gt;&gt;&gt; = Yoke::attach_to_cart(Box::new((|_| {}) as _), |_| &amp;local[..]);
+/// println!("{:?}", yoke.get());
 /// ```
 ///
 /// It is dangerous if allowed to transform (testcase from #2926)
@@ -2685,19 +2686,19 @@
 /// ```rust,compile_fail
 /// use yoke::Yoke;
 ///
-/// type Contra&lt;&#39;a&gt; = fn(&amp;&#39;a ());
+/// type Contra&lt;'a&gt; = fn(&amp;'a ());
 ///
 ///
-/// let local = String::from(&quot;Hello World!&quot;);
-/// let yoke: Yoke&lt;&amp;&#39;static str, Box&lt;Contra&lt;&#39;_&gt;&gt;&gt; = Yoke::attach_to_cart(Box::new((|_| {}) as _), |_| &amp;local[..]);
-/// println!(&quot;{:?}&quot;, yoke.get());
-/// let yoke_longer: Yoke&lt;&amp;&#39;static str, Box&lt;Contra&lt;&#39;static&gt;&gt;&gt; = yoke;
-/// let leaked: &amp;&#39;static Yoke&lt;&amp;&#39;static str, Box&lt;Contra&lt;&#39;static&gt;&gt;&gt; = Box::leak(Box::new(yoke_longer));
-/// let reference: &amp;&#39;static str = leaked.get();
+/// let local = String::from("Hello World!");
+/// let yoke: Yoke&lt;&amp;'static str, Box&lt;Contra&lt;'_&gt;&gt;&gt; = Yoke::attach_to_cart(Box::new((|_| {}) as _), |_| &amp;local[..]);
+/// println!("{:?}", yoke.get());
+/// let yoke_longer: Yoke&lt;&amp;'static str, Box&lt;Contra&lt;'static&gt;&gt;&gt; = yoke;
+/// let leaked: &amp;'static Yoke&lt;&amp;'static str, Box&lt;Contra&lt;'static&gt;&gt;&gt; = Box::leak(Box::new(yoke_longer));
+/// let reference: &amp;'static str = leaked.get();
 ///
-/// println!(&quot;pre-drop: {reference}&quot;);
+/// println!("pre-drop: {reference}");
 /// drop(local);
-/// println!(&quot;post-drop: {reference}&quot;);
+/// println!("post-drop: {reference}");
 /// ```
 </span><span class="kw">const _</span>: () = ();
 </code></pre></div></section></main></body></html>

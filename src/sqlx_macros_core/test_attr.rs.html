@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/test_attr.rs`."><title>test_attr.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/test_attr.rs`."><title>test_attr.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -388,13 +389,13 @@
 </pre></div><pre class="rust"><code><span class="kw">use </span>proc_macro2::TokenStream;
 <span class="kw">use </span>quote::quote;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">struct </span>Args {
     fixtures: Vec&lt;(FixturesType, Vec&lt;syn::LitStr&gt;)&gt;,
     migrations: MigrationsOpt,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">enum </span>FixturesType {
     <span class="prelude-val">None</span>,
     RelativePath,
@@ -402,7 +403,7 @@
     ExplicitPath,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">enum </span>MigrationsOpt {
     InferredPath,
     ExplicitPath(syn::LitStr),
@@ -413,20 +414,20 @@
 <span class="kw">pub fn </span>expand(args: syn::AttributeArgs, input: syn::ItemFn) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
     <span class="kw">if </span>input.sig.inputs.is_empty() {
         <span class="kw">if </span>!args.is_empty() {
-            <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;migrate&quot;</span>) {
+            <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"migrate"</span>) {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                     args.first().unwrap(),
-                    <span class="string">&quot;control attributes are not allowed unless \
+                    <span class="string">"control attributes are not allowed unless \
                         the `migrate` feature is enabled and \
-                        automatic test DB management is used; see docs&quot;</span>,
+                        automatic test DB management is used; see docs"</span>,
                 )
                 .into());
             }
 
             <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                 args.first().unwrap(),
-                <span class="string">&quot;control attributes are not allowed unless \
-                    automatic test DB management is used; see docs&quot;</span>,
+                <span class="string">"control attributes are not allowed unless \
+                    automatic test DB management is used; see docs"</span>,
             )
             .into());
         }
@@ -434,11 +435,11 @@
         <span class="kw">return </span><span class="prelude-val">Ok</span>(expand_simple(input));
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
     </span><span class="kw">return </span>expand_advanced(args, input);
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;migrate&quot;</span>))]
-    </span><span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(input, <span class="string">&quot;`migrate` feature required&quot;</span>).into());
+    <span class="attr">#[cfg(not(feature = <span class="string">"migrate"</span>))]
+    </span><span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(input, <span class="string">"`migrate` feature required"</span>).into());
 }
 
 <span class="kw">fn </span>expand_simple(input: syn::ItemFn) -&gt; TokenStream {
@@ -456,7 +457,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">fn </span>expand_advanced(args: syn::AttributeArgs, input: syn::ItemFn) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
     <span class="kw">let </span>ret = <span class="kw-2">&amp;</span>input.sig.output;
     <span class="kw">let </span>name = <span class="kw-2">&amp;</span>input.sig.ident;
@@ -479,7 +480,7 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>fixture_str = fixture.value();
                     add_sql_extension_if_missing(<span class="kw-2">&amp;mut </span>fixture_str);
 
-                    <span class="kw">let </span>path = <span class="macro">format!</span>(<span class="string">&quot;fixtures/{}&quot;</span>, fixture_str);
+                    <span class="kw">let </span>path = <span class="macro">format!</span>(<span class="string">"fixtures/{}"</span>, fixture_str);
 
                     <span class="macro">quote! </span>{
                         ::sqlx::testing::TestFixture {
@@ -495,7 +496,7 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>fixture_str = fixture.value();
                     add_sql_extension_if_missing(<span class="kw-2">&amp;mut </span>fixture_str);
 
-                    <span class="kw">let </span>path = <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, path.value(), fixture_str);
+                    <span class="kw">let </span>path = <span class="macro">format!</span>(<span class="string">"{}/{}"</span>, path.value(), fixture_str);
 
                     <span class="macro">quote! </span>{
                         ::sqlx::testing::TestFixture {
@@ -529,7 +530,7 @@
         }
         MigrationsOpt::InferredPath <span class="kw">if </span>!inputs.is_empty() =&gt; {
             <span class="kw">let </span>migrations_path =
-                <span class="kw">crate</span>::common::resolve_path(<span class="string">&quot;./migrations&quot;</span>, proc_macro2::Span::call_site())<span class="question-mark">?</span>;
+                <span class="kw">crate</span>::common::resolve_path(<span class="string">"./migrations"</span>, proc_macro2::Span::call_site())<span class="question-mark">?</span>;
 
             <span class="kw">if </span>migrations_path.is_dir() {
                 <span class="kw">let </span>migrator = <span class="kw">crate</span>::migrate::expand_migrator(<span class="kw-2">&amp;</span>migrations_path)<span class="question-mark">?</span>;
@@ -552,13 +553,13 @@
                 #body
             }
 
-            <span class="kw">let </span><span class="kw-2">mut </span>args = ::sqlx::testing::TestArgs::new(<span class="macro">concat!</span>(<span class="macro">module_path!</span>(), <span class="string">&quot;::&quot;</span>, <span class="macro">stringify!</span>(#name)));
+            <span class="kw">let </span><span class="kw-2">mut </span>args = ::sqlx::testing::TestArgs::new(<span class="macro">concat!</span>(<span class="macro">module_path!</span>(), <span class="string">"::"</span>, <span class="macro">stringify!</span>(#name)));
 
             #migrations
 
             args.fixtures(<span class="kw-2">&amp;</span>[#(#fixtures),<span class="kw-2">*</span>]);
 
-            <span class="comment">// We need to give a coercion site or else we get &quot;unimplemented trait&quot; errors.
+            <span class="comment">// We need to give a coercion site or else we get "unimplemented trait" errors.
             </span><span class="kw">let </span>f: <span class="kw">fn</span>(#(#fn_arg_types),<span class="kw-2">*</span>) -&gt; <span class="kw">_ </span>= inner;
 
             ::sqlx::testing::TestFn::run_test(f, args)
@@ -566,47 +567,47 @@
     })
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">fn </span>parse_args(attr_args: syn::AttributeArgs) -&gt; syn::Result&lt;Args&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>fixtures = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>migrations = MigrationsOpt::InferredPath;
 
     <span class="kw">for </span>arg <span class="kw">in </span>attr_args {
         <span class="kw">match </span>arg {
-            syn::NestedMeta::Meta(syn::Meta::List(list)) <span class="kw">if </span>list.path.is_ident(<span class="string">&quot;fixtures&quot;</span>) =&gt; {
+            syn::NestedMeta::Meta(syn::Meta::List(list)) <span class="kw">if </span>list.path.is_ident(<span class="string">"fixtures"</span>) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>fixtures_local = <span class="macro">vec!</span>[];
                 <span class="kw">let </span><span class="kw-2">mut </span>fixtures_type = FixturesType::None;
 
                 <span class="kw">for </span>nested <span class="kw">in </span>list.nested {
                     <span class="kw">match </span>nested {
                         syn::NestedMeta::Lit(syn::Lit::Str(litstr)) =&gt; {
-                            <span class="comment">//  fixtures(&quot;&lt;file_1&gt;&quot;,&quot;&lt;file_2&gt;&quot;) or fixtures(&quot;&lt;path/file_1.sql&gt;&quot;,&quot;&lt;path/file_2.sql&gt;&quot;)
+                            <span class="comment">//  fixtures("&lt;file_1&gt;","&lt;file_2&gt;") or fixtures("&lt;path/file_1.sql&gt;","&lt;path/file_2.sql&gt;")
                             </span>parse_fixtures_args(<span class="kw-2">&amp;mut </span>fixtures_type, litstr, <span class="kw-2">&amp;mut </span>fixtures_local)<span class="question-mark">?</span>;
                         },
                         syn::NestedMeta::Meta(syn::Meta::NameValue(namevalue))
-                            <span class="kw">if </span>namevalue.path.is_ident(<span class="string">&quot;path&quot;</span>) =&gt;
+                            <span class="kw">if </span>namevalue.path.is_ident(<span class="string">"path"</span>) =&gt;
                         {
-                            <span class="comment">//  fixtures(path = &quot;&lt;path&gt;&quot;, scripts(&quot;&lt;file_1&gt;&quot;,&quot;&lt;file_2&gt;&quot;)) checking `path` argument
+                            <span class="comment">//  fixtures(path = "&lt;path&gt;", scripts("&lt;file_1&gt;","&lt;file_2&gt;")) checking `path` argument
                             </span>parse_fixtures_path_args(<span class="kw-2">&amp;mut </span>fixtures_type, namevalue)<span class="question-mark">?</span>;
                         },
-                        syn::NestedMeta::Meta(syn::Meta::List(list)) <span class="kw">if </span>list.path.is_ident(<span class="string">&quot;scripts&quot;</span>) =&gt; {
-                            <span class="comment">//  fixtures(path = &quot;&lt;path&gt;&quot;, scripts(&quot;&lt;file_1&gt;&quot;,&quot;&lt;file_2&gt;&quot;)) checking `scripts` argument
+                        syn::NestedMeta::Meta(syn::Meta::List(list)) <span class="kw">if </span>list.path.is_ident(<span class="string">"scripts"</span>) =&gt; {
+                            <span class="comment">//  fixtures(path = "&lt;path&gt;", scripts("&lt;file_1&gt;","&lt;file_2&gt;")) checking `scripts` argument
                             </span>parse_fixtures_scripts_args(<span class="kw-2">&amp;mut </span>fixtures_type, list, <span class="kw-2">&amp;mut </span>fixtures_local)<span class="question-mark">?</span>;
                         }
                         other =&gt; {
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(other, <span class="string">&quot;expected string literal&quot;</span>))
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(other, <span class="string">"expected string literal"</span>))
                         }
                     };
                 }
                 fixtures.push((fixtures_type, fixtures_local));
             }
             syn::NestedMeta::Meta(syn::Meta::NameValue(namevalue))
-                <span class="kw">if </span>namevalue.path.is_ident(<span class="string">&quot;migrations&quot;</span>) =&gt;
+                <span class="kw">if </span>namevalue.path.is_ident(<span class="string">"migrations"</span>) =&gt;
             {
                 <span class="kw">if </span>!<span class="macro">matches!</span>(migrations, MigrationsOpt::InferredPath) {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                         namevalue,
-                        <span class="string">&quot;cannot have more than one `migrations` or `migrator` arg&quot;</span>,
+                        <span class="string">"cannot have more than one `migrations` or `migrator` arg"</span>,
                     ));
                 }
 
@@ -619,37 +620,37 @@
                             <span class="comment">// migrations = true
                             </span><span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                                 litbool,
-                                <span class="string">&quot;`migrations = true` is redundant&quot;</span>,
+                                <span class="string">"`migrations = true` is redundant"</span>,
                             ));
                         }
                     }
-                    <span class="comment">// migrations = &quot;&lt;path&gt;&quot;
+                    <span class="comment">// migrations = "&lt;path&gt;"
                     </span>syn::Lit::Str(litstr) =&gt; MigrationsOpt::ExplicitPath(litstr),
                     <span class="kw">_ </span>=&gt; {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                             namevalue,
-                            <span class="string">&quot;expected string or `false`&quot;</span>,
+                            <span class="string">"expected string or `false`"</span>,
                         ))
                     }
                 };
             }
             syn::NestedMeta::Meta(syn::Meta::NameValue(namevalue))
-                <span class="kw">if </span>namevalue.path.is_ident(<span class="string">&quot;migrator&quot;</span>) =&gt;
+                <span class="kw">if </span>namevalue.path.is_ident(<span class="string">"migrator"</span>) =&gt;
                 {
                     <span class="kw">if </span>!<span class="macro">matches!</span>(migrations, MigrationsOpt::InferredPath) {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                             namevalue,
-                            <span class="string">&quot;cannot have more than one `migrations` or `migrator` arg&quot;</span>,
+                            <span class="string">"cannot have more than one `migrations` or `migrator` arg"</span>,
                         ));
                     }
 
                     migrations = <span class="kw">match </span>namevalue.lit {
-                        <span class="comment">// migrator = &quot;&lt;path&gt;&quot;
+                        <span class="comment">// migrator = "&lt;path&gt;"
                         </span>syn::Lit::Str(litstr) =&gt; MigrationsOpt::ExplicitMigrator(litstr.parse()<span class="question-mark">?</span>),
                         <span class="kw">_ </span>=&gt; {
                             <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                                 namevalue,
-                                <span class="string">&quot;expected string&quot;</span>,
+                                <span class="string">"expected string"</span>,
                             ))
                         }
                     };
@@ -657,7 +658,7 @@
             other =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                     other,
-                    <span class="string">&quot;expected `fixtures(\&quot;&lt;filename&gt;\&quot;, ...)` or `migrations = \&quot;&lt;path&gt;\&quot; | false` or `migrator = \&quot;&lt;rust path&gt;\&quot;`&quot;</span>,
+                    <span class="string">"expected `fixtures(\"&lt;filename&gt;\", ...)` or `migrations = \"&lt;path&gt;\" | false` or `migrator = \"&lt;rust path&gt;\"`"</span>,
                 ))
             }
         }
@@ -669,17 +670,17 @@
     })
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">fn </span>parse_fixtures_args(
     fixtures_type: <span class="kw-2">&amp;mut </span>FixturesType,
     litstr: syn::LitStr,
     fixtures_local: <span class="kw-2">&amp;mut </span>Vec&lt;syn::LitStr&gt;,
 ) -&gt; syn::Result&lt;()&gt; {
-    <span class="comment">//  fixtures(path = &quot;&lt;path&gt;&quot;, scripts(&quot;&lt;file_1&gt;&quot;,&quot;&lt;file_2&gt;&quot;)) checking `path` argument
+    <span class="comment">//  fixtures(path = "&lt;path&gt;", scripts("&lt;file_1&gt;","&lt;file_2&gt;")) checking `path` argument
     </span><span class="kw">let </span>path_str = litstr.value();
     <span class="kw">let </span>path = std::path::Path::new(<span class="kw-2">&amp;</span>path_str);
-    <span class="comment">// This will be `true` if there&#39;s at least one path separator (`/` or `\`)
-    // It&#39;s also true for all absolute paths, even e.g. `/foo.sql` as the root directory is counted as a component.
+    <span class="comment">// This will be `true` if there's at least one path separator (`/` or `\`)
+    // It's also true for all absolute paths, even e.g. `/foo.sql` as the root directory is counted as a component.
     </span><span class="kw">let </span>is_explicit_path = path.components().count() &gt; <span class="number">1</span>;
     <span class="kw">match </span>fixtures_type {
         FixturesType::None =&gt; {
@@ -693,7 +694,7 @@
             <span class="kw">if </span>is_explicit_path {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                     litstr,
-                    <span class="string">&quot;expected only relative path fixtures&quot;</span>,
+                    <span class="string">"expected only relative path fixtures"</span>,
                 ));
             }
         }
@@ -701,75 +702,75 @@
             <span class="kw">if </span>!is_explicit_path {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                     litstr,
-                    <span class="string">&quot;expected only explicit path fixtures&quot;</span>,
+                    <span class="string">"expected only explicit path fixtures"</span>,
                 ));
             }
         }
         FixturesType::CustomRelativePath(<span class="kw">_</span>) =&gt; {
             <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
                 litstr,
-                <span class="string">&quot;custom relative path fixtures must be defined in `scripts` argument&quot;</span>,
+                <span class="string">"custom relative path fixtures must be defined in `scripts` argument"</span>,
             ))
         }
     }
     <span class="kw">if </span>(<span class="macro">matches!</span>(fixtures_type, FixturesType::ExplicitPath) &amp;&amp; !is_explicit_path) {
         <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
             litstr,
-            <span class="string">&quot;expected explicit path fixtures to have `.sql` extension&quot;</span>,
+            <span class="string">"expected explicit path fixtures to have `.sql` extension"</span>,
         ));
     }
     fixtures_local.push(litstr);
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">fn </span>parse_fixtures_path_args(
     fixtures_type: <span class="kw-2">&amp;mut </span>FixturesType,
     namevalue: syn::MetaNameValue,
 ) -&gt; syn::Result&lt;()&gt; {
-    <span class="comment">//  fixtures(path = &quot;&lt;path&gt;&quot;, scripts(&quot;&lt;file_1&gt;&quot;,&quot;&lt;file_2&gt;&quot;)) checking `path` argument
+    <span class="comment">//  fixtures(path = "&lt;path&gt;", scripts("&lt;file_1&gt;","&lt;file_2&gt;")) checking `path` argument
     </span><span class="kw">if </span>!<span class="macro">matches!</span>(fixtures_type, FixturesType::None) {
         <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
             namevalue,
-            <span class="string">&quot;`path` must be the first argument of `fixtures`&quot;</span>,
+            <span class="string">"`path` must be the first argument of `fixtures`"</span>,
         ));
     }
     <span class="kw-2">*</span>fixtures_type = <span class="kw">match </span>namevalue.lit {
-        <span class="comment">// path = &quot;&lt;path&gt;&quot;
+        <span class="comment">// path = "&lt;path&gt;"
         </span>syn::Lit::Str(litstr) =&gt; FixturesType::CustomRelativePath(litstr),
-        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(namevalue, <span class="string">&quot;expected string&quot;</span>)),
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(namevalue, <span class="string">"expected string"</span>)),
     };
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">fn </span>parse_fixtures_scripts_args(
     fixtures_type: <span class="kw-2">&amp;mut </span>FixturesType,
     list: syn::MetaList,
     fixtures_local: <span class="kw-2">&amp;mut </span>Vec&lt;syn::LitStr&gt;,
 ) -&gt; syn::Result&lt;()&gt; {
-    <span class="comment">//  fixtures(path = &quot;&lt;path&gt;&quot;, scripts(&quot;&lt;file_1&gt;&quot;,&quot;&lt;file_2&gt;&quot;)) checking `scripts` argument
+    <span class="comment">//  fixtures(path = "&lt;path&gt;", scripts("&lt;file_1&gt;","&lt;file_2&gt;")) checking `scripts` argument
     </span><span class="kw">if </span>!<span class="macro">matches!</span>(fixtures_type, FixturesType::CustomRelativePath(<span class="kw">_</span>)) {
         <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
             list,
-            <span class="string">&quot;`scripts` must be the second argument of `fixtures` and used together with `path`&quot;</span>,
+            <span class="string">"`scripts` must be the second argument of `fixtures` and used together with `path`"</span>,
         ));
     }
     <span class="kw">for </span>nested <span class="kw">in </span>list.nested {
         <span class="kw">let </span>litstr = <span class="kw">match </span>nested {
             syn::NestedMeta::Lit(syn::Lit::Str(litstr)) =&gt; litstr,
-            other =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(other, <span class="string">&quot;expected string literal&quot;</span>)),
+            other =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(other, <span class="string">"expected string literal"</span>)),
         };
         fixtures_local.push(litstr);
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">fn </span>add_sql_extension_if_missing(fixture: <span class="kw-2">&amp;mut </span>String) {
     <span class="kw">let </span>has_extension = std::path::Path::new(<span class="kw-2">&amp;</span>fixture).extension().is_some();
     <span class="kw">if </span>!has_extension {
-        fixture.push_str(<span class="string">&quot;.sql&quot;</span>)
+        fixture.push_str(<span class="string">".sql"</span>)
     }
 }
 </code></pre></div></section></main></body></html>

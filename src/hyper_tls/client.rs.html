@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-tls-0.5.0/src/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hyper_tls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-tls-0.5.0/src/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hyper_tls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -205,7 +206,7 @@
 <span class="kw">impl </span>HttpsConnector&lt;HttpConnector&gt; {
     <span class="doccomment">/// Construct a new HttpsConnector.
     ///
-    /// This uses hyper&#39;s default `HttpConnector`, and default `TlsConnector`.
+    /// This uses hyper's default `HttpConnector`, and default `TlsConnector`.
     /// If you wish to use something besides the defaults, use `From::from`.
     ///
     /// # Note
@@ -225,7 +226,7 @@
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         native_tls::TlsConnector::new()
             .map(|tls| HttpsConnector::new_(tls.into()))
-            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">&quot;HttpsConnector::new() failure: {}&quot;</span>, e))
+            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"HttpsConnector::new() failure: {}"</span>, e))
     }
 
     <span class="kw">fn </span>new_(tls: TlsConnector) -&gt; <span class="self">Self </span>{
@@ -256,7 +257,7 @@
             .map(|tls| HttpsConnector::from((http, tls.into())))
             .unwrap_or_else(|e| {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;HttpsConnector::new_with_connector(&lt;connector&gt;) failure: {}&quot;</span>,
+                    <span class="string">"HttpsConnector::new_with_connector(&lt;connector&gt;) failure: {}"</span>,
                     e
                 )
             })
@@ -275,9 +276,9 @@
 
 <span class="kw">impl</span>&lt;T: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>HttpsConnector&lt;T&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;HttpsConnector&quot;</span>)
-            .field(<span class="string">&quot;force_https&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.force_https)
-            .field(<span class="string">&quot;http&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.http)
+        f.debug_struct(<span class="string">"HttpsConnector"</span>)
+            .field(<span class="string">"force_https"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.force_https)
+            .field(<span class="string">"http"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.http)
             .finish()
     }
 }
@@ -286,14 +287,14 @@
 <span class="kw">where
     </span>T: Service&lt;Uri&gt;,
     T::Response: AsyncRead + AsyncWrite + Send + Unpin,
-    T::Future: Send + <span class="lifetime">&#39;static</span>,
+    T::Future: Send + <span class="lifetime">'static</span>,
     T::Error: Into&lt;BoxError&gt;,
 {
     <span class="kw">type </span>Response = MaybeHttpsStream&lt;T::Response&gt;;
     <span class="kw">type </span>Error = BoxError;
     <span class="kw">type </span>Future = HttpsConnecting&lt;T::Response&gt;;
 
-    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
         <span class="kw">match </span><span class="self">self</span>.http.poll_ready(cx) {
             Poll::Ready(<span class="prelude-val">Ok</span>(())) =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(())),
             Poll::Ready(<span class="prelude-val">Err</span>(e)) =&gt; Poll::Ready(<span class="prelude-val">Err</span>(e.into())),
@@ -302,16 +303,16 @@
     }
 
     <span class="kw">fn </span>call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: Uri) -&gt; <span class="self">Self</span>::Future {
-        <span class="kw">let </span>is_https = dst.scheme_str() == <span class="prelude-val">Some</span>(<span class="string">&quot;https&quot;</span>);
-        <span class="comment">// Early abort if HTTPS is forced but can&#39;t be used
+        <span class="kw">let </span>is_https = dst.scheme_str() == <span class="prelude-val">Some</span>(<span class="string">"https"</span>);
+        <span class="comment">// Early abort if HTTPS is forced but can't be used
         </span><span class="kw">if </span>!is_https &amp;&amp; <span class="self">self</span>.force_https {
             <span class="kw">return </span>err(ForceHttpsButUriNotHttps.into());
         }
 
         <span class="kw">let </span>host = dst
             .host()
-            .unwrap_or(<span class="string">&quot;&quot;</span>)
-            .trim_matches(|c| c == <span class="string">&#39;[&#39; </span>|| c == <span class="string">&#39;]&#39;</span>)
+            .unwrap_or(<span class="string">""</span>)
+            .trim_matches(|c| c == <span class="string">'[' </span>|| c == <span class="string">']'</span>)
             .to_owned();
         <span class="kw">let </span>connecting = <span class="self">self</span>.http.call(dst);
         <span class="kw">let </span>tls = <span class="self">self</span>.tls.clone();
@@ -341,14 +342,14 @@
 <span class="kw">impl</span>&lt;T: AsyncRead + AsyncWrite + Unpin&gt; Future <span class="kw">for </span>HttpsConnecting&lt;T&gt; {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;MaybeHttpsStream&lt;T&gt;, BoxError&gt;;
 
-    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).poll(cx)
     }
 }
 
 <span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>HttpsConnecting&lt;T&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.pad(<span class="string">&quot;HttpsConnecting&quot;</span>)
+        f.pad(<span class="string">"HttpsConnecting"</span>)
     }
 }
 
@@ -358,8 +359,8 @@
 </span><span class="kw">struct </span>ForceHttpsButUriNotHttps;
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ForceHttpsButUriNotHttps {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;https required but URI was not https&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"https required but URI was not https"</span>)
     }
 }
 

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/time/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/time/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -415,7 +416,7 @@
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
-// &quot;Software&quot;), to deal in the Software without restriction, including
+// "Software"), to deal in the Software without restriction, including
 // without limitation the rights to use, copy, modify, merge, publish,
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
@@ -424,7 +425,7 @@
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND,
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
@@ -509,7 +510,7 @@
 // sin
 // Solar Designer
 // Stefan Kristiansson
-// Stefan O&#39;Rear
+// Stefan O'Rear
 // Szabolcs Nagy
 // Timo Teräs
 // Trutz Behn
@@ -608,7 +609,7 @@
 <span class="doccomment">/// A date/time type which exists primarily to convert `SystemTime` timestamps into an ISO 8601
 /// formatted string.
 ///
-/// Yes, this exists. Before you have a heart attack, understand that the meat of this is musl&#39;s
+/// Yes, this exists. Before you have a heart attack, understand that the meat of this is musl's
 /// [`__secs_to_tm`][1] converted to Rust via [c2rust][2] and then cleaned up by hand as part of
 /// the [kudu-rs project][3], [released under MIT][4].
 ///
@@ -631,18 +632,18 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DateTime {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if </span><span class="self">self</span>.year &gt; <span class="number">9999 </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;+{}&quot;</span>, <span class="self">self</span>.year)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"+{}"</span>, <span class="self">self</span>.year)<span class="question-mark">?</span>;
         } <span class="kw">else if </span><span class="self">self</span>.year &lt; <span class="number">0 </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;{:05}&quot;</span>, <span class="self">self</span>.year)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"{:05}"</span>, <span class="self">self</span>.year)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;{:04}&quot;</span>, <span class="self">self</span>.year)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"{:04}"</span>, <span class="self">self</span>.year)<span class="question-mark">?</span>;
         }
 
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;-{:02}-{:02}T{:02}:{:02}:{:02}.{:06}Z&quot;</span>,
+            <span class="string">"-{:02}-{:02}T{:02}:{:02}:{:02}.{:06}Z"</span>,
             <span class="self">self</span>.month,
             <span class="self">self</span>.day,
             <span class="self">self</span>.hour,
@@ -757,65 +758,65 @@
             };
             <span class="macro">assert_eq!</span>(
                 expected,
-                <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, DateTime::from(timestamp)),
-                <span class="string">&quot;secs: {}, micros: {}&quot;</span>,
+                <span class="macro">format!</span>(<span class="string">"{}"</span>, DateTime::from(timestamp)),
+                <span class="string">"secs: {}, micros: {}"</span>,
                 secs,
                 micros
             )
         };
 
         <span class="comment">// Mostly generated with:
-        //  - date -jur &lt;secs&gt; +&quot;%Y-%m-%dT%H:%M:%S.000000Z&quot;
+        //  - date -jur &lt;secs&gt; +"%Y-%m-%dT%H:%M:%S.000000Z"
         //  - http://unixtimestamp.50x.eu/
 
-        </span>case(<span class="string">&quot;1970-01-01T00:00:00.000000Z&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);
+        </span>case(<span class="string">"1970-01-01T00:00:00.000000Z"</span>, <span class="number">0</span>, <span class="number">0</span>);
 
-        case(<span class="string">&quot;1970-01-01T00:00:00.000001Z&quot;</span>, <span class="number">0</span>, <span class="number">1</span>);
-        case(<span class="string">&quot;1970-01-01T00:00:00.500000Z&quot;</span>, <span class="number">0</span>, <span class="number">500_000</span>);
-        case(<span class="string">&quot;1970-01-01T00:00:01.000001Z&quot;</span>, <span class="number">1</span>, <span class="number">1</span>);
-        case(<span class="string">&quot;1970-01-01T00:01:01.000001Z&quot;</span>, <span class="number">60 </span>+ <span class="number">1</span>, <span class="number">1</span>);
-        case(<span class="string">&quot;1970-01-01T01:01:01.000001Z&quot;</span>, <span class="number">60 </span>* <span class="number">60 </span>+ <span class="number">60 </span>+ <span class="number">1</span>, <span class="number">1</span>);
+        case(<span class="string">"1970-01-01T00:00:00.000001Z"</span>, <span class="number">0</span>, <span class="number">1</span>);
+        case(<span class="string">"1970-01-01T00:00:00.500000Z"</span>, <span class="number">0</span>, <span class="number">500_000</span>);
+        case(<span class="string">"1970-01-01T00:00:01.000001Z"</span>, <span class="number">1</span>, <span class="number">1</span>);
+        case(<span class="string">"1970-01-01T00:01:01.000001Z"</span>, <span class="number">60 </span>+ <span class="number">1</span>, <span class="number">1</span>);
+        case(<span class="string">"1970-01-01T01:01:01.000001Z"</span>, <span class="number">60 </span>* <span class="number">60 </span>+ <span class="number">60 </span>+ <span class="number">1</span>, <span class="number">1</span>);
         case(
-            <span class="string">&quot;1970-01-02T01:01:01.000001Z&quot;</span>,
+            <span class="string">"1970-01-02T01:01:01.000001Z"</span>,
             <span class="number">24 </span>* <span class="number">60 </span>* <span class="number">60 </span>+ <span class="number">60 </span>* <span class="number">60 </span>+ <span class="number">60 </span>+ <span class="number">1</span>,
             <span class="number">1</span>,
         );
 
-        case(<span class="string">&quot;1969-12-31T23:59:59.000000Z&quot;</span>, -<span class="number">1</span>, <span class="number">0</span>);
-        case(<span class="string">&quot;1969-12-31T23:59:59.000001Z&quot;</span>, -<span class="number">1</span>, <span class="number">1</span>);
-        case(<span class="string">&quot;1969-12-31T23:59:59.500000Z&quot;</span>, -<span class="number">1</span>, <span class="number">500_000</span>);
-        case(<span class="string">&quot;1969-12-31T23:58:59.000001Z&quot;</span>, -<span class="number">60 </span>- <span class="number">1</span>, <span class="number">1</span>);
-        case(<span class="string">&quot;1969-12-31T22:58:59.000001Z&quot;</span>, -<span class="number">60 </span>* <span class="number">60 </span>- <span class="number">60 </span>- <span class="number">1</span>, <span class="number">1</span>);
+        case(<span class="string">"1969-12-31T23:59:59.000000Z"</span>, -<span class="number">1</span>, <span class="number">0</span>);
+        case(<span class="string">"1969-12-31T23:59:59.000001Z"</span>, -<span class="number">1</span>, <span class="number">1</span>);
+        case(<span class="string">"1969-12-31T23:59:59.500000Z"</span>, -<span class="number">1</span>, <span class="number">500_000</span>);
+        case(<span class="string">"1969-12-31T23:58:59.000001Z"</span>, -<span class="number">60 </span>- <span class="number">1</span>, <span class="number">1</span>);
+        case(<span class="string">"1969-12-31T22:58:59.000001Z"</span>, -<span class="number">60 </span>* <span class="number">60 </span>- <span class="number">60 </span>- <span class="number">1</span>, <span class="number">1</span>);
         case(
-            <span class="string">&quot;1969-12-30T22:58:59.000001Z&quot;</span>,
+            <span class="string">"1969-12-30T22:58:59.000001Z"</span>,
             -<span class="number">24 </span>* <span class="number">60 </span>* <span class="number">60 </span>- <span class="number">60 </span>* <span class="number">60 </span>- <span class="number">60 </span>- <span class="number">1</span>,
             <span class="number">1</span>,
         );
 
-        case(<span class="string">&quot;2038-01-19T03:14:07.000000Z&quot;</span>, std::i32::MAX <span class="kw">as </span>i64, <span class="number">0</span>);
-        case(<span class="string">&quot;2038-01-19T03:14:08.000000Z&quot;</span>, std::i32::MAX <span class="kw">as </span>i64 + <span class="number">1</span>, <span class="number">0</span>);
-        case(<span class="string">&quot;1901-12-13T20:45:52.000000Z&quot;</span>, i32::MIN <span class="kw">as </span>i64, <span class="number">0</span>);
-        case(<span class="string">&quot;1901-12-13T20:45:51.000000Z&quot;</span>, i32::MIN <span class="kw">as </span>i64 - <span class="number">1</span>, <span class="number">0</span>);
+        case(<span class="string">"2038-01-19T03:14:07.000000Z"</span>, std::i32::MAX <span class="kw">as </span>i64, <span class="number">0</span>);
+        case(<span class="string">"2038-01-19T03:14:08.000000Z"</span>, std::i32::MAX <span class="kw">as </span>i64 + <span class="number">1</span>, <span class="number">0</span>);
+        case(<span class="string">"1901-12-13T20:45:52.000000Z"</span>, i32::MIN <span class="kw">as </span>i64, <span class="number">0</span>);
+        case(<span class="string">"1901-12-13T20:45:51.000000Z"</span>, i32::MIN <span class="kw">as </span>i64 - <span class="number">1</span>, <span class="number">0</span>);
 
         <span class="comment">// Skipping these tests on windows as std::time::SysteTime range is low
         // on Windows compared with that of Unix which can cause the following
         // high date value tests to panic
-        </span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;windows&quot;</span>))]
+        </span><span class="attr">#[cfg(not(target_os = <span class="string">"windows"</span>))]
         </span>{
-            case(<span class="string">&quot;+292277026596-12-04T15:30:07.000000Z&quot;</span>, std::i64::MAX, <span class="number">0</span>);
-            case(<span class="string">&quot;+292277026596-12-04T15:30:06.000000Z&quot;</span>, std::i64::MAX - <span class="number">1</span>, <span class="number">0</span>);
-            case(<span class="string">&quot;-292277022657-01-27T08:29:53.000000Z&quot;</span>, i64::MIN + <span class="number">1</span>, <span class="number">0</span>);
+            case(<span class="string">"+292277026596-12-04T15:30:07.000000Z"</span>, std::i64::MAX, <span class="number">0</span>);
+            case(<span class="string">"+292277026596-12-04T15:30:06.000000Z"</span>, std::i64::MAX - <span class="number">1</span>, <span class="number">0</span>);
+            case(<span class="string">"-292277022657-01-27T08:29:53.000000Z"</span>, i64::MIN + <span class="number">1</span>, <span class="number">0</span>);
         }
 
-        case(<span class="string">&quot;1900-01-01T00:00:00.000000Z&quot;</span>, -<span class="number">2208988800</span>, <span class="number">0</span>);
-        case(<span class="string">&quot;1899-12-31T23:59:59.000000Z&quot;</span>, -<span class="number">2208988801</span>, <span class="number">0</span>);
-        case(<span class="string">&quot;0000-01-01T00:00:00.000000Z&quot;</span>, -<span class="number">62167219200</span>, <span class="number">0</span>);
-        case(<span class="string">&quot;-0001-12-31T23:59:59.000000Z&quot;</span>, -<span class="number">62167219201</span>, <span class="number">0</span>);
+        case(<span class="string">"1900-01-01T00:00:00.000000Z"</span>, -<span class="number">2208988800</span>, <span class="number">0</span>);
+        case(<span class="string">"1899-12-31T23:59:59.000000Z"</span>, -<span class="number">2208988801</span>, <span class="number">0</span>);
+        case(<span class="string">"0000-01-01T00:00:00.000000Z"</span>, -<span class="number">62167219200</span>, <span class="number">0</span>);
+        case(<span class="string">"-0001-12-31T23:59:59.000000Z"</span>, -<span class="number">62167219201</span>, <span class="number">0</span>);
 
-        case(<span class="string">&quot;1234-05-06T07:08:09.000000Z&quot;</span>, -<span class="number">23215049511</span>, <span class="number">0</span>);
-        case(<span class="string">&quot;-1234-05-06T07:08:09.000000Z&quot;</span>, -<span class="number">101097651111</span>, <span class="number">0</span>);
-        case(<span class="string">&quot;2345-06-07T08:09:01.000000Z&quot;</span>, <span class="number">11847456541</span>, <span class="number">0</span>);
-        case(<span class="string">&quot;-2345-06-07T08:09:01.000000Z&quot;</span>, -<span class="number">136154620259</span>, <span class="number">0</span>);
+        case(<span class="string">"1234-05-06T07:08:09.000000Z"</span>, -<span class="number">23215049511</span>, <span class="number">0</span>);
+        case(<span class="string">"-1234-05-06T07:08:09.000000Z"</span>, -<span class="number">101097651111</span>, <span class="number">0</span>);
+        case(<span class="string">"2345-06-07T08:09:01.000000Z"</span>, <span class="number">11847456541</span>, <span class="number">0</span>);
+        case(<span class="string">"-2345-06-07T08:09:01.000000Z"</span>, -<span class="number">136154620259</span>, <span class="number">0</span>);
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/pipeline.rs`."><title>pipeline.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/pipeline.rs`."><title>pipeline.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -341,19 +342,19 @@
 }
 
 <span class="doccomment">/// A pipeline allows you to send multiple commands in one go to the
-/// redis server.  API wise it&#39;s very similar to just using a command
+/// redis server.  API wise it's very similar to just using a command
 /// but it allows multiple commands to be chained and some features such
 /// as iteration are not available.
 ///
 /// Basic example:
 ///
 /// ```rust,no_run
-/// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+/// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 /// # let mut con = client.get_connection().unwrap();
 /// let ((k1, k2),) : ((i32, i32),) = redis::pipe()
-///     .cmd(&quot;SET&quot;).arg(&quot;key_1&quot;).arg(42).ignore()
-///     .cmd(&quot;SET&quot;).arg(&quot;key_2&quot;).arg(43).ignore()
-///     .cmd(&quot;MGET&quot;).arg(&amp;[&quot;key_1&quot;, &quot;key_2&quot;]).query(&amp;mut con).unwrap();
+///     .cmd("SET").arg("key_1").arg(42).ignore()
+///     .cmd("SET").arg("key_2").arg(43).ignore()
+///     .cmd("MGET").arg(&amp;["key_1", "key_2"]).query(&amp;mut con).unwrap();
 /// ```
 ///
 /// As you can see with `cmd` you can start a new command.  By default
@@ -378,17 +379,17 @@
     }
 
     <span class="doccomment">/// This enables atomic mode.  In atomic mode the whole pipeline is
-    /// enclosed in `MULTI`/`EXEC`.  From the user&#39;s point of view nothing
+    /// enclosed in `MULTI`/`EXEC`.  From the user's point of view nothing
     /// changes however.  This is easier than using `MULTI`/`EXEC` yourself
     /// as the format does not change.
     ///
     /// ```rust,no_run
-    /// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+    /// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
     /// # let mut con = client.get_connection().unwrap();
     /// let (k1, k2) : (i32, i32) = redis::pipe()
     ///     .atomic()
-    ///     .cmd(&quot;GET&quot;).arg(&quot;key_1&quot;)
-    ///     .cmd(&quot;GET&quot;).arg(&quot;key_2&quot;).query(&amp;mut con).unwrap();
+    ///     .cmd("GET").arg("key_1")
+    ///     .cmd("GET").arg("key_2").query(&amp;mut con).unwrap();
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>atomic(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Pipeline {
@@ -401,7 +402,7 @@
         encode_pipeline(<span class="kw-2">&amp;</span><span class="self">self</span>.commands, <span class="self">self</span>.transaction_mode)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_packed_pipeline(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         write_pipeline(out, <span class="kw-2">&amp;</span><span class="self">self</span>.commands, <span class="self">self</span>.transaction_mode)
     }
@@ -425,23 +426,23 @@
             <span class="prelude-val">Some</span>(Value::Bulk(items)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.make_pipeline_results(items)),
             <span class="kw">_ </span>=&gt; <span class="macro">fail!</span>((
                 ErrorKind::ResponseError,
-                <span class="string">&quot;Invalid response when parsing multi response&quot;
+                <span class="string">"Invalid response when parsing multi response"
             </span>)),
         }
     }
 
     <span class="doccomment">/// Executes the pipeline and fetches the return values.  Since most
-    /// pipelines return different types it&#39;s recommended to use tuple
+    /// pipelines return different types it's recommended to use tuple
     /// matching to process the results:
     ///
     /// ```rust,no_run
-    /// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+    /// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
     /// # let mut con = client.get_connection().unwrap();
     /// let (k1, k2) : (i32, i32) = redis::pipe()
-    ///     .cmd(&quot;SET&quot;).arg(&quot;key_1&quot;).arg(42).ignore()
-    ///     .cmd(&quot;SET&quot;).arg(&quot;key_2&quot;).arg(43).ignore()
-    ///     .cmd(&quot;GET&quot;).arg(&quot;key_1&quot;)
-    ///     .cmd(&quot;GET&quot;).arg(&quot;key_2&quot;).query(&amp;mut con).unwrap();
+    ///     .cmd("SET").arg("key_1").arg(42).ignore()
+    ///     .cmd("SET").arg("key_2").arg(43).ignore()
+    ///     .cmd("GET").arg("key_1")
+    ///     .cmd("GET").arg("key_2").query(&amp;mut con).unwrap();
     /// ```
     ///
     /// NOTE: A Pipeline object may be reused after `query()` with all the commands as were inserted
@@ -452,7 +453,7 @@
         <span class="kw">if </span>!con.supports_pipelining() {
             <span class="macro">fail!</span>((
                 ErrorKind::ResponseError,
-                <span class="string">&quot;This connection does not support pipelining.&quot;
+                <span class="string">"This connection does not support pipelining."
             </span>));
         }
         from_redis_value(
@@ -466,7 +467,7 @@
         )
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
     </span><span class="kw">async fn </span>execute_pipelined_async&lt;C&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span>C) -&gt; RedisResult&lt;Value&gt;
     <span class="kw">where
         </span>C: <span class="kw">crate</span>::aio::ConnectionLike,
@@ -477,7 +478,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.make_pipeline_results(value))
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
     </span><span class="kw">async fn </span>execute_transaction_async&lt;C&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span>C) -&gt; RedisResult&lt;Value&gt;
     <span class="kw">where
         </span>C: <span class="kw">crate</span>::aio::ConnectionLike,
@@ -490,7 +491,7 @@
             <span class="prelude-val">Some</span>(Value::Bulk(items)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.make_pipeline_results(items)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>((
                 ErrorKind::ResponseError,
-                <span class="string">&quot;Invalid response when parsing multi response&quot;</span>,
+                <span class="string">"Invalid response when parsing multi response"</span>,
             )
                 .into()),
         }
@@ -498,7 +499,7 @@
 
     <span class="doccomment">/// Async version of `query`.
     </span><span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+    #[cfg(feature = <span class="string">"aio"</span>)]
     </span><span class="kw">pub async fn </span>query_async&lt;C, T: FromRedisValue&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span>C) -&gt; RedisResult&lt;T&gt;
     <span class="kw">where
         </span>C: <span class="kw">crate</span>::aio::ConnectionLike,
@@ -519,9 +520,9 @@
     /// This is equivalent to a call of query like this:
     ///
     /// ```rust,no_run
-    /// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+    /// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
     /// # let mut con = client.get_connection().unwrap();
-    /// let _ : () = redis::pipe().cmd(&quot;PING&quot;).query(&amp;mut con).unwrap();
+    /// let _ : () = redis::pipe().cmd("PING").query(&amp;mut con).unwrap();
     /// ```
     ///
     /// NOTE: A Pipeline object may be reused after `query()` with all the commands as were inserted
@@ -543,8 +544,8 @@
     <span class="kw">let </span>cmds_len = cmds.iter().map(cmd_len).sum();
 
     <span class="kw">if </span>atomic {
-        <span class="kw">let </span>multi = cmd(<span class="string">&quot;MULTI&quot;</span>);
-        <span class="kw">let </span>exec = cmd(<span class="string">&quot;EXEC&quot;</span>);
+        <span class="kw">let </span>multi = cmd(<span class="string">"MULTI"</span>);
+        <span class="kw">let </span>exec = cmd(<span class="string">"EXEC"</span>);
         rv.reserve(cmd_len(<span class="kw-2">&amp;</span>multi) + cmd_len(<span class="kw-2">&amp;</span>exec) + cmds_len);
 
         multi.write_packed_command_preallocated(rv);
@@ -611,7 +612,7 @@
                 <span class="self">self
             </span>}
 
-            <span class="doccomment">/// Clear a pipeline object&#39;s internal data structure.
+            <span class="doccomment">/// Clear a pipeline object's internal data structure.
             ///
             /// This allows reusing a pipeline object as a clear object while performing a minimal
             /// amount of memory released/reallocated.
@@ -624,7 +625,7 @@
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>get_last_command(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Cmd {
                 <span class="kw">let </span>idx = <span class="kw">match </span><span class="self">self</span>.commands.len() {
-                    <span class="number">0 </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;No command on stack&quot;</span>),
+                    <span class="number">0 </span>=&gt; <span class="macro">panic!</span>(<span class="string">"No command on stack"</span>),
                     x =&gt; x - <span class="number">1</span>,
                 };
                 <span class="kw-2">&amp;mut </span><span class="self">self</span>.commands[idx]

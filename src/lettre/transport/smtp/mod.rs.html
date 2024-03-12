@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -244,19 +245,19 @@
 //! This is the most basic example of usage:
 //!
 //! ```rust,no_run
-//! # #[cfg(all(feature = &quot;builder&quot;, any(feature = &quot;native-tls&quot;, feature = &quot;rustls-tls&quot;)))]
+//! # #[cfg(all(feature = "builder", any(feature = "native-tls", feature = "rustls-tls")))]
 //! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 //! use lettre::{Message, SmtpTransport, Transport};
 //!
 //! let email = Message::builder()
-//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
-//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
-//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
-//!     .subject(&quot;Happy new year&quot;)
-//!     .body(String::from(&quot;Be happy!&quot;))?;
+//!     .from("NoBody &lt;nobody@domain.tld&gt;".parse()?)
+//!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
+//!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
+//!     .subject("Happy new year")
+//!     .body(String::from("Be happy!"))?;
 //!
 //! // Create TLS transport on port 465
-//! let sender = SmtpTransport::relay(&quot;smtp.example.com&quot;)?.build();
+//! let sender = SmtpTransport::relay("smtp.example.com")?.build();
 //! // Send the email via remote relay
 //! let result = sender.send(&amp;email);
 //! assert!(result.is_ok());
@@ -269,7 +270,7 @@
 //! Example with authentication and connection pool:
 //!
 //! ```rust,no_run
-//! # #[cfg(all(feature = &quot;builder&quot;, any(feature = &quot;native-tls&quot;, feature = &quot;rustls-tls&quot;)))]
+//! # #[cfg(all(feature = "builder", any(feature = "native-tls", feature = "rustls-tls")))]
 //! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 //! use lettre::{
 //!     transport::smtp::{
@@ -280,18 +281,18 @@
 //! };
 //!
 //! let email = Message::builder()
-//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
-//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
-//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
-//!     .subject(&quot;Happy new year&quot;)
-//!     .body(String::from(&quot;Be happy!&quot;))?;
+//!     .from("NoBody &lt;nobody@domain.tld&gt;".parse()?)
+//!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
+//!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
+//!     .subject("Happy new year")
+//!     .body(String::from("Be happy!"))?;
 //!
 //! // Create TLS transport on port 587 with STARTTLS
-//! let sender = SmtpTransport::starttls_relay(&quot;smtp.example.com&quot;)?
+//! let sender = SmtpTransport::starttls_relay("smtp.example.com")?
 //!     // Add credentials for authentication
 //!     .credentials(Credentials::new(
-//!         &quot;username&quot;.to_owned(),
-//!         &quot;password&quot;.to_owned(),
+//!         "username".to_owned(),
+//!         "password".to_owned(),
 //!     ))
 //!     // Configure expected authentication mechanism
 //!     .authentication(vec![Mechanism::Plain])
@@ -309,7 +310,7 @@
 //! You can specify custom TLS settings:
 //!
 //! ```rust,no_run
-//! # #[cfg(all(feature = &quot;builder&quot;, any(feature = &quot;native-tls&quot;, feature = &quot;rustls-tls&quot;)))]
+//! # #[cfg(all(feature = "builder", any(feature = "native-tls", feature = "rustls-tls")))]
 //! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 //! use lettre::{
 //!     transport::smtp::client::{Tls, TlsParameters},
@@ -317,19 +318,19 @@
 //! };
 //!
 //! let email = Message::builder()
-//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
-//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
-//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
-//!     .subject(&quot;Happy new year&quot;)
-//!     .body(String::from(&quot;Be happy!&quot;))?;
+//!     .from("NoBody &lt;nobody@domain.tld&gt;".parse()?)
+//!     .reply_to("Yuin &lt;yuin@domain.tld&gt;".parse()?)
+//!     .to("Hei &lt;hei@domain.tld&gt;".parse()?)
+//!     .subject("Happy new year")
+//!     .body(String::from("Be happy!"))?;
 //!
 //! // Custom TLS configuration
-//! let tls = TlsParameters::builder(&quot;smtp.example.com&quot;.to_owned())
+//! let tls = TlsParameters::builder("smtp.example.com".to_owned())
 //!     .dangerous_accept_invalid_certs(true)
 //!     .build()?;
 //!
 //! // Create TLS transport on port 465
-//! let sender = SmtpTransport::relay(&quot;smtp.example.com&quot;)?
+//! let sender = SmtpTransport::relay("smtp.example.com")?
 //!     // Custom TLS configuration
 //!     .tls(Tls::Required(tls))
 //!     .build();
@@ -345,15 +346,15 @@
 
 <span class="kw">use </span>client::Tls;
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"tokio1"</span>, feature = <span class="string">"async-std1"</span>))]
 </span><span class="kw">pub use </span><span class="self">self</span>::async_transport::{AsyncSmtpTransport, AsyncSmtpTransportBuilder};
-<span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
 </span><span class="kw">pub use </span><span class="self">self</span>::pool::PoolConfig;
 <span class="kw">pub use </span><span class="self">self</span>::{
     error::Error,
     transport::{SmtpTransport, SmtpTransportBuilder},
 };
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"rustls-tls"</span>, feature = <span class="string">"boring-tls"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::transport::smtp::client::TlsParameters;
 <span class="kw">use </span><span class="kw">crate</span>::transport::smtp::{
     authentication::{Credentials, Mechanism, DEFAULT_MECHANISMS},
@@ -362,7 +363,7 @@
     response::Response,
 };
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"tokio1"</span>, feature = <span class="string">"async-std1"</span>))]
 </span><span class="kw">mod </span>async_transport;
 <span class="kw">pub mod </span>authentication;
 <span class="kw">pub mod </span>client;
@@ -370,7 +371,7 @@
 <span class="kw">mod </span>connection_url;
 <span class="kw">mod </span>error;
 <span class="kw">pub mod </span>extension;
-<span class="attr">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"pool"</span>)]
 </span><span class="kw">mod </span>pool;
 <span class="kw">pub mod </span>response;
 <span class="kw">mod </span>transport;
@@ -414,7 +415,7 @@
 <span class="kw">impl </span>Default <span class="kw">for </span>SmtpInfo {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            server: <span class="string">&quot;localhost&quot;</span>.to_owned(),
+            server: <span class="string">"localhost"</span>.to_owned(),
             port: SMTP_PORT,
             hello_name: ClientId::default(),
             credentials: <span class="prelude-val">None</span>,

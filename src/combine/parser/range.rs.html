@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/range.rs`."><title>range.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/range.rs`."><title>range.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -782,10 +783,10 @@
     parser::ParseMode,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::lib::error::Error <span class="kw">as </span>StdError;
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::lib::fmt;
 
 <span class="kw">use </span><span class="kw">crate</span>::stream::{
@@ -848,8 +849,8 @@
     /// # use combine::*;
     /// # fn main() {
     /// let mut parser = recognize(skip_many1(letter()));
-    /// assert_eq!(parser.parse(&quot;hello world&quot;), Ok((&quot;hello&quot;, &quot; world&quot;)));
-    /// assert!(parser.parse(&quot;!&quot;).is_err());
+    /// assert_eq!(parser.parse("hello world"), Ok(("hello", " world")));
+    /// assert!(parser.parse("!").is_err());
     /// # }
     /// ```
     </span><span class="kw">pub fn </span>recognize[Input, P](parser: P)(Input) -&gt; &lt;Input <span class="kw">as </span>StreamOnce&gt;::Range
@@ -891,7 +892,7 @@
         result
     } <span class="kw">else </span>{
         <span class="kw">if </span>input.uncons_range(<span class="kw-2">*</span>distance_state).is_err() {
-            <span class="macro">panic!</span>(<span class="string">&quot;recognize errored when restoring the input stream to its expected state&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"recognize errored when restoring the input stream to its expected state"</span>);
         }
 
         <span class="kw">match </span>resume(input, state) {
@@ -940,7 +941,7 @@
 
         <span class="kw">let </span>before = input.checkpoint();
         <span class="kw">if </span>!mode.is_first() &amp;&amp; input.uncons_range(<span class="kw-2">*</span>distance_state).is_err() {
-            <span class="macro">panic!</span>(<span class="string">&quot;recognize errored when restoring the input stream to its expected state&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"recognize errored when restoring the input stream to its expected state"</span>);
         }
 
         <span class="kw">let </span>value = <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.parse_mode(mode, input, child_state) {
@@ -979,13 +980,13 @@
 /// # fn main() {
 /// let mut parser = recognize_with_value((
 ///     skip_many1(digit()),
-///     optional((attempt(char(&#39;.&#39;)), skip_many1(digit()))),
+///     optional((attempt(char('.')), skip_many1(digit()))),
 /// ).map(|(_, opt)| opt.is_some()));
 ///
-/// assert_eq!(parser.parse(&quot;1234!&quot;), Ok(((&quot;1234&quot;, false), &quot;!&quot;)));
-/// assert_eq!(parser.parse(&quot;1234.0001!&quot;), Ok(((&quot;1234.0001&quot;, true), &quot;!&quot;)));
-/// assert!(parser.parse(&quot;!&quot;).is_err());
-/// assert!(parser.parse(&quot;1234.&quot;).is_err());
+/// assert_eq!(parser.parse("1234!"), Ok((("1234", false), "!")));
+/// assert_eq!(parser.parse("1234.0001!"), Ok((("1234.0001", true), "!")));
+/// assert!(parser.parse("!").is_err());
+/// assert!(parser.parse("1234.").is_err());
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>recognize_with_value&lt;Input, P&gt;(parser: P) -&gt; RecognizeWithValue&lt;P&gt;
@@ -1008,10 +1009,10 @@
 /// # use combine::parser::range::range;
 /// # use combine::*;
 /// # fn main() {
-/// let mut parser = range(&quot;hello&quot;);
-/// let result = parser.parse(&quot;hello world&quot;);
-/// assert_eq!(result, Ok((&quot;hello&quot;, &quot; world&quot;)));
-/// let result = parser.parse(&quot;hel world&quot;);
+/// let mut parser = range("hello");
+/// let result = parser.parse("hello world");
+/// assert_eq!(result, Ok(("hello", " world")));
+/// let result = parser.parse("hel world");
 /// assert!(result.is_err());
 /// # }
 /// ```
@@ -1051,12 +1052,12 @@
 /// # use combine::*;
 /// # fn main() {
 /// let mut parser = take(1);
-/// let result = parser.parse(&quot;1&quot;);
-/// assert_eq!(result, Ok((&quot;1&quot;, &quot;&quot;)));
+/// let result = parser.parse("1");
+/// assert_eq!(result, Ok(("1", "")));
 /// let mut parser = take(4);
-/// let result = parser.parse(&quot;123abc&quot;);
-/// assert_eq!(result, Ok((&quot;123a&quot;, &quot;bc&quot;)));
-/// let result = parser.parse(&quot;abc&quot;);
+/// let result = parser.parse("123abc");
+/// assert_eq!(result, Ok(("123a", "bc")));
+/// let result = parser.parse("abc");
 /// assert!(result.is_err());
 /// # }
 /// ```
@@ -1110,10 +1111,10 @@
 /// # use combine::*;
 /// # fn main() {
 /// let mut parser = take_while(|c: char| c.is_digit(10));
-/// let result = parser.parse(&quot;123abc&quot;);
-/// assert_eq!(result, Ok((&quot;123&quot;, &quot;abc&quot;)));
-/// let result = parser.parse(&quot;abc&quot;);
-/// assert_eq!(result, Ok((&quot;&quot;, &quot;abc&quot;)));
+/// let result = parser.parse("123abc");
+/// assert_eq!(result, Ok(("123", "abc")));
+/// let result = parser.parse("abc");
+/// assert_eq!(result, Ok(("", "abc")));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>take_while&lt;Input, F&gt;(f: F) -&gt; TakeWhile&lt;Input, F&gt;
@@ -1168,9 +1169,9 @@
 /// # use combine::*;
 /// # fn main() {
 /// let mut parser = take_while1(|c: char| c.is_digit(10));
-/// let result = parser.parse(&quot;123abc&quot;);
-/// assert_eq!(result, Ok((&quot;123&quot;, &quot;abc&quot;)));
-/// let result = parser.parse(&quot;abc&quot;);
+/// let result = parser.parse("123abc");
+/// assert_eq!(result, Ok(("123", "abc")));
+/// let result = parser.parse("abc");
 /// assert!(result.is_err());
 /// # }
 /// ```
@@ -1228,7 +1229,7 @@
                         }
 
                         <span class="comment">// We are guaranteed able to uncons to_consume characters here
-                        // because we&#39;ve already done it on look_ahead_input.
+                        // because we've already done it on look_ahead_input.
                         </span><span class="macro">unreachable!</span>();
                     } <span class="kw">else </span>{
                         <span class="comment">// Reset the stream back to where it was when we entered the top of the loop
@@ -1243,7 +1244,7 @@
                 <span class="prelude-val">Err</span>(first_error) =&gt; {
                     <span class="comment">// If we are unable to find a successful parse even after advancing with `uncons`
                     // below we must reset the stream to its state before the first error.
-                    // If we don&#39;t we may try and match the range `::` against `:&lt;EOF&gt;` which would
+                    // If we don't we may try and match the range `::` against `:&lt;EOF&gt;` which would
                     // fail as only one `:` is present at this parse attempt. But when we later resume
                     // with more input we must start parsing again at the first time we errored so we
                     // can see the entire `::`
@@ -1284,10 +1285,10 @@
 /// # use combine::parser::range::{range, take_until_range};
 /// # use combine::*;
 /// # fn main() {
-/// let mut parser = take_until_range(&quot;\r\n&quot;);
-/// let result = parser.parse(&quot;To: user@example.com\r\n&quot;);
-/// assert_eq!(result, Ok((&quot;To: user@example.com&quot;, &quot;\r\n&quot;)));
-/// let result = parser.parse(&quot;Hello, world\n&quot;);
+/// let mut parser = take_until_range("\r\n");
+/// let result = parser.parse("To: user@example.com\r\n");
+/// assert_eq!(result, Ok(("To: user@example.com", "\r\n")));
+/// let result = parser.parse("Hello, world\n");
 /// assert!(result.is_err());
 /// # }
 /// ```
@@ -1398,7 +1399,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="macro">parser! </span>{
 <span class="doccomment">/// Takes a parser which parses a `length` then extracts a range of that length and returns it.
 /// Commonly used in binary formats
@@ -1409,11 +1410,11 @@
 /// # fn main() {
 /// let mut input = Vec::new();
 /// input.extend_from_slice(&amp;3u16.to_be_bytes());
-/// input.extend_from_slice(b&quot;1234&quot;);
+/// input.extend_from_slice(b"1234");
 ///
 /// let mut parser = length_prefix(be_u16());
 /// let result = parser.parse(&amp;input[..]);
-/// assert_eq!(result, Ok((&amp;b&quot;123&quot;[..], &amp;b&quot;4&quot;[..])));
+/// assert_eq!(result, Ok((&amp;b"123"[..], &amp;b"4"[..])));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>length_prefix[Input, P](len: P)(Input) -&gt; Input::Range
@@ -1421,7 +1422,7 @@
     Input: RangeStream,
     P: Parser&lt;Input&gt;,
     usize: TryFrom&lt;P::Output&gt;,
-    &lt;usize <span class="kw">as </span>TryFrom&lt;P::Output&gt;&gt;::Error: StdError + Send + Sync + <span class="lifetime">&#39;static</span>,
+    &lt;usize <span class="kw">as </span>TryFrom&lt;P::Output&gt;&gt;::Error: StdError + Send + Sync + <span class="lifetime">'static</span>,
 ]
 {
     len
@@ -1433,7 +1434,7 @@
 }
 }
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="macro">parser! </span>{
 <span class="doccomment">/// Takes a parser which parses a `length` then extracts a range of that length and returns it.
 /// Commonly used in binary formats
@@ -1444,11 +1445,11 @@
 /// # fn main() {
 /// let mut input = Vec::new();
 /// input.extend_from_slice(&amp;3u16.to_be_bytes());
-/// input.extend_from_slice(b&quot;1234&quot;);
+/// input.extend_from_slice(b"1234");
 ///
 /// let mut parser = length_prefix(be_u16());
 /// let result = parser.parse(&amp;input[..]);
-/// assert_eq!(result, Ok((&amp;b&quot;123&quot;[..], &amp;b&quot;4&quot;[..])));
+/// assert_eq!(result, Ok((&amp;b"123"[..], &amp;b"4"[..])));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>length_prefix[Input, P](len: P)(Input) -&gt; Input::Range
@@ -1456,7 +1457,7 @@
     Input: RangeStream,
     P: Parser&lt;Input&gt;,
     usize: TryFrom&lt;P::Output&gt;,
-    &lt;usize <span class="kw">as </span>TryFrom&lt;P::Output&gt;&gt;::Error: fmt::Display + Send + Sync + <span class="lifetime">&#39;static</span>,
+    &lt;usize <span class="kw">as </span>TryFrom&lt;P::Output&gt;&gt;::Error: fmt::Display + Send + Sync + <span class="lifetime">'static</span>,
 ]
 {
     len
@@ -1477,59 +1478,59 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>take_while_test() {
-        <span class="kw">let </span>result = take_while(|c: char| c.is_digit(<span class="number">10</span>)).parse(<span class="string">&quot;123abc&quot;</span>);
-        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">&quot;123&quot;</span>, <span class="string">&quot;abc&quot;</span>)));
-        <span class="kw">let </span>result = take_while(|c: char| c.is_digit(<span class="number">10</span>)).parse(<span class="string">&quot;abc&quot;</span>);
-        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">&quot;&quot;</span>, <span class="string">&quot;abc&quot;</span>)));
+        <span class="kw">let </span>result = take_while(|c: char| c.is_digit(<span class="number">10</span>)).parse(<span class="string">"123abc"</span>);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">"123"</span>, <span class="string">"abc"</span>)));
+        <span class="kw">let </span>result = take_while(|c: char| c.is_digit(<span class="number">10</span>)).parse(<span class="string">"abc"</span>);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">""</span>, <span class="string">"abc"</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>take_while1_test() {
-        <span class="kw">let </span>result = take_while1(|c: char| c.is_digit(<span class="number">10</span>)).parse(<span class="string">&quot;123abc&quot;</span>);
-        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">&quot;123&quot;</span>, <span class="string">&quot;abc&quot;</span>)));
-        <span class="kw">let </span>result = take_while1(|c: char| c.is_digit(<span class="number">10</span>)).parse(<span class="string">&quot;abc&quot;</span>);
+        <span class="kw">let </span>result = take_while1(|c: char| c.is_digit(<span class="number">10</span>)).parse(<span class="string">"123abc"</span>);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">"123"</span>, <span class="string">"abc"</span>)));
+        <span class="kw">let </span>result = take_while1(|c: char| c.is_digit(<span class="number">10</span>)).parse(<span class="string">"abc"</span>);
         <span class="macro">assert!</span>(result.is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>range_string_no_char_boundary_error() {
-        <span class="kw">let </span><span class="kw-2">mut </span>parser = range(<span class="string">&quot;hello&quot;</span>);
-        <span class="kw">let </span>result = parser.parse(<span class="string">&quot;hell\u{00EE} world&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>parser = range(<span class="string">"hello"</span>);
+        <span class="kw">let </span>result = parser.parse(<span class="string">"hell\u{00EE} world"</span>);
         <span class="macro">assert!</span>(result.is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>take_until_range_1() {
-        <span class="kw">let </span>result = take_until_range(<span class="string">&quot;\&quot;&quot;</span>).parse(<span class="string">&quot;Foo baz bar quux\&quot;&quot;</span>);
-        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">&quot;Foo baz bar quux&quot;</span>, <span class="string">&quot;\&quot;&quot;</span>)));
+        <span class="kw">let </span>result = take_until_range(<span class="string">"\""</span>).parse(<span class="string">"Foo baz bar quux\""</span>);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">"Foo baz bar quux"</span>, <span class="string">"\""</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>take_until_range_2() {
-        <span class="kw">let </span>result = take_until_range(<span class="string">&quot;===&quot;</span>).parse(<span class="string">&quot;if ((pointless_comparison == 3) === true) {&quot;</span>);
+        <span class="kw">let </span>result = take_until_range(<span class="string">"==="</span>).parse(<span class="string">"if ((pointless_comparison == 3) === true) {"</span>);
         <span class="macro">assert_eq!</span>(
             result,
-            <span class="prelude-val">Ok</span>((<span class="string">&quot;if ((pointless_comparison == 3) &quot;</span>, <span class="string">&quot;=== true) {&quot;</span>))
+            <span class="prelude-val">Ok</span>((<span class="string">"if ((pointless_comparison == 3) "</span>, <span class="string">"=== true) {"</span>))
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>take_until_range_unicode_1() {
-        <span class="kw">let </span>result = take_until_range(<span class="string">&quot;🦀&quot;</span>)
-            .parse(<span class="string">&quot;😃 Ferris the friendly rustacean 🦀 and his snake friend 🐍&quot;</span>);
+        <span class="kw">let </span>result = take_until_range(<span class="string">"🦀"</span>)
+            .parse(<span class="string">"😃 Ferris the friendly rustacean 🦀 and his snake friend 🐍"</span>);
         <span class="macro">assert_eq!</span>(
             result,
             <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;😃 Ferris the friendly rustacean &quot;</span>,
-                <span class="string">&quot;🦀 and his snake friend 🐍&quot;
+                <span class="string">"😃 Ferris the friendly rustacean "</span>,
+                <span class="string">"🦀 and his snake friend 🐍"
             </span>))
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>take_until_range_unicode_2() {
-        <span class="kw">let </span>result = take_until_range(<span class="string">&quot;⁘⁙/⁘&quot;</span>).parse(<span class="string">&quot;⚙️🛠️🦀=🏎️⁘⁙⁘⁘⁙/⁘⁘⁙/⁘&quot;</span>);
-        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">&quot;⚙️🛠️🦀=🏎️⁘⁙⁘&quot;</span>, <span class="string">&quot;⁘⁙/⁘⁘⁙/⁘&quot;</span>)));
+        <span class="kw">let </span>result = take_until_range(<span class="string">"⁘⁙/⁘"</span>).parse(<span class="string">"⚙️🛠️🦀=🏎️⁘⁙⁘⁘⁙/⁘⁘⁙/⁘"</span>);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Ok</span>((<span class="string">"⚙️🛠️🦀=🏎️⁘⁙⁘"</span>, <span class="string">"⁘⁙/⁘⁘⁙/⁘"</span>)));
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/cred.rs`."><title>cred.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/cred.rs`."><title>cred.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -743,7 +744,7 @@
 }
 
 <span class="kw">impl </span>Cred {
-    <span class="doccomment">/// Create a &quot;default&quot; credential usable for Negotiate mechanisms like NTLM
+    <span class="doccomment">/// Create a "default" credential usable for Negotiate mechanisms like NTLM
     /// or Kerberos authentication.
     </span><span class="kw">pub fn </span>default() -&gt; <span class="prelude-ty">Result</span>&lt;Cred, Error&gt; {
         <span class="kw">crate</span>::init();
@@ -825,7 +826,7 @@
 
     <span class="doccomment">/// Attempt to read `credential.helper` according to gitcredentials(7) [1]
     ///
-    /// This function will attempt to parse the user&#39;s `credential.helper`
+    /// This function will attempt to parse the user's `credential.helper`
     /// configuration, invoke the necessary processes, and read off what the
     /// username/password should be for a particular URL.
     ///
@@ -845,8 +846,8 @@
         {
             <span class="prelude-val">Some</span>((username, password)) =&gt; Cred::userpass_plaintext(<span class="kw-2">&amp;</span>username, <span class="kw-2">&amp;</span>password),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(Error::from_str(
-                <span class="string">&quot;failed to acquire username/password \
-                 from local configuration&quot;</span>,
+                <span class="string">"failed to acquire username/password \
+                 from local configuration"</span>,
             )),
         }
     }
@@ -905,7 +906,7 @@
 }
 
 <span class="kw">impl </span>CredentialHelper {
-    <span class="doccomment">/// Create a new credential helper object which will be used to probe git&#39;s
+    <span class="doccomment">/// Create a new credential helper object which will be used to probe git's
     /// local credential configuration.
     ///
     /// The URL specified is the namespace on which this will query credentials.
@@ -956,40 +957,40 @@
 
     <span class="comment">// Configure the queried username from `config`
     </span><span class="kw">fn </span>config_username(<span class="kw-2">&amp;mut </span><span class="self">self</span>, config: <span class="kw-2">&amp;</span>Config) {
-        <span class="kw">let </span>key = <span class="self">self</span>.exact_key(<span class="string">&quot;username&quot;</span>);
+        <span class="kw">let </span>key = <span class="self">self</span>.exact_key(<span class="string">"username"</span>);
         <span class="self">self</span>.username = config
             .get_string(<span class="kw-2">&amp;</span>key)
             .ok()
             .or_else(|| {
-                <span class="self">self</span>.url_key(<span class="string">&quot;username&quot;</span>)
+                <span class="self">self</span>.url_key(<span class="string">"username"</span>)
                     .and_then(|s| config.get_string(<span class="kw-2">&amp;</span>s).ok())
             })
-            .or_else(|| config.get_string(<span class="string">&quot;credential.username&quot;</span>).ok())
+            .or_else(|| config.get_string(<span class="string">"credential.username"</span>).ok())
     }
 
     <span class="comment">// Discover all `helper` directives from `config`
     </span><span class="kw">fn </span>config_helper(<span class="kw-2">&amp;mut </span><span class="self">self</span>, config: <span class="kw-2">&amp;</span>Config) {
-        <span class="kw">let </span>exact = config.get_string(<span class="kw-2">&amp;</span><span class="self">self</span>.exact_key(<span class="string">&quot;helper&quot;</span>));
+        <span class="kw">let </span>exact = config.get_string(<span class="kw-2">&amp;</span><span class="self">self</span>.exact_key(<span class="string">"helper"</span>));
         <span class="self">self</span>.add_command(exact.as_ref().ok().map(|s| <span class="kw-2">&amp;</span>s[..]));
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = <span class="self">self</span>.url_key(<span class="string">&quot;helper&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = <span class="self">self</span>.url_key(<span class="string">"helper"</span>) {
             <span class="kw">let </span>url = config.get_string(<span class="kw-2">&amp;</span>key);
             <span class="self">self</span>.add_command(url.as_ref().ok().map(|s| <span class="kw-2">&amp;</span>s[..]));
         }
-        <span class="kw">let </span>global = config.get_string(<span class="string">&quot;credential.helper&quot;</span>);
+        <span class="kw">let </span>global = config.get_string(<span class="string">"credential.helper"</span>);
         <span class="self">self</span>.add_command(global.as_ref().ok().map(|s| <span class="kw-2">&amp;</span>s[..]));
     }
 
     <span class="comment">// Discover `useHttpPath` from `config`
     </span><span class="kw">fn </span>config_use_http_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, config: <span class="kw-2">&amp;</span>Config) {
         <span class="kw">let </span><span class="kw-2">mut </span>use_http_path = <span class="bool-val">false</span>;
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = config.get_bool(<span class="kw-2">&amp;</span><span class="self">self</span>.exact_key(<span class="string">&quot;useHttpPath&quot;</span>)).ok() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = config.get_bool(<span class="kw-2">&amp;</span><span class="self">self</span>.exact_key(<span class="string">"useHttpPath"</span>)).ok() {
             use_http_path = value;
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self
-            </span>.url_key(<span class="string">&quot;useHttpPath&quot;</span>)
+            </span>.url_key(<span class="string">"useHttpPath"</span>)
             .and_then(|key| config.get_bool(<span class="kw-2">&amp;</span>key).ok())
         {
             use_http_path = value;
-        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(value) = config.get_bool(<span class="string">&quot;credential.useHttpPath&quot;</span>).ok() {
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(value) = config.get_bool(<span class="string">"credential.useHttpPath"</span>).ok() {
             use_http_path = value;
         }
 
@@ -997,7 +998,7 @@
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(url) = url::Url::parse(<span class="kw-2">&amp;</span><span class="self">self</span>.url) {
                 <span class="kw">let </span>path = url.path();
                 <span class="comment">// Url::parse always includes a leading slash for rooted URLs, while git does not.
-                </span><span class="self">self</span>.path = <span class="prelude-val">Some</span>(path.strip_prefix(<span class="string">&#39;/&#39;</span>).unwrap_or(path).to_string());
+                </span><span class="self">self</span>.path = <span class="prelude-val">Some</span>(path.strip_prefix(<span class="string">'/'</span>).unwrap_or(path).to_string());
             }
         }
     }
@@ -1008,27 +1009,27 @@
     //                           /api-credentials.html#_credential_helpers
     </span><span class="kw">fn </span>add_command(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cmd: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) {
         <span class="kw">let </span>cmd = <span class="kw">match </span>cmd {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>) | <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+            <span class="prelude-val">Some</span>(<span class="string">""</span>) | <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
             <span class="prelude-val">Some</span>(s) =&gt; s,
         };
 
-        <span class="kw">if </span>cmd.starts_with(<span class="string">&#39;!&#39;</span>) {
+        <span class="kw">if </span>cmd.starts_with(<span class="string">'!'</span>) {
             <span class="self">self</span>.commands.push(cmd[<span class="number">1</span>..].to_string());
-        } <span class="kw">else if </span>cmd.contains(<span class="string">&quot;/&quot;</span>) || cmd.contains(<span class="string">&quot;\\&quot;</span>) {
+        } <span class="kw">else if </span>cmd.contains(<span class="string">"/"</span>) || cmd.contains(<span class="string">"\\"</span>) {
             <span class="self">self</span>.commands.push(cmd.to_string());
         } <span class="kw">else </span>{
-            <span class="self">self</span>.commands.push(<span class="macro">format!</span>(<span class="string">&quot;git credential-{}&quot;</span>, cmd));
+            <span class="self">self</span>.commands.push(<span class="macro">format!</span>(<span class="string">"git credential-{}"</span>, cmd));
         }
     }
 
     <span class="kw">fn </span>exact_key(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; String {
-        <span class="macro">format!</span>(<span class="string">&quot;credential.{}.{}&quot;</span>, <span class="self">self</span>.url, name)
+        <span class="macro">format!</span>(<span class="string">"credential.{}.{}"</span>, <span class="self">self</span>.url, name)
     }
 
     <span class="kw">fn </span>url_key(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
         <span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.host, <span class="kw-2">&amp;</span><span class="self">self</span>.protocol) {
             (<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>host), <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>protocol)) =&gt; {
-                <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;credential.{}://{}.{}&quot;</span>, protocol, host, name))
+                <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"credential.{}://{}.{}"</span>, protocol, host, name))
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
@@ -1071,7 +1072,7 @@
             <span class="kw">match </span><span class="macro-nonterminal">$e </span>{
                 <span class="prelude-val">Ok</span>(e) =&gt; e,
                 <span class="prelude-val">Err</span>(e) =&gt; {
-                    <span class="macro">debug!</span>(<span class="string">&quot;{} failed with {}&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$e</span>), e);
+                    <span class="macro">debug!</span>(<span class="string">"{} failed with {}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$e</span>), e);
                     <span class="kw">return </span>(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
                 }
             }
@@ -1079,38 +1080,38 @@
 
         <span class="comment">// It looks like the `cmd` specification is typically bourne-shell-like
         // syntax, so try that first. If that fails, though, we may be on a
-        // Windows machine for example where `sh` isn&#39;t actually available by
+        // Windows machine for example where `sh` isn't actually available by
         // default. Most credential helper configurations though are pretty
         // simple (aka one or two space-separated strings) so also try to invoke
         // the process directly.
         //
-        // If that fails then it&#39;s up to the user to put `sh` in path and make
+        // If that fails then it's up to the user to put `sh` in path and make
         // sure it works.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>c = Command::new(<span class="string">&quot;sh&quot;</span>);
-        c.arg(<span class="string">&quot;-c&quot;</span>)
-            .arg(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} get&quot;</span>, cmd))
+        </span><span class="kw">let </span><span class="kw-2">mut </span>c = Command::new(<span class="string">"sh"</span>);
+        c.arg(<span class="string">"-c"</span>)
+            .arg(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{} get"</span>, cmd))
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
-        <span class="macro">debug!</span>(<span class="string">&quot;executing credential helper {:?}&quot;</span>, c);
+        <span class="macro">debug!</span>(<span class="string">"executing credential helper {:?}"</span>, c);
         <span class="kw">let </span><span class="kw-2">mut </span>p = <span class="kw">match </span>c.spawn() {
             <span class="prelude-val">Ok</span>(p) =&gt; p,
             <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="macro">debug!</span>(<span class="string">&quot;`sh` failed to spawn: {}&quot;</span>, e);
+                <span class="macro">debug!</span>(<span class="string">"`sh` failed to spawn: {}"</span>, e);
                 <span class="kw">let </span><span class="kw-2">mut </span>parts = cmd.split_whitespace();
                 <span class="kw">let </span><span class="kw-2">mut </span>c = Command::new(parts.next().unwrap());
                 <span class="kw">for </span>arg <span class="kw">in </span>parts {
                     c.arg(arg);
                 }
-                c.arg(<span class="string">&quot;get&quot;</span>)
+                c.arg(<span class="string">"get"</span>)
                     .stdin(Stdio::piped())
                     .stdout(Stdio::piped())
                     .stderr(Stdio::piped());
-                <span class="macro">debug!</span>(<span class="string">&quot;executing credential helper {:?}&quot;</span>, c);
+                <span class="macro">debug!</span>(<span class="string">"executing credential helper {:?}"</span>, c);
                 <span class="kw">match </span>c.spawn() {
                     <span class="prelude-val">Ok</span>(p) =&gt; p,
                     <span class="prelude-val">Err</span>(e) =&gt; {
-                        <span class="macro">debug!</span>(<span class="string">&quot;fallback of {:?} failed with {}&quot;</span>, cmd, e);
+                        <span class="macro">debug!</span>(<span class="string">"fallback of {:?} failed with {}"</span>, cmd, e);
                         <span class="kw">return </span>(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
                     }
                 }
@@ -1122,26 +1123,26 @@
         </span>{
             <span class="kw">let </span>stdin = p.stdin.as_mut().unwrap();
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>p) = <span class="self">self</span>.protocol {
-                <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">&quot;protocol={}&quot;</span>, p);
+                <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">"protocol={}"</span>, p);
             }
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>p) = <span class="self">self</span>.host {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>p2) = <span class="self">self</span>.port {
-                    <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">&quot;host={}:{}&quot;</span>, p, p2);
+                    <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">"host={}:{}"</span>, p, p2);
                 } <span class="kw">else </span>{
-                    <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">&quot;host={}&quot;</span>, p);
+                    <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">"host={}"</span>, p);
                 }
             }
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>p) = <span class="self">self</span>.path {
-                <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">&quot;path={}&quot;</span>, p);
+                <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">"path={}"</span>, p);
             }
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>p) = <span class="kw-2">*</span>username {
-                <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">&quot;username={}&quot;</span>, p);
+                <span class="kw">let _ </span>= <span class="macro">writeln!</span>(stdin, <span class="string">"username={}"</span>, p);
             }
         }
         <span class="kw">let </span>output = <span class="macro">my_try!</span>(p.wait_with_output());
         <span class="kw">if </span>!output.status.success() {
             <span class="macro">debug!</span>(
-                <span class="string">&quot;credential helper failed: {}\nstdout ---\n{}\nstderr ---\n{}&quot;</span>,
+                <span class="string">"credential helper failed: {}\nstdout ---\n{}\nstderr ---\n{}"</span>,
                 output.status,
                 String::from_utf8_lossy(<span class="kw-2">&amp;</span>output.stdout),
                 String::from_utf8_lossy(<span class="kw-2">&amp;</span>output.stderr)
@@ -1149,7 +1150,7 @@
             <span class="kw">return </span>(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
         }
         <span class="macro">trace!</span>(
-            <span class="string">&quot;credential helper stderr ---\n{}&quot;</span>,
+            <span class="string">"credential helper stderr ---\n{}"</span>,
             String::from_utf8_lossy(<span class="kw-2">&amp;</span>output.stderr)
         );
         <span class="self">self</span>.parse_output(output.stdout)
@@ -1160,13 +1161,13 @@
         <span class="comment">// Parse the output of the command, looking for username/password
         </span><span class="kw">let </span><span class="kw-2">mut </span>username = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>password = <span class="prelude-val">None</span>;
-        <span class="kw">for </span>line <span class="kw">in </span>output.split(|t| <span class="kw-2">*</span>t == <span class="string">b&#39;\n&#39;</span>) {
-            <span class="kw">let </span><span class="kw-2">mut </span>parts = line.splitn(<span class="number">2</span>, |t| <span class="kw-2">*</span>t == <span class="string">b&#39;=&#39;</span>);
+        <span class="kw">for </span>line <span class="kw">in </span>output.split(|t| <span class="kw-2">*</span>t == <span class="string">b'\n'</span>) {
+            <span class="kw">let </span><span class="kw-2">mut </span>parts = line.splitn(<span class="number">2</span>, |t| <span class="kw-2">*</span>t == <span class="string">b'='</span>);
             <span class="kw">let </span>key = parts.next().unwrap();
             <span class="kw">let </span>value = <span class="kw">match </span>parts.next() {
                 <span class="prelude-val">Some</span>(s) =&gt; s,
                 <span class="prelude-val">None </span>=&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;ignoring output line: {}&quot;</span>, String::from_utf8_lossy(line));
+                    <span class="macro">trace!</span>(<span class="string">"ignoring output line: {}"</span>, String::from_utf8_lossy(line));
                     <span class="kw">continue</span>;
                 }
             };
@@ -1175,8 +1176,8 @@
                 <span class="prelude-val">Err</span>(..) =&gt; <span class="kw">continue</span>,
             };
             <span class="kw">match </span>key {
-                <span class="string">b&quot;username&quot; </span>=&gt; username = <span class="prelude-val">Some</span>(value),
-                <span class="string">b&quot;password&quot; </span>=&gt; password = <span class="prelude-val">Some</span>(value),
+                <span class="string">b"username" </span>=&gt; username = <span class="prelude-val">Some</span>(value),
+                <span class="string">b"password" </span>=&gt; password = <span class="prelude-val">Some</span>(value),
                 <span class="kw">_ </span>=&gt; {}
             }
         }
@@ -1197,7 +1198,7 @@
     <span class="macro">macro_rules! </span>test_cfg( ($(<span class="macro-nonterminal">$k</span>:expr =&gt; <span class="macro-nonterminal">$v</span>:expr),<span class="kw-2">*</span>) =&gt; ({
         <span class="kw">let </span>td = TempDir::new().unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>cfg = Config::new().unwrap();
-        cfg.add_file(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;cfg&quot;</span>), ConfigLevel::Highest, <span class="bool-val">false</span>).unwrap();
+        cfg.add_file(<span class="kw-2">&amp;</span>td.path().join(<span class="string">"cfg"</span>), ConfigLevel::Highest, <span class="bool-val">false</span>).unwrap();
         $(cfg.set_str(<span class="macro-nonterminal">$k</span>, <span class="macro-nonterminal">$v</span>).unwrap();)*
         cfg
     }) );
@@ -1210,20 +1211,20 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>credential_helper1() {
         <span class="kw">let </span>cfg = <span class="macro">test_cfg! </span>{
-            <span class="string">&quot;credential.helper&quot; </span>=&gt; <span class="string">&quot;!f() { echo username=a; echo password=b; }; f&quot;
+            <span class="string">"credential.helper" </span>=&gt; <span class="string">"!f() { echo username=a; echo password=b; }; f"
         </span>};
-        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">&quot;https://example.com/foo/bar&quot;</span>)
+        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">"https://example.com/foo/bar"</span>)
             .config(<span class="kw-2">&amp;</span>cfg)
             .execute()
             .unwrap();
-        <span class="macro">assert_eq!</span>(u, <span class="string">&quot;a&quot;</span>);
-        <span class="macro">assert_eq!</span>(p, <span class="string">&quot;b&quot;</span>);
+        <span class="macro">assert_eq!</span>(u, <span class="string">"a"</span>);
+        <span class="macro">assert_eq!</span>(p, <span class="string">"b"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>credential_helper2() {
         <span class="kw">let </span>cfg = <span class="macro">test_cfg! </span>{};
-        <span class="macro">assert!</span>(CredentialHelper::new(<span class="string">&quot;https://example.com/foo/bar&quot;</span>)
+        <span class="macro">assert!</span>(CredentialHelper::new(<span class="string">"https://example.com/foo/bar"</span>)
             .config(<span class="kw-2">&amp;</span>cfg)
             .execute()
             .is_none());
@@ -1232,90 +1233,90 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>credential_helper3() {
         <span class="kw">let </span>cfg = <span class="macro">test_cfg! </span>{
-            <span class="string">&quot;credential.https://example.com.helper&quot; </span>=&gt;
-                    <span class="string">&quot;!f() { echo username=c; }; f&quot;</span>,
-            <span class="string">&quot;credential.helper&quot; </span>=&gt; <span class="string">&quot;!f() { echo username=a; echo password=b; }; f&quot;
+            <span class="string">"credential.https://example.com.helper" </span>=&gt;
+                    <span class="string">"!f() { echo username=c; }; f"</span>,
+            <span class="string">"credential.helper" </span>=&gt; <span class="string">"!f() { echo username=a; echo password=b; }; f"
         </span>};
-        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">&quot;https://example.com/foo/bar&quot;</span>)
+        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">"https://example.com/foo/bar"</span>)
             .config(<span class="kw-2">&amp;</span>cfg)
             .execute()
             .unwrap();
-        <span class="macro">assert_eq!</span>(u, <span class="string">&quot;c&quot;</span>);
-        <span class="macro">assert_eq!</span>(p, <span class="string">&quot;b&quot;</span>);
+        <span class="macro">assert_eq!</span>(u, <span class="string">"c"</span>);
+        <span class="macro">assert_eq!</span>(p, <span class="string">"b"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>credential_helper4() {
         <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
             <span class="kw">return</span>;
-        } <span class="comment">// shell scripts don&#39;t work on Windows
+        } <span class="comment">// shell scripts don't work on Windows
 
         </span><span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>path = td.path().join(<span class="string">&quot;script&quot;</span>);
+        <span class="kw">let </span>path = td.path().join(<span class="string">"script"</span>);
         File::create(<span class="kw-2">&amp;</span>path)
             .unwrap()
             .write(
-                <span class="string">br&quot;\
+                <span class="string">br"\
 #!/bin/sh
 echo username=c
-&quot;</span>,
+"</span>,
             )
             .unwrap();
         chmod(<span class="kw-2">&amp;</span>path);
         <span class="kw">let </span>cfg = <span class="macro">test_cfg! </span>{
-            <span class="string">&quot;credential.https://example.com.helper&quot; </span>=&gt;
+            <span class="string">"credential.https://example.com.helper" </span>=&gt;
                     <span class="kw-2">&amp;</span>path.display().to_string()[..],
-            <span class="string">&quot;credential.helper&quot; </span>=&gt; <span class="string">&quot;!f() { echo username=a; echo password=b; }; f&quot;
+            <span class="string">"credential.helper" </span>=&gt; <span class="string">"!f() { echo username=a; echo password=b; }; f"
         </span>};
-        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">&quot;https://example.com/foo/bar&quot;</span>)
+        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">"https://example.com/foo/bar"</span>)
             .config(<span class="kw-2">&amp;</span>cfg)
             .execute()
             .unwrap();
-        <span class="macro">assert_eq!</span>(u, <span class="string">&quot;c&quot;</span>);
-        <span class="macro">assert_eq!</span>(p, <span class="string">&quot;b&quot;</span>);
+        <span class="macro">assert_eq!</span>(u, <span class="string">"c"</span>);
+        <span class="macro">assert_eq!</span>(p, <span class="string">"b"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>credential_helper5() {
         <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
             <span class="kw">return</span>;
-        } <span class="comment">// shell scripts don&#39;t work on Windows
+        } <span class="comment">// shell scripts don't work on Windows
         </span><span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>path = td.path().join(<span class="string">&quot;git-credential-script&quot;</span>);
+        <span class="kw">let </span>path = td.path().join(<span class="string">"git-credential-script"</span>);
         File::create(<span class="kw-2">&amp;</span>path)
             .unwrap()
             .write(
-                <span class="string">br&quot;\
+                <span class="string">br"\
 #!/bin/sh
 echo username=c
-&quot;</span>,
+"</span>,
             )
             .unwrap();
         chmod(<span class="kw-2">&amp;</span>path);
 
-        <span class="kw">let </span>paths = env::var(<span class="string">&quot;PATH&quot;</span>).unwrap();
+        <span class="kw">let </span>paths = env::var(<span class="string">"PATH"</span>).unwrap();
         <span class="kw">let </span>paths =
             env::split_paths(<span class="kw-2">&amp;</span>paths).chain(path.parent().map(|p| p.to_path_buf()).into_iter());
-        env::set_var(<span class="string">&quot;PATH&quot;</span>, <span class="kw-2">&amp;</span>env::join_paths(paths).unwrap());
+        env::set_var(<span class="string">"PATH"</span>, <span class="kw-2">&amp;</span>env::join_paths(paths).unwrap());
 
         <span class="kw">let </span>cfg = <span class="macro">test_cfg! </span>{
-            <span class="string">&quot;credential.https://example.com.helper&quot; </span>=&gt; <span class="string">&quot;script&quot;</span>,
-            <span class="string">&quot;credential.helper&quot; </span>=&gt; <span class="string">&quot;!f() { echo username=a; echo password=b; }; f&quot;
+            <span class="string">"credential.https://example.com.helper" </span>=&gt; <span class="string">"script"</span>,
+            <span class="string">"credential.helper" </span>=&gt; <span class="string">"!f() { echo username=a; echo password=b; }; f"
         </span>};
-        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">&quot;https://example.com/foo/bar&quot;</span>)
+        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">"https://example.com/foo/bar"</span>)
             .config(<span class="kw-2">&amp;</span>cfg)
             .execute()
             .unwrap();
-        <span class="macro">assert_eq!</span>(u, <span class="string">&quot;c&quot;</span>);
-        <span class="macro">assert_eq!</span>(p, <span class="string">&quot;b&quot;</span>);
+        <span class="macro">assert_eq!</span>(u, <span class="string">"c"</span>);
+        <span class="macro">assert_eq!</span>(p, <span class="string">"b"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>credential_helper6() {
         <span class="kw">let </span>cfg = <span class="macro">test_cfg! </span>{
-            <span class="string">&quot;credential.helper&quot; </span>=&gt; <span class="string">&quot;&quot;
+            <span class="string">"credential.helper" </span>=&gt; <span class="string">""
         </span>};
-        <span class="macro">assert!</span>(CredentialHelper::new(<span class="string">&quot;https://example.com/foo/bar&quot;</span>)
+        <span class="macro">assert!</span>(CredentialHelper::new(<span class="string">"https://example.com/foo/bar"</span>)
             .config(<span class="kw-2">&amp;</span>cfg)
             .execute()
             .is_none());
@@ -1325,61 +1326,61 @@ echo username=c
     </span><span class="kw">fn </span>credential_helper7() {
         <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
             <span class="kw">return</span>;
-        } <span class="comment">// shell scripts don&#39;t work on Windows
+        } <span class="comment">// shell scripts don't work on Windows
         </span><span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>path = td.path().join(<span class="string">&quot;script&quot;</span>);
+        <span class="kw">let </span>path = td.path().join(<span class="string">"script"</span>);
         File::create(<span class="kw-2">&amp;</span>path)
             .unwrap()
             .write(
-                <span class="string">br&quot;\
+                <span class="string">br"\
 #!/bin/sh
 echo username=$1
 echo password=$2
-&quot;</span>,
+"</span>,
             )
             .unwrap();
         chmod(<span class="kw-2">&amp;</span>path);
         <span class="kw">let </span>cfg = <span class="macro">test_cfg! </span>{
-            <span class="string">&quot;credential.helper&quot; </span>=&gt; <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} a b&quot;</span>, path.display())
+            <span class="string">"credential.helper" </span>=&gt; <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{} a b"</span>, path.display())
         };
-        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">&quot;https://example.com/foo/bar&quot;</span>)
+        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">"https://example.com/foo/bar"</span>)
             .config(<span class="kw-2">&amp;</span>cfg)
             .execute()
             .unwrap();
-        <span class="macro">assert_eq!</span>(u, <span class="string">&quot;a&quot;</span>);
-        <span class="macro">assert_eq!</span>(p, <span class="string">&quot;b&quot;</span>);
+        <span class="macro">assert_eq!</span>(u, <span class="string">"a"</span>);
+        <span class="macro">assert_eq!</span>(p, <span class="string">"b"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>credential_helper8() {
         <span class="kw">let </span>cfg = <span class="macro">test_cfg! </span>{
-            <span class="string">&quot;credential.useHttpPath&quot; </span>=&gt; <span class="string">&quot;true&quot;
+            <span class="string">"credential.useHttpPath" </span>=&gt; <span class="string">"true"
         </span>};
-        <span class="kw">let </span><span class="kw-2">mut </span>helper = CredentialHelper::new(<span class="string">&quot;https://example.com/foo/bar&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>helper = CredentialHelper::new(<span class="string">"https://example.com/foo/bar"</span>);
         helper.config(<span class="kw-2">&amp;</span>cfg);
-        <span class="macro">assert_eq!</span>(helper.path.as_deref(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo/bar&quot;</span>));
+        <span class="macro">assert_eq!</span>(helper.path.as_deref(), <span class="prelude-val">Some</span>(<span class="string">"foo/bar"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>credential_helper9() {
         <span class="kw">let </span>cfg = <span class="macro">test_cfg! </span>{
-            <span class="string">&quot;credential.helper&quot; </span>=&gt; <span class="string">&quot;!f() { while read line; do eval $line; done; if [ \&quot;$host\&quot; = example.com:3000 ]; then echo username=a; echo password=b; fi; }; f&quot;
+            <span class="string">"credential.helper" </span>=&gt; <span class="string">"!f() { while read line; do eval $line; done; if [ \"$host\" = example.com:3000 ]; then echo username=a; echo password=b; fi; }; f"
         </span>};
-        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">&quot;https://example.com:3000/foo/bar&quot;</span>)
+        <span class="kw">let </span>(u, p) = CredentialHelper::new(<span class="string">"https://example.com:3000/foo/bar"</span>)
             .config(<span class="kw-2">&amp;</span>cfg)
             .execute()
             .unwrap();
-        <span class="macro">assert_eq!</span>(u, <span class="string">&quot;a&quot;</span>);
-        <span class="macro">assert_eq!</span>(p, <span class="string">&quot;b&quot;</span>);
+        <span class="macro">assert_eq!</span>(u, <span class="string">"a"</span>);
+        <span class="macro">assert_eq!</span>(p, <span class="string">"b"</span>);
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;ssh&quot;</span>)]
+    #[cfg(feature = <span class="string">"ssh"</span>)]
     </span><span class="kw">fn </span>ssh_key_from_memory() {
         <span class="kw">let </span>cred = Cred::ssh_key_from_memory(
-            <span class="string">&quot;test&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDByAO8uj+kXicj6C2ODMspgmUoVyl5eaw8vR6a1yEnFuJFzevabNlN6Ut+CPT3TRnYk5BW73pyXBtnSL2X95BOnbjMDXc4YIkgs3YYHWnxbqsD4Pj/RoGqhf+gwhOBtL0poh8tT8WqXZYxdJQKLQC7oBqf3ykCEYulE4oeRUmNh4IzEE+skD/zDkaJ+S1HRD8D8YCiTO01qQnSmoDFdmIZTi8MS8Cw+O/Qhym1271ThMlhD6PubSYJXfE6rVbE7A9RzH73A6MmKBlzK8VTb4SlNSrr/DOk+L0uq+wPkv+pm+D9WtxoqQ9yl6FaK1cPawa3+7yRNle3m+72KCtyMkQv&quot;</span>),
-            <span class="string">r#&quot;
+            <span class="string">"test"</span>,
+            <span class="prelude-val">Some</span>(<span class="string">"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDByAO8uj+kXicj6C2ODMspgmUoVyl5eaw8vR6a1yEnFuJFzevabNlN6Ut+CPT3TRnYk5BW73pyXBtnSL2X95BOnbjMDXc4YIkgs3YYHWnxbqsD4Pj/RoGqhf+gwhOBtL0poh8tT8WqXZYxdJQKLQC7oBqf3ykCEYulE4oeRUmNh4IzEE+skD/zDkaJ+S1HRD8D8YCiTO01qQnSmoDFdmIZTi8MS8Cw+O/Qhym1271ThMlhD6PubSYJXfE6rVbE7A9RzH73A6MmKBlzK8VTb4SlNSrr/DOk+L0uq+wPkv+pm+D9WtxoqQ9yl6FaK1cPawa3+7yRNle3m+72KCtyMkQv"</span>),
+            <span class="string">r#"
                 -----BEGIN RSA PRIVATE KEY-----
                 Proc-Type: 4,ENCRYPTED
                 DEK-Info: AES-128-CBC,818C7722D3B01F2161C2ACF6A5BBAAE8
@@ -1410,8 +1411,8 @@ echo password=$2
                 c6PA1iinZWBjuaO1HKx3PFulrl0bcpR9Kud1ZIyfnh5rwYN8UQkkcR/wZPla04TY
                 8l5dq/LI/3G5sZXwUHKOcuQWTj7Saq7Q6gkKoMfqt0wC5bpZ1m17GHPoMz6GtX9O
                 -----END RSA PRIVATE KEY-----
-            &quot;#</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;test123&quot;</span>));
+            "#</span>,
+            <span class="prelude-val">Some</span>(<span class="string">"test123"</span>));
         <span class="macro">assert!</span>(cred.is_ok());
     }
 

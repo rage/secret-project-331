@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/header/shared/quality_item.rs`."><title>quality_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/header/shared/quality_item.rs`."><title>quality_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -317,22 +318,22 @@
 ///
 /// # Ordering
 /// Since this context of use for this type is header value items, ordering is defined for
-/// `QualityItem`s but _only_ considers the item&#39;s quality. Order of appearance should be used as
+/// `QualityItem`s but _only_ considers the item's quality. Order of appearance should be used as
 /// the secondary sorting parameter; i.e., a stable sort over the quality values will produce a
 /// correctly sorted sequence.
 ///
 /// # Examples
 /// ```
 /// # use actix_http::header::{QualityItem, q};
-/// let q_item: QualityItem&lt;String&gt; = &quot;hello;q=0.3&quot;.parse().unwrap();
-/// assert_eq!(&amp;q_item.item, &quot;hello&quot;);
+/// let q_item: QualityItem&lt;String&gt; = "hello;q=0.3".parse().unwrap();
+/// assert_eq!(&amp;q_item.item, "hello");
 /// assert_eq!(q_item.quality, q(0.3));
 ///
 /// // note that format is normalized compared to parsed item
-/// assert_eq!(q_item.to_string(), &quot;hello; q=0.3&quot;);
+/// assert_eq!(q_item.to_string(), "hello; q=0.3");
 ///
 /// // item with q=0.3 is greater than item with q=0.1
-/// let q_item_fallback: QualityItem&lt;String&gt; = &quot;abc;q=0.1&quot;.parse().unwrap();
+/// let q_item_fallback: QualityItem&lt;String&gt; = "abc;q=0.1".parse().unwrap();
 /// assert!(q_item &gt; q_item_fallback);
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -375,7 +376,7 @@
 }
 
 <span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>QualityItem&lt;T&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.item, f)<span class="question-mark">?</span>;
 
         <span class="kw">match </span><span class="self">self</span>.quality {
@@ -383,10 +384,10 @@
             </span>Quality::MAX =&gt; <span class="prelude-val">Ok</span>(()),
 
             <span class="comment">// fast path for zero
-            </span>Quality::ZERO =&gt; f.write_str(<span class="string">&quot;; q=0&quot;</span>),
+            </span>Quality::ZERO =&gt; f.write_str(<span class="string">"; q=0"</span>),
 
             <span class="comment">// quality formatting is already using itoa
-            </span>q =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;; q={}&quot;</span>, q),
+            </span>q =&gt; <span class="macro">write!</span>(f, <span class="string">"; q={}"</span>, q),
         }
     }
 }
@@ -404,7 +405,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>quality = Quality::MAX;
 
         <span class="kw">let </span>parts = q_item_str
-            .rsplit_once(<span class="string">&#39;;&#39;</span>)
+            .rsplit_once(<span class="string">';'</span>)
             .map(|(item, q_attr)| (item.trim(), q_attr.trim()));
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>((val, q_attr)) = parts {
@@ -417,14 +418,14 @@
             //        ^^^^  q_val
 
             </span><span class="kw">if </span>q_attr.len() &lt; <span class="number">2 </span>{
-                <span class="comment">// Can&#39;t possibly be an attribute since an attribute needs at least a name followed
+                <span class="comment">// Can't possibly be an attribute since an attribute needs at least a name followed
                 // by an equals sign. And bare identifiers are forbidden.
                 </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
             }
 
             <span class="kw">let </span>q = <span class="kw-2">&amp;</span>q_attr[<span class="number">0</span>..<span class="number">2</span>];
 
-            <span class="kw">if </span>q == <span class="string">&quot;q=&quot; </span>|| q == <span class="string">&quot;Q=&quot; </span>{
+            <span class="kw">if </span>q == <span class="string">"q=" </span>|| q == <span class="string">"Q=" </span>{
                 <span class="kw">let </span>q_val = <span class="kw-2">&amp;</span>q_attr[<span class="number">2</span>..];
                 <span class="kw">if </span>q_val.len() &gt; <span class="number">5 </span>{
                     <span class="comment">// longer than 5 indicates an over-precise q-factor
@@ -464,16 +465,16 @@
     }
 
     <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Encoding {
-        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
             <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
             f.write_str(<span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-                Chunked =&gt; <span class="string">&quot;chunked&quot;</span>,
-                Brotli =&gt; <span class="string">&quot;br&quot;</span>,
-                Gzip =&gt; <span class="string">&quot;gzip&quot;</span>,
-                Deflate =&gt; <span class="string">&quot;deflate&quot;</span>,
-                Compress =&gt; <span class="string">&quot;compress&quot;</span>,
-                Identity =&gt; <span class="string">&quot;identity&quot;</span>,
-                Trailers =&gt; <span class="string">&quot;trailers&quot;</span>,
+                Chunked =&gt; <span class="string">"chunked"</span>,
+                Brotli =&gt; <span class="string">"br"</span>,
+                Gzip =&gt; <span class="string">"gzip"</span>,
+                Deflate =&gt; <span class="string">"deflate"</span>,
+                Compress =&gt; <span class="string">"compress"</span>,
+                Identity =&gt; <span class="string">"identity"</span>,
+                Trailers =&gt; <span class="string">"trailers"</span>,
                 EncodingExt(<span class="kw-2">ref </span>s) =&gt; s.as_ref(),
             })
         }
@@ -484,13 +485,13 @@
         <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Encoding, <span class="kw">crate</span>::error::ParseError&gt; {
             <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
             <span class="kw">match </span>s {
-                <span class="string">&quot;chunked&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Chunked),
-                <span class="string">&quot;br&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Brotli),
-                <span class="string">&quot;deflate&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Deflate),
-                <span class="string">&quot;gzip&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Gzip),
-                <span class="string">&quot;compress&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Compress),
-                <span class="string">&quot;identity&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Identity),
-                <span class="string">&quot;trailers&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Trailers),
+                <span class="string">"chunked" </span>=&gt; <span class="prelude-val">Ok</span>(Chunked),
+                <span class="string">"br" </span>=&gt; <span class="prelude-val">Ok</span>(Brotli),
+                <span class="string">"deflate" </span>=&gt; <span class="prelude-val">Ok</span>(Deflate),
+                <span class="string">"gzip" </span>=&gt; <span class="prelude-val">Ok</span>(Gzip),
+                <span class="string">"compress" </span>=&gt; <span class="prelude-val">Ok</span>(Compress),
+                <span class="string">"identity" </span>=&gt; <span class="prelude-val">Ok</span>(Identity),
+                <span class="string">"trailers" </span>=&gt; <span class="prelude-val">Ok</span>(Trailers),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(EncodingExt(s.to_owned())),
             }
         }
@@ -500,23 +501,23 @@
     </span><span class="kw">fn </span>test_quality_item_fmt_q_1() {
         <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
         <span class="kw">let </span>x = QualityItem::max(Chunked);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, x), <span class="string">&quot;chunked&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, x), <span class="string">"chunked"</span>);
     }
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quality_item_fmt_q_0001() {
         <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
         <span class="kw">let </span>x = QualityItem::new(Chunked, Quality(<span class="number">1</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, x), <span class="string">&quot;chunked; q=0.001&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, x), <span class="string">"chunked; q=0.001"</span>);
     }
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quality_item_fmt_q_05() {
         <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
         <span class="comment">// Custom value
         </span><span class="kw">let </span>x = QualityItem {
-            item: EncodingExt(<span class="string">&quot;identity&quot;</span>.to_owned()),
+            item: EncodingExt(<span class="string">"identity"</span>.to_owned()),
             quality: Quality(<span class="number">500</span>),
         };
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, x), <span class="string">&quot;identity; q=0.5&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, x), <span class="string">"identity; q=0.5"</span>);
     }
 
     <span class="attr">#[test]
@@ -524,16 +525,16 @@
         <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
         <span class="comment">// Custom value
         </span><span class="kw">let </span>x = QualityItem {
-            item: EncodingExt(<span class="string">&quot;identity&quot;</span>.to_owned()),
+            item: EncodingExt(<span class="string">"identity"</span>.to_owned()),
             quality: Quality(<span class="number">0</span>),
         };
-        <span class="macro">assert_eq!</span>(x.to_string(), <span class="string">&quot;identity; q=0&quot;</span>);
+        <span class="macro">assert_eq!</span>(x.to_string(), <span class="string">"identity; q=0"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quality_item_from_str1() {
         <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
-        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;chunked&quot;</span>.parse();
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">"chunked"</span>.parse();
         <span class="macro">assert_eq!</span>(
             x.unwrap(),
             QualityItem {
@@ -546,7 +547,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quality_item_from_str2() {
         <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
-        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;chunked; q=1&quot;</span>.parse();
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">"chunked; q=1"</span>.parse();
         <span class="macro">assert_eq!</span>(
             x.unwrap(),
             QualityItem {
@@ -559,7 +560,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quality_item_from_str3() {
         <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
-        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;gzip; q=0.5&quot;</span>.parse();
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">"gzip; q=0.5"</span>.parse();
         <span class="macro">assert_eq!</span>(
             x.unwrap(),
             QualityItem {
@@ -572,7 +573,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quality_item_from_str4() {
         <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
-        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;gzip; q=0.273&quot;</span>.parse();
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">"gzip; q=0.273"</span>.parse();
         <span class="macro">assert_eq!</span>(
             x.unwrap(),
             QualityItem {
@@ -584,28 +585,28 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quality_item_from_str5() {
-        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;gzip; q=0.2739999&quot;</span>.parse();
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">"gzip; q=0.2739999"</span>.parse();
         <span class="macro">assert!</span>(x.is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quality_item_from_str6() {
-        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;gzip; q=2&quot;</span>.parse();
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">"gzip; q=2"</span>.parse();
         <span class="macro">assert!</span>(x.is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_quality_item_ordering() {
-        <span class="kw">let </span>x: QualityItem&lt;Encoding&gt; = <span class="string">&quot;gzip; q=0.5&quot;</span>.parse().ok().unwrap();
-        <span class="kw">let </span>y: QualityItem&lt;Encoding&gt; = <span class="string">&quot;gzip; q=0.273&quot;</span>.parse().ok().unwrap();
+        <span class="kw">let </span>x: QualityItem&lt;Encoding&gt; = <span class="string">"gzip; q=0.5"</span>.parse().ok().unwrap();
+        <span class="kw">let </span>y: QualityItem&lt;Encoding&gt; = <span class="string">"gzip; q=0.273"</span>.parse().ok().unwrap();
         <span class="kw">let </span>comparison_result: bool = x.gt(<span class="kw-2">&amp;</span>y);
         <span class="macro">assert!</span>(comparison_result)
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_fuzzing_bugs() {
-        <span class="macro">assert!</span>(<span class="string">&quot;99999;&quot;</span>.parse::&lt;QualityItem&lt;String&gt;&gt;().is_err());
-        <span class="macro">assert!</span>(<span class="string">&quot;\x0d;;;=\u{d6aa}==&quot;</span>.parse::&lt;QualityItem&lt;String&gt;&gt;().is_err())
+        <span class="macro">assert!</span>(<span class="string">"99999;"</span>.parse::&lt;QualityItem&lt;String&gt;&gt;().is_err());
+        <span class="macro">assert!</span>(<span class="string">"\x0d;;;=\u{d6aa}=="</span>.parse::&lt;QualityItem&lt;String&gt;&gt;().is_err())
     }
 }
 </code></pre></div></section></main></body></html>

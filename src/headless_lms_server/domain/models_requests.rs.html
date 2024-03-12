@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/models_requests.rs`."><title>models_requests.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/models_requests.rs`."><title>models_requests.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -438,15 +439,15 @@
 <span class="kw">use </span><span class="kw">super</span>::error::{ControllerError, ControllerErrorType};
 
 <span class="comment">// keep in sync with the shared-module constants
-</span><span class="kw">const </span>EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: <span class="kw-2">&amp;</span>str = <span class="string">&quot;exercise-service-grading-update-claim&quot;</span>;
-<span class="kw">const </span>EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: <span class="kw-2">&amp;</span>str = <span class="string">&quot;exercise-service-upload-claim&quot;</span>;
+</span><span class="kw">const </span>EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: <span class="kw-2">&amp;</span>str = <span class="string">"exercise-service-grading-update-claim"</span>;
+<span class="kw">const </span>EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: <span class="kw-2">&amp;</span>str = <span class="string">"exercise-service-upload-claim"</span>;
 
 <span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>JwtKey(Hmac&lt;Sha256&gt;);
 
 <span class="kw">impl </span>JwtKey {
     <span class="kw">pub fn </span>try_from_env() -&gt; anyhow::Result&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>jwt_password = std::env::var(<span class="string">&quot;JWT_PASSWORD&quot;</span>).context(<span class="string">&quot;JWT_PASSWORD must be defined&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>jwt_password = std::env::var(<span class="string">"JWT_PASSWORD"</span>).context(<span class="string">"JWT_PASSWORD must be defined"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>jwt_key = <span class="self">Self</span>::new(<span class="kw-2">&amp;</span>jwt_password)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(jwt_key)
     }
@@ -458,18 +459,18 @@
 
     <span class="attr">#[cfg(test)]
     </span><span class="kw">pub fn </span>test_key() -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>test_jwt_key = <span class="string">&quot;sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS&quot;</span>;
+        <span class="kw">let </span>test_jwt_key = <span class="string">"sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"</span>;
         <span class="self">Self</span>::new(test_jwt_key).unwrap()
     }
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>UploadClaim&lt;<span class="lifetime">&#39;a</span>&gt; {
-    exercise_service_slug: Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;,
+</span><span class="kw">pub struct </span>UploadClaim&lt;<span class="lifetime">'a</span>&gt; {
+    exercise_service_slug: Cow&lt;<span class="lifetime">'a</span>, str&gt;,
     expiration_time: DateTime&lt;Utc&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; UploadClaim&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; UploadClaim&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub fn </span>exercise_service_slug(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="self">self</span>.exercise_service_slug.as_ref()
     }
@@ -478,7 +479,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.expiration_time
     }
 
-    <span class="kw">pub fn </span>expiring_in_1_day(exercise_service_slug: Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>expiring_in_1_day(exercise_service_slug: Cow&lt;<span class="lifetime">'a</span>, str&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             exercise_service_slug,
             expiration_time: Utc::now() + Duration::days(<span class="number">1</span>),
@@ -486,21 +487,21 @@
     }
 
     <span class="kw">pub fn </span>sign(<span class="self">self</span>, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; String {
-        <span class="self">self</span>.sign_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).expect(<span class="string">&quot;should never fail&quot;</span>)
+        <span class="self">self</span>.sign_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).expect(<span class="string">"should never fail"</span>)
     }
 
     <span class="kw">pub fn </span>validate(token: <span class="kw-2">&amp;</span>str, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ControllerError&gt; {
         <span class="kw">let </span>claim: <span class="self">Self </span>= token.verify_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="macro">format!</span>(<span class="string">&quot;Invalid jwt key: {}&quot;</span>, err),
+                <span class="macro">format!</span>(<span class="string">"Invalid jwt key: {}"</span>, err),
                 <span class="prelude-val">Some</span>(err.into()),
             )
         })<span class="question-mark">?</span>;
         <span class="kw">if </span>claim.expiration_time &lt; Utc::now() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="string">&quot;Upload claim has expired&quot;</span>.to_string(),
+                <span class="string">"Upload claim has expired"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
@@ -508,7 +509,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; FromRequest <span class="kw">for </span>UploadClaim&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FromRequest <span class="kw">for </span>UploadClaim&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Error = ControllerError;
     <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt;&gt;;
 
@@ -516,14 +517,14 @@
         <span class="kw">let </span>try_from_request = <span class="kw">move </span>|| {
             <span class="kw">let </span>jwt_key = req
                 .app_data::&lt;web::Data&lt;JwtKey&gt;&gt;()
-                .expect(<span class="string">&quot;Missing JwtKey in app data&quot;</span>);
+                .expect(<span class="string">"Missing JwtKey in app data"</span>);
             <span class="kw">let </span>header = req
                 .headers()
                 .get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
                 .ok_or_else(|| {
                     ControllerError::new(
                         ControllerErrorType::BadRequest,
-                        <span class="macro">format!</span>(<span class="string">&quot;Missing header {EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER}&quot;</span>,),
+                        <span class="macro">format!</span>(<span class="string">"Missing header {EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER}"</span>,),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;
@@ -531,7 +532,7 @@
                 ControllerError::new(
                     ControllerErrorType::BadRequest,
                     <span class="macro">format!</span>(
-                        <span class="string">&quot;Invalid header {EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER} = {}&quot;</span>,
+                        <span class="string">"Invalid header {EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER} = {}"</span>,
                         String::from_utf8_lossy(header.as_bytes())
                     ),
                     <span class="prelude-val">Some</span>(err.into()),
@@ -567,21 +568,21 @@
     }
 
     <span class="kw">pub fn </span>sign(<span class="self">self</span>, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; String {
-        <span class="self">self</span>.sign_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).expect(<span class="string">&quot;should never fail&quot;</span>)
+        <span class="self">self</span>.sign_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).expect(<span class="string">"should never fail"</span>)
     }
 
     <span class="kw">pub fn </span>validate(token: <span class="kw-2">&amp;</span>str, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ControllerError&gt; {
         <span class="kw">let </span>claim: <span class="self">Self </span>= token.verify_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="macro">format!</span>(<span class="string">&quot;Invalid jwt key: {}&quot;</span>, err),
+                <span class="macro">format!</span>(<span class="string">"Invalid jwt key: {}"</span>, err),
                 <span class="prelude-val">Some</span>(err.into()),
             )
         })<span class="question-mark">?</span>;
         <span class="kw">if </span>claim.expiration_time &lt; Utc::now() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="string">&quot;Grading update claim has expired&quot;</span>.to_string(),
+                <span class="string">"Grading update claim has expired"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
@@ -597,14 +598,14 @@
         <span class="kw">let </span>try_from_request = <span class="kw">move </span>|| {
             <span class="kw">let </span>jwt_key = req
                 .app_data::&lt;web::Data&lt;JwtKey&gt;&gt;()
-                .expect(<span class="string">&quot;Missing JwtKey in app data&quot;</span>);
+                .expect(<span class="string">"Missing JwtKey in app data"</span>);
             <span class="kw">let </span>header = req
                 .headers()
                 .get(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER)
                 .ok_or_else(|| {
                     ControllerError::new(
                         ControllerErrorType::BadRequest,
-                        <span class="macro">format!</span>(<span class="string">&quot;Missing header {EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER}&quot;</span>,),
+                        <span class="macro">format!</span>(<span class="string">"Missing header {EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER}"</span>,),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;
@@ -612,7 +613,7 @@
                 ControllerError::new(
                     ControllerErrorType::BadRequest,
                     <span class="macro">format!</span>(
-                        <span class="string">&quot;Invalid header {EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER} = {}&quot;</span>,
+                        <span class="string">"Invalid header {EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER} = {}"</span>,
                         String::from_utf8_lossy(header.as_bytes())
                     ),
                     <span class="prelude-val">Some</span>(err.into()),
@@ -628,17 +629,17 @@
 <span class="kw">fn </span>reqwest_err(err: reqwest::Error) -&gt; ModelError {
     ModelError::new(
         ModelErrorType::Generic,
-        <span class="macro">format!</span>(<span class="string">&quot;Error during request: {err}&quot;</span>),
+        <span class="macro">format!</span>(<span class="string">"Error during request: {err}"</span>),
         <span class="prelude-val">None</span>,
     )
 }
 
 <span class="doccomment">/// Accepted by the public-spec and model-solution endpoints of exercise services.
 </span><span class="attr">#[derive(Debug, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-</span><span class="kw">pub struct </span>SpecRequest&lt;<span class="lifetime">&#39;a</span>&gt; {
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+</span><span class="kw">pub struct </span>SpecRequest&lt;<span class="lifetime">'a</span>&gt; {
     request_id: Uuid,
-    private_spec: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>serde_json::Value&gt;,
+    private_spec: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>serde_json::Value&gt;,
     upload_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
@@ -653,7 +654,7 @@
     <span class="kw">move </span>|url, exercise_service_slug, private_spec| {
         <span class="kw">let </span>client = reqwest::Client::new();
         <span class="kw">let </span>upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug.into());
-        <span class="kw">let </span>upload_url = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{base_url}/api/v0/files/{exercise_service_slug}&quot;</span>));
+        <span class="kw">let </span>upload_url = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"{base_url}/api/v0/files/{exercise_service_slug}"</span>));
         <span class="kw">let </span>req = client
             .post(url.clone())
             .header(
@@ -672,18 +673,18 @@
             <span class="kw">let </span>status_code = res.status();
             <span class="kw">if </span>!status_code.is_success() {
                 <span class="kw">let </span>error_text = res.text().<span class="kw">await</span>;
-                <span class="kw">let </span>error = error_text.as_deref().unwrap_or(<span class="string">&quot;(No text in response)&quot;</span>);
+                <span class="kw">let </span>error = error_text.as_deref().unwrap_or(<span class="string">"(No text in response)"</span>);
                 <span class="macro">error!</span>(
                     <span class="question-mark">?</span>url,
                     <span class="question-mark">?</span>exercise_service_slug,
                     <span class="question-mark">?</span>private_spec,
                     <span class="question-mark">?</span>status_code,
-                    <span class="string">&quot;Exercise service returned an error while generating a spec: {}&quot;</span>,
+                    <span class="string">"Exercise service returned an error while generating a spec: {}"</span>,
                     error
                 );
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                     ModelErrorType::Generic,
-                    <span class="macro">format!</span>(<span class="string">&quot;Failed to generate spec for exercise for {exercise_service_slug}: {error}.&quot;</span>),
+                    <span class="macro">format!</span>(<span class="string">"Failed to generate spec for exercise for {exercise_service_slug}: {error}."</span>),
                     <span class="prelude-val">None</span>,
                 ));
             }
@@ -694,7 +695,7 @@
     }
 }
 
-<span class="kw">pub fn </span>fetch_service_info(url: Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt; {
+<span class="kw">pub fn </span>fetch_service_info(url: Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt; {
     <span class="kw">async </span>{
         <span class="kw">let </span>client = reqwest::Client::new();
         <span class="kw">let </span>res = client
@@ -707,10 +708,10 @@
         <span class="kw">if </span>!status.is_success() {
             <span class="kw">let </span>response_url = res.url().to_string();
             <span class="kw">let </span>body = res.text().<span class="kw">await</span>.map_err(reqwest_err)<span class="question-mark">?</span>;
-            <span class="macro">warn!</span>(url=<span class="question-mark">?</span>response_url, status=<span class="question-mark">?</span>status, body=<span class="question-mark">?</span>body, <span class="string">&quot;Could not fetch service info.&quot;</span>);
+            <span class="macro">warn!</span>(url=<span class="question-mark">?</span>response_url, status=<span class="question-mark">?</span>status, body=<span class="question-mark">?</span>body, <span class="string">"Could not fetch service info."</span>);
             <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                 ModelErrorType::Generic,
-                <span class="string">&quot;Could not fetch service info.&quot;</span>.to_string(),
+                <span class="string">"Could not fetch service info."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
@@ -729,12 +730,12 @@
     Url,
     <span class="kw-2">&amp;</span>ExerciseTask,
     <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
-) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt; {
+) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt; {
     <span class="kw">move </span>|grade_url, exercise_task, submission| {
         <span class="kw">let </span>client = reqwest::Client::new();
         <span class="comment">// TODO: use real url
         </span><span class="kw">let </span>grading_update_url = <span class="macro">format!</span>(
-            <span class="string">&quot;http://project-331.local/api/v0/exercise-services/grading/grading-update/{}&quot;</span>,
+            <span class="string">"http://project-331.local/api/v0/exercise-services/grading/grading-update/{}"</span>,
             submission.id
         );
         <span class="kw">let </span>grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);
@@ -757,16 +758,16 @@
                 <span class="kw">let </span>response_body = res.text().<span class="kw">await</span>;
                 <span class="macro">error!</span>(
                     <span class="question-mark">?</span>response_body,
-                    <span class="string">&quot;Grading request returned an unsuccesful status code&quot;
+                    <span class="string">"Grading request returned an unsuccesful status code"
                 </span>);
                 <span class="kw">let </span>source_error = ModelError::new(
                     ModelErrorType::Generic,
-                    <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, response_body),
+                    <span class="macro">format!</span>(<span class="string">"{:?}"</span>, response_body),
                     <span class="prelude-val">None</span>,
                 );
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                     ModelErrorType::Generic,
-                    <span class="string">&quot;Grading failed&quot;</span>.to_string(),
+                    <span class="string">"Grading failed"</span>.to_string(),
                     <span class="prelude-val">Some</span>(source_error.into()),
                 ));
             }
@@ -774,7 +775,7 @@
                 .json::&lt;ExerciseTaskGradingResult&gt;()
                 .<span class="kw">await
                 </span>.map_err(reqwest_err)<span class="question-mark">?</span>;
-            <span class="macro">info!</span>(<span class="string">&quot;Received a grading result: {:#?}&quot;</span>, <span class="kw-2">&amp;</span>obj);
+            <span class="macro">info!</span>(<span class="string">"Received a grading result: {:#?}"</span>, <span class="kw-2">&amp;</span>obj);
             <span class="prelude-val">Ok</span>(obj)
         }
         .boxed()
@@ -801,21 +802,21 @@
     }
 
     <span class="kw">pub fn </span>sign(<span class="self">self</span>, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; String {
-        <span class="self">self</span>.sign_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).expect(<span class="string">&quot;should never fail&quot;</span>)
+        <span class="self">self</span>.sign_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).expect(<span class="string">"should never fail"</span>)
     }
 
     <span class="kw">pub fn </span>validate(token: <span class="kw-2">&amp;</span>str, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ControllerError&gt; {
         <span class="kw">let </span>claim: <span class="self">Self </span>= token.verify_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="macro">format!</span>(<span class="string">&quot;Invalid jwt key: {}&quot;</span>, err),
+                <span class="macro">format!</span>(<span class="string">"Invalid jwt key: {}"</span>, err),
                 <span class="prelude-val">Some</span>(err.into()),
             )
         })<span class="question-mark">?</span>;
         <span class="kw">if </span>claim.expiration_time &lt; Utc::now() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="string">&quot;The peer review has expired.&quot;</span>.to_string(),
+                <span class="string">"The peer review has expired."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }

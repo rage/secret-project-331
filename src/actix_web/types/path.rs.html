@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/types/path.rs`."><title>path.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/types/path.rs`."><title>path.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -314,13 +315,13 @@
 /// ```
 /// use actix_web::{get, web};
 ///
-/// // extract path info from &quot;/{name}/{count}/index.html&quot; into tuple
+/// // extract path info from "/{name}/{count}/index.html" into tuple
 /// // {name}  - deserialize a String
 /// // {count} - deserialize a u32
-/// #[get(&quot;/{name}/{count}/index.html&quot;)]
+/// #[get("/{name}/{count}/index.html")]
 /// async fn index(path: web::Path&lt;(String, u32)&gt;) -&gt; String {
 ///     let (name, count) = path.into_inner();
-///     format!(&quot;Welcome {}! {}&quot;, name, count)
+///     format!("Welcome {}! {}", name, count)
 /// }
 /// ```
 ///
@@ -337,9 +338,9 @@
 /// }
 ///
 /// // extract `Info` from a path using serde
-/// #[get(&quot;/{name}&quot;)]
+/// #[get("/{name}")]
 /// async fn index(info: web::Path&lt;Info&gt;) -&gt; String {
-///     format!(&quot;Welcome {}!&quot;, info.name)
+///     format!("Welcome {}!", info.name)
 /// }
 /// ```
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Deref, DerefMut, AsRef, Display, From)]
@@ -372,8 +373,8 @@
                 .map(Path)
                 .map_err(<span class="kw">move </span>|err| {
                     <span class="macro">log::debug!</span>(
-                        <span class="string">&quot;Failed during Path extractor deserialization. \
-                         Request path: {:?}&quot;</span>,
+                        <span class="string">"Failed during Path extractor deserialization. \
+                         Request path: {:?}"</span>,
                         req.path()
                     );
 
@@ -397,20 +398,20 @@
 ///
 /// #[derive(Deserialize, Debug)]
 /// enum Folder {
-///     #[serde(rename = &quot;inbox&quot;)]
+///     #[serde(rename = "inbox")]
 ///     Inbox,
 ///
-///     #[serde(rename = &quot;outbox&quot;)]
+///     #[serde(rename = "outbox")]
 ///     Outbox,
 /// }
 ///
-/// // deserialize `Info` from request&#39;s path
+/// // deserialize `Info` from request's path
 /// async fn index(folder: web::Path&lt;Folder&gt;) -&gt; String {
-///     format!(&quot;Selected folder: {:?}!&quot;, folder)
+///     format!("Selected folder: {:?}!", folder)
 /// }
 ///
 /// let app = App::new().service(
-///     web::resource(&quot;/messages/{folder}&quot;)
+///     web::resource("/messages/{folder}")
 ///         .app_data(PathConfig::default().error_handler(|err, req| {
 ///             error::InternalError::from_response(
 ///                 err,
@@ -431,7 +432,7 @@
     <span class="doccomment">/// Set custom error handler.
     </span><span class="kw">pub fn </span>error_handler&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(PathError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(PathError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + Send + Sync + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.err_handler = <span class="prelude-val">Some</span>(Arc::new(f));
         <span class="self">self
@@ -448,7 +449,7 @@
     <span class="kw">use crate</span>::{error, http, test::TestRequest, HttpResponse};
 
     <span class="attr">#[derive(Deserialize, Debug, Display)]
-    #[display(fmt = <span class="string">&quot;MyStruct({}, {})&quot;</span>, key, value)]
+    #[display(fmt = <span class="string">"MyStruct({}, {})"</span>, key, value)]
     </span><span class="kw">struct </span>MyStruct {
         key: String,
         value: String,
@@ -462,9 +463,9 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_extract_path_single() {
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/{value}/&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/{value}/"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">&quot;/32/&quot;</span>).to_srv_request();
+        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">"/32/"</span>).to_srv_request();
         resource.capture_match_info(req.match_info_mut());
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = req.into_parts();
@@ -475,94 +476,94 @@
     <span class="attr">#[allow(clippy::let_unit_value)]
     #[actix_rt::test]
     </span><span class="kw">async fn </span>test_tuple_extract() {
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/{key}/{value}/&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/{key}/{value}/"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">&quot;/name/user1/?id=test&quot;</span>).to_srv_request();
+        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">"/name/user1/?id=test"</span>).to_srv_request();
         resource.capture_match_info(req.match_info_mut());
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = req.into_parts();
         <span class="kw">let </span>(Path(res),) = &lt;(Path&lt;(String, String)&gt;,)&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="macro">assert_eq!</span>(res.<span class="number">0</span>, <span class="string">&quot;name&quot;</span>);
-        <span class="macro">assert_eq!</span>(res.<span class="number">1</span>, <span class="string">&quot;user1&quot;</span>);
+        <span class="macro">assert_eq!</span>(res.<span class="number">0</span>, <span class="string">"name"</span>);
+        <span class="macro">assert_eq!</span>(res.<span class="number">1</span>, <span class="string">"user1"</span>);
 
         <span class="kw">let </span>(Path(a), Path(b)) =
             &lt;(Path&lt;(String, String)&gt;, Path&lt;(String, String)&gt;)&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
                 .<span class="kw">await
                 </span>.unwrap();
-        <span class="macro">assert_eq!</span>(a.<span class="number">0</span>, <span class="string">&quot;name&quot;</span>);
-        <span class="macro">assert_eq!</span>(a.<span class="number">1</span>, <span class="string">&quot;user1&quot;</span>);
-        <span class="macro">assert_eq!</span>(b.<span class="number">0</span>, <span class="string">&quot;name&quot;</span>);
-        <span class="macro">assert_eq!</span>(b.<span class="number">1</span>, <span class="string">&quot;user1&quot;</span>);
+        <span class="macro">assert_eq!</span>(a.<span class="number">0</span>, <span class="string">"name"</span>);
+        <span class="macro">assert_eq!</span>(a.<span class="number">1</span>, <span class="string">"user1"</span>);
+        <span class="macro">assert_eq!</span>(b.<span class="number">0</span>, <span class="string">"name"</span>);
+        <span class="macro">assert_eq!</span>(b.<span class="number">1</span>, <span class="string">"user1"</span>);
 
         <span class="kw">let </span>() = &lt;()&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_request_extract() {
-        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">&quot;/name/user1/?id=test&quot;</span>).to_srv_request();
+        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">"/name/user1/?id=test"</span>).to_srv_request();
 
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/{key}/{value}/&quot;</span>);
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/{key}/{value}/"</span>);
         resource.capture_match_info(req.match_info_mut());
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = req.into_parts();
         <span class="kw">let </span><span class="kw-2">mut </span>s = Path::&lt;MyStruct&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
-        <span class="macro">assert_eq!</span>(s.key, <span class="string">&quot;name&quot;</span>);
-        <span class="macro">assert_eq!</span>(s.value, <span class="string">&quot;user1&quot;</span>);
-        s.value = <span class="string">&quot;user2&quot;</span>.to_string();
-        <span class="macro">assert_eq!</span>(s.value, <span class="string">&quot;user2&quot;</span>);
+        <span class="macro">assert_eq!</span>(s.key, <span class="string">"name"</span>);
+        <span class="macro">assert_eq!</span>(s.value, <span class="string">"user1"</span>);
+        s.value = <span class="string">"user2"</span>.to_string();
+        <span class="macro">assert_eq!</span>(s.value, <span class="string">"user2"</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}, {:?}&quot;</span>, s, s),
-            <span class="string">&quot;MyStruct(name, user2), Path(MyStruct { key: \&quot;name\&quot;, value: \&quot;user2\&quot; })&quot;
+            <span class="macro">format!</span>(<span class="string">"{}, {:?}"</span>, s, s),
+            <span class="string">"MyStruct(name, user2), Path(MyStruct { key: \"name\", value: \"user2\" })"
         </span>);
         <span class="kw">let </span>s = s.into_inner();
-        <span class="macro">assert_eq!</span>(s.value, <span class="string">&quot;user2&quot;</span>);
+        <span class="macro">assert_eq!</span>(s.value, <span class="string">"user2"</span>);
 
         <span class="kw">let </span>Path(s) = Path::&lt;(String, String)&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="macro">assert_eq!</span>(s.<span class="number">0</span>, <span class="string">&quot;name&quot;</span>);
-        <span class="macro">assert_eq!</span>(s.<span class="number">1</span>, <span class="string">&quot;user1&quot;</span>);
+        <span class="macro">assert_eq!</span>(s.<span class="number">0</span>, <span class="string">"name"</span>);
+        <span class="macro">assert_eq!</span>(s.<span class="number">1</span>, <span class="string">"user1"</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">&quot;/name/32/&quot;</span>).to_srv_request();
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/{key}/{value}/&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">"/name/32/"</span>).to_srv_request();
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/{key}/{value}/"</span>);
         resource.capture_match_info(req.match_info_mut());
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = req.into_parts();
         <span class="kw">let </span>s = Path::&lt;Test2&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
-        <span class="macro">assert_eq!</span>(s.as_ref().key, <span class="string">&quot;name&quot;</span>);
+        <span class="macro">assert_eq!</span>(s.as_ref().key, <span class="string">"name"</span>);
         <span class="macro">assert_eq!</span>(s.value, <span class="number">32</span>);
 
         <span class="kw">let </span>Path(s) = Path::&lt;(String, u8)&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="macro">assert_eq!</span>(s.<span class="number">0</span>, <span class="string">&quot;name&quot;</span>);
+        <span class="macro">assert_eq!</span>(s.<span class="number">0</span>, <span class="string">"name"</span>);
         <span class="macro">assert_eq!</span>(s.<span class="number">1</span>, <span class="number">32</span>);
 
         <span class="kw">let </span>res = Path::&lt;Vec&lt;String&gt;&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="macro">assert_eq!</span>(res[<span class="number">0</span>], <span class="string">&quot;name&quot;</span>.to_owned());
-        <span class="macro">assert_eq!</span>(res[<span class="number">1</span>], <span class="string">&quot;32&quot;</span>.to_owned());
+        <span class="macro">assert_eq!</span>(res[<span class="number">0</span>], <span class="string">"name"</span>.to_owned());
+        <span class="macro">assert_eq!</span>(res[<span class="number">1</span>], <span class="string">"32"</span>.to_owned());
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>paths_decoded() {
-        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">&quot;/{key}/{value}&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">&quot;/na%2Bme/us%2Fer%254%32&quot;</span>).to_srv_request();
+        <span class="kw">let </span>resource = ResourceDef::new(<span class="string">"/{key}/{value}"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::with_uri(<span class="string">"/na%2Bme/us%2Fer%254%32"</span>).to_srv_request();
         resource.capture_match_info(req.match_info_mut());
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = req.into_parts();
         <span class="kw">let </span>path_items = Path::&lt;MyStruct&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
-        <span class="macro">assert_eq!</span>(path_items.key, <span class="string">&quot;na+me&quot;</span>);
-        <span class="macro">assert_eq!</span>(path_items.value, <span class="string">&quot;us/er%42&quot;</span>);
-        <span class="macro">assert_eq!</span>(req.match_info().as_str(), <span class="string">&quot;/na%2Bme/us%2Fer%2542&quot;</span>);
+        <span class="macro">assert_eq!</span>(path_items.key, <span class="string">"na+me"</span>);
+        <span class="macro">assert_eq!</span>(path_items.value, <span class="string">"us/er%42"</span>);
+        <span class="macro">assert_eq!</span>(req.match_info().as_str(), <span class="string">"/na%2Bme/us%2Fer%2542"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_custom_err_handler() {
-        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::with_uri(<span class="string">&quot;/name/user1/&quot;</span>)
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::with_uri(<span class="string">"/name/user1/"</span>)
             .app_data(PathConfig::default().error_handler(|err, <span class="kw">_</span>| {
                 error::InternalError::from_response(err, HttpResponse::Conflict().finish()).into()
             }))

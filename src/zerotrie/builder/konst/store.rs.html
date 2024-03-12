@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/builder/konst/store.rs`."><title>store.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/builder/konst/store.rs`."><title>store.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -341,21 +342,21 @@
 </span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::branch_meta::BranchMeta;
 
 <span class="doccomment">/// A const-friendly slice type. It is backed by a full slice but is primarily intended
-/// to represent subslices of the full slice. We need this only because we can&#39;t take
+/// to represent subslices of the full slice. We need this only because we can't take
 /// subslices in const Rust.
 </span><span class="attr">#[derive(Debug, Copy, Clone)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ConstSlice&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ConstSlice&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="doccomment">/// The full slice.
-    </span>full_slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T],
+    </span>full_slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T],
     <span class="doccomment">/// The start index of the slice represented by this [`ConstSlice`].
     </span>start: usize,
     <span class="doccomment">/// The non-inclusive end index of the slice represented by this [`ConstSlice`].
     </span>limit: usize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; ConstSlice&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; ConstSlice&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="doccomment">/// Creates a [`ConstSlice`] representing an entire slice.
-    </span><span class="kw">pub const fn </span>from_slice(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>from_slice(other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]) -&gt; <span class="self">Self </span>{
         ConstSlice {
             full_slice: other,
             start: <span class="number">0</span>,
@@ -364,7 +365,7 @@
     }
 
     <span class="doccomment">/// Creates a [`ConstSlice`] with the given start and limit.
-    </span><span class="kw">pub const fn </span>from_manual_slice(full_slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T], start: usize, limit: usize) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>from_manual_slice(full_slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T], start: usize, limit: usize) -&gt; <span class="self">Self </span>{
         ConstSlice {
             full_slice,
             start,
@@ -407,7 +408,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         new_start: usize,
         new_limit: usize,
-    ) -&gt; ConstSlice&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    ) -&gt; ConstSlice&lt;<span class="lifetime">'a</span>, T&gt; {
         <span class="macro">assert!</span>(new_start &lt;= new_limit);
         <span class="macro">assert!</span>(new_limit &lt;= <span class="self">self</span>.len());
         ConstSlice {
@@ -418,14 +419,14 @@
     }
 
     <span class="doccomment">/// Non-const function that returns this [`ConstSlice`] as a regular slice.
-    </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;alloc&quot;</span>))]
-    </span><span class="kw">pub fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T] {
+    </span><span class="attr">#[cfg(any(test, feature = <span class="string">"alloc"</span>))]
+    </span><span class="kw">pub fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.full_slice[<span class="self">self</span>.start..<span class="self">self</span>.limit]
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]&gt; <span class="kw">for </span>ConstSlice&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]&gt; <span class="kw">for </span>ConstSlice&lt;<span class="lifetime">'a</span>, T&gt; {
+    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::from_slice(other)
     }
 }
@@ -485,7 +486,7 @@
     }
 
     <span class="doccomment">/// Non-const function that returns a slice of the initialized elements.
-    </span><span class="attr">#[cfg(any(test, feature = <span class="string">&quot;alloc&quot;</span>))]
+    </span><span class="attr">#[cfg(any(test, feature = <span class="string">"alloc"</span>))]
     </span><span class="kw">pub fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[T] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.full_array[<span class="self">self</span>.start..<span class="self">self</span>.limit]
     }
@@ -497,7 +498,7 @@
     /// fully initialized.
     </span><span class="kw">pub const fn </span>const_take_or_panic(<span class="self">self</span>) -&gt; [T; N] {
         <span class="kw">if </span><span class="self">self</span>.start != <span class="number">0 </span>|| <span class="self">self</span>.limit != N {
-            <span class="macro">panic!</span>(<span class="string">&quot;AsciiTrieBuilder buffer too large&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"AsciiTrieBuilder buffer too large"</span>);
         }
         <span class="self">self</span>.full_array
     }
@@ -505,7 +506,7 @@
     <span class="doccomment">/// Prepends an element to the front of the builder, panicking if there is no room.
     </span><span class="kw">pub const fn </span>const_push_front_or_panic(<span class="kw-2">mut </span><span class="self">self</span>, value: T) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span><span class="self">self</span>.start == <span class="number">0 </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;AsciiTrieBuilder buffer too small&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"AsciiTrieBuilder buffer too small"</span>);
         }
         <span class="self">self</span>.start -= <span class="number">1</span>;
         <span class="self">self</span>.full_array[<span class="self">self</span>.start] = value;
@@ -515,7 +516,7 @@
     <span class="doccomment">/// Prepends multiple elements to the front of the builder, panicking if there is no room.
     </span><span class="kw">pub const fn </span>const_extend_front_or_panic(<span class="kw-2">mut </span><span class="self">self</span>, other: ConstSlice&lt;T&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span><span class="self">self</span>.start &lt; other.len() {
-            <span class="macro">panic!</span>(<span class="string">&quot;AsciiTrieBuilder buffer too small&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"AsciiTrieBuilder buffer too small"</span>);
         }
         <span class="self">self</span>.start -= other.len();
         <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="self">self</span>.start;
@@ -537,7 +538,7 @@
 
 <span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize, T: Copy&gt; ConstArrayBuilder&lt;N, T&gt; {
     <span class="doccomment">/// Swaps the elements at positions `i` and `j`.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
     </span><span class="kw">pub fn </span>swap_or_panic(<span class="kw-2">mut </span><span class="self">self</span>, i: usize, j: usize) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.full_array.swap(<span class="self">self</span>.start + i, <span class="self">self</span>.start + j);
         <span class="self">self
@@ -572,7 +573,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="kw">const </span>K: usize&gt; core::fmt::Debug <span class="kw">for </span>ConstLengthsStack&lt;K&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
         <span class="self">self</span>.as_slice().fmt(f)
     }
 }
@@ -596,9 +597,9 @@
     </span><span class="kw">pub const fn </span>push_or_panic(<span class="kw-2">mut </span><span class="self">self</span>, meta: BranchMeta) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span><span class="self">self</span>.idx &gt;= K {
             <span class="macro">panic!</span>(<span class="macro">concat!</span>(
-                <span class="string">&quot;AsciiTrie Builder: Need more stack (max &quot;</span>,
+                <span class="string">"AsciiTrie Builder: Need more stack (max "</span>,
                 <span class="macro">stringify!</span>(K),
-                <span class="string">&quot;)&quot;
+                <span class="string">")"
             </span>));
         }
         <span class="self">self</span>.data[<span class="self">self</span>.idx] = <span class="prelude-val">Some</span>(meta);
@@ -610,7 +611,7 @@
     /// the stack is empty.
     </span><span class="kw">pub const fn </span>peek_or_panic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BranchMeta {
         <span class="kw">if </span><span class="self">self</span>.idx == <span class="number">0 </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;AsciiTrie Builder: Attempted to peek from an empty stack&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"AsciiTrie Builder: Attempted to peek from an empty stack"</span>);
         }
         <span class="self">self</span>.get_or_panic(<span class="number">0</span>)
     }
@@ -618,7 +619,7 @@
     <span class="doccomment">/// Returns a copy of the [`BranchMeta`] at the specified index.
     </span><span class="kw">const fn </span>get_or_panic(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; BranchMeta {
         <span class="kw">if </span><span class="self">self</span>.idx &lt;= index {
-            <span class="macro">panic!</span>(<span class="string">&quot;AsciiTrie Builder: Attempted to get too deep in a stack&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"AsciiTrie Builder: Attempted to get too deep in a stack"</span>);
         }
         <span class="kw">match </span><span class="self">self</span>.data[<span class="self">self</span>.idx - index - <span class="number">1</span>] {
             <span class="prelude-val">Some</span>(x) =&gt; x,
@@ -641,7 +642,7 @@
             <span class="kw">let </span>i = <span class="self">self</span>.idx - ix - <span class="number">1</span>;
             result = result.const_push_front_or_panic(<span class="kw">match </span><span class="self">self</span>.data[i] {
                 <span class="prelude-val">Some</span>(x) =&gt; x,
-                <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Not enough items in the ConstLengthsStack&quot;</span>),
+                <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Not enough items in the ConstLengthsStack"</span>),
             });
             ix += <span class="number">1</span>;
         }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/server.rs`."><title>server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/server.rs`."><title>server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1039,10 +1040,10 @@
 };
 
 <span class="attr">#[cfg(any(
-    feature = <span class="string">&quot;openssl&quot;</span>,
-    feature = <span class="string">&quot;rustls-0_20&quot;</span>,
-    feature = <span class="string">&quot;rustls-0_21&quot;</span>,
-    feature = <span class="string">&quot;rustls-0_22&quot;</span>,
+    feature = <span class="string">"openssl"</span>,
+    feature = <span class="string">"rustls-0_20"</span>,
+    feature = <span class="string">"rustls-0_21"</span>,
+    feature = <span class="string">"rustls-0_22"</span>,
 ))]
 </span><span class="kw">use </span>actix_http::TlsAcceptorConfig;
 <span class="kw">use </span>actix_http::{body::MessageBody, Extensions, HttpService, KeepAlive, Request, Response};
@@ -1050,13 +1051,13 @@
 <span class="kw">use </span>actix_service::{
     map_config, IntoServiceFactory, Service, ServiceFactory, ServiceFactoryExt <span class="kw">as _</span>,
 };
-<span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
 </span><span class="kw">use </span>actix_tls::accept::openssl::reexports::{AlpnError, SslAcceptor, SslAcceptorBuilder};
 
 <span class="kw">use crate</span>::{config::AppConfig, Error};
 
 <span class="kw">struct </span>Socket {
-    scheme: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    scheme: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     addr: net::SocketAddr,
 }
 
@@ -1093,16 +1094,16 @@
 /// async fn main() -&gt; std::io::Result&lt;()&gt; {
 ///     HttpServer::new(|| {
 ///         App::new()
-///             .service(web::resource(&quot;/&quot;).to(|| async { &quot;hello world&quot; }))
+///             .service(web::resource("/").to(|| async { "hello world" }))
 ///     })
-///     .bind((&quot;127.0.0.1&quot;, 8080))?
+///     .bind(("127.0.0.1", 8080))?
 ///     .run()
 ///     .await
 /// }
 /// ```
 </span><span class="kw">pub struct </span>HttpServer&lt;F, I, S, B&gt;
 <span class="kw">where
-    </span>F: Fn() -&gt; I + Send + Clone + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn() -&gt; I + Send + Clone + <span class="lifetime">'static</span>,
     I: IntoServiceFactory&lt;S, Request&gt;,
     S: ServiceFactory&lt;Request, Config = AppConfig&gt;,
     S::Error: Into&lt;Error&gt;,
@@ -1122,17 +1123,17 @@
 
 <span class="kw">impl</span>&lt;F, I, S, B&gt; HttpServer&lt;F, I, S, B&gt;
 <span class="kw">where
-    </span>F: Fn() -&gt; I + Send + Clone + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn() -&gt; I + Send + Clone + <span class="lifetime">'static</span>,
     I: IntoServiceFactory&lt;S, Request&gt;,
 
-    S: ServiceFactory&lt;Request, Config = AppConfig&gt; + <span class="lifetime">&#39;static</span>,
-    S::Error: Into&lt;Error&gt; + <span class="lifetime">&#39;static</span>,
+    S: ServiceFactory&lt;Request, Config = AppConfig&gt; + <span class="lifetime">'static</span>,
+    S::Error: Into&lt;Error&gt; + <span class="lifetime">'static</span>,
     S::InitError: fmt::Debug,
-    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
-    S::Service: <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">'static</span>,
+    S::Service: <span class="lifetime">'static</span>,
 
-    B: MessageBody + <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Create new HTTP server with application factory
     ///
@@ -1220,12 +1221,12 @@
     /// By default max connections is set to a 256.
     </span><span class="attr">#[allow(unused_variables)]
     </span><span class="kw">pub fn </span>max_connection_rate(<span class="self">self</span>, num: usize) -&gt; <span class="self">Self </span>{
-        <span class="attr">#[cfg(any(feature = <span class="string">&quot;rustls-0_20&quot;</span>, feature = <span class="string">&quot;rustls-0_21&quot;</span>, feature = <span class="string">&quot;openssl&quot;</span>))]
+        <span class="attr">#[cfg(any(feature = <span class="string">"rustls-0_20"</span>, feature = <span class="string">"rustls-0_21"</span>, feature = <span class="string">"openssl"</span>))]
         </span>actix_tls::accept::max_concurrent_tls_connect(num);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Sets max number of threads for each worker&#39;s blocking task thread pool.
+    <span class="doccomment">/// Sets max number of threads for each worker's blocking task thread pool.
     ///
     /// One thread pool is set up **per worker**; not shared across workers.
     ///
@@ -1249,7 +1250,7 @@
     </span>}
 
     <span class="attr">#[doc(hidden)]
-    #[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `client_request_timeout`.&quot;</span>)]
+    #[deprecated(since = <span class="string">"4.0.0"</span>, note = <span class="string">"Renamed to `client_request_timeout`."</span>)]
     </span><span class="kw">pub fn </span>client_timeout(<span class="self">self</span>, dur: Duration) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.client_request_timeout(dur)
     }
@@ -1273,7 +1274,7 @@
     /// time, the connection is closed.
     ///
     /// By default, the handshake timeout is 3 seconds.
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;openssl&quot;</span>, feature = <span class="string">&quot;rustls-0_20&quot;</span>, feature = <span class="string">&quot;rustls-0_21&quot;</span>))]
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"openssl"</span>, feature = <span class="string">"rustls-0_20"</span>, feature = <span class="string">"rustls-0_21"</span>))]
     </span><span class="kw">pub fn </span>tls_handshake_timeout(<span class="self">self</span>, dur: Duration) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.config
             .lock()
@@ -1285,7 +1286,7 @@
     </span>}
 
     <span class="attr">#[doc(hidden)]
-    #[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `client_disconnect_timeout`.&quot;</span>)]
+    #[deprecated(since = <span class="string">"4.0.0"</span>, note = <span class="string">"Renamed to `client_disconnect_timeout`."</span>)]
     </span><span class="kw">pub fn </span>client_shutdown(<span class="self">self</span>, dur: u64) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.client_disconnect_timeout(Duration::from_millis(dur))
     }
@@ -1306,7 +1307,7 @@
     /// See the `on_connect` example for additional details.
     </span><span class="kw">pub fn </span>on_connect&lt;CB&gt;(<span class="self">self</span>, f: CB) -&gt; HttpServer&lt;F, I, S, B&gt;
     <span class="kw">where
-        </span>CB: Fn(<span class="kw-2">&amp;</span><span class="kw">dyn </span>Any, <span class="kw-2">&amp;mut </span>Extensions) + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>CB: Fn(<span class="kw-2">&amp;</span><span class="kw">dyn </span>Any, <span class="kw-2">&amp;mut </span>Extensions) + Send + Sync + <span class="lifetime">'static</span>,
     {
         HttpServer {
             factory: <span class="self">self</span>.factory,
@@ -1324,7 +1325,7 @@
     /// Host name is used by application router as a hostname for url generation. Check
     /// [`ConnectionInfo`](crate::dev::ConnectionInfo::host()) docs for more info.
     ///
-    /// By default, hostname is set to &quot;localhost&quot;.
+    /// By default, hostname is set to "localhost".
     </span><span class="kw">pub fn </span>server_hostname&lt;T: AsRef&lt;str&gt;&gt;(<span class="self">self</span>, val: T) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.config.lock().unwrap().host = <span class="prelude-val">Some</span>(val.as_ref().to_owned());
         <span class="self">self
@@ -1386,7 +1387,7 @@
     /// instantiations is number of [`workers`](Self::workers()) × number of sockets resolved by
     /// `addrs`.
     ///
-    /// For example, if you&#39;ve manually set [`workers`](Self::workers()) to 2, and use `127.0.0.1`
+    /// For example, if you've manually set [`workers`](Self::workers()) to 2, and use `127.0.0.1`
     /// as the bind `addrs`, then `factory` will be instantiated twice. However, using `localhost`
     /// as the bind `addrs` can often resolve to both `127.0.0.1` (IPv4) _and_ `::1` (IPv6), causing
     /// the `factory` to be instantiated 4 times (2 workers × 2 bind addresses).
@@ -1411,8 +1412,8 @@
     /// # use actix_web::{App, HttpServer};
     /// # fn inner() -&gt; std::io::Result&lt;()&gt; {
     /// HttpServer::new(|| App::new())
-    ///     .bind((&quot;127.0.0.1&quot;, 8080))?
-    ///     .bind(&quot;[::1]:9000&quot;)?
+    ///     .bind(("127.0.0.1", 8080))?
+    ///     .bind("[::1]:9000")?
     /// # ; Ok(()) }
     /// ```
     </span><span class="kw">pub fn </span>bind&lt;A: net::ToSocketAddrs&gt;(<span class="kw-2">mut </span><span class="self">self</span>, addrs: A) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
@@ -1429,7 +1430,7 @@
     /// or HTTP/2 connections.
     ///
     /// See [`bind()`](Self::bind()) for more details on `addrs` argument.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
     </span><span class="kw">pub fn </span>bind_auto_h2c&lt;A: net::ToSocketAddrs&gt;(<span class="kw-2">mut </span><span class="self">self</span>, addrs: A) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>sockets = bind_addrs(addrs, <span class="self">self</span>.backlog)<span class="question-mark">?</span>;
 
@@ -1445,8 +1446,8 @@
     ///
     /// See [`bind()`](Self::bind()) for more details on `addrs` argument.
     ///
-    /// ALPN protocols &quot;h2&quot; and &quot;http/1.1&quot; are added to any configured ones.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_20&quot;</span>)]
+    /// ALPN protocols "h2" and "http/1.1" are added to any configured ones.
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-0_20"</span>)]
     </span><span class="kw">pub fn </span>bind_rustls&lt;A: net::ToSocketAddrs&gt;(
         <span class="kw-2">mut </span><span class="self">self</span>,
         addrs: A,
@@ -1464,8 +1465,8 @@
     ///
     /// See [`bind()`](Self::bind()) for more details on `addrs` argument.
     ///
-    /// ALPN protocols &quot;h2&quot; and &quot;http/1.1&quot; are added to any configured ones.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_21&quot;</span>)]
+    /// ALPN protocols "h2" and "http/1.1" are added to any configured ones.
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-0_21"</span>)]
     </span><span class="kw">pub fn </span>bind_rustls_021&lt;A: net::ToSocketAddrs&gt;(
         <span class="kw-2">mut </span><span class="self">self</span>,
         addrs: A,
@@ -1483,8 +1484,8 @@
     ///
     /// See [`bind()`](Self::bind()) for more details on `addrs` argument.
     ///
-    /// ALPN protocols &quot;h2&quot; and &quot;http/1.1&quot; are added to any configured ones.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_22&quot;</span>)]
+    /// ALPN protocols "h2" and "http/1.1" are added to any configured ones.
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-0_22"</span>)]
     </span><span class="kw">pub fn </span>bind_rustls_0_22&lt;A: net::ToSocketAddrs&gt;(
         <span class="kw-2">mut </span><span class="self">self</span>,
         addrs: A,
@@ -1502,8 +1503,8 @@
     ///
     /// See [`bind()`](Self::bind()) for more details on `addrs` argument.
     ///
-    /// ALPN protocols &quot;h2&quot; and &quot;http/1.1&quot; are added to any configured ones.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+    /// ALPN protocols "h2" and "http/1.1" are added to any configured ones.
+    </span><span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
     </span><span class="kw">pub fn </span>bind_openssl&lt;A&gt;(<span class="kw-2">mut </span><span class="self">self</span>, addrs: A, builder: SslAcceptorBuilder) -&gt; io::Result&lt;<span class="self">Self</span>&gt;
     <span class="kw">where
         </span>A: net::ToSocketAddrs,
@@ -1520,7 +1521,7 @@
 
     <span class="doccomment">/// Binds to existing listener for accepting incoming connection requests.
     ///
-    /// No changes are made to `lst`&#39;s configuration. Ensure it is configured properly before
+    /// No changes are made to `lst`'s configuration. Ensure it is configured properly before
     /// passing ownership to `listen()`.
     </span><span class="kw">pub fn </span>listen(<span class="kw-2">mut </span><span class="self">self</span>, lst: net::TcpListener) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>cfg = <span class="self">self</span>.config.clone();
@@ -1529,16 +1530,16 @@
 
         <span class="self">self</span>.sockets.push(Socket {
             addr,
-            scheme: <span class="string">&quot;http&quot;</span>,
+            scheme: <span class="string">"http"</span>,
         });
 
         <span class="kw">let </span>on_connect_fn = <span class="self">self</span>.on_connect_fn.clone();
 
         <span class="self">self</span>.builder =
             <span class="self">self</span>.builder
-                .listen(<span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{}&quot;</span>, addr), lst, <span class="kw">move </span>|| {
+                .listen(<span class="macro">format!</span>(<span class="string">"actix-web-service-{}"</span>, addr), lst, <span class="kw">move </span>|| {
                     <span class="kw">let </span>cfg = cfg.lock().unwrap();
-                    <span class="kw">let </span>host = cfg.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, addr));
+                    <span class="kw">let </span>host = cfg.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">"{}"</span>, addr));
 
                     <span class="kw">let </span><span class="kw-2">mut </span>svc = HttpService::build()
                         .keep_alive(cfg.keep_alive)
@@ -1565,7 +1566,7 @@
     }
 
     <span class="doccomment">/// Binds to existing listener for accepting incoming plaintext HTTP/1.x or HTTP/2 connections.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
     </span><span class="kw">pub fn </span>listen_auto_h2c(<span class="kw-2">mut </span><span class="self">self</span>, lst: net::TcpListener) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>cfg = <span class="self">self</span>.config.clone();
         <span class="kw">let </span>factory = <span class="self">self</span>.factory.clone();
@@ -1573,16 +1574,16 @@
 
         <span class="self">self</span>.sockets.push(Socket {
             addr,
-            scheme: <span class="string">&quot;http&quot;</span>,
+            scheme: <span class="string">"http"</span>,
         });
 
         <span class="kw">let </span>on_connect_fn = <span class="self">self</span>.on_connect_fn.clone();
 
         <span class="self">self</span>.builder =
             <span class="self">self</span>.builder
-                .listen(<span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{}&quot;</span>, addr), lst, <span class="kw">move </span>|| {
+                .listen(<span class="macro">format!</span>(<span class="string">"actix-web-service-{}"</span>, addr), lst, <span class="kw">move </span>|| {
                     <span class="kw">let </span>cfg = cfg.lock().unwrap();
-                    <span class="kw">let </span>host = cfg.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, addr));
+                    <span class="kw">let </span>host = cfg.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">"{}"</span>, addr));
 
                     <span class="kw">let </span><span class="kw-2">mut </span>svc = HttpService::build()
                         .keep_alive(cfg.keep_alive)
@@ -1613,8 +1614,8 @@
     ///
     /// See [`listen()`](Self::listen) for more details on the `lst` argument.
     ///
-    /// ALPN protocols &quot;h2&quot; and &quot;http/1.1&quot; are added to any configured ones.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_20&quot;</span>)]
+    /// ALPN protocols "h2" and "http/1.1" are added to any configured ones.
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-0_20"</span>)]
     </span><span class="kw">pub fn </span>listen_rustls(
         <span class="self">self</span>,
         lst: net::TcpListener,
@@ -1628,8 +1629,8 @@
     ///
     /// See [`listen()`](Self::listen) for more details on the `lst` argument.
     ///
-    /// ALPN protocols &quot;h2&quot; and &quot;http/1.1&quot; are added to any configured ones.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_21&quot;</span>)]
+    /// ALPN protocols "h2" and "http/1.1" are added to any configured ones.
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-0_21"</span>)]
     </span><span class="kw">pub fn </span>listen_rustls_0_21(
         <span class="self">self</span>,
         lst: net::TcpListener,
@@ -1638,7 +1639,7 @@
         <span class="self">self</span>.listen_rustls_0_21_inner(lst, config)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_20&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"rustls-0_20"</span>)]
     </span><span class="kw">fn </span>listen_rustls_0_20_inner(
         <span class="kw-2">mut </span><span class="self">self</span>,
         lst: net::TcpListener,
@@ -1649,16 +1650,16 @@
         <span class="kw">let </span>addr = lst.local_addr().unwrap();
         <span class="self">self</span>.sockets.push(Socket {
             addr,
-            scheme: <span class="string">&quot;https&quot;</span>,
+            scheme: <span class="string">"https"</span>,
         });
 
         <span class="kw">let </span>on_connect_fn = <span class="self">self</span>.on_connect_fn.clone();
 
         <span class="self">self</span>.builder =
             <span class="self">self</span>.builder
-                .listen(<span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{}&quot;</span>, addr), lst, <span class="kw">move </span>|| {
+                .listen(<span class="macro">format!</span>(<span class="string">"actix-web-service-{}"</span>, addr), lst, <span class="kw">move </span>|| {
                     <span class="kw">let </span>c = cfg.lock().unwrap();
-                    <span class="kw">let </span>host = c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, addr));
+                    <span class="kw">let </span>host = c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">"{}"</span>, addr));
 
                     <span class="kw">let </span>svc = HttpService::build()
                         .keep_alive(c.keep_alive)
@@ -1689,7 +1690,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_21&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"rustls-0_21"</span>)]
     </span><span class="kw">fn </span>listen_rustls_0_21_inner(
         <span class="kw-2">mut </span><span class="self">self</span>,
         lst: net::TcpListener,
@@ -1700,16 +1701,16 @@
         <span class="kw">let </span>addr = lst.local_addr().unwrap();
         <span class="self">self</span>.sockets.push(Socket {
             addr,
-            scheme: <span class="string">&quot;https&quot;</span>,
+            scheme: <span class="string">"https"</span>,
         });
 
         <span class="kw">let </span>on_connect_fn = <span class="self">self</span>.on_connect_fn.clone();
 
         <span class="self">self</span>.builder =
             <span class="self">self</span>.builder
-                .listen(<span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{}&quot;</span>, addr), lst, <span class="kw">move </span>|| {
+                .listen(<span class="macro">format!</span>(<span class="string">"actix-web-service-{}"</span>, addr), lst, <span class="kw">move </span>|| {
                     <span class="kw">let </span>c = cfg.lock().unwrap();
-                    <span class="kw">let </span>host = c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, addr));
+                    <span class="kw">let </span>host = c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">"{}"</span>, addr));
 
                     <span class="kw">let </span>svc = HttpService::build()
                         .keep_alive(c.keep_alive)
@@ -1745,8 +1746,8 @@
     ///
     /// See [`listen()`](Self::listen) for more details on the `lst` argument.
     ///
-    /// ALPN protocols &quot;h2&quot; and &quot;http/1.1&quot; are added to any configured ones.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_22&quot;</span>)]
+    /// ALPN protocols "h2" and "http/1.1" are added to any configured ones.
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-0_22"</span>)]
     </span><span class="kw">pub fn </span>listen_rustls_0_22(
         <span class="self">self</span>,
         lst: net::TcpListener,
@@ -1755,7 +1756,7 @@
         <span class="self">self</span>.listen_rustls_0_22_inner(lst, config)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_22&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"rustls-0_22"</span>)]
     </span><span class="kw">fn </span>listen_rustls_0_22_inner(
         <span class="kw-2">mut </span><span class="self">self</span>,
         lst: net::TcpListener,
@@ -1766,16 +1767,16 @@
         <span class="kw">let </span>addr = lst.local_addr().unwrap();
         <span class="self">self</span>.sockets.push(Socket {
             addr,
-            scheme: <span class="string">&quot;https&quot;</span>,
+            scheme: <span class="string">"https"</span>,
         });
 
         <span class="kw">let </span>on_connect_fn = <span class="self">self</span>.on_connect_fn.clone();
 
         <span class="self">self</span>.builder =
             <span class="self">self</span>.builder
-                .listen(<span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{}&quot;</span>, addr), lst, <span class="kw">move </span>|| {
+                .listen(<span class="macro">format!</span>(<span class="string">"actix-web-service-{}"</span>, addr), lst, <span class="kw">move </span>|| {
                     <span class="kw">let </span>c = cfg.lock().unwrap();
-                    <span class="kw">let </span>host = c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, addr));
+                    <span class="kw">let </span>host = c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">"{}"</span>, addr));
 
                     <span class="kw">let </span>svc = HttpService::build()
                         .keep_alive(c.keep_alive)
@@ -1810,8 +1811,8 @@
     ///
     /// See [`listen()`](Self::listen) for more details on the `lst` argument.
     ///
-    /// ALPN protocols &quot;h2&quot; and &quot;http/1.1&quot; are added to any configured ones.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+    /// ALPN protocols "h2" and "http/1.1" are added to any configured ones.
+    </span><span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
     </span><span class="kw">pub fn </span>listen_openssl(
         <span class="self">self</span>,
         lst: net::TcpListener,
@@ -1820,7 +1821,7 @@
         <span class="self">self</span>.listen_openssl_inner(lst, openssl_acceptor(builder)<span class="question-mark">?</span>)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
     </span><span class="kw">fn </span>listen_openssl_inner(
         <span class="kw-2">mut </span><span class="self">self</span>,
         lst: net::TcpListener,
@@ -1831,16 +1832,16 @@
         <span class="kw">let </span>addr = lst.local_addr().unwrap();
         <span class="self">self</span>.sockets.push(Socket {
             addr,
-            scheme: <span class="string">&quot;https&quot;</span>,
+            scheme: <span class="string">"https"</span>,
         });
 
         <span class="kw">let </span>on_connect_fn = <span class="self">self</span>.on_connect_fn.clone();
 
         <span class="self">self</span>.builder =
             <span class="self">self</span>.builder
-                .listen(<span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{}&quot;</span>, addr), lst, <span class="kw">move </span>|| {
+                .listen(<span class="macro">format!</span>(<span class="string">"actix-web-service-{}"</span>, addr), lst, <span class="kw">move </span>|| {
                     <span class="kw">let </span>c = cfg.lock().unwrap();
-                    <span class="kw">let </span>host = c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, addr));
+                    <span class="kw">let </span>host = c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">"{}"</span>, addr));
 
                     <span class="kw">let </span>svc = HttpService::build()
                         .keep_alive(c.keep_alive)
@@ -1890,18 +1891,18 @@
             net::SocketAddr::new(net::IpAddr::V4(net::Ipv4Addr::new(<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>)), <span class="number">8080</span>);
 
         <span class="self">self</span>.sockets.push(Socket {
-            scheme: <span class="string">&quot;http&quot;</span>,
+            scheme: <span class="string">"http"</span>,
             addr: socket_addr,
         });
 
         <span class="self">self</span>.builder = <span class="self">self</span>.builder.bind_uds(
-            <span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{:?}&quot;</span>, uds_path.as_ref()),
+            <span class="macro">format!</span>(<span class="string">"actix-web-service-{:?}"</span>, uds_path.as_ref()),
             uds_path,
             <span class="kw">move </span>|| {
                 <span class="kw">let </span>c = cfg.lock().unwrap();
                 <span class="kw">let </span>config = AppConfig::new(
                     <span class="bool-val">false</span>,
-                    c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, socket_addr)),
+                    c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">"{}"</span>, socket_addr)),
                     socket_addr,
                 );
 
@@ -1934,19 +1935,19 @@
         <span class="kw">let </span>socket_addr =
             net::SocketAddr::new(net::IpAddr::V4(net::Ipv4Addr::new(<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>)), <span class="number">8080</span>);
         <span class="self">self</span>.sockets.push(Socket {
-            scheme: <span class="string">&quot;http&quot;</span>,
+            scheme: <span class="string">"http"</span>,
             addr: socket_addr,
         });
 
         <span class="kw">let </span>addr = lst.local_addr()<span class="question-mark">?</span>;
-        <span class="kw">let </span>name = <span class="macro">format!</span>(<span class="string">&quot;actix-web-service-{:?}&quot;</span>, addr);
+        <span class="kw">let </span>name = <span class="macro">format!</span>(<span class="string">"actix-web-service-{:?}"</span>, addr);
         <span class="kw">let </span>on_connect_fn = <span class="self">self</span>.on_connect_fn.clone();
 
         <span class="self">self</span>.builder = <span class="self">self</span>.builder.listen_uds(name, lst, <span class="kw">move </span>|| {
             <span class="kw">let </span>c = cfg.lock().unwrap();
             <span class="kw">let </span>config = AppConfig::new(
                 <span class="bool-val">false</span>,
-                c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, socket_addr)),
+                c.host.clone().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">"{}"</span>, socket_addr)),
                 socket_addr,
             );
 
@@ -1973,20 +1974,20 @@
 
 <span class="kw">impl</span>&lt;F, I, S, B&gt; HttpServer&lt;F, I, S, B&gt;
 <span class="kw">where
-    </span>F: Fn() -&gt; I + Send + Clone + <span class="lifetime">&#39;static</span>,
+    </span>F: Fn() -&gt; I + Send + Clone + <span class="lifetime">'static</span>,
     I: IntoServiceFactory&lt;S, Request&gt;,
     S: ServiceFactory&lt;Request, Config = AppConfig&gt;,
     S::Error: Into&lt;Error&gt;,
     S::InitError: fmt::Debug,
     S::Response: Into&lt;Response&lt;B&gt;&gt;,
-    S::Service: <span class="lifetime">&#39;static</span>,
+    S::Service: <span class="lifetime">'static</span>,
     B: MessageBody,
 {
     <span class="doccomment">/// Start listening for incoming connections.
     ///
     /// # Workers
     /// This method starts a number of HTTP workers in separate threads. The number of workers in a
-    /// set is defined by [`workers()`](Self::workers) or, by default, the number of the machine&#39;s
+    /// set is defined by [`workers()`](Self::workers) or, by default, the number of the machine's
     /// physical cores. One worker set is created for each socket address to be bound. For example,
     /// if workers is set to 4, and there are 2 addresses to bind, then 8 worker threads will be
     /// spawned.
@@ -2022,7 +2023,7 @@
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(io::Error::new(
             io::ErrorKind::Other,
-            <span class="string">&quot;Can not bind to address.&quot;</span>,
+            <span class="string">"Can not bind to address."</span>,
         ))
     }
 }
@@ -2041,22 +2042,22 @@
 }
 
 <span class="doccomment">/// Configures OpenSSL acceptor `builder` with ALPN protocols.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
 </span><span class="kw">fn </span>openssl_acceptor(<span class="kw-2">mut </span>builder: SslAcceptorBuilder) -&gt; io::Result&lt;SslAcceptor&gt; {
     builder.set_alpn_select_callback(|<span class="kw">_</span>, protocols| {
-        <span class="kw">const </span>H2: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;\x02h2&quot;</span>;
-        <span class="kw">const </span>H11: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;\x08http/1.1&quot;</span>;
+        <span class="kw">const </span>H2: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"\x02h2"</span>;
+        <span class="kw">const </span>H11: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"\x08http/1.1"</span>;
 
         <span class="kw">if </span>protocols.windows(<span class="number">3</span>).any(|window| window == H2) {
-            <span class="prelude-val">Ok</span>(<span class="string">b&quot;h2&quot;</span>)
+            <span class="prelude-val">Ok</span>(<span class="string">b"h2"</span>)
         } <span class="kw">else if </span>protocols.windows(<span class="number">9</span>).any(|window| window == H11) {
-            <span class="prelude-val">Ok</span>(<span class="string">b&quot;http/1.1&quot;</span>)
+            <span class="prelude-val">Ok</span>(<span class="string">b"http/1.1"</span>)
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(AlpnError::NOACK)
         }
     });
 
-    builder.set_alpn_protos(<span class="string">b&quot;\x08http/1.1\x02h2&quot;</span>)<span class="question-mark">?</span>;
+    builder.set_alpn_protos(<span class="string">b"\x08http/1.1\x02h2"</span>)<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(builder.build())
 }

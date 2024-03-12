@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jpeg-decoder-0.3.1/src/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jpeg_decoder" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jpeg-decoder-0.3.1/src/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="jpeg_decoder" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1741,7 +1742,7 @@
 
         <span class="comment">// assemble them together by seq_no failing if any are missing
         </span><span class="kw">let </span><span class="kw-2">mut </span>data = Vec::new();
-        <span class="comment">// seq_no&#39;s start at 1
+        <span class="comment">// seq_no's start at 1
         </span><span class="kw">for </span><span class="kw-2">&amp;</span>chunk <span class="kw">in </span>marker_present.get(<span class="number">1</span>..=num_markers)<span class="question-mark">? </span>{
             data.extend_from_slice(<span class="kw-2">&amp;</span>chunk<span class="question-mark">?</span>.data);
         }
@@ -1815,7 +1816,7 @@
                 </span>|| Marker::from_u8(read_u8(<span class="kw-2">&amp;mut </span><span class="self">self</span>.reader)<span class="question-mark">?</span>) != <span class="prelude-val">Some</span>(Marker::SOI))
         {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;first two bytes are not an SOI marker&quot;</span>.to_owned(),
+                <span class="string">"first two bytes are not an SOI marker"</span>.to_owned(),
             ));
         }
 
@@ -1845,9 +1846,9 @@
                 <span class="comment">// Frame header
                 </span>Marker::SOF(..) =&gt; {
                     <span class="comment">// Section 4.10
-                    // &quot;An image contains only one frame in the cases of sequential and
+                    // "An image contains only one frame in the cases of sequential and
                     //  progressive coding processes; an image contains multiple frames for the
-                    //  hierarchical mode.&quot;
+                    //  hierarchical mode."
                     </span><span class="kw">if </span><span class="self">self</span>.frame.is_some() {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Unsupported(UnsupportedFeature::Hierarchical));
                     }
@@ -1899,7 +1900,7 @@
                 <span class="comment">// Scan header
                 </span>Marker::SOS =&gt; {
                     <span class="kw">if </span><span class="self">self</span>.frame.is_none() {
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;scan encountered before frame&quot;</span>.to_owned()));
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"scan encountered before frame"</span>.to_owned()));
                     }
 
                     <span class="kw">let </span>frame = <span class="self">self</span>.frame.clone().unwrap();
@@ -1931,7 +1932,7 @@
                         }
                         pending_marker = marker;
                     } <span class="kw">else </span>{
-                        <span class="comment">// This was previously buggy, so let&#39;s explain the log here a bit. When a
+                        <span class="comment">// This was previously buggy, so let's explain the log here a bit. When a
                         // progressive frame is encoded then the coefficients (DC, AC) of each
                         // component (=color plane) can be split amongst scans. In particular it can
                         // happen or at least occurs in the wild that a scan contains coefficient 0 of
@@ -2045,13 +2046,13 @@
                             }
                             AppData::Jfif =&gt; {
                                 <span class="comment">// From the JFIF spec:
-                                // &quot;The APP0 marker is used to identify a JPEG FIF file.
-                                //     The JPEG FIF APP0 marker is mandatory right after the SOI marker.&quot;
+                                // "The APP0 marker is used to identify a JPEG FIF file.
+                                //     The JPEG FIF APP0 marker is mandatory right after the SOI marker."
                                 // Some JPEGs in the wild does not follow this though, so we allow
                                 // JFIF headers anywhere APP0 markers are allowed.
                                 /*
                                 if previous_marker != Marker::SOI {
-                                    return Err(Error::Format(&quot;the JFIF APP0 marker must come right after the SOI marker&quot;.to_owned()));
+                                    return Err(Error::Format("the JFIF APP0 marker must come right after the SOI marker".to_owned()));
                                 }
                                 */
 
@@ -2071,7 +2072,7 @@
                     // decode_scan does not take care of. So if we encounter one, we ignore it.
                     </span><span class="kw">if </span>previous_marker != Marker::SOS {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
-                            <span class="string">&quot;RST found outside of entropy-coded data&quot;</span>.to_owned(),
+                            <span class="string">"RST found outside of entropy-coded data"</span>.to_owned(),
                         ));
                     }
                 }
@@ -2079,10 +2080,10 @@
                 <span class="comment">// Define number of lines
                 </span>Marker::DNL =&gt; {
                     <span class="comment">// Section B.2.1
-                    // &quot;If a DNL segment (see B.2.5) is present, it shall immediately follow the first scan.&quot;
+                    // "If a DNL segment (see B.2.5) is present, it shall immediately follow the first scan."
                     </span><span class="kw">if </span>previous_marker != Marker::SOS || scans_processed != <span class="number">1 </span>{
                         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
-                            <span class="string">&quot;DNL is only allowed immediately after the first scan&quot;</span>.to_owned(),
+                            <span class="string">"DNL is only allowed immediately after the first scan"</span>.to_owned(),
                         ));
                     }
 
@@ -2099,7 +2100,7 @@
 
                 <span class="kw">_ </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(
-                        <span class="string">&quot;{:?} marker found where not allowed&quot;</span>,
+                        <span class="string">"{:?} marker found where not allowed"</span>,
                         marker
                     )))
                 }
@@ -2110,7 +2111,7 @@
 
         <span class="kw">if </span><span class="self">self</span>.frame.is_none() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;end of image encountered before frame&quot;</span>.to_owned(),
+                <span class="string">"end of image encountered before frame"</span>.to_owned(),
             ));
         }
 
@@ -2130,7 +2131,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.frame.is_none() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;end of image encountered before frame&quot;</span>.to_owned(),
+                <span class="string">"end of image encountered before frame"</span>.to_owned(),
             ));
         }
 
@@ -2144,11 +2145,11 @@
             .map_or(<span class="bool-val">true</span>, |m| <span class="self">self</span>.decoding_buffer_size_limit &lt; m)
         {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;size of decoded image exceeds maximum allowed size&quot;</span>.to_owned(),
+                <span class="string">"size of decoded image exceeds maximum allowed size"</span>.to_owned(),
             ));
         }
 
-        <span class="comment">// If we&#39;re decoding a progressive jpeg and a component is unfinished, render what we&#39;ve got
+        <span class="comment">// If we're decoding a progressive jpeg and a component is unfinished, render what we've got
         </span><span class="kw">if </span>frame.coding_process == CodingProcess::DctProgressive
             &amp;&amp; <span class="self">self</span>.coefficients.len() == frame.components.len()
         {
@@ -2273,7 +2274,7 @@
 
     <span class="kw">fn </span>read_marker(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Marker&gt; {
         <span class="kw">loop </span>{
-            <span class="comment">// This should be an error as the JPEG spec doesn&#39;t allow extraneous data between marker segments.
+            <span class="comment">// This should be an error as the JPEG spec doesn't allow extraneous data between marker segments.
             // libjpeg allows this though and there are images in the wild utilising it, so we are
             // forced to support this behavior.
             // Sony Ericsson P990i is an example of a device which produce this sort of JPEGs.
@@ -2287,7 +2288,7 @@
             </span><span class="kw">let </span><span class="kw-2">mut </span>byte = read_u8(<span class="kw-2">&amp;mut </span><span class="self">self</span>.reader)<span class="question-mark">?</span>;
 
             <span class="comment">// Section B.1.1.2
-            // &quot;Any marker may optionally be preceded by any number of fill bytes, which are bytes assigned code X’FF’.&quot;
+            // "Any marker may optionally be preceded by any number of fill bytes, which are bytes assigned code X’FF’."
             </span><span class="kw">while </span>byte == <span class="number">0xFF </span>{
                 byte = read_u8(<span class="kw-2">&amp;mut </span><span class="self">self</span>.reader)<span class="question-mark">?</span>;
             }
@@ -2319,7 +2320,7 @@
             .iter()
             .any(|component| <span class="self">self</span>.quantization_tables[component.quantization_table_index].is_none())
         {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;use of unset quantization table&quot;</span>.to_owned()));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"use of unset quantization table"</span>.to_owned()));
         }
 
         <span class="kw">if </span><span class="self">self</span>.is_mjpeg {
@@ -2338,7 +2339,7 @@
                 .any(|<span class="kw-2">&amp;</span>i| <span class="self">self</span>.dc_huffman_tables[i].is_none())
         {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;scan makes use of unset dc huffman table&quot;</span>.to_owned(),
+                <span class="string">"scan makes use of unset dc huffman table"</span>.to_owned(),
             ));
         }
         <span class="kw">if </span>scan.spectral_selection.end &gt; <span class="number">1
@@ -2348,7 +2349,7 @@
                 .any(|<span class="kw-2">&amp;</span>i| <span class="self">self</span>.ac_huffman_tables[i].is_none())
         {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;scan makes use of unset ac huffman table&quot;</span>.to_owned(),
+                <span class="string">"scan makes use of unset ac huffman table"</span>.to_owned(),
             ));
         }
 
@@ -2404,7 +2405,7 @@
             (<span class="macro">vec!</span>[<span class="number">1</span>], <span class="macro">vec!</span>[<span class="number">1</span>])
         };
 
-        <span class="comment">// This also affects how many MCU values we read from stream. If it&#39;s a non-interleaved stream,
+        <span class="comment">// This also affects how many MCU values we read from stream. If it's a non-interleaved stream,
         // the MCUs will be exactly the block count.
         </span><span class="kw">let </span>(max_mcu_x, max_mcu_y) = <span class="kw">if </span>is_interleaved {
             (frame.mcu_size.width, frame.mcu_size.height)
@@ -2431,7 +2432,7 @@
                             <span class="prelude-val">Some</span>(Marker::RST(n)) =&gt; {
                                 <span class="kw">if </span>n != expected_rst_num {
                                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(
-                                        <span class="string">&quot;found RST{} where RST{} was expected&quot;</span>,
+                                        <span class="string">"found RST{} where RST{} was expected"</span>,
                                         n, expected_rst_num
                                     )));
                                 }
@@ -2447,13 +2448,13 @@
                             }
                             <span class="prelude-val">Some</span>(marker) =&gt; {
                                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(
-                                    <span class="string">&quot;found marker {:?} inside scan where RST{} was expected&quot;</span>,
+                                    <span class="string">"found marker {:?} inside scan where RST{} was expected"</span>,
                                     marker, expected_rst_num
                                 )))
                             }
                             <span class="prelude-val">None </span>=&gt; {
                                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="macro">format!</span>(
-                                    <span class="string">&quot;no marker found where RST{} was expected&quot;</span>,
+                                    <span class="string">"no marker found where RST{} was expected"</span>,
                                     expected_rst_num
                                 )))
                             }
@@ -2475,7 +2476,7 @@
                                     [block_offset..block_offset + <span class="number">64</span>]
                             } <span class="kw">else if </span>finished[i] {
                                 <span class="comment">// Because the worker thread operates in batches as if we were always interleaved, we
-                                // need to distinguish between a single-shot buffer and one that&#39;s currently in process
+                                // need to distinguish between a single-shot buffer and one that's currently in process
                                 // (for a non-interleaved) stream
                                 </span><span class="kw">let </span>mcu_batch_current_row = <span class="kw">if </span>is_interleaved {
                                     <span class="number">0
@@ -2526,8 +2527,8 @@
             <span class="comment">// Send the coefficients from this MCU row to the worker thread for dequantization and idct.
             </span><span class="kw">for </span>(i, component) <span class="kw">in </span>components.iter().enumerate() {
                 <span class="kw">if </span>finished[i] {
-                    <span class="comment">// In the event of non-interleaved streams, if we&#39;re still building the buffer out,
-                    // keep going; don&#39;t send it yet. We also need to ensure we don&#39;t skip over the last
+                    <span class="comment">// In the event of non-interleaved streams, if we're still building the buffer out,
+                    // keep going; don't send it yet. We also need to ensure we don't skip over the last
                     // row(s) of the image.
                     </span><span class="kw">if </span>!is_interleaved
                         &amp;&amp; (mcu_y + <span class="number">1</span>) * <span class="number">8 </span>&lt; frame.image_size.height
@@ -2615,7 +2616,7 @@
                 <span class="comment">// Section F.1.2.1.1
                 // Table F.1
                 </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(
-                    <span class="string">&quot;invalid DC difference magnitude category&quot;</span>.to_owned(),
+                    <span class="string">"invalid DC difference magnitude category"</span>.to_owned(),
                 ));
             }
         };
@@ -2722,7 +2723,7 @@
                     <span class="kw">match </span>r {
                         <span class="number">15 </span>=&gt; {
                             <span class="comment">// Run length of 16 zero coefficients.
-                            // We don&#39;t need to do anything special here, zero_run_length is 15
+                            // We don't need to do anything special here, zero_run_length is 15
                             // and then value (which is zero) gets written, resulting in 16
                             // zero coefficients.
                         </span>}
@@ -2745,7 +2746,7 @@
                         value = -bit;
                     }
                 }
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;unexpected huffman code&quot;</span>.to_owned())),
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"unexpected huffman code"</span>.to_owned())),
             }
 
             <span class="kw">let </span>range = Range {
@@ -2793,11 +2794,11 @@
             <span class="kw">if </span><span class="kw-2">*</span>coefficient &gt; <span class="number">0 </span>{
                 <span class="kw-2">*</span>coefficient = coefficient
                     .checked_add(bit)
-                    .ok_or_else(|| Error::Format(<span class="string">&quot;Coefficient overflow&quot;</span>.to_owned()))<span class="question-mark">?</span>;
+                    .ok_or_else(|| Error::Format(<span class="string">"Coefficient overflow"</span>.to_owned()))<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
                 <span class="kw-2">*</span>coefficient = coefficient
                     .checked_sub(bit)
-                    .ok_or_else(|| Error::Format(<span class="string">&quot;Coefficient overflow&quot;</span>.to_owned()))<span class="question-mark">?</span>;
+                    .ok_or_else(|| Error::Format(<span class="string">"Coefficient overflow"</span>.to_owned()))<span class="question-mark">?</span>;
             }
         }
     }
@@ -2812,7 +2813,7 @@
     color_transform: ColorTransform,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
     <span class="kw">if </span>data.is_empty() || data.iter().any(Vec::is_empty) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;not all components have data&quot;</span>.to_owned()));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Format(<span class="string">"not all components have data"</span>.to_owned()));
     }
 
     <span class="kw">if </span>components.len() == <span class="number">1 </span>{
@@ -2825,7 +2826,7 @@
         <span class="kw">let </span>line_stride = component.block_size.width <span class="kw">as </span>usize * component.dct_scale;
 
         <span class="comment">// if the image width is a multiple of the block size,
-        // then we don&#39;t have to move bytes in the decoded data
+        // then we don't have to move bytes in the decoded data
         </span><span class="kw">if </span>usize::from(output_size.width) != line_stride {
             <span class="comment">// The first line already starts at index 0, so we need to move only lines 1..height
             // We move from the top down because all lines are being moved backwards.
@@ -2852,15 +2853,15 @@
         <span class="number">3 </span>=&gt; <span class="kw">match </span>color_transform {
             ColorTransform::None =&gt; <span class="prelude-val">Ok</span>(color_no_convert),
             ColorTransform::Grayscale =&gt; <span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;Invalid number of channels (3) for Grayscale data&quot;</span>.to_string(),
+                <span class="string">"Invalid number of channels (3) for Grayscale data"</span>.to_string(),
             )),
             ColorTransform::RGB =&gt; <span class="prelude-val">Ok</span>(color_convert_line_rgb),
             ColorTransform::YCbCr =&gt; <span class="prelude-val">Ok</span>(color_convert_line_ycbcr),
             ColorTransform::CMYK =&gt; <span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;Invalid number of channels (3) for CMYK data&quot;</span>.to_string(),
+                <span class="string">"Invalid number of channels (3) for CMYK data"</span>.to_string(),
             )),
             ColorTransform::YCCK =&gt; <span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;Invalid number of channels (3) for YCCK data&quot;</span>.to_string(),
+                <span class="string">"Invalid number of channels (3) for YCCK data"</span>.to_string(),
             )),
             ColorTransform::JcsBgYcc =&gt; <span class="prelude-val">Err</span>(Error::Unsupported(
                 UnsupportedFeature::ColorTransform(ColorTransform::JcsBgYcc),
@@ -2868,18 +2869,18 @@
             ColorTransform::JcsBgRgb =&gt; <span class="prelude-val">Err</span>(Error::Unsupported(
                 UnsupportedFeature::ColorTransform(ColorTransform::JcsBgRgb),
             )),
-            ColorTransform::Unknown =&gt; <span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;Unknown colour transform&quot;</span>.to_string())),
+            ColorTransform::Unknown =&gt; <span class="prelude-val">Err</span>(Error::Format(<span class="string">"Unknown colour transform"</span>.to_string())),
         },
         <span class="number">4 </span>=&gt; <span class="kw">match </span>color_transform {
             ColorTransform::None =&gt; <span class="prelude-val">Ok</span>(color_no_convert),
             ColorTransform::Grayscale =&gt; <span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;Invalid number of channels (4) for Grayscale data&quot;</span>.to_string(),
+                <span class="string">"Invalid number of channels (4) for Grayscale data"</span>.to_string(),
             )),
             ColorTransform::RGB =&gt; <span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;Invalid number of channels (4) for RGB data&quot;</span>.to_string(),
+                <span class="string">"Invalid number of channels (4) for RGB data"</span>.to_string(),
             )),
             ColorTransform::YCbCr =&gt; <span class="prelude-val">Err</span>(Error::Format(
-                <span class="string">&quot;Invalid number of channels (4) for YCbCr data&quot;</span>.to_string(),
+                <span class="string">"Invalid number of channels (4) for YCbCr data"</span>.to_string(),
             )),
             ColorTransform::CMYK =&gt; <span class="prelude-val">Ok</span>(color_convert_line_cmyk),
             ColorTransform::YCCK =&gt; <span class="prelude-val">Ok</span>(color_convert_line_ycck),
@@ -2890,14 +2891,14 @@
             ColorTransform::JcsBgRgb =&gt; <span class="prelude-val">Err</span>(Error::Unsupported(
                 UnsupportedFeature::ColorTransform(ColorTransform::JcsBgRgb),
             )),
-            ColorTransform::Unknown =&gt; <span class="prelude-val">Err</span>(Error::Format(<span class="string">&quot;Unknown colour transform&quot;</span>.to_string())),
+            ColorTransform::Unknown =&gt; <span class="prelude-val">Err</span>(Error::Format(<span class="string">"Unknown colour transform"</span>.to_string())),
         },
         <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(),
     }
 }
 
 <span class="kw">fn </span>color_convert_line_rgb(data: <span class="kw-2">&amp;</span>[Vec&lt;u8&gt;], output: <span class="kw-2">&amp;mut </span>[u8]) {
-    <span class="macro">assert!</span>(data.len() == <span class="number">3</span>, <span class="string">&quot;wrong number of components for rgb&quot;</span>);
+    <span class="macro">assert!</span>(data.len() == <span class="number">3</span>, <span class="string">"wrong number of components for rgb"</span>);
     <span class="kw">let </span>[r, g, b]: <span class="kw-2">&amp;</span>[Vec&lt;u8&gt;; <span class="number">3</span>] = data.try_into().unwrap();
     <span class="kw">for </span>(((chunk, r), g), b) <span class="kw">in </span>output
         .chunks_exact_mut(<span class="number">3</span>)
@@ -2912,10 +2913,10 @@
 }
 
 <span class="kw">fn </span>color_convert_line_ycbcr(data: <span class="kw-2">&amp;</span>[Vec&lt;u8&gt;], output: <span class="kw-2">&amp;mut </span>[u8]) {
-    <span class="macro">assert!</span>(data.len() == <span class="number">3</span>, <span class="string">&quot;wrong number of components for ycbcr&quot;</span>);
+    <span class="macro">assert!</span>(data.len() == <span class="number">3</span>, <span class="string">"wrong number of components for ycbcr"</span>);
     <span class="kw">let </span>[y, cb, cr]: <span class="kw-2">&amp;</span>[<span class="kw">_</span>; <span class="number">3</span>] = data.try_into().unwrap();
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;platform_independent&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"platform_independent"</span>))]
     </span><span class="kw">let </span>arch_specific_pixels = {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ycbcr) = <span class="kw">crate</span>::arch::get_color_convert_line_ycbcr() {
             <span class="attr">#[allow(unsafe_code)]
@@ -2927,7 +2928,7 @@
         </span>}
     };
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;platform_independent&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"platform_independent"</span>)]
     </span><span class="kw">let </span>arch_specific_pixels = <span class="number">0</span>;
 
     <span class="kw">for </span>(((chunk, y), cb), cr) <span class="kw">in </span>output
@@ -2945,7 +2946,7 @@
 }
 
 <span class="kw">fn </span>color_convert_line_ycck(data: <span class="kw-2">&amp;</span>[Vec&lt;u8&gt;], output: <span class="kw-2">&amp;mut </span>[u8]) {
-    <span class="macro">assert!</span>(data.len() == <span class="number">4</span>, <span class="string">&quot;wrong number of components for ycck&quot;</span>);
+    <span class="macro">assert!</span>(data.len() == <span class="number">4</span>, <span class="string">"wrong number of components for ycck"</span>);
     <span class="kw">let </span>[c, m, y, k]: <span class="kw-2">&amp;</span>[Vec&lt;u8&gt;; <span class="number">4</span>] = data.try_into().unwrap();
 
     <span class="kw">for </span>((((chunk, c), m), y), k) <span class="kw">in </span>output
@@ -2964,7 +2965,7 @@
 }
 
 <span class="kw">fn </span>color_convert_line_cmyk(data: <span class="kw-2">&amp;</span>[Vec&lt;u8&gt;], output: <span class="kw-2">&amp;mut </span>[u8]) {
-    <span class="macro">assert!</span>(data.len() == <span class="number">4</span>, <span class="string">&quot;wrong number of components for cmyk&quot;</span>);
+    <span class="macro">assert!</span>(data.len() == <span class="number">4</span>, <span class="string">"wrong number of components for cmyk"</span>);
     <span class="kw">let </span>[c, m, y, k]: <span class="kw-2">&amp;</span>[Vec&lt;u8&gt;; <span class="number">4</span>] = data.try_into().unwrap();
 
     <span class="kw">for </span>((((chunk, c), m), y), k) <span class="kw">in </span>output
@@ -2995,7 +2996,7 @@
 <span class="kw">const </span>HALF: i32 = (<span class="number">1 </span>&lt;&lt; FIXED_POINT_OFFSET) / <span class="number">2</span>;
 
 <span class="comment">// ITU-R BT.601
-// Based on libjpeg-turbo&#39;s jdcolext.c
+// Based on libjpeg-turbo's jdcolext.c
 </span><span class="kw">fn </span>ycbcr_to_rgb(y: u8, cb: u8, cr: u8) -&gt; (u8, u8, u8) {
     <span class="kw">let </span>y = y <span class="kw">as </span>i32 * (<span class="number">1 </span>&lt;&lt; FIXED_POINT_OFFSET) + HALF;
     <span class="kw">let </span>cb = cb <span class="kw">as </span>i32 - <span class="number">128</span>;

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.6.1/src/server.rs`."><title>server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_multipart/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_multipart"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.6.1/src/server.rs`."><title>server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_multipart/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_multipart"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1403,7 +1404,7 @@
     <span class="doccomment">/// Create multipart instance for boundary.
     </span><span class="kw">pub fn </span>new&lt;S&gt;(headers: <span class="kw-2">&amp;</span>HeaderMap, stream: S) -&gt; Multipart
     <span class="kw">where
-        </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">match </span><span class="self">Self</span>::boundary(headers) {
             <span class="prelude-val">Ok</span>(boundary) =&gt; Multipart::from_boundary(boundary, stream),
@@ -1428,7 +1429,7 @@
     <span class="doccomment">/// Create multipart instance for given boundary and stream
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_boundary&lt;S&gt;(boundary: String, stream: S) -&gt; Multipart
     <span class="kw">where
-        </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
     {
         Multipart {
             error: <span class="prelude-val">None</span>,
@@ -1455,7 +1456,7 @@
 <span class="kw">impl </span>Stream <span class="kw">for </span>Multipart {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Field, MultipartError&gt;;
 
-    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
 
         <span class="kw">match </span>this.inner.as_mut() {
@@ -1475,14 +1476,14 @@
             <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(this
                 .error
                 .take()
-                .expect(<span class="string">&quot;Multipart polled after finish&quot;</span>)))),
+                .expect(<span class="string">"Multipart polled after finish"</span>)))),
         }
     }
 }
 
 <span class="kw">impl </span>InnerMultipart {
     <span class="kw">fn </span>read_headers(payload: <span class="kw-2">&amp;mut </span>PayloadBuffer) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;HeaderMap&gt;, MultipartError&gt; {
-        <span class="kw">match </span>payload.read_until(<span class="string">b&quot;\r\n\r\n&quot;</span>)<span class="question-mark">? </span>{
+        <span class="kw">match </span>payload.read_until(<span class="string">b"\r\n\r\n"</span>)<span class="question-mark">? </span>{
             <span class="prelude-val">None </span>=&gt; {
                 <span class="kw">if </span>payload.eof {
                     <span class="prelude-val">Err</span>(MultipartError::Incomplete)
@@ -1529,15 +1530,15 @@
             }
             <span class="prelude-val">Some</span>(chunk) =&gt; {
                 <span class="kw">if </span>chunk.len() &lt; boundary.len() + <span class="number">4
-                    </span>|| <span class="kw-2">&amp;</span>chunk[..<span class="number">2</span>] != <span class="string">b&quot;--&quot;
+                    </span>|| <span class="kw-2">&amp;</span>chunk[..<span class="number">2</span>] != <span class="string">b"--"
                     </span>|| <span class="kw-2">&amp;</span>chunk[<span class="number">2</span>..boundary.len() + <span class="number">2</span>] != boundary.as_bytes()
                 {
                     <span class="prelude-val">Err</span>(MultipartError::Boundary)
-                } <span class="kw">else if </span><span class="kw-2">&amp;</span>chunk[boundary.len() + <span class="number">2</span>..] == <span class="string">b&quot;\r\n&quot; </span>{
+                } <span class="kw">else if </span><span class="kw-2">&amp;</span>chunk[boundary.len() + <span class="number">2</span>..] == <span class="string">b"\r\n" </span>{
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="bool-val">false</span>))
-                } <span class="kw">else if </span><span class="kw-2">&amp;</span>chunk[boundary.len() + <span class="number">2</span>..boundary.len() + <span class="number">4</span>] == <span class="string">b&quot;--&quot;
+                } <span class="kw">else if </span><span class="kw-2">&amp;</span>chunk[boundary.len() + <span class="number">2</span>..boundary.len() + <span class="number">4</span>] == <span class="string">b"--"
                     </span>&amp;&amp; (chunk.len() == boundary.len() + <span class="number">4
-                        </span>|| <span class="kw-2">&amp;</span>chunk[boundary.len() + <span class="number">4</span>..] == <span class="string">b&quot;\r\n&quot;</span>)
+                        </span>|| <span class="kw-2">&amp;</span>chunk[boundary.len() + <span class="number">4</span>..] == <span class="string">b"\r\n"</span>)
                 {
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="bool-val">true</span>))
                 } <span class="kw">else </span>{
@@ -1561,7 +1562,7 @@
                     <span class="kw">if </span>chunk.len() &lt; boundary.len() {
                         <span class="kw">continue</span>;
                     }
-                    <span class="kw">if </span><span class="kw-2">&amp;</span>chunk[..<span class="number">2</span>] == <span class="string">b&quot;--&quot; </span>&amp;&amp; <span class="kw-2">&amp;</span>chunk[<span class="number">2</span>..chunk.len() - <span class="number">2</span>] == boundary.as_bytes() {
+                    <span class="kw">if </span><span class="kw-2">&amp;</span>chunk[..<span class="number">2</span>] == <span class="string">b"--" </span>&amp;&amp; <span class="kw-2">&amp;</span>chunk[<span class="number">2</span>..chunk.len() - <span class="number">2</span>] == boundary.as_bytes() {
                         <span class="kw">break</span>;
                     } <span class="kw">else </span>{
                         <span class="kw">if </span>chunk.len() &lt; boundary.len() + <span class="number">2 </span>{
@@ -1569,7 +1570,7 @@
                         }
                         <span class="kw">let </span>b: <span class="kw-2">&amp;</span>[u8] = boundary.as_ref();
                         <span class="kw">if </span><span class="kw-2">&amp;</span>chunk[..boundary.len()] == b
-                            &amp;&amp; <span class="kw-2">&amp;</span>chunk[boundary.len()..boundary.len() + <span class="number">2</span>] == <span class="string">b&quot;--&quot;
+                            &amp;&amp; <span class="kw-2">&amp;</span>chunk[boundary.len()..boundary.len() + <span class="number">2</span>] == <span class="string">b"--"
                         </span>{
                             eof = <span class="bool-val">true</span>;
                             <span class="kw">break</span>;
@@ -1591,7 +1592,7 @@
     <span class="kw">fn </span>poll(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         safety: <span class="kw-2">&amp;</span>Safety,
-        cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Field, MultipartError&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.state == InnerState::Eof {
             Poll::Ready(<span class="prelude-val">None</span>)
@@ -1666,12 +1667,12 @@
                     <span class="macro">unreachable!</span>()
                 }
             } <span class="kw">else </span>{
-                <span class="macro">log::debug!</span>(<span class="string">&quot;NotReady: field is in flight&quot;</span>);
+                <span class="macro">log::debug!</span>(<span class="string">"NotReady: field is in flight"</span>);
                 <span class="kw">return </span>Poll::Pending;
             };
 
             <span class="comment">// According to RFC 7578 §4.2, a Content-Disposition header must always be present and
-            // set to &quot;form-data&quot;.
+            // set to "form-data".
 
             </span><span class="kw">let </span>content_disposition = headers
                 .get(<span class="kw-2">&amp;</span>header::CONTENT_DISPOSITION)
@@ -1757,26 +1758,26 @@
         }
     }
 
-    <span class="doccomment">/// Returns a reference to the field&#39;s header map.
+    <span class="doccomment">/// Returns a reference to the field's header map.
     </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
         <span class="kw-2">&amp;</span><span class="self">self</span>.headers
     }
 
-    <span class="doccomment">/// Returns a reference to the field&#39;s content (mime) type, if it is supplied by the client.
+    <span class="doccomment">/// Returns a reference to the field's content (mime) type, if it is supplied by the client.
     ///
     /// According to [RFC 7578](https://www.rfc-editor.org/rfc/rfc7578#section-4.4), if it is not
-    /// present, it should default to &quot;text/plain&quot;. Note it is the responsibility of the client to
+    /// present, it should default to "text/plain". Note it is the responsibility of the client to
     /// provide the appropriate content type, there is no attempt to validate this by the server.
     </span><span class="kw">pub fn </span>content_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>mime::Mime&gt; {
         <span class="self">self</span>.ct.as_ref()
     }
 
-    <span class="doccomment">/// Returns the field&#39;s Content-Disposition.
+    <span class="doccomment">/// Returns the field's Content-Disposition.
     ///
-    /// Per [RFC 7578 §4.2]: &quot;Each part MUST contain a Content-Disposition header field where the
+    /// Per [RFC 7578 §4.2]: "Each part MUST contain a Content-Disposition header field where the
     /// disposition type is `form-data`. The Content-Disposition header field MUST also contain an
     /// additional parameter of `name`; the value of the `name` parameter is the original field name
-    /// from the form.&quot;
+    /// from the form."
     ///
     /// This crate validates that it exists before returning a `Field`. As such, it is safe to
     /// unwrap `.content_disposition().get_name()`. The [name](Self::name) method is provided as
@@ -1787,21 +1788,21 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.cd
     }
 
-    <span class="doccomment">/// Returns the field&#39;s name.
+    <span class="doccomment">/// Returns the field's name.
     ///
     /// See [content_disposition](Self::content_disposition) regarding guarantees about existence of
     /// the name field.
     </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="self">self</span>.content_disposition()
             .get_name()
-            .expect(<span class="string">&quot;field name should be guaranteed to exist in multipart form-data&quot;</span>)
+            .expect(<span class="string">"field name should be guaranteed to exist in multipart form-data"</span>)
     }
 }
 
 <span class="kw">impl </span>Stream <span class="kw">for </span>Field {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, MultipartError&gt;;
 
-    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
         <span class="kw">let </span><span class="kw-2">mut </span>inner = this.inner.borrow_mut();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>buffer) = inner.payload.as_ref().unwrap().get_mut(<span class="kw-2">&amp;</span>this.safety) {
@@ -1819,16 +1820,16 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Field {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ct) = <span class="kw-2">&amp;</span><span class="self">self</span>.ct {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;\nField: {}&quot;</span>, ct)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"\nField: {}"</span>, ct)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;\nField:&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"\nField:"</span>)<span class="question-mark">?</span>;
         }
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;  boundary: {}&quot;</span>, <span class="self">self</span>.inner.borrow().boundary)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;  headers:&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"  boundary: {}"</span>, <span class="self">self</span>.inner.borrow().boundary)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"  headers:"</span>)<span class="question-mark">?</span>;
         <span class="kw">for </span>(key, val) <span class="kw">in </span><span class="self">self</span>.headers.iter() {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;    {:?}: {:?}&quot;</span>, key, val)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"    {:?}: {:?}"</span>, key, val)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1920,10 +1921,10 @@
         }
 
         <span class="comment">// check boundary
-        </span><span class="kw">if </span>len &gt; <span class="number">4 </span>&amp;&amp; payload.buf[<span class="number">0</span>] == <span class="string">b&#39;\r&#39; </span>{
-            <span class="kw">let </span>b_len = <span class="kw">if </span><span class="kw-2">&amp;</span>payload.buf[..<span class="number">2</span>] == <span class="string">b&quot;\r\n&quot; </span>&amp;&amp; <span class="kw-2">&amp;</span>payload.buf[<span class="number">2</span>..<span class="number">4</span>] == <span class="string">b&quot;--&quot; </span>{
+        </span><span class="kw">if </span>len &gt; <span class="number">4 </span>&amp;&amp; payload.buf[<span class="number">0</span>] == <span class="string">b'\r' </span>{
+            <span class="kw">let </span>b_len = <span class="kw">if </span><span class="kw-2">&amp;</span>payload.buf[..<span class="number">2</span>] == <span class="string">b"\r\n" </span>&amp;&amp; <span class="kw-2">&amp;</span>payload.buf[<span class="number">2</span>..<span class="number">4</span>] == <span class="string">b"--" </span>{
                 <span class="prelude-val">Some</span>(<span class="number">4</span>)
-            } <span class="kw">else if </span><span class="kw-2">&amp;</span>payload.buf[<span class="number">1</span>..<span class="number">3</span>] == <span class="string">b&quot;--&quot; </span>{
+            } <span class="kw">else if </span><span class="kw-2">&amp;</span>payload.buf[<span class="number">1</span>..<span class="number">3</span>] == <span class="string">b"--" </span>{
                 <span class="prelude-val">Some</span>(<span class="number">3</span>)
             } <span class="kw">else </span>{
                 <span class="prelude-val">None
@@ -1941,7 +1942,7 @@
         }
 
         <span class="kw">loop </span>{
-            <span class="kw">return if let </span><span class="prelude-val">Some</span>(idx) = memchr::memmem::find(<span class="kw-2">&amp;</span>payload.buf[pos..], <span class="string">b&quot;\r&quot;</span>) {
+            <span class="kw">return if let </span><span class="prelude-val">Some</span>(idx) = memchr::memmem::find(<span class="kw-2">&amp;</span>payload.buf[pos..], <span class="string">b"\r"</span>) {
                 <span class="kw">let </span>cur = pos + idx;
 
                 <span class="comment">// check if we have enough data for boundary detection
@@ -1953,10 +1954,10 @@
                     }
                 } <span class="kw">else </span>{
                     <span class="comment">// check boundary
-                    </span><span class="kw">if </span>(<span class="kw-2">&amp;</span>payload.buf[cur..cur + <span class="number">2</span>] == <span class="string">b&quot;\r\n&quot;
-                        </span>&amp;&amp; <span class="kw-2">&amp;</span>payload.buf[cur + <span class="number">2</span>..cur + <span class="number">4</span>] == <span class="string">b&quot;--&quot;</span>)
-                        || (<span class="kw-2">&amp;</span>payload.buf[cur..=cur] == <span class="string">b&quot;\r&quot;
-                            </span>&amp;&amp; <span class="kw-2">&amp;</span>payload.buf[cur + <span class="number">1</span>..cur + <span class="number">3</span>] == <span class="string">b&quot;--&quot;</span>)
+                    </span><span class="kw">if </span>(<span class="kw-2">&amp;</span>payload.buf[cur..cur + <span class="number">2</span>] == <span class="string">b"\r\n"
+                        </span>&amp;&amp; <span class="kw-2">&amp;</span>payload.buf[cur + <span class="number">2</span>..cur + <span class="number">4</span>] == <span class="string">b"--"</span>)
+                        || (<span class="kw-2">&amp;</span>payload.buf[cur..=cur] == <span class="string">b"\r"
+                            </span>&amp;&amp; <span class="kw-2">&amp;</span>payload.buf[cur + <span class="number">1</span>..cur + <span class="number">3</span>] == <span class="string">b"--"</span>)
                     {
                         <span class="kw">if </span>cur != <span class="number">0 </span>{
                             <span class="comment">// return buffer
@@ -2001,8 +2002,8 @@
             <span class="kw">match </span>payload.readline() {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; Poll::Pending,
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(line)) =&gt; {
-                    <span class="kw">if </span>line.as_ref() != <span class="string">b&quot;\r\n&quot; </span>{
-                        <span class="macro">log::warn!</span>(<span class="string">&quot;multipart field did not read all the data or it is malformed&quot;</span>);
+                    <span class="kw">if </span>line.as_ref() != <span class="string">b"\r\n" </span>{
+                        <span class="macro">log::warn!</span>(<span class="string">"multipart field did not read all the data or it is malformed"</span>);
                     }
                     Poll::Ready(<span class="prelude-val">None</span>)
                 }
@@ -2030,7 +2031,7 @@
         }
     }
 
-    <span class="kw">fn </span>get_mut(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>Safety) -&gt; <span class="prelude-ty">Option</span>&lt;RefMut&lt;<span class="lifetime">&#39;_</span>, PayloadBuffer&gt;&gt; {
+    <span class="kw">fn </span>get_mut(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>Safety) -&gt; <span class="prelude-ty">Option</span>&lt;RefMut&lt;<span class="lifetime">'_</span>, PayloadBuffer&gt;&gt; {
         <span class="kw">if </span>s.current() {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.payload.borrow_mut())
         } <span class="kw">else </span>{
@@ -2050,7 +2051,7 @@
 <span class="doccomment">/// Counter. It tracks of number of clones of payloads and give access to payload only to top most.
 /// * When dropped, parent task is awakened. This is to support the case where Field is
 /// dropped in a separate task than Multipart.
-/// * Assumes that parent owners don&#39;t move to different tasks; only the top-most is allowed to.
+/// * Assumes that parent owners don't move to different tasks; only the top-most is allowed to.
 /// * If dropped and is not top most owner, is_clean flag is set to false.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">struct </span>Safety {
@@ -2079,7 +2080,7 @@
         <span class="self">self</span>.clean.get()
     }
 
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Safety {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>, cx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Safety {
         <span class="kw">let </span>payload = Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.payload);
         <span class="kw">let </span>s = Safety {
             task: LocalWaker::new(),
@@ -2107,14 +2108,14 @@
 </span><span class="kw">struct </span>PayloadBuffer {
     eof: bool,
     buf: BytesMut,
-    stream: LocalBoxStream&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt;,
+    stream: LocalBoxStream&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt;,
 }
 
 <span class="kw">impl </span>PayloadBuffer {
     <span class="doccomment">/// Constructs new `PayloadBuffer` instance.
     </span><span class="kw">fn </span>new&lt;S&gt;(stream: S) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt; + <span class="lifetime">'static</span>,
     {
         PayloadBuffer {
             eof: <span class="bool-val">false</span>,
@@ -2123,7 +2124,7 @@
         }
     }
 
-    <span class="kw">fn </span>poll_stream(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), PayloadError&gt; {
+    <span class="kw">fn </span>poll_stream(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), PayloadError&gt; {
         <span class="kw">loop </span>{
             <span class="kw">match </span>Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stream).poll_next(cx) {
                 Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(data))) =&gt; <span class="self">self</span>.buf.extend_from_slice(<span class="kw-2">&amp;</span>data),
@@ -2172,7 +2173,7 @@
 
     <span class="doccomment">/// Read bytes until new line delimiter
     </span><span class="kw">fn </span>readline(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Bytes&gt;, MultipartError&gt; {
-        <span class="self">self</span>.read_until(<span class="string">b&quot;\n&quot;</span>)
+        <span class="self">self</span>.read_until(<span class="string">b"\n"</span>)
     }
 
     <span class="doccomment">/// Read bytes until new line delimiter or eof
@@ -2214,41 +2215,41 @@
         <span class="kw">let </span>headers = HeaderMap::new();
         <span class="kw">match </span>Multipart::boundary(<span class="kw-2">&amp;</span>headers) {
             <span class="prelude-val">Err</span>(MultipartError::NoContentType) =&gt; {}
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;should not happen&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"should not happen"</span>),
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
         headers.insert(
             header::CONTENT_TYPE,
-            header::HeaderValue::from_static(<span class="string">&quot;test&quot;</span>),
+            header::HeaderValue::from_static(<span class="string">"test"</span>),
         );
 
         <span class="kw">match </span>Multipart::boundary(<span class="kw-2">&amp;</span>headers) {
             <span class="prelude-val">Err</span>(MultipartError::ParseContentType) =&gt; {}
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;should not happen&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"should not happen"</span>),
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
         headers.insert(
             header::CONTENT_TYPE,
-            header::HeaderValue::from_static(<span class="string">&quot;multipart/mixed&quot;</span>),
+            header::HeaderValue::from_static(<span class="string">"multipart/mixed"</span>),
         );
         <span class="kw">match </span>Multipart::boundary(<span class="kw-2">&amp;</span>headers) {
             <span class="prelude-val">Err</span>(MultipartError::Boundary) =&gt; {}
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;should not happen&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"should not happen"</span>),
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
         headers.insert(
             header::CONTENT_TYPE,
             header::HeaderValue::from_static(
-                <span class="string">&quot;multipart/mixed; boundary=\&quot;5c02368e880e436dab70ed54e1c58209\&quot;&quot;</span>,
+                <span class="string">"multipart/mixed; boundary=\"5c02368e880e436dab70ed54e1c58209\""</span>,
             ),
         );
 
         <span class="macro">assert_eq!</span>(
             Multipart::boundary(<span class="kw-2">&amp;</span>headers).unwrap(),
-            <span class="string">&quot;5c02368e880e436dab70ed54e1c58209&quot;
+            <span class="string">"5c02368e880e436dab70ed54e1c58209"
         </span>);
     }
 
@@ -2284,7 +2285,7 @@
     <span class="kw">impl </span>Stream <span class="kw">for </span>SlowStream {
         <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;;
 
-        <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+        <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
             <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
             <span class="kw">if </span>!this.ready {
                 this.ready = <span class="bool-val">true</span>;
@@ -2305,22 +2306,22 @@
 
     <span class="kw">fn </span>create_simple_request_with_header() -&gt; (Bytes, HeaderMap) {
         <span class="kw">let </span>bytes = Bytes::from(
-            <span class="string">&quot;testasdadsad\r\n\
+            <span class="string">"testasdadsad\r\n\
              --abbc761f78ff4d7cb7573b5a23f96ef0\r\n\
-             Content-Disposition: form-data; name=\&quot;file\&quot;; filename=\&quot;fn.txt\&quot;\r\n\
+             Content-Disposition: form-data; name=\"file\"; filename=\"fn.txt\"\r\n\
              Content-Type: text/plain; charset=utf-8\r\nContent-Length: 4\r\n\r\n\
              test\r\n\
              --abbc761f78ff4d7cb7573b5a23f96ef0\r\n\
-             Content-Disposition: form-data; name=\&quot;file\&quot;; filename=\&quot;fn.txt\&quot;\r\n\
+             Content-Disposition: form-data; name=\"file\"; filename=\"fn.txt\"\r\n\
              Content-Type: text/plain; charset=utf-8\r\nContent-Length: 4\r\n\r\n\
              data\r\n\
-             --abbc761f78ff4d7cb7573b5a23f96ef0--\r\n&quot;</span>,
+             --abbc761f78ff4d7cb7573b5a23f96ef0--\r\n"</span>,
         );
         <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
         headers.insert(
             header::CONTENT_TYPE,
             header::HeaderValue::from_static(
-                <span class="string">&quot;multipart/mixed; boundary=\&quot;abbc761f78ff4d7cb7573b5a23f96ef0\&quot;&quot;</span>,
+                <span class="string">"multipart/mixed; boundary=\"abbc761f78ff4d7cb7573b5a23f96ef0\""</span>,
             ),
         );
         (bytes, headers)
@@ -2365,13 +2366,13 @@
             <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>field)) =&gt; {
                 <span class="kw">let </span>cd = field.content_disposition();
                 <span class="macro">assert_eq!</span>(cd.disposition, DispositionType::FormData);
-                <span class="macro">assert_eq!</span>(cd.parameters[<span class="number">0</span>], DispositionParam::Name(<span class="string">&quot;file&quot;</span>.into()));
+                <span class="macro">assert_eq!</span>(cd.parameters[<span class="number">0</span>], DispositionParam::Name(<span class="string">"file"</span>.into()));
 
                 <span class="macro">assert_eq!</span>(field.content_type().unwrap().type_(), mime::TEXT);
                 <span class="macro">assert_eq!</span>(field.content_type().unwrap().subtype(), mime::PLAIN);
 
                 <span class="kw">match </span>field.next().<span class="kw">await</span>.unwrap() {
-                    <span class="prelude-val">Ok</span>(chunk) =&gt; <span class="macro">assert_eq!</span>(chunk, <span class="string">&quot;test&quot;</span>),
+                    <span class="prelude-val">Ok</span>(chunk) =&gt; <span class="macro">assert_eq!</span>(chunk, <span class="string">"test"</span>),
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
                 <span class="kw">match </span>field.next().<span class="kw">await </span>{
@@ -2388,7 +2389,7 @@
                 <span class="macro">assert_eq!</span>(field.content_type().unwrap().subtype(), mime::PLAIN);
 
                 <span class="kw">match </span>field.next().<span class="kw">await </span>{
-                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(chunk)) =&gt; <span class="macro">assert_eq!</span>(chunk, <span class="string">&quot;data&quot;</span>),
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(chunk)) =&gt; <span class="macro">assert_eq!</span>(chunk, <span class="string">"data"</span>),
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
                 <span class="kw">match </span>field.next().<span class="kw">await </span>{
@@ -2427,12 +2428,12 @@
             <span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>field) =&gt; {
                 <span class="kw">let </span>cd = field.content_disposition();
                 <span class="macro">assert_eq!</span>(cd.disposition, DispositionType::FormData);
-                <span class="macro">assert_eq!</span>(cd.parameters[<span class="number">0</span>], DispositionParam::Name(<span class="string">&quot;file&quot;</span>.into()));
+                <span class="macro">assert_eq!</span>(cd.parameters[<span class="number">0</span>], DispositionParam::Name(<span class="string">"file"</span>.into()));
 
                 <span class="macro">assert_eq!</span>(field.content_type().unwrap().type_(), mime::TEXT);
                 <span class="macro">assert_eq!</span>(field.content_type().unwrap().subtype(), mime::PLAIN);
 
-                <span class="macro">assert_eq!</span>(get_whole_field(<span class="kw-2">&amp;mut </span>field).<span class="kw">await</span>, <span class="string">&quot;test&quot;</span>);
+                <span class="macro">assert_eq!</span>(get_whole_field(<span class="kw-2">&amp;mut </span>field).<span class="kw">await</span>, <span class="string">"test"</span>);
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
@@ -2442,7 +2443,7 @@
                 <span class="macro">assert_eq!</span>(field.content_type().unwrap().type_(), mime::TEXT);
                 <span class="macro">assert_eq!</span>(field.content_type().unwrap().subtype(), mime::PLAIN);
 
-                <span class="macro">assert_eq!</span>(get_whole_field(<span class="kw-2">&amp;mut </span>field).<span class="kw">await</span>, <span class="string">&quot;data&quot;</span>);
+                <span class="macro">assert_eq!</span>(get_whole_field(<span class="kw-2">&amp;mut </span>field).<span class="kw">await</span>, <span class="string">"data"</span>);
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
@@ -2469,11 +2470,11 @@
         <span class="kw">let </span><span class="kw-2">mut </span>payload = PayloadBuffer::new(payload);
 
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, payload.read_max(<span class="number">4</span>).unwrap());
-        sender.feed_data(Bytes::from(<span class="string">&quot;data&quot;</span>));
+        sender.feed_data(Bytes::from(<span class="string">"data"</span>));
         sender.feed_eof();
         lazy(|cx| payload.poll_stream(cx)).<span class="kw">await</span>.unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from(<span class="string">&quot;data&quot;</span>)), payload.read_max(<span class="number">4</span>).unwrap());
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from(<span class="string">"data"</span>)), payload.read_max(<span class="number">4</span>).unwrap());
         <span class="macro">assert_eq!</span>(payload.buf.len(), <span class="number">0</span>);
         <span class="macro">assert!</span>(payload.read_max(<span class="number">1</span>).is_err());
         <span class="macro">assert!</span>(payload.eof);
@@ -2493,15 +2494,15 @@
         <span class="kw">let </span>(<span class="kw-2">mut </span>sender, payload) = h1::Payload::create(<span class="bool-val">false</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>payload = PayloadBuffer::new(payload);
 
-        sender.feed_data(Bytes::from(<span class="string">&quot;line1&quot;</span>));
-        sender.feed_data(Bytes::from(<span class="string">&quot;line2&quot;</span>));
+        sender.feed_data(Bytes::from(<span class="string">"line1"</span>));
+        sender.feed_data(Bytes::from(<span class="string">"line2"</span>));
         lazy(|cx| payload.poll_stream(cx)).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(payload.buf.len(), <span class="number">10</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from(<span class="string">&quot;line1&quot;</span>)), payload.read_max(<span class="number">5</span>).unwrap());
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from(<span class="string">"line1"</span>)), payload.read_max(<span class="number">5</span>).unwrap());
         <span class="macro">assert_eq!</span>(payload.buf.len(), <span class="number">5</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from(<span class="string">&quot;line2&quot;</span>)), payload.read_max(<span class="number">5</span>).unwrap());
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from(<span class="string">"line2"</span>)), payload.read_max(<span class="number">5</span>).unwrap());
         <span class="macro">assert_eq!</span>(payload.buf.len(), <span class="number">0</span>);
     }
 
@@ -2512,14 +2513,14 @@
 
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, payload.read_exact(<span class="number">2</span>));
 
-        sender.feed_data(Bytes::from(<span class="string">&quot;line1&quot;</span>));
-        sender.feed_data(Bytes::from(<span class="string">&quot;line2&quot;</span>));
+        sender.feed_data(Bytes::from(<span class="string">"line1"</span>));
+        sender.feed_data(Bytes::from(<span class="string">"line2"</span>));
         lazy(|cx| payload.poll_stream(cx)).<span class="kw">await</span>.unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from_static(<span class="string">b&quot;li&quot;</span>)), payload.read_exact(<span class="number">2</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from_static(<span class="string">b"li"</span>)), payload.read_exact(<span class="number">2</span>));
         <span class="macro">assert_eq!</span>(payload.buf.len(), <span class="number">8</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from_static(<span class="string">b&quot;ne1l&quot;</span>)), payload.read_exact(<span class="number">4</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(Bytes::from_static(<span class="string">b"ne1l"</span>)), payload.read_exact(<span class="number">4</span>));
         <span class="macro">assert_eq!</span>(payload.buf.len(), <span class="number">4</span>);
     }
 
@@ -2528,21 +2529,21 @@
         <span class="kw">let </span>(<span class="kw-2">mut </span>sender, payload) = h1::Payload::create(<span class="bool-val">false</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>payload = PayloadBuffer::new(payload);
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, payload.read_until(<span class="string">b&quot;ne&quot;</span>).unwrap());
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, payload.read_until(<span class="string">b"ne"</span>).unwrap());
 
-        sender.feed_data(Bytes::from(<span class="string">&quot;line1&quot;</span>));
-        sender.feed_data(Bytes::from(<span class="string">&quot;line2&quot;</span>));
+        sender.feed_data(Bytes::from(<span class="string">"line1"</span>));
+        sender.feed_data(Bytes::from(<span class="string">"line2"</span>));
         lazy(|cx| payload.poll_stream(cx)).<span class="kw">await</span>.unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Some</span>(Bytes::from(<span class="string">&quot;line&quot;</span>)),
-            payload.read_until(<span class="string">b&quot;ne&quot;</span>).unwrap()
+            <span class="prelude-val">Some</span>(Bytes::from(<span class="string">"line"</span>)),
+            payload.read_until(<span class="string">b"ne"</span>).unwrap()
         );
         <span class="macro">assert_eq!</span>(payload.buf.len(), <span class="number">6</span>);
 
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Some</span>(Bytes::from(<span class="string">&quot;1line2&quot;</span>)),
-            payload.read_until(<span class="string">b&quot;2&quot;</span>).unwrap()
+            <span class="prelude-val">Some</span>(Bytes::from(<span class="string">"1line2"</span>)),
+            payload.read_until(<span class="string">b"2"</span>).unwrap()
         );
         <span class="macro">assert_eq!</span>(payload.buf.len(), <span class="number">0</span>);
     }
@@ -2584,17 +2585,17 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>no_content_disposition() {
         <span class="kw">let </span>bytes = Bytes::from(
-            <span class="string">&quot;testasdadsad\r\n\
+            <span class="string">"testasdadsad\r\n\
              --abbc761f78ff4d7cb7573b5a23f96ef0\r\n\
              Content-Type: text/plain; charset=utf-8\r\nContent-Length: 4\r\n\r\n\
              test\r\n\
-             --abbc761f78ff4d7cb7573b5a23f96ef0\r\n&quot;</span>,
+             --abbc761f78ff4d7cb7573b5a23f96ef0\r\n"</span>,
         );
         <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
         headers.insert(
             header::CONTENT_TYPE,
             header::HeaderValue::from_static(
-                <span class="string">&quot;multipart/mixed; boundary=\&quot;abbc761f78ff4d7cb7573b5a23f96ef0\&quot;&quot;</span>,
+                <span class="string">"multipart/mixed; boundary=\"abbc761f78ff4d7cb7573b5a23f96ef0\""</span>,
             ),
         );
         <span class="kw">let </span>payload = SlowStream::new(bytes);
@@ -2611,18 +2612,18 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>no_name_in_content_disposition() {
         <span class="kw">let </span>bytes = Bytes::from(
-            <span class="string">&quot;testasdadsad\r\n\
+            <span class="string">"testasdadsad\r\n\
              --abbc761f78ff4d7cb7573b5a23f96ef0\r\n\
-             Content-Disposition: form-data; filename=\&quot;fn.txt\&quot;\r\n\
+             Content-Disposition: form-data; filename=\"fn.txt\"\r\n\
              Content-Type: text/plain; charset=utf-8\r\nContent-Length: 4\r\n\r\n\
              test\r\n\
-             --abbc761f78ff4d7cb7573b5a23f96ef0\r\n&quot;</span>,
+             --abbc761f78ff4d7cb7573b5a23f96ef0\r\n"</span>,
         );
         <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
         headers.insert(
             header::CONTENT_TYPE,
             header::HeaderValue::from_static(
-                <span class="string">&quot;multipart/mixed; boundary=\&quot;abbc761f78ff4d7cb7573b5a23f96ef0\&quot;&quot;</span>,
+                <span class="string">"multipart/mixed; boundary=\"abbc761f78ff4d7cb7573b5a23f96ef0\""</span>,
             ),
         );
         <span class="kw">let </span>payload = SlowStream::new(bytes);
@@ -2667,7 +2668,7 @@
 
         <span class="kw">let </span>task = rt::spawn(<span class="kw">async move </span>{
             rt::time::sleep(Duration::from_secs(<span class="number">1</span>)).<span class="kw">await</span>;
-            <span class="macro">assert_eq!</span>(field.next().<span class="kw">await</span>.unwrap().unwrap(), <span class="string">&quot;test&quot;</span>);
+            <span class="macro">assert_eq!</span>(field.next().<span class="kw">await</span>.unwrap().unwrap(), <span class="string">"test"</span>);
             drop(field);
         });
 

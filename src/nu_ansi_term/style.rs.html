@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nu-ansi-term-0.46.0/src/style.rs`."><title>style.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nu_ansi_term" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nu-ansi-term-0.46.0/src/style.rs`."><title>style.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="nu_ansi_term" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -636,18 +637,18 @@
 /// use nu_ansi_term::{Style, Color};
 ///
 /// let style = Style::new().bold().on(Color::Black);
-/// println!(&quot;{}&quot;, style.paint(&quot;Bold on black&quot;));
+/// println!("{}", style.paint("Bold on black"));
 /// ```
 </span><span class="attr">#[derive(PartialEq, Clone, Copy)]
 #[cfg_attr(
-    feature = <span class="string">&quot;derive_serde_style&quot;</span>,
+    feature = <span class="string">"derive_serde_style"</span>,
     derive(serde::Deserialize, serde::Serialize)
 )]
 </span><span class="kw">pub struct </span>Style {
-    <span class="doccomment">/// The style&#39;s foreground color, if it has one.
+    <span class="doccomment">/// The style's foreground color, if it has one.
     </span><span class="kw">pub </span>foreground: <span class="prelude-ty">Option</span>&lt;Color&gt;,
 
-    <span class="doccomment">/// The style&#39;s background color, if it has one.
+    <span class="doccomment">/// The style's background color, if it has one.
     </span><span class="kw">pub </span>background: <span class="prelude-ty">Option</span>&lt;Color&gt;,
 
     <span class="doccomment">/// Whether this style is bold.
@@ -684,7 +685,7 @@
     /// use nu_ansi_term::Style;
     ///
     /// let style = Style::new();
-    /// println!(&quot;{}&quot;, style.paint(&quot;hi&quot;));
+    /// println!("{}", style.paint("hi"));
     /// ```
     </span><span class="kw">pub fn </span>new() -&gt; Style {
         Style::default()
@@ -698,7 +699,7 @@
     /// use nu_ansi_term::Style;
     ///
     /// let style = Style::new().bold();
-    /// println!(&quot;{}&quot;, style.paint(&quot;hey&quot;));
+    /// println!("{}", style.paint("hey"));
     /// ```
     </span><span class="kw">pub fn </span>bold(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
         Style {
@@ -715,7 +716,7 @@
     /// use nu_ansi_term::Style;
     ///
     /// let style = Style::new().dimmed();
-    /// println!(&quot;{}&quot;, style.paint(&quot;sup&quot;));
+    /// println!("{}", style.paint("sup"));
     /// ```
     </span><span class="kw">pub fn </span>dimmed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
         Style {
@@ -732,7 +733,7 @@
     /// use nu_ansi_term::Style;
     ///
     /// let style = Style::new().italic();
-    /// println!(&quot;{}&quot;, style.paint(&quot;greetings&quot;));
+    /// println!("{}", style.paint("greetings"));
     /// ```
     </span><span class="kw">pub fn </span>italic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
         Style {
@@ -749,7 +750,7 @@
     /// use nu_ansi_term::Style;
     ///
     /// let style = Style::new().underline();
-    /// println!(&quot;{}&quot;, style.paint(&quot;salutations&quot;));
+    /// println!("{}", style.paint("salutations"));
     /// ```
     </span><span class="kw">pub fn </span>underline(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
         Style {
@@ -765,7 +766,7 @@
     /// use nu_ansi_term::Style;
     ///
     /// let style = Style::new().blink();
-    /// println!(&quot;{}&quot;, style.paint(&quot;wazzup&quot;));
+    /// println!("{}", style.paint("wazzup"));
     /// ```
     </span><span class="kw">pub fn </span>blink(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
         Style {
@@ -782,7 +783,7 @@
     /// use nu_ansi_term::Style;
     ///
     /// let style = Style::new().reverse();
-    /// println!(&quot;{}&quot;, style.paint(&quot;aloha&quot;));
+    /// println!("{}", style.paint("aloha"));
     /// ```
     </span><span class="kw">pub fn </span>reverse(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
         Style {
@@ -799,7 +800,7 @@
     /// use nu_ansi_term::Style;
     ///
     /// let style = Style::new().hidden();
-    /// println!(&quot;{}&quot;, style.paint(&quot;ahoy&quot;));
+    /// println!("{}", style.paint("ahoy"));
     /// ```
     </span><span class="kw">pub fn </span>hidden(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
         Style {
@@ -816,7 +817,7 @@
     /// use nu_ansi_term::Style;
     ///
     /// let style = Style::new().strikethrough();
-    /// println!(&quot;{}&quot;, style.paint(&quot;yo&quot;));
+    /// println!("{}", style.paint("yo"));
     /// ```
     </span><span class="kw">pub fn </span>strikethrough(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
         Style {
@@ -833,7 +834,7 @@
     /// use nu_ansi_term::{Style, Color};
     ///
     /// let style = Style::new().fg(Color::Yellow);
-    /// println!(&quot;{}&quot;, style.paint(&quot;hi&quot;));
+    /// println!("{}", style.paint("hi"));
     /// ```
     </span><span class="kw">pub fn </span>fg(<span class="kw-2">&amp;</span><span class="self">self</span>, foreground: Color) -&gt; Style {
         Style {
@@ -850,7 +851,7 @@
     /// use nu_ansi_term::{Style, Color};
     ///
     /// let style = Style::new().on(Color::Blue);
-    /// println!(&quot;{}&quot;, style.paint(&quot;eyyyy&quot;));
+    /// println!("{}", style.paint("eyyyy"));
     /// ```
     </span><span class="kw">pub fn </span>on(<span class="kw-2">&amp;</span><span class="self">self</span>, background: Color) -&gt; Style {
         Style {
@@ -884,7 +885,7 @@
     /// assert_eq!(None,  Style::default().foreground);
     /// assert_eq!(None,  Style::default().background);
     /// assert_eq!(false, Style::default().is_bold);
-    /// assert_eq!(&quot;txt&quot;, Style::default().paint(&quot;txt&quot;).to_string());
+    /// assert_eq!("txt", Style::default().paint("txt").to_string());
     /// ```
     </span><span class="kw">fn </span>default() -&gt; Style {
         Style {
@@ -911,7 +912,7 @@
 /// See &lt;http://invisible-island.net/xterm/ctlseqs/ctlseqs.html&gt;
 </span><span class="attr">#[derive(PartialEq, Clone, Copy, Debug)]
 #[cfg_attr(
-    feature = <span class="string">&quot;derive_serde_style&quot;</span>,
+    feature = <span class="string">"derive_serde_style"</span>,
     derive(serde::Deserialize, serde::Serialize)
 )]
 </span><span class="kw">pub enum </span>Color {
@@ -1015,7 +1016,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::Red.normal();
-    /// println!(&quot;{}&quot;, style.paint(&quot;hi&quot;));
+    /// println!("{}", style.paint("hi"));
     /// ```
     </span><span class="kw">pub fn </span>normal(<span class="self">self</span>) -&gt; Style {
         Style {
@@ -1033,7 +1034,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::Green.bold();
-    /// println!(&quot;{}&quot;, style.paint(&quot;hey&quot;));
+    /// println!("{}", style.paint("hey"));
     /// ```
     </span><span class="kw">pub fn </span>bold(<span class="self">self</span>) -&gt; Style {
         Style {
@@ -1052,7 +1053,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::Yellow.dimmed();
-    /// println!(&quot;{}&quot;, style.paint(&quot;sup&quot;));
+    /// println!("{}", style.paint("sup"));
     /// ```
     </span><span class="kw">pub fn </span>dimmed(<span class="self">self</span>) -&gt; Style {
         Style {
@@ -1071,7 +1072,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::Blue.italic();
-    /// println!(&quot;{}&quot;, style.paint(&quot;greetings&quot;));
+    /// println!("{}", style.paint("greetings"));
     /// ```
     </span><span class="kw">pub fn </span>italic(<span class="self">self</span>) -&gt; Style {
         Style {
@@ -1090,7 +1091,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::Purple.underline();
-    /// println!(&quot;{}&quot;, style.paint(&quot;salutations&quot;));
+    /// println!("{}", style.paint("salutations"));
     /// ```
     </span><span class="kw">pub fn </span>underline(<span class="self">self</span>) -&gt; Style {
         Style {
@@ -1109,7 +1110,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::Cyan.blink();
-    /// println!(&quot;{}&quot;, style.paint(&quot;wazzup&quot;));
+    /// println!("{}", style.paint("wazzup"));
     /// ```
     </span><span class="kw">pub fn </span>blink(<span class="self">self</span>) -&gt; Style {
         Style {
@@ -1128,7 +1129,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::Black.reverse();
-    /// println!(&quot;{}&quot;, style.paint(&quot;aloha&quot;));
+    /// println!("{}", style.paint("aloha"));
     /// ```
     </span><span class="kw">pub fn </span>reverse(<span class="self">self</span>) -&gt; Style {
         Style {
@@ -1147,7 +1148,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::White.hidden();
-    /// println!(&quot;{}&quot;, style.paint(&quot;ahoy&quot;));
+    /// println!("{}", style.paint("ahoy"));
     /// ```
     </span><span class="kw">pub fn </span>hidden(<span class="self">self</span>) -&gt; Style {
         Style {
@@ -1166,7 +1167,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::Fixed(244).strikethrough();
-    /// println!(&quot;{}&quot;, style.paint(&quot;yo&quot;));
+    /// println!("{}", style.paint("yo"));
     /// ```
     </span><span class="kw">pub fn </span>strikethrough(<span class="self">self</span>) -&gt; Style {
         Style {
@@ -1185,7 +1186,7 @@
     /// use nu_ansi_term::Color;
     ///
     /// let style = Color::Rgb(31, 31, 31).on(Color::White);
-    /// println!(&quot;{}&quot;, style.paint(&quot;eyyyy&quot;));
+    /// println!("{}", style.paint("eyyyy"));
     /// ```
     </span><span class="kw">pub fn </span>on(<span class="self">self</span>, background: Color) -&gt; Style {
         Style {
@@ -1213,7 +1214,7 @@
 }
 
 <span class="attr">#[cfg(test)]
-#[cfg(feature = <span class="string">&quot;derive_serde_style&quot;</span>)]
+#[cfg(feature = <span class="string">"derive_serde_style"</span>)]
 </span><span class="kw">mod </span>serde_json_tests {
     <span class="kw">use super</span>::{Color, Style};
 
@@ -1228,7 +1229,7 @@
 
         <span class="macro">assert_eq!</span>(
             serde_json::to_string(<span class="kw-2">&amp;</span>colors).unwrap(),
-            String::from(<span class="string">&quot;[\&quot;Red\&quot;,\&quot;Blue\&quot;,{\&quot;Rgb\&quot;:[123,123,123]},{\&quot;Fixed\&quot;:255}]&quot;</span>)
+            String::from(<span class="string">"[\"Red\",\"Blue\",{\"Rgb\":[123,123,123]},{\"Fixed\":255}]"</span>)
         );
     }
 
@@ -1253,7 +1254,7 @@
     </span><span class="kw">fn </span>style_serialization() {
         <span class="kw">let </span>style = Style::default();
 
-        <span class="macro">assert_eq!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>style).unwrap(), <span class="string">&quot;{\&quot;foreground\&quot;:null,\&quot;background\&quot;:null,\&quot;is_bold\&quot;:false,\&quot;is_dimmed\&quot;:false,\&quot;is_italic\&quot;:false,\&quot;is_underline\&quot;:false,\&quot;is_blink\&quot;:false,\&quot;is_reverse\&quot;:false,\&quot;is_hidden\&quot;:false,\&quot;is_strikethrough\&quot;:false}&quot;</span>.to_string());
+        <span class="macro">assert_eq!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>style).unwrap(), <span class="string">"{\"foreground\":null,\"background\":null,\"is_bold\":false,\"is_dimmed\":false,\"is_italic\":false,\"is_underline\":false,\"is_blink\":false,\"is_reverse\":false,\"is_hidden\":false,\"is_strikethrough\":false}"</span>.to_string());
     }
 }
 </code></pre></div></section></main></body></html>

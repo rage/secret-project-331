@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider_blob-1.4.0/src/blob_schema.rs`."><title>blob_schema.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider_blob" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider_blob-1.4.0/src/blob_schema.rs`."><title>blob_schema.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider_blob" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -249,26 +250,26 @@
 <span class="doccomment">/// A versioned Serde schema for ICU4X data blobs.
 </span><span class="attr">#[derive(serde::Deserialize, yoke::Yokeable)]
 #[yoke(prove_covariance_manually)]
-#[cfg_attr(feature = <span class="string">&quot;export&quot;</span>, derive(serde::Serialize))]
+#[cfg_attr(feature = <span class="string">"export"</span>, derive(serde::Serialize))]
 #[derive(Debug, Clone)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>BlobSchema&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>BlobSchema&lt;<span class="lifetime">'data</span>&gt; {
     <span class="attr">#[serde(borrow)]
-    </span>V001(BlobSchemaV1&lt;<span class="lifetime">&#39;data</span>&gt;),
+    </span>V001(BlobSchemaV1&lt;<span class="lifetime">'data</span>&gt;),
     <span class="attr">#[serde(borrow)]
-    </span>V002(BlobSchemaV2&lt;<span class="lifetime">&#39;data</span>&gt;),
+    </span>V002(BlobSchemaV2&lt;<span class="lifetime">'data</span>&gt;),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; BlobSchema&lt;<span class="lifetime">&#39;data</span>&gt; {
-    <span class="kw">pub fn </span>deserialize_and_check&lt;D: serde::Deserializer&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; BlobSchema&lt;<span class="lifetime">'data</span>&gt; {
+    <span class="kw">pub fn </span>deserialize_and_check&lt;D: serde::Deserializer&lt;<span class="lifetime">'data</span>&gt;&gt;(
         de: D,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;BlobSchema&lt;<span class="lifetime">&#39;data</span>&gt;, D::Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;BlobSchema&lt;<span class="lifetime">'data</span>&gt;, D::Error&gt; {
         <span class="kw">let </span>blob = <span class="self">Self</span>::deserialize(de)<span class="question-mark">?</span>;
         <span class="attr">#[cfg(debug_assertions)]
         </span>blob.check_invariants();
         <span class="prelude-val">Ok</span>(blob)
     }
 
-    <span class="kw">pub fn </span>load(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], DataError&gt; {
+    <span class="kw">pub fn </span>load(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], DataError&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             BlobSchema::V001(s) =&gt; s.load(key, req),
             BlobSchema::V002(s) =&gt; s.load(key, req),
@@ -287,19 +288,19 @@
 <span class="doccomment">/// Version 1 of the ICU4X data blob schema.
 </span><span class="attr">#[derive(Clone, Copy, Debug, serde::Deserialize, yoke::Yokeable)]
 #[yoke(prove_covariance_manually)]
-#[cfg_attr(feature = <span class="string">&quot;export&quot;</span>, derive(serde::Serialize))]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>BlobSchemaV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+#[cfg_attr(feature = <span class="string">"export"</span>, derive(serde::Serialize))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>BlobSchemaV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Map from key hash and locale to buffer index.
     /// Weak invariant: the `usize` values are valid indices into `self.buffers`
     /// Weak invariant: there is at least one value for every integer in 0..self.buffers.len()
     </span><span class="attr">#[serde(borrow)]
-    </span><span class="kw">pub </span>keys: ZeroMap2dBorrowed&lt;<span class="lifetime">&#39;data</span>, DataKeyHash, Index32U8, usize&gt;,
+    </span><span class="kw">pub </span>keys: ZeroMap2dBorrowed&lt;<span class="lifetime">'data</span>, DataKeyHash, Index32U8, usize&gt;,
     <span class="doccomment">/// Vector of buffers
     </span><span class="attr">#[serde(borrow)]
-    </span><span class="kw">pub </span>buffers: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>VarZeroSlice&lt;[u8], Index32&gt;,
+    </span><span class="kw">pub </span>buffers: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>VarZeroSlice&lt;[u8], Index32&gt;,
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>BlobSchemaV1&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Default <span class="kw">for </span>BlobSchemaV1&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             keys: ZeroMap2dBorrowed::new(),
@@ -308,8 +309,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; BlobSchemaV1&lt;<span class="lifetime">&#39;data</span>&gt; {
-    <span class="kw">pub fn </span>load(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], DataError&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; BlobSchemaV1&lt;<span class="lifetime">'data</span>&gt; {
+    <span class="kw">pub fn </span>load(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], DataError&gt; {
         <span class="kw">let </span>idx = <span class="self">self
             </span>.keys
             .get0(<span class="kw-2">&amp;</span>key.hashed())
@@ -325,7 +326,7 @@
             .map_err(|kind| kind.with_req(key, req))<span class="question-mark">?</span>;
         <span class="self">self</span>.buffers
             .get(idx)
-            .ok_or_else(|| DataError::custom(<span class="string">&quot;Invalid blob bytes&quot;</span>).with_req(key, req))
+            .ok_or_else(|| DataError::custom(<span class="string">"Invalid blob bytes"</span>).with_req(key, req))
     }
 
     <span class="doccomment">/// Verifies the weak invariants using debug assertions
@@ -334,7 +335,7 @@
         <span class="kw">if </span><span class="self">self</span>.keys.is_empty() &amp;&amp; <span class="self">self</span>.buffers.is_empty() {
             <span class="kw">return</span>;
         }
-        <span class="comment">// Note: We could check that every index occurs at least once, but that&#39;s a more expensive
+        <span class="comment">// Note: We could check that every index occurs at least once, but that's a more expensive
         // operation, so we will just check for the min and max index.
         </span><span class="kw">let </span><span class="kw-2">mut </span>seen_min = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>seen_max = <span class="self">self</span>.buffers.is_empty();
@@ -357,25 +358,25 @@
 <span class="doccomment">/// Version 2 of the ICU4X data blob schema.
 </span><span class="attr">#[derive(Clone, Copy, Debug, serde::Deserialize, yoke::Yokeable)]
 #[yoke(prove_covariance_manually)]
-#[cfg_attr(feature = <span class="string">&quot;export&quot;</span>, derive(serde::Serialize))]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>BlobSchemaV2&lt;<span class="lifetime">&#39;data</span>&gt; {
+#[cfg_attr(feature = <span class="string">"export"</span>, derive(serde::Serialize))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>BlobSchemaV2&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Map from key hash to locale trie.
     /// Weak invariant: should be sorted.
     </span><span class="attr">#[serde(borrow)]
-    </span><span class="kw">pub </span>keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;DataKeyHash&gt;,
+    </span><span class="kw">pub </span>keys: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;DataKeyHash&gt;,
     <span class="doccomment">/// Map from locale to buffer index.
     /// Weak invariant: the `usize` values are valid indices into `self.buffers`
     /// Weak invariant: there is at least one value for every integer in 0..self.buffers.len()
     /// Weak invariant: keys and locales are the same length
     </span><span class="comment">// TODO: Make ZeroTrieSimpleAscii&lt;[u8]&gt; work when in this position.
     </span><span class="attr">#[serde(borrow)]
-    </span><span class="kw">pub </span>locales: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>VarZeroSlice&lt;[u8]&gt;,
+    </span><span class="kw">pub </span>locales: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>VarZeroSlice&lt;[u8]&gt;,
     <span class="doccomment">/// Vector of buffers
     </span><span class="attr">#[serde(borrow)]
-    </span><span class="kw">pub </span>buffers: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>VarZeroSlice&lt;[u8], Index32&gt;,
+    </span><span class="kw">pub </span>buffers: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>VarZeroSlice&lt;[u8], Index32&gt;,
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>BlobSchemaV2&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Default <span class="kw">for </span>BlobSchemaV2&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             keys: ZeroSlice::new_empty(),
@@ -385,8 +386,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; BlobSchemaV2&lt;<span class="lifetime">&#39;data</span>&gt; {
-    <span class="kw">pub fn </span>load(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], DataError&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; BlobSchemaV2&lt;<span class="lifetime">'data</span>&gt; {
+    <span class="kw">pub fn </span>load(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], DataError&gt; {
         <span class="kw">let </span>key_index = <span class="self">self
             </span>.keys
             .binary_search(<span class="kw-2">&amp;</span>key.hashed())
@@ -398,8 +399,8 @@
         <span class="kw">let </span>zerotrie = <span class="self">self
             </span>.locales
             .get(key_index)
-            .ok_or_else(|| DataError::custom(<span class="string">&quot;Invalid blob bytes&quot;</span>).with_req(key, req))<span class="question-mark">?</span>;
-        <span class="comment">// TODO(#4249): Add a lookup function to zerotrie so we don&#39;t need to stringify
+            .ok_or_else(|| DataError::custom(<span class="string">"Invalid blob bytes"</span>).with_req(key, req))<span class="question-mark">?</span>;
+        <span class="comment">// TODO(#4249): Add a lookup function to zerotrie so we don't need to stringify
         </span><span class="kw">let </span>locale_str = req.locale.write_to_string();
         <span class="kw">let </span>blob_index = ZeroTrieSimpleAscii::from_store(zerotrie)
             .get(locale_str.as_bytes())
@@ -407,7 +408,7 @@
         <span class="kw">let </span>buffer = <span class="self">self
             </span>.buffers
             .get(blob_index)
-            .ok_or_else(|| DataError::custom(<span class="string">&quot;Invalid blob bytes&quot;</span>).with_req(key, req))<span class="question-mark">?</span>;
+            .ok_or_else(|| DataError::custom(<span class="string">"Invalid blob bytes"</span>).with_req(key, req))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(buffer)
     }
 
@@ -418,7 +419,7 @@
             <span class="kw">return</span>;
         }
         <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.keys.len(), <span class="self">self</span>.locales.len());
-        <span class="comment">// Note: We could check that every index occurs at least once, but that&#39;s a more expensive
+        <span class="comment">// Note: We could check that every index occurs at least once, but that's a more expensive
         // operation, so we will just check for the min and max index.
         </span><span class="kw">let </span><span class="kw-2">mut </span>seen_min = <span class="self">self</span>.buffers.is_empty();
         <span class="kw">let </span><span class="kw-2">mut </span>seen_max = <span class="self">self</span>.buffers.is_empty();
@@ -443,7 +444,7 @@
 /// Eventually we will have a FormatSelector type that lets us do `ZeroMap&lt;FormatSelector&lt;K, Index32&gt;, V&gt;`
 /// (https://github.com/unicode-org/icu4x/issues/2312)
 ///
-/// IndexU32Borrowed isn&#39;t actually important; it&#39;s just more convenient to use make_varule to get the
+/// IndexU32Borrowed isn't actually important; it's just more convenient to use make_varule to get the
 /// full suite of traits instead of `#[derive(VarULE)]`. (With `#[derive(VarULE)]` we would have to manually
 /// define a Serialize implementation, and that would be gnarly)
 /// https://github.com/unicode-org/icu4x/issues/2310 tracks being able to do this with derive(ULE)
@@ -452,14 +453,14 @@
 #[zerovec::skip_derive(ZeroMapKV)]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, serde::Deserialize)]
 #[zerovec::derive(Deserialize)]
-#[cfg_attr(feature = <span class="string">&quot;export&quot;</span>, derive(serde::Serialize))]
-#[cfg_attr(feature = <span class="string">&quot;export&quot;</span>, zerovec::derive(Serialize))]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Index32U8Borrowed&lt;<span class="lifetime">&#39;a</span>&gt;(
-    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;export&quot;</span>, serde(borrow))] </span><span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+#[cfg_attr(feature = <span class="string">"export"</span>, derive(serde::Serialize))]
+#[cfg_attr(feature = <span class="string">"export"</span>, zerovec::derive(Serialize))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Index32U8Borrowed&lt;<span class="lifetime">'a</span>&gt;(
+    <span class="attr">#[cfg_attr(feature = <span class="string">"export"</span>, serde(borrow))] </span><span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
 );
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ZeroMapKV&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Index32U8 {
-    <span class="kw">type </span>Container = VarZeroVec&lt;<span class="lifetime">&#39;a</span>, Index32U8, Index32&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ZeroMapKV&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Index32U8 {
+    <span class="kw">type </span>Container = VarZeroVec&lt;<span class="lifetime">'a</span>, Index32U8, Index32&gt;;
     <span class="kw">type </span>Slice = VarZeroSlice&lt;Index32U8, Index32&gt;;
     <span class="kw">type </span>GetType = Index32U8;
     <span class="kw">type </span>OwnedType = Box&lt;Index32U8&gt;;
@@ -468,6 +469,6 @@
 <span class="kw">impl </span>Index32U8 {
     <span class="comment">// Safety: Index32U8 is a transparent DST wrapper around `[u8]`, so a transmute is fine
     </span><span class="attr">#[allow(dead_code)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>SENTINEL: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self </span>= <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(<span class="kw-2">&amp;</span>[] <span class="kw">as </span><span class="kw-2">*const </span>[u8] <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>) };
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>SENTINEL: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self </span>= <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(<span class="kw-2">&amp;</span>[] <span class="kw">as </span><span class="kw-2">*const </span>[u8] <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>) };
 }
 </code></pre></div></section></main></body></html>

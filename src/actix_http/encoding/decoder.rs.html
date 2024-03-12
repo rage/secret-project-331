@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/encoding/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/encoding/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -311,10 +312,10 @@
 
 <span class="kw">use </span>actix_rt::task::{spawn_blocking, JoinHandle};
 <span class="kw">use </span>bytes::Bytes;
-<span class="attr">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compress-gzip"</span>)]
 </span><span class="kw">use </span>flate2::write::{GzDecoder, ZlibDecoder};
 <span class="kw">use </span>futures_core::{ready, Stream};
-<span class="attr">#[cfg(feature = <span class="string">&quot;compress-zstd&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compress-zstd"</span>)]
 </span><span class="kw">use </span>zstd::stream::write::Decoder <span class="kw">as </span>ZstdDecoder;
 
 <span class="kw">use crate</span>::{
@@ -343,26 +344,26 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>new(stream: S, encoding: ContentEncoding) -&gt; Decoder&lt;S&gt; {
         <span class="kw">let </span>decoder = <span class="kw">match </span>encoding {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-brotli&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-brotli"</span>)]
             </span>ContentEncoding::Brotli =&gt; <span class="prelude-val">Some</span>(ContentDecoder::Brotli(Box::new(
                 brotli::DecompressorWriter::new(Writer::new(), <span class="number">8_096</span>),
             ))),
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-gzip"</span>)]
             </span>ContentEncoding::Deflate =&gt; <span class="prelude-val">Some</span>(ContentDecoder::Deflate(Box::new(ZlibDecoder::new(
                 Writer::new(),
             )))),
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-gzip"</span>)]
             </span>ContentEncoding::Gzip =&gt; <span class="prelude-val">Some</span>(ContentDecoder::Gzip(Box::new(GzDecoder::new(
                 Writer::new(),
             )))),
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-zstd&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-zstd"</span>)]
             </span>ContentEncoding::Zstd =&gt; <span class="prelude-val">Some</span>(ContentDecoder::Zstd(Box::new(
                 ZstdDecoder::new(Writer::new()).expect(
-                    <span class="string">&quot;Failed to create zstd decoder. This is a bug. \
-                         Please report it to the actix-web repository.&quot;</span>,
+                    <span class="string">"Failed to create zstd decoder. This is a bug. \
+                         Please report it to the actix-web repository."</span>,
                 ),
             ))),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -396,7 +397,7 @@
 {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;;
 
-    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.project();
 
         <span class="kw">loop </span>{
@@ -404,7 +405,7 @@
                 <span class="kw">let </span>(chunk, decoder) = <span class="macro">ready!</span>(Pin::new(fut).poll(cx)).map_err(|<span class="kw">_</span>| {
                     PayloadError::Io(io::Error::new(
                         io::ErrorKind::Other,
-                        <span class="string">&quot;Blocking task was cancelled unexpectedly&quot;</span>,
+                        <span class="string">"Blocking task was cancelled unexpectedly"</span>,
                     ))
                 })<span class="question-mark">??</span>;
 
@@ -464,25 +465,25 @@
 }
 
 <span class="kw">enum </span>ContentDecoder {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"compress-gzip"</span>)]
     </span>Deflate(Box&lt;ZlibDecoder&lt;Writer&gt;&gt;),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"compress-gzip"</span>)]
     </span>Gzip(Box&lt;GzDecoder&lt;Writer&gt;&gt;),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;compress-brotli&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"compress-brotli"</span>)]
     </span>Brotli(Box&lt;brotli::DecompressorWriter&lt;Writer&gt;&gt;),
 
-    <span class="comment">// We need explicit &#39;static lifetime here because ZstdDecoder need lifetime
-    // argument, and we use `spawn_blocking` in `Decoder::poll_next` that require `FnOnce() -&gt; R + Send + &#39;static`
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compress-zstd&quot;</span>)]
-    </span>Zstd(Box&lt;ZstdDecoder&lt;<span class="lifetime">&#39;static</span>, Writer&gt;&gt;),
+    <span class="comment">// We need explicit 'static lifetime here because ZstdDecoder need lifetime
+    // argument, and we use `spawn_blocking` in `Decoder::poll_next` that require `FnOnce() -&gt; R + Send + 'static`
+    </span><span class="attr">#[cfg(feature = <span class="string">"compress-zstd"</span>)]
+    </span>Zstd(Box&lt;ZstdDecoder&lt;<span class="lifetime">'static</span>, Writer&gt;&gt;),
 }
 
 <span class="kw">impl </span>ContentDecoder {
     <span class="kw">fn </span>feed_eof(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;Bytes&gt;&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-brotli&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-brotli"</span>)]
             </span>ContentDecoder::Brotli(<span class="kw-2">ref mut </span>decoder) =&gt; <span class="kw">match </span>decoder.flush() {
                 <span class="prelude-val">Ok</span>(()) =&gt; {
                     <span class="kw">let </span>b = decoder.get_mut().take();
@@ -496,7 +497,7 @@
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
             },
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-gzip"</span>)]
             </span>ContentDecoder::Gzip(<span class="kw-2">ref mut </span>decoder) =&gt; <span class="kw">match </span>decoder.try_finish() {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                     <span class="kw">let </span>b = decoder.get_mut().take();
@@ -510,7 +511,7 @@
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
             },
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-gzip"</span>)]
             </span>ContentDecoder::Deflate(<span class="kw-2">ref mut </span>decoder) =&gt; <span class="kw">match </span>decoder.try_finish() {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                     <span class="kw">let </span>b = decoder.get_mut().take();
@@ -523,7 +524,7 @@
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
             },
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-zstd&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-zstd"</span>)]
             </span>ContentDecoder::Zstd(<span class="kw-2">ref mut </span>decoder) =&gt; <span class="kw">match </span>decoder.flush() {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                     <span class="kw">let </span>b = decoder.get_mut().take();
@@ -540,7 +541,7 @@
 
     <span class="kw">fn </span>feed_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Bytes) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;Bytes&gt;&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-brotli&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-brotli"</span>)]
             </span>ContentDecoder::Brotli(<span class="kw-2">ref mut </span>decoder) =&gt; <span class="kw">match </span>decoder.write_all(<span class="kw-2">&amp;</span>data) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                     decoder.flush()<span class="question-mark">?</span>;
@@ -555,7 +556,7 @@
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
             },
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-gzip"</span>)]
             </span>ContentDecoder::Gzip(<span class="kw-2">ref mut </span>decoder) =&gt; <span class="kw">match </span>decoder.write_all(<span class="kw-2">&amp;</span>data) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                     decoder.flush()<span class="question-mark">?</span>;
@@ -570,7 +571,7 @@
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
             },
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-gzip"</span>)]
             </span>ContentDecoder::Deflate(<span class="kw-2">ref mut </span>decoder) =&gt; <span class="kw">match </span>decoder.write_all(<span class="kw-2">&amp;</span>data) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                     decoder.flush()<span class="question-mark">?</span>;
@@ -585,7 +586,7 @@
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
             },
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compress-zstd&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"compress-zstd"</span>)]
             </span>ContentDecoder::Zstd(<span class="kw-2">ref mut </span>decoder) =&gt; <span class="kw">match </span>decoder.write_all(<span class="kw-2">&amp;</span>data) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
                     decoder.flush()<span class="question-mark">?</span>;

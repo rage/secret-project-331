@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/types.rs`."><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/types.rs`."><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1561,9 +1562,9 @@
 <span class="kw">use </span>std::str::{from_utf8, Utf8Error};
 <span class="kw">use </span>std::string::FromUtf8Error;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ahash&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>ahash::{AHashMap <span class="kw">as </span>HashMap, AHashSet <span class="kw">as </span>HashSet};
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;ahash&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"ahash"</span>))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>std::collections::{HashMap, HashSet};
 <span class="kw">use </span>std::ops::Deref;
 
@@ -1577,8 +1578,8 @@
     (<span class="macro-nonterminal">$v</span>:expr, <span class="macro-nonterminal">$det</span>:expr) =&gt; {
         RedisError::from((
             ErrorKind::TypeError,
-            <span class="string">&quot;Response was of incompatible type&quot;</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;{:?} (response was {:?})&quot;</span>, <span class="macro-nonterminal">$det</span>, <span class="macro-nonterminal">$v</span>),
+            <span class="string">"Response was of incompatible type"</span>,
+            <span class="macro">format!</span>(<span class="string">"{:?} (response was {:?})"</span>, <span class="macro-nonterminal">$det</span>, <span class="macro-nonterminal">$v</span>),
         ))
     };
 }
@@ -1643,7 +1644,7 @@
     </span>TypeError,
     <span class="doccomment">/// A script execution was aborted.
     </span>ExecAbortError,
-    <span class="doccomment">/// The server cannot response because it&#39;s loading a dump.
+    <span class="doccomment">/// The server cannot response because it's loading a dump.
     </span>BusyLoadingError,
     <span class="doccomment">/// A script that was requested does not actually exist.
     </span>NoScriptError,
@@ -1679,10 +1680,10 @@
     </span>NoValidReplicasFoundBySentinel,
     <span class="doccomment">/// At least one sentinel connection info is required
     </span>EmptySentinelList,
-    <span class="doccomment">/// Attempted to kill a script/function while they werent&#39; executing
+    <span class="doccomment">/// Attempted to kill a script/function while they werent' executing
     </span>NotBusy,
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
     </span><span class="doccomment">/// Error Serializing a struct to JSON form
     </span>Serialize,
 }
@@ -1704,14 +1705,14 @@
     </span>Bulk(Vec&lt;Value&gt;),
     <span class="doccomment">/// A status response.
     </span>Status(String),
-    <span class="doccomment">/// A status response which represents the string &quot;OK&quot;.
+    <span class="doccomment">/// A status response which represents the string "OK".
     </span>Okay,
 }
 
-<span class="kw">pub struct </span>MapIter&lt;<span class="lifetime">&#39;a</span>&gt;(std::slice::Iter&lt;<span class="lifetime">&#39;a</span>, Value&gt;);
+<span class="kw">pub struct </span>MapIter&lt;<span class="lifetime">'a</span>&gt;(std::slice::Iter&lt;<span class="lifetime">'a</span>, Value&gt;);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>MapIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Value, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Value);
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>MapIter&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Value, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Value);
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="prelude-val">Some</span>((<span class="self">self</span>.<span class="number">0</span>.next()<span class="question-mark">?</span>, <span class="self">self</span>.<span class="number">0</span>.next()<span class="question-mark">?</span>))
@@ -1769,7 +1770,7 @@
     }
 
     <span class="doccomment">/// Returns an iterator of `(&amp;Value, &amp;Value)` if `self` is compatible with a map type
-    </span><span class="kw">pub fn </span>as_map_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;MapIter&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_map_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;MapIter&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Value::Bulk(items) =&gt; <span class="prelude-val">Some</span>(MapIter(items.iter())),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -1778,28 +1779,28 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Value {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Value::Nil =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;nil&quot;</span>),
-            Value::Int(val) =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;int({val:?})&quot;</span>),
+            Value::Nil =&gt; <span class="macro">write!</span>(fmt, <span class="string">"nil"</span>),
+            Value::Int(val) =&gt; <span class="macro">write!</span>(fmt, <span class="string">"int({val:?})"</span>),
             Value::Data(<span class="kw-2">ref </span>val) =&gt; <span class="kw">match </span>from_utf8(val) {
-                <span class="prelude-val">Ok</span>(x) =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;string-data(&#39;{x:?}&#39;)&quot;</span>),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;binary-data({val:?})&quot;</span>),
+                <span class="prelude-val">Ok</span>(x) =&gt; <span class="macro">write!</span>(fmt, <span class="string">"string-data('{x:?}')"</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(fmt, <span class="string">"binary-data({val:?})"</span>),
             },
             Value::Bulk(<span class="kw-2">ref </span>values) =&gt; {
-                <span class="macro">write!</span>(fmt, <span class="string">&quot;bulk(&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(fmt, <span class="string">"bulk("</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span><span class="kw-2">mut </span>is_first = <span class="bool-val">true</span>;
                 <span class="kw">for </span>val <span class="kw">in </span>values.iter() {
                     <span class="kw">if </span>!is_first {
-                        <span class="macro">write!</span>(fmt, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                        <span class="macro">write!</span>(fmt, <span class="string">", "</span>)<span class="question-mark">?</span>;
                     }
-                    <span class="macro">write!</span>(fmt, <span class="string">&quot;{val:?}&quot;</span>)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(fmt, <span class="string">"{val:?}"</span>)<span class="question-mark">?</span>;
                     is_first = <span class="bool-val">false</span>;
                 }
-                <span class="macro">write!</span>(fmt, <span class="string">&quot;)&quot;</span>)
+                <span class="macro">write!</span>(fmt, <span class="string">")"</span>)
             }
-            Value::Okay =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;ok&quot;</span>),
-            Value::Status(<span class="kw-2">ref </span>s) =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;status({s:?})&quot;</span>),
+            Value::Okay =&gt; <span class="macro">write!</span>(fmt, <span class="string">"ok"</span>),
+            Value::Status(<span class="kw-2">ref </span>s) =&gt; <span class="macro">write!</span>(fmt, <span class="string">"status({s:?})"</span>),
         }
     }
 }
@@ -1811,21 +1812,21 @@
     repr: ErrorRepr,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
 </span><span class="kw">impl </span>From&lt;serde_json::Error&gt; <span class="kw">for </span>RedisError {
     <span class="kw">fn </span>from(serde_err: serde_json::Error) -&gt; RedisError {
         RedisError::from((
             ErrorKind::Serialize,
-            <span class="string">&quot;Serialization Error&quot;</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;{serde_err}&quot;</span>),
+            <span class="string">"Serialization Error"</span>,
+            <span class="macro">format!</span>(<span class="string">"{serde_err}"</span>),
         ))
     }
 }
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">enum </span>ErrorRepr {
-    WithDescription(ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str),
-    WithDescriptionAndDetail(ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, String),
+    WithDescription(ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
+    WithDescriptionAndDetail(ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, String),
     ExtensionError(String, String),
     IoError(io::Error),
 }
@@ -1857,7 +1858,7 @@
 <span class="kw">impl </span>From&lt;Utf8Error&gt; <span class="kw">for </span>RedisError {
     <span class="kw">fn </span>from(<span class="kw">_</span>: Utf8Error) -&gt; RedisError {
         RedisError {
-            repr: ErrorRepr::WithDescription(ErrorKind::TypeError, <span class="string">&quot;Invalid UTF-8&quot;</span>),
+            repr: ErrorRepr::WithDescription(ErrorKind::TypeError, <span class="string">"Invalid UTF-8"</span>),
         }
     }
 }
@@ -1867,46 +1868,46 @@
         RedisError {
             repr: ErrorRepr::WithDescriptionAndDetail(
                 ErrorKind::TypeError,
-                <span class="string">&quot;Value contains interior nul terminator&quot;</span>,
+                <span class="string">"Value contains interior nul terminator"</span>,
                 err.to_string(),
             ),
         }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;tls-native-tls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"tls-native-tls"</span>)]
 </span><span class="kw">impl </span>From&lt;native_tls::Error&gt; <span class="kw">for </span>RedisError {
     <span class="kw">fn </span>from(err: native_tls::Error) -&gt; RedisError {
         RedisError {
             repr: ErrorRepr::WithDescriptionAndDetail(
                 ErrorKind::IoError,
-                <span class="string">&quot;TLS error&quot;</span>,
+                <span class="string">"TLS error"</span>,
                 err.to_string(),
             ),
         }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;tls-rustls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"tls-rustls"</span>)]
 </span><span class="kw">impl </span>From&lt;rustls::Error&gt; <span class="kw">for </span>RedisError {
     <span class="kw">fn </span>from(err: rustls::Error) -&gt; RedisError {
         RedisError {
             repr: ErrorRepr::WithDescriptionAndDetail(
                 ErrorKind::IoError,
-                <span class="string">&quot;TLS error&quot;</span>,
+                <span class="string">"TLS error"</span>,
                 err.to_string(),
             ),
         }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;tls-rustls&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"tls-rustls"</span>)]
 </span><span class="kw">impl </span>From&lt;rustls::client::InvalidDnsNameError&gt; <span class="kw">for </span>RedisError {
     <span class="kw">fn </span>from(err: rustls::client::InvalidDnsNameError) -&gt; RedisError {
         RedisError {
             repr: ErrorRepr::WithDescriptionAndDetail(
                 ErrorKind::IoError,
-                <span class="string">&quot;TLS Error&quot;</span>,
+                <span class="string">"TLS Error"</span>,
                 err.to_string(),
             ),
         }
@@ -1916,21 +1917,21 @@
 <span class="kw">impl </span>From&lt;FromUtf8Error&gt; <span class="kw">for </span>RedisError {
     <span class="kw">fn </span>from(<span class="kw">_</span>: FromUtf8Error) -&gt; RedisError {
         RedisError {
-            repr: ErrorRepr::WithDescription(ErrorKind::TypeError, <span class="string">&quot;Cannot convert from UTF-8&quot;</span>),
+            repr: ErrorRepr::WithDescription(ErrorKind::TypeError, <span class="string">"Cannot convert from UTF-8"</span>),
         }
     }
 }
 
-<span class="kw">impl </span>From&lt;(ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)&gt; <span class="kw">for </span>RedisError {
-    <span class="kw">fn </span>from((kind, desc): (ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)) -&gt; RedisError {
+<span class="kw">impl </span>From&lt;(ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)&gt; <span class="kw">for </span>RedisError {
+    <span class="kw">fn </span>from((kind, desc): (ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)) -&gt; RedisError {
         RedisError {
             repr: ErrorRepr::WithDescription(kind, desc),
         }
     }
 }
 
-<span class="kw">impl </span>From&lt;(ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, String)&gt; <span class="kw">for </span>RedisError {
-    <span class="kw">fn </span>from((kind, desc, detail): (ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, String)) -&gt; RedisError {
+<span class="kw">impl </span>From&lt;(ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, String)&gt; <span class="kw">for </span>RedisError {
+    <span class="kw">fn </span>from((kind, desc, detail): (ErrorKind, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, String)) -&gt; RedisError {
         RedisError {
             repr: ErrorRepr::WithDescriptionAndDetail(kind, desc, detail),
         }
@@ -1943,7 +1944,7 @@
         <span class="kw">match </span><span class="self">self</span>.repr {
             ErrorRepr::WithDescription(<span class="kw">_</span>, desc) =&gt; desc,
             ErrorRepr::WithDescriptionAndDetail(<span class="kw">_</span>, desc, <span class="kw">_</span>) =&gt; desc,
-            ErrorRepr::ExtensionError(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="string">&quot;extension error&quot;</span>,
+            ErrorRepr::ExtensionError(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="string">"extension error"</span>,
             ErrorRepr::IoError(<span class="kw-2">ref </span>err) =&gt; err.description(),
         }
     }
@@ -1957,23 +1958,23 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>RedisError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
         <span class="kw">match </span><span class="self">self</span>.repr {
             ErrorRepr::WithDescription(kind, desc) =&gt; {
                 desc.fmt(f)<span class="question-mark">?</span>;
-                f.write_str(<span class="string">&quot;- &quot;</span>)<span class="question-mark">?</span>;
+                f.write_str(<span class="string">"- "</span>)<span class="question-mark">?</span>;
                 fmt::Debug::fmt(<span class="kw-2">&amp;</span>kind, f)
             }
             ErrorRepr::WithDescriptionAndDetail(kind, desc, <span class="kw-2">ref </span>detail) =&gt; {
                 desc.fmt(f)<span class="question-mark">?</span>;
-                f.write_str(<span class="string">&quot; - &quot;</span>)<span class="question-mark">?</span>;
+                f.write_str(<span class="string">" - "</span>)<span class="question-mark">?</span>;
                 fmt::Debug::fmt(<span class="kw-2">&amp;</span>kind, f)<span class="question-mark">?</span>;
-                f.write_str(<span class="string">&quot;: &quot;</span>)<span class="question-mark">?</span>;
+                f.write_str(<span class="string">": "</span>)<span class="question-mark">?</span>;
                 detail.fmt(f)
             }
             ErrorRepr::ExtensionError(<span class="kw-2">ref </span>code, <span class="kw-2">ref </span>detail) =&gt; {
                 code.fmt(f)<span class="question-mark">?</span>;
-                f.write_str(<span class="string">&quot;: &quot;</span>)<span class="question-mark">?</span>;
+                f.write_str(<span class="string">": "</span>)<span class="question-mark">?</span>;
                 detail.fmt(f)
             }
             ErrorRepr::IoError(<span class="kw-2">ref </span>err) =&gt; err.fmt(f),
@@ -1982,7 +1983,7 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>RedisError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
         fmt::Display::fmt(<span class="self">self</span>, f)
     }
 }
@@ -2011,18 +2012,18 @@
     <span class="doccomment">/// Returns the raw error code if available.
     </span><span class="kw">pub fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="kw">match </span><span class="self">self</span>.kind() {
-            ErrorKind::ResponseError =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;ERR&quot;</span>),
-            ErrorKind::ExecAbortError =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;EXECABORT&quot;</span>),
-            ErrorKind::BusyLoadingError =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;LOADING&quot;</span>),
-            ErrorKind::NoScriptError =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;NOSCRIPT&quot;</span>),
-            ErrorKind::Moved =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;MOVED&quot;</span>),
-            ErrorKind::Ask =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;ASK&quot;</span>),
-            ErrorKind::TryAgain =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;TRYAGAIN&quot;</span>),
-            ErrorKind::ClusterDown =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;CLUSTERDOWN&quot;</span>),
-            ErrorKind::CrossSlot =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;CROSSSLOT&quot;</span>),
-            ErrorKind::MasterDown =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;MASTERDOWN&quot;</span>),
-            ErrorKind::ReadOnly =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;READONLY&quot;</span>),
-            ErrorKind::NotBusy =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;NOTBUSY&quot;</span>),
+            ErrorKind::ResponseError =&gt; <span class="prelude-val">Some</span>(<span class="string">"ERR"</span>),
+            ErrorKind::ExecAbortError =&gt; <span class="prelude-val">Some</span>(<span class="string">"EXECABORT"</span>),
+            ErrorKind::BusyLoadingError =&gt; <span class="prelude-val">Some</span>(<span class="string">"LOADING"</span>),
+            ErrorKind::NoScriptError =&gt; <span class="prelude-val">Some</span>(<span class="string">"NOSCRIPT"</span>),
+            ErrorKind::Moved =&gt; <span class="prelude-val">Some</span>(<span class="string">"MOVED"</span>),
+            ErrorKind::Ask =&gt; <span class="prelude-val">Some</span>(<span class="string">"ASK"</span>),
+            ErrorKind::TryAgain =&gt; <span class="prelude-val">Some</span>(<span class="string">"TRYAGAIN"</span>),
+            ErrorKind::ClusterDown =&gt; <span class="prelude-val">Some</span>(<span class="string">"CLUSTERDOWN"</span>),
+            ErrorKind::CrossSlot =&gt; <span class="prelude-val">Some</span>(<span class="string">"CROSSSLOT"</span>),
+            ErrorKind::MasterDown =&gt; <span class="prelude-val">Some</span>(<span class="string">"MASTERDOWN"</span>),
+            ErrorKind::ReadOnly =&gt; <span class="prelude-val">Some</span>(<span class="string">"READONLY"</span>),
+            ErrorKind::NotBusy =&gt; <span class="prelude-val">Some</span>(<span class="string">"NOTBUSY"</span>),
             <span class="kw">_ </span>=&gt; <span class="kw">match </span><span class="self">self</span>.repr {
                 ErrorRepr::ExtensionError(<span class="kw-2">ref </span>code, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(code),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -2033,29 +2034,29 @@
     <span class="doccomment">/// Returns the name of the error category for display purposes.
     </span><span class="kw">pub fn </span>category(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="self">self</span>.kind() {
-            ErrorKind::ResponseError =&gt; <span class="string">&quot;response error&quot;</span>,
-            ErrorKind::AuthenticationFailed =&gt; <span class="string">&quot;authentication failed&quot;</span>,
-            ErrorKind::TypeError =&gt; <span class="string">&quot;type error&quot;</span>,
-            ErrorKind::ExecAbortError =&gt; <span class="string">&quot;script execution aborted&quot;</span>,
-            ErrorKind::BusyLoadingError =&gt; <span class="string">&quot;busy loading&quot;</span>,
-            ErrorKind::NoScriptError =&gt; <span class="string">&quot;no script&quot;</span>,
-            ErrorKind::InvalidClientConfig =&gt; <span class="string">&quot;invalid client config&quot;</span>,
-            ErrorKind::Moved =&gt; <span class="string">&quot;key moved&quot;</span>,
-            ErrorKind::Ask =&gt; <span class="string">&quot;key moved (ask)&quot;</span>,
-            ErrorKind::TryAgain =&gt; <span class="string">&quot;try again&quot;</span>,
-            ErrorKind::ClusterDown =&gt; <span class="string">&quot;cluster down&quot;</span>,
-            ErrorKind::CrossSlot =&gt; <span class="string">&quot;cross-slot&quot;</span>,
-            ErrorKind::MasterDown =&gt; <span class="string">&quot;master down&quot;</span>,
-            ErrorKind::IoError =&gt; <span class="string">&quot;I/O error&quot;</span>,
-            ErrorKind::ExtensionError =&gt; <span class="string">&quot;extension error&quot;</span>,
-            ErrorKind::ClientError =&gt; <span class="string">&quot;client error&quot;</span>,
-            ErrorKind::ReadOnly =&gt; <span class="string">&quot;read-only&quot;</span>,
-            ErrorKind::MasterNameNotFoundBySentinel =&gt; <span class="string">&quot;master name not found by sentinel&quot;</span>,
-            ErrorKind::NoValidReplicasFoundBySentinel =&gt; <span class="string">&quot;no valid replicas found by sentinel&quot;</span>,
-            ErrorKind::EmptySentinelList =&gt; <span class="string">&quot;empty sentinel list&quot;</span>,
-            ErrorKind::NotBusy =&gt; <span class="string">&quot;not busy&quot;</span>,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
-            </span>ErrorKind::Serialize =&gt; <span class="string">&quot;serializing&quot;</span>,
+            ErrorKind::ResponseError =&gt; <span class="string">"response error"</span>,
+            ErrorKind::AuthenticationFailed =&gt; <span class="string">"authentication failed"</span>,
+            ErrorKind::TypeError =&gt; <span class="string">"type error"</span>,
+            ErrorKind::ExecAbortError =&gt; <span class="string">"script execution aborted"</span>,
+            ErrorKind::BusyLoadingError =&gt; <span class="string">"busy loading"</span>,
+            ErrorKind::NoScriptError =&gt; <span class="string">"no script"</span>,
+            ErrorKind::InvalidClientConfig =&gt; <span class="string">"invalid client config"</span>,
+            ErrorKind::Moved =&gt; <span class="string">"key moved"</span>,
+            ErrorKind::Ask =&gt; <span class="string">"key moved (ask)"</span>,
+            ErrorKind::TryAgain =&gt; <span class="string">"try again"</span>,
+            ErrorKind::ClusterDown =&gt; <span class="string">"cluster down"</span>,
+            ErrorKind::CrossSlot =&gt; <span class="string">"cross-slot"</span>,
+            ErrorKind::MasterDown =&gt; <span class="string">"master down"</span>,
+            ErrorKind::IoError =&gt; <span class="string">"I/O error"</span>,
+            ErrorKind::ExtensionError =&gt; <span class="string">"extension error"</span>,
+            ErrorKind::ClientError =&gt; <span class="string">"client error"</span>,
+            ErrorKind::ReadOnly =&gt; <span class="string">"read-only"</span>,
+            ErrorKind::MasterNameNotFoundBySentinel =&gt; <span class="string">"master name not found by sentinel"</span>,
+            ErrorKind::NoValidReplicasFoundBySentinel =&gt; <span class="string">"no valid replicas found by sentinel"</span>,
+            ErrorKind::EmptySentinelList =&gt; <span class="string">"empty sentinel list"</span>,
+            ErrorKind::NotBusy =&gt; <span class="string">"not busy"</span>,
+            <span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
+            </span>ErrorKind::Serialize =&gt; <span class="string">"serializing"</span>,
         }
     }
 
@@ -2144,7 +2145,7 @@
     /// This method should not be used because every time the redis library
     /// adds support for a new error code it would disappear form this method.
     /// `code()` always returns the code.
-    </span><span class="attr">#[deprecated(note = <span class="string">&quot;use code() instead&quot;</span>)]
+    </span><span class="attr">#[deprecated(note = <span class="string">"use code() instead"</span>)]
     </span><span class="kw">pub fn </span>extension_error_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="kw">match </span><span class="self">self</span>.repr {
             ErrorRepr::ExtensionError(<span class="kw-2">ref </span>code, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(code),
@@ -2159,8 +2160,8 @@
     ///
     /// The `ioerror_description` parameter will be prepended to the message in
     /// case an `IoError` is found.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;connection-manager&quot;</span>)] </span><span class="comment">// Used to avoid &quot;unused method&quot; warning
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clone_mostly(<span class="kw-2">&amp;</span><span class="self">self</span>, ioerror_description: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="attr">#[cfg(feature = <span class="string">"connection-manager"</span>)] </span><span class="comment">// Used to avoid "unused method" warning
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clone_mostly(<span class="kw-2">&amp;</span><span class="self">self</span>, ioerror_description: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>repr = <span class="kw">match </span><span class="self">self</span>.repr {
             ErrorRepr::WithDescription(kind, desc) =&gt; ErrorRepr::WithDescription(kind, desc),
             ErrorRepr::WithDescriptionAndDetail(kind, desc, <span class="kw-2">ref </span>detail) =&gt; {
@@ -2171,7 +2172,7 @@
             }
             ErrorRepr::IoError(<span class="kw-2">ref </span>e) =&gt; ErrorRepr::IoError(io::Error::new(
                 e.kind(),
-                <span class="macro">format!</span>(<span class="string">&quot;{ioerror_description}: {e}&quot;</span>),
+                <span class="macro">format!</span>(<span class="string">"{ioerror_description}: {e}"</span>),
             )),
         };
         <span class="self">Self </span>{ repr }
@@ -2180,7 +2181,7 @@
     <span class="comment">// TODO: In addition to/instead of returning a bool here, consider a method
     // that returns an enum with more detail about _how_ to retry errors, e.g.,
     // `RetryImmediately`, `WaitAndRetry`, etc.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)] </span><span class="comment">// Used to avoid &quot;unused method&quot; warning
+    </span><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)] </span><span class="comment">// Used to avoid "unused method" warning
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_retryable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">match </span><span class="self">self</span>.kind() {
             ErrorKind::BusyLoadingError =&gt; <span class="bool-val">true</span>,
@@ -2205,7 +2206,7 @@
             ErrorKind::ClientError =&gt; <span class="bool-val">false</span>,
             ErrorKind::EmptySentinelList =&gt; <span class="bool-val">false</span>,
             ErrorKind::NotBusy =&gt; <span class="bool-val">false</span>,
-            <span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
             </span>ErrorKind::Serialize =&gt; <span class="bool-val">false</span>,
         }
     }
@@ -2217,7 +2218,7 @@
             code.to_string(),
             <span class="kw">match </span>detail {
                 <span class="prelude-val">Some</span>(x) =&gt; x.to_string(),
-                <span class="prelude-val">None </span>=&gt; <span class="string">&quot;Unknown extension error encountered&quot;</span>.to_string(),
+                <span class="prelude-val">None </span>=&gt; <span class="string">"Unknown extension error encountered"</span>.to_string(),
             },
         ),
     }
@@ -2227,8 +2228,8 @@
 </span><span class="kw">pub type </span>RedisResult&lt;T&gt; = <span class="prelude-ty">Result</span>&lt;T, RedisError&gt;;
 
 <span class="doccomment">/// Library generic future type.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-</span><span class="kw">pub type </span>RedisFuture&lt;<span class="lifetime">&#39;a</span>, T&gt; = futures_util::future::BoxFuture&lt;<span class="lifetime">&#39;a</span>, RedisResult&lt;T&gt;&gt;;
+</span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+</span><span class="kw">pub type </span>RedisFuture&lt;<span class="lifetime">'a</span>, T&gt; = futures_util::future::BoxFuture&lt;<span class="lifetime">'a</span>, RedisResult&lt;T&gt;&gt;;
 
 <span class="doccomment">/// An info dictionary type.
 </span><span class="attr">#[derive(Debug, Clone)]
@@ -2237,19 +2238,19 @@
 }
 
 <span class="doccomment">/// This type provides convenient access to key/value data returned by
-/// the &quot;INFO&quot; command.  It acts like a regular mapping but also has
+/// the "INFO" command.  It acts like a regular mapping but also has
 /// a convenience method `get` which can return data in the appropriate
 /// type.
 ///
-/// For instance this can be used to query the server for the role it&#39;s
+/// For instance this can be used to query the server for the role it's
 /// in (master, slave) etc:
 ///
 /// ```rust,no_run
 /// # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
-/// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+/// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 /// # let mut con = client.get_connection().unwrap();
-/// let info : redis::InfoDict = redis::cmd(&quot;INFO&quot;).query(&amp;mut con)?;
-/// let role : Option&lt;String&gt; = info.get(&quot;role&quot;);
+/// let info : redis::InfoDict = redis::cmd("INFO").query(&amp;mut con)?;
+/// let role : Option&lt;String&gt; = info.get("role");
 /// # Ok(()) }
 /// ```
 </span><span class="kw">impl </span>InfoDict {
@@ -2260,10 +2261,10 @@
     </span><span class="kw">pub fn </span>new(kvpairs: <span class="kw-2">&amp;</span>str) -&gt; InfoDict {
         <span class="kw">let </span><span class="kw-2">mut </span>map = HashMap::new();
         <span class="kw">for </span>line <span class="kw">in </span>kvpairs.lines() {
-            <span class="kw">if </span>line.is_empty() || line.starts_with(<span class="string">&#39;#&#39;</span>) {
+            <span class="kw">if </span>line.is_empty() || line.starts_with(<span class="string">'#'</span>) {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let </span><span class="kw-2">mut </span>p = line.splitn(<span class="number">2</span>, <span class="string">&#39;:&#39;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>p = line.splitn(<span class="number">2</span>, <span class="string">':'</span>);
             <span class="kw">let </span>k = <span class="macro">unwrap_or!</span>(p.next(), <span class="kw">continue</span>).to_string();
             <span class="kw">let </span>v = <span class="macro">unwrap_or!</span>(p.next(), <span class="kw">continue</span>).to_string();
             map.insert(k, Value::Status(v));
@@ -2354,7 +2355,7 @@
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite;
 
     <span class="doccomment">/// Returns an information about the contained value with regards
-    /// to it&#39;s numeric behavior in a redis context.  This is used in
+    /// to it's numeric behavior in a redis context.  This is used in
     /// some high level concepts to switch between different implementations
     /// of redis functions (for instance `INCR` vs `INCRBYFLOAT`).
     </span><span class="kw">fn </span>describe_numeric_behavior(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NumericBehavior {
@@ -2362,7 +2363,7 @@
     }
 
     <span class="doccomment">/// Returns an indiciation if the value contained is exactly one
-    /// argument.  It returns false if it&#39;s zero or more than one.  This
+    /// argument.  It returns false if it's zero or more than one.  This
     /// is used in some high level functions to intelligently switch
     /// between `GET` and `MGET` variants.
     </span><span class="kw">fn </span>is_single_arg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -2384,11 +2385,11 @@
     <span class="doccomment">/// This only exists internally as a workaround for the lack of
     /// specialization.
     </span><span class="attr">#[doc(hidden)]
-    </span><span class="kw">fn </span>make_arg_iter_ref&lt;<span class="lifetime">&#39;a</span>, I, W&gt;(items: I, out: <span class="kw-2">&amp;mut </span>W)
+    </span><span class="kw">fn </span>make_arg_iter_ref&lt;<span class="lifetime">'a</span>, I, W&gt;(items: I, out: <span class="kw-2">&amp;mut </span>W)
     <span class="kw">where
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
-        I: Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>&gt;,
-        <span class="self">Self</span>: <span class="lifetime">&#39;a</span>,
+        I: Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>&gt;,
+        <span class="self">Self</span>: <span class="lifetime">'a</span>,
     {
         <span class="kw">for </span>item <span class="kw">in </span>items {
             item.write_redis_args(out);
@@ -2509,7 +2510,7 @@
     <span class="kw">where
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
     {
-        out.write_arg(<span class="kw">if </span><span class="kw-2">*</span><span class="self">self </span>{ <span class="string">b&quot;1&quot; </span>} <span class="kw">else </span>{ <span class="string">b&quot;0&quot; </span>})
+        out.write_arg(<span class="kw">if </span><span class="kw-2">*</span><span class="self">self </span>{ <span class="string">b"1" </span>} <span class="kw">else </span>{ <span class="string">b"0" </span>})
     }
 }
 
@@ -2522,7 +2523,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
     <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
     <span class="kw">where
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
@@ -2544,7 +2545,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: ToRedisArgs&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T] {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: ToRedisArgs&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T] {
     <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
     <span class="kw">where
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
@@ -2616,7 +2617,7 @@
 <span class="doccomment">/// @note: Redis cannot store empty sets so the application has to
 /// check whether the set is empty and if so, not attempt to use that
 /// result
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;ahash&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
 </span><span class="kw">impl</span>&lt;T: ToRedisArgs + Hash + Eq, S: BuildHasher + Default&gt; ToRedisArgs <span class="kw">for </span>ahash::AHashSet&lt;T, S&gt; {
     <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
     <span class="kw">where
@@ -2725,7 +2726,7 @@
 <span class="macro">macro_rules! </span>to_redis_args_for_array {
     ($(<span class="macro-nonterminal">$N</span>:expr)+) =&gt; {
         $(
-            <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: ToRedisArgs&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T; <span class="macro-nonterminal">$N</span>] {
+            <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: ToRedisArgs&gt; ToRedisArgs <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T; <span class="macro-nonterminal">$N</span>] {
                 <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W) <span class="kw">where </span>W: <span class="question-mark">?</span>Sized + RedisWrite {
                     ToRedisArgs::make_arg_vec(<span class="kw-2">*</span><span class="self">self</span>, out)
                 }
@@ -2758,7 +2759,7 @@
 /// for tuples up to size 12 and for `Vec&lt;u8&gt;`.
 </span><span class="kw">pub trait </span>FromRedisValue: Sized {
     <span class="doccomment">/// Given a redis `Value` this attempts to convert it into the given
-    /// destination type.  If that fails because it&#39;s not compatible an
+    /// destination type.  If that fails because it's not compatible an
     /// appropriate error is generated.
     </span><span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt;;
 
@@ -2784,13 +2785,13 @@
             Value::Int(val) =&gt; <span class="prelude-val">Ok</span>(val <span class="kw">as </span><span class="macro-nonterminal">$t</span>),
             Value::Status(<span class="kw-2">ref </span>s) =&gt; <span class="kw">match </span>s.parse::&lt;<span class="macro-nonterminal">$t</span>&gt;() {
                 <span class="prelude-val">Ok</span>(rv) =&gt; <span class="prelude-val">Ok</span>(rv),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Could not convert from string.&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Could not convert from string."</span>),
             },
             Value::Data(<span class="kw-2">ref </span>bytes) =&gt; <span class="kw">match </span>from_utf8(bytes)<span class="question-mark">?</span>.parse::&lt;<span class="macro-nonterminal">$t</span>&gt;() {
                 <span class="prelude-val">Ok</span>(rv) =&gt; <span class="prelude-val">Ok</span>(rv),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Could not convert from string.&quot;</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Could not convert from string."</span>),
             },
-            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Response type not convertible to numeric.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Response type not convertible to numeric."</span>),
         }
     }};
 }
@@ -2836,25 +2837,25 @@
             Value::Nil =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
             Value::Int(val) =&gt; <span class="prelude-val">Ok</span>(val != <span class="number">0</span>),
             Value::Status(<span class="kw-2">ref </span>s) =&gt; {
-                <span class="kw">if </span><span class="kw-2">&amp;</span>s[..] == <span class="string">&quot;1&quot; </span>{
+                <span class="kw">if </span><span class="kw-2">&amp;</span>s[..] == <span class="string">"1" </span>{
                     <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
-                } <span class="kw">else if </span><span class="kw-2">&amp;</span>s[..] == <span class="string">&quot;0&quot; </span>{
+                } <span class="kw">else if </span><span class="kw-2">&amp;</span>s[..] == <span class="string">"0" </span>{
                     <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
                 } <span class="kw">else </span>{
-                    <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Response status not valid boolean&quot;</span>);
+                    <span class="macro">invalid_type_error!</span>(v, <span class="string">"Response status not valid boolean"</span>);
                 }
             }
             Value::Data(<span class="kw-2">ref </span>bytes) =&gt; {
-                <span class="kw">if </span>bytes == <span class="string">b&quot;1&quot; </span>{
+                <span class="kw">if </span>bytes == <span class="string">b"1" </span>{
                     <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
-                } <span class="kw">else if </span>bytes == <span class="string">b&quot;0&quot; </span>{
+                } <span class="kw">else if </span>bytes == <span class="string">b"0" </span>{
                     <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
                 } <span class="kw">else </span>{
-                    <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Response type not bool compatible.&quot;</span>);
+                    <span class="macro">invalid_type_error!</span>(v, <span class="string">"Response type not bool compatible."</span>);
                 }
             }
             Value::Okay =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
-            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Response type not bool compatible.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Response type not bool compatible."</span>),
         }
     }
 }
@@ -2863,9 +2864,9 @@
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;CString&gt; {
         <span class="kw">match </span><span class="kw-2">*</span>v {
             Value::Data(<span class="kw-2">ref </span>bytes) =&gt; <span class="prelude-val">Ok</span>(CString::new(bytes.as_slice())<span class="question-mark">?</span>),
-            Value::Okay =&gt; <span class="prelude-val">Ok</span>(CString::new(<span class="string">&quot;OK&quot;</span>)<span class="question-mark">?</span>),
+            Value::Okay =&gt; <span class="prelude-val">Ok</span>(CString::new(<span class="string">"OK"</span>)<span class="question-mark">?</span>),
             Value::Status(<span class="kw-2">ref </span>val) =&gt; <span class="prelude-val">Ok</span>(CString::new(val.as_bytes())<span class="question-mark">?</span>),
-            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Response type not CString compatible.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Response type not CString compatible."</span>),
         }
     }
 }
@@ -2874,9 +2875,9 @@
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;String&gt; {
         <span class="kw">match </span><span class="kw-2">*</span>v {
             Value::Data(<span class="kw-2">ref </span>bytes) =&gt; <span class="prelude-val">Ok</span>(from_utf8(bytes)<span class="question-mark">?</span>.to_string()),
-            Value::Okay =&gt; <span class="prelude-val">Ok</span>(<span class="string">&quot;OK&quot;</span>.to_string()),
+            Value::Okay =&gt; <span class="prelude-val">Ok</span>(<span class="string">"OK"</span>.to_string()),
             Value::Status(<span class="kw-2">ref </span>val) =&gt; <span class="prelude-val">Ok</span>(val.to_string()),
-            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Response type not string compatible.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Response type not string compatible."</span>),
         }
     }
 }
@@ -2900,12 +2901,12 @@
                         <span class="prelude-val">Some</span>(x) =&gt; <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$convert</span>(x)),
                         <span class="prelude-val">None </span>=&gt; <span class="macro">invalid_type_error!</span>(
                             v,
-                            <span class="macro">format!</span>(<span class="string">&quot;Conversion to {} failed.&quot;</span>, std::any::type_name::&lt;<span class="macro-nonterminal">$Type</span>&gt;())
+                            <span class="macro">format!</span>(<span class="string">"Conversion to {} failed."</span>, std::any::type_name::&lt;<span class="macro-nonterminal">$Type</span>&gt;())
                         ),
                     },
                     Value::Bulk(items) =&gt; FromRedisValue::from_redis_values(items).map(<span class="macro-nonterminal">$convert</span>),
                     Value::Nil =&gt; <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$convert</span>(Vec::new())),
-                    <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Response type not vector compatible.&quot;</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Response type not vector compatible."</span>),
                 }
             }
         }
@@ -2925,7 +2926,7 @@
             <span class="kw">_ </span>=&gt; v
                 .as_map_iter()
                 .ok_or_else(|| {
-                    <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">&quot;Response type not hashmap compatible&quot;</span>)
+                    <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashmap compatible"</span>)
                 })<span class="question-mark">?
                 </span>.map(|(k, v)| <span class="prelude-val">Ok</span>((from_redis_value(k)<span class="question-mark">?</span>, from_redis_value(v)<span class="question-mark">?</span>)))
                 .collect(),
@@ -2933,7 +2934,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ahash&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
 </span><span class="kw">impl</span>&lt;K: FromRedisValue + Eq + Hash, V: FromRedisValue&gt; FromRedisValue <span class="kw">for </span>ahash::AHashMap&lt;K, V&gt; {
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;ahash::AHashMap&lt;K, V&gt;&gt; {
         <span class="kw">match </span><span class="kw-2">*</span>v {
@@ -2941,7 +2942,7 @@
             <span class="kw">_ </span>=&gt; v
                 .as_map_iter()
                 .ok_or_else(|| {
-                    <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">&quot;Response type not hashmap compatible&quot;</span>)
+                    <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashmap compatible"</span>)
                 })<span class="question-mark">?
                 </span>.map(|(k, v)| <span class="prelude-val">Ok</span>((from_redis_value(k)<span class="question-mark">?</span>, from_redis_value(v)<span class="question-mark">?</span>)))
                 .collect(),
@@ -2955,7 +2956,7 @@
 {
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;BTreeMap&lt;K, V&gt;&gt; {
         v.as_map_iter()
-            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">&quot;Response type not btreemap compatible&quot;</span>))<span class="question-mark">?
+            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not btreemap compatible"</span>))<span class="question-mark">?
             </span>.map(|(k, v)| <span class="prelude-val">Ok</span>((from_redis_value(k)<span class="question-mark">?</span>, from_redis_value(v)<span class="question-mark">?</span>)))
             .collect()
     }
@@ -2967,17 +2968,17 @@
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;std::collections::HashSet&lt;T, S&gt;&gt; {
         <span class="kw">let </span>items = v
             .as_sequence()
-            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">&quot;Response type not hashset compatible&quot;</span>))<span class="question-mark">?</span>;
+            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashset compatible"</span>))<span class="question-mark">?</span>;
         items.iter().map(|item| from_redis_value(item)).collect()
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ahash&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ahash"</span>)]
 </span><span class="kw">impl</span>&lt;T: FromRedisValue + Eq + Hash&gt; FromRedisValue <span class="kw">for </span>ahash::AHashSet&lt;T&gt; {
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;ahash::AHashSet&lt;T&gt;&gt; {
         <span class="kw">let </span>items = v
             .as_sequence()
-            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">&quot;Response type not hashset compatible&quot;</span>))<span class="question-mark">?</span>;
+            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not hashset compatible"</span>))<span class="question-mark">?</span>;
         items.iter().map(|item| from_redis_value(item)).collect()
     }
 }
@@ -2989,7 +2990,7 @@
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;BTreeSet&lt;T&gt;&gt; {
         <span class="kw">let </span>items = v
             .as_sequence()
-            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">&quot;Response type not btreeset compatible&quot;</span>))<span class="question-mark">?</span>;
+            .ok_or_else(|| <span class="macro">invalid_type_error_inner!</span>(v, <span class="string">"Response type not btreeset compatible"</span>))<span class="question-mark">?</span>;
         items.iter().map(|item| from_redis_value(item)).collect()
     }
 }
@@ -3021,16 +3022,16 @@
                         </span><span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
                         $(<span class="kw">let </span><span class="macro-nonterminal">$name </span>= (); n += <span class="number">1</span>;)*
                         <span class="kw">if </span>items.len() != n {
-                            <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Bulk response of wrong dimension&quot;</span>)
+                            <span class="macro">invalid_type_error!</span>(v, <span class="string">"Bulk response of wrong dimension"</span>)
                         }
 
-                        <span class="comment">// this is pretty ugly too.  The { i += 1; i - 1} is rust&#39;s
+                        <span class="comment">// this is pretty ugly too.  The { i += 1; i - 1} is rust's
                         // postfix increment :)
                         </span><span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
                         <span class="prelude-val">Ok</span>(($({<span class="kw">let </span><span class="macro-nonterminal">$name </span>= (); from_redis_value(
                              <span class="kw-2">&amp;</span>items[{ i += <span class="number">1</span>; i - <span class="number">1 </span>}])<span class="question-mark">?</span>},)<span class="kw-2">*</span>))
                     }
-                    <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Not a bulk response&quot;</span>)
+                    <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Not a bulk response"</span>)
                 }
             }
 
@@ -3040,10 +3041,10 @@
                 </span><span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
                 $(<span class="kw">let </span><span class="macro-nonterminal">$name </span>= (); n += <span class="number">1</span>;)*
                 <span class="kw">if </span>items.len() % n != <span class="number">0 </span>{
-                    <span class="macro">invalid_type_error!</span>(items, <span class="string">&quot;Bulk response of wrong dimension&quot;</span>)
+                    <span class="macro">invalid_type_error!</span>(items, <span class="string">"Bulk response of wrong dimension"</span>)
                 }
 
-                <span class="comment">// this is pretty ugly too.  The { i += 1; i - 1} is rust&#39;s
+                <span class="comment">// this is pretty ugly too.  The { i += 1; i - 1} is rust's
                 // postfix increment :)
                 </span><span class="kw">let </span><span class="kw-2">mut </span>rv = <span class="macro">vec!</span>[];
                 <span class="kw">if </span>items.len() == <span class="number">0 </span>{
@@ -3087,12 +3088,12 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;bytes&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"bytes"</span>)]
 </span><span class="kw">impl </span>FromRedisValue <span class="kw">for </span>bytes::Bytes {
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>v {
             Value::Data(bytes_vec) =&gt; <span class="prelude-val">Ok</span>(bytes::Bytes::copy_from_slice(bytes_vec.as_ref())),
-            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">&quot;Not binary data&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(v, <span class="string">"Not binary data"</span>),
         }
     }
 }

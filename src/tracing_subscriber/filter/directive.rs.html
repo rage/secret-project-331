@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/directive.rs`."><title>directive.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/directive.rs`."><title>directive.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -456,9 +457,9 @@
 <a href="#456" id="456">456</a>
 <a href="#457" id="457">457</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::filter::level::{<span class="self">self</span>, LevelFilter};
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;smallvec&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"smallvec"</span>))]
 </span><span class="kw">use </span>alloc::vec;
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">use </span>alloc::{string::String, vec::Vec};
 
 <span class="kw">use </span>core::{cmp::Ordering, fmt, iter::FromIterator, slice, str::FromStr};
@@ -479,9 +480,9 @@
     <span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::filter) level: LevelFilter,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;smallvec&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"smallvec"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>FilterVec&lt;T&gt; = smallvec::SmallVec&lt;[T; <span class="number">8</span>]&gt;;
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;smallvec&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"smallvec"</span>))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>FilterVec&lt;T&gt; = Vec&lt;T&gt;;
 
 <span class="attr">#[derive(Debug, PartialEq, Clone)]
@@ -491,28 +492,28 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::filter) <span class="kw">trait </span>Match {
-    <span class="kw">fn </span>cares_about(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool;
+    <span class="kw">fn </span>cares_about(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool;
     <span class="kw">fn </span>level(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>LevelFilter;
 }
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">enum </span>ParseErrorKind {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span>Field(Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;),
     Level(level::ParseError),
-    Other(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;),
+    Other(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;),
 }
 
 <span class="comment">// === impl DirectiveSet ===
 
 </span><span class="kw">impl</span>&lt;T&gt; DirectiveSet&lt;T&gt; {
     <span class="comment">// this is only used by `env-filter`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, feature = <span class="string">&quot;env-filter&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"env-filter"</span>))]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.directives.is_empty()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; slice::Iter&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; slice::Iter&lt;<span class="lifetime">'_</span>, T&gt; {
         <span class="self">self</span>.directives.iter()
     }
 }
@@ -531,10 +532,10 @@
         <span class="self">self</span>.directives.iter()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>directives_for&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Metadata&lt;<span class="lifetime">&#39;a</span>&gt;,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; + <span class="lifetime">&#39;a </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>directives_for&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        metadata: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Metadata&lt;<span class="lifetime">'a</span>&gt;,
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.directives().filter(<span class="kw">move </span>|d| d.cares_about(metadata))
     }
 
@@ -580,9 +581,9 @@
 <span class="kw">impl</span>&lt;T&gt; IntoIterator <span class="kw">for </span>DirectiveSet&lt;T&gt; {
     <span class="kw">type </span>Item = T;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;smallvec&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"smallvec"</span>)]
     </span><span class="kw">type </span>IntoIter = smallvec::IntoIter&lt;[T; <span class="number">8</span>]&gt;;
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;smallvec&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"smallvec"</span>))]
     </span><span class="kw">type </span>IntoIter = vec::IntoIter&lt;T&gt;;
 
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
@@ -593,7 +594,7 @@
 <span class="comment">// === impl Statics ===
 
 </span><span class="kw">impl </span>DirectiveSet&lt;StaticDirective&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">let </span>level = meta.level();
         <span class="kw">match </span><span class="self">self</span>.directives_for(meta).next() {
             <span class="prelude-val">Some</span>(d) =&gt; d.level &gt;= <span class="kw-2">*</span>level,
@@ -601,7 +602,7 @@
         }
     }
 
-    <span class="doccomment">/// Same as `enabled` above, but skips `Directive`&#39;s with fields.
+    <span class="doccomment">/// Same as `enabled` above, but skips `Directive`'s with fields.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>target_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, target: <span class="kw-2">&amp;</span>str, level: <span class="kw-2">&amp;</span>Level) -&gt; bool {
         <span class="kw">match </span><span class="self">self</span>.directives_for_target(target).next() {
             <span class="prelude-val">Some</span>(d) =&gt; d.level &gt;= <span class="kw-2">*</span>level,
@@ -609,10 +610,10 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>directives_for_target&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        target: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StaticDirective&gt; + <span class="lifetime">&#39;a </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>directives_for_target&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        target: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>StaticDirective&gt; + <span class="lifetime">'a </span>{
         <span class="self">self</span>.directives()
             .filter(<span class="kw">move </span>|d| d.cares_about_target(target))
     }
@@ -635,7 +636,7 @@
 
     <span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::filter) <span class="kw">fn </span>cares_about_target(<span class="kw-2">&amp;</span><span class="self">self</span>, to_check: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="comment">// Does this directive have a target filter, and does it match the
-        // metadata&#39;s target?
+        // metadata's target?
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>target) = <span class="self">self</span>.target {
             <span class="kw">if </span>!to_check.starts_with(<span class="kw-2">&amp;</span>target[..]) {
                 <span class="kw">return </span><span class="bool-val">false</span>;
@@ -652,7 +653,7 @@
 
 <span class="kw">impl </span>Ord <span class="kw">for </span>StaticDirective {
     <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>StaticDirective) -&gt; Ordering {
-        <span class="comment">// We attempt to order directives by how &quot;specific&quot; they are. This
+        <span class="comment">// We attempt to order directives by how "specific" they are. This
         // ensures that we try the most specific directives first when
         // attempting to match a piece of metadata.
 
@@ -667,7 +668,7 @@
             </span>.then_with(|| <span class="self">self</span>.field_names.len().cmp(<span class="kw-2">&amp;</span>other.field_names.len()))
             <span class="comment">// Finally, we fall back to lexicographical ordering if the directives are
             // equally specific. Although this is no longer semantically important,
-            // we need to define a total ordering to determine the directive&#39;s place
+            // we need to define a total ordering to determine the directive's place
             // in the BTreeMap.
             </span>.then_with(|| {
                 <span class="self">self</span>.target
@@ -681,11 +682,11 @@
             <span class="kw">if </span>ordering == Ordering::Equal {
                 <span class="macro">debug_assert_eq!</span>(
                     <span class="self">self</span>.target, other.target,
-                    <span class="string">&quot;invariant violated: Ordering::Equal must imply a.target == b.target&quot;
+                    <span class="string">"invariant violated: Ordering::Equal must imply a.target == b.target"
                 </span>);
                 <span class="macro">debug_assert_eq!</span>(
                     <span class="self">self</span>.field_names, other.field_names,
-                    <span class="string">&quot;invariant violated: Ordering::Equal must imply a.field_names == b.field_names&quot;
+                    <span class="string">"invariant violated: Ordering::Equal must imply a.field_names == b.field_names"
                 </span>);
             }
         }
@@ -701,9 +702,9 @@
 }
 
 <span class="kw">impl </span>Match <span class="kw">for </span>StaticDirective {
-    <span class="kw">fn </span>cares_about(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    <span class="kw">fn </span>cares_about(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="comment">// Does this directive have a target filter, and does it match the
-        // metadata&#39;s target?
+        // metadata's target?
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>target) = <span class="self">self</span>.target {
             <span class="kw">if </span>!meta.target().starts_with(<span class="kw-2">&amp;</span>target[..]) {
                 <span class="kw">return </span><span class="bool-val">false</span>;
@@ -738,7 +739,7 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>StaticDirective {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>wrote_any = <span class="bool-val">false</span>;
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>target) = <span class="self">self</span>.target {
             fmt::Display::fmt(target, f)<span class="question-mark">?</span>;
@@ -746,23 +747,23 @@
         }
 
         <span class="kw">if </span>!<span class="self">self</span>.field_names.is_empty() {
-            f.write_str(<span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+            f.write_str(<span class="string">"["</span>)<span class="question-mark">?</span>;
 
             <span class="kw">let </span><span class="kw-2">mut </span>fields = <span class="self">self</span>.field_names.iter();
             <span class="kw">if let </span><span class="prelude-val">Some</span>(field) = fields.next() {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{{{}&quot;</span>, field)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">"{{{}"</span>, field)<span class="question-mark">?</span>;
                 <span class="kw">for </span>field <span class="kw">in </span>fields {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;,{}&quot;</span>, field)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">",{}"</span>, field)<span class="question-mark">?</span>;
                 }
-                f.write_str(<span class="string">&quot;}&quot;</span>)<span class="question-mark">?</span>;
+                f.write_str(<span class="string">"}"</span>)<span class="question-mark">?</span>;
             }
 
-            f.write_str(<span class="string">&quot;]&quot;</span>)<span class="question-mark">?</span>;
+            f.write_str(<span class="string">"]"</span>)<span class="question-mark">?</span>;
             wrote_any = <span class="bool-val">true</span>;
         }
 
         <span class="kw">if </span>wrote_any {
-            f.write_str(<span class="string">&quot;=&quot;</span>)<span class="question-mark">?</span>;
+            f.write_str(<span class="string">"="</span>)<span class="question-mark">?</span>;
         }
 
         fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.level, f)
@@ -780,10 +781,10 @@
         // * `foo[{bar,baz}]=info` (TARGET[{FIELD,+}]=LEVEL)
         // * `trace` (bare LEVEL)
         // * `foo` (bare TARGET)
-        </span><span class="kw">let </span><span class="kw-2">mut </span>split = s.split(<span class="string">&#39;=&#39;</span>);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>split = s.split(<span class="string">'='</span>);
         <span class="kw">let </span>part0 = split
             .next()
-            .ok_or_else(|| ParseError::msg(<span class="string">&quot;string must not be empty&quot;</span>))<span class="question-mark">?</span>;
+            .ok_or_else(|| ParseError::msg(<span class="string">"string must not be empty"</span>))<span class="question-mark">?</span>;
 
         <span class="comment">// Directive includes an `=`:
         // * `foo=trace`
@@ -792,11 +793,11 @@
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(part1) = split.next() {
             <span class="kw">if </span>split.next().is_some() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::msg(
-                    <span class="string">&quot;too many &#39;=&#39; in filter directive, expected 0 or 1&quot;</span>,
+                    <span class="string">"too many '=' in filter directive, expected 0 or 1"</span>,
                 ));
             }
 
-            <span class="kw">let </span><span class="kw-2">mut </span>split = part0.split(<span class="string">&quot;[{&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>split = part0.split(<span class="string">"[{"</span>);
             <span class="kw">let </span>target = split.next().map(String::from);
             <span class="kw">let </span><span class="kw-2">mut </span>field_names = Vec::new();
             <span class="comment">// Directive includes fields:
@@ -805,17 +806,17 @@
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(maybe_fields) = split.next() {
                 <span class="kw">if </span>split.next().is_some() {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::msg(
-                        <span class="string">&quot;too many &#39;[{&#39; in filter directive, expected 0 or 1&quot;</span>,
+                        <span class="string">"too many '[{' in filter directive, expected 0 or 1"</span>,
                     ));
                 }
 
-                <span class="kw">if </span>!maybe_fields.ends_with(<span class="string">&quot;}]&quot;</span>) {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::msg(<span class="string">&quot;expected fields list to end with &#39;}]&#39;&quot;</span>));
+                <span class="kw">if </span>!maybe_fields.ends_with(<span class="string">"}]"</span>) {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::msg(<span class="string">"expected fields list to end with '}]'"</span>));
                 }
 
                 <span class="kw">let </span>fields = maybe_fields
-                    .trim_end_matches(<span class="string">&quot;}]&quot;</span>)
-                    .split(<span class="string">&#39;,&#39;</span>)
+                    .trim_end_matches(<span class="string">"}]"</span>)
+                    .split(<span class="string">','</span>)
                     .filter_map(|s| {
                         <span class="kw">if </span>s.is_empty() {
                             <span class="prelude-val">None
@@ -855,14 +856,14 @@
 <span class="comment">// === impl ParseError ===
 
 </span><span class="kw">impl </span>ParseError {
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, feature = <span class="string">&quot;env-filter&quot;</span>))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"env-filter"</span>))]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
         ParseError {
             kind: ParseErrorKind::Other(<span class="prelude-val">None</span>),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>msg(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>msg(s: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         ParseError {
             kind: ParseErrorKind::Other(<span class="prelude-val">Some</span>(s)),
         }
@@ -870,24 +871,24 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ParseError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self</span>.kind {
-            ParseErrorKind::Other(<span class="prelude-val">None</span>) =&gt; f.pad(<span class="string">&quot;invalid filter directive&quot;</span>),
-            ParseErrorKind::Other(<span class="prelude-val">Some</span>(msg)) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;invalid filter directive: {}&quot;</span>, msg),
+            ParseErrorKind::Other(<span class="prelude-val">None</span>) =&gt; f.pad(<span class="string">"invalid filter directive"</span>),
+            ParseErrorKind::Other(<span class="prelude-val">Some</span>(msg)) =&gt; <span class="macro">write!</span>(f, <span class="string">"invalid filter directive: {}"</span>, msg),
             ParseErrorKind::Level(<span class="kw-2">ref </span>l) =&gt; l.fmt(f),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-            </span>ParseErrorKind::Field(<span class="kw-2">ref </span>e) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;invalid field filter: {}&quot;</span>, e),
+            <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+            </span>ParseErrorKind::Field(<span class="kw-2">ref </span>e) =&gt; <span class="macro">write!</span>(f, <span class="string">"invalid field filter: {}"</span>, e),
         }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>ParseError {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="string">&quot;invalid filter directive&quot;
+        <span class="string">"invalid filter directive"
     </span>}
 
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">&#39;static</span>)&gt; {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">'static</span>)&gt; {
         <span class="kw">match </span><span class="self">self</span>.kind {
             ParseErrorKind::Other(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             ParseErrorKind::Level(<span class="kw-2">ref </span>l) =&gt; <span class="prelude-val">Some</span>(l),
@@ -896,7 +897,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>From&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt; <span class="kw">for </span>ParseError {
     <span class="kw">fn </span>from(e: Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{

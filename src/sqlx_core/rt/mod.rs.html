@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/rt/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/rt/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -169,161 +170,161 @@
 <span class="kw">use </span>std::task::{Context, Poll};
 <span class="kw">use </span>std::time::Duration;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"_rt-async-std"</span>)]
 </span><span class="kw">pub mod </span>rt_async_std;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
 </span><span class="kw">pub mod </span>rt_tokio;
 
 <span class="attr">#[derive(Debug, thiserror::Error)]
-#[error(<span class="string">&quot;operation timed out&quot;</span>)]
+#[error(<span class="string">"operation timed out"</span>)]
 </span><span class="kw">pub struct </span>TimeoutError(());
 
 <span class="kw">pub enum </span>JoinHandle&lt;T&gt; {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-async-std"</span>)]
     </span>AsyncStd(async_std::task::JoinHandle&lt;T&gt;),
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
     </span>Tokio(tokio::task::JoinHandle&lt;T&gt;),
     <span class="comment">// `PhantomData&lt;T&gt;` requires `T: Unpin`
     </span>_Phantom(PhantomData&lt;<span class="kw">fn</span>() -&gt; T&gt;),
 }
 
 <span class="kw">pub async fn </span>timeout&lt;F: Future&gt;(duration: Duration, f: F) -&gt; <span class="prelude-ty">Result</span>&lt;F::Output, TimeoutError&gt; {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
     </span><span class="kw">if </span>rt_tokio::available() {
         <span class="kw">return </span>tokio::time::timeout(duration, f)
             .<span class="kw">await
             </span>.map_err(|<span class="kw">_</span>| TimeoutError(()));
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-async-std"</span>)]
     </span>{
         <span class="kw">return </span>async_std::future::timeout(duration, f)
             .<span class="kw">await
             </span>.map_err(|<span class="kw">_</span>| TimeoutError(()));
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;_rt-async-std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"_rt-async-std"</span>))]
     </span>missing_rt((duration, f))
 }
 
 <span class="kw">pub async fn </span>sleep(duration: Duration) {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
     </span><span class="kw">if </span>rt_tokio::available() {
         <span class="kw">return </span>tokio::time::sleep(duration).<span class="kw">await</span>;
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-async-std"</span>)]
     </span>{
         <span class="kw">return </span>async_std::task::sleep(duration).<span class="kw">await</span>;
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;_rt-async-std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"_rt-async-std"</span>))]
     </span>missing_rt(duration)
 }
 
 <span class="attr">#[track_caller]
 </span><span class="kw">pub fn </span>spawn&lt;F&gt;(fut: F) -&gt; JoinHandle&lt;F::Output&gt;
 <span class="kw">where
-    </span>F: Future + Send + <span class="lifetime">&#39;static</span>,
-    F::Output: Send + <span class="lifetime">&#39;static</span>,
+    </span>F: Future + Send + <span class="lifetime">'static</span>,
+    F::Output: Send + <span class="lifetime">'static</span>,
 {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
     </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(handle) = tokio::runtime::Handle::try_current() {
         <span class="kw">return </span>JoinHandle::Tokio(handle.spawn(fut));
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-async-std"</span>)]
     </span>{
         <span class="kw">return </span>JoinHandle::AsyncStd(async_std::task::spawn(fut));
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;_rt-async-std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"_rt-async-std"</span>))]
     </span>missing_rt(fut)
 }
 
 <span class="attr">#[track_caller]
 </span><span class="kw">pub fn </span>spawn_blocking&lt;F, R&gt;(f: F) -&gt; JoinHandle&lt;R&gt;
 <span class="kw">where
-    </span>F: FnOnce() -&gt; R + Send + <span class="lifetime">&#39;static</span>,
-    R: Send + <span class="lifetime">&#39;static</span>,
+    </span>F: FnOnce() -&gt; R + Send + <span class="lifetime">'static</span>,
+    R: Send + <span class="lifetime">'static</span>,
 {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
     </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(handle) = tokio::runtime::Handle::try_current() {
         <span class="kw">return </span>JoinHandle::Tokio(handle.spawn_blocking(f));
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-async-std"</span>)]
     </span>{
         <span class="kw">return </span>JoinHandle::AsyncStd(async_std::task::spawn_blocking(f));
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;_rt-async-std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"_rt-async-std"</span>))]
     </span>missing_rt(f)
 }
 
 <span class="kw">pub async fn </span>yield_now() {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
     </span><span class="kw">if </span>rt_tokio::available() {
         <span class="kw">return </span>tokio::task::yield_now().<span class="kw">await</span>;
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-async-std"</span>)]
     </span>{
         <span class="kw">return </span>async_std::task::yield_now().<span class="kw">await</span>;
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;_rt-async-std&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"_rt-async-std"</span>))]
     </span>missing_rt(())
 }
 
 <span class="attr">#[track_caller]
 </span><span class="kw">pub fn </span>test_block_on&lt;F: Future&gt;(f: F) -&gt; F::Output {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
     </span>{
         <span class="kw">return </span>tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
-            .expect(<span class="string">&quot;failed to start Tokio runtime&quot;</span>)
+            .expect(<span class="string">"failed to start Tokio runtime"</span>)
             .block_on(f);
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;_rt-async-std&quot;</span>, not(feature = <span class="string">&quot;_rt-tokio&quot;</span>)))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"_rt-async-std"</span>, not(feature = <span class="string">"_rt-tokio"</span>)))]
     </span>{
         <span class="kw">return </span>async_std::task::block_on(f);
     }
 
-    <span class="attr">#[cfg(not(any(feature = <span class="string">&quot;_rt-async-std&quot;</span>, feature = <span class="string">&quot;_rt-tokio&quot;</span>)))]
+    <span class="attr">#[cfg(not(any(feature = <span class="string">"_rt-async-std"</span>, feature = <span class="string">"_rt-tokio"</span>)))]
     </span>{
         drop(f);
-        <span class="macro">panic!</span>(<span class="string">&quot;at least one of the `runtime-*` features must be enabled&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"at least one of the `runtime-*` features must be enabled"</span>)
     }
 }
 
 <span class="attr">#[track_caller]
 </span><span class="kw">pub fn </span>missing_rt&lt;T&gt;(_unused: T) -&gt; ! {
-    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;_rt-tokio&quot;</span>) {
-        <span class="macro">panic!</span>(<span class="string">&quot;this functionality requires a Tokio context&quot;</span>)
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"_rt-tokio"</span>) {
+        <span class="macro">panic!</span>(<span class="string">"this functionality requires a Tokio context"</span>)
     }
 
-    <span class="macro">panic!</span>(<span class="string">&quot;either the `runtime-async-std` or `runtime-tokio` feature must be enabled&quot;</span>)
+    <span class="macro">panic!</span>(<span class="string">"either the `runtime-async-std` or `runtime-tokio` feature must be enabled"</span>)
 }
 
-<span class="kw">impl</span>&lt;T: Send + <span class="lifetime">&#39;static</span>&gt; Future <span class="kw">for </span>JoinHandle&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: Send + <span class="lifetime">'static</span>&gt; Future <span class="kw">for </span>JoinHandle&lt;T&gt; {
     <span class="kw">type </span>Output = T;
 
     <span class="attr">#[track_caller]
-    </span><span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    </span><span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;mut *</span><span class="self">self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"_rt-async-std"</span>)]
             </span><span class="self">Self</span>::AsyncStd(handle) =&gt; Pin::new(handle).poll(cx),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"_rt-tokio"</span>)]
             </span><span class="self">Self</span>::Tokio(handle) =&gt; Pin::new(handle)
                 .poll(cx)
-                .map(|res| res.expect(<span class="string">&quot;spawned task panicked&quot;</span>)),
+                .map(|res| res.expect(<span class="string">"spawned task panicked"</span>)),
             <span class="self">Self</span>::_Phantom(<span class="kw">_</span>) =&gt; {
                 <span class="kw">let _ </span>= cx;
-                <span class="macro">unreachable!</span>(<span class="string">&quot;runtime should have been checked on spawn&quot;</span>)
+                <span class="macro">unreachable!</span>(<span class="string">"runtime should have been checked on spawn"</span>)
             }
         }
     }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_course_settings.rs`."><title>user_course_settings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_course_settings.rs`."><title>user_course_settings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -199,7 +200,7 @@
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{course_instance_enrollments::CourseInstanceEnrollment, prelude::<span class="kw-2">*</span>};
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserCourseSettings {
     <span class="kw">pub </span>user_id: Uuid,
     <span class="kw">pub </span>course_language_group_id: Uuid,
@@ -217,7 +218,7 @@
 ) -&gt; ModelResult&lt;UserCourseSettings&gt; {
     <span class="kw">let </span>user_course_settings = <span class="macro">sqlx::query_as!</span>(
         UserCourseSettings,
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO user_course_settings (
     user_id,
     course_language_group_id,
@@ -236,7 +237,7 @@ SET current_course_id = $2,
   current_course_instance_id = $3,
   deleted_at = NULL
 RETURNING *;
-        &quot;</span>,
+        "</span>,
         course_instance_enrollment.user_id,
         course_instance_enrollment.course_id,
         course_instance_enrollment.course_instance_id
@@ -253,13 +254,13 @@ RETURNING *;
 ) -&gt; ModelResult&lt;UserCourseSettings&gt; {
     <span class="kw">let </span>user_course_settings = <span class="macro">sqlx::query_as!</span>(
         UserCourseSettings,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM user_course_settings
 WHERE user_id = $1
   AND course_language_group_id = $2
   AND deleted_at IS NULL;
-        &quot;</span>,
+        "</span>,
         user_id,
         course_language_group_id
     )
@@ -275,7 +276,7 @@ WHERE user_id = $1
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;UserCourseSettings&gt;&gt; {
     <span class="kw">let </span>user_course_settings = <span class="macro">sqlx::query_as!</span>(
         UserCourseSettings,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT ucs.*
 FROM courses c
   JOIN user_course_settings ucs ON (
@@ -285,7 +286,7 @@ WHERE c.id = $1
   AND ucs.user_id = $2
   AND c.deleted_at IS NULL
   AND ucs.deleted_at IS NULL;
-        &quot;</span>,
+        "</span>,
         course_id,
         user_id,
     )
@@ -294,7 +295,7 @@ WHERE c.id = $1
     <span class="prelude-val">Ok</span>(user_course_settings)
 }
 
-<span class="doccomment">/// Gets all of the user&#39;s course settings that have their current course id included in the provided
+<span class="doccomment">/// Gets all of the user's course settings that have their current course id included in the provided
 /// list.
 ///
 /// The distinction for current courses is stated, because multiple courses can share the same
@@ -302,7 +303,7 @@ WHERE c.id = $1
 /// exist for inactive courses will be omited. This behavior can be desireable in some cases, and
 /// should not be changed.
 ///
-/// Note that this function doesn&#39;t create any settings that are missing for the user, so the amount
+/// Note that this function doesn't create any settings that are missing for the user, so the amount
 /// of results may be less than the amount of courses provided.
 </span><span class="kw">pub async fn </span>get_all_by_user_and_multiple_current_courses(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
@@ -311,13 +312,13 @@ WHERE c.id = $1
 ) -&gt; ModelResult&lt;Vec&lt;UserCourseSettings&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         UserCourseSettings,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM user_course_settings
 WHERE current_course_id = ANY($1)
   AND user_id = $2
   AND deleted_at IS NULL
-        &quot;</span>,
+        "</span>,
         course_ids,
         user_id,
     )
@@ -363,10 +364,10 @@ WHERE current_course_id = ANY($1)
             PKeyPolicy::Generate,
             NewCourseInstance {
                 course_id: course,
-                name: <span class="prelude-val">Some</span>(<span class="string">&quot;instance-2&quot;</span>),
+                name: <span class="prelude-val">Some</span>(<span class="string">"instance-2"</span>),
                 description: <span class="prelude-val">None</span>,
-                teacher_in_charge_name: <span class="string">&quot;teacher&quot;</span>,
-                teacher_in_charge_email: <span class="string">&quot;teacher@example.com&quot;</span>,
+                teacher_in_charge_name: <span class="string">"teacher"</span>,
+                teacher_in_charge_email: <span class="string">"teacher@example.com"</span>,
                 support_email: <span class="prelude-val">None</span>,
                 opening_time: <span class="prelude-val">None</span>,
                 closing_time: <span class="prelude-val">None</span>,

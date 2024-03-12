@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/op.rs`."><title>op.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/op.rs`."><title>op.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4140,7 +4141,7 @@
 <a href="#4140" id="4140">4140</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Functions for parsing and evaluating DWARF expressions.
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
 </span><span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::mem;
 
@@ -4269,7 +4270,7 @@
         <span class="doccomment">/// The value to push.
         </span>value: i64,
     },
-    <span class="doccomment">/// Indicate that this piece&#39;s location is in the given register.
+    <span class="doccomment">/// Indicate that this piece's location is in the given register.
     ///
     /// Completes the piece or expression.
     </span>Register {
@@ -5033,7 +5034,7 @@
     /// `Evaluation` by calling `Evaluation::resume_with_entry_value`.
     </span>RequiresEntryValue(Expression&lt;R&gt;),
     <span class="doccomment">/// The `Evaluation` needs the value of the parameter at the given location
-    /// in the current function&#39;s caller.  Once the caller determines what value
+    /// in the current function's caller.  Once the caller determines what value
     /// to provide it should resume the `Evaluation` by calling
     /// `Evaluation::resume_with_parameter_ref`.
     </span>RequiresParameterRef(UnitOffset&lt;R::Offset&gt;),
@@ -5082,7 +5083,7 @@
     /// let mut eval = expression.evaluation(unit.encoding());
     /// let mut result = eval.evaluate().unwrap();
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
     #[inline]
     </span><span class="kw">pub fn </span>evaluation(<span class="self">self</span>, encoding: Encoding) -&gt; Evaluation&lt;R&gt; {
         Evaluation::new(<span class="self">self</span>.<span class="number">0</span>, encoding)
@@ -5125,7 +5126,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;fallible-iterator&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"fallible-iterator"</span>)]
 </span><span class="kw">impl</span>&lt;R: Reader&gt; fallible_iterator::FallibleIterator <span class="kw">for </span>OperationIter&lt;R&gt; {
     <span class="kw">type </span>Item = Operation&lt;R&gt;;
     <span class="kw">type </span>Error = Error;
@@ -5138,11 +5139,11 @@
 <span class="doccomment">/// Specification of what storage should be used for [`Evaluation`].
 ///
 </span><span class="attr">#[cfg_attr(
-    feature = <span class="string">&quot;read&quot;</span>,
-    doc = <span class="string">&quot;
+    feature = <span class="string">"read"</span>,
+    doc = <span class="string">"
 Normally you would only need to use [`StoreOnHeap`], which places the stacks and the results
 on the heap using [`Vec`]. This is the default storage type parameter for [`Evaluation`].
-&quot;
+"
 </span>)]
 </span><span class="doccomment">///
 /// If you need to avoid [`Evaluation`] from allocating memory, e.g. for signal safety,
@@ -5179,7 +5180,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 /// }
 ///
 /// let result = eval.as_result();
-/// println!(&quot;{:?}&quot;, result);
+/// println!("{:?}", result);
 /// ```
 </span><span class="kw">pub trait </span>EvaluationStorage&lt;R: Reader&gt; {
     <span class="doccomment">/// The storage used for the evaluation stack.
@@ -5190,7 +5191,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
     </span><span class="kw">type </span><span class="prelude-ty">Result</span>: ArrayLike&lt;Item = Piece&lt;R&gt;&gt;;
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
 </span><span class="kw">impl</span>&lt;R: Reader&gt; EvaluationStorage&lt;R&gt; <span class="kw">for </span>StoreOnHeap {
     <span class="kw">type </span>Stack = Vec&lt;Value&gt;;
     <span class="kw">type </span>ExpressionStack = Vec&lt;(R, R)&gt;;
@@ -5240,7 +5241,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 /// }
 ///
 /// let result = eval.result();
-/// println!(&quot;{:?}&quot;, result);
+/// println!("{:?}", result);
 /// ```
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>Evaluation&lt;R: Reader, S: EvaluationStorage&lt;R&gt; = StoreOnHeap&gt; {
@@ -5270,7 +5271,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
     result: ArrayVec&lt;S::Result&gt;,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
 </span><span class="kw">impl</span>&lt;R: Reader&gt; Evaluation&lt;R&gt; {
     <span class="doccomment">/// Create a new DWARF expression evaluator.
     ///
@@ -5288,7 +5289,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
         <span class="kw">match </span><span class="self">self</span>.state {
             EvaluationState::Complete =&gt; <span class="self">self</span>.result.into_vec(),
             <span class="kw">_ </span>=&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;Called `Evaluation::result` on an `Evaluation` that has not been completed&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"Called `Evaluation::result` on an `Evaluation` that has not been completed"</span>)
             }
         }
     }
@@ -5322,7 +5323,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
     }
 
     <span class="doccomment">/// Set an initial value to be pushed on the DWARF expression
-    /// evaluator&#39;s stack.  This can be used in cases like
+    /// evaluator's stack.  This can be used in cases like
     /// `DW_AT_vtable_elem_location`, which require a value on the
     /// stack before evaluation commences.  If no initial value is
     /// set, and the expression uses an opcode requiring the initial
@@ -5337,12 +5338,12 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.state = EvaluationState::Start(<span class="prelude-val">Some</span>(value));
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;`Evaluation::set_initial_value` was called twice, or after evaluation began.&quot;
+                <span class="string">"`Evaluation::set_initial_value` was called twice, or after evaluation began."
             </span>),
         };
     }
 
-    <span class="doccomment">/// Set the enclosing object&#39;s address, as used by
+    <span class="doccomment">/// Set the enclosing object's address, as used by
     /// `DW_OP_push_object_address`.  If no object address is set, and
     /// the expression uses an opcode requiring the object address,
     /// then evaluation will fail with an error.
@@ -5354,9 +5355,9 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
     /// expression evaluator.
     ///
     /// An iteration corresponds approximately to the evaluation of a
-    /// single operation in an expression (&quot;approximately&quot; because the
+    /// single operation in an expression ("approximately" because the
     /// implementation may allow two such operations in some cases).
-    /// The default is not to have a maximum; once set, it&#39;s not
+    /// The default is not to have a maximum; once set, it's not
     /// possible to go back to this default state.  This value can be
     /// set to avoid denial of service attacks by bad DWARF bytecode.
     </span><span class="kw">pub fn </span>set_max_iterations(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: u32) {
@@ -5753,7 +5754,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
         <span class="kw">match </span><span class="self">self</span>.state {
             EvaluationState::Complete =&gt; <span class="self">self</span>.value_result,
             <span class="kw">_ </span>=&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;Called `Evaluation::value_result` on an `Evaluation` that has not been completed&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"Called `Evaluation::value_result` on an `Evaluation` that has not been completed"</span>)
             }
         }
     }
@@ -5767,7 +5768,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
             EvaluationState::Complete =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.result,
             <span class="kw">_ </span>=&gt; {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;Called `Evaluation::as_result` on an `Evaluation` that has not been completed&quot;
+                    <span class="string">"Called `Evaluation::as_result` on an `Evaluation` that has not been completed"
                 </span>)
             }
         }
@@ -5815,7 +5816,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.push(value)<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_memory` without a preceding `EvaluationResult::RequiresMemory`&quot;
+                <span class="string">"Called `Evaluation::resume_with_memory` without a preceding `EvaluationResult::RequiresMemory`"
             </span>),
         };
 
@@ -5838,7 +5839,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.push(value)<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_register` without a preceding `EvaluationResult::RequiresRegister`&quot;
+                <span class="string">"Called `Evaluation::resume_with_register` without a preceding `EvaluationResult::RequiresRegister`"
             </span>),
         };
 
@@ -5859,7 +5860,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.push(Value::Generic(frame_base.wrapping_add(offset <span class="kw">as </span>u64)))<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_frame_base` without a preceding `EvaluationResult::RequiresFrameBase`&quot;
+                <span class="string">"Called `Evaluation::resume_with_frame_base` without a preceding `EvaluationResult::RequiresFrameBase`"
             </span>),
         };
 
@@ -5880,7 +5881,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.push(Value::Generic(value))<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_tls` without a preceding `EvaluationResult::RequiresTls`&quot;
+                <span class="string">"Called `Evaluation::resume_with_tls` without a preceding `EvaluationResult::RequiresTls`"
             </span>),
         };
 
@@ -5901,7 +5902,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.push(Value::Generic(cfa))<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_call_frame_cfa` without a preceding `EvaluationResult::RequiresCallFrameCfa`&quot;
+                <span class="string">"Called `Evaluation::resume_with_call_frame_cfa` without a preceding `EvaluationResult::RequiresCallFrameCfa`"
             </span>),
         };
 
@@ -5927,7 +5928,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 }
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_at_location` without a precedeing `EvaluationResult::RequiresAtLocation`&quot;
+                <span class="string">"Called `Evaluation::resume_with_at_location` without a precedeing `EvaluationResult::RequiresAtLocation`"
             </span>),
         };
 
@@ -5948,7 +5949,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.push(entry_value)<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_entry_value` without a preceding `EvaluationResult::RequiresEntryValue`&quot;
+                <span class="string">"Called `Evaluation::resume_with_entry_value` without a preceding `EvaluationResult::RequiresEntryValue`"
             </span>),
         };
 
@@ -5972,7 +5973,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.push(Value::Generic(parameter_value))<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_parameter_ref` without a preceding `EvaluationResult::RequiresParameterRef`&quot;
+                <span class="string">"Called `Evaluation::resume_with_parameter_ref` without a preceding `EvaluationResult::RequiresParameterRef`"
             </span>),
         };
 
@@ -5994,7 +5995,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.push(Value::Generic(address))<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_relocated_address` without a preceding `EvaluationResult::RequiresRelocatedAddress`&quot;
+                <span class="string">"Called `Evaluation::resume_with_relocated_address` without a preceding `EvaluationResult::RequiresRelocatedAddress`"
             </span>),
         };
 
@@ -6016,7 +6017,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="self">self</span>.push(Value::Generic(address))<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_indexed_address` without a preceding `EvaluationResult::RequiresIndexedAddress`&quot;
+                <span class="string">"Called `Evaluation::resume_with_indexed_address` without a preceding `EvaluationResult::RequiresIndexedAddress`"
             </span>),
         };
 
@@ -6045,7 +6046,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 entry.reinterpret(base_type, <span class="self">self</span>.addr_mask)<span class="question-mark">?
             </span>}
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;Called `Evaluation::resume_with_base_type` without a preceding `EvaluationResult::RequiresBaseType`&quot;
+                <span class="string">"Called `Evaluation::resume_with_base_type` without a preceding `EvaluationResult::RequiresBaseType`"
             </span>),
         };
         <span class="self">self</span>.push(value)<span class="question-mark">?</span>;
@@ -6080,7 +6081,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 OperationEvaluationResult::Incomplete =&gt; {
                     <span class="kw">if </span><span class="self">self</span>.end_of_expression() &amp;&amp; !<span class="self">self</span>.result.is_empty() {
                         <span class="comment">// We saw a piece earlier and then some
-                        // unterminated piece.  It&#39;s not clear this is
+                        // unterminated piece.  It's not clear this is
                         // well-defined.
                         </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidPiece);
                     }
@@ -6089,7 +6090,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                     <span class="kw">if </span><span class="self">self</span>.end_of_expression() {
                         <span class="kw">if </span>!<span class="self">self</span>.result.is_empty() {
                             <span class="comment">// We saw a piece earlier and then some
-                            // unterminated piece.  It&#39;s not clear this is
+                            // unterminated piece.  It's not clear this is
                             // well-defined.
                             </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidPiece);
                         }
@@ -6153,7 +6154,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
 <span class="attr">#[cfg(test)]
 </span><span class="comment">// Tests require leb128::write.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;write&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"write"</span>)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::common::Format;
@@ -6183,7 +6184,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_compute_pc() {
-        <span class="comment">// Contents don&#39;t matter for this test, just length.
+        <span class="comment">// Contents don't matter for this test, just length.
         </span><span class="kw">let </span>bytes = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
         <span class="kw">let </span>bytecode = <span class="kw-2">&amp;</span>bytes[..];
         <span class="kw">let </span>ebuf = <span class="kw-2">&amp;</span>EndianSlice::new(bytecode, LittleEndian);
@@ -6204,9 +6205,9 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
         );
     }
 
-    <span class="kw">fn </span>check_op_parse_simple&lt;<span class="lifetime">&#39;input</span>&gt;(
-        input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8],
-        expect: <span class="kw-2">&amp;</span>Operation&lt;EndianSlice&lt;<span class="lifetime">&#39;input</span>, LittleEndian&gt;&gt;,
+    <span class="kw">fn </span>check_op_parse_simple&lt;<span class="lifetime">'input</span>&gt;(
+        input: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8],
+        expect: <span class="kw-2">&amp;</span>Operation&lt;EndianSlice&lt;<span class="lifetime">'input</span>, LittleEndian&gt;&gt;,
         encoding: Encoding,
     ) {
         <span class="kw">let </span>buf = EndianSlice::new(input, LittleEndian);
@@ -6217,7 +6218,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="macro">assert_eq!</span>(val, <span class="kw-2">*</span>expect);
                 <span class="macro">assert_eq!</span>(pc.len(), <span class="number">0</span>);
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result"</span>),
         }
     }
 
@@ -6229,7 +6230,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                 <span class="macro">assert!</span>(buf.lookup_offset_id(id).is_some());
             }
 
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result"</span>),
         }
     }
 
@@ -6251,7 +6252,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_onebyte() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         <span class="comment">// Test all single-byte opcodes.
@@ -6381,7 +6382,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_twobyte() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         <span class="kw">let </span>inputs = [
@@ -6424,10 +6425,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_threebyte() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
-        <span class="comment">// While bra and skip are 3-byte opcodes, they aren&#39;t tested here,
+        <span class="comment">// While bra and skip are 3-byte opcodes, they aren't tested here,
         // but rather specially in their own function.
         </span><span class="kw">let </span>inputs = [
             (
@@ -6511,7 +6512,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
     }
 
     <span class="attr">#[test]
-    #[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+    #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>test_op_parse_ninebyte() {
         <span class="comment">// There are some tests here that depend on address size.
         </span><span class="kw">let </span>encoding = encoding8();
@@ -6553,7 +6554,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_sleb() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         <span class="kw">let </span>values = [
@@ -6599,7 +6600,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_uleb() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         <span class="kw">let </span>values = [
@@ -6674,7 +6675,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_bregx() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         <span class="kw">let </span>uvalues = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0x100</span>, !<span class="number">0u16</span>];
@@ -6707,7 +6708,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_bit_piece() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         <span class="kw">let </span>values = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0x100</span>, <span class="number">0x1eee_eeee</span>, <span class="number">0x7fff_ffff_ffff_ffff</span>, !<span class="number">0u64</span>];
@@ -6734,10 +6735,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_implicit_value() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
-        <span class="kw">let </span>data = <span class="string">b&quot;hello&quot;</span>;
+        <span class="kw">let </span>data = <span class="string">b"hello"</span>;
 
         check_op_parse(
             |s| {
@@ -6754,10 +6755,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_const_type() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
-        <span class="kw">let </span>data = <span class="string">b&quot;hello&quot;</span>;
+        <span class="kw">let </span>data = <span class="string">b"hello"</span>;
 
         check_op_parse(
             |s| {
@@ -6789,7 +6790,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_regval_type() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         check_op_parse(
@@ -6814,7 +6815,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_parse_deref_type() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         check_op_parse(
@@ -6848,7 +6849,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_convert() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         check_op_parse(
@@ -6869,7 +6870,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_reinterpret() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         check_op_parse(
@@ -6933,7 +6934,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
             constants::DW_OP_entry_value,
             constants::DW_OP_GNU_entry_value,
         ] {
-            <span class="kw">let </span>data = <span class="string">b&quot;hello&quot;</span>;
+            <span class="kw">let </span>data = <span class="string">b"hello"</span>;
             check_op_parse(
                 |s| s.D8(op.<span class="number">0</span>).uleb(data.len() <span class="kw">as </span>u64).append_bytes(<span class="kw-2">&amp;</span>data[..]),
                 <span class="kw-2">&amp;</span>Operation::EntryValue {
@@ -6957,7 +6958,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_op_wasm() {
-        <span class="comment">// Doesn&#39;t matter for this test.
+        <span class="comment">// Doesn't matter for this test.
         </span><span class="kw">let </span>encoding = encoding4();
 
         check_op_parse(
@@ -7065,10 +7066,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
         max_iterations: <span class="prelude-ty">Option</span>&lt;u32&gt;,
         f: F,
     ) <span class="kw">where
-        for</span>&lt;<span class="lifetime">&#39;a</span>&gt; F: Fn(
-            <span class="kw-2">&amp;mut </span>Evaluation&lt;EndianSlice&lt;<span class="lifetime">&#39;a</span>, LittleEndian&gt;&gt;,
-            EvaluationResult&lt;EndianSlice&lt;<span class="lifetime">&#39;a</span>, LittleEndian&gt;&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;EvaluationResult&lt;EndianSlice&lt;<span class="lifetime">&#39;a</span>, LittleEndian&gt;&gt;&gt;,
+        for</span>&lt;<span class="lifetime">'a</span>&gt; F: Fn(
+            <span class="kw-2">&amp;mut </span>Evaluation&lt;EndianSlice&lt;<span class="lifetime">'a</span>, LittleEndian&gt;&gt;,
+            EvaluationResult&lt;EndianSlice&lt;<span class="lifetime">'a</span>, LittleEndian&gt;&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;EvaluationResult&lt;EndianSlice&lt;<span class="lifetime">'a</span>, LittleEndian&gt;&gt;&gt;,
     {
         <span class="kw">let </span>bytes = assemble(program);
         <span class="kw">let </span>bytes = EndianSlice::new(<span class="kw-2">&amp;</span>bytes, LittleEndian);
@@ -7101,7 +7102,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
             (<span class="prelude-val">Err</span>(f1), <span class="prelude-val">Err</span>(f2)) =&gt; {
                 <span class="macro">assert_eq!</span>(f1, f2);
             }
-            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result: {:?}&quot;</span>, otherwise),
+            otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         }
     }
 
@@ -7117,7 +7118,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_arith() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7288,7 +7289,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_arith64() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7363,7 +7364,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_compare() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7430,7 +7431,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_stack() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7468,7 +7469,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_lit_and_reg() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7525,7 +7526,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_memory() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7652,7 +7653,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_register() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7661,7 +7662,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
             <span class="attr">#[rustfmt::skip]
             </span><span class="kw">let </span>program = [
                 Op(DwOp(DW_OP_reg0.<span class="number">0 </span>+ i)),
-                <span class="comment">// Included only in the &quot;bad&quot; run.
+                <span class="comment">// Included only in the "bad" run.
                 </span>Op(DW_OP_lit23),
             ];
             <span class="kw">let </span>ok_result = [Piece {
@@ -7699,7 +7700,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_context() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7842,7 +7843,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_empty_stack() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7857,7 +7858,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_call() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -7957,7 +7958,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_pieces() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -8137,7 +8138,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_max_iterations() {
-        <span class="comment">// It&#39;s nice if an operation and its arguments can fit on a single
+        <span class="comment">// It's nice if an operation and its arguments can fit on a single
         // line in the test program.
         </span><span class="kw">use </span><span class="self">self</span>::AssemblerEntry::<span class="kw-2">*</span>;
         <span class="kw">use </span><span class="kw">crate</span>::constants::<span class="kw-2">*</span>;
@@ -8269,7 +8270,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Eval
                             EvaluationResult::RequiresRelocatedAddress(address) =&gt; {
                                 eval.resume_with_relocated_address(address)<span class="question-mark">?
                             </span>}
-                            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected result {:?}&quot;</span>, result),
+                            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result {:?}"</span>, result),
                         }
                     }
                     <span class="prelude-val">Ok</span>(result)

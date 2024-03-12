@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/env/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/filter/env/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -992,7 +993,7 @@
 </pre></div><pre class="rust"><code><span class="doccomment">//! A `Layer` that enables or disables spans and events based on a set of
 //! filtering directives.
 
-</span><span class="comment">// these are publicly re-exported, but the compiler doesn&#39;t realize
+</span><span class="comment">// these are publicly re-exported, but the compiler doesn't realize
 // that for some reason.
 </span><span class="attr">#[allow(unreachable_pub)]
 </span><span class="kw">pub use </span><span class="self">self</span>::{builder::Builder, directive::Directive, field::BadName <span class="kw">as </span>BadFieldName};
@@ -1037,7 +1038,7 @@
 /// `tracing` considers less exclusive levels (like `trace` or `info`) to be more
 /// verbose than more exclusive levels (like `error` or `warn`).
 ///
-/// The directive syntax is similar to that of [`env_logger`]&#39;s. At a high level, the syntax for directives
+/// The directive syntax is similar to that of [`env_logger`]'s. At a high level, the syntax for directives
 /// consists of several parts:
 ///
 /// ```text
@@ -1046,30 +1047,30 @@
 ///
 /// Each component (`target`, `span`, `field`, `value`, and `level`) will be covered in turn.
 ///
-/// - `target` matches the event or span&#39;s target. In general, this is the module path and/or crate name.
+/// - `target` matches the event or span's target. In general, this is the module path and/or crate name.
 ///    Examples of targets `h2`, `tokio::net`, or `tide::server`. For more information on targets,
-///    please refer to [`Metadata`]&#39;s documentation.
-/// - `span` matches on the span&#39;s name. If a `span` directive is provided alongside a `target`,
+///    please refer to [`Metadata`]'s documentation.
+/// - `span` matches on the span's name. If a `span` directive is provided alongside a `target`,
 ///    the `span` directive will match on spans _within_ the `target`.
 /// - `field` matches on [fields] within spans. Field names can also be supplied without a `value`
 ///    and will match on any [`Span`] or [`Event`] that has a field with that name.
-///    For example: `[span{field=\&quot;value\&quot;}]=debug`, `[{field}]=trace`.
-/// - `value` matches on the value of a span&#39;s field. If a value is a numeric literal or a bool,
+///    For example: `[span{field=\"value\"}]=debug`, `[{field}]=trace`.
+/// - `value` matches on the value of a span's field. If a value is a numeric literal or a bool,
 ///    it will match _only_ on that value. Otherwise, this filter matches the
 ///    [`std::fmt::Debug`] output from the value.
 /// - `level` sets a maximum verbosity level accepted by this directive.
 ///
 /// When a field value directive (`[{&lt;FIELD NAME&gt;=&lt;FIELD_VALUE&gt;}]=...`) matches a
-/// value&#39;s [`std::fmt::Debug`] output (i.e., the field value in the directive
+/// value's [`std::fmt::Debug`] output (i.e., the field value in the directive
 /// is not a `bool`, `i64`, `u64`, or `f64` literal), the matched pattern may be
 /// interpreted as either a regular expression or as the precise expected
-/// output of the field&#39;s [`std::fmt::Debug`] implementation. By default, these
+/// output of the field's [`std::fmt::Debug`] implementation. By default, these
 /// filters are interpreted as regular expressions, but this can be disabled
 /// using the [`Builder::with_regex`] builder method to use precise matching
 /// instead.
 ///
 /// When field value filters are interpreted as regular expressions, the
-/// [`regex-automata` crate&#39;s regular expression syntax][re-syntax] is
+/// [`regex-automata` crate's regular expression syntax][re-syntax] is
 /// supported.
 ///
 /// **Note**: When filters are constructed from potentially untrusted inputs,
@@ -1087,10 +1088,10 @@
 ///   that are not enabled by other filters.
 /// - A directive without a level will enable anything that it matches. This is equivalent to `=trace`.
 /// - When a crate has a dash in its name, the default target for events will be the
-///   crate&#39;s module path as it appears in Rust. This means every dash will be replaced
+///   crate's module path as it appears in Rust. This means every dash will be replaced
 ///   with an underscore.
 /// - A dash in a target will only appear when being specified explicitly:
-///   `tracing::info!(target: &quot;target-name&quot;, ...);`
+///   `tracing::info!(target: "target-name", ...);`
 ///
 /// ## Example Syntax
 ///
@@ -1103,7 +1104,7 @@
 /// - `my_crate[span_a]=trace` will enable all spans and events that:
 ///    - are within the `span_a` span or named `span_a` _if_ `span_a` has the target `my_crate`,
 ///    - at the level `trace` or above.
-/// - `[span_b{name=\&quot;bob\&quot;}]` will enable all spans or event that:
+/// - `[span_b{name=\"bob\"}]` will enable all spans or event that:
 ///    - have _any_ target,
 ///    - are inside a span named `span_b`,
 ///    - which has a field named `name` with value `bob`,
@@ -1131,7 +1132,7 @@
 ///
 /// tracing_subscriber::registry()
 ///     .with(fmt::layer())
-///     .with(EnvFilter::from_env(&quot;MYAPP_LOG&quot;))
+///     .with(EnvFilter::from_env("MYAPP_LOG"))
 ///     .init();
 /// ```
 ///
@@ -1148,7 +1149,7 @@
 /// // Apply the filter to this layer *only*.
 /// let filtered_layer = fmt::layer().with_filter(filter);
 ///
-/// // Some other layer, whose output we don&#39;t want to filter.
+/// // Some other layer, whose output we don't want to filter.
 /// let unfiltered_layer = // ...
 ///     # fmt::layer();
 ///
@@ -1169,7 +1170,7 @@
 ///
 /// A [builder](EnvFilter::builder) interface is available to set additional
 /// configuration options prior to parsing an `EnvFilter`. See the [`Builder`
-/// type&#39;s documentation](Builder) for details on the options that can be
+/// type's documentation](Builder) for details on the options that can be
 /// configured using the builder.
 ///
 /// [`Span`]: tracing_core::span
@@ -1183,7 +1184,7 @@
 /// [global]: crate::layer#global-filtering
 /// [plf]: crate::layer#per-layer-filtering
 /// [filtering]: crate::layer#filtering-with-layers
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;env-filter&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"env-filter"</span>, feature = <span class="string">"std"</span>))))]
 #[derive(Debug)]
 </span><span class="kw">pub struct </span>EnvFilter {
     statics: directive::Statics,
@@ -1199,7 +1200,7 @@
 
 <span class="doccomment">/// Indicates that an error occurred while parsing a `EnvFilter` from an
 /// environment variable.
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;env-filter&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"env-filter"</span>, feature = <span class="string">"std"</span>))))]
 #[derive(Debug)]
 </span><span class="kw">pub struct </span>FromEnvError {
     kind: ErrorKind,
@@ -1217,7 +1218,7 @@
     ///
     /// [`EnvFilter::from_default_env`]: EnvFilter::from_default_env()
     /// [`EnvFilter::try_from_default_env`]: EnvFilter::try_from_default_env()
-    </span><span class="kw">pub const </span>DEFAULT_ENV: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;RUST_LOG&quot;</span>;
+    </span><span class="kw">pub const </span>DEFAULT_ENV: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"RUST_LOG"</span>;
 
     <span class="comment">// === constructors, etc ===
 
@@ -1279,7 +1280,7 @@
     /// use tracing_subscriber::filter::{EnvFilter, LevelFilter};
     ///
     /// # fn docs() -&gt; EnvFilter {
-    /// # let env = &quot;&quot;;
+    /// # let env = "";
     /// EnvFilter::builder()
     ///     .with_default_directive(LevelFilter::ERROR.into())
     ///     .with_env_var(env)
@@ -1310,7 +1311,7 @@
     /// use tracing_subscriber::filter::{EnvFilter, LevelFilter};
     ///
     /// # fn docs() -&gt; EnvFilter {
-    /// # let directives = &quot;&quot;;
+    /// # let directives = "";
     /// EnvFilter::builder()
     ///     .with_default_directive(LevelFilter::ERROR.into())
     ///     .parse_lossy(directives)
@@ -1339,7 +1340,7 @@
     /// use tracing_subscriber::filter::{EnvFilter, LevelFilter};
     ///
     /// # fn docs() -&gt; Result&lt;EnvFilter, tracing_subscriber::filter::ParseError&gt; {
-    /// # let directives = &quot;&quot;;
+    /// # let directives = "";
     /// EnvFilter::builder()
     ///     .with_default_directive(LevelFilter::ERROR.into())
     ///     .parse(directives)
@@ -1384,7 +1385,7 @@
     /// use tracing_subscriber::EnvFilter;
     ///
     /// # fn docs() -&gt; Result&lt;EnvFilter, tracing_subscriber::filter::FromEnvError&gt; {
-    /// # let env = &quot;&quot;;
+    /// # let env = "";
     /// EnvFilter::builder().with_env_var(env).try_from_env()
     /// # }
     /// ```
@@ -1435,8 +1436,8 @@
     ///
     /// # fn try_mk_filter() -&gt; Result&lt;(), Box&lt;dyn ::std::error::Error&gt;&gt; {
     /// let mut filter = EnvFilter::try_from_default_env()?
-    ///     .add_directive(&quot;my_crate::module=trace&quot;.parse()?)
-    ///     .add_directive(&quot;my_crate::my_other_module::something=info&quot;.parse()?);
+    ///     .add_directive("my_crate::module=trace".parse()?)
+    ///     .add_directive("my_crate::my_other_module::something=info".parse()?);
     /// # Ok(())
     /// # }
     /// ```
@@ -1464,13 +1465,13 @@
     /// in the current context.
     ///
     /// This is equivalent to calling the [`Layer::enabled`] or
-    /// [`Filter::enabled`] methods on `EnvFilter`&#39;s implementations of those
+    /// [`Filter::enabled`] methods on `EnvFilter`'s implementations of those
     /// traits, but it does not require the trait to be in scope.
-    </span><span class="kw">pub fn </span>enabled&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw">_</span>: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    </span><span class="kw">pub fn </span>enabled&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, <span class="kw">_</span>: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="kw">let </span>level = metadata.level();
 
         <span class="comment">// is it possible for a dynamic filter directive to enable this event?
-        // if not, we can avoid the thread loca&#39;l access + iterating over the
+        // if not, we can avoid the thread loca'l access + iterating over the
         // spans in the current scope.
         </span><span class="kw">if </span><span class="self">self</span>.has_dynamics &amp;&amp; <span class="self">self</span>.dynamics.max_level &gt;= <span class="kw-2">*</span>level {
             <span class="kw">if </span>metadata.is_span() {
@@ -1514,7 +1515,7 @@
     /// this `EnvFilter` will enable.
     ///
     /// This is equivalent to calling the [`Layer::max_level_hint`] or
-    /// [`Filter::max_level_hint`] methods on `EnvFilter`&#39;s implementations of those
+    /// [`Filter::max_level_hint`] methods on `EnvFilter`'s implementations of those
     /// traits, but it does not require the trait to be in scope.
     ///
     /// [level]: tracing_core::metadata::Level
@@ -1534,9 +1535,9 @@
     <span class="doccomment">/// Informs the filter that a new span was created.
     ///
     /// This is equivalent to calling the [`Layer::on_new_span`] or
-    /// [`Filter::on_new_span`] methods on `EnvFilter`&#39;s implementations of those
+    /// [`Filter::on_new_span`] methods on `EnvFilter`'s implementations of those
     /// traits, but it does not require the trait to be in scope.
-    </span><span class="kw">pub fn </span>on_new_span&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, <span class="kw">_</span>: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">pub fn </span>on_new_span&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, <span class="kw">_</span>: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">let </span>by_cs = <span class="macro">try_lock!</span>(<span class="self">self</span>.by_cs.read());
         <span class="kw">if let </span><span class="prelude-val">Some</span>(cs) = by_cs.get(<span class="kw-2">&amp;</span>attrs.metadata().callsite()) {
             <span class="kw">let </span>span = cs.to_span_match(attrs);
@@ -1547,9 +1548,9 @@
     <span class="doccomment">/// Informs the filter that the span with the provided `id` was entered.
     ///
     /// This is equivalent to calling the [`Layer::on_enter`] or
-    /// [`Filter::on_enter`] methods on `EnvFilter`&#39;s implementations of those
+    /// [`Filter::on_enter`] methods on `EnvFilter`'s implementations of those
     /// traits, but it does not require the trait to be in scope.
-    </span><span class="kw">pub fn </span>on_enter&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, <span class="kw">_</span>: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">pub fn </span>on_enter&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, <span class="kw">_</span>: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="comment">// XXX: This is where _we_ could push IDs to the stack instead, and use
         // that to allow changing the filter while a span is already entered.
         // But that might be much less efficient...
@@ -1561,9 +1562,9 @@
     <span class="doccomment">/// Informs the filter that the span with the provided `id` was exited.
     ///
     /// This is equivalent to calling the [`Layer::on_exit`] or
-    /// [`Filter::on_exit`] methods on `EnvFilter`&#39;s implementations of those
+    /// [`Filter::on_exit`] methods on `EnvFilter`'s implementations of those
     /// traits, but it does not require the trait to be in scope.
-    </span><span class="kw">pub fn </span>on_exit&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, <span class="kw">_</span>: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">pub fn </span>on_exit&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, <span class="kw">_</span>: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if </span><span class="self">self</span>.cares_about_span(id) {
             <span class="self">self</span>.scope.get_or_default().borrow_mut().pop();
         }
@@ -1572,10 +1573,10 @@
     <span class="doccomment">/// Informs the filter that the span with the provided `id` was closed.
     ///
     /// This is equivalent to calling the [`Layer::on_close`] or
-    /// [`Filter::on_close`] methods on `EnvFilter`&#39;s implementations of those
+    /// [`Filter::on_close`] methods on `EnvFilter`'s implementations of those
     /// traits, but it does not require the trait to be in scope.
-    </span><span class="kw">pub fn </span>on_close&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, <span class="kw">_</span>: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
-        <span class="comment">// If we don&#39;t need to acquire a write lock, avoid doing so.
+    </span><span class="kw">pub fn </span>on_close&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, <span class="kw">_</span>: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
+        <span class="comment">// If we don't need to acquire a write lock, avoid doing so.
         </span><span class="kw">if </span>!<span class="self">self</span>.cares_about_span(<span class="kw-2">&amp;</span>id) {
             <span class="kw">return</span>;
         }
@@ -1588,9 +1589,9 @@
     /// provided field `values`.
     ///
     /// This is equivalent to calling the [`Layer::on_record`] or
-    /// [`Filter::on_record`] methods on `EnvFilter`&#39;s implementations of those
+    /// [`Filter::on_record`] methods on `EnvFilter`'s implementations of those
     /// traits, but it does not require the trait to be in scope
-    </span><span class="kw">pub fn </span>on_record&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw">_</span>: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">pub fn </span>on_record&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, <span class="kw">_</span>: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = <span class="macro">try_lock!</span>(<span class="self">self</span>.by_id.read()).get(id) {
             span.record_update(values);
         }
@@ -1609,7 +1610,7 @@
         }
     }
 
-    <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    <span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="kw">if </span><span class="self">self</span>.has_dynamics &amp;&amp; metadata.is_span() {
             <span class="comment">// If this metadata describes a span, first, check if there is a
             // dynamic filter that should be constructed for it. If so, it
@@ -1632,7 +1633,7 @@
 
 <span class="kw">impl</span>&lt;S: Subscriber&gt; Layer&lt;S&gt; <span class="kw">for </span>EnvFilter {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         EnvFilter::register_callsite(<span class="self">self</span>, metadata)
     }
 
@@ -1642,48 +1643,48 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
         <span class="self">self</span>.enabled(metadata, ctx)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="self">self</span>.on_new_span(attrs, id, ctx)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="self">self</span>.on_record(id, values, ctx);
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="self">self</span>.on_enter(id, ctx);
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="self">self</span>.on_exit(id, ctx);
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+    </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
         <span class="self">self</span>.on_close(id, ctx);
     }
 }
 
 <span class="macro">feature! </span>{
-    <span class="attr">#![all(feature = <span class="string">&quot;registry&quot;</span>, feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#![all(feature = <span class="string">"registry"</span>, feature = <span class="string">"std"</span>)]
     </span><span class="kw">use </span><span class="kw">crate</span>::layer::Filter;
 
     <span class="kw">impl</span>&lt;S&gt; Filter&lt;S&gt; <span class="kw">for </span>EnvFilter {
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) -&gt; bool {
+        </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="lifetime">'_</span>, S&gt;) -&gt; bool {
             <span class="self">self</span>.enabled(meta, ctx.clone())
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+        </span><span class="kw">fn </span>callsite_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
             <span class="self">self</span>.register_callsite(meta)
         }
 
@@ -1693,27 +1694,27 @@
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.on_new_span(attrs, id, ctx)
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_record(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.on_record(id, values, ctx);
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_enter(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.on_enter(id, ctx);
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_exit(<span class="kw-2">&amp;</span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.on_exit(id, ctx);
         }
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">&#39;_</span>, S&gt;) {
+        </span><span class="kw">fn </span>on_close(<span class="kw-2">&amp;</span><span class="self">self</span>, id: span::Id, ctx: Context&lt;<span class="lifetime">'_</span>, S&gt;) {
             <span class="self">self</span>.on_close(id, ctx);
         }
     }
@@ -1743,12 +1744,12 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>EnvFilter {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>statics = <span class="self">self</span>.statics.iter();
         <span class="kw">let </span>wrote_statics = <span class="kw">if let </span><span class="prelude-val">Some</span>(next) = statics.next() {
             fmt::Display::fmt(next, f)<span class="question-mark">?</span>;
             <span class="kw">for </span>directive <span class="kw">in </span>statics {
-                <span class="macro">write!</span>(f, <span class="string">&quot;,{}&quot;</span>, directive)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">",{}"</span>, directive)<span class="question-mark">?</span>;
             }
             <span class="bool-val">true
         </span>} <span class="kw">else </span>{
@@ -1758,11 +1759,11 @@
         <span class="kw">let </span><span class="kw-2">mut </span>dynamics = <span class="self">self</span>.dynamics.iter();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(next) = dynamics.next() {
             <span class="kw">if </span>wrote_statics {
-                f.write_str(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
+                f.write_str(<span class="string">","</span>)<span class="question-mark">?</span>;
             }
             fmt::Display::fmt(next, f)<span class="question-mark">?</span>;
             <span class="kw">for </span>directive <span class="kw">in </span>dynamics {
-                <span class="macro">write!</span>(f, <span class="string">&quot;,{}&quot;</span>, directive)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">",{}"</span>, directive)<span class="question-mark">?</span>;
             }
         }
         <span class="prelude-val">Ok</span>(())
@@ -1788,7 +1789,7 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>FromEnvError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self</span>.kind {
             ErrorKind::Parse(<span class="kw-2">ref </span>p) =&gt; p.fmt(f),
             ErrorKind::Env(<span class="kw-2">ref </span>e) =&gt; e.fmt(f),
@@ -1797,7 +1798,7 @@
 }
 
 <span class="kw">impl </span>Error <span class="kw">for </span>FromEnvError {
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + <span class="lifetime">&#39;static</span>)&gt; {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>Error + <span class="lifetime">'static</span>)&gt; {
         <span class="kw">match </span><span class="self">self</span>.kind {
             ErrorKind::Parse(<span class="kw-2">ref </span>p) =&gt; <span class="prelude-val">Some</span>(p),
             ErrorKind::Env(<span class="kw-2">ref </span>e) =&gt; <span class="prelude-val">Some</span>(e),
@@ -1814,18 +1815,18 @@
     <span class="kw">struct </span>NoSubscriber;
     <span class="kw">impl </span>Subscriber <span class="kw">for </span>NoSubscriber {
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; subscriber::Interest {
+        </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; subscriber::Interest {
             subscriber::Interest::always()
         }
-        <span class="kw">fn </span>new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; span::Id {
+        <span class="kw">fn </span>new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;) -&gt; span::Id {
             span::Id::from_u64(<span class="number">0xDEAD</span>)
         }
-        <span class="kw">fn </span>event(<span class="kw-2">&amp;</span><span class="self">self</span>, _event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;) {}
-        <span class="kw">fn </span>record(<span class="kw-2">&amp;</span><span class="self">self</span>, _span: <span class="kw-2">&amp;</span>span::Id, _values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;) {}
+        <span class="kw">fn </span>event(<span class="kw-2">&amp;</span><span class="self">self</span>, _event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;) {}
+        <span class="kw">fn </span>record(<span class="kw-2">&amp;</span><span class="self">self</span>, _span: <span class="kw-2">&amp;</span>span::Id, _values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;) {}
         <span class="kw">fn </span>record_follows_from(<span class="kw-2">&amp;</span><span class="self">self</span>, _span: <span class="kw-2">&amp;</span>span::Id, _follows: <span class="kw-2">&amp;</span>span::Id) {}
 
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, _metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, _metadata: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
             <span class="bool-val">true
         </span>}
         <span class="kw">fn </span>enter(<span class="kw-2">&amp;</span><span class="self">self</span>, _span: <span class="kw-2">&amp;</span>span::Id) {}
@@ -1835,17 +1836,17 @@
     <span class="kw">struct </span>Cs;
     <span class="kw">impl </span>Callsite <span class="kw">for </span>Cs {
         <span class="kw">fn </span>set_interest(<span class="kw-2">&amp;</span><span class="self">self</span>, _interest: Interest) {}
-        <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt; {
             <span class="macro">unimplemented!</span>()
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>callsite_enabled_no_span_directive() {
-        <span class="kw">let </span>filter = EnvFilter::new(<span class="string">&quot;app=debug&quot;</span>).with_subscriber(NoSubscriber);
-        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
-            <span class="string">&quot;mySpan&quot;</span>,
-            <span class="string">&quot;app&quot;</span>,
+        <span class="kw">let </span>filter = EnvFilter::new(<span class="string">"app=debug"</span>).with_subscriber(NoSubscriber);
+        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
+            <span class="string">"mySpan"</span>,
+            <span class="string">"app"</span>,
             Level::TRACE,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
@@ -1860,10 +1861,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>callsite_off() {
-        <span class="kw">let </span>filter = EnvFilter::new(<span class="string">&quot;app=off&quot;</span>).with_subscriber(NoSubscriber);
-        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
-            <span class="string">&quot;mySpan&quot;</span>,
-            <span class="string">&quot;app&quot;</span>,
+        <span class="kw">let </span>filter = EnvFilter::new(<span class="string">"app=off"</span>).with_subscriber(NoSubscriber);
+        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
+            <span class="string">"mySpan"</span>,
+            <span class="string">"app"</span>,
             Level::ERROR,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
@@ -1878,10 +1879,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>callsite_enabled_includes_span_directive() {
-        <span class="kw">let </span>filter = EnvFilter::new(<span class="string">&quot;app[mySpan]=debug&quot;</span>).with_subscriber(NoSubscriber);
-        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
-            <span class="string">&quot;mySpan&quot;</span>,
-            <span class="string">&quot;app&quot;</span>,
+        <span class="kw">let </span>filter = EnvFilter::new(<span class="string">"app[mySpan]=debug"</span>).with_subscriber(NoSubscriber);
+        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
+            <span class="string">"mySpan"</span>,
+            <span class="string">"app"</span>,
             Level::TRACE,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
@@ -1897,15 +1898,15 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>callsite_enabled_includes_span_directive_field() {
         <span class="kw">let </span>filter =
-            EnvFilter::new(<span class="string">&quot;app[mySpan{field=\&quot;value\&quot;}]=debug&quot;</span>).with_subscriber(NoSubscriber);
-        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
-            <span class="string">&quot;mySpan&quot;</span>,
-            <span class="string">&quot;app&quot;</span>,
+            EnvFilter::new(<span class="string">"app[mySpan{field=\"value\"}]=debug"</span>).with_subscriber(NoSubscriber);
+        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
+            <span class="string">"mySpan"</span>,
+            <span class="string">"app"</span>,
             Level::TRACE,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
-            FieldSet::new(<span class="kw-2">&amp;</span>[<span class="string">&quot;field&quot;</span>], <span class="macro">identify_callsite!</span>(<span class="kw-2">&amp;</span>Cs)),
+            FieldSet::new(<span class="kw-2">&amp;</span>[<span class="string">"field"</span>], <span class="macro">identify_callsite!</span>(<span class="kw-2">&amp;</span>Cs)),
             Kind::SPAN,
         );
 
@@ -1915,16 +1916,16 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>callsite_enabled_includes_span_directive_multiple_fields() {
-        <span class="kw">let </span>filter = EnvFilter::new(<span class="string">&quot;app[mySpan{field=\&quot;value\&quot;,field2=2}]=debug&quot;</span>)
+        <span class="kw">let </span>filter = EnvFilter::new(<span class="string">"app[mySpan{field=\"value\",field2=2}]=debug"</span>)
             .with_subscriber(NoSubscriber);
-        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
-            <span class="string">&quot;mySpan&quot;</span>,
-            <span class="string">&quot;app&quot;</span>,
+        <span class="kw">static </span>META: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'static</span>&gt; = <span class="kw-2">&amp;</span>Metadata::new(
+            <span class="string">"mySpan"</span>,
+            <span class="string">"app"</span>,
             Level::TRACE,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
-            FieldSet::new(<span class="kw-2">&amp;</span>[<span class="string">&quot;field&quot;</span>], <span class="macro">identify_callsite!</span>(<span class="kw-2">&amp;</span>Cs)),
+            FieldSet::new(<span class="kw-2">&amp;</span>[<span class="string">"field"</span>], <span class="macro">identify_callsite!</span>(<span class="kw-2">&amp;</span>Cs)),
             Kind::SPAN,
         );
 
@@ -1935,10 +1936,10 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>roundtrip() {
         <span class="kw">let </span>f1: EnvFilter =
-            <span class="string">&quot;[span1{foo=1}]=error,[span2{bar=2 baz=false}],crate2[{quux=\&quot;quuux\&quot;}]=debug&quot;
+            <span class="string">"[span1{foo=1}]=error,[span2{bar=2 baz=false}],crate2[{quux=\"quuux\"}]=debug"
                 </span>.parse()
                 .unwrap();
-        <span class="kw">let </span>f2: EnvFilter = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, f1).parse().unwrap();
+        <span class="kw">let </span>f2: EnvFilter = <span class="macro">format!</span>(<span class="string">"{}"</span>, f1).parse().unwrap();
         <span class="macro">assert_eq!</span>(f1.statics, f2.statics);
         <span class="macro">assert_eq!</span>(f1.dynamics, f2.dynamics);
     }
@@ -1946,29 +1947,29 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>size_of_filters() {
         <span class="kw">fn </span>print_sz(s: <span class="kw-2">&amp;</span>str) {
-            <span class="kw">let </span>filter = s.parse::&lt;EnvFilter&gt;().expect(<span class="string">&quot;filter should parse&quot;</span>);
+            <span class="kw">let </span>filter = s.parse::&lt;EnvFilter&gt;().expect(<span class="string">"filter should parse"</span>);
             <span class="macro">println!</span>(
-                <span class="string">&quot;size_of_val({:?})\n -&gt; {}B&quot;</span>,
+                <span class="string">"size_of_val({:?})\n -&gt; {}B"</span>,
                 s,
                 std::mem::size_of_val(<span class="kw-2">&amp;</span>filter)
             );
         }
 
-        print_sz(<span class="string">&quot;info&quot;</span>);
+        print_sz(<span class="string">"info"</span>);
 
-        print_sz(<span class="string">&quot;foo=debug&quot;</span>);
+        print_sz(<span class="string">"foo=debug"</span>);
 
         print_sz(
-            <span class="string">&quot;crate1::mod1=error,crate1::mod2=warn,crate1::mod2::mod3=info,\
-            crate2=debug,crate3=trace,crate3::mod2::mod1=off&quot;</span>,
+            <span class="string">"crate1::mod1=error,crate1::mod2=warn,crate1::mod2::mod3=info,\
+            crate2=debug,crate3=trace,crate3::mod2::mod1=off"</span>,
         );
 
-        print_sz(<span class="string">&quot;[span1{foo=1}]=error,[span2{bar=2 baz=false}],crate2[{quux=\&quot;quuux\&quot;}]=debug&quot;</span>);
+        print_sz(<span class="string">"[span1{foo=1}]=error,[span2{bar=2 baz=false}],crate2[{quux=\"quuux\"}]=debug"</span>);
 
         print_sz(
-            <span class="string">&quot;crate1::mod1=error,crate1::mod2=warn,crate1::mod2::mod3=info,\
+            <span class="string">"crate1::mod1=error,crate1::mod2=warn,crate1::mod2::mod3=info,\
             crate2=debug,crate3=trace,crate3::mod2::mod1=off,[span1{foo=1}]=error,\
-            [span2{bar=2 baz=false}],crate2[{quux=\&quot;quuux\&quot;}]=debug&quot;</span>,
+            [span2{bar=2 baz=false}],crate2[{quux=\"quuux\"}]=debug"</span>,
         );
     }
 
@@ -1977,7 +1978,7 @@
         <span class="comment">// There is no corresponding test for [`Builder::parse_lossy`] as failed
         // parsing does not produce any observable side effects. If this test fails
         // check that [`Builder::parse_lossy`] is behaving correctly as well.
-        </span><span class="macro">assert!</span>(EnvFilter::builder().parse(<span class="string">&quot;&quot;</span>).is_ok());
+        </span><span class="macro">assert!</span>(EnvFilter::builder().parse(<span class="string">""</span>).is_ok());
     }
 }
 </code></pre></div></section></main></body></html>

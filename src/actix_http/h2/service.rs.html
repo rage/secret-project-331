@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/h2/service.rs`."><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/h2/service.rs`."><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -503,11 +504,11 @@
 <span class="kw">impl</span>&lt;T, S, B&gt; H2Service&lt;T, S, B&gt;
 <span class="kw">where
     </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
-    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">'static</span>,
 
-    B: MessageBody + <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Create new `H2Service` instance with config.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_config&lt;F: IntoServiceFactory&lt;S, Request&gt;&gt;(
@@ -532,12 +533,12 @@
 <span class="kw">impl</span>&lt;S, B&gt; H2Service&lt;TcpStream, S, B&gt;
 <span class="kw">where
     </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
-    S::Future: <span class="lifetime">&#39;static</span>,
-    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">'static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">'static</span>,
 
-    B: MessageBody + <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Create plain TCP based service
     </span><span class="kw">pub fn </span>tcp(
@@ -559,7 +560,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"openssl"</span>)]
 </span><span class="kw">mod </span>openssl {
     <span class="kw">use </span>actix_service::ServiceFactoryExt <span class="kw">as _</span>;
     <span class="kw">use </span>actix_tls::accept::{
@@ -575,12 +576,12 @@
     <span class="kw">impl</span>&lt;S, B&gt; H2Service&lt;TlsStream&lt;TcpStream&gt;, S, B&gt;
     <span class="kw">where
         </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
-        S::Future: <span class="lifetime">&#39;static</span>,
-        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+        S::Future: <span class="lifetime">'static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">'static</span>,
 
-        B: MessageBody + <span class="lifetime">&#39;static</span>,
+        B: MessageBody + <span class="lifetime">'static</span>,
     {
         <span class="doccomment">/// Create OpenSSL based service.
         </span><span class="kw">pub fn </span>openssl(
@@ -595,7 +596,7 @@
         &gt; {
             Acceptor::new(acceptor)
                 .map_init_err(|<span class="kw">_</span>| {
-                    <span class="macro">unreachable!</span>(<span class="string">&quot;TLS acceptor service factory does not error on init&quot;</span>)
+                    <span class="macro">unreachable!</span>(<span class="string">"TLS acceptor service factory does not error on init"</span>)
                 })
                 .map_err(TlsError::into_service_error)
                 .map(|io: TlsStream&lt;TcpStream&gt;| {
@@ -607,7 +608,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_20&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"rustls-0_20"</span>)]
 </span><span class="kw">mod </span>rustls_0_20 {
     <span class="kw">use </span>std::io;
 
@@ -622,12 +623,12 @@
     <span class="kw">impl</span>&lt;S, B&gt; H2Service&lt;TlsStream&lt;TcpStream&gt;, S, B&gt;
     <span class="kw">where
         </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
-        S::Future: <span class="lifetime">&#39;static</span>,
-        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+        S::Future: <span class="lifetime">'static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">'static</span>,
 
-        B: MessageBody + <span class="lifetime">&#39;static</span>,
+        B: MessageBody + <span class="lifetime">'static</span>,
     {
         <span class="doccomment">/// Create Rustls v0.20 based service.
         </span><span class="kw">pub fn </span>rustls(
@@ -640,13 +641,13 @@
             Error = TlsError&lt;io::Error, DispatchError&gt;,
             InitError = S::InitError,
         &gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>protos = <span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.to_vec()];
+            <span class="kw">let </span><span class="kw-2">mut </span>protos = <span class="macro">vec!</span>[<span class="string">b"h2"</span>.to_vec()];
             protos.extend_from_slice(<span class="kw-2">&amp;</span>config.alpn_protocols);
             config.alpn_protocols = protos;
 
             Acceptor::new(config)
                 .map_init_err(|<span class="kw">_</span>| {
-                    <span class="macro">unreachable!</span>(<span class="string">&quot;TLS acceptor service factory does not error on init&quot;</span>)
+                    <span class="macro">unreachable!</span>(<span class="string">"TLS acceptor service factory does not error on init"</span>)
                 })
                 .map_err(TlsError::into_service_error)
                 .map(|io: TlsStream&lt;TcpStream&gt;| {
@@ -658,7 +659,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_21&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"rustls-0_21"</span>)]
 </span><span class="kw">mod </span>rustls_0_21 {
     <span class="kw">use </span>std::io;
 
@@ -673,12 +674,12 @@
     <span class="kw">impl</span>&lt;S, B&gt; H2Service&lt;TlsStream&lt;TcpStream&gt;, S, B&gt;
     <span class="kw">where
         </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
-        S::Future: <span class="lifetime">&#39;static</span>,
-        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+        S::Future: <span class="lifetime">'static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">'static</span>,
 
-        B: MessageBody + <span class="lifetime">&#39;static</span>,
+        B: MessageBody + <span class="lifetime">'static</span>,
     {
         <span class="doccomment">/// Create Rustls v0.21 based service.
         </span><span class="kw">pub fn </span>rustls_021(
@@ -691,13 +692,13 @@
             Error = TlsError&lt;io::Error, DispatchError&gt;,
             InitError = S::InitError,
         &gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>protos = <span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.to_vec()];
+            <span class="kw">let </span><span class="kw-2">mut </span>protos = <span class="macro">vec!</span>[<span class="string">b"h2"</span>.to_vec()];
             protos.extend_from_slice(<span class="kw-2">&amp;</span>config.alpn_protocols);
             config.alpn_protocols = protos;
 
             Acceptor::new(config)
                 .map_init_err(|<span class="kw">_</span>| {
-                    <span class="macro">unreachable!</span>(<span class="string">&quot;TLS acceptor service factory does not error on init&quot;</span>)
+                    <span class="macro">unreachable!</span>(<span class="string">"TLS acceptor service factory does not error on init"</span>)
                 })
                 .map_err(TlsError::into_service_error)
                 .map(|io: TlsStream&lt;TcpStream&gt;| {
@@ -709,7 +710,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;rustls-0_22&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"rustls-0_22"</span>)]
 </span><span class="kw">mod </span>rustls_0_22 {
     <span class="kw">use </span>std::io;
 
@@ -724,12 +725,12 @@
     <span class="kw">impl</span>&lt;S, B&gt; H2Service&lt;TlsStream&lt;TcpStream&gt;, S, B&gt;
     <span class="kw">where
         </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
-        S::Future: <span class="lifetime">&#39;static</span>,
-        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+        S::Future: <span class="lifetime">'static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">'static</span>,
 
-        B: MessageBody + <span class="lifetime">&#39;static</span>,
+        B: MessageBody + <span class="lifetime">'static</span>,
     {
         <span class="doccomment">/// Create Rustls v0.22 based service.
         </span><span class="kw">pub fn </span>rustls_0_22(
@@ -742,13 +743,13 @@
             Error = TlsError&lt;io::Error, DispatchError&gt;,
             InitError = S::InitError,
         &gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>protos = <span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.to_vec()];
+            <span class="kw">let </span><span class="kw-2">mut </span>protos = <span class="macro">vec!</span>[<span class="string">b"h2"</span>.to_vec()];
             protos.extend_from_slice(<span class="kw-2">&amp;</span>config.alpn_protocols);
             config.alpn_protocols = protos;
 
             Acceptor::new(config)
                 .map_init_err(|<span class="kw">_</span>| {
-                    <span class="macro">unreachable!</span>(<span class="string">&quot;TLS acceptor service factory does not error on init&quot;</span>)
+                    <span class="macro">unreachable!</span>(<span class="string">"TLS acceptor service factory does not error on init"</span>)
                 })
                 .map_err(TlsError::into_service_error)
                 .map(|io: TlsStream&lt;TcpStream&gt;| {
@@ -762,22 +763,22 @@
 
 <span class="kw">impl</span>&lt;T, S, B&gt; ServiceFactory&lt;(T, <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;)&gt; <span class="kw">for </span>H2Service&lt;T, S, B&gt;
 <span class="kw">where
-    </span>T: AsyncRead + AsyncWrite + Unpin + <span class="lifetime">&#39;static</span>,
+    </span>T: AsyncRead + AsyncWrite + Unpin + <span class="lifetime">'static</span>,
 
     S: ServiceFactory&lt;Request, Config = ()&gt;,
-    S::Future: <span class="lifetime">&#39;static</span>,
-    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">'static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">'static</span>,
 
-    B: MessageBody + <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Response = ();
     <span class="kw">type </span>Error = DispatchError;
     <span class="kw">type </span>Config = ();
     <span class="kw">type </span>Service = H2ServiceHandler&lt;T, S::Service, B&gt;;
     <span class="kw">type </span>InitError = S::InitError;
-    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Service, <span class="self">Self</span>::InitError&gt;&gt;;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Service, <span class="self">Self</span>::InitError&gt;&gt;;
 
     <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="self">Self</span>::Future {
         <span class="kw">let </span>service = <span class="self">self</span>.srv.new_service(());
@@ -805,10 +806,10 @@
 <span class="kw">impl</span>&lt;T, S, B&gt; H2ServiceHandler&lt;T, S, B&gt;
 <span class="kw">where
     </span>S: Service&lt;Request&gt;,
-    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    S::Future: <span class="lifetime">&#39;static</span>,
-    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    B: MessageBody + <span class="lifetime">&#39;static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+    S::Future: <span class="lifetime">'static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+    B: MessageBody + <span class="lifetime">'static</span>,
 {
     <span class="kw">fn </span>new(
         cfg: ServiceConfig,
@@ -828,19 +829,19 @@
 <span class="kw">where
     </span>T: AsyncRead + AsyncWrite + Unpin,
     S: Service&lt;Request&gt;,
-    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    S::Future: <span class="lifetime">&#39;static</span>,
-    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    B: MessageBody + <span class="lifetime">&#39;static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+    S::Future: <span class="lifetime">'static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+    B: MessageBody + <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Response = ();
     <span class="kw">type </span>Error = DispatchError;
     <span class="kw">type </span>Future = H2ServiceHandlerResponse&lt;T, S, B&gt;;
 
-    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
         <span class="self">self</span>.flow.service.poll_ready(cx).map_err(|err| {
             <span class="kw">let </span>err = err.into();
-            <span class="macro">error!</span>(<span class="string">&quot;Service readiness error: {:?}&quot;</span>, err);
+            <span class="macro">error!</span>(<span class="string">"Service readiness error: {:?}"</span>, err);
             DispatchError::Service(err)
         })
     }
@@ -863,7 +864,7 @@
 <span class="kw">enum </span>State&lt;T, S: Service&lt;Request&gt;, B: MessageBody&gt;
 <span class="kw">where
     </span>T: AsyncRead + AsyncWrite + Unpin,
-    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">'static</span>,
 {
     Handshake(
         <span class="prelude-ty">Option</span>&lt;Rc&lt;HttpFlow&lt;S, (), ()&gt;&gt;&gt;,
@@ -879,10 +880,10 @@
 <span class="kw">where
     </span>T: AsyncRead + AsyncWrite + Unpin,
     S: Service&lt;Request&gt;,
-    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    S::Future: <span class="lifetime">&#39;static</span>,
-    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    B: MessageBody + <span class="lifetime">&#39;static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+    S::Future: <span class="lifetime">'static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
+    B: MessageBody + <span class="lifetime">'static</span>,
 {
     state: State&lt;T, S, B&gt;,
 }
@@ -891,14 +892,14 @@
 <span class="kw">where
     </span>T: AsyncRead + AsyncWrite + Unpin,
     S: Service&lt;Request&gt;,
-    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    S::Future: <span class="lifetime">&#39;static</span>,
-    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">'static</span>,
+    S::Future: <span class="lifetime">'static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
     B: MessageBody,
 {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt;;
 
-    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">match </span><span class="self">self</span>.state {
             State::Handshake(
                 <span class="kw-2">ref mut </span>srv,
@@ -923,7 +924,7 @@
                 }
 
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;H2 handshake error: {}&quot;</span>, err);
+                    <span class="macro">trace!</span>(<span class="string">"H2 handshake error: {}"</span>, err);
                     Poll::Ready(<span class="prelude-val">Err</span>(err))
                 }
             },

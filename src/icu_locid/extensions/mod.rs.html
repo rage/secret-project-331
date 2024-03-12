@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/extensions/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/extensions/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -347,17 +348,17 @@
 //! use icu::locid::extensions::unicode::{Key, Value};
 //! use icu::locid::Locale;
 //!
-//! let loc: Locale = &quot;en-US-u-ca-buddhist-t-en-us-h0-hybrid-x-foo&quot;
+//! let loc: Locale = "en-US-u-ca-buddhist-t-en-us-h0-hybrid-x-foo"
 //!     .parse()
-//!     .expect(&quot;Failed to parse.&quot;);
+//!     .expect("Failed to parse.");
 //!
-//! assert_eq!(loc.id.language, &quot;en&quot;.parse().unwrap());
+//! assert_eq!(loc.id.language, "en".parse().unwrap());
 //! assert_eq!(loc.id.script, None);
-//! assert_eq!(loc.id.region, Some(&quot;US&quot;.parse().unwrap()));
+//! assert_eq!(loc.id.region, Some("US".parse().unwrap()));
 //! assert_eq!(loc.id.variants.len(), 0);
 //!
-//! let key: Key = &quot;ca&quot;.parse().expect(&quot;Parsing key failed.&quot;);
-//! let value: Value = &quot;buddhist&quot;.parse().expect(&quot;Parsing value failed.&quot;);
+//! let key: Key = "ca".parse().expect("Parsing key failed.");
+//! let value: Value = "buddhist".parse().expect("Parsing value failed.");
 //! assert_eq!(loc.extensions.unicode.keywords.get(&amp;key), Some(&amp;value));
 //! ```
 //!
@@ -401,10 +402,10 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>try_from_byte(key: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParserError&gt; {
         <span class="kw">let </span>key = key.to_ascii_lowercase();
         <span class="kw">match </span>key {
-            <span class="string">b&#39;u&#39; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Unicode),
-            <span class="string">b&#39;t&#39; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Transform),
-            <span class="string">b&#39;x&#39; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Private),
-            <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;z&#39; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Other(key)),
+            <span class="string">b'u' </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Unicode),
+            <span class="string">b't' </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Transform),
+            <span class="string">b'x' </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Private),
+            <span class="string">b'a'</span>..=<span class="string">b'z' </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Other(key)),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(ParserError::InvalidExtension),
         }
     }
@@ -477,7 +478,7 @@
     /// ```
     /// use icu::locid::Locale;
     ///
-    /// let loc: Locale = &quot;en-US-u-foo&quot;.parse().expect(&quot;Parsing failed.&quot;);
+    /// let loc: Locale = "en-US-u-foo".parse().expect("Parsing failed.");
     ///
     /// assert!(!loc.extensions.is_empty());
     /// ```
@@ -497,19 +498,19 @@
     /// use icu::locid::Locale;
     ///
     /// let loc: Locale =
-    ///     &quot;und-a-hello-t-mul-u-world-z-zzz-x-extra&quot;.parse().unwrap();
+    ///     "und-a-hello-t-mul-u-world-z-zzz-x-extra".parse().unwrap();
     ///
     /// let mut only_unicode = loc.clone();
     /// only_unicode
     ///     .extensions
     ///     .retain_by_type(|t| t == ExtensionType::Unicode);
-    /// assert_eq!(only_unicode, &quot;und-u-world&quot;.parse().unwrap());
+    /// assert_eq!(only_unicode, "und-u-world".parse().unwrap());
     ///
     /// let mut only_t_z = loc.clone();
     /// only_t_z.extensions.retain_by_type(|t| {
-    ///     t == ExtensionType::Transform || t == ExtensionType::Other(b&#39;z&#39;)
+    ///     t == ExtensionType::Transform || t == ExtensionType::Other(b'z')
     /// });
-    /// assert_eq!(only_t_z, &quot;und-t-mul-z-zzz&quot;.parse().unwrap());
+    /// assert_eq!(only_t_z, "und-t-mul-z-zzz".parse().unwrap());
     /// ```
     </span><span class="kw">pub fn </span>retain_by_type&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>predicate: F)
     <span class="kw">where
@@ -587,8 +588,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>wrote_tu = <span class="bool-val">false</span>;
         <span class="comment">// Alphabetic by singleton
         </span><span class="self">self</span>.other.iter().try_for_each(|other| {
-            <span class="kw">if </span>other.get_ext() &gt; <span class="string">&#39;t&#39; </span>&amp;&amp; !wrote_tu {
-                <span class="comment">// Since &#39;t&#39; and &#39;u&#39; are next to each other in alphabetical
+            <span class="kw">if </span>other.get_ext() &gt; <span class="string">'t' </span>&amp;&amp; !wrote_tu {
+                <span class="comment">// Since 't' and 'u' are next to each other in alphabetical
                 // order, write both now.
                 </span><span class="self">self</span>.transform.for_each_subtag_str(f)<span class="question-mark">?</span>;
                 <span class="self">self</span>.unicode.for_each_subtag_str(f)<span class="question-mark">?</span>;
@@ -618,32 +619,32 @@
 </span><span class="kw">fn </span>test_writeable() {
     <span class="kw">use </span><span class="kw">crate</span>::Locale;
     <span class="kw">use </span>writeable::assert_writeable_eq;
-    <span class="macro">assert_writeable_eq!</span>(Extensions::new(), <span class="string">&quot;&quot;</span>);
+    <span class="macro">assert_writeable_eq!</span>(Extensions::new(), <span class="string">""</span>);
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;my-t-my-d0-zawgyi&quot;</span>.parse::&lt;Locale&gt;().unwrap().extensions,
-        <span class="string">&quot;t-my-d0-zawgyi&quot;</span>,
+        <span class="string">"my-t-my-d0-zawgyi"</span>.parse::&lt;Locale&gt;().unwrap().extensions,
+        <span class="string">"t-my-d0-zawgyi"</span>,
     );
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;ar-SA-u-ca-islamic-civil&quot;
+        <span class="string">"ar-SA-u-ca-islamic-civil"
             </span>.parse::&lt;Locale&gt;()
             .unwrap()
             .extensions,
-        <span class="string">&quot;u-ca-islamic-civil&quot;</span>,
+        <span class="string">"u-ca-islamic-civil"</span>,
     );
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;en-001-x-foo-bar&quot;</span>.parse::&lt;Locale&gt;().unwrap().extensions,
-        <span class="string">&quot;x-foo-bar&quot;</span>,
+        <span class="string">"en-001-x-foo-bar"</span>.parse::&lt;Locale&gt;().unwrap().extensions,
+        <span class="string">"x-foo-bar"</span>,
     );
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;und-t-m0-true&quot;</span>.parse::&lt;Locale&gt;().unwrap().extensions,
-        <span class="string">&quot;t-m0-true&quot;</span>,
+        <span class="string">"und-t-m0-true"</span>.parse::&lt;Locale&gt;().unwrap().extensions,
+        <span class="string">"t-m0-true"</span>,
     );
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;und-a-foo-t-foo-u-foo-w-foo-z-foo-x-foo&quot;
+        <span class="string">"und-a-foo-t-foo-u-foo-w-foo-z-foo-x-foo"
             </span>.parse::&lt;Locale&gt;()
             .unwrap()
             .extensions,
-        <span class="string">&quot;a-foo-t-foo-u-foo-w-foo-z-foo-x-foo&quot;</span>,
+        <span class="string">"a-foo-t-foo-u-foo-w-foo-z-foo-x-foo"</span>,
     );
 }
 </code></pre></div></section></main></body></html>

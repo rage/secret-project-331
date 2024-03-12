@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/middleware/err_handlers.rs`."><title>err_handlers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/middleware/err_handlers.rs`."><title>err_handlers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -648,7 +649,7 @@
     </span>Response(ServiceResponse&lt;EitherBody&lt;B&gt;&gt;),
 
     <span class="doccomment">/// A future that resolves to an HTTP response.
-    </span>Future(LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;EitherBody&lt;B&gt;&gt;, Error&gt;&gt;),
+    </span>Future(LocalBoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;EitherBody&lt;B&gt;&gt;, Error&gt;&gt;),
 }
 
 <span class="kw">type </span>ErrorHandler&lt;B&gt; = <span class="kw">dyn </span>Fn(ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt;;
@@ -661,7 +662,7 @@
 /// for a given status code. Handlers can modify existing responses or create completely new ones.
 ///
 /// To register a default handler, use the [`ErrorHandlers::default_handler()`] method. This
-/// handler will be used only if a response has an error status code (400-599) that isn&#39;t covered by
+/// handler will be used only if a response has an error status code (400-599) that isn't covered by
 /// a more specific handler (set with the [`handler()`][ErrorHandlers::handler] method). See examples
 /// below.
 ///
@@ -669,7 +670,7 @@
 /// [`ErrorHandlers::default_handler_client()`] and [`ErrorHandlers::default_handler_server()`]
 /// methods, respectively.
 ///
-/// Any response with a status code that isn&#39;t covered by a specific handler or a default handler
+/// Any response with a status code that isn't covered by a specific handler or a default handler
 /// will pass by unchanged by this middleware.
 ///
 /// # Examples
@@ -687,16 +688,16 @@
 /// fn add_error_header&lt;B&gt;(mut res: ServiceResponse&lt;B&gt;) -&gt; Result&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
 ///     res.response_mut().headers_mut().insert(
 ///         header::CONTENT_TYPE,
-///         header::HeaderValue::from_static(&quot;Error&quot;),
+///         header::HeaderValue::from_static("Error"),
 ///     );
 ///
-///     // body is unchanged, map to &quot;left&quot; slot
+///     // body is unchanged, map to "left" slot
 ///     Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
 /// }
 ///
 /// let app = App::new()
 ///     .wrap(ErrorHandlers::new().handler(StatusCode::INTERNAL_SERVER_ERROR, add_error_header))
-///     .service(web::resource(&quot;/&quot;).route(web::get().to(HttpResponse::InternalServerError)));
+///     .service(web::resource("/").route(web::get().to(HttpResponse::InternalServerError)));
 /// ```
 ///
 /// Modifying response body:
@@ -714,9 +715,9 @@
 ///     let (req, res) = res.into_parts();
 ///
 ///     // set body of response to modified body
-///     let res = res.set_body(&quot;An error occurred.&quot;);
+///     let res = res.set_body("An error occurred.");
 ///
-///     // modified bodies need to be boxed and placed in the &quot;right&quot; slot
+///     // modified bodies need to be boxed and placed in the "right" slot
 ///     let res = ServiceResponse::new(req, res)
 ///         .map_into_boxed_body()
 ///         .map_into_right_body();
@@ -726,7 +727,7 @@
 ///
 /// let app = App::new()
 ///     .wrap(ErrorHandlers::new().handler(StatusCode::INTERNAL_SERVER_ERROR, add_error_body))
-///     .service(web::resource(&quot;/&quot;).route(web::get().to(HttpResponse::InternalServerError)));
+///     .service(web::resource("/").route(web::get().to(HttpResponse::InternalServerError)));
 /// ```
 ///
 /// Registering default handler:
@@ -741,20 +742,20 @@
 /// fn add_error_header&lt;B&gt;(mut res: ServiceResponse&lt;B&gt;) -&gt; Result&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
 ///     res.response_mut().headers_mut().insert(
 ///         header::CONTENT_TYPE,
-///         header::HeaderValue::from_static(&quot;Error&quot;),
+///         header::HeaderValue::from_static("Error"),
 ///     );
 ///
-///     // body is unchanged, map to &quot;left&quot; slot
+///     // body is unchanged, map to "left" slot
 ///     Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
 /// }
 ///
 /// fn handle_bad_request&lt;B&gt;(mut res: ServiceResponse&lt;B&gt;) -&gt; Result&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
 ///     res.response_mut().headers_mut().insert(
 ///         header::CONTENT_TYPE,
-///         header::HeaderValue::from_static(&quot;Bad Request Error&quot;),
+///         header::HeaderValue::from_static("Bad Request Error"),
 ///     );
 ///
-///     // body is unchanged, map to &quot;left&quot; slot
+///     // body is unchanged, map to "left" slot
 ///     Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
 /// }
 ///
@@ -766,7 +767,7 @@
 ///             .default_handler(add_error_header)
 ///             .handler(StatusCode::BAD_REQUEST, handle_bad_request)
 ///     )
-///     .service(web::resource(&quot;/&quot;).route(web::get().to(HttpResponse::InternalServerError)));
+///     .service(web::resource("/").route(web::get().to(HttpResponse::InternalServerError)));
 /// ```
 ///
 /// You can set default handlers for all client (4xx) or all server (5xx) errors:
@@ -781,14 +782,14 @@
 /// # fn add_error_header&lt;B&gt;(mut res: ServiceResponse&lt;B&gt;) -&gt; Result&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
 /// #     res.response_mut().headers_mut().insert(
 /// #         header::CONTENT_TYPE,
-/// #         header::HeaderValue::from_static(&quot;Error&quot;),
+/// #         header::HeaderValue::from_static("Error"),
 /// #     );
 /// #     Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
 /// # }
 /// # fn handle_bad_request&lt;B&gt;(mut res: ServiceResponse&lt;B&gt;) -&gt; Result&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
 /// #     res.response_mut().headers_mut().insert(
 /// #         header::CONTENT_TYPE,
-/// #         header::HeaderValue::from_static(&quot;Bad Request Error&quot;),
+/// #         header::HeaderValue::from_static("Bad Request Error"),
 /// #     );
 /// #     Ok(ErrorHandlerResponse::Response(res.map_into_left_body()))
 /// # }
@@ -800,7 +801,7 @@
 ///             .default_handler_client(add_error_header) // or .default_handler_server
 ///             .handler(StatusCode::BAD_REQUEST, handle_bad_request)
 ///     )
-///     .service(web::resource(&quot;/&quot;).route(web::get().to(HttpResponse::InternalServerError)));
+///     .service(web::resource("/").route(web::get().to(HttpResponse::InternalServerError)));
 /// ```
 </span><span class="kw">pub struct </span>ErrorHandlers&lt;B&gt; {
     default_client: DefaultHandler&lt;B&gt;,
@@ -829,7 +830,7 @@
     <span class="doccomment">/// Register error handler for specified status code.
     </span><span class="kw">pub fn </span>handler&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, status: StatusCode, handler: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
     {
         Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.handlers)
             .unwrap()
@@ -839,7 +840,7 @@
 
     <span class="doccomment">/// Register a default error handler.
     ///
-    /// Any request with a status code that hasn&#39;t been given a specific other handler (by calling
+    /// Any request with a status code that hasn't been given a specific other handler (by calling
     /// [`.handler()`][ErrorHandlers::handler]) will fall back on this.
     ///
     /// Note that this will overwrite any default handlers previously set by calling
@@ -848,7 +849,7 @@
     /// calling [`.handler()`][ErrorHandlers::handler].
     </span><span class="kw">pub fn </span>default_handler&lt;F&gt;(<span class="self">self</span>, handler: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>handler = Rc::new(handler);
         <span class="self">Self </span>{
@@ -861,7 +862,7 @@
     <span class="doccomment">/// Register a handler on which to fall back for client error status codes (400-499).
     </span><span class="kw">pub fn </span>default_handler_client&lt;F&gt;(<span class="self">self</span>, handler: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
     {
         <span class="self">Self </span>{
             default_client: <span class="prelude-val">Some</span>(Rc::new(handler)),
@@ -872,7 +873,7 @@
     <span class="doccomment">/// Register a handler on which to fall back for server error status codes (500-599).
     </span><span class="kw">pub fn </span>default_handler_server&lt;F&gt;(<span class="self">self</span>, handler: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; + <span class="lifetime">'static</span>,
     {
         <span class="self">Self </span>{
             default_server: <span class="prelude-val">Some</span>(Rc::new(handler)),
@@ -884,12 +885,12 @@
     ///
     /// If the `handlers` map has an entry for that status code, that handler is returned.
     /// Otherwise, fall back on the appropriate default handler.
-    </span><span class="kw">fn </span>get_handler&lt;<span class="lifetime">&#39;a</span>&gt;(
+    </span><span class="kw">fn </span>get_handler&lt;<span class="lifetime">'a</span>&gt;(
         status: <span class="kw-2">&amp;</span>StatusCode,
-        default_client: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ErrorHandler&lt;B&gt;&gt;,
-        default_server: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ErrorHandler&lt;B&gt;&gt;,
-        handlers: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handlers&lt;B&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ErrorHandler&lt;B&gt;&gt; {
+        default_client: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ErrorHandler&lt;B&gt;&gt;,
+        default_server: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ErrorHandler&lt;B&gt;&gt;,
+        handlers: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handlers&lt;B&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ErrorHandler&lt;B&gt;&gt; {
         handlers
             .get(status)
             .map(|h| h.as_ref())
@@ -900,15 +901,15 @@
 
 <span class="kw">impl</span>&lt;S, B&gt; Transform&lt;S, ServiceRequest&gt; <span class="kw">for </span>ErrorHandlers&lt;B&gt;
 <span class="kw">where
-    </span>S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt; + <span class="lifetime">&#39;static</span>,
-    S::Future: <span class="lifetime">&#39;static</span>,
-    B: <span class="lifetime">&#39;static</span>,
+    </span>S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt; + <span class="lifetime">'static</span>,
+    S::Future: <span class="lifetime">'static</span>,
+    B: <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Response = ServiceResponse&lt;EitherBody&lt;B&gt;&gt;;
     <span class="kw">type </span>Error = Error;
     <span class="kw">type </span>Transform = ErrorHandlersMiddleware&lt;S, B&gt;;
     <span class="kw">type </span>InitError = ();
-    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Transform, <span class="self">Self</span>::InitError&gt;&gt;;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Transform, <span class="self">Self</span>::InitError&gt;&gt;;
 
     <span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; <span class="self">Self</span>::Future {
         <span class="kw">let </span>handlers = <span class="self">self</span>.handlers.clone();
@@ -936,8 +937,8 @@
 <span class="kw">impl</span>&lt;S, B&gt; Service&lt;ServiceRequest&gt; <span class="kw">for </span>ErrorHandlersMiddleware&lt;S, B&gt;
 <span class="kw">where
     </span>S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
-    S::Future: <span class="lifetime">&#39;static</span>,
-    B: <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">'static</span>,
+    B: <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Response = ServiceResponse&lt;EitherBody&lt;B&gt;&gt;;
     <span class="kw">type </span>Error = Error;
@@ -973,7 +974,7 @@
             handlers: Handlers&lt;B&gt;,
         },
         ErrorHandlerFuture {
-            fut: LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;EitherBody&lt;B&gt;&gt;, Error&gt;&gt;,
+            fut: LocalBoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;EitherBody&lt;B&gt;&gt;, Error&gt;&gt;,
         },
     }
 }
@@ -984,7 +985,7 @@
 {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;EitherBody&lt;B&gt;&gt;, Error&gt;;
 
-    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">match </span><span class="self">self</span>.as_mut().project() {
             ErrorHandlersProj::ServiceFuture {
                 fut,
@@ -1043,7 +1044,7 @@
         </span><span class="kw">fn </span>error_handler&lt;B&gt;(<span class="kw-2">mut </span>res: ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
             res.response_mut()
                 .headers_mut()
-                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;0001&quot;</span>));
+                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"0001"</span>));
 
             <span class="prelude-val">Ok</span>(ErrorHandlerResponse::Response(res.map_into_left_body()))
         }
@@ -1057,18 +1058,18 @@
             </span>.unwrap();
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>mw, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;0001&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"0001"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>add_header_error_handler_async() {
         <span class="attr">#[allow(clippy::unnecessary_wraps)]
-        </span><span class="kw">fn </span>error_handler&lt;B: <span class="lifetime">&#39;static</span>&gt;(
+        </span><span class="kw">fn </span>error_handler&lt;B: <span class="lifetime">'static</span>&gt;(
             <span class="kw-2">mut </span>res: ServiceResponse&lt;B&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
             res.response_mut()
                 .headers_mut()
-                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;0001&quot;</span>));
+                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"0001"</span>));
 
             <span class="prelude-val">Ok</span>(ErrorHandlerResponse::Future(
                 ok(res.map_into_left_body()).boxed_local(),
@@ -1084,7 +1085,7 @@
             </span>.unwrap();
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>mw, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;0001&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"0001"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1092,7 +1093,7 @@
         <span class="attr">#[allow(clippy::unnecessary_wraps)]
         </span><span class="kw">fn </span>error_handler&lt;B&gt;(res: ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
             <span class="kw">let </span>(req, res) = res.into_parts();
-            <span class="kw">let </span>res = res.set_body(Bytes::from(<span class="string">&quot;sorry, that&#39;s no bueno&quot;</span>));
+            <span class="kw">let </span>res = res.set_body(Bytes::from(<span class="string">"sorry, that's no bueno"</span>));
 
             <span class="kw">let </span>res = ServiceResponse::new(req, res)
                 .map_into_boxed_body()
@@ -1110,7 +1111,7 @@
             </span>.unwrap();
 
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>mw, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(test::read_body(res).<span class="kw">await</span>, <span class="string">&quot;sorry, that&#39;s no bueno&quot;</span>);
+        <span class="macro">assert_eq!</span>(test::read_body(res).<span class="kw">await</span>, <span class="string">"sorry, that's no bueno"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1118,7 +1119,7 @@
         <span class="attr">#[allow(clippy::unnecessary_wraps)]
         </span><span class="kw">fn </span>error_handler&lt;B&gt;(_res: ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
             <span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::ErrorInternalServerError(
-                <span class="string">&quot;error in error handler&quot;</span>,
+                <span class="string">"error in error handler"</span>,
             ))
         }
 
@@ -1139,7 +1140,7 @@
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::INTERNAL_SERVER_ERROR);
         <span class="macro">assert_eq!</span>(
             body::to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
-            <span class="string">&quot;error in error handler&quot;
+            <span class="string">"error in error handler"
         </span>);
     }
 
@@ -1149,7 +1150,7 @@
         </span><span class="kw">fn </span>error_handler&lt;B&gt;(<span class="kw-2">mut </span>res: ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
             res.response_mut()
                 .headers_mut()
-                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;0001&quot;</span>));
+                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"0001"</span>));
             <span class="prelude-val">Ok</span>(ErrorHandlerResponse::Response(res.map_into_left_body()))
         }
 
@@ -1164,10 +1165,10 @@
         <span class="kw">let </span>mw_client = make_mw(StatusCode::BAD_REQUEST).<span class="kw">await</span>;
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>mw_client, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;0001&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"0001"</span>);
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>mw_server, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;0001&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"0001"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1176,7 +1177,7 @@
         </span><span class="kw">fn </span>error_handler_client&lt;B&gt;(<span class="kw-2">mut </span>res: ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
             res.response_mut()
                 .headers_mut()
-                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;0001&quot;</span>));
+                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"0001"</span>));
             <span class="prelude-val">Ok</span>(ErrorHandlerResponse::Response(res.map_into_left_body()))
         }
 
@@ -1184,7 +1185,7 @@
         </span><span class="kw">fn </span>error_handler_server&lt;B&gt;(<span class="kw-2">mut </span>res: ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
             res.response_mut()
                 .headers_mut()
-                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;0002&quot;</span>));
+                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"0002"</span>));
             <span class="prelude-val">Ok</span>(ErrorHandlerResponse::Response(res.map_into_left_body()))
         }
 
@@ -1200,10 +1201,10 @@
         <span class="kw">let </span>mw_client = make_mw(StatusCode::BAD_REQUEST).<span class="kw">await</span>;
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>mw_client, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;0001&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"0001"</span>);
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>mw_server, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;0002&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"0002"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1212,7 +1213,7 @@
         </span><span class="kw">fn </span>error_handler_client&lt;B&gt;(<span class="kw-2">mut </span>res: ServiceResponse&lt;B&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
             res.response_mut()
                 .headers_mut()
-                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;0001&quot;</span>));
+                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"0001"</span>));
             <span class="prelude-val">Ok</span>(ErrorHandlerResponse::Response(res.map_into_left_body()))
         }
 
@@ -1222,7 +1223,7 @@
         ) -&gt; <span class="prelude-ty">Result</span>&lt;ErrorHandlerResponse&lt;B&gt;&gt; {
             res.response_mut()
                 .headers_mut()
-                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;0003&quot;</span>));
+                .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"0003"</span>));
             <span class="prelude-val">Ok</span>(ErrorHandlerResponse::Response(res.map_into_left_body()))
         }
 
@@ -1238,10 +1239,10 @@
         <span class="kw">let </span>mw_specific = make_mw(StatusCode::UNPROCESSABLE_ENTITY).<span class="kw">await</span>;
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>mw_client, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;0001&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"0001"</span>);
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>mw_specific, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;0003&quot;</span>);
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"0003"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

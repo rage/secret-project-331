@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/filetime-0.2.23/src/unix/linux.rs`."><title>linux.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="filetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/filetime-0.2.23/src/unix/linux.rs`."><title>linux.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="filetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -115,8 +116,8 @@
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
 <a href="#117" id="117">117</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! On Linux we try to use the more accurate `utimensat` syscall but this isn&#39;t
-//! always available so we also fall back to `utimes` if we couldn&#39;t find
+</pre></div><pre class="rust"><code><span class="doccomment">//! On Linux we try to use the more accurate `utimensat` syscall but this isn't
+//! always available so we also fall back to `utimes` if we couldn't find
 //! `utimensat` at runtime.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::FileTime;
@@ -146,7 +147,7 @@
     atime: <span class="prelude-ty">Option</span>&lt;FileTime&gt;,
     mtime: <span class="prelude-ty">Option</span>&lt;FileTime&gt;,
 ) -&gt; io::Result&lt;()&gt; {
-    <span class="comment">// Attempt to use the `utimensat` syscall, but if it&#39;s not supported by the
+    <span class="comment">// Attempt to use the `utimensat` syscall, but if it's not supported by the
     // current kernel then fall back to an older syscall.
     </span><span class="kw">static </span>INVALID: AtomicBool = AtomicBool::new(<span class="bool-val">false</span>);
     <span class="kw">if </span>!INVALID.load(SeqCst) {
@@ -155,7 +156,7 @@
         <span class="comment">// We normally use a syscall because the `utimensat` function is documented
         // as not accepting a file descriptor in the first argument (even though, on
         // Linux, the syscall itself can accept a file descriptor there).
-        </span><span class="attr">#[cfg(not(target_env = <span class="string">&quot;musl&quot;</span>))]
+        </span><span class="attr">#[cfg(not(target_env = <span class="string">"musl"</span>))]
         </span><span class="kw">let </span>rc = <span class="kw">unsafe </span>{
             libc::syscall(
                 libc::SYS_utimensat,
@@ -169,11 +170,11 @@
         // on newer musl versions starting with musl 1.2, `timespec` is always a 64-bit
         // value even on 32-bit targets. As a result, musl internally converts their
         // `timespec` values to the correct ABI before invoking the syscall. Since we
-        // use `timespec` from the libc crate, it matches musl&#39;s definition and not
-        // the Linux kernel&#39;s version (for some platforms) so we must use musl&#39;s
-        // `utimensat` function to properly convert the value. musl&#39;s `utimensat`
+        // use `timespec` from the libc crate, it matches musl's definition and not
+        // the Linux kernel's version (for some platforms) so we must use musl's
+        // `utimensat` function to properly convert the value. musl's `utimensat`
         // function allows file descriptors in the path argument so this is fine.
-        </span><span class="attr">#[cfg(target_env = <span class="string">&quot;musl&quot;</span>)]
+        </span><span class="attr">#[cfg(target_env = <span class="string">"musl"</span>)]
         </span><span class="kw">let </span>rc = <span class="kw">unsafe </span>{
             libc::utimensat(
                 f.as_raw_fd(),

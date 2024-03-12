@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.4.0/src/props.rs`."><title>props.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.4.0/src/props.rs`."><title>props.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2381,7 +2382,7 @@
 <span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>zerovec::ule::VarULE;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="doccomment">/// Private marker type for PropertyValueNameToEnumMapper
@@ -2389,7 +2390,7 @@
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ErasedNameToEnumMapV1Marker;
 <span class="kw">impl </span>DataMarker <span class="kw">for </span>ErasedNameToEnumMapV1Marker {
-    <span class="kw">type </span>Yokeable = PropertyValueNameToEnumMapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+    <span class="kw">type </span>Yokeable = PropertyValueNameToEnumMapV1&lt;<span class="lifetime">'static</span>&gt;;
 }
 
 <span class="doccomment">/// A struct capable of looking up a property value from a string name.
@@ -2399,8 +2400,8 @@
 /// The name can be a short name (`Lu`), a long name(`Uppercase_Letter`),
 /// or an alias.
 ///
-/// Property names can be looked up using &quot;strict&quot; matching (looking for a name
-/// that matches exactly), or &quot;loose matching&quot;, where the name is allowed to deviate
+/// Property names can be looked up using "strict" matching (looking for a name
+/// that matches exactly), or "loose matching", where the name is allowed to deviate
 /// in terms of ASCII casing, whitespace, underscores, and hyphens.
 ///
 /// # Example
@@ -2411,31 +2412,31 @@
 /// let lookup = GeneralCategory::name_to_enum_mapper();
 /// // short name for value
 /// assert_eq!(
-///     lookup.get_strict(&quot;Lu&quot;),
+///     lookup.get_strict("Lu"),
 ///     Some(GeneralCategory::UppercaseLetter)
 /// );
 /// assert_eq!(
-///     lookup.get_strict(&quot;Pd&quot;),
+///     lookup.get_strict("Pd"),
 ///     Some(GeneralCategory::DashPunctuation)
 /// );
 /// // long name for value
 /// assert_eq!(
-///     lookup.get_strict(&quot;Uppercase_Letter&quot;),
+///     lookup.get_strict("Uppercase_Letter"),
 ///     Some(GeneralCategory::UppercaseLetter)
 /// );
 /// assert_eq!(
-///     lookup.get_strict(&quot;Dash_Punctuation&quot;),
+///     lookup.get_strict("Dash_Punctuation"),
 ///     Some(GeneralCategory::DashPunctuation)
 /// );
 /// // name has incorrect casing
-/// assert_eq!(lookup.get_strict(&quot;dashpunctuation&quot;), None);
+/// assert_eq!(lookup.get_strict("dashpunctuation"), None);
 /// // loose matching of name
 /// assert_eq!(
-///     lookup.get_loose(&quot;dash-punctuation&quot;),
+///     lookup.get_loose("dash-punctuation"),
 ///     Some(GeneralCategory::DashPunctuation)
 /// );
 /// // fake property
-/// assert_eq!(lookup.get_strict(&quot;Animated_Gif&quot;), None);
+/// assert_eq!(lookup.get_strict("Animated_Gif"), None);
 /// ```
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>PropertyValueNameToEnumMapper&lt;T&gt; {
@@ -2446,8 +2447,8 @@
 <span class="doccomment">/// A borrowed wrapper around property value name-to-enum data, returned by
 /// [`PropertyValueNameToEnumMapper::as_borrowed()`]. More efficient to query.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyValueNameToEnumMapV1&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">'a</span>, T&gt; {
+    map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PropertyValueNameToEnumMapV1&lt;<span class="lifetime">'a</span>&gt;,
     markers: PhantomData&lt;<span class="kw">fn</span>() -&gt; T&gt;,
 }
 
@@ -2457,7 +2458,7 @@
     /// This avoids a potential small underlying cost per API call (like `get_strict()`) by consolidating it
     /// up front.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">'_</span>, T&gt; {
         PropertyValueNameToEnumMapperBorrowed {
             map: <span class="self">self</span>.map.get(),
             markers: PhantomData,
@@ -2466,7 +2467,7 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_data&lt;M&gt;(data: DataPayload&lt;M&gt;) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>M: DataMarker&lt;Yokeable = PropertyValueNameToEnumMapV1&lt;<span class="lifetime">&#39;static</span>&gt;&gt;,
+        </span>M: DataMarker&lt;Yokeable = PropertyValueNameToEnumMapV1&lt;<span class="lifetime">'static</span>&gt;&gt;,
     {
         <span class="self">Self </span>{
             map: data.cast(),
@@ -2483,7 +2484,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">'_</span>, T&gt; {
     <span class="doccomment">/// Get the property value as a u16, doing a strict search looking for
     /// names that match exactly
     ///
@@ -2494,15 +2495,15 @@
     ///
     /// let lookup = GeneralCategory::name_to_enum_mapper();
     /// assert_eq!(
-    ///     lookup.get_strict_u16(&quot;Lu&quot;),
+    ///     lookup.get_strict_u16("Lu"),
     ///     Some(GeneralCategory::UppercaseLetter as u16)
     /// );
     /// assert_eq!(
-    ///     lookup.get_strict_u16(&quot;Uppercase_Letter&quot;),
+    ///     lookup.get_strict_u16("Uppercase_Letter"),
     ///     Some(GeneralCategory::UppercaseLetter as u16)
     /// );
     /// // does not do loose matching
-    /// assert_eq!(lookup.get_strict_u16(&quot;UppercaseLetter&quot;), None);
+    /// assert_eq!(lookup.get_strict_u16("UppercaseLetter"), None);
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>get_strict_u16(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
@@ -2519,15 +2520,15 @@
     ///
     /// let lookup = GeneralCategory::name_to_enum_mapper();
     /// assert_eq!(
-    ///     lookup.get_strict(&quot;Lu&quot;),
+    ///     lookup.get_strict("Lu"),
     ///     Some(GeneralCategory::UppercaseLetter)
     /// );
     /// assert_eq!(
-    ///     lookup.get_strict(&quot;Uppercase_Letter&quot;),
+    ///     lookup.get_strict("Uppercase_Letter"),
     ///     Some(GeneralCategory::UppercaseLetter)
     /// );
     /// // does not do loose matching
-    /// assert_eq!(lookup.get_strict(&quot;UppercaseLetter&quot;), None);
+    /// assert_eq!(lookup.get_strict("UppercaseLetter"), None);
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>get_strict(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
@@ -2545,16 +2546,16 @@
     ///
     /// let lookup = GeneralCategory::name_to_enum_mapper();
     /// assert_eq!(
-    ///     lookup.get_loose_u16(&quot;Lu&quot;),
+    ///     lookup.get_loose_u16("Lu"),
     ///     Some(GeneralCategory::UppercaseLetter as u16)
     /// );
     /// assert_eq!(
-    ///     lookup.get_loose_u16(&quot;Uppercase_Letter&quot;),
+    ///     lookup.get_loose_u16("Uppercase_Letter"),
     ///     Some(GeneralCategory::UppercaseLetter as u16)
     /// );
     /// // does do loose matching
     /// assert_eq!(
-    ///     lookup.get_loose_u16(&quot;UppercaseLetter&quot;),
+    ///     lookup.get_loose_u16("UppercaseLetter"),
     ///     Some(GeneralCategory::UppercaseLetter as u16)
     /// );
     /// ```
@@ -2574,16 +2575,16 @@
     ///
     /// let lookup = GeneralCategory::name_to_enum_mapper();
     /// assert_eq!(
-    ///     lookup.get_loose(&quot;Lu&quot;),
+    ///     lookup.get_loose("Lu"),
     ///     Some(GeneralCategory::UppercaseLetter)
     /// );
     /// assert_eq!(
-    ///     lookup.get_loose(&quot;Uppercase_Letter&quot;),
+    ///     lookup.get_loose("Uppercase_Letter"),
     ///     Some(GeneralCategory::UppercaseLetter)
     /// );
     /// // does do loose matching
     /// assert_eq!(
-    ///     lookup.get_loose(&quot;UppercaseLetter&quot;),
+    ///     lookup.get_loose("UppercaseLetter"),
     ///     Some(GeneralCategory::UppercaseLetter)
     /// );
     /// ```
@@ -2593,8 +2594,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">&#39;static</span>, T&gt; {
-    <span class="doccomment">/// Cheaply converts a `PropertyValueNameToEnumMapperBorrowed&lt;&#39;static&gt;` into a `PropertyValueNameToEnumMapper`.
+<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">'static</span>, T&gt; {
+    <span class="doccomment">/// Cheaply converts a `PropertyValueNameToEnumMapperBorrowed&lt;'static&gt;` into a `PropertyValueNameToEnumMapper`.
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; PropertyValueNameToEnumMapper&lt;T&gt; {
         PropertyValueNameToEnumMapper {
             map: DataPayload::from_static_ref(<span class="self">self</span>.map),
@@ -2604,7 +2605,7 @@
 }
 
 <span class="doccomment">/// Avoid monomorphizing multiple copies of this function
-</span><span class="kw">fn </span>get_strict_u16(payload: <span class="kw-2">&amp;</span>PropertyValueNameToEnumMapV1&lt;<span class="lifetime">&#39;_</span>&gt;, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
+</span><span class="kw">fn </span>get_strict_u16(payload: <span class="kw-2">&amp;</span>PropertyValueNameToEnumMapV1&lt;<span class="lifetime">'_</span>&gt;, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
     <span class="comment">// NormalizedPropertyName has no invariants so this should be free, but
     // avoid introducing a panic regardless
     </span><span class="kw">let </span>name = NormalizedPropertyNameStr::parse_byte_slice(name.as_bytes()).ok()<span class="question-mark">?</span>;
@@ -2612,7 +2613,7 @@
 }
 
 <span class="doccomment">/// Avoid monomorphizing multiple copies of this function
-</span><span class="kw">fn </span>get_loose_u16(payload: <span class="kw-2">&amp;</span>PropertyValueNameToEnumMapV1&lt;<span class="lifetime">&#39;_</span>&gt;, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
+</span><span class="kw">fn </span>get_loose_u16(payload: <span class="kw-2">&amp;</span>PropertyValueNameToEnumMapV1&lt;<span class="lifetime">'_</span>&gt;, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
     <span class="comment">// NormalizedPropertyName has no invariants so this should be free, but
     // avoid introducing a panic regardless
     </span><span class="kw">let </span>name = NormalizedPropertyNameStr::parse_byte_slice(name.as_bytes()).ok()<span class="question-mark">?</span>;
@@ -2624,7 +2625,7 @@
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ErasedEnumToValueNameSparseMapV1Marker;
 <span class="kw">impl </span>DataMarker <span class="kw">for </span>ErasedEnumToValueNameSparseMapV1Marker {
-    <span class="kw">type </span>Yokeable = PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+    <span class="kw">type </span>Yokeable = PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">'static</span>&gt;;
 }
 
 <span class="doccomment">/// A struct capable of looking up a property name from a value
@@ -2634,7 +2635,7 @@
 /// This mapper is used for properties with sparse values, like [`CanonicalCombiningClass`].
 /// It may be obtained using methods like [`CanonicalCombiningClass::get_enum_to_long_name_mapper()`].
 ///
-/// The name returned may be a short (`&quot;KV&quot;`) or long (`&quot;Kana_Voicing&quot;`) name, depending
+/// The name returned may be a short (`"KV"`) or long (`"Kana_Voicing"`) name, depending
 /// on the constructor used.
 ///
 /// # Example
@@ -2645,11 +2646,11 @@
 /// let lookup = CanonicalCombiningClass::enum_to_long_name_mapper();
 /// assert_eq!(
 ///     lookup.get(CanonicalCombiningClass::KanaVoicing),
-///     Some(&quot;Kana_Voicing&quot;)
+///     Some("Kana_Voicing")
 /// );
 /// assert_eq!(
 ///     lookup.get(CanonicalCombiningClass::AboveLeft),
-///     Some(&quot;Above_Left&quot;)
+///     Some("Above_Left")
 /// );
 /// ```
 </span><span class="attr">#[derive(Debug)]
@@ -2661,8 +2662,8 @@
 <span class="doccomment">/// A borrowed wrapper around property value name-to-enum data, returned by
 /// [`PropertyEnumToValueNameSparseMapper::as_borrowed()`]. More efficient to query.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PropertyEnumToValueNameSparseMapperBorrowed&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>PropertyEnumToValueNameSparseMapperBorrowed&lt;<span class="lifetime">'a</span>, T&gt; {
+    map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">'a</span>&gt;,
     markers: PhantomData&lt;<span class="kw">fn</span>(T) -&gt; ()&gt;,
 }
 
@@ -2672,7 +2673,7 @@
     /// This avoids a potential small underlying cost per API call (like `get_static()`) by consolidating it
     /// up front.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PropertyEnumToValueNameSparseMapperBorrowed&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PropertyEnumToValueNameSparseMapperBorrowed&lt;<span class="lifetime">'_</span>, T&gt; {
         PropertyEnumToValueNameSparseMapperBorrowed {
             map: <span class="self">self</span>.map.get(),
             markers: PhantomData,
@@ -2685,7 +2686,7 @@
     /// (like [`Script::TBD()`]) instead.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_data&lt;M&gt;(data: DataPayload&lt;M&gt;) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>M: DataMarker&lt;Yokeable = PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">&#39;static</span>&gt;&gt;,
+        </span>M: DataMarker&lt;Yokeable = PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">'static</span>&gt;&gt;,
     {
         <span class="self">Self </span>{
             map: data.cast(),
@@ -2694,7 +2695,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameSparseMapperBorrowed&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameSparseMapperBorrowed&lt;<span class="lifetime">'_</span>, T&gt; {
     <span class="doccomment">/// Get the property name given a value
     ///
     /// # Example
@@ -2705,11 +2706,11 @@
     /// let lookup = CanonicalCombiningClass::enum_to_long_name_mapper();
     /// assert_eq!(
     ///     lookup.get(CanonicalCombiningClass::KanaVoicing),
-    ///     Some(&quot;Kana_Voicing&quot;)
+    ///     Some("Kana_Voicing")
     /// );
     /// assert_eq!(
     ///     lookup.get(CanonicalCombiningClass::AboveLeft),
-    ///     Some(&quot;Above_Left&quot;)
+    ///     Some("Above_Left")
     /// );
     /// ```
     </span><span class="attr">#[inline]
@@ -2719,8 +2720,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameSparseMapperBorrowed&lt;<span class="lifetime">&#39;static</span>, T&gt; {
-    <span class="doccomment">/// Cheaply converts a `PropertyEnumToValueNameSparseMapperBorrowed&lt;&#39;static&gt;` into a `PropertyEnumToValueNameSparseMapper`.
+<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameSparseMapperBorrowed&lt;<span class="lifetime">'static</span>, T&gt; {
+    <span class="doccomment">/// Cheaply converts a `PropertyEnumToValueNameSparseMapperBorrowed&lt;'static&gt;` into a `PropertyEnumToValueNameSparseMapper`.
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; PropertyEnumToValueNameSparseMapper&lt;T&gt; {
         PropertyEnumToValueNameSparseMapper {
             map: DataPayload::from_static_ref(<span class="self">self</span>.map),
@@ -2734,7 +2735,7 @@
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ErasedEnumToValueNameLinearMapV1Marker;
 <span class="kw">impl </span>DataMarker <span class="kw">for </span>ErasedEnumToValueNameLinearMapV1Marker {
-    <span class="kw">type </span>Yokeable = PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+    <span class="kw">type </span>Yokeable = PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">'static</span>&gt;;
 }
 
 <span class="doccomment">/// A struct capable of looking up a property name from a value
@@ -2744,7 +2745,7 @@
 /// This mapper is used for properties with sequential values, like [`GeneralCategory`].
 /// It may be obtained using methods like [`GeneralCategory::get_enum_to_long_name_mapper()`].
 ///
-/// The name returned may be a short (`&quot;Lu&quot;`) or long (`&quot;Uppercase_Letter&quot;`) name, depending
+/// The name returned may be a short (`"Lu"`) or long (`"Uppercase_Letter"`) name, depending
 /// on the constructor used.
 ///
 /// # Example
@@ -2755,11 +2756,11 @@
 /// let lookup = GeneralCategory::enum_to_long_name_mapper();
 /// assert_eq!(
 ///     lookup.get(GeneralCategory::UppercaseLetter),
-///     Some(&quot;Uppercase_Letter&quot;)
+///     Some("Uppercase_Letter")
 /// );
 /// assert_eq!(
 ///     lookup.get(GeneralCategory::DashPunctuation),
-///     Some(&quot;Dash_Punctuation&quot;)
+///     Some("Dash_Punctuation")
 /// );
 /// ```
 </span><span class="attr">#[derive(Debug)]
@@ -2771,8 +2772,8 @@
 <span class="doccomment">/// A borrowed wrapper around property value name-to-enum data, returned by
 /// [`PropertyEnumToValueNameLinearMapper::as_borrowed()`]. More efficient to query.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PropertyEnumToValueNameLinearMapperBorrowed&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>PropertyEnumToValueNameLinearMapperBorrowed&lt;<span class="lifetime">'a</span>, T&gt; {
+    map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">'a</span>&gt;,
     markers: PhantomData&lt;<span class="kw">fn</span>(T) -&gt; ()&gt;,
 }
 
@@ -2782,7 +2783,7 @@
     /// This avoids a potential small underlying cost per API call (like `get_static()`) by consolidating it
     /// up front.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PropertyEnumToValueNameLinearMapperBorrowed&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PropertyEnumToValueNameLinearMapperBorrowed&lt;<span class="lifetime">'_</span>, T&gt; {
         PropertyEnumToValueNameLinearMapperBorrowed {
             map: <span class="self">self</span>.map.get(),
             markers: PhantomData,
@@ -2795,7 +2796,7 @@
     /// (like [`Script::TBD()`]) instead.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_data&lt;M&gt;(data: DataPayload&lt;M&gt;) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>M: DataMarker&lt;Yokeable = PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">&#39;static</span>&gt;&gt;,
+        </span>M: DataMarker&lt;Yokeable = PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">'static</span>&gt;&gt;,
     {
         <span class="self">Self </span>{
             map: data.cast(),
@@ -2804,7 +2805,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameLinearMapperBorrowed&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameLinearMapperBorrowed&lt;<span class="lifetime">'_</span>, T&gt; {
     <span class="doccomment">/// Get the property name given a value
     ///
     /// # Example
@@ -2813,8 +2814,8 @@
     /// use icu::properties::GeneralCategory;
     ///
     /// let lookup = GeneralCategory::enum_to_short_name_mapper();
-    /// assert_eq!(lookup.get(GeneralCategory::UppercaseLetter), Some(&quot;Lu&quot;));
-    /// assert_eq!(lookup.get(GeneralCategory::DashPunctuation), Some(&quot;Pd&quot;));
+    /// assert_eq!(lookup.get(GeneralCategory::UppercaseLetter), Some("Lu"));
+    /// assert_eq!(lookup.get(GeneralCategory::DashPunctuation), Some("Pd"));
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, property: T) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
@@ -2823,8 +2824,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameLinearMapperBorrowed&lt;<span class="lifetime">&#39;static</span>, T&gt; {
-    <span class="doccomment">/// Cheaply converts a `PropertyEnumToValueNameLinearMapperBorrowed&lt;&#39;static&gt;` into a `PropertyEnumToValueNameLinearMapper`.
+<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameLinearMapperBorrowed&lt;<span class="lifetime">'static</span>, T&gt; {
+    <span class="doccomment">/// Cheaply converts a `PropertyEnumToValueNameLinearMapperBorrowed&lt;'static&gt;` into a `PropertyEnumToValueNameLinearMapper`.
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; PropertyEnumToValueNameLinearMapper&lt;T&gt; {
         PropertyEnumToValueNameLinearMapper {
             map: DataPayload::from_static_ref(<span class="self">self</span>.map),
@@ -2838,7 +2839,7 @@
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ErasedEnumToValueNameLinearTiny4MapV1Marker;
 <span class="kw">impl </span>DataMarker <span class="kw">for </span>ErasedEnumToValueNameLinearTiny4MapV1Marker {
-    <span class="kw">type </span>Yokeable = PropertyEnumToValueNameLinearTiny4MapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+    <span class="kw">type </span>Yokeable = PropertyEnumToValueNameLinearTiny4MapV1&lt;<span class="lifetime">'static</span>&gt;;
 }
 
 <span class="doccomment">/// A struct capable of looking up a property name from a value
@@ -2856,8 +2857,8 @@
 /// use tinystr::tinystr;
 ///
 /// let lookup = Script::enum_to_short_name_mapper();
-/// assert_eq!(lookup.get(Script::Brahmi), Some(tinystr!(4, &quot;Brah&quot;)));
-/// assert_eq!(lookup.get(Script::Hangul), Some(tinystr!(4, &quot;Hang&quot;)));
+/// assert_eq!(lookup.get(Script::Brahmi), Some(tinystr!(4, "Brah")));
+/// assert_eq!(lookup.get(Script::Hangul), Some(tinystr!(4, "Hang")));
 /// ```
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>PropertyEnumToValueNameLinearTiny4Mapper&lt;T&gt; {
@@ -2868,8 +2869,8 @@
 <span class="doccomment">/// A borrowed wrapper around property value name-to-enum data, returned by
 /// [`PropertyEnumToValueNameLinearTiny4Mapper::as_borrowed()`]. More efficient to query.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>PropertyEnumToValueNameLinearTiny4MapV1&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;<span class="lifetime">'a</span>, T&gt; {
+    map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PropertyEnumToValueNameLinearTiny4MapV1&lt;<span class="lifetime">'a</span>&gt;,
     markers: PhantomData&lt;<span class="kw">fn</span>(T) -&gt; ()&gt;,
 }
 
@@ -2879,7 +2880,7 @@
     /// This avoids a potential small underlying cost per API call (like `get_static()`) by consolidating it
     /// up front.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    </span><span class="kw">pub fn </span>as_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;<span class="lifetime">'_</span>, T&gt; {
         PropertyEnumToValueNameLinearTiny4MapperBorrowed {
             map: <span class="self">self</span>.map.get(),
             markers: PhantomData,
@@ -2892,7 +2893,7 @@
     /// (like [`Script::TBD()`]) instead.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_data&lt;M&gt;(data: DataPayload&lt;M&gt;) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>M: DataMarker&lt;Yokeable = PropertyEnumToValueNameLinearTiny4MapV1&lt;<span class="lifetime">&#39;static</span>&gt;&gt;,
+        </span>M: DataMarker&lt;Yokeable = PropertyEnumToValueNameLinearTiny4MapV1&lt;<span class="lifetime">'static</span>&gt;&gt;,
     {
         <span class="self">Self </span>{
             map: data.cast(),
@@ -2901,7 +2902,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;<span class="lifetime">'_</span>, T&gt; {
     <span class="doccomment">/// Get the property name given a value
     ///
     /// # Example
@@ -2911,8 +2912,8 @@
     /// use tinystr::tinystr;
     ///
     /// let lookup = Script::enum_to_short_name_mapper();
-    /// assert_eq!(lookup.get(Script::Brahmi), Some(tinystr!(4, &quot;Brah&quot;)));
-    /// assert_eq!(lookup.get(Script::Hangul), Some(tinystr!(4, &quot;Hang&quot;)));
+    /// assert_eq!(lookup.get(Script::Brahmi), Some(tinystr!(4, "Brah")));
+    /// assert_eq!(lookup.get(Script::Hangul), Some(tinystr!(4, "Hang")));
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, property: T) -&gt; <span class="prelude-ty">Option</span>&lt;tinystr::TinyStr4&gt; {
@@ -2921,8 +2922,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;<span class="lifetime">&#39;static</span>, T&gt; {
-    <span class="doccomment">/// Cheaply converts a `PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;&#39;static&gt;` into a `PropertyEnumToValueNameLinearTiny4Mapper`.
+<span class="kw">impl</span>&lt;T: TrieValue&gt; PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;<span class="lifetime">'static</span>, T&gt; {
+    <span class="doccomment">/// Cheaply converts a `PropertyEnumToValueNameLinearTiny4MapperBorrowed&lt;'static&gt;` into a `PropertyEnumToValueNameLinearTiny4Mapper`.
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; PropertyEnumToValueNameLinearTiny4Mapper&lt;T&gt; {
         PropertyEnumToValueNameLinearTiny4Mapper {
             map: DataPayload::from_static_ref(<span class="self">self</span>.map),
@@ -2949,15 +2950,15 @@
     ) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$ty </span>{
             $(<span class="attr">#[<span class="macro-nonterminal">$attr_n2e</span>]</span>)*
-            <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
-            </span><span class="macro-nonterminal">$vis_n2e </span><span class="kw">fn </span><span class="macro-nonterminal">$cname_n2e</span>() -&gt; PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">&#39;static</span>, <span class="macro-nonterminal">$ty</span>&gt; {
+            <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+            </span><span class="macro-nonterminal">$vis_n2e </span><span class="kw">fn </span><span class="macro-nonterminal">$cname_n2e</span>() -&gt; PropertyValueNameToEnumMapperBorrowed&lt;<span class="lifetime">'static</span>, <span class="macro-nonterminal">$ty</span>&gt; {
                 PropertyValueNameToEnumMapperBorrowed {
                     map: <span class="kw">crate</span>::provider::Baked::<span class="macro-nonterminal">$singleton_n2e</span>,
                     markers: PhantomData,
                 }
             }
 
-            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;A version of [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$ty</span>), <span class="string">&quot;::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$cname_n2e</span>), <span class="string">&quot;()`] that uses custom data provided by a [`DataProvider`].&quot;</span>)]
+            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"A version of [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$ty</span>), <span class="string">"::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$cname_n2e</span>), <span class="string">"()`] that uses custom data provided by a [`DataProvider`]."</span>)]
             </span><span class="doccomment">///
             /// [📚 Help choosing a constructor](icu_provider::constructors)
             </span><span class="macro-nonterminal">$vis_n2e </span><span class="kw">fn </span><span class="macro-nonterminal">$name_n2e</span>(
@@ -2968,15 +2969,15 @@
 
             $(
                 $(<span class="attr">#[<span class="macro-nonterminal">$attr_e2sn</span>]</span>)*
-                <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
-                </span><span class="macro-nonterminal">$vis_e2sn </span><span class="kw">fn </span><span class="macro-nonterminal">$cname_e2sn</span>() -&gt; <span class="macro-nonterminal">$mapper_e2snb</span>&lt;<span class="lifetime">&#39;static</span>, <span class="macro-nonterminal">$ty</span>&gt; {
+                <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+                </span><span class="macro-nonterminal">$vis_e2sn </span><span class="kw">fn </span><span class="macro-nonterminal">$cname_e2sn</span>() -&gt; <span class="macro-nonterminal">$mapper_e2snb</span>&lt;<span class="lifetime">'static</span>, <span class="macro-nonterminal">$ty</span>&gt; {
                     <span class="macro-nonterminal">$mapper_e2snb </span>{
                         map: <span class="kw">crate</span>::provider::Baked::<span class="macro-nonterminal">$singleton_e2sn</span>,
                         markers: PhantomData,
                     }
                 }
 
-                <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;A version of [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$ty</span>), <span class="string">&quot;::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$cname_e2sn</span>), <span class="string">&quot;()`] that uses custom data provided by a [`DataProvider`].&quot;</span>)]
+                <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"A version of [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$ty</span>), <span class="string">"::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$cname_e2sn</span>), <span class="string">"()`] that uses custom data provided by a [`DataProvider`]."</span>)]
                 </span><span class="doccomment">///
                 /// [📚 Help choosing a constructor](icu_provider::constructors)
                 </span><span class="macro-nonterminal">$vis_e2sn </span><span class="kw">fn </span><span class="macro-nonterminal">$name_e2sn</span>(
@@ -2986,15 +2987,15 @@
                 }
 
                 $(<span class="attr">#[<span class="macro-nonterminal">$attr_e2ln</span>]</span>)*
-                <span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
-                </span><span class="macro-nonterminal">$vis_e2ln </span><span class="kw">fn </span><span class="macro-nonterminal">$cname_e2ln</span>() -&gt; <span class="macro-nonterminal">$mapper_e2lnb</span>&lt;<span class="lifetime">&#39;static</span>, <span class="macro-nonterminal">$ty</span>&gt; {
+                <span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+                </span><span class="macro-nonterminal">$vis_e2ln </span><span class="kw">fn </span><span class="macro-nonterminal">$cname_e2ln</span>() -&gt; <span class="macro-nonterminal">$mapper_e2lnb</span>&lt;<span class="lifetime">'static</span>, <span class="macro-nonterminal">$ty</span>&gt; {
                     <span class="macro-nonterminal">$mapper_e2lnb </span>{
                         map: <span class="kw">crate</span>::provider::Baked::<span class="macro-nonterminal">$singleton_e2ln</span>,
                         markers: PhantomData,
                     }
                 }
 
-                <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;A version of [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$ty</span>), <span class="string">&quot;::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$cname_e2ln</span>), <span class="string">&quot;()`] that uses custom data provided by a [`DataProvider`].&quot;</span>)]
+                <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"A version of [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$ty</span>), <span class="string">"::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$cname_e2ln</span>), <span class="string">"()`] that uses custom data provided by a [`DataProvider`]."</span>)]
                 </span><span class="doccomment">///
                 /// [📚 Help choosing a constructor](icu_provider::constructors)
                 </span><span class="macro-nonterminal">$vis_e2ln </span><span class="kw">fn </span><span class="macro-nonterminal">$name_e2ln</span>(
@@ -3013,9 +3014,9 @@
 /// For the property values, see [Bidirectional Class Values](https://unicode.org/reports/tr44/#Bidi_Class_Values).
 /// For more information, see [Unicode Standard Annex #9](https://unicode.org/reports/tr41/tr41-28.html#UAX9).
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[repr(transparent)]
 #[zerovec::make_ule(BidiClassULE)]
@@ -3088,17 +3089,17 @@
         ///
         /// let lookup = BidiClass::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;AN&quot;), Some(BidiClass::ArabicNumber));
-        /// assert_eq!(lookup.get_strict(&quot;NSM&quot;), Some(BidiClass::NonspacingMark));
+        /// assert_eq!(lookup.get_strict("AN"), Some(BidiClass::ArabicNumber));
+        /// assert_eq!(lookup.get_strict("NSM"), Some(BidiClass::NonspacingMark));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Arabic_Number&quot;), Some(BidiClass::ArabicNumber));
-        /// assert_eq!(lookup.get_strict(&quot;Nonspacing_Mark&quot;), Some(BidiClass::NonspacingMark));
+        /// assert_eq!(lookup.get_strict("Arabic_Number"), Some(BidiClass::ArabicNumber));
+        /// assert_eq!(lookup.get_strict("Nonspacing_Mark"), Some(BidiClass::NonspacingMark));
         /// // name has incorrect casing
-        /// assert_eq!(lookup.get_strict(&quot;arabicnumber&quot;), None);
+        /// assert_eq!(lookup.get_strict("arabicnumber"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;arabicnumber&quot;), Some(BidiClass::ArabicNumber));
+        /// assert_eq!(lookup.get_loose("arabicnumber"), Some(BidiClass::ArabicNumber));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;Upside_Down_Vertical_Backwards_Mirrored&quot;), None);
+        /// assert_eq!(lookup.get_strict("Upside_Down_Vertical_Backwards_Mirrored"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up short names
@@ -3114,8 +3115,8 @@
         /// use icu::properties::BidiClass;
         ///
         /// let lookup = BidiClass::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(BidiClass::ArabicNumber), Some(&quot;AN&quot;));
-        /// assert_eq!(lookup.get(BidiClass::NonspacingMark), Some(&quot;NSM&quot;));
+        /// assert_eq!(lookup.get(BidiClass::ArabicNumber), Some("AN"));
+        /// assert_eq!(lookup.get(BidiClass::NonspacingMark), Some("NSM"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up long names
@@ -3131,8 +3132,8 @@
         /// use icu::properties::BidiClass;
         ///
         /// let lookup = BidiClass::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(BidiClass::ArabicNumber), Some(&quot;Arabic_Number&quot;));
-        /// assert_eq!(lookup.get(BidiClass::NonspacingMark), Some(&quot;Nonspacing_Mark&quot;));
+        /// assert_eq!(lookup.get(BidiClass::ArabicNumber), Some("Arabic_Number"));
+        /// assert_eq!(lookup.get(BidiClass::NonspacingMark), Some("Nonspacing_Mark"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
     }
@@ -3147,9 +3148,9 @@
 /// GeneralCategory only supports specific subcategories (eg `UppercaseLetter`).
 /// It does not support grouped categories (eg `Letter`). For grouped categories, use [`GeneralCategoryGroup`].
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, Eq, Debug, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_enums)] </span><span class="comment">// this type is stable
 </span><span class="attr">#[zerovec::make_ule(GeneralCategoryULE)]
 #[repr(u8)]
@@ -3240,17 +3241,17 @@
         ///
         /// let lookup = GeneralCategory::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;Lu&quot;), Some(GeneralCategory::UppercaseLetter));
-        /// assert_eq!(lookup.get_strict(&quot;Pd&quot;), Some(GeneralCategory::DashPunctuation));
+        /// assert_eq!(lookup.get_strict("Lu"), Some(GeneralCategory::UppercaseLetter));
+        /// assert_eq!(lookup.get_strict("Pd"), Some(GeneralCategory::DashPunctuation));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Uppercase_Letter&quot;), Some(GeneralCategory::UppercaseLetter));
-        /// assert_eq!(lookup.get_strict(&quot;Dash_Punctuation&quot;), Some(GeneralCategory::DashPunctuation));
+        /// assert_eq!(lookup.get_strict("Uppercase_Letter"), Some(GeneralCategory::UppercaseLetter));
+        /// assert_eq!(lookup.get_strict("Dash_Punctuation"), Some(GeneralCategory::DashPunctuation));
         /// // name has incorrect casing
-        /// assert_eq!(lookup.get_strict(&quot;dashpunctuation&quot;), None);
+        /// assert_eq!(lookup.get_strict("dashpunctuation"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;dash-punctuation&quot;), Some(GeneralCategory::DashPunctuation));
+        /// assert_eq!(lookup.get_loose("dash-punctuation"), Some(GeneralCategory::DashPunctuation));
         /// // fake property
-        /// assert_eq!(lookup.get_loose(&quot;Animated_Gif&quot;), None);
+        /// assert_eq!(lookup.get_loose("Animated_Gif"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up short names
@@ -3266,9 +3267,9 @@
         /// use icu::properties::GeneralCategory;
         ///
         /// let lookup = GeneralCategory::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(GeneralCategory::UppercaseLetter), Some(&quot;Lu&quot;));
-        /// assert_eq!(lookup.get(GeneralCategory::DashPunctuation), Some(&quot;Pd&quot;));
-        /// assert_eq!(lookup.get(GeneralCategory::FinalPunctuation), Some(&quot;Pf&quot;));
+        /// assert_eq!(lookup.get(GeneralCategory::UppercaseLetter), Some("Lu"));
+        /// assert_eq!(lookup.get(GeneralCategory::DashPunctuation), Some("Pd"));
+        /// assert_eq!(lookup.get(GeneralCategory::FinalPunctuation), Some("Pf"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up long names
@@ -3284,9 +3285,9 @@
         /// use icu::properties::GeneralCategory;
         ///
         /// let lookup = GeneralCategory::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(GeneralCategory::UppercaseLetter), Some(&quot;Uppercase_Letter&quot;));
-        /// assert_eq!(lookup.get(GeneralCategory::DashPunctuation), Some(&quot;Dash_Punctuation&quot;));
-        /// assert_eq!(lookup.get(GeneralCategory::FinalPunctuation), Some(&quot;Final_Punctuation&quot;));
+        /// assert_eq!(lookup.get(GeneralCategory::UppercaseLetter), Some("Uppercase_Letter"));
+        /// assert_eq!(lookup.get(GeneralCategory::DashPunctuation), Some("Dash_Punctuation"));
+        /// assert_eq!(lookup.get(GeneralCategory::FinalPunctuation), Some("Final_Punctuation"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
     }
@@ -3448,35 +3449,35 @@
     ///
     /// let gc = maps::general_category();
     ///
-    /// assert_eq!(gc.get(&#39;A&#39;), GeneralCategory::UppercaseLetter);
-    /// assert!(GeneralCategoryGroup::CasedLetter.contains(gc.get(&#39;A&#39;)));
+    /// assert_eq!(gc.get('A'), GeneralCategory::UppercaseLetter);
+    /// assert!(GeneralCategoryGroup::CasedLetter.contains(gc.get('A')));
     ///
     /// // U+0B1E ORIYA LETTER NYA
-    /// assert_eq!(gc.get(&#39;ଞ&#39;), GeneralCategory::OtherLetter);
-    /// assert!(GeneralCategoryGroup::Letter.contains(gc.get(&#39;ଞ&#39;)));
-    /// assert!(!GeneralCategoryGroup::CasedLetter.contains(gc.get(&#39;ଞ&#39;)));
+    /// assert_eq!(gc.get('ଞ'), GeneralCategory::OtherLetter);
+    /// assert!(GeneralCategoryGroup::Letter.contains(gc.get('ଞ')));
+    /// assert!(!GeneralCategoryGroup::CasedLetter.contains(gc.get('ଞ')));
     ///
     /// // U+0301 COMBINING ACUTE ACCENT
     /// assert_eq!(gc.get32(0x0301), GeneralCategory::NonspacingMark);
     /// assert!(GeneralCategoryGroup::Mark.contains(gc.get32(0x0301)));
     /// assert!(!GeneralCategoryGroup::Letter.contains(gc.get32(0x0301)));
     ///
-    /// assert_eq!(gc.get(&#39;0&#39;), GeneralCategory::DecimalNumber);
-    /// assert!(GeneralCategoryGroup::Number.contains(gc.get(&#39;0&#39;)));
-    /// assert!(!GeneralCategoryGroup::Mark.contains(gc.get(&#39;0&#39;)));
+    /// assert_eq!(gc.get('0'), GeneralCategory::DecimalNumber);
+    /// assert!(GeneralCategoryGroup::Number.contains(gc.get('0')));
+    /// assert!(!GeneralCategoryGroup::Mark.contains(gc.get('0')));
     ///
-    /// assert_eq!(gc.get(&#39;(&#39;), GeneralCategory::OpenPunctuation);
-    /// assert!(GeneralCategoryGroup::Punctuation.contains(gc.get(&#39;(&#39;)));
-    /// assert!(!GeneralCategoryGroup::Number.contains(gc.get(&#39;(&#39;)));
+    /// assert_eq!(gc.get('('), GeneralCategory::OpenPunctuation);
+    /// assert!(GeneralCategoryGroup::Punctuation.contains(gc.get('(')));
+    /// assert!(!GeneralCategoryGroup::Number.contains(gc.get('(')));
     ///
     /// // U+2713 CHECK MARK
-    /// assert_eq!(gc.get(&#39;✓&#39;), GeneralCategory::OtherSymbol);
-    /// assert!(GeneralCategoryGroup::Symbol.contains(gc.get(&#39;✓&#39;)));
-    /// assert!(!GeneralCategoryGroup::Punctuation.contains(gc.get(&#39;✓&#39;)));
+    /// assert_eq!(gc.get('✓'), GeneralCategory::OtherSymbol);
+    /// assert!(GeneralCategoryGroup::Symbol.contains(gc.get('✓')));
+    /// assert!(!GeneralCategoryGroup::Punctuation.contains(gc.get('✓')));
     ///
-    /// assert_eq!(gc.get(&#39; &#39;), GeneralCategory::SpaceSeparator);
-    /// assert!(GeneralCategoryGroup::Separator.contains(gc.get(&#39; &#39;)));
-    /// assert!(!GeneralCategoryGroup::Symbol.contains(gc.get(&#39; &#39;)));
+    /// assert_eq!(gc.get(' '), GeneralCategory::SpaceSeparator);
+    /// assert!(GeneralCategoryGroup::Separator.contains(gc.get(' ')));
+    /// assert!(!GeneralCategoryGroup::Symbol.contains(gc.get(' ')));
     ///
     /// // U+E007F CANCEL TAG
     /// assert_eq!(gc.get32(0xE007F), GeneralCategory::Format);
@@ -3601,23 +3602,23 @@
         ///
         /// let lookup = GeneralCategoryGroup::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;L&quot;), Some(GeneralCategoryGroup::Letter));
-        /// assert_eq!(lookup.get_strict(&quot;LC&quot;), Some(GeneralCategoryGroup::CasedLetter));
-        /// assert_eq!(lookup.get_strict(&quot;Lu&quot;), Some(GeneralCategoryGroup::UppercaseLetter));
-        /// assert_eq!(lookup.get_strict(&quot;Zp&quot;), Some(GeneralCategoryGroup::ParagraphSeparator));
-        /// assert_eq!(lookup.get_strict(&quot;P&quot;), Some(GeneralCategoryGroup::Punctuation));
+        /// assert_eq!(lookup.get_strict("L"), Some(GeneralCategoryGroup::Letter));
+        /// assert_eq!(lookup.get_strict("LC"), Some(GeneralCategoryGroup::CasedLetter));
+        /// assert_eq!(lookup.get_strict("Lu"), Some(GeneralCategoryGroup::UppercaseLetter));
+        /// assert_eq!(lookup.get_strict("Zp"), Some(GeneralCategoryGroup::ParagraphSeparator));
+        /// assert_eq!(lookup.get_strict("P"), Some(GeneralCategoryGroup::Punctuation));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Letter&quot;), Some(GeneralCategoryGroup::Letter));
-        /// assert_eq!(lookup.get_strict(&quot;Cased_Letter&quot;), Some(GeneralCategoryGroup::CasedLetter));
-        /// assert_eq!(lookup.get_strict(&quot;Uppercase_Letter&quot;), Some(GeneralCategoryGroup::UppercaseLetter));
+        /// assert_eq!(lookup.get_strict("Letter"), Some(GeneralCategoryGroup::Letter));
+        /// assert_eq!(lookup.get_strict("Cased_Letter"), Some(GeneralCategoryGroup::CasedLetter));
+        /// assert_eq!(lookup.get_strict("Uppercase_Letter"), Some(GeneralCategoryGroup::UppercaseLetter));
         /// // alias name
-        /// assert_eq!(lookup.get_strict(&quot;punct&quot;), Some(GeneralCategoryGroup::Punctuation));
+        /// assert_eq!(lookup.get_strict("punct"), Some(GeneralCategoryGroup::Punctuation));
         /// // name has incorrect casing
-        /// assert_eq!(lookup.get_strict(&quot;letter&quot;), None);
+        /// assert_eq!(lookup.get_strict("letter"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;letter&quot;), Some(GeneralCategoryGroup::Letter));
+        /// assert_eq!(lookup.get_loose("letter"), Some(GeneralCategoryGroup::Letter));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;EverythingLol&quot;), None);
+        /// assert_eq!(lookup.get_strict("EverythingLol"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
     }
@@ -3651,15 +3652,15 @@
 /// For more information, see UAX #24: &lt;http://www.unicode.org/reports/tr24/&gt;.
 /// See `UScriptCode` in ICU4C.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[repr(transparent)]
 #[zerovec::make_ule(ScriptULE)]
 </span><span class="kw">pub struct </span>Script(<span class="kw">pub </span>u16);
 
-<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don&#39;t need individual documentation.
+<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don't need individual documentation.
 </span><span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">impl </span>Script {
     <span class="kw">pub const </span>Adlam: Script = Script(<span class="number">167</span>);
@@ -3845,17 +3846,17 @@
         ///
         /// let lookup = Script::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;Brah&quot;), Some(Script::Brahmi));
-        /// assert_eq!(lookup.get_strict(&quot;Hang&quot;), Some(Script::Hangul));
+        /// assert_eq!(lookup.get_strict("Brah"), Some(Script::Brahmi));
+        /// assert_eq!(lookup.get_strict("Hang"), Some(Script::Hangul));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Brahmi&quot;), Some(Script::Brahmi));
-        /// assert_eq!(lookup.get_strict(&quot;Hangul&quot;), Some(Script::Hangul));
+        /// assert_eq!(lookup.get_strict("Brahmi"), Some(Script::Brahmi));
+        /// assert_eq!(lookup.get_strict("Hangul"), Some(Script::Hangul));
         /// // name has incorrect casing
-        /// assert_eq!(lookup.get_strict(&quot;brahmi&quot;), None);
+        /// assert_eq!(lookup.get_strict("brahmi"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;brahmi&quot;), Some(Script::Brahmi));
+        /// assert_eq!(lookup.get_loose("brahmi"), Some(Script::Brahmi));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;Linear_Z&quot;), None);
+        /// assert_eq!(lookup.get_strict("Linear_Z"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up short names
@@ -3872,8 +3873,8 @@
         /// use tinystr::tinystr;
         ///
         /// let lookup = Script::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(Script::Brahmi), Some(tinystr!(4, &quot;Brah&quot;)));
-        /// assert_eq!(lookup.get(Script::Hangul), Some(tinystr!(4, &quot;Hang&quot;)));
+        /// assert_eq!(lookup.get(Script::Brahmi), Some(tinystr!(4, "Brah")));
+        /// assert_eq!(lookup.get(Script::Hangul), Some(tinystr!(4, "Hang")));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameLinearTiny4Mapper / PropertyEnumToValueNameLinearTiny4MapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearTiny4Mapper`], capable of looking up long names
@@ -3889,8 +3890,8 @@
         /// use icu::properties::Script;
         ///
         /// let lookup = Script::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(Script::Brahmi), Some(&quot;Brahmi&quot;));
-        /// assert_eq!(lookup.get(Script::Hangul), Some(&quot;Hangul&quot;));
+        /// assert_eq!(lookup.get(Script::Brahmi), Some("Brahmi"));
+        /// assert_eq!(lookup.get(Script::Hangul), Some("Hangul"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
     }
@@ -3898,28 +3899,28 @@
 
 <span class="doccomment">/// Enumerated property East_Asian_Width.
 ///
-/// See &quot;Definition&quot; in UAX #11 for the summary of each property value:
+/// See "Definition" in UAX #11 for the summary of each property value:
 /// &lt;https://www.unicode.org/reports/tr11/#Definitions&gt;
 ///
 /// The numeric value is compatible with `UEastAsianWidth` in ICU4C.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[repr(transparent)]
 #[zerovec::make_ule(EastAsianWidthULE)]
 </span><span class="kw">pub struct </span>EastAsianWidth(<span class="kw">pub </span>u8);
 
-<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don&#39;t need individual documentation.
+<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don't need individual documentation.
 </span><span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">impl </span>EastAsianWidth {
-    <span class="kw">pub const </span>Neutral: EastAsianWidth = EastAsianWidth(<span class="number">0</span>); <span class="comment">//name=&quot;N&quot;
-    </span><span class="kw">pub const </span>Ambiguous: EastAsianWidth = EastAsianWidth(<span class="number">1</span>); <span class="comment">//name=&quot;A&quot;
-    </span><span class="kw">pub const </span>Halfwidth: EastAsianWidth = EastAsianWidth(<span class="number">2</span>); <span class="comment">//name=&quot;H&quot;
-    </span><span class="kw">pub const </span>Fullwidth: EastAsianWidth = EastAsianWidth(<span class="number">3</span>); <span class="comment">//name=&quot;F&quot;
-    </span><span class="kw">pub const </span>Narrow: EastAsianWidth = EastAsianWidth(<span class="number">4</span>); <span class="comment">//name=&quot;Na&quot;
-    </span><span class="kw">pub const </span>Wide: EastAsianWidth = EastAsianWidth(<span class="number">5</span>); <span class="comment">//name=&quot;W&quot;
+    <span class="kw">pub const </span>Neutral: EastAsianWidth = EastAsianWidth(<span class="number">0</span>); <span class="comment">//name="N"
+    </span><span class="kw">pub const </span>Ambiguous: EastAsianWidth = EastAsianWidth(<span class="number">1</span>); <span class="comment">//name="A"
+    </span><span class="kw">pub const </span>Halfwidth: EastAsianWidth = EastAsianWidth(<span class="number">2</span>); <span class="comment">//name="H"
+    </span><span class="kw">pub const </span>Fullwidth: EastAsianWidth = EastAsianWidth(<span class="number">3</span>); <span class="comment">//name="F"
+    </span><span class="kw">pub const </span>Narrow: EastAsianWidth = EastAsianWidth(<span class="number">4</span>); <span class="comment">//name="Na"
+    </span><span class="kw">pub const </span>Wide: EastAsianWidth = EastAsianWidth(<span class="number">5</span>); <span class="comment">//name="W"
 </span>}
 
 <span class="macro">impl_value_getter! </span>{
@@ -3939,17 +3940,17 @@
         ///
         /// let lookup = EastAsianWidth::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;N&quot;), Some(EastAsianWidth::Neutral));
-        /// assert_eq!(lookup.get_strict(&quot;H&quot;), Some(EastAsianWidth::Halfwidth));
+        /// assert_eq!(lookup.get_strict("N"), Some(EastAsianWidth::Neutral));
+        /// assert_eq!(lookup.get_strict("H"), Some(EastAsianWidth::Halfwidth));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Neutral&quot;), Some(EastAsianWidth::Neutral));
-        /// assert_eq!(lookup.get_strict(&quot;Halfwidth&quot;), Some(EastAsianWidth::Halfwidth));
+        /// assert_eq!(lookup.get_strict("Neutral"), Some(EastAsianWidth::Neutral));
+        /// assert_eq!(lookup.get_strict("Halfwidth"), Some(EastAsianWidth::Halfwidth));
         /// // name has incorrect casing / extra hyphen
-        /// assert_eq!(lookup.get_strict(&quot;half-width&quot;), None);
+        /// assert_eq!(lookup.get_strict("half-width"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;half-width&quot;), Some(EastAsianWidth::Halfwidth));
+        /// assert_eq!(lookup.get_loose("half-width"), Some(EastAsianWidth::Halfwidth));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;TwoPointFiveWidth&quot;), None);
+        /// assert_eq!(lookup.get_strict("TwoPointFiveWidth"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up short names
@@ -3965,8 +3966,8 @@
         /// use icu::properties::EastAsianWidth;
         ///
         /// let lookup = EastAsianWidth::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(EastAsianWidth::Neutral), Some(&quot;N&quot;));
-        /// assert_eq!(lookup.get(EastAsianWidth::Halfwidth), Some(&quot;H&quot;));
+        /// assert_eq!(lookup.get(EastAsianWidth::Neutral), Some("N"));
+        /// assert_eq!(lookup.get(EastAsianWidth::Halfwidth), Some("H"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up long names
@@ -3982,8 +3983,8 @@
         /// use icu::properties::EastAsianWidth;
         ///
         /// let lookup = EastAsianWidth::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(EastAsianWidth::Neutral), Some(&quot;Neutral&quot;));
-        /// assert_eq!(lookup.get(EastAsianWidth::Halfwidth), Some(&quot;Halfwidth&quot;));
+        /// assert_eq!(lookup.get(EastAsianWidth::Neutral), Some("Neutral"));
+        /// assert_eq!(lookup.get(EastAsianWidth::Halfwidth), Some("Halfwidth"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
     }
@@ -3991,72 +3992,72 @@
 
 <span class="doccomment">/// Enumerated property Line_Break.
 ///
-/// See &quot;Line Breaking Properties&quot; in UAX #14 for the summary of each property
+/// See "Line Breaking Properties" in UAX #14 for the summary of each property
 /// value: &lt;https://www.unicode.org/reports/tr14/#Properties&gt;
 ///
 /// The numeric value is compatible with `ULineBreak` in ICU4C.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[repr(transparent)]
 #[zerovec::make_ule(LineBreakULE)]
 </span><span class="kw">pub struct </span>LineBreak(<span class="kw">pub </span>u8);
 
-<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don&#39;t need individual documentation.
+<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don't need individual documentation.
 </span><span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">impl </span>LineBreak {
-    <span class="kw">pub const </span>Unknown: LineBreak = LineBreak(<span class="number">0</span>); <span class="comment">// name=&quot;XX&quot;
-    </span><span class="kw">pub const </span>Ambiguous: LineBreak = LineBreak(<span class="number">1</span>); <span class="comment">// name=&quot;AI&quot;
-    </span><span class="kw">pub const </span>Alphabetic: LineBreak = LineBreak(<span class="number">2</span>); <span class="comment">// name=&quot;AL&quot;
-    </span><span class="kw">pub const </span>BreakBoth: LineBreak = LineBreak(<span class="number">3</span>); <span class="comment">// name=&quot;B2&quot;
-    </span><span class="kw">pub const </span>BreakAfter: LineBreak = LineBreak(<span class="number">4</span>); <span class="comment">// name=&quot;BA&quot;
-    </span><span class="kw">pub const </span>BreakBefore: LineBreak = LineBreak(<span class="number">5</span>); <span class="comment">// name=&quot;BB&quot;
-    </span><span class="kw">pub const </span>MandatoryBreak: LineBreak = LineBreak(<span class="number">6</span>); <span class="comment">// name=&quot;BK&quot;
-    </span><span class="kw">pub const </span>ContingentBreak: LineBreak = LineBreak(<span class="number">7</span>); <span class="comment">// name=&quot;CB&quot;
-    </span><span class="kw">pub const </span>ClosePunctuation: LineBreak = LineBreak(<span class="number">8</span>); <span class="comment">// name=&quot;CL&quot;
-    </span><span class="kw">pub const </span>CombiningMark: LineBreak = LineBreak(<span class="number">9</span>); <span class="comment">// name=&quot;CM&quot;
-    </span><span class="kw">pub const </span>CarriageReturn: LineBreak = LineBreak(<span class="number">10</span>); <span class="comment">// name=&quot;CR&quot;
-    </span><span class="kw">pub const </span>Exclamation: LineBreak = LineBreak(<span class="number">11</span>); <span class="comment">// name=&quot;EX&quot;
-    </span><span class="kw">pub const </span>Glue: LineBreak = LineBreak(<span class="number">12</span>); <span class="comment">// name=&quot;GL&quot;
-    </span><span class="kw">pub const </span>Hyphen: LineBreak = LineBreak(<span class="number">13</span>); <span class="comment">// name=&quot;HY&quot;
-    </span><span class="kw">pub const </span>Ideographic: LineBreak = LineBreak(<span class="number">14</span>); <span class="comment">// name=&quot;ID&quot;
-    </span><span class="kw">pub const </span>Inseparable: LineBreak = LineBreak(<span class="number">15</span>); <span class="comment">// name=&quot;IN&quot;
-    </span><span class="kw">pub const </span>InfixNumeric: LineBreak = LineBreak(<span class="number">16</span>); <span class="comment">// name=&quot;IS&quot;
-    </span><span class="kw">pub const </span>LineFeed: LineBreak = LineBreak(<span class="number">17</span>); <span class="comment">// name=&quot;LF&quot;
-    </span><span class="kw">pub const </span>Nonstarter: LineBreak = LineBreak(<span class="number">18</span>); <span class="comment">// name=&quot;NS&quot;
-    </span><span class="kw">pub const </span>Numeric: LineBreak = LineBreak(<span class="number">19</span>); <span class="comment">// name=&quot;NU&quot;
-    </span><span class="kw">pub const </span>OpenPunctuation: LineBreak = LineBreak(<span class="number">20</span>); <span class="comment">// name=&quot;OP&quot;
-    </span><span class="kw">pub const </span>PostfixNumeric: LineBreak = LineBreak(<span class="number">21</span>); <span class="comment">// name=&quot;PO&quot;
-    </span><span class="kw">pub const </span>PrefixNumeric: LineBreak = LineBreak(<span class="number">22</span>); <span class="comment">// name=&quot;PR&quot;
-    </span><span class="kw">pub const </span>Quotation: LineBreak = LineBreak(<span class="number">23</span>); <span class="comment">// name=&quot;QU&quot;
-    </span><span class="kw">pub const </span>ComplexContext: LineBreak = LineBreak(<span class="number">24</span>); <span class="comment">// name=&quot;SA&quot;
-    </span><span class="kw">pub const </span>Surrogate: LineBreak = LineBreak(<span class="number">25</span>); <span class="comment">// name=&quot;SG&quot;
-    </span><span class="kw">pub const </span>Space: LineBreak = LineBreak(<span class="number">26</span>); <span class="comment">// name=&quot;SP&quot;
-    </span><span class="kw">pub const </span>BreakSymbols: LineBreak = LineBreak(<span class="number">27</span>); <span class="comment">// name=&quot;SY&quot;
-    </span><span class="kw">pub const </span>ZWSpace: LineBreak = LineBreak(<span class="number">28</span>); <span class="comment">// name=&quot;ZW&quot;
-    </span><span class="kw">pub const </span>NextLine: LineBreak = LineBreak(<span class="number">29</span>); <span class="comment">// name=&quot;NL&quot;
-    </span><span class="kw">pub const </span>WordJoiner: LineBreak = LineBreak(<span class="number">30</span>); <span class="comment">// name=&quot;WJ&quot;
-    </span><span class="kw">pub const </span>H2: LineBreak = LineBreak(<span class="number">31</span>); <span class="comment">// name=&quot;H2&quot;
-    </span><span class="kw">pub const </span>H3: LineBreak = LineBreak(<span class="number">32</span>); <span class="comment">// name=&quot;H3&quot;
-    </span><span class="kw">pub const </span>JL: LineBreak = LineBreak(<span class="number">33</span>); <span class="comment">// name=&quot;JL&quot;
-    </span><span class="kw">pub const </span>JT: LineBreak = LineBreak(<span class="number">34</span>); <span class="comment">// name=&quot;JT&quot;
-    </span><span class="kw">pub const </span>JV: LineBreak = LineBreak(<span class="number">35</span>); <span class="comment">// name=&quot;JV&quot;
-    </span><span class="kw">pub const </span>CloseParenthesis: LineBreak = LineBreak(<span class="number">36</span>); <span class="comment">// name=&quot;CP&quot;
-    </span><span class="kw">pub const </span>ConditionalJapaneseStarter: LineBreak = LineBreak(<span class="number">37</span>); <span class="comment">// name=&quot;CJ&quot;
-    </span><span class="kw">pub const </span>HebrewLetter: LineBreak = LineBreak(<span class="number">38</span>); <span class="comment">// name=&quot;HL&quot;
-    </span><span class="kw">pub const </span>RegionalIndicator: LineBreak = LineBreak(<span class="number">39</span>); <span class="comment">// name=&quot;RI&quot;
-    </span><span class="kw">pub const </span>EBase: LineBreak = LineBreak(<span class="number">40</span>); <span class="comment">// name=&quot;EB&quot;
-    </span><span class="kw">pub const </span>EModifier: LineBreak = LineBreak(<span class="number">41</span>); <span class="comment">// name=&quot;EM&quot;
-    </span><span class="kw">pub const </span>ZWJ: LineBreak = LineBreak(<span class="number">42</span>); <span class="comment">// name=&quot;ZWJ&quot;
+    <span class="kw">pub const </span>Unknown: LineBreak = LineBreak(<span class="number">0</span>); <span class="comment">// name="XX"
+    </span><span class="kw">pub const </span>Ambiguous: LineBreak = LineBreak(<span class="number">1</span>); <span class="comment">// name="AI"
+    </span><span class="kw">pub const </span>Alphabetic: LineBreak = LineBreak(<span class="number">2</span>); <span class="comment">// name="AL"
+    </span><span class="kw">pub const </span>BreakBoth: LineBreak = LineBreak(<span class="number">3</span>); <span class="comment">// name="B2"
+    </span><span class="kw">pub const </span>BreakAfter: LineBreak = LineBreak(<span class="number">4</span>); <span class="comment">// name="BA"
+    </span><span class="kw">pub const </span>BreakBefore: LineBreak = LineBreak(<span class="number">5</span>); <span class="comment">// name="BB"
+    </span><span class="kw">pub const </span>MandatoryBreak: LineBreak = LineBreak(<span class="number">6</span>); <span class="comment">// name="BK"
+    </span><span class="kw">pub const </span>ContingentBreak: LineBreak = LineBreak(<span class="number">7</span>); <span class="comment">// name="CB"
+    </span><span class="kw">pub const </span>ClosePunctuation: LineBreak = LineBreak(<span class="number">8</span>); <span class="comment">// name="CL"
+    </span><span class="kw">pub const </span>CombiningMark: LineBreak = LineBreak(<span class="number">9</span>); <span class="comment">// name="CM"
+    </span><span class="kw">pub const </span>CarriageReturn: LineBreak = LineBreak(<span class="number">10</span>); <span class="comment">// name="CR"
+    </span><span class="kw">pub const </span>Exclamation: LineBreak = LineBreak(<span class="number">11</span>); <span class="comment">// name="EX"
+    </span><span class="kw">pub const </span>Glue: LineBreak = LineBreak(<span class="number">12</span>); <span class="comment">// name="GL"
+    </span><span class="kw">pub const </span>Hyphen: LineBreak = LineBreak(<span class="number">13</span>); <span class="comment">// name="HY"
+    </span><span class="kw">pub const </span>Ideographic: LineBreak = LineBreak(<span class="number">14</span>); <span class="comment">// name="ID"
+    </span><span class="kw">pub const </span>Inseparable: LineBreak = LineBreak(<span class="number">15</span>); <span class="comment">// name="IN"
+    </span><span class="kw">pub const </span>InfixNumeric: LineBreak = LineBreak(<span class="number">16</span>); <span class="comment">// name="IS"
+    </span><span class="kw">pub const </span>LineFeed: LineBreak = LineBreak(<span class="number">17</span>); <span class="comment">// name="LF"
+    </span><span class="kw">pub const </span>Nonstarter: LineBreak = LineBreak(<span class="number">18</span>); <span class="comment">// name="NS"
+    </span><span class="kw">pub const </span>Numeric: LineBreak = LineBreak(<span class="number">19</span>); <span class="comment">// name="NU"
+    </span><span class="kw">pub const </span>OpenPunctuation: LineBreak = LineBreak(<span class="number">20</span>); <span class="comment">// name="OP"
+    </span><span class="kw">pub const </span>PostfixNumeric: LineBreak = LineBreak(<span class="number">21</span>); <span class="comment">// name="PO"
+    </span><span class="kw">pub const </span>PrefixNumeric: LineBreak = LineBreak(<span class="number">22</span>); <span class="comment">// name="PR"
+    </span><span class="kw">pub const </span>Quotation: LineBreak = LineBreak(<span class="number">23</span>); <span class="comment">// name="QU"
+    </span><span class="kw">pub const </span>ComplexContext: LineBreak = LineBreak(<span class="number">24</span>); <span class="comment">// name="SA"
+    </span><span class="kw">pub const </span>Surrogate: LineBreak = LineBreak(<span class="number">25</span>); <span class="comment">// name="SG"
+    </span><span class="kw">pub const </span>Space: LineBreak = LineBreak(<span class="number">26</span>); <span class="comment">// name="SP"
+    </span><span class="kw">pub const </span>BreakSymbols: LineBreak = LineBreak(<span class="number">27</span>); <span class="comment">// name="SY"
+    </span><span class="kw">pub const </span>ZWSpace: LineBreak = LineBreak(<span class="number">28</span>); <span class="comment">// name="ZW"
+    </span><span class="kw">pub const </span>NextLine: LineBreak = LineBreak(<span class="number">29</span>); <span class="comment">// name="NL"
+    </span><span class="kw">pub const </span>WordJoiner: LineBreak = LineBreak(<span class="number">30</span>); <span class="comment">// name="WJ"
+    </span><span class="kw">pub const </span>H2: LineBreak = LineBreak(<span class="number">31</span>); <span class="comment">// name="H2"
+    </span><span class="kw">pub const </span>H3: LineBreak = LineBreak(<span class="number">32</span>); <span class="comment">// name="H3"
+    </span><span class="kw">pub const </span>JL: LineBreak = LineBreak(<span class="number">33</span>); <span class="comment">// name="JL"
+    </span><span class="kw">pub const </span>JT: LineBreak = LineBreak(<span class="number">34</span>); <span class="comment">// name="JT"
+    </span><span class="kw">pub const </span>JV: LineBreak = LineBreak(<span class="number">35</span>); <span class="comment">// name="JV"
+    </span><span class="kw">pub const </span>CloseParenthesis: LineBreak = LineBreak(<span class="number">36</span>); <span class="comment">// name="CP"
+    </span><span class="kw">pub const </span>ConditionalJapaneseStarter: LineBreak = LineBreak(<span class="number">37</span>); <span class="comment">// name="CJ"
+    </span><span class="kw">pub const </span>HebrewLetter: LineBreak = LineBreak(<span class="number">38</span>); <span class="comment">// name="HL"
+    </span><span class="kw">pub const </span>RegionalIndicator: LineBreak = LineBreak(<span class="number">39</span>); <span class="comment">// name="RI"
+    </span><span class="kw">pub const </span>EBase: LineBreak = LineBreak(<span class="number">40</span>); <span class="comment">// name="EB"
+    </span><span class="kw">pub const </span>EModifier: LineBreak = LineBreak(<span class="number">41</span>); <span class="comment">// name="EM"
+    </span><span class="kw">pub const </span>ZWJ: LineBreak = LineBreak(<span class="number">42</span>); <span class="comment">// name="ZWJ"
 
     // Added in ICU 74:
-    </span><span class="kw">pub const </span>Aksara: LineBreak = LineBreak(<span class="number">43</span>); <span class="comment">// name=&quot;AK&quot;
-    </span><span class="kw">pub const </span>AksaraPrebase: LineBreak = LineBreak(<span class="number">44</span>); <span class="comment">// name=AP&quot;
-    </span><span class="kw">pub const </span>AksaraStart: LineBreak = LineBreak(<span class="number">45</span>); <span class="comment">// name=AS&quot;
-    </span><span class="kw">pub const </span>ViramaFinal: LineBreak = LineBreak(<span class="number">46</span>); <span class="comment">// name=VF&quot;
-    </span><span class="kw">pub const </span>Virama: LineBreak = LineBreak(<span class="number">47</span>); <span class="comment">// name=VI&quot;
+    </span><span class="kw">pub const </span>Aksara: LineBreak = LineBreak(<span class="number">43</span>); <span class="comment">// name="AK"
+    </span><span class="kw">pub const </span>AksaraPrebase: LineBreak = LineBreak(<span class="number">44</span>); <span class="comment">// name=AP"
+    </span><span class="kw">pub const </span>AksaraStart: LineBreak = LineBreak(<span class="number">45</span>); <span class="comment">// name=AS"
+    </span><span class="kw">pub const </span>ViramaFinal: LineBreak = LineBreak(<span class="number">46</span>); <span class="comment">// name=VF"
+    </span><span class="kw">pub const </span>Virama: LineBreak = LineBreak(<span class="number">47</span>); <span class="comment">// name=VI"
 </span>}
 
 <span class="macro">impl_value_getter! </span>{
@@ -4076,17 +4077,17 @@
         ///
         /// let lookup = LineBreak::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;BK&quot;), Some(LineBreak::MandatoryBreak));
-        /// assert_eq!(lookup.get_strict(&quot;AL&quot;), Some(LineBreak::Alphabetic));
+        /// assert_eq!(lookup.get_strict("BK"), Some(LineBreak::MandatoryBreak));
+        /// assert_eq!(lookup.get_strict("AL"), Some(LineBreak::Alphabetic));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Mandatory_Break&quot;), Some(LineBreak::MandatoryBreak));
-        /// assert_eq!(lookup.get_strict(&quot;Alphabetic&quot;), Some(LineBreak::Alphabetic));
+        /// assert_eq!(lookup.get_strict("Mandatory_Break"), Some(LineBreak::MandatoryBreak));
+        /// assert_eq!(lookup.get_strict("Alphabetic"), Some(LineBreak::Alphabetic));
         /// // name has incorrect casing and dash instead of underscore
-        /// assert_eq!(lookup.get_strict(&quot;mandatory-Break&quot;), None);
+        /// assert_eq!(lookup.get_strict("mandatory-Break"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;mandatory-Break&quot;), Some(LineBreak::MandatoryBreak));
+        /// assert_eq!(lookup.get_loose("mandatory-Break"), Some(LineBreak::MandatoryBreak));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;Stochastic_Break&quot;), None);
+        /// assert_eq!(lookup.get_strict("Stochastic_Break"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up short names
@@ -4102,8 +4103,8 @@
         /// use icu::properties::LineBreak;
         ///
         /// let lookup = LineBreak::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(LineBreak::MandatoryBreak), Some(&quot;BK&quot;));
-        /// assert_eq!(lookup.get(LineBreak::Alphabetic), Some(&quot;AL&quot;));
+        /// assert_eq!(lookup.get(LineBreak::MandatoryBreak), Some("BK"));
+        /// assert_eq!(lookup.get(LineBreak::Alphabetic), Some("AL"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up long names
@@ -4119,8 +4120,8 @@
         /// use icu::properties::LineBreak;
         ///
         /// let lookup = LineBreak::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(LineBreak::MandatoryBreak), Some(&quot;Mandatory_Break&quot;));
-        /// assert_eq!(lookup.get(LineBreak::Alphabetic), Some(&quot;Alphabetic&quot;));
+        /// assert_eq!(lookup.get(LineBreak::MandatoryBreak), Some("Mandatory_Break"));
+        /// assert_eq!(lookup.get(LineBreak::Alphabetic), Some("Alphabetic"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
     }
@@ -4128,45 +4129,45 @@
 
 <span class="doccomment">/// Enumerated property Grapheme_Cluster_Break.
 ///
-/// See &quot;Default Grapheme Cluster Boundary Specification&quot; in UAX #29 for the
+/// See "Default Grapheme Cluster Boundary Specification" in UAX #29 for the
 /// summary of each property value:
 /// &lt;https://www.unicode.org/reports/tr29/#Default_Grapheme_Cluster_Table&gt;
 ///
 /// The numeric value is compatible with `UGraphemeClusterBreak` in ICU4C.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this type is stable
 </span><span class="attr">#[repr(transparent)]
 #[zerovec::make_ule(GraphemeClusterBreakULE)]
 </span><span class="kw">pub struct </span>GraphemeClusterBreak(<span class="kw">pub </span>u8);
 
-<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don&#39;t need individual documentation.
+<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don't need individual documentation.
 </span><span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">impl </span>GraphemeClusterBreak {
-    <span class="kw">pub const </span>Other: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">0</span>); <span class="comment">// name=&quot;XX&quot;
-    </span><span class="kw">pub const </span>Control: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">1</span>); <span class="comment">// name=&quot;CN&quot;
-    </span><span class="kw">pub const </span>CR: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">2</span>); <span class="comment">// name=&quot;CR&quot;
-    </span><span class="kw">pub const </span>Extend: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">3</span>); <span class="comment">// name=&quot;EX&quot;
-    </span><span class="kw">pub const </span>L: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">4</span>); <span class="comment">// name=&quot;L&quot;
-    </span><span class="kw">pub const </span>LF: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">5</span>); <span class="comment">// name=&quot;LF&quot;
-    </span><span class="kw">pub const </span>LV: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">6</span>); <span class="comment">// name=&quot;LV&quot;
-    </span><span class="kw">pub const </span>LVT: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">7</span>); <span class="comment">// name=&quot;LVT&quot;
-    </span><span class="kw">pub const </span>T: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">8</span>); <span class="comment">// name=&quot;T&quot;
-    </span><span class="kw">pub const </span>V: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">9</span>); <span class="comment">// name=&quot;V&quot;
-    </span><span class="kw">pub const </span>SpacingMark: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">10</span>); <span class="comment">// name=&quot;SM&quot;
-    </span><span class="kw">pub const </span>Prepend: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">11</span>); <span class="comment">// name=&quot;PP&quot;
-    </span><span class="kw">pub const </span>RegionalIndicator: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">12</span>); <span class="comment">// name=&quot;RI&quot;
+    <span class="kw">pub const </span>Other: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">0</span>); <span class="comment">// name="XX"
+    </span><span class="kw">pub const </span>Control: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">1</span>); <span class="comment">// name="CN"
+    </span><span class="kw">pub const </span>CR: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">2</span>); <span class="comment">// name="CR"
+    </span><span class="kw">pub const </span>Extend: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">3</span>); <span class="comment">// name="EX"
+    </span><span class="kw">pub const </span>L: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">4</span>); <span class="comment">// name="L"
+    </span><span class="kw">pub const </span>LF: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">5</span>); <span class="comment">// name="LF"
+    </span><span class="kw">pub const </span>LV: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">6</span>); <span class="comment">// name="LV"
+    </span><span class="kw">pub const </span>LVT: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">7</span>); <span class="comment">// name="LVT"
+    </span><span class="kw">pub const </span>T: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">8</span>); <span class="comment">// name="T"
+    </span><span class="kw">pub const </span>V: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">9</span>); <span class="comment">// name="V"
+    </span><span class="kw">pub const </span>SpacingMark: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">10</span>); <span class="comment">// name="SM"
+    </span><span class="kw">pub const </span>Prepend: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">11</span>); <span class="comment">// name="PP"
+    </span><span class="kw">pub const </span>RegionalIndicator: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">12</span>); <span class="comment">// name="RI"
     </span><span class="doccomment">/// This value is obsolete and unused.
-    </span><span class="kw">pub const </span>EBase: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">13</span>); <span class="comment">// name=&quot;EB&quot;
+    </span><span class="kw">pub const </span>EBase: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">13</span>); <span class="comment">// name="EB"
     </span><span class="doccomment">/// This value is obsolete and unused.
-    </span><span class="kw">pub const </span>EBaseGAZ: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">14</span>); <span class="comment">// name=&quot;EBG&quot;
+    </span><span class="kw">pub const </span>EBaseGAZ: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">14</span>); <span class="comment">// name="EBG"
     </span><span class="doccomment">/// This value is obsolete and unused.
-    </span><span class="kw">pub const </span>EModifier: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">15</span>); <span class="comment">// name=&quot;EM&quot;
+    </span><span class="kw">pub const </span>EModifier: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">15</span>); <span class="comment">// name="EM"
     </span><span class="doccomment">/// This value is obsolete and unused.
-    </span><span class="kw">pub const </span>GlueAfterZwj: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">16</span>); <span class="comment">// name=&quot;GAZ&quot;
-    </span><span class="kw">pub const </span>ZWJ: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">17</span>); <span class="comment">// name=&quot;ZWJ&quot;
+    </span><span class="kw">pub const </span>GlueAfterZwj: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">16</span>); <span class="comment">// name="GAZ"
+    </span><span class="kw">pub const </span>ZWJ: GraphemeClusterBreak = GraphemeClusterBreak(<span class="number">17</span>); <span class="comment">// name="ZWJ"
 </span>}
 
 <span class="macro">impl_value_getter! </span>{
@@ -4186,17 +4187,17 @@
         ///
         /// let lookup = GraphemeClusterBreak::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;EX&quot;), Some(GraphemeClusterBreak::Extend));
-        /// assert_eq!(lookup.get_strict(&quot;RI&quot;), Some(GraphemeClusterBreak::RegionalIndicator));
+        /// assert_eq!(lookup.get_strict("EX"), Some(GraphemeClusterBreak::Extend));
+        /// assert_eq!(lookup.get_strict("RI"), Some(GraphemeClusterBreak::RegionalIndicator));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Extend&quot;), Some(GraphemeClusterBreak::Extend));
-        /// assert_eq!(lookup.get_strict(&quot;Regional_Indicator&quot;), Some(GraphemeClusterBreak::RegionalIndicator));
+        /// assert_eq!(lookup.get_strict("Extend"), Some(GraphemeClusterBreak::Extend));
+        /// assert_eq!(lookup.get_strict("Regional_Indicator"), Some(GraphemeClusterBreak::RegionalIndicator));
         /// // name has incorrect casing and lacks an underscore
-        /// assert_eq!(lookup.get_strict(&quot;regionalindicator&quot;), None);
+        /// assert_eq!(lookup.get_strict("regionalindicator"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;regionalindicator&quot;), Some(GraphemeClusterBreak::RegionalIndicator));
+        /// assert_eq!(lookup.get_loose("regionalindicator"), Some(GraphemeClusterBreak::RegionalIndicator));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;Regional_Indicator_Two_Point_Oh&quot;), None);
+        /// assert_eq!(lookup.get_strict("Regional_Indicator_Two_Point_Oh"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up short names
@@ -4212,8 +4213,8 @@
         /// use icu::properties::GraphemeClusterBreak;
         ///
         /// let lookup = GraphemeClusterBreak::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(GraphemeClusterBreak::Extend), Some(&quot;EX&quot;));
-        /// assert_eq!(lookup.get(GraphemeClusterBreak::RegionalIndicator), Some(&quot;RI&quot;));
+        /// assert_eq!(lookup.get(GraphemeClusterBreak::Extend), Some("EX"));
+        /// assert_eq!(lookup.get(GraphemeClusterBreak::RegionalIndicator), Some("RI"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up long names
@@ -4229,8 +4230,8 @@
         /// use icu::properties::GraphemeClusterBreak;
         ///
         /// let lookup = GraphemeClusterBreak::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(GraphemeClusterBreak::Extend), Some(&quot;Extend&quot;));
-        /// assert_eq!(lookup.get(GraphemeClusterBreak::RegionalIndicator), Some(&quot;Regional_Indicator&quot;));
+        /// assert_eq!(lookup.get(GraphemeClusterBreak::Extend), Some("Extend"));
+        /// assert_eq!(lookup.get(GraphemeClusterBreak::RegionalIndicator), Some("Regional_Indicator"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
     }
@@ -4238,50 +4239,50 @@
 
 <span class="doccomment">/// Enumerated property Word_Break.
 ///
-/// See &quot;Default Word Boundary Specification&quot; in UAX #29 for the summary of
+/// See "Default Word Boundary Specification" in UAX #29 for the summary of
 /// each property value:
 /// &lt;https://www.unicode.org/reports/tr29/#Default_Word_Boundaries&gt;.
 ///
 /// The numeric value is compatible with `UWordBreakValues` in ICU4C.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[repr(transparent)]
 #[zerovec::make_ule(WordBreakULE)]
 </span><span class="kw">pub struct </span>WordBreak(<span class="kw">pub </span>u8);
 
-<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don&#39;t need individual documentation.
+<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don't need individual documentation.
 </span><span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">impl </span>WordBreak {
-    <span class="kw">pub const </span>Other: WordBreak = WordBreak(<span class="number">0</span>); <span class="comment">// name=&quot;XX&quot;
-    </span><span class="kw">pub const </span>ALetter: WordBreak = WordBreak(<span class="number">1</span>); <span class="comment">// name=&quot;LE&quot;
-    </span><span class="kw">pub const </span>Format: WordBreak = WordBreak(<span class="number">2</span>); <span class="comment">// name=&quot;FO&quot;
-    </span><span class="kw">pub const </span>Katakana: WordBreak = WordBreak(<span class="number">3</span>); <span class="comment">// name=&quot;KA&quot;
-    </span><span class="kw">pub const </span>MidLetter: WordBreak = WordBreak(<span class="number">4</span>); <span class="comment">// name=&quot;ML&quot;
-    </span><span class="kw">pub const </span>MidNum: WordBreak = WordBreak(<span class="number">5</span>); <span class="comment">// name=&quot;MN&quot;
-    </span><span class="kw">pub const </span>Numeric: WordBreak = WordBreak(<span class="number">6</span>); <span class="comment">// name=&quot;NU&quot;
-    </span><span class="kw">pub const </span>ExtendNumLet: WordBreak = WordBreak(<span class="number">7</span>); <span class="comment">// name=&quot;EX&quot;
-    </span><span class="kw">pub const </span>CR: WordBreak = WordBreak(<span class="number">8</span>); <span class="comment">// name=&quot;CR&quot;
-    </span><span class="kw">pub const </span>Extend: WordBreak = WordBreak(<span class="number">9</span>); <span class="comment">// name=&quot;Extend&quot;
-    </span><span class="kw">pub const </span>LF: WordBreak = WordBreak(<span class="number">10</span>); <span class="comment">// name=&quot;LF&quot;
-    </span><span class="kw">pub const </span>MidNumLet: WordBreak = WordBreak(<span class="number">11</span>); <span class="comment">// name=&quot;MB&quot;
-    </span><span class="kw">pub const </span>Newline: WordBreak = WordBreak(<span class="number">12</span>); <span class="comment">// name=&quot;NL&quot;
-    </span><span class="kw">pub const </span>RegionalIndicator: WordBreak = WordBreak(<span class="number">13</span>); <span class="comment">// name=&quot;RI&quot;
-    </span><span class="kw">pub const </span>HebrewLetter: WordBreak = WordBreak(<span class="number">14</span>); <span class="comment">// name=&quot;HL&quot;
-    </span><span class="kw">pub const </span>SingleQuote: WordBreak = WordBreak(<span class="number">15</span>); <span class="comment">// name=&quot;SQ&quot;
+    <span class="kw">pub const </span>Other: WordBreak = WordBreak(<span class="number">0</span>); <span class="comment">// name="XX"
+    </span><span class="kw">pub const </span>ALetter: WordBreak = WordBreak(<span class="number">1</span>); <span class="comment">// name="LE"
+    </span><span class="kw">pub const </span>Format: WordBreak = WordBreak(<span class="number">2</span>); <span class="comment">// name="FO"
+    </span><span class="kw">pub const </span>Katakana: WordBreak = WordBreak(<span class="number">3</span>); <span class="comment">// name="KA"
+    </span><span class="kw">pub const </span>MidLetter: WordBreak = WordBreak(<span class="number">4</span>); <span class="comment">// name="ML"
+    </span><span class="kw">pub const </span>MidNum: WordBreak = WordBreak(<span class="number">5</span>); <span class="comment">// name="MN"
+    </span><span class="kw">pub const </span>Numeric: WordBreak = WordBreak(<span class="number">6</span>); <span class="comment">// name="NU"
+    </span><span class="kw">pub const </span>ExtendNumLet: WordBreak = WordBreak(<span class="number">7</span>); <span class="comment">// name="EX"
+    </span><span class="kw">pub const </span>CR: WordBreak = WordBreak(<span class="number">8</span>); <span class="comment">// name="CR"
+    </span><span class="kw">pub const </span>Extend: WordBreak = WordBreak(<span class="number">9</span>); <span class="comment">// name="Extend"
+    </span><span class="kw">pub const </span>LF: WordBreak = WordBreak(<span class="number">10</span>); <span class="comment">// name="LF"
+    </span><span class="kw">pub const </span>MidNumLet: WordBreak = WordBreak(<span class="number">11</span>); <span class="comment">// name="MB"
+    </span><span class="kw">pub const </span>Newline: WordBreak = WordBreak(<span class="number">12</span>); <span class="comment">// name="NL"
+    </span><span class="kw">pub const </span>RegionalIndicator: WordBreak = WordBreak(<span class="number">13</span>); <span class="comment">// name="RI"
+    </span><span class="kw">pub const </span>HebrewLetter: WordBreak = WordBreak(<span class="number">14</span>); <span class="comment">// name="HL"
+    </span><span class="kw">pub const </span>SingleQuote: WordBreak = WordBreak(<span class="number">15</span>); <span class="comment">// name="SQ"
     </span><span class="kw">pub const </span>DoubleQuote: WordBreak = WordBreak(<span class="number">16</span>); <span class="comment">// name=DQ
     </span><span class="doccomment">/// This value is obsolete and unused.
-    </span><span class="kw">pub const </span>EBase: WordBreak = WordBreak(<span class="number">17</span>); <span class="comment">// name=&quot;EB&quot;
+    </span><span class="kw">pub const </span>EBase: WordBreak = WordBreak(<span class="number">17</span>); <span class="comment">// name="EB"
     </span><span class="doccomment">/// This value is obsolete and unused.
-    </span><span class="kw">pub const </span>EBaseGAZ: WordBreak = WordBreak(<span class="number">18</span>); <span class="comment">// name=&quot;EBG&quot;
+    </span><span class="kw">pub const </span>EBaseGAZ: WordBreak = WordBreak(<span class="number">18</span>); <span class="comment">// name="EBG"
     </span><span class="doccomment">/// This value is obsolete and unused.
-    </span><span class="kw">pub const </span>EModifier: WordBreak = WordBreak(<span class="number">19</span>); <span class="comment">// name=&quot;EM&quot;
+    </span><span class="kw">pub const </span>EModifier: WordBreak = WordBreak(<span class="number">19</span>); <span class="comment">// name="EM"
     </span><span class="doccomment">/// This value is obsolete and unused.
-    </span><span class="kw">pub const </span>GlueAfterZwj: WordBreak = WordBreak(<span class="number">20</span>); <span class="comment">// name=&quot;GAZ&quot;
-    </span><span class="kw">pub const </span>ZWJ: WordBreak = WordBreak(<span class="number">21</span>); <span class="comment">// name=&quot;ZWJ&quot;
-    </span><span class="kw">pub const </span>WSegSpace: WordBreak = WordBreak(<span class="number">22</span>); <span class="comment">// name=&quot;WSegSpace&quot;
+    </span><span class="kw">pub const </span>GlueAfterZwj: WordBreak = WordBreak(<span class="number">20</span>); <span class="comment">// name="GAZ"
+    </span><span class="kw">pub const </span>ZWJ: WordBreak = WordBreak(<span class="number">21</span>); <span class="comment">// name="ZWJ"
+    </span><span class="kw">pub const </span>WSegSpace: WordBreak = WordBreak(<span class="number">22</span>); <span class="comment">// name="WSegSpace"
 </span>}
 
 <span class="macro">impl_value_getter! </span>{
@@ -4301,18 +4302,18 @@
         ///
         /// let lookup = WordBreak::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;KA&quot;), Some(WordBreak::Katakana));
-        /// assert_eq!(lookup.get_strict(&quot;LE&quot;), Some(WordBreak::ALetter));
+        /// assert_eq!(lookup.get_strict("KA"), Some(WordBreak::Katakana));
+        /// assert_eq!(lookup.get_strict("LE"), Some(WordBreak::ALetter));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Katakana&quot;), Some(WordBreak::Katakana));
-        /// assert_eq!(lookup.get_strict(&quot;ALetter&quot;), Some(WordBreak::ALetter));
+        /// assert_eq!(lookup.get_strict("Katakana"), Some(WordBreak::Katakana));
+        /// assert_eq!(lookup.get_strict("ALetter"), Some(WordBreak::ALetter));
         /// // name has incorrect casing
-        /// assert_eq!(lookup.get_strict(&quot;Aletter&quot;), None);
+        /// assert_eq!(lookup.get_strict("Aletter"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;Aletter&quot;), Some(WordBreak::ALetter));
-        /// assert_eq!(lookup.get_loose(&quot;w_seg_space&quot;), Some(WordBreak::WSegSpace));
+        /// assert_eq!(lookup.get_loose("Aletter"), Some(WordBreak::ALetter));
+        /// assert_eq!(lookup.get_loose("w_seg_space"), Some(WordBreak::WSegSpace));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;Quadruple_Quote&quot;), None);
+        /// assert_eq!(lookup.get_strict("Quadruple_Quote"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up short names
@@ -4328,9 +4329,9 @@
         /// use icu::properties::WordBreak;
         ///
         /// let lookup = WordBreak::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(WordBreak::Katakana), Some(&quot;KA&quot;));
-        /// assert_eq!(lookup.get(WordBreak::ALetter), Some(&quot;LE&quot;));
-        /// assert_eq!(lookup.get(WordBreak::WSegSpace), Some(&quot;WSegSpace&quot;));
+        /// assert_eq!(lookup.get(WordBreak::Katakana), Some("KA"));
+        /// assert_eq!(lookup.get(WordBreak::ALetter), Some("LE"));
+        /// assert_eq!(lookup.get(WordBreak::WSegSpace), Some("WSegSpace"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up long names
@@ -4346,47 +4347,47 @@
         /// use icu::properties::WordBreak;
         ///
         /// let lookup = WordBreak::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(WordBreak::Katakana), Some(&quot;Katakana&quot;));
-        /// assert_eq!(lookup.get(WordBreak::ALetter), Some(&quot;ALetter&quot;));
-        /// assert_eq!(lookup.get(WordBreak::WSegSpace), Some(&quot;WSegSpace&quot;));
+        /// assert_eq!(lookup.get(WordBreak::Katakana), Some("Katakana"));
+        /// assert_eq!(lookup.get(WordBreak::ALetter), Some("ALetter"));
+        /// assert_eq!(lookup.get(WordBreak::WSegSpace), Some("WSegSpace"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
     }
 }
 
 <span class="doccomment">/// Enumerated property Sentence_Break.
-/// See &quot;Default Sentence Boundary Specification&quot; in UAX #29 for the summary of
+/// See "Default Sentence Boundary Specification" in UAX #29 for the summary of
 /// each property value:
 /// &lt;https://www.unicode.org/reports/tr29/#Default_Word_Boundaries&gt;.
 ///
 /// The numeric value is compatible with `USentenceBreak` in ICU4C.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[repr(transparent)]
 #[zerovec::make_ule(SentenceBreakULE)]
 </span><span class="kw">pub struct </span>SentenceBreak(<span class="kw">pub </span>u8);
 
-<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don&#39;t need individual documentation.
+<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don't need individual documentation.
 </span><span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">impl </span>SentenceBreak {
-    <span class="kw">pub const </span>Other: SentenceBreak = SentenceBreak(<span class="number">0</span>); <span class="comment">// name=&quot;XX&quot;
-    </span><span class="kw">pub const </span>ATerm: SentenceBreak = SentenceBreak(<span class="number">1</span>); <span class="comment">// name=&quot;AT&quot;
-    </span><span class="kw">pub const </span>Close: SentenceBreak = SentenceBreak(<span class="number">2</span>); <span class="comment">// name=&quot;CL&quot;
-    </span><span class="kw">pub const </span>Format: SentenceBreak = SentenceBreak(<span class="number">3</span>); <span class="comment">// name=&quot;FO&quot;
-    </span><span class="kw">pub const </span>Lower: SentenceBreak = SentenceBreak(<span class="number">4</span>); <span class="comment">// name=&quot;LO&quot;
-    </span><span class="kw">pub const </span>Numeric: SentenceBreak = SentenceBreak(<span class="number">5</span>); <span class="comment">// name=&quot;NU&quot;
-    </span><span class="kw">pub const </span>OLetter: SentenceBreak = SentenceBreak(<span class="number">6</span>); <span class="comment">// name=&quot;LE&quot;
-    </span><span class="kw">pub const </span>Sep: SentenceBreak = SentenceBreak(<span class="number">7</span>); <span class="comment">// name=&quot;SE&quot;
-    </span><span class="kw">pub const </span>Sp: SentenceBreak = SentenceBreak(<span class="number">8</span>); <span class="comment">// name=&quot;SP&quot;
-    </span><span class="kw">pub const </span>STerm: SentenceBreak = SentenceBreak(<span class="number">9</span>); <span class="comment">// name=&quot;ST&quot;
-    </span><span class="kw">pub const </span>Upper: SentenceBreak = SentenceBreak(<span class="number">10</span>); <span class="comment">// name=&quot;UP&quot;
-    </span><span class="kw">pub const </span>CR: SentenceBreak = SentenceBreak(<span class="number">11</span>); <span class="comment">// name=&quot;CR&quot;
-    </span><span class="kw">pub const </span>Extend: SentenceBreak = SentenceBreak(<span class="number">12</span>); <span class="comment">// name=&quot;EX&quot;
-    </span><span class="kw">pub const </span>LF: SentenceBreak = SentenceBreak(<span class="number">13</span>); <span class="comment">// name=&quot;LF&quot;
-    </span><span class="kw">pub const </span>SContinue: SentenceBreak = SentenceBreak(<span class="number">14</span>); <span class="comment">// name=&quot;SC&quot;
+    <span class="kw">pub const </span>Other: SentenceBreak = SentenceBreak(<span class="number">0</span>); <span class="comment">// name="XX"
+    </span><span class="kw">pub const </span>ATerm: SentenceBreak = SentenceBreak(<span class="number">1</span>); <span class="comment">// name="AT"
+    </span><span class="kw">pub const </span>Close: SentenceBreak = SentenceBreak(<span class="number">2</span>); <span class="comment">// name="CL"
+    </span><span class="kw">pub const </span>Format: SentenceBreak = SentenceBreak(<span class="number">3</span>); <span class="comment">// name="FO"
+    </span><span class="kw">pub const </span>Lower: SentenceBreak = SentenceBreak(<span class="number">4</span>); <span class="comment">// name="LO"
+    </span><span class="kw">pub const </span>Numeric: SentenceBreak = SentenceBreak(<span class="number">5</span>); <span class="comment">// name="NU"
+    </span><span class="kw">pub const </span>OLetter: SentenceBreak = SentenceBreak(<span class="number">6</span>); <span class="comment">// name="LE"
+    </span><span class="kw">pub const </span>Sep: SentenceBreak = SentenceBreak(<span class="number">7</span>); <span class="comment">// name="SE"
+    </span><span class="kw">pub const </span>Sp: SentenceBreak = SentenceBreak(<span class="number">8</span>); <span class="comment">// name="SP"
+    </span><span class="kw">pub const </span>STerm: SentenceBreak = SentenceBreak(<span class="number">9</span>); <span class="comment">// name="ST"
+    </span><span class="kw">pub const </span>Upper: SentenceBreak = SentenceBreak(<span class="number">10</span>); <span class="comment">// name="UP"
+    </span><span class="kw">pub const </span>CR: SentenceBreak = SentenceBreak(<span class="number">11</span>); <span class="comment">// name="CR"
+    </span><span class="kw">pub const </span>Extend: SentenceBreak = SentenceBreak(<span class="number">12</span>); <span class="comment">// name="EX"
+    </span><span class="kw">pub const </span>LF: SentenceBreak = SentenceBreak(<span class="number">13</span>); <span class="comment">// name="LF"
+    </span><span class="kw">pub const </span>SContinue: SentenceBreak = SentenceBreak(<span class="number">14</span>); <span class="comment">// name="SC"
 </span>}
 
 <span class="macro">impl_value_getter! </span>{
@@ -4406,17 +4407,17 @@
         ///
         /// let lookup = SentenceBreak::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;FO&quot;), Some(SentenceBreak::Format));
-        /// assert_eq!(lookup.get_strict(&quot;NU&quot;), Some(SentenceBreak::Numeric));
+        /// assert_eq!(lookup.get_strict("FO"), Some(SentenceBreak::Format));
+        /// assert_eq!(lookup.get_strict("NU"), Some(SentenceBreak::Numeric));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Format&quot;), Some(SentenceBreak::Format));
-        /// assert_eq!(lookup.get_strict(&quot;Numeric&quot;), Some(SentenceBreak::Numeric));
+        /// assert_eq!(lookup.get_strict("Format"), Some(SentenceBreak::Format));
+        /// assert_eq!(lookup.get_strict("Numeric"), Some(SentenceBreak::Numeric));
         /// // name has incorrect casing
-        /// assert_eq!(lookup.get_strict(&quot;fOrmat&quot;), None);
+        /// assert_eq!(lookup.get_strict("fOrmat"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;fOrmat&quot;), Some(SentenceBreak::Format));
+        /// assert_eq!(lookup.get_loose("fOrmat"), Some(SentenceBreak::Format));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;Fixer_Upper&quot;), None);
+        /// assert_eq!(lookup.get_strict("Fixer_Upper"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up short names
@@ -4432,8 +4433,8 @@
         /// use icu::properties::SentenceBreak;
         ///
         /// let lookup = SentenceBreak::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(SentenceBreak::Format), Some(&quot;FO&quot;));
-        /// assert_eq!(lookup.get(SentenceBreak::Numeric), Some(&quot;NU&quot;));
+        /// assert_eq!(lookup.get(SentenceBreak::Format), Some("FO"));
+        /// assert_eq!(lookup.get(SentenceBreak::Numeric), Some("NU"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up long names
@@ -4449,9 +4450,9 @@
         /// use icu::properties::SentenceBreak;
         ///
         /// let lookup = SentenceBreak::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(SentenceBreak::Format), Some(&quot;Format&quot;));
-        /// assert_eq!(lookup.get(SentenceBreak::Numeric), Some(&quot;Numeric&quot;));
-        /// assert_eq!(lookup.get(SentenceBreak::SContinue), Some(&quot;SContinue&quot;));
+        /// assert_eq!(lookup.get(SentenceBreak::Format), Some("Format"));
+        /// assert_eq!(lookup.get(SentenceBreak::Numeric), Some("Numeric"));
+        /// assert_eq!(lookup.get(SentenceBreak::SContinue), Some("SContinue"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
     }
@@ -4468,76 +4469,76 @@
 // or the crate-module-qualified name of this struct
 // without coordination.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[repr(transparent)]
 #[zerovec::make_ule(CanonicalCombiningClassULE)]
 </span><span class="kw">pub struct </span>CanonicalCombiningClass(<span class="kw">pub </span>u8);
 
 <span class="comment">// These constant names come from PropertyValueAliases.txt
-</span><span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don&#39;t need individual documentation.
+</span><span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don't need individual documentation.
 </span><span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">impl </span>CanonicalCombiningClass {
-    <span class="kw">pub const </span>NotReordered: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">0</span>); <span class="comment">// name=&quot;NR&quot;
-    </span><span class="kw">pub const </span>Overlay: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">1</span>); <span class="comment">// name=&quot;OV&quot;
-    </span><span class="kw">pub const </span>HanReading: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">6</span>); <span class="comment">// name=&quot;HANR&quot;
-    </span><span class="kw">pub const </span>Nukta: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">7</span>); <span class="comment">// name=&quot;NK&quot;
-    </span><span class="kw">pub const </span>KanaVoicing: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">8</span>); <span class="comment">// name=&quot;KV&quot;
-    </span><span class="kw">pub const </span>Virama: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">9</span>); <span class="comment">// name=&quot;VR&quot;
-    </span><span class="kw">pub const </span>CCC10: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">10</span>); <span class="comment">// name=&quot;CCC10&quot;
-    </span><span class="kw">pub const </span>CCC11: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">11</span>); <span class="comment">// name=&quot;CCC11&quot;
-    </span><span class="kw">pub const </span>CCC12: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">12</span>); <span class="comment">// name=&quot;CCC12&quot;
-    </span><span class="kw">pub const </span>CCC13: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">13</span>); <span class="comment">// name=&quot;CCC13&quot;
-    </span><span class="kw">pub const </span>CCC14: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">14</span>); <span class="comment">// name=&quot;CCC14&quot;
-    </span><span class="kw">pub const </span>CCC15: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">15</span>); <span class="comment">// name=&quot;CCC15&quot;
-    </span><span class="kw">pub const </span>CCC16: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">16</span>); <span class="comment">// name=&quot;CCC16&quot;
-    </span><span class="kw">pub const </span>CCC17: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">17</span>); <span class="comment">// name=&quot;CCC17&quot;
-    </span><span class="kw">pub const </span>CCC18: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">18</span>); <span class="comment">// name=&quot;CCC18&quot;
-    </span><span class="kw">pub const </span>CCC19: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">19</span>); <span class="comment">// name=&quot;CCC19&quot;
-    </span><span class="kw">pub const </span>CCC20: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">20</span>); <span class="comment">// name=&quot;CCC20&quot;
-    </span><span class="kw">pub const </span>CCC21: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">21</span>); <span class="comment">// name=&quot;CCC21&quot;
-    </span><span class="kw">pub const </span>CCC22: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">22</span>); <span class="comment">// name=&quot;CCC22&quot;
-    </span><span class="kw">pub const </span>CCC23: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">23</span>); <span class="comment">// name=&quot;CCC23&quot;
-    </span><span class="kw">pub const </span>CCC24: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">24</span>); <span class="comment">// name=&quot;CCC24&quot;
-    </span><span class="kw">pub const </span>CCC25: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">25</span>); <span class="comment">// name=&quot;CCC25&quot;
-    </span><span class="kw">pub const </span>CCC26: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">26</span>); <span class="comment">// name=&quot;CCC26&quot;
-    </span><span class="kw">pub const </span>CCC27: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">27</span>); <span class="comment">// name=&quot;CCC27&quot;
-    </span><span class="kw">pub const </span>CCC28: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">28</span>); <span class="comment">// name=&quot;CCC28&quot;
-    </span><span class="kw">pub const </span>CCC29: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">29</span>); <span class="comment">// name=&quot;CCC29&quot;
-    </span><span class="kw">pub const </span>CCC30: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">30</span>); <span class="comment">// name=&quot;CCC30&quot;
-    </span><span class="kw">pub const </span>CCC31: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">31</span>); <span class="comment">// name=&quot;CCC31&quot;
-    </span><span class="kw">pub const </span>CCC32: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">32</span>); <span class="comment">// name=&quot;CCC32&quot;
-    </span><span class="kw">pub const </span>CCC33: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">33</span>); <span class="comment">// name=&quot;CCC33&quot;
-    </span><span class="kw">pub const </span>CCC34: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">34</span>); <span class="comment">// name=&quot;CCC34&quot;
-    </span><span class="kw">pub const </span>CCC35: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">35</span>); <span class="comment">// name=&quot;CCC35&quot;
-    </span><span class="kw">pub const </span>CCC36: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">36</span>); <span class="comment">// name=&quot;CCC36&quot;
-    </span><span class="kw">pub const </span>CCC84: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">84</span>); <span class="comment">// name=&quot;CCC84&quot;
-    </span><span class="kw">pub const </span>CCC91: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">91</span>); <span class="comment">// name=&quot;CCC91&quot;
-    </span><span class="kw">pub const </span>CCC103: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">103</span>); <span class="comment">// name=&quot;CCC103&quot;
-    </span><span class="kw">pub const </span>CCC107: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">107</span>); <span class="comment">// name=&quot;CCC107&quot;
-    </span><span class="kw">pub const </span>CCC118: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">118</span>); <span class="comment">// name=&quot;CCC118&quot;
-    </span><span class="kw">pub const </span>CCC122: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">122</span>); <span class="comment">// name=&quot;CCC122&quot;
-    </span><span class="kw">pub const </span>CCC129: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">129</span>); <span class="comment">// name=&quot;CCC129&quot;
-    </span><span class="kw">pub const </span>CCC130: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">130</span>); <span class="comment">// name=&quot;CCC130&quot;
-    </span><span class="kw">pub const </span>CCC132: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">132</span>); <span class="comment">// name=&quot;CCC132&quot;
-    </span><span class="kw">pub const </span>CCC133: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">133</span>); <span class="comment">// name=&quot;CCC133&quot; // RESERVED
-    </span><span class="kw">pub const </span>AttachedBelowLeft: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">200</span>); <span class="comment">// name=&quot;ATBL&quot;
-    </span><span class="kw">pub const </span>AttachedBelow: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">202</span>); <span class="comment">// name=&quot;ATB&quot;
-    </span><span class="kw">pub const </span>AttachedAbove: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">214</span>); <span class="comment">// name=&quot;ATA&quot;
-    </span><span class="kw">pub const </span>AttachedAboveRight: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">216</span>); <span class="comment">// name=&quot;ATAR&quot;
-    </span><span class="kw">pub const </span>BelowLeft: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">218</span>); <span class="comment">// name=&quot;BL&quot;
-    </span><span class="kw">pub const </span>Below: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">220</span>); <span class="comment">// name=&quot;B&quot;
-    </span><span class="kw">pub const </span>BelowRight: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">222</span>); <span class="comment">// name=&quot;BR&quot;
-    </span><span class="kw">pub const </span>Left: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">224</span>); <span class="comment">// name=&quot;L&quot;
-    </span><span class="kw">pub const </span>Right: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">226</span>); <span class="comment">// name=&quot;R&quot;
-    </span><span class="kw">pub const </span>AboveLeft: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">228</span>); <span class="comment">// name=&quot;AL&quot;
-    </span><span class="kw">pub const </span>Above: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">230</span>); <span class="comment">// name=&quot;A&quot;
-    </span><span class="kw">pub const </span>AboveRight: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">232</span>); <span class="comment">// name=&quot;AR&quot;
-    </span><span class="kw">pub const </span>DoubleBelow: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">233</span>); <span class="comment">// name=&quot;DB&quot;
-    </span><span class="kw">pub const </span>DoubleAbove: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">234</span>); <span class="comment">// name=&quot;DA&quot;
-    </span><span class="kw">pub const </span>IotaSubscript: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">240</span>); <span class="comment">// name=&quot;IS&quot;
+    <span class="kw">pub const </span>NotReordered: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">0</span>); <span class="comment">// name="NR"
+    </span><span class="kw">pub const </span>Overlay: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">1</span>); <span class="comment">// name="OV"
+    </span><span class="kw">pub const </span>HanReading: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">6</span>); <span class="comment">// name="HANR"
+    </span><span class="kw">pub const </span>Nukta: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">7</span>); <span class="comment">// name="NK"
+    </span><span class="kw">pub const </span>KanaVoicing: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">8</span>); <span class="comment">// name="KV"
+    </span><span class="kw">pub const </span>Virama: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">9</span>); <span class="comment">// name="VR"
+    </span><span class="kw">pub const </span>CCC10: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">10</span>); <span class="comment">// name="CCC10"
+    </span><span class="kw">pub const </span>CCC11: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">11</span>); <span class="comment">// name="CCC11"
+    </span><span class="kw">pub const </span>CCC12: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">12</span>); <span class="comment">// name="CCC12"
+    </span><span class="kw">pub const </span>CCC13: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">13</span>); <span class="comment">// name="CCC13"
+    </span><span class="kw">pub const </span>CCC14: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">14</span>); <span class="comment">// name="CCC14"
+    </span><span class="kw">pub const </span>CCC15: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">15</span>); <span class="comment">// name="CCC15"
+    </span><span class="kw">pub const </span>CCC16: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">16</span>); <span class="comment">// name="CCC16"
+    </span><span class="kw">pub const </span>CCC17: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">17</span>); <span class="comment">// name="CCC17"
+    </span><span class="kw">pub const </span>CCC18: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">18</span>); <span class="comment">// name="CCC18"
+    </span><span class="kw">pub const </span>CCC19: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">19</span>); <span class="comment">// name="CCC19"
+    </span><span class="kw">pub const </span>CCC20: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">20</span>); <span class="comment">// name="CCC20"
+    </span><span class="kw">pub const </span>CCC21: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">21</span>); <span class="comment">// name="CCC21"
+    </span><span class="kw">pub const </span>CCC22: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">22</span>); <span class="comment">// name="CCC22"
+    </span><span class="kw">pub const </span>CCC23: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">23</span>); <span class="comment">// name="CCC23"
+    </span><span class="kw">pub const </span>CCC24: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">24</span>); <span class="comment">// name="CCC24"
+    </span><span class="kw">pub const </span>CCC25: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">25</span>); <span class="comment">// name="CCC25"
+    </span><span class="kw">pub const </span>CCC26: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">26</span>); <span class="comment">// name="CCC26"
+    </span><span class="kw">pub const </span>CCC27: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">27</span>); <span class="comment">// name="CCC27"
+    </span><span class="kw">pub const </span>CCC28: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">28</span>); <span class="comment">// name="CCC28"
+    </span><span class="kw">pub const </span>CCC29: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">29</span>); <span class="comment">// name="CCC29"
+    </span><span class="kw">pub const </span>CCC30: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">30</span>); <span class="comment">// name="CCC30"
+    </span><span class="kw">pub const </span>CCC31: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">31</span>); <span class="comment">// name="CCC31"
+    </span><span class="kw">pub const </span>CCC32: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">32</span>); <span class="comment">// name="CCC32"
+    </span><span class="kw">pub const </span>CCC33: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">33</span>); <span class="comment">// name="CCC33"
+    </span><span class="kw">pub const </span>CCC34: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">34</span>); <span class="comment">// name="CCC34"
+    </span><span class="kw">pub const </span>CCC35: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">35</span>); <span class="comment">// name="CCC35"
+    </span><span class="kw">pub const </span>CCC36: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">36</span>); <span class="comment">// name="CCC36"
+    </span><span class="kw">pub const </span>CCC84: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">84</span>); <span class="comment">// name="CCC84"
+    </span><span class="kw">pub const </span>CCC91: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">91</span>); <span class="comment">// name="CCC91"
+    </span><span class="kw">pub const </span>CCC103: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">103</span>); <span class="comment">// name="CCC103"
+    </span><span class="kw">pub const </span>CCC107: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">107</span>); <span class="comment">// name="CCC107"
+    </span><span class="kw">pub const </span>CCC118: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">118</span>); <span class="comment">// name="CCC118"
+    </span><span class="kw">pub const </span>CCC122: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">122</span>); <span class="comment">// name="CCC122"
+    </span><span class="kw">pub const </span>CCC129: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">129</span>); <span class="comment">// name="CCC129"
+    </span><span class="kw">pub const </span>CCC130: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">130</span>); <span class="comment">// name="CCC130"
+    </span><span class="kw">pub const </span>CCC132: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">132</span>); <span class="comment">// name="CCC132"
+    </span><span class="kw">pub const </span>CCC133: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">133</span>); <span class="comment">// name="CCC133" // RESERVED
+    </span><span class="kw">pub const </span>AttachedBelowLeft: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">200</span>); <span class="comment">// name="ATBL"
+    </span><span class="kw">pub const </span>AttachedBelow: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">202</span>); <span class="comment">// name="ATB"
+    </span><span class="kw">pub const </span>AttachedAbove: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">214</span>); <span class="comment">// name="ATA"
+    </span><span class="kw">pub const </span>AttachedAboveRight: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">216</span>); <span class="comment">// name="ATAR"
+    </span><span class="kw">pub const </span>BelowLeft: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">218</span>); <span class="comment">// name="BL"
+    </span><span class="kw">pub const </span>Below: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">220</span>); <span class="comment">// name="B"
+    </span><span class="kw">pub const </span>BelowRight: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">222</span>); <span class="comment">// name="BR"
+    </span><span class="kw">pub const </span>Left: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">224</span>); <span class="comment">// name="L"
+    </span><span class="kw">pub const </span>Right: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">226</span>); <span class="comment">// name="R"
+    </span><span class="kw">pub const </span>AboveLeft: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">228</span>); <span class="comment">// name="AL"
+    </span><span class="kw">pub const </span>Above: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">230</span>); <span class="comment">// name="A"
+    </span><span class="kw">pub const </span>AboveRight: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">232</span>); <span class="comment">// name="AR"
+    </span><span class="kw">pub const </span>DoubleBelow: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">233</span>); <span class="comment">// name="DB"
+    </span><span class="kw">pub const </span>DoubleAbove: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">234</span>); <span class="comment">// name="DA"
+    </span><span class="kw">pub const </span>IotaSubscript: CanonicalCombiningClass = CanonicalCombiningClass(<span class="number">240</span>); <span class="comment">// name="IS"
 </span>}
 
 <span class="macro">impl_value_getter! </span>{
@@ -4557,18 +4558,18 @@
         ///
         /// let lookup = CanonicalCombiningClass::name_to_enum_mapper();
         /// // short name for value
-        /// assert_eq!(lookup.get_strict(&quot;AL&quot;), Some(CanonicalCombiningClass::AboveLeft));
-        /// assert_eq!(lookup.get_strict(&quot;ATBL&quot;), Some(CanonicalCombiningClass::AttachedBelowLeft));
-        /// assert_eq!(lookup.get_strict(&quot;CCC10&quot;), Some(CanonicalCombiningClass::CCC10));
+        /// assert_eq!(lookup.get_strict("AL"), Some(CanonicalCombiningClass::AboveLeft));
+        /// assert_eq!(lookup.get_strict("ATBL"), Some(CanonicalCombiningClass::AttachedBelowLeft));
+        /// assert_eq!(lookup.get_strict("CCC10"), Some(CanonicalCombiningClass::CCC10));
         /// // long name for value
-        /// assert_eq!(lookup.get_strict(&quot;Above_Left&quot;), Some(CanonicalCombiningClass::AboveLeft));
-        /// assert_eq!(lookup.get_strict(&quot;Attached_Below_Left&quot;), Some(CanonicalCombiningClass::AttachedBelowLeft));
+        /// assert_eq!(lookup.get_strict("Above_Left"), Some(CanonicalCombiningClass::AboveLeft));
+        /// assert_eq!(lookup.get_strict("Attached_Below_Left"), Some(CanonicalCombiningClass::AttachedBelowLeft));
         /// // name has incorrect casing and hyphens
-        /// assert_eq!(lookup.get_strict(&quot;attached-below-left&quot;), None);
+        /// assert_eq!(lookup.get_strict("attached-below-left"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;attached-below-left&quot;), Some(CanonicalCombiningClass::AttachedBelowLeft));
+        /// assert_eq!(lookup.get_loose("attached-below-left"), Some(CanonicalCombiningClass::AttachedBelowLeft));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;Linear_Z&quot;), None);
+        /// assert_eq!(lookup.get_strict("Linear_Z"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameSparseMapper`], capable of looking up short names
@@ -4584,9 +4585,9 @@
         /// use icu::properties::CanonicalCombiningClass;
         ///
         /// let lookup = CanonicalCombiningClass::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(CanonicalCombiningClass::AboveLeft), Some(&quot;AL&quot;));
-        /// assert_eq!(lookup.get(CanonicalCombiningClass::AttachedBelowLeft), Some(&quot;ATBL&quot;));
-        /// assert_eq!(lookup.get(CanonicalCombiningClass::CCC10), Some(&quot;CCC10&quot;));
+        /// assert_eq!(lookup.get(CanonicalCombiningClass::AboveLeft), Some("AL"));
+        /// assert_eq!(lookup.get(CanonicalCombiningClass::AttachedBelowLeft), Some("ATBL"));
+        /// assert_eq!(lookup.get(CanonicalCombiningClass::CCC10), Some("CCC10"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameSparseMapper / PropertyEnumToValueNameSparseMapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameSparseMapper`], capable of looking up long names
@@ -4602,9 +4603,9 @@
         /// use icu::properties::CanonicalCombiningClass;
         ///
         /// let lookup = CanonicalCombiningClass::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(CanonicalCombiningClass::AboveLeft), Some(&quot;Above_Left&quot;));
-        /// assert_eq!(lookup.get(CanonicalCombiningClass::AttachedBelowLeft), Some(&quot;Attached_Below_Left&quot;));
-        /// assert_eq!(lookup.get(CanonicalCombiningClass::CCC10), Some(&quot;CCC10&quot;));
+        /// assert_eq!(lookup.get(CanonicalCombiningClass::AboveLeft), Some("Above_Left"));
+        /// assert_eq!(lookup.get(CanonicalCombiningClass::AttachedBelowLeft), Some("Attached_Below_Left"));
+        /// assert_eq!(lookup.get(CanonicalCombiningClass::CCC10), Some("CCC10"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameSparseMapper / PropertyEnumToValueNameSparseMapperBorrowed;
     }
@@ -4616,15 +4617,15 @@
 ///
 /// The numeric value is compatible with `UIndicSyllabicCategory` in ICU4C.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(Serialize, Deserialize))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(databake::Bake))]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, databake(path = icu_properties))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(Serialize, Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(databake::Bake))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, databake(path = icu_properties))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[repr(transparent)]
 #[zerovec::make_ule(IndicSyllabicCategoryULE)]
 </span><span class="kw">pub struct </span>IndicSyllabicCategory(<span class="kw">pub </span>u8);
 
-<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don&#39;t need individual documentation.
+<span class="attr">#[allow(missing_docs)] </span><span class="comment">// These constants don't need individual documentation.
 </span><span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">impl </span>IndicSyllabicCategory {
     <span class="kw">pub const </span>Other: IndicSyllabicCategory = IndicSyllabicCategory(<span class="number">0</span>);
@@ -4682,14 +4683,14 @@
         ///
         /// let lookup = IndicSyllabicCategory::name_to_enum_mapper();
         /// // long/short name for value
-        /// assert_eq!(lookup.get_strict(&quot;Brahmi_Joining_Number&quot;), Some(IndicSyllabicCategory::BrahmiJoiningNumber));
-        /// assert_eq!(lookup.get_strict(&quot;Vowel_Independent&quot;), Some(IndicSyllabicCategory::VowelIndependent));
+        /// assert_eq!(lookup.get_strict("Brahmi_Joining_Number"), Some(IndicSyllabicCategory::BrahmiJoiningNumber));
+        /// assert_eq!(lookup.get_strict("Vowel_Independent"), Some(IndicSyllabicCategory::VowelIndependent));
         /// // name has incorrect casing and hyphens
-        /// assert_eq!(lookup.get_strict(&quot;brahmi-joining-number&quot;), None);
+        /// assert_eq!(lookup.get_strict("brahmi-joining-number"), None);
         /// // loose matching of name
-        /// assert_eq!(lookup.get_loose(&quot;brahmi-joining-number&quot;), Some(IndicSyllabicCategory::BrahmiJoiningNumber));
+        /// assert_eq!(lookup.get_loose("brahmi-joining-number"), Some(IndicSyllabicCategory::BrahmiJoiningNumber));
         /// // fake property
-        /// assert_eq!(lookup.get_strict(&quot;Tone_Number&quot;), None);
+        /// assert_eq!(lookup.get_strict("Tone_Number"), None);
         /// ```
         </span><span class="kw">pub fn </span>get_name_to_enum_mapper() / name_to_enum_mapper();
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up short names
@@ -4705,8 +4706,8 @@
         /// use icu::properties::IndicSyllabicCategory;
         ///
         /// let lookup = IndicSyllabicCategory::enum_to_short_name_mapper();
-        /// assert_eq!(lookup.get(IndicSyllabicCategory::BrahmiJoiningNumber), Some(&quot;Brahmi_Joining_Number&quot;));
-        /// assert_eq!(lookup.get(IndicSyllabicCategory::VowelIndependent), Some(&quot;Vowel_Independent&quot;));
+        /// assert_eq!(lookup.get(IndicSyllabicCategory::BrahmiJoiningNumber), Some("Brahmi_Joining_Number"));
+        /// assert_eq!(lookup.get(IndicSyllabicCategory::VowelIndependent), Some("Vowel_Independent"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_short_name_mapper() / enum_to_short_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
         <span class="doccomment">/// Return a [`PropertyEnumToValueNameLinearMapper`], capable of looking up long names
@@ -4722,8 +4723,8 @@
         /// use icu::properties::IndicSyllabicCategory;
         ///
         /// let lookup = IndicSyllabicCategory::enum_to_long_name_mapper();
-        /// assert_eq!(lookup.get(IndicSyllabicCategory::BrahmiJoiningNumber), Some(&quot;Brahmi_Joining_Number&quot;));
-        /// assert_eq!(lookup.get(IndicSyllabicCategory::VowelIndependent), Some(&quot;Vowel_Independent&quot;));
+        /// assert_eq!(lookup.get(IndicSyllabicCategory::BrahmiJoiningNumber), Some("Brahmi_Joining_Number"));
+        /// assert_eq!(lookup.get(IndicSyllabicCategory::VowelIndependent), Some("Vowel_Independent"));
         /// ```
         </span><span class="kw">pub fn </span>get_enum_to_long_name_mapper() / enum_to_long_name_mapper() -&gt; PropertyEnumToValueNameLinearMapper / PropertyEnumToValueNameLinearMapperBorrowed;
     }

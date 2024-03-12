@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_slide_submissions.rs`."><title>exercise_slide_submissions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_slide_submissions.rs`."><title>exercise_slide_submissions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -773,7 +774,7 @@
 };
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>AnswerRequiringAttention {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>user_id: Uuid,
@@ -788,7 +789,7 @@
     <span class="kw">pub </span>exercise_id: Uuid,
 }
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewExerciseSlideSubmission {
     <span class="kw">pub </span>exercise_slide_id: Uuid,
     <span class="kw">pub </span>course_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
@@ -800,7 +801,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlideSubmission {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -820,7 +821,7 @@
         <span class="self">self</span>.course_instance_id.ok_or_else(|| {
             ModelError::new(
                 ModelErrorType::Generic,
-                <span class="string">&quot;Submission is not related to a course instance.&quot;</span>.to_string(),
+                <span class="string">"Submission is not related to a course instance."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })
@@ -828,7 +829,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseAnswersInCourseRequiringAttentionCount {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>name: String,
@@ -839,14 +840,14 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlideSubmissionCount {
     <span class="kw">pub </span>date: <span class="prelude-ty">Option</span>&lt;NaiveDate&gt;,
     <span class="kw">pub </span>count: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlideSubmissionCountByExercise {
     <span class="kw">pub </span>exercise_id: Uuid,
     <span class="kw">pub </span>count: <span class="prelude-ty">Option</span>&lt;i32&gt;,
@@ -854,7 +855,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlideSubmissionCountByWeekAndHour {
     <span class="kw">pub </span>isodow: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     <span class="kw">pub </span>hour: <span class="prelude-ty">Option</span>&lt;i32&gt;,
@@ -862,7 +863,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseSlideSubmissionInfo {
     <span class="kw">pub </span>tasks: Vec&lt;CourseMaterialExerciseTask&gt;,
     <span class="kw">pub </span>exercise: Exercise,
@@ -875,7 +876,7 @@
 ) -&gt; ModelResult&lt;ExerciseSlideSubmission&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 INSERT INTO exercise_slide_submissions (
     exercise_slide_id,
     course_id,
@@ -896,8 +897,8 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
-        &quot;#</span>,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+        "#</span>,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
         exercise_slide_submission.course_instance_id,
@@ -918,7 +919,7 @@ RETURNING id,
 ) -&gt; ModelResult&lt;ExerciseSlideSubmission&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 INSERT INTO exercise_slide_submissions (
     id,
     exercise_slide_id,
@@ -940,8 +941,8 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
-        &quot;#</span>,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+        "#</span>,
         id,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
@@ -959,7 +960,7 @@ RETURNING id,
 <span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;ExerciseSlideSubmission&gt; {
     <span class="kw">let </span>exercise_slide_submission = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
 created_at,
 updated_at,
@@ -970,11 +971,11 @@ course_instance_id,
 exam_id,
 exercise_id,
 user_id,
-user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
+user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL;
-        &quot;#</span>,
+        "#</span>,
         id
     )
     .fetch_one(conn)
@@ -993,7 +994,7 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExerciseSlideSubmission&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT DISTINCT ON (user_id)
   id,
   created_at,
@@ -1005,14 +1006,14 @@ SELECT DISTINCT ON (user_id)
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
+  user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND id &lt;&gt; ALL($2)
   AND user_id &lt;&gt; $3
   AND deleted_at IS NULL
 ORDER BY user_id, created_at DESC
-        &quot;#</span>,
+        "#</span>,
         exercise_id,
         excluded_ids,
         excluded_user_id,
@@ -1032,7 +1033,7 @@ ORDER BY user_id, created_at DESC
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseSlideSubmission&gt;&gt; {
     <span class="kw">let </span>submissions = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -1043,12 +1044,12 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
+  user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
 LIMIT $2 OFFSET $3;
-        &quot;#</span>,
+        "#</span>,
         exercise_id,
         pagination.limit(),
         pagination.offset(),
@@ -1066,7 +1067,7 @@ LIMIT $2 OFFSET $3;
     <span class="kw">let </span>(course_instance_id, exam_id) = course_instance_id_or_exam_id.to_instance_and_exam_ids();
     <span class="kw">let </span>submissions = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -1077,12 +1078,12 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
+  user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE user_id = $1
   AND (course_instance_id = $2 OR exam_id = $3)
   AND deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         user_id,
         course_instance_id,
         exam_id,
@@ -1099,7 +1100,7 @@ WHERE user_id = $1
 ) -&gt; ModelResult&lt;ExerciseSlideSubmission&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -1110,14 +1111,14 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
+  user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_slide_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT 1
-        &quot;#</span>,
+        "#</span>,
         exercise_slide_id,
         user_id
     )
@@ -1141,13 +1142,13 @@ LIMIT 1
     id: Uuid,
 ) -&gt; ModelResult&lt;CourseOrExamId&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT course_id,
   exam_id
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL
-        &quot;</span>,
+        "</span>,
         id
     )
     .fetch_one(conn)
@@ -1160,12 +1161,12 @@ WHERE id = $1
     exercise_id: Uuid,
 ) -&gt; ModelResult&lt;u32&gt; {
     <span class="kw">let </span>count = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT COUNT(*) as count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
 AND deleted_at IS NULL
-&quot;</span>,
+"</span>,
         exercise_id,
     )
     .fetch_one(conn)
@@ -1180,7 +1181,7 @@ AND deleted_at IS NULL
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseSlideSubmission&gt;&gt; {
     <span class="kw">let </span>submissions = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -1191,13 +1192,13 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
+  user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT $2 OFFSET $3
-        &quot;#</span>,
+        "#</span>,
         exercise_id,
         pagination.limit(),
         pagination.offset(),
@@ -1213,14 +1214,14 @@ LIMIT $2 OFFSET $3
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseSlideSubmissionCount&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmissionCount,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT DATE(created_at) date, count(*)::integer
 FROM exercise_slide_submissions
 WHERE course_id = $1
 AND deleted_at IS NULL
 GROUP BY date
 ORDER BY date;
-          &quot;#</span>,
+          "#</span>,
         course.id
     )
     .fetch_all(conn)
@@ -1234,14 +1235,14 @@ ORDER BY date;
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseSlideSubmissionCount&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmissionCount,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT DATE(created_at) date, count(DISTINCT user_id)::integer
 FROM exercise_slide_submissions
 WHERE course_id = $1
 AND deleted_at IS NULL
 GROUP BY date
 ORDER BY date;
-          &quot;#</span>,
+          "#</span>,
         course.id
     )
     .fetch_all(conn)
@@ -1254,7 +1255,7 @@ ORDER BY date;
     exercise_id: Uuid,
 ) -&gt; ModelResult&lt;u32&gt; {
     <span class="kw">let </span>count = <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
+        <span class="string">r#"
         SELECT
         COUNT(*) as count
     FROM user_exercise_states AS us_state
@@ -1268,10 +1269,10 @@ ORDER BY date;
             t_submission.exercise_slide_id
     AND us_state.user_id = s_submission.user_id
     AND us_state.exercise_id = $1
-    AND us_state.reviewing_stage = &#39;waiting_for_manual_grading&#39;
+    AND us_state.reviewing_stage = 'waiting_for_manual_grading'
     AND us_state.deleted_at IS NULL
     AND s_submission.deleted_at IS NULL
-    AND t_submission.deleted_at IS NULL&quot;#</span>,
+    AND t_submission.deleted_at IS NULL"#</span>,
         exercise_id,
     )
     .fetch_one(conn)
@@ -1285,7 +1286,7 @@ ORDER BY date;
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseAnswersInCourseRequiringAttentionCount&gt;&gt; {
     <span class="kw">let </span>count_list = <span class="macro">sqlx::query_as!</span>(
         ExerciseAnswersInCourseRequiringAttentionCount,
-        <span class="string">r#&quot;
+        <span class="string">r#"
         SELECT
         exercises.id,         (SELECT COUNT(us_state.id)::integer as count
                 FROM exercises AS exercises2
@@ -1294,7 +1295,7 @@ ORDER BY date;
                 LEFT JOIN exercise_task_submissions AS t_submission ON s_submission.id = t_submission.exercise_slide_submission_id
                 WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id
                 AND us_state.user_id = s_submission.user_id
-                AND us_state.reviewing_stage = &#39;waiting_for_manual_grading&#39;
+                AND us_state.reviewing_stage = 'waiting_for_manual_grading'
                 AND us_state.deleted_at IS NULL
                 AND exercises2.course_id = $1
                 AND exercises.id = exercises2.id
@@ -1306,7 +1307,7 @@ ORDER BY date;
             FROM exercises
             WHERE exercises.course_id = $1
             AND exercises.deleted_at IS NULL
-            GROUP BY exercises.id;&quot;#</span>,
+            GROUP BY exercises.id;"#</span>,
         course_id,
     )
     .fetch_all(conn)
@@ -1321,7 +1322,7 @@ ORDER BY date;
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseSlideSubmission&gt;&gt; {
     <span class="kw">let </span>submissions = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -1332,12 +1333,12 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
+  user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
 LIMIT $2 OFFSET $3
-        &quot;#</span>,
+        "#</span>,
         exercise_id,
         pagination.limit(),
         pagination.offset(),
@@ -1354,14 +1355,14 @@ LIMIT $2 OFFSET $3
 ) -&gt; ModelResult&lt;Vec&lt;AnswerRequiringAttention&gt;&gt; {
     <span class="kw">let </span>submissions = <span class="macro">sqlx::query_as!</span>(
         AnswerRequiringAttention,
-        <span class="string">r#&quot;
+        <span class="string">r#"
         SELECT
         us_state.id,
         us_state.user_id,
         us_state.exercise_id,
         us_state.course_instance_id,
         us_state.score_given,
-        us_state.grading_progress as &quot;grading_progress: _&quot;,
+        us_state.grading_progress as "grading_progress: _",
         t_submission.data_json,
         s_submission.created_at,
         s_submission.updated_at,
@@ -1378,13 +1379,13 @@ LIMIT $2 OFFSET $3
             t_submission.exercise_slide_id
     AND us_state.user_id = s_submission.user_id
     AND us_state.exercise_id = $1
-    AND us_state.reviewing_stage = &#39;waiting_for_manual_grading&#39;
+    AND us_state.reviewing_stage = 'waiting_for_manual_grading'
     AND us_state.deleted_at IS NULL
     AND us_state.deleted_at IS NULL
     AND s_submission.deleted_at IS NULL
     AND t_submission.deleted_at IS NULL
     ORDER BY t_submission.updated_at
-    LIMIT $2 OFFSET $3;&quot;#</span>,
+    LIMIT $2 OFFSET $3;"#</span>,
         exercise_id,
         pagination.limit(),
         pagination.offset(),
@@ -1400,18 +1401,18 @@ LIMIT $2 OFFSET $3
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseSlideSubmissionCountByWeekAndHour&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmissionCountByWeekAndHour,
-        <span class="string">r#&quot;
-SELECT date_part(&#39;isodow&#39;, created_at)::integer isodow,
-  date_part(&#39;hour&#39;, created_at)::integer &quot;hour&quot;,
+        <span class="string">r#"
+SELECT date_part('isodow', created_at)::integer isodow,
+  date_part('hour', created_at)::integer "hour",
   count(*)::integer
 FROM exercise_slide_submissions
 WHERE course_id = $1
 AND deleted_at IS NULL
 GROUP BY isodow,
-  &quot;hour&quot;
+  "hour"
 ORDER BY isodow,
   hour;
-          &quot;#</span>,
+          "#</span>,
         course.id
     )
     .fetch_all(conn)
@@ -1425,7 +1426,7 @@ ORDER BY isodow,
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseSlideSubmissionCountByExercise&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmissionCountByExercise,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT counts.*, exercises.name exercise_name
     FROM (
         SELECT exercise_id, count(*)::integer count
@@ -1435,7 +1436,7 @@ SELECT counts.*, exercises.name exercise_name
         GROUP BY exercise_id
     ) counts
     JOIN exercises ON (counts.exercise_id = exercises.id);
-          &quot;#</span>,
+          "#</span>,
         course.id
     )
     .fetch_all(conn)
@@ -1454,7 +1455,7 @@ SELECT counts.*, exercises.name exercise_name
         CourseInstanceOrExamId::Exam(id) =&gt; id,
     };
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT exercise_slide_id,
   COUNT(*) as count
 FROM exercise_slide_submissions
@@ -1463,7 +1464,7 @@ WHERE exercise_id = $1
   AND user_id = $3
   AND deleted_at IS NULL
 GROUP BY exercise_slide_id;
-    &quot;#</span>,
+    "#</span>,
         exercise_id,
         ci_id_or_e_id,
         user_id
@@ -1481,7 +1482,7 @@ GROUP BY exercise_slide_id;
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_slide_submission_id: Uuid,
     user_id: Uuid,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ExerciseSlideSubmissionInfo&gt; {
     <span class="kw">let </span>exercise_slide_submission = get_by_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exercise =
@@ -1498,7 +1499,7 @@ GROUP BY exercise_slide_id;
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_slide_submission_id: Uuid,
     viewer_user_id: Uuid,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ExerciseSlideSubmissionInfo&gt; {
     <span class="kw">let </span>exercise_slide_submission = get_by_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exercise =

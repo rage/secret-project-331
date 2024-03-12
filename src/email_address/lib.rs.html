@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/email_address-0.2.4/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="email_address" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/email_address-0.2.4/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="email_address" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1180,10 +1181,10 @@ The following shoes the basic `is_valid` and `from_str` functions.
 ```rust
 use email_address::*;
 use std::str::FromStr;
-assert!(EmailAddress::is_valid(&quot;user.name+tag+sorting@example.com&quot;));
+assert!(EmailAddress::is_valid("user.name+tag+sorting@example.com"));
 
 assert_eq!(
-    EmailAddress::from_str(&quot;Abc.example.com&quot;),
+    EmailAddress::from_str("Abc.example.com"),
     Error::MissingSeparator.into()
 );
 ```
@@ -1194,31 +1195,31 @@ The following shows the three format functions used to output an email address.
 use email_address::*;
 use std::str::FromStr;
 
-let email = EmailAddress::from_str(&quot;johnstonsk@gmail.com&quot;).unwrap();
+let email = EmailAddress::from_str("johnstonsk@gmail.com").unwrap();
 
 assert_eq!(
     email.to_string(),
-    &quot;johnstonsk@gmail.com&quot;.to_string()
+    "johnstonsk@gmail.com".to_string()
 );
 
 assert_eq!(
     String::from(email.clone()),
-    &quot;johnstonsk@gmail.com&quot;.to_string()
+    "johnstonsk@gmail.com".to_string()
 );
 
 assert_eq!(
     email.as_ref(),
-    &quot;johnstonsk@gmail.com&quot;
+    "johnstonsk@gmail.com"
 );
 
 assert_eq!(
     email.to_uri(),
-    &quot;mailto:johnstonsk@gmail.com&quot;.to_string()
+    "mailto:johnstonsk@gmail.com".to_string()
 );
 
 assert_eq!(
-    email.to_display(&quot;Simon Johnston&quot;),
-    &quot;Simon Johnston &lt;johnstonsk@gmail.com&gt;&quot;.to_string()
+    email.to_display("Simon Johnston"),
+    "Simon Johnston &lt;johnstonsk@gmail.com&gt;".to_string()
 );
 ```
 
@@ -1249,7 +1250,7 @@ assert_eq!(
 From RFC 5322: §3.2.1. [Quoted characters](https://tools.ietf.org/html/rfc5322#section-3.2.1):
 
 ```ebnf
-quoted-pair     =   (&quot;\&quot; (VCHAR / WSP)) / obs-qp
+quoted-pair     =   ("\" (VCHAR / WSP)) / obs-qp
 ```
 
 From RFC 5322: §3.2.2. [Folding White Space and Comments](https://tools.ietf.org/html/rfc5322#section-3.2.2):
@@ -1260,12 +1261,12 @@ FWS             =   ([*WSP CRLF] 1*WSP) /  obs-FWS
 
 ctext           =   %d33-39 /          ; Printable US-ASCII
                     %d42-91 /          ;  characters not including
-                    %d93-126 /         ;  &quot;(&quot;, &quot;)&quot;, or &quot;\&quot;
+                    %d93-126 /         ;  "(", ")", or "\"
                     obs-ctext
 
 ccontent        =   ctext / quoted-pair / comment
 
-comment         =   &quot;(&quot; *([FWS] ccontent) [FWS] &quot;)&quot;
+comment         =   "(" *([FWS] ccontent) [FWS] ")"
 
 CFWS            =   (1*([FWS] comment) [FWS]) / FWS
 ```
@@ -1274,29 +1275,29 @@ From RFC 5322: §3.2.3. [Atom](https://tools.ietf.org/html/rfc5322#section-3.2.3
 
 ```ebnf
 atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
-                    &quot;!&quot; / &quot;#&quot; /        ;  characters not including
-                    &quot;$&quot; / &quot;%&quot; /        ;  specials.  Used for atoms.
-                    &quot;&amp;&quot; / &quot;&#39;&quot; /
-                    &quot;*&quot; / &quot;+&quot; /
-                    &quot;-&quot; / &quot;/&quot; /
-                    &quot;=&quot; / &quot;?&quot; /
-                    &quot;^&quot; / &quot;_&quot; /
-                    &quot;`&quot; / &quot;{&quot; /
-                    &quot;|&quot; / &quot;}&quot; /
-                    &quot;~&quot;
+                    "!" / "#" /        ;  characters not including
+                    "$" / "%" /        ;  specials.  Used for atoms.
+                    "&amp;" / "'" /
+                    "*" / "+" /
+                    "-" / "/" /
+                    "=" / "?" /
+                    "^" / "_" /
+                    "`" / "{" /
+                    "|" / "}" /
+                    "~"
 
 atom            =   [CFWS] 1*atext [CFWS]
 
-dot-atom-text   =   1*atext *(&quot;.&quot; 1*atext)
+dot-atom-text   =   1*atext *("." 1*atext)
 
 dot-atom        =   [CFWS] dot-atom-text [CFWS]
 
-specials        =   &quot;(&quot; / &quot;)&quot; /        ; Special characters that do
-                    &quot;&lt;&quot; / &quot;&gt;&quot; /        ;  not appear in atext
-                    &quot;[&quot; / &quot;]&quot; /
-                    &quot;:&quot; / &quot;;&quot; /
-                    &quot;@&quot; / &quot;\&quot; /
-                    &quot;,&quot; / &quot;.&quot; /
+specials        =   "(" / ")" /        ; Special characters that do
+                    "&lt;" / "&gt;" /        ;  not appear in atext
+                    "[" / "]" /
+                    ":" / ";" /
+                    "@" / "\" /
+                    "," / "." /
                     DQUOTE
 ```
 
@@ -1305,7 +1306,7 @@ From RFC 5322: §3.2.4. [Quoted Strings](https://tools.ietf.org/html/rfc5322#sec
 ```ebnf
 qtext           =   %d33 /             ; Printable US-ASCII
                     %d35-91 /          ;  characters not including
-                    %d93-126 /         ;  &quot;\&quot; or the quote character
+                    %d93-126 /         ;  "\" or the quote character
                     obs-qtext
 
 qcontent        =   qtext / quoted-pair
@@ -1318,17 +1319,17 @@ quoted-string   =   [CFWS]
 From RFC 5322, §3.4.1. [Addr-Spec Specification](https://tools.ietf.org/html/rfc5322#section-3.4.1):
 
 ```ebnf
-addr-spec       =   local-part &quot;@&quot; domain
+addr-spec       =   local-part "@" domain
 
 local-part      =   dot-atom / quoted-string / obs-local-part
 
 domain          =   dot-atom / domain-literal / obs-domain
 
-domain-literal  =   [CFWS] &quot;[&quot; *([FWS] dtext) [FWS] &quot;]&quot; [CFWS]
+domain-literal  =   [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
 
 dtext           =   %d33-90 /          ; Printable US-ASCII
                     %d94-126 /         ;  characters not including
-                    obs-dtext          ;  &quot;[&quot;, &quot;]&quot;, or &quot;\&quot;
+                    obs-dtext          ;  "[", "]", or "\"
 ```
 
 RFC 3696, §3. [Restrictions on email addresses](https://tools.ietf.org/html/rfc3696#section-3)
@@ -1444,7 +1445,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     dyn_drop,
 )]
 
-#[cfg(feature = <span class="string">&quot;serde_support&quot;</span>)]
+#[cfg(feature = <span class="string">"serde_support"</span>)]
 </span><span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::fmt::{Debug, Display, Formatter};
@@ -1462,7 +1463,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 </span><span class="kw">pub enum </span>Error {
     <span class="doccomment">/// An invalid character was found in some component of the address.
     </span>InvalidCharacter,
-    <span class="doccomment">/// The separator character between `local-part` and `domain` (character: &#39;@&#39;) was missing.
+    <span class="doccomment">/// The separator character between `local-part` and `domain` (character: '@') was missing.
     </span>MissingSeparator,
     <span class="doccomment">/// The `local-part` is an empty string.
     </span>LocalPartEmpty,
@@ -1476,9 +1477,9 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     </span>SubDomainTooLong,
     <span class="doccomment">/// Too few `sub-domain`s in `domain`.
     </span>DomainTooFew,
-    <span class="doccomment">/// Invalid placement of the domain separator (character: &#39;.&#39;).
+    <span class="doccomment">/// Invalid placement of the domain separator (character: '.').
     </span>DomainInvalidSeparator,
-    <span class="doccomment">/// The quotes (character: &#39;&quot;&#39;) around `local-part` are unbalanced.
+    <span class="doccomment">/// The quotes (character: '"') around `local-part` are unbalanced.
     </span>UnbalancedQuotes,
     <span class="doccomment">/// A Comment within the either the `local-part`, or `domain`, was malformed.
     </span>InvalidComment,
@@ -1493,7 +1494,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 /// independently.
 ///
 </span><span class="attr">#[derive(Debug, Clone, Eq)]
-#[cfg_attr(feature = <span class="string">&quot;serde_support&quot;</span>, derive(Serialize))]
+#[cfg_attr(feature = <span class="string">"serde_support"</span>, derive(Serialize))]
 </span><span class="kw">pub struct </span>EmailAddress(String);
 
 <span class="comment">// ------------------------------------------------------------------------------------------------
@@ -1505,54 +1506,54 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 </span><span class="kw">const </span>SUB_DOMAIN_MAX_LENGTH: usize = <span class="number">63</span>;
 
 <span class="attr">#[allow(dead_code)]
-</span><span class="kw">const </span>CR: char = <span class="string">&#39;\r&#39;</span>;
+</span><span class="kw">const </span>CR: char = <span class="string">'\r'</span>;
 <span class="attr">#[allow(dead_code)]
-</span><span class="kw">const </span>LF: char = <span class="string">&#39;\n&#39;</span>;
-<span class="kw">const </span>SP: char = <span class="string">&#39; &#39;</span>;
-<span class="kw">const </span>HTAB: char = <span class="string">&#39;\t&#39;</span>;
-<span class="kw">const </span>ESC: char = <span class="string">&#39;\\&#39;</span>;
+</span><span class="kw">const </span>LF: char = <span class="string">'\n'</span>;
+<span class="kw">const </span>SP: char = <span class="string">' '</span>;
+<span class="kw">const </span>HTAB: char = <span class="string">'\t'</span>;
+<span class="kw">const </span>ESC: char = <span class="string">'\\'</span>;
 
-<span class="kw">const </span>AT: char = <span class="string">&#39;@&#39;</span>;
-<span class="kw">const </span>DOT: char = <span class="string">&#39;.&#39;</span>;
-<span class="kw">const </span>DQUOTE: char = <span class="string">&#39;&quot;&#39;</span>;
-<span class="kw">const </span>LBRACKET: char = <span class="string">&#39;[&#39;</span>;
-<span class="kw">const </span>RBRACKET: char = <span class="string">&#39;]&#39;</span>;
+<span class="kw">const </span>AT: char = <span class="string">'@'</span>;
+<span class="kw">const </span>DOT: char = <span class="string">'.'</span>;
+<span class="kw">const </span>DQUOTE: char = <span class="string">'"'</span>;
+<span class="kw">const </span>LBRACKET: char = <span class="string">'['</span>;
+<span class="kw">const </span>RBRACKET: char = <span class="string">']'</span>;
 <span class="attr">#[allow(dead_code)]
-</span><span class="kw">const </span>LPAREN: char = <span class="string">&#39;(&#39;</span>;
+</span><span class="kw">const </span>LPAREN: char = <span class="string">'('</span>;
 <span class="attr">#[allow(dead_code)]
-</span><span class="kw">const </span>RPAREN: char = <span class="string">&#39;)&#39;</span>;
+</span><span class="kw">const </span>RPAREN: char = <span class="string">')'</span>;
 
-<span class="kw">const </span>UTF8_START: char = <span class="string">&#39;\u{0080}&#39;</span>;
+<span class="kw">const </span>UTF8_START: char = <span class="string">'\u{0080}'</span>;
 
-<span class="kw">const </span>MAILTO_URI_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;mailto:&quot;</span>;
+<span class="kw">const </span>MAILTO_URI_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">"mailto:"</span>;
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Error {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Error::InvalidCharacter =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Invalid character.&quot;</span>),
-            Error::LocalPartEmpty =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Local part is empty.&quot;</span>),
+            Error::InvalidCharacter =&gt; <span class="macro">write!</span>(f, <span class="string">"Invalid character."</span>),
+            Error::LocalPartEmpty =&gt; <span class="macro">write!</span>(f, <span class="string">"Local part is empty."</span>),
             Error::LocalPartTooLong =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;Local part is too long. Length limit: {}&quot;</span>,
+                <span class="string">"Local part is too long. Length limit: {}"</span>,
                 LOCAL_PART_MAX_LENGTH
             ),
-            Error::DomainEmpty =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Domain is empty.&quot;</span>),
+            Error::DomainEmpty =&gt; <span class="macro">write!</span>(f, <span class="string">"Domain is empty."</span>),
             Error::DomainTooLong =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;Domain is too long. Length limit: {}&quot;</span>, DOMAIN_MAX_LENGTH)
+                <span class="macro">write!</span>(f, <span class="string">"Domain is too long. Length limit: {}"</span>, DOMAIN_MAX_LENGTH)
             }
             Error::SubDomainTooLong =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;A sub-domain is too long. Length limit: {}&quot;</span>,
+                <span class="string">"A sub-domain is too long. Length limit: {}"</span>,
                 SUB_DOMAIN_MAX_LENGTH
             ),
-            Error::MissingSeparator =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Missing separator character &#39;{}&#39;.&quot;</span>, AT),
-            Error::DomainTooFew =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Too few parts in the domain&quot;</span>),
+            Error::MissingSeparator =&gt; <span class="macro">write!</span>(f, <span class="string">"Missing separator character '{}'."</span>, AT),
+            Error::DomainTooFew =&gt; <span class="macro">write!</span>(f, <span class="string">"Too few parts in the domain"</span>),
             Error::DomainInvalidSeparator =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;Invalid placement of the domain separator &#39;{:?}&quot;</span>, DOT)
+                <span class="macro">write!</span>(f, <span class="string">"Invalid placement of the domain separator '{:?}"</span>, DOT)
             }
-            Error::InvalidIPAddress =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Invalid IP Address specified for domain.&quot;</span>),
-            Error::UnbalancedQuotes =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Quotes around the local-part are unbalanced.&quot;</span>),
-            Error::InvalidComment =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;A comment was badly formed.&quot;</span>),
+            Error::InvalidIPAddress =&gt; <span class="macro">write!</span>(f, <span class="string">"Invalid IP Address specified for domain."</span>),
+            Error::UnbalancedQuotes =&gt; <span class="macro">write!</span>(f, <span class="string">"Quotes around the local-part are unbalanced."</span>),
+            Error::InvalidComment =&gt; <span class="macro">write!</span>(f, <span class="string">"A comment was badly formed."</span>),
         }
     }
 }
@@ -1568,8 +1569,8 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 <span class="comment">// ------------------------------------------------------------------------------------------------
 
 </span><span class="kw">impl </span>Display <span class="kw">for </span>EmailAddress {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
@@ -1577,8 +1578,8 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 //
 // The local-part of a mailbox MUST BE treated as case sensitive. Therefore,
 // SMTP implementations MUST take care to preserve the case of mailbox
-// local-parts. In particular, for some hosts, the user &quot;smith&quot; is different
-// from the user &quot;Smith&quot;. However, exploiting the case sensitivity of mailbox
+// local-parts. In particular, for some hosts, the user "smith" is different
+// from the user "Smith". However, exploiting the case sensitivity of mailbox
 // local-parts impedes interoperability and is discouraged. Mailbox domains
 // follow normal DNS rules and are hence not case sensitive.
 //
@@ -1617,21 +1618,21 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     </span>}
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde_support&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>EmailAddress {
+<span class="attr">#[cfg(feature = <span class="string">"serde_support"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>EmailAddress {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">use </span>serde::de::{Error, Unexpected, Visitor};
 
         <span class="kw">struct </span>EmailAddressVisitor;
 
-        <span class="kw">impl </span>Visitor&lt;<span class="lifetime">&#39;_</span>&gt; <span class="kw">for </span>EmailAddressVisitor {
+        <span class="kw">impl </span>Visitor&lt;<span class="lifetime">'_</span>&gt; <span class="kw">for </span>EmailAddressVisitor {
             <span class="kw">type </span>Value = EmailAddress;
 
-            <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-                fmt.write_str(<span class="string">&quot;data&quot;</span>)
+            <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+                fmt.write_str(<span class="string">"data"</span>)
             }
 
             <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
@@ -1639,7 +1640,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
                 </span>E: Error,
             {
                 EmailAddress::from_str(s).map_err(|err| {
-                    <span class="kw">let </span>exp = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, err);
+                    <span class="kw">let </span>exp = <span class="macro">format!</span>(<span class="string">"{}"</span>, err);
                     Error::invalid_value(Unexpected::Str(s), <span class="kw-2">&amp;</span>exp.as_ref())
                 })
             }
@@ -1658,12 +1659,12 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     /// use std::str::FromStr;
     /// use email_address::EmailAddress;
     ///
-    /// let unchecked = &quot;john.doe@example.com&quot;;
-    /// let email = EmailAddress::from_str(unchecked).expect(&quot;email is not valid&quot;);
+    /// let unchecked = "john.doe@example.com";
+    /// let email = EmailAddress::from_str(unchecked).expect("email is not valid");
     /// let valid_email = String::from(email);
     /// let email = EmailAddress::new_unchecked(valid_email);
     ///
-    /// assert_eq!(&quot;John Doe &lt;john.doe@example.com&gt;&quot;, email.to_display(&quot;John Doe&quot;));
+    /// assert_eq!("John Doe &lt;john.doe@example.com&gt;", email.to_display("John Doe"));
     /// ```
     </span><span class="kw">pub fn </span>new_unchecked&lt;S&gt;(address: S) -&gt; <span class="self">Self
     </span><span class="kw">where
@@ -1680,7 +1681,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     /// use email_address::*;
     /// use std::str::FromStr;
     ///
-    /// let is_valid = EmailAddress::from_str(&quot;johnstonskj@gmail.com&quot;).is_ok();
+    /// let is_valid = EmailAddress::from_str("johnstonskj@gmail.com").is_ok();
     /// ```
     ///
     </span><span class="kw">pub fn </span>is_valid(address: <span class="kw-2">&amp;</span>str) -&gt; bool {
@@ -1712,14 +1713,14 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     /// use std::str::FromStr;
     ///
     /// assert_eq!(
-    ///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().to_uri(),
-    ///     String::from(&quot;mailto:name@example.org&quot;)
+    ///     EmailAddress::from_str("name@example.org").unwrap().to_uri(),
+    ///     String::from("mailto:name@example.org")
     /// );
     /// ```
     ///
     </span><span class="kw">pub fn </span>to_uri(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span>encoded = encode(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>);
-        <span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, MAILTO_URI_PREFIX, encoded)
+        <span class="macro">format!</span>(<span class="string">"{}{}"</span>, MAILTO_URI_PREFIX, encoded)
     }
 
     <span class="doccomment">///
@@ -1732,13 +1733,13 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     /// use std::str::FromStr;
     ///
     /// assert_eq!(
-    ///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().to_display(&quot;My Name&quot;),
-    ///     String::from(&quot;My Name &lt;name@example.org&gt;&quot;)
+    ///     EmailAddress::from_str("name@example.org").unwrap().to_display("My Name"),
+    ///     String::from("My Name &lt;name@example.org&gt;")
     /// );
     /// ```
     ///
     </span><span class="kw">pub fn </span>to_display(<span class="kw-2">&amp;</span><span class="self">self</span>, display_name: <span class="kw-2">&amp;</span>str) -&gt; String {
-        <span class="macro">format!</span>(<span class="string">&quot;{} &lt;{}&gt;&quot;</span>, display_name, <span class="self">self</span>)
+        <span class="macro">format!</span>(<span class="string">"{} &lt;{}&gt;"</span>, display_name, <span class="self">self</span>)
     }
 
     <span class="doccomment">///
@@ -1750,8 +1751,8 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     /// use std::str::FromStr;
     ///
     /// assert_eq!(
-    ///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().local_part(),
-    ///     String::from(&quot;name&quot;)
+    ///     EmailAddress::from_str("name@example.org").unwrap().local_part(),
+    ///     String::from("name")
     /// );
     /// ```
     ///
@@ -1769,8 +1770,8 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     /// use std::str::FromStr;
     ///
     /// assert_eq!(
-    ///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().domain(),
-    ///     String::from(&quot;example.org&quot;)
+    ///     EmailAddress::from_str("name@example.org").unwrap().domain(),
+    ///     String::from("example.org")
     /// );
     /// ```
     ///
@@ -1795,7 +1796,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     <span class="kw">let </span><span class="kw-2">mut </span>result = String::new();
     <span class="kw">for </span>c <span class="kw">in </span>address.chars() {
         <span class="kw">if </span>is_uri_reserved(c) {
-            result.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;%{:02X}&quot;</span>, c <span class="kw">as </span>u8))
+            result.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"%{:02X}"</span>, c <span class="kw">as </span>u8))
         } <span class="kw">else </span>{
             result.push(c);
         }
@@ -1804,31 +1805,31 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 }
 
 <span class="kw">fn </span>is_uri_reserved(c: char) -&gt; bool {
-    <span class="comment">// No need to encode &#39;@&#39; as this is allowed in the email scheme.
-    </span>c == <span class="string">&#39;!&#39;
-        </span>|| c == <span class="string">&#39;#&#39;
-        </span>|| c == <span class="string">&#39;$&#39;
-        </span>|| c == <span class="string">&#39;%&#39;
-        </span>|| c == <span class="string">&#39;&amp;&#39;
-        </span>|| c == <span class="string">&#39;\&#39;&#39;
-        </span>|| c == <span class="string">&#39;(&#39;
-        </span>|| c == <span class="string">&#39;)&#39;
-        </span>|| c == <span class="string">&#39;*&#39;
-        </span>|| c == <span class="string">&#39;+&#39;
-        </span>|| c == <span class="string">&#39;,&#39;
-        </span>|| c == <span class="string">&#39;/&#39;
-        </span>|| c == <span class="string">&#39;:&#39;
-        </span>|| c == <span class="string">&#39;;&#39;
-        </span>|| c == <span class="string">&#39;=&#39;
-        </span>|| c == <span class="string">&#39;?&#39;
-        </span>|| c == <span class="string">&#39;[&#39;
-        </span>|| c == <span class="string">&#39;]&#39;
+    <span class="comment">// No need to encode '@' as this is allowed in the email scheme.
+    </span>c == <span class="string">'!'
+        </span>|| c == <span class="string">'#'
+        </span>|| c == <span class="string">'$'
+        </span>|| c == <span class="string">'%'
+        </span>|| c == <span class="string">'&amp;'
+        </span>|| c == <span class="string">'\''
+        </span>|| c == <span class="string">'('
+        </span>|| c == <span class="string">')'
+        </span>|| c == <span class="string">'*'
+        </span>|| c == <span class="string">'+'
+        </span>|| c == <span class="string">','
+        </span>|| c == <span class="string">'/'
+        </span>|| c == <span class="string">':'
+        </span>|| c == <span class="string">';'
+        </span>|| c == <span class="string">'='
+        </span>|| c == <span class="string">'?'
+        </span>|| c == <span class="string">'['
+        </span>|| c == <span class="string">']'
 </span>}
 
 <span class="kw">fn </span>parse_address(address: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;EmailAddress, Error&gt; {
     <span class="comment">//
-    // Deals with cases of &#39;@&#39; in `local-part`, if it is quoted they are legal, if
-    // not then they&#39;ll return an `InvalidCharacter` error later.
+    // Deals with cases of '@' in `local-part`, if it is quoted they are legal, if
+    // not then they'll return an `InvalidCharacter` error later.
     //
     </span><span class="kw">let </span>(left, right) = split_at(address)<span class="question-mark">?</span>;
     parse_local_part(left)<span class="question-mark">?</span>;
@@ -1909,42 +1910,42 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 
 </span><span class="kw">fn </span>is_atext(c: char) -&gt; bool {
     c.is_alphanumeric()
-        || c == <span class="string">&#39;!&#39;
-        </span>|| c == <span class="string">&#39;#&#39;
-        </span>|| c == <span class="string">&#39;$&#39;
-        </span>|| c == <span class="string">&#39;%&#39;
-        </span>|| c == <span class="string">&#39;&amp;&#39;
-        </span>|| c == <span class="string">&#39;\&#39;&#39;
-        </span>|| c == <span class="string">&#39;*&#39;
-        </span>|| c == <span class="string">&#39;+&#39;
-        </span>|| c == <span class="string">&#39;-&#39;
-        </span>|| c == <span class="string">&#39;/&#39;
-        </span>|| c == <span class="string">&#39;=&#39;
-        </span>|| c == <span class="string">&#39;?&#39;
-        </span>|| c == <span class="string">&#39;^&#39;
-        </span>|| c == <span class="string">&#39;_&#39;
-        </span>|| c == <span class="string">&#39;`&#39;
-        </span>|| c == <span class="string">&#39;{&#39;
-        </span>|| c == <span class="string">&#39;|&#39;
-        </span>|| c == <span class="string">&#39;}&#39;
-        </span>|| c == <span class="string">&#39;~&#39;
+        || c == <span class="string">'!'
+        </span>|| c == <span class="string">'#'
+        </span>|| c == <span class="string">'$'
+        </span>|| c == <span class="string">'%'
+        </span>|| c == <span class="string">'&amp;'
+        </span>|| c == <span class="string">'\''
+        </span>|| c == <span class="string">'*'
+        </span>|| c == <span class="string">'+'
+        </span>|| c == <span class="string">'-'
+        </span>|| c == <span class="string">'/'
+        </span>|| c == <span class="string">'='
+        </span>|| c == <span class="string">'?'
+        </span>|| c == <span class="string">'^'
+        </span>|| c == <span class="string">'_'
+        </span>|| c == <span class="string">'`'
+        </span>|| c == <span class="string">'{'
+        </span>|| c == <span class="string">'|'
+        </span>|| c == <span class="string">'}'
+        </span>|| c == <span class="string">'~'
         </span>|| is_uchar(c)
 }
 
 <span class="attr">#[allow(dead_code)]
 </span><span class="kw">fn </span>is_special(c: char) -&gt; bool {
-    c == <span class="string">&#39;(&#39;
-        </span>|| c == <span class="string">&#39;)&#39;
-        </span>|| c == <span class="string">&#39;&lt;&#39;
-        </span>|| c == <span class="string">&#39;&gt;&#39;
-        </span>|| c == <span class="string">&#39;[&#39;
-        </span>|| c == <span class="string">&#39;]&#39;
-        </span>|| c == <span class="string">&#39;:&#39;
-        </span>|| c == <span class="string">&#39;;&#39;
-        </span>|| c == <span class="string">&#39;@&#39;
-        </span>|| c == <span class="string">&#39;\\&#39;
-        </span>|| c == <span class="string">&#39;,&#39;
-        </span>|| c == <span class="string">&#39;.&#39;
+    c == <span class="string">'('
+        </span>|| c == <span class="string">')'
+        </span>|| c == <span class="string">'&lt;'
+        </span>|| c == <span class="string">'&gt;'
+        </span>|| c == <span class="string">'['
+        </span>|| c == <span class="string">']'
+        </span>|| c == <span class="string">':'
+        </span>|| c == <span class="string">';'
+        </span>|| c == <span class="string">'@'
+        </span>|| c == <span class="string">'\\'
+        </span>|| c == <span class="string">','
+        </span>|| c == <span class="string">'.'
         </span>|| c == DQUOTE
 }
 
@@ -1961,7 +1962,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 }
 
 <span class="kw">fn </span>is_vchar(c: char) -&gt; bool {
-    (<span class="string">&#39;\x21&#39;</span>..=<span class="string">&#39;\x7E&#39;</span>).contains(<span class="kw-2">&amp;</span>c)
+    (<span class="string">'\x21'</span>..=<span class="string">'\x7E'</span>).contains(<span class="kw-2">&amp;</span>c)
 }
 
 <span class="kw">fn </span>is_wsp(c: char) -&gt; bool {
@@ -1969,7 +1970,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 }
 
 <span class="kw">fn </span>is_qtext_char(c: char) -&gt; bool {
-    c == <span class="string">&#39;\x21&#39; </span>|| (<span class="string">&#39;\x23&#39;</span>..=<span class="string">&#39;\x5B&#39;</span>).contains(<span class="kw-2">&amp;</span>c) || (<span class="string">&#39;\x5D&#39;</span>..=<span class="string">&#39;\x7E&#39;</span>).contains(<span class="kw-2">&amp;</span>c) || is_uchar(c)
+    c == <span class="string">'\x21' </span>|| (<span class="string">'\x23'</span>..=<span class="string">'\x5B'</span>).contains(<span class="kw-2">&amp;</span>c) || (<span class="string">'\x5D'</span>..=<span class="string">'\x7E'</span>).contains(<span class="kw-2">&amp;</span>c) || is_uchar(c)
 }
 
 <span class="kw">fn </span>is_qcontent(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
@@ -1990,12 +1991,12 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 </span>}
 
 <span class="kw">fn </span>is_dtext_char(c: char) -&gt; bool {
-    (<span class="string">&#39;\x21&#39;</span>..=<span class="string">&#39;\x5A&#39;</span>).contains(<span class="kw-2">&amp;</span>c) || (<span class="string">&#39;\x5E&#39;</span>..=<span class="string">&#39;\x7E&#39;</span>).contains(<span class="kw-2">&amp;</span>c)
+    (<span class="string">'\x21'</span>..=<span class="string">'\x5A'</span>).contains(<span class="kw-2">&amp;</span>c) || (<span class="string">'\x5E'</span>..=<span class="string">'\x7E'</span>).contains(<span class="kw-2">&amp;</span>c)
 }
 
 <span class="attr">#[allow(dead_code)]
 </span><span class="kw">fn </span>is_ctext_char(c: char) -&gt; bool {
-    (c &gt;= <span class="string">&#39;\x21&#39; </span>&amp;&amp; c == <span class="string">&#39;\x27&#39;</span>) || (<span class="string">&#39;\x2A&#39;</span>..=<span class="string">&#39;\x5B&#39;</span>).contains(<span class="kw-2">&amp;</span>c) || (<span class="string">&#39;\x5D&#39;</span>..=<span class="string">&#39;\x7E&#39;</span>).contains(<span class="kw-2">&amp;</span>c)
+    (c &gt;= <span class="string">'\x21' </span>&amp;&amp; c == <span class="string">'\x27'</span>) || (<span class="string">'\x2A'</span>..=<span class="string">'\x5B'</span>).contains(<span class="kw-2">&amp;</span>c) || (<span class="string">'\x5D'</span>..=<span class="string">'\x7E'</span>).contains(<span class="kw-2">&amp;</span>c)
 }
 
 <span class="attr">#[allow(dead_code)]
@@ -2013,195 +2014,195 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 
     <span class="kw">fn </span>is_valid(address: <span class="kw-2">&amp;</span>str, test_case: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(test_case) = test_case {
-            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; test case: {}&quot;</span>, test_case);
-            <span class="macro">println!</span>(<span class="string">&quot;     &lt;{}&gt;&quot;</span>, address);
+            <span class="macro">println!</span>(<span class="string">"&gt;&gt; test case: {}"</span>, test_case);
+            <span class="macro">println!</span>(<span class="string">"     &lt;{}&gt;"</span>, address);
         } <span class="kw">else </span>{
-            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; &lt;{}&gt;&quot;</span>, address);
+            <span class="macro">println!</span>(<span class="string">"&gt;&gt; &lt;{}&gt;"</span>, address);
         }
         <span class="macro">assert!</span>(EmailAddress::is_valid(address));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_01() {
-        is_valid(<span class="string">&quot;simple@example.com&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"simple@example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_02() {
-        is_valid(<span class="string">&quot;very.common@example.com&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"very.common@example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_03() {
-        is_valid(<span class="string">&quot;disposable.style.email.with+symbol@example.com&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"disposable.style.email.with+symbol@example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_04() {
-        is_valid(<span class="string">&quot;other.email-with-hyphen@example.com&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"other.email-with-hyphen@example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_05() {
-        is_valid(<span class="string">&quot;fully-qualified-domain@example.com&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"fully-qualified-domain@example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_06() {
         is_valid(
-            <span class="string">&quot;user.name+tag+sorting@example.com&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&quot; may go to user.name@example.com inbox depending on mail server&quot;</span>),
+            <span class="string">"user.name+tag+sorting@example.com"</span>,
+            <span class="prelude-val">Some</span>(<span class="string">" may go to user.name@example.com inbox depending on mail server"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_07() {
-        is_valid(<span class="string">&quot;x@example.com&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;one-letter local-part&quot;</span>));
+        is_valid(<span class="string">"x@example.com"</span>, <span class="prelude-val">Some</span>(<span class="string">"one-letter local-part"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_08() {
-        is_valid(<span class="string">&quot;example-indeed@strange-example.com&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"example-indeed@strange-example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_09() {
-        is_valid(<span class="string">&quot;admin@mailserver1&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;local domain name with no TLD, although ICANN highly discourages dotless email addresses&quot;</span>));
+        is_valid(<span class="string">"admin@mailserver1"</span>, <span class="prelude-val">Some</span>(<span class="string">"local domain name with no TLD, although ICANN highly discourages dotless email addresses"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_10() {
         is_valid(
-            <span class="string">&quot;example@s.example&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;see the List of Internet top-level domains&quot;</span>),
+            <span class="string">"example@s.example"</span>,
+            <span class="prelude-val">Some</span>(<span class="string">"see the List of Internet top-level domains"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_11() {
-        is_valid(<span class="string">&quot;\&quot; \&quot;@example.org&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;space between the quotes&quot;</span>));
+        is_valid(<span class="string">"\" \"@example.org"</span>, <span class="prelude-val">Some</span>(<span class="string">"space between the quotes"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_12() {
-        is_valid(<span class="string">&quot;\&quot;john..doe\&quot;@example.org&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;quoted double dot&quot;</span>));
+        is_valid(<span class="string">"\"john..doe\"@example.org"</span>, <span class="prelude-val">Some</span>(<span class="string">"quoted double dot"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_13() {
         is_valid(
-            <span class="string">&quot;mailhost!username@example.org&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;bangified host route used for uucp mailers&quot;</span>),
+            <span class="string">"mailhost!username@example.org"</span>,
+            <span class="prelude-val">Some</span>(<span class="string">"bangified host route used for uucp mailers"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_14() {
         is_valid(
-            <span class="string">&quot;user%example.com@example.org&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;% escaped mail route to user@example.com via example.org&quot;</span>),
+            <span class="string">"user%example.com@example.org"</span>,
+            <span class="prelude-val">Some</span>(<span class="string">"% escaped mail route to user@example.com via example.org"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_15() {
-        is_valid(<span class="string">&quot;jsmith@[192.168.2.1]&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"jsmith@[192.168.2.1]"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_16() {
-        is_valid(<span class="string">&quot;jsmith@[IPv6:2001:db8::1]&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"jsmith@[IPv6:2001:db8::1]"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_17() {
-        is_valid(<span class="string">&quot;user+mailbox/department=shipping@example.com&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"user+mailbox/department=shipping@example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_18() {
-        is_valid(<span class="string">&quot;!#$%&amp;&#39;*+-/=?^_`.{|}~@example.com&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"!#$%&amp;'*+-/=?^_`.{|}~@example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_19() {
-        <span class="comment">// &#39;@&#39; is allowed in a quoted local part. Sorry.
-        </span>is_valid(<span class="string">&quot;\&quot;Abc@def\&quot;@example.com&quot;</span>, <span class="prelude-val">None</span>);
+        <span class="comment">// '@' is allowed in a quoted local part. Sorry.
+        </span>is_valid(<span class="string">"\"Abc@def\"@example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_20() {
-        is_valid(<span class="string">&quot;\&quot;Joe.\\\\Blow\&quot;@example.com&quot;</span>, <span class="prelude-val">None</span>);
+        is_valid(<span class="string">"\"Joe.\\\\Blow\"@example.com"</span>, <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_21() {
-        is_valid(<span class="string">&quot;用户@例子.广告&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Chinese&quot;</span>));
+        is_valid(<span class="string">"用户@例子.广告"</span>, <span class="prelude-val">Some</span>(<span class="string">"Chinese"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_22() {
-        is_valid(<span class="string">&quot;अजय@डाटा.भारत&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Hindi&quot;</span>));
+        is_valid(<span class="string">"अजय@डाटा.भारत"</span>, <span class="prelude-val">Some</span>(<span class="string">"Hindi"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_23() {
-        is_valid(<span class="string">&quot;квіточка@пошта.укр&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Ukranian&quot;</span>));
+        is_valid(<span class="string">"квіточка@пошта.укр"</span>, <span class="prelude-val">Some</span>(<span class="string">"Ukranian"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_24() {
-        is_valid(<span class="string">&quot;θσερ@εχαμπλε.ψομ&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Greek&quot;</span>));
+        is_valid(<span class="string">"θσερ@εχαμπλε.ψομ"</span>, <span class="prelude-val">Some</span>(<span class="string">"Greek"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_25() {
-        is_valid(<span class="string">&quot;Dörte@Sörensen.example.com&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;German&quot;</span>));
+        is_valid(<span class="string">"Dörte@Sörensen.example.com"</span>, <span class="prelude-val">Some</span>(<span class="string">"German"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_good_examples_from_wikipedia_26() {
-        is_valid(<span class="string">&quot;коля@пример.рф&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Russian&quot;</span>));
+        is_valid(<span class="string">"коля@пример.рф"</span>, <span class="prelude-val">Some</span>(<span class="string">"Russian"</span>));
     }
 
     <span class="comment">// ------------------------------------------------------------------------------------------------
 
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>test_to_strings() {
-        <span class="kw">let </span>email = EmailAddress::from_str(<span class="string">&quot;коля@пример.рф&quot;</span>).unwrap();
+        <span class="kw">let </span>email = EmailAddress::from_str(<span class="string">"коля@пример.рф"</span>).unwrap();
 
-        <span class="macro">assert_eq!</span>(String::from(email.clone()), String::from(<span class="string">&quot;коля@пример.рф&quot;</span>));
+        <span class="macro">assert_eq!</span>(String::from(email.clone()), String::from(<span class="string">"коля@пример.рф"</span>));
 
-        <span class="macro">assert_eq!</span>(email.to_string(), String::from(<span class="string">&quot;коля@пример.рф&quot;</span>));
+        <span class="macro">assert_eq!</span>(email.to_string(), String::from(<span class="string">"коля@пример.рф"</span>));
 
-        <span class="macro">assert_eq!</span>(email.as_ref(), <span class="string">&quot;коля@пример.рф&quot;</span>);
+        <span class="macro">assert_eq!</span>(email.as_ref(), <span class="string">"коля@пример.рф"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_to_display() {
-        <span class="kw">let </span>email = EmailAddress::from_str(<span class="string">&quot;коля@пример.рф&quot;</span>).unwrap();
+        <span class="kw">let </span>email = EmailAddress::from_str(<span class="string">"коля@пример.рф"</span>).unwrap();
 
         <span class="macro">assert_eq!</span>(
-            email.to_display(<span class="string">&quot;коля&quot;</span>),
-            String::from(<span class="string">&quot;коля &lt;коля@пример.рф&gt;&quot;</span>)
+            email.to_display(<span class="string">"коля"</span>),
+            String::from(<span class="string">"коля &lt;коля@пример.рф&gt;"</span>)
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_touri() {
-        <span class="kw">let </span>email = EmailAddress::from_str(<span class="string">&quot;коля@пример.рф&quot;</span>).unwrap();
+        <span class="kw">let </span>email = EmailAddress::from_str(<span class="string">"коля@пример.рф"</span>).unwrap();
 
-        <span class="macro">assert_eq!</span>(email.to_uri(), String::from(<span class="string">&quot;mailto:коля@пример.рф&quot;</span>));
+        <span class="macro">assert_eq!</span>(email.to_uri(), String::from(<span class="string">"mailto:коля@пример.рф"</span>));
     }
 
     <span class="comment">// ------------------------------------------------------------------------------------------------
 
     </span><span class="kw">fn </span>expect(address: <span class="kw-2">&amp;</span>str, error: Error, test_case: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(test_case) = test_case {
-            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; test case: {}&quot;</span>, test_case);
-            <span class="macro">println!</span>(<span class="string">&quot;     &lt;{}&gt;, expecting {:?}&quot;</span>, address, error);
+            <span class="macro">println!</span>(<span class="string">"&gt;&gt; test case: {}"</span>, test_case);
+            <span class="macro">println!</span>(<span class="string">"     &lt;{}&gt;, expecting {:?}"</span>, address, error);
         } <span class="kw">else </span>{
-            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; &lt;{}&gt;, expecting {:?}&quot;</span>, address, error);
+            <span class="macro">println!</span>(<span class="string">"&gt;&gt; &lt;{}&gt;, expecting {:?}"</span>, address, error);
         }
         <span class="macro">assert_eq!</span>(EmailAddress::from_str(address), error.into());
     }
@@ -2209,96 +2210,96 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_00() {
         expect(
-            <span class="string">&quot;Abc.example.com&quot;</span>,
+            <span class="string">"Abc.example.com"</span>,
             Error::MissingSeparator,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;no @ character&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="string">"no @ character"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_01() {
         expect(
-            <span class="string">&quot;A@b@c@example.com&quot;</span>,
+            <span class="string">"A@b@c@example.com"</span>,
             Error::InvalidCharacter,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;only one @ is allowed outside quotation marks&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="string">"only one @ is allowed outside quotation marks"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_02() {
-        expect(<span class="string">&quot;a\&quot;b(c)d,e:f;g&lt;h&gt;i[j\\k]l@example.com&quot;</span>,
+        expect(<span class="string">"a\"b(c)d,e:f;g&lt;h&gt;i[j\\k]l@example.com"</span>,
             Error::InvalidCharacter,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;none of the special characters in this local-part are allowed outside quotation marks&quot;</span>)
+        <span class="prelude-val">Some</span>(<span class="string">"none of the special characters in this local-part are allowed outside quotation marks"</span>)
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_03() {
         expect(
-            <span class="string">&quot;just\&quot;not\&quot;right@example.com&quot;</span>,
+            <span class="string">"just\"not\"right@example.com"</span>,
             Error::InvalidCharacter,
             <span class="prelude-val">Some</span>(
-                <span class="string">&quot;quoted strings must be dot separated or the only element making up the local-part&quot;</span>,
+                <span class="string">"quoted strings must be dot separated or the only element making up the local-part"</span>,
             ),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_04() {
-        expect(<span class="string">&quot;this is\&quot;not\\allowed@example.com&quot;</span>,
+        expect(<span class="string">"this is\"not\\allowed@example.com"</span>,
             Error::InvalidCharacter,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;spaces, quotes, and backslashes may only exist when within quoted strings and preceded by a backslash&quot;</span>)
+        <span class="prelude-val">Some</span>(<span class="string">"spaces, quotes, and backslashes may only exist when within quoted strings and preceded by a backslash"</span>)
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_05() {
         <span class="comment">// ()
-        </span>expect(<span class="string">&quot;this\\ still\&quot;not\\allowed@example.com&quot;</span>,
+        </span>expect(<span class="string">"this\\ still\"not\\allowed@example.com"</span>,
             Error::InvalidCharacter,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;even if escaped (preceded by a backslash), spaces, quotes, and backslashes must still be contained by quotes&quot;</span>)
+        <span class="prelude-val">Some</span>(<span class="string">"even if escaped (preceded by a backslash), spaces, quotes, and backslashes must still be contained by quotes"</span>)
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_06() {
         expect(
-            <span class="string">&quot;1234567890123456789012345678901234567890123456789012345678901234+x@example.com&quot;</span>,
+            <span class="string">"1234567890123456789012345678901234567890123456789012345678901234+x@example.com"</span>,
             Error::LocalPartTooLong,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;local part is longer than 64 characters&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="string">"local part is longer than 64 characters"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_example_01() {
         expect(
-            <span class="string">&quot;foo@example.v1234567890123456789012345678901234567890123456789012345678901234v.com&quot;</span>,
+            <span class="string">"foo@example.v1234567890123456789012345678901234567890123456789012345678901234v.com"</span>,
             Error::SubDomainTooLong,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;domain part is longer than 64 characters&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="string">"domain part is longer than 64 characters"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_example_02() {
         expect(
-            <span class="string">&quot;@example.com&quot;</span>,
+            <span class="string">"@example.com"</span>,
             Error::LocalPartEmpty,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;local-part is empty&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="string">"local-part is empty"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_example_03() {
         expect(
-            <span class="string">&quot;\&quot;\&quot;@example.com&quot;</span>,
+            <span class="string">"\"\"@example.com"</span>,
             Error::LocalPartEmpty,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;local-part is empty&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="string">"local-part is empty"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bad_example_04() {
-        expect(<span class="string">&quot;simon@&quot;</span>, Error::DomainEmpty, <span class="prelude-val">Some</span>(<span class="string">&quot;domain is empty&quot;</span>));
+        expect(<span class="string">"simon@"</span>, Error::DomainEmpty, <span class="prelude-val">Some</span>(<span class="string">"domain is empty"</span>));
     }
 
     <span class="comment">// make sure Error impl Send + Sync
@@ -2314,20 +2315,20 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     <span class="attr">#[test]
     </span><span class="comment">// BUG: https://github.com/johnstonskj/rust-email_address/issues/11
     </span><span class="kw">fn </span>test_eq_name_case_sensitive_local() {
-        <span class="kw">let </span>email = EmailAddress::new_unchecked(<span class="string">&quot;simon@example.com&quot;</span>);
+        <span class="kw">let </span>email = EmailAddress::new_unchecked(<span class="string">"simon@example.com"</span>);
 
-        <span class="macro">assert_eq!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;simon@example.com&quot;</span>));
-        <span class="macro">assert_ne!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;Simon@example.com&quot;</span>));
-        <span class="macro">assert_ne!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;simoN@example.com&quot;</span>));
+        <span class="macro">assert_eq!</span>(email, EmailAddress::new_unchecked(<span class="string">"simon@example.com"</span>));
+        <span class="macro">assert_ne!</span>(email, EmailAddress::new_unchecked(<span class="string">"Simon@example.com"</span>));
+        <span class="macro">assert_ne!</span>(email, EmailAddress::new_unchecked(<span class="string">"simoN@example.com"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="comment">// BUG: https://github.com/johnstonskj/rust-email_address/issues/11
     </span><span class="kw">fn </span>test_eq_name_case_insensitive_domain() {
-        <span class="kw">let </span>email = EmailAddress::new_unchecked(<span class="string">&quot;simon@example.com&quot;</span>);
+        <span class="kw">let </span>email = EmailAddress::new_unchecked(<span class="string">"simon@example.com"</span>);
 
-        <span class="macro">assert_eq!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;simon@Example.com&quot;</span>));
-        <span class="macro">assert_eq!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;simon@example.COM&quot;</span>));
+        <span class="macro">assert_eq!</span>(email, EmailAddress::new_unchecked(<span class="string">"simon@Example.com"</span>));
+        <span class="macro">assert_eq!</span>(email, EmailAddress::new_unchecked(<span class="string">"simon@example.COM"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

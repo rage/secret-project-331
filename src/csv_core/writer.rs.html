@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-core-0.1.11/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-core-0.1.11/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1105,11 +1106,11 @@
         <span class="kw">let </span>wtr = Writer {
             state: WriterState::default(),
             requires_quotes: [<span class="bool-val">false</span>; <span class="number">256</span>],
-            delimiter: <span class="string">b&#39;,&#39;</span>,
-            term: Terminator::Any(<span class="string">b&#39;\n&#39;</span>),
+            delimiter: <span class="string">b','</span>,
+            term: Terminator::Any(<span class="string">b'\n'</span>),
             style: QuoteStyle::default(),
-            quote: <span class="string">b&#39;&quot;&#39;</span>,
-            escape: <span class="string">b&#39;\\&#39;</span>,
+            quote: <span class="string">b'"'</span>,
+            escape: <span class="string">b'\\'</span>,
             double_quote: <span class="bool-val">true</span>,
             comment: <span class="prelude-val">None</span>,
         };
@@ -1129,13 +1130,13 @@
             </span>wtr.requires_quotes[<span class="self">self</span>.wtr.escape <span class="kw">as </span>usize] = <span class="bool-val">true</span>;
         }
         <span class="kw">match </span><span class="self">self</span>.wtr.term {
-            CRLF | Any(<span class="string">b&#39;\n&#39;</span>) | Any(<span class="string">b&#39;\r&#39;</span>) =&gt; {
+            CRLF | Any(<span class="string">b'\n'</span>) | Any(<span class="string">b'\r'</span>) =&gt; {
                 <span class="comment">// This is a bit hokey. By default, the record terminator
-                // is &#39;\n&#39;, but we still need to quote &#39;\r&#39; (even if our
-                // terminator is only `\n`) because the reader interprets &#39;\r&#39;
+                // is '\n', but we still need to quote '\r' (even if our
+                // terminator is only `\n`) because the reader interprets '\r'
                 // as a record terminator by default.
-                </span>wtr.requires_quotes[<span class="string">b&#39;\r&#39; </span><span class="kw">as </span>usize] = <span class="bool-val">true</span>;
-                wtr.requires_quotes[<span class="string">b&#39;\n&#39; </span><span class="kw">as </span>usize] = <span class="bool-val">true</span>;
+                </span>wtr.requires_quotes[<span class="string">b'\r' </span><span class="kw">as </span>usize] = <span class="bool-val">true</span>;
+                wtr.requires_quotes[<span class="string">b'\n' </span><span class="kw">as </span>usize] = <span class="bool-val">true</span>;
             }
             Any(b) =&gt; {
                 wtr.requires_quotes[b <span class="kw">as </span>usize] = <span class="bool-val">true</span>;
@@ -1154,7 +1155,7 @@
 
     <span class="doccomment">/// The field delimiter to use when writing CSV.
     ///
-    /// The default is `b&#39;,&#39;`.
+    /// The default is `b','`.
     </span><span class="kw">pub fn </span>delimiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, delimiter: u8) -&gt; <span class="kw-2">&amp;mut </span>WriterBuilder {
         <span class="self">self</span>.wtr.delimiter = delimiter;
         <span class="self">self
@@ -1185,7 +1186,7 @@
 
     <span class="doccomment">/// The quote character to use when writing CSV.
     ///
-    /// The default value is `b&#39;&quot;&#39;`.
+    /// The default value is `b'"'`.
     </span><span class="kw">pub fn </span>quote(<span class="kw-2">&amp;mut </span><span class="self">self</span>, quote: u8) -&gt; <span class="kw-2">&amp;mut </span>WriterBuilder {
         <span class="self">self</span>.wtr.quote = quote;
         <span class="self">self
@@ -1195,7 +1196,7 @@
     ///
     /// This is only used when `double_quote` is set to `false`.
     ///
-    /// The default value is `b&#39;\\&#39;`.
+    /// The default value is `b'\\'`.
     </span><span class="kw">pub fn </span>escape(<span class="kw-2">&amp;mut </span><span class="self">self</span>, escape: u8) -&gt; <span class="kw-2">&amp;mut </span>WriterBuilder {
         <span class="self">self</span>.wtr.escape = escape;
         <span class="self">self
@@ -1204,7 +1205,7 @@
     <span class="doccomment">/// The quoting escape mechanism to use when writing CSV.
     ///
     /// When enabled (which is the default), quotes are escaped by doubling
-    /// them. e.g., `&quot;` escapes to `&quot;&quot;`.
+    /// them. e.g., `"` escapes to `""`.
     ///
     /// When disabled, quotes are escaped with the escape character (which
     /// is `\\` by default).
@@ -1253,14 +1254,14 @@
 ///
 /// # RFC 4180
 ///
-/// This writer conforms to RFC 4180 with one exception: it doesn&#39;t guarantee
+/// This writer conforms to RFC 4180 with one exception: it doesn't guarantee
 /// that all records written are of the same length. Instead, the onus is on
 /// the caller to ensure that all records written are of the same length.
 ///
 /// Note that the default configuration of a `Writer` uses `\n` for record
 /// terminators instead of `\r\n` as specified by RFC 4180. Use the
 /// `terminator` method on `WriterBuilder` to set the terminator to `\r\n` if
-/// it&#39;s desired.
+/// it's desired.
 </span><span class="kw">pub struct </span>Writer {
     state: WriterState,
     requires_quotes: [bool; <span class="number">256</span>],
@@ -1295,25 +1296,25 @@
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Writer {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;Writer&quot;</span>)
-            .field(<span class="string">&quot;state&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.state)
-            .field(<span class="string">&quot;delimiter&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.delimiter)
-            .field(<span class="string">&quot;term&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.term)
-            .field(<span class="string">&quot;style&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.style)
-            .field(<span class="string">&quot;quote&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.quote)
-            .field(<span class="string">&quot;escape&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.escape)
-            .field(<span class="string">&quot;double_quote&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.double_quote)
+        f.debug_struct(<span class="string">"Writer"</span>)
+            .field(<span class="string">"state"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.state)
+            .field(<span class="string">"delimiter"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.delimiter)
+            .field(<span class="string">"term"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.term)
+            .field(<span class="string">"style"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.style)
+            .field(<span class="string">"quote"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.quote)
+            .field(<span class="string">"escape"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.escape)
+            .field(<span class="string">"double_quote"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.double_quote)
             .finish()
     }
 }
 
 <span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">struct </span>WriterState {
-    <span class="doccomment">/// This is set whenever we&#39;ve begun writing the contents of a field, even
+    <span class="doccomment">/// This is set whenever we've begun writing the contents of a field, even
     /// if the contents are empty. We use it to avoid re-computing whether
     /// quotes are necessary.
     </span>in_field: bool,
-    <span class="doccomment">/// This is set whenever we&#39;ve started writing a field that is enclosed in
+    <span class="doccomment">/// This is set whenever we've started writing a field that is enclosed in
     /// quotes. When the writer is finished, or if a delimiter or terminator
     /// are written, then a closing quote is inserted when this is true.
     </span>quoting: bool,
@@ -1361,7 +1362,7 @@
     }
 
     <span class="doccomment">/// Write a single CSV field from `input` to `output` while employing this
-    /// writer&#39;s quoting style.
+    /// writer's quoting style.
     ///
     /// This returns the result of writing field data, in addition to the
     /// number of bytes consumed from `input` and the number of bytes
@@ -1379,7 +1380,7 @@
     /// field. Subsequent fields can be written by calling either `delimiter`
     /// or `terminator` first.
     ///
-    /// If this writer&#39;s quoting style is `QuoteStyle::Necessary`, then `input`
+    /// If this writer's quoting style is `QuoteStyle::Necessary`, then `input`
     /// should contain the *entire* field. Otherwise, whether the field needs
     /// to be quoted or not cannot be determined.
     </span><span class="kw">pub fn </span>field(
@@ -1479,7 +1480,7 @@
             <span class="self">self</span>.state.quoting = <span class="bool-val">false</span>;
         }
         <span class="kw">let </span>(res, o) = <span class="kw">match </span><span class="self">self</span>.term {
-            Terminator::CRLF =&gt; write_pessimistic(<span class="kw-2">&amp;</span>[<span class="string">b&#39;\r&#39;</span>, <span class="string">b&#39;\n&#39;</span>], output),
+            Terminator::CRLF =&gt; write_pessimistic(<span class="kw-2">&amp;</span>[<span class="string">b'\r'</span>, <span class="string">b'\n'</span>], output),
             Terminator::Any(b) =&gt; write_pessimistic(<span class="kw-2">&amp;</span>[b], output),
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
@@ -1513,9 +1514,9 @@
     }
 
     <span class="doccomment">/// Returns true if and only if the given byte corresponds to a special
-    /// byte in this CSV writer&#39;s configuration.
+    /// byte in this CSV writer's configuration.
     ///
-    /// Note that this does **not** take into account this writer&#39;s quoting
+    /// Note that this does **not** take into account this writer's quoting
     /// style.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_special_byte(<span class="kw-2">&amp;</span><span class="self">self</span>, b: u8) -&gt; bool {
@@ -1601,7 +1602,7 @@
         <span class="prelude-val">Ok</span>(s) =&gt; s,
     };
     <span class="comment">// I suppose this could be faster if we wrote validators of numbers instead
-    // of using the actual parser, but that&#39;s probably a lot of work for a bit
+    // of using the actual parser, but that's probably a lot of work for a bit
     // of a niche feature.
     </span>!s.parse::&lt;f64&gt;().is_ok() &amp;&amp; !s.parse::&lt;i128&gt;().is_ok()
 }
@@ -1629,7 +1630,7 @@
 /// otherwise, quotes are escaped with the `escape` byte.
 ///
 /// N.B. This function is provided for low level usage. It is called
-/// automatically if you&#39;re using a `Writer`.
+/// automatically if you're using a `Writer`.
 </span><span class="kw">pub fn </span>quote(
     <span class="kw-2">mut </span>input: <span class="kw-2">&amp;</span>[u8],
     <span class="kw-2">mut </span>output: <span class="kw-2">&amp;mut </span>[u8],
@@ -1743,10 +1744,10 @@
             <span class="macro-nonterminal">$expect_res</span>:expr, <span class="macro-nonterminal">$expect_data</span>:expr
         ) =&gt; {{
             <span class="kw">let </span>(res, i, o) = <span class="macro-nonterminal">$wtr</span>.field(<span class="macro-nonterminal">$inp</span>, <span class="macro-nonterminal">$out</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_res</span>, res, <span class="string">&quot;result&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_in</span>, i, <span class="string">&quot;input&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_out</span>, o, <span class="string">&quot;output&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_data</span>, s(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$out</span>[..o]), <span class="string">&quot;data&quot;</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_res</span>, res, <span class="string">"result"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_in</span>, i, <span class="string">"input"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_out</span>, o, <span class="string">"output"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_data</span>, s(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$out</span>[..o]), <span class="string">"data"</span>);
         }};
     }
 
@@ -1756,9 +1757,9 @@
             <span class="macro-nonterminal">$expect_out</span>:expr, <span class="macro-nonterminal">$expect_res</span>:expr, <span class="macro-nonterminal">$expect_data</span>:expr
         ) =&gt; {{
             <span class="kw">let </span>(res, o) = <span class="macro-nonterminal">$wtr</span>.<span class="macro-nonterminal">$which</span>(<span class="macro-nonterminal">$out</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_res</span>, res, <span class="string">&quot;result&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_out</span>, o, <span class="string">&quot;output&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_data</span>, s(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$out</span>[..o]), <span class="string">&quot;data&quot;</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_res</span>, res, <span class="string">"result"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_out</span>, o, <span class="string">"output"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_data</span>, s(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$out</span>[..o]), <span class="string">"data"</span>);
         }};
     }
 
@@ -1768,10 +1769,10 @@
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;abc&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">&quot;abc&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"abc"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">"abc"</span>);
         n += <span class="number">3</span>;
 
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
     }
 
     <span class="attr">#[test]
@@ -1779,9 +1780,9 @@
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = Writer::new();
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;&quot;</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
-        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[..], <span class="number">3</span>, InputEmpty, <span class="string">&quot;\&quot;\&quot;\n&quot;</span>);
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">""</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
+        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[..], <span class="number">3</span>, InputEmpty, <span class="string">"\"\"\n"</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
     }
 
     <span class="attr">#[test]
@@ -1789,8 +1790,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = Writer::new();
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;&quot;</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">2</span>, InputEmpty, <span class="string">&quot;\&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">""</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">2</span>, InputEmpty, <span class="string">"\"\""</span>);
     }
 
     <span class="attr">#[test]
@@ -1798,10 +1799,10 @@
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = Writer::new();
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;&quot;</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
-        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[..], <span class="number">3</span>, InputEmpty, <span class="string">&quot;\&quot;\&quot;\n&quot;</span>);
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;&quot;</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">2</span>, InputEmpty, <span class="string">&quot;\&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">""</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
+        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[..], <span class="number">3</span>, InputEmpty, <span class="string">"\"\"\n"</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">""</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">2</span>, InputEmpty, <span class="string">"\"\""</span>);
     }
 
     <span class="attr">#[test]
@@ -1809,11 +1810,11 @@
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = Writer::new();
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;&quot;</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
-        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[..], <span class="number">3</span>, InputEmpty, <span class="string">&quot;\&quot;\&quot;\n&quot;</span>);
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;&quot;</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
-        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[..], <span class="number">3</span>, InputEmpty, <span class="string">&quot;\&quot;\&quot;\n&quot;</span>);
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">""</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
+        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[..], <span class="number">3</span>, InputEmpty, <span class="string">"\"\"\n"</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">""</span>), <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
+        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[..], <span class="number">3</span>, InputEmpty, <span class="string">"\"\"\n"</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
     }
 
     <span class="attr">#[test]
@@ -1824,16 +1825,16 @@
 
         <span class="macro">assert_field!</span>(
             wtr,
-            b(<span class="string">&quot;a\&quot;bc&quot;</span>),
+            b(<span class="string">"a\"bc"</span>),
             <span class="kw-2">&amp;mut </span>out[n..],
             <span class="number">4</span>,
             <span class="number">6</span>,
             InputEmpty,
-            <span class="string">&quot;\&quot;a\&quot;\&quot;bc&quot;
+            <span class="string">"\"a\"\"bc"
         </span>);
         n += <span class="number">6</span>;
 
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">"\""</span>);
     }
 
     <span class="attr">#[test]
@@ -1842,12 +1843,12 @@
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;abc&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">&quot;abc&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"abc"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">"abc"</span>);
         n += <span class="number">3</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;x&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, <span class="number">1</span>, InputEmpty, <span class="string">&quot;x&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"x"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, <span class="number">1</span>, InputEmpty, <span class="string">"x"</span>);
         n += <span class="number">1</span>;
 
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
     }
 
     <span class="attr">#[test]
@@ -1858,18 +1859,18 @@
 
         <span class="macro">assert_field!</span>(
             wtr,
-            b(<span class="string">&quot;abc\&quot;&quot;</span>),
+            b(<span class="string">"abc\""</span>),
             <span class="kw-2">&amp;mut </span>out[n..],
             <span class="number">4</span>,
             <span class="number">6</span>,
             InputEmpty,
-            <span class="string">&quot;\&quot;abc\&quot;\&quot;&quot;
+            <span class="string">"\"abc\"\""
         </span>);
         n += <span class="number">6</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;x&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, <span class="number">1</span>, InputEmpty, <span class="string">&quot;x&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"x"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, <span class="number">1</span>, InputEmpty, <span class="string">"x"</span>);
         n += <span class="number">1</span>;
 
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">"\""</span>);
     }
 
     <span class="attr">#[test]
@@ -1877,10 +1878,10 @@
         <span class="kw">let </span><span class="kw-2">mut </span>wtr = Writer::new();
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">4</span>];
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;ab\&quot;xyz&quot;</span>), out, <span class="number">2</span>, <span class="number">3</span>, OutputFull, <span class="string">&quot;\&quot;ab&quot;</span>);
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;\&quot;xyz&quot;</span>), out, <span class="number">3</span>, <span class="number">4</span>, OutputFull, <span class="string">&quot;\&quot;\&quot;xy&quot;</span>);
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;z&quot;</span>), out, <span class="number">1</span>, <span class="number">1</span>, InputEmpty, <span class="string">&quot;z&quot;</span>);
-        <span class="macro">assert_write!</span>(wtr, finish, out, <span class="number">1</span>, InputEmpty, <span class="string">&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"ab\"xyz"</span>), out, <span class="number">2</span>, <span class="number">3</span>, OutputFull, <span class="string">"\"ab"</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"\"xyz"</span>), out, <span class="number">3</span>, <span class="number">4</span>, OutputFull, <span class="string">"\"\"xy"</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"z"</span>), out, <span class="number">1</span>, <span class="number">1</span>, InputEmpty, <span class="string">"z"</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, out, <span class="number">1</span>, InputEmpty, <span class="string">"\""</span>);
     }
 
     <span class="attr">#[test]
@@ -1889,16 +1890,16 @@
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;abc&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">&quot;abc&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"abc"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">"abc"</span>);
         n += <span class="number">3</span>;
-        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;,&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">","</span>);
         n += <span class="number">1</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;yz&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty, <span class="string">&quot;yz&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"yz"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty, <span class="string">"yz"</span>);
         n += <span class="number">2</span>;
 
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;abc,yz&quot;</span>, s(<span class="kw-2">&amp;</span>out[..n]));
+        <span class="macro">assert_eq!</span>(<span class="string">"abc,yz"</span>, s(<span class="kw-2">&amp;</span>out[..n]));
     }
 
     <span class="attr">#[test]
@@ -1908,20 +1909,20 @@
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;abc&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">4</span>, InputEmpty, <span class="string">&quot;\&quot;abc&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"abc"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">4</span>, InputEmpty, <span class="string">"\"abc"</span>);
         n += <span class="number">4</span>;
-        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">&quot;\&quot;,&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">"\","</span>);
         n += <span class="number">2</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;5.2&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">&quot;5.2&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"5.2"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">"5.2"</span>);
         n += <span class="number">3</span>;
-        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;,&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">","</span>);
         n += <span class="number">1</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;98&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty, <span class="string">&quot;98&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"98"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty, <span class="string">"98"</span>);
         n += <span class="number">2</span>;
 
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;\&quot;abc\&quot;,5.2,98&quot;</span>, s(<span class="kw-2">&amp;</span>out[..n]));
+        <span class="macro">assert_eq!</span>(<span class="string">"\"abc\",5.2,98"</span>, s(<span class="kw-2">&amp;</span>out[..n]));
     }
 
     <span class="attr">#[test]
@@ -1932,23 +1933,23 @@
 
         <span class="macro">assert_field!</span>(
             wtr,
-            b(<span class="string">&quot;a,bc&quot;</span>),
+            b(<span class="string">"a,bc"</span>),
             <span class="kw-2">&amp;mut </span>out[n..],
             <span class="number">4</span>,
             <span class="number">5</span>,
             InputEmpty,
-            <span class="string">&quot;\&quot;a,bc&quot;
+            <span class="string">"\"a,bc"
         </span>);
         n += <span class="number">5</span>;
-        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">&quot;\&quot;,&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">"\","</span>);
         n += <span class="number">2</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;\nz&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">3</span>, InputEmpty, <span class="string">&quot;\&quot;\nz&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"\nz"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">3</span>, InputEmpty, <span class="string">"\"\nz"</span>);
         n += <span class="number">3</span>;
 
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">"\""</span>);
         n += <span class="number">1</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;\&quot;a,bc\&quot;,\&quot;\nz\&quot;&quot;</span>, s(<span class="kw-2">&amp;</span>out[..n]));
+        <span class="macro">assert_eq!</span>(<span class="string">"\"a,bc\",\"\nz\""</span>, s(<span class="kw-2">&amp;</span>out[..n]));
     }
 
     <span class="attr">#[test]
@@ -1957,24 +1958,24 @@
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
 
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;abc&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">&quot;abc&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"abc"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">"abc"</span>);
         n += <span class="number">3</span>;
-        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;,&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">","</span>);
         n += <span class="number">1</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;yz&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty, <span class="string">&quot;yz&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"yz"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">2</span>, InputEmpty, <span class="string">"yz"</span>);
         n += <span class="number">2</span>;
-        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;\n&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">"\n"</span>);
         n += <span class="number">1</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;foo&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">&quot;foo&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"foo"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">3</span>, <span class="number">3</span>, InputEmpty, <span class="string">"foo"</span>);
         n += <span class="number">3</span>;
-        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;,&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">","</span>);
         n += <span class="number">1</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;quux&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">4</span>, <span class="number">4</span>, InputEmpty, <span class="string">&quot;quux&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"quux"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">4</span>, <span class="number">4</span>, InputEmpty, <span class="string">"quux"</span>);
         n += <span class="number">4</span>;
 
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;abc,yz\nfoo,quux&quot;</span>, s(<span class="kw-2">&amp;</span>out[..n]));
+        <span class="macro">assert_eq!</span>(<span class="string">"abc,yz\nfoo,quux"</span>, s(<span class="kw-2">&amp;</span>out[..n]));
     }
 
     <span class="attr">#[test]
@@ -1985,47 +1986,47 @@
 
         <span class="macro">assert_field!</span>(
             wtr,
-            b(<span class="string">&quot;a,bc&quot;</span>),
+            b(<span class="string">"a,bc"</span>),
             <span class="kw-2">&amp;mut </span>out[n..],
             <span class="number">4</span>,
             <span class="number">5</span>,
             InputEmpty,
-            <span class="string">&quot;\&quot;a,bc&quot;
+            <span class="string">"\"a,bc"
         </span>);
         n += <span class="number">5</span>;
-        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">&quot;\&quot;,&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">"\","</span>);
         n += <span class="number">2</span>;
-        <span class="macro">assert_field!</span>(wtr, b(<span class="string">&quot;\nz&quot;</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">3</span>, InputEmpty, <span class="string">&quot;\&quot;\nz&quot;</span>);
+        <span class="macro">assert_field!</span>(wtr, b(<span class="string">"\nz"</span>), <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, <span class="number">3</span>, InputEmpty, <span class="string">"\"\nz"</span>);
         n += <span class="number">3</span>;
-        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">&quot;\&quot;\n&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, terminator, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">"\"\n"</span>);
         n += <span class="number">2</span>;
         <span class="macro">assert_field!</span>(
             wtr,
-            b(<span class="string">&quot;f\&quot;oo&quot;</span>),
+            b(<span class="string">"f\"oo"</span>),
             <span class="kw-2">&amp;mut </span>out[n..],
             <span class="number">4</span>,
             <span class="number">6</span>,
             InputEmpty,
-            <span class="string">&quot;\&quot;f\&quot;\&quot;oo&quot;
+            <span class="string">"\"f\"\"oo"
         </span>);
         n += <span class="number">6</span>;
-        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">&quot;\&quot;,&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, delimiter, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">2</span>, InputEmpty, <span class="string">"\","</span>);
         n += <span class="number">2</span>;
         <span class="macro">assert_field!</span>(
             wtr,
-            b(<span class="string">&quot;quux,&quot;</span>),
+            b(<span class="string">"quux,"</span>),
             <span class="kw-2">&amp;mut </span>out[n..],
             <span class="number">5</span>,
             <span class="number">6</span>,
             InputEmpty,
-            <span class="string">&quot;\&quot;quux,&quot;
+            <span class="string">"\"quux,"
         </span>);
         n += <span class="number">6</span>;
 
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[n..], <span class="number">1</span>, InputEmpty, <span class="string">"\""</span>);
         n += <span class="number">1</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;\&quot;a,bc\&quot;,\&quot;\nz\&quot;\n\&quot;f\&quot;\&quot;oo\&quot;,\&quot;quux,\&quot;&quot;</span>, s(<span class="kw-2">&amp;</span>out[..n]));
+        <span class="macro">assert_eq!</span>(<span class="string">"\"a,bc\",\"\nz\"\n\"f\"\"oo\",\"quux,\""</span>, s(<span class="kw-2">&amp;</span>out[..n]));
     }
 
     <span class="macro">macro_rules! </span>assert_quote {
@@ -2050,65 +2051,65 @@
             <span class="macro-nonterminal">$expect_res</span>:expr, <span class="macro-nonterminal">$expect_data</span>:expr,
             <span class="macro-nonterminal">$double_quote</span>:expr
         ) =&gt; {{
-            <span class="kw">let </span>(res, i, o) = quote(<span class="macro-nonterminal">$inp</span>, <span class="macro-nonterminal">$out</span>, <span class="string">b&#39;&quot;&#39;</span>, <span class="string">b&#39;\\&#39;</span>, <span class="macro-nonterminal">$double_quote</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_res</span>, res, <span class="string">&quot;result&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_in</span>, i, <span class="string">&quot;input&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_out</span>, o, <span class="string">&quot;output&quot;</span>);
-            <span class="macro">assert_eq!</span>(b(<span class="macro-nonterminal">$expect_data</span>), <span class="kw-2">&amp;</span><span class="macro-nonterminal">$out</span>[..o], <span class="string">&quot;data&quot;</span>);
+            <span class="kw">let </span>(res, i, o) = quote(<span class="macro-nonterminal">$inp</span>, <span class="macro-nonterminal">$out</span>, <span class="string">b'"'</span>, <span class="string">b'\\'</span>, <span class="macro-nonterminal">$double_quote</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_res</span>, res, <span class="string">"result"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_in</span>, i, <span class="string">"input"</span>);
+            <span class="macro">assert_eq!</span>(<span class="macro-nonterminal">$expect_out</span>, o, <span class="string">"output"</span>);
+            <span class="macro">assert_eq!</span>(b(<span class="macro-nonterminal">$expect_data</span>), <span class="kw-2">&amp;</span><span class="macro-nonterminal">$out</span>[..o], <span class="string">"data"</span>);
         }};
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>quote_empty() {
-        <span class="kw">let </span>inp = b(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span>inp = b(<span class="string">""</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">0</span>, <span class="number">0</span>, InputEmpty, <span class="string">""</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>quote_no_quotes() {
-        <span class="kw">let </span>inp = b(<span class="string">&quot;foobar&quot;</span>);
+        <span class="kw">let </span>inp = b(<span class="string">"foobar"</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">6</span>, <span class="number">6</span>, InputEmpty, <span class="string">&quot;foobar&quot;</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">6</span>, <span class="number">6</span>, InputEmpty, <span class="string">"foobar"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>quote_one_quote() {
-        <span class="kw">let </span>inp = b(<span class="string">&quot;\&quot;&quot;</span>);
+        <span class="kw">let </span>inp = b(<span class="string">"\""</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, InputEmpty, <span class="string">r#&quot;&quot;&quot;&quot;#</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, InputEmpty, <span class="string">r#""""#</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>quote_two_quotes() {
-        <span class="kw">let </span>inp = b(<span class="string">&quot;\&quot;\&quot;&quot;</span>);
+        <span class="kw">let </span>inp = b(<span class="string">"\"\""</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">4</span>, InputEmpty, <span class="string">r#&quot;&quot;&quot;&quot;&quot;&quot;#</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">4</span>, InputEmpty, <span class="string">r#""""""#</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>quote_escaped_one() {
-        <span class="kw">let </span>inp = b(<span class="string">&quot;\&quot;&quot;</span>);
+        <span class="kw">let </span>inp = b(<span class="string">"\""</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, InputEmpty, <span class="string">r#&quot;\&quot;&quot;#</span>, <span class="bool-val">false</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, InputEmpty, <span class="string">r#"\""#</span>, <span class="bool-val">false</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>quote_escaped_two() {
-        <span class="kw">let </span>inp = b(<span class="string">&quot;\&quot;\&quot;&quot;</span>);
+        <span class="kw">let </span>inp = b(<span class="string">"\"\""</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">4</span>, InputEmpty, <span class="string">r#&quot;\&quot;\&quot;&quot;#</span>, <span class="bool-val">false</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">4</span>, InputEmpty, <span class="string">r#"\"\""#</span>, <span class="bool-val">false</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>quote_misc() {
-        <span class="kw">let </span>inp = b(<span class="string">r#&quot;foo &quot;bar&quot; baz &quot;quux&quot;?&quot;#</span>);
+        <span class="kw">let </span>inp = b(<span class="string">r#"foo "bar" baz "quux"?"#</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
         <span class="macro">assert_quote!</span>(
@@ -2117,55 +2118,55 @@
             <span class="number">21</span>,
             <span class="number">25</span>,
             InputEmpty,
-            <span class="string">r#&quot;foo &quot;&quot;bar&quot;&quot; baz &quot;&quot;quux&quot;&quot;?&quot;#
+            <span class="string">r#"foo ""bar"" baz ""quux""?"#
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>quote_stream_no_quotes() {
-        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">&quot;fooba&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">"fooba"</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">2</span>];
 
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">2</span>, OutputFull, <span class="string">&quot;fo&quot;</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">2</span>, OutputFull, <span class="string">"fo"</span>);
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">2</span>..];
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">2</span>, OutputFull, <span class="string">&quot;ob&quot;</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">2</span>, OutputFull, <span class="string">"ob"</span>);
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">2</span>..];
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">1</span>, InputEmpty, <span class="string">&quot;a&quot;</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">1</span>, InputEmpty, <span class="string">"a"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>quote_stream_quotes() {
-        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">r#&quot;a&quot;bc&quot;d&quot;&quot;#</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>inp = b(<span class="string">r#"a"bc"d""#</span>);
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">2</span>];
 
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">1</span>, OutputFull, <span class="string">&quot;a&quot;</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">1</span>, OutputFull, <span class="string">"a"</span>);
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">1</span>..];
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, OutputFull, <span class="string">r#&quot;&quot;&quot;&quot;#</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, OutputFull, <span class="string">r#""""#</span>);
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">1</span>..];
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">2</span>, OutputFull, <span class="string">&quot;bc&quot;</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">2</span>, <span class="number">2</span>, OutputFull, <span class="string">"bc"</span>);
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">2</span>..];
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, OutputFull, <span class="string">r#&quot;&quot;&quot;&quot;#</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, OutputFull, <span class="string">r#""""#</span>);
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">1</span>..];
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">1</span>, OutputFull, <span class="string">&quot;d&quot;</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">1</span>, OutputFull, <span class="string">"d"</span>);
         inp = <span class="kw-2">&amp;</span>inp[<span class="number">1</span>..];
-        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, InputEmpty, <span class="string">r#&quot;&quot;&quot;&quot;#</span>);
+        <span class="macro">assert_quote!</span>(inp, out, <span class="number">1</span>, <span class="number">2</span>, InputEmpty, <span class="string">r#""""#</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>comment_char_is_automatically_quoted() {
-        <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().comment(<span class="prelude-val">Some</span>(<span class="string">b&#39;#&#39;</span>)).build();
+        <span class="kw">let </span><span class="kw-2">mut </span>wtr = WriterBuilder::new().comment(<span class="prelude-val">Some</span>(<span class="string">b'#'</span>)).build();
         <span class="kw">let </span>out = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">1024</span>];
 
         <span class="macro">assert_field!</span>(
             wtr,
-            b(<span class="string">&quot;# abc&quot;</span>),
+            b(<span class="string">"# abc"</span>),
             <span class="kw-2">&amp;mut </span>out[..],
             <span class="number">5</span>,
             <span class="number">6</span>,
             InputEmpty,
-            <span class="string">&quot;\&quot;# abc&quot;
+            <span class="string">"\"# abc"
         </span>);
-        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">1</span>, InputEmpty, <span class="string">&quot;\&quot;&quot;</span>);
+        <span class="macro">assert_write!</span>(wtr, finish, <span class="kw-2">&amp;mut </span>out[..], <span class="number">1</span>, InputEmpty, <span class="string">"\""</span>);
     }
 }
 </code></pre></div></section></main></body></html>

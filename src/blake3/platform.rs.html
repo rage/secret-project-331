@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/blake3-1.5.0/src/platform.rs`."><title>platform.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blake3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/blake3-1.5.0/src/platform.rs`."><title>platform.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blake3" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -489,7 +490,7 @@
 <span class="kw">use </span>arrayref::{array_mut_ref, array_ref};
 
 <span class="macro">cfg_if::cfg_if! </span>{
-    <span class="kw">if </span><span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))] </span>{
+    <span class="kw">if </span><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))] </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
             <span class="kw">if </span><span class="attr">#[cfg(blake3_avx512_ffi)] </span>{
                 <span class="kw">pub const </span>MAX_SIMD_DEGREE: usize = <span class="number">16</span>;
@@ -504,12 +505,12 @@
     }
 }
 
-<span class="comment">// There are some places where we want a static size that&#39;s equal to the
-// MAX_SIMD_DEGREE, but also at least 2. Constant contexts aren&#39;t currently
+<span class="comment">// There are some places where we want a static size that's equal to the
+// MAX_SIMD_DEGREE, but also at least 2. Constant contexts aren't currently
 // allowed to use cmp::max, so we have to hardcode this additional constant
 // value. Get rid of this once cmp::max is a const fn.
 </span><span class="macro">cfg_if::cfg_if! </span>{
-    <span class="kw">if </span><span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))] </span>{
+    <span class="kw">if </span><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))] </span>{
         <span class="macro">cfg_if::cfg_if! </span>{
             <span class="kw">if </span><span class="attr">#[cfg(blake3_avx512_ffi)] </span>{
                 <span class="kw">pub const </span>MAX_SIMD_DEGREE_OR_2: usize = <span class="number">16</span>;
@@ -527,14 +528,14 @@
 <span class="attr">#[derive(Clone, Copy, Debug)]
 </span><span class="kw">pub enum </span>Platform {
     Portable,
-    <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+    <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
     </span>SSE2,
-    <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+    <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
     </span>SSE41,
-    <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+    <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
     </span>AVX2,
     <span class="attr">#[cfg(blake3_avx512_ffi)]
-    #[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+    #[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
     </span>AVX512,
     <span class="attr">#[cfg(blake3_neon)]
     </span>NEON,
@@ -543,7 +544,7 @@
 <span class="kw">impl </span>Platform {
     <span class="attr">#[allow(unreachable_code)]
     </span><span class="kw">pub fn </span>detect() -&gt; <span class="self">Self </span>{
-        <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+        <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
         </span>{
             <span class="attr">#[cfg(blake3_avx512_ffi)]
             </span>{
@@ -561,7 +562,7 @@
                 <span class="kw">return </span>Platform::SSE2;
             }
         }
-        <span class="comment">// We don&#39;t use dynamic feature detection for NEON. If the &quot;neon&quot;
+        <span class="comment">// We don't use dynamic feature detection for NEON. If the "neon"
         // feature is on, NEON is assumed to be supported.
         </span><span class="attr">#[cfg(blake3_neon)]
         </span>{
@@ -573,14 +574,14 @@
     <span class="kw">pub fn </span>simd_degree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="kw">let </span>degree = <span class="kw">match </span><span class="self">self </span>{
             Platform::Portable =&gt; <span class="number">1</span>,
-            <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::SSE2 =&gt; <span class="number">4</span>,
-            <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::SSE41 =&gt; <span class="number">4</span>,
-            <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::AVX2 =&gt; <span class="number">8</span>,
             <span class="attr">#[cfg(blake3_avx512_ffi)]
-            #[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            #[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::AVX512 =&gt; <span class="number">16</span>,
             <span class="attr">#[cfg(blake3_neon)]
             </span>Platform::NEON =&gt; <span class="number">4</span>,
@@ -600,18 +601,18 @@
         <span class="kw">match </span><span class="self">self </span>{
             Platform::Portable =&gt; portable::compress_in_place(cv, block, block_len, counter, flags),
             <span class="comment">// Safe because detect() checked for platform support.
-            </span><span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            </span><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::SSE2 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::sse2::compress_in_place(cv, block, block_len, counter, flags)
             },
             <span class="comment">// Safe because detect() checked for platform support.
-            </span><span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            </span><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::SSE41 | Platform::AVX2 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::sse41::compress_in_place(cv, block, block_len, counter, flags)
             },
             <span class="comment">// Safe because detect() checked for platform support.
             </span><span class="attr">#[cfg(blake3_avx512_ffi)]
-            #[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            #[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::AVX512 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::avx512::compress_in_place(cv, block, block_len, counter, flags)
             },
@@ -632,18 +633,18 @@
         <span class="kw">match </span><span class="self">self </span>{
             Platform::Portable =&gt; portable::compress_xof(cv, block, block_len, counter, flags),
             <span class="comment">// Safe because detect() checked for platform support.
-            </span><span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            </span><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::SSE2 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::sse2::compress_xof(cv, block, block_len, counter, flags)
             },
             <span class="comment">// Safe because detect() checked for platform support.
-            </span><span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            </span><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::SSE41 | Platform::AVX2 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::sse41::compress_xof(cv, block, block_len, counter, flags)
             },
             <span class="comment">// Safe because detect() checked for platform support.
             </span><span class="attr">#[cfg(blake3_avx512_ffi)]
-            #[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            #[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::AVX512 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::avx512::compress_xof(cv, block, block_len, counter, flags)
             },
@@ -660,7 +661,7 @@
     // described in detail in the spec. This more than doubles throughput per
     // thread. Another optimization is keeping the state vectors transposed
     // from block to block within a chunk. When state vectors are transposed
-    // after every block, there&#39;s a small but measurable performance loss.
+    // after every block, there's a small but measurable performance loss.
     // Compressing chunks with a dedicated loop avoids this.
 
     </span><span class="kw">pub fn </span>hash_many&lt;<span class="kw">const </span>N: usize&gt;(
@@ -686,7 +687,7 @@
                 out,
             ),
             <span class="comment">// Safe because detect() checked for platform support.
-            </span><span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            </span><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::SSE2 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::sse2::hash_many(
                     inputs,
@@ -700,7 +701,7 @@
                 )
             },
             <span class="comment">// Safe because detect() checked for platform support.
-            </span><span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            </span><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::SSE41 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::sse41::hash_many(
                     inputs,
@@ -714,7 +715,7 @@
                 )
             },
             <span class="comment">// Safe because detect() checked for platform support.
-            </span><span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            </span><span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::AVX2 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::avx2::hash_many(
                     inputs,
@@ -729,7 +730,7 @@
             },
             <span class="comment">// Safe because detect() checked for platform support.
             </span><span class="attr">#[cfg(blake3_avx512_ffi)]
-            #[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+            #[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
             </span>Platform::AVX512 =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::avx512::hash_many(
                     inputs,
@@ -742,7 +743,7 @@
                     out,
                 )
             },
-            <span class="comment">// Assumed to be safe if the &quot;neon&quot; feature is on.
+            <span class="comment">// Assumed to be safe if the "neon" feature is on.
             </span><span class="attr">#[cfg(blake3_neon)]
             </span>Platform::NEON =&gt; <span class="kw">unsafe </span>{
                 <span class="kw">crate</span>::neon::hash_many(
@@ -765,7 +766,7 @@
         <span class="self">Self</span>::Portable
     }
 
-    <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+    <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
     </span><span class="kw">pub fn </span>sse2() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">if </span>sse2_detected() {
             <span class="prelude-val">Some</span>(<span class="self">Self</span>::SSE2)
@@ -774,7 +775,7 @@
         </span>}
     }
 
-    <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+    <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
     </span><span class="kw">pub fn </span>sse41() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">if </span>sse41_detected() {
             <span class="prelude-val">Some</span>(<span class="self">Self</span>::SSE41)
@@ -783,7 +784,7 @@
         </span>}
     }
 
-    <span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+    <span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
     </span><span class="kw">pub fn </span>avx2() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">if </span>avx2_detected() {
             <span class="prelude-val">Some</span>(<span class="self">Self</span>::AVX2)
@@ -793,7 +794,7 @@
     }
 
     <span class="attr">#[cfg(blake3_avx512_ffi)]
-    #[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+    #[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
     </span><span class="kw">pub fn </span>avx512() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">if </span>avx512_detected() {
             <span class="prelude-val">Some</span>(<span class="self">Self</span>::AVX512)
@@ -804,7 +805,7 @@
 
     <span class="attr">#[cfg(blake3_neon)]
     </span><span class="kw">pub fn </span>neon() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="comment">// Assumed to be safe if the &quot;neon&quot; feature is on.
+        <span class="comment">// Assumed to be safe if the "neon" feature is on.
         </span><span class="prelude-val">Some</span>(<span class="self">Self</span>::NEON)
     }
 }
@@ -812,89 +813,89 @@
 <span class="comment">// Note that AVX-512 is divided into multiple featuresets, and we use two of
 // them, F and VL.
 </span><span class="attr">#[cfg(blake3_avx512_ffi)]
-#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
 #[inline(always)]
 </span><span class="kw">pub fn </span>avx512_detected() -&gt; bool {
     <span class="comment">// A testing-only short-circuit.
-    </span><span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;no_avx512&quot;</span>) {
+    </span><span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"no_avx512"</span>) {
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
     <span class="comment">// Static check, e.g. for building with target-cpu=native.
-    </span><span class="attr">#[cfg(all(target_feature = <span class="string">&quot;avx512f&quot;</span>, target_feature = <span class="string">&quot;avx512vl&quot;</span>))]
+    </span><span class="attr">#[cfg(all(target_feature = <span class="string">"avx512f"</span>, target_feature = <span class="string">"avx512vl"</span>))]
     </span>{
         <span class="kw">return </span><span class="bool-val">true</span>;
     }
     <span class="comment">// Dynamic check, if std is enabled.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span>{
-        <span class="kw">if </span><span class="macro">is_x86_feature_detected!</span>(<span class="string">&quot;avx512f&quot;</span>) &amp;&amp; <span class="macro">is_x86_feature_detected!</span>(<span class="string">&quot;avx512vl&quot;</span>) {
+        <span class="kw">if </span><span class="macro">is_x86_feature_detected!</span>(<span class="string">"avx512f"</span>) &amp;&amp; <span class="macro">is_x86_feature_detected!</span>(<span class="string">"avx512vl"</span>) {
             <span class="kw">return </span><span class="bool-val">true</span>;
         }
     }
     <span class="bool-val">false
 </span>}
 
-<span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+<span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
 #[inline(always)]
 </span><span class="kw">pub fn </span>avx2_detected() -&gt; bool {
     <span class="comment">// A testing-only short-circuit.
-    </span><span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;no_avx2&quot;</span>) {
+    </span><span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"no_avx2"</span>) {
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
     <span class="comment">// Static check, e.g. for building with target-cpu=native.
-    </span><span class="attr">#[cfg(target_feature = <span class="string">&quot;avx2&quot;</span>)]
+    </span><span class="attr">#[cfg(target_feature = <span class="string">"avx2"</span>)]
     </span>{
         <span class="kw">return </span><span class="bool-val">true</span>;
     }
     <span class="comment">// Dynamic check, if std is enabled.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span>{
-        <span class="kw">if </span><span class="macro">is_x86_feature_detected!</span>(<span class="string">&quot;avx2&quot;</span>) {
+        <span class="kw">if </span><span class="macro">is_x86_feature_detected!</span>(<span class="string">"avx2"</span>) {
             <span class="kw">return </span><span class="bool-val">true</span>;
         }
     }
     <span class="bool-val">false
 </span>}
 
-<span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+<span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
 #[inline(always)]
 </span><span class="kw">pub fn </span>sse41_detected() -&gt; bool {
     <span class="comment">// A testing-only short-circuit.
-    </span><span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;no_sse41&quot;</span>) {
+    </span><span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"no_sse41"</span>) {
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
     <span class="comment">// Static check, e.g. for building with target-cpu=native.
-    </span><span class="attr">#[cfg(target_feature = <span class="string">&quot;sse4.1&quot;</span>)]
+    </span><span class="attr">#[cfg(target_feature = <span class="string">"sse4.1"</span>)]
     </span>{
         <span class="kw">return </span><span class="bool-val">true</span>;
     }
     <span class="comment">// Dynamic check, if std is enabled.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span>{
-        <span class="kw">if </span><span class="macro">is_x86_feature_detected!</span>(<span class="string">&quot;sse4.1&quot;</span>) {
+        <span class="kw">if </span><span class="macro">is_x86_feature_detected!</span>(<span class="string">"sse4.1"</span>) {
             <span class="kw">return </span><span class="bool-val">true</span>;
         }
     }
     <span class="bool-val">false
 </span>}
 
-<span class="attr">#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+<span class="attr">#[cfg(any(target_arch = <span class="string">"x86"</span>, target_arch = <span class="string">"x86_64"</span>))]
 #[inline(always)]
 #[allow(unreachable_code)]
 </span><span class="kw">pub fn </span>sse2_detected() -&gt; bool {
     <span class="comment">// A testing-only short-circuit.
-    </span><span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;no_sse2&quot;</span>) {
+    </span><span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"no_sse2"</span>) {
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
     <span class="comment">// Static check, e.g. for building with target-cpu=native.
-    </span><span class="attr">#[cfg(target_feature = <span class="string">&quot;sse2&quot;</span>)]
+    </span><span class="attr">#[cfg(target_feature = <span class="string">"sse2"</span>)]
     </span>{
         <span class="kw">return </span><span class="bool-val">true</span>;
     }
     <span class="comment">// Dynamic check, if std is enabled.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span>{
-        <span class="kw">if </span><span class="macro">is_x86_feature_detected!</span>(<span class="string">&quot;sse2&quot;</span>) {
+        <span class="kw">if </span><span class="macro">is_x86_feature_detected!</span>(<span class="string">"sse2"</span>) {
             <span class="kw">return </span><span class="bool-val">true</span>;
         }
     }

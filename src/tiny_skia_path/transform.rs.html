@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-path-0.11.4/src/transform.rs`."><title>transform.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-path-0.11.4/src/transform.rs`."><title>transform.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -505,13 +506,13 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::scalar::{Scalar, SCALAR_NEARLY_ZERO};
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), feature = <span class="string">&quot;no-std-float&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"no-std-float"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::NoStdFloat;
 
 <span class="doccomment">/// An affine transformation matrix.
 ///
-/// Unlike other types, doesn&#39;t guarantee to be valid. This is Skia quirk.
-/// Meaning Transform(0, 0, 0, 0, 0, 0) is ok, while it&#39;s technically not.
+/// Unlike other types, doesn't guarantee to be valid. This is Skia quirk.
+/// Meaning Transform(0, 0, 0, 0, 0, 0) is ok, while it's technically not.
 /// Non-finite values are also not an error.
 </span><span class="attr">#[allow(missing_docs)]
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -545,7 +546,7 @@
 
     <span class="doccomment">/// Creates a new `Transform`.
     ///
-    /// We are using column-major-column-vector matrix notation, therefore it&#39;s ky-kx, not kx-ky.
+    /// We are using column-major-column-vector matrix notation, therefore it's ky-kx, not kx-ky.
     </span><span class="kw">pub fn </span>from_row(sx: f32, ky: f32, kx: f32, sy: f32, tx: f32, ty: f32) -&gt; <span class="self">Self </span>{
         Transform {
             sx,
@@ -662,7 +663,7 @@
         <span class="self">self</span>.tx != <span class="number">0.0 </span>|| <span class="self">self</span>.ty != <span class="number">0.0
     </span>}
 
-    <span class="doccomment">/// Returns transform&#39;s scale part.
+    <span class="doccomment">/// Returns transform's scale part.
     </span><span class="kw">pub fn </span>get_scale(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (f32, f32) {
         <span class="kw">let </span>x_scale = (<span class="self">self</span>.sx * <span class="self">self</span>.sx + <span class="self">self</span>.kx * <span class="self">self</span>.kx).sqrt();
         <span class="kw">let </span>y_scale = (<span class="self">self</span>.ky * <span class="self">self</span>.ky + <span class="self">self</span>.sy * <span class="self">self</span>.sy).sqrt();
@@ -836,7 +837,7 @@
 
     <span class="comment">// Since the determinant is on the order of the cube of the matrix members,
     // compare to the cube of the default nearly-zero constant (although an
-    // estimate of the condition number would be better if it wasn&#39;t so expensive).
+    // estimate of the condition number would be better if it wasn't so expensive).
     </span><span class="kw">let </span>tolerance = SCALAR_NEARLY_ZERO * SCALAR_NEARLY_ZERO * SCALAR_NEARLY_ZERO;
     <span class="kw">if </span>(det <span class="kw">as </span>f32).is_nearly_zero_within_tolerance(tolerance) {
         <span class="prelude-val">None

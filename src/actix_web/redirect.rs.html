@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/redirect.rs`."><title>redirect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/redirect.rs`."><title>redirect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -249,7 +250,7 @@
 
 <span class="doccomment">/// An HTTP service for redirecting one path to another path or URL.
 ///
-/// By default, the &quot;307 Temporary Redirect&quot; status is used when responding. See [this MDN
+/// By default, the "307 Temporary Redirect" status is used when responding. See [this MDN
 /// article][mdn-redirects] on why 307 is preferred over 302.
 ///
 /// # Examples
@@ -258,11 +259,11 @@
 /// use actix_web::{web, App};
 ///
 /// App::new()
-///     // redirect &quot;/duck&quot; to DuckDuckGo
-///     .service(web::redirect(&quot;/duck&quot;, &quot;https://duck.com&quot;))
+///     // redirect "/duck" to DuckDuckGo
+///     .service(web::redirect("/duck", "https://duck.com"))
 ///     .service(
-///         // redirect &quot;/api/old&quot; to &quot;/api/new&quot;
-///         web::scope(&quot;/api&quot;).service(web::redirect(&quot;/old&quot;, &quot;/new&quot;))
+///         // redirect "/api/old" to "/api/new"
+///         web::scope("/api").service(web::redirect("/old", "/new"))
 ///     );
 /// ```
 ///
@@ -272,7 +273,7 @@
 ///
 /// async fn handler() -&gt; impl Responder {
 ///     // sends a permanent (308) redirect to duck.com
-///     Redirect::to(&quot;https://duck.com&quot;).permanent()
+///     Redirect::to("https://duck.com").permanent()
 /// }
 /// # actix_web::web::to(handler);
 /// ```
@@ -280,8 +281,8 @@
 /// [mdn-redirects]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections#temporary_redirections
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>Redirect {
-    from: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
-    to: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
+    from: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
+    to: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
     status_code: StatusCode,
 }
 
@@ -304,10 +305,10 @@
     /// ```
     /// # use actix_web::{web::Redirect, App};
     /// App::new()
-    ///     // redirects &quot;/oh/hi/mark&quot; to &quot;/oh/bye/johnny&quot;
-    ///     .service(Redirect::new(&quot;/oh/hi/mark&quot;, &quot;../../bye/johnny&quot;));
+    ///     // redirects "/oh/hi/mark" to "/oh/bye/johnny"
+    ///     .service(Redirect::new("/oh/hi/mark", "../../bye/johnny"));
     /// ```
-    </span><span class="kw">pub fn </span>new(from: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;, to: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(from: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;, to: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             from: from.into(),
             to: to.into(),
@@ -325,19 +326,19 @@
     ///
     /// async fn admin_page() -&gt; impl Responder {
     ///     // sends a temporary 307 redirect to the login path
-    ///     Redirect::to(&quot;/login&quot;)
+    ///     Redirect::to("/login")
     /// }
     /// # actix_web::web::to(admin_page);
     /// ```
-    </span><span class="kw">pub fn </span>to(to: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>to(to: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            from: <span class="string">&quot;/&quot;</span>.into(),
+            from: <span class="string">"/"</span>.into(),
             to: to.into(),
             status_code: StatusCode::TEMPORARY_REDIRECT,
         }
     }
 
-    <span class="doccomment">/// Use the &quot;308 Permanent Redirect&quot; status when responding.
+    <span class="doccomment">/// Use the "308 Permanent Redirect" status when responding.
     ///
     /// See [this MDN article][mdn-redirects] on why 308 is preferred over 301.
     ///
@@ -346,7 +347,7 @@
         <span class="self">self</span>.using_status_code(StatusCode::PERMANENT_REDIRECT)
     }
 
-    <span class="doccomment">/// Use the &quot;307 Temporary Redirect&quot; status when responding.
+    <span class="doccomment">/// Use the "307 Temporary Redirect" status when responding.
     ///
     /// See [this MDN article][mdn-redirects] on why 307 is preferred over 302.
     ///
@@ -355,7 +356,7 @@
         <span class="self">self</span>.using_status_code(StatusCode::TEMPORARY_REDIRECT)
     }
 
-    <span class="doccomment">/// Use the &quot;303 See Other&quot; status when responding.
+    <span class="doccomment">/// Use the "303 See Other" status when responding.
     ///
     /// This status code is semantically correct as the response to a successful login, for example.
     </span><span class="kw">pub fn </span>see_other(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -364,18 +365,18 @@
 
     <span class="doccomment">/// Allows the use of custom status codes for less common redirect types.
     ///
-    /// In most cases, the default status (&quot;308 Permanent Redirect&quot;) or using the `temporary`
-    /// method, which uses the &quot;307 Temporary Redirect&quot; status have more consistent behavior than
+    /// In most cases, the default status ("308 Permanent Redirect") or using the `temporary`
+    /// method, which uses the "307 Temporary Redirect" status have more consistent behavior than
     /// 301 and 302 codes, respectively.
     ///
     /// ```
     /// # use actix_web::{http::StatusCode, web::Redirect};
-    /// // redirects would use &quot;301 Moved Permanently&quot; status code
-    /// Redirect::new(&quot;/old&quot;, &quot;/new&quot;)
+    /// // redirects would use "301 Moved Permanently" status code
+    /// Redirect::new("/old", "/new")
     ///     .using_status_code(StatusCode::MOVED_PERMANENTLY);
     ///
-    /// // redirects would use &quot;302 Found&quot; status code
-    /// Redirect::new(&quot;/old&quot;, &quot;/new&quot;)
+    /// // redirects would use "302 Found" status code
+    /// Redirect::new("/old", "/new")
     ///     .using_status_code(StatusCode::FOUND);
     /// ```
     </span><span class="kw">pub fn </span>using_status_code(<span class="kw-2">mut </span><span class="self">self</span>, status: StatusCode) -&gt; <span class="self">Self </span>{
@@ -407,7 +408,7 @@
             res.headers_mut().insert(LOCATION, hdr_val);
         } <span class="kw">else </span>{
             <span class="macro">log::error!</span>(
-                <span class="string">&quot;redirect target location can not be converted to header value: {:?}&quot;</span>,
+                <span class="string">"redirect target location can not be converted to header value: {:?}"</span>,
                 <span class="self">self</span>.to,
             );
         }
@@ -423,53 +424,53 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>absolute_redirects() {
-        <span class="kw">let </span>redirector = Redirect::new(<span class="string">&quot;/one&quot;</span>, <span class="string">&quot;/two&quot;</span>).permanent();
+        <span class="kw">let </span>redirector = Redirect::new(<span class="string">"/one"</span>, <span class="string">"/two"</span>).permanent();
 
         <span class="kw">let </span>svc = test::init_service(App::new().service(redirector)).<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = test::TestRequest::default().uri(<span class="string">&quot;/one&quot;</span>).to_request();
+        <span class="kw">let </span>req = test::TestRequest::default().uri(<span class="string">"/one"</span>).to_request();
         <span class="kw">let </span>res = svc.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::from_u16(<span class="number">308</span>).unwrap());
         <span class="kw">let </span>hdr = res.headers().get(<span class="kw-2">&amp;</span>LOCATION).unwrap();
-        <span class="macro">assert_eq!</span>(hdr.to_str().unwrap(), <span class="string">&quot;/two&quot;</span>);
+        <span class="macro">assert_eq!</span>(hdr.to_str().unwrap(), <span class="string">"/two"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>relative_redirects() {
-        <span class="kw">let </span>redirector = Redirect::new(<span class="string">&quot;/one&quot;</span>, <span class="string">&quot;two&quot;</span>).permanent();
+        <span class="kw">let </span>redirector = Redirect::new(<span class="string">"/one"</span>, <span class="string">"two"</span>).permanent();
 
         <span class="kw">let </span>svc = test::init_service(App::new().service(redirector)).<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = test::TestRequest::default().uri(<span class="string">&quot;/one&quot;</span>).to_request();
+        <span class="kw">let </span>req = test::TestRequest::default().uri(<span class="string">"/one"</span>).to_request();
         <span class="kw">let </span>res = svc.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::from_u16(<span class="number">308</span>).unwrap());
         <span class="kw">let </span>hdr = res.headers().get(<span class="kw-2">&amp;</span>LOCATION).unwrap();
-        <span class="macro">assert_eq!</span>(hdr.to_str().unwrap(), <span class="string">&quot;two&quot;</span>);
+        <span class="macro">assert_eq!</span>(hdr.to_str().unwrap(), <span class="string">"two"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>temporary_redirects() {
-        <span class="kw">let </span>external_service = Redirect::new(<span class="string">&quot;/external&quot;</span>, <span class="string">&quot;https://duck.com&quot;</span>);
+        <span class="kw">let </span>external_service = Redirect::new(<span class="string">"/external"</span>, <span class="string">"https://duck.com"</span>);
 
         <span class="kw">let </span>svc = test::init_service(App::new().service(external_service)).<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = test::TestRequest::default().uri(<span class="string">&quot;/external&quot;</span>).to_request();
+        <span class="kw">let </span>req = test::TestRequest::default().uri(<span class="string">"/external"</span>).to_request();
         <span class="kw">let </span>res = svc.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::from_u16(<span class="number">307</span>).unwrap());
         <span class="kw">let </span>hdr = res.headers().get(<span class="kw-2">&amp;</span>LOCATION).unwrap();
-        <span class="macro">assert_eq!</span>(hdr.to_str().unwrap(), <span class="string">&quot;https://duck.com&quot;</span>);
+        <span class="macro">assert_eq!</span>(hdr.to_str().unwrap(), <span class="string">"https://duck.com"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>as_responder() {
-        <span class="kw">let </span>responder = Redirect::to(<span class="string">&quot;https://duck.com&quot;</span>);
+        <span class="kw">let </span>responder = Redirect::to(<span class="string">"https://duck.com"</span>);
 
         <span class="kw">let </span>req = test::TestRequest::default().to_http_request();
         <span class="kw">let </span>res = responder.respond_to(<span class="kw-2">&amp;</span>req);
 
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::from_u16(<span class="number">307</span>).unwrap());
         <span class="kw">let </span>hdr = res.headers().get(<span class="kw-2">&amp;</span>LOCATION).unwrap();
-        <span class="macro">assert_eq!</span>(hdr.to_str().unwrap(), <span class="string">&quot;https://duck.com&quot;</span>);
+        <span class="macro">assert_eq!</span>(hdr.to_str().unwrap(), <span class="string">"https://duck.com"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

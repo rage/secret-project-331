@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/pages.rs`."><title>pages.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/pages.rs`."><title>pages.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3494,7 +3495,7 @@
 };
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>Page {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -3514,7 +3515,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>PageInfo {
     <span class="kw">pub </span>page_id: Uuid,
     <span class="kw">pub </span>page_title: String,
@@ -3525,7 +3526,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>PageAudioFiles {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>page_id: Uuid,
@@ -3542,7 +3543,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CoursePageWithUserData {
     <span class="kw">pub </span>page: Page,
     <span class="kw">pub </span>instance: <span class="prelude-ty">Option</span>&lt;CourseInstance&gt;,
@@ -3553,7 +3554,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>PageWithExercises {
     <span class="attr">#[serde(flatten)]
     </span><span class="kw">pub </span>page: Page,
@@ -3562,7 +3563,7 @@
 
 <span class="doccomment">/// Represents the subset of page fields that are required to create a new page.
 </span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewPage {
     <span class="kw">pub </span>exercises: Vec&lt;CmsPageExercise&gt;,
     <span class="kw">pub </span>exercise_slides: Vec&lt;CmsPageExerciseSlide&gt;,
@@ -3576,20 +3577,20 @@
     <span class="kw">pub </span>chapter_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     <span class="doccomment">/// If set, set this page to be the front page of this course part.
     </span><span class="kw">pub </span>front_page_of_chapter_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
-    <span class="doccomment">/// Read from the course&#39;s settings if None. If course_id is None as well, defaults to &quot;simple&quot;
+    <span class="doccomment">/// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
     </span><span class="kw">pub </span>content_search_language: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="doccomment">/// Represents the subset of page fields that can be updated from the main frontend dialog &quot;Edit page details&quot;.
+<span class="doccomment">/// Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
 </span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>PageDetailsUpdate {
     <span class="kw">pub </span>title: String,
     <span class="kw">pub </span>url_path: String,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NormalizedCmsExerciseTask {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>exercise_type: String,
@@ -3598,7 +3599,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>PageRoutingData {
     <span class="kw">pub </span>url_path: String,
     <span class="kw">pub </span>title: String,
@@ -3620,7 +3621,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>PageChapterAndCourseInformation {
     <span class="kw">pub </span>chapter_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>chapter_number: <span class="prelude-ty">Option</span>&lt;i32&gt;,
@@ -3632,7 +3633,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>PageSearchResult {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>title_headline: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -3642,7 +3643,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ContentManagementPage {
     <span class="kw">pub </span>page: Page,
     <span class="kw">pub </span>exercises: Vec&lt;CmsPageExercise&gt;,
@@ -3654,12 +3655,12 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>SearchRequest {
     <span class="kw">pub </span>query: String,
 }
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>PageNavigationInformation {
     <span class="kw">pub </span>chapter_front_page: <span class="prelude-ty">Option</span>&lt;PageRoutingData&gt;,
     <span class="kw">pub </span>next_page: <span class="prelude-ty">Option</span>&lt;PageRoutingData&gt;,
@@ -3667,7 +3668,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseWithExerciseTasks {
     id: Uuid,
     created_at: DateTime&lt;Utc&gt;,
@@ -3682,30 +3683,30 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>IsChapterFrontPage {
     <span class="kw">pub </span>is_chapter_front_page: bool,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>HistoryRestoreData {
     <span class="kw">pub </span>history_id: Uuid,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>NewCoursePage&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>NewCoursePage&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub </span>content: Vec&lt;GutenbergBlock&gt;,
     <span class="kw">pub </span>course_id: Uuid,
     <span class="kw">pub </span>order_number: i32,
-    <span class="kw">pub </span>title: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="kw">pub </span>title: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     <span class="kw">pub </span>hidden: bool,
-    <span class="kw">pub </span>url_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="kw">pub </span>url_path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; NewCoursePage&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; NewCoursePage&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates `NewCoursePage` with provided values that is public by default.
-    </span><span class="kw">pub fn </span>new(course_id: Uuid, order_number: i32, url_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, title: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(course_id: Uuid, order_number: i32, url_path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, title: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             content: Default::default(),
             course_id,
@@ -3717,7 +3718,7 @@
     }
 
     <span class="doccomment">/// Creates a new `NewCoursePage` for the same course as this one and increments the page number.
-    </span><span class="kw">pub fn </span>followed_by(<span class="kw-2">&amp;</span><span class="self">self</span>, url_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, title: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>followed_by(<span class="kw-2">&amp;</span><span class="self">self</span>, url_path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, title: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(<span class="self">self</span>.course_id, <span class="self">self</span>.order_number + <span class="number">1</span>, url_path, title)
     }
 
@@ -3736,7 +3737,7 @@
 
 <span class="kw">pub async fn </span>insert_course_page(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    new_course_page: <span class="kw-2">&amp;</span>NewCoursePage&lt;<span class="lifetime">&#39;_</span>&gt;,
+    new_course_page: <span class="kw-2">&amp;</span>NewCoursePage&lt;<span class="lifetime">'_</span>&gt;,
     author: Uuid,
 ) -&gt; ModelResult&lt;(Uuid, Uuid)&gt; {
     <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(<span class="kw-2">&amp;mut *</span>conn, new_course_page.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -3749,7 +3750,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>page_res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO pages (
     course_id,
     content,
@@ -3761,7 +3762,7 @@ INSERT INTO pages (
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
-&quot;</span>,
+"</span>,
         new_course_page.course_id,
         serde_json::to_value(new_course_page.content.clone())<span class="question-mark">?</span>,
         new_course_page.url_path,
@@ -3802,7 +3803,7 @@ RETURNING id
 ) -&gt; ModelResult&lt;(Uuid, Uuid)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>page_res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO pages (
     exam_id,
     content,
@@ -3812,7 +3813,7 @@ INSERT INTO pages (
   )
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id
-&quot;</span>,
+"</span>,
         exam_id,
         serde_json::Value::Array(<span class="macro">vec!</span>[]),
         page.url_path,
@@ -3850,7 +3851,7 @@ RETURNING id
     chapter_id: Uuid,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE pages SET chapter_id = $1 WHERE id = $2&quot;</span>,
+        <span class="string">"UPDATE pages SET chapter_id = $1 WHERE id = $2"</span>,
         chapter_id,
         page_id
     )
@@ -3864,12 +3865,12 @@ RETURNING id
     id: Uuid,
 ) -&gt; ModelResult&lt;CourseOrExamId&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT course_id, exam_id
 FROM pages
 WHERE id = $1
   AND deleted_at IS NULL;
-        &quot;</span>,
+        "</span>,
         id
     )
     .fetch_one(conn)
@@ -3895,10 +3896,10 @@ WHERE id = $1
     /// # use headless_lms_models::{ModelResult, pages::PageVisibility};
     /// # use sqlx::PgConnection;
     /// # async fn random_function_1(conn: &amp;mut PgConnection) -&gt; ModelResult&lt;()&gt; {
-    /// // Evaluates to &quot;hidden &lt;&gt; NULL&quot;
+    /// // Evaluates to "hidden &lt;&gt; NULL"
     /// let visibility = PageVisibility::Any;
     /// sqlx::query!(
-    ///     &quot;SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1&quot;,
+    ///     "SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1",
     ///     visibility.get_inverse_visibility_filter(),
     /// )
     /// .fetch_all(conn)
@@ -3907,10 +3908,10 @@ WHERE id = $1
     /// # }
     ///
     /// # async fn random_function_2(conn: &amp;mut PgConnection) -&gt; ModelResult&lt;()&gt; {
-    /// // Evaluates to &quot;hidden &lt;&gt; true&quot;
+    /// // Evaluates to "hidden &lt;&gt; true"
     /// let visibility = PageVisibility::Public;
     /// sqlx::query!(
-    ///     &quot;SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1&quot;,
+    ///     "SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1",
     ///     visibility.get_inverse_visibility_filter(),
     /// )
     /// .fetch_all(conn)
@@ -3936,7 +3937,7 @@ WHERE id = $1
     <span class="kw">let </span>inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id,
   created_at,
   updated_at,
@@ -3955,7 +3956,7 @@ FROM pages
 WHERE course_id = $1
   AND hidden IS DISTINCT FROM $2
   AND deleted_at IS NULL
-    &quot;</span>,
+    "</span>,
         course_id,
         inverse_visibility_filter,
     )
@@ -3973,7 +3974,7 @@ WHERE course_id = $1
     <span class="kw">let </span>inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     <span class="kw">let </span>pages = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id,
   created_at,
   updated_at,
@@ -3993,7 +3994,7 @@ WHERE course_id = $1
   AND hidden IS DISTINCT FROM $2
   AND p.chapter_id IS NULL
   AND p.deleted_at IS NULL
-        &quot;</span>,
+        "</span>,
         course_id,
         inverse_visibility_filter,
     )
@@ -4011,7 +4012,7 @@ WHERE course_id = $1
     <span class="kw">let </span>inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id,
   created_at,
   updated_at,
@@ -4030,7 +4031,7 @@ FROM pages
 WHERE chapter_id = $1
   AND hidden IS DISTINCT FROM $2
   AND deleted_at IS NULL
-    &quot;</span>,
+    "</span>,
         chapter_id,
         inverse_visibility_filter,
     )
@@ -4042,7 +4043,7 @@ WHERE chapter_id = $1
 <span class="kw">pub async fn </span>get_page(conn: <span class="kw-2">&amp;mut </span>PgConnection, page_id: Uuid) -&gt; ModelResult&lt;Page&gt; {
     <span class="kw">let </span>pages = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id,
   created_at,
   updated_at,
@@ -4059,7 +4060,7 @@ SELECT id,
   page_language_group_id
 FROM pages
 WHERE id = $1;
-&quot;</span>,
+"</span>,
         page_id
     )
     .fetch_one(conn)
@@ -4070,21 +4071,21 @@ WHERE id = $1;
 <span class="kw">pub async fn </span>get_page_info(conn: <span class="kw-2">&amp;mut </span>PgConnection, page_id: Uuid) -&gt; ModelResult&lt;PageInfo&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         PageInfo,
-        <span class="string">r#&quot;
+        <span class="string">r#"
     SELECT
         p.id as page_id,
         p.title as page_title,
-        c.id as &quot;course_id?&quot;,
-        c.name as &quot;course_name?&quot;,
-        c.slug as &quot;course_slug?&quot;,
-        o.slug as &quot;organization_slug?&quot;
+        c.id as "course_id?",
+        c.name as "course_name?",
+        c.slug as "course_slug?",
+        o.slug as "organization_slug?"
     FROM pages p
     LEFT JOIN courses c
         on c.id = p.course_id
     LEFT JOIN organizations o
         on o.id = c.organization_id
     WHERE p.id = $1;
-        &quot;#</span>,
+        "#</span>,
         page_id
     )
     .fetch_one(conn)
@@ -4100,7 +4101,7 @@ WHERE id = $1;
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;Page&gt;&gt; {
     <span class="kw">let </span>page = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT pages.id,
   pages.created_at,
   pages.updated_at,
@@ -4119,7 +4120,7 @@ FROM pages
 WHERE pages.course_id = $1
   AND url_path = $2
   AND pages.deleted_at IS NULL;
-        &quot;</span>,
+        "</span>,
         course_id,
         url_path
     )
@@ -4162,7 +4163,7 @@ WHERE pages.course_id = $1
 
     <span class="prelude-val">Err</span>(ModelError::new(
         ModelErrorType::NotFound,
-        <span class="string">&quot;Page not found&quot;</span>.to_string(),
+        <span class="string">"Page not found"</span>.to_string(),
         <span class="prelude-val">None</span>,
     ))
 }
@@ -4174,7 +4175,7 @@ WHERE pages.course_id = $1
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;Page&gt;&gt; {
     <span class="kw">let </span>page = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT pages.id,
   pages.created_at,
   pages.updated_at,
@@ -4195,7 +4196,7 @@ WHERE url_redirections.course_id = $1
   AND old_url_path = $2
   AND url_redirections.deleted_at IS NULL
   AND pages.deleted_at IS NULL;
-    &quot;</span>,
+    "</span>,
         course_id,
         url_path
     )
@@ -4313,7 +4314,7 @@ WHERE url_redirections.course_id = $1
 </span><span class="kw">pub async fn </span>get_by_exam_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, exam_id: Uuid) -&gt; ModelResult&lt;Page&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT pages.id,
   pages.created_at,
   pages.updated_at,
@@ -4331,7 +4332,7 @@ SELECT pages.id,
 FROM pages
 WHERE exam_id = $1
 AND pages.deleted_at IS NULL
-&quot;</span>,
+"</span>,
         exam_id
     )
     .fetch_one(conn)
@@ -4340,7 +4341,7 @@ AND pages.deleted_at IS NULL
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CmsPageExercise {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>name: String,
@@ -4378,7 +4379,7 @@ AND pages.deleted_at IS NULL
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CmsPageExerciseSlide {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>exercise_id: Uuid,
@@ -4396,7 +4397,7 @@ AND pages.deleted_at IS NULL
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CmsPageExerciseTask {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>exercise_slide_id: Uuid,
@@ -4420,7 +4421,7 @@ AND pages.deleted_at IS NULL
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CmsPageUpdate {
     <span class="kw">pub </span>content: serde_json::Value,
     <span class="kw">pub </span>exercises: Vec&lt;CmsPageExercise&gt;,
@@ -4446,7 +4447,7 @@ AND pages.deleted_at IS NULL
                 } <span class="kw">else </span>{
                     <span class="prelude-val">Err</span>(ModelError::new(
                         ModelErrorType::PreconditionFailed,
-                        <span class="string">&quot;Exercide ids in slides don&#39;t match.&quot;</span>.to_string(),
+                        <span class="string">"Exercide ids in slides don't match."</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     ))
                 }
@@ -4457,9 +4458,9 @@ AND pages.deleted_at IS NULL
             <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                 ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
                     id: exercise_id,
-                    description: <span class="string">&quot;Exercise must have at least one slide.&quot;</span>,
+                    description: <span class="string">"Exercise must have at least one slide."</span>,
                 },
-                <span class="string">&quot;Exercise must have at least one slide.&quot;</span>.to_string(),
+                <span class="string">"Exercise must have at least one slide."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
@@ -4470,7 +4471,7 @@ AND pages.deleted_at IS NULL
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                     ModelErrorType::PreconditionFailed,
-                    <span class="string">&quot;Exercise slide ids in tasks don&#39;t match.&quot;</span>.to_string(),
+                    <span class="string">"Exercise slide ids in tasks don't match."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 ));
             }
@@ -4479,9 +4480,9 @@ AND pages.deleted_at IS NULL
             <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                 ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
                     id: slide_id,
-                    description: <span class="string">&quot;Exercise slide must have at least one task.&quot;</span>,
+                    description: <span class="string">"Exercise slide must have at least one task."</span>,
                 },
-                <span class="string">&quot;Exercise slide must have at least one task.&quot;</span>.to_string(),
+                <span class="string">"Exercise slide must have at least one task."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
@@ -4503,7 +4504,7 @@ AND pages.deleted_at IS NULL
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     page_update: PageUpdateArgs,
     spec_fetcher: <span class="kw">impl </span>SpecFetcher,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ContentManagementPage&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>cms_page_update = page_update.cms_page_update;
     cms_page_update.validate_exercise_data()<span class="question-mark">?</span>;
@@ -4520,7 +4521,7 @@ AND pages.deleted_at IS NULL
         &amp;&amp; contains_blocks_not_allowed_in_top_level_pages(<span class="kw-2">&amp;</span>parsed_content)
     {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
-               ModelErrorType::Generic , <span class="string">&quot;Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter&quot;</span>.to_string(), <span class="prelude-val">None
+               ModelErrorType::Generic , <span class="string">"Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter"</span>.to_string(), <span class="prelude-val">None
             </span>));
     }
 
@@ -4529,7 +4530,7 @@ AND pages.deleted_at IS NULL
     <span class="comment">// Updating page
     </span><span class="kw">let </span>page = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">r&quot;
+        <span class="string">r"
 UPDATE pages
 SET content = $2,
   url_path = $3,
@@ -4550,7 +4551,7 @@ RETURNING id,
   copied_from,
   pages.hidden,
   pages.page_language_group_id
-        &quot;</span>,
+        "</span>,
         page_update.page_id,
         serde_json::to_value(parsed_content)<span class="question-mark">?</span>,
         cms_page_update.url_path.trim(),
@@ -4636,7 +4637,7 @@ RETURNING id,
     <span class="comment">// Set as deleted and get existing specs
     </span><span class="kw">let </span>existing_exercise_task_specs = <span class="macro">sqlx::query_as!</span>(
         ExerciseTaskIdAndSpec,
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE exercise_tasks
 SET deleted_at = now()
 WHERE exercise_slide_id = ANY($1)
@@ -4645,7 +4646,7 @@ RETURNING id,
   private_spec,
   public_spec,
   model_solution_spec;
-        &quot;</span>,
+        "</span>,
         <span class="kw-2">&amp;</span>existing_exercise_slide_ids,
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>tx)
@@ -4672,7 +4673,7 @@ RETURNING id,
 
     <span class="kw">let </span>page = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE pages
 SET content = $1
 WHERE id = $2
@@ -4690,7 +4691,7 @@ RETURNING id,
   copied_from,
   hidden,
   page_language_group_id
-        &quot;</span>,
+        "</span>,
         new_content,
         page.id
     )
@@ -4802,7 +4803,7 @@ RETURNING id,
 
         <span class="kw">let </span>exercise = <span class="macro">sqlx::query_as!</span>(
             Exercise,
-            <span class="string">&quot;
+            <span class="string">"
 INSERT INTO exercises(
     id,
     course_id,
@@ -4851,7 +4852,7 @@ SET course_id = $2,
   exercise_language_group_id = $14,
   deleted_at = NULL
 RETURNING *;
-            &quot;</span>,
+            "</span>,
             safe_for_db_exercise_id,
             page.course_id,
             exercise_update.name,
@@ -4896,7 +4897,7 @@ RETURNING *;
             .ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::InvalidRequest,
-                    <span class="string">&quot;Illegal exercise id for exercise slide.&quot;</span>.to_string(),
+                    <span class="string">"Illegal exercise id for exercise slide."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?
@@ -4904,7 +4905,7 @@ RETURNING *;
 
         <span class="kw">let </span>exercise_slide = <span class="macro">sqlx::query_as!</span>(
             CmsPageExerciseSlide,
-            <span class="string">&quot;
+            <span class="string">"
 INSERT INTO exercise_slides (id, exercise_id, order_number)
 VALUES ($1, $2, $3) ON CONFLICT (id) DO
 UPDATE
@@ -4914,7 +4915,7 @@ SET exercise_id = $2,
 RETURNING id,
   exercise_id,
   order_number;
-            &quot;</span>,
+            "</span>,
             safe_for_db_slide_id,
             safe_for_db_exercise_id,
             slide_update.order_number,
@@ -4935,7 +4936,7 @@ RETURNING id,
     task_updates: <span class="kw-2">&amp;</span>[CmsPageExerciseTask],
     retain_exercise_ids: bool,
     spec_fetcher: <span class="kw">impl </span>SpecFetcher,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Vec&lt;CmsPageExerciseTask&gt;&gt; {
     <span class="comment">// For generating public specs for exercises.
     </span><span class="kw">let </span>exercise_types: Vec&lt;String&gt; = task_updates
@@ -5004,7 +5005,7 @@ RETURNING id,
             .ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::InvalidRequest,
-                    <span class="string">&quot;Illegal exercise slide id for exercise task.&quot;</span>.to_string(),
+                    <span class="string">"Illegal exercise slide id for exercise task."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?
@@ -5013,7 +5014,7 @@ RETURNING id,
         <span class="comment">// Upsert
         </span><span class="kw">let </span>exercise_task = <span class="macro">sqlx::query_as!</span>(
             CmsPageExerciseTask,
-            <span class="string">&quot;
+            <span class="string">"
 INSERT INTO exercise_tasks(
     id,
     exercise_slide_id,
@@ -5040,7 +5041,7 @@ RETURNING id,
   exercise_type,
   private_spec,
   order_number
-                &quot;</span>,
+                "</span>,
             safe_for_db_exercise_task_id,
             safe_for_db_exercise_slide_id,
             task_update.exercise_type,
@@ -5070,7 +5071,7 @@ RETURNING id,
         <span class="kw">let </span><span class="kw-2">mut </span>new_peer_review_config_id_to_old_id = HashMap::new();
 
         <span class="kw">let </span><span class="kw-2">mut </span>sql: QueryBuilder&lt;Postgres&gt; = QueryBuilder::new(
-            <span class="string">&quot;INSERT INTO peer_review_configs (
+            <span class="string">"INSERT INTO peer_review_configs (
         id,
         course_id,
         exercise_id,
@@ -5080,7 +5081,7 @@ RETURNING id,
         accepting_threshold,
         points_are_all_or_nothing,
         deleted_at
-      ) &quot;</span>,
+      ) "</span>,
         );
 
         <span class="comment">// No way to return from push_values, we can use this to detect an error after the push_values
@@ -5098,7 +5099,7 @@ RETURNING id,
             <span class="kw">let </span>safe_for_db_exercise_id = pr.exercise_id.and_then(|id| {
                 <span class="kw">let </span>res = remapped_exercises.get(<span class="kw-2">&amp;</span>id).map(|e| e.id);
                 <span class="kw">if </span>res.is_none() {
-                    <span class="macro">error!</span>(<span class="string">&quot;Illegal exercise id {:?}&quot;</span>, id);
+                    <span class="macro">error!</span>(<span class="string">"Illegal exercise id {:?}"</span>, id);
                     illegal_exercise_id = <span class="prelude-val">Some</span>(id);
                 }
                 res
@@ -5112,19 +5113,19 @@ RETURNING id,
                 .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push_bind(pr.points_are_all_or_nothing)
-                .push(<span class="string">&quot;NULL&quot;</span>);
+                .push(<span class="string">"NULL"</span>);
         });
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(illegal_exercise_id) = illegal_exercise_id {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                 ModelErrorType::InvalidRequest,
-                <span class="macro">format!</span>(<span class="string">&quot;Illegal exercise id {:?}&quot;</span>, illegal_exercise_id),
+                <span class="macro">format!</span>(<span class="string">"Illegal exercise id {:?}"</span>, illegal_exercise_id),
                 <span class="prelude-val">None</span>,
             ));
         }
 
         sql.push(
-            <span class="string">&quot; ON CONFLICT (id) DO
+            <span class="string">" ON CONFLICT (id) DO
 UPDATE
 SET course_id = excluded.course_id,
   exercise_id = excluded.exercise_id,
@@ -5135,7 +5136,7 @@ SET course_id = excluded.course_id,
   points_are_all_or_nothing = excluded.points_are_all_or_nothing,
   deleted_at = NULL
 RETURNING id;
-&quot;</span>,
+"</span>,
         );
 
         <span class="kw">let </span>ids = sql
@@ -5148,21 +5149,21 @@ RETURNING id;
 
         <span class="kw">let </span>prs = <span class="macro">sqlx::query_as!</span>(
             CmsPeerReviewConfig,
-            <span class="string">r#&quot;
-SELECT id as &quot;id!&quot;,
-  course_id as &quot;course_id!&quot;,
+            <span class="string">r#"
+SELECT id as "id!",
+  course_id as "course_id!",
   exercise_id,
-  peer_reviews_to_give as &quot;peer_reviews_to_give!&quot;,
-  peer_reviews_to_receive as &quot;peer_reviews_to_receive!&quot;,
-  processing_strategy AS &quot;processing_strategy!: _&quot;,
-  accepting_threshold &quot;accepting_threshold!&quot;,
-  points_are_all_or_nothing &quot;points_are_all_or_nothing!&quot;
+  peer_reviews_to_give as "peer_reviews_to_give!",
+  peer_reviews_to_receive as "peer_reviews_to_receive!",
+  processing_strategy AS "processing_strategy!: _",
+  accepting_threshold "accepting_threshold!",
+  points_are_all_or_nothing "points_are_all_or_nothing!"
 FROM peer_review_configs
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND deleted_at IS NULL;
-    &quot;#</span>,
+    "#</span>,
             <span class="kw-2">&amp;</span>ids
         )
         .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -5176,7 +5177,7 @@ WHERE id IN (
                 .ok_or_else(|| {
                     ModelError::new(
                         ModelErrorType::Generic,
-                        <span class="string">&quot;Inserted peer reviews not found&quot;</span>.to_string(),
+                        <span class="string">"Inserted peer reviews not found"</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;
@@ -5200,7 +5201,7 @@ WHERE id IN (
         <span class="kw">let </span><span class="kw-2">mut </span>new_peer_review_question_id_to_old_id = HashMap::new();
 
         <span class="kw">let </span><span class="kw-2">mut </span>sql: QueryBuilder&lt;Postgres&gt; = QueryBuilder::new(
-            <span class="string">&quot;INSERT INTO peer_review_questions (
+            <span class="string">"INSERT INTO peer_review_questions (
         id,
         peer_review_config_id,
         order_number,
@@ -5209,7 +5210,7 @@ WHERE id IN (
         answer_required,
         weight,
         deleted_at
-      ) &quot;</span>,
+      ) "</span>,
         );
 
         <span class="kw">let </span>peer_review_questions = peer_review_questions
@@ -5222,7 +5223,7 @@ WHERE id IN (
                     .ok_or_else(|| {
                         ModelError::new(
                             ModelErrorType::Generic,
-                            <span class="string">&quot;No peer review found for peer review questions&quot;</span>.to_string(),
+                            <span class="string">"No peer review found for peer review questions"</span>.to_string(),
                             <span class="prelude-val">None</span>,
                         )
                     })
@@ -5251,12 +5252,12 @@ WHERE id IN (
                     .push_bind(prq.question_type)
                     .push_bind(prq.answer_required)
                     .push_bind(prq.weight)
-                    .push(<span class="string">&quot;NULL&quot;</span>);
+                    .push(<span class="string">"NULL"</span>);
             },
         );
 
         sql.push(
-            <span class="string">&quot; ON CONFLICT (id) DO
+            <span class="string">" ON CONFLICT (id) DO
 UPDATE
 SET peer_review_config_id = excluded.peer_review_config_id,
     order_number = excluded.order_number,
@@ -5266,7 +5267,7 @@ SET peer_review_config_id = excluded.peer_review_config_id,
     weight = excluded.weight,
     deleted_at = NULL
 RETURNING id;
-&quot;</span>,
+"</span>,
         );
 
         <span class="kw">let </span>ids = sql
@@ -5279,20 +5280,20 @@ RETURNING id;
 
         <span class="kw">let </span>prqs = <span class="macro">sqlx::query_as!</span>(
             CmsPeerReviewQuestion,
-            <span class="string">r#&quot;
-SELECT id AS &quot;id!&quot;,
-  answer_required AS &quot;answer_required!&quot;,
-  order_number AS &quot;order_number!&quot;,
-  peer_review_config_id AS &quot;peer_review_config_id!&quot;,
-  question AS &quot;question!&quot;,
-  question_type AS &quot;question_type!: _&quot;,
-  weight AS &quot;weight!&quot;
+            <span class="string">r#"
+SELECT id AS "id!",
+  answer_required AS "answer_required!",
+  order_number AS "order_number!",
+  peer_review_config_id AS "peer_review_config_id!",
+  question AS "question!",
+  question_type AS "question_type!: _",
+  weight AS "weight!"
 FROM peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND deleted_at is null;
-        &quot;#</span>,
+        "#</span>,
             <span class="kw-2">&amp;</span>ids
         )
         .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -5306,7 +5307,7 @@ WHERE id IN (
                 .ok_or_else(|| {
                     ModelError::new(
                         ModelErrorType::Generic,
-                        <span class="string">&quot;Inserted peer reviews not found&quot;</span>.to_string(),
+                        <span class="string">"Inserted peer reviews not found"</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;
@@ -5324,11 +5325,11 @@ WHERE id IN (
     content: <span class="kw-2">&amp;</span>serde_json::Value,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE pages
 SET content = $1
 WHERE id = $2;
-&quot;</span>,
+"</span>,
         content,
         page_id
     )
@@ -5365,9 +5366,9 @@ WHERE id = $2;
                     ModelError::new(
                         ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
                             id: cms_block_id,
-                            description: <span class="string">&quot;Missing exercise type for exercise task.&quot;</span>,
+                            description: <span class="string">"Missing exercise type for exercise task."</span>,
                         },
-                        <span class="string">&quot;Missing exercise type for exercise task.&quot;</span>.to_string(),
+                        <span class="string">"Missing exercise type for exercise task."</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?
@@ -5389,13 +5390,13 @@ WHERE id = $2;
     new_page: NewPage,
     user: Uuid,
     spec_fetcher: <span class="kw">impl </span>SpecFetcher,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Page&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>course_material_content = serde_json::to_value(<span class="macro">vec!</span>[GutenbergBlock::hero_section(
         new_page.title.trim(),
-        <span class="string">&quot;&quot;</span>,
+        <span class="string">""</span>,
     )])<span class="question-mark">?</span>;
 
     <span class="kw">let </span>content_page = NewPage {
@@ -5429,7 +5430,7 @@ WHERE id = $2;
     new_page: NewPage,
     author: Uuid,
     spec_fetcher: <span class="kw">impl </span>SpecFetcher,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Page&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>page_language_group_id = <span class="prelude-val">None</span>;
     <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = new_page.course_id {
@@ -5463,10 +5464,10 @@ WHERE id = $2;
     <span class="kw">let </span>content_search_language = course
         .and_then(|c| c.content_search_language)
         .or(new_page.content_search_language)
-        .unwrap_or_else(|| <span class="string">&quot;simple&quot;</span>.to_string());
+        .unwrap_or_else(|| <span class="string">"simple"</span>.to_string());
     <span class="kw">let </span>page = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 INSERT INTO pages(
     course_id,
     exam_id,
@@ -5493,7 +5494,7 @@ RETURNING id,
   copied_from,
   pages.hidden,
   page_language_group_id
-          &quot;#</span>,
+          "#</span>,
         new_page.course_id,
         new_page.exam_id,
         new_page.content,
@@ -5533,12 +5534,12 @@ RETURNING id,
     <span class="kw">if let </span><span class="prelude-val">Some</span>(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
         <span class="kw">let </span>_res = <span class="macro">sqlx::query_as!</span>(
             DatabaseChapter,
-            <span class="string">r#&quot;
+            <span class="string">r#"
 UPDATE chapters
 SET front_page_id = $1
 WHERE id = $2
 RETURNING *;
-        &quot;#</span>,
+        "#</span>,
             page.id,
             front_page_of_chapter_id
         )
@@ -5573,7 +5574,7 @@ RETURNING *;
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>page = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE pages
 SET deleted_at = now()
 WHERE id = $1
@@ -5591,26 +5592,26 @@ RETURNING id,
   copied_from,
   hidden,
   page_language_group_id
-          &quot;#</span>,
+          "#</span>,
         page_id,
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
+        <span class="string">r#"
   UPDATE exercises
   SET deleted_at = now()
   WHERE page_id = $1
   AND deleted_at IS NULL
-          &quot;#</span>,
+          "#</span>,
         page_id,
     )
     .execute(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE exercise_slides
 SET deleted_at = now()
 WHERE exercise_id IN (
@@ -5619,14 +5620,14 @@ WHERE exercise_id IN (
     WHERE page_id = $1
   )
   AND deleted_at IS NULL;
-        &quot;</span>,
+        "</span>,
         page.id
     )
     .execute(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
+        <span class="string">r#"
 UPDATE exercise_tasks
 SET deleted_at = now()
 WHERE exercise_slide_id IN (
@@ -5636,7 +5637,7 @@ WHERE exercise_slide_id IN (
     WHERE e.page_id = $1
   )
   AND deleted_at IS NULL;
-            &quot;#</span>,
+            "#</span>,
         page.id
     )
     .execute(<span class="kw-2">&amp;mut *</span>tx)
@@ -5652,7 +5653,7 @@ WHERE exercise_slide_id IN (
 ) -&gt; ModelResult&lt;Vec&lt;PageWithExercises&gt;&gt; {
     <span class="kw">let </span>chapter_pages = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT id,
   created_at,
   updated_at,
@@ -5670,7 +5671,7 @@ SELECT id,
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         chapters_id
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -5678,14 +5679,14 @@ WHERE chapter_id = $1
     <span class="kw">let </span>page_ids: Vec&lt;Uuid&gt; = chapter_pages.iter().map(|page| page.id).collect();
     <span class="kw">let </span>pages_exercises = <span class="macro">sqlx::query_as!</span>(
         Exercise,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT *
 FROM exercises
 WHERE page_id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         <span class="kw-2">&amp;</span>page_ids
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -5735,17 +5736,17 @@ WHERE page_id IN (
 ) -&gt; ModelResult&lt;PageMetadata&gt; {
     <span class="kw">let </span>page_metadata = <span class="macro">sqlx::query_as!</span>(
         PageMetadata,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT p.id as page_id,
   p.order_number as order_number,
   p.course_id as course_id,
   p.exam_id as exam_id,
-  c.id as &quot;chapter_id?&quot;,
-  c.chapter_number as &quot;chapter_number?&quot;
+  c.id as "chapter_id?",
+  c.chapter_number as "chapter_number?"
 FROM pages p
   LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.id = $1;
-&quot;#</span>,
+"#</span>,
         page_id
     )
     .fetch_one(conn)
@@ -5754,7 +5755,7 @@ WHERE p.id = $1;
     <span class="kw">if </span>page_metadata.chapter_number.is_none() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::InvalidRequest,
-            <span class="string">&quot;Page is not related to any chapter&quot;</span>.to_string(),
+            <span class="string">"Page is not related to any chapter"</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -5768,7 +5769,7 @@ WHERE p.id = $1;
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;PageRoutingData&gt;&gt; {
     <span class="kw">let </span>next_page = <span class="macro">sqlx::query_as!</span>(
         PageRoutingData,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT p.url_path as url_path,
   p.title as title,
   p.id as page_id,
@@ -5787,7 +5788,7 @@ WHERE p.order_number = (
   AND p.course_id = $2
   AND c.chapter_number = $3
   AND p.deleted_at IS NULL;
-        &quot;</span>,
+        "</span>,
         current_page_metadata.order_number,
         current_page_metadata.course_id,
         current_page_metadata.chapter_number
@@ -5804,7 +5805,7 @@ WHERE p.order_number = (
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;PageRoutingData&gt;&gt; {
     <span class="kw">let </span>next_page = <span class="macro">sqlx::query_as!</span>(
         PageRoutingData,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT p.url_path as url_path,
   p.title as title,
   p.id as page_id,
@@ -5824,7 +5825,7 @@ WHERE c.chapter_number = (
   AND p.deleted_at IS NULL
 ORDER BY p.order_number
 LIMIT 1;
-        &quot;</span>,
+        "</span>,
         current_page_metadata.chapter_number,
         current_page_metadata.course_id
     )
@@ -5839,12 +5840,12 @@ LIMIT 1;
     chapter_id: Uuid,
 ) -&gt; ModelResult&lt;i32&gt; {
     <span class="kw">let </span>next_order_number = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 select max(p.order_number) as order_number
 from pages p
 where p.chapter_id = $1
   and p.deleted_at is null;
-&quot;</span>,
+"</span>,
         chapter_id
     )
     .fetch_one(conn)
@@ -5890,7 +5891,7 @@ where p.chapter_id = $1
             } <span class="kw">else </span>{
                 <span class="prelude-val">Err</span>(ModelError::new(
                     ModelErrorType::InvalidRequest,
-                    <span class="string">&quot;Chapter front page chapter not found&quot;</span>.to_string(),
+                    <span class="string">"Chapter front page chapter not found"</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 ))
             }
@@ -5939,7 +5940,7 @@ where p.chapter_id = $1
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;PageRoutingData&gt;&gt; {
     <span class="kw">let </span>previous_page = <span class="macro">sqlx::query_as!</span>(
         PageRoutingData,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
@@ -5958,7 +5959,7 @@ WHERE p.order_number = (
   AND p.course_id = $2
   AND c.chapter_number = $3
   AND p.deleted_at IS NULL;
-        &quot;</span>,
+        "</span>,
         current_page_metadata.order_number,
         current_page_metadata.course_id,
         current_page_metadata.chapter_number
@@ -5975,7 +5976,7 @@ WHERE p.order_number = (
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;PageRoutingData&gt;&gt; {
     <span class="kw">let </span>previous_page = <span class="macro">sqlx::query_as!</span>(
         PageRoutingData,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT p.url_path as url_path,
   p.title as title,
   p.id as page_id,
@@ -5995,7 +5996,7 @@ WHERE c.chapter_number = (
   AND p.deleted_at IS NULL
 ORDER BY p.order_number
 LIMIT 1;
-        &quot;</span>,
+        "</span>,
         current_page_metadata.chapter_number,
         current_page_metadata.course_id
     )
@@ -6010,13 +6011,13 @@ LIMIT 1;
     course_id: Uuid,
 ) -&gt; ModelResult&lt;i32&gt; {
     <span class="kw">let </span>next_order_number = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 select max(p.order_number) as order_number
 from pages p
 where p.course_id = $1
   and p.chapter_id is null
   and p.deleted_at is null;
-&quot;</span>,
+"</span>,
         course_id
     )
     .fetch_one(conn)
@@ -6034,7 +6035,7 @@ where p.course_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;Page&gt;&gt; {
     <span class="kw">let </span>pages = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id,
   created_at,
   updated_at,
@@ -6052,7 +6053,7 @@ SELECT id,
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL;
-    &quot;</span>,
+    "</span>,
         chapter_id
     )
     .fetch_all(conn)
@@ -6067,7 +6068,7 @@ WHERE p.chapter_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;Page&gt;&gt; {
     <span class="kw">let </span>pages = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id,
   created_at,
   updated_at,
@@ -6091,7 +6092,7 @@ WHERE p.chapter_id = $1
     FROM chapters c
     WHERE c.front_page_id = p.id
   );
-    &quot;</span>,
+    "</span>,
         chapter_id
     )
     .fetch_all(conn)
@@ -6124,16 +6125,16 @@ Returns search results for a phrase i.e. looks for matches where the words come 
 
     <span class="kw">let </span>res =   <span class="macro">sqlx::query_as!</span>(
             PageSearchResult,
-            <span class="string">&quot;
--- common table expression for the search term tsquery so that we don&#39;t have to repeat it many times
+            <span class="string">"
+-- common table expression for the search term tsquery so that we don't have to repeat it many times
 WITH cte as (
-    -- Converts the search term to a phrase search with phraseto_tsquery but appends &#39;:*&#39; to the last word so that it
+    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
     -- becomes a prefix match. This way the search will also contain results when the last word in the search term
     -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.
     SELECT ts_rewrite(
         phraseto_tsquery($2::regconfig, $3),
         to_tsquery($4),
-        to_tsquery($4 || &#39;:*&#39;)
+        to_tsquery($4 || ':*')
     ) as query
 )
 SELECT id,
@@ -6171,7 +6172,7 @@ WHERE course_id = $1
     )
 ORDER BY rank DESC
 LIMIT 50;
-        &quot;</span>,
+        "</span>,
             course_id,
             course.content_search_language <span class="kw">as _</span>,
             page_search_request.query,
@@ -6208,17 +6209,17 @@ Returns search results for the given words. The words can appear in the source d
 
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
             PageSearchResult,
-            <span class="string">&quot;
--- common table expression for the search term tsquery so that we don&#39;t have to repeat it many times
+            <span class="string">"
+-- common table expression for the search term tsquery so that we don't have to repeat it many times
 WITH cte as (
-    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends &#39;:*&#39; to the
+    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
     -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in
     -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement
     -- will be skipped.
     SELECT ts_rewrite(
         plainto_tsquery($2::regconfig, $3),
         to_tsquery($4),
-        to_tsquery($4 || &#39;:*&#39;)
+        to_tsquery($4 || ':*')
     ) as query
 )
 SELECT id,
@@ -6256,7 +6257,7 @@ WHERE course_id = $1
     )
 ORDER BY rank DESC
 LIMIT 50;
-        &quot;</span>,
+        "</span>,
             course_id,
             course.content_search_language <span class="kw">as _</span>,
             page_search_request.query,
@@ -6275,12 +6276,12 @@ LIMIT 50;
     search_results
         .into_iter()
         .map(|<span class="kw-2">mut </span>sr| {
-            <span class="kw">let </span>optional_slash = <span class="kw">if </span>sr.url_path.starts_with(<span class="string">&#39;/&#39;</span>) {
-                <span class="string">&quot;&quot;
+            <span class="kw">let </span>optional_slash = <span class="kw">if </span>sr.url_path.starts_with(<span class="string">'/'</span>) {
+                <span class="string">""
             </span>} <span class="kw">else </span>{
-                <span class="string">&quot;/&quot;
+                <span class="string">"/"
             </span>};
-            sr.url_path = <span class="macro">format!</span>(<span class="string">&quot;/{}{}{}&quot;</span>, course.slug, optional_slash, sr.url_path);
+            sr.url_path = <span class="macro">format!</span>(<span class="string">"/{}{}{}"</span>, course.slug, optional_slash, sr.url_path);
             sr
         })
         .collect()
@@ -6293,7 +6294,7 @@ LIMIT 50;
     history_id: Uuid,
     author: Uuid,
     spec_fetcher: <span class="kw">impl </span>SpecFetcher,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="comment">// fetch old content
     </span><span class="kw">let </span>page = get_page(conn, page_id).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -6327,7 +6328,7 @@ LIMIT 50;
 
 <span class="kw">pub async fn </span>get_organization_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, page_id: Uuid) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT organizations.id
 FROM pages
   LEFT OUTER JOIN courses ON courses.id = pages.course_id
@@ -6335,7 +6336,7 @@ FROM pages
   JOIN organizations ON organizations.id = courses.organization_id
   OR organizations.id = exams.organization_id
 WHERE pages.id = $1
-&quot;</span>,
+"</span>,
         page_id,
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
@@ -6349,13 +6350,13 @@ WHERE pages.id = $1
 ) -&gt; ModelResult&lt;PageChapterAndCourseInformation&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         PageChapterAndCourseInformation,
-        <span class="string">r#&quot;
-SELECT chapters.name as &quot;chapter_name?&quot;,
-  chapters.chapter_number as &quot;chapter_number?&quot;,
-  courses.name as &quot;course_name?&quot;,
-  courses.slug as &quot;course_slug?&quot;,
-  chapters.front_page_id as &quot;chapter_front_page_id?&quot;,
-  p2.url_path as &quot;chapter_front_page_url_path?&quot;,
+        <span class="string">r#"
+SELECT chapters.name as "chapter_name?",
+  chapters.chapter_number as "chapter_number?",
+  courses.name as "course_name?",
+  courses.slug as "course_slug?",
+  chapters.front_page_id as "chapter_front_page_id?",
+  p2.url_path as "chapter_front_page_url_path?",
   organizations.slug as organization_slug
 FROM pages
   LEFT JOIN chapters on pages.chapter_id = chapters.id
@@ -6363,7 +6364,7 @@ FROM pages
   LEFT JOIN pages p2 ON chapters.front_page_id = p2.id
   LEFT JOIN organizations on courses.organization_id = organizations.id
 WHERE pages.id = $1
-&quot;#</span>,
+"#</span>,
         page_id,
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
@@ -6378,7 +6379,7 @@ WHERE pages.id = $1
 ) -&gt; ModelResult&lt;Page&gt; {
     <span class="kw">let </span>page = <span class="macro">sqlx::query_as!</span>(
         Page,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id,
     created_at,
     updated_at,
@@ -6397,7 +6398,7 @@ FROM pages p
 WHERE p.course_id = $1
     AND p.page_language_group_id = $2
     AND p.deleted_at IS NULL
-    &quot;</span>,
+    "</span>,
         course_id,
         page_language_group_id
     )
@@ -6406,7 +6407,7 @@ WHERE p.course_id = $1
     <span class="prelude-val">Ok</span>(page)
 }
 
-<span class="doccomment">/// Makes the order numbers and chapter ids to match in the db what&#39;s in the page objects
+<span class="doccomment">/// Makes the order numbers and chapter ids to match in the db what's in the page objects
 /// Assumes that all pages belong to the given course id
 </span><span class="kw">pub async fn </span>reorder_pages(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
@@ -6423,18 +6424,18 @@ WHERE p.course_id = $1
                 <span class="comment">// Chapter not changing
                 // Avoid conflicts in order_number since unique indexes cannot be deferred. The random number will not end up committing in the transaction since the loop goes through all the pages and will correct the number.
                 </span><span class="macro">sqlx::query!</span>(
-                    <span class="string">&quot;UPDATE pages
+                    <span class="string">"UPDATE pages
 SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
 WHERE pages.order_number = $1
   AND pages.chapter_id = $2
-  AND deleted_at IS NULL&quot;</span>,
+  AND deleted_at IS NULL"</span>,
                     page.order_number,
                     page.chapter_id
                 )
                 .execute(<span class="kw-2">&amp;mut *</span>tx)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="macro">sqlx::query!</span>(
-                    <span class="string">&quot;UPDATE pages SET order_number = $2 WHERE pages.id = $1&quot;</span>,
+                    <span class="string">"UPDATE pages SET order_number = $2 WHERE pages.id = $1"</span>,
                     page.id,
                     page.order_number
                 )
@@ -6457,7 +6458,7 @@ WHERE pages.order_number = $1
                                     <span class="number">1</span>,
                                 );
                                 <span class="macro">sqlx::query!</span>(
-                                    <span class="string">&quot;UPDATE pages SET url_path = $2, chapter_id = $3, order_number = $4 WHERE pages.id = $1&quot;</span>,
+                                    <span class="string">"UPDATE pages SET url_path = $2, chapter_id = $3, order_number = $4 WHERE pages.id = $1"</span>,
                                     page.id,
                                     new_path,
                                     new_chapter.id,
@@ -6466,7 +6467,7 @@ WHERE pages.order_number = $1
                                 .execute(<span class="kw-2">&amp;mut *</span>tx)
                                 .<span class="kw">await</span><span class="question-mark">?</span>;
                                 <span class="macro">sqlx::query!</span>(
-                                    <span class="string">&quot;INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)&quot;</span>,
+                                    <span class="string">"INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)"</span>,
                                     page.id,
                                     old_path,
                                     course_id
@@ -6476,14 +6477,14 @@ WHERE pages.order_number = $1
                             } <span class="kw">else </span>{
                                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                                     ModelErrorType::InvalidRequest,
-                                    <span class="string">&quot;New chapter not found&quot;</span>.to_string(),
+                                    <span class="string">"New chapter not found"</span>.to_string(),
                                     <span class="prelude-val">None</span>,
                                 ));
                             }
                         } <span class="kw">else </span>{
                             <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                                 ModelErrorType::InvalidRequest,
-                                <span class="string">&quot;Old chapter not found&quot;</span>.to_string(),
+                                <span class="string">"Old chapter not found"</span>.to_string(),
                                 <span class="prelude-val">None</span>,
                             ));
                         }
@@ -6491,17 +6492,17 @@ WHERE pages.order_number = $1
                         <span class="comment">// Moving page from a chapter to a top level page
                         </span><span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                             ModelErrorType::InvalidRequest,
-                            <span class="string">&quot;Making a chapter page a top level page is not supported yet&quot;
+                            <span class="string">"Making a chapter page a top level page is not supported yet"
                                 </span>.to_string(),
                             <span class="prelude-val">None</span>,
                         ));
                     }
                 } <span class="kw">else </span>{
-                    <span class="macro">error!</span>(<span class="string">&quot;Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}&quot;</span>, matching_db_page.chapter_id, page.chapter_id);
+                    <span class="macro">error!</span>(<span class="string">"Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}"</span>, matching_db_page.chapter_id, page.chapter_id);
                     <span class="comment">// Moving page from the top level to a chapter
                     </span><span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                         ModelErrorType::InvalidRequest,
-                        <span class="string">&quot;Moving a top level page to a chapter is not supported yet&quot;</span>.to_string(),
+                        <span class="string">"Moving a top level page to a chapter is not supported yet"</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     ));
                 }
@@ -6509,7 +6510,7 @@ WHERE pages.order_number = $1
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                 ModelErrorType::InvalidRequest,
-                <span class="macro">format!</span>(<span class="string">&quot;Page {} does exist in course {}&quot;</span>, page.id, course_id),
+                <span class="macro">format!</span>(<span class="string">"Page {} does exist in course {}"</span>, page.id, course_id),
                 <span class="prelude-val">None</span>,
             ));
         }
@@ -6534,11 +6535,11 @@ WHERE pages.order_number = $1
                 <span class="comment">// to avoid conflicting chapter_number when chapter is modified
                 //Assign random number to modified chapters
                 </span><span class="macro">sqlx::query!</span>(
-                    <span class="string">&quot;UPDATE chapters
+                    <span class="string">"UPDATE chapters
                 SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)
                 WHERE chapters.id = $1
                   AND chapters.course_id = $2
-                  AND deleted_at IS NULL&quot;</span>,
+                  AND deleted_at IS NULL"</span>,
                     matching_db_chapter.id,
                     course_id
                 )
@@ -6562,7 +6563,7 @@ WHERE pages.order_number = $1
 
                     <span class="comment">// update each page path associated with a random chapter number
                     </span><span class="macro">sqlx::query!</span>(
-                        <span class="string">&quot;UPDATE pages SET url_path = $2 WHERE pages.id = $1&quot;</span>,
+                        <span class="string">"UPDATE pages SET url_path = $2 WHERE pages.id = $1"</span>,
                         page.id,
                         new_path
                     )
@@ -6584,7 +6585,7 @@ WHERE pages.order_number = $1
 
                 <span class="comment">// update chapter_number
                 </span><span class="macro">sqlx::query!</span>(
-                    <span class="string">&quot;UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1&quot;</span>,
+                    <span class="string">"UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1"</span>,
                     chapter.id,
                     new_chapter_number
                 )
@@ -6608,7 +6609,7 @@ WHERE pages.order_number = $1
                     );
                     <span class="comment">// update each page path associated with the modified chapter
                     </span><span class="macro">sqlx::query!</span>(
-                        <span class="string">&quot;UPDATE pages SET url_path = $2 WHERE pages.id = $1&quot;</span>,
+                        <span class="string">"UPDATE pages SET url_path = $2 WHERE pages.id = $1"</span>,
                         page.id,
                         new_path
                     )
@@ -6627,14 +6628,14 @@ WHERE pages.order_number = $1
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                     ModelErrorType::InvalidRequest,
-                    <span class="string">&quot;New chapter not found&quot;</span>.to_string(),
+                    <span class="string">"New chapter not found"</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 ));
             }
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                 ModelErrorType::InvalidRequest,
-                <span class="string">&quot;Matching DB chapters not found&quot;</span>.to_string(),
+                <span class="string">"Matching DB chapters not found"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
@@ -6668,12 +6669,12 @@ WHERE pages.order_number = $1
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>page_before_update = get_page(<span class="kw-2">&amp;mut </span>tx, page_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE pages
 SET title = $2,
   url_path = $3
 WHERE id = $1
-&quot;</span>,
+"</span>,
         page_id,
         page_details_update.title,
         page_details_update.url_path,
@@ -6683,7 +6684,7 @@ WHERE id = $1
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = page_before_update.course_id {
         <span class="kw">if </span>page_before_update.url_path != page_details_update.url_path {
-            <span class="comment">// Some students might be trying to reach the page with the old url path, so let&#39;s redirect them to the new one
+            <span class="comment">// Some students might be trying to reach the page with the old url path, so let's redirect them to the new one
             </span><span class="kw">crate</span>::url_redirections::upsert(
                 <span class="kw-2">&amp;mut </span>tx,
                 PKeyPolicy::Generate,
@@ -6717,7 +6718,7 @@ WHERE id = $1
             tx.as_mut(),
             PKeyPolicy::Generate,
             <span class="kw-2">&amp;</span>NewExam {
-                name: <span class="string">&quot;name&quot;</span>.to_string(),
+                name: <span class="string">"name"</span>.to_string(),
                 starts_at: <span class="prelude-val">None</span>,
                 ends_at: <span class="prelude-val">None</span>,
                 time_minutes: <span class="number">120</span>,
@@ -6734,8 +6735,8 @@ WHERE id = $1
                 exercise_slides: <span class="macro">vec!</span>[],
                 exercise_tasks: <span class="macro">vec!</span>[],
                 content: serde_json::Value::Array(<span class="macro">vec!</span>[]),
-                url_path: <span class="string">&quot;url&quot;</span>.to_string(),
-                title: <span class="string">&quot;title&quot;</span>.to_string(),
+                url_path: <span class="string">"url"</span>.to_string(),
+                title: <span class="string">"title"</span>.to_string(),
                 course_id: <span class="prelude-val">None</span>,
                 exam_id: <span class="prelude-val">Some</span>(new_exam_id),
                 chapter_id: <span class="prelude-val">None</span>,
@@ -6755,8 +6756,8 @@ WHERE id = $1
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>page_update_validation_works() {
         <span class="kw">let </span>e1 = CmsPageExercise {
-            id: Uuid::parse_str(<span class="string">&quot;0c9dca80-5904-4d35-a945-8c080446f667&quot;</span>).unwrap(),
-            name: <span class="string">&quot;&quot;</span>.to_string(),
+            id: Uuid::parse_str(<span class="string">"0c9dca80-5904-4d35-a945-8c080446f667"</span>).unwrap(),
+            name: <span class="string">""</span>.to_string(),
             order_number: <span class="number">1</span>,
             score_maximum: <span class="number">1</span>,
             max_tries_per_slide: <span class="prelude-val">None</span>,
@@ -6768,15 +6769,15 @@ WHERE id = $1
             use_course_default_peer_review_config: <span class="bool-val">false</span>,
         };
         <span class="kw">let </span>e1_s1 = CmsPageExerciseSlide {
-            id: Uuid::parse_str(<span class="string">&quot;43380e81-6ff2-4f46-9f38-af0ac6a8421a&quot;</span>).unwrap(),
+            id: Uuid::parse_str(<span class="string">"43380e81-6ff2-4f46-9f38-af0ac6a8421a"</span>).unwrap(),
             exercise_id: e1.id,
             order_number: <span class="number">1</span>,
         };
         <span class="kw">let </span>e1_s1_t1 = CmsPageExerciseTask {
-            id: Uuid::parse_str(<span class="string">&quot;6fb19c22-bca0-42cf-8be5-4141e21cc7a9&quot;</span>).unwrap(),
+            id: Uuid::parse_str(<span class="string">"6fb19c22-bca0-42cf-8be5-4141e21cc7a9"</span>).unwrap(),
             exercise_slide_id: e1_s1.id,
             assignment: <span class="macro">serde_json::json!</span>([]),
-            exercise_type: <span class="string">&quot;exercise&quot;</span>.to_string(),
+            exercise_type: <span class="string">"exercise"</span>.to_string(),
             private_spec: <span class="prelude-val">None</span>,
             order_number: <span class="number">1</span>,
         };
@@ -6816,8 +6817,8 @@ WHERE id = $1
             exercises,
             exercise_slides,
             exercise_tasks,
-            url_path: <span class="string">&quot;&quot;</span>.to_string(),
-            title: <span class="string">&quot;&quot;</span>.to_string(),
+            url_path: <span class="string">""</span>.to_string(),
+            title: <span class="string">""</span>.to_string(),
             chapter_id: <span class="prelude-val">None</span>,
         }
     }
@@ -6825,8 +6826,8 @@ WHERE id = $1
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>page_upsert_peer_reviews_work() {
         <span class="macro">insert_data!</span>(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page, exercise: exercise_id);
-        <span class="kw">let </span>pr_id = Uuid::parse_str(<span class="string">&quot;9b69dc5e-0eca-4fcd-8fd2-031a3a65da82&quot;</span>).unwrap();
-        <span class="kw">let </span>prq_id = Uuid::parse_str(<span class="string">&quot;de18fa14-4ac6-4b57-b9f8-4843fa52d948&quot;</span>).unwrap();
+        <span class="kw">let </span>pr_id = Uuid::parse_str(<span class="string">"9b69dc5e-0eca-4fcd-8fd2-031a3a65da82"</span>).unwrap();
+        <span class="kw">let </span>prq_id = Uuid::parse_str(<span class="string">"de18fa14-4ac6-4b57-b9f8-4843fa52d948"</span>).unwrap();
         <span class="kw">let </span>exercise = <span class="kw">crate</span>::exercises::get_by_id(tx.as_mut(), exercise_id)
             .<span class="kw">await
             </span>.unwrap();
@@ -6846,7 +6847,7 @@ WHERE id = $1
             peer_review_config_id: pr_id,
             answer_required: <span class="bool-val">true</span>,
             order_number: <span class="number">0</span>,
-            question: <span class="string">&quot;juu&quot;</span>.to_string(),
+            question: <span class="string">"juu"</span>.to_string(),
             question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Essay,
             weight: <span class="number">0.31</span>,
         };
@@ -6862,7 +6863,7 @@ WHERE id = $1
 
         <span class="macro">assert!</span>(pr_res.get(<span class="kw-2">&amp;</span>pr_id).unwrap().accepting_threshold == <span class="number">0.5</span>);
 
-        <span class="macro">assert!</span>(prq_res.get(<span class="kw-2">&amp;</span>prq_id).unwrap().question == <span class="kw-2">*</span><span class="string">&quot;juu&quot;</span>);
+        <span class="macro">assert!</span>(prq_res.get(<span class="kw-2">&amp;</span>prq_id).unwrap().question == <span class="kw-2">*</span><span class="string">"juu"</span>);
         <span class="macro">assert!</span>(!pr_res.get(<span class="kw-2">&amp;</span>pr_id).unwrap().points_are_all_or_nothing);
         <span class="macro">assert_eq!</span>(prq_res.get(<span class="kw-2">&amp;</span>prq_id).unwrap().weight, <span class="number">0.31</span>);
     }
@@ -6873,8 +6874,8 @@ WHERE id = $1
         <span class="kw">let </span>exercise = <span class="kw">crate</span>::exercises::get_by_id(tx.as_mut(), exercise_id)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>pr_id = Uuid::parse_str(<span class="string">&quot;9b69dc5e-0eca-4fcd-8fd2-031a3a65da82&quot;</span>).unwrap();
-        <span class="kw">let </span>prq_id = Uuid::parse_str(<span class="string">&quot;de18fa14-4ac6-4b57-b9f8-4843fa52d948&quot;</span>).unwrap();
+        <span class="kw">let </span>pr_id = Uuid::parse_str(<span class="string">"9b69dc5e-0eca-4fcd-8fd2-031a3a65da82"</span>).unwrap();
+        <span class="kw">let </span>prq_id = Uuid::parse_str(<span class="string">"de18fa14-4ac6-4b57-b9f8-4843fa52d948"</span>).unwrap();
         <span class="kw">let </span>pr1 = CmsPeerReviewConfig {
             id:pr_id,
             exercise_id: <span class="prelude-val">Some</span>(exercise_id),
@@ -6890,7 +6891,7 @@ WHERE id = $1
             peer_review_config_id: pr_id,
             answer_required: <span class="bool-val">true</span>,
             order_number: <span class="number">0</span>,
-            question: <span class="string">&quot;juu&quot;</span>.to_string(),
+            question: <span class="string">"juu"</span>.to_string(),
             question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Essay,
             weight: <span class="number">0.0</span>,
         };
@@ -6908,7 +6909,7 @@ WHERE id = $1
         <span class="macro">assert!</span>(pr_res.get(<span class="kw-2">&amp;</span>pr_id).unwrap().id == pr_id);
 
         <span class="macro">assert!</span>(prq_res.get(<span class="kw-2">&amp;</span>prq_id).unwrap().id == prq_id);
-        <span class="macro">assert!</span>(prq_res.get(<span class="kw-2">&amp;</span>prq_id).unwrap().question == <span class="kw-2">*</span><span class="string">&quot;juu&quot;</span>);
+        <span class="macro">assert!</span>(prq_res.get(<span class="kw-2">&amp;</span>prq_id).unwrap().question == <span class="kw-2">*</span><span class="string">"juu"</span>);
     }
 
     <span class="attr">#[tokio::test]

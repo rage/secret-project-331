@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/document_schema_processor.rs`."><title>document_schema_processor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_utils" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/document_schema_processor.rs`."><title>document_schema_processor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_utils" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -226,12 +227,12 @@
 <span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">static </span>DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str] = <span class="kw-2">&amp;</span>[
-    <span class="string">&quot;moocfi/exercise&quot;</span>,
-    <span class="string">&quot;moocfi/exercise-task&quot;</span>,
-    <span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>,
-    <span class="string">&quot;moocfi/pages-in-chapter&quot;</span>,
-    <span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>,
-    <span class="string">&quot;moocfi/chapter-progress&quot;</span>,
+    <span class="string">"moocfi/exercise"</span>,
+    <span class="string">"moocfi/exercise-task"</span>,
+    <span class="string">"moocfi/exercises-in-chapter"</span>,
+    <span class="string">"moocfi/pages-in-chapter"</span>,
+    <span class="string">"moocfi/exercises-in-chapter"</span>,
+    <span class="string">"moocfi/chapter-progress"</span>,
 ];
 
 <span class="kw">pub use </span><span class="kw">crate</span>::attributes;
@@ -251,23 +252,23 @@
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 </span><span class="kw">pub struct </span>GutenbergBlock {
-    <span class="attr">#[serde(rename = <span class="string">&quot;clientId&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"clientId"</span>)]
     </span><span class="kw">pub </span>client_id: Uuid,
     <span class="kw">pub </span>name: String,
-    <span class="attr">#[serde(rename = <span class="string">&quot;isValid&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"isValid"</span>)]
     </span><span class="kw">pub </span>is_valid: bool,
     <span class="kw">pub </span>attributes: Map&lt;String, Value&gt;,
-    <span class="attr">#[serde(rename = <span class="string">&quot;innerBlocks&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"innerBlocks"</span>)]
     </span><span class="kw">pub </span>inner_blocks: Vec&lt;GutenbergBlock&gt;,
 }
 
 <span class="kw">impl </span>GutenbergBlock {
     <span class="kw">pub fn </span>paragraph(paragraph: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::block_with_name_and_attributes(
-            <span class="string">&quot;core/paragraph&quot;</span>,
+            <span class="string">"core/paragraph"</span>,
             <span class="macro">attributes! </span>{
-              <span class="string">&quot;content&quot;</span>: paragraph.to_string(),
-              <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false
+              <span class="string">"content"</span>: paragraph.to_string(),
+              <span class="string">"dropCap"</span>: <span class="bool-val">false
             </span>},
         )
     }
@@ -305,105 +306,105 @@
     }
     <span class="kw">pub fn </span>hero_section(title: <span class="kw-2">&amp;</span>str, sub_title: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         GutenbergBlock::block_with_name_and_attributes(
-            <span class="string">&quot;moocfi/hero-section&quot;</span>,
+            <span class="string">"moocfi/hero-section"</span>,
             <span class="macro">attributes! </span>{
-                <span class="string">&quot;title&quot;</span>: title,
-                <span class="string">&quot;subtitle&quot;</span>: sub_title
+                <span class="string">"title"</span>: title,
+                <span class="string">"subtitle"</span>: sub_title
             },
         )
     }
     <span class="kw">pub fn </span>landing_page_hero_section(title: <span class="kw-2">&amp;</span>str, sub_title: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-            <span class="string">&quot;moocfi/landing-page-hero-section&quot;</span>,
-            <span class="macro">attributes! </span>{<span class="string">&quot;title&quot;</span>: title},
+            <span class="string">"moocfi/landing-page-hero-section"</span>,
+            <span class="macro">attributes! </span>{<span class="string">"title"</span>: title},
             <span class="macro">vec!</span>[GutenbergBlock::block_with_name_and_attributes(
-                <span class="string">&quot;core/paragraph&quot;</span>,
+                <span class="string">"core/paragraph"</span>,
                 <span class="macro">attributes! </span>{
-                    <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                    <span class="string">&quot;content&quot;</span>: sub_title,
-                    <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                    <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Insert short description of course...&quot;
+                    <span class="string">"align"</span>: <span class="string">"center"</span>,
+                    <span class="string">"content"</span>: sub_title,
+                    <span class="string">"dropCap"</span>: <span class="bool-val">false</span>,
+                    <span class="string">"placeholder"</span>: <span class="string">"Insert short description of course..."
                 </span>},
             )],
         )
     }
     <span class="kw">pub fn </span>course_objective_section() -&gt; <span class="self">Self </span>{
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-            <span class="string">&quot;moocfi/course-objective-section&quot;</span>,
+            <span class="string">"moocfi/course-objective-section"</span>,
             <span class="macro">attributes! </span>{
-                <span class="string">&quot;title&quot;</span>: <span class="string">&quot;In this course you&#39;ll...&quot;
+                <span class="string">"title"</span>: <span class="string">"In this course you'll..."
             </span>},
             <span class="macro">vec!</span>[GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                <span class="string">&quot;core/columns&quot;</span>,
+                <span class="string">"core/columns"</span>,
                 <span class="macro">attributes! </span>{
-                    <span class="string">&quot;isStackedOnMobile&quot;</span>: <span class="bool-val">true
+                    <span class="string">"isStackedOnMobile"</span>: <span class="bool-val">true
                 </span>},
                 <span class="macro">vec!</span>[
                     GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                        <span class="string">&quot;core/column&quot;</span>,
+                        <span class="string">"core/column"</span>,
                         <span class="macro">attributes! </span>{},
                         <span class="macro">vec!</span>[
                             GutenbergBlock::block_with_name_and_attributes(
-                                <span class="string">&quot;core/heading&quot;</span>,
+                                <span class="string">"core/heading"</span>,
                                 <span class="macro">attributes! </span>{
-                                    <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                                    <span class="string">&quot;level&quot;</span>: <span class="number">3</span>,
-                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Objective #1&quot;</span>,
-                                    <span class="string">&quot;anchor&quot;</span>: <span class="string">&quot;objective-1&quot;</span>,
+                                    <span class="string">"textAlign"</span>: <span class="string">"center"</span>,
+                                    <span class="string">"level"</span>: <span class="number">3</span>,
+                                    <span class="string">"content"</span>: <span class="string">"Objective #1"</span>,
+                                    <span class="string">"anchor"</span>: <span class="string">"objective-1"</span>,
                                 },
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
-                                <span class="string">&quot;core/paragraph&quot;</span>,
+                                <span class="string">"core/paragraph"</span>,
                                 <span class="macro">attributes! </span>{
-                                    <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                                    <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...&quot;
+                                    <span class="string">"align"</span>: <span class="string">"center"</span>,
+                                    <span class="string">"dropCap"</span>: <span class="bool-val">false</span>,
+                                    <span class="string">"content"</span>: <span class="string">"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
                                 </span>},
                             ),
                         ],
                     ),
                     GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                        <span class="string">&quot;core/column&quot;</span>,
+                        <span class="string">"core/column"</span>,
                         <span class="macro">attributes! </span>{},
                         <span class="macro">vec!</span>[
                             GutenbergBlock::block_with_name_and_attributes(
-                                <span class="string">&quot;core/heading&quot;</span>,
+                                <span class="string">"core/heading"</span>,
                                 <span class="macro">attributes! </span>{
-                                    <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                                    <span class="string">&quot;level&quot;</span>: <span class="number">3</span>,
-                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Objective #2&quot;</span>,
-                                    <span class="string">&quot;anchor&quot;</span>: <span class="string">&quot;objective-2&quot;</span>,
+                                    <span class="string">"textAlign"</span>: <span class="string">"center"</span>,
+                                    <span class="string">"level"</span>: <span class="number">3</span>,
+                                    <span class="string">"content"</span>: <span class="string">"Objective #2"</span>,
+                                    <span class="string">"anchor"</span>: <span class="string">"objective-2"</span>,
                                 },
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
-                                <span class="string">&quot;core/paragraph&quot;</span>,
+                                <span class="string">"core/paragraph"</span>,
                                 <span class="macro">attributes! </span>{
-                                    <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                                    <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...&quot;
+                                    <span class="string">"align"</span>: <span class="string">"center"</span>,
+                                    <span class="string">"dropCap"</span>: <span class="bool-val">false</span>,
+                                    <span class="string">"content"</span>: <span class="string">"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
                                 </span>},
                             ),
                         ],
                     ),
                     GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                        <span class="string">&quot;core/column&quot;</span>,
+                        <span class="string">"core/column"</span>,
                         <span class="macro">attributes! </span>{},
                         <span class="macro">vec!</span>[
                             GutenbergBlock::block_with_name_and_attributes(
-                                <span class="string">&quot;core/heading&quot;</span>,
+                                <span class="string">"core/heading"</span>,
                                 <span class="macro">attributes! </span>{
-                                    <span class="string">&quot;textAlign&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                                    <span class="string">&quot;level&quot;</span>: <span class="number">3</span>,
-                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Objective #3&quot;</span>,
-                                    <span class="string">&quot;anchor&quot;</span>: <span class="string">&quot;objective-3&quot;</span>,
+                                    <span class="string">"textAlign"</span>: <span class="string">"center"</span>,
+                                    <span class="string">"level"</span>: <span class="number">3</span>,
+                                    <span class="string">"content"</span>: <span class="string">"Objective #3"</span>,
+                                    <span class="string">"anchor"</span>: <span class="string">"objective-3"</span>,
                                 },
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
-                                <span class="string">&quot;core/paragraph&quot;</span>,
+                                <span class="string">"core/paragraph"</span>,
                                 <span class="macro">attributes! </span>{
-                                    <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                                    <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
-                                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien.&quot;
+                                    <span class="string">"align"</span>: <span class="string">"center"</span>,
+                                    <span class="string">"dropCap"</span>: <span class="bool-val">false</span>,
+                                    <span class="string">"content"</span>: <span class="string">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien."
                                 </span>},
                             ),
                         ],

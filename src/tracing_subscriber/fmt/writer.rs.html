@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1536,7 +1537,7 @@
 /// use std::{fs::File, sync::Mutex};
 ///
 /// # fn docs() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
-/// let log_file = File::create(&quot;my_cool_trace.log&quot;)?;
+/// let log_file = File::create("my_cool_trace.log")?;
 /// let subscriber = tracing_subscriber::fmt()
 ///     .with_writer(Mutex::new(log_file))
 ///     .finish();
@@ -1555,7 +1556,7 @@
 /// [`Metadata`]: tracing_core::Metadata
 /// [levels]: tracing_core::Level
 /// [targets]: tracing_core::Metadata::target
-</span><span class="kw">pub trait </span>MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub trait </span>MakeWriter&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The concrete [`io::Write`] implementation returned by [`make_writer`].
     ///
     /// [`io::Write`]: std::io::Write
@@ -1575,7 +1576,7 @@
     /// [`fmt::Layer`]: crate::fmt::Layer
     /// [`fmt::Subscriber`]: crate::fmt::Subscriber
     /// [`io::Write`]: std::io::Write
-    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer;
+    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer;
 
     <span class="doccomment">/// Returns a [`Writer`] for writing data from the span or event described
     /// by the provided [`Metadata`].
@@ -1606,12 +1607,12 @@
     ///
     /// /// A lock on either stdout or stderr, depending on the verbosity level
     /// /// of the event being written.
-    /// pub enum StdioLock&lt;&#39;a&gt; {
-    ///     Stdout(StdoutLock&lt;&#39;a&gt;),
-    ///     Stderr(StderrLock&lt;&#39;a&gt;),
+    /// pub enum StdioLock&lt;'a&gt; {
+    ///     Stdout(StdoutLock&lt;'a&gt;),
+    ///     Stderr(StderrLock&lt;'a&gt;),
     /// }
     ///
-    /// impl&lt;&#39;a&gt; io::Write for StdioLock&lt;&#39;a&gt; {
+    /// impl&lt;'a&gt; io::Write for StdioLock&lt;'a&gt; {
     ///     fn write(&amp;mut self, buf: &amp;[u8]) -&gt; io::Result&lt;usize&gt; {
     ///         match self {
     ///             StdioLock::Stdout(lock) =&gt; lock.write(buf),
@@ -1636,25 +1637,25 @@
     ///     }
     /// }
     ///
-    /// impl&lt;&#39;a&gt; MakeWriter&lt;&#39;a&gt; for MyMakeWriter {
-    ///     type Writer = StdioLock&lt;&#39;a&gt;;
+    /// impl&lt;'a&gt; MakeWriter&lt;'a&gt; for MyMakeWriter {
+    ///     type Writer = StdioLock&lt;'a&gt;;
     ///
-    ///     fn make_writer(&amp;&#39;a self) -&gt; Self::Writer {
+    ///     fn make_writer(&amp;'a self) -&gt; Self::Writer {
     ///         // We must have an implementation of `make_writer` that makes
-    ///         // a &quot;default&quot; writer without any configuring metadata. Let&#39;s
+    ///         // a "default" writer without any configuring metadata. Let's
     ///         // just return stdout in that case.
     ///         StdioLock::Stdout(self.stdout.lock())
     ///     }
     ///
-    ///     fn make_writer_for(&amp;&#39;a self, meta: &amp;Metadata&lt;&#39;_&gt;) -&gt; Self::Writer {
-    ///         // Here&#39;s where we can implement our special behavior. We&#39;ll
-    ///         // check if the metadata&#39;s verbosity level is WARN or ERROR,
+    ///     fn make_writer_for(&amp;'a self, meta: &amp;Metadata&lt;'_&gt;) -&gt; Self::Writer {
+    ///         // Here's where we can implement our special behavior. We'll
+    ///         // check if the metadata's verbosity level is WARN or ERROR,
     ///         // and return stderr in that case.
     ///         if meta.level() &lt;= &amp;Level::WARN {
     ///             return StdioLock::Stderr(self.stderr.lock());
     ///         }
     ///
-    ///         // Otherwise, we&#39;ll return stdout.
+    ///         // Otherwise, we'll return stdout.
     ///         StdioLock::Stdout(self.stdout.lock())
     ///     }
     /// }
@@ -1665,7 +1666,7 @@
     /// [make_writer]: MakeWriter::make_writer
     /// [`WARN`]: tracing_core::Level::WARN
     /// [`ERROR`]: tracing_core::Level::ERROR
-    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
         <span class="kw">let _ </span>= meta;
         <span class="self">self</span>.make_writer()
     }
@@ -1677,7 +1678,7 @@
 /// This is not intended to be implemented directly for user-defined
 /// [`MakeWriter`]s; instead, it should be imported when the desired methods are
 /// used.
-</span><span class="kw">pub trait </span>MakeWriterExt&lt;<span class="lifetime">&#39;a</span>&gt;: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub trait </span>MakeWriterExt&lt;<span class="lifetime">'a</span>&gt;: MakeWriter&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Wraps `self` and returns a [`MakeWriter`] that will only write output
     /// for events at or below the provided verbosity [`Level`]. For instance,
     /// `Level::TRACE` is considered to be _more verbose` than `Level::INFO`.
@@ -1692,7 +1693,7 @@
     /// use tracing_subscriber::fmt::writer::MakeWriterExt;
     ///
     /// // Construct a writer that outputs events to `stderr` only if the span or
-    /// // event&#39;s level is &gt;= WARN (WARN and ERROR).
+    /// // event's level is &gt;= WARN (WARN and ERROR).
     /// let mk_writer = std::io::stderr.with_max_level(Level::WARN);
     ///
     /// tracing_subscriber::fmt().with_writer(mk_writer).init();
@@ -1719,9 +1720,9 @@
     /// # use tracing::Level;
     /// # use tracing_subscriber::fmt::writer::MakeWriterExt;
     /// use std::{sync::Arc, fs::File};
-    /// # // don&#39;t actually create the file when running the tests.
+    /// # // don't actually create the file when running the tests.
     /// # fn docs() -&gt; std::io::Result&lt;()&gt; {
-    /// let debug_log = Arc::new(File::create(&quot;debug.log&quot;)?);
+    /// let debug_log = Arc::new(File::create("debug.log")?);
     ///
     /// let mk_writer = std::io::stderr
     ///     .with_max_level(Level::ERROR)
@@ -1756,7 +1757,7 @@
     /// use tracing_subscriber::fmt::writer::MakeWriterExt;
     ///
     /// // Construct a writer that outputs events to `stdout` only if the span or
-    /// // event&#39;s level is &lt;= DEBUG (DEBUG and TRACE).
+    /// // event's level is &lt;= DEBUG (DEBUG and TRACE).
     /// let mk_writer = std::io::stdout.with_min_level(Level::DEBUG);
     ///
     /// tracing_subscriber::fmt().with_writer(mk_writer).init();
@@ -1785,14 +1786,14 @@
         WithMinLevel::new(<span class="self">self</span>, level)
     }
 
-    <span class="doccomment">/// Wraps `self` with a predicate that takes a span or event&#39;s [`Metadata`]
-    /// and returns a `bool`. The returned [`MakeWriter`]&#39;s
+    <span class="doccomment">/// Wraps `self` with a predicate that takes a span or event's [`Metadata`]
+    /// and returns a `bool`. The returned [`MakeWriter`]'s
     /// [`MakeWriter::make_writer_for`] method will check the predicate to
     /// determine if  a writer should be produced for a given span or event.
     ///
-    /// If the predicate returns `false`, the wrapped [`MakeWriter`]&#39;s
+    /// If the predicate returns `false`, the wrapped [`MakeWriter`]'s
     /// [`make_writer_for`][mwf] will return [`OptionalWriter::none`][own].
-    /// Otherwise, it calls the wrapped [`MakeWriter`]&#39;s
+    /// Otherwise, it calls the wrapped [`MakeWriter`]'s
     /// [`make_writer_for`][mwf] method, and returns the produced writer.
     ///
     /// This can be used to filter an output based on arbitrary [`Metadata`]
@@ -1806,14 +1807,14 @@
     /// ```
     /// use tracing_subscriber::fmt::writer::MakeWriterExt;
     /// use std::{sync::Arc, fs::File};
-    /// # // don&#39;t actually create the file when running the tests.
+    /// # // don't actually create the file when running the tests.
     /// # fn docs() -&gt; std::io::Result&lt;()&gt; {
-    /// let access_log = Arc::new(File::create(&quot;access.log&quot;)?);
+    /// let access_log = Arc::new(File::create("access.log")?);
     ///
     /// let mk_writer = access_log
-    ///     // Only write events with the target &quot;http::access_log&quot; to the
+    ///     // Only write events with the target "http::access_log" to the
     ///     // access log file.
-    ///     .with_filter(|meta| meta.target() == &quot;http::access_log&quot;)
+    ///     .with_filter(|meta| meta.target() == "http::access_log")
     ///     // Write events with all other targets to stdout.
     ///     .or_else(std::io::stdout);
     ///
@@ -1832,16 +1833,16 @@
     ///
     /// static DEBUG_LOG_ENABLED: AtomicBool = AtomicBool::new(false);
     ///
-    /// # // don&#39;t actually create the file when running the tests.
+    /// # // don't actually create the file when running the tests.
     /// # fn docs() -&gt; std::io::Result&lt;()&gt; {
     /// // Create the debug log file
-    /// let debug_file = Arc::new(File::create(&quot;debug.log&quot;)?)
+    /// let debug_file = Arc::new(File::create("debug.log")?)
     ///     // Enable the debug log only if the flag is enabled.
     ///     .with_filter(|_| DEBUG_LOG_ENABLED.load(Ordering::Acquire));
     ///
     /// // Always write to stdout
     /// let mk_writer = std::io::stdout
-    ///     // Write to the debug file if it&#39;s enabled
+    ///     // Write to the debug file if it's enabled
     ///     .and(debug_file);
     ///
     /// tracing_subscriber::fmt().with_writer(mk_writer).init();
@@ -1860,7 +1861,7 @@
     </span><span class="kw">fn </span>with_filter&lt;F&gt;(<span class="self">self</span>, filter: F) -&gt; WithFilter&lt;<span class="self">Self</span>, F&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
-        F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+        F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
     {
         WithFilter::new(<span class="self">self</span>, filter)
     }
@@ -1893,9 +1894,9 @@
     /// use tracing::Level;
     /// # use tracing_subscriber::fmt::writer::MakeWriterExt;
     /// use std::{sync::Arc, fs::File};
-    /// # // don&#39;t actually create the file when running the tests.
+    /// # // don't actually create the file when running the tests.
     /// # fn docs() -&gt; std::io::Result&lt;()&gt; {
-    /// let debug_log = Arc::new(File::create(&quot;debug.log&quot;)?);
+    /// let debug_log = Arc::new(File::create("debug.log")?);
     ///
     /// // Write everything to the debug log.
     /// let mk_writer = debug_log
@@ -1915,13 +1916,13 @@
     </span><span class="kw">fn </span>and&lt;B&gt;(<span class="self">self</span>, other: B) -&gt; Tee&lt;<span class="self">Self</span>, B&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: Sized,
-        B: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; + Sized,
+        B: MakeWriter&lt;<span class="lifetime">'a</span>&gt; + Sized,
     {
         Tee::new(<span class="self">self</span>, other)
     }
 
     <span class="doccomment">/// Combines `self` with another type implementing [`MakeWriter`], returning
-    /// a new [`MakeWriter`] that calls `other`&#39;s [`make_writer`] if `self`&#39;s
+    /// a new [`MakeWriter`] that calls `other`'s [`make_writer`] if `self`'s
     /// `make_writer` returns [`OptionalWriter::none`][own].
     ///
     /// # Examples
@@ -1945,23 +1946,23 @@
     /// [own]: EitherWriter::none
     </span><span class="kw">fn </span>or_else&lt;W, B&gt;(<span class="self">self</span>, other: B) -&gt; OrElse&lt;<span class="self">Self</span>, B&gt;
     <span class="kw">where
-        </span><span class="self">Self</span>: MakeWriter&lt;<span class="lifetime">&#39;a</span>, Writer = OptionalWriter&lt;W&gt;&gt; + Sized,
-        B: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; + Sized,
+        </span><span class="self">Self</span>: MakeWriter&lt;<span class="lifetime">'a</span>, Writer = OptionalWriter&lt;W&gt;&gt; + Sized,
+        B: MakeWriter&lt;<span class="lifetime">'a</span>&gt; + Sized,
         W: Write,
     {
         OrElse::new(<span class="self">self</span>, other)
     }
 }
 
-<span class="doccomment">/// A writer intended to support [`libtest`&#39;s output capturing][capturing] for use in unit tests.
+<span class="doccomment">/// A writer intended to support [`libtest`'s output capturing][capturing] for use in unit tests.
 ///
 /// `TestWriter` is used by [`fmt::Subscriber`] or [`fmt::Layer`] to enable capturing support.
 ///
-/// `cargo test` can only capture output from the standard library&#39;s [`print!`] macro. See
-/// [`libtest`&#39;s output capturing][capturing] for more details about output capturing.
+/// `cargo test` can only capture output from the standard library's [`print!`] macro. See
+/// [`libtest`'s output capturing][capturing] for more details about output capturing.
 ///
 /// Writing to [`io::stdout`] and [`io::stderr`] produces the same results as using
-/// [`libtest`&#39;s `--nocapture` option][nocapture] which may make the results look unreadable.
+/// [`libtest`'s `--nocapture` option][nocapture] which may make the results look unreadable.
 ///
 /// [`fmt::Subscriber`]: super::Subscriber
 /// [`fmt::Layer`]: super::Layer
@@ -2002,8 +2003,8 @@
 /// [`Subscriber`]: tracing::Subscriber
 /// [`io::Write`]: std::io::Write
 </span><span class="kw">pub struct </span>BoxMakeWriter {
-    inner: Box&lt;<span class="kw">dyn for</span>&lt;<span class="lifetime">&#39;a</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>, Writer = Box&lt;<span class="kw">dyn </span>Write + <span class="lifetime">&#39;a</span>&gt;&gt; + Send + Sync&gt;,
-    name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    inner: Box&lt;<span class="kw">dyn for</span>&lt;<span class="lifetime">'a</span>&gt; MakeWriter&lt;<span class="lifetime">'a</span>, Writer = Box&lt;<span class="kw">dyn </span>Write + <span class="lifetime">'a</span>&gt;&gt; + Send + Sync&gt;,
+    name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
 }
 
 <span class="doccomment">/// A [writer] that is one of two types implementing [`io::Write`].
@@ -2024,7 +2025,7 @@
 ///
 /// This may be used by [`MakeWriter`] implementations that wish to
 /// conditionally enable or disable the returned writer based on a span or
-/// event&#39;s [`Metadata`].
+/// event's [`Metadata`].
 ///
 /// [writer]: std::io::Write
 </span><span class="kw">pub type </span>OptionalWriter&lt;T&gt; = EitherWriter&lt;T, std::io::Sink&gt;;
@@ -2089,7 +2090,7 @@
 }
 
 <span class="doccomment">/// Combines two types implementing [`MakeWriter`] (or [`std::io::Write`]) to
-/// produce a writer that writes to both [`MakeWriter`]&#39;s returned writers.
+/// produce a writer that writes to both [`MakeWriter`]'s returned writers.
 ///
 /// This is returned by the [`MakeWriterExt::and`] method. See the method
 /// documentation for details.
@@ -2105,14 +2106,14 @@
 /// This is used by the [`MakeWriter`] implementation for [`Mutex`], because
 /// [`MutexGuard`] itself will not implement [`io::Write`] — instead, it
 /// _dereferences_ to a type implementing [`io::Write`]. Because [`MakeWriter`]
-/// requires the `Writer` type to implement [`io::Write`], it&#39;s necessary to add
+/// requires the `Writer` type to implement [`io::Write`], it's necessary to add
 /// a newtype that forwards the trait implementation.
 ///
 /// [`io::Write`]: std::io::Write
 /// [`MutexGuard`]: std::sync::MutexGuard
 /// [`Mutex`]: std::sync::Mutex
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>MutexGuardWriter&lt;<span class="lifetime">&#39;a</span>, W&gt;(MutexGuard&lt;<span class="lifetime">&#39;a</span>, W&gt;);
+</span><span class="kw">pub struct </span>MutexGuardWriter&lt;<span class="lifetime">'a</span>, W&gt;(MutexGuard&lt;<span class="lifetime">'a</span>, W&gt;);
 
 <span class="doccomment">/// Implements [`std::io::Write`] for an [`Arc`]&lt;W&gt; where `&amp;W: Write`.
 ///
@@ -2124,39 +2125,39 @@
 ///
 /// This is used by the timestamp formatting implementation for the `time`
 /// crate and by the JSON formatter. In both cases, this is needed because
-/// `tracing-subscriber`&#39;s `FormatEvent`/`FormatTime` traits expect a
-/// `fmt::Write` implementation, while `serde_json::Serializer` and `time`&#39;s
+/// `tracing-subscriber`'s `FormatEvent`/`FormatTime` traits expect a
+/// `fmt::Write` implementation, while `serde_json::Serializer` and `time`'s
 /// `format_into` methods expect an `io::Write`.
-</span><span class="attr">#[cfg(any(feature = <span class="string">&quot;json&quot;</span>, feature = <span class="string">&quot;time&quot;</span>))]
-</span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::fmt) <span class="kw">struct </span>WriteAdaptor&lt;<span class="lifetime">&#39;a</span>&gt; {
-    fmt_write: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="kw">dyn </span>fmt::Write,
+</span><span class="attr">#[cfg(any(feature = <span class="string">"json"</span>, feature = <span class="string">"time"</span>))]
+</span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::fmt) <span class="kw">struct </span>WriteAdaptor&lt;<span class="lifetime">'a</span>&gt; {
+    fmt_write: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>fmt::Write,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, F, W&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>F
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, F, W&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>F
 <span class="kw">where
     </span>F: Fn() -&gt; W,
     W: io::Write,
 {
     <span class="kw">type </span>Writer = W;
 
-    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
         (<span class="self">self</span>)()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Arc&lt;W&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Arc&lt;W&gt;
 <span class="kw">where
-    </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>W: io::Write + <span class="lifetime">&#39;a</span>,
+    </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>W: io::Write + <span class="lifetime">'a</span>,
 {
-    <span class="kw">type </span>Writer = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>W;
-    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+    <span class="kw">type </span>Writer = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>W;
+    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
         <span class="self">self
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>std::fs::File {
-    <span class="kw">type </span>Writer = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>std::fs::File;
-    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>std::fs::File {
+    <span class="kw">type </span>Writer = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>std::fs::File;
+    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
         <span class="self">self
     </span>}
 }
@@ -2173,7 +2174,7 @@
 <span class="kw">impl </span>io::Write <span class="kw">for </span>TestWriter {
     <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">let </span>out_str = String::from_utf8_lossy(buf);
-        <span class="macro">print!</span>(<span class="string">&quot;{}&quot;</span>, out_str);
+        <span class="macro">print!</span>(<span class="string">"{}"</span>, out_str);
         <span class="prelude-val">Ok</span>(buf.len())
     }
 
@@ -2182,10 +2183,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TestWriter {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TestWriter {
     <span class="kw">type </span>Writer = <span class="self">Self</span>;
 
-    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
         <span class="self">Self</span>::default()
     }
 }
@@ -2197,7 +2198,7 @@
     ///
     </span><span class="kw">pub fn </span>new&lt;M&gt;(make_writer: M) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>M: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>M: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; + Send + Sync + <span class="lifetime">'static</span>,
     {
         <span class="self">Self </span>{
             inner: Box::new(Boxed(make_writer)),
@@ -2207,41 +2208,41 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>BoxMakeWriter {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_tuple(<span class="string">&quot;BoxMakeWriter&quot;</span>)
-            .field(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;&lt;{}&gt;&quot;</span>, <span class="self">self</span>.name))
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_tuple(<span class="string">"BoxMakeWriter"</span>)
+            .field(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"&lt;{}&gt;"</span>, <span class="self">self</span>.name))
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>BoxMakeWriter {
-    <span class="kw">type </span>Writer = Box&lt;<span class="kw">dyn </span>Write + <span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>BoxMakeWriter {
+    <span class="kw">type </span>Writer = Box&lt;<span class="kw">dyn </span>Write + <span class="lifetime">'a</span>&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
         <span class="self">self</span>.inner.make_writer()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
         <span class="self">self</span>.inner.make_writer_for(meta)
     }
 }
 
 <span class="kw">struct </span>Boxed&lt;M&gt;(M);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, M&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Boxed&lt;M&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Boxed&lt;M&gt;
 <span class="kw">where
-    </span>M: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>M: MakeWriter&lt;<span class="lifetime">'a</span>&gt;,
 {
-    <span class="kw">type </span>Writer = Box&lt;<span class="kw">dyn </span>Write + <span class="lifetime">&#39;a</span>&gt;;
+    <span class="kw">type </span>Writer = Box&lt;<span class="kw">dyn </span>Write + <span class="lifetime">'a</span>&gt;;
 
-    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
         <span class="kw">let </span>w = <span class="self">self</span>.<span class="number">0</span>.make_writer();
         Box::new(w)
     }
 
-    <span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
+    <span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
         <span class="kw">let </span>w = <span class="self">self</span>.<span class="number">0</span>.make_writer_for(meta);
         Box::new(w)
     }
@@ -2249,18 +2250,18 @@
 
 <span class="comment">// === impl Mutex/MutexGuardWriter ===
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Mutex&lt;W&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Mutex&lt;W&gt;
 <span class="kw">where
-    </span>W: io::Write + <span class="lifetime">&#39;a</span>,
+    </span>W: io::Write + <span class="lifetime">'a</span>,
 {
-    <span class="kw">type </span>Writer = MutexGuardWriter&lt;<span class="lifetime">&#39;a</span>, W&gt;;
+    <span class="kw">type </span>Writer = MutexGuardWriter&lt;<span class="lifetime">'a</span>, W&gt;;
 
-    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
-        MutexGuardWriter(<span class="self">self</span>.lock().expect(<span class="string">&quot;lock poisoned&quot;</span>))
+    <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+        MutexGuardWriter(<span class="self">self</span>.lock().expect(<span class="string">"lock poisoned"</span>))
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W&gt; io::Write <span class="kw">for </span>MutexGuardWriter&lt;<span class="lifetime">&#39;a</span>, W&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W&gt; io::Write <span class="kw">for </span>MutexGuardWriter&lt;<span class="lifetime">'a</span>, W&gt;
 <span class="kw">where
     </span>W: io::Write,
 {
@@ -2275,7 +2276,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
+    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
         <span class="self">self</span>.<span class="number">0</span>.write_vectored(bufs)
     }
 
@@ -2285,7 +2286,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: std::fmt::Arguments&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
+    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: std::fmt::Arguments&lt;<span class="lifetime">'_</span>&gt;) -&gt; io::Result&lt;()&gt; {
         <span class="self">self</span>.<span class="number">0</span>.write_fmt(fmt)
     }
 }
@@ -2314,7 +2315,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
+    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             EitherWriter::A(a) =&gt; a.write_vectored(bufs),
             EitherWriter::B(b) =&gt; b.write_vectored(bufs),
@@ -2330,7 +2331,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: std::fmt::Arguments&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
+    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: std::fmt::Arguments&lt;<span class="lifetime">'_</span>&gt;) -&gt; io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             EitherWriter::A(a) =&gt; a.write_fmt(fmt),
             EitherWriter::B(b) =&gt; b.write_fmt(fmt),
@@ -2385,17 +2386,17 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, M: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt;&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>WithMaxLevel&lt;M&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M: MakeWriter&lt;<span class="lifetime">'a</span>&gt;&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>WithMaxLevel&lt;M&gt; {
     <span class="kw">type </span>Writer = OptionalWriter&lt;M::Writer&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
-        <span class="comment">// If we don&#39;t know the level, assume it&#39;s disabled.
+    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+        <span class="comment">// If we don't know the level, assume it's disabled.
         </span>OptionalWriter::none()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
         <span class="kw">if </span>meta.level() &lt;= <span class="kw-2">&amp;</span><span class="self">self</span>.level {
             <span class="kw">return </span>OptionalWriter::some(<span class="self">self</span>.make.make_writer_for(meta));
         }
@@ -2418,17 +2419,17 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, M: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt;&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>WithMinLevel&lt;M&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M: MakeWriter&lt;<span class="lifetime">'a</span>&gt;&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>WithMinLevel&lt;M&gt; {
     <span class="kw">type </span>Writer = OptionalWriter&lt;M::Writer&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
-        <span class="comment">// If we don&#39;t know the level, assume it&#39;s disabled.
+    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+        <span class="comment">// If we don't know the level, assume it's disabled.
         </span>OptionalWriter::none()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
         <span class="kw">if </span>meta.level() &gt;= <span class="kw-2">&amp;</span><span class="self">self</span>.level {
             <span class="kw">return </span>OptionalWriter::some(<span class="self">self</span>.make.make_writer_for(meta));
         }
@@ -2441,7 +2442,7 @@
 </span><span class="kw">impl</span>&lt;M, F&gt; WithFilter&lt;M, F&gt; {
     <span class="doccomment">/// Wraps `make` with the provided `filter`, returning a [`MakeWriter`] that
     /// will call `make.make_writer_for()` when `filter` returns `true` for a
-    /// span or event&#39;s [`Metadata`], and returns a [`sink`] otherwise.
+    /// span or event's [`Metadata`], and returns a [`sink`] otherwise.
     ///
     /// See [`MakeWriterExt::with_filter`] for details.
     ///
@@ -2449,26 +2450,26 @@
     /// [`sink`]: std::io::sink
     </span><span class="kw">pub fn </span>new(make: M, filter: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+        </span>F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
     {
         <span class="self">Self </span>{ make, filter }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, M, F&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>WithFilter&lt;M, F&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M, F&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>WithFilter&lt;M, F&gt;
 <span class="kw">where
-    </span>M: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt;,
-    F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
+    </span>M: MakeWriter&lt;<span class="lifetime">'a</span>&gt;,
+    F: Fn(<span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool,
 {
     <span class="kw">type </span>Writer = OptionalWriter&lt;M::Writer&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
         OptionalWriter::some(<span class="self">self</span>.make.make_writer())
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
         <span class="kw">if </span>(<span class="self">self</span>.filter)(meta) {
             OptionalWriter::some(<span class="self">self</span>.make.make_writer_for(meta))
         } <span class="kw">else </span>{
@@ -2492,20 +2493,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, A, B&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Tee&lt;A, B&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, A, B&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Tee&lt;A, B&gt;
 <span class="kw">where
-    </span>A: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt;,
-    B: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>A: MakeWriter&lt;<span class="lifetime">'a</span>&gt;,
+    B: MakeWriter&lt;<span class="lifetime">'a</span>&gt;,
 {
     <span class="kw">type </span>Writer = Tee&lt;A::Writer, B::Writer&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
         Tee::new(<span class="self">self</span>.a.make_writer(), <span class="self">self</span>.b.make_writer())
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
         Tee::new(<span class="self">self</span>.a.make_writer_for(meta), <span class="self">self</span>.b.make_writer_for(meta))
     }
 }
@@ -2538,7 +2539,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
+    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">let </span>(a, b) = <span class="macro">impl_tee!</span>(<span class="self">self</span>.write_vectored(bufs));
         <span class="prelude-val">Ok</span>(std::cmp::max(a, b))
     }
@@ -2550,7 +2551,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: std::fmt::Arguments&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
+    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: std::fmt::Arguments&lt;<span class="lifetime">'_</span>&gt;) -&gt; io::Result&lt;()&gt; {
         <span class="macro">impl_tee!</span>(<span class="self">self</span>.write_fmt(fmt));
         <span class="prelude-val">Ok</span>(())
     }
@@ -2560,26 +2561,26 @@
 
 </span><span class="kw">impl</span>&lt;A, B&gt; OrElse&lt;A, B&gt; {
     <span class="doccomment">/// Combines
-    </span><span class="kw">pub fn </span>new&lt;<span class="lifetime">&#39;a</span>, W&gt;(inner: A, or_else: B) -&gt; <span class="self">Self
+    </span><span class="kw">pub fn </span>new&lt;<span class="lifetime">'a</span>, W&gt;(inner: A, or_else: B) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>A: MakeWriter&lt;<span class="lifetime">&#39;a</span>, Writer = OptionalWriter&lt;W&gt;&gt;,
-        B: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>A: MakeWriter&lt;<span class="lifetime">'a</span>, Writer = OptionalWriter&lt;W&gt;&gt;,
+        B: MakeWriter&lt;<span class="lifetime">'a</span>&gt;,
         W: Write,
     {
         <span class="self">Self </span>{ inner, or_else }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, A, B, W&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>OrElse&lt;A, B&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, A, B, W&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>OrElse&lt;A, B&gt;
 <span class="kw">where
-    </span>A: MakeWriter&lt;<span class="lifetime">&#39;a</span>, Writer = OptionalWriter&lt;W&gt;&gt;,
-    B: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>A: MakeWriter&lt;<span class="lifetime">'a</span>, Writer = OptionalWriter&lt;W&gt;&gt;,
+    B: MakeWriter&lt;<span class="lifetime">'a</span>&gt;,
     W: io::Write,
 {
     <span class="kw">type </span>Writer = EitherWriter&lt;W, B::Writer&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
         <span class="kw">match </span><span class="self">self</span>.inner.make_writer() {
             EitherWriter::A(writer) =&gt; EitherWriter::A(writer),
             EitherWriter::B(<span class="kw">_</span>) =&gt; EitherWriter::B(<span class="self">self</span>.or_else.make_writer()),
@@ -2587,7 +2588,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
+    </span><span class="kw">fn </span>make_writer_for(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="self">Self</span>::Writer {
         <span class="kw">match </span><span class="self">self</span>.inner.make_writer_for(meta) {
             EitherWriter::A(writer) =&gt; EitherWriter::A(writer),
             EitherWriter::B(<span class="kw">_</span>) =&gt; EitherWriter::B(<span class="self">self</span>.or_else.make_writer_for(meta)),
@@ -2599,7 +2600,7 @@
 
 </span><span class="kw">impl</span>&lt;W&gt; io::Write <span class="kw">for </span>ArcWriter&lt;W&gt;
 <span class="kw">where
-    for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>W: io::Write,
+    for</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>W: io::Write,
 {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
@@ -2612,7 +2613,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
+    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
         (<span class="kw-2">&amp;*</span><span class="self">self</span>.<span class="number">0</span>).write_vectored(bufs)
     }
 
@@ -2622,21 +2623,21 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: std::fmt::Arguments&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
+    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fmt: std::fmt::Arguments&lt;<span class="lifetime">'_</span>&gt;) -&gt; io::Result&lt;()&gt; {
         (<span class="kw-2">&amp;*</span><span class="self">self</span>.<span class="number">0</span>).write_fmt(fmt)
     }
 }
 
 <span class="comment">// === impl WriteAdaptor ===
 
-</span><span class="attr">#[cfg(any(feature = <span class="string">&quot;json&quot;</span>, feature = <span class="string">&quot;time&quot;</span>))]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; WriteAdaptor&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::fmt) <span class="kw">fn </span>new(fmt_write: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="kw">dyn </span>fmt::Write) -&gt; <span class="self">Self </span>{
+</span><span class="attr">#[cfg(any(feature = <span class="string">"json"</span>, feature = <span class="string">"time"</span>))]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; WriteAdaptor&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::fmt) <span class="kw">fn </span>new(fmt_write: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>fmt::Write) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ fmt_write }
     }
 }
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;json&quot;</span>, feature = <span class="string">&quot;time&quot;</span>))]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; io::Write <span class="kw">for </span>WriteAdaptor&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="attr">#[cfg(any(feature = <span class="string">"json"</span>, feature = <span class="string">"time"</span>))]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; io::Write <span class="kw">for </span>WriteAdaptor&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">let </span>s =
             std::str::from_utf8(buf).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))<span class="question-mark">?</span>;
@@ -2653,15 +2654,15 @@
     }
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;json&quot;</span>, feature = <span class="string">&quot;time&quot;</span>))]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Debug <span class="kw">for </span>WriteAdaptor&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.pad(<span class="string">&quot;WriteAdaptor { .. }&quot;</span>)
+<span class="attr">#[cfg(any(feature = <span class="string">"json"</span>, feature = <span class="string">"time"</span>))]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Debug <span class="kw">for </span>WriteAdaptor&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.pad(<span class="string">"WriteAdaptor { .. }"</span>)
     }
 }
 <span class="comment">// === blanket impls ===
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, M&gt; MakeWriterExt&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>M <span class="kw">where </span>M: MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; {}
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, M&gt; MakeWriterExt&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>M <span class="kw">where </span>M: MakeWriter&lt;<span class="lifetime">'a</span>&gt; {}
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -2675,12 +2676,12 @@
 
     <span class="kw">fn </span>test_writer&lt;T&gt;(make_writer: T, msg: <span class="kw-2">&amp;</span>str, buf: <span class="kw-2">&amp;</span>Mutex&lt;Vec&lt;u8&gt;&gt;)
     <span class="kw">where
-        </span>T: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>T: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + Send + Sync + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>subscriber = {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
             </span><span class="kw">let </span>f = Format::default().without_time().with_ansi(<span class="bool-val">false</span>);
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;ansi&quot;</span>))]
+            <span class="attr">#[cfg(not(feature = <span class="string">"ansi"</span>))]
             </span><span class="kw">let </span>f = Format::default().without_time();
             Subscriber::builder()
                 .event_format(f)
@@ -2690,10 +2691,10 @@
         <span class="kw">let </span>dispatch = Dispatch::from(subscriber);
 
         dispatcher::with_default(<span class="kw-2">&amp;</span>dispatch, || {
-            <span class="macro">error!</span>(<span class="string">&quot;{}&quot;</span>, msg);
+            <span class="macro">error!</span>(<span class="string">"{}"</span>, msg);
         });
 
-        <span class="kw">let </span>expected = <span class="macro">format!</span>(<span class="string">&quot;ERROR {}: {}\n&quot;</span>, <span class="macro">module_path!</span>(), msg);
+        <span class="kw">let </span>expected = <span class="macro">format!</span>(<span class="string">"ERROR {}: {}\n"</span>, <span class="macro">module_path!</span>(), msg);
         <span class="kw">let </span>actual = String::from_utf8(buf.try_lock().unwrap().to_vec()).unwrap();
         <span class="macro">assert!</span>(actual.contains(expected.as_str()));
     }
@@ -2705,8 +2706,8 @@
             <span class="kw">let </span>line = <span class="macro">dbg!</span>(line).trim();
             <span class="kw">let </span>(level, msg) = expected_lines
                 .next()
-                .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;expected no more lines, but got: {:?}&quot;</span>, line));
-            <span class="kw">let </span>expected = <span class="macro">format!</span>(<span class="string">&quot;{} {}: {}&quot;</span>, level, <span class="macro">module_path!</span>(), msg);
+                .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"expected no more lines, but got: {:?}"</span>, line));
+            <span class="kw">let </span>expected = <span class="macro">format!</span>(<span class="string">"{} {}: {}"</span>, level, <span class="macro">module_path!</span>(), msg);
             <span class="macro">assert_eq!</span>(line, expected.as_str());
         }
     }
@@ -2716,7 +2717,7 @@
         <span class="kw">let </span>buf = Arc::new(Mutex::new(Vec::new()));
         <span class="kw">let </span>buf2 = buf.clone();
         <span class="kw">let </span>make_writer = <span class="kw">move </span>|| MockWriter::new(buf2.clone());
-        <span class="kw">let </span>msg = <span class="string">&quot;my custom writer closure error&quot;</span>;
+        <span class="kw">let </span>msg = <span class="string">"my custom writer closure error"</span>;
         test_writer(make_writer, msg, <span class="kw-2">&amp;</span>buf);
     }
 
@@ -2724,7 +2725,7 @@
     </span><span class="kw">fn </span>custom_writer_struct() {
         <span class="kw">let </span>buf = Arc::new(Mutex::new(Vec::new()));
         <span class="kw">let </span>make_writer = MockMakeWriter::new(buf.clone());
-        <span class="kw">let </span>msg = <span class="string">&quot;my custom writer struct error&quot;</span>;
+        <span class="kw">let </span>msg = <span class="string">"my custom writer struct error"</span>;
         test_writer(make_writer, msg, <span class="kw-2">&amp;</span>buf);
     }
 
@@ -2733,7 +2734,7 @@
         <span class="kw">let </span>buf = Arc::new(Mutex::new(Vec::new()));
         <span class="kw">let </span>writer = MockWriter::new(buf.clone());
         <span class="kw">let </span>make_writer = Mutex::new(writer);
-        <span class="kw">let </span>msg = <span class="string">&quot;my mutex writer error&quot;</span>;
+        <span class="kw">let </span>msg = <span class="string">"my mutex writer error"</span>;
         test_writer(make_writer, msg, <span class="kw-2">&amp;</span>buf);
     }
 
@@ -2758,9 +2759,9 @@
             .and(err.with_max_level(Level::ERROR));
 
         <span class="kw">let </span>c = {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
             </span><span class="kw">let </span>f = Format::default().without_time().with_ansi(<span class="bool-val">false</span>);
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;ansi&quot;</span>))]
+            <span class="attr">#[cfg(not(feature = <span class="string">"ansi"</span>))]
             </span><span class="kw">let </span>f = Format::default().without_time();
             Subscriber::builder()
                 .event_format(f)
@@ -2771,30 +2772,30 @@
 
         <span class="kw">let </span>_s = tracing::subscriber::set_default(c);
 
-        <span class="macro">trace!</span>(<span class="string">&quot;trace&quot;</span>);
-        <span class="macro">debug!</span>(<span class="string">&quot;debug&quot;</span>);
-        <span class="macro">info!</span>(<span class="string">&quot;info&quot;</span>);
-        <span class="macro">warn!</span>(<span class="string">&quot;warn&quot;</span>);
-        <span class="macro">error!</span>(<span class="string">&quot;error&quot;</span>);
+        <span class="macro">trace!</span>(<span class="string">"trace"</span>);
+        <span class="macro">debug!</span>(<span class="string">"debug"</span>);
+        <span class="macro">info!</span>(<span class="string">"info"</span>);
+        <span class="macro">warn!</span>(<span class="string">"warn"</span>);
+        <span class="macro">error!</span>(<span class="string">"error"</span>);
 
         <span class="kw">let </span>all_lines = [
-            (Level::TRACE, <span class="string">&quot;trace&quot;</span>),
-            (Level::DEBUG, <span class="string">&quot;debug&quot;</span>),
-            (Level::INFO, <span class="string">&quot;info&quot;</span>),
-            (Level::WARN, <span class="string">&quot;warn&quot;</span>),
-            (Level::ERROR, <span class="string">&quot;error&quot;</span>),
+            (Level::TRACE, <span class="string">"trace"</span>),
+            (Level::DEBUG, <span class="string">"debug"</span>),
+            (Level::INFO, <span class="string">"info"</span>),
+            (Level::WARN, <span class="string">"warn"</span>),
+            (Level::ERROR, <span class="string">"error"</span>),
         ];
 
-        <span class="macro">println!</span>(<span class="string">&quot;max level debug&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">"max level debug"</span>);
         has_lines(<span class="kw-2">&amp;</span>debug_buf, <span class="kw-2">&amp;</span>all_lines[<span class="number">1</span>..]);
 
-        <span class="macro">println!</span>(<span class="string">&quot;max level info&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">"max level info"</span>);
         has_lines(<span class="kw-2">&amp;</span>info_buf, <span class="kw-2">&amp;</span>all_lines[<span class="number">2</span>..]);
 
-        <span class="macro">println!</span>(<span class="string">&quot;max level warn&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">"max level warn"</span>);
         has_lines(<span class="kw-2">&amp;</span>warn_buf, <span class="kw-2">&amp;</span>all_lines[<span class="number">3</span>..]);
 
-        <span class="macro">println!</span>(<span class="string">&quot;max level error&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">"max level error"</span>);
         has_lines(<span class="kw-2">&amp;</span>err_buf, <span class="kw-2">&amp;</span>all_lines[<span class="number">4</span>..]);
     }
 
@@ -2816,9 +2817,9 @@
         };
         <span class="kw">let </span>make_writer = make_writer.or_else(or_else);
         <span class="kw">let </span>c = {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
             </span><span class="kw">let </span>f = Format::default().without_time().with_ansi(<span class="bool-val">false</span>);
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;ansi&quot;</span>))]
+            <span class="attr">#[cfg(not(feature = <span class="string">"ansi"</span>))]
             </span><span class="kw">let </span>f = Format::default().without_time();
             Subscriber::builder()
                 .event_format(f)
@@ -2828,14 +2829,14 @@
         };
 
         <span class="kw">let </span>_s = tracing::subscriber::set_default(c);
-        <span class="macro">info!</span>(<span class="string">&quot;hello&quot;</span>);
-        <span class="macro">info!</span>(<span class="string">&quot;world&quot;</span>);
-        <span class="macro">info!</span>(<span class="string">&quot;goodbye&quot;</span>);
+        <span class="macro">info!</span>(<span class="string">"hello"</span>);
+        <span class="macro">info!</span>(<span class="string">"world"</span>);
+        <span class="macro">info!</span>(<span class="string">"goodbye"</span>);
 
-        has_lines(<span class="kw-2">&amp;</span>some_buf, <span class="kw-2">&amp;</span>[(Level::INFO, <span class="string">&quot;hello&quot;</span>)]);
+        has_lines(<span class="kw-2">&amp;</span>some_buf, <span class="kw-2">&amp;</span>[(Level::INFO, <span class="string">"hello"</span>)]);
         has_lines(
             <span class="kw-2">&amp;</span>or_else_buf,
-            <span class="kw-2">&amp;</span>[(Level::INFO, <span class="string">&quot;world&quot;</span>), (Level::INFO, <span class="string">&quot;goodbye&quot;</span>)],
+            <span class="kw-2">&amp;</span>[(Level::INFO, <span class="string">"world"</span>), (Level::INFO, <span class="string">"goodbye"</span>)],
         );
     }
 
@@ -2861,9 +2862,9 @@
         );
 
         <span class="kw">let </span>c = {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
             </span><span class="kw">let </span>f = Format::default().without_time().with_ansi(<span class="bool-val">false</span>);
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;ansi&quot;</span>))]
+            <span class="attr">#[cfg(not(feature = <span class="string">"ansi"</span>))]
             </span><span class="kw">let </span>f = Format::default().without_time();
             Subscriber::builder()
                 .event_format(f)
@@ -2874,23 +2875,23 @@
 
         <span class="kw">let </span>_s = tracing::subscriber::set_default(c);
 
-        <span class="macro">trace!</span>(<span class="string">&quot;trace&quot;</span>);
-        <span class="macro">debug!</span>(<span class="string">&quot;debug&quot;</span>);
-        <span class="macro">info!</span>(<span class="string">&quot;info&quot;</span>);
-        <span class="macro">warn!</span>(<span class="string">&quot;warn&quot;</span>);
-        <span class="macro">error!</span>(<span class="string">&quot;error&quot;</span>);
+        <span class="macro">trace!</span>(<span class="string">"trace"</span>);
+        <span class="macro">debug!</span>(<span class="string">"debug"</span>);
+        <span class="macro">info!</span>(<span class="string">"info"</span>);
+        <span class="macro">warn!</span>(<span class="string">"warn"</span>);
+        <span class="macro">error!</span>(<span class="string">"error"</span>);
 
-        <span class="macro">println!</span>(<span class="string">&quot;max level debug&quot;</span>);
-        has_lines(<span class="kw-2">&amp;</span>debug_buf, <span class="kw-2">&amp;</span>[(Level::DEBUG, <span class="string">&quot;debug&quot;</span>)]);
+        <span class="macro">println!</span>(<span class="string">"max level debug"</span>);
+        has_lines(<span class="kw-2">&amp;</span>debug_buf, <span class="kw-2">&amp;</span>[(Level::DEBUG, <span class="string">"debug"</span>)]);
 
-        <span class="macro">println!</span>(<span class="string">&quot;max level info&quot;</span>);
-        has_lines(<span class="kw-2">&amp;</span>info_buf, <span class="kw-2">&amp;</span>[(Level::INFO, <span class="string">&quot;info&quot;</span>)]);
+        <span class="macro">println!</span>(<span class="string">"max level info"</span>);
+        has_lines(<span class="kw-2">&amp;</span>info_buf, <span class="kw-2">&amp;</span>[(Level::INFO, <span class="string">"info"</span>)]);
 
-        <span class="macro">println!</span>(<span class="string">&quot;max level warn&quot;</span>);
-        has_lines(<span class="kw-2">&amp;</span>warn_buf, <span class="kw-2">&amp;</span>[(Level::WARN, <span class="string">&quot;warn&quot;</span>)]);
+        <span class="macro">println!</span>(<span class="string">"max level warn"</span>);
+        has_lines(<span class="kw-2">&amp;</span>warn_buf, <span class="kw-2">&amp;</span>[(Level::WARN, <span class="string">"warn"</span>)]);
 
-        <span class="macro">println!</span>(<span class="string">&quot;max level error&quot;</span>);
-        has_lines(<span class="kw-2">&amp;</span>err_buf, <span class="kw-2">&amp;</span>[(Level::ERROR, <span class="string">&quot;error&quot;</span>)]);
+        <span class="macro">println!</span>(<span class="string">"max level error"</span>);
+        has_lines(<span class="kw-2">&amp;</span>err_buf, <span class="kw-2">&amp;</span>[(Level::ERROR, <span class="string">"error"</span>)]);
     }
 
     <span class="attr">#[test]
@@ -2901,13 +2902,13 @@
         <span class="kw">let </span>b_buf = Arc::new(Mutex::new(Vec::new()));
         <span class="kw">let </span>b = MockMakeWriter::new(b_buf.clone());
 
-        <span class="kw">let </span>lines = <span class="kw-2">&amp;</span>[(Level::INFO, <span class="string">&quot;hello&quot;</span>), (Level::INFO, <span class="string">&quot;world&quot;</span>)];
+        <span class="kw">let </span>lines = <span class="kw-2">&amp;</span>[(Level::INFO, <span class="string">"hello"</span>), (Level::INFO, <span class="string">"world"</span>)];
 
         <span class="kw">let </span>make_writer = a.and(b);
         <span class="kw">let </span>c = {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
             </span><span class="kw">let </span>f = Format::default().without_time().with_ansi(<span class="bool-val">false</span>);
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;ansi&quot;</span>))]
+            <span class="attr">#[cfg(not(feature = <span class="string">"ansi"</span>))]
             </span><span class="kw">let </span>f = Format::default().without_time();
             Subscriber::builder()
                 .event_format(f)
@@ -2917,8 +2918,8 @@
         };
 
         <span class="kw">let </span>_s = tracing::subscriber::set_default(c);
-        <span class="macro">info!</span>(<span class="string">&quot;hello&quot;</span>);
-        <span class="macro">info!</span>(<span class="string">&quot;world&quot;</span>);
+        <span class="macro">info!</span>(<span class="string">"hello"</span>);
+        <span class="macro">info!</span>(<span class="string">"world"</span>);
 
         has_lines(<span class="kw-2">&amp;</span>a_buf, <span class="kw-2">&amp;</span>lines[..]);
         has_lines(<span class="kw-2">&amp;</span>b_buf, <span class="kw-2">&amp;</span>lines[..]);

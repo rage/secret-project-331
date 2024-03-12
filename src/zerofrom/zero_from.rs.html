@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerofrom-0.1.3/src/zero_from.rs`."><title>zero_from.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerofrom" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerofrom-0.1.3/src/zero_from.rs`."><title>zero_from.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerofrom" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -130,13 +131,13 @@
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::borrow::{Cow, ToOwned};
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::string::String;
 
 <span class="doccomment">/// Trait for types that can be created from a reference to a different type `C` with no allocations,
-/// i.e. a zero-copy (zero-alloc) version of &quot;From&quot;
+/// i.e. a zero-copy (zero-alloc) version of "From"
 ///
 /// A type can be the `ZeroFrom` target of multiple other types.
 ///
@@ -158,13 +159,13 @@
 /// use std::borrow::Cow;
 /// use zerofrom::ZeroFrom;
 ///
-/// struct MyStruct&lt;&#39;data&gt; {
-///     message: Cow&lt;&#39;data, str&gt;,
+/// struct MyStruct&lt;'data&gt; {
+///     message: Cow&lt;'data, str&gt;,
 /// }
 ///
 /// // Reference from a borrowed version of self
-/// impl&lt;&#39;zf&gt; ZeroFrom&lt;&#39;zf, MyStruct&lt;&#39;_&gt;&gt; for MyStruct&lt;&#39;zf&gt; {
-///     fn zero_from(other: &amp;&#39;zf MyStruct&lt;&#39;_&gt;) -&gt; Self {
+/// impl&lt;'zf&gt; ZeroFrom&lt;'zf, MyStruct&lt;'_&gt;&gt; for MyStruct&lt;'zf&gt; {
+///     fn zero_from(other: &amp;'zf MyStruct&lt;'_&gt;) -&gt; Self {
 ///         MyStruct {
 ///             message: Cow::Borrowed(&amp;other.message),
 ///         }
@@ -172,85 +173,85 @@
 /// }
 ///
 /// // Reference from a string slice directly
-/// impl&lt;&#39;zf&gt; ZeroFrom&lt;&#39;zf, str&gt; for MyStruct&lt;&#39;zf&gt; {
-///     fn zero_from(other: &amp;&#39;zf str) -&gt; Self {
+/// impl&lt;'zf&gt; ZeroFrom&lt;'zf, str&gt; for MyStruct&lt;'zf&gt; {
+///     fn zero_from(other: &amp;'zf str) -&gt; Self {
 ///         MyStruct {
 ///             message: Cow::Borrowed(other),
 ///         }
 ///     }
 /// }
 /// ```
-</span><span class="kw">pub trait </span>ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, C: <span class="question-mark">?</span>Sized&gt;: <span class="lifetime">&#39;zf </span>{
+</span><span class="kw">pub trait </span>ZeroFrom&lt;<span class="lifetime">'zf</span>, C: <span class="question-mark">?</span>Sized&gt;: <span class="lifetime">'zf </span>{
     <span class="doccomment">/// Clone the other `C` into a struct that may retain references into `C`.
-    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>C) -&gt; <span class="self">Self</span>;
+    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>C) -&gt; <span class="self">Self</span>;
 }
 
 <span class="comment">// Note: The following could be blanket implementations, but that would require constraining the
-// blanket `T` on `T: &#39;static`, which may not be desirable for all downstream users who may wish
+// blanket `T` on `T: 'static`, which may not be desirable for all downstream users who may wish
 // to customize their `ZeroFrom` impl. The blanket implementation may be safe once Rust has
 // specialization.
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>&gt; ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, str&gt; <span class="kw">for </span>Cow&lt;<span class="lifetime">&#39;zf</span>, str&gt; {
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>&gt; ZeroFrom&lt;<span class="lifetime">'zf</span>, str&gt; <span class="kw">for </span>Cow&lt;<span class="lifetime">'zf</span>, str&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>str) -&gt; <span class="self">Self </span>{
         Cow::Borrowed(other)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>&gt; ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, String&gt; <span class="kw">for </span>Cow&lt;<span class="lifetime">&#39;zf</span>, str&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>&gt; ZeroFrom&lt;<span class="lifetime">'zf</span>, String&gt; <span class="kw">for </span>Cow&lt;<span class="lifetime">'zf</span>, str&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>String) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>String) -&gt; <span class="self">Self </span>{
         Cow::Borrowed(other)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>&gt; ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, str&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>str {
+<span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>&gt; ZeroFrom&lt;<span class="lifetime">'zf</span>, str&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'zf </span>str {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>str) -&gt; <span class="self">Self </span>{
         other
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>&gt; ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, String&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>str {
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>&gt; ZeroFrom&lt;<span class="lifetime">'zf</span>, String&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'zf </span>str {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>String) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>String) -&gt; <span class="self">Self </span>{
         other
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>, C, T: ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, C&gt;&gt; ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, <span class="prelude-ty">Option</span>&lt;C&gt;&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {
-    <span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span><span class="prelude-ty">Option</span>&lt;C&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, C, T: ZeroFrom&lt;<span class="lifetime">'zf</span>, C&gt;&gt; ZeroFrom&lt;<span class="lifetime">'zf</span>, <span class="prelude-ty">Option</span>&lt;C&gt;&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {
+    <span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span><span class="prelude-ty">Option</span>&lt;C&gt;) -&gt; <span class="self">Self </span>{
         other.as_ref().map(|c| &lt;T <span class="kw">as </span>ZeroFrom&lt;C&gt;&gt;::zero_from(c))
     }
 }
 
-<span class="comment">// These duplicate the functionality from above and aren&#39;t quite necessary due
+<span class="comment">// These duplicate the functionality from above and aren't quite necessary due
 // to deref coercions, however for the custom derive to work, there always needs
 // to be `impl ZeroFrom&lt;T&gt; for T`, otherwise it may fail to perform the necessary
 // type inference. Deref coercions do not typically work when sufficient generics
 // or inference are involved, and the proc macro does not necessarily have
 // enough type information to figure this out on its own.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>, B: ToOwned + <span class="question-mark">?</span>Sized&gt; ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, Cow&lt;<span class="lifetime">&#39;_</span>, B&gt;&gt; <span class="kw">for </span>Cow&lt;<span class="lifetime">&#39;zf</span>, B&gt; {
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, B: ToOwned + <span class="question-mark">?</span>Sized&gt; ZeroFrom&lt;<span class="lifetime">'zf</span>, Cow&lt;<span class="lifetime">'_</span>, B&gt;&gt; <span class="kw">for </span>Cow&lt;<span class="lifetime">'zf</span>, B&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>Cow&lt;<span class="lifetime">&#39;_</span>, B&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>Cow&lt;<span class="lifetime">'_</span>, B&gt;) -&gt; <span class="self">Self </span>{
         Cow::Borrowed(other)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>, T: <span class="question-mark">?</span>Sized&gt; ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>T {
+<span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, T: <span class="question-mark">?</span>Sized&gt; ZeroFrom&lt;<span class="lifetime">'zf</span>, <span class="kw-2">&amp;</span><span class="lifetime">'_ </span>T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'zf </span>T {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>T {
+    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span><span class="kw-2">&amp;</span><span class="lifetime">'_ </span>T) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>T {
         other
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>, T&gt; ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, [T]&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>[T] {
+<span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, T&gt; ZeroFrom&lt;<span class="lifetime">'zf</span>, [T]&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'zf </span>[T] {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>[T]) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>[T] {
+    </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>[T]) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>[T] {
         other
     }
 }

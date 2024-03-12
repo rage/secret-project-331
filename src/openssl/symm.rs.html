@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.63/src/symm.rs`."><title>symm.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/symm.rs`."><title>symm.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1776,9 +1777,9 @@
 //! use openssl::symm::{encrypt, Cipher};
 //!
 //! let cipher = Cipher::aes_128_cbc();
-//! let data = b&quot;Some Crypto Text&quot;;
-//! let key = b&quot;\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F&quot;;
-//! let iv = b&quot;\x00\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07&quot;;
+//! let data = b"Some Crypto Text";
+//! let key = b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+//! let iv = b"\x00\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07";
 //! let ciphertext = encrypt(
 //!     cipher,
 //!     key,
@@ -1786,8 +1787,8 @@
 //!     data).unwrap();
 //!
 //! assert_eq!(
-//!     b&quot;\xB4\xB9\xE7\x30\xD6\xD6\xF7\xDE\x77\x3F\x1C\xFF\xB3\x3E\x44\x5A\x91\xD7\x27\x62\x87\x4D\
-//!       \xFB\x3C\x5E\xC4\x59\x72\x4A\xF4\x7C\xA1&quot;,
+//!     b"\xB4\xB9\xE7\x30\xD6\xD6\xF7\xDE\x77\x3F\x1C\xFF\xB3\x3E\x44\x5A\x91\xD7\x27\x62\x87\x4D\
+//!       \xFB\x3C\x5E\xC4\x59\x72\x4A\xF4\x7C\xA1",
 //!     &amp;ciphertext[..]);
 //! ```
 //!
@@ -1801,23 +1802,23 @@
 //! let keypair = Rsa::generate(2048).unwrap();
 //! let cipher = Cipher::aes_256_cbc();
 //! let pubkey_pem = keypair.public_key_to_pem_pkcs1().unwrap();
-//! let privkey_pem = keypair.private_key_to_pem_passphrase(cipher, b&quot;Rust&quot;).unwrap();
+//! let privkey_pem = keypair.private_key_to_pem_passphrase(cipher, b"Rust").unwrap();
 //! // pubkey_pem and privkey_pem could be written to file here.
 //!
 //! // Load private and public key from string:
 //! let pubkey = Rsa::public_key_from_pem_pkcs1(&amp;pubkey_pem).unwrap();
-//! let privkey = Rsa::private_key_from_pem_passphrase(&amp;privkey_pem, b&quot;Rust&quot;).unwrap();
+//! let privkey = Rsa::private_key_from_pem_passphrase(&amp;privkey_pem, b"Rust").unwrap();
 //!
 //! // Use the asymmetric keys to encrypt and decrypt a short message:
-//! let msg = b&quot;Foo bar&quot;;
+//! let msg = b"Foo bar";
 //! let mut encrypted = vec![0; pubkey.size() as usize];
 //! let mut decrypted = vec![0; privkey.size() as usize];
 //! let len = pubkey.public_encrypt(msg, &amp;mut encrypted, Padding::PKCS1).unwrap();
 //! assert!(len &gt; msg.len());
 //! let len = privkey.private_decrypt(&amp;encrypted, &amp;mut decrypted, Padding::PKCS1).unwrap();
 //! let output_string = String::from_utf8(decrypted[..len].to_vec()).unwrap();
-//! assert_eq!(&quot;Foo bar&quot;, output_string);
-//! println!(&quot;Decrypted: &#39;{}&#39;&quot;, output_string);
+//! assert_eq!("Foo bar", output_string);
+//! println!("Decrypted: '{}'", output_string);
 //! ```
 </span><span class="kw">use </span><span class="kw">crate</span>::cipher::CipherRef;
 <span class="kw">use </span><span class="kw">crate</span>::cipher_ctx::{CipherCtx, CipherCtxRef};
@@ -1855,7 +1856,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the cipher&#39;s Nid.
+    <span class="doccomment">/// Returns the cipher's Nid.
     ///
     /// This corresponds to [`EVP_CIPHER_nid`]
     ///
@@ -1910,7 +1911,7 @@
     }
 
     <span class="doccomment">/// Requires OpenSSL 1.1.0 or newer.
-    </span><span class="attr">#[cfg(all(ossl110, not(osslconf = <span class="string">&quot;OPENSSL_NO_OCB&quot;</span>)))]
+    </span><span class="attr">#[cfg(all(ossl110, not(osslconf = <span class="string">"OPENSSL_NO_OCB"</span>)))]
     </span><span class="kw">pub fn </span>aes_128_ocb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_aes_128_ocb()) }
     }
@@ -1955,7 +1956,7 @@
     }
 
     <span class="doccomment">/// Requires OpenSSL 1.1.0 or newer.
-    </span><span class="attr">#[cfg(all(ossl110, not(osslconf = <span class="string">&quot;OPENSSL_NO_OCB&quot;</span>)))]
+    </span><span class="attr">#[cfg(all(ossl110, not(osslconf = <span class="string">"OPENSSL_NO_OCB"</span>)))]
     </span><span class="kw">pub fn </span>aes_192_ocb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_aes_192_ocb()) }
     }
@@ -2005,27 +2006,27 @@
     }
 
     <span class="doccomment">/// Requires OpenSSL 1.1.0 or newer.
-    </span><span class="attr">#[cfg(all(ossl110, not(osslconf = <span class="string">&quot;OPENSSL_NO_OCB&quot;</span>)))]
+    </span><span class="attr">#[cfg(all(ossl110, not(osslconf = <span class="string">"OPENSSL_NO_OCB"</span>)))]
     </span><span class="kw">pub fn </span>aes_256_ocb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_aes_256_ocb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_BF&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_BF"</span>))]
     </span><span class="kw">pub fn </span>bf_cbc() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_bf_cbc()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_BF&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_BF"</span>))]
     </span><span class="kw">pub fn </span>bf_ecb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_bf_ecb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_BF&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_BF"</span>))]
     </span><span class="kw">pub fn </span>bf_cfb64() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_bf_cfb64()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_BF&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_BF"</span>))]
     </span><span class="kw">pub fn </span>bf_ofb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_bf_ofb()) }
     }
@@ -2065,164 +2066,164 @@
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_des_ede3_ofb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_RC4&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_RC4"</span>))]
     </span><span class="kw">pub fn </span>rc4() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_rc4()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_128_cbc() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_128_cbc()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_128_ecb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_128_ecb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_128_ofb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_128_ofb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_128_cfb128() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_128_cfb128()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_192_cbc() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_192_cbc()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_192_ecb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_192_ecb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_192_ofb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_192_ofb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_192_cfb128() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_192_cfb128()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_256_cbc() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_256_cbc()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_256_ecb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_256_ecb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_256_ofb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_256_ofb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAMELLIA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAMELLIA"</span>))]
     </span><span class="kw">pub fn </span>camellia_256_cfb128() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_camellia_256_cfb128()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAST&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAST"</span>))]
     </span><span class="kw">pub fn </span>cast5_cbc() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_cast5_cbc()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAST&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAST"</span>))]
     </span><span class="kw">pub fn </span>cast5_ecb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_cast5_ecb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAST&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAST"</span>))]
     </span><span class="kw">pub fn </span>cast5_ofb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_cast5_ofb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_CAST&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_CAST"</span>))]
     </span><span class="kw">pub fn </span>cast5_cfb64() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_cast5_cfb64()) }
     }
 
     <span class="doccomment">/// Requires OpenSSL 1.1.0 or newer.
-    </span><span class="attr">#[cfg(all(any(ossl110, libressl310), not(osslconf = <span class="string">&quot;OPENSSL_NO_CHACHA&quot;</span>)))]
+    </span><span class="attr">#[cfg(all(any(ossl110, libressl310), not(osslconf = <span class="string">"OPENSSL_NO_CHACHA"</span>)))]
     </span><span class="kw">pub fn </span>chacha20() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_chacha20()) }
     }
 
     <span class="doccomment">/// Requires OpenSSL 1.1.0 or newer.
-    </span><span class="attr">#[cfg(all(any(ossl110, libressl360), not(osslconf = <span class="string">&quot;OPENSSL_NO_CHACHA&quot;</span>)))]
+    </span><span class="attr">#[cfg(all(any(ossl110, libressl360), not(osslconf = <span class="string">"OPENSSL_NO_CHACHA"</span>)))]
     </span><span class="kw">pub fn </span>chacha20_poly1305() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_chacha20_poly1305()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_IDEA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_IDEA"</span>))]
     </span><span class="kw">pub fn </span>idea_cbc() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_idea_cbc()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_IDEA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_IDEA"</span>))]
     </span><span class="kw">pub fn </span>idea_ecb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_idea_ecb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_IDEA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_IDEA"</span>))]
     </span><span class="kw">pub fn </span>idea_ofb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_idea_ofb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_IDEA&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_IDEA"</span>))]
     </span><span class="kw">pub fn </span>idea_cfb64() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_idea_cfb64()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>))]
     </span><span class="kw">pub fn </span>seed_cbc() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_seed_cbc()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>))]
     </span><span class="kw">pub fn </span>seed_cfb128() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_seed_cfb128()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>))]
     </span><span class="kw">pub fn </span>seed_ecb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_seed_ecb()) }
     }
 
-    <span class="attr">#[cfg(not(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]
+    <span class="attr">#[cfg(not(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>))]
     </span><span class="kw">pub fn </span>seed_ofb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_seed_ofb()) }
     }
 
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>sm4_ecb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_sm4_ecb()) }
     }
 
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>sm4_cbc() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_sm4_cbc()) }
     }
 
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>sm4_ctr() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_sm4_ctr()) }
     }
 
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>sm4_cfb128() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_sm4_cfb128()) }
     }
 
-    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    <span class="attr">#[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">pub fn </span>sm4_ofb() -&gt; Cipher {
         <span class="kw">unsafe </span>{ Cipher(ffi::EVP_sm4_ofb()) }
     }
@@ -2231,7 +2232,7 @@
     ///
     /// # Safety
     ///
-    /// The caller must ensure the pointer is valid for the `&#39;static` lifetime.
+    /// The caller must ensure the pointer is valid for the `'static` lifetime.
     </span><span class="kw">pub unsafe fn </span>from_ptr(ptr: <span class="kw-2">*const </span>ffi::EVP_CIPHER) -&gt; Cipher {
         Cipher(ptr)
     }
@@ -2284,14 +2285,14 @@
     </span>}
 
     <span class="doccomment">/// Determines whether the cipher is using OCB mode
-    </span><span class="attr">#[cfg(all(ossl110, not(osslconf = <span class="string">&quot;OPENSSL_NO_OCB&quot;</span>)))]
+    </span><span class="attr">#[cfg(all(ossl110, not(osslconf = <span class="string">"OPENSSL_NO_OCB"</span>)))]
     </span><span class="kw">fn </span>is_ocb(<span class="self">self</span>) -&gt; bool {
         <span class="self">self </span>== Cipher::aes_128_ocb()
             || <span class="self">self </span>== Cipher::aes_192_ocb()
             || <span class="self">self </span>== Cipher::aes_256_ocb()
     }
 
-    <span class="attr">#[cfg(any(not(ossl110), osslconf = <span class="string">&quot;OPENSSL_NO_OCB&quot;</span>))]
+    <span class="attr">#[cfg(any(not(ossl110), osslconf = <span class="string">"OPENSSL_NO_OCB"</span>))]
     </span><span class="kw">const fn </span>is_ocb(<span class="self">self</span>) -&gt; bool {
         <span class="bool-val">false
     </span>}
@@ -2312,9 +2313,9 @@
 /// ```
 /// use openssl::symm::{Cipher, Mode, Crypter};
 ///
-/// let plaintexts: [&amp;[u8]; 2] = [b&quot;Some Stream of&quot;, b&quot; Crypto Text&quot;];
-/// let key = b&quot;\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F&quot;;
-/// let iv = b&quot;\x00\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07&quot;;
+/// let plaintexts: [&amp;[u8]; 2] = [b"Some Stream of", b" Crypto Text"];
+/// let key = b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+/// let iv = b"\x00\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07";
 /// let data_len = plaintexts.iter().fold(0, |sum, x| sum + x.len());
 ///
 /// // Create a cipher context for encryption.
@@ -2334,13 +2335,13 @@
 /// ciphertext.truncate(count);
 ///
 /// assert_eq!(
-///     b&quot;\x0F\x21\x83\x7E\xB2\x88\x04\xAF\xD9\xCC\xE2\x03\x49\xB4\x88\xF6\xC4\x61\x0E\x32\x1C\xF9\
-///       \x0D\x66\xB1\xE6\x2C\x77\x76\x18\x8D\x99&quot;,
+///     b"\x0F\x21\x83\x7E\xB2\x88\x04\xAF\xD9\xCC\xE2\x03\x49\xB4\x88\xF6\xC4\x61\x0E\x32\x1C\xF9\
+///       \x0D\x66\xB1\xE6\x2C\x77\x76\x18\x8D\x99",
 ///     &amp;ciphertext[..]
 /// );
 ///
 ///
-/// // Let&#39;s pretend we don&#39;t know the plaintext, and now decrypt the ciphertext.
+/// // Let's pretend we don't know the plaintext, and now decrypt the ciphertext.
 /// let data_len = ciphertext.len();
 /// let ciphertexts = [&amp;ciphertext[..9], &amp;ciphertext[9..]];
 ///
@@ -2358,7 +2359,7 @@
 /// count += decrypter.finalize(&amp;mut plaintext[count..]).unwrap();
 /// plaintext.truncate(count);
 ///
-/// assert_eq!(b&quot;Some Stream of Crypto Text&quot;, &amp;plaintext[..]);
+/// assert_eq!(b"Some Stream of Crypto Text", &amp;plaintext[..]);
 /// ```
 </span><span class="kw">pub struct </span>Crypter {
     ctx: CipherCtx,
@@ -2408,7 +2409,7 @@
     <span class="doccomment">/// Enables or disables padding.
     ///
     /// If padding is disabled, total amount of data encrypted/decrypted must
-    /// be a multiple of the cipher&#39;s block size.
+    /// be a multiple of the cipher's block size.
     </span><span class="kw">pub fn </span>pad(<span class="kw-2">&amp;mut </span><span class="self">self</span>, padding: bool) {
         <span class="self">self</span>.ctx.set_padding(padding)
     }
@@ -2529,9 +2530,9 @@
 /// use openssl::symm::{encrypt, Cipher};
 ///
 /// let cipher = Cipher::aes_128_cbc();
-/// let data = b&quot;Some Crypto Text&quot;;
-/// let key = b&quot;\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F&quot;;
-/// let iv = b&quot;\x00\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07&quot;;
+/// let data = b"Some Crypto Text";
+/// let key = b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+/// let iv = b"\x00\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07";
 /// let ciphertext = encrypt(
 ///     cipher,
 ///     key,
@@ -2539,8 +2540,8 @@
 ///     data).unwrap();
 ///
 /// assert_eq!(
-///     b&quot;\xB4\xB9\xE7\x30\xD6\xD6\xF7\xDE\x77\x3F\x1C\xFF\xB3\x3E\x44\x5A\x91\xD7\x27\x62\x87\x4D\
-///       \xFB\x3C\x5E\xC4\x59\x72\x4A\xF4\x7C\xA1&quot;,
+///     b"\xB4\xB9\xE7\x30\xD6\xD6\xF7\xDE\x77\x3F\x1C\xFF\xB3\x3E\x44\x5A\x91\xD7\x27\x62\x87\x4D\
+///       \xFB\x3C\x5E\xC4\x59\x72\x4A\xF4\x7C\xA1",
 ///     &amp;ciphertext[..]);
 /// ```
 </span><span class="kw">pub fn </span>encrypt(
@@ -2568,10 +2569,10 @@
 /// use openssl::symm::{decrypt, Cipher};
 ///
 /// let cipher = Cipher::aes_128_cbc();
-/// let data = b&quot;\xB4\xB9\xE7\x30\xD6\xD6\xF7\xDE\x77\x3F\x1C\xFF\xB3\x3E\x44\x5A\x91\xD7\x27\x62\
-///              \x87\x4D\xFB\x3C\x5E\xC4\x59\x72\x4A\xF4\x7C\xA1&quot;;
-/// let key = b&quot;\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F&quot;;
-/// let iv = b&quot;\x00\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07&quot;;
+/// let data = b"\xB4\xB9\xE7\x30\xD6\xD6\xF7\xDE\x77\x3F\x1C\xFF\xB3\x3E\x44\x5A\x91\xD7\x27\x62\
+///              \x87\x4D\xFB\x3C\x5E\xC4\x59\x72\x4A\xF4\x7C\xA1";
+/// let key = b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+/// let iv = b"\x00\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07";
 /// let ciphertext = decrypt(
 ///     cipher,
 ///     key,
@@ -2579,7 +2580,7 @@
 ///     data).unwrap();
 ///
 /// assert_eq!(
-///     b&quot;Some Crypto Text&quot;,
+///     b"Some Crypto Text",
 ///     &amp;ciphertext[..]);
 /// ```
 </span><span class="kw">pub fn </span>decrypt(
@@ -2797,7 +2798,7 @@
         <span class="kw">let </span>rest = cr.finalize(<span class="kw-2">&amp;mut </span>unciphered_data[count..]).unwrap();
         unciphered_data.truncate(count + rest);
 
-        <span class="kw">let </span>expected_unciphered_data = <span class="string">b&quot;I love turtles.\x01&quot;</span>;
+        <span class="kw">let </span>expected_unciphered_data = <span class="string">b"I love turtles.\x01"</span>;
 
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>unciphered_data, expected_unciphered_data);
     }
@@ -2812,16 +2813,16 @@
         <span class="kw">let </span>expected = pt;
 
         <span class="kw">if </span>computed != expected {
-            <span class="macro">println!</span>(<span class="string">&quot;Computed: {}&quot;</span>, hex::encode(<span class="kw-2">&amp;</span>computed));
-            <span class="macro">println!</span>(<span class="string">&quot;Expected: {}&quot;</span>, hex::encode(<span class="kw-2">&amp;</span>expected));
+            <span class="macro">println!</span>(<span class="string">"Computed: {}"</span>, hex::encode(<span class="kw-2">&amp;</span>computed));
+            <span class="macro">println!</span>(<span class="string">"Expected: {}"</span>, hex::encode(<span class="kw-2">&amp;</span>expected));
             <span class="kw">if </span>computed.len() != expected.len() {
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;Lengths differ: {} in computed vs {} expected&quot;</span>,
+                    <span class="string">"Lengths differ: {} in computed vs {} expected"</span>,
                     computed.len(),
                     expected.len()
                 );
             }
-            <span class="macro">panic!</span>(<span class="string">&quot;test failure&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"test failure"</span>);
         }
     }
 
@@ -2844,28 +2845,28 @@
         <span class="kw">let </span>expected = pt;
 
         <span class="kw">if </span>computed != expected {
-            <span class="macro">println!</span>(<span class="string">&quot;Computed: {}&quot;</span>, hex::encode(<span class="kw-2">&amp;</span>computed));
-            <span class="macro">println!</span>(<span class="string">&quot;Expected: {}&quot;</span>, hex::encode(<span class="kw-2">&amp;</span>expected));
+            <span class="macro">println!</span>(<span class="string">"Computed: {}"</span>, hex::encode(<span class="kw-2">&amp;</span>computed));
+            <span class="macro">println!</span>(<span class="string">"Expected: {}"</span>, hex::encode(<span class="kw-2">&amp;</span>expected));
             <span class="kw">if </span>computed.len() != expected.len() {
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;Lengths differ: {} in computed vs {} expected&quot;</span>,
+                    <span class="string">"Lengths differ: {} in computed vs {} expected"</span>,
                     computed.len(),
                     expected.len()
                 );
             }
-            <span class="macro">panic!</span>(<span class="string">&quot;test failure&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"test failure"</span>);
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_rc4() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;0000000000000000000000000000000000000000000000000000000000000000000000000000&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;A68686B04D686AA107BD8D4CAB191A3EEC0A6294BC78B60F65C25CB47BD7BB3A48EFC4D26BE4&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;97CD440324DA5FD1F7955C1C13B6B466&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"0000000000000000000000000000000000000000000000000000000000000000000000000000"</span>;
+        <span class="kw">let </span>ct = <span class="string">"A68686B04D686AA107BD8D4CAB191A3EEC0A6294BC78B60F65C25CB47BD7BB3A48EFC4D26BE4"</span>;
+        <span class="kw">let </span>key = <span class="string">"97CD440324DA5FD1F7955C1C13B6B466"</span>;
+        <span class="kw">let </span>iv = <span class="string">""</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::rc4(), pt, ct, key, iv);
     }
@@ -2875,25 +2876,25 @@
     </span><span class="kw">fn </span>test_aes256_xts() {
         <span class="comment">// Test case 174 from
         // http://csrc.nist.gov/groups/STM/cavp/documents/aes/XTSTestVectors.zip
-        </span><span class="kw">let </span>pt = <span class="string">&quot;77f4ef63d734ebd028508da66c22cdebdd52ecd6ee2ab0a50bc8ad0cfd692ca5fcd4e6dedc45df7f\
-                  6503f462611dc542&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;ce7d905a7776ac72f240d22aafed5e4eb7566cdc7211220e970da634ce015f131a5ecb8d400bc9e8\
-                  4f0b81d8725dbbc7&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;b6bfef891f83b5ff073f2231267be51eb084b791fa19a154399c0684c8b2dfcb37de77d28bbda3b\
-                   4180026ad640b74243b3133e7b9fae629403f6733423dae28&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;db200efb7eaaa737dbdf40babb68953f&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"77f4ef63d734ebd028508da66c22cdebdd52ecd6ee2ab0a50bc8ad0cfd692ca5fcd4e6dedc45df7f\
+                  6503f462611dc542"</span>;
+        <span class="kw">let </span>ct = <span class="string">"ce7d905a7776ac72f240d22aafed5e4eb7566cdc7211220e970da634ce015f131a5ecb8d400bc9e8\
+                  4f0b81d8725dbbc7"</span>;
+        <span class="kw">let </span>key = <span class="string">"b6bfef891f83b5ff073f2231267be51eb084b791fa19a154399c0684c8b2dfcb37de77d28bbda3b\
+                   4180026ad640b74243b3133e7b9fae629403f6733423dae28"</span>;
+        <span class="kw">let </span>iv = <span class="string">"db200efb7eaaa737dbdf40babb68953f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_256_xts(), pt, ct, key, iv);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_aes128_ctr() {
-        <span class="kw">let </span>pt = <span class="string">&quot;6BC1BEE22E409F96E93D7E117393172AAE2D8A571E03AC9C9EB76FAC45AF8E5130C81C46A35CE411\
-                  E5FBC1191A0A52EFF69F2445DF4F9B17AD2B417BE66C3710&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;874D6191B620E3261BEF6864990DB6CE9806F66B7970FDFF8617187BB9FFFDFF5AE4DF3EDBD5D35E\
-                  5B4F09020DB03EAB1E031DDA2FBE03D1792170A0F3009CEE&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;2B7E151628AED2A6ABF7158809CF4F3C&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"6BC1BEE22E409F96E93D7E117393172AAE2D8A571E03AC9C9EB76FAC45AF8E5130C81C46A35CE411\
+                  E5FBC1191A0A52EFF69F2445DF4F9B17AD2B417BE66C3710"</span>;
+        <span class="kw">let </span>ct = <span class="string">"874D6191B620E3261BEF6864990DB6CE9806F66B7970FDFF8617187BB9FFFDFF5AE4DF3EDBD5D35E\
+                  5B4F09020DB03EAB1E031DDA2FBE03D1792170A0F3009CEE"</span>;
+        <span class="kw">let </span>key = <span class="string">"2B7E151628AED2A6ABF7158809CF4F3C"</span>;
+        <span class="kw">let </span>iv = <span class="string">"F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_128_ctr(), pt, ct, key, iv);
     }
@@ -2903,10 +2904,10 @@
     </span><span class="kw">fn </span>test_aes128_cfb1() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
 
-        </span><span class="kw">let </span>pt = <span class="string">&quot;6bc1&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;68b3&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;2b7e151628aed2a6abf7158809cf4f3c&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"6bc1"</span>;
+        <span class="kw">let </span>ct = <span class="string">"68b3"</span>;
+        <span class="kw">let </span>key = <span class="string">"2b7e151628aed2a6abf7158809cf4f3c"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_128_cfb1(), pt, ct, key, iv);
     }
@@ -2914,10 +2915,10 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_aes128_cfb128() {
-        <span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172a&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;3b3fd92eb72dad20333449f8e83cfb4a&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;2b7e151628aed2a6abf7158809cf4f3c&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172a"</span>;
+        <span class="kw">let </span>ct = <span class="string">"3b3fd92eb72dad20333449f8e83cfb4a"</span>;
+        <span class="kw">let </span>key = <span class="string">"2b7e151628aed2a6abf7158809cf4f3c"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_128_cfb128(), pt, ct, key, iv);
     }
@@ -2925,10 +2926,10 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_aes128_cfb8() {
-        <span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;3b79424c9c0dd436bace9e0ed4586a4f32b9&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;2b7e151628aed2a6abf7158809cf4f3c&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172aae2d"</span>;
+        <span class="kw">let </span>ct = <span class="string">"3b79424c9c0dd436bace9e0ed4586a4f32b9"</span>;
+        <span class="kw">let </span>key = <span class="string">"2b7e151628aed2a6abf7158809cf4f3c"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_128_cfb8(), pt, ct, key, iv);
     }
@@ -2937,10 +2938,10 @@
     </span><span class="kw">fn </span>test_aes128_ofb() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
 
-        </span><span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;3b3fd92eb72dad20333449f8e83cfb4a7789508d16918f03f53c52dac54ed8259740051e9c5fecf64344f7a82260edcc304c6528f659c77866a510d9c1d6ae5e&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;2b7e151628aed2a6abf7158809cf4f3c&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710"</span>;
+        <span class="kw">let </span>ct = <span class="string">"3b3fd92eb72dad20333449f8e83cfb4a7789508d16918f03f53c52dac54ed8259740051e9c5fecf64344f7a82260edcc304c6528f659c77866a510d9c1d6ae5e"</span>;
+        <span class="kw">let </span>key = <span class="string">"2b7e151628aed2a6abf7158809cf4f3c"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_128_ofb(), pt, ct, key, iv);
     }
@@ -2949,10 +2950,10 @@
     </span><span class="kw">fn </span>test_aes192_ctr() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
 
-        </span><span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;1abc932417521ca24f2b0459fe7e6e0b090339ec0aa6faefd5ccc2c6f4ce8e941e36b26bd1ebc670d1bd1d665620abf74f78a7f6d29809585a97daec58c6b050&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710"</span>;
+        <span class="kw">let </span>ct = <span class="string">"1abc932417521ca24f2b0459fe7e6e0b090339ec0aa6faefd5ccc2c6f4ce8e941e36b26bd1ebc670d1bd1d665620abf74f78a7f6d29809585a97daec58c6b050"</span>;
+        <span class="kw">let </span>key = <span class="string">"8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"</span>;
+        <span class="kw">let </span>iv = <span class="string">"f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_192_ctr(), pt, ct, key, iv);
     }
@@ -2962,10 +2963,10 @@
     </span><span class="kw">fn </span>test_aes192_cfb1() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
 
-        </span><span class="kw">let </span>pt = <span class="string">&quot;6bc1&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;9359&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"6bc1"</span>;
+        <span class="kw">let </span>ct = <span class="string">"9359"</span>;
+        <span class="kw">let </span>key = <span class="string">"8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_192_cfb1(), pt, ct, key, iv);
     }
@@ -2975,10 +2976,10 @@
     </span><span class="kw">fn </span>test_aes192_cfb128() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
 
-        </span><span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;cdc80d6fddf18cab34c25909c99a417467ce7f7f81173621961a2b70171d3d7a2e1e8a1dd59b88b1c8e60fed1efac4c9c05f9f9ca9834fa042ae8fba584b09ff&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710"</span>;
+        <span class="kw">let </span>ct = <span class="string">"cdc80d6fddf18cab34c25909c99a417467ce7f7f81173621961a2b70171d3d7a2e1e8a1dd59b88b1c8e60fed1efac4c9c05f9f9ca9834fa042ae8fba584b09ff"</span>;
+        <span class="kw">let </span>key = <span class="string">"8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_192_cfb128(), pt, ct, key, iv);
     }
@@ -2988,10 +2989,10 @@
     </span><span class="kw">fn </span>test_aes192_cfb8() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
 
-        </span><span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;cda2521ef0a905ca44cd057cbf0d47a0678a&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172aae2d"</span>;
+        <span class="kw">let </span>ct = <span class="string">"cda2521ef0a905ca44cd057cbf0d47a0678a"</span>;
+        <span class="kw">let </span>key = <span class="string">"8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_192_cfb8(), pt, ct, key, iv);
     }
@@ -3000,10 +3001,10 @@
     </span><span class="kw">fn </span>test_aes192_ofb() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
 
-        </span><span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;cdc80d6fddf18cab34c25909c99a4174fcc28b8d4c63837c09e81700c11004018d9a9aeac0f6596f559c6d4daf59a5f26d9f200857ca6c3e9cac524bd9acc92a&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710"</span>;
+        <span class="kw">let </span>ct = <span class="string">"cdc80d6fddf18cab34c25909c99a4174fcc28b8d4c63837c09e81700c11004018d9a9aeac0f6596f559c6d4daf59a5f26d9f200857ca6c3e9cac524bd9acc92a"</span>;
+        <span class="kw">let </span>key = <span class="string">"8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_192_ofb(), pt, ct, key, iv);
     }
@@ -3011,10 +3012,10 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_aes256_cfb1() {
-        <span class="kw">let </span>pt = <span class="string">&quot;6bc1&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;9029&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"6bc1"</span>;
+        <span class="kw">let </span>ct = <span class="string">"9029"</span>;
+        <span class="kw">let </span>key = <span class="string">"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_256_cfb1(), pt, ct, key, iv);
     }
@@ -3022,10 +3023,10 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_aes256_cfb128() {
-        <span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172a&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;dc7e84bfda79164b7ecd8486985d3860&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172a"</span>;
+        <span class="kw">let </span>ct = <span class="string">"dc7e84bfda79164b7ecd8486985d3860"</span>;
+        <span class="kw">let </span>key = <span class="string">"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_256_cfb128(), pt, ct, key, iv);
     }
@@ -3033,10 +3034,10 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_aes256_cfb8() {
-        <span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;dc1f1a8520a64db55fcc8ac554844e889700&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172aae2d"</span>;
+        <span class="kw">let </span>ct = <span class="string">"dc1f1a8520a64db55fcc8ac554844e889700"</span>;
+        <span class="kw">let </span>key = <span class="string">"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_256_cfb8(), pt, ct, key, iv);
     }
@@ -3045,10 +3046,10 @@
     </span><span class="kw">fn </span>test_aes256_ofb() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
 
-        </span><span class="kw">let </span>pt = <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;dc7e84bfda79164b7ecd8486985d38604febdc6740d20b3ac88f6ad82a4fb08d71ab47a086e86eedf39d1c5bba97c4080126141d67f37be8538f5a8be740e484&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710"</span>;
+        <span class="kw">let </span>ct = <span class="string">"dc7e84bfda79164b7ecd8486985d38604febdc6740d20b3ac88f6ad82a4fb08d71ab47a086e86eedf39d1c5bba97c4080126141d67f37be8538f5a8be740e484"</span>;
+        <span class="kw">let </span>key = <span class="string">"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::aes_256_ofb(), pt, ct, key, iv);
     }
@@ -3058,14 +3059,14 @@
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_bf_cbc() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
         <span class="comment">// https://www.schneier.com/code/vectors.txt
 
-        </span><span class="kw">let </span>pt = <span class="string">&quot;37363534333231204E6F77206973207468652074696D6520666F722000000000&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;6B77B4D63006DEE605B156E27403979358DEB9E7154616D959F1652BD5FF92CC&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;0123456789ABCDEFF0E1D2C3B4A59687&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;FEDCBA9876543210&quot;</span>;
+        </span><span class="kw">let </span>pt = <span class="string">"37363534333231204E6F77206973207468652074696D6520666F722000000000"</span>;
+        <span class="kw">let </span>ct = <span class="string">"6B77B4D63006DEE605B156E27403979358DEB9E7154616D959F1652BD5FF92CC"</span>;
+        <span class="kw">let </span>key = <span class="string">"0123456789ABCDEFF0E1D2C3B4A59687"</span>;
+        <span class="kw">let </span>iv = <span class="string">"FEDCBA9876543210"</span>;
 
         cipher_test_nopad(<span class="kw">super</span>::Cipher::bf_cbc(), pt, ct, key, iv);
     }
@@ -3075,12 +3076,12 @@
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_bf_ecb() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;5CD54CA83DEF57DA&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;B1B8CC0B250F09A0&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;0131D9619DC1376E&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;0000000000000000&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"5CD54CA83DEF57DA"</span>;
+        <span class="kw">let </span>ct = <span class="string">"B1B8CC0B250F09A0"</span>;
+        <span class="kw">let </span>key = <span class="string">"0131D9619DC1376E"</span>;
+        <span class="kw">let </span>iv = <span class="string">"0000000000000000"</span>;
 
         cipher_test_nopad(<span class="kw">super</span>::Cipher::bf_ecb(), pt, ct, key, iv);
     }
@@ -3090,12 +3091,12 @@
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_bf_cfb64() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;37363534333231204E6F77206973207468652074696D6520666F722000&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;E73214A2822139CAF26ECF6D2EB9E76E3DA3DE04D1517200519D57A6C3&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;0123456789ABCDEFF0E1D2C3B4A59687&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;FEDCBA9876543210&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"37363534333231204E6F77206973207468652074696D6520666F722000"</span>;
+        <span class="kw">let </span>ct = <span class="string">"E73214A2822139CAF26ECF6D2EB9E76E3DA3DE04D1517200519D57A6C3"</span>;
+        <span class="kw">let </span>key = <span class="string">"0123456789ABCDEFF0E1D2C3B4A59687"</span>;
+        <span class="kw">let </span>iv = <span class="string">"FEDCBA9876543210"</span>;
 
         cipher_test_nopad(<span class="kw">super</span>::Cipher::bf_cfb64(), pt, ct, key, iv);
     }
@@ -3105,12 +3106,12 @@
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_bf_ofb() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;37363534333231204E6F77206973207468652074696D6520666F722000&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;0123456789ABCDEFF0E1D2C3B4A59687&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;FEDCBA9876543210&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"37363534333231204E6F77206973207468652074696D6520666F722000"</span>;
+        <span class="kw">let </span>ct = <span class="string">"E73214A2822139CA62B343CC5B65587310DD908D0C241B2263C2CF80DA"</span>;
+        <span class="kw">let </span>key = <span class="string">"0123456789ABCDEFF0E1D2C3B4A59687"</span>;
+        <span class="kw">let </span>iv = <span class="string">"FEDCBA9876543210"</span>;
 
         cipher_test_nopad(<span class="kw">super</span>::Cipher::bf_ofb(), pt, ct, key, iv);
     }
@@ -3118,12 +3119,12 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_des_cbc() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;54686973206973206120746573742e&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;6f2867cfefda048a4046ef7e556c7132&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;7cb66337f3d3c0fe&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;0001020304050607&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"54686973206973206120746573742e"</span>;
+        <span class="kw">let </span>ct = <span class="string">"6f2867cfefda048a4046ef7e556c7132"</span>;
+        <span class="kw">let </span>key = <span class="string">"7cb66337f3d3c0fe"</span>;
+        <span class="kw">let </span>iv = <span class="string">"0001020304050607"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::des_cbc(), pt, ct, key, iv);
     }
@@ -3131,32 +3132,32 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_des_ecb() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;54686973206973206120746573742e&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;0050ab8aecec758843fe157b4dde938c&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;7cb66337f3d3c0fe&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;0001020304050607&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"54686973206973206120746573742e"</span>;
+        <span class="kw">let </span>ct = <span class="string">"0050ab8aecec758843fe157b4dde938c"</span>;
+        <span class="kw">let </span>key = <span class="string">"7cb66337f3d3c0fe"</span>;
+        <span class="kw">let </span>iv = <span class="string">"0001020304050607"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::des_ecb(), pt, ct, key, iv);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_des_ede3() {
-        <span class="kw">let </span>pt = <span class="string">&quot;9994f4c69d40ae4f34ff403b5cf39d4c8207ea5d3e19a5fd&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;9e5c4297d60582f81071ac8ab7d0698d4c79de8b94c519858207ea5d3e19a5fd&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;010203040506070801020304050607080102030405060708&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;5cc118306dc702e4&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"9994f4c69d40ae4f34ff403b5cf39d4c8207ea5d3e19a5fd"</span>;
+        <span class="kw">let </span>ct = <span class="string">"9e5c4297d60582f81071ac8ab7d0698d4c79de8b94c519858207ea5d3e19a5fd"</span>;
+        <span class="kw">let </span>key = <span class="string">"010203040506070801020304050607080102030405060708"</span>;
+        <span class="kw">let </span>iv = <span class="string">"5cc118306dc702e4"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::des_ede3(), pt, ct, key, iv);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_des_ede3_cbc() {
-        <span class="kw">let </span>pt = <span class="string">&quot;54686973206973206120746573742e&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;6f2867cfefda048a4046ef7e556c7132&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;7cb66337f3d3c0fe7cb66337f3d3c0fe7cb66337f3d3c0fe&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;0001020304050607&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"54686973206973206120746573742e"</span>;
+        <span class="kw">let </span>ct = <span class="string">"6f2867cfefda048a4046ef7e556c7132"</span>;
+        <span class="kw">let </span>key = <span class="string">"7cb66337f3d3c0fe7cb66337f3d3c0fe7cb66337f3d3c0fe"</span>;
+        <span class="kw">let </span>iv = <span class="string">"0001020304050607"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::des_ede3_cbc(), pt, ct, key, iv);
     }
@@ -3164,24 +3165,24 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_des_ede3_cfb64() {
-        <span class="kw">let </span>pt = <span class="string">&quot;2b1773784b5889dc788477367daa98ad&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;6f2867cfefda048a4046ef7e556c7132&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;7cb66337f3d3c0fe7cb66337f3d3c0fe7cb66337f3d3c0fe&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;0001020304050607&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"2b1773784b5889dc788477367daa98ad"</span>;
+        <span class="kw">let </span>ct = <span class="string">"6f2867cfefda048a4046ef7e556c7132"</span>;
+        <span class="kw">let </span>key = <span class="string">"7cb66337f3d3c0fe7cb66337f3d3c0fe7cb66337f3d3c0fe"</span>;
+        <span class="kw">let </span>iv = <span class="string">"0001020304050607"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::des_ede3_cfb64(), pt, ct, key, iv);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_aes128_gcm() {
-        <span class="kw">let </span>key = <span class="string">&quot;23dc8d23d95b6fd1251741a64f7d4f41&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;f416f48ad44d9efa1179e167&quot;</span>;
-        <span class="kw">let </span>pt = <span class="string">&quot;6cb9b71dd0ccd42cdf87e8e396fc581fd8e0d700e360f590593b748e105390de&quot;</span>;
-        <span class="kw">let </span>aad = <span class="string">&quot;45074844c97d515c65bbe37c210a5a4b08c21c588efe5c5f73c4d9c17d34dacddc0bb6a8a53f7bf477b9780c1c2a928660df87016b2873fe876b2b887fb5886bfd63216b7eaecc046372a82c047eb043f0b063226ee52a12c69b&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;8ad20486778e87387efb3f2574e509951c0626816722018129e578b2787969d3&quot;</span>;
-        <span class="kw">let </span>tag = <span class="string">&quot;91e1bc09&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"23dc8d23d95b6fd1251741a64f7d4f41"</span>;
+        <span class="kw">let </span>iv = <span class="string">"f416f48ad44d9efa1179e167"</span>;
+        <span class="kw">let </span>pt = <span class="string">"6cb9b71dd0ccd42cdf87e8e396fc581fd8e0d700e360f590593b748e105390de"</span>;
+        <span class="kw">let </span>aad = <span class="string">"45074844c97d515c65bbe37c210a5a4b08c21c588efe5c5f73c4d9c17d34dacddc0bb6a8a53f7bf477b9780c1c2a928660df87016b2873fe876b2b887fb5886bfd63216b7eaecc046372a82c047eb043f0b063226ee52a12c69b"</span>;
+        <span class="kw">let </span>ct = <span class="string">"8ad20486778e87387efb3f2574e509951c0626816722018129e578b2787969d3"</span>;
+        <span class="kw">let </span>tag = <span class="string">"91e1bc09"</span>;
 
-        <span class="comment">// this tag is smaller than you&#39;d normally want, but I pulled this test from the part of
+        <span class="comment">// this tag is smaller than you'd normally want, but I pulled this test from the part of
         // the NIST test vectors that cover 4 byte tags.
         </span><span class="kw">let </span><span class="kw-2">mut </span>actual_tag = [<span class="number">0</span>; <span class="number">4</span>];
         <span class="kw">let </span>out = encrypt_aead(
@@ -3211,13 +3212,13 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_aes128_ccm() {
-        <span class="kw">let </span>key = <span class="string">&quot;3ee186594f110fb788a8bf8aa8be5d4a&quot;</span>;
-        <span class="kw">let </span>nonce = <span class="string">&quot;44f705d52acf27b7f17196aa9b&quot;</span>;
-        <span class="kw">let </span>aad = <span class="string">&quot;2c16724296ff85e079627be3053ea95adf35722c21886baba343bd6c79b5cb57&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"3ee186594f110fb788a8bf8aa8be5d4a"</span>;
+        <span class="kw">let </span>nonce = <span class="string">"44f705d52acf27b7f17196aa9b"</span>;
+        <span class="kw">let </span>aad = <span class="string">"2c16724296ff85e079627be3053ea95adf35722c21886baba343bd6c79b5cb57"</span>;
 
-        <span class="kw">let </span>pt = <span class="string">&quot;d71864877f2578db092daba2d6a1f9f4698a9c356c7830a1&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;b4dd74e7a0cc51aea45dfb401a41d5822c96901a83247ea0&quot;</span>;
-        <span class="kw">let </span>tag = <span class="string">&quot;d6965f5aa6e31302a9cc2b36&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"d71864877f2578db092daba2d6a1f9f4698a9c356c7830a1"</span>;
+        <span class="kw">let </span>ct = <span class="string">"b4dd74e7a0cc51aea45dfb401a41d5822c96901a83247ea0"</span>;
+        <span class="kw">let </span>tag = <span class="string">"d6965f5aa6e31302a9cc2b36"</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>actual_tag = [<span class="number">0</span>; <span class="number">12</span>];
         <span class="kw">let </span>out = encrypt_aead(
@@ -3248,12 +3249,12 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_aes128_ccm_verify_fail() {
-        <span class="kw">let </span>key = <span class="string">&quot;3ee186594f110fb788a8bf8aa8be5d4a&quot;</span>;
-        <span class="kw">let </span>nonce = <span class="string">&quot;44f705d52acf27b7f17196aa9b&quot;</span>;
-        <span class="kw">let </span>aad = <span class="string">&quot;2c16724296ff85e079627be3053ea95adf35722c21886baba343bd6c79b5cb57&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"3ee186594f110fb788a8bf8aa8be5d4a"</span>;
+        <span class="kw">let </span>nonce = <span class="string">"44f705d52acf27b7f17196aa9b"</span>;
+        <span class="kw">let </span>aad = <span class="string">"2c16724296ff85e079627be3053ea95adf35722c21886baba343bd6c79b5cb57"</span>;
 
-        <span class="kw">let </span>ct = <span class="string">&quot;b4dd74e7a0cc51aea45dfb401a41d5822c96901a83247ea0&quot;</span>;
-        <span class="kw">let </span>tag = <span class="string">&quot;00005f5aa6e31302a9cc2b36&quot;</span>;
+        <span class="kw">let </span>ct = <span class="string">"b4dd74e7a0cc51aea45dfb401a41d5822c96901a83247ea0"</span>;
+        <span class="kw">let </span>tag = <span class="string">"00005f5aa6e31302a9cc2b36"</span>;
 
         <span class="kw">let </span>out = decrypt_aead(
             Cipher::aes_128_ccm(),
@@ -3269,13 +3270,13 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_aes256_ccm() {
-        <span class="kw">let </span>key = <span class="string">&quot;7f4af6765cad1d511db07e33aaafd57646ec279db629048aa6770af24849aa0d&quot;</span>;
-        <span class="kw">let </span>nonce = <span class="string">&quot;dde2a362ce81b2b6913abc3095&quot;</span>;
-        <span class="kw">let </span>aad = <span class="string">&quot;404f5df97ece7431987bc098cce994fc3c063b519ffa47b0365226a0015ef695&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"7f4af6765cad1d511db07e33aaafd57646ec279db629048aa6770af24849aa0d"</span>;
+        <span class="kw">let </span>nonce = <span class="string">"dde2a362ce81b2b6913abc3095"</span>;
+        <span class="kw">let </span>aad = <span class="string">"404f5df97ece7431987bc098cce994fc3c063b519ffa47b0365226a0015ef695"</span>;
 
-        <span class="kw">let </span>pt = <span class="string">&quot;7ebef26bf4ecf6f0ebb2eb860edbf900f27b75b4a6340fdb&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;353022db9c568bd7183a13c40b1ba30fcc768c54264aa2cd&quot;</span>;
-        <span class="kw">let </span>tag = <span class="string">&quot;2927a053c9244d3217a7ad05&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"7ebef26bf4ecf6f0ebb2eb860edbf900f27b75b4a6340fdb"</span>;
+        <span class="kw">let </span>ct = <span class="string">"353022db9c568bd7183a13c40b1ba30fcc768c54264aa2cd"</span>;
+        <span class="kw">let </span>tag = <span class="string">"2927a053c9244d3217a7ad05"</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>actual_tag = [<span class="number">0</span>; <span class="number">12</span>];
         <span class="kw">let </span>out = encrypt_aead(
@@ -3306,12 +3307,12 @@
     <span class="attr">#[test]
     #[cfg(not(boringssl))]
     </span><span class="kw">fn </span>test_aes256_ccm_verify_fail() {
-        <span class="kw">let </span>key = <span class="string">&quot;7f4af6765cad1d511db07e33aaafd57646ec279db629048aa6770af24849aa0d&quot;</span>;
-        <span class="kw">let </span>nonce = <span class="string">&quot;dde2a362ce81b2b6913abc3095&quot;</span>;
-        <span class="kw">let </span>aad = <span class="string">&quot;404f5df97ece7431987bc098cce994fc3c063b519ffa47b0365226a0015ef695&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"7f4af6765cad1d511db07e33aaafd57646ec279db629048aa6770af24849aa0d"</span>;
+        <span class="kw">let </span>nonce = <span class="string">"dde2a362ce81b2b6913abc3095"</span>;
+        <span class="kw">let </span>aad = <span class="string">"404f5df97ece7431987bc098cce994fc3c063b519ffa47b0365226a0015ef695"</span>;
 
-        <span class="kw">let </span>ct = <span class="string">&quot;353022db9c568bd7183a13c40b1ba30fcc768c54264aa2cd&quot;</span>;
-        <span class="kw">let </span>tag = <span class="string">&quot;0000a053c9244d3217a7ad05&quot;</span>;
+        <span class="kw">let </span>ct = <span class="string">"353022db9c568bd7183a13c40b1ba30fcc768c54264aa2cd"</span>;
+        <span class="kw">let </span>tag = <span class="string">"0000a053c9244d3217a7ad05"</span>;
 
         <span class="kw">let </span>out = decrypt_aead(
             Cipher::aes_256_ccm(),
@@ -3325,14 +3326,14 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(all(ossl110, not(osslconf = <span class="string">&quot;OPENSSL_NO_OCB&quot;</span>)))]
+    #[cfg(all(ossl110, not(osslconf = <span class="string">"OPENSSL_NO_OCB"</span>)))]
     </span><span class="kw">fn </span>test_aes_128_ocb() {
-        <span class="kw">let </span>key = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
-        <span class="kw">let </span>aad = <span class="string">&quot;0001020304050607&quot;</span>;
-        <span class="kw">let </span>tag = <span class="string">&quot;16dc76a46d47e1ead537209e8a96d14e&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000102030405060708090a0b&quot;</span>;
-        <span class="kw">let </span>pt = <span class="string">&quot;0001020304050607&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;92b657130a74b85a&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
+        <span class="kw">let </span>aad = <span class="string">"0001020304050607"</span>;
+        <span class="kw">let </span>tag = <span class="string">"16dc76a46d47e1ead537209e8a96d14e"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000102030405060708090a0b"</span>;
+        <span class="kw">let </span>pt = <span class="string">"0001020304050607"</span>;
+        <span class="kw">let </span>ct = <span class="string">"92b657130a74b85a"</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>actual_tag = [<span class="number">0</span>; <span class="number">16</span>];
         <span class="kw">let </span>out = encrypt_aead(
@@ -3361,13 +3362,13 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(all(ossl110, not(osslconf = <span class="string">&quot;OPENSSL_NO_OCB&quot;</span>)))]
+    #[cfg(all(ossl110, not(osslconf = <span class="string">"OPENSSL_NO_OCB"</span>)))]
     </span><span class="kw">fn </span>test_aes_128_ocb_fail() {
-        <span class="kw">let </span>key = <span class="string">&quot;000102030405060708090a0b0c0d0e0f&quot;</span>;
-        <span class="kw">let </span>aad = <span class="string">&quot;0001020304050607&quot;</span>;
-        <span class="kw">let </span>tag = <span class="string">&quot;16dc76a46d47e1ead537209e8a96d14e&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;000000000405060708090a0b&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;92b657130a74b85a&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"000102030405060708090a0b0c0d0e0f"</span>;
+        <span class="kw">let </span>aad = <span class="string">"0001020304050607"</span>;
+        <span class="kw">let </span>tag = <span class="string">"16dc76a46d47e1ead537209e8a96d14e"</span>;
+        <span class="kw">let </span>iv = <span class="string">"000000000405060708090a0b"</span>;
+        <span class="kw">let </span>ct = <span class="string">"92b657130a74b85a"</span>;
 
         <span class="kw">let </span>out = decrypt_aead(
             Cipher::aes_128_ocb(),
@@ -3383,14 +3384,14 @@
     <span class="attr">#[test]
     #[cfg(any(ossl110, libressl310))]
     </span><span class="kw">fn </span>test_chacha20() {
-        <span class="kw">let </span>key = <span class="string">&quot;0000000000000000000000000000000000000000000000000000000000000000&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;00000000000000000000000000000000&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"0000000000000000000000000000000000000000000000000000000000000000"</span>;
+        <span class="kw">let </span>iv = <span class="string">"00000000000000000000000000000000"</span>;
         <span class="kw">let </span>pt =
-            <span class="string">&quot;000000000000000000000000000000000000000000000000000000000000000000000000000000000\
-             00000000000000000000000000000000000000000000000&quot;</span>;
+            <span class="string">"000000000000000000000000000000000000000000000000000000000000000000000000000000000\
+             00000000000000000000000000000000000000000000000"</span>;
         <span class="kw">let </span>ct =
-            <span class="string">&quot;76b8e0ada0f13d90405d6ae55386bd28bdd219b8a08ded1aa836efcc8b770dc7da41597c5157488d7\
-             724e03fb8d84a376a43b8f41518a11cc387b669b2ee6586&quot;</span>;
+            <span class="string">"76b8e0ada0f13d90405d6ae55386bd28bdd219b8a08ded1aa836efcc8b770dc7da41597c5157488d7\
+             724e03fb8d84a376a43b8f41518a11cc387b669b2ee6586"</span>;
 
         cipher_test(Cipher::chacha20(), pt, ct, key, iv);
     }
@@ -3398,18 +3399,18 @@
     <span class="attr">#[test]
     #[cfg(any(ossl110, libressl360))]
     </span><span class="kw">fn </span>test_chacha20_poly1305() {
-        <span class="kw">let </span>key = <span class="string">&quot;808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;070000004041424344454647&quot;</span>;
-        <span class="kw">let </span>aad = <span class="string">&quot;50515253c0c1c2c3c4c5c6c7&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f"</span>;
+        <span class="kw">let </span>iv = <span class="string">"070000004041424344454647"</span>;
+        <span class="kw">let </span>aad = <span class="string">"50515253c0c1c2c3c4c5c6c7"</span>;
         <span class="kw">let </span>pt =
-            <span class="string">&quot;4c616469657320616e642047656e746c656d656e206f662074686520636c617373206f66202739393\
+            <span class="string">"4c616469657320616e642047656e746c656d656e206f662074686520636c617373206f66202739393\
              a204966204920636f756c64206f6666657220796f75206f6e6c79206f6e652074697020666f722074\
-             6865206675747572652c2073756e73637265656e20776f756c642062652069742e&quot;</span>;
+             6865206675747572652c2073756e73637265656e20776f756c642062652069742e"</span>;
         <span class="kw">let </span>ct =
-            <span class="string">&quot;d31a8d34648e60db7b86afbc53ef7ec2a4aded51296e08fea9e2b5a736ee62d63dbea45e8ca967128\
+            <span class="string">"d31a8d34648e60db7b86afbc53ef7ec2a4aded51296e08fea9e2b5a736ee62d63dbea45e8ca967128\
              2fafb69da92728b1a71de0a9e060b2905d6a5b67ecd3b3692ddbd7f2d778b8c9803aee328091b58fa\
-             b324e4fad675945585808b4831d7bc3ff4def08e4b7a9de576d26586cec64b6116&quot;</span>;
-        <span class="kw">let </span>tag = <span class="string">&quot;1ae10b594f09e26a7e902ecbd0600691&quot;</span>;
+             b324e4fad675945585808b4831d7bc3ff4def08e4b7a9de576d26586cec64b6116"</span>;
+        <span class="kw">let </span>tag = <span class="string">"1ae10b594f09e26a7e902ecbd0600691"</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>actual_tag = [<span class="number">0</span>; <span class="number">16</span>];
         <span class="kw">let </span>out = encrypt_aead(
@@ -3437,57 +3438,57 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(not(any(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, ossl300)))]
+    #[cfg(not(any(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>, ossl300)))]
     </span><span class="kw">fn </span>test_seed_cbc() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;5363686f6b6f6c6164656e6b756368656e0a&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;c2edf0fb2eb11bf7b2f39417a8528896d34b24b6fd79e5923b116dfcd2aba5a4&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"5363686f6b6f6c6164656e6b756368656e0a"</span>;
+        <span class="kw">let </span>ct = <span class="string">"c2edf0fb2eb11bf7b2f39417a8528896d34b24b6fd79e5923b116dfcd2aba5a4"</span>;
+        <span class="kw">let </span>key = <span class="string">"41414141414141414141414141414141"</span>;
+        <span class="kw">let </span>iv = <span class="string">"41414141414141414141414141414141"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::seed_cbc(), pt, ct, key, iv);
     }
 
     <span class="attr">#[test]
-    #[cfg(not(any(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, ossl300)))]
+    #[cfg(not(any(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>, ossl300)))]
     </span><span class="kw">fn </span>test_seed_cfb128() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;5363686f6b6f6c6164656e6b756368656e0a&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;71d4d25fc1750cb7789259e7f34061939a41&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"5363686f6b6f6c6164656e6b756368656e0a"</span>;
+        <span class="kw">let </span>ct = <span class="string">"71d4d25fc1750cb7789259e7f34061939a41"</span>;
+        <span class="kw">let </span>key = <span class="string">"41414141414141414141414141414141"</span>;
+        <span class="kw">let </span>iv = <span class="string">"41414141414141414141414141414141"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::seed_cfb128(), pt, ct, key, iv);
     }
 
     <span class="attr">#[test]
-    #[cfg(not(any(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, ossl300)))]
+    #[cfg(not(any(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>, ossl300)))]
     </span><span class="kw">fn </span>test_seed_ecb() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;5363686f6b6f6c6164656e6b756368656e0a&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;0263a9cd498cf0edb0ef72a3231761d00ce601f7d08ad19ad74f0815f2c77f7e&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"5363686f6b6f6c6164656e6b756368656e0a"</span>;
+        <span class="kw">let </span>ct = <span class="string">"0263a9cd498cf0edb0ef72a3231761d00ce601f7d08ad19ad74f0815f2c77f7e"</span>;
+        <span class="kw">let </span>key = <span class="string">"41414141414141414141414141414141"</span>;
+        <span class="kw">let </span>iv = <span class="string">"41414141414141414141414141414141"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::seed_ecb(), pt, ct, key, iv);
     }
 
     <span class="attr">#[test]
-    #[cfg(not(any(osslconf = <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, ossl300)))]
+    #[cfg(not(any(osslconf = <span class="string">"OPENSSL_NO_SEED"</span>, ossl300)))]
     </span><span class="kw">fn </span>test_seed_ofb() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
-        <span class="kw">let </span>pt = <span class="string">&quot;5363686f6b6f6c6164656e6b756368656e0a&quot;</span>;
-        <span class="kw">let </span>ct = <span class="string">&quot;71d4d25fc1750cb7789259e7f34061930afd&quot;</span>;
-        <span class="kw">let </span>key = <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
-        <span class="kw">let </span>iv = <span class="string">&quot;41414141414141414141414141414141&quot;</span>;
+        <span class="kw">let </span>pt = <span class="string">"5363686f6b6f6c6164656e6b756368656e0a"</span>;
+        <span class="kw">let </span>ct = <span class="string">"71d4d25fc1750cb7789259e7f34061930afd"</span>;
+        <span class="kw">let </span>key = <span class="string">"41414141414141414141414141414141"</span>;
+        <span class="kw">let </span>iv = <span class="string">"41414141414141414141414141414141"</span>;
 
         cipher_test(<span class="kw">super</span>::Cipher::seed_ofb(), pt, ct, key, iv);
     }
@@ -3495,7 +3496,7 @@
     <span class="comment">// GB/T 32907-2016
     // http://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=7803DE42D3BC5E80B0C3E5D8E873D56A
     </span><span class="attr">#[test]
-    #[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">&quot;OPENSSL_NO_SM4&quot;</span>)))]
+    #[cfg(all(any(ossl111, libressl291), not(osslconf = <span class="string">"OPENSSL_NO_SM4"</span>)))]
     </span><span class="kw">fn </span>test_sm4_ecb() {
         <span class="kw">use </span>std::mem;
 

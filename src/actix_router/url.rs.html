@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-router-0.5.2/src/url.rs`."><title>url.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_router" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_router/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_router"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-router-0.5.2/src/url.rs`."><title>url.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_router" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_router/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_router"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -144,7 +145,7 @@
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{Quoter, ResourcePath};
 
 <span class="macro">thread_local! </span>{
-    <span class="kw">static </span>DEFAULT_QUOTER: Quoter = Quoter::new(<span class="string">b&quot;&quot;</span>, <span class="string">b&quot;%/+&quot;</span>);
+    <span class="kw">static </span>DEFAULT_QUOTER: Quoter = Quoter::new(<span class="string">b""</span>, <span class="string">b"%/+"</span>);
 }
 
 <span class="attr">#[derive(Debug, Clone, Default)]
@@ -212,9 +213,9 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use crate</span>::{Path, ResourceDef};
 
-    <span class="kw">const </span>PROTECTED: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;%/+&quot;</span>;
+    <span class="kw">const </span>PROTECTED: <span class="kw-2">&amp;</span>[u8] = <span class="string">b"%/+"</span>;
 
-    <span class="kw">fn </span>match_url(pattern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, url: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; Path&lt;Url&gt; {
+    <span class="kw">fn </span>match_url(pattern: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, url: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; Path&lt;Url&gt; {
         <span class="kw">let </span>re = ResourceDef::new(pattern);
         <span class="kw">let </span>uri = Uri::try_from(url.as_ref()).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(Url::new(uri));
@@ -225,59 +226,59 @@
     <span class="kw">fn </span>percent_encode(data: <span class="kw-2">&amp;</span>[u8]) -&gt; String {
         data.iter()
             .fold(String::with_capacity(data.len() * <span class="number">3</span>), |<span class="kw-2">mut </span>buf, c| {
-                <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>buf, <span class="string">&quot;%{:02X}&quot;</span>, c).unwrap();
+                <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>buf, <span class="string">"%{:02X}"</span>, c).unwrap();
                 buf
             })
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse_url() {
-        <span class="kw">let </span>re = <span class="string">&quot;/user/{id}/test&quot;</span>;
+        <span class="kw">let </span>re = <span class="string">"/user/{id}/test"</span>;
 
-        <span class="kw">let </span>path = match_url(re, <span class="string">&quot;/user/2345/test&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;2345&quot;</span>);
+        <span class="kw">let </span>path = match_url(re, <span class="string">"/user/2345/test"</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"2345"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>protected_chars() {
-        <span class="kw">let </span>re = <span class="string">&quot;/user/{id}/test&quot;</span>;
+        <span class="kw">let </span>re = <span class="string">"/user/{id}/test"</span>;
 
         <span class="kw">let </span>encoded = percent_encode(PROTECTED);
-        <span class="kw">let </span>path = match_url(re, <span class="macro">format!</span>(<span class="string">&quot;/user/{}/test&quot;</span>, encoded));
+        <span class="kw">let </span>path = match_url(re, <span class="macro">format!</span>(<span class="string">"/user/{}/test"</span>, encoded));
         <span class="comment">// characters in captured segment remain unencoded
-        </span><span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="kw-2">&amp;</span>encoded);
+        </span><span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="kw-2">&amp;</span>encoded);
 
-        <span class="comment">// &quot;%25&quot; should never be decoded into &#39;%&#39; to guarantee the output is a valid
+        <span class="comment">// "%25" should never be decoded into '%' to guarantee the output is a valid
         // percent-encoded format
-        </span><span class="kw">let </span>path = match_url(re, <span class="string">&quot;/user/qwe%25/test&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;qwe%25&quot;</span>);
+        </span><span class="kw">let </span>path = match_url(re, <span class="string">"/user/qwe%25/test"</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"qwe%25"</span>);
 
-        <span class="kw">let </span>path = match_url(re, <span class="string">&quot;/user/qwe%25rty/test&quot;</span>);
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="string">&quot;qwe%25rty&quot;</span>);
+        <span class="kw">let </span>path = match_url(re, <span class="string">"/user/qwe%25rty/test"</span>);
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="string">"qwe%25rty"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>non_protected_ascii() {
-        <span class="kw">let </span>non_protected_ascii = (<span class="string">&#39;\u{0}&#39;</span>..=<span class="string">&#39;\u{7F}&#39;</span>)
+        <span class="kw">let </span>non_protected_ascii = (<span class="string">'\u{0}'</span>..=<span class="string">'\u{7F}'</span>)
             .filter(|<span class="kw-2">&amp;</span>c| c.is_ascii() &amp;&amp; !PROTECTED.contains(<span class="kw-2">&amp;</span>(c <span class="kw">as </span>u8)))
             .collect::&lt;String&gt;();
         <span class="kw">let </span>encoded = percent_encode(non_protected_ascii.as_bytes());
-        <span class="kw">let </span>path = match_url(<span class="string">&quot;/user/{id}/test&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;/user/{}/test&quot;</span>, encoded));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="kw-2">&amp;</span>non_protected_ascii);
+        <span class="kw">let </span>path = match_url(<span class="string">"/user/{id}/test"</span>, <span class="macro">format!</span>(<span class="string">"/user/{}/test"</span>, encoded));
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="kw-2">&amp;</span>non_protected_ascii);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>valid_utf8_multi_byte() {
-        <span class="kw">let </span>test = (<span class="string">&#39;\u{FF00}&#39;</span>..=<span class="string">&#39;\u{FFFF}&#39;</span>).collect::&lt;String&gt;();
+        <span class="kw">let </span>test = (<span class="string">'\u{FF00}'</span>..=<span class="string">'\u{FFFF}'</span>).collect::&lt;String&gt;();
         <span class="kw">let </span>encoded = percent_encode(test.as_bytes());
-        <span class="kw">let </span>path = match_url(<span class="string">&quot;/a/{id}/b&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;/a/{}/b&quot;</span>, <span class="kw-2">&amp;</span>encoded));
-        <span class="macro">assert_eq!</span>(path.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="kw-2">&amp;</span>test);
+        <span class="kw">let </span>path = match_url(<span class="string">"/a/{id}/b"</span>, <span class="macro">format!</span>(<span class="string">"/a/{}/b"</span>, <span class="kw-2">&amp;</span>encoded));
+        <span class="macro">assert_eq!</span>(path.get(<span class="string">"id"</span>).unwrap(), <span class="kw-2">&amp;</span>test);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>invalid_utf8() {
         <span class="kw">let </span>invalid_utf8 = percent_encode((<span class="number">0x80</span>..=<span class="number">0xff</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().as_slice());
-        <span class="kw">let </span>uri = Uri::try_from(<span class="macro">format!</span>(<span class="string">&quot;/{}&quot;</span>, invalid_utf8)).unwrap();
+        <span class="kw">let </span>uri = Uri::try_from(<span class="macro">format!</span>(<span class="string">"/{}"</span>, invalid_utf8)).unwrap();
         <span class="kw">let </span>path = Path::new(Url::new(uri));
 
         <span class="comment">// We should always get a valid utf8 string

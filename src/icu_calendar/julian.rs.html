@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/julian.rs`."><title>julian.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/julian.rs`."><title>julian.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -565,12 +566,12 @@
 //!
 //! // `Date` type
 //! let date_iso = Date::try_new_iso_date(1970, 1, 2)
-//!     .expect(&quot;Failed to initialize ISO Date instance.&quot;);
+//!     .expect("Failed to initialize ISO Date instance.");
 //! let date_julian = Date::new_from_iso(date_iso, Julian);
 //!
 //! // `DateTime` type
 //! let datetime_iso = DateTime::try_new_iso_datetime(1970, 1, 2, 13, 1, 0)
-//!     .expect(&quot;Failed to initialize ISO DateTime instance.&quot;);
+//!     .expect("Failed to initialize ISO DateTime instance.");
 //! let datetime_julian = DateTime::new_from_iso(datetime_iso, Julian);
 //!
 //! // `Date` checks
@@ -606,11 +607,11 @@
 ///
 /// # Era codes
 ///
-/// This calendar supports two era codes: `&quot;bce&quot;`, and `&quot;ce&quot;`, corresponding to the BCE/BC and CE/AD eras
+/// This calendar supports two era codes: `"bce"`, and `"ce"`, corresponding to the BCE/BC and CE/AD eras
 ///
 /// # Month codes
 ///
-/// This calendar supports 12 solar month codes (`&quot;M01&quot; - &quot;M12&quot;`)
+/// This calendar supports 12 solar month codes (`"M01" - "M12"`)
 </span><span class="attr">#[derive(Copy, Clone, Debug, Hash, Default, Eq, PartialEq, PartialOrd, Ord)]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this type is stable
 </span><span class="kw">pub struct </span>Julian;
@@ -661,12 +662,12 @@
         month_code: types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, CalendarError&gt; {
-        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>) {
+        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ce"</span>) {
             <span class="kw">if </span>year &lt;= <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
             }
             year
-        } <span class="kw">else if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>) {
+        } <span class="kw">else if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"bce"</span>) {
             <span class="kw">if </span>year &lt;= <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
             }
@@ -751,8 +752,8 @@
         }
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;Julian&quot;
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        <span class="string">"Julian"
     </span>}
 
     <span class="kw">fn </span>any_calendar_kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AnyCalendarKind&gt; {
@@ -766,7 +767,7 @@
         <span class="self">Self
     </span>}
 
-    <span class="comment">// &quot;Fixed&quot; is a day count representation of calendars staring from Jan 1st of year 1 of the Georgian Calendar.
+    <span class="comment">// "Fixed" is a day count representation of calendars staring from Jan 1st of year 1 of the Georgian Calendar.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>fixed_from_julian(date: ArithmeticDate&lt;Julian&gt;) -&gt; RataDie {
         calendrical_calculations::julian::fixed_from_julian(date.year, date.month, date.day)
     }
@@ -800,7 +801,7 @@
     /// use icu::calendar::Date;
     ///
     /// let date_julian = Date::try_new_julian_date(1969, 12, 20)
-    ///     .expect(&quot;Failed to initialize Julian Date instance.&quot;);
+    ///     .expect("Failed to initialize Julian Date instance.");
     ///
     /// assert_eq!(date_julian.year().number, 1969);
     /// assert_eq!(date_julian.month().ordinal, 12);
@@ -827,7 +828,7 @@
     ///
     /// let datetime_julian =
     ///     DateTime::try_new_julian_datetime(1969, 12, 20, 13, 1, 0)
-    ///         .expect(&quot;Failed to initialize Julian DateTime instance.&quot;);
+    ///         .expect("Failed to initialize Julian DateTime instance.");
     ///
     /// assert_eq!(datetime_julian.date.year().number, 1969);
     /// assert_eq!(datetime_julian.date.month().ordinal, 12);
@@ -953,7 +954,7 @@
                 iso_month: <span class="number">1</span>,
                 iso_day: <span class="number">1</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ce"</span>)),
                 expected_month: <span class="number">1</span>,
                 expected_day: <span class="number">3</span>,
             },
@@ -963,7 +964,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">31</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ce"</span>)),
                 expected_month: <span class="number">1</span>,
                 expected_day: <span class="number">2</span>,
             },
@@ -973,7 +974,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">30</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;ce&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"ce"</span>)),
                 expected_month: <span class="number">1</span>,
                 expected_day: <span class="number">1</span>,
             },
@@ -983,7 +984,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">29</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"bce"</span>)),
                 expected_month: <span class="number">12</span>,
                 expected_day: <span class="number">31</span>,
             },
@@ -993,7 +994,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">28</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"bce"</span>)),
                 expected_month: <span class="number">12</span>,
                 expected_day: <span class="number">30</span>,
             },
@@ -1003,7 +1004,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">30</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"bce"</span>)),
                 expected_month: <span class="number">1</span>,
                 expected_day: <span class="number">1</span>,
             },
@@ -1013,7 +1014,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">29</span>,
                 expected_year: <span class="number">2</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"bce"</span>)),
                 expected_month: <span class="number">12</span>,
                 expected_day: <span class="number">31</span>,
             },
@@ -1023,7 +1024,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">30</span>,
                 expected_year: <span class="number">4</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"bce"</span>)),
                 expected_month: <span class="number">1</span>,
                 expected_day: <span class="number">1</span>,
             },
@@ -1033,7 +1034,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">29</span>,
                 expected_year: <span class="number">5</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;bce&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"bce"</span>)),
                 expected_month: <span class="number">12</span>,
                 expected_day: <span class="number">31</span>,
             },
@@ -1043,22 +1044,22 @@
             <span class="kw">let </span>iso_from_fixed: Date&lt;Iso&gt; = Iso::iso_from_fixed(RataDie::new(case.fixed_date));
             <span class="kw">let </span>julian_from_fixed: Date&lt;Julian&gt; = Date::new_from_iso(iso_from_fixed, Julian);
             <span class="macro">assert_eq!</span>(julian_from_fixed.year().number, case.expected_year,
-                <span class="string">&quot;Failed year check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}&quot;</span>);
+                <span class="string">"Failed year check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}"</span>);
             <span class="macro">assert_eq!</span>(julian_from_fixed.year().era, case.expected_era,
-                <span class="string">&quot;Failed era check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}&quot;</span>);
+                <span class="string">"Failed era check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}"</span>);
             <span class="macro">assert_eq!</span>(julian_from_fixed.month().ordinal, case.expected_month,
-                <span class="string">&quot;Failed month check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}&quot;</span>);
+                <span class="string">"Failed month check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}"</span>);
             <span class="macro">assert_eq!</span>(julian_from_fixed.day_of_month().<span class="number">0</span>, case.expected_day,
-                <span class="string">&quot;Failed day check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}&quot;</span>);
+                <span class="string">"Failed day check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nJulian: {julian_from_fixed:?}"</span>);
 
             <span class="kw">let </span>iso_date_man: Date&lt;Iso&gt; =
                 Date::try_new_iso_date(case.iso_year, case.iso_month, case.iso_day)
-                    .expect(<span class="string">&quot;Failed to initialize ISO date for {case:?}&quot;</span>);
+                    .expect(<span class="string">"Failed to initialize ISO date for {case:?}"</span>);
             <span class="kw">let </span>julian_date_man: Date&lt;Julian&gt; = Date::new_from_iso(iso_date_man, Julian);
             <span class="macro">assert_eq!</span>(iso_from_fixed, iso_date_man,
-                <span class="string">&quot;ISO from fixed not equal to ISO generated from manually-input ymd\nCase: {case:?}\nFixed: {iso_from_fixed:?}\nMan: {iso_date_man:?}&quot;</span>);
+                <span class="string">"ISO from fixed not equal to ISO generated from manually-input ymd\nCase: {case:?}\nFixed: {iso_from_fixed:?}\nMan: {iso_date_man:?}"</span>);
             <span class="macro">assert_eq!</span>(julian_from_fixed, julian_date_man,
-                <span class="string">&quot;Julian from fixed not equal to Julian generated from manually-input ymd\nCase: {case:?}\nFixed: {julian_from_fixed:?}\nMan: {julian_date_man:?}&quot;</span>);
+                <span class="string">"Julian from fixed not equal to Julian generated from manually-input ymd\nCase: {case:?}\nFixed: {julian_from_fixed:?}\nMan: {julian_date_man:?}"</span>);
         }
     }
 
@@ -1087,7 +1088,7 @@
                 <span class="macro">assert_eq!</span>(
                     i.cmp(<span class="kw-2">&amp;</span>j),
                     julian_i.cmp(<span class="kw-2">&amp;</span>julian_j),
-                    <span class="string">&quot;Julian directionality inconsistent with directionality for i: {i}, j: {j}&quot;
+                    <span class="string">"Julian directionality inconsistent with directionality for i: {i}, j: {j}"
                 </span>);
             }
         }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/stream/easy.rs`."><title>easy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/stream/easy.rs`."><title>easy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -928,10 +929,10 @@
 //!         ]
 //!         {
 //!             many1(letter()).and_then(|word: String| {
-//!                 if word == &quot;combine&quot; {
+//!                 if word == "combine" {
 //!                     Ok(word)
 //!                 } else {
-//!                     Err(easy::Error::Expected(easy::Info::Static(&quot;combine&quot;)))
+//!                     Err(easy::Error::Expected(easy::Info::Static("combine")))
 //!                 }
 //!             })
 //!         }
@@ -944,23 +945,23 @@
 //!         ]
 //!         {
 //!             many1(letter()).and_then(|word: String| {
-//!                 if word == &quot;combine&quot; {
+//!                 if word == "combine" {
 //!                     Ok(word)
 //!                 } else {
 //!                     // Alternatively it is possible to only use the methods provided by the
 //!                     // `StreamError` trait.
 //!                     // In that case the extra bound is not necessary (and this method will work
 //!                     // for other errors than `easy::Errors`)
-//!                     Err(StreamErrorFor::&lt;Input&gt;::expected_static_message(&quot;combine&quot;))
+//!                     Err(StreamErrorFor::&lt;Input&gt;::expected_static_message("combine"))
 //!                 }
 //!             })
 //!         }
 //!     }
 //!
-//!     let input = &quot;combin&quot;;
+//!     let input = "combin";
 //!     let expected_error = Err(easy::Errors {
 //!         errors: vec![
-//!             easy::Error::Expected(&quot;combine&quot;.into())
+//!             easy::Error::Expected("combine".into())
 //!         ],
 //!         position: 0,
 //!     });
@@ -988,7 +989,7 @@
 <span class="doccomment">/// Enum holding error information. Variants are defined for `Stream::Token` and `Stream::Range` as
 /// well as string variants holding easy descriptions.
 ///
-/// As there is implementations of `From` for `String` and `&amp;&#39;static str` the
+/// As there is implementations of `From` for `String` and `&amp;'static str` the
 /// constructor need not be used directly as calling `msg.into()` should turn a message into the
 /// correct `Info` variant.
 </span><span class="attr">#[derive(Clone, Debug)]
@@ -996,7 +997,7 @@
     Token(T),
     Range(R),
     Owned(String),
-    Static(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str),
+    Static(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
 }
 
 <span class="kw">impl</span>&lt;T, R, F&gt; From&lt;PrimitiveInfo&lt;T, R, F&gt;&gt; <span class="kw">for </span>Info&lt;T, R&gt;
@@ -1057,12 +1058,12 @@
     }
 }
 <span class="kw">impl</span>&lt;T: fmt::Display, R: fmt::Display&gt; fmt::Display <span class="kw">for </span>Info&lt;T, R&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Info::Token(<span class="kw-2">ref </span>c) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;`{}`&quot;</span>, c),
-            Info::Range(<span class="kw-2">ref </span>c) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;`{}`&quot;</span>, c),
-            Info::Owned(<span class="kw-2">ref </span>s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, s),
-            Info::Static(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, s),
+            Info::Token(<span class="kw-2">ref </span>c) =&gt; <span class="macro">write!</span>(f, <span class="string">"`{}`"</span>, c),
+            Info::Range(<span class="kw-2">ref </span>c) =&gt; <span class="macro">write!</span>(f, <span class="string">"`{}`"</span>, c),
+            Info::Owned(<span class="kw-2">ref </span>s) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, s),
+            Info::Static(s) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, s),
         }
     }
 }
@@ -1078,8 +1079,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T, R&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; <span class="kw">for </span>Info&lt;T, R&gt; {
-    <span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; Info&lt;T, R&gt; {
+<span class="kw">impl</span>&lt;T, R&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; <span class="kw">for </span>Info&lt;T, R&gt; {
+    <span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; Info&lt;T, R&gt; {
         Info::Static(s)
     }
 }
@@ -1124,7 +1125,7 @@
         Error::Unexpected(Info::Owned(msg.to_string()))
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>unexpected_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>unexpected_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         Error::Unexpected(Info::Static(msg))
     }
 
@@ -1144,7 +1145,7 @@
         Error::Expected(Info::Owned(msg.to_string()))
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>expected_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>expected_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         Error::Expected(Info::Static(msg))
     }
 
@@ -1156,7 +1157,7 @@
         Error::Message(Info::Owned(msg.to_string()))
     }
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>message_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>message_static_message(msg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         Error::Message(Info::Static(msg))
     }
     <span class="attr">#[inline]
@@ -1175,7 +1176,7 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>other&lt;E&gt;(err: E) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>E: StdError + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>E: StdError + Send + Sync + <span class="lifetime">'static</span>,
     {
         err.into()
     }
@@ -1218,7 +1219,7 @@
     <span class="kw">type </span>StreamError = <span class="self">Self</span>;
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>empty(<span class="kw">_</span>: Position) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::message_static_message(<span class="string">&quot;&quot;</span>)
+        <span class="self">Self</span>::message_static_message(<span class="string">""</span>)
     }
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>from_error(<span class="kw">_</span>: Position, err: <span class="self">Self</span>::StreamError) -&gt; <span class="self">Self </span>{
@@ -1438,7 +1439,7 @@
 
 <span class="kw">impl</span>&lt;T, R, E&gt; From&lt;E&gt; <span class="kw">for </span>Error&lt;T, R&gt;
 <span class="kw">where
-    </span>E: StdError + <span class="lifetime">&#39;static </span>+ Send + Sync,
+    </span>E: StdError + <span class="lifetime">'static </span>+ Send + Sync,
 {
     <span class="kw">fn </span>from(e: E) -&gt; Error&lt;T, R&gt; {
         Error::Other(Box::new(e))
@@ -1448,7 +1449,7 @@
 <span class="kw">impl</span>&lt;T, R&gt; Error&lt;T, R&gt; {
     <span class="doccomment">/// Returns the `end_of_input` error.
     </span><span class="kw">pub fn </span>end_of_input() -&gt; Error&lt;T, R&gt; {
-        Error::Unexpected(<span class="string">&quot;end of input&quot;</span>.into())
+        Error::Unexpected(<span class="string">"end of input"</span>.into())
     }
 
     <span class="doccomment">/// Formats a slice of errors in a human readable way.
@@ -1460,20 +1461,20 @@
     /// # use combine::stream::position::{self, SourcePosition};
     ///
     /// # fn main() {
-    /// let input = r&quot;
+    /// let input = r"
     ///   ,123
-    /// &quot;;
-    /// let result = spaces().silent().with(char(&#39;.&#39;).or(char(&#39;a&#39;)).or(digit()))
+    /// ";
+    /// let result = spaces().silent().with(char('.').or(char('a')).or(digit()))
     ///     .easy_parse(position::Stream::new(input));
-    /// let m = format!(&quot;{}&quot;, result.unwrap_err());
-    /// let expected = r&quot;Parse error at line: 2, column: 3
+    /// let m = format!("{}", result.unwrap_err());
+    /// let expected = r"Parse error at line: 2, column: 3
     /// Unexpected `,`
     /// Expected `.`, `a` or digit
-    /// &quot;;
+    /// ";
     /// assert_eq!(m, expected);
     /// # }
     /// ```
-    </span><span class="kw">pub fn </span>fmt_errors(errors: <span class="kw-2">&amp;</span>[Error&lt;T, R&gt;], f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result
+    </span><span class="kw">pub fn </span>fmt_errors(errors: <span class="kw-2">&amp;</span>[Error&lt;T, R&gt;], f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result
     <span class="kw">where
         </span>T: fmt::Display,
         R: fmt::Display,
@@ -1486,11 +1487,11 @@
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         });
         <span class="kw">for </span>error <span class="kw">in </span>unexpected {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;{}&quot;</span>, error)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, error)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// Then we print out all the things that were expected in a comma separated list
-        // &#39;Expected &#39;a&#39;, &#39;expression&#39; or &#39;let&#39;
+        // 'Expected 'a', 'expression' or 'let'
         </span><span class="kw">let </span>iter = || {
             errors.iter().filter_map(|e| <span class="kw">match </span><span class="kw-2">*</span>e {
                 Error::Expected(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Some</span>(err),
@@ -1500,12 +1501,12 @@
         <span class="kw">let </span>expected_count = iter().count();
         <span class="kw">for </span>(i, message) <span class="kw">in </span>iter().enumerate() {
             <span class="kw">let </span>s = <span class="kw">match </span>i {
-                <span class="number">0 </span>=&gt; <span class="string">&quot;Expected&quot;</span>,
-                <span class="kw">_ if </span>i &lt; expected_count - <span class="number">1 </span>=&gt; <span class="string">&quot;,&quot;</span>,
+                <span class="number">0 </span>=&gt; <span class="string">"Expected"</span>,
+                <span class="kw">_ if </span>i &lt; expected_count - <span class="number">1 </span>=&gt; <span class="string">","</span>,
                 <span class="comment">// Last expected message to be written
-                </span><span class="kw">_ </span>=&gt; <span class="string">&quot; or&quot;</span>,
+                </span><span class="kw">_ </span>=&gt; <span class="string">" or"</span>,
             };
-            <span class="macro">write!</span>(f, <span class="string">&quot;{} {}&quot;</span>, s, message)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"{} {}"</span>, s, message)<span class="question-mark">?</span>;
         }
         <span class="kw">if </span>expected_count != <span class="number">0 </span>{
             <span class="macro">writeln!</span>(f)<span class="question-mark">?</span>;
@@ -1516,7 +1517,7 @@
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         });
         <span class="kw">for </span>error <span class="kw">in </span>messages {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;{}&quot;</span>, error)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, error)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1574,7 +1575,7 @@
         </span>T: PartialEq,
         R: PartialEq,
     {
-        <span class="comment">// Don&#39;t add duplicate errors
+        <span class="comment">// Don't add duplicate errors
         </span><span class="kw">if </span><span class="self">self</span>.errors.iter().all(|err| <span class="kw-2">*</span>err != error) {
             <span class="self">self</span>.errors.push(error);
         }
@@ -1642,11 +1643,11 @@
     /// use combine::*;
     /// use combine::parser::range::range;
     /// println!(
-    ///     &quot;{}&quot;,
-    ///     range(&amp;&quot;HTTP&quot;[..])
-    ///         .easy_parse(&quot;HTT&quot;)
+    ///     "{}",
+    ///     range(&amp;"HTTP"[..])
+    ///         .easy_parse("HTT")
     ///         .unwrap_err()
-    ///         .map_range(|bytes| format!(&quot;{:?}&quot;, bytes))
+    ///         .map_range(|bytes| format!("{:?}", bytes))
     /// );
     /// ```
     </span><span class="kw">pub fn </span>map_range&lt;F, S&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>f: F) -&gt; Errors&lt;T, S, P&gt;
@@ -1670,7 +1671,7 @@
     R: fmt::Display + fmt::Debug,
 {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="string">&quot;parse error&quot;
+        <span class="string">"parse error"
     </span>}
 }
 
@@ -1680,17 +1681,17 @@
     T: fmt::Display,
     R: fmt::Display,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;Parse error at {}&quot;</span>, <span class="self">self</span>.position)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">writeln!</span>(f, <span class="string">"Parse error at {}"</span>, <span class="self">self</span>.position)<span class="question-mark">?</span>;
         Error::fmt_errors(<span class="kw-2">&amp;</span><span class="self">self</span>.errors, f)
     }
 }
 
 <span class="kw">impl</span>&lt;T: fmt::Display, R: fmt::Display&gt; fmt::Display <span class="kw">for </span>Error&lt;T, R&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Error::Unexpected(<span class="kw-2">ref </span>c) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Unexpected {}&quot;</span>, c),
-            Error::Expected(<span class="kw-2">ref </span>s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Expected {}&quot;</span>, s),
+            Error::Unexpected(<span class="kw-2">ref </span>c) =&gt; <span class="macro">write!</span>(f, <span class="string">"Unexpected {}"</span>, c),
+            Error::Expected(<span class="kw-2">ref </span>s) =&gt; <span class="macro">write!</span>(f, <span class="string">"Expected {}"</span>, s),
             Error::Message(<span class="kw-2">ref </span>msg) =&gt; msg.fmt(f),
             Error::Other(<span class="kw-2">ref </span>err) =&gt; err.fmt(f),
         }

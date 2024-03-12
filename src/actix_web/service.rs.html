@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/service.rs`."><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/service.rs`."><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -888,7 +889,7 @@
     boxed::{BoxService, BoxServiceFactory},
     IntoServiceFactory, ServiceFactory,
 };
-<span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
 </span><span class="kw">use </span>cookie::{Cookie, ParseError <span class="kw">as </span>CookieParseError};
 
 <span class="kw">use crate</span>::{
@@ -944,7 +945,7 @@
 
 <span class="doccomment">/// A service level request wrapper.
 ///
-/// Allows mutable access to request&#39;s internal structures.
+/// Allows mutable access to request's internal structures.
 </span><span class="kw">pub struct </span>ServiceRequest {
     req: HttpRequest,
     payload: Payload,
@@ -982,7 +983,7 @@
 
     <span class="doccomment">/// Derives a type from this request using an [extractor](crate::FromRequest).
     ///
-    /// Returns the `T` extractor&#39;s `Future` type which can be `await`ed. This is particularly handy
+    /// Returns the `T` extractor's `Future` type which can be `await`ed. This is particularly handy
     /// when you want to use an extractor in a middleware implementation.
     ///
     /// # Examples
@@ -1009,7 +1010,7 @@
     </span><span class="kw">pub fn </span>from_parts(req: HttpRequest, payload: Payload) -&gt; <span class="self">Self </span>{
         <span class="attr">#[cfg(debug_assertions)]
         </span><span class="kw">if </span>Rc::strong_count(<span class="kw-2">&amp;</span>req.inner) &gt; <span class="number">1 </span>{
-            <span class="macro">log::warn!</span>(<span class="string">&quot;Cloning an `HttpRequest` might cause panics.&quot;</span>);
+            <span class="macro">log::warn!</span>(<span class="string">"Cloning an `HttpRequest` might cause panics."</span>);
         }
 
         <span class="self">Self </span>{ req, payload }
@@ -1092,7 +1093,7 @@
         <span class="self">self</span>.req.query_string()
     }
 
-    <span class="doccomment">/// Returns peer&#39;s socket address.
+    <span class="doccomment">/// Returns peer's socket address.
     ///
     /// See [`HttpRequest::peer_addr`] for more details.
     ///
@@ -1104,7 +1105,7 @@
 
     <span class="doccomment">/// Returns a reference to connection info.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>connection_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, ConnectionInfo&gt; {
+    </span><span class="kw">pub fn </span>connection_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, ConnectionInfo&gt; {
         <span class="self">self</span>.req.connection_info()
     }
 
@@ -1132,7 +1133,7 @@
         <span class="self">self</span>.req.match_pattern()
     }
 
-    <span class="doccomment">/// Returns a reference to the application&#39;s resource map.
+    <span class="doccomment">/// Returns a reference to the application's resource map.
     /// Counterpart to [`HttpRequest::resource_map`].
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>resource_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ResourceMap {
@@ -1147,7 +1148,7 @@
 
     <span class="doccomment">/// Counterpart to [`HttpRequest::app_data`].
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>app_data&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+    </span><span class="kw">pub fn </span>app_data&lt;T: <span class="lifetime">'static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
         <span class="kw">for </span>container <span class="kw">in </span><span class="self">self</span>.req.inner.app_data.iter().rev() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = container.get::&lt;T&gt;() {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(data);
@@ -1159,21 +1160,21 @@
 
     <span class="doccomment">/// Counterpart to [`HttpRequest::conn_data`].
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>conn_data&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+    </span><span class="kw">pub fn </span>conn_data&lt;T: <span class="lifetime">'static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
         <span class="self">self</span>.req.conn_data()
     }
 
     <span class="doccomment">/// Return request cookies.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
     #[inline]
-    </span><span class="kw">pub fn </span>cookies(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Ref&lt;<span class="lifetime">&#39;_</span>, Vec&lt;Cookie&lt;<span class="lifetime">&#39;static</span>&gt;&gt;&gt;, CookieParseError&gt; {
+    </span><span class="kw">pub fn </span>cookies(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Ref&lt;<span class="lifetime">'_</span>, Vec&lt;Cookie&lt;<span class="lifetime">'static</span>&gt;&gt;&gt;, CookieParseError&gt; {
         <span class="self">self</span>.req.cookies()
     }
 
     <span class="doccomment">/// Return request cookie.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
     #[inline]
-    </span><span class="kw">pub fn </span>cookie(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">&#39;static</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>cookie(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">'static</span>&gt;&gt; {
         <span class="self">self</span>.req.cookie(name)
     }
 
@@ -1183,7 +1184,7 @@
         <span class="self">self</span>.payload = payload;
     }
 
-    <span class="doccomment">/// Add data container to request&#39;s resolution set.
+    <span class="doccomment">/// Add data container to request's resolution set.
     ///
     /// In middleware, prefer [`extensions_mut`](ServiceRequest::extensions_mut) for request-local
     /// data since it is assumed that the same app data is presented for every request.
@@ -1196,7 +1197,7 @@
 
     <span class="doccomment">/// Creates a context object for use with a routing [guard](crate::guard).
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>guard_ctx(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GuardContext&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>guard_ctx(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GuardContext&lt;<span class="lifetime">'_</span>&gt; {
         GuardContext { req: <span class="self">self </span>}
     }
 }
@@ -1219,12 +1220,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         <span class="self">self</span>.req.extensions()
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         <span class="self">self</span>.req.extensions_mut()
     }
 
@@ -1235,23 +1236,23 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ServiceRequest {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">writeln!</span>(
             f,
-            <span class="string">&quot;\nServiceRequest {:?} {}:{}&quot;</span>,
+            <span class="string">"\nServiceRequest {:?} {}:{}"</span>,
             <span class="self">self</span>.head().version,
             <span class="self">self</span>.head().method,
             <span class="self">self</span>.path()
         )<span class="question-mark">?</span>;
         <span class="kw">if </span>!<span class="self">self</span>.query_string().is_empty() {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;  query: ?{:?}&quot;</span>, <span class="self">self</span>.query_string())<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"  query: ?{:?}"</span>, <span class="self">self</span>.query_string())<span class="question-mark">?</span>;
         }
         <span class="kw">if </span>!<span class="self">self</span>.match_info().is_empty() {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;  params: {:?}&quot;</span>, <span class="self">self</span>.match_info())<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"  params: {:?}"</span>, <span class="self">self</span>.match_info())<span class="question-mark">?</span>;
         }
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;  headers:&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"  headers:"</span>)<span class="question-mark">?</span>;
         <span class="kw">for </span>(key, val) <span class="kw">in </span><span class="self">self</span>.headers().iter() {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;    {:?}: {:?}&quot;</span>, key, val)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"    {:?}: {:?}"</span>, key, val)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1313,13 +1314,13 @@
         <span class="self">self</span>.response.status()
     }
 
-    <span class="doccomment">/// Returns response&#39;s headers.
+    <span class="doccomment">/// Returns response's headers.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
         <span class="self">self</span>.response.headers()
     }
 
-    <span class="doccomment">/// Returns mutable response&#39;s headers.
+    <span class="doccomment">/// Returns mutable response's headers.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>headers_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>HeaderMap {
         <span class="self">self</span>.response.headers_mut()
@@ -1360,7 +1361,7 @@
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>map_into_boxed_body(<span class="self">self</span>) -&gt; ServiceResponse&lt;BoxBody&gt;
     <span class="kw">where
-        </span>B: MessageBody + <span class="lifetime">&#39;static</span>,
+        </span>B: MessageBody + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.map_body(|<span class="kw">_</span>, body| body.boxed())
     }
@@ -1389,19 +1390,19 @@
     </span>B: MessageBody,
     B::Error: Into&lt;Error&gt;,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span>res = <span class="macro">writeln!</span>(
             f,
-            <span class="string">&quot;\nServiceResponse {:?} {}{}&quot;</span>,
+            <span class="string">"\nServiceResponse {:?} {}{}"</span>,
             <span class="self">self</span>.response.head().version,
             <span class="self">self</span>.response.head().status,
-            <span class="self">self</span>.response.head().reason.unwrap_or(<span class="string">&quot;&quot;</span>),
+            <span class="self">self</span>.response.head().reason.unwrap_or(<span class="string">""</span>),
         );
-        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;  headers:&quot;</span>);
+        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">"  headers:"</span>);
         <span class="kw">for </span>(key, val) <span class="kw">in </span><span class="self">self</span>.response.head().headers.iter() {
-            <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;    {:?}: {:?}&quot;</span>, key, val);
+            <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">"    {:?}: {:?}"</span>, key, val);
         }
-        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;  body: {:?}&quot;</span>, <span class="self">self</span>.response.body().size());
+        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">"  body: {:?}"</span>, <span class="self">self</span>.response.body().size());
         res
     }
 }
@@ -1441,12 +1442,12 @@
     ///
     /// let app = App::new()
     ///     .service(
-    ///         web::service(&quot;/app&quot;)
-    ///             .guard(guard::Header(&quot;content-type&quot;, &quot;text/plain&quot;))
+    ///         web::service("/app")
+    ///             .guard(guard::Header("content-type", "text/plain"))
     ///             .finish(index)
     ///     );
     /// ```
-    </span><span class="kw">pub fn </span>guard&lt;G: Guard + <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: G) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>guard&lt;G: Guard + <span class="lifetime">'static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: G) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.guards.push(Box::new(guard));
         <span class="self">self
     </span>}
@@ -1461,7 +1462,7 @@
                 Response = ServiceResponse,
                 Error = Error,
                 InitError = (),
-            &gt; + <span class="lifetime">&#39;static</span>,
+            &gt; + <span class="lifetime">'static</span>,
     {
         WebServiceImpl {
             srv: service.into_factory(),
@@ -1487,7 +1488,7 @@
             Response = ServiceResponse,
             Error = Error,
             InitError = (),
-        &gt; + <span class="lifetime">&#39;static</span>,
+        &gt; + <span class="lifetime">'static</span>,
 {
     <span class="kw">fn </span>register(<span class="kw-2">mut </span><span class="self">self</span>, config: <span class="kw-2">&amp;mut </span>AppService) {
         <span class="kw">let </span>guards = <span class="kw">if </span><span class="self">self</span>.guards.is_empty() {
@@ -1520,8 +1521,8 @@
 /// use actix_web::{services, web, App};
 ///
 /// let services = services![
-///     web::resource(&quot;/test2&quot;).to(|| async { &quot;test2&quot; }),
-///     web::scope(&quot;/test3&quot;).route(&quot;/&quot;, web::get().to(|| async { &quot;test3&quot; }))
+///     web::resource("/test2").to(|| async { "test2" }),
+///     web::scope("/test3").route("/", web::get().to(|| async { "test3" }))
 /// ];
 ///
 /// let app = App::new().service(services);
@@ -1529,8 +1530,8 @@
 /// // services macro just convert multiple services to a tuple.
 /// // below would also work without importing the macro.
 /// let app = App::new().service((
-///     web::resource(&quot;/test2&quot;).to(|| async { &quot;test2&quot; }),
-///     web::scope(&quot;/test3&quot;).route(&quot;/&quot;, web::get().to(|| async { &quot;test3&quot; }))
+///     web::resource("/test2").to(|| async { "test2" }),
+///     web::scope("/test3").route("/", web::get().to(|| async { "test3" }))
 /// ));
 /// ```
 </span><span class="attr">#[macro_export]
@@ -1580,23 +1581,23 @@
     </span><span class="kw">async fn </span>test_service() {
         <span class="kw">let </span>srv =
             init_service(
-                App::new().service(web::service(<span class="string">&quot;/test&quot;</span>).name(<span class="string">&quot;test&quot;</span>).finish(
+                App::new().service(web::service(<span class="string">"/test"</span>).name(<span class="string">"test"</span>).finish(
                     |req: ServiceRequest| ok(req.into_response(HttpResponse::Ok().finish())),
                 )),
             )
             .<span class="kw">await</span>;
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
 
         <span class="kw">let </span>srv =
             init_service(
-                App::new().service(web::service(<span class="string">&quot;/test&quot;</span>).guard(guard::Get()).finish(
+                App::new().service(web::service(<span class="string">"/test"</span>).guard(guard::Get()).finish(
                     |req: ServiceRequest| ok(req.into_response(HttpResponse::Ok().finish())),
                 )),
             )
             .<span class="kw">await</span>;
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test&quot;</span>)
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test"</span>)
             .method(http::Method::PUT)
             .to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
@@ -1611,8 +1612,8 @@
             App::new()
                 .data(<span class="number">42u32</span>)
                 .service(
-                    web::service(<span class="string">&quot;/test&quot;</span>)
-                        .name(<span class="string">&quot;test&quot;</span>)
+                    web::service(<span class="string">"/test"</span>)
+                        .name(<span class="string">"test"</span>)
                         .finish(|req: ServiceRequest| {
                             <span class="macro">assert_eq!</span>(req.app_data::&lt;web::Data&lt;u32&gt;&gt;().unwrap().as_ref(), <span class="kw-2">&amp;</span><span class="number">42</span>);
                             ok(req.into_response(HttpResponse::Ok().finish()))
@@ -1620,7 +1621,7 @@
                 ),
         )
         .<span class="kw">await</span>;
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
     }
@@ -1628,58 +1629,58 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_fmt_debug() {
         <span class="kw">let </span>req = TestRequest::get()
-            .uri(<span class="string">&quot;/index.html?test=1&quot;</span>)
-            .insert_header((<span class="string">&quot;x-test&quot;</span>, <span class="string">&quot;111&quot;</span>))
+            .uri(<span class="string">"/index.html?test=1"</span>)
+            .insert_header((<span class="string">"x-test"</span>, <span class="string">"111"</span>))
             .to_srv_request();
-        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, req);
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;ServiceRequest&quot;</span>));
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;test=1&quot;</span>));
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;x-test&quot;</span>));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{:?}"</span>, req);
+        <span class="macro">assert!</span>(s.contains(<span class="string">"ServiceRequest"</span>));
+        <span class="macro">assert!</span>(s.contains(<span class="string">"test=1"</span>));
+        <span class="macro">assert!</span>(s.contains(<span class="string">"x-test"</span>));
 
-        <span class="kw">let </span>res = HttpResponse::Ok().insert_header((<span class="string">&quot;x-test&quot;</span>, <span class="string">&quot;111&quot;</span>)).finish();
+        <span class="kw">let </span>res = HttpResponse::Ok().insert_header((<span class="string">"x-test"</span>, <span class="string">"111"</span>)).finish();
         <span class="kw">let </span>res = TestRequest::post()
-            .uri(<span class="string">&quot;/index.html?test=1&quot;</span>)
+            .uri(<span class="string">"/index.html?test=1"</span>)
             .to_srv_response(res);
 
-        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, res);
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;ServiceResponse&quot;</span>));
-        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;x-test&quot;</span>));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">"{:?}"</span>, res);
+        <span class="macro">assert!</span>(s.contains(<span class="string">"ServiceResponse"</span>));
+        <span class="macro">assert!</span>(s.contains(<span class="string">"x-test"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_services_macro() {
         <span class="kw">let </span>scoped = <span class="macro">services!</span>[
-            web::service(<span class="string">&quot;/scoped_test1&quot;</span>).name(<span class="string">&quot;scoped_test1&quot;</span>).finish(
+            web::service(<span class="string">"/scoped_test1"</span>).name(<span class="string">"scoped_test1"</span>).finish(
                 |req: ServiceRequest| <span class="kw">async </span>{ <span class="prelude-val">Ok</span>(req.into_response(HttpResponse::Ok().finish())) }
             ),
-            web::resource(<span class="string">&quot;/scoped_test2&quot;</span>).to(|| <span class="kw">async </span>{ <span class="string">&quot;test2&quot; </span>}),
+            web::resource(<span class="string">"/scoped_test2"</span>).to(|| <span class="kw">async </span>{ <span class="string">"test2" </span>}),
         ];
 
         <span class="kw">let </span>services = <span class="macro">services!</span>[
-            web::service(<span class="string">&quot;/test1&quot;</span>)
-                .name(<span class="string">&quot;test&quot;</span>)
+            web::service(<span class="string">"/test1"</span>)
+                .name(<span class="string">"test"</span>)
                 .finish(|req: ServiceRequest| <span class="kw">async </span>{
                     <span class="prelude-val">Ok</span>(req.into_response(HttpResponse::Ok().finish()))
                 }),
-            web::resource(<span class="string">&quot;/test2&quot;</span>).to(|| <span class="kw">async </span>{ <span class="string">&quot;test2&quot; </span>}),
-            web::scope(<span class="string">&quot;/test3&quot;</span>).service(scoped)
+            web::resource(<span class="string">"/test2"</span>).to(|| <span class="kw">async </span>{ <span class="string">"test2" </span>}),
+            web::scope(<span class="string">"/test3"</span>).service(scoped)
         ];
 
         <span class="kw">let </span>srv = init_service(App::new().service(services)).<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test1&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test1"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test2&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test2"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test3/scoped_test1&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test3/scoped_test1"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test3/scoped_test2&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test3/scoped_test2"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
     }
@@ -1687,44 +1688,44 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_services_vec() {
         <span class="kw">let </span>services = <span class="macro">vec!</span>[
-            web::resource(<span class="string">&quot;/test1&quot;</span>).to(|| <span class="kw">async </span>{ <span class="string">&quot;test1&quot; </span>}),
-            web::resource(<span class="string">&quot;/test2&quot;</span>).to(|| <span class="kw">async </span>{ <span class="string">&quot;test2&quot; </span>}),
+            web::resource(<span class="string">"/test1"</span>).to(|| <span class="kw">async </span>{ <span class="string">"test1" </span>}),
+            web::resource(<span class="string">"/test2"</span>).to(|| <span class="kw">async </span>{ <span class="string">"test2" </span>}),
         ];
 
         <span class="kw">let </span>scoped = <span class="macro">vec!</span>[
-            web::resource(<span class="string">&quot;/scoped_test1&quot;</span>).to(|| <span class="kw">async </span>{ <span class="string">&quot;test1&quot; </span>}),
-            web::resource(<span class="string">&quot;/scoped_test2&quot;</span>).to(|| <span class="kw">async </span>{ <span class="string">&quot;test2&quot; </span>}),
+            web::resource(<span class="string">"/scoped_test1"</span>).to(|| <span class="kw">async </span>{ <span class="string">"test1" </span>}),
+            web::resource(<span class="string">"/scoped_test2"</span>).to(|| <span class="kw">async </span>{ <span class="string">"test2" </span>}),
         ];
 
         <span class="kw">let </span>srv = init_service(
             App::new()
                 .service(services)
-                .service(web::scope(<span class="string">&quot;/test3&quot;</span>).service(scoped)),
+                .service(web::scope(<span class="string">"/test3"</span>).service(scoped)),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test1&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test1"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test2&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test2"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test3/scoped_test1&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test3/scoped_test1"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test3/scoped_test2&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/test3/scoped_test2"</span>).to_request();
         <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(resp.status(), http::StatusCode::OK);
     }
 
     <span class="attr">#[actix_rt::test]
-    #[should_panic(expected = <span class="string">&quot;called `Option::unwrap()` on a `None` value&quot;</span>)]
+    #[should_panic(expected = <span class="string">"called `Option::unwrap()` on a `None` value"</span>)]
     </span><span class="kw">async fn </span>cloning_request_panics() {
-        <span class="kw">async fn </span>index(_name: web::Path&lt;(String,)&gt;) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-            <span class="string">&quot;&quot;
+        <span class="kw">async fn </span>index(_name: web::Path&lt;(String,)&gt;) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+            <span class="string">""
         </span>}
 
         <span class="kw">let </span>app = test::init_service(
@@ -1735,8 +1736,8 @@
                     <span class="kw">let </span>req = ServiceRequest::from_parts(req, pl);
                     svc.call(req)
                 })
-                .route(<span class="string">&quot;/&quot;</span>, web::get().to(|| <span class="kw">async </span>{ <span class="string">&quot;&quot; </span>}))
-                .service(web::resource(<span class="string">&quot;/resource1/{name}/index.html&quot;</span>).route(web::get().to(index))),
+                .route(<span class="string">"/"</span>, web::get().to(|| <span class="kw">async </span>{ <span class="string">"" </span>}))
+                .service(web::resource(<span class="string">"/resource1/{name}/index.html"</span>).route(web::get().to(index))),
         )
         .<span class="kw">await</span>;
 

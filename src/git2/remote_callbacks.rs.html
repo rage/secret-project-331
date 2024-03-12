@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/remote_callbacks.rs`."><title>remote_callbacks.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/remote_callbacks.rs`."><title>remote_callbacks.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -535,16 +536,16 @@
 ///
 /// These callbacks are used to manage facilities such as authentication,
 /// transfer progress, etc.
-</span><span class="kw">pub struct </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt; {
-    push_progress: <span class="prelude-ty">Option</span>&lt;Box&lt;PushTransferProgress&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    progress: <span class="prelude-ty">Option</span>&lt;Box&lt;IndexerProgress&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    pack_progress: <span class="prelude-ty">Option</span>&lt;Box&lt;PackProgress&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    credentials: <span class="prelude-ty">Option</span>&lt;Box&lt;Credentials&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    sideband_progress: <span class="prelude-ty">Option</span>&lt;Box&lt;TransportMessage&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    update_tips: <span class="prelude-ty">Option</span>&lt;Box&lt;UpdateTips&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    certificate_check: <span class="prelude-ty">Option</span>&lt;Box&lt;CertificateCheck&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    push_update_reference: <span class="prelude-ty">Option</span>&lt;Box&lt;PushUpdateReference&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
-    push_negotiation: <span class="prelude-ty">Option</span>&lt;Box&lt;PushNegotiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+</span><span class="kw">pub struct </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt; {
+    push_progress: <span class="prelude-ty">Option</span>&lt;Box&lt;PushTransferProgress&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
+    progress: <span class="prelude-ty">Option</span>&lt;Box&lt;IndexerProgress&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
+    pack_progress: <span class="prelude-ty">Option</span>&lt;Box&lt;PackProgress&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
+    credentials: <span class="prelude-ty">Option</span>&lt;Box&lt;Credentials&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
+    sideband_progress: <span class="prelude-ty">Option</span>&lt;Box&lt;TransportMessage&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
+    update_tips: <span class="prelude-ty">Option</span>&lt;Box&lt;UpdateTips&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
+    certificate_check: <span class="prelude-ty">Option</span>&lt;Box&lt;CertificateCheck&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
+    push_update_reference: <span class="prelude-ty">Option</span>&lt;Box&lt;PushUpdateReference&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
+    push_negotiation: <span class="prelude-ty">Option</span>&lt;Box&lt;PushNegotiation&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
 }
 
 <span class="doccomment">/// Callback used to acquire credentials for when a remote is fetched.
@@ -553,16 +554,16 @@
 /// * `username_from_url` - the username that was embedded in the URL, or `None`
 ///                         if it was not included.
 /// * `allowed_types` - a bitmask stating which cred types are OK to return.
-</span><span class="kw">pub type </span>Credentials&lt;<span class="lifetime">&#39;a</span>&gt; =
-    <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, CredentialType) -&gt; <span class="prelude-ty">Result</span>&lt;Cred, Error&gt; + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>Credentials&lt;<span class="lifetime">'a</span>&gt; =
+    <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, CredentialType) -&gt; <span class="prelude-ty">Result</span>&lt;Cred, Error&gt; + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// Callback for receiving messages delivered by the transport.
 ///
 /// The return value indicates whether the network operation should continue.
-</span><span class="kw">pub type </span>TransportMessage&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>TransportMessage&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// Callback for whenever a reference is updated locally.
-</span><span class="kw">pub type </span>UpdateTips&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>str, Oid, Oid) -&gt; bool + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>UpdateTips&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>str, Oid, Oid) -&gt; bool + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// Callback for a custom certificate check.
 ///
@@ -571,8 +572,8 @@
 ///
 /// The second argument is the hostname for the connection is passed as the last
 /// argument.
-</span><span class="kw">pub type </span>CertificateCheck&lt;<span class="lifetime">&#39;a</span>&gt; =
-    <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>Cert&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;CertificateCheckStatus, Error&gt; + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>CertificateCheck&lt;<span class="lifetime">'a</span>&gt; =
+    <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>Cert&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;CertificateCheckStatus, Error&gt; + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// The return value for the [`RemoteCallbacks::certificate_check`] callback.
 </span><span class="kw">pub enum </span>CertificateCheckStatus {
@@ -589,7 +590,7 @@
 /// The first argument here is the `refname` of the reference, and the second is
 /// the status message sent by a server. If the status is `Some` then the update
 /// was rejected by the remote server with a reason why.
-</span><span class="kw">pub type </span>PushUpdateReference&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>PushUpdateReference&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// Callback for push transfer progress
 ///
@@ -597,7 +598,7 @@
 ///     * current
 ///     * total
 ///     * bytes
-</span><span class="kw">pub type </span>PushTransferProgress&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(usize, usize, usize) + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>PushTransferProgress&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(usize, usize, usize) + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// Callback for pack progress
 ///
@@ -605,7 +606,7 @@
 ///     * stage
 ///     * current
 ///     * total
-</span><span class="kw">pub type </span>PackProgress&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(PackBuilderStage, usize, usize) + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>PackProgress&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(PackBuilderStage, usize, usize) + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// Callback used to inform of upcoming updates.
 ///
@@ -613,17 +614,17 @@
 /// commands to the destination.
 ///
 /// The push is cancelled if an error is returned.
-</span><span class="kw">pub type </span>PushNegotiation&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>[PushUpdate&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>PushNegotiation&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>[PushUpdate&lt;<span class="lifetime">'_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; + <span class="lifetime">'a</span>;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Default <span class="kw">for </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Default <span class="kw">for </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates a new set of empty callbacks
-    </span><span class="kw">pub fn </span>new() -&gt; RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>new() -&gt; RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt; {
         RemoteCallbacks {
             credentials: <span class="prelude-val">None</span>,
             progress: <span class="prelude-val">None</span>,
@@ -653,58 +654,58 @@
     ///   Cred::ssh_key(
     ///     username_from_url.unwrap(),
     ///     None,
-    ///     std::path::Path::new(&amp;format!(&quot;{}/.ssh/id_rsa&quot;, env::var(&quot;HOME&quot;).unwrap())),
+    ///     std::path::Path::new(&amp;format!("{}/.ssh/id_rsa", env::var("HOME").unwrap())),
     ///     None,
     ///   )
     /// });
     /// ```
-    </span><span class="kw">pub fn </span>credentials&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt;
+    </span><span class="kw">pub fn </span>credentials&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, CredentialType) -&gt; <span class="prelude-ty">Result</span>&lt;Cred, Error&gt; + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, CredentialType) -&gt; <span class="prelude-ty">Result</span>&lt;Cred, Error&gt; + <span class="lifetime">'a</span>,
     {
-        <span class="self">self</span>.credentials = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;Credentials&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        <span class="self">self</span>.credentials = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;Credentials&lt;<span class="lifetime">'a</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// The callback through which progress is monitored.
-    </span><span class="kw">pub fn </span>transfer_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt;
+    </span><span class="kw">pub fn </span>transfer_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(Progress&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(Progress&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool + <span class="lifetime">'a</span>,
     {
-        <span class="self">self</span>.progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;IndexerProgress&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        <span class="self">self</span>.progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;IndexerProgress&lt;<span class="lifetime">'a</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Textual progress from the remote.
     ///
     /// Text sent over the progress side-band will be passed to this function
-    /// (this is the &#39;counting objects&#39; output).
-    </span><span class="kw">pub fn </span>sideband_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt;
+    /// (this is the 'counting objects' output).
+    </span><span class="kw">pub fn </span>sideband_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(<span class="kw-2">&amp;</span>[u8]) -&gt; bool + <span class="lifetime">'a</span>,
     {
-        <span class="self">self</span>.sideband_progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;TransportMessage&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        <span class="self">self</span>.sideband_progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;TransportMessage&lt;<span class="lifetime">'a</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Each time a reference is updated locally, the callback will be called
     /// with information about it.
-    </span><span class="kw">pub fn </span>update_tips&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt;
+    </span><span class="kw">pub fn </span>update_tips&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span>str, Oid, Oid) -&gt; bool + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(<span class="kw-2">&amp;</span>str, Oid, Oid) -&gt; bool + <span class="lifetime">'a</span>,
     {
-        <span class="self">self</span>.update_tips = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;UpdateTips&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        <span class="self">self</span>.update_tips = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;UpdateTips&lt;<span class="lifetime">'a</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// If certificate verification fails, then this callback will be invoked to
     /// let the caller make the final decision of whether to allow the
     /// connection to proceed.
-    </span><span class="kw">pub fn </span>certificate_check&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt;
+    </span><span class="kw">pub fn </span>certificate_check&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span>Cert&lt;<span class="lifetime">&#39;_</span>&gt;, <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;CertificateCheckStatus, Error&gt; + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(<span class="kw-2">&amp;</span>Cert&lt;<span class="lifetime">'_</span>&gt;, <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;CertificateCheckStatus, Error&gt; + <span class="lifetime">'a</span>,
     {
-        <span class="self">self</span>.certificate_check = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;CertificateCheck&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        <span class="self">self</span>.certificate_check = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;CertificateCheck&lt;<span class="lifetime">'a</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
@@ -713,49 +714,49 @@
     /// The first argument to the callback is the name of the reference and the
     /// second is a status message sent by the server. If the status is `Some`
     /// then the push was rejected.
-    </span><span class="kw">pub fn </span>push_update_reference&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt;
+    </span><span class="kw">pub fn </span>push_update_reference&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(<span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; + <span class="lifetime">'a</span>,
     {
-        <span class="self">self</span>.push_update_reference = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;PushUpdateReference&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        <span class="self">self</span>.push_update_reference = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;PushUpdateReference&lt;<span class="lifetime">'a</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// The callback through which progress of push transfer is monitored
-    </span><span class="kw">pub fn </span>push_transfer_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt;
+    </span><span class="kw">pub fn </span>push_transfer_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(usize, usize, usize) + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(usize, usize, usize) + <span class="lifetime">'a</span>,
     {
-        <span class="self">self</span>.push_progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;PushTransferProgress&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        <span class="self">self</span>.push_progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;PushTransferProgress&lt;<span class="lifetime">'a</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Function to call with progress information during pack building.
     /// Be aware that this is called inline with pack building operations,
     /// so performance may be affected.
-    </span><span class="kw">pub fn </span>pack_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt;
+    </span><span class="kw">pub fn </span>pack_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(PackBuilderStage, usize, usize) + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(PackBuilderStage, usize, usize) + <span class="lifetime">'a</span>,
     {
-        <span class="self">self</span>.pack_progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;PackProgress&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        <span class="self">self</span>.pack_progress = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;PackProgress&lt;<span class="lifetime">'a</span>&gt;&gt;);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// The callback is called once between the negotiation step and the upload.
     /// It provides information about what updates will be performed.
-    </span><span class="kw">pub fn </span>push_negotiation&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt;
+    </span><span class="kw">pub fn </span>push_negotiation&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
-        </span>F: FnMut(<span class="kw-2">&amp;</span>[PushUpdate&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(<span class="kw-2">&amp;</span>[PushUpdate&lt;<span class="lifetime">'_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; + <span class="lifetime">'a</span>,
     {
-        <span class="self">self</span>.push_negotiation = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;PushNegotiation&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        <span class="self">self</span>.push_negotiation = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;PushNegotiation&lt;<span class="lifetime">'a</span>&gt;&gt;);
         <span class="self">self
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Binding <span class="kw">for </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Raw = raw::git_remote_callbacks;
-    <span class="kw">unsafe fn </span>from_raw(_raw: raw::git_remote_callbacks) -&gt; RemoteCallbacks&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="macro">panic!</span>(<span class="string">&quot;unimplemented&quot;</span>);
+    <span class="kw">unsafe fn </span>from_raw(_raw: raw::git_remote_callbacks) -&gt; RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt; {
+        <span class="macro">panic!</span>(<span class="string">"unimplemented"</span>);
     }
 
     <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_remote_callbacks {
@@ -787,7 +788,7 @@
                 callbacks.pack_progress = <span class="prelude-val">Some</span>(pack_progress_cb);
             }
             <span class="kw">if </span><span class="self">self</span>.update_tips.is_some() {
-                <span class="kw">let </span>f: <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+                <span class="kw">let </span>f: <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(
                     <span class="kw-2">*const </span>c_char,
                     <span class="kw-2">*const </span>raw::git_oid,
                     <span class="kw-2">*const </span>raw::git_oid,
@@ -804,7 +805,7 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>credentials_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>credentials_cb(
     ret: <span class="kw-2">*mut *mut </span>raw::git_cred,
     url: <span class="kw-2">*const </span>c_char,
     username_from_url: <span class="kw-2">*const </span>c_char,
@@ -813,7 +814,7 @@
 ) -&gt; c_int {
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>ok = panic::wrap(|| {
-            <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;);
+            <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;);
             <span class="kw">let </span>callback = payload
                 .credentials
                 .as_mut()
@@ -838,7 +839,7 @@
         });
         <span class="kw">match </span>ok {
             <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(cred)) =&gt; {
-                <span class="comment">// Turns out it&#39;s a memory safety issue if we pass through any
+                <span class="comment">// Turns out it's a memory safety issue if we pass through any
                 // and all credentials into libgit2
                 </span><span class="kw">if </span>allowed_types &amp; (cred.credtype() <span class="kw">as </span>c_uint) != <span class="number">0 </span>{
                     <span class="kw-2">*</span>ret = cred.unwrap();
@@ -853,12 +854,12 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>transfer_progress_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>transfer_progress_cb(
     stats: <span class="kw-2">*const </span>raw::git_indexer_progress,
     payload: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int {
     <span class="kw">let </span>ok = panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.progress {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">true</span>,
@@ -873,9 +874,9 @@
     </span>}
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>sideband_progress_cb(str: <span class="kw-2">*const </span>c_char, len: c_int, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>sideband_progress_cb(str: <span class="kw-2">*const </span>c_char, len: c_int, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int {
     <span class="kw">let </span>ok = panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.sideband_progress {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">true</span>,
@@ -890,14 +891,14 @@
     </span>}
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>update_tips_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>update_tips_cb(
     refname: <span class="kw-2">*const </span>c_char,
     a: <span class="kw-2">*const </span>raw::git_oid,
     b: <span class="kw-2">*const </span>raw::git_oid,
     data: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int {
     <span class="kw">let </span>ok = panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.update_tips {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">true</span>,
@@ -914,14 +915,14 @@
     </span>}
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>certificate_check_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>certificate_check_cb(
     cert: <span class="kw-2">*mut </span>raw::git_cert,
     _valid: c_int,
     hostname: <span class="kw-2">*const </span>c_char,
     data: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int {
     <span class="kw">let </span>ok = panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.certificate_check {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(CertificateCheckStatus::CertificatePassthrough),
@@ -947,13 +948,13 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>push_update_reference_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>push_update_reference_cb(
     refname: <span class="kw-2">*const </span>c_char,
     status: <span class="kw-2">*const </span>c_char,
     data: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int {
     panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.push_update_reference {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="number">0</span>,
@@ -972,14 +973,14 @@
     .unwrap_or(-<span class="number">1</span>)
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>push_transfer_progress_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>push_transfer_progress_cb(
     progress: c_uint,
     total: c_uint,
     bytes: size_t,
     data: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int {
     panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.push_progress {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="number">0</span>,
@@ -992,14 +993,14 @@
     .unwrap_or(-<span class="number">1</span>)
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>pack_progress_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>pack_progress_cb(
     stage: raw::git_packbuilder_stage_t,
     current: c_uint,
     total: c_uint,
     data: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int {
     panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.pack_progress {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="number">0</span>,
@@ -1014,19 +1015,19 @@
     .unwrap_or(-<span class="number">1</span>)
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>push_negotiation_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>push_negotiation_cb(
     updates: <span class="kw-2">*mut *const </span>raw::git_push_update,
     len: size_t,
     payload: <span class="kw-2">*mut </span>c_void,
 ) -&gt; c_int {
     panic::wrap(|| <span class="kw">unsafe </span>{
-        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut *</span>(payload <span class="kw">as </span><span class="kw-2">*mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;);
         <span class="kw">let </span>callback = <span class="kw">match </span>payload.push_negotiation {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) =&gt; c,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="number">0</span>,
         };
 
-        <span class="kw">let </span>updates = slice::from_raw_parts(updates <span class="kw">as </span><span class="kw-2">*mut </span>PushUpdate&lt;<span class="lifetime">&#39;_</span>&gt;, len);
+        <span class="kw">let </span>updates = slice::from_raw_parts(updates <span class="kw">as </span><span class="kw-2">*mut </span>PushUpdate&lt;<span class="lifetime">'_</span>&gt;, len);
         <span class="kw">match </span>callback(updates) {
             <span class="prelude-val">Ok</span>(()) =&gt; <span class="number">0</span>,
             <span class="prelude-val">Err</span>(e) =&gt; e.raw_code(),

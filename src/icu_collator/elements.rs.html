@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collator-1.4.0/src/elements.rs`."><title>elements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collator-1.4.0/src/elements.rs`."><title>elements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2268,10 +2269,10 @@
 
 </span><span class="doccomment">//! This module holds the 64-bit `CollationElement` struct used for
 //! the actual comparison, the 32-bit `CollationElement32` struct
-//! that&#39;s used for storage. (Strictly speaking, the storage is
+//! that's used for storage. (Strictly speaking, the storage is
 //! `RawBytesULE&lt;4&gt;`.) And the `CollationElements` iterator adapter
 //! that turns an iterator over `char` into an iterator over
-//! `CollationElement`. (To match the structure of ICU4C, this isn&#39;t
+//! `CollationElement`. (To match the structure of ICU4C, this isn't
 //! a real Rust `Iterator`. Instead of signaling end by returning
 //! `None`, it signals end by returning `NO_CE`.)
 //!
@@ -2291,7 +2292,7 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::provider::CollationDataV1;
 
-<span class="doccomment">/// Marker that a complex decomposition isn&#39;t round-trippable
+<span class="doccomment">/// Marker that a complex decomposition isn't round-trippable
 /// under re-composition.
 </span><span class="kw">const </span>NON_ROUND_TRIP_MARKER: u16 = <span class="number">1</span>;
 
@@ -2488,7 +2489,7 @@
     <span class="doccomment">/// Builder data, used only in the CollationDataBuilder, not in runtime data.
     ///
     /// If bit 8 is 0: Builder context, points to a list of context-sensitive mappings.
-    /// Bits 31..13: Index to the builder&#39;s list of ConditionalCE32 for this character.
+    /// Bits 31..13: Index to the builder's list of ConditionalCE32 for this character.
     /// Bits 12.. 9: Unused, 0.
     ///
     /// If bit 8 is 1 (IS_BUILDER_JAMO_CE32): Builder-only jamoCE32 value.
@@ -2531,10 +2532,10 @@
     /// Not used by ICU4X.
     </span>LeadSurrogate = <span class="number">13</span>,
     <span class="doccomment">/// Tag for CEs with primary weights in code point order.
-    /// Bits 31..13: Index into CE table, for one data &quot;CE&quot;.
+    /// Bits 31..13: Index into CE table, for one data "CE".
     /// Bits 12.. 8: Unused, 0.
     ///
-    /// This data &quot;CE&quot; has the following bit fields:
+    /// This data "CE" has the following bit fields:
     /// Bits 63..32: Three-byte primary pppppp00.
     ///      31.. 8: Start/base code point of the in-order range.
     ///           7: Flag isCompressible primary.
@@ -2548,13 +2549,13 @@
 <span class="doccomment">/// A compressed form of a collation element as stored in the collation
 /// data.
 ///
-/// A `CollationElement32` can be &quot;normal&quot; or &quot;special&quot;.
-/// Bits 7 and 6 are case bits for the &quot;normal&quot; case and setting
-/// both is an impossible case bit combination. Hence, &quot;special&quot;
+/// A `CollationElement32` can be "normal" or "special".
+/// Bits 7 and 6 are case bits for the "normal" case and setting
+/// both is an impossible case bit combination. Hence, "special"
 /// `CollationElement32`s are marked by setting both case bits
 /// to 1. This is equivalent with the low byte being less than
-/// `SPECIAL_CE32_LOW_BYTE` (0xC0, i.e. 0b11000000) in the &quot;normal&quot;
-/// case and equal to or greater in the &quot;special&quot; case.
+/// `SPECIAL_CE32_LOW_BYTE` (0xC0, i.e. 0b11000000) in the "normal"
+/// case and equal to or greater in the "special" case.
 ///
 /// For the normal case:
 /// Bits: 31..16: Primary weight
@@ -2662,7 +2663,7 @@
     ///
     /// # Panics
     ///
-    /// In debug builds if this element doesn&#39;t have a length.
+    /// In debug builds if this element doesn't have a length.
     </span><span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.tag() == Tag::Expansion32 || <span class="self">self</span>.tag() == Tag::Expansion);
@@ -2673,7 +2674,7 @@
     ///
     /// # Panics
     ///
-    /// In debug builds if this element doesn&#39;t have an index.
+    /// In debug builds if this element doesn't have an index.
     </span><span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="macro">debug_assert!</span>(
@@ -2884,15 +2885,15 @@
 
 <span class="doccomment">/// This struct makes the handling of the `upcoming` buffer
 /// easily so that trie lookups are done at most once. However,
-/// when `upcoming[0]` is an undecomposed starter, we don&#39;t
+/// when `upcoming[0]` is an undecomposed starter, we don't
 /// need the ccc yet, and when lookahead has already done the
-/// trie lookups, we don&#39;t need `trie_value`, as it is implied
+/// trie lookups, we don't need `trie_value`, as it is implied
 /// by ccc.
 ///
 /// TODO(#2386): This struct carries redundant information, and
 /// `upcoming` should be split into a buffer of `CharacterAndClass`
 ///  and an `Option&lt;CharacterAndTrieValue&gt;`, but that refactoring
-/// isn&#39;t 100% necessary, so focusing on data format stability
+/// isn't 100% necessary, so focusing on data format stability
 /// for 1.0.
 ///
 /// (Deliberately non-`Copy`, because `CharacterAndClass` is
@@ -2967,7 +2968,7 @@
 /// instance on which it is intended to be set
 /// and not on a temporary copy.
 ///
-/// Note that 0xFF is won&#39;t be assigned to an actual
+/// Note that 0xFF is won't be assigned to an actual
 /// canonical combining class per definition D104
 /// in The Unicode Standard.
 </span><span class="comment">//
@@ -3012,7 +3013,7 @@
 /// over `CollationElement` with a tailoring.
 /// Not a real Rust iterator: Instead of `None` uses `NO_CE` to indicate
 /// end of iteration to optimize comparison.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>CollationElements&lt;<span class="lifetime">&#39;data</span>, I&gt;
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>CollationElements&lt;<span class="lifetime">'data</span>, I&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = char&gt;,
 {
@@ -3029,11 +3030,11 @@
     /// Last-pushed is at index 0 and previously-pushed at index 1
     </span>prefix: [char; <span class="number">2</span>],
     <span class="doccomment">/// `upcoming` holds the characters that have already been read from
-    /// `iter` but haven&#39;t yet been mapped to `CollationElement`s.
+    /// `iter` but haven't yet been mapped to `CollationElement`s.
     ///
     /// Typically, `upcoming` holds one character and corresponds semantically
     /// to `pending_unnormalized_starter` in `icu_normalizer::Decomposition`.
-    /// This is why there isn&#39;t a move avoidance optimization similar to
+    /// This is why there isn't a move avoidance optimization similar to
     /// `pending_pos` above for this buffer. A complex decomposition, a
     /// Hangul syllable followed by a non-starter, or lookahead can cause
     /// `pending` to hold more than one `char`.
@@ -3042,26 +3043,26 @@
     /// has been exhausted.
     ///
     /// Invariant: (Checked by `debug_assert!`) At the start of `next()` call,
-    /// if `upcoming` isn&#39;t empty (with `iter` having been exhausted), the
+    /// if `upcoming` isn't empty (with `iter` having been exhausted), the
     /// first `char` in `upcoming` must have its decomposition start with a
     /// starter.
     </span>upcoming: SmallVec&lt;[CharacterAndClassAndTrieValue; <span class="number">10</span>]&gt;, <span class="comment">/* TODO(#2005): Figure out good length; longest contraction suffix in CLDR 40 is 7 characters long */
     </span><span class="doccomment">/// The root collation data.
-    </span>root: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>CollationDataV1&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>root: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>CollationDataV1&lt;<span class="lifetime">'data</span>&gt;,
     <span class="doccomment">/// Tailoring if applicable.
-    </span>tailoring: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>CollationDataV1&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>tailoring: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>CollationDataV1&lt;<span class="lifetime">'data</span>&gt;,
     <span class="doccomment">/// The `CollationElement32` mapping for the Hangul Jamo block.
     ///
     /// Note: in ICU4C the jamo table contains only modern jamo. Here, the jamo table contains the whole Unicode block.
-    </span>jamo: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[&lt;u32 <span class="kw">as </span>AsULE&gt;::ULE; JAMO_COUNT],
+    </span>jamo: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[&lt;u32 <span class="kw">as </span>AsULE&gt;::ULE; JAMO_COUNT],
     <span class="doccomment">/// The `CollationElement32` mapping for the Combining Diacritical Marks block.
-    </span>diacritics: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;u16&gt;,
+    </span>diacritics: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u16&gt;,
     <span class="doccomment">/// NFD main trie.
-    </span>trie: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>CodePointTrie&lt;<span class="lifetime">&#39;data</span>, u32&gt;,
+    </span>trie: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>CodePointTrie&lt;<span class="lifetime">'data</span>, u32&gt;,
     <span class="doccomment">/// NFD complex decompositions on the BMP
-    </span>scalars16: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;u16&gt;,
+    </span>scalars16: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u16&gt;,
     <span class="doccomment">/// NFD complex decompositions on supplementary planes
-    </span>scalars32: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;char&gt;,
+    </span>scalars32: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;char&gt;,
     <span class="doccomment">/// If numeric mode is enabled, the 8 high bits of the numeric primary.
     /// `None` if disabled.
     </span>numeric_primary: <span class="prelude-ty">Option</span>&lt;u8&gt;,
@@ -3072,29 +3073,29 @@
     </span>iter_exhausted: bool,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, I&gt; CollationElements&lt;<span class="lifetime">&#39;data</span>, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, I&gt; CollationElements&lt;<span class="lifetime">'data</span>, I&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = char&gt;,
 {
     <span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>new(
         delegate: I,
-        root: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>CollationDataV1,
-        tailoring: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>CollationDataV1,
-        jamo: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[&lt;u32 <span class="kw">as </span>AsULE&gt;::ULE; JAMO_COUNT],
-        diacritics: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>ZeroSlice&lt;u16&gt;,
-        decompositions: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>DecompositionDataV1,
-        tables: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>DecompositionTablesV1,
+        root: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>CollationDataV1,
+        tailoring: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>CollationDataV1,
+        jamo: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[&lt;u32 <span class="kw">as </span>AsULE&gt;::ULE; JAMO_COUNT],
+        diacritics: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>ZeroSlice&lt;u16&gt;,
+        decompositions: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionDataV1,
+        tables: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionTablesV1,
         numeric_primary: <span class="prelude-ty">Option</span>&lt;u8&gt;,
         lithuanian_dot_above: bool,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>u = SmallVec::new();
-        u.push(CharacterAndClassAndTrieValue::new_with_non_decomposing_starter(<span class="string">&#39;\u{FFFF}&#39;</span>)); <span class="comment">// Make sure the process always begins with a starter
+        u.push(CharacterAndClassAndTrieValue::new_with_non_decomposing_starter(<span class="string">'\u{FFFF}'</span>)); <span class="comment">// Make sure the process always begins with a starter
         </span><span class="kw">let </span><span class="kw-2">mut </span>ret = CollationElements::&lt;I&gt; {
             iter: delegate,
             pending: SmallVec::new(),
             pending_pos: <span class="number">0</span>,
-            prefix: [<span class="string">&#39;\u{FFFF}&#39;</span>; <span class="number">2</span>],
+            prefix: [<span class="string">'\u{FFFF}'</span>; <span class="number">2</span>],
             upcoming: u,
             root,
             tailoring,
@@ -3181,85 +3182,85 @@
 
         <span class="comment">// The Tibetan special cases are starters that decompose into non-starters.
         </span><span class="kw">match </span>c.character() {
-            <span class="string">&#39;\u{0340}&#39; </span>=&gt; {
+            <span class="string">'\u{0340}' </span>=&gt; {
                 <span class="comment">// COMBINING GRAVE TONE MARK
                 </span><span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0300}&#39;</span>,
+                        <span class="string">'\u{0300}'</span>,
                         CanonicalCombiningClass::Above,
                     ));
                 <span class="number">1
             </span>}
-            <span class="string">&#39;\u{0341}&#39; </span>=&gt; {
+            <span class="string">'\u{0341}' </span>=&gt; {
                 <span class="comment">// COMBINING ACUTE TONE MARK
                 </span><span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0301}&#39;</span>,
+                        <span class="string">'\u{0301}'</span>,
                         CanonicalCombiningClass::Above,
                     ));
                 <span class="number">1
             </span>}
-            <span class="string">&#39;\u{0343}&#39; </span>=&gt; {
+            <span class="string">'\u{0343}' </span>=&gt; {
                 <span class="comment">// COMBINING GREEK KORONIS
                 </span><span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0313}&#39;</span>,
+                        <span class="string">'\u{0313}'</span>,
                         CanonicalCombiningClass::Above,
                     ));
                 <span class="number">1
             </span>}
-            <span class="string">&#39;\u{0344}&#39; </span>=&gt; {
+            <span class="string">'\u{0344}' </span>=&gt; {
                 <span class="comment">// COMBINING GREEK DIALYTIKA TONOS
                 </span><span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0308}&#39;</span>,
+                        <span class="string">'\u{0308}'</span>,
                         CanonicalCombiningClass::Above,
                     ));
                 <span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0301}&#39;</span>,
+                        <span class="string">'\u{0301}'</span>,
                         CanonicalCombiningClass::Above,
                     ));
                 <span class="number">2
             </span>}
-            <span class="string">&#39;\u{0F73}&#39; </span>=&gt; {
+            <span class="string">'\u{0F73}' </span>=&gt; {
                 <span class="comment">// TIBETAN VOWEL SIGN II
                 </span><span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0F71}&#39;</span>,
+                        <span class="string">'\u{0F71}'</span>,
                         CanonicalCombiningClass::CCC129,
                     ));
                 <span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0F72}&#39;</span>,
+                        <span class="string">'\u{0F72}'</span>,
                         CanonicalCombiningClass::CCC130,
                     ));
                 <span class="number">2
             </span>}
-            <span class="string">&#39;\u{0F75}&#39; </span>=&gt; {
+            <span class="string">'\u{0F75}' </span>=&gt; {
                 <span class="comment">// TIBETAN VOWEL SIGN UU
                 </span><span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0F71}&#39;</span>,
+                        <span class="string">'\u{0F71}'</span>,
                         CanonicalCombiningClass::CCC129,
                     ));
                 <span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0F74}&#39;</span>,
+                        <span class="string">'\u{0F74}'</span>,
                         CanonicalCombiningClass::CCC132,
                     ));
                 <span class="number">2
             </span>}
-            <span class="string">&#39;\u{0F81}&#39; </span>=&gt; {
+            <span class="string">'\u{0F81}' </span>=&gt; {
                 <span class="comment">// TIBETAN VOWEL SIGN REVERSED II
                 </span><span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0F71}&#39;</span>,
+                        <span class="string">'\u{0F71}'</span>,
                         CanonicalCombiningClass::CCC129,
                     ));
                 <span class="self">self</span>.upcoming
                     .push(CharacterAndClassAndTrieValue::new_with_non_zero_ccc(
-                        <span class="string">&#39;\u{0F80}&#39;</span>,
+                        <span class="string">'\u{0F80}'</span>,
                         CanonicalCombiningClass::CCC130,
                     ));
                 <span class="number">2
@@ -3273,10 +3274,10 @@
     }
 
     <span class="comment">// Decomposes `c`, pushes it to `self.upcoming` (unless the character is
-    // a Hangul syllable; Hangul isn&#39;t allowed to participate in contractions),
+    // a Hangul syllable; Hangul isn't allowed to participate in contractions),
     // gathers the following combining characters from `self.iter` and the following starter.
     // Sorts the combining characters and leaves the starter at the end
-    // unnormalized. The trailing unnormalized starter doesn&#39;t get appended if
+    // unnormalized. The trailing unnormalized starter doesn't get appended if
     // `self.iter` is exhausted.
     </span><span class="kw">fn </span>push_decomposed_and_gather_combining(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: CharacterAndClassAndTrieValue) {
         <span class="kw">let </span><span class="kw-2">mut </span>search_start_combining = <span class="bool-val">false</span>;
@@ -3284,8 +3285,8 @@
         <span class="comment">// Not inserting early returns below to keep the same structure
         // as in the ce32 mapping code.
 
-        // Hangul syllable check omitted, because it&#39;s fine not to decompose
-        // Hangul syllables in lookahead, because Hangul isn&#39;t allowed to
+        // Hangul syllable check omitted, because it's fine not to decompose
+        // Hangul syllables in lookahead, because Hangul isn't allowed to
         // participate in contractions, and the trie default is that a character
         // is its own decomposition.
         </span><span class="kw">let </span>decomposition = c.trie_val;
@@ -3315,10 +3316,10 @@
             } <span class="kw">else if </span>lead &gt; NON_ROUND_TRIP_MARKER {
                 <span class="macro">debug_assert_ne!</span>(
                     lead, FDFA_MARKER,
-                    <span class="string">&quot;How come U+FDFA NFKD marker seen in NFD?&quot;
+                    <span class="string">"How come U+FDFA NFKD marker seen in NFD?"
                 </span>);
                 <span class="kw">if </span>(lead &amp; <span class="number">0xFF00</span>) == <span class="number">0xD800 </span>{
-                    <span class="comment">// We&#39;re at the end of the stream, so we aren&#39;t dealing with the
+                    <span class="comment">// We're at the end of the stream, so we aren't dealing with the
                     // next undecomposed starter but are dealing with an
                     // already-decomposed non-starter. Just put it back.
                     </span><span class="self">self</span>.upcoming.push(c);
@@ -3429,7 +3430,7 @@
             }
         }
         <span class="comment">// Perhaps there is a better borrow checker idiom than a function
-        // call for indicating that `upcoming` and `ccc` are disjoint and don&#39;t
+        // call for indicating that `upcoming` and `ccc` are disjoint and don't
         // overlap. However, this works.
         // Indices are in range by construction, so indexing is OK.
         </span><span class="attr">#[allow(clippy::indexing_slicing)]
@@ -3449,7 +3450,7 @@
             <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.iter_next() {
                 <span class="macro">debug_assert!</span>(
                     <span class="bool-val">false</span>,
-                    <span class="string">&quot;The `upcoming` queue should be empty when iteration `pos` at the end&quot;
+                    <span class="string">"The `upcoming` queue should be empty when iteration `pos` at the end"
                 </span>);
                 <span class="self">self</span>.push_decomposed_and_gather_combining(c);
                 <span class="prelude-val">Some</span>(<span class="self">self</span>.upcoming[pos].clone())
@@ -3510,7 +3511,7 @@
     /// we know the most recent character was a non-starter
     /// that is not a kana voicing mark.
     </span><span class="kw">fn </span>mark_prefix_unmatchable(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.prefix[<span class="number">0</span>] = <span class="string">&#39;\u{FFFF}&#39;</span>;
+        <span class="self">self</span>.prefix[<span class="number">0</span>] = <span class="string">'\u{FFFF}'</span>;
     }
 
     <span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; CollationElement {
@@ -3533,7 +3534,7 @@
             // Betting that fusing the NFD algorithm into this one at the
             // expense of the repetitiveness below, the common cases become
             // fast in a way that offsets the lack of the canonical closure.
-            // The wall of code before the &quot;Slow path&quot; is an attempt to
+            // The wall of code before the "Slow path" is an attempt to
             // optimize based on that bet.
             </span><span class="kw">let </span>hangul_offset = u32::from(c).wrapping_sub(HANGUL_S_BASE); <span class="comment">// SIndex in the spec
             </span><span class="kw">if </span>hangul_offset &gt;= HANGUL_S_COUNT {
@@ -3557,11 +3558,11 @@
                         // part of the search root. Instead, all non-Korean tailorings
                         // can use a shared copy of the non-Korean search jamo table.
                         //
-                        // TODO(#1941): This isn&#39;t actually true with the current jamo
+                        // TODO(#1941): This isn't actually true with the current jamo
                         // search expansions!
 
                         // TODO(#1941): Instead of having different jamo CE32 table for
-                        // &quot;search&quot; collations, we could instead decompose the archaic
+                        // "search" collations, we could instead decompose the archaic
                         // jamo to the modern approximation sequences here and then map
                         // those by looking up the modern jamo from the normal root.
 
@@ -3580,7 +3581,7 @@
                             &amp;&amp; ce32.every_suffix_starts_with_combining()
                         {
                             <span class="comment">// Avoid falling onto the slow path e.g. that letters that
-                            // may contract with a diacritic when we know that it won&#39;t
+                            // may contract with a diacritic when we know that it won't
                             // contract with the next character.
                             </span><span class="kw">let </span>default = data.get_default(ce32.index());
                             <span class="kw">if let </span><span class="prelude-val">Some</span>(ce) = default.to_ce_simple_or_long_primary() {
@@ -3607,7 +3608,7 @@
                             <span class="kw">let </span>diacritic_index =
                                 (trail_or_complex <span class="kw">as </span>usize).wrapping_sub(COMBINING_DIACRITICS_BASE);
                             <span class="kw">if let </span><span class="prelude-val">Some</span>(secondary) = <span class="self">self</span>.diacritics.get(diacritic_index) {
-                                <span class="macro">debug_assert!</span>(trail_or_complex != <span class="number">0x0344</span>, <span class="string">&quot;Should never have COMBINING GREEK DIALYTIKA TONOS here, since it should have decomposed further.&quot;</span>);
+                                <span class="macro">debug_assert!</span>(trail_or_complex != <span class="number">0x0344</span>, <span class="string">"Should never have COMBINING GREEK DIALYTIKA TONOS here, since it should have decomposed further."</span>);
                                 <span class="kw">if let </span><span class="prelude-val">Some</span>(ce) = ce32.to_ce_simple_or_long_primary() {
                                     <span class="kw">let </span>ce_for_combining =
                                         CollationElement::new_from_secondary(secondary);
@@ -3658,8 +3659,8 @@
                         combining_characters
                             .push(CharacterAndClass::new_with_placeholder(combining));
                     } <span class="kw">else if </span>lead &gt; NON_ROUND_TRIP_MARKER {
-                        <span class="macro">debug_assert_ne!</span>(lead, <span class="number">1</span>, <span class="string">&quot;How come U+FDFA NFKD marker seen in NFD?&quot;</span>);
-                        <span class="macro">debug_assert_ne!</span>(lead, <span class="number">2</span>, <span class="string">&quot;How come non-starter marker seen here?&quot;</span>);
+                        <span class="macro">debug_assert_ne!</span>(lead, <span class="number">1</span>, <span class="string">"How come U+FDFA NFKD marker seen in NFD?"</span>);
+                        <span class="macro">debug_assert_ne!</span>(lead, <span class="number">2</span>, <span class="string">"How come non-starter marker seen here?"</span>);
                         <span class="comment">// Decomposition into one BMP character
                         </span>c = char_from_u16(lead);
                         ce32 = data.ce32_for_char(c);
@@ -3876,13 +3877,13 @@
             // the next starter sorted by combining class.
             </span><span class="kw">let </span><span class="kw-2">mut </span>looked_ahead = <span class="number">0</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>drain_from_upcoming = <span class="number">0</span>;
-            <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
-                <span class="lifetime">&#39;ce32loop</span>: <span class="kw">loop </span>{
+            <span class="lifetime">'outer</span>: <span class="kw">loop </span>{
+                <span class="lifetime">'ce32loop</span>: <span class="kw">loop </span>{
                     <span class="comment">// TODO(#2002): Ensure that the CE32 flavors in this loop are checked in the optimal
                     // order given their frequency in real workloads.
                     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ce) = ce32.to_ce_self_contained() {
                         <span class="self">self</span>.pending.push(ce);
-                        <span class="kw">break </span><span class="lifetime">&#39;ce32loop</span>;
+                        <span class="kw">break </span><span class="lifetime">'ce32loop</span>;
                     } <span class="kw">else </span>{
                         <span class="kw">match </span>ce32.tag() {
                             Tag::Expansion32 =&gt; {
@@ -3892,14 +3893,14 @@
                                         CollationElement32::new(u).to_ce_self_contained_or_gigo(),
                                     );
                                 }
-                                <span class="kw">break </span><span class="lifetime">&#39;ce32loop</span>;
+                                <span class="kw">break </span><span class="lifetime">'ce32loop</span>;
                             }
                             Tag::Expansion =&gt; {
                                 <span class="kw">let </span>ces = data.get_ces(ce32.index(), ce32.len());
                                 <span class="kw">for </span>u <span class="kw">in </span>ces.iter() {
                                     <span class="self">self</span>.pending.push(CollationElement::new(u));
                                 }
-                                <span class="kw">break </span><span class="lifetime">&#39;ce32loop</span>;
+                                <span class="kw">break </span><span class="lifetime">'ce32loop</span>;
                             }
                             Tag::Prefix =&gt; {
                                 <span class="kw">let </span>(default, <span class="kw-2">mut </span>trie) = data.get_default_and_trie(ce32.index());
@@ -3908,18 +3909,18 @@
                                     <span class="kw">match </span>trie.next(ch) {
                                         TrieResult::NoValue =&gt; {}
                                         TrieResult::NoMatch =&gt; {
-                                            <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                            <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                         }
                                         TrieResult::Intermediate(ce32_i) =&gt; {
                                             ce32 = CollationElement32::new(ce32_i <span class="kw">as </span>u32);
                                         }
                                         TrieResult::FinalValue(ce32_i) =&gt; {
                                             ce32 = CollationElement32::new(ce32_i <span class="kw">as </span>u32);
-                                            <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                            <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                         }
                                     }
                                 }
-                                <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                             }
                             Tag::Contraction =&gt; {
                                 <span class="kw">let </span>every_suffix_starts_with_combining =
@@ -3933,7 +3934,7 @@
                                 <span class="kw">if </span>every_suffix_starts_with_combining
                                     &amp;&amp; combining_characters.is_empty()
                                 {
-                                    <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                    <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                 }
                                 <span class="kw">let </span><span class="kw-2">mut </span>longest_matching_state = trie.clone();
                                 <span class="kw">let </span><span class="kw-2">mut </span>longest_matching_index = <span class="number">0</span>;
@@ -3965,7 +3966,7 @@
                                                 combining_characters.remove(idx);
                                             }
                                             ce32 = CollationElement32::new(ce32_i <span class="kw">as </span>u32);
-                                            <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                            <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                         }
                                         (<span class="kw">_</span>, TrieResult::NoValue) =&gt; {
                                             pending_removals.push(i);
@@ -3983,9 +3984,9 @@
                                 <span class="kw">if </span>!(at_least_one_suffix_contains_starter
                                     &amp;&amp; combining_characters.is_empty())
                                 {
-                                    <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                    <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                 }
-                                <span class="comment">// Let&#39;s just set this flag here instead of trying to make
+                                <span class="comment">// Let's just set this flag here instead of trying to make
                                 // it more granular and, therefore, more error-prone.
                                 // After all, this flag is just about optimizing away one
                                 // `CodePointInversionList` check in the common case.
@@ -3999,10 +4000,10 @@
                                             TrieResult::NoValue =&gt; {}
                                             TrieResult::NoMatch =&gt; {
                                                 <span class="kw">if </span>!at_least_one_suffix_ends_with_non_starter {
-                                                    <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                                    <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                                 }
                                                 <span class="kw">if </span>!ch.decomposition_starts_with_non_starter() {
-                                                    <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                                    <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                                 }
                                                 <span class="comment">// The last-checked character is non-starter
                                                 // and at least one contraction suffix ends
@@ -4026,7 +4027,7 @@
                                                             <span class="comment">// If we came here, we had an intervening non-matching
                                                             // non-starter, after which we cannot contract another
                                                             // starter anymore.
-                                                            </span><span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                                            </span><span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                                         }
                                                         <span class="kw">match </span>(
                                                             most_recent_skipped_ccc &lt; ccc,
@@ -4070,7 +4071,7 @@
                                                                 ce32 = CollationElement32::new(
                                                                     ce32_i <span class="kw">as </span>u32,
                                                                 );
-                                                                <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                                                <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                                             }
                                                             (<span class="kw">_</span>, TrieResult::NoValue) =&gt; {
                                                                 pending_removals.push(i);
@@ -4087,7 +4088,7 @@
                                                             }
                                                         }
                                                     } <span class="kw">else </span>{
-                                                        <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                                        <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                                     }
                                                 }
                                             }
@@ -4099,11 +4100,11 @@
                                             TrieResult::FinalValue(ce32_i) =&gt; {
                                                 drain_from_upcoming = looked_ahead;
                                                 ce32 = CollationElement32::new(ce32_i <span class="kw">as </span>u32);
-                                                <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                                <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                             }
                                         }
                                     } <span class="kw">else </span>{
-                                        <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                        <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                                     }
                                 }
                                 <span class="comment">// Unreachable
@@ -4114,10 +4115,10 @@
                                     </span>digits.push(ce32.digit());
                                     <span class="kw">let </span>numeric_primary = u32::from(high_bits) &lt;&lt; <span class="number">24</span>;
                                     <span class="kw">if </span>combining_characters.is_empty() {
-                                        <span class="comment">// Numeric collation doesn&#39;t work with combining
+                                        <span class="comment">// Numeric collation doesn't work with combining
                                         // characters applied to the digits.
-                                        // It&#39;s unclear if reading from the tailoring first
-                                        // is needed for practical purposes, since it doesn&#39;t
+                                        // It's unclear if reading from the tailoring first
+                                        // is needed for practical purposes, since it doesn't
                                         // make much sense to tailor the numeric value of digits.
                                         // Performing the usual fallback pattern anyway just in
                                         // case.
@@ -4158,7 +4159,7 @@
                                         </span><span class="kw">let </span>(head, tail) = <span class="kw">if </span>remaining.len() &gt; <span class="number">254 </span>{
                                             remaining.split_at(<span class="number">254</span>)
                                         } <span class="kw">else </span>{
-                                            (remaining, <span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..])
+                                            (remaining, <span class="kw-2">&amp;</span><span class="string">b""</span>[..])
                                         };
                                         remaining = tail;
                                         <span class="comment">// From ICU4C CollationIterator::appendNumericSegmentCEs
@@ -4237,10 +4238,10 @@
                                         //
                                         // * We skipped leading zeros.
                                         // * If `len == 2`: The loop condition is false, because
-                                        //   `head[len - 2]` isn&#39;t a leading zero.
+                                        //   `head[len - 2]` isn't a leading zero.
                                         // * If `len == 1`: The loop condition is false, because
-                                        //   `head[len - 1]` isn&#39;t a leading zero, and `&amp;&amp;`
-                                        //   short-circuts, so the `head[len - 2]` access doesn&#39;t
+                                        //   `head[len - 1]` isn't a leading zero, and `&amp;&amp;`
+                                        //   short-circuts, so the `head[len - 2]` access doesn't
                                         //   occur.
                                         </span><span class="attr">#[allow(clippy::indexing_slicing)]
                                         </span><span class="kw">while </span>head[len - <span class="number">1</span>] == <span class="number">0 </span>&amp;&amp; head[len - <span class="number">2</span>] == <span class="number">0 </span>{
@@ -4253,7 +4254,7 @@
                                         <span class="comment">// `unwrap` succeeds by construction
                                         </span><span class="attr">#[allow(clippy::unwrap_used)]
                                         </span><span class="kw">let </span><span class="kw-2">mut </span>pair = <span class="kw">if </span>len &amp; <span class="number">1 </span>== <span class="number">1 </span>{
-                                            <span class="comment">// Only &quot;half a pair&quot; if we have an odd number of digits.
+                                            <span class="comment">// Only "half a pair" if we have an odd number of digits.
                                             </span>u32::from(<span class="kw-2">*</span>digit_iter.next().unwrap())
                                         } <span class="kw">else </span>{
                                             u32::from(<span class="kw-2">*</span>digit_iter.next().unwrap()) * <span class="number">10
@@ -4282,19 +4283,19 @@
                                         <span class="self">self</span>.pending
                                             .push(CollationElement::new_from_primary(primary));
                                     }
-                                    <span class="kw">break </span><span class="lifetime">&#39;ce32loop</span>;
+                                    <span class="kw">break </span><span class="lifetime">'ce32loop</span>;
                                 }
                                 ce32 = data.get_ce32(ce32.index());
-                                <span class="kw">continue </span><span class="lifetime">&#39;ce32loop</span>;
+                                <span class="kw">continue </span><span class="lifetime">'ce32loop</span>;
                             }
                             Tag::Offset =&gt; {
                                 <span class="self">self</span>.pending.push(data.ce_from_offset_ce32(c, ce32));
-                                <span class="kw">break </span><span class="lifetime">&#39;ce32loop</span>;
+                                <span class="kw">break </span><span class="lifetime">'ce32loop</span>;
                             }
                             Tag::Implicit =&gt; {
                                 <span class="self">self</span>.pending
                                     .push(CollationElement::new_implicit_from_char(c));
-                                <span class="kw">break </span><span class="lifetime">&#39;ce32loop</span>;
+                                <span class="kw">break </span><span class="lifetime">'ce32loop</span>;
                             }
                             Tag::Fallback
                             | Tag::Reserved3
@@ -4308,36 +4309,36 @@
                                 <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>);
                                 <span class="comment">// GIGO case
                                 </span><span class="self">self</span>.pending.push(FFFD_CE);
-                                <span class="kw">break </span><span class="lifetime">&#39;ce32loop</span>;
+                                <span class="kw">break </span><span class="lifetime">'ce32loop</span>;
                             }
                         }
                     }
                 }
                 <span class="self">self</span>.prefix_push(c);
-                <span class="lifetime">&#39;combining_outer</span>: <span class="kw">loop </span>{
+                <span class="lifetime">'combining_outer</span>: <span class="kw">loop </span>{
                     <span class="macro">debug_assert!</span>(drain_from_upcoming == <span class="number">0 </span>|| combining_characters.is_empty());
                     <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-                    <span class="lifetime">&#39;combining</span>: <span class="kw">while let </span><span class="prelude-val">Some</span>(ch) =
+                    <span class="lifetime">'combining</span>: <span class="kw">while let </span><span class="prelude-val">Some</span>(ch) =
                         combining_characters.get(i).map(|c| c.character())
                     {
                         c = ch;
                         <span class="kw">let </span>diacritic_index = (c <span class="kw">as </span>usize).wrapping_sub(COMBINING_DIACRITICS_BASE);
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(secondary) = <span class="self">self</span>.diacritics.get(diacritic_index) {
                             <span class="comment">// TODO(#2006): unlikely annotation
-                            </span><span class="kw">if </span>c == <span class="string">&#39;\u{0307}&#39; </span>&amp;&amp; <span class="self">self</span>.lithuanian_dot_above {
+                            </span><span class="kw">if </span>c == <span class="string">'\u{0307}' </span>&amp;&amp; <span class="self">self</span>.lithuanian_dot_above {
                                 <span class="kw">if let </span><span class="prelude-val">Some</span>(next_c) =
                                     combining_characters.get(i + <span class="number">1</span>).map(|c| c.character())
                                 {
-                                    <span class="kw">if </span>next_c == <span class="string">&#39;\u{0300}&#39;
-                                        </span>|| next_c == <span class="string">&#39;\u{0301}&#39;
-                                        </span>|| next_c == <span class="string">&#39;\u{0303}&#39;
+                                    <span class="kw">if </span>next_c == <span class="string">'\u{0300}'
+                                        </span>|| next_c == <span class="string">'\u{0301}'
+                                        </span>|| next_c == <span class="string">'\u{0303}'
                                     </span>{
                                         <span class="comment">// Lithuanian contracts COMBINING DOT ABOVE with three other diacritics of the
                                         // same combining class such that the COMBINING DOT ABOVE is ignored for
-                                        // collation. Since the combining class is the same, it&#39;s valid to simply
+                                        // collation. Since the combining class is the same, it's valid to simply
                                         // look at the next character in `combining_characters`.
                                         </span>i += <span class="number">1</span>;
-                                        <span class="kw">continue </span><span class="lifetime">&#39;combining</span>;
+                                        <span class="kw">continue </span><span class="lifetime">'combining</span>;
                                     }
                                 }
                             }
@@ -4345,7 +4346,7 @@
                                 .push(CollationElement::new_from_secondary(secondary));
                             <span class="self">self</span>.mark_prefix_unmatchable();
                             i += <span class="number">1</span>;
-                            <span class="kw">continue </span><span class="lifetime">&#39;combining</span>;
+                            <span class="kw">continue </span><span class="lifetime">'combining</span>;
                         }
                         <span class="comment">// `c` is not a table-optimized diacritic.
                         // Not bothering to micro optimize away the move of the remaining
@@ -4357,16 +4358,16 @@
                             data = <span class="self">self</span>.root;
                             ce32 = data.ce32_for_char(c);
                         }
-                        <span class="kw">continue </span><span class="lifetime">&#39;outer</span>;
+                        <span class="kw">continue </span><span class="lifetime">'outer</span>;
                     }
-                    <span class="comment">// Note: The borrow checker didn&#39;t like the iterator formulation
+                    <span class="comment">// Note: The borrow checker didn't like the iterator formulation
                     // for the loop below, because the `Drain` would have kept `self`
                     // mutable borrowed when trying to call `prefix_push`. To change
                     // this, `prefix` and `prefix_push` would need to be refactored
                     // into a struct.
                     </span>i = <span class="number">0</span>;
                     <span class="kw">while </span>i &lt; drain_from_upcoming {
-                        <span class="comment">// By construction, `drain_from_upcoming` doesn&#39;t exceed `upcoming.len()`
+                        <span class="comment">// By construction, `drain_from_upcoming` doesn't exceed `upcoming.len()`
                         </span><span class="attr">#[allow(clippy::indexing_slicing)]
                         </span><span class="kw">let </span>ch = <span class="self">self</span>.upcoming[i].character();
                         <span class="self">self</span>.prefix_push(ch);
@@ -4376,7 +4377,7 @@
                     // contractions use `pending_removals` instead of `drain_from_upcoming`.
                     // Do there exist prefixes that overlap contraction suffixes?
                     // At least as of CLDR 40, the two possible non-starters in prefixes,
-                    // kana voicing marks, shouldn&#39;t be participating in Brahmic contractions.
+                    // kana voicing marks, shouldn't be participating in Brahmic contractions.
                     </span><span class="kw">let _ </span>= <span class="self">self</span>.upcoming.drain(..drain_from_upcoming);
                     <span class="kw">if </span><span class="self">self</span>.upcoming.is_empty() {
                         <span class="comment">// Make the assertion conditional to make CI happy.
@@ -4399,7 +4400,7 @@
                             // `upcoming` on the next call to `next()`.
                             </span>drain_from_upcoming = <span class="number">0</span>;
                             <span class="self">self</span>.collect_combining(<span class="kw-2">&amp;mut </span>combining_characters);
-                            <span class="kw">continue </span><span class="lifetime">&#39;combining_outer</span>;
+                            <span class="kw">continue </span><span class="lifetime">'combining_outer</span>;
                         }
                     }
                     <span class="comment">// By construction, we have at least on pending CE by now.
@@ -4427,73 +4428,73 @@
             </span><span class="attr">#[allow(clippy::unwrap_used)]
             </span><span class="kw">let </span>combining = <span class="self">self</span>.next_internal().unwrap().c_and_c;
             <span class="kw">let </span>combining_c = combining.character();
-            <span class="kw">if </span>!in_inclusive_range(combining_c, <span class="string">&#39;\u{0340}&#39;</span>, <span class="string">&#39;\u{0F81}&#39;</span>) {
+            <span class="kw">if </span>!in_inclusive_range(combining_c, <span class="string">'\u{0340}'</span>, <span class="string">'\u{0F81}'</span>) {
                 combining_characters.push(combining);
             } <span class="kw">else </span>{
                 <span class="comment">// The Tibetan special cases are starters that decompose into non-starters.
                 </span><span class="kw">match </span>combining_c {
-                    <span class="string">&#39;\u{0340}&#39; </span>=&gt; {
+                    <span class="string">'\u{0340}' </span>=&gt; {
                         <span class="comment">// COMBINING GRAVE TONE MARK
                         </span>combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0300}&#39;</span>,
+                            <span class="string">'\u{0300}'</span>,
                             CanonicalCombiningClass::Above,
                         ));
                     }
-                    <span class="string">&#39;\u{0341}&#39; </span>=&gt; {
+                    <span class="string">'\u{0341}' </span>=&gt; {
                         <span class="comment">// COMBINING ACUTE TONE MARK
                         </span>combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0301}&#39;</span>,
+                            <span class="string">'\u{0301}'</span>,
                             CanonicalCombiningClass::Above,
                         ));
                     }
-                    <span class="string">&#39;\u{0343}&#39; </span>=&gt; {
+                    <span class="string">'\u{0343}' </span>=&gt; {
                         <span class="comment">// COMBINING GREEK KORONIS
                         </span>combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0313}&#39;</span>,
+                            <span class="string">'\u{0313}'</span>,
                             CanonicalCombiningClass::Above,
                         ));
                     }
-                    <span class="string">&#39;\u{0344}&#39; </span>=&gt; {
+                    <span class="string">'\u{0344}' </span>=&gt; {
                         <span class="comment">// COMBINING GREEK DIALYTIKA TONOS
                         </span>combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0308}&#39;</span>,
+                            <span class="string">'\u{0308}'</span>,
                             CanonicalCombiningClass::Above,
                         ));
                         combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0301}&#39;</span>,
+                            <span class="string">'\u{0301}'</span>,
                             CanonicalCombiningClass::Above,
                         ));
                     }
-                    <span class="string">&#39;\u{0F73}&#39; </span>=&gt; {
+                    <span class="string">'\u{0F73}' </span>=&gt; {
                         <span class="comment">// TIBETAN VOWEL SIGN II
                         </span>combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0F71}&#39;</span>,
+                            <span class="string">'\u{0F71}'</span>,
                             CanonicalCombiningClass::CCC129,
                         ));
                         combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0F72}&#39;</span>,
+                            <span class="string">'\u{0F72}'</span>,
                             CanonicalCombiningClass::CCC130,
                         ));
                     }
-                    <span class="string">&#39;\u{0F75}&#39; </span>=&gt; {
+                    <span class="string">'\u{0F75}' </span>=&gt; {
                         <span class="comment">// TIBETAN VOWEL SIGN UU
                         </span>combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0F71}&#39;</span>,
+                            <span class="string">'\u{0F71}'</span>,
                             CanonicalCombiningClass::CCC129,
                         ));
                         combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0F74}&#39;</span>,
+                            <span class="string">'\u{0F74}'</span>,
                             CanonicalCombiningClass::CCC132,
                         ));
                     }
-                    <span class="string">&#39;\u{0F81}&#39; </span>=&gt; {
+                    <span class="string">'\u{0F81}' </span>=&gt; {
                         <span class="comment">// TIBETAN VOWEL SIGN REVERSED II
                         </span>combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0F71}&#39;</span>,
+                            <span class="string">'\u{0F71}'</span>,
                             CanonicalCombiningClass::CCC129,
                         ));
                         combining_characters.push(CharacterAndClass::new(
-                            <span class="string">&#39;\u{0F80}&#39;</span>,
+                            <span class="string">'\u{0F80}'</span>,
                             CanonicalCombiningClass::CCC130,
                         ));
                     }
@@ -4509,7 +4510,7 @@
             // In any case, we store the CanonicalCombiningClass in order to
             // avoid having to look it up again when deciding whether to proceed
             // with a discontiguous match. As a side effect, it also means that
-            // duplicate lookups aren&#39;t needed if the sort below happens to compare
+            // duplicate lookups aren't needed if the sort below happens to compare
             // an item more than once.
             </span>combining_characters
                 .iter_mut()

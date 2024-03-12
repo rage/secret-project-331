@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/zerovec/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/zerovec/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1139,10 +1140,10 @@
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;databake&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"databake"</span>)]
 </span><span class="kw">mod </span>databake;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">mod </span>serde;
 
 <span class="kw">mod </span>slice;
@@ -1171,9 +1172,9 @@
 /// see [`VarZeroVec`](crate::VarZeroVec). [`zerovec::make_ule`](crate::make_ule) may
 /// be used to automatically implement [`AsULE`] for a type and generate the underlying [`ULE`] type.
 ///
-/// Typically, the zero-copy equivalent of a `Vec&lt;T&gt;` will simply be `ZeroVec&lt;&#39;a, T&gt;`.
+/// Typically, the zero-copy equivalent of a `Vec&lt;T&gt;` will simply be `ZeroVec&lt;'a, T&gt;`.
 ///
-/// Most of the methods on `ZeroVec&lt;&#39;a, T&gt;` come from its [`Deref`] implementation to [`ZeroSlice&lt;T&gt;`](ZeroSlice).
+/// Most of the methods on `ZeroVec&lt;'a, T&gt;` come from its [`Deref`] implementation to [`ZeroSlice&lt;T&gt;`](ZeroSlice).
 ///
 /// For creating zero-copy vectors of fixed-size types, see [`VarZeroVec`](crate::VarZeroVec).
 ///
@@ -1189,9 +1190,9 @@
 /// let nums: &amp;[u16] = &amp;[211, 281, 421, 461];
 ///
 /// #[derive(serde::Serialize, serde::Deserialize)]
-/// struct Data&lt;&#39;a&gt; {
+/// struct Data&lt;'a&gt; {
 ///     #[serde(borrow)]
-///     nums: ZeroVec&lt;&#39;a, u16&gt;,
+///     nums: ZeroVec&lt;'a, u16&gt;,
 /// }
 ///
 /// // The owned version will allocate
@@ -1199,11 +1200,11 @@
 ///     nums: ZeroVec::alloc_from_slice(nums),
 /// };
 /// let bincode_bytes =
-///     bincode::serialize(&amp;data).expect(&quot;Serialization should be successful&quot;);
+///     bincode::serialize(&amp;data).expect("Serialization should be successful");
 ///
 /// // Will deserialize without allocations
 /// let deserialized: Data = bincode::deserialize(&amp;bincode_bytes)
-///     .expect(&quot;Deserialization should be successful&quot;);
+///     .expect("Deserialization should be successful");
 ///
 /// // This deserializes without allocation!
 /// assert!(!deserialized.nums.is_owned());
@@ -1223,7 +1224,7 @@
 /// Benchmarks can be found in the project repository, with some results found in the [crate-level documentation](crate).
 ///
 /// See [the design doc](https://github.com/unicode-org/icu4x/blob/main/utils/zerovec/design_doc.md) for more details.
-</span><span class="kw">pub struct </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;
+</span><span class="kw">pub struct </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
     </span>T: AsULE,
 {
@@ -1232,17 +1233,17 @@
     <span class="doccomment">/// Marker type, signalling variance and dropck behavior
     /// by containing all potential types this type represents
     </span><span class="attr">#[allow(clippy::type_complexity)] </span><span class="comment">// needed to get correct marker type behavior
-    </span>marker: PhantomData&lt;(Vec&lt;T::ULE&gt;, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T::ULE])&gt;,
+    </span>marker: PhantomData&lt;(Vec&lt;T::ULE&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T::ULE])&gt;,
 }
 
 <span class="comment">// Send inherits as long as all fields are Send, but also references are Send only
 // when their contents are Sync (this is the core purpose of Sync), so
 // we need a Send+Sync bound since this struct can logically be a vector or a slice.
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE&gt; Send <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; <span class="kw">where </span>T::ULE: Send + Sync {}
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE&gt; Send <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; <span class="kw">where </span>T::ULE: Send + Sync {}
 <span class="comment">// Sync typically inherits as long as all fields are Sync
-</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE&gt; Sync <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; <span class="kw">where </span>T::ULE: Sync {}
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE&gt; Sync <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; <span class="kw">where </span>T::ULE: Sync {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE&gt; Deref <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE&gt; Deref <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">type </span>Target = ZeroSlice&lt;T&gt;;
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
@@ -1272,12 +1273,12 @@
 <span class="kw">impl</span>&lt;U&gt; EyepatchHackVector&lt;U&gt; {
     <span class="comment">// Return a slice to the inner data for an arbitrary caller-specified lifetime
     </span><span class="attr">#[inline]
-    </span><span class="kw">unsafe fn </span>as_arbitrary_slice&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[U] {
+    </span><span class="kw">unsafe fn </span>as_arbitrary_slice&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[U] {
         <span class="kw-2">&amp;*</span><span class="self">self</span>.buf
     }
     <span class="comment">// Return a slice to the inner data
     </span><span class="attr">#[inline]
-    </span><span class="kw">const fn </span>as_slice&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[U] {
+    </span><span class="kw">const fn </span>as_slice&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[U] {
         <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(<span class="self">self</span>.buf <span class="kw">as </span><span class="kw-2">*const </span>[U]) }
     }
 
@@ -1288,7 +1289,7 @@
     /// Because this borrows self, this is effectively creating two owners to the same
     /// data, make sure that `self` is cleaned up after this
     ///
-    /// (this does not simply take `self` since then it wouldn&#39;t be usable from the Drop impl)
+    /// (this does not simply take `self` since then it wouldn't be usable from the Drop impl)
     </span><span class="kw">unsafe fn </span>get_vec(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;U&gt; {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.capacity != <span class="number">0</span>);
         <span class="kw">let </span>slice: <span class="kw-2">&amp;</span>[U] = <span class="self">self</span>.as_slice();
@@ -1304,14 +1305,14 @@
     </span><span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if </span><span class="self">self</span>.capacity != <span class="number">0 </span>{
             <span class="kw">unsafe </span>{
-                <span class="comment">// we don&#39;t need to clean up self here since we&#39;re already in a Drop impl
+                <span class="comment">// we don't need to clean up self here since we're already in a Drop impl
                 </span><span class="kw">let _ </span>= <span class="self">self</span>.get_vec();
             }
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE&gt; Clone <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE&gt; Clone <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span><span class="self">self</span>.is_owned() {
             ZeroVec::new_owned(<span class="self">self</span>.as_ule_slice().into())
@@ -1327,35 +1328,35 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE&gt; AsRef&lt;ZeroSlice&lt;T&gt;&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE&gt; AsRef&lt;ZeroSlice&lt;T&gt;&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ZeroSlice&lt;T&gt; {
         <span class="self">self</span>.deref()
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;_</span>, T&gt;
+<span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'_</span>, T&gt;
 <span class="kw">where
     </span>T: AsULE + fmt::Debug,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;ZeroVec({:?})&quot;</span>, <span class="self">self</span>.to_vec())
+        <span class="macro">write!</span>(f, <span class="string">"ZeroVec({:?})"</span>, <span class="self">self</span>.to_vec())
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; Eq <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;_</span>, T&gt; <span class="kw">where </span>T: AsULE + Eq + <span class="question-mark">?</span>Sized {}
+<span class="kw">impl</span>&lt;T&gt; Eq <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'_</span>, T&gt; <span class="kw">where </span>T: AsULE + Eq + <span class="question-mark">?</span>Sized {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, T&gt; PartialEq&lt;ZeroVec&lt;<span class="lifetime">&#39;b</span>, T&gt;&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, T&gt; PartialEq&lt;ZeroVec&lt;<span class="lifetime">'b</span>, T&gt;&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
     </span>T: AsULE + PartialEq + <span class="question-mark">?</span>Sized,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>ZeroVec&lt;<span class="lifetime">&#39;b</span>, T&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>ZeroVec&lt;<span class="lifetime">'b</span>, T&gt;) -&gt; bool {
         <span class="comment">// Note: T implements PartialEq but not T::ULE
         </span><span class="self">self</span>.iter().eq(other.iter())
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; PartialEq&lt;<span class="kw-2">&amp;</span>[T]&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;_</span>, T&gt;
+<span class="kw">impl</span>&lt;T&gt; PartialEq&lt;<span class="kw-2">&amp;</span>[T]&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'_</span>, T&gt;
 <span class="kw">where
     </span>T: AsULE + PartialEq + <span class="question-mark">?</span>Sized,
 {
@@ -1365,7 +1366,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; PartialEq&lt;[T; N]&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;_</span>, T&gt;
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; PartialEq&lt;[T; N]&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'_</span>, T&gt;
 <span class="kw">where
     </span>T: AsULE + PartialEq + <span class="question-mark">?</span>Sized,
 {
@@ -1375,44 +1376,44 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE&gt; Default <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE&gt; Default <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE + PartialOrd&gt; PartialOrd <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE + PartialOrd&gt; PartialOrd <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
         <span class="self">self</span>.iter().partial_cmp(other.iter())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE + Ord&gt; Ord <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE + Ord&gt; Ord <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
         <span class="self">self</span>.iter().cmp(other.iter())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE&gt; AsRef&lt;[T::ULE]&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE&gt; AsRef&lt;[T::ULE]&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[T::ULE] {
         <span class="self">self</span>.as_ule_slice()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T::ULE]&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T::ULE]) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T::ULE]&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; {
+    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T::ULE]) -&gt; <span class="self">Self </span>{
         ZeroVec::new_borrowed(other)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsULE&gt; From&lt;Vec&lt;T::ULE&gt;&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsULE&gt; From&lt;Vec&lt;T::ULE&gt;&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">fn </span>from(other: Vec&lt;T::ULE&gt;) -&gt; <span class="self">Self </span>{
         ZeroVec::new_owned(other)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
     </span>T: AsULE + <span class="question-mark">?</span>Sized,
 {
@@ -1462,7 +1463,7 @@
     <span class="doccomment">/// Creates a new borrowed `ZeroVec` using an existing
     /// backing buffer
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>new_borrowed(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T::ULE]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new_borrowed(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T::ULE]) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>slice = slice <span class="kw">as </span><span class="kw-2">*const </span>[<span class="kw">_</span>] <span class="kw">as </span><span class="kw-2">*mut </span>[<span class="kw">_</span>];
         <span class="self">Self </span>{
             vector: EyepatchHackVector {
@@ -1497,13 +1498,13 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x01];
     /// let zerovec: ZeroVec&lt;u16&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;infallible&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("infallible");
     ///
     /// assert!(!zerovec.is_owned());
     /// assert_eq!(zerovec.get(2), Some(421));
     /// ```
-    </span><span class="kw">pub fn </span>parse_byte_slice(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ZeroVecError&gt; {
-        <span class="kw">let </span>slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T::ULE] = T::ULE::parse_byte_slice(bytes)<span class="question-mark">?</span>;
+    </span><span class="kw">pub fn </span>parse_byte_slice(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ZeroVecError&gt; {
+        <span class="kw">let </span>slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T::ULE] = T::ULE::parse_byte_slice(bytes)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new_borrowed(slice))
     }
 
@@ -1512,7 +1513,7 @@
     /// # Safety
     ///
     /// `bytes` need to be an output from [`ZeroSlice::as_bytes()`].
-    </span><span class="kw">pub const unsafe fn </span>from_bytes_unchecked(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const unsafe fn </span>from_bytes_unchecked(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="comment">// &amp;[u8] and &amp;[T::ULE] are the same slice with different length metadata.
         </span><span class="self">Self</span>::new_borrowed(core::slice::from_raw_parts(
             bytes.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>T::ULE,
@@ -1533,7 +1534,7 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x01];
     /// let zerovec: ZeroVec&lt;u16&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;infallible&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("infallible");
     /// let zv_bytes = zerovec.into_bytes();
     ///
     /// assert!(!zv_bytes.is_owned());
@@ -1552,10 +1553,10 @@
     /// assert!(zv_bytes.is_owned());
     /// assert_eq!(zv_bytes.get(0), Some(0xD3));
     /// ```
-    </span><span class="kw">pub fn </span>into_bytes(<span class="self">self</span>) -&gt; ZeroVec&lt;<span class="lifetime">&#39;a</span>, u8&gt; {
+    </span><span class="kw">pub fn </span>into_bytes(<span class="self">self</span>) -&gt; ZeroVec&lt;<span class="lifetime">'a</span>, u8&gt; {
         <span class="kw">match </span><span class="self">self</span>.into_cow() {
             Cow::Borrowed(slice) =&gt; {
-                <span class="kw">let </span>bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] = T::ULE::as_byte_slice(slice);
+                <span class="kw">let </span>bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] = T::ULE::as_byte_slice(slice);
                 ZeroVec::new_borrowed(bytes)
             }
             Cow::Owned(vec) =&gt; {
@@ -1580,13 +1581,13 @@
     /// let bytes: &amp;[u8] = &amp;[0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x80];
     ///
     /// let zerovec_u16: ZeroVec&lt;u16&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;infallible&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("infallible");
     /// assert_eq!(zerovec_u16.get(3), Some(32973));
     ///
     /// let zerovec_i16: ZeroVec&lt;i16&gt; = zerovec_u16.cast();
     /// assert_eq!(zerovec_i16.get(3), Some(-32563));
     /// ```
-    </span><span class="kw">pub fn </span>cast&lt;P&gt;(<span class="self">self</span>) -&gt; ZeroVec&lt;<span class="lifetime">&#39;a</span>, P&gt;
+    </span><span class="kw">pub fn </span>cast&lt;P&gt;(<span class="self">self</span>) -&gt; ZeroVec&lt;<span class="lifetime">'a</span>, P&gt;
     <span class="kw">where
         </span>P: AsULE&lt;ULE = T::ULE&gt;,
     {
@@ -1613,9 +1614,9 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0x7F, 0xF3, 0x01, 0x49, 0xF6, 0x01];
     /// let zv_char: ZeroVec&lt;char&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;valid code points&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("valid code points");
     /// let zv_u8_3: ZeroVec&lt;[u8; 3]&gt; =
-    ///     zv_char.try_into_converted().expect(&quot;infallible conversion&quot;);
+    ///     zv_char.try_into_converted().expect("infallible conversion");
     ///
     /// assert!(!zv_u8_3.is_owned());
     /// assert_eq!(zv_u8_3.get(0), Some([0x7F, 0xF3, 0x01]));
@@ -1626,10 +1627,10 @@
     /// ```
     /// use zerovec::ZeroVec;
     ///
-    /// let chars: &amp;[char] = &amp;[&#39;🍿&#39;, &#39;🙉&#39;];
+    /// let chars: &amp;[char] = &amp;['🍿', '🙉'];
     /// let zv_char = ZeroVec::alloc_from_slice(chars);
     /// let zv_u8_3: ZeroVec&lt;[u8; 3]&gt; =
-    ///     zv_char.try_into_converted().expect(&quot;length is divisible&quot;);
+    ///     zv_char.try_into_converted().expect("length is divisible");
     ///
     /// assert!(zv_u8_3.is_owned());
     /// assert_eq!(zv_u8_3.get(0), Some([0x7F, 0xF3, 0x01]));
@@ -1642,7 +1643,7 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0x7F, 0xF3, 0x01, 0x49, 0xF6, 0x01];
     /// let zv_char: ZeroVec&lt;char&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;valid code points&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("valid code points");
     ///
     /// // Panics! mem::size_of::&lt;char::ULE&gt; != mem::size_of::&lt;u16::ULE&gt;
     /// zv_char.try_into_converted::&lt;u16&gt;();
@@ -1655,28 +1656,28 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0x7F, 0xF3, 0x01, 0x49, 0xF6, 0x01];
     /// let zv_char: ZeroVec&lt;char&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;valid code points&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("valid code points");
     /// let zv_u16: ZeroVec&lt;u16&gt; =
-    ///     zv_char.into_bytes().try_into_parsed().expect(&quot;infallible&quot;);
+    ///     zv_char.into_bytes().try_into_parsed().expect("infallible");
     ///
     /// assert!(!zv_u16.is_owned());
     /// assert_eq!(zv_u16.get(0), Some(0xF37F));
     /// ```
-    </span><span class="kw">pub fn </span>try_into_converted&lt;P: AsULE&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ZeroVec&lt;<span class="lifetime">&#39;a</span>, P&gt;, ZeroVecError&gt; {
+    </span><span class="kw">pub fn </span>try_into_converted&lt;P: AsULE&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ZeroVec&lt;<span class="lifetime">'a</span>, P&gt;, ZeroVecError&gt; {
         <span class="macro">assert_eq!</span>(
             core::mem::size_of::&lt;&lt;T <span class="kw">as </span>AsULE&gt;::ULE&gt;(),
             core::mem::size_of::&lt;&lt;P <span class="kw">as </span>AsULE&gt;::ULE&gt;()
         );
         <span class="kw">match </span><span class="self">self</span>.into_cow() {
             Cow::Borrowed(old_slice) =&gt; {
-                <span class="kw">let </span>bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] = T::ULE::as_byte_slice(old_slice);
+                <span class="kw">let </span>bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] = T::ULE::as_byte_slice(old_slice);
                 <span class="kw">let </span>new_slice = P::ULE::parse_byte_slice(bytes)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(ZeroVec::new_borrowed(new_slice))
             }
             Cow::Owned(old_vec) =&gt; {
                 <span class="kw">let </span>bytes: <span class="kw-2">&amp;</span>[u8] = T::ULE::as_byte_slice(<span class="kw-2">&amp;</span>old_vec);
                 P::ULE::validate_byte_slice(bytes)<span class="question-mark">?</span>;
-                <span class="comment">// Feature &quot;vec_into_raw_parts&quot; is not yet stable (#65816). Polyfill:
+                <span class="comment">// Feature "vec_into_raw_parts" is not yet stable (#65816). Polyfill:
                 </span><span class="kw">let </span>(ptr, len, cap) = {
                     <span class="comment">// Take ownership of the pointer
                     </span><span class="kw">let </span><span class="kw-2">mut </span>v = mem::ManuallyDrop::new(old_vec);
@@ -1706,11 +1707,11 @@
     <span class="doccomment">/// If this is a borrowed ZeroVec, return it as a slice that covers
     /// its lifetime parameter
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>as_maybe_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ZeroSlice&lt;T&gt;&gt; {
+    </span><span class="kw">pub fn </span>as_maybe_borrowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ZeroSlice&lt;T&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_owned() {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
-            <span class="comment">// We can extend the lifetime of the slice to &#39;a
+            <span class="comment">// We can extend the lifetime of the slice to 'a
             // since we know it is borrowed
             </span><span class="kw">let </span>ule_slice = <span class="kw">unsafe </span>{ <span class="self">self</span>.vector.as_arbitrary_slice() };
             <span class="prelude-val">Some</span>(ZeroSlice::from_ule_slice(ule_slice))
@@ -1746,7 +1747,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ZeroVec&lt;<span class="lifetime">&#39;a</span>, u8&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ZeroVec&lt;<span class="lifetime">'a</span>, u8&gt; {
     <span class="doccomment">/// Converts a `ZeroVec&lt;u8&gt;` into a `ZeroVec&lt;T&gt;`, retaining the current ownership model.
     ///
     /// Note that the length of the ZeroVec may change.
@@ -1760,7 +1761,7 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x01];
     /// let zv_bytes = ZeroVec::new_borrowed(bytes);
-    /// let zerovec: ZeroVec&lt;u16&gt; = zv_bytes.try_into_parsed().expect(&quot;infallible&quot;);
+    /// let zerovec: ZeroVec&lt;u16&gt; = zv_bytes.try_into_parsed().expect("infallible");
     ///
     /// assert!(!zerovec.is_owned());
     /// assert_eq!(zerovec.get(0), Some(211));
@@ -1773,15 +1774,15 @@
     ///
     /// let bytes: Vec&lt;u8&gt; = vec![0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x01];
     /// let zv_bytes = ZeroVec::new_owned(bytes);
-    /// let zerovec: ZeroVec&lt;u16&gt; = zv_bytes.try_into_parsed().expect(&quot;infallible&quot;);
+    /// let zerovec: ZeroVec&lt;u16&gt; = zv_bytes.try_into_parsed().expect("infallible");
     ///
     /// assert!(zerovec.is_owned());
     /// assert_eq!(zerovec.get(0), Some(211));
     /// ```
-    </span><span class="kw">pub fn </span>try_into_parsed&lt;T: AsULE&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;, ZeroVecError&gt; {
+    </span><span class="kw">pub fn </span>try_into_parsed&lt;T: AsULE&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;, ZeroVecError&gt; {
         <span class="kw">match </span><span class="self">self</span>.into_cow() {
             Cow::Borrowed(bytes) =&gt; {
-                <span class="kw">let </span>slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T::ULE] = T::ULE::parse_byte_slice(bytes)<span class="question-mark">?</span>;
+                <span class="kw">let </span>slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T::ULE] = T::ULE::parse_byte_slice(bytes)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(ZeroVec::new_borrowed(slice))
             }
             Cow::Owned(vec) =&gt; {
@@ -1792,7 +1793,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
     </span>T: AsULE,
 {
@@ -1837,11 +1838,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
     </span>T: EqULE,
 {
-    <span class="doccomment">/// Attempts to create a `ZeroVec&lt;&#39;a, T&gt;` from a `&amp;&#39;a [T]` by borrowing the argument.
+    <span class="doccomment">/// Attempts to create a `ZeroVec&lt;'a, T&gt;` from a `&amp;'a [T]` by borrowing the argument.
     ///
     /// If this is not possible, such as on a big-endian platform, `None` is returned.
     ///
@@ -1860,11 +1861,11 @@
     /// }
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>try_from_slice(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>try_from_slice(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         T::slice_to_unaligned(slice).map(|ule_slice| <span class="self">Self</span>::new_borrowed(ule_slice))
     }
 
-    <span class="doccomment">/// Creates a `ZeroVec&lt;&#39;a, T&gt;` from a `&amp;&#39;a [T]`, either by borrowing the argument or by
+    <span class="doccomment">/// Creates a `ZeroVec&lt;'a, T&gt;` from a `&amp;'a [T]`, either by borrowing the argument or by
     /// allocating a new vector.
     ///
     /// This is a cheap operation on little-endian platforms, falling back to a more expensive
@@ -1885,12 +1886,12 @@
     /// assert_eq!(bytes, zerovec.as_bytes());
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>from_slice_or_alloc(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>from_slice_or_alloc(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::try_from_slice(slice).unwrap_or_else(|| <span class="self">Self</span>::alloc_from_slice(slice))
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; ZeroVec&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; ZeroVec&lt;<span class="lifetime">'a</span>, T&gt;
 <span class="kw">where
     </span>T: AsULE,
 {
@@ -1908,7 +1909,7 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x01];
     /// let mut zerovec: ZeroVec&lt;u16&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;infallible&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("infallible");
     ///
     /// zerovec.for_each_mut(|item| *item += 1);
     ///
@@ -1934,7 +1935,7 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x01];
     /// let mut zerovec: ZeroVec&lt;u16&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;infallible&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("infallible");
     ///
     /// zerovec.try_for_each_mut(|item| {
     ///     *item = item.checked_add(1).ok_or(())?;
@@ -1967,13 +1968,13 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x01];
     /// let zerovec: ZeroVec&lt;u16&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;infallible&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("infallible");
     /// assert!(!zerovec.is_owned());
     ///
     /// let owned = zerovec.into_owned();
     /// assert!(owned.is_owned());
     /// ```
-    </span><span class="kw">pub fn </span>into_owned(<span class="self">self</span>) -&gt; ZeroVec&lt;<span class="lifetime">&#39;static</span>, T&gt; {
+    </span><span class="kw">pub fn </span>into_owned(<span class="self">self</span>) -&gt; ZeroVec&lt;<span class="lifetime">'static</span>, T&gt; {
         <span class="kw">match </span><span class="self">self</span>.into_cow() {
             Cow::Owned(vec) =&gt; ZeroVec::new_owned(vec),
             Cow::Borrowed(b) =&gt; {
@@ -1995,14 +1996,14 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x01];
     /// let mut zerovec: ZeroVec&lt;u16&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;infallible&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("infallible");
     /// assert!(!zerovec.is_owned());
     ///
     /// zerovec.with_mut(|v| v.push(12_u16.to_unaligned()));
     /// assert!(zerovec.is_owned());
     /// ```
     </span><span class="kw">pub fn </span>with_mut&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>Vec&lt;T::ULE&gt;) -&gt; R) -&gt; R {
-        <span class="comment">// We&#39;re in danger if f() panics whilst we&#39;ve moved a vector out of self;
+        <span class="comment">// We're in danger if f() panics whilst we've moved a vector out of self;
         // replace it with an empty dummy vector for now
         </span><span class="kw">let </span>this = mem::take(<span class="self">self</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>vec = <span class="kw">match </span>this.into_cow() {
@@ -2026,7 +2027,7 @@
     ///
     /// let bytes: &amp;[u8] = &amp;[0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x01];
     /// let mut zerovec: ZeroVec&lt;u16&gt; =
-    ///     ZeroVec::parse_byte_slice(bytes).expect(&quot;infallible&quot;);
+    ///     ZeroVec::parse_byte_slice(bytes).expect("infallible");
     /// assert!(!zerovec.is_owned());
     ///
     /// zerovec.to_mut_slice()[1] = 5u16.to_unaligned();
@@ -2035,7 +2036,7 @@
     </span><span class="kw">pub fn </span>to_mut_slice(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[T::ULE] {
         <span class="kw">if </span>!<span class="self">self</span>.is_owned() {
             <span class="comment">// `buf` is either a valid vector or slice of `T::ULE`s, either
-            // way it&#39;s always valid
+            // way it's always valid
             </span><span class="kw">let </span>slice = <span class="self">self</span>.vector.as_slice();
             <span class="kw-2">*</span><span class="self">self </span>= ZeroVec::new_owned(slice.into());
         }
@@ -2046,20 +2047,20 @@
         <span class="kw-2">*</span><span class="self">self </span>= <span class="self">Self</span>::new_borrowed(<span class="kw-2">&amp;</span>[])
     }
 
-    <span class="doccomment">/// Converts the type into a `Cow&lt;&#39;a, [T::ULE]&gt;`, which is
-    /// the logical equivalent of this type&#39;s internal representation
+    <span class="doccomment">/// Converts the type into a `Cow&lt;'a, [T::ULE]&gt;`, which is
+    /// the logical equivalent of this type's internal representation
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>into_cow(<span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">&#39;a</span>, [T::ULE]&gt; {
+    </span><span class="kw">pub fn </span>into_cow(<span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">'a</span>, [T::ULE]&gt; {
         <span class="kw">let </span>this = mem::ManuallyDrop::new(<span class="self">self</span>);
         <span class="kw">if </span>this.is_owned() {
             <span class="kw">let </span>vec = <span class="kw">unsafe </span>{
-                <span class="comment">// safe to call: we know it&#39;s owned,
+                <span class="comment">// safe to call: we know it's owned,
                 // and `self`/`this` are thenceforth no longer used or dropped
                 </span>{ this }.vector.get_vec()
             };
             Cow::Owned(vec)
         } <span class="kw">else </span>{
-            <span class="comment">// We can extend the lifetime of the slice to &#39;a
+            <span class="comment">// We can extend the lifetime of the slice to 'a
             // since we know it is borrowed
             </span><span class="kw">let </span>slice = <span class="kw">unsafe </span>{ { this }.vector.as_arbitrary_slice() };
             Cow::Borrowed(slice)
@@ -2067,7 +2068,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: AsULE&gt; FromIterator&lt;T&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+<span class="kw">impl</span>&lt;T: AsULE&gt; FromIterator&lt;T&gt; <span class="kw">for </span>ZeroVec&lt;<span class="lifetime">'_</span>, T&gt; {
     <span class="doccomment">/// Creates an owned [`ZeroVec`] from an iterator of values.
     </span><span class="kw">fn </span>from_iter&lt;I&gt;(iter: I) -&gt; <span class="self">Self
     </span><span class="kw">where
@@ -2095,13 +2096,13 @@
 /// use zerovec::{ZeroSlice, zeroslice, ule::AsULE};
 /// use zerovec::ule::UnvalidatedChar;
 ///
-/// const SIGNATURE: &amp;ZeroSlice&lt;char&gt; = zeroslice!(char; &lt;char as AsULE&gt;::ULE::from_aligned; [&#39;b&#39;, &#39;y&#39;, &#39;e&#39;, &#39;✌&#39;]);
+/// const SIGNATURE: &amp;ZeroSlice&lt;char&gt; = zeroslice!(char; &lt;char as AsULE&gt;::ULE::from_aligned; ['b', 'y', 'e', '✌']);
 /// const EMPTY: &amp;ZeroSlice&lt;u32&gt; = zeroslice![];
 /// const UC: &amp;ZeroSlice&lt;UnvalidatedChar&gt; =
 ///     zeroslice!(
 ///         UnvalidatedChar;
 ///         &lt;UnvalidatedChar as AsULE&gt;::ULE::from_unvalidated_char;
-///         [UnvalidatedChar::from_char(&#39;a&#39;)]
+///         [UnvalidatedChar::from_char('a')]
 ///     );
 /// let empty: &amp;ZeroSlice&lt;u32&gt; = zeroslice![];
 /// let nums = zeroslice!(u32; &lt;u32 as AsULE&gt;::ULE::from_unsigned; [1, 2, 3, 4, 5]);
@@ -2144,7 +2145,7 @@
 /// ```
 /// use zerovec::{ZeroVec, zerovec, ule::AsULE};
 ///
-/// const SIGNATURE: ZeroVec&lt;char&gt; = zerovec!(char; &lt;char as AsULE&gt;::ULE::from_aligned; [&#39;a&#39;, &#39;y&#39;, &#39;e&#39;, &#39;✌&#39;]);
+/// const SIGNATURE: ZeroVec&lt;char&gt; = zerovec!(char; &lt;char as AsULE&gt;::ULE::from_aligned; ['a', 'y', 'e', '✌']);
 /// assert!(!SIGNATURE.is_owned());
 ///
 /// const EMPTY: ZeroVec&lt;u32&gt; = zerovec![];

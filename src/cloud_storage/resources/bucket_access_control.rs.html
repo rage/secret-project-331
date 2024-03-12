@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/bucket_access_control.rs`."><title>bucket_access_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cloud-storage-0.11.1/src/resources/bucket_access_control.rs`."><title>bucket_access_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cloud_storage" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -405,14 +406,14 @@
 ///
 /// There are three roles that can be assigned to an entity:
 ///
-/// * READERs can get the bucket, though no acl property will be returned, and list the bucket&#39;s
+/// * READERs can get the bucket, though no acl property will be returned, and list the bucket's
 /// objects.
-/// * WRITERs are READERs, and they can insert objects into the bucket and delete the bucket&#39;s
+/// * WRITERs are READERs, and they can insert objects into the bucket and delete the bucket's
 /// objects.
 /// * OWNERs are WRITERs, and they can get the acl property of a bucket, update a bucket, and call
 /// all BucketAccessControl methods on the bucket.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>BucketAccessControl {
     <span class="doccomment">/// The kind of item this is. For bucket access control entries, this is always
     /// `storage#bucketAccessControl`.
@@ -457,7 +458,7 @@
 
 <span class="doccomment">/// Model that can be used to create a new BucketAccessControl object.
 </span><span class="attr">#[derive(Debug, PartialEq, serde::Serialize)]
-#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"camelCase"</span>)]
 </span><span class="kw">pub struct </span>NewBucketAccessControl {
     <span class="doccomment">/// The entity holding the permission, in one of the following forms:
     ///
@@ -500,11 +501,11 @@
     ///     entity: Entity::AllUsers,
     ///     role: Role::Reader,
     /// };
-    /// BucketAccessControl::create(&quot;mybucket&quot;, &amp;new_bucket_access_control).await?;
+    /// BucketAccessControl::create("mybucket", &amp;new_bucket_access_control).await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>create(
         bucket: <span class="kw-2">&amp;</span>str,
         new_bucket_access_control: <span class="kw-2">&amp;</span>NewBucketAccessControl,
@@ -519,7 +520,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>create_sync(
         bucket: <span class="kw-2">&amp;</span>str,
         new_bucket_access_control: <span class="kw-2">&amp;</span>NewBucketAccessControl,
@@ -539,11 +540,11 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::bucket_access_control::BucketAccessControl;
     ///
-    /// let acls = BucketAccessControl::list(&quot;mybucket&quot;).await?;
+    /// let acls = BucketAccessControl::list("mybucket").await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>list(bucket: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .bucket_access_control()
@@ -555,7 +556,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>list_sync(bucket: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::list(bucket))
     }
@@ -572,11 +573,11 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::bucket_access_control::{BucketAccessControl, Entity};
     ///
-    /// let controls = BucketAccessControl::read(&quot;mybucket&quot;, &amp;Entity::AllUsers).await?;
+    /// let controls = BucketAccessControl::read("mybucket", &amp;Entity::AllUsers).await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>read(bucket: <span class="kw-2">&amp;</span>str, entity: <span class="kw-2">&amp;</span>Entity) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .bucket_access_control()
@@ -588,7 +589,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>read_sync(bucket: <span class="kw-2">&amp;</span>str, entity: <span class="kw-2">&amp;</span>Entity) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::read(bucket, entity))
     }
@@ -605,13 +606,13 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::bucket_access_control::{BucketAccessControl, Entity};
     ///
-    /// let mut acl = BucketAccessControl::read(&quot;mybucket&quot;, &amp;Entity::AllUsers).await?;
+    /// let mut acl = BucketAccessControl::read("mybucket", &amp;Entity::AllUsers).await?;
     /// acl.entity = Entity::AllAuthenticatedUsers;
     /// acl.update().await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .bucket_access_control()
@@ -623,7 +624,7 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>update_sync(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.update())
     }
@@ -640,12 +641,12 @@
     /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
     /// use cloud_storage::bucket_access_control::{BucketAccessControl, Entity};
     ///
-    /// let controls = BucketAccessControl::read(&quot;mybucket&quot;, &amp;Entity::AllUsers).await?;
+    /// let controls = BucketAccessControl::read("mybucket", &amp;Entity::AllUsers).await?;
     /// controls.delete().await?;
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"global-client"</span>)]
     </span><span class="kw">pub async fn </span>delete(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">crate</span>::CLOUD_CLIENT
             .bucket_access_control()
@@ -657,13 +658,13 @@
     ///
     /// ### Features
     /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
-    </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">pub fn </span>delete_sync(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.delete())
     }
 }
 
-<span class="attr">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>))]
+<span class="attr">#[cfg(all(test, feature = <span class="string">"global-client"</span>))]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -697,7 +698,7 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="comment">// use a seperate bucket to prevent synchronization issues
-        </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">&quot;test-update-bucket-access-controls&quot;</span>).<span class="kw">await</span>;
+        </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">"test-update-bucket-access-controls"</span>).<span class="kw">await</span>;
         <span class="kw">let </span>new_bucket_access_control = NewBucketAccessControl {
             entity: Entity::AllUsers,
             role: Role::Reader,
@@ -713,7 +714,7 @@
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
         <span class="comment">// use a seperate bucket to prevent synchronization issues
-        </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">&quot;test-delete-bucket-access-controls&quot;</span>).<span class="kw">await</span>;
+        </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket(<span class="string">"test-delete-bucket-access-controls"</span>).<span class="kw">await</span>;
         <span class="kw">let </span>new_bucket_access_control = NewBucketAccessControl {
             entity: Entity::AllUsers,
             role: Role::Reader,
@@ -725,7 +726,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"global-client"</span>, feature = <span class="string">"sync"</span>))]
     </span><span class="kw">mod </span>sync {
         <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -757,7 +758,7 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="comment">// use a seperate bucket to prevent synchronization issues
-            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-update-bucket-access-controls&quot;</span>);
+            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-update-bucket-access-controls"</span>);
             <span class="kw">let </span>new_bucket_access_control = NewBucketAccessControl {
                 entity: Entity::AllUsers,
                 role: Role::Reader,
@@ -773,7 +774,7 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
             <span class="comment">// use a seperate bucket to prevent synchronization issues
-            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">&quot;test-delete-bucket-access-controls&quot;</span>);
+            </span><span class="kw">let </span>bucket = <span class="kw">crate</span>::create_test_bucket_sync(<span class="string">"test-delete-bucket-access-controls"</span>);
             <span class="kw">let </span>new_bucket_access_control = NewBucketAccessControl {
                 entity: Entity::AllUsers,
                 role: Role::Reader,

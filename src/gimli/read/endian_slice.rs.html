@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/endian_slice.rs`."><title>endian_slice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/endian_slice.rs`."><title>endian_slice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -360,9 +361,9 @@
 <a href="#360" id="360">360</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Working with byte slices that have an associated endianity.
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
 </span><span class="kw">use </span>alloc::borrow::Cow;
-<span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
 </span><span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::ops::{Deref, Range, RangeFrom, RangeTo};
@@ -375,35 +376,35 @@
 ///
 /// This implements the `Reader` trait, which is used for all reading of DWARF sections.
 </span><span class="attr">#[derive(Default, Clone, Copy, PartialEq, Eq, Hash)]
-</span><span class="kw">pub struct </span>EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;
+</span><span class="kw">pub struct </span>EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;
 <span class="kw">where
     </span>Endian: Endianity,
 {
-    slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8],
+    slice: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8],
     endian: Endian,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, Endian&gt; EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>, Endian&gt; EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;
 <span class="kw">where
     </span>Endian: Endianity,
 {
     <span class="doccomment">/// Construct a new `EndianSlice` with the given slice and endianity.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8], endian: Endian) -&gt; EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt; {
+    </span><span class="kw">pub fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8], endian: Endian) -&gt; EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt; {
         EndianSlice { slice, endian }
     }
 
     <span class="doccomment">/// Return a reference to the raw slice.
     </span><span class="attr">#[inline]
     #[doc(hidden)]
-    #[deprecated(note = <span class="string">&quot;Method renamed to EndianSlice::slice; use that instead.&quot;</span>)]
-    </span><span class="kw">pub fn </span>buf(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8] {
+    #[deprecated(note = <span class="string">"Method renamed to EndianSlice::slice; use that instead."</span>)]
+    </span><span class="kw">pub fn </span>buf(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8] {
         <span class="self">self</span>.slice
     }
 
     <span class="doccomment">/// Return a reference to the raw slice.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8] {
+    </span><span class="kw">pub fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8] {
         <span class="self">self</span>.slice
     }
 
@@ -414,7 +415,7 @@
     </span><span class="kw">pub fn </span>split_at(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         idx: usize,
-    ) -&gt; (EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;, EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;) {
+    ) -&gt; (EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;, EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;) {
         (<span class="self">self</span>.range_to(..idx), <span class="self">self</span>.range_from(idx..))
     }
 
@@ -427,7 +428,7 @@
     <span class="doccomment">/// Return the offset of the start of the slice relative to the start
     /// of the given slice.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>offset_from(<span class="kw-2">&amp;</span><span class="self">self</span>, base: EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;) -&gt; usize {
+    </span><span class="kw">pub fn </span>offset_from(<span class="kw-2">&amp;</span><span class="self">self</span>, base: EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;) -&gt; usize {
         <span class="kw">let </span>base_ptr = base.slice.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span>usize;
         <span class="kw">let </span>ptr = <span class="self">self</span>.slice.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span>usize;
         <span class="macro">debug_assert!</span>(base_ptr &lt;= ptr);
@@ -439,20 +440,20 @@
     ///
     /// Returns an error if the slice contains invalid characters.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>str&gt; {
+    </span><span class="kw">pub fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'input </span>str&gt; {
         str::from_utf8(<span class="self">self</span>.slice).map_err(|<span class="kw">_</span>| Error::BadUtf8)
     }
 
     <span class="doccomment">/// Converts the slice to a string, including invalid characters,
     /// using `String::from_utf8_lossy`.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
     #[inline]
-    </span><span class="kw">pub fn </span>to_string_lossy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">&#39;input</span>, str&gt; {
+    </span><span class="kw">pub fn </span>to_string_lossy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">'input</span>, str&gt; {
         String::from_utf8_lossy(<span class="self">self</span>.slice)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>read_slice(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8]&gt; {
+    </span><span class="kw">fn </span>read_slice(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]&gt; {
         <span class="kw">if </span><span class="self">self</span>.slice.len() &lt; len {
             <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="self">self</span>.offset_id()))
         } <span class="kw">else </span>{
@@ -465,11 +466,11 @@
 
 <span class="doccomment">/// # Range Methods
 ///
-/// Unfortunately, `std::ops::Index` *must* return a reference, so we can&#39;t
+/// Unfortunately, `std::ops::Index` *must* return a reference, so we can't
 /// implement `Index&lt;Range&lt;usize&gt;&gt;` to return a new `EndianSlice` the way we would
 /// like to. Instead, we abandon fancy indexing operators and have these plain
 /// old methods.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, Endian&gt; EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'input</span>, Endian&gt; EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;
 <span class="kw">where
     </span>Endian: Endianity,
 {
@@ -484,7 +485,7 @@
     /// assert_eq!(endian_slice.range(1..3),
     ///            EndianSlice::new(&amp;slice[1..3], LittleEndian));
     /// ```
-    </span><span class="kw">pub fn </span>range(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: Range&lt;usize&gt;) -&gt; EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt; {
+    </span><span class="kw">pub fn </span>range(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: Range&lt;usize&gt;) -&gt; EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt; {
         EndianSlice {
             slice: <span class="kw-2">&amp;</span><span class="self">self</span>.slice[idx],
             endian: <span class="self">self</span>.endian,
@@ -502,7 +503,7 @@
     /// assert_eq!(endian_slice.range_from(2..),
     ///            EndianSlice::new(&amp;slice[2..], LittleEndian));
     /// ```
-    </span><span class="kw">pub fn </span>range_from(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: RangeFrom&lt;usize&gt;) -&gt; EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt; {
+    </span><span class="kw">pub fn </span>range_from(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: RangeFrom&lt;usize&gt;) -&gt; EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt; {
         EndianSlice {
             slice: <span class="kw-2">&amp;</span><span class="self">self</span>.slice[idx],
             endian: <span class="self">self</span>.endian,
@@ -520,7 +521,7 @@
     /// assert_eq!(endian_slice.range_to(..3),
     ///            EndianSlice::new(&amp;slice[..3], LittleEndian));
     /// ```
-    </span><span class="kw">pub fn </span>range_to(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: RangeTo&lt;usize&gt;) -&gt; EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt; {
+    </span><span class="kw">pub fn </span>range_to(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: RangeTo&lt;usize&gt;) -&gt; EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt; {
         EndianSlice {
             slice: <span class="kw-2">&amp;</span><span class="self">self</span>.slice[idx],
             endian: <span class="self">self</span>.endian,
@@ -528,7 +529,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, Endian&gt; Deref <span class="kw">for </span>EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>, Endian&gt; Deref <span class="kw">for </span>EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;
 <span class="kw">where
     </span>Endian: Endianity,
 {
@@ -538,19 +539,19 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, Endian: Endianity&gt; fmt::Debug <span class="kw">for </span>EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::result::Result&lt;(), fmt::Error&gt; {
-        fmt.debug_tuple(<span class="string">&quot;EndianSlice&quot;</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>, Endian: Endianity&gt; fmt::Debug <span class="kw">for </span>EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::result::Result&lt;(), fmt::Error&gt; {
+        fmt.debug_tuple(<span class="string">"EndianSlice"</span>)
             .field(<span class="kw-2">&amp;</span><span class="self">self</span>.endian)
             .field(<span class="kw-2">&amp;</span>DebugBytes(<span class="self">self</span>.slice))
             .finish()
     }
 }
 
-<span class="kw">struct </span>DebugBytes&lt;<span class="lifetime">&#39;input</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;input </span>[u8]);
+<span class="kw">struct </span>DebugBytes&lt;<span class="lifetime">'input</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'input </span>[u8]);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>&gt; core::fmt::Debug <span class="kw">for </span>DebugBytes&lt;<span class="lifetime">&#39;input</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::result::Result&lt;(), fmt::Error&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>&gt; core::fmt::Debug <span class="kw">for </span>DebugBytes&lt;<span class="lifetime">'input</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::result::Result&lt;(), fmt::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>list = fmt.debug_list();
         list.entries(<span class="self">self</span>.<span class="number">0</span>.iter().take(<span class="number">8</span>).copied().map(DebugByte));
         <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.len() &gt; <span class="number">8 </span>{
@@ -563,20 +564,20 @@
 <span class="kw">struct </span>DebugByte(u8);
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>DebugByte {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(fmt, <span class="string">&quot;0x{:02x}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(fmt, <span class="string">"0x{:02x}"</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
 <span class="kw">struct </span>DebugLen(usize);
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>DebugLen {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(fmt, <span class="string">&quot;...; {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(fmt, <span class="string">"...; {}"</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, Endian&gt; Reader <span class="kw">for </span>EndianSlice&lt;<span class="lifetime">&#39;input</span>, Endian&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>, Endian&gt; Reader <span class="kw">for </span>EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;
 <span class="kw">where
     </span>Endian: Endianity,
 {
@@ -657,18 +658,18 @@
         <span class="prelude-val">Ok</span>(EndianSlice::new(slice, <span class="self">self</span>.endian))
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;read&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"read"</span>))]
     </span><span class="kw">fn </span>cannot_implement() -&gt; <span class="kw">super</span>::reader::seal_if_no_alloc::Sealed {
         <span class="kw">super</span>::reader::seal_if_no_alloc::Sealed
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
     #[inline]
     </span><span class="kw">fn </span>to_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;[u8]&gt;&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.slice.into())
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
     #[inline]
     </span><span class="kw">fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;str&gt;&gt; {
         <span class="kw">match </span>str::from_utf8(<span class="self">self</span>.slice) {
@@ -677,7 +678,7 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
     #[inline]
     </span><span class="kw">fn </span>to_string_lossy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;str&gt;&gt; {
         <span class="prelude-val">Ok</span>(String::from_utf8_lossy(<span class="self">self</span>.slice))

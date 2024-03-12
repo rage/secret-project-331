@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atoi-2.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="atoi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atoi-2.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="atoi" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -719,7 +720,7 @@
 
 <span class="doccomment">/// Parses an integer from a slice.
 ///
-/// Contrary to its &#39;C&#39; counterpart atoi is generic and will require a type argument if the type
+/// Contrary to its 'C' counterpart atoi is generic and will require a type argument if the type
 /// inference can not determine its result. It will also check for overflow / underflow and allow
 /// for Signs.
 ///
@@ -731,20 +732,20 @@
 /// ```
 /// use atoi::atoi;
 /// // Parsing to digits from a slice
-/// assert_eq!(Some(42), atoi::&lt;u32&gt;(b&quot;42&quot;));
+/// assert_eq!(Some(42), atoi::&lt;u32&gt;(b"42"));
 /// // Additional bytes after the number are ignored. If you want to know how many bytes were used
 /// // to parse the number use `FromRadix10::from_radix_10`.
-/// assert_eq!(Some(42), atoi::&lt;u32&gt;(b&quot;42 is the answer to life, the universe and everything&quot;));
+/// assert_eq!(Some(42), atoi::&lt;u32&gt;(b"42 is the answer to life, the universe and everything"));
 /// // `None` is returned if the slice does not start with a digit
-/// assert_eq!(None, atoi::&lt;u32&gt;(b&quot;Sadly we do not know the question&quot;));
+/// assert_eq!(None, atoi::&lt;u32&gt;(b"Sadly we do not know the question"));
 /// // While signed integer types are supported...
-/// assert_eq!(Some(42), atoi::&lt;i32&gt;(b&quot;42&quot;));
+/// assert_eq!(Some(42), atoi::&lt;i32&gt;(b"42"));
 /// // Signs are allowed.
-/// assert_eq!(Some(-42), atoi::&lt;i32&gt;(b&quot;-42&quot;));
+/// assert_eq!(Some(-42), atoi::&lt;i32&gt;(b"-42"));
 /// // Leading zeros are allowed
-/// assert_eq!(Some(42), atoi::&lt;u32&gt;(b&quot;0042&quot;));
+/// assert_eq!(Some(42), atoi::&lt;u32&gt;(b"0042"));
 /// // Overflows will return `None`
-/// assert_eq!(None, atoi::&lt;u8&gt;(b&quot;256&quot;));
+/// assert_eq!(None, atoi::&lt;u8&gt;(b"256"));
 /// ```
 ///
 /// # Return
@@ -769,17 +770,17 @@
     /// ```
     /// use atoi::FromRadix10;
     /// // Parsing to digits from a slice
-    /// assert_eq!((42,2), u32::from_radix_10(b&quot;42&quot;));
+    /// assert_eq!((42,2), u32::from_radix_10(b"42"));
     /// // Additional bytes after the number are ignored
-    /// assert_eq!((42,2), u32::from_radix_10(b&quot;42 is the answer to life, the universe and everything&quot;));
+    /// assert_eq!((42,2), u32::from_radix_10(b"42 is the answer to life, the universe and everything"));
     /// // (0,0) is returned if the slice does not start with a digit
-    /// assert_eq!((0,0), u32::from_radix_10(b&quot;Sadly we do not know the question&quot;));
+    /// assert_eq!((0,0), u32::from_radix_10(b"Sadly we do not know the question"));
     /// // While signed integer types are supported...
-    /// assert_eq!((42,2), i32::from_radix_10(b&quot;42&quot;));
+    /// assert_eq!((42,2), i32::from_radix_10(b"42"));
     /// // Signs are not allowed (even for signed integer types)
-    /// assert_eq!((0,0), i32::from_radix_10(b&quot;-42&quot;));
+    /// assert_eq!((0,0), i32::from_radix_10(b"-42"));
     /// // Leading zeros are allowed
-    /// assert_eq!((42,4), u32::from_radix_10(b&quot;0042&quot;));
+    /// assert_eq!((42,4), u32::from_radix_10(b"0042"));
     /// ```
     ///
     /// # Return
@@ -800,19 +801,19 @@
     /// ```
     /// use atoi::FromRadix10Checked;
     /// // Parsing to digits from a slice
-    /// assert_eq!((Some(42),2), u32::from_radix_10_checked(b&quot;42&quot;));
+    /// assert_eq!((Some(42),2), u32::from_radix_10_checked(b"42"));
     /// // Additional bytes after the number are ignored
-    /// assert_eq!((Some(42),2), u32::from_radix_10_checked(b&quot;42 is the answer to life, the universe and everything&quot;));
+    /// assert_eq!((Some(42),2), u32::from_radix_10_checked(b"42 is the answer to life, the universe and everything"));
     /// // (0,0) is returned if the slice does not start with a digit
-    /// assert_eq!((Some(0),0), u32::from_radix_10_checked(b&quot;Sadly we do not know the question&quot;));
+    /// assert_eq!((Some(0),0), u32::from_radix_10_checked(b"Sadly we do not know the question"));
     /// // While signed integer types are supported...
-    /// assert_eq!((Some(42),2), i32::from_radix_10_checked(b&quot;42&quot;));
+    /// assert_eq!((Some(42),2), i32::from_radix_10_checked(b"42"));
     /// // Signs are not allowed (even for signed integer types)
-    /// assert_eq!((Some(0),0), i32::from_radix_10_checked(b&quot;-42&quot;));
+    /// assert_eq!((Some(0),0), i32::from_radix_10_checked(b"-42"));
     /// // Leading zeros are allowed
-    /// assert_eq!((Some(42),4), u32::from_radix_10_checked(b&quot;0042&quot;));
+    /// assert_eq!((Some(42),4), u32::from_radix_10_checked(b"0042"));
     /// // Overflow is indicated by `None`
-    /// assert_eq!((None, 3), u8::from_radix_10_checked(b&quot;256&quot;));
+    /// assert_eq!((None, 3), u8::from_radix_10_checked(b"256"));
     /// ```
     ///
     /// # Return
@@ -833,19 +834,19 @@
     /// ```
     /// use atoi::FromRadix16;
     /// // Parsing to digits from a slice
-    /// assert_eq!((42,2), u32::from_radix_16(b&quot;2a&quot;));
+    /// assert_eq!((42,2), u32::from_radix_16(b"2a"));
     /// // Additional bytes after the number are ignored
-    /// assert_eq!((42,2), u32::from_radix_16(b&quot;2a is the answer to life, the universe and everything&quot;));
+    /// assert_eq!((42,2), u32::from_radix_16(b"2a is the answer to life, the universe and everything"));
     /// // (0,0) is returned if the slice does not start with a digit
-    /// assert_eq!((0,0), u32::from_radix_16(b&quot;Sadly we do not know the question&quot;));
+    /// assert_eq!((0,0), u32::from_radix_16(b"Sadly we do not know the question"));
     /// // While signed integer types are supported...
-    /// assert_eq!((42,2), i32::from_radix_16(b&quot;2a&quot;));
+    /// assert_eq!((42,2), i32::from_radix_16(b"2a"));
     /// // Signs are not allowed (even for signed integer types)
-    /// assert_eq!((0,0), i32::from_radix_16(b&quot;-2a&quot;));
+    /// assert_eq!((0,0), i32::from_radix_16(b"-2a"));
     /// // Leading zeros are allowed
-    /// assert_eq!((42,4), u32::from_radix_16(b&quot;002a&quot;));
+    /// assert_eq!((42,4), u32::from_radix_16(b"002a"));
     /// // so are uppercase letters
-    /// assert_eq!((42,4), u32::from_radix_16(b&quot;002A&quot;));
+    /// assert_eq!((42,4), u32::from_radix_16(b"002A"));
     /// ```
     ///
     /// # Return
@@ -866,20 +867,20 @@
     /// ```
     /// use atoi::FromRadix16Checked;
     /// // Parsing to digits from a slice
-    /// assert_eq!((Some(42),2), u32::from_radix_16_checked(b&quot;2a&quot;));
+    /// assert_eq!((Some(42),2), u32::from_radix_16_checked(b"2a"));
     /// // Additional bytes after the number are ignored
-    /// assert_eq!((Some(42),2), u32::from_radix_16_checked(b&quot;2a is the answer to life, the \
-    /// universe and everything&quot;));
+    /// assert_eq!((Some(42),2), u32::from_radix_16_checked(b"2a is the answer to life, the \
+    /// universe and everything"));
     /// // (0,0) is returned if the slice does not start with a digit
-    /// assert_eq!((Some(0),0), u32::from_radix_16_checked(b&quot;Sadly we do not know the question&quot;));
+    /// assert_eq!((Some(0),0), u32::from_radix_16_checked(b"Sadly we do not know the question"));
     /// // While signed integer types are supported...
-    /// assert_eq!((Some(42),2), i32::from_radix_16_checked(b&quot;2a&quot;));
+    /// assert_eq!((Some(42),2), i32::from_radix_16_checked(b"2a"));
     /// // Signs are not allowed (even for signed integer types)
-    /// assert_eq!((Some(0),0), i32::from_radix_16_checked(b&quot;-2a&quot;));
+    /// assert_eq!((Some(0),0), i32::from_radix_16_checked(b"-2a"));
     /// // Leading zeros are allowed
-    /// assert_eq!((Some(42),4), u32::from_radix_16_checked(b&quot;002a&quot;));
+    /// assert_eq!((Some(42),4), u32::from_radix_16_checked(b"002a"));
     /// // So are uppercase letters
-    /// assert_eq!((Some(42),2), u32::from_radix_16_checked(b&quot;2A&quot;))
+    /// assert_eq!((Some(42),2), u32::from_radix_16_checked(b"2A"))
     /// ```
     ///
     /// # Return
@@ -902,19 +903,19 @@
     /// ```
     /// use atoi::FromRadix10Signed;
     /// // Parsing to digits from a slice
-    /// assert_eq!((42,2), i32::from_radix_10_signed(b&quot;42&quot;));
+    /// assert_eq!((42,2), i32::from_radix_10_signed(b"42"));
     /// // Additional bytes after the number are ignored
-    /// assert_eq!((42,2), i32::from_radix_10_signed(b&quot;42 is the answer to life, the universe and everything&quot;));
+    /// assert_eq!((42,2), i32::from_radix_10_signed(b"42 is the answer to life, the universe and everything"));
     /// // (0,0) is returned if the slice does not start with a digit
-    /// assert_eq!((0,0), i32::from_radix_10_signed(b&quot;Sadly we do not know the question&quot;));
+    /// assert_eq!((0,0), i32::from_radix_10_signed(b"Sadly we do not know the question"));
     /// // Signs are allowed
-    /// assert_eq!((-42,3), i32::from_radix_10_signed(b&quot;-42&quot;));
+    /// assert_eq!((-42,3), i32::from_radix_10_signed(b"-42"));
     /// // Signs are allowed
-    /// assert_eq!((42,3), i32::from_radix_10_signed(b&quot;+42&quot;));
+    /// assert_eq!((42,3), i32::from_radix_10_signed(b"+42"));
     /// // Even on unsigned types.
-    /// assert_eq!((0,2), u32::from_radix_10_signed(b&quot;-0&quot;));
+    /// assert_eq!((0,2), u32::from_radix_10_signed(b"-0"));
     /// // Leading zeros are allowed
-    /// assert_eq!((42,4), i32::from_radix_10_signed(b&quot;0042&quot;));
+    /// assert_eq!((42,4), i32::from_radix_10_signed(b"0042"));
     /// ```
     ///
     /// # Return
@@ -935,27 +936,27 @@
     /// ```
     /// use atoi::FromRadix10SignedChecked;
     /// // Parsing to digits from a slice
-    /// assert_eq!((Some(42),2), u32::from_radix_10_signed_checked(b&quot;42&quot;));
+    /// assert_eq!((Some(42),2), u32::from_radix_10_signed_checked(b"42"));
     /// // Additional bytes after the number are ignored
-    /// assert_eq!((Some(42),2), u32::from_radix_10_signed_checked(b&quot;42 is the answer to life, the universe and everything&quot;));
+    /// assert_eq!((Some(42),2), u32::from_radix_10_signed_checked(b"42 is the answer to life, the universe and everything"));
     /// // (0,0) is returned if the slice does not start with a digit
-    /// assert_eq!((Some(0),0), u32::from_radix_10_signed_checked(b&quot;Sadly we do not know the question&quot;));
+    /// assert_eq!((Some(0),0), u32::from_radix_10_signed_checked(b"Sadly we do not know the question"));
     /// // While signed integer types are supported...
-    /// assert_eq!((Some(42),2), i32::from_radix_10_signed_checked(b&quot;42&quot;));
+    /// assert_eq!((Some(42),2), i32::from_radix_10_signed_checked(b"42"));
     /// // Signs are allowed
-    /// assert_eq!((Some(-42),3), i32::from_radix_10_signed_checked(b&quot;-42&quot;));
+    /// assert_eq!((Some(-42),3), i32::from_radix_10_signed_checked(b"-42"));
     /// // -0 is ok, even for an unsigned type
-    /// assert_eq!((Some(0),2), u32::from_radix_10_signed_checked(b&quot;-0&quot;));
+    /// assert_eq!((Some(0),2), u32::from_radix_10_signed_checked(b"-0"));
     /// // -1 is an Underflow
-    /// assert_eq!((None,2), u32::from_radix_10_signed_checked(b&quot;-1&quot;));
+    /// assert_eq!((None,2), u32::from_radix_10_signed_checked(b"-1"));
     /// // Negative values for unsigned types are handled as `None`.
-    /// assert_eq!((None,3), u32::from_radix_10_signed_checked(b&quot;-42&quot;));
+    /// assert_eq!((None,3), u32::from_radix_10_signed_checked(b"-42"));
     /// // Leading zeros are allowed
-    /// assert_eq!((Some(42),4), u32::from_radix_10_signed_checked(b&quot;0042&quot;));
+    /// assert_eq!((Some(42),4), u32::from_radix_10_signed_checked(b"0042"));
     /// // Overflow is indicated by `None`
-    /// assert_eq!((None, 3), u8::from_radix_10_signed_checked(b&quot;256&quot;));
-    /// assert_eq!((None, 4), i8::from_radix_10_signed_checked(b&quot;+128&quot;));
-    /// assert_eq!((None, 4), i8::from_radix_10_signed_checked(b&quot;-129&quot;));
+    /// assert_eq!((None, 3), u8::from_radix_10_signed_checked(b"256"));
+    /// assert_eq!((None, 4), i8::from_radix_10_signed_checked(b"+128"));
+    /// assert_eq!((None, 4), i8::from_radix_10_signed_checked(b"-129"));
     /// ```
     ///
     /// # Return
@@ -1014,24 +1015,24 @@
 ///
 /// ```
 /// use atoi::ascii_to_digit;
-/// assert_eq!(Some(5), ascii_to_digit(b&#39;5&#39;));
-/// assert_eq!(None, ascii_to_digit::&lt;u32&gt;(b&#39;x&#39;));
+/// assert_eq!(Some(5), ascii_to_digit(b'5'));
+/// assert_eq!(None, ascii_to_digit::&lt;u32&gt;(b'x'));
 /// ```
 </span><span class="kw">pub fn </span>ascii_to_digit&lt;I&gt;(character: u8) -&gt; <span class="prelude-ty">Option</span>&lt;I&gt;
 <span class="kw">where
     </span>I: Zero + One,
 {
     <span class="kw">match </span>character {
-        <span class="string">b&#39;0&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">0</span>)),
-        <span class="string">b&#39;1&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">1</span>)),
-        <span class="string">b&#39;2&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">2</span>)),
-        <span class="string">b&#39;3&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">3</span>)),
-        <span class="string">b&#39;4&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">4</span>)),
-        <span class="string">b&#39;5&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">5</span>)),
-        <span class="string">b&#39;6&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">6</span>)),
-        <span class="string">b&#39;7&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">7</span>)),
-        <span class="string">b&#39;8&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">8</span>)),
-        <span class="string">b&#39;9&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">9</span>)),
+        <span class="string">b'0' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">0</span>)),
+        <span class="string">b'1' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">1</span>)),
+        <span class="string">b'2' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">2</span>)),
+        <span class="string">b'3' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">3</span>)),
+        <span class="string">b'4' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">4</span>)),
+        <span class="string">b'5' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">5</span>)),
+        <span class="string">b'6' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">6</span>)),
+        <span class="string">b'7' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">7</span>)),
+        <span class="string">b'8' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">8</span>)),
+        <span class="string">b'9' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">9</span>)),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
 }
@@ -1216,22 +1217,22 @@
     </span>I: Zero + One,
 {
     <span class="kw">match </span>character {
-        <span class="string">b&#39;0&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">0</span>)),
-        <span class="string">b&#39;1&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">1</span>)),
-        <span class="string">b&#39;2&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">2</span>)),
-        <span class="string">b&#39;3&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">3</span>)),
-        <span class="string">b&#39;4&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">4</span>)),
-        <span class="string">b&#39;5&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">5</span>)),
-        <span class="string">b&#39;6&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">6</span>)),
-        <span class="string">b&#39;7&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">7</span>)),
-        <span class="string">b&#39;8&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">8</span>)),
-        <span class="string">b&#39;9&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">9</span>)),
-        <span class="string">b&#39;a&#39; </span>| <span class="string">b&#39;A&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">10</span>)),
-        <span class="string">b&#39;b&#39; </span>| <span class="string">b&#39;B&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">11</span>)),
-        <span class="string">b&#39;c&#39; </span>| <span class="string">b&#39;C&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">12</span>)),
-        <span class="string">b&#39;d&#39; </span>| <span class="string">b&#39;D&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">13</span>)),
-        <span class="string">b&#39;e&#39; </span>| <span class="string">b&#39;E&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">14</span>)),
-        <span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;F&#39; </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">15</span>)),
+        <span class="string">b'0' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">0</span>)),
+        <span class="string">b'1' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">1</span>)),
+        <span class="string">b'2' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">2</span>)),
+        <span class="string">b'3' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">3</span>)),
+        <span class="string">b'4' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">4</span>)),
+        <span class="string">b'5' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">5</span>)),
+        <span class="string">b'6' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">6</span>)),
+        <span class="string">b'7' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">7</span>)),
+        <span class="string">b'8' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">8</span>)),
+        <span class="string">b'9' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">9</span>)),
+        <span class="string">b'a' </span>| <span class="string">b'A' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">10</span>)),
+        <span class="string">b'b' </span>| <span class="string">b'B' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">11</span>)),
+        <span class="string">b'c' </span>| <span class="string">b'C' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">12</span>)),
+        <span class="string">b'd' </span>| <span class="string">b'D' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">13</span>)),
+        <span class="string">b'e' </span>| <span class="string">b'E' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">14</span>)),
+        <span class="string">b'f' </span>| <span class="string">b'F' </span>=&gt; <span class="prelude-val">Some</span>(nth(<span class="number">15</span>)),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
 }
@@ -1292,14 +1293,14 @@
     ///
     /// ```
     /// use atoi::Sign;
-    /// assert_eq!(Some(Sign::Plus), Sign::try_from(b&#39;+&#39;));
-    /// assert_eq!(Some(Sign::Minus), Sign::try_from(b&#39;-&#39;));
-    /// assert_eq!(None, Sign::try_from(b&#39;1&#39;));
+    /// assert_eq!(Some(Sign::Plus), Sign::try_from(b'+'));
+    /// assert_eq!(Some(Sign::Minus), Sign::try_from(b'-'));
+    /// assert_eq!(None, Sign::try_from(b'1'));
     /// ```
     </span><span class="kw">pub fn </span>try_from(byte: u8) -&gt; <span class="prelude-ty">Option</span>&lt;Sign&gt; {
         <span class="kw">match </span>byte {
-            <span class="string">b&#39;+&#39; </span>=&gt; <span class="prelude-val">Some</span>(Sign::Plus),
-            <span class="string">b&#39;-&#39; </span>=&gt; <span class="prelude-val">Some</span>(Sign::Minus),
+            <span class="string">b'+' </span>=&gt; <span class="prelude-val">Some</span>(Sign::Plus),
+            <span class="string">b'-' </span>=&gt; <span class="prelude-val">Some</span>(Sign::Minus),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
@@ -1356,20 +1357,20 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>checked_parsing() {
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">255</span>), <span class="number">3</span>), u8::from_radix_10_checked(<span class="string">b&quot;255&quot;</span>));
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">None</span>, <span class="number">3</span>), u8::from_radix_10_checked(<span class="string">b&quot;256&quot;</span>));
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">None</span>, <span class="number">4</span>), u8::from_radix_10_checked(<span class="string">b&quot;1000&quot;</span>));
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">25</span>), <span class="number">2</span>), u8::from_radix_10_checked(<span class="string">b&quot;25&quot;</span>));
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">25</span>), <span class="number">2</span>), u8::from_radix_10_checked(<span class="string">b&quot;25Blub&quot;</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">255</span>), <span class="number">3</span>), u8::from_radix_10_checked(<span class="string">b"255"</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">None</span>, <span class="number">3</span>), u8::from_radix_10_checked(<span class="string">b"256"</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">None</span>, <span class="number">4</span>), u8::from_radix_10_checked(<span class="string">b"1000"</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">25</span>), <span class="number">2</span>), u8::from_radix_10_checked(<span class="string">b"25"</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">25</span>), <span class="number">2</span>), u8::from_radix_10_checked(<span class="string">b"25Blub"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>checked_parsing_radix_16() {
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">255</span>), <span class="number">2</span>), u8::from_radix_16_checked(<span class="string">b&quot;FF&quot;</span>));
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">None</span>, <span class="number">3</span>), u8::from_radix_16_checked(<span class="string">b&quot;100&quot;</span>));
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">None</span>, <span class="number">4</span>), u8::from_radix_16_checked(<span class="string">b&quot;1000&quot;</span>));
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">25</span>), <span class="number">2</span>), u8::from_radix_16_checked(<span class="string">b&quot;19&quot;</span>));
-        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">25</span>), <span class="number">2</span>), u8::from_radix_16_checked(<span class="string">b&quot;19!Blub&quot;</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">255</span>), <span class="number">2</span>), u8::from_radix_16_checked(<span class="string">b"FF"</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">None</span>, <span class="number">3</span>), u8::from_radix_16_checked(<span class="string">b"100"</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">None</span>, <span class="number">4</span>), u8::from_radix_16_checked(<span class="string">b"1000"</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">25</span>), <span class="number">2</span>), u8::from_radix_16_checked(<span class="string">b"19"</span>));
+        <span class="macro">assert_eq!</span>((<span class="prelude-val">Some</span>(<span class="number">25</span>), <span class="number">2</span>), u8::from_radix_16_checked(<span class="string">b"19!Blub"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

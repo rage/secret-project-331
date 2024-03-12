@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/parser/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/parser/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -252,7 +253,7 @@
 </span><span class="kw">const fn </span>is_separator(slice: <span class="kw-2">&amp;</span>[u8], idx: usize) -&gt; bool {
     <span class="attr">#[allow(clippy::indexing_slicing)]
     </span><span class="kw">let </span>b = slice[idx];
-    b == <span class="string">b&#39;-&#39; </span>|| b == <span class="string">b&#39;_&#39;
+    b == <span class="string">b'-' </span>|| b == <span class="string">b'_'
 </span>}
 
 <span class="kw">const fn </span>get_current_subtag(slice: <span class="kw-2">&amp;</span>[u8], idx: usize) -&gt; (usize, usize) {
@@ -260,10 +261,10 @@
 
     <span class="comment">// This function is called only on the idx == 0 or on a separator.
     </span><span class="kw">let </span>(start, <span class="kw-2">mut </span>end) = <span class="kw">if </span>is_separator(slice, idx) {
-        <span class="comment">// If it&#39;s a separator, set the start to idx+1 and advance the idx to the next char.
+        <span class="comment">// If it's a separator, set the start to idx+1 and advance the idx to the next char.
         </span>(idx + <span class="number">1</span>, idx + <span class="number">1</span>)
     } <span class="kw">else </span>{
-        <span class="comment">// If it&#39;s idx=0, start is 0 and end is set to 1
+        <span class="comment">// If it's idx=0, start is 0 and end is set to 1
         </span><span class="macro">debug_assert!</span>(idx == <span class="number">0</span>);
         (<span class="number">0</span>, <span class="number">1</span>)
     };
@@ -272,7 +273,7 @@
         <span class="comment">// Advance until we reach end of slice or a separator.
         </span>end += <span class="number">1</span>;
     }
-    <span class="comment">// Notice: this slice may be empty (start == end) for cases like `&quot;en-&quot;` or `&quot;en--US&quot;`
+    <span class="comment">// Notice: this slice may be empty (start == end) for cases like `"en-"` or `"en--US"`
     </span>(start, end)
 }
 
@@ -281,26 +282,26 @@
 // It is quite extraordinary due to focus on performance and Rust limitations for `const`
 // functions.
 //
-// The iterator is eager and fallible allowing it to reject invalid slices such as `&quot;-&quot;`, `&quot;-en&quot;`,
-// `&quot;en-&quot;` etc.
+// The iterator is eager and fallible allowing it to reject invalid slices such as `"-"`, `"-en"`,
+// `"en-"` etc.
 //
 // The iterator provides methods available for static users - `next_manual` and `peek_manual`,
 // as well as typical `Peekable` iterator APIs - `next` and `peek`.
 //
 // All methods return an `Option` of a `Result`.
 </span><span class="attr">#[derive(Copy, Clone, Debug)]
-</span><span class="kw">pub struct </span>SubtagIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+</span><span class="kw">pub struct </span>SubtagIterator&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub </span>slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
     done: bool,
     <span class="comment">// done + subtag is faster than Option&lt;(usize, usize)&gt;
     // at the time of writing.
     </span>subtag: (usize, usize),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SubtagIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub const fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SubtagIterator&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub const fn </span>new(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>subtag = <span class="kw">if </span>slice.is_empty() || is_separator(slice, <span class="number">0</span>) {
-            <span class="comment">// This returns (0, 0) which returns Some(b&quot;&quot;) for slices like `&quot;-en&quot;` or `&quot;-&quot;`
+            <span class="comment">// This returns (0, 0) which returns Some(b"") for slices like `"-en"` or `"-"`
             </span>(<span class="number">0</span>, <span class="number">0</span>)
         } <span class="kw">else </span>{
             get_current_subtag(slice, <span class="number">0</span>)
@@ -332,14 +333,14 @@
         <span class="prelude-val">Some</span>(<span class="self">self</span>.subtag)
     }
 
-    <span class="kw">pub fn </span>peek(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+    <span class="kw">pub fn </span>peek(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
         <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// peek_manual returns valid indices
         </span><span class="self">self</span>.peek_manual().map(|(s, e)| <span class="kw-2">&amp;</span><span class="self">self</span>.slice[s..e])
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>SubtagIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8];
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>SubtagIterator&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8];
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let </span>(s, res) = <span class="self">self</span>.next_manual();
@@ -359,86 +360,86 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>subtag_iterator_peek_test() {
-        <span class="kw">let </span>slice = <span class="string">&quot;de_at-u-ca-foobar&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"de_at-u-ca-foobar"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>si = SubtagIterator::new(slice.as_bytes());
 
-        <span class="macro">assert_eq!</span>(si.peek().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;de&quot;</span>));
-        <span class="macro">assert_eq!</span>(si.peek().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;de&quot;</span>));
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;de&quot;</span>));
+        <span class="macro">assert_eq!</span>(si.peek().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">"de"</span>));
+        <span class="macro">assert_eq!</span>(si.peek().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">"de"</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">"de"</span>));
 
-        <span class="macro">assert_eq!</span>(si.peek().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;at&quot;</span>));
-        <span class="macro">assert_eq!</span>(si.peek().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;at&quot;</span>));
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;at&quot;</span>));
+        <span class="macro">assert_eq!</span>(si.peek().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">"at"</span>));
+        <span class="macro">assert_eq!</span>(si.peek().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">"at"</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">"at"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>subtag_iterator_test() {
-        <span class="kw">let </span>slice = <span class="string">&quot;&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">""</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>si = SubtagIterator::new(slice.as_bytes());
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">""</span>));
 
-        <span class="kw">let </span>slice = <span class="string">&quot;-&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"-"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>si = SubtagIterator::new(slice.as_bytes());
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">""</span>));
 
-        <span class="kw">let </span>slice = <span class="string">&quot;-en&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"-en"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>si = SubtagIterator::new(slice.as_bytes());
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;en&quot;</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">""</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">"en"</span>));
         <span class="macro">assert_eq!</span>(si.next(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>slice = <span class="string">&quot;en&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"en"</span>;
         <span class="kw">let </span>si = SubtagIterator::new(slice.as_bytes());
-        <span class="macro">assert_eq!</span>(si.map(slice_to_str).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(), <span class="macro">vec!</span>[<span class="string">&quot;en&quot;</span>,]);
+        <span class="macro">assert_eq!</span>(si.map(slice_to_str).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(), <span class="macro">vec!</span>[<span class="string">"en"</span>,]);
 
-        <span class="kw">let </span>slice = <span class="string">&quot;en-&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"en-"</span>;
         <span class="kw">let </span>si = SubtagIterator::new(slice.as_bytes());
-        <span class="macro">assert_eq!</span>(si.map(slice_to_str).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(), <span class="macro">vec!</span>[<span class="string">&quot;en&quot;</span>, <span class="string">&quot;&quot;</span>,]);
+        <span class="macro">assert_eq!</span>(si.map(slice_to_str).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(), <span class="macro">vec!</span>[<span class="string">"en"</span>, <span class="string">""</span>,]);
 
-        <span class="kw">let </span>slice = <span class="string">&quot;--&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"--"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>si = SubtagIterator::new(slice.as_bytes());
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">""</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">""</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">""</span>));
         <span class="macro">assert_eq!</span>(si.next(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>slice = <span class="string">&quot;-en-&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"-en-"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>si = SubtagIterator::new(slice.as_bytes());
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;en&quot;</span>));
-        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">""</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">"en"</span>));
+        <span class="macro">assert_eq!</span>(si.next().map(slice_to_str), <span class="prelude-val">Some</span>(<span class="string">""</span>));
         <span class="macro">assert_eq!</span>(si.next(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>slice = <span class="string">&quot;de_at-u-ca-foobar&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"de_at-u-ca-foobar"</span>;
         <span class="kw">let </span>si = SubtagIterator::new(slice.as_bytes());
         <span class="macro">assert_eq!</span>(
             si.map(slice_to_str).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
-            <span class="macro">vec!</span>[<span class="string">&quot;de&quot;</span>, <span class="string">&quot;at&quot;</span>, <span class="string">&quot;u&quot;</span>, <span class="string">&quot;ca&quot;</span>, <span class="string">&quot;foobar&quot;</span>,]
+            <span class="macro">vec!</span>[<span class="string">"de"</span>, <span class="string">"at"</span>, <span class="string">"u"</span>, <span class="string">"ca"</span>, <span class="string">"foobar"</span>,]
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>get_current_subtag_test() {
-        <span class="kw">let </span>slice = <span class="string">&quot;-&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"-"</span>;
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">1</span>, <span class="number">1</span>));
 
-        <span class="kw">let </span>slice = <span class="string">&quot;-en&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"-en"</span>;
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">1</span>, <span class="number">3</span>));
 
-        <span class="kw">let </span>slice = <span class="string">&quot;-en-&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"-en-"</span>;
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">3</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">4</span>, <span class="number">4</span>));
 
-        <span class="kw">let </span>slice = <span class="string">&quot;en-&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"en-"</span>;
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">0</span>, <span class="number">2</span>));
 
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">2</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">3</span>, <span class="number">3</span>));
 
-        <span class="kw">let </span>slice = <span class="string">&quot;en--US&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"en--US"</span>;
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">0</span>, <span class="number">2</span>));
 
@@ -448,14 +449,14 @@
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">3</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">4</span>, <span class="number">6</span>));
 
-        <span class="kw">let </span>slice = <span class="string">&quot;--&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"--"</span>;
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">1</span>, <span class="number">1</span>));
 
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">2</span>, <span class="number">2</span>));
 
-        <span class="kw">let </span>slice = <span class="string">&quot;-&quot;</span>;
+        <span class="kw">let </span>slice = <span class="string">"-"</span>;
         <span class="kw">let </span>current = get_current_subtag(slice.as_bytes(), <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(current, (<span class="number">1</span>, <span class="number">1</span>));
     }

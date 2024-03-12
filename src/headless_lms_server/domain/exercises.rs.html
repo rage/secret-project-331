@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/exercises.rs`."><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/exercises.rs`."><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -232,7 +233,7 @@
     </span>.ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::Unauthorized,
-            <span class="string">&quot;Missing exercise state.&quot;</span>.to_string(),
+            <span class="string">"Missing exercise state."</span>.to_string(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
@@ -249,7 +250,7 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">if </span>exercise_with_user_state.is_exam_exercise() {
-        <span class="comment">// If exam, we don&#39;t want to expose model any grading details.
+        <span class="comment">// If exam, we don't want to expose model any grading details.
         </span>result.clear_grading_information();
     }
 
@@ -270,7 +271,7 @@
     <span class="prelude-val">Ok</span>(result)
 }
 
-<span class="doccomment">/// Returns an error if the chapter&#39;s or exercise&#39;s deadline has passed.
+<span class="doccomment">/// Returns an error if the chapter's or exercise's deadline has passed.
 </span><span class="kw">async fn </span>enforce_deadline(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise: <span class="kw-2">&amp;</span>Exercise,
@@ -289,7 +290,7 @@
         <span class="kw">if </span>Utc::now() + Duration::seconds(<span class="number">1</span>) &gt;= deadline {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="string">&quot;Exercise deadline passed.&quot;</span>.to_string(),
+                <span class="string">"Exercise deadline passed."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
@@ -324,19 +325,19 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::Unauthorized,
-                <span class="string">&quot;User is not enrolled on this course.&quot;</span>.to_string(),
+                <span class="string">"User is not enrolled on this course."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ))
         }
     } <span class="kw">else if let </span><span class="prelude-val">Some</span>(exam_id) = exercise.exam_id {
-        <span class="comment">// If submitting for an exam, make sure that user&#39;s time is not up.
+        <span class="comment">// If submitting for an exam, make sure that user's time is not up.
         </span><span class="kw">if </span>models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).<span class="kw">await</span><span class="question-mark">? </span>{
             <span class="kw">let </span>token = authorize(conn, Act::View, <span class="prelude-val">Some</span>(user_id), Res::Exam(exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
             token.authorized_ok(CourseInstanceOrExamId::Exam(exam_id))
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::Unauthorized,
-                <span class="string">&quot;Submissions for this exam are no longer accepted.&quot;</span>.to_string(),
+                <span class="string">"Submissions for this exam are no longer accepted."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ))
         }
@@ -344,7 +345,7 @@
         <span class="comment">// On database level this scenario is impossible.
         </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::InternalServerError,
-            <span class="string">&quot;Exam doesn&#39;t belong to either a course nor exam.&quot;</span>.to_string(),
+            <span class="string">"Exam doesn't belong to either a course nor exam."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ))
     }<span class="question-mark">?
@@ -365,7 +366,7 @@
             <span class="kw">if </span>count &gt;= <span class="kw-2">&amp;</span>(max_tries_per_slide <span class="kw">as </span>i64) {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                     ControllerErrorType::BadRequest,
-                    <span class="string">&quot;You&#39;ve ran out of tries.&quot;</span>.to_string(),
+                    <span class="string">"You've ran out of tries."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 ));
             }

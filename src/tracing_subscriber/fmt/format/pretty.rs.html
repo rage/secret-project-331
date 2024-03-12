@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/format/pretty.rs`."><title>pretty.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/format/pretty.rs`."><title>pretty.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -522,7 +523,7 @@
     Event, Level, Subscriber,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;tracing-log&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"tracing-log"</span>)]
 </span><span class="kw">use </span>tracing_log::NormalizeEvent;
 
 <span class="kw">use </span>nu_ansi_term::{Color, Style};
@@ -535,89 +536,89 @@
 ///
 /// # Example Output
 ///
-/// &lt;pre&gt;&lt;font color=&quot;#4E9A06&quot;&gt;&lt;b&gt;:;&lt;/b&gt;&lt;/font&gt; &lt;font color=&quot;#4E9A06&quot;&gt;cargo&lt;/font&gt; run --example fmt-pretty
-/// &lt;font color=&quot;#4E9A06&quot;&gt;&lt;b&gt;    Finished&lt;/b&gt;&lt;/font&gt; dev [unoptimized + debuginfo] target(s) in 0.08s
-/// &lt;font color=&quot;#4E9A06&quot;&gt;&lt;b&gt;     Running&lt;/b&gt;&lt;/font&gt; `target/debug/examples/fmt-pretty`
-///   2022-02-15T18:44:24.535324Z &lt;font color=&quot;#4E9A06&quot;&gt; INFO&lt;/font&gt; &lt;font color=&quot;#4E9A06&quot;&gt;&lt;b&gt;fmt_pretty&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#4E9A06&quot;&gt;: preparing to shave yaks, &lt;/font&gt;&lt;font color=&quot;#4E9A06&quot;&gt;&lt;b&gt;number_of_yaks&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#4E9A06&quot;&gt;: 3&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt-pretty.rs:16 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+/// &lt;pre&gt;&lt;font color="#4E9A06"&gt;&lt;b&gt;:;&lt;/b&gt;&lt;/font&gt; &lt;font color="#4E9A06"&gt;cargo&lt;/font&gt; run --example fmt-pretty
+/// &lt;font color="#4E9A06"&gt;&lt;b&gt;    Finished&lt;/b&gt;&lt;/font&gt; dev [unoptimized + debuginfo] target(s) in 0.08s
+/// &lt;font color="#4E9A06"&gt;&lt;b&gt;     Running&lt;/b&gt;&lt;/font&gt; `target/debug/examples/fmt-pretty`
+///   2022-02-15T18:44:24.535324Z &lt;font color="#4E9A06"&gt; INFO&lt;/font&gt; &lt;font color="#4E9A06"&gt;&lt;b&gt;fmt_pretty&lt;/b&gt;&lt;/font&gt;&lt;font color="#4E9A06"&gt;: preparing to shave yaks, &lt;/font&gt;&lt;font color="#4E9A06"&gt;&lt;b&gt;number_of_yaks&lt;/b&gt;&lt;/font&gt;&lt;font color="#4E9A06"&gt;: 3&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt-pretty.rs:16 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
 ///
-///   2022-02-15T18:44:24.535403Z &lt;font color=&quot;#4E9A06&quot;&gt; INFO&lt;/font&gt; &lt;font color=&quot;#4E9A06&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#4E9A06&quot;&gt;: shaving yaks&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:41 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535403Z &lt;font color="#4E9A06"&gt; INFO&lt;/font&gt; &lt;font color="#4E9A06"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#4E9A06"&gt;: shaving yaks&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:41 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535442Z &lt;font color=&quot;#75507B&quot;&gt;TRACE&lt;/font&gt; &lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: hello! I&amp;apos;m gonna shave a yak, &lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;excitement&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: &amp;quot;yay!&amp;quot;&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:16 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 1
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535442Z &lt;font color="#75507B"&gt;TRACE&lt;/font&gt; &lt;font color="#75507B"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: hello! I&amp;apos;m gonna shave a yak, &lt;/font&gt;&lt;font color="#75507B"&gt;&lt;b&gt;excitement&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: &amp;quot;yay!&amp;quot;&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:16 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 1
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535469Z &lt;font color=&quot;#75507B&quot;&gt;TRACE&lt;/font&gt; &lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: yak shaved successfully&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:25 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 1
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535469Z &lt;font color="#75507B"&gt;TRACE&lt;/font&gt; &lt;font color="#75507B"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: yak shaved successfully&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:25 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 1
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535502Z &lt;font color=&quot;#3465A4&quot;&gt;DEBUG&lt;/font&gt; &lt;font color=&quot;#3465A4&quot;&gt;&lt;b&gt;yak_events&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;: &lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;&lt;b&gt;yak&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;: 1, &lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;&lt;b&gt;shaved&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;: true&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:46 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535502Z &lt;font color="#3465A4"&gt;DEBUG&lt;/font&gt; &lt;font color="#3465A4"&gt;&lt;b&gt;yak_events&lt;/b&gt;&lt;/font&gt;&lt;font color="#3465A4"&gt;: &lt;/font&gt;&lt;font color="#3465A4"&gt;&lt;b&gt;yak&lt;/b&gt;&lt;/font&gt;&lt;font color="#3465A4"&gt;: 1, &lt;/font&gt;&lt;font color="#3465A4"&gt;&lt;b&gt;shaved&lt;/b&gt;&lt;/font&gt;&lt;font color="#3465A4"&gt;: true&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:46 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535524Z &lt;font color=&quot;#75507B&quot;&gt;TRACE&lt;/font&gt; &lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: &lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;yaks_shaved&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: 1&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:55 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535524Z &lt;font color="#75507B"&gt;TRACE&lt;/font&gt; &lt;font color="#75507B"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: &lt;/font&gt;&lt;font color="#75507B"&gt;&lt;b&gt;yaks_shaved&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: 1&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:55 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535551Z &lt;font color=&quot;#75507B&quot;&gt;TRACE&lt;/font&gt; &lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: hello! I&amp;apos;m gonna shave a yak, &lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;excitement&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: &amp;quot;yay!&amp;quot;&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:16 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 2
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535551Z &lt;font color="#75507B"&gt;TRACE&lt;/font&gt; &lt;font color="#75507B"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: hello! I&amp;apos;m gonna shave a yak, &lt;/font&gt;&lt;font color="#75507B"&gt;&lt;b&gt;excitement&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: &amp;quot;yay!&amp;quot;&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:16 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 2
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535573Z &lt;font color=&quot;#75507B&quot;&gt;TRACE&lt;/font&gt; &lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: yak shaved successfully&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:25 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 2
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535573Z &lt;font color="#75507B"&gt;TRACE&lt;/font&gt; &lt;font color="#75507B"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: yak shaved successfully&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:25 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 2
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535600Z &lt;font color=&quot;#3465A4&quot;&gt;DEBUG&lt;/font&gt; &lt;font color=&quot;#3465A4&quot;&gt;&lt;b&gt;yak_events&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;: &lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;&lt;b&gt;yak&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;: 2, &lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;&lt;b&gt;shaved&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;: true&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:46 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535600Z &lt;font color="#3465A4"&gt;DEBUG&lt;/font&gt; &lt;font color="#3465A4"&gt;&lt;b&gt;yak_events&lt;/b&gt;&lt;/font&gt;&lt;font color="#3465A4"&gt;: &lt;/font&gt;&lt;font color="#3465A4"&gt;&lt;b&gt;yak&lt;/b&gt;&lt;/font&gt;&lt;font color="#3465A4"&gt;: 2, &lt;/font&gt;&lt;font color="#3465A4"&gt;&lt;b&gt;shaved&lt;/b&gt;&lt;/font&gt;&lt;font color="#3465A4"&gt;: true&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:46 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535618Z &lt;font color=&quot;#75507B&quot;&gt;TRACE&lt;/font&gt; &lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: &lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;yaks_shaved&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: 2&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:55 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535618Z &lt;font color="#75507B"&gt;TRACE&lt;/font&gt; &lt;font color="#75507B"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: &lt;/font&gt;&lt;font color="#75507B"&gt;&lt;b&gt;yaks_shaved&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: 2&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:55 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535644Z &lt;font color=&quot;#75507B&quot;&gt;TRACE&lt;/font&gt; &lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: hello! I&amp;apos;m gonna shave a yak, &lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;excitement&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: &amp;quot;yay!&amp;quot;&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:16 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 3
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535644Z &lt;font color="#75507B"&gt;TRACE&lt;/font&gt; &lt;font color="#75507B"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: hello! I&amp;apos;m gonna shave a yak, &lt;/font&gt;&lt;font color="#75507B"&gt;&lt;b&gt;excitement&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: &amp;quot;yay!&amp;quot;&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:16 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 3
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535670Z &lt;font color=&quot;#C4A000&quot;&gt; WARN&lt;/font&gt; &lt;font color=&quot;#C4A000&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#C4A000&quot;&gt;: could not locate yak&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:18 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 3
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535670Z &lt;font color="#C4A000"&gt; WARN&lt;/font&gt; &lt;font color="#C4A000"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#C4A000"&gt;: could not locate yak&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:18 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shave&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yak&lt;/b&gt;: 3
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535698Z &lt;font color=&quot;#3465A4&quot;&gt;DEBUG&lt;/font&gt; &lt;font color=&quot;#3465A4&quot;&gt;&lt;b&gt;yak_events&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;: &lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;&lt;b&gt;yak&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;: 3, &lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;&lt;b&gt;shaved&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#3465A4&quot;&gt;: false&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:46 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535698Z &lt;font color="#3465A4"&gt;DEBUG&lt;/font&gt; &lt;font color="#3465A4"&gt;&lt;b&gt;yak_events&lt;/b&gt;&lt;/font&gt;&lt;font color="#3465A4"&gt;: &lt;/font&gt;&lt;font color="#3465A4"&gt;&lt;b&gt;yak&lt;/b&gt;&lt;/font&gt;&lt;font color="#3465A4"&gt;: 3, &lt;/font&gt;&lt;font color="#3465A4"&gt;&lt;b&gt;shaved&lt;/b&gt;&lt;/font&gt;&lt;font color="#3465A4"&gt;: false&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:46 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535720Z &lt;font color=&quot;#CC0000&quot;&gt;ERROR&lt;/font&gt; &lt;font color=&quot;#CC0000&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#CC0000&quot;&gt;: failed to shave yak, &lt;/font&gt;&lt;font color=&quot;#CC0000&quot;&gt;&lt;b&gt;yak&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#CC0000&quot;&gt;: 3, &lt;/font&gt;&lt;font color=&quot;#CC0000&quot;&gt;&lt;b&gt;error&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#CC0000&quot;&gt;: missing yak, &lt;/font&gt;&lt;font color=&quot;#CC0000&quot;&gt;&lt;b&gt;error.sources&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#CC0000&quot;&gt;: [out of space, out of cash]&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:51 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535720Z &lt;font color="#CC0000"&gt;ERROR&lt;/font&gt; &lt;font color="#CC0000"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#CC0000"&gt;: failed to shave yak, &lt;/font&gt;&lt;font color="#CC0000"&gt;&lt;b&gt;yak&lt;/b&gt;&lt;/font&gt;&lt;font color="#CC0000"&gt;: 3, &lt;/font&gt;&lt;font color="#CC0000"&gt;&lt;b&gt;error&lt;/b&gt;&lt;/font&gt;&lt;font color="#CC0000"&gt;: missing yak, &lt;/font&gt;&lt;font color="#CC0000"&gt;&lt;b&gt;error.sources&lt;/b&gt;&lt;/font&gt;&lt;font color="#CC0000"&gt;: [out of space, out of cash]&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:51 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535742Z &lt;font color=&quot;#75507B&quot;&gt;TRACE&lt;/font&gt; &lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: &lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;&lt;b&gt;yaks_shaved&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#75507B&quot;&gt;: 2&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:55 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
+///   2022-02-15T18:44:24.535742Z &lt;font color="#75507B"&gt;TRACE&lt;/font&gt; &lt;font color="#75507B"&gt;&lt;b&gt;fmt_pretty::yak_shave&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: &lt;/font&gt;&lt;font color="#75507B"&gt;&lt;b&gt;yaks_shaved&lt;/b&gt;&lt;/font&gt;&lt;font color="#75507B"&gt;: 2&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt/yak_shave.rs:55 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;in&lt;/i&gt;&lt;/font&gt; fmt_pretty::yak_shave::&lt;b&gt;shaving_yaks&lt;/b&gt; &lt;font color="#AAAAAA"&gt;&lt;i&gt;with&lt;/i&gt;&lt;/font&gt; &lt;b&gt;yaks&lt;/b&gt;: 3
 ///
-///   2022-02-15T18:44:24.535765Z &lt;font color=&quot;#4E9A06&quot;&gt; INFO&lt;/font&gt; &lt;font color=&quot;#4E9A06&quot;&gt;&lt;b&gt;fmt_pretty&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#4E9A06&quot;&gt;: yak shaving completed, &lt;/font&gt;&lt;font color=&quot;#4E9A06&quot;&gt;&lt;b&gt;all_yaks_shaved&lt;/b&gt;&lt;/font&gt;&lt;font color=&quot;#4E9A06&quot;&gt;: false&lt;/font&gt;
-///     &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt-pretty.rs:19 &lt;font color=&quot;#AAAAAA&quot;&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
+///   2022-02-15T18:44:24.535765Z &lt;font color="#4E9A06"&gt; INFO&lt;/font&gt; &lt;font color="#4E9A06"&gt;&lt;b&gt;fmt_pretty&lt;/b&gt;&lt;/font&gt;&lt;font color="#4E9A06"&gt;: yak shaving completed, &lt;/font&gt;&lt;font color="#4E9A06"&gt;&lt;b&gt;all_yaks_shaved&lt;/b&gt;&lt;/font&gt;&lt;font color="#4E9A06"&gt;: false&lt;/font&gt;
+///     &lt;font color="#AAAAAA"&gt;&lt;i&gt;at&lt;/i&gt;&lt;/font&gt; examples/examples/fmt-pretty.rs:19 &lt;font color="#AAAAAA"&gt;&lt;i&gt;on&lt;/i&gt;&lt;/font&gt; main
 /// &lt;/pre&gt;
 </span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>Pretty {
     display_location: bool,
 }
 
-<span class="doccomment">/// The [visitor] produced by [`Pretty`]&#39;s [`MakeVisitor`] implementation.
+<span class="doccomment">/// The [visitor] produced by [`Pretty`]'s [`MakeVisitor`] implementation.
 ///
 /// [visitor]: field::Visit
 /// [`MakeVisitor`]: crate::field::MakeVisitor
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>PrettyVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
-    writer: Writer&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>PrettyVisitor&lt;<span class="lifetime">'a</span>&gt; {
+    writer: Writer&lt;<span class="lifetime">'a</span>&gt;,
     is_empty: bool,
     style: Style,
     result: fmt::Result,
@@ -628,12 +629,12 @@
 /// [`MakeVisitor`]: crate::field::MakeVisitor
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>PrettyFields {
-    <span class="doccomment">/// A value to override the provided `Writer`&#39;s ANSI formatting
+    <span class="doccomment">/// A value to override the provided `Writer`'s ANSI formatting
     /// configuration.
     ///
-    /// If this is `Some`, we override the `Writer`&#39;s ANSI setting. This is
+    /// If this is `Some`, we override the `Writer`'s ANSI setting. This is
     /// necessary in order to continue supporting the deprecated
-    /// `PrettyFields::with_ansi` method. If it is `None`, we don&#39;t override the
+    /// `PrettyFields::with_ansi` method. If it is `None`, we don't override the
     /// ANSI formatting configuration (because the deprecated method was not
     /// called).
     </span><span class="comment">// TODO: when `PrettyFields::with_ansi` is removed, we can get rid
@@ -662,12 +663,12 @@
         }
     }
 
-    <span class="doccomment">/// Sets whether the event&#39;s source code location is displayed.
+    <span class="doccomment">/// Sets whether the event's source code location is displayed.
     ///
     /// This defaults to `true`.
     </span><span class="attr">#[deprecated(
-        since = <span class="string">&quot;0.3.6&quot;</span>,
-        note = <span class="string">&quot;all formatters now support configurable source locations. Use `Format::with_source_location` instead.&quot;
+        since = <span class="string">"0.3.6"</span>,
+        note = <span class="string">"all formatters now support configurable source locations. Use `Format::with_source_location` instead."
     </span>)]
     </span><span class="kw">pub fn </span>with_source_location(<span class="self">self</span>, display_location: bool) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -679,23 +680,23 @@
 
 <span class="kw">impl</span>&lt;C, N, T&gt; FormatEvent&lt;C, N&gt; <span class="kw">for </span>Format&lt;Pretty, T&gt;
 <span class="kw">where
-    </span>C: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;,
-    N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FormatFields&lt;<span class="lifetime">&#39;a</span>&gt; + <span class="lifetime">&#39;static</span>,
+    </span>C: Subscriber + <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; LookupSpan&lt;<span class="lifetime">'a</span>&gt;,
+    N: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; FormatFields&lt;<span class="lifetime">'a</span>&gt; + <span class="lifetime">'static</span>,
     T: FormatTime,
 {
     <span class="kw">fn </span>format_event(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        ctx: <span class="kw-2">&amp;</span>FmtContext&lt;<span class="lifetime">&#39;_</span>, C, N&gt;,
-        <span class="kw-2">mut </span>writer: Writer&lt;<span class="lifetime">&#39;_</span>&gt;,
-        event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ctx: <span class="kw-2">&amp;</span>FmtContext&lt;<span class="lifetime">'_</span>, C, N&gt;,
+        <span class="kw-2">mut </span>writer: Writer&lt;<span class="lifetime">'_</span>&gt;,
+        event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; fmt::Result {
-        <span class="attr">#[cfg(feature = <span class="string">&quot;tracing-log&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"tracing-log"</span>)]
         </span><span class="kw">let </span>normalized_meta = event.normalized_metadata();
-        <span class="attr">#[cfg(feature = <span class="string">&quot;tracing-log&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"tracing-log"</span>)]
         </span><span class="kw">let </span>meta = normalized_meta.as_ref().unwrap_or_else(|| event.metadata());
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;tracing-log&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"tracing-log"</span>))]
         </span><span class="kw">let </span>meta = event.metadata();
-        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>writer, <span class="string">&quot;  &quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>writer, <span class="string">"  "</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// if the `Format` struct *also* has an ANSI color configuration,
         // override the writer...the API for configuring ANSI color codes on the
@@ -716,7 +717,7 @@
         <span class="kw">if </span><span class="self">self</span>.display_level {
             <span class="macro">write!</span>(
                 writer,
-                <span class="string">&quot;{} &quot;</span>,
+                <span class="string">"{} "</span>,
                 <span class="kw">super</span>::FmtLevel::new(meta.level(), writer.has_ansi_escapes())
             )<span class="question-mark">?</span>;
         }
@@ -729,7 +730,7 @@
             };
             <span class="macro">write!</span>(
                 writer,
-                <span class="string">&quot;{}{}{}:&quot;</span>,
+                <span class="string">"{}{}{}:"</span>,
                 target_style.prefix(),
                 meta.target(),
                 target_style.infix(style)
@@ -742,7 +743,7 @@
         </span>};
 
         <span class="comment">// If the file name is disabled, format the line number right after the
-        // target. Otherwise, if we also display the file, it&#39;ll go on a
+        // target. Otherwise, if we also display the file, it'll go on a
         // separate line.
         </span><span class="kw">if let </span>(<span class="prelude-val">Some</span>(line_number), <span class="bool-val">false</span>, <span class="bool-val">true</span>) = (
             line_number,
@@ -751,19 +752,19 @@
         ) {
             <span class="macro">write!</span>(
                 writer,
-                <span class="string">&quot;{}{}{}:&quot;</span>,
+                <span class="string">"{}{}{}:"</span>,
                 style.prefix(),
                 line_number,
                 style.infix(style)
             )<span class="question-mark">?</span>;
         }
 
-        writer.write_char(<span class="string">&#39; &#39;</span>)<span class="question-mark">?</span>;
+        writer.write_char(<span class="string">' '</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>v = PrettyVisitor::new(writer.by_ref(), <span class="bool-val">true</span>).with_style(style);
         event.record(<span class="kw-2">&amp;mut </span>v);
         v.finish()<span class="question-mark">?</span>;
-        writer.write_char(<span class="string">&#39;\n&#39;</span>)<span class="question-mark">?</span>;
+        writer.write_char(<span class="string">'\n'</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>dimmed = <span class="kw">if </span>writer.has_ansi_escapes() {
             Style::new().dimmed().italic()
@@ -777,31 +778,31 @@
             <span class="self">self</span>.format.display_location,
             <span class="self">self</span>.display_filename,
         ) {
-            <span class="macro">write!</span>(writer, <span class="string">&quot;    {} {}&quot;</span>, dimmed.paint(<span class="string">&quot;at&quot;</span>), file,)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(writer, <span class="string">"    {} {}"</span>, dimmed.paint(<span class="string">"at"</span>), file,)<span class="question-mark">?</span>;
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(line) = line_number {
-                <span class="macro">write!</span>(writer, <span class="string">&quot;:{}&quot;</span>, line)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(writer, <span class="string">":{}"</span>, line)<span class="question-mark">?</span>;
             }
-            writer.write_char(<span class="kw">if </span>thread { <span class="string">&#39; &#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;\n&#39; </span>})<span class="question-mark">?</span>;
+            writer.write_char(<span class="kw">if </span>thread { <span class="string">' ' </span>} <span class="kw">else </span>{ <span class="string">'\n' </span>})<span class="question-mark">?</span>;
         } <span class="kw">else if </span>thread {
-            <span class="macro">write!</span>(writer, <span class="string">&quot;    &quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(writer, <span class="string">"    "</span>)<span class="question-mark">?</span>;
         };
 
         <span class="kw">if </span>thread {
-            <span class="macro">write!</span>(writer, <span class="string">&quot;{} &quot;</span>, dimmed.paint(<span class="string">&quot;on&quot;</span>))<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(writer, <span class="string">"{} "</span>, dimmed.paint(<span class="string">"on"</span>))<span class="question-mark">?</span>;
             <span class="kw">let </span>thread = std::thread::current();
             <span class="kw">if </span><span class="self">self</span>.display_thread_name {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = thread.name() {
-                    <span class="macro">write!</span>(writer, <span class="string">&quot;{}&quot;</span>, name)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(writer, <span class="string">"{}"</span>, name)<span class="question-mark">?</span>;
                     <span class="kw">if </span><span class="self">self</span>.display_thread_id {
-                        writer.write_char(<span class="string">&#39; &#39;</span>)<span class="question-mark">?</span>;
+                        writer.write_char(<span class="string">' '</span>)<span class="question-mark">?</span>;
                     }
                 }
             }
             <span class="kw">if </span><span class="self">self</span>.display_thread_id {
-                <span class="macro">write!</span>(writer, <span class="string">&quot;{:?}&quot;</span>, thread.id())<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(writer, <span class="string">"{:?}"</span>, thread.id())<span class="question-mark">?</span>;
             }
-            writer.write_char(<span class="string">&#39;\n&#39;</span>)<span class="question-mark">?</span>;
+            writer.write_char(<span class="string">'\n'</span>)<span class="question-mark">?</span>;
         }
 
         <span class="kw">let </span>bold = writer.bold();
@@ -817,16 +818,16 @@
             <span class="kw">if </span><span class="self">self</span>.display_target {
                 <span class="macro">write!</span>(
                     writer,
-                    <span class="string">&quot;    {} {}::{}&quot;</span>,
-                    dimmed.paint(<span class="string">&quot;in&quot;</span>),
+                    <span class="string">"    {} {}::{}"</span>,
+                    dimmed.paint(<span class="string">"in"</span>),
                     meta.target(),
                     bold.paint(meta.name()),
                 )<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
                 <span class="macro">write!</span>(
                     writer,
-                    <span class="string">&quot;    {} {}&quot;</span>,
-                    dimmed.paint(<span class="string">&quot;in&quot;</span>),
+                    <span class="string">"    {} {}"</span>,
+                    dimmed.paint(<span class="string">"in"</span>),
                     bold.paint(meta.name()),
                 )<span class="question-mark">?</span>;
             }
@@ -834,19 +835,19 @@
             <span class="kw">let </span>ext = span.extensions();
             <span class="kw">let </span>fields = <span class="kw-2">&amp;</span>ext
                 .get::&lt;FormattedFields&lt;N&gt;&gt;()
-                .expect(<span class="string">&quot;Unable to find FormattedFields in extensions; this is a bug&quot;</span>);
+                .expect(<span class="string">"Unable to find FormattedFields in extensions; this is a bug"</span>);
             <span class="kw">if </span>!fields.is_empty() {
-                <span class="macro">write!</span>(writer, <span class="string">&quot; {} {}&quot;</span>, dimmed.paint(<span class="string">&quot;with&quot;</span>), fields)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(writer, <span class="string">" {} {}"</span>, dimmed.paint(<span class="string">"with"</span>), fields)<span class="question-mark">?</span>;
             }
-            writer.write_char(<span class="string">&#39;\n&#39;</span>)<span class="question-mark">?</span>;
+            writer.write_char(<span class="string">'\n'</span>)<span class="question-mark">?</span>;
         }
 
-        writer.write_char(<span class="string">&#39;\n&#39;</span>)
+        writer.write_char(<span class="string">'\n'</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; <span class="kw">for </span>Pretty {
-    <span class="kw">fn </span>format_fields&lt;R: RecordFields&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: Writer&lt;<span class="lifetime">&#39;writer</span>&gt;, fields: R) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; <span class="kw">for </span>Pretty {
+    <span class="kw">fn </span>format_fields&lt;R: RecordFields&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: Writer&lt;<span class="lifetime">'writer</span>&gt;, fields: R) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>v = PrettyVisitor::new(writer, <span class="bool-val">true</span>);
         fields.record(<span class="kw-2">&amp;mut </span>v);
         v.finish()
@@ -854,8 +855,8 @@
 
     <span class="kw">fn </span>add_fields(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        current: <span class="kw-2">&amp;</span><span class="lifetime">&#39;writer </span><span class="kw-2">mut </span>FormattedFields&lt;<span class="self">Self</span>&gt;,
-        fields: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;,
+        current: <span class="kw-2">&amp;</span><span class="lifetime">'writer </span><span class="kw-2">mut </span>FormattedFields&lt;<span class="self">Self</span>&gt;,
+        fields: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; fmt::Result {
         <span class="kw">let </span>empty = current.is_empty();
         <span class="kw">let </span>writer = current.as_writer();
@@ -876,16 +877,16 @@
 <span class="kw">impl </span>PrettyFields {
     <span class="doccomment">/// Returns a new default [`PrettyFields`] implementation.
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="comment">// By default, don&#39;t override the `Writer`&#39;s ANSI colors
-        // configuration. We&#39;ll only do this if the user calls the
+        <span class="comment">// By default, don't override the `Writer`'s ANSI colors
+        // configuration. We'll only do this if the user calls the
         // deprecated `PrettyFields::with_ansi` method.
         </span><span class="self">Self </span>{ ansi: <span class="prelude-val">None </span>}
     }
 
     <span class="doccomment">/// Enable ANSI encoding for formatted fields.
     </span><span class="attr">#[deprecated(
-        since = <span class="string">&quot;0.3.3&quot;</span>,
-        note = <span class="string">&quot;Use `fmt::Subscriber::with_ansi` or `fmt::Layer::with_ansi` instead.&quot;
+        since = <span class="string">"0.3.3"</span>,
+        note = <span class="string">"Use `fmt::Subscriber::with_ansi` or `fmt::Layer::with_ansi` instead."
     </span>)]
     </span><span class="kw">pub fn </span>with_ansi(<span class="self">self</span>, ansi: bool) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -895,11 +896,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MakeVisitor&lt;Writer&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>PrettyFields {
-    <span class="kw">type </span>Visitor = PrettyVisitor&lt;<span class="lifetime">&#39;a</span>&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MakeVisitor&lt;Writer&lt;<span class="lifetime">'a</span>&gt;&gt; <span class="kw">for </span>PrettyFields {
+    <span class="kw">type </span>Visitor = PrettyVisitor&lt;<span class="lifetime">'a</span>&gt;;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>make_visitor(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>target: Writer&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self</span>::Visitor {
+    </span><span class="kw">fn </span>make_visitor(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>target: Writer&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="self">Self</span>::Visitor {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ansi) = <span class="self">self</span>.ansi {
             target = target.with_ansi(ansi);
         }
@@ -909,14 +910,14 @@
 
 <span class="comment">// === impl PrettyVisitor ===
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PrettyVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PrettyVisitor&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a new default visitor that formats to the provided `writer`.
     ///
     /// # Arguments
     /// - `writer`: the writer to format to.
     /// - `is_empty`: whether or not any fields have been previously written to
     ///   that writer.
-    </span><span class="kw">pub fn </span>new(writer: Writer&lt;<span class="lifetime">&#39;a</span>&gt;, is_empty: bool) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(writer: Writer&lt;<span class="lifetime">'a</span>&gt;, is_empty: bool) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             writer,
             is_empty,
@@ -932,11 +933,11 @@
     <span class="kw">fn </span>write_padded(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span><span class="kw">impl </span>fmt::Debug) {
         <span class="kw">let </span>padding = <span class="kw">if </span><span class="self">self</span>.is_empty {
             <span class="self">self</span>.is_empty = <span class="bool-val">false</span>;
-            <span class="string">&quot;&quot;
+            <span class="string">""
         </span>} <span class="kw">else </span>{
-            <span class="string">&quot;, &quot;
+            <span class="string">", "
         </span>};
-        <span class="self">self</span>.result = <span class="macro">write!</span>(<span class="self">self</span>.writer, <span class="string">&quot;{}{:?}&quot;</span>, padding, value);
+        <span class="self">self</span>.result = <span class="macro">write!</span>(<span class="self">self</span>.writer, <span class="string">"{}{:?}"</span>, padding, value);
     }
 
     <span class="kw">fn </span>bold(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
@@ -948,26 +949,26 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; field::Visit <span class="kw">for </span>PrettyVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; field::Visit <span class="kw">for </span>PrettyVisitor&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>record_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: <span class="kw-2">&amp;</span>Field, value: <span class="kw-2">&amp;</span>str) {
         <span class="kw">if </span><span class="self">self</span>.result.is_err() {
             <span class="kw">return</span>;
         }
 
-        <span class="kw">if </span>field.name() == <span class="string">&quot;message&quot; </span>{
-            <span class="self">self</span>.record_debug(field, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, value))
+        <span class="kw">if </span>field.name() == <span class="string">"message" </span>{
+            <span class="self">self</span>.record_debug(field, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{}"</span>, value))
         } <span class="kw">else </span>{
             <span class="self">self</span>.record_debug(field, <span class="kw-2">&amp;</span>value)
         }
     }
 
-    <span class="kw">fn </span>record_error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: <span class="kw-2">&amp;</span>Field, value: <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">&#39;static</span>)) {
+    <span class="kw">fn </span>record_error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: <span class="kw-2">&amp;</span>Field, value: <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">'static</span>)) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(source) = value.source() {
             <span class="kw">let </span>bold = <span class="self">self</span>.bold();
             <span class="self">self</span>.record_debug(
                 field,
                 <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(
-                    <span class="string">&quot;{}, {}{}.sources{}: {}&quot;</span>,
+                    <span class="string">"{}, {}{}.sources{}: {}"</span>,
                     value,
                     bold.prefix(),
                     field,
@@ -976,7 +977,7 @@
                 ),
             )
         } <span class="kw">else </span>{
-            <span class="self">self</span>.record_debug(field, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, value))
+            <span class="self">self</span>.record_debug(field, <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{}"</span>, value))
         }
     }
 
@@ -986,19 +987,19 @@
         }
         <span class="kw">let </span>bold = <span class="self">self</span>.bold();
         <span class="kw">match </span>field.name() {
-            <span class="string">&quot;message&quot; </span>=&gt; <span class="self">self</span>.write_padded(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}{:?}&quot;</span>, <span class="self">self</span>.style.prefix(), value,)),
+            <span class="string">"message" </span>=&gt; <span class="self">self</span>.write_padded(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">"{}{:?}"</span>, <span class="self">self</span>.style.prefix(), value,)),
             <span class="comment">// Skip fields that are actually log metadata that have already been handled
-            </span><span class="attr">#[cfg(feature = <span class="string">&quot;tracing-log&quot;</span>)]
-            </span>name <span class="kw">if </span>name.starts_with(<span class="string">&quot;log.&quot;</span>) =&gt; <span class="self">self</span>.result = <span class="prelude-val">Ok</span>(()),
-            name <span class="kw">if </span>name.starts_with(<span class="string">&quot;r#&quot;</span>) =&gt; <span class="self">self</span>.write_padded(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(
-                <span class="string">&quot;{}{}{}: {:?}&quot;</span>,
+            </span><span class="attr">#[cfg(feature = <span class="string">"tracing-log"</span>)]
+            </span>name <span class="kw">if </span>name.starts_with(<span class="string">"log."</span>) =&gt; <span class="self">self</span>.result = <span class="prelude-val">Ok</span>(()),
+            name <span class="kw">if </span>name.starts_with(<span class="string">"r#"</span>) =&gt; <span class="self">self</span>.write_padded(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(
+                <span class="string">"{}{}{}: {:?}"</span>,
                 bold.prefix(),
                 <span class="kw-2">&amp;</span>name[<span class="number">2</span>..],
                 bold.infix(<span class="self">self</span>.style),
                 value
             )),
             name =&gt; <span class="self">self</span>.write_padded(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(
-                <span class="string">&quot;{}{}{}: {:?}&quot;</span>,
+                <span class="string">"{}{}{}: {:?}"</span>,
                 bold.prefix(),
                 name,
                 bold.infix(<span class="self">self</span>.style),
@@ -1008,14 +1009,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; VisitOutput&lt;fmt::Result&gt; <span class="kw">for </span>PrettyVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; VisitOutput&lt;fmt::Result&gt; <span class="kw">for </span>PrettyVisitor&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>finish(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; fmt::Result {
-        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>.writer, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.style.suffix())<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>.writer, <span class="string">"{}"</span>, <span class="self">self</span>.style.suffix())<span class="question-mark">?</span>;
         <span class="self">self</span>.result
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; VisitFmt <span class="kw">for </span>PrettyVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; VisitFmt <span class="kw">for </span>PrettyVisitor&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>writer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>fmt::Write {
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.writer
     }

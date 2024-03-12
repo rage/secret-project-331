@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_normalizer-1.4.1/src/properties.rs`."><title>properties.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_normalizer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_normalizer-1.4.1/src/properties.rs`."><title>properties.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_normalizer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -543,7 +544,7 @@
     canonical_compositions: DataPayload&lt;CanonicalCompositionsV1Marker&gt;,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 </span><span class="kw">impl </span>Default <span class="kw">for </span>CanonicalComposition {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
@@ -552,7 +553,7 @@
 
 <span class="kw">impl </span>CanonicalComposition {
     <span class="doccomment">/// Performs canonical composition (including Hangul) on a pair of
-    /// characters or returns `None` if these characters don&#39;t compose.
+    /// characters or returns `None` if these characters don't compose.
     /// Composition exclusions are taken into account.
     ///
     /// # Examples
@@ -560,13 +561,13 @@
     /// ```
     /// let comp = icu_normalizer::properties::CanonicalComposition::new();
     ///
-    /// assert_eq!(comp.compose(&#39;a&#39;, &#39;b&#39;), None); // Just two non-composing starters
-    /// assert_eq!(comp.compose(&#39;a&#39;, &#39;\u{0308}&#39;), Some(&#39;ä&#39;));
-    /// assert_eq!(comp.compose(&#39;ẹ&#39;, &#39;\u{0302}&#39;), Some(&#39;ệ&#39;));
-    /// assert_eq!(comp.compose(&#39;𝅗&#39;, &#39;𝅥&#39;), None); // Composition exclusion
-    /// assert_eq!(comp.compose(&#39;ে&#39;, &#39;া&#39;), Some(&#39;ো&#39;)); // Second is starter
-    /// assert_eq!(comp.compose(&#39;ᄀ&#39;, &#39;ᅡ&#39;), Some(&#39;가&#39;)); // Hangul LV
-    /// assert_eq!(comp.compose(&#39;가&#39;, &#39;ᆨ&#39;), Some(&#39;각&#39;)); // Hangul LVT
+    /// assert_eq!(comp.compose('a', 'b'), None); // Just two non-composing starters
+    /// assert_eq!(comp.compose('a', '\u{0308}'), Some('ä'));
+    /// assert_eq!(comp.compose('ẹ', '\u{0302}'), Some('ệ'));
+    /// assert_eq!(comp.compose('𝅗', '𝅥'), None); // Composition exclusion
+    /// assert_eq!(comp.compose('ে', 'া'), Some('ো')); // Second is starter
+    /// assert_eq!(comp.compose('ᄀ', 'ᅡ'), Some('가')); // Hangul LV
+    /// assert_eq!(comp.compose('가', 'ᆨ'), Some('각')); // Hangul LVT
     /// ```
     </span><span class="attr">#[inline(always)]
     </span><span class="kw">pub fn </span>compose(<span class="kw-2">&amp;</span><span class="self">self</span>, starter: char, second: char) -&gt; <span class="prelude-ty">Option</span>&lt;char&gt; {
@@ -585,7 +586,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             canonical_compositions: DataPayload::from_static_ref(
@@ -650,15 +651,15 @@
     ///     use icu_normalizer::properties::Decomposed;
     ///     let decomp = icu_normalizer::properties::CanonicalDecomposition::new();
     ///
-    ///     assert_eq!(decomp.decompose(&#39;e&#39;), Decomposed::Default);
+    ///     assert_eq!(decomp.decompose('e'), Decomposed::Default);
     ///     assert_eq!(
-    ///         decomp.decompose(&#39;ệ&#39;),
-    ///         Decomposed::Expansion(&#39;ẹ&#39;, &#39;\u{0302}&#39;)
+    ///         decomp.decompose('ệ'),
+    ///         Decomposed::Expansion('ẹ', '\u{0302}')
     ///     );
-    ///     assert_eq!(decomp.decompose(&#39;각&#39;), Decomposed::Expansion(&#39;가&#39;, &#39;ᆨ&#39;));
-    ///     assert_eq!(decomp.decompose(&#39;\u{212B}&#39;), Decomposed::Singleton(&#39;Å&#39;)); // ANGSTROM SIGN
-    ///     assert_eq!(decomp.decompose(&#39;\u{2126}&#39;), Decomposed::Singleton(&#39;Ω&#39;)); // OHM SIGN
-    ///     assert_eq!(decomp.decompose(&#39;\u{1F71}&#39;), Decomposed::Singleton(&#39;ά&#39;)); // oxia
+    ///     assert_eq!(decomp.decompose('각'), Decomposed::Expansion('가', 'ᆨ'));
+    ///     assert_eq!(decomp.decompose('\u{212B}'), Decomposed::Singleton('Å')); // ANGSTROM SIGN
+    ///     assert_eq!(decomp.decompose('\u{2126}'), Decomposed::Singleton('Ω')); // OHM SIGN
+    ///     assert_eq!(decomp.decompose('\u{1F71}'), Decomposed::Singleton('ά')); // oxia
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>decompose(<span class="kw-2">&amp;</span><span class="self">self</span>, c: char) -&gt; Decomposed {
@@ -699,7 +700,7 @@
             <span class="kw">let </span>lead = decomposition <span class="kw">as </span>u16;
             <span class="kw">if </span>lead &gt; NON_ROUND_TRIP_MARKER &amp;&amp; trail_or_complex != <span class="number">0 </span>{
                 <span class="comment">// Decomposition into two BMP characters: starter and non-starter
-                </span><span class="kw">if </span>in_inclusive_range(c, <span class="string">&#39;\u{1F71}&#39;</span>, <span class="string">&#39;\u{1FFB}&#39;</span>) {
+                </span><span class="kw">if </span>in_inclusive_range(c, <span class="string">'\u{1F71}'</span>, <span class="string">'\u{1FFB}'</span>) {
                     <span class="comment">// Look in the other trie due to oxia singleton
                     // mappings to corresponding character with tonos.
                     </span><span class="kw">break</span>;
@@ -710,41 +711,41 @@
                 <span class="comment">// Decomposition into one BMP character or non-starter
                 </span><span class="macro">debug_assert_ne!</span>(
                     lead, FDFA_MARKER,
-                    <span class="string">&quot;How come we got the U+FDFA NFKD marker here?&quot;
+                    <span class="string">"How come we got the U+FDFA NFKD marker here?"
                 </span>);
                 <span class="kw">if </span>lead == SPECIAL_NON_STARTER_DECOMPOSITION_MARKER_U16 {
                     <span class="comment">// Non-starter
-                    </span><span class="kw">if </span>!in_inclusive_range(c, <span class="string">&#39;\u{0340}&#39;</span>, <span class="string">&#39;\u{0F81}&#39;</span>) {
+                    </span><span class="kw">if </span>!in_inclusive_range(c, <span class="string">'\u{0340}'</span>, <span class="string">'\u{0F81}'</span>) {
                         <span class="kw">return </span>Decomposed::Default;
                     }
                     <span class="kw">return match </span>c {
-                        <span class="string">&#39;\u{0340}&#39; </span>=&gt; {
+                        <span class="string">'\u{0340}' </span>=&gt; {
                             <span class="comment">// COMBINING GRAVE TONE MARK
-                            </span>Decomposed::Singleton(<span class="string">&#39;\u{0300}&#39;</span>)
+                            </span>Decomposed::Singleton(<span class="string">'\u{0300}'</span>)
                         }
-                        <span class="string">&#39;\u{0341}&#39; </span>=&gt; {
+                        <span class="string">'\u{0341}' </span>=&gt; {
                             <span class="comment">// COMBINING ACUTE TONE MARK
-                            </span>Decomposed::Singleton(<span class="string">&#39;\u{0301}&#39;</span>)
+                            </span>Decomposed::Singleton(<span class="string">'\u{0301}'</span>)
                         }
-                        <span class="string">&#39;\u{0343}&#39; </span>=&gt; {
+                        <span class="string">'\u{0343}' </span>=&gt; {
                             <span class="comment">// COMBINING GREEK KORONIS
-                            </span>Decomposed::Singleton(<span class="string">&#39;\u{0313}&#39;</span>)
+                            </span>Decomposed::Singleton(<span class="string">'\u{0313}'</span>)
                         }
-                        <span class="string">&#39;\u{0344}&#39; </span>=&gt; {
+                        <span class="string">'\u{0344}' </span>=&gt; {
                             <span class="comment">// COMBINING GREEK DIALYTIKA TONOS
-                            </span>Decomposed::Expansion(<span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>)
+                            </span>Decomposed::Expansion(<span class="string">'\u{0308}'</span>, <span class="string">'\u{0301}'</span>)
                         }
-                        <span class="string">&#39;\u{0F73}&#39; </span>=&gt; {
+                        <span class="string">'\u{0F73}' </span>=&gt; {
                             <span class="comment">// TIBETAN VOWEL SIGN II
-                            </span>Decomposed::Expansion(<span class="string">&#39;\u{0F71}&#39;</span>, <span class="string">&#39;\u{0F72}&#39;</span>)
+                            </span>Decomposed::Expansion(<span class="string">'\u{0F71}'</span>, <span class="string">'\u{0F72}'</span>)
                         }
-                        <span class="string">&#39;\u{0F75}&#39; </span>=&gt; {
+                        <span class="string">'\u{0F75}' </span>=&gt; {
                             <span class="comment">// TIBETAN VOWEL SIGN UU
-                            </span>Decomposed::Expansion(<span class="string">&#39;\u{0F71}&#39;</span>, <span class="string">&#39;\u{0F74}&#39;</span>)
+                            </span>Decomposed::Expansion(<span class="string">'\u{0F71}'</span>, <span class="string">'\u{0F74}'</span>)
                         }
-                        <span class="string">&#39;\u{0F81}&#39; </span>=&gt; {
+                        <span class="string">'\u{0F81}' </span>=&gt; {
                             <span class="comment">// TIBETAN VOWEL SIGN REVERSED II
-                            </span>Decomposed::Expansion(<span class="string">&#39;\u{0F71}&#39;</span>, <span class="string">&#39;\u{0F80}&#39;</span>)
+                            </span>Decomposed::Expansion(<span class="string">'\u{0F71}'</span>, <span class="string">'\u{0F80}'</span>)
                         }
                         <span class="kw">_ </span>=&gt; Decomposed::Default,
                     };
@@ -754,9 +755,9 @@
             <span class="comment">// The recursive decomposition of ANGSTROM SIGN is in the complex
             // decomposition structure to avoid a branch in `potential_passthrough`
             // for the BMP case.
-            </span><span class="kw">if </span>c == <span class="string">&#39;\u{212B}&#39; </span>{
+            </span><span class="kw">if </span>c == <span class="string">'\u{212B}' </span>{
                 <span class="comment">// ANGSTROM SIGN
-                </span><span class="kw">return </span>Decomposed::Singleton(<span class="string">&#39;\u{00C5}&#39;</span>);
+                </span><span class="kw">return </span>Decomposed::Singleton(<span class="string">'\u{00C5}'</span>);
             }
             <span class="comment">// Complex decomposition
             // Format for 16-bit value:
@@ -778,7 +779,7 @@
             <span class="kw">let </span>tables = <span class="self">self</span>.tables.get();
             <span class="kw">if </span>offset &lt; tables.scalars16.len() {
                 <span class="kw">if </span>usize::from(trail_or_complex &gt;&gt; <span class="number">13</span>) != <span class="number">0 </span>{
-                    <span class="comment">// i.e. logical len isn&#39;t 2
+                    <span class="comment">// i.e. logical len isn't 2
                     </span><span class="kw">break</span>;
                 }
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(first) = tables.scalars16.get(offset) {
@@ -843,7 +844,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
             <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
@@ -853,7 +854,7 @@
                     .scalars24
                     .const_len()
                 &lt;= <span class="number">0xFFF</span>,
-            <span class="string">&quot;NormalizerError::FutureExtension&quot;
+            <span class="string">"NormalizerError::FutureExtension"
         </span>);
 
         <span class="self">Self </span>{
@@ -923,7 +924,7 @@
 /// use icu_normalizer::properties::CanonicalCombiningClassMap;
 ///
 /// let map = CanonicalCombiningClassMap::new();
-/// assert_eq!(map.get(&#39;a&#39;), CanonicalCombiningClass::NotReordered); // U+0061: LATIN SMALL LETTER A
+/// assert_eq!(map.get('a'), CanonicalCombiningClass::NotReordered); // U+0061: LATIN SMALL LETTER A
 /// assert_eq!(map.get32(0x0301), CanonicalCombiningClass::Above); // U+0301: COMBINING ACUTE ACCENT
 /// ```
 </span><span class="attr">#[derive(Debug)]
@@ -961,7 +962,7 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         CanonicalCombiningClassMap {
             decompositions: DataPayload::from_static_ref(

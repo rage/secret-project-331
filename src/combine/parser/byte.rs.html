@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/byte.rs`."><title>byte.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/byte.rs`."><title>byte.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -695,9 +696,9 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::byte;
-/// assert_eq!(byte(b&#39;!&#39;).parse(&amp;b&quot;!&quot;[..]), Ok((b&#39;!&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(byte(b&#39;A&#39;).parse(&amp;b&quot;&quot;[..]).is_err());
-/// assert!(byte(b&#39;A&#39;).parse(&amp;b&quot;!&quot;[..]).is_err());
+/// assert_eq!(byte(b'!').parse(&amp;b"!"[..]), Ok((b'!', &amp;b""[..])));
+/// assert!(byte(b'A').parse(&amp;b""[..]).is_err());
+/// assert!(byte(b'A').parse(&amp;b"!"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>byte&lt;Input&gt;(c: u8) -&gt; Token&lt;Input&gt;
 <span class="kw">where
@@ -723,8 +724,8 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::digit;
-/// assert_eq!(digit().parse(&amp;b&quot;9&quot;[..]), Ok((b&#39;9&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(digit().parse(&amp;b&quot;A&quot;[..]).is_err());
+/// assert_eq!(digit().parse(&amp;b"9"[..]), Ok((b'9', &amp;b""[..])));
+/// assert!(digit().parse(&amp;b"A"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>digit&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
@@ -734,15 +735,15 @@
     <span class="macro">byte_parser!</span>(digit, Digit, is_ascii_digit())
 }
 
-<span class="doccomment">/// Parses a `b&#39; &#39;`, `b&#39;\t&#39;`, `b&#39;\n&#39;` or `&#39;b\&#39;r&#39;`.
+<span class="doccomment">/// Parses a `b' '`, `b'\t'`, `b'\n'` or `'b\'r'`.
 ///
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::space;
-/// assert_eq!(space().parse(&amp;b&quot; &quot;[..]), Ok((b&#39; &#39;, &amp;b&quot;&quot;[..])));
-/// assert_eq!(space().parse(&amp;b&quot;  &quot;[..]), Ok((b&#39; &#39;, &amp;b&quot; &quot;[..])));
-/// assert!(space().parse(&amp;b&quot;!&quot;[..]).is_err());
-/// assert!(space().parse(&amp;b&quot;&quot;[..]).is_err());
+/// assert_eq!(space().parse(&amp;b" "[..]), Ok((b' ', &amp;b""[..])));
+/// assert_eq!(space().parse(&amp;b"  "[..]), Ok((b' ', &amp;b" "[..])));
+/// assert!(space().parse(&amp;b"!"[..]).is_err());
+/// assert!(space().parse(&amp;b""[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>space&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
@@ -759,64 +760,64 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::spaces;
-/// assert_eq!(spaces().parse(&amp;b&quot;&quot;[..]), Ok(((), &amp;b&quot;&quot;[..])));
-/// assert_eq!(spaces().parse(&amp;b&quot;   &quot;[..]), Ok(((), &amp;b&quot;&quot;[..])));
+/// assert_eq!(spaces().parse(&amp;b""[..]), Ok(((), &amp;b""[..])));
+/// assert_eq!(spaces().parse(&amp;b"   "[..]), Ok(((), &amp;b""[..])));
 /// ```
 </span><span class="kw">pub fn </span>spaces&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    skip_many(space()).expected(<span class="string">&quot;whitespaces&quot;</span>)
+    skip_many(space()).expected(<span class="string">"whitespaces"</span>)
 }
 
-<span class="doccomment">/// Parses a newline byte (`b&#39;\n&#39;`).
+<span class="doccomment">/// Parses a newline byte (`b'\n'`).
 ///
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::newline;
-/// assert_eq!(newline().parse(&amp;b&quot;\n&quot;[..]), Ok((b&#39;\n&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(newline().parse(&amp;b&quot;\r&quot;[..]).is_err());
+/// assert_eq!(newline().parse(&amp;b"\n"[..]), Ok((b'\n', &amp;b""[..])));
+/// assert!(newline().parse(&amp;b"\r"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>newline&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch: u8| ch == <span class="string">b&#39;\n&#39;</span>).expected(<span class="string">&quot;lf newline&quot;</span>)
+    satisfy(|ch: u8| ch == <span class="string">b'\n'</span>).expected(<span class="string">"lf newline"</span>)
 }
 
-<span class="doccomment">/// Parses carriage return and newline (`&amp;b&quot;\r\n&quot;`), returning the newline byte.
+<span class="doccomment">/// Parses carriage return and newline (`&amp;b"\r\n"`), returning the newline byte.
 ///
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::crlf;
-/// assert_eq!(crlf().parse(&amp;b&quot;\r\n&quot;[..]), Ok((b&#39;\n&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(crlf().parse(&amp;b&quot;\r&quot;[..]).is_err());
-/// assert!(crlf().parse(&amp;b&quot;\n&quot;[..]).is_err());
+/// assert_eq!(crlf().parse(&amp;b"\r\n"[..]), Ok((b'\n', &amp;b""[..])));
+/// assert!(crlf().parse(&amp;b"\r"[..]).is_err());
+/// assert!(crlf().parse(&amp;b"\n"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>crlf&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    no_partial(satisfy(|ch: u8| ch == <span class="string">b&#39;\r&#39;</span>).with(newline())).expected(<span class="string">&quot;crlf newline&quot;</span>)
+    no_partial(satisfy(|ch: u8| ch == <span class="string">b'\r'</span>).with(newline())).expected(<span class="string">"crlf newline"</span>)
 }
 
-<span class="doccomment">/// Parses a tab byte (`b&#39;\t&#39;`).
+<span class="doccomment">/// Parses a tab byte (`b'\t'`).
 ///
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::tab;
-/// assert_eq!(tab().parse(&amp;b&quot;\t&quot;[..]), Ok((b&#39;\t&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(tab().parse(&amp;b&quot; &quot;[..]).is_err());
+/// assert_eq!(tab().parse(&amp;b"\t"[..]), Ok((b'\t', &amp;b""[..])));
+/// assert!(tab().parse(&amp;b" "[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>tab&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch| ch == <span class="string">b&#39;\t&#39;</span>).expected(<span class="string">&quot;tab&quot;</span>)
+    satisfy(|ch| ch == <span class="string">b'\t'</span>).expected(<span class="string">"tab"</span>)
 }
 
 <span class="doccomment">/// Parses an uppercase ASCII letter (A–Z).
@@ -824,8 +825,8 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::upper;
-/// assert_eq!(upper().parse(&amp;b&quot;A&quot;[..]), Ok((b&#39;A&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(upper().parse(&amp;b&quot;a&quot;[..]).is_err());
+/// assert_eq!(upper().parse(&amp;b"A"[..]), Ok((b'A', &amp;b""[..])));
+/// assert!(upper().parse(&amp;b"a"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>upper&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
@@ -840,8 +841,8 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::lower;
-/// assert_eq!(lower().parse(&amp;b&quot;a&quot;[..]), Ok((b&#39;a&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(lower().parse(&amp;b&quot;A&quot;[..]).is_err());
+/// assert_eq!(lower().parse(&amp;b"a"[..]), Ok((b'a', &amp;b""[..])));
+/// assert!(lower().parse(&amp;b"A"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>lower&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
@@ -856,9 +857,9 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::alpha_num;
-/// assert_eq!(alpha_num().parse(&amp;b&quot;A&quot;[..]), Ok((b&#39;A&#39;, &amp;b&quot;&quot;[..])));
-/// assert_eq!(alpha_num().parse(&amp;b&quot;1&quot;[..]), Ok((b&#39;1&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(alpha_num().parse(&amp;b&quot;!&quot;[..]).is_err());
+/// assert_eq!(alpha_num().parse(&amp;b"A"[..]), Ok((b'A', &amp;b""[..])));
+/// assert_eq!(alpha_num().parse(&amp;b"1"[..]), Ok((b'1', &amp;b""[..])));
+/// assert!(alpha_num().parse(&amp;b"!"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>alpha_num&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
@@ -873,9 +874,9 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::letter;
-/// assert_eq!(letter().parse(&amp;b&quot;a&quot;[..]), Ok((b&#39;a&#39;, &amp;b&quot;&quot;[..])));
-/// assert_eq!(letter().parse(&amp;b&quot;A&quot;[..]), Ok((b&#39;A&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(letter().parse(&amp;b&quot;9&quot;[..]).is_err());
+/// assert_eq!(letter().parse(&amp;b"a"[..]), Ok((b'a', &amp;b""[..])));
+/// assert_eq!(letter().parse(&amp;b"A"[..]), Ok((b'A', &amp;b""[..])));
+/// assert!(letter().parse(&amp;b"9"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>letter&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
@@ -890,15 +891,15 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::oct_digit;
-/// assert_eq!(oct_digit().parse(&amp;b&quot;7&quot;[..]), Ok((b&#39;7&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(oct_digit().parse(&amp;b&quot;8&quot;[..]).is_err());
+/// assert_eq!(oct_digit().parse(&amp;b"7"[..]), Ok((b'7', &amp;b""[..])));
+/// assert!(oct_digit().parse(&amp;b"8"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>oct_digit&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
-    satisfy(|ch| (<span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;7&#39;</span>).contains(<span class="kw-2">&amp;</span>ch)).expected(<span class="string">&quot;octal digit&quot;</span>)
+    satisfy(|ch| (<span class="string">b'0'</span>..=<span class="string">b'7'</span>).contains(<span class="kw-2">&amp;</span>ch)).expected(<span class="string">"octal digit"</span>)
 }
 
 <span class="doccomment">/// Parses an ASCII hexdecimal digit (accepts both uppercase and lowercase).
@@ -906,8 +907,8 @@
 /// ```
 /// use combine::Parser;
 /// use combine::parser::byte::hex_digit;
-/// assert_eq!(hex_digit().parse(&amp;b&quot;F&quot;[..]), Ok((b&#39;F&#39;, &amp;b&quot;&quot;[..])));
-/// assert!(hex_digit().parse(&amp;b&quot;H&quot;[..]).is_err());
+/// assert_eq!(hex_digit().parse(&amp;b"F"[..]), Ok((b'F', &amp;b""[..])));
+/// assert!(hex_digit().parse(&amp;b"H"[..]).is_err());
 /// ```
 </span><span class="kw">pub fn </span>hex_digit&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
@@ -928,18 +929,18 @@
 /// # use combine::*;
 /// # use combine::parser::byte::bytes;
 /// # fn main() {
-/// let result = bytes(&amp;b&quot;rust&quot;[..])
-///     .parse(&amp;b&quot;rust&quot;[..])
+/// let result = bytes(&amp;b"rust"[..])
+///     .parse(&amp;b"rust"[..])
 ///     .map(|x| x.0);
-/// assert_eq!(result, Ok(&amp;b&quot;rust&quot;[..]));
+/// assert_eq!(result, Ok(&amp;b"rust"[..]));
 /// # }
 /// ```
 ///
 /// [`RangeStream`]: super::super::stream::RangeStream
 /// [`range`]: super::range::range
-</span><span class="kw">pub fn </span>bytes[<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, Input](s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8])(Input) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]
+</span><span class="kw">pub fn </span>bytes[<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, Input](s: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8])(Input) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]
 <span class="kw">where </span>[
-    Input: Stream&lt;Token = u8, Range = <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>[u8]&gt;,
+    Input: Stream&lt;Token = u8, Range = <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8]&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 ]
 {
@@ -959,18 +960,18 @@
 /// # use combine::parser::byte::bytes_cmp;
 /// # use combine::stream::easy::Info;
 /// # fn main() {
-/// let result = bytes_cmp(&amp;b&quot;abc&quot;[..], |l, r| l.eq_ignore_ascii_case(&amp;r))
-///     .parse(&amp;b&quot;AbC&quot;[..]);
-/// assert_eq!(result, Ok((&amp;b&quot;abc&quot;[..], &amp;b&quot;&quot;[..])));
+/// let result = bytes_cmp(&amp;b"abc"[..], |l, r| l.eq_ignore_ascii_case(&amp;r))
+///     .parse(&amp;b"AbC"[..]);
+/// assert_eq!(result, Ok((&amp;b"abc"[..], &amp;b""[..])));
 /// # }
 /// ```
 ///
 /// [`RangeStream`]: super::super::stream::RangeStream
 /// [`range`]: super::range::range
-</span><span class="kw">pub fn </span>bytes_cmp[<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, C, Input](s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8], cmp: C)(Input) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]
+</span><span class="kw">pub fn </span>bytes_cmp[<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, C, Input](s: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8], cmp: C)(Input) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]
 <span class="kw">where </span>[
     C: FnMut(u8, u8) -&gt; bool,
-    Input: Stream&lt;Token = u8, Range = <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>[u8]&gt;,
+    Input: Stream&lt;Token = u8, Range = <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8]&gt;,
     Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 ]
 {
@@ -1019,10 +1020,10 @@
     /// # use combine::parser::byte::take_until_byte;
     /// # use combine::*;
     /// # fn main() {
-    /// let mut parser = take_until_byte(b&#39;\r&#39;);
-    /// let result = parser.parse(&quot;To: user@example.com\r\n&quot;);
-    /// assert_eq!(result, Ok((&quot;To: user@example.com&quot;, &quot;\r\n&quot;)));
-    /// let result = parser.parse(&quot;Hello, world\n&quot;);
+    /// let mut parser = take_until_byte(b'\r');
+    /// let result = parser.parse("To: user@example.com\r\n");
+    /// assert_eq!(result, Ok(("To: user@example.com", "\r\n")));
+    /// let result = parser.parse("Hello, world\n");
     /// assert!(result.is_err());
     /// # }
     /// ```
@@ -1038,29 +1039,29 @@
     /// # use combine::parser::byte::take_until_byte2;
     /// # use combine::*;
     /// # fn main() {
-    /// let mut parser = take_until_byte2(b&#39;\r&#39;, b&#39;\n&#39;);
-    /// let result = parser.parse(&quot;To: user@example.com\r\n&quot;);
-    /// assert_eq!(result, Ok((&quot;To: user@example.com&quot;, &quot;\r\n&quot;)));
-    /// let result = parser.parse(&quot;Hello, world\n&quot;);
-    /// assert_eq!(result, Ok((&quot;Hello, world&quot;, &quot;\n&quot;)));
+    /// let mut parser = take_until_byte2(b'\r', b'\n');
+    /// let result = parser.parse("To: user@example.com\r\n");
+    /// assert_eq!(result, Ok(("To: user@example.com", "\r\n")));
+    /// let result = parser.parse("Hello, world\n");
+    /// assert_eq!(result, Ok(("Hello, world", "\n")));
     /// # }
     /// ```
     </span>TakeUntilByte2, take_until_byte2, memchr2, a, b
 }
 <span class="macro">take_until! </span>{
-    <span class="doccomment">/// Zero-copy parser which reads a range of 0 or more tokens until `a`, &#39;b&#39; or `c` is found.
+    <span class="doccomment">/// Zero-copy parser which reads a range of 0 or more tokens until `a`, 'b' or `c` is found.
     ///
-    /// If `a`, &#39;b&#39; or `c` is not found, the parser will return an error.
+    /// If `a`, 'b' or `c` is not found, the parser will return an error.
     ///
     /// ```
     /// # extern crate combine;
     /// # use combine::parser::byte::take_until_byte3;
     /// # use combine::*;
     /// # fn main() {
-    /// let mut parser = take_until_byte3(b&#39;\r&#39;, b&#39;\n&#39;, b&#39; &#39;);
-    /// let result = parser.parse(&quot;To: user@example.com\r\n&quot;);
-    /// assert_eq!(result, Ok((&quot;To:&quot;, &quot; user@example.com\r\n&quot;)));
-    /// let result = parser.parse(&quot;Helloworld&quot;);
+    /// let mut parser = take_until_byte3(b'\r', b'\n', b' ');
+    /// let result = parser.parse("To: user@example.com\r\n");
+    /// assert_eq!(result, Ok(("To:", " user@example.com\r\n")));
+    /// let result = parser.parse("Helloworld");
     /// assert!(result.is_err());
     /// # }
     /// ```
@@ -1071,7 +1072,7 @@
 <span class="kw">type </span>PartialState = usize;
 <span class="doccomment">/// Zero-copy parser which reads a range of 0 or more tokens until `needle` is found.
 ///
-/// If `a`, &#39;b&#39; or `c` is not found, the parser will return an error.
+/// If `a`, 'b' or `c` is not found, the parser will return an error.
 ///
 /// Optimized variant of [`take_until_range`](../range/fn.take_until_range.html)
 ///
@@ -1079,16 +1080,16 @@
 /// use combine::*;
 /// use combine::parser::byte::take_until_bytes;
 /// assert_eq!(
-///     take_until_bytes(&amp;b&quot;\r\n&quot;[..]).easy_parse(&amp;b&quot;abc\r\n&quot;[..]).map(|(x, _)| x),
-///     Ok((&amp;b&quot;abc&quot;[..]))
+///     take_until_bytes(&amp;b"\r\n"[..]).easy_parse(&amp;b"abc\r\n"[..]).map(|(x, _)| x),
+///     Ok((&amp;b"abc"[..]))
 /// );
 /// // Also works on strings as long as `needle` is UTF-8
 /// assert_eq!(
-///     take_until_bytes(&quot;\r\n&quot;.as_bytes()).easy_parse(&quot;abc\r\n&quot;).map(|(x, _)| x),
-///     Ok((&quot;abc&quot;))
+///     take_until_bytes("\r\n".as_bytes()).easy_parse("abc\r\n").map(|(x, _)| x),
+///     Ok(("abc"))
 /// );
 /// ```
-</span><span class="kw">pub fn </span>take_until_bytes[<span class="lifetime">&#39;a</span>, Input](needle: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8])(Input) -&gt; Input::Range
+</span><span class="kw">pub fn </span>take_until_bytes[<span class="lifetime">'a</span>, Input](needle: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8])(Input) -&gt; Input::Range
 <span class="kw">where </span>[
     Input: RangeStream,
     Input::Range: AsRef&lt;[u8]&gt; + <span class="kw">crate</span>::stream::Range,
@@ -1132,7 +1133,7 @@
             <span class="macro-nonterminal">$output_type</span>: ident, <span class="macro-nonterminal">$be_name</span>: ident, <span class="macro-nonterminal">$le_name</span>: ident, <span class="macro-nonterminal">$read_name</span>: ident
         ) =&gt; {
             $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-            <span class="kw">pub fn </span><span class="macro-nonterminal">$be_name</span>&lt;<span class="lifetime">&#39;a</span>, Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="macro-nonterminal">$output_type</span>, PartialState = ()&gt;
+            <span class="kw">pub fn </span><span class="macro-nonterminal">$be_name</span>&lt;<span class="lifetime">'a</span>, Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="macro-nonterminal">$output_type</span>, PartialState = ()&gt;
             <span class="kw">where
                 </span>Input: Stream&lt;Token = u8&gt;,
                 Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
@@ -1154,7 +1155,7 @@
             }
 
             $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-            <span class="kw">pub fn </span><span class="macro-nonterminal">$le_name</span>&lt;<span class="lifetime">&#39;a</span>, Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="macro-nonterminal">$output_type</span>, PartialState = ()&gt;
+            <span class="kw">pub fn </span><span class="macro-nonterminal">$le_name</span>&lt;<span class="lifetime">'a</span>, Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="macro-nonterminal">$output_type</span>, PartialState = ()&gt;
             <span class="kw">where
                 </span>Input: Stream&lt;Token = u8&gt;,
                 Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
@@ -1184,8 +1185,8 @@
         /// use combine::Parser;
         /// use combine::parser::byte::num::le_u16;
         ///
-        /// assert_eq!(le_u16().parse(&amp;b&quot;\x01\0&quot;[..]), Ok((1, &amp;b&quot;&quot;[..])));
-        /// assert!(le_u16().parse(&amp;b&quot;\0&quot;[..]).is_err());
+        /// assert_eq!(le_u16().parse(&amp;b"\x01\0"[..]), Ok((1, &amp;b""[..])));
+        /// assert!(le_u16().parse(&amp;b"\0"[..]).is_err());
         /// ```
         </span><span class="kw">pub </span>U16, u16, be_u16, le_u16, read_u16
     );
@@ -1196,8 +1197,8 @@
         /// use combine::Parser;
         /// use combine::parser::byte::num::le_u32;
         ///
-        /// assert_eq!(le_u32().parse(&amp;b&quot;\x01\0\0\0&quot;[..]), Ok((1, &amp;b&quot;&quot;[..])));
-        /// assert!(le_u32().parse(&amp;b&quot;\x01\0\0&quot;[..]).is_err());
+        /// assert_eq!(le_u32().parse(&amp;b"\x01\0\0\0"[..]), Ok((1, &amp;b""[..])));
+        /// assert!(le_u32().parse(&amp;b"\x01\0\0"[..]).is_err());
         /// ```
         </span><span class="kw">pub </span>U32, u32, be_u32, le_u32, read_u32
     );
@@ -1208,8 +1209,8 @@
         /// use combine::Parser;
         /// use combine::parser::byte::num::le_u64;
         ///
-        /// assert_eq!(le_u64().parse(&amp;b&quot;\x01\0\0\0\0\0\0\0&quot;[..]), Ok((1, &amp;b&quot;&quot;[..])));
-        /// assert!(le_u64().parse(&amp;b&quot;\x01\0\0\0\0\0\0&quot;[..]).is_err());
+        /// assert_eq!(le_u64().parse(&amp;b"\x01\0\0\0\0\0\0\0"[..]), Ok((1, &amp;b""[..])));
+        /// assert!(le_u64().parse(&amp;b"\x01\0\0\0\0\0\0"[..]).is_err());
         /// ```
         </span><span class="kw">pub </span>U64, u64, be_u64, le_u64, read_u64
     );
@@ -1221,8 +1222,8 @@
         /// use combine::Parser;
         /// use combine::parser::byte::num::le_i16;
         ///
-        /// assert_eq!(le_i16().parse(&amp;b&quot;\x01\0&quot;[..]), Ok((1, &amp;b&quot;&quot;[..])));
-        /// assert!(le_i16().parse(&amp;b&quot;\x01&quot;[..]).is_err());
+        /// assert_eq!(le_i16().parse(&amp;b"\x01\0"[..]), Ok((1, &amp;b""[..])));
+        /// assert!(le_i16().parse(&amp;b"\x01"[..]).is_err());
         /// ```
         </span><span class="kw">pub </span>I16, i16, be_i16, le_i16, read_i16
     );
@@ -1234,8 +1235,8 @@
         /// use combine::Parser;
         /// use combine::parser::byte::num::le_i32;
         ///
-        /// assert_eq!(le_i32().parse(&amp;b&quot;\x01\0\0\0&quot;[..]), Ok((1, &amp;b&quot;&quot;[..])));
-        /// assert!(le_i32().parse(&amp;b&quot;\x01\0\0&quot;[..]).is_err());
+        /// assert_eq!(le_i32().parse(&amp;b"\x01\0\0\0"[..]), Ok((1, &amp;b""[..])));
+        /// assert!(le_i32().parse(&amp;b"\x01\0\0"[..]).is_err());
         /// ```
         </span><span class="kw">pub </span>I32, i32, be_i32, le_i32, read_i32
     );
@@ -1246,8 +1247,8 @@
         /// use combine::Parser;
         /// use combine::parser::byte::num::le_i64;
         ///
-        /// assert_eq!(le_i64().parse(&amp;b&quot;\x01\0\0\0\0\0\0\0&quot;[..]), Ok((1, &amp;b&quot;&quot;[..])));
-        /// assert!(le_i64().parse(&amp;b&quot;\x01\0\0\0\0\0\0&quot;[..]).is_err());
+        /// assert_eq!(le_i64().parse(&amp;b"\x01\0\0\0\0\0\0\0"[..]), Ok((1, &amp;b""[..])));
+        /// assert!(le_i64().parse(&amp;b"\x01\0\0\0\0\0\0"[..]).is_err());
         /// ```
         </span><span class="kw">pub </span>I64, i64, be_i64, le_i64, read_i64
     );
@@ -1260,8 +1261,8 @@
         /// use combine::parser::byte::num::le_f32;
         ///
         /// let buf = 123.45f32.to_le_bytes();
-        /// assert_eq!(le_f32().parse(&amp;buf[..]), Ok((123.45, &amp;b&quot;&quot;[..])));
-        /// assert!(le_f32().parse(&amp;b&quot;\x01\0\0&quot;[..]).is_err());
+        /// assert_eq!(le_f32().parse(&amp;buf[..]), Ok((123.45, &amp;b""[..])));
+        /// assert!(le_f32().parse(&amp;b"\x01\0\0"[..]).is_err());
         /// ```
         </span><span class="kw">pub </span>F32, f32, be_f32, le_f32, read_f32
     );
@@ -1273,13 +1274,13 @@
         /// use combine::parser::byte::num::le_f64;
         ///
         /// let buf = 123.45f64.to_le_bytes();
-        /// assert_eq!(le_f64().parse(&amp;buf[..]), Ok((123.45, &amp;b&quot;&quot;[..])));
-        /// assert!(le_f64().parse(&amp;b&quot;\x01\0\0\0\0\0\0&quot;[..]).is_err());
+        /// assert_eq!(le_f64().parse(&amp;buf[..]), Ok((123.45, &amp;b""[..])));
+        /// assert!(le_f64().parse(&amp;b"\x01\0\0\0\0\0\0"[..]).is_err());
         /// ```
         </span><span class="kw">pub </span>F64, f64, be_f64, le_f64, read_f64
     );
 
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, test))]
+    <span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, test))]
     </span><span class="kw">mod </span>tests {
 
         <span class="kw">use </span><span class="kw">crate</span>::stream::{buffered, position, IteratorStream};
@@ -1321,7 +1322,7 @@
     }
 }
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, test))]
+<span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, test))]
 </span><span class="kw">mod </span>tests {
 
     <span class="kw">use </span><span class="kw">crate</span>::stream::{buffered, position, read};
@@ -1330,25 +1331,25 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>memslice_basic() {
-        <span class="kw">let </span>haystack = <span class="string">b&quot;abc123&quot;</span>;
-        <span class="macro">assert_eq!</span>(memslice(<span class="string">b&quot;&quot;</span>, haystack), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(memslice(<span class="string">b&quot;a&quot;</span>, haystack), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(memslice(<span class="string">b&quot;ab&quot;</span>, haystack), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(memslice(<span class="string">b&quot;c12&quot;</span>, haystack), <span class="prelude-val">Some</span>(<span class="number">2</span>));
+        <span class="kw">let </span>haystack = <span class="string">b"abc123"</span>;
+        <span class="macro">assert_eq!</span>(memslice(<span class="string">b""</span>, haystack), <span class="prelude-val">Some</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(memslice(<span class="string">b"a"</span>, haystack), <span class="prelude-val">Some</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(memslice(<span class="string">b"ab"</span>, haystack), <span class="prelude-val">Some</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(memslice(<span class="string">b"c12"</span>, haystack), <span class="prelude-val">Some</span>(<span class="number">2</span>));
 
-        <span class="kw">let </span>haystack2 = <span class="string">b&quot;abcab2&quot;</span>;
-        <span class="macro">assert_eq!</span>(memslice(<span class="string">b&quot;abc&quot;</span>, haystack2), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(memslice(<span class="string">b&quot;ab2&quot;</span>, haystack2), <span class="prelude-val">Some</span>(<span class="number">3</span>));
+        <span class="kw">let </span>haystack2 = <span class="string">b"abcab2"</span>;
+        <span class="macro">assert_eq!</span>(memslice(<span class="string">b"abc"</span>, haystack2), <span class="prelude-val">Some</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(memslice(<span class="string">b"ab2"</span>, haystack2), <span class="prelude-val">Some</span>(<span class="number">3</span>));
 
-        <span class="kw">let </span>haystack3 = <span class="string">b&quot;aaabaaaa&quot;</span>;
-        <span class="macro">assert_eq!</span>(memslice(<span class="string">b&quot;aaaa&quot;</span>, haystack3), <span class="prelude-val">Some</span>(<span class="number">4</span>));
+        <span class="kw">let </span>haystack3 = <span class="string">b"aaabaaaa"</span>;
+        <span class="macro">assert_eq!</span>(memslice(<span class="string">b"aaaa"</span>, haystack3), <span class="prelude-val">Some</span>(<span class="number">4</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>bytes_read_stream() {
-        <span class="macro">assert!</span>(bytes(<span class="string">b&quot;abc&quot;</span>)
+        <span class="macro">assert!</span>(bytes(<span class="string">b"abc"</span>)
             .parse(buffered::Stream::new(
-                position::Stream::new(read::Stream::new(<span class="string">&quot;abc&quot;</span>.as_bytes())),
+                position::Stream::new(read::Stream::new(<span class="string">"abc"</span>.as_bytes())),
                 <span class="number">1
             </span>))
             .is_ok());

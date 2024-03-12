@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.33/src/round.rs`."><title>round.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.34/src/round.rs`."><title>round.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -774,16 +775,33 @@
 <a href="#774" id="774">774</a>
 <a href="#775" id="775">775</a>
 <a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
 </pre></div><pre class="rust"><code><span class="comment">// This is a part of Chrono.
 // See README.md and LICENSE.txt for details.
 
-</span><span class="doccomment">//! Functionality for rounding or truncating a `DateTime` by a `Duration`.
+</span><span class="doccomment">//! Functionality for rounding or truncating a `DateTime` by a `TimeDelta`.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::datetime::DateTime;
-<span class="kw">use </span><span class="kw">crate</span>::duration::Duration;
-<span class="kw">use </span><span class="kw">crate</span>::NaiveDateTime;
-<span class="kw">use </span><span class="kw">crate</span>::TimeZone;
-<span class="kw">use </span><span class="kw">crate</span>::Timelike;
+</span><span class="kw">use crate</span>::{DateTime, NaiveDateTime, TimeDelta, TimeZone, Timelike};
 <span class="kw">use </span>core::cmp::Ordering;
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::marker::Sized;
@@ -824,7 +842,7 @@
 
 <span class="kw">impl</span>&lt;T&gt; SubsecRound <span class="kw">for </span>T
 <span class="kw">where
-    </span>T: Timelike + Add&lt;Duration, Output = T&gt; + Sub&lt;Duration, Output = T&gt;,
+    </span>T: Timelike + Add&lt;TimeDelta, Output = T&gt; + Sub&lt;TimeDelta, Output = T&gt;,
 {
     <span class="kw">fn </span>round_subsecs(<span class="self">self</span>, digits: u16) -&gt; T {
         <span class="kw">let </span>span = span_for_digits(digits);
@@ -832,9 +850,9 @@
         <span class="kw">if </span>delta_down &gt; <span class="number">0 </span>{
             <span class="kw">let </span>delta_up = span - delta_down;
             <span class="kw">if </span>delta_up &lt;= delta_down {
-                <span class="self">self </span>+ Duration::nanoseconds(delta_up.into())
+                <span class="self">self </span>+ TimeDelta::nanoseconds(delta_up.into())
             } <span class="kw">else </span>{
-                <span class="self">self </span>- Duration::nanoseconds(delta_down.into())
+                <span class="self">self </span>- TimeDelta::nanoseconds(delta_down.into())
             }
         } <span class="kw">else </span>{
             <span class="self">self </span><span class="comment">// unchanged
@@ -845,7 +863,7 @@
         <span class="kw">let </span>span = span_for_digits(digits);
         <span class="kw">let </span>delta_down = <span class="self">self</span>.nanosecond() % span;
         <span class="kw">if </span>delta_down &gt; <span class="number">0 </span>{
-            <span class="self">self </span>- Duration::nanoseconds(delta_down.into())
+            <span class="self">self </span>- TimeDelta::nanoseconds(delta_down.into())
         } <span class="kw">else </span>{
             <span class="self">self </span><span class="comment">// unchanged
         </span>}
@@ -869,65 +887,65 @@
     }
 }
 
-<span class="doccomment">/// Extension trait for rounding or truncating a DateTime by a Duration.
+<span class="doccomment">/// Extension trait for rounding or truncating a DateTime by a TimeDelta.
 ///
 /// # Limitations
-/// Both rounding and truncating are done via [`Duration::num_nanoseconds`] and
-/// [`DateTime::timestamp_nanos`]. This means that they will fail if either the
-/// `Duration` or the `DateTime` are too big to represented as nanoseconds. They
-/// will also fail if the `Duration` is bigger than the timestamp.
+/// Both rounding and truncating are done via [`TimeDelta::num_nanoseconds`] and
+/// [`DateTime::timestamp_nanos_opt`]. This means that they will fail if either the
+/// `TimeDelta` or the `DateTime` are too big to represented as nanoseconds. They
+/// will also fail if the `TimeDelta` is bigger than the timestamp.
 </span><span class="kw">pub trait </span>DurationRound: Sized {
     <span class="doccomment">/// Error that can occur in rounding or truncating
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">type </span><span class="prelude-val">Err</span>: std::error::Error;
 
     <span class="doccomment">/// Error that can occur in rounding or truncating
-    </span><span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="kw">type </span><span class="prelude-val">Err</span>: fmt::Debug + fmt::Display;
 
-    <span class="doccomment">/// Return a copy rounded by Duration.
+    <span class="doccomment">/// Return a copy rounded by TimeDelta.
     ///
     /// # Example
     /// ``` rust
-    /// # use chrono::{DurationRound, Duration, Utc, NaiveDate};
+    /// # use chrono::{DurationRound, TimeDelta, Utc, NaiveDate};
     /// let dt = NaiveDate::from_ymd_opt(2018, 1, 11).unwrap().and_hms_milli_opt(12, 0, 0, 154).unwrap().and_local_timezone(Utc).unwrap();
     /// assert_eq!(
-    ///     dt.duration_round(Duration::milliseconds(10)).unwrap().to_string(),
-    ///     &quot;2018-01-11 12:00:00.150 UTC&quot;
+    ///     dt.duration_round(TimeDelta::milliseconds(10)).unwrap().to_string(),
+    ///     "2018-01-11 12:00:00.150 UTC"
     /// );
     /// assert_eq!(
-    ///     dt.duration_round(Duration::days(1)).unwrap().to_string(),
-    ///     &quot;2018-01-12 00:00:00 UTC&quot;
+    ///     dt.duration_round(TimeDelta::days(1)).unwrap().to_string(),
+    ///     "2018-01-12 00:00:00 UTC"
     /// );
     /// ```
-    </span><span class="kw">fn </span>duration_round(<span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt;;
+    </span><span class="kw">fn </span>duration_round(<span class="self">self</span>, duration: TimeDelta) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt;;
 
-    <span class="doccomment">/// Return a copy truncated by Duration.
+    <span class="doccomment">/// Return a copy truncated by TimeDelta.
     ///
     /// # Example
     /// ``` rust
-    /// # use chrono::{DurationRound, Duration, Utc, NaiveDate};
+    /// # use chrono::{DurationRound, TimeDelta, Utc, NaiveDate};
     /// let dt = NaiveDate::from_ymd_opt(2018, 1, 11).unwrap().and_hms_milli_opt(12, 0, 0, 154).unwrap().and_local_timezone(Utc).unwrap();
     /// assert_eq!(
-    ///     dt.duration_trunc(Duration::milliseconds(10)).unwrap().to_string(),
-    ///     &quot;2018-01-11 12:00:00.150 UTC&quot;
+    ///     dt.duration_trunc(TimeDelta::milliseconds(10)).unwrap().to_string(),
+    ///     "2018-01-11 12:00:00.150 UTC"
     /// );
     /// assert_eq!(
-    ///     dt.duration_trunc(Duration::days(1)).unwrap().to_string(),
-    ///     &quot;2018-01-11 00:00:00 UTC&quot;
+    ///     dt.duration_trunc(TimeDelta::days(1)).unwrap().to_string(),
+    ///     "2018-01-11 00:00:00 UTC"
     /// );
     /// ```
-    </span><span class="kw">fn </span>duration_trunc(<span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt;;
+    </span><span class="kw">fn </span>duration_trunc(<span class="self">self</span>, duration: TimeDelta) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt;;
 }
 
 <span class="kw">impl</span>&lt;Tz: TimeZone&gt; DurationRound <span class="kw">for </span>DateTime&lt;Tz&gt; {
     <span class="kw">type </span><span class="prelude-val">Err </span>= RoundingError;
 
-    <span class="kw">fn </span>duration_round(<span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+    <span class="kw">fn </span>duration_round(<span class="self">self</span>, duration: TimeDelta) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         duration_round(<span class="self">self</span>.naive_local(), <span class="self">self</span>, duration)
     }
 
-    <span class="kw">fn </span>duration_trunc(<span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+    <span class="kw">fn </span>duration_trunc(<span class="self">self</span>, duration: TimeDelta) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         duration_trunc(<span class="self">self</span>.naive_local(), <span class="self">self</span>, duration)
     }
 }
@@ -935,11 +953,11 @@
 <span class="kw">impl </span>DurationRound <span class="kw">for </span>NaiveDateTime {
     <span class="kw">type </span><span class="prelude-val">Err </span>= RoundingError;
 
-    <span class="kw">fn </span>duration_round(<span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+    <span class="kw">fn </span>duration_round(<span class="self">self</span>, duration: TimeDelta) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         duration_round(<span class="self">self</span>, <span class="self">self</span>, duration)
     }
 
-    <span class="kw">fn </span>duration_trunc(<span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+    <span class="kw">fn </span>duration_trunc(<span class="self">self</span>, duration: TimeDelta) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         duration_trunc(<span class="self">self</span>, <span class="self">self</span>, duration)
     }
 }
@@ -947,19 +965,16 @@
 <span class="kw">fn </span>duration_round&lt;T&gt;(
     naive: NaiveDateTime,
     original: T,
-    duration: Duration,
+    duration: TimeDelta,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;T, RoundingError&gt;
 <span class="kw">where
-    </span>T: Timelike + Add&lt;Duration, Output = T&gt; + Sub&lt;Duration, Output = T&gt;,
+    </span>T: Timelike + Add&lt;TimeDelta, Output = T&gt; + Sub&lt;TimeDelta, Output = T&gt;,
 {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = duration.num_nanoseconds() {
         <span class="kw">if </span>span &lt; <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(RoundingError::DurationExceedsLimit);
         }
         <span class="kw">let </span>stamp = naive.timestamp_nanos_opt().ok_or(RoundingError::TimestampExceedsLimit)<span class="question-mark">?</span>;
-        <span class="kw">if </span>span &gt; stamp.abs() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(RoundingError::DurationExceedsTimestamp);
-        }
         <span class="kw">if </span>span == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(original);
         }
@@ -973,9 +988,9 @@
                 (span - delta_down, delta_down)
             };
             <span class="kw">if </span>delta_up &lt;= delta_down {
-                <span class="prelude-val">Ok</span>(original + Duration::nanoseconds(delta_up))
+                <span class="prelude-val">Ok</span>(original + TimeDelta::nanoseconds(delta_up))
             } <span class="kw">else </span>{
-                <span class="prelude-val">Ok</span>(original - Duration::nanoseconds(delta_down))
+                <span class="prelude-val">Ok</span>(original - TimeDelta::nanoseconds(delta_down))
             }
         }
     } <span class="kw">else </span>{
@@ -986,56 +1001,45 @@
 <span class="kw">fn </span>duration_trunc&lt;T&gt;(
     naive: NaiveDateTime,
     original: T,
-    duration: Duration,
+    duration: TimeDelta,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;T, RoundingError&gt;
 <span class="kw">where
-    </span>T: Timelike + Add&lt;Duration, Output = T&gt; + Sub&lt;Duration, Output = T&gt;,
+    </span>T: Timelike + Add&lt;TimeDelta, Output = T&gt; + Sub&lt;TimeDelta, Output = T&gt;,
 {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = duration.num_nanoseconds() {
         <span class="kw">if </span>span &lt; <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(RoundingError::DurationExceedsLimit);
         }
         <span class="kw">let </span>stamp = naive.timestamp_nanos_opt().ok_or(RoundingError::TimestampExceedsLimit)<span class="question-mark">?</span>;
-        <span class="kw">if </span>span &gt; stamp.abs() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(RoundingError::DurationExceedsTimestamp);
-        }
         <span class="kw">let </span>delta_down = stamp % span;
         <span class="kw">match </span>delta_down.cmp(<span class="kw-2">&amp;</span><span class="number">0</span>) {
             Ordering::Equal =&gt; <span class="prelude-val">Ok</span>(original),
-            Ordering::Greater =&gt; <span class="prelude-val">Ok</span>(original - Duration::nanoseconds(delta_down)),
-            Ordering::Less =&gt; <span class="prelude-val">Ok</span>(original - Duration::nanoseconds(span - delta_down.abs())),
+            Ordering::Greater =&gt; <span class="prelude-val">Ok</span>(original - TimeDelta::nanoseconds(delta_down)),
+            Ordering::Less =&gt; <span class="prelude-val">Ok</span>(original - TimeDelta::nanoseconds(span - delta_down.abs())),
         }
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(RoundingError::DurationExceedsLimit)
     }
 }
 
-<span class="doccomment">/// An error from rounding by `Duration`
+<span class="doccomment">/// An error from rounding by `TimeDelta`
 ///
 /// See: [`DurationRound`]
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Copy)]
 </span><span class="kw">pub enum </span>RoundingError {
-    <span class="doccomment">/// Error when the Duration exceeds the Duration from or until the Unix epoch.
+    <span class="doccomment">/// Error when the TimeDelta exceeds the TimeDelta from or until the Unix epoch.
     ///
-    /// ``` rust
-    /// # use chrono::{DurationRound, Duration, RoundingError, TimeZone, Utc};
-    /// let dt = Utc.with_ymd_and_hms(1970, 12, 12, 0, 0, 0).unwrap();
-    ///
-    /// assert_eq!(
-    ///     dt.duration_round(Duration::days(365)),
-    ///     Err(RoundingError::DurationExceedsTimestamp),
-    /// );
-    /// ```
+    /// Note: this error is not produced anymore.
     </span>DurationExceedsTimestamp,
 
-    <span class="doccomment">/// Error when `Duration.num_nanoseconds` exceeds the limit.
+    <span class="doccomment">/// Error when `TimeDelta.num_nanoseconds` exceeds the limit.
     ///
     /// ``` rust
-    /// # use chrono::{DurationRound, Duration, RoundingError, Utc, NaiveDate};
+    /// # use chrono::{DurationRound, TimeDelta, RoundingError, Utc, NaiveDate};
     /// let dt = NaiveDate::from_ymd_opt(2260, 12, 31).unwrap().and_hms_nano_opt(23, 59, 59, 1_75_500_000).unwrap().and_local_timezone(Utc).unwrap();
     ///
     /// assert_eq!(
-    ///     dt.duration_round(Duration::days(300 * 365)),
+    ///     dt.duration_round(TimeDelta::days(300 * 365)),
     ///     Err(RoundingError::DurationExceedsLimit)
     /// );
     /// ```
@@ -1044,10 +1048,10 @@
     <span class="doccomment">/// Error when `DateTime.timestamp_nanos` exceeds the limit.
     ///
     /// ``` rust
-    /// # use chrono::{DurationRound, Duration, RoundingError, TimeZone, Utc};
+    /// # use chrono::{DurationRound, TimeDelta, RoundingError, TimeZone, Utc};
     /// let dt = Utc.with_ymd_and_hms(2300, 12, 12, 0, 0, 0).unwrap();
     ///
-    /// assert_eq!(dt.duration_round(Duration::days(1)), Err(RoundingError::TimestampExceedsLimit),);
+    /// assert_eq!(dt.duration_round(TimeDelta::days(1)), Err(RoundingError::TimestampExceedsLimit),);
     /// ```
     </span>TimestampExceedsLimit,
 }
@@ -1056,29 +1060,29 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             RoundingError::DurationExceedsTimestamp =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;duration in nanoseconds exceeds timestamp&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"duration in nanoseconds exceeds timestamp"</span>)
             }
             RoundingError::DurationExceedsLimit =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;duration exceeds num_nanoseconds limit&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"duration exceeds num_nanoseconds limit"</span>)
             }
             RoundingError::TimestampExceedsLimit =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;timestamp exceeds num_nanoseconds limit&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"timestamp exceeds num_nanoseconds limit"</span>)
             }
         }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>RoundingError {
     <span class="attr">#[allow(deprecated)]
     </span><span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="string">&quot;error from rounding or truncating with DurationRound&quot;
+        <span class="string">"error from rounding or truncating with DurationRound"
     </span>}
 }
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::{Duration, DurationRound, RoundingError, SubsecRound};
+    <span class="kw">use super</span>::{DurationRound, RoundingError, SubsecRound, TimeDelta};
     <span class="kw">use </span><span class="kw">crate</span>::offset::{FixedOffset, TimeZone, Utc};
     <span class="kw">use </span><span class="kw">crate</span>::Timelike;
     <span class="kw">use crate</span>::{NaiveDate, NaiveDateTime};
@@ -1223,13 +1227,13 @@
             .unwrap();
 
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::zero()).unwrap().to_string(),
-            <span class="string">&quot;2016-12-31 23:59:59.175500 UTC&quot;
+            dt.duration_round(TimeDelta::zero()).unwrap().to_string(),
+            <span class="string">"2016-12-31 23:59:59.175500 UTC"
         </span>);
 
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::milliseconds(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;2016-12-31 23:59:59.180 UTC&quot;
+            dt.duration_round(TimeDelta::milliseconds(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"2016-12-31 23:59:59.180 UTC"
         </span>);
 
         <span class="comment">// round up
@@ -1242,8 +1246,8 @@
             )
             .unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::minutes(<span class="number">5</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:25:00 UTC&quot;
+            dt.duration_round(TimeDelta::minutes(<span class="number">5</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:25:00 UTC"
         </span>);
         <span class="comment">// round down
         </span><span class="kw">let </span>dt = Utc
@@ -1255,49 +1259,49 @@
             )
             .unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::minutes(<span class="number">5</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00 UTC&quot;
+            dt.duration_round(TimeDelta::minutes(<span class="number">5</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00 UTC"
         </span>);
 
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::minutes(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00 UTC&quot;
+            dt.duration_round(TimeDelta::minutes(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00 UTC"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::minutes(<span class="number">30</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:30:00 UTC&quot;
+            dt.duration_round(TimeDelta::minutes(<span class="number">30</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:30:00 UTC"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::hours(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:00:00 UTC&quot;
+            dt.duration_round(TimeDelta::hours(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:00:00 UTC"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::days(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-13 00:00:00 UTC&quot;
+            dt.duration_round(TimeDelta::days(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-13 00:00:00 UTC"
         </span>);
 
         <span class="comment">// timezone east
         </span><span class="kw">let </span>dt =
             FixedOffset::east_opt(<span class="number">3600</span>).unwrap().with_ymd_and_hms(<span class="number">2020</span>, <span class="number">10</span>, <span class="number">27</span>, <span class="number">15</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::days(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2020-10-28 00:00:00 +01:00&quot;
+            dt.duration_round(TimeDelta::days(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2020-10-28 00:00:00 +01:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::weeks(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2020-10-29 00:00:00 +01:00&quot;
+            dt.duration_round(TimeDelta::weeks(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2020-10-29 00:00:00 +01:00"
         </span>);
 
         <span class="comment">// timezone west
         </span><span class="kw">let </span>dt =
             FixedOffset::west_opt(<span class="number">3600</span>).unwrap().with_ymd_and_hms(<span class="number">2020</span>, <span class="number">10</span>, <span class="number">27</span>, <span class="number">15</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::days(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2020-10-28 00:00:00 -01:00&quot;
+            dt.duration_round(TimeDelta::days(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2020-10-28 00:00:00 -01:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::weeks(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2020-10-29 00:00:00 -01:00&quot;
+            dt.duration_round(TimeDelta::weeks(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2020-10-29 00:00:00 -01:00"
         </span>);
     }
 
@@ -1314,13 +1318,13 @@
             .naive_utc();
 
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::zero()).unwrap().to_string(),
-            <span class="string">&quot;2016-12-31 23:59:59.175500&quot;
+            dt.duration_round(TimeDelta::zero()).unwrap().to_string(),
+            <span class="string">"2016-12-31 23:59:59.175500"
         </span>);
 
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::milliseconds(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;2016-12-31 23:59:59.180&quot;
+            dt.duration_round(TimeDelta::milliseconds(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"2016-12-31 23:59:59.180"
         </span>);
 
         <span class="comment">// round up
@@ -1334,8 +1338,8 @@
             .unwrap()
             .naive_utc();
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::minutes(<span class="number">5</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:25:00&quot;
+            dt.duration_round(TimeDelta::minutes(<span class="number">5</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:25:00"
         </span>);
         <span class="comment">// round down
         </span><span class="kw">let </span>dt = Utc
@@ -1348,25 +1352,25 @@
             .unwrap()
             .naive_utc();
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::minutes(<span class="number">5</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00&quot;
+            dt.duration_round(TimeDelta::minutes(<span class="number">5</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00"
         </span>);
 
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::minutes(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00&quot;
+            dt.duration_round(TimeDelta::minutes(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::minutes(<span class="number">30</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:30:00&quot;
+            dt.duration_round(TimeDelta::minutes(<span class="number">30</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:30:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::hours(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:00:00&quot;
+            dt.duration_round(TimeDelta::hours(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:00:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::days(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-13 00:00:00&quot;
+            dt.duration_round(TimeDelta::days(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-13 00:00:00"
         </span>);
     }
 
@@ -1374,8 +1378,8 @@
     </span><span class="kw">fn </span>test_duration_round_pre_epoch() {
         <span class="kw">let </span>dt = Utc.with_ymd_and_hms(<span class="number">1969</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="number">12</span>).unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_round(Duration::minutes(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;1969-12-12 12:10:00 UTC&quot;
+            dt.duration_round(TimeDelta::minutes(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"1969-12-12 12:10:00 UTC"
         </span>);
     }
 
@@ -1391,8 +1395,8 @@
             .unwrap();
 
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::milliseconds(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;2016-12-31 23:59:59.170 UTC&quot;
+            dt.duration_trunc(TimeDelta::milliseconds(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"2016-12-31 23:59:59.170 UTC"
         </span>);
 
         <span class="comment">// would round up
@@ -1405,8 +1409,8 @@
             )
             .unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::minutes(<span class="number">5</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00 UTC&quot;
+            dt.duration_trunc(TimeDelta::minutes(<span class="number">5</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00 UTC"
         </span>);
         <span class="comment">// would round down
         </span><span class="kw">let </span>dt = Utc
@@ -1418,48 +1422,48 @@
             )
             .unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::minutes(<span class="number">5</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00 UTC&quot;
+            dt.duration_trunc(TimeDelta::minutes(<span class="number">5</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00 UTC"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::minutes(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00 UTC&quot;
+            dt.duration_trunc(TimeDelta::minutes(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00 UTC"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::minutes(<span class="number">30</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:00:00 UTC&quot;
+            dt.duration_trunc(TimeDelta::minutes(<span class="number">30</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:00:00 UTC"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::hours(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:00:00 UTC&quot;
+            dt.duration_trunc(TimeDelta::hours(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:00:00 UTC"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::days(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 00:00:00 UTC&quot;
+            dt.duration_trunc(TimeDelta::days(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 00:00:00 UTC"
         </span>);
 
         <span class="comment">// timezone east
         </span><span class="kw">let </span>dt =
             FixedOffset::east_opt(<span class="number">3600</span>).unwrap().with_ymd_and_hms(<span class="number">2020</span>, <span class="number">10</span>, <span class="number">27</span>, <span class="number">15</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::days(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2020-10-27 00:00:00 +01:00&quot;
+            dt.duration_trunc(TimeDelta::days(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2020-10-27 00:00:00 +01:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::weeks(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2020-10-22 00:00:00 +01:00&quot;
+            dt.duration_trunc(TimeDelta::weeks(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2020-10-22 00:00:00 +01:00"
         </span>);
 
         <span class="comment">// timezone west
         </span><span class="kw">let </span>dt =
             FixedOffset::west_opt(<span class="number">3600</span>).unwrap().with_ymd_and_hms(<span class="number">2020</span>, <span class="number">10</span>, <span class="number">27</span>, <span class="number">15</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::days(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2020-10-27 00:00:00 -01:00&quot;
+            dt.duration_trunc(TimeDelta::days(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2020-10-27 00:00:00 -01:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::weeks(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2020-10-22 00:00:00 -01:00&quot;
+            dt.duration_trunc(TimeDelta::weeks(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2020-10-22 00:00:00 -01:00"
         </span>);
     }
 
@@ -1476,8 +1480,8 @@
             .naive_utc();
 
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::milliseconds(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;2016-12-31 23:59:59.170&quot;
+            dt.duration_trunc(TimeDelta::milliseconds(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"2016-12-31 23:59:59.170"
         </span>);
 
         <span class="comment">// would round up
@@ -1491,8 +1495,8 @@
             .unwrap()
             .naive_utc();
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::minutes(<span class="number">5</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00&quot;
+            dt.duration_trunc(TimeDelta::minutes(<span class="number">5</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00"
         </span>);
         <span class="comment">// would round down
         </span><span class="kw">let </span>dt = Utc
@@ -1505,24 +1509,24 @@
             .unwrap()
             .naive_utc();
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::minutes(<span class="number">5</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00&quot;
+            dt.duration_trunc(TimeDelta::minutes(<span class="number">5</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::minutes(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:20:00&quot;
+            dt.duration_trunc(TimeDelta::minutes(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:20:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::minutes(<span class="number">30</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:00:00&quot;
+            dt.duration_trunc(TimeDelta::minutes(<span class="number">30</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:00:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::hours(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 18:00:00&quot;
+            dt.duration_trunc(TimeDelta::hours(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 18:00:00"
         </span>);
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::days(<span class="number">1</span>)).unwrap().to_string(),
-            <span class="string">&quot;2012-12-12 00:00:00&quot;
+            dt.duration_trunc(TimeDelta::days(<span class="number">1</span>)).unwrap().to_string(),
+            <span class="string">"2012-12-12 00:00:00"
         </span>);
     }
 
@@ -1530,24 +1534,63 @@
     </span><span class="kw">fn </span>test_duration_trunc_pre_epoch() {
         <span class="kw">let </span>dt = Utc.with_ymd_and_hms(<span class="number">1969</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="number">12</span>, <span class="number">12</span>).unwrap();
         <span class="macro">assert_eq!</span>(
-            dt.duration_trunc(Duration::minutes(<span class="number">10</span>)).unwrap().to_string(),
-            <span class="string">&quot;1969-12-12 12:10:00 UTC&quot;
+            dt.duration_trunc(TimeDelta::minutes(<span class="number">10</span>)).unwrap().to_string(),
+            <span class="string">"1969-12-12 12:10:00 UTC"
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>issue1010() {
         <span class="kw">let </span>dt = NaiveDateTime::from_timestamp_opt(-<span class="number">4_227_854_320</span>, <span class="number">678_774_288</span>).unwrap();
-        <span class="kw">let </span>span = Duration::microseconds(-<span class="number">7_019_067_213_869_040</span>);
+        <span class="kw">let </span>span = TimeDelta::microseconds(-<span class="number">7_019_067_213_869_040</span>);
         <span class="macro">assert_eq!</span>(dt.duration_trunc(span), <span class="prelude-val">Err</span>(RoundingError::DurationExceedsLimit));
 
         <span class="kw">let </span>dt = NaiveDateTime::from_timestamp_opt(<span class="number">320_041_586</span>, <span class="number">920_103_021</span>).unwrap();
-        <span class="kw">let </span>span = Duration::nanoseconds(-<span class="number">8_923_838_508_697_114_584</span>);
+        <span class="kw">let </span>span = TimeDelta::nanoseconds(-<span class="number">8_923_838_508_697_114_584</span>);
         <span class="macro">assert_eq!</span>(dt.duration_round(span), <span class="prelude-val">Err</span>(RoundingError::DurationExceedsLimit));
 
         <span class="kw">let </span>dt = NaiveDateTime::from_timestamp_opt(-<span class="number">2_621_440</span>, <span class="number">0</span>).unwrap();
-        <span class="kw">let </span>span = Duration::nanoseconds(-<span class="number">9_223_372_036_854_771_421</span>);
+        <span class="kw">let </span>span = TimeDelta::nanoseconds(-<span class="number">9_223_372_036_854_771_421</span>);
         <span class="macro">assert_eq!</span>(dt.duration_round(span), <span class="prelude-val">Err</span>(RoundingError::DurationExceedsLimit));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_duration_trunc_close_to_epoch() {
+        <span class="kw">let </span>span = TimeDelta::minutes(<span class="number">15</span>);
+
+        <span class="kw">let </span>dt = NaiveDate::from_ymd_opt(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().and_hms_opt(<span class="number">0</span>, <span class="number">0</span>, <span class="number">15</span>).unwrap();
+        <span class="macro">assert_eq!</span>(dt.duration_trunc(span).unwrap().to_string(), <span class="string">"1970-01-01 00:00:00"</span>);
+
+        <span class="kw">let </span>dt = NaiveDate::from_ymd_opt(<span class="number">1969</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap().and_hms_opt(<span class="number">23</span>, <span class="number">59</span>, <span class="number">45</span>).unwrap();
+        <span class="macro">assert_eq!</span>(dt.duration_trunc(span).unwrap().to_string(), <span class="string">"1969-12-31 23:45:00"</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_duration_round_close_to_epoch() {
+        <span class="kw">let </span>span = TimeDelta::minutes(<span class="number">15</span>);
+
+        <span class="kw">let </span>dt = NaiveDate::from_ymd_opt(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().and_hms_opt(<span class="number">0</span>, <span class="number">0</span>, <span class="number">15</span>).unwrap();
+        <span class="macro">assert_eq!</span>(dt.duration_round(span).unwrap().to_string(), <span class="string">"1970-01-01 00:00:00"</span>);
+
+        <span class="kw">let </span>dt = NaiveDate::from_ymd_opt(<span class="number">1969</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap().and_hms_opt(<span class="number">23</span>, <span class="number">59</span>, <span class="number">45</span>).unwrap();
+        <span class="macro">assert_eq!</span>(dt.duration_round(span).unwrap().to_string(), <span class="string">"1970-01-01 00:00:00"</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_duration_round_close_to_min_max() {
+        <span class="kw">let </span>span = TimeDelta::nanoseconds(i64::MAX);
+
+        <span class="kw">let </span>dt = NaiveDateTime::from_timestamp_nanos(i64::MIN / <span class="number">2 </span>- <span class="number">1</span>).unwrap();
+        <span class="macro">assert_eq!</span>(dt.duration_round(span).unwrap().to_string(), <span class="string">"1677-09-21 00:12:43.145224193"</span>);
+
+        <span class="kw">let </span>dt = NaiveDateTime::from_timestamp_nanos(i64::MIN / <span class="number">2 </span>+ <span class="number">1</span>).unwrap();
+        <span class="macro">assert_eq!</span>(dt.duration_round(span).unwrap().to_string(), <span class="string">"1970-01-01 00:00:00"</span>);
+
+        <span class="kw">let </span>dt = NaiveDateTime::from_timestamp_nanos(i64::MAX / <span class="number">2 </span>+ <span class="number">1</span>).unwrap();
+        <span class="macro">assert_eq!</span>(dt.duration_round(span).unwrap().to_string(), <span class="string">"2262-04-11 23:47:16.854775807"</span>);
+
+        <span class="kw">let </span>dt = NaiveDateTime::from_timestamp_nanos(i64::MAX / <span class="number">2 </span>- <span class="number">1</span>).unwrap();
+        <span class="macro">assert_eq!</span>(dt.duration_round(span).unwrap().to_string(), <span class="string">"1970-01-01 00:00:00"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

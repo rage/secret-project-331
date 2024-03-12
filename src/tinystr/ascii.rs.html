@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tinystr-0.7.5/src/ascii.rs`."><title>ascii.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tinystr" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tinystr-0.7.5/src/ascii.rs`."><title>ascii.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tinystr" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1017,14 +1018,14 @@
     /// use tinystr::TinyAsciiStr;
     ///
     /// assert_eq!(
-    ///     TinyAsciiStr::&lt;3&gt;::try_from_raw(*b&quot;GB\0&quot;),
-    ///     Ok(tinystr!(3, &quot;GB&quot;))
+    ///     TinyAsciiStr::&lt;3&gt;::try_from_raw(*b"GB\0"),
+    ///     Ok(tinystr!(3, "GB"))
     /// );
     /// assert_eq!(
-    ///     TinyAsciiStr::&lt;3&gt;::try_from_raw(*b&quot;USD&quot;),
-    ///     Ok(tinystr!(3, &quot;USD&quot;))
+    ///     TinyAsciiStr::&lt;3&gt;::try_from_raw(*b"USD"),
+    ///     Ok(tinystr!(3, "USD"))
     /// );
-    /// assert!(matches!(TinyAsciiStr::&lt;3&gt;::try_from_raw(*b&quot;\0A\0&quot;), Err(_)));
+    /// assert!(matches!(TinyAsciiStr::&lt;3&gt;::try_from_raw(*b"\0A\0"), Err(_)));
     /// ```
     </span><span class="kw">pub const fn </span>try_from_raw(raw: [u8; N]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, TinyStrError&gt; {
         <span class="self">Self</span>::from_bytes_inner(<span class="kw-2">&amp;</span>raw, <span class="number">0</span>, N, <span class="bool-val">true</span>)
@@ -1175,7 +1176,7 @@
             Aligned8::from_ascii_bytes(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$self</span>.bytes).<span class="macro-nonterminal">$check_int</span>()
         } <span class="kw">else </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-            <span class="comment">// Won&#39;t panic because self.bytes has length N
+            <span class="comment">// Won't panic because self.bytes has length N
             </span><span class="attr">#[allow(clippy::indexing_slicing)]
             </span><span class="kw">while </span>i &lt; N &amp;&amp; <span class="macro-nonterminal">$self</span>.bytes[i] <span class="kw">as </span>u8 != AsciiByte::B0 <span class="kw">as </span>u8 {
                 <span class="kw">if </span>!(<span class="macro-nonterminal">$self</span>.bytes[i] <span class="kw">as </span>u8).<span class="macro-nonterminal">$check_u8</span>() {
@@ -1192,12 +1193,12 @@
         } <span class="kw">else if </span>N &lt;= <span class="number">8 </span>{
             Aligned8::from_ascii_bytes(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$self</span>.bytes).<span class="macro-nonterminal">$check_int</span>()
         } <span class="kw">else </span>{
-            <span class="comment">// Won&#39;t panic because N is &gt; 8
+            <span class="comment">// Won't panic because N is &gt; 8
             </span><span class="kw">if </span>(<span class="macro-nonterminal">$self</span>.bytes[<span class="number">0</span>] <span class="kw">as </span>u8).<span class="macro-nonterminal">$check_u8_0_inv</span>() {
                 <span class="kw">return </span><span class="bool-val">false</span>;
             }
             <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">1</span>;
-            <span class="comment">// Won&#39;t panic because self.bytes has length N
+            <span class="comment">// Won't panic because self.bytes has length N
             </span><span class="attr">#[allow(clippy::indexing_slicing)]
             </span><span class="kw">while </span>i &lt; N &amp;&amp; <span class="macro-nonterminal">$self</span>.bytes[i] <span class="kw">as </span>u8 != AsciiByte::B0 <span class="kw">as </span>u8 {
                 <span class="kw">if </span>(<span class="macro-nonterminal">$self</span>.bytes[i] <span class="kw">as </span>u8).<span class="macro-nonterminal">$check_u8_1_inv</span>() {
@@ -1214,12 +1215,12 @@
         } <span class="kw">else if </span>N &lt;= <span class="number">8 </span>{
             Aligned8::from_ascii_bytes(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$self</span>.bytes).<span class="macro-nonterminal">$check_int</span>()
         } <span class="kw">else </span>{
-            <span class="comment">// Won&#39;t panic because N is &gt; 8
+            <span class="comment">// Won't panic because N is &gt; 8
             </span><span class="kw">if </span>!(<span class="macro-nonterminal">$self</span>.bytes[<span class="number">0</span>] <span class="kw">as </span>u8).<span class="macro-nonterminal">$check_u8_0_inv</span>() {
                 <span class="kw">return </span><span class="bool-val">false</span>;
             }
             <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">1</span>;
-            <span class="comment">// Won&#39;t panic because self.bytes has length N
+            <span class="comment">// Won't panic because self.bytes has length N
             </span><span class="attr">#[allow(clippy::indexing_slicing)]
             </span><span class="kw">while </span>i &lt; N &amp;&amp; <span class="macro-nonterminal">$self</span>.bytes[i] <span class="kw">as </span>u8 != AsciiByte::B0 <span class="kw">as </span>u8 {
                 <span class="kw">if </span>!(<span class="macro-nonterminal">$self</span>.bytes[i] <span class="kw">as </span>u8).<span class="macro-nonterminal">$check_u8_1_inv</span>() {
@@ -1235,16 +1236,16 @@
 <span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize&gt; TinyAsciiStr&lt;N&gt; {
     <span class="doccomment">/// Checks if the value is composed of ASCII alphabetic characters:
     ///
-    ///  * U+0041 &#39;A&#39; ..= U+005A &#39;Z&#39;, or
-    ///  * U+0061 &#39;a&#39; ..= U+007A &#39;z&#39;.
+    ///  * U+0041 'A' ..= U+005A 'Z', or
+    ///  * U+0061 'a' ..= U+007A 'z'.
     ///
     /// # Examples
     ///
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;Test&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s2: TinyAsciiStr&lt;4&gt; = &quot;Te3t&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "Test".parse().expect("Failed to parse.");
+    /// let s2: TinyAsciiStr&lt;4&gt; = "Te3t".parse().expect("Failed to parse.");
     ///
     /// assert!(s1.is_ascii_alphabetic());
     /// assert!(!s2.is_ascii_alphabetic());
@@ -1257,17 +1258,17 @@
 
     <span class="doccomment">/// Checks if the value is composed of ASCII alphanumeric characters:
     ///
-    ///  * U+0041 &#39;A&#39; ..= U+005A &#39;Z&#39;, or
-    ///  * U+0061 &#39;a&#39; ..= U+007A &#39;z&#39;, or
-    ///  * U+0030 &#39;0&#39; ..= U+0039 &#39;9&#39;.
+    ///  * U+0041 'A' ..= U+005A 'Z', or
+    ///  * U+0061 'a' ..= U+007A 'z', or
+    ///  * U+0030 '0' ..= U+0039 '9'.
     ///
     /// # Examples
     ///
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;A15b&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s2: TinyAsciiStr&lt;4&gt; = &quot;[3@w&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "A15b".parse().expect("Failed to parse.");
+    /// let s2: TinyAsciiStr&lt;4&gt; = "[3@w".parse().expect("Failed to parse.");
     ///
     /// assert!(s1.is_ascii_alphanumeric());
     /// assert!(!s2.is_ascii_alphanumeric());
@@ -1280,15 +1281,15 @@
 
     <span class="doccomment">/// Checks if the value is composed of ASCII decimal digits:
     ///
-    ///  * U+0030 &#39;0&#39; ..= U+0039 &#39;9&#39;.
+    ///  * U+0030 '0' ..= U+0039 '9'.
     ///
     /// # Examples
     ///
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;312&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s2: TinyAsciiStr&lt;4&gt; = &quot;3d&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "312".parse().expect("Failed to parse.");
+    /// let s2: TinyAsciiStr&lt;4&gt; = "3d".parse().expect("Failed to parse.");
     ///
     /// assert!(s1.is_ascii_numeric());
     /// assert!(!s2.is_ascii_numeric());
@@ -1308,9 +1309,9 @@
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;teSt&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s2: TinyAsciiStr&lt;4&gt; = &quot;test&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s3: TinyAsciiStr&lt;4&gt; = &quot;001z&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "teSt".parse().expect("Failed to parse.");
+    /// let s2: TinyAsciiStr&lt;4&gt; = "test".parse().expect("Failed to parse.");
+    /// let s3: TinyAsciiStr&lt;4&gt; = "001z".parse().expect("Failed to parse.");
     ///
     /// assert!(!s1.is_ascii_lowercase());
     /// assert!(s2.is_ascii_lowercase());
@@ -1337,9 +1338,9 @@
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;teSt&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s2: TinyAsciiStr&lt;4&gt; = &quot;Test&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s3: TinyAsciiStr&lt;4&gt; = &quot;001z&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "teSt".parse().expect("Failed to parse.");
+    /// let s2: TinyAsciiStr&lt;4&gt; = "Test".parse().expect("Failed to parse.");
+    /// let s3: TinyAsciiStr&lt;4&gt; = "001z".parse().expect("Failed to parse.");
     ///
     /// assert!(!s1.is_ascii_titlecase());
     /// assert!(s2.is_ascii_titlecase());
@@ -1365,9 +1366,9 @@
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;teSt&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s2: TinyAsciiStr&lt;4&gt; = &quot;TEST&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s3: TinyAsciiStr&lt;4&gt; = &quot;001z&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "teSt".parse().expect("Failed to parse.");
+    /// let s2: TinyAsciiStr&lt;4&gt; = "TEST".parse().expect("Failed to parse.");
+    /// let s3: TinyAsciiStr&lt;4&gt; = "001z".parse().expect("Failed to parse.");
     ///
     /// assert!(!s1.is_ascii_uppercase());
     /// assert!(s2.is_ascii_uppercase());
@@ -1386,18 +1387,18 @@
 
     <span class="doccomment">/// Checks if the value is composed of ASCII alphabetic lower case characters:
     ///
-    ///  * U+0061 &#39;a&#39; ..= U+007A &#39;z&#39;,
+    ///  * U+0061 'a' ..= U+007A 'z',
     ///
     /// # Examples
     ///
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;Test&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s2: TinyAsciiStr&lt;4&gt; = &quot;Te3t&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s3: TinyAsciiStr&lt;4&gt; = &quot;teSt&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s4: TinyAsciiStr&lt;4&gt; = &quot;test&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s5: TinyAsciiStr&lt;4&gt; = &quot;001z&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "Test".parse().expect("Failed to parse.");
+    /// let s2: TinyAsciiStr&lt;4&gt; = "Te3t".parse().expect("Failed to parse.");
+    /// let s3: TinyAsciiStr&lt;4&gt; = "teSt".parse().expect("Failed to parse.");
+    /// let s4: TinyAsciiStr&lt;4&gt; = "test".parse().expect("Failed to parse.");
+    /// let s5: TinyAsciiStr&lt;4&gt; = "001z".parse().expect("Failed to parse.");
     ///
     /// assert!(!s1.is_ascii_alphabetic_lowercase());
     /// assert!(!s2.is_ascii_alphabetic_lowercase());
@@ -1423,11 +1424,11 @@
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;Test&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s2: TinyAsciiStr&lt;4&gt; = &quot;Te3t&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s3: TinyAsciiStr&lt;4&gt; = &quot;teSt&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s4: TinyAsciiStr&lt;4&gt; = &quot;test&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s5: TinyAsciiStr&lt;4&gt; = &quot;001z&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "Test".parse().expect("Failed to parse.");
+    /// let s2: TinyAsciiStr&lt;4&gt; = "Te3t".parse().expect("Failed to parse.");
+    /// let s3: TinyAsciiStr&lt;4&gt; = "teSt".parse().expect("Failed to parse.");
+    /// let s4: TinyAsciiStr&lt;4&gt; = "test".parse().expect("Failed to parse.");
+    /// let s5: TinyAsciiStr&lt;4&gt; = "001z".parse().expect("Failed to parse.");
     ///
     /// assert!(s1.is_ascii_alphabetic_titlecase());
     /// assert!(!s2.is_ascii_alphabetic_titlecase());
@@ -1448,18 +1449,18 @@
 
     <span class="doccomment">/// Checks if the value is composed of ASCII alphabetic upper case characters:
     ///
-    ///  * U+0041 &#39;A&#39; ..= U+005A &#39;Z&#39;,
+    ///  * U+0041 'A' ..= U+005A 'Z',
     ///
     /// # Examples
     ///
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;Test&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s2: TinyAsciiStr&lt;4&gt; = &quot;Te3t&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s3: TinyAsciiStr&lt;4&gt; = &quot;teSt&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s4: TinyAsciiStr&lt;4&gt; = &quot;TEST&quot;.parse().expect(&quot;Failed to parse.&quot;);
-    /// let s5: TinyAsciiStr&lt;4&gt; = &quot;001z&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "Test".parse().expect("Failed to parse.");
+    /// let s2: TinyAsciiStr&lt;4&gt; = "Te3t".parse().expect("Failed to parse.");
+    /// let s3: TinyAsciiStr&lt;4&gt; = "teSt".parse().expect("Failed to parse.");
+    /// let s4: TinyAsciiStr&lt;4&gt; = "TEST".parse().expect("Failed to parse.");
+    /// let s5: TinyAsciiStr&lt;4&gt; = "001z".parse().expect("Failed to parse.");
     ///
     /// assert!(!s1.is_ascii_alphabetic_uppercase());
     /// assert!(!s2.is_ascii_alphabetic_uppercase());
@@ -1484,7 +1485,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
         <span class="kw">if </span>N &lt;= <span class="number">4 </span>{
             <span class="kw">let </span>aligned = Aligned4::from_ascii_bytes(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$self</span>.bytes).<span class="macro-nonterminal">$to</span>().to_ascii_bytes();
-            <span class="comment">// Won&#39;t panic because self.bytes has length N and aligned has length &gt;= N
+            <span class="comment">// Won't panic because self.bytes has length N and aligned has length &gt;= N
             </span><span class="attr">#[allow(clippy::indexing_slicing)]
             </span><span class="kw">while </span>i &lt; N {
                 <span class="macro-nonterminal">$self</span>.bytes[i] = aligned[i];
@@ -1492,14 +1493,14 @@
             }
         } <span class="kw">else if </span>N &lt;= <span class="number">8 </span>{
             <span class="kw">let </span>aligned = Aligned8::from_ascii_bytes(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$self</span>.bytes).<span class="macro-nonterminal">$to</span>().to_ascii_bytes();
-            <span class="comment">// Won&#39;t panic because self.bytes has length N and aligned has length &gt;= N
+            <span class="comment">// Won't panic because self.bytes has length N and aligned has length &gt;= N
             </span><span class="attr">#[allow(clippy::indexing_slicing)]
             </span><span class="kw">while </span>i &lt; N {
                 <span class="macro-nonterminal">$self</span>.bytes[i] = aligned[i];
                 i += <span class="number">1</span>;
             }
         } <span class="kw">else </span>{
-            <span class="comment">// Won&#39;t panic because self.bytes has length N
+            <span class="comment">// Won't panic because self.bytes has length N
             </span><span class="attr">#[allow(clippy::indexing_slicing)]
             </span><span class="kw">while </span>i &lt; N &amp;&amp; <span class="macro-nonterminal">$self</span>.bytes[i] <span class="kw">as </span>u8 != AsciiByte::B0 <span class="kw">as </span>u8 {
                 <span class="comment">// SAFETY: AsciiByte is repr(u8) and has same size as u8
@@ -1524,16 +1525,16 @@
 <span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize&gt; TinyAsciiStr&lt;N&gt; {
     <span class="doccomment">/// Converts this type to its ASCII lower case equivalent in-place.
     ///
-    /// ASCII letters &#39;A&#39; to &#39;Z&#39; are mapped to &#39;a&#39; to &#39;z&#39;, other characters are unchanged.
+    /// ASCII letters 'A' to 'Z' are mapped to 'a' to 'z', other characters are unchanged.
     ///
     /// # Examples
     ///
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;TeS3&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "TeS3".parse().expect("Failed to parse.");
     ///
-    /// assert_eq!(&amp;*s1.to_ascii_lowercase(), &quot;tes3&quot;);
+    /// assert_eq!(&amp;*s1.to_ascii_lowercase(), "tes3");
     /// ```
     </span><span class="attr">#[inline]
     #[must_use]
@@ -1551,9 +1552,9 @@
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;teSt&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "teSt".parse().expect("Failed to parse.");
     ///
-    /// assert_eq!(&amp;*s1.to_ascii_titlecase(), &quot;Test&quot;);
+    /// assert_eq!(&amp;*s1.to_ascii_titlecase(), "Test");
     /// ```
     </span><span class="attr">#[inline]
     #[must_use]
@@ -1568,16 +1569,16 @@
 
     <span class="doccomment">/// Converts this type to its ASCII upper case equivalent in-place.
     ///
-    /// ASCII letters &#39;a&#39; to &#39;z&#39; are mapped to &#39;A&#39; to &#39;Z&#39;, other characters are unchanged.
+    /// ASCII letters 'a' to 'z' are mapped to 'A' to 'Z', other characters are unchanged.
     ///
     /// # Examples
     ///
     /// ```
     /// use tinystr::TinyAsciiStr;
     ///
-    /// let s1: TinyAsciiStr&lt;4&gt; = &quot;Tes3&quot;.parse().expect(&quot;Failed to parse.&quot;);
+    /// let s1: TinyAsciiStr&lt;4&gt; = "Tes3".parse().expect("Failed to parse.");
     ///
-    /// assert_eq!(&amp;*s1.to_ascii_uppercase(), &quot;TES3&quot;);
+    /// assert_eq!(&amp;*s1.to_ascii_uppercase(), "TES3");
     /// ```
     </span><span class="attr">#[inline]
     #[must_use]
@@ -1626,14 +1627,14 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize&gt; PartialEq&lt;alloc::string::String&gt; <span class="kw">for </span>TinyAsciiStr&lt;N&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>alloc::string::String) -&gt; bool {
         <span class="self">self</span>.deref() == other.deref()
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize&gt; PartialEq&lt;TinyAsciiStr&lt;N&gt;&gt; <span class="kw">for </span>alloc::string::String {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>TinyAsciiStr&lt;N&gt;) -&gt; bool {
         <span class="self">self</span>.deref() == other.deref()
@@ -1650,32 +1651,32 @@
     <span class="kw">use </span>rand::SeedableRng;
 
     <span class="kw">const </span>STRINGS: [<span class="kw-2">&amp;</span>str; <span class="number">26</span>] = [
-        <span class="string">&quot;Latn&quot;</span>,
-        <span class="string">&quot;laTn&quot;</span>,
-        <span class="string">&quot;windows&quot;</span>,
-        <span class="string">&quot;AR&quot;</span>,
-        <span class="string">&quot;Hans&quot;</span>,
-        <span class="string">&quot;macos&quot;</span>,
-        <span class="string">&quot;AT&quot;</span>,
-        <span class="string">&quot;infiniband&quot;</span>,
-        <span class="string">&quot;FR&quot;</span>,
-        <span class="string">&quot;en&quot;</span>,
-        <span class="string">&quot;Cyrl&quot;</span>,
-        <span class="string">&quot;FromIntegral&quot;</span>,
-        <span class="string">&quot;NO&quot;</span>,
-        <span class="string">&quot;419&quot;</span>,
-        <span class="string">&quot;MacintoshOSX2019&quot;</span>,
-        <span class="string">&quot;a3z&quot;</span>,
-        <span class="string">&quot;A3z&quot;</span>,
-        <span class="string">&quot;A3Z&quot;</span>,
-        <span class="string">&quot;a3Z&quot;</span>,
-        <span class="string">&quot;3A&quot;</span>,
-        <span class="string">&quot;3Z&quot;</span>,
-        <span class="string">&quot;3a&quot;</span>,
-        <span class="string">&quot;3z&quot;</span>,
-        <span class="string">&quot;@@[`{&quot;</span>,
-        <span class="string">&quot;UK&quot;</span>,
-        <span class="string">&quot;E12&quot;</span>,
+        <span class="string">"Latn"</span>,
+        <span class="string">"laTn"</span>,
+        <span class="string">"windows"</span>,
+        <span class="string">"AR"</span>,
+        <span class="string">"Hans"</span>,
+        <span class="string">"macos"</span>,
+        <span class="string">"AT"</span>,
+        <span class="string">"infiniband"</span>,
+        <span class="string">"FR"</span>,
+        <span class="string">"en"</span>,
+        <span class="string">"Cyrl"</span>,
+        <span class="string">"FromIntegral"</span>,
+        <span class="string">"NO"</span>,
+        <span class="string">"419"</span>,
+        <span class="string">"MacintoshOSX2019"</span>,
+        <span class="string">"a3z"</span>,
+        <span class="string">"A3z"</span>,
+        <span class="string">"A3Z"</span>,
+        <span class="string">"a3Z"</span>,
+        <span class="string">"3A"</span>,
+        <span class="string">"3Z"</span>,
+        <span class="string">"3a"</span>,
+        <span class="string">"3z"</span>,
+        <span class="string">"@@[`{"</span>,
+        <span class="string">"UK"</span>,
+        <span class="string">"E12"</span>,
     ];
 
     <span class="kw">fn </span>gen_strings(num_strings: usize, allowed_lengths: <span class="kw-2">&amp;</span>[usize]) -&gt; Vec&lt;String&gt; {
@@ -1693,7 +1694,7 @@
                     .take(<span class="kw-2">*</span>len)
                     .collect::&lt;Vec&lt;u8&gt;&gt;()
             })
-            .map(|byte_vec| String::from_utf8(byte_vec).expect(<span class="string">&quot;All ASCII&quot;</span>))
+            .map(|byte_vec| String::from_utf8(byte_vec).expect(<span class="string">"All ASCII"</span>))
             .collect()
     }
 
@@ -1711,11 +1712,11 @@
             <span class="kw">let </span>t = <span class="kw">match </span>TinyAsciiStr::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>s) {
                 <span class="prelude-val">Ok</span>(t) =&gt; t,
                 <span class="prelude-val">Err</span>(TinyStrError::TooLarge { .. }) =&gt; <span class="kw">continue</span>,
-                <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, e),
+                <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">"{}"</span>, e),
             };
             <span class="kw">let </span>expected = reference_f(<span class="kw-2">&amp;</span>s);
             <span class="kw">let </span>actual = tinystr_f(t);
-            <span class="macro">assert_eq!</span>(expected, actual, <span class="string">&quot;TinyAsciiStr&lt;{N}&gt;: {s:?}&quot;</span>);
+            <span class="macro">assert_eq!</span>(expected, actual, <span class="string">"TinyAsciiStr&lt;{N}&gt;: {s:?}"</span>);
         }
     }
 

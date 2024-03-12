@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -334,14 +335,14 @@
 
 <span class="comment">// Convenience type alias for usage within SQLx.
 // Do not make this type public.
-</span><span class="kw">pub type </span>BoxDynError = Box&lt;<span class="kw">dyn </span>StdError + <span class="lifetime">&#39;static </span>+ Send + Sync&gt;;
+</span><span class="kw">pub type </span>BoxDynError = Box&lt;<span class="kw">dyn </span>StdError + <span class="lifetime">'static </span>+ Send + Sync&gt;;
 
 <span class="doccomment">/// An unexpected `NULL` was encountered during decoding.
 ///
 /// Returned from [`Row::get`](crate::row::Row::get) if the value from the database is `NULL`,
 /// and you are not decoding into an `Option`.
 </span><span class="attr">#[derive(thiserror::Error, Debug)]
-#[error(<span class="string">&quot;unexpected null; try decoding as an `Option`&quot;</span>)]
+#[error(<span class="string">"unexpected null; try decoding as an `Option`"</span>)]
 </span><span class="kw">pub struct </span>UnexpectedNullError;
 
 <span class="doccomment">/// Represents all the ways a method can fail within SQLx.
@@ -349,46 +350,46 @@
 #[non_exhaustive]
 </span><span class="kw">pub enum </span>Error {
     <span class="doccomment">/// Error occurred while parsing a connection string.
-    </span><span class="attr">#[error(<span class="string">&quot;error with configuration: {0}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"error with configuration: {0}"</span>)]
     </span>Configuration(<span class="attr">#[source] </span>BoxDynError),
 
     <span class="doccomment">/// Error returned from the database.
-    </span><span class="attr">#[error(<span class="string">&quot;error returned from database: {0}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"error returned from database: {0}"</span>)]
     </span>Database(<span class="attr">#[source] </span>Box&lt;<span class="kw">dyn </span>DatabaseError&gt;),
 
     <span class="doccomment">/// Error communicating with the database backend.
-    </span><span class="attr">#[error(<span class="string">&quot;error communicating with database: {0}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"error communicating with database: {0}"</span>)]
     </span>Io(<span class="attr">#[from] </span>io::Error),
 
     <span class="doccomment">/// Error occurred while attempting to establish a TLS connection.
-    </span><span class="attr">#[error(<span class="string">&quot;error occurred while attempting to establish a TLS connection: {0}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"error occurred while attempting to establish a TLS connection: {0}"</span>)]
     </span>Tls(<span class="attr">#[source] </span>BoxDynError),
 
     <span class="doccomment">/// Unexpected or invalid data encountered while communicating with the database.
     ///
     /// This should indicate there is a programming error in a SQLx driver or there
     /// is something corrupted with the connection to the database itself.
-    </span><span class="attr">#[error(<span class="string">&quot;encountered unexpected or invalid data: {0}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"encountered unexpected or invalid data: {0}"</span>)]
     </span>Protocol(String),
 
     <span class="doccomment">/// No rows returned by a query that expected to return at least one row.
-    </span><span class="attr">#[error(<span class="string">&quot;no rows returned by a query that expected to return at least one row&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"no rows returned by a query that expected to return at least one row"</span>)]
     </span>RowNotFound,
 
-    <span class="doccomment">/// Type in query doesn&#39;t exist. Likely due to typo or missing user type.
-    </span><span class="attr">#[error(<span class="string">&quot;type named {type_name} not found&quot;</span>)]
+    <span class="doccomment">/// Type in query doesn't exist. Likely due to typo or missing user type.
+    </span><span class="attr">#[error(<span class="string">"type named {type_name} not found"</span>)]
     </span>TypeNotFound { type_name: String },
 
     <span class="doccomment">/// Column index was out of bounds.
-    </span><span class="attr">#[error(<span class="string">&quot;column index out of bounds: the len is {len}, but the index is {index}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"column index out of bounds: the len is {len}, but the index is {index}"</span>)]
     </span>ColumnIndexOutOfBounds { index: usize, len: usize },
 
     <span class="doccomment">/// No column found for the given name.
-    </span><span class="attr">#[error(<span class="string">&quot;no column found for name: {0}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"no column found for name: {0}"</span>)]
     </span>ColumnNotFound(String),
 
     <span class="doccomment">/// Error occurred while decoding a value from a specific column.
-    </span><span class="attr">#[error(<span class="string">&quot;error occurred while decoding column {index}: {source}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"error occurred while decoding column {index}: {source}"</span>)]
     </span>ColumnDecode {
         index: String,
 
@@ -397,47 +398,47 @@
     },
 
     <span class="doccomment">/// Error occurred while decoding a value.
-    </span><span class="attr">#[error(<span class="string">&quot;error occurred while decoding: {0}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"error occurred while decoding: {0}"</span>)]
     </span>Decode(<span class="attr">#[source] </span>BoxDynError),
 
     <span class="doccomment">/// Error occurred within the `Any` driver mapping to/from the native driver.
-    </span><span class="attr">#[error(<span class="string">&quot;error in Any driver mapping: {0}&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"error in Any driver mapping: {0}"</span>)]
     </span>AnyDriverError(<span class="attr">#[source] </span>BoxDynError),
 
     <span class="doccomment">/// A [`Pool::acquire`] timed out due to connections not becoming available or
     /// because another task encountered too many errors while trying to open a new connection.
     ///
     /// [`Pool::acquire`]: crate::pool::Pool::acquire
-    </span><span class="attr">#[error(<span class="string">&quot;pool timed out while waiting for an open connection&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"pool timed out while waiting for an open connection"</span>)]
     </span>PoolTimedOut,
 
     <span class="doccomment">/// [`Pool::close`] was called while we were waiting in [`Pool::acquire`].
     ///
     /// [`Pool::acquire`]: crate::pool::Pool::acquire
     /// [`Pool::close`]: crate::pool::Pool::close
-    </span><span class="attr">#[error(<span class="string">&quot;attempted to acquire a connection on a closed pool&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"attempted to acquire a connection on a closed pool"</span>)]
     </span>PoolClosed,
 
     <span class="doccomment">/// A background worker has crashed.
-    </span><span class="attr">#[error(<span class="string">&quot;attempted to communicate with a crashed background worker&quot;</span>)]
+    </span><span class="attr">#[error(<span class="string">"attempted to communicate with a crashed background worker"</span>)]
     </span>WorkerCrashed,
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
-    #[error(<span class="string">&quot;{0}&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
+    #[error(<span class="string">"{0}"</span>)]
     </span>Migrate(<span class="attr">#[source] </span>Box&lt;<span class="kw">crate</span>::migrate::MigrateError&gt;),
 }
 
 <span class="kw">impl </span>StdError <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>DatabaseError&gt; {}
 
 <span class="kw">impl </span>Error {
-    <span class="kw">pub fn </span>into_database_error(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>DatabaseError + <span class="lifetime">&#39;static</span>&gt;&gt; {
+    <span class="kw">pub fn </span>into_database_error(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>DatabaseError + <span class="lifetime">'static</span>&gt;&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Error::Database(err) =&gt; <span class="prelude-val">Some</span>(err),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub fn </span>as_database_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>DatabaseError + <span class="lifetime">&#39;static</span>)&gt; {
+    <span class="kw">pub fn </span>as_database_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>DatabaseError + <span class="lifetime">'static</span>)&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Error::Database(err) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;**</span>err),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -452,17 +453,17 @@
 
     <span class="attr">#[doc(hidden)]
     #[inline]
-    </span><span class="kw">pub fn </span>config(err: <span class="kw">impl </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>config(err: <span class="kw">impl </span>StdError + Send + Sync + <span class="lifetime">'static</span>) -&gt; <span class="self">Self </span>{
         Error::Configuration(err.into())
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>tls(err: <span class="kw">impl </span>Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>tls(err: <span class="kw">impl </span>Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">'static</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
         Error::Tls(err.into())
     }
 
     <span class="attr">#[doc(hidden)]
     #[inline]
-    </span><span class="kw">pub fn </span>decode(err: <span class="kw">impl </span>Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>decode(err: <span class="kw">impl </span>Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">'static</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
         Error::Decode(err.into())
     }
 }
@@ -470,7 +471,7 @@
 <span class="kw">pub fn </span>mismatched_types&lt;DB: Database, T: Type&lt;DB&gt;&gt;(ty: <span class="kw-2">&amp;</span>DB::TypeInfo) -&gt; BoxDynError {
     <span class="comment">// TODO: `#name` only produces `TINYINT` but perhaps we want to show `TINYINT(1)`
     </span><span class="macro">format!</span>(
-        <span class="string">&quot;mismatched types; Rust type `{}` (as SQL type `{}`) is not compatible with SQL type `{}`&quot;</span>,
+        <span class="string">"mismatched types; Rust type `{}` (as SQL type `{}`) is not compatible with SQL type `{}`"</span>,
         type_name::&lt;T&gt;(),
         T::type_info().name(),
         ty.name()
@@ -498,23 +499,23 @@
 }
 
 <span class="doccomment">/// An error that was returned from the database.
-</span><span class="kw">pub trait </span>DatabaseError: <span class="lifetime">&#39;static </span>+ Send + Sync + StdError {
+</span><span class="kw">pub trait </span>DatabaseError: <span class="lifetime">'static </span>+ Send + Sync + StdError {
     <span class="doccomment">/// The primary, human-readable error message.
     </span><span class="kw">fn </span>message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str;
 
     <span class="doccomment">/// The (SQLSTATE) code for the error.
-    </span><span class="kw">fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;_</span>, str&gt;&gt; {
+    </span><span class="kw">fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'_</span>, str&gt;&gt; {
         <span class="prelude-val">None
     </span>}
 
     <span class="attr">#[doc(hidden)]
-    </span><span class="kw">fn </span>as_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>);
+    </span><span class="kw">fn </span>as_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">'static</span>);
 
     <span class="attr">#[doc(hidden)]
-    </span><span class="kw">fn </span>as_error_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>);
+    </span><span class="kw">fn </span>as_error_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">'static</span>);
 
     <span class="attr">#[doc(hidden)]
-    </span><span class="kw">fn </span>into_error(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; Box&lt;<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>&gt;;
+    </span><span class="kw">fn </span>into_error(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; Box&lt;<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">'static</span>&gt;;
 
     <span class="attr">#[doc(hidden)]
     </span><span class="kw">fn </span>is_transient_in_connect_phase(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -571,7 +572,7 @@
     /// specific error type. In other cases, use `try_downcast_ref`.
     </span><span class="kw">pub fn </span>downcast_ref&lt;E: DatabaseError&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E {
         <span class="self">self</span>.try_downcast_ref().unwrap_or_else(|| {
-            <span class="macro">panic!</span>(<span class="string">&quot;downcast to wrong DatabaseError type; original error: {self}&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"downcast to wrong DatabaseError type; original error: {self}"</span>)
         })
     }
 
@@ -584,7 +585,7 @@
     /// specific error type. In other cases, use `try_downcast`.
     </span><span class="kw">pub fn </span>downcast&lt;E: DatabaseError&gt;(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; Box&lt;E&gt; {
         <span class="self">self</span>.try_downcast()
-            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">&quot;downcast to wrong DatabaseError type; original error: {e}&quot;</span>))
+            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"downcast to wrong DatabaseError type; original error: {e}"</span>))
     }
 
     <span class="doccomment">/// Downcast a reference to this generic database error to a specific
@@ -615,7 +616,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 </span><span class="kw">impl </span>From&lt;<span class="kw">crate</span>::migrate::MigrateError&gt; <span class="kw">for </span>Error {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>from(error: <span class="kw">crate</span>::migrate::MigrateError) -&gt; <span class="self">Self </span>{

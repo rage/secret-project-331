@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/doc_file_generator/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/doc_file_generator/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -422,10 +423,10 @@ doc!(
     ]
 );
 ```
-Note that since this method doesn&#39;t use the example! macro, leaving out field values is an error. If we want to use the Example trait here, we need to explicitly call Example::example()
+Note that since this method doesn't use the example! macro, leaving out field values is an error. If we want to use the Example trait here, we need to explicitly call Example::example()
 or the ex() function which is just a shortcut for Example::example().
 
-This method is mainly useful for external/std types. For example, we cannot write Uuid as a struct literal because it has private fields, or bool because it&#39;s a primitive type.
+This method is mainly useful for external/std types. For example, we cannot write Uuid as a struct literal because it has private fields, or bool because it's a primitive type.
 */
 
 </span><span class="attr">#![allow(clippy::redundant_clone)]
@@ -470,7 +471,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
 <span class="kw">use </span>serde::Serialize;
 <span class="kw">use </span>serde_json::{json, ser::PrettyFormatter, Serializer, Value};
 <span class="kw">use </span>std::{collections::HashMap, fs};
-<span class="attr">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ts_rs"</span>)]
 </span><span class="kw">use </span>ts_rs::TS;
 <span class="kw">use </span>uuid::Uuid;
 
@@ -484,11 +485,11 @@ This method is mainly useful for external/std types. For example, we cannot writ
 <span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>doc_path {
     (<span class="macro-nonterminal">$filename</span>:expr, <span class="macro-nonterminal">$extension</span>:expr) =&gt; {{
-        <span class="kw">let </span>windows_safe_filename = <span class="macro-nonterminal">$filename</span>.replace(<span class="string">&#39;&lt;&#39;</span>, <span class="string">&quot;(&quot;</span>).replace(<span class="string">&#39;&gt;&#39;</span>, <span class="string">&quot;)&quot;</span>);
+        <span class="kw">let </span>windows_safe_filename = <span class="macro-nonterminal">$filename</span>.replace(<span class="string">'&lt;'</span>, <span class="string">"("</span>).replace(<span class="string">'&gt;'</span>, <span class="string">")"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-        s.push_str(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>));
-        s.push_str(<span class="string">&quot;/generated-docs/&quot;</span>);
+        s.push_str(<span class="macro">env!</span>(<span class="string">"CARGO_MANIFEST_DIR"</span>));
+        s.push_str(<span class="string">"/generated-docs/"</span>);
         s.push_str(windows_safe_filename.as_str());
         s.push_str(<span class="macro-nonterminal">$extension</span>);
         s
@@ -558,15 +559,15 @@ This method is mainly useful for external/std types. For example, we cannot writ
 
         <span class="kw">let </span>json_path = <span class="macro-nonterminal">$</span><span class="macro">crate::doc_path!</span>(
             <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>),
-            <span class="string">&quot;.json&quot;
+            <span class="string">".json"
         </span>);
         <span class="macro-nonterminal">$crate::programs::doc_file_generator::write_json</span>(<span class="kw-2">&amp;</span>json_path, expr);
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"ts_rs"</span>)]
         </span>{
             <span class="kw">let </span>ts_path = <span class="macro-nonterminal">$</span><span class="macro">crate::doc_path!</span>(
                 <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>),
-                <span class="string">&quot;.ts&quot;
+                <span class="string">".ts"
             </span>);
 
             <span class="macro-nonterminal">$crate::programs::doc_file_generator::write_ts</span>::&lt;<span class="macro-nonterminal">$t</span>&gt;(<span class="kw-2">&amp;</span>ts_path, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>));
@@ -580,13 +581,13 @@ This method is mainly useful for external/std types. For example, we cannot writ
 
 <span class="kw">pub async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
     <span class="comment">// clear previous results
-    </span>fs::read_dir(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/generated-docs/&quot;</span>))
+    </span>fs::read_dir(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">"CARGO_MANIFEST_DIR"</span>), <span class="string">"/generated-docs/"</span>))
         .unwrap()
         .filter_map(|file| {
             file.ok().filter(|f| {
                 f.file_name()
                     .to_str()
-                    .map_or(<span class="bool-val">false</span>, |n| n.ends_with(<span class="string">&quot;.json&quot;</span>) || n.ends_with(<span class="string">&quot;.ts&quot;</span>))
+                    .map_or(<span class="bool-val">false</span>, |n| n.ends_with(<span class="string">".json"</span>) || n.ends_with(<span class="string">".ts"</span>))
             })
         })
         .for_each(|f| fs::remove_file(f.path()).unwrap());
@@ -612,14 +613,14 @@ This method is mainly useful for external/std types. For example, we cannot writ
 
 <span class="kw">pub fn </span>write_json&lt;T: Serialize&gt;(path: <span class="kw-2">&amp;</span>str, value: T) {
     <span class="kw">let </span><span class="kw-2">mut </span>file = std::fs::File::create(path).unwrap();
-    <span class="kw">let </span>formatter = PrettyFormatter::with_indent(<span class="string">b&quot;    &quot;</span>);
+    <span class="kw">let </span>formatter = PrettyFormatter::with_indent(<span class="string">b"    "</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>serializer = Serializer::with_formatter(<span class="kw-2">&amp;mut </span>file, formatter);
     serde::Serialize::serialize(<span class="kw-2">&amp;</span>value, <span class="kw-2">&amp;mut </span>serializer).unwrap();
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ts_rs"</span>)]
 </span><span class="kw">pub fn </span>write_ts&lt;T: TS&gt;(path: <span class="kw-2">&amp;</span>str, type_name: <span class="kw-2">&amp;</span>str) {
-    <span class="kw">let </span>contents = <span class="macro">format!</span>(<span class="string">&quot;type {} = {}&quot;</span>, type_name, T::inline());
+    <span class="kw">let </span>contents = <span class="macro">format!</span>(<span class="string">"type {} = {}"</span>, type_name, T::inline());
     std::fs::write(path, contents).unwrap();
 }
 
@@ -629,11 +630,11 @@ This method is mainly useful for external/std types. For example, we cannot writ
         Vec,
         StudyRegistryCompletion {
             completion_date: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
-            completion_language: <span class="string">&quot;en-US&quot;</span>.to_string(),
+            completion_language: <span class="string">"en-US"</span>.to_string(),
             completion_registration_attempt_date: <span class="prelude-val">None</span>,
-            email: <span class="string">&quot;student@example.com&quot;</span>.to_string(),
+            email: <span class="string">"student@example.com"</span>.to_string(),
             grade: StudyRegistryGrade::new(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)),
-            id: Uuid::parse_str(<span class="string">&quot;633852ce-c82a-4d60-8ab5-28745163f6f9&quot;</span>).unwrap(),
+            id: Uuid::parse_str(<span class="string">"633852ce-c82a-4d60-8ab5-28745163f6f9"</span>).unwrap(),
             user_id,
             tier: <span class="prelude-val">None
         </span>}
@@ -642,6 +643,6 @@ This method is mainly useful for external/std types. For example, we cannot writ
 
 <span class="comment">// external types, there should only be a couple in here so no macros or other fancy stuff
 </span><span class="kw">fn </span>external() {
-    std::fs::write(<span class="macro">doc_path!</span>(<span class="string">&quot;Bytes&quot;</span>, <span class="string">&quot;.ts&quot;</span>), <span class="string">&quot;type Bytes = Blob&quot;</span>).unwrap();
+    std::fs::write(<span class="macro">doc_path!</span>(<span class="string">"Bytes"</span>, <span class="string">".ts"</span>), <span class="string">"type Bytes = Blob"</span>).unwrap();
 }
 </code></pre></div></section></main></body></html>

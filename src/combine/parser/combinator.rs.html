@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/combinator.rs`."><title>combinator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/combinator.rs`."><title>combinator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1574,10 +1575,10 @@
     Parser,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::{boxed::Box, string::String, vec::Vec};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::lib::any::Any;
 
 <span class="attr">#[derive(Copy, Clone)]
@@ -1627,9 +1628,9 @@
 /// # use combine::*;
 /// # use combine::parser::char::{alpha_num, string};
 /// # fn main() {
-/// let result = string(&quot;let&quot;)
+/// let result = string("let")
 ///     .skip(not_followed_by(alpha_num()))
-///     .parse(&quot;letx&quot;)
+///     .parse("letx")
 ///     .map(|x| x.0);
 /// assert!(result.is_err());
 ///
@@ -1639,14 +1640,14 @@
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
-    P::Output: Into&lt;Info&lt;&lt;Input <span class="kw">as </span>StreamOnce&gt;::Token, &lt;Input <span class="kw">as </span>StreamOnce&gt;::Range, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;&gt;,
+    P::Output: Into&lt;Info&lt;&lt;Input <span class="kw">as </span>StreamOnce&gt;::Token, &lt;Input <span class="kw">as </span>StreamOnce&gt;::Range, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;&gt;,
 {
     NotFollowedBy(parser)
 }
 
 <span class="comment">/*
  * TODO :: Rename `Try` to `Attempt`
- * Because this is public, it&#39;s name cannot be changed without also making a breaking change.
+ * Because this is public, it's name cannot be changed without also making a breaking change.
  */
 </span><span class="attr">#[derive(Copy, Clone)]
 </span><span class="kw">pub struct </span>Try&lt;P&gt;(P);
@@ -1710,11 +1711,11 @@
 /// # use combine::*;
 /// # use combine::parser::char::string;
 /// # fn main() {
-/// let mut p = attempt(string(&quot;let&quot;))
-///     .or(string(&quot;lex&quot;));
-/// let result = p.parse(&quot;lex&quot;).map(|x| x.0);
-/// assert_eq!(result, Ok(&quot;lex&quot;));
-/// let result = p.parse(&quot;aet&quot;).map(|x| x.0);
+/// let mut p = attempt(string("let"))
+///     .or(string("lex"));
+/// let result = p.parse("lex").map(|x| x.0);
+/// assert_eq!(result, Ok("lex"));
+/// let result = p.parse("aet").map(|x| x.0);
 /// assert!(result.is_err());
 /// # }
 /// ```
@@ -1749,19 +1750,19 @@
     <span class="macro">forward_parser!</span>(Input, add_error add_committed_expected_error parser_count, <span class="number">0</span>);
 }
 
-<span class="doccomment">/// `look_ahead(p)` acts as `p` but doesn&#39;t consume input on success.
+<span class="doccomment">/// `look_ahead(p)` acts as `p` but doesn't consume input on success.
 ///
 /// ```
 /// # extern crate combine;
 /// # use combine::*;
 /// # use combine::parser::char::string;
 /// # fn main() {
-/// let mut p = look_ahead(string(&quot;test&quot;));
+/// let mut p = look_ahead(string("test"));
 ///
-/// let result = p.parse(&quot;test str&quot;);
-/// assert_eq!(result, Ok((&quot;test&quot;, &quot;test str&quot;)));
+/// let result = p.parse("test str");
+/// assert_eq!(result, Ok(("test", "test str")));
 ///
-/// let result = p.parse(&quot;aet&quot;);
+/// let result = p.parse("aet");
 /// assert!(result.is_err());
 /// # }
 /// ```
@@ -2098,9 +2099,9 @@
 /// use combine::Parser;
 /// use combine::parser::{repeat::skip_many1, token::token, combinator::recognize, char::digit};
 ///
-/// let mut parser = recognize((skip_many1(digit()), token(&#39;.&#39;), skip_many1(digit())));
-/// assert_eq!(parser.parse(&quot;123.45&quot;), Ok((&quot;123.45&quot;.to_string(), &quot;&quot;)));
-/// assert_eq!(parser.parse(&quot;123.45&quot;), Ok((&quot;123.45&quot;.to_string(), &quot;&quot;)));
+/// let mut parser = recognize((skip_many1(digit()), token('.'), skip_many1(digit())));
+/// assert_eq!(parser.parse("123.45"), Ok(("123.45".to_string(), "")));
+/// assert_eq!(parser.parse("123.45"), Ok(("123.45".to_string(), "")));
 /// ```
 </span><span class="kw">pub fn </span>recognize&lt;F, Input, P&gt;(parser: P) -&gt; Recognize&lt;F, P&gt;
 <span class="kw">where
@@ -2279,21 +2280,21 @@
     Ignore(p)
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 #[derive(Default)]
 </span><span class="kw">pub struct </span>AnyPartialState(<span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Any&gt;&gt;);
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub struct </span>AnyPartialStateParser&lt;P&gt;(P);
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl</span>&lt;Input, P&gt; Parser&lt;Input&gt; <span class="kw">for </span>AnyPartialStateParser&lt;P&gt;
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
-    P::PartialState: <span class="lifetime">&#39;static</span>,
+    P::PartialState: <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Output = P::Output;
     <span class="kw">type </span>PartialState = AnyPartialState;
@@ -2365,38 +2366,38 @@
 /// }
 ///
 /// assert_eq!(
-///     example().easy_parse(&quot;ab&quot;),
-///     Ok(((&#39;a&#39;, &#39;b&#39;), &quot;&quot;))
+///     example().easy_parse("ab"),
+///     Ok((('a', 'b'), ""))
 /// );
 ///
 /// # }
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub fn </span>any_partial_state&lt;Input, P&gt;(p: P) -&gt; AnyPartialStateParser&lt;P&gt;
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
-    P::PartialState: <span class="lifetime">&#39;static</span>,
+    P::PartialState: <span class="lifetime">'static</span>,
 {
     AnyPartialStateParser(p)
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 #[derive(Default)]
 </span><span class="kw">pub struct </span>AnySendPartialState(<span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Any + Send&gt;&gt;);
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub struct </span>AnySendPartialStateParser&lt;P&gt;(P);
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl</span>&lt;Input, P&gt; Parser&lt;Input&gt; <span class="kw">for </span>AnySendPartialStateParser&lt;P&gt;
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
-    P::PartialState: Send + <span class="lifetime">&#39;static</span>,
+    P::PartialState: Send + <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Output = P::Output;
     <span class="kw">type </span>PartialState = AnySendPartialState;
@@ -2468,38 +2469,38 @@
 /// }
 ///
 /// assert_eq!(
-///     example().easy_parse(&quot;ab&quot;),
-///     Ok(((&#39;a&#39;, &#39;b&#39;), &quot;&quot;))
+///     example().easy_parse("ab"),
+///     Ok((('a', 'b'), ""))
 /// );
 ///
 /// # }
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub fn </span>any_send_partial_state&lt;Input, P&gt;(p: P) -&gt; AnySendPartialStateParser&lt;P&gt;
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
-    P::PartialState: Send + <span class="lifetime">&#39;static</span>,
+    P::PartialState: Send + <span class="lifetime">'static</span>,
 {
     AnySendPartialStateParser(p)
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 #[derive(Default)]
 </span><span class="kw">pub struct </span>AnySendSyncPartialState(<span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Any + Send + Sync&gt;&gt;);
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub struct </span>AnySendSyncPartialStateParser&lt;P&gt;(P);
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl</span>&lt;Input, P&gt; Parser&lt;Input&gt; <span class="kw">for </span>AnySendSyncPartialStateParser&lt;P&gt;
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
-    P::PartialState: Send + Sync + <span class="lifetime">&#39;static</span>,
+    P::PartialState: Send + Sync + <span class="lifetime">'static</span>,
 {
     <span class="kw">type </span>Output = P::Output;
     <span class="kw">type </span>PartialState = AnySendSyncPartialState;
@@ -2570,19 +2571,19 @@
 /// }
 ///
 /// assert_eq!(
-///     example().easy_parse(&quot;ab&quot;),
-///     Ok(((&#39;a&#39;, &#39;b&#39;), &quot;&quot;))
+///     example().easy_parse("ab"),
+///     Ok((('a', 'b'), ""))
 /// );
 ///
 /// # }
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"std"</span>)))]
 </span><span class="kw">pub fn </span>any_send_sync_partial_state&lt;Input, P&gt;(p: P) -&gt; AnySendSyncPartialStateParser&lt;P&gt;
 <span class="kw">where
     </span>Input: Stream,
     P: Parser&lt;Input&gt;,
-    P::PartialState: Send + Sync + <span class="lifetime">&#39;static</span>,
+    P::PartialState: Send + Sync + <span class="lifetime">'static</span>,
 {
     AnySendSyncPartialStateParser(p)
 }
@@ -2729,7 +2730,7 @@
 /// let mut parsers: Vec&lt;FnOpaque&lt;_, _&gt;&gt; = vec![opaque(|f| f(&amp;mut digit())), opaque(|f| f(&amp;mut letter()))];
 /// let mut iter = parsers.into_iter().cycle();
 /// let mut parser = many(factory(move |_| iter.next().unwrap()));
-/// assert_eq!(parser.parse(&quot;1a2b3cd&quot;), Ok((&quot;1a2b3c&quot;.to_string(), &quot;d&quot;)));
+/// assert_eq!(parser.parse("1a2b3cd"), Ok(("1a2b3c".to_string(), "d")));
 /// ```
 </span><span class="kw">pub fn </span>factory&lt;Input, P, R&gt;(p: P) -&gt; Factory&lt;P, R&gt;
 <span class="kw">where
@@ -2750,17 +2751,17 @@
     <span class="kw">fn </span>from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;;
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl </span>Sealed <span class="kw">for </span>String {}
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl </span>StrLike <span class="kw">for </span>String {
     <span class="kw">fn </span>from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="prelude-val">Some</span>(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sealed <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; StrLike <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Sealed <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; StrLike <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
     <span class="kw">fn </span>from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="self">self</span>)
     }
@@ -2773,17 +2774,17 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl </span>Sealed <span class="kw">for </span>Vec&lt;u8&gt; {}
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl </span>StrLike <span class="kw">for </span>Vec&lt;u8&gt; {
     <span class="kw">fn </span>from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         (<span class="kw-2">**</span><span class="self">self</span>).from_utf8()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sealed <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; StrLike <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Sealed <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; StrLike <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
     <span class="kw">fn </span>from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         (<span class="kw-2">**</span><span class="self">self</span>).from_utf8()
     }
@@ -2814,23 +2815,23 @@
 /// # use combine::*;
 /// # fn main() {
 /// let mut parser = from_str(many1::&lt;String, _, _&gt;(char::digit()));
-/// let result = parser.parse(&quot;12345\r\n&quot;);
-/// assert_eq!(result, Ok((12345i32, &quot;\r\n&quot;)));
+/// let result = parser.parse("12345\r\n");
+/// assert_eq!(result, Ok((12345i32, "\r\n")));
 ///
 /// // Range parsers work as well
 /// let mut parser = from_str(range::take_while1(|c: char| c.is_digit(10)));
-/// let result = parser.parse(&quot;12345\r\n&quot;);
-/// assert_eq!(result, Ok((12345i32, &quot;\r\n&quot;)));
+/// let result = parser.parse("12345\r\n");
+/// assert_eq!(result, Ok((12345i32, "\r\n")));
 ///
 /// // As do parsers that work with bytes
-/// let digits = || range::take_while1(|b: u8| b &gt;= b&#39;0&#39; &amp;&amp; b &lt;= b&#39;9&#39;);
+/// let digits = || range::take_while1(|b: u8| b &gt;= b'0' &amp;&amp; b &lt;= b'9');
 /// let mut parser = from_str(range::recognize((
 ///     digits(),
-///     byte::byte(b&#39;.&#39;),
+///     byte::byte(b'.'),
 ///     digits(),
 /// )));
-/// let result = parser.parse(&amp;b&quot;123.45\r\n&quot;[..]);
-/// assert_eq!(result, Ok((123.45f64, &amp;b&quot;\r\n&quot;[..])));
+/// let result = parser.parse(&amp;b"123.45\r\n"[..]);
+/// assert_eq!(result, Ok((123.45f64, &amp;b"\r\n"[..])));
 /// # }
 /// ```
 </span><span class="kw">pub fn </span>from_str[Input, O, P](parser: P)(Input) -&gt; O
@@ -2843,7 +2844,7 @@
 {
     parser.and_then(|r| {
         r.from_utf8()
-            .ok_or_else(|| StreamErrorFor::&lt;Input&gt;::expected_static_message(<span class="string">&quot;UTF-8&quot;</span>))
+            .ok_or_else(|| StreamErrorFor::&lt;Input&gt;::expected_static_message(<span class="string">"UTF-8"</span>))
             .and_then(|s| s.parse().map_err(StreamErrorFor::&lt;Input&gt;::message_format))
     })
 }
@@ -2863,13 +2864,13 @@
     <span class="kw">fn </span>parse_stream(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;mut </span>Input) -&gt; ParseResult&lt;O, &lt;Input <span class="kw">as </span>StreamOnce&gt;::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="prelude-val">None</span>;
         (<span class="self">self</span>.<span class="number">0</span>)(<span class="kw-2">&amp;mut </span>|parser| x = <span class="prelude-val">Some</span>(parser.parse_stream(input)));
-        x.expect(<span class="string">&quot;Parser&quot;</span>)
+        x.expect(<span class="string">"Parser"</span>)
     }
 
     <span class="kw">fn </span>parse_lazy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;mut </span>Input) -&gt; ParseResult&lt;O, &lt;Input <span class="kw">as </span>StreamOnce&gt;::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="prelude-val">None</span>;
         (<span class="self">self</span>.<span class="number">0</span>)(<span class="kw-2">&amp;mut </span>|parser| x = <span class="prelude-val">Some</span>(parser.parse_lazy(input)));
-        x.expect(<span class="string">&quot;Parser&quot;</span>)
+        x.expect(<span class="string">"Parser"</span>)
     }
 
     <span class="macro">parse_mode!</span>(Input);
@@ -2891,7 +2892,7 @@
                 parser.parse_partial(input, state)
             })
         });
-        x.expect(<span class="string">&quot;Parser&quot;</span>)
+        x.expect(<span class="string">"Parser"</span>)
     }
 
     <span class="kw">fn </span>add_error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, errors: <span class="kw-2">&amp;mut </span>Tracked&lt;&lt;Input <span class="kw">as </span>StreamOnce&gt;::Error&gt;) {
@@ -2944,15 +2945,15 @@
 ///         no_partial(choice((
 ///             from_str(many1::&lt;String, _, _&gt;(digit()))
 ///                 .map(Expr::Number),
-///             (char(&#39;(&#39;), expr(), char(&#39;,&#39;), expr(), char(&#39;)&#39;))
+///             (char('('), expr(), char(','), expr(), char(')'))
 ///                 .map(|(_, l, _, r, _)| Expr::Pair(Box::new(l), Box::new(r)))
 ///         ))),
 ///     )
 /// }
 ///
 /// assert_eq!(
-///     expr().easy_parse(&quot;123&quot;),
-///     Ok((Expr::Number(123), &quot;&quot;))
+///     expr().easy_parse("123"),
+///     Ok((Expr::Number(123), ""))
 /// );
 ///
 /// # }
@@ -2999,7 +3000,7 @@
     </span>Input: Stream,
     InputInner: Stream,
     P: Parser&lt;InputInner&gt;,
-    <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; C: Converter&lt;<span class="lifetime">&#39;c</span>, Input, InputInner = InputInner&gt;,
+    <span class="kw">for</span>&lt;<span class="lifetime">'c</span>&gt; C: Converter&lt;<span class="lifetime">'c</span>, Input, InputInner = InputInner&gt;,
 {
     <span class="kw">type </span>Output = P::Output;
     <span class="kw">type </span>PartialState = P::PartialState;
@@ -3025,33 +3026,33 @@
     }
 }
 
-<span class="kw">pub trait </span>Converter&lt;<span class="lifetime">&#39;a</span>, Input&gt;
+<span class="kw">pub trait </span>Converter&lt;<span class="lifetime">'a</span>, Input&gt;
 <span class="kw">where
     </span>Input: Stream,
 {
-    <span class="kw">type </span>InputInner: Stream + <span class="lifetime">&#39;a</span>;
-    <span class="kw">fn </span>convert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::InputInner, Input::Error&gt;;
+    <span class="kw">type </span>InputInner: Stream + <span class="lifetime">'a</span>;
+    <span class="kw">fn </span>convert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::InputInner, Input::Error&gt;;
     <span class="kw">fn </span>convert_error(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Input,
+        input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Input,
         error: &lt;<span class="self">Self</span>::InputInner <span class="kw">as </span>StreamOnce&gt;::Error,
     ) -&gt; Input::Error;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Input, InputInner&gt; Converter&lt;<span class="lifetime">&#39;a</span>, Input&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Input, InputInner&gt; Converter&lt;<span class="lifetime">'a</span>, Input&gt;
     <span class="kw">for </span>(
-        <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Input) -&gt; <span class="prelude-ty">Result</span>&lt;InputInner, Input::Error&gt;,
-        <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Input, InputInner::Error) -&gt; Input::Error,
+        <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Input) -&gt; <span class="prelude-ty">Result</span>&lt;InputInner, Input::Error&gt;,
+        <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Input, InputInner::Error) -&gt; Input::Error,
     )
 <span class="kw">where
     </span>Input: Stream,
-    InputInner: Stream + <span class="lifetime">&#39;a</span>,
+    InputInner: Stream + <span class="lifetime">'a</span>,
 {
     <span class="kw">type </span>InputInner = InputInner;
-    <span class="kw">fn </span>convert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Input) -&gt; <span class="prelude-ty">Result</span>&lt;InputInner, Input::Error&gt; {
+    <span class="kw">fn </span>convert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Input) -&gt; <span class="prelude-ty">Result</span>&lt;InputInner, Input::Error&gt; {
         (<span class="self">self</span>.<span class="number">0</span>)(input)
     }
-    <span class="kw">fn </span>convert_error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Input, error: InputInner::Error) -&gt; Input::Error {
+    <span class="kw">fn </span>convert_error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Input, error: InputInner::Error) -&gt; Input::Error {
         (<span class="self">self</span>.<span class="number">1</span>)(input, error)
     }
 }
@@ -3064,7 +3065,7 @@
     </span>Input: Stream,
     InputInner: Stream,
     P: Parser&lt;InputInner&gt;,
-    <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; C: Converter&lt;<span class="lifetime">&#39;c</span>, Input, InputInner = InputInner&gt;,
+    <span class="kw">for</span>&lt;<span class="lifetime">'c</span>&gt; C: Converter&lt;<span class="lifetime">'c</span>, Input, InputInner = InputInner&gt;,
 {
     InputConverter {
         parser,

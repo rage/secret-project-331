@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/decode.rs`."><title>decode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="weezl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/weezl-0.1.8/src/decode.rs`."><title>decode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="weezl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1333,13 +1334,13 @@
 <a href="#1333" id="1333">1333</a>
 <a href="#1334" id="1334">1334</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A module for all decoding needs.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::error::StreamResult;
 <span class="kw">use </span><span class="kw">crate</span>::error::{BufferResult, LzwError, LzwStatus, VectorResult};
 <span class="kw">use crate</span>::{BitOrder, Code, StreamBuf, MAX_CODESIZE, MAX_ENTRIES, STREAM_BUF_SIZE};
 
 <span class="kw">use </span><span class="kw">crate</span>::alloc::{boxed::Box, vec, vec::Vec};
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::io::{<span class="self">self</span>, BufRead, Write};
 
 <span class="doccomment">/// The state for decoding data with an LZW algorithm.
@@ -1364,7 +1365,7 @@
 /// [`into_stream`]: #method.into_stream
 /// [`into_vec`]: #method.into_vec
 </span><span class="kw">pub struct </span>Decoder {
-    state: Box&lt;<span class="kw">dyn </span>Stateful + Send + <span class="lifetime">&#39;static</span>&gt;,
+    state: Box&lt;<span class="kw">dyn </span>Stateful + Send + <span class="lifetime">'static</span>&gt;,
 }
 
 <span class="doccomment">/// A decoding stream sink.
@@ -1373,14 +1374,14 @@
 ///
 /// [`Decoder::into_stream`]: struct.Decoder.html#method.into_stream
 </span><span class="attr">#[cfg_attr(
-    not(feature = <span class="string">&quot;std&quot;</span>),
-    deprecated = <span class="string">&quot;This type is only useful with the `std` feature.&quot;
+    not(feature = <span class="string">"std"</span>),
+    deprecated = <span class="string">"This type is only useful with the `std` feature."
 </span>)]
-#[cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), allow(dead_code))]
-</span><span class="kw">pub struct </span>IntoStream&lt;<span class="lifetime">&#39;d</span>, W&gt; {
-    decoder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;d </span><span class="kw-2">mut </span>Decoder,
+#[cfg_attr(not(feature = <span class="string">"std"</span>), allow(dead_code))]
+</span><span class="kw">pub struct </span>IntoStream&lt;<span class="lifetime">'d</span>, W&gt; {
+    decoder: <span class="kw-2">&amp;</span><span class="lifetime">'d </span><span class="kw-2">mut </span>Decoder,
     writer: W,
-    buffer: <span class="prelude-ty">Option</span>&lt;StreamBuf&lt;<span class="lifetime">&#39;d</span>&gt;&gt;,
+    buffer: <span class="prelude-ty">Option</span>&lt;StreamBuf&lt;<span class="lifetime">'d</span>&gt;&gt;,
     default_size: usize,
 }
 
@@ -1389,11 +1390,11 @@
 /// See [`Decoder::into_async`] on how to create this type.
 ///
 /// [`Decoder::into_async`]: struct.Decoder.html#method.into_async
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;async&quot;</span>)]
-</span><span class="kw">pub struct </span>IntoAsync&lt;<span class="lifetime">&#39;d</span>, W&gt; {
-    decoder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;d </span><span class="kw-2">mut </span>Decoder,
+</span><span class="attr">#[cfg(feature = <span class="string">"async"</span>)]
+</span><span class="kw">pub struct </span>IntoAsync&lt;<span class="lifetime">'d</span>, W&gt; {
+    decoder: <span class="kw-2">&amp;</span><span class="lifetime">'d </span><span class="kw-2">mut </span>Decoder,
     writer: W,
-    buffer: <span class="prelude-ty">Option</span>&lt;StreamBuf&lt;<span class="lifetime">&#39;d</span>&gt;&gt;,
+    buffer: <span class="prelude-ty">Option</span>&lt;StreamBuf&lt;<span class="lifetime">'d</span>&gt;&gt;,
     default_size: usize,
 }
 
@@ -1402,9 +1403,9 @@
 /// See [`Decoder::into_vec`] on how to create this type.
 ///
 /// [`Decoder::into_vec`]: struct.Decoder.html#method.into_vec
-</span><span class="kw">pub struct </span>IntoVec&lt;<span class="lifetime">&#39;d</span>&gt; {
-    decoder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;d </span><span class="kw-2">mut </span>Decoder,
-    vector: <span class="kw-2">&amp;</span><span class="lifetime">&#39;d </span><span class="kw-2">mut </span>Vec&lt;u8&gt;,
+</span><span class="kw">pub struct </span>IntoVec&lt;<span class="lifetime">'d</span>&gt; {
+    decoder: <span class="kw-2">&amp;</span><span class="lifetime">'d </span><span class="kw-2">mut </span>Decoder,
+    vector: <span class="kw-2">&amp;</span><span class="lifetime">'d </span><span class="kw-2">mut </span>Vec&lt;u8&gt;,
 }
 
 <span class="kw">trait </span>Stateful {
@@ -1507,7 +1508,7 @@
     ///
     /// The `size` needs to be in the interval `0..=12`.
     </span><span class="kw">pub fn </span>new(order: BitOrder, size: u8) -&gt; <span class="self">Self </span>{
-        <span class="kw">type </span>Boxed = Box&lt;<span class="kw">dyn </span>Stateful + Send + <span class="lifetime">&#39;static</span>&gt;;
+        <span class="kw">type </span>Boxed = Box&lt;<span class="kw">dyn </span>Stateful + Send + <span class="lifetime">'static</span>&gt;;
         <span class="kw">super</span>::assert_decode_size(size);
         <span class="kw">let </span>state = <span class="kw">match </span>order {
             BitOrder::Lsb =&gt; Box::new(DecodeState::&lt;LsbBuffer&gt;::new(size)) <span class="kw">as </span>Boxed,
@@ -1527,7 +1528,7 @@
     ///
     /// The `size` needs to be in the interval `0..=12`.
     </span><span class="kw">pub fn </span>with_tiff_size_switch(order: BitOrder, size: u8) -&gt; <span class="self">Self </span>{
-        <span class="kw">type </span>Boxed = Box&lt;<span class="kw">dyn </span>Stateful + Send + <span class="lifetime">&#39;static</span>&gt;;
+        <span class="kw">type </span>Boxed = Box&lt;<span class="kw">dyn </span>Stateful + Send + <span class="lifetime">'static</span>&gt;;
         <span class="kw">super</span>::assert_decode_size(size);
         <span class="kw">let </span>state = <span class="kw">match </span>order {
             BitOrder::Lsb =&gt; {
@@ -1579,11 +1580,11 @@
     /// use weezl::{BitOrder, decode::Decoder};
     ///
     /// // Encoded that was created with an encoder.
-    /// let data = b&quot;\x80\x04\x81\x94l\x1b\x06\xf0\xb0 \x1d\xc6\xf1\xc8l\x19 \x10&quot;;
+    /// let data = b"\x80\x04\x81\x94l\x1b\x06\xf0\xb0 \x1d\xc6\xf1\xc8l\x19 \x10";
     /// let decoded = Decoder::new(BitOrder::Msb, 9)
     ///     .decode(data)
     ///     .unwrap();
-    /// assert_eq!(decoded, b&quot;Hello, world&quot;);
+    /// assert_eq!(decoded, b"Hello, world");
     /// ```
     </span><span class="kw">pub fn </span>decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, LzwError&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>output = <span class="macro">vec!</span>[];
@@ -1592,8 +1593,8 @@
     }
 
     <span class="doccomment">/// Construct a decoder into a writer.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-    </span><span class="kw">pub fn </span>into_stream&lt;W: Write&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, writer: W) -&gt; IntoStream&lt;<span class="lifetime">&#39;_</span>, W&gt; {
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">pub fn </span>into_stream&lt;W: Write&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, writer: W) -&gt; IntoStream&lt;<span class="lifetime">'_</span>, W&gt; {
         IntoStream {
             decoder: <span class="self">self</span>,
             writer,
@@ -1603,8 +1604,8 @@
     }
 
     <span class="doccomment">/// Construct a decoder into an async writer.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;async&quot;</span>)]
-    </span><span class="kw">pub fn </span>into_async&lt;W: futures::io::AsyncWrite&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, writer: W) -&gt; IntoAsync&lt;<span class="lifetime">&#39;_</span>, W&gt; {
+    </span><span class="attr">#[cfg(feature = <span class="string">"async"</span>)]
+    </span><span class="kw">pub fn </span>into_async&lt;W: futures::io::AsyncWrite&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, writer: W) -&gt; IntoAsync&lt;<span class="lifetime">'_</span>, W&gt; {
         IntoAsync {
             decoder: <span class="self">self</span>,
             writer,
@@ -1620,7 +1621,7 @@
     /// Compared to `into_stream` this interface allows a high-level access to decoding without
     /// requires the `std`-feature. Also, it can make full use of the extra buffer control that the
     /// special target exposes.
-    </span><span class="kw">pub fn </span>into_vec&lt;<span class="lifetime">&#39;lt</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;lt </span><span class="kw-2">mut </span><span class="self">self</span>, vec: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lt </span><span class="kw-2">mut </span>Vec&lt;u8&gt;) -&gt; IntoVec&lt;<span class="lifetime">&#39;lt</span>&gt; {
+    </span><span class="kw">pub fn </span>into_vec&lt;<span class="lifetime">'lt</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'lt </span><span class="kw-2">mut </span><span class="self">self</span>, vec: <span class="kw-2">&amp;</span><span class="lifetime">'lt </span><span class="kw-2">mut </span>Vec&lt;u8&gt;) -&gt; IntoVec&lt;<span class="lifetime">'lt</span>&gt; {
         IntoVec {
             decoder: <span class="self">self</span>,
             vector: vec,
@@ -1659,8 +1660,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;d</span>, W: Write&gt; IntoStream&lt;<span class="lifetime">&#39;d</span>, W&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'d</span>, W: Write&gt; IntoStream&lt;<span class="lifetime">'d</span>, W&gt; {
     <span class="doccomment">/// Decode data from a reader.
     ///
     /// This will read data until the stream is empty or an end marker is reached.
@@ -1682,7 +1683,7 @@
     /// # Panics
     /// This method panics if `size` is `0`.
     </span><span class="kw">pub fn </span>set_buffer_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: usize) {
-        <span class="macro">assert_ne!</span>(size, <span class="number">0</span>, <span class="string">&quot;Attempted to set empty buffer&quot;</span>);
+        <span class="macro">assert_ne!</span>(size, <span class="number">0</span>, <span class="string">"Attempted to set empty buffer"</span>);
         <span class="self">self</span>.default_size = size;
     }
 
@@ -1696,8 +1697,8 @@
     ///
     /// # Panics
     /// This method panics if the `buffer` is empty.
-    </span><span class="kw">pub fn </span>set_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buffer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;d </span><span class="kw-2">mut </span>[u8]) {
-        <span class="macro">assert_ne!</span>(buffer.len(), <span class="number">0</span>, <span class="string">&quot;Attempted to set empty buffer&quot;</span>);
+    </span><span class="kw">pub fn </span>set_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buffer: <span class="kw-2">&amp;</span><span class="lifetime">'d </span><span class="kw-2">mut </span>[u8]) {
+        <span class="macro">assert_ne!</span>(buffer.len(), <span class="number">0</span>, <span class="string">"Attempted to set empty buffer"</span>);
         <span class="self">self</span>.buffer = <span class="prelude-val">Some</span>(StreamBuf::Borrowed(buffer));
     }
 
@@ -1741,20 +1742,20 @@
 
             <span class="comment">// Handle the status in the result.
             </span><span class="kw">let </span>done = result.status.map_err(|err| {
-                io::Error::new(io::ErrorKind::InvalidData, <span class="kw-2">&amp;*</span><span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, err))
+                io::Error::new(io::ErrorKind::InvalidData, <span class="kw-2">&amp;*</span><span class="macro">format!</span>(<span class="string">"{:?}"</span>, err))
             })<span class="question-mark">?</span>;
 
             <span class="comment">// Check if we had any new data at all.
             </span><span class="kw">if let </span>LzwStatus::NoProgress = done {
                 <span class="macro">debug_assert_eq!</span>(
                     result.consumed_out, <span class="number">0</span>,
-                    <span class="string">&quot;No progress means we have not decoded any data&quot;
+                    <span class="string">"No progress means we have not decoded any data"
                 </span>);
                 <span class="comment">// In particular we did not finish decoding.
                 </span><span class="kw">if </span>must_finish {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
                         io::ErrorKind::UnexpectedEof,
-                        <span class="string">&quot;No more data but no end marker detected&quot;</span>,
+                        <span class="string">"No more data but no end marker detected"</span>,
                     ));
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(Progress::Done);
@@ -1763,7 +1764,7 @@
 
             <span class="comment">// And finish by writing our result.
             // TODO: we may lose data on error (also on status error above) which we might want to
-            // deterministically handle so that we don&#39;t need to restart everything from scratch as
+            // deterministically handle so that we don't need to restart everything from scratch as
             // the only recovery strategy. Any changes welcome.
             </span>writer.write_all(<span class="kw-2">&amp;</span>outbuf[..result.consumed_out])<span class="question-mark">?</span>;
 
@@ -1774,7 +1775,7 @@
             })
         };
 
-        <span class="comment">// Decode chunks of input data until we&#39;re done.
+        <span class="comment">// Decode chunks of input data until we're done.
         </span><span class="kw">let </span>status = core::iter::repeat_with(once)
             <span class="comment">// scan+fuse can be replaced with map_while
             </span>.scan((), |(), result| <span class="kw">match </span>result {
@@ -1793,7 +1794,7 @@
     }
 }
 
-<span class="kw">impl </span>IntoVec&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>IntoVec&lt;<span class="lifetime">'_</span>&gt; {
     <span class="doccomment">/// Decode data from a slice.
     ///
     /// This will read data until the slice is empty or an end marker is reached.
@@ -1862,7 +1863,7 @@
             }
         };
 
-        <span class="comment">// Decode chunks of input data until we&#39;re done.
+        <span class="comment">// Decode chunks of input data until we're done.
         </span><span class="kw">let </span>status: <span class="prelude-ty">Result</span>&lt;(), <span class="kw">_</span>&gt; = core::iter::repeat_with(once)
             <span class="comment">// scan+fuse can be replaced with map_while
             </span>.scan((), |(), result| <span class="kw">match </span>result {
@@ -1884,8 +1885,8 @@
 <span class="comment">// This is implemented in a separate file, so that 1.34.2 does not parse it. Otherwise, it would
 // trip over the usage of await, which is a reserved keyword in that edition/version. It only
 // contains an impl block.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;async&quot;</span>)]
-#[path = <span class="string">&quot;decode_into_async.rs&quot;</span>]
+</span><span class="attr">#[cfg(feature = <span class="string">"async"</span>)]
+#[path = <span class="string">"decode_into_async.rs"</span>]
 </span><span class="kw">mod </span>impl_decode_into_async;
 
 <span class="kw">impl</span>&lt;C: CodeBuffer&gt; DecodeState&lt;C&gt; {
@@ -1960,9 +1961,9 @@
         // output slice. In the special case (new_code == next_code) we use an existing decoded
         // version that is present in either the out bytes of this call or in buffer to copy the
         // repeated prefix slice.
-        // TODO: I played with a &#39;decoding cache&#39; to remember the position of long symbols and
+        // TODO: I played with a 'decoding cache' to remember the position of long symbols and
         // avoid traversing the chain, doing a copy of memory instead. It did however not lead to
-        // a serious improvement. It&#39;s just unlikely to both have a long symbol and have that
+        // a serious improvement. It's just unlikely to both have a long symbol and have that
         // repeated twice in the same output buffer.
         //
         // You will also find the (to my knowledge novel) concept of a _decoding burst_ which
@@ -1989,7 +1990,7 @@
         <span class="kw">let </span>o_out = out.len();
 
         <span class="comment">// The code_link is the previously decoded symbol.
-        // It&#39;s used to link the new code back to its predecessor.
+        // It's used to link the new code back to its predecessor.
         </span><span class="kw">let </span><span class="kw-2">mut </span>code_link = <span class="prelude-val">None</span>;
         <span class="comment">// The status, which is written to on an invalid code.
         </span><span class="kw">let </span><span class="kw-2">mut </span>status = <span class="prelude-val">Ok</span>(LzwStatus::Ok);
@@ -2003,7 +2004,7 @@
                     <span class="comment">// next_code would require an actual predecessor.
                     </span><span class="prelude-val">Some</span>(code) <span class="kw">if </span>code == <span class="self">self</span>.next_code =&gt; status = <span class="prelude-val">Err</span>(LzwError::InvalidCode),
                     <span class="comment">// No more symbols available and nothing decoded yet.
-                    // Assume that we didn&#39;t make progress, this may get reset to Done if we read
+                    // Assume that we didn't make progress, this may get reset to Done if we read
                     // some bytes from the input.
                     </span><span class="prelude-val">None </span>=&gt; status = <span class="prelude-val">Ok</span>(LzwStatus::NoProgress),
                     <span class="comment">// Handle a valid code.
@@ -2065,11 +2066,11 @@
         }
 
         <span class="comment">// The tracking state for a burst.
-        // These are actually initialized later but compiler wasn&#39;t smart enough to fully optimize
+        // These are actually initialized later but compiler wasn't smart enough to fully optimize
         // out the init code so that appears outside th loop.
-        // TODO: maybe we can make it part of the state but it&#39;s dubious if that really gives a
+        // TODO: maybe we can make it part of the state but it's dubious if that really gives a
         // benefit over stack usage? Also the slices stored here would need some treatment as we
-        // can&#39;t infect the main struct with a lifetime.
+        // can't infect the main struct with a lifetime.
         </span><span class="kw">let </span><span class="kw-2">mut </span>burst = [<span class="number">0</span>; <span class="number">6</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>bytes = [<span class="number">0u16</span>; <span class="number">6</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>target: [<span class="kw-2">&amp;mut </span>[u8]; <span class="number">6</span>] = Default::default();
@@ -2083,7 +2084,7 @@
             }
 
             <span class="kw">let </span><span class="kw-2">mut </span>burst_size = <span class="number">0</span>;
-            <span class="comment">// Ensure the code buffer is full, we&#39;re about to request some codes.
+            <span class="comment">// Ensure the code buffer is full, we're about to request some codes.
             // Note that this also ensures at least one code is in the buffer if any input is left.
             </span><span class="self">self</span>.refill_bits(<span class="kw-2">&amp;mut </span>inp);
             <span class="comment">// A burst is a sequence of decodes that are completely independent of each other. This
@@ -2106,7 +2107,7 @@
                     out = tail;
                 }
 
-                <span class="comment">// Check that we don&#39;t overflow the code size with all codes we burst decode.
+                <span class="comment">// Check that we don't overflow the code size with all codes we burst decode.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(potential_code) = <span class="self">self</span>.next_code.checked_add(burst_size <span class="kw">as </span>u16) {
                     burst_size += <span class="number">1</span>;
                     <span class="kw">if </span>potential_code == <span class="self">self</span>.code_buffer.max_code() - Code::from(<span class="self">self</span>.is_tiff) {
@@ -2117,7 +2118,7 @@
                     </span><span class="kw">break</span>;
                 }
 
-                <span class="comment">// A burst code can&#39;t be special.
+                <span class="comment">// A burst code can't be special.
                 </span><span class="kw">if </span><span class="kw-2">*</span>b == <span class="self">self</span>.clear_code || <span class="kw-2">*</span>b == <span class="self">self</span>.end_code || <span class="kw-2">*</span>b &gt;= <span class="self">self</span>.next_code {
                     <span class="kw">break</span>;
                 }
@@ -2141,8 +2142,8 @@
             }
 
             burst_required_for_progress = <span class="bool-val">false</span>;
-            <span class="comment">// Note that the very last code in the burst buffer doesn&#39;t actually belong to the
-            // burst itself. TODO: sometimes it could, we just don&#39;t differentiate between the
+            <span class="comment">// Note that the very last code in the burst buffer doesn't actually belong to the
+            // burst itself. TODO: sometimes it could, we just don't differentiate between the
             // breaks and a loop end condition above. That may be a speed advantage?
             </span><span class="kw">let </span>(<span class="kw-2">&amp;</span>new_code, burst) = burst[..burst_size].split_last().unwrap();
 
@@ -2151,7 +2152,7 @@
                 <span class="kw">let </span>cha = <span class="self">self</span>.table.reconstruct(burst, target);
                 <span class="comment">// TODO: this pushes into a Vec, maybe we can make this cleaner.
                 // Theoretically this has a branch and llvm tends to be flaky with code layout for
-                // the case of requiring an allocation (which can&#39;t occur in practice).
+                // the case of requiring an allocation (which can't occur in practice).
                 </span><span class="kw">let </span>new_link = <span class="self">self</span>.table.derive(<span class="kw-2">&amp;</span>link, cha, code);
                 <span class="self">self</span>.next_code += <span class="number">1</span>;
                 code = burst;
@@ -2247,15 +2248,15 @@
                 <span class="self">self</span>.next_code += <span class="number">1</span>;
                 new_link = link;
             } <span class="kw">else </span>{
-                <span class="comment">// It&#39;s actually quite likely that the next code will be a reset but just in case.
-                // FIXME: this path hasn&#39;t been tested very well.
+                <span class="comment">// It's actually quite likely that the next code will be a reset but just in case.
+                // FIXME: this path hasn't been tested very well.
                 </span>new_link = link.clone();
             }
 
             <span class="comment">// store the information on the decoded word.
             </span>code_link = <span class="prelude-val">Some</span>((new_code, new_link));
 
-            <span class="comment">// Can&#39;t make any more progress with decoding.
+            <span class="comment">// Can't make any more progress with decoding.
             </span><span class="kw">if </span>is_in_buffer {
                 <span class="kw">break</span>;
             }
@@ -2269,7 +2270,7 @@
             <span class="self">self</span>.buffer.read_mark = tail.len();
         }
 
-        <span class="comment">// Ensure we don&#39;t indicate that no progress was made if we read some bytes from the input
+        <span class="comment">// Ensure we don't indicate that no progress was made if we read some bytes from the input
         // (which is progress).
         </span><span class="kw">if </span>o_in &gt; inp.len() {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(LzwStatus::NoProgress) = status {
@@ -2569,7 +2570,7 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">crate</span>::alloc::vec::Vec;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">use </span><span class="kw">crate</span>::StreamBuf;
     <span class="kw">use crate</span>::{decode::Decoder, BitOrder};
 
@@ -2586,15 +2587,15 @@
     }
 
     <span class="kw">fn </span>make_encoded() -&gt; Vec&lt;u8&gt; {
-        <span class="kw">const </span>FILE: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8] = <span class="macro">include_bytes!</span>(<span class="macro">concat!</span>(
-            <span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>),
-            <span class="string">&quot;/benches/binary-8-msb.lzw&quot;
+        <span class="kw">const </span>FILE: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8] = <span class="macro">include_bytes!</span>(<span class="macro">concat!</span>(
+            <span class="macro">env!</span>(<span class="string">"CARGO_MANIFEST_DIR"</span>),
+            <span class="string">"/benches/binary-8-msb.lzw"
         </span>));
         <span class="kw">return </span>Vec::from(FILE);
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    #[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">fn </span>into_stream_buffer_no_alloc() {
         <span class="kw">let </span>encoded = make_encoded();
         <span class="kw">let </span><span class="kw-2">mut </span>decoder = Decoder::new(BitOrder::Msb, <span class="number">8</span>);
@@ -2607,13 +2608,13 @@
 
         <span class="kw">match </span>istream.buffer {
             <span class="prelude-val">Some</span>(StreamBuf::Borrowed(<span class="kw">_</span>)) =&gt; {}
-            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Decoded without buffer??&quot;</span>),
-            <span class="prelude-val">Some</span>(StreamBuf::Owned(<span class="kw">_</span>)) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected buffer allocation&quot;</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Decoded without buffer??"</span>),
+            <span class="prelude-val">Some</span>(StreamBuf::Owned(<span class="kw">_</span>)) =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected buffer allocation"</span>),
         }
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    #[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">fn </span>into_stream_buffer_small_alloc() {
         <span class="kw">struct </span>WriteTap&lt;W: std::io::Write&gt;(W);
         <span class="kw">const </span>BUF_SIZE: usize = <span class="number">512</span>;
@@ -2638,13 +2639,13 @@
 
         <span class="kw">match </span>istream.buffer {
             <span class="prelude-val">Some</span>(StreamBuf::Owned(vec)) =&gt; <span class="macro">assert!</span>(vec.len() &lt;= BUF_SIZE),
-            <span class="prelude-val">Some</span>(StreamBuf::Borrowed(<span class="kw">_</span>)) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unexpected borrowed buffer, where from?&quot;</span>),
-            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Decoded without buffer??&quot;</span>),
+            <span class="prelude-val">Some</span>(StreamBuf::Borrowed(<span class="kw">_</span>)) =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected borrowed buffer, where from?"</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Decoded without buffer??"</span>),
         }
     }
 
     <span class="attr">#[test]
-    #[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    #[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">fn </span>reset() {
         <span class="kw">let </span>encoded = make_encoded();
         <span class="kw">let </span><span class="kw-2">mut </span>decoder = Decoder::new(BitOrder::Msb, <span class="number">8</span>);

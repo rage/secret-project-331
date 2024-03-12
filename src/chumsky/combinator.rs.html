@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/combinator.rs`."><title>combinator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chumsky-0.9.3/src/combinator.rs`."><title>combinator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="chumsky" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1643,9 +1644,9 @@
 <a href="#1643" id="1643">1643</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Combinators that allow combining and extending existing parsers.
 //!
-//! *“Ford... you&#39;re turning into a penguin. Stop it.”*
+//! *“Ford... you're turning into a penguin. Stop it.”*
 //!
-//! Although it&#39;s *sometimes* useful to be able to name their type, most of these parsers are much easier to work with
+//! Although it's *sometimes* useful to be able to name their type, most of these parsers are much easier to work with
 //! when accessed through their respective methods on [`Parser`].
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -1681,7 +1682,7 @@
         </span><span class="kw">let </span>a_res = debugger.invoke(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, stream);
         <span class="kw">let </span>a_state = stream.save();
 
-        <span class="comment">// If the first parser succeeded and produced no secondary errors, don&#39;t bother trying the second parser
+        <span class="comment">// If the first parser succeeded and produced no secondary errors, don't bother trying the second parser
         // TODO: Perhaps we should *alwaus* take this route, even if recoverable errors did occur? Seems like an
         // inconsistent application of PEG rules...
         </span><span class="kw">if </span>a_res.<span class="number">0</span>.is_empty() {
@@ -1742,9 +1743,9 @@
                         }
                     }
                 }
-                <span class="comment">// ((a_errors, Ok(_)), (b_errors, Err(_))) if !a_errors.is_empty() =&gt; panic!(&quot;a_errors = {:?}&quot;, a_errors.iter().map(|e| e.debug()).collect::&lt;Vec&lt;_&gt;&gt;()),
+                <span class="comment">// ((a_errors, Ok(_)), (b_errors, Err(_))) if !a_errors.is_empty() =&gt; panic!("a_errors = {:?}", a_errors.iter().map(|e| e.debug()).collect::&lt;Vec&lt;_&gt;&gt;()),
                 </span>((_a_errors, <span class="prelude-val">Ok</span>(<span class="kw">_</span>)), (_b_errors, <span class="prelude-val">Err</span>(<span class="kw">_</span>))) =&gt; <span class="bool-val">true</span>,
-                <span class="comment">// ((a_errors, Err(_)), (b_errors, Ok(_))) if !b_errors.is_empty() =&gt; panic!(&quot;b_errors = {:?}&quot;, b_errors.iter().map(|e| e.debug()).collect::&lt;Vec&lt;_&gt;&gt;()),
+                <span class="comment">// ((a_errors, Err(_)), (b_errors, Ok(_))) if !b_errors.is_empty() =&gt; panic!("b_errors = {:?}", b_errors.iter().map(|e| e.debug()).collect::&lt;Vec&lt;_&gt;&gt;()),
                 </span>((_a_errors, <span class="prelude-val">Err</span>(<span class="kw">_</span>)), (_b_errors, <span class="prelude-val">Ok</span>(<span class="kw">_</span>))) =&gt; <span class="bool-val">false</span>,
                 ((a_errors, <span class="prelude-val">Err</span>(a_err)), (b_errors, <span class="prelude-val">Err</span>(b_err))) =&gt; <span class="kw">match </span>a_err.at.cmp(<span class="kw-2">&amp;</span>b_err.at) {
                     Ordering::Greater =&gt; <span class="bool-val">true</span>,
@@ -2078,7 +2079,7 @@
         debugger: <span class="kw-2">&amp;mut </span>D,
         stream: <span class="kw-2">&amp;mut </span>StreamOf&lt;I, E&gt;,
     ) -&gt; PResult&lt;I, O, E&gt; {
-        <span class="comment">// TODO: Don&#39;t clone!
+        <span class="comment">// TODO: Don't clone!
         </span><span class="attr">#[allow(deprecated)]
         </span><span class="kw">let </span>(errors, res) = debugger.invoke(
             <span class="kw-2">&amp;</span><span class="self">self
@@ -2125,7 +2126,7 @@
     ///
     /// ```
     /// # use chumsky::prelude::*;
-    /// let ring = just::&lt;_, _, Simple&lt;char&gt;&gt;(&#39;O&#39;);
+    /// let ring = just::&lt;_, _, Simple&lt;char&gt;&gt;('O');
     ///
     /// let for_the_elves = ring
     ///     .repeated()
@@ -2149,12 +2150,12 @@
     ///     .then(for_sauron)
     ///     .then_ignore(end());
     ///
-    /// assert!(rings.parse(&quot;OOOOOOOOOOOOOOOOOO&quot;).is_err()); // Too few rings!
-    /// assert!(rings.parse(&quot;OOOOOOOOOOOOOOOOOOOO&quot;).is_err()); // Too many rings!
+    /// assert!(rings.parse("OOOOOOOOOOOOOOOOOO").is_err()); // Too few rings!
+    /// assert!(rings.parse("OOOOOOOOOOOOOOOOOOOO").is_err()); // Too many rings!
     /// // The perfect number of rings
     /// assert_eq!(
-    ///     rings.parse(&quot;OOOOOOOOOOOOOOOOOOO&quot;),
-    ///     Ok(((((vec![&#39;O&#39;; 3]), vec![&#39;O&#39;; 6]), vec![&#39;O&#39;; 9]), vec![&#39;O&#39;; 1])),
+    ///     rings.parse("OOOOOOOOOOOOOOOOOOO"),
+    ///     Ok(((((vec!['O'; 3]), vec!['O'; 6]), vec!['O'; 9]), vec!['O'; 1])),
     /// );
     /// ````
     </span><span class="kw">pub fn </span>exactly(<span class="kw-2">mut </span><span class="self">self</span>, n: usize) -&gt; <span class="self">Self </span>{
@@ -2190,10 +2191,10 @@
                     outputs.push(a_out);
 
                     <span class="kw">if </span>old_offset == <span class="prelude-val">Some</span>(stream.offset()) {
-                        <span class="macro">panic!</span>(<span class="string">&quot;Repeated parser iteration succeeded but consumed no inputs (i.e: continuing \
+                        <span class="macro">panic!</span>(<span class="string">"Repeated parser iteration succeeded but consumed no inputs (i.e: continuing \
                             iteration would likely lead to an infinite loop, if the parser is pure). This is \
                             likely indicative of a parser bug. Consider using a more specific error recovery \
-                            strategy.&quot;</span>);
+                            strategy."</span>);
                     } <span class="kw">else </span>{
                         old_offset = <span class="prelude-val">Some</span>(stream.offset());
                     }
@@ -2266,19 +2267,19 @@
     ///
     /// ```
     /// # use chumsky::prelude::*;
-    /// let r#enum = text::keyword::&lt;_, _, Simple&lt;char&gt;&gt;(&quot;enum&quot;)
+    /// let r#enum = text::keyword::&lt;_, _, Simple&lt;char&gt;&gt;("enum")
     ///     .padded()
     ///     .ignore_then(text::ident()
     ///         .padded()
-    ///         .separated_by(just(&#39;|&#39;))
+    ///         .separated_by(just('|'))
     ///         .allow_leading());
     ///
-    /// assert_eq!(r#enum.parse(&quot;enum True | False&quot;), Ok(vec![&quot;True&quot;.to_string(), &quot;False&quot;.to_string()]));
-    /// assert_eq!(r#enum.parse(&quot;
+    /// assert_eq!(r#enum.parse("enum True | False"), Ok(vec!["True".to_string(), "False".to_string()]));
+    /// assert_eq!(r#enum.parse("
     ///     enum
     ///     | True
     ///     | False
-    /// &quot;), Ok(vec![&quot;True&quot;.to_string(), &quot;False&quot;.to_string()]));
+    /// "), Ok(vec!["True".to_string(), "False".to_string()]));
     /// ```
     </span><span class="kw">pub fn </span>allow_leading(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.allow_leading = <span class="bool-val">true</span>;
@@ -2295,12 +2296,12 @@
     /// # use chumsky::prelude::*;
     /// let numbers = text::int::&lt;_, Simple&lt;char&gt;&gt;(10)
     ///     .padded()
-    ///     .separated_by(just(&#39;,&#39;))
+    ///     .separated_by(just(','))
     ///     .allow_trailing()
-    ///     .delimited_by(just(&#39;(&#39;), just(&#39;)&#39;));
+    ///     .delimited_by(just('('), just(')'));
     ///
-    /// assert_eq!(numbers.parse(&quot;(1, 2)&quot;), Ok(vec![&quot;1&quot;.to_string(), &quot;2&quot;.to_string()]));
-    /// assert_eq!(numbers.parse(&quot;(1, 2,)&quot;), Ok(vec![&quot;1&quot;.to_string(), &quot;2&quot;.to_string()]));
+    /// assert_eq!(numbers.parse("(1, 2)"), Ok(vec!["1".to_string(), "2".to_string()]));
+    /// assert_eq!(numbers.parse("(1, 2,)"), Ok(vec!["1".to_string(), "2".to_string()]));
     /// ```
     </span><span class="kw">pub fn </span>allow_trailing(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.allow_trailing = <span class="bool-val">true</span>;
@@ -2311,13 +2312,13 @@
     ///
     /// ```
     /// # use chumsky::prelude::*;
-    /// let numbers = just::&lt;_, _, Simple&lt;char&gt;&gt;(&#39;-&#39;)
-    ///     .separated_by(just(&#39;.&#39;))
+    /// let numbers = just::&lt;_, _, Simple&lt;char&gt;&gt;('-')
+    ///     .separated_by(just('.'))
     ///     .at_least(2);
     ///
-    /// assert!(numbers.parse(&quot;&quot;).is_err());
-    /// assert!(numbers.parse(&quot;-&quot;).is_err());
-    /// assert_eq!(numbers.parse(&quot;-.-&quot;), Ok(vec![&#39;-&#39;, &#39;-&#39;]));
+    /// assert!(numbers.parse("").is_err());
+    /// assert!(numbers.parse("-").is_err());
+    /// assert_eq!(numbers.parse("-.-"), Ok(vec!['-', '-']));
     /// ````
     </span><span class="kw">pub fn </span>at_least(<span class="kw-2">mut </span><span class="self">self</span>, n: usize) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.at_least = n;
@@ -2330,20 +2331,20 @@
     /// # use chumsky::prelude::*;
     /// let row_4 = text::int::&lt;_, Simple&lt;char&gt;&gt;(10)
     ///     .padded()
-    ///     .separated_by(just(&#39;,&#39;))
+    ///     .separated_by(just(','))
     ///     .at_most(4);
     ///
     /// let matrix_4x4 = row_4
-    ///     .separated_by(just(&#39;,&#39;))
+    ///     .separated_by(just(','))
     ///     .at_most(4);
     ///
     /// assert_eq!(
-    ///     matrix_4x4.parse(&quot;0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15&quot;),
+    ///     matrix_4x4.parse("0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15"),
     ///     Ok(vec![
-    ///         vec![&quot;0&quot;.to_string(), &quot;1&quot;.to_string(), &quot;2&quot;.to_string(), &quot;3&quot;.to_string()],
-    ///         vec![&quot;4&quot;.to_string(), &quot;5&quot;.to_string(), &quot;6&quot;.to_string(), &quot;7&quot;.to_string()],
-    ///         vec![&quot;8&quot;.to_string(), &quot;9&quot;.to_string(), &quot;10&quot;.to_string(), &quot;11&quot;.to_string()],
-    ///         vec![&quot;12&quot;.to_string(), &quot;13&quot;.to_string(), &quot;14&quot;.to_string(), &quot;15&quot;.to_string()],
+    ///         vec!["0".to_string(), "1".to_string(), "2".to_string(), "3".to_string()],
+    ///         vec!["4".to_string(), "5".to_string(), "6".to_string(), "7".to_string()],
+    ///         vec!["8".to_string(), "9".to_string(), "10".to_string(), "11".to_string()],
+    ///         vec!["12".to_string(), "13".to_string(), "14".to_string(), "15".to_string()],
     ///     ]),
     /// );
     /// ````
@@ -2358,16 +2359,16 @@
     /// # use chumsky::prelude::*;
     /// let coordinate_3d = text::int::&lt;_, Simple&lt;char&gt;&gt;(10)
     ///     .padded()
-    ///     .separated_by(just(&#39;,&#39;))
+    ///     .separated_by(just(','))
     ///     .exactly(3)
     ///     .then_ignore(end());
     ///
     /// // Not enough elements
-    /// assert!(coordinate_3d.parse(&quot;4, 3&quot;).is_err());
+    /// assert!(coordinate_3d.parse("4, 3").is_err());
     /// // Too many elements
-    /// assert!(coordinate_3d.parse(&quot;7, 2, 13, 4&quot;).is_err());
+    /// assert!(coordinate_3d.parse("7, 2, 13, 4").is_err());
     /// // Just the right number of elements
-    /// assert_eq!(coordinate_3d.parse(&quot;5, 0, 12&quot;), Ok(vec![&quot;5&quot;.to_string(), &quot;0&quot;.to_string(), &quot;12&quot;.to_string()]));
+    /// assert_eq!(coordinate_3d.parse("5, 0, 12"), Ok(vec!["5".to_string(), "0".to_string(), "12".to_string()]));
     /// ````
     </span><span class="kw">pub fn </span>exactly(<span class="kw-2">mut </span><span class="self">self</span>, n: usize) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.at_least = n;
@@ -2405,7 +2406,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(at_most) = <span class="self">self</span>.at_most {
             <span class="macro">assert!</span>(
                 <span class="self">self</span>.at_least &lt;= at_most,
-                <span class="string">&quot;SeparatedBy cannot parse at least {} and at most {}&quot;</span>,
+                <span class="string">"SeparatedBy cannot parse at least {} and at most {}"</span>,
                 <span class="self">self</span>.at_least,
                 at_most
             );
@@ -2541,7 +2542,7 @@
 </span><span class="kw">pub struct </span>Debug&lt;A&gt;(
     <span class="kw">pub</span>(<span class="kw">crate</span>) A,
     <span class="kw">pub</span>(<span class="kw">crate</span>) Rc&lt;<span class="kw">dyn </span>fmt::Display&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) core::panic::Location&lt;<span class="lifetime">&#39;static</span>&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) core::panic::Location&lt;<span class="lifetime">'static</span>&gt;,
 );
 
 <span class="kw">impl</span>&lt;A: Clone&gt; Clone <span class="kw">for </span>Debug&lt;A&gt; {
@@ -2560,7 +2561,7 @@
         stream: <span class="kw-2">&amp;mut </span>StreamOf&lt;I, E&gt;,
     ) -&gt; PResult&lt;I, O, E&gt; {
         debugger.scope(
-            || ParserInfo::new(<span class="string">&quot;Name&quot;</span>, <span class="self">self</span>.<span class="number">1</span>.clone(), <span class="self">self</span>.<span class="number">2</span>),
+            || ParserInfo::new(<span class="string">"Name"</span>, <span class="self">self</span>.<span class="number">1</span>.clone(), <span class="self">self</span>.<span class="number">2</span>),
             |debugger| {
                 <span class="attr">#[allow(deprecated)]
                 </span><span class="kw">let </span>(errors, res) = debugger.invoke(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, stream);
@@ -3152,7 +3153,7 @@
 <span class="doccomment">/// See [`Parser::unwrapped`]
 </span><span class="attr">#[must_use]
 </span><span class="kw">pub struct </span>Unwrapped&lt;A, U, E&gt;(
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Location&lt;<span class="lifetime">&#39;static</span>&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Location&lt;<span class="lifetime">'static</span>&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) A,
     <span class="kw">pub</span>(<span class="kw">crate</span>) PhantomData&lt;(U, E)&gt;,
 );
@@ -3184,7 +3185,7 @@
                 (
                     out.unwrap_or_else(|err| {
                         <span class="macro">panic!</span>(
-                            <span class="string">&quot;Parser defined at {} failed to unwrap. Error: {:?}&quot;</span>,
+                            <span class="string">"Parser defined at {} failed to unwrap. Error: {:?}"</span>,
                             <span class="self">self</span>.<span class="number">0</span>, err
                         )
                     }),
@@ -3216,72 +3217,72 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>delimited_by_complex() {
-        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">&#39;-&#39;</span>)
+        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">'-'</span>)
             .delimited_by(text::ident().padded(), text::int(<span class="number">10</span>).padded())
-            .separated_by(just(<span class="string">&#39;,&#39;</span>));
+            .separated_by(just(<span class="string">','</span>));
 
         <span class="macro">assert_eq!</span>(
-            parser.parse(<span class="string">&quot;one - 1,two - 2,three - 3&quot;</span>),
-            <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>])
+            parser.parse(<span class="string">"one - 1,two - 2,three - 3"</span>),
+            <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'-'</span>])
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>separated_by_at_least() {
-        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">&#39;-&#39;</span>)
-            .separated_by(just(<span class="string">&#39;,&#39;</span>))
+        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">'-'</span>)
+            .separated_by(just(<span class="string">','</span>))
             .at_least(<span class="number">3</span>);
 
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;-,-,-&quot;</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>]));
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">"-,-,-"</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'-'</span>]));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>separated_by_at_least_without_leading() {
-        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">&#39;-&#39;</span>)
-            .separated_by(just(<span class="string">&#39;,&#39;</span>))
+        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">'-'</span>)
+            .separated_by(just(<span class="string">','</span>))
             .at_least(<span class="number">3</span>);
 
-        <span class="macro">assert!</span>(parser.parse(<span class="string">&quot;,-,-,-&quot;</span>).is_err());
+        <span class="macro">assert!</span>(parser.parse(<span class="string">",-,-,-"</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>separated_by_at_least_without_trailing() {
-        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">&#39;-&#39;</span>)
-            .separated_by(just(<span class="string">&#39;,&#39;</span>))
+        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">'-'</span>)
+            .separated_by(just(<span class="string">','</span>))
             .at_least(<span class="number">3</span>)
             .then(end());
 
-        <span class="macro">assert!</span>(parser.parse(<span class="string">&quot;-,-,-,&quot;</span>).is_err());
+        <span class="macro">assert!</span>(parser.parse(<span class="string">"-,-,-,"</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>separated_by_at_least_with_leading() {
-        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">&#39;-&#39;</span>)
-            .separated_by(just(<span class="string">&#39;,&#39;</span>))
+        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">'-'</span>)
+            .separated_by(just(<span class="string">','</span>))
             .allow_leading()
             .at_least(<span class="number">3</span>);
 
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;,-,-,-&quot;</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>]));
-        <span class="macro">assert!</span>(parser.parse(<span class="string">&quot;,-,-&quot;</span>).is_err());
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">",-,-,-"</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'-'</span>]));
+        <span class="macro">assert!</span>(parser.parse(<span class="string">",-,-"</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>separated_by_at_least_with_trailing() {
-        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">&#39;-&#39;</span>)
-            .separated_by(just(<span class="string">&#39;,&#39;</span>))
+        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">'-'</span>)
+            .separated_by(just(<span class="string">','</span>))
             .allow_trailing()
             .at_least(<span class="number">3</span>);
 
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;-,-,-,&quot;</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>]));
-        <span class="macro">assert!</span>(parser.parse(<span class="string">&quot;-,-,&quot;</span>).is_err());
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">"-,-,-,"</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'-'</span>]));
+        <span class="macro">assert!</span>(parser.parse(<span class="string">"-,-,"</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>separated_by_leaves_last_separator() {
-        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">&#39;-&#39;</span>)
-            .separated_by(just(<span class="string">&#39;,&#39;</span>))
-            .chain(just(<span class="string">&#39;,&#39;</span>));
-        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">&quot;-,-,-,&quot;</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;-&#39;</span>, <span class="string">&#39;,&#39;</span>]))
+        <span class="kw">let </span>parser = just::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Simple&lt;char&gt;&gt;(<span class="string">'-'</span>)
+            .separated_by(just(<span class="string">','</span>))
+            .chain(just(<span class="string">','</span>));
+        <span class="macro">assert_eq!</span>(parser.parse(<span class="string">"-,-,-,"</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">'-'</span>, <span class="string">','</span>]))
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/message/header/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/message/header/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -794,7 +795,7 @@
 
     <span class="doccomment">/// Returns a copy of a `Header` present in `Headers`
     ///
-    /// Returns `None` if `Header` isn&#39;t present in `Headers`.
+    /// Returns `None` if `Header` isn't present in `Headers`.
     </span><span class="kw">pub fn </span>get&lt;H: Header&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;H&gt; {
         <span class="self">self</span>.get_raw(<span class="kw-2">&amp;</span>H::name())
             .and_then(|raw_value| H::parse(raw_value).ok())
@@ -808,7 +809,7 @@
 
     <span class="doccomment">/// Remove `Header` from `Headers`, returning it
     ///
-    /// Returns `None` if `Header` isn&#39;t in `Headers`.
+    /// Returns `None` if `Header` isn't in `Headers`.
     </span><span class="kw">pub fn </span>remove&lt;H: Header&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;H&gt; {
         <span class="self">self</span>.remove_raw(<span class="kw-2">&amp;</span>H::name())
             .and_then(|value| H::parse(<span class="kw-2">&amp;</span>value.raw_value).ok())
@@ -824,7 +825,7 @@
 
     <span class="doccomment">/// Returns a reference to the raw value of header `name`
     ///
-    /// Returns `None` if `name` isn&#39;t present in `Headers`.
+    /// Returns `None` if `name` isn't present in `Headers`.
     </span><span class="kw">pub fn </span>get_raw(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="self">self</span>.find_header(name).map(|value| value.raw_value.as_str())
     }
@@ -844,7 +845,7 @@
 
     <span class="doccomment">/// Remove a raw header from `Headers`, returning it
     ///
-    /// Returns `None` if `name` isn&#39;t present in `Headers`.
+    /// Returns `None` if `name` isn't present in `Headers`.
     </span><span class="kw">pub fn </span>remove_raw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;HeaderValue&gt; {
         <span class="self">self</span>.find_header_index(name).map(|i| <span class="self">self</span>.headers.remove(i))
     }
@@ -872,12 +873,12 @@
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Headers {
     <span class="doccomment">/// Formats `Headers`, ready to put them into an email
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">for </span>value <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.headers {
             f.write_str(<span class="kw-2">&amp;</span>value.name)<span class="question-mark">?</span>;
-            f.write_str(<span class="string">&quot;: &quot;</span>)<span class="question-mark">?</span>;
+            f.write_str(<span class="string">": "</span>)<span class="question-mark">?</span>;
             f.write_str(<span class="kw-2">&amp;</span>value.encoded_value)<span class="question-mark">?</span>;
-            f.write_str(<span class="string">&quot;\r\n&quot;</span>)<span class="question-mark">?</span>;
+            f.write_str(<span class="string">"\r\n"</span>)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -893,16 +894,16 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>InvalidHeaderName {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;InvalidHeaderName&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"InvalidHeaderName"</span>)
             <span class="comment">// skip _priv noise
             </span>.finish()
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>InvalidHeaderName {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;invalid header name&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"invalid header name"</span>)
     }
 }
 
@@ -910,7 +911,7 @@
 
 <span class="doccomment">/// A valid header name
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>HeaderName(Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;);
+</span><span class="kw">pub struct </span>HeaderName(Cow&lt;<span class="lifetime">'static</span>, str&gt;);
 
 <span class="kw">impl </span>HeaderName {
     <span class="doccomment">/// Creates a new header name
@@ -918,7 +919,7 @@
         <span class="kw">if </span>!ascii.is_empty()
             &amp;&amp; ascii.len() &lt;= <span class="number">76
             </span>&amp;&amp; ascii.is_ascii()
-            &amp;&amp; !ascii.contains(|c| c == <span class="string">&#39;:&#39; </span>|| c == <span class="string">&#39; &#39;</span>)
+            &amp;&amp; !ascii.contains(|c| c == <span class="string">':' </span>|| c == <span class="string">' '</span>)
         {
             <span class="prelude-val">Ok</span>(<span class="self">Self</span>(Cow::Owned(ascii)))
         } <span class="kw">else </span>{
@@ -927,7 +928,7 @@
     }
 
     <span class="doccomment">/// Creates a new header name, panics on invalid name
-    </span><span class="kw">pub const fn </span>new_from_ascii_str(ascii: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new_from_ascii_str(ascii: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="macro">macro_rules! </span>static_assert {
             (<span class="macro-nonterminal">$condition</span>:expr) =&gt; {
                 <span class="kw">let _ </span>= [()][(!(<span class="macro-nonterminal">$condition</span>)) <span class="kw">as </span>usize];
@@ -941,8 +942,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
         <span class="kw">while </span>i &lt; bytes.len() {
             <span class="macro">static_assert!</span>(bytes[i].is_ascii());
-            <span class="macro">static_assert!</span>(bytes[i] != <span class="string">b&#39; &#39;</span>);
-            <span class="macro">static_assert!</span>(bytes[i] != <span class="string">b&#39;:&#39;</span>);
+            <span class="macro">static_assert!</span>(bytes[i] != <span class="string">b' '</span>);
+            <span class="macro">static_assert!</span>(bytes[i] != <span class="string">b':'</span>);
 
             i += <span class="number">1</span>;
         }
@@ -952,7 +953,7 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>HeaderName {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.write_str(<span class="self">self</span>)
     }
 }
@@ -1049,31 +1050,31 @@
         }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"dkim"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw-2">&amp;</span><span class="self">self</span>.raw_value
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"dkim"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_encoded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw-2">&amp;</span><span class="self">self</span>.encoded_value
     }
 }
 
 <span class="doccomment">/// [RFC 1522](https://tools.ietf.org/html/rfc1522) header value encoder
-</span><span class="kw">struct </span>HeaderValueEncoder&lt;<span class="lifetime">&#39;a</span>&gt; {
-    writer: EmailWriter&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">struct </span>HeaderValueEncoder&lt;<span class="lifetime">'a</span>&gt; {
+    writer: EmailWriter&lt;<span class="lifetime">'a</span>&gt;,
     encode_buf: String,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; HeaderValueEncoder&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>encode(name: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, f: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="kw">impl </span>fmt::Write) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; HeaderValueEncoder&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>encode(name: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, f: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">impl </span>fmt::Write) -&gt; fmt::Result {
         <span class="kw">let </span>encoder = <span class="self">Self</span>::new(name, f);
-        encoder.format(value.split_inclusive(<span class="string">&#39; &#39;</span>))
+        encoder.format(value.split_inclusive(<span class="string">' '</span>))
     }
 
-    <span class="kw">fn </span>new(name: <span class="kw-2">&amp;</span>str, writer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="kw">dyn </span>Write) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>line_len = name.len() + <span class="string">&quot;: &quot;</span>.len();
+    <span class="kw">fn </span>new(name: <span class="kw-2">&amp;</span>str, writer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>Write) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>line_len = name.len() + <span class="string">": "</span>.len();
         <span class="kw">let </span>writer = EmailWriter::new(writer, line_len, <span class="number">0</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
 
         <span class="self">Self </span>{
@@ -1082,7 +1083,7 @@
         }
     }
 
-    <span class="kw">fn </span>format(<span class="kw-2">mut </span><span class="self">self</span>, words_iter: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>format(<span class="kw-2">mut </span><span class="self">self</span>, words_iter: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt;) -&gt; fmt::Result {
         <span class="kw">for </span>next_word <span class="kw">in </span>words_iter {
             <span class="kw">let </span>allowed = allowed_str(next_word);
 
@@ -1110,7 +1111,7 @@
             </span><span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="kw">let </span>prefix = <span class="self">self</span>.encode_buf.trim_end_matches(<span class="string">&#39; &#39;</span>);
+        <span class="kw">let </span>prefix = <span class="self">self</span>.encode_buf.trim_end_matches(<span class="string">' '</span>);
         email_encoding::headers::rfc2047::encode(prefix, <span class="kw-2">&amp;mut </span><span class="self">self</span>.writer)<span class="question-mark">?</span>;
 
         <span class="comment">// TODO: add a better API for doing this in email-encoding
@@ -1141,56 +1142,56 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>valid_headername() {
-        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">&quot;From&quot;</span>)).is_ok());
+        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">"From"</span>)).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>non_ascii_headername() {
-        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">&quot;🌎&quot;</span>)).is_err());
+        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">"🌎"</span>)).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>spaces_in_headername() {
-        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">&quot;From &quot;</span>)).is_err());
+        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">"From "</span>)).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>colons_in_headername() {
-        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">&quot;From:&quot;</span>)).is_err());
+        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">"From:"</span>)).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty_headername() {
-        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">&quot;&quot;</span>)).is_err());
+        <span class="macro">assert!</span>(HeaderName::new_from_ascii(String::from(<span class="string">""</span>)).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>const_valid_headername() {
-        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">&quot;From&quot;</span>);
+        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">"From"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>const_non_ascii_headername() {
-        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">&quot;🌎&quot;</span>);
+        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">"🌎"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>const_spaces_in_headername() {
-        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">&quot;From &quot;</span>);
+        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">"From "</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>const_colons_in_headername() {
-        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">&quot;From:&quot;</span>);
+        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">"From:"</span>);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>const_empty_headername() {
-        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">""</span>);
     }
 
     <span class="comment">// names taken randomly from https://it.wikipedia.org/wiki/Pinco_Pallino
@@ -1199,13 +1200,13 @@
     </span><span class="kw">fn </span>format_ascii() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;To&quot;</span>),
-            <span class="string">&quot;John Doe &lt;example@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"To"</span>),
+            <span class="string">"John Doe &lt;example@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;"</span>.to_owned(),
         ));
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
-            <span class="string">&quot;To: John Doe &lt;example@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;\r\n&quot;
+            <span class="string">"To: John Doe &lt;example@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;\r\n"
         </span>);
     }
 
@@ -1213,16 +1214,16 @@
     </span><span class="kw">fn </span>format_ascii_with_folding() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;To&quot;</span>),
-            <span class="string">&quot;Ascii &lt;example@example.com&gt;, John Doe &lt;johndoe@example.com, John Smith &lt;johnsmith@example.com&gt;, Pinco Pallino &lt;pincopallino@example.com&gt;, Jemand &lt;jemand@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"To"</span>),
+            <span class="string">"Ascii &lt;example@example.com&gt;, John Doe &lt;johndoe@example.com, John Smith &lt;johnsmith@example.com&gt;, Pinco Pallino &lt;pincopallino@example.com&gt;, Jemand &lt;jemand@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;"</span>.to_owned(),
         ));
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;To: Ascii &lt;example@example.com&gt;, John Doe &lt;johndoe@example.com, John Smith\r\n&quot;</span>,
-                <span class="string">&quot; &lt;johnsmith@example.com&gt;, Pinco Pallino &lt;pincopallino@example.com&gt;, Jemand\r\n&quot;</span>,
-                <span class="string">&quot; &lt;jemand@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;\r\n&quot;
+                <span class="string">"To: Ascii &lt;example@example.com&gt;, John Doe &lt;johndoe@example.com, John Smith\r\n"</span>,
+                <span class="string">" &lt;johnsmith@example.com&gt;, Pinco Pallino &lt;pincopallino@example.com&gt;, Jemand\r\n"</span>,
+                <span class="string">" &lt;jemand@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;\r\n"
             </span>)
         );
     }
@@ -1231,16 +1232,16 @@
     </span><span class="kw">fn </span>format_ascii_with_folding_long_line() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;Subject&quot;</span>),
-            <span class="string">&quot;Hello! This is lettre, and this IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I guess that&#39;s it!&quot;</span>.to_owned()
+            HeaderName::new_from_ascii_str(<span class="string">"Subject"</span>),
+            <span class="string">"Hello! This is lettre, and this IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I guess that's it!"</span>.to_owned()
         ));
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: Hello! This is lettre, and this\r\n&quot;</span>,
-                <span class="string">&quot; IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I\r\n&quot;</span>,
-                <span class="string">&quot; guess that&#39;s it!\r\n&quot;
+                <span class="string">"Subject: Hello! This is lettre, and this\r\n"</span>,
+                <span class="string">" IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I\r\n"</span>,
+                <span class="string">" guess that's it!\r\n"
             </span>)
         );
     }
@@ -1250,16 +1251,16 @@
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(
             HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;Subject&quot;</span>),
-            <span class="string">&quot;Hello! IGuessTheLastLineWasntLongEnoughSoLetsTryAgainShallWeWhatDoYouThinkItsGoingToHappenIGuessWereAboutToFindOut! I don&#39;t know&quot;</span>.to_owned()
+            HeaderName::new_from_ascii_str(<span class="string">"Subject"</span>),
+            <span class="string">"Hello! IGuessTheLastLineWasntLongEnoughSoLetsTryAgainShallWeWhatDoYouThinkItsGoingToHappenIGuessWereAboutToFindOut! I don't know"</span>.to_owned()
         ));
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: Hello!\r\n&quot;</span>,
-                <span class="string">&quot; IGuessTheLastLineWasntLongEnoughSoLetsTryAgainShallWeWhatDoYouThinkItsGoingToHappenIGuessWereAboutToFindOut!\r\n&quot;</span>,
-                <span class="string">&quot; I don&#39;t know\r\n&quot;</span>,
+                <span class="string">"Subject: Hello!\r\n"</span>,
+                <span class="string">" IGuessTheLastLineWasntLongEnoughSoLetsTryAgainShallWeWhatDoYouThinkItsGoingToHappenIGuessWereAboutToFindOut!\r\n"</span>,
+                <span class="string">" I don't know\r\n"</span>,
             )
         );
     }
@@ -1268,13 +1269,13 @@
     </span><span class="kw">fn </span>format_ascii_with_folding_giant_word() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;Subject&quot;</span>),
-            <span class="string">&quot;1abcdefghijklmnopqrstuvwxyz2abcdefghijklmnopqrstuvwxyz3abcdefghijklmnopqrstuvwxyz4abcdefghijklmnopqrstuvwxyz5abcdefghijklmnopqrstuvwxyz6abcdefghijklmnopqrstuvwxyz&quot;</span>.to_owned()
+            HeaderName::new_from_ascii_str(<span class="string">"Subject"</span>),
+            <span class="string">"1abcdefghijklmnopqrstuvwxyz2abcdefghijklmnopqrstuvwxyz3abcdefghijklmnopqrstuvwxyz4abcdefghijklmnopqrstuvwxyz5abcdefghijklmnopqrstuvwxyz6abcdefghijklmnopqrstuvwxyz"</span>.to_owned()
         ));
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
-            <span class="string">&quot;Subject: 1abcdefghijklmnopqrstuvwxyz2abcdefghijklmnopqrstuvwxyz3abcdefghijklmnopqrstuvwxyz4abcdefghijklmnopqrstuvwxyz5abcdefghijklmnopqrstuvwxyz6abcdefghijklmnopqrstuvwxyz\r\n&quot;</span>,
+            <span class="string">"Subject: 1abcdefghijklmnopqrstuvwxyz2abcdefghijklmnopqrstuvwxyz3abcdefghijklmnopqrstuvwxyz4abcdefghijklmnopqrstuvwxyz5abcdefghijklmnopqrstuvwxyz6abcdefghijklmnopqrstuvwxyz\r\n"</span>,
         );
     }
 
@@ -1282,13 +1283,13 @@
     </span><span class="kw">fn </span>format_special() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;To&quot;</span>),
-            <span class="string">&quot;Seán &lt;sean@example.com&gt;&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"To"</span>),
+            <span class="string">"Seán &lt;sean@example.com&gt;"</span>.to_owned(),
         ));
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
-            <span class="string">&quot;To: =?utf-8?b?U2XDoW4=?= &lt;sean@example.com&gt;\r\n&quot;
+            <span class="string">"To: =?utf-8?b?U2XDoW4=?= &lt;sean@example.com&gt;\r\n"
         </span>);
     }
 
@@ -1296,13 +1297,13 @@
     </span><span class="kw">fn </span>format_special_emoji() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;To&quot;</span>),
-            <span class="string">&quot;🌎 &lt;world@example.com&gt;&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"To"</span>),
+            <span class="string">"🌎 &lt;world@example.com&gt;"</span>.to_owned(),
         ));
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
-            <span class="string">&quot;To: =?utf-8?b?8J+Mjg==?= &lt;world@example.com&gt;\r\n&quot;
+            <span class="string">"To: =?utf-8?b?8J+Mjg==?= &lt;world@example.com&gt;\r\n"
         </span>);
     }
 
@@ -1310,22 +1311,22 @@
     </span><span class="kw">fn </span>format_special_with_folding() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         <span class="kw">let </span>to = To::from(Mailboxes::from_iter([
-            <span class="string">&quot;🌍 &lt;world@example.com&gt;&quot;</span>.parse().unwrap(),
-            <span class="string">&quot;🦆 Everywhere &lt;ducks@example.com&gt;&quot;</span>.parse().unwrap(),
-            <span class="string">&quot;Иванов Иван Иванович &lt;ivanov@example.com&gt;&quot;</span>.parse().unwrap(),
-            <span class="string">&quot;Jānis Bērziņš &lt;janis@example.com&gt;&quot;</span>.parse().unwrap(),
-            <span class="string">&quot;Seán Ó Rudaí &lt;sean@example.com&gt;&quot;</span>.parse().unwrap(),
+            <span class="string">"🌍 &lt;world@example.com&gt;"</span>.parse().unwrap(),
+            <span class="string">"🦆 Everywhere &lt;ducks@example.com&gt;"</span>.parse().unwrap(),
+            <span class="string">"Иванов Иван Иванович &lt;ivanov@example.com&gt;"</span>.parse().unwrap(),
+            <span class="string">"Jānis Bērziņš &lt;janis@example.com&gt;"</span>.parse().unwrap(),
+            <span class="string">"Seán Ó Rudaí &lt;sean@example.com&gt;"</span>.parse().unwrap(),
         ]));
         headers.set(to);
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhiBFdmVyeXdo?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?ZXJl?= &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyINCY0LI=?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?0LDQvSDQmNCy0LDQvdC+0LLQuNGH?= &lt;ivanov@example.com&gt;,\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?SsSBbmlzIELEk3J6acWGxaE=?= &lt;janis@example.com&gt;, =?utf-8?b?U2U=?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?w6FuIMOTIFJ1ZGHDrQ==?= &lt;sean@example.com&gt;\r\n&quot;</span>,
+                <span class="string">"To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhiBFdmVyeXdo?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?ZXJl?= &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyINCY0LI=?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?0LDQvSDQmNCy0LDQvdC+0LLQuNGH?= &lt;ivanov@example.com&gt;,\r\n"</span>,
+                <span class="string">" =?utf-8?b?SsSBbmlzIELEk3J6acWGxaE=?= &lt;janis@example.com&gt;, =?utf-8?b?U2U=?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?w6FuIMOTIFJ1ZGHDrQ==?= &lt;sean@example.com&gt;\r\n"</span>,
             )
         );
     }
@@ -1334,21 +1335,21 @@
     </span><span class="kw">fn </span>format_special_with_folding_raw() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;To&quot;</span>),
-            <span class="string">&quot;🌍 &lt;world@example.com&gt;, 🦆 Everywhere &lt;ducks@example.com&gt;, Иванов Иван Иванович &lt;ivanov@example.com&gt;, Jānis Bērziņš &lt;janis@example.com&gt;, Seán Ó Rudaí &lt;sean@example.com&gt;&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"To"</span>),
+            <span class="string">"🌍 &lt;world@example.com&gt;, 🦆 Everywhere &lt;ducks@example.com&gt;, Иванов Иван Иванович &lt;ivanov@example.com&gt;, Jānis Bērziņš &lt;janis@example.com&gt;, Seán Ó Rudaí &lt;sean@example.com&gt;"</span>.to_owned(),
         ));
 
-        <span class="comment">// TODO: fix the fact that the encoder doesn&#39;t know that
+        <span class="comment">// TODO: fix the fact that the encoder doesn't know that
         // the space between the name and the address should be
         // removed when wrapping.
         </span><span class="macro">assert_eq!</span>(
             headers.to_string(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhg==?=\r\n&quot;</span>,
-                <span class="string">&quot; Everywhere &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyINCY0LLQsNC9?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?INCY0LLQsNC90L7QstC40Yc=?= &lt;ivanov@example.com&gt;,\r\n&quot;</span>,
-                <span class="string">&quot;  =?utf-8?b?SsSBbmlzIELEk3J6acWGxaE=?= &lt;janis@example.com&gt;,\r\n&quot;</span>,
-                <span class="string">&quot;  =?utf-8?b?U2XDoW4gw5MgUnVkYcOt?= &lt;sean@example.com&gt;\r\n&quot;</span>,
+                <span class="string">"To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhg==?=\r\n"</span>,
+                <span class="string">" Everywhere &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyINCY0LLQsNC9?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?INCY0LLQsNC90L7QstC40Yc=?= &lt;ivanov@example.com&gt;,\r\n"</span>,
+                <span class="string">"  =?utf-8?b?SsSBbmlzIELEk3J6acWGxaE=?= &lt;janis@example.com&gt;,\r\n"</span>,
+                <span class="string">"  =?utf-8?b?U2XDoW4gw5MgUnVkYcOt?= &lt;sean@example.com&gt;\r\n"</span>,
             )
         );
     }
@@ -1358,19 +1359,19 @@
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(
             HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;Subject&quot;</span>),
-            <span class="string">&quot;🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳&quot;</span>.to_owned(),)
+            HeaderName::new_from_ascii_str(<span class="string">"Subject"</span>),
+            <span class="string">"🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳"</span>.to_owned(),)
         );
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+lsw==?=\r\n&quot;
+                <span class="string">"Subject: =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+lsw==?=\r\n"
             </span>)
         );
     }
@@ -1379,13 +1380,13 @@
     </span><span class="kw">fn </span>format_bad_stuff() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;Subject&quot;</span>),
-            <span class="string">&quot;Hello! \r\n This is \&quot; bad \0. 👋&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"Subject"</span>),
+            <span class="string">"Hello! \r\n This is \" bad \0. 👋"</span>.to_owned(),
         ));
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
-            <span class="string">&quot;Subject: Hello! =?utf-8?b?DQo=?= This is \&quot; bad =?utf-8?b?AC4g8J+Riw==?=\r\n&quot;
+            <span class="string">"Subject: Hello! =?utf-8?b?DQo=?= This is \" bad =?utf-8?b?AC4g8J+Riw==?=\r\n"
         </span>);
     }
 
@@ -1394,41 +1395,41 @@
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(
             HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;Subject&quot;</span>),
-            <span class="string">&quot;Hello! This is lettre, and this IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I guess that&#39;s it!&quot;</span>.to_owned()
+            HeaderName::new_from_ascii_str(<span class="string">"Subject"</span>),
+            <span class="string">"Hello! This is lettre, and this IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I guess that's it!"</span>.to_owned()
             )
         );
         headers.insert_raw(
             HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;To&quot;</span>),
-            <span class="string">&quot;🌍 &lt;world@example.com&gt;, 🦆 Everywhere &lt;ducks@example.com&gt;, Иванов Иван Иванович &lt;ivanov@example.com&gt;, Jānis Bērziņš &lt;janis@example.com&gt;, Seán Ó Rudaí &lt;sean@example.com&gt;&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"To"</span>),
+            <span class="string">"🌍 &lt;world@example.com&gt;, 🦆 Everywhere &lt;ducks@example.com&gt;, Иванов Иван Иванович &lt;ivanov@example.com&gt;, Jānis Bērziņš &lt;janis@example.com&gt;, Seán Ó Rudaí &lt;sean@example.com&gt;"</span>.to_owned(),
             )
         );
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;From&quot;</span>),
-            <span class="string">&quot;Someone &lt;somewhere@example.com&gt;&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"From"</span>),
+            <span class="string">"Someone &lt;somewhere@example.com&gt;"</span>.to_owned(),
         ));
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;Content-Transfer-Encoding&quot;</span>),
-            <span class="string">&quot;quoted-printable&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"Content-Transfer-Encoding"</span>),
+            <span class="string">"quoted-printable"</span>.to_owned(),
         ));
 
-        <span class="comment">// TODO: fix the fact that the encoder doesn&#39;t know that
+        <span class="comment">// TODO: fix the fact that the encoder doesn't know that
         // the space between the name and the address should be
         // removed when wrapping.
         </span><span class="macro">assert_eq!</span>(
             headers.to_string(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: Hello! This is lettre, and this\r\n&quot;</span>,
-                <span class="string">&quot; IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I\r\n&quot;</span>,
-                <span class="string">&quot; guess that&#39;s it!\r\n&quot;</span>,
-                <span class="string">&quot;To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhg==?=\r\n&quot;</span>,
-                <span class="string">&quot; Everywhere &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyINCY0LLQsNC9?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?INCY0LLQsNC90L7QstC40Yc=?= &lt;ivanov@example.com&gt;,\r\n&quot;</span>,
-                <span class="string">&quot;  =?utf-8?b?SsSBbmlzIELEk3J6acWGxaE=?= &lt;janis@example.com&gt;,\r\n&quot;</span>,
-                <span class="string">&quot;  =?utf-8?b?U2XDoW4gw5MgUnVkYcOt?= &lt;sean@example.com&gt;\r\n&quot;</span>,
-                <span class="string">&quot;From: Someone &lt;somewhere@example.com&gt;\r\n&quot;</span>,
-                <span class="string">&quot;Content-Transfer-Encoding: quoted-printable\r\n&quot;</span>,
+                <span class="string">"Subject: Hello! This is lettre, and this\r\n"</span>,
+                <span class="string">" IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I\r\n"</span>,
+                <span class="string">" guess that's it!\r\n"</span>,
+                <span class="string">"To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhg==?=\r\n"</span>,
+                <span class="string">" Everywhere &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyINCY0LLQsNC9?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?INCY0LLQsNC90L7QstC40Yc=?= &lt;ivanov@example.com&gt;,\r\n"</span>,
+                <span class="string">"  =?utf-8?b?SsSBbmlzIELEk3J6acWGxaE=?= &lt;janis@example.com&gt;,\r\n"</span>,
+                <span class="string">"  =?utf-8?b?U2XDoW4gw5MgUnVkYcOt?= &lt;sean@example.com&gt;\r\n"</span>,
+                <span class="string">"From: Someone &lt;somewhere@example.com&gt;\r\n"</span>,
+                <span class="string">"Content-Transfer-Encoding: quoted-printable\r\n"</span>,
             )
         );
     }
@@ -1437,15 +1438,15 @@
     </span><span class="kw">fn </span>issue_653() {
         <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
         headers.insert_raw(HeaderValue::new(
-            HeaderName::new_from_ascii_str(<span class="string">&quot;Subject&quot;</span>),
-            <span class="string">&quot;＋仮名 :a;go; ;;;;;s;;;;;;;;;;;;;;;;fffeinmjgggggggggｆっ&quot;</span>.to_owned(),
+            HeaderName::new_from_ascii_str(<span class="string">"Subject"</span>),
+            <span class="string">"＋仮名 :a;go; ;;;;;s;;;;;;;;;;;;;;;;fffeinmjgggggggggｆっ"</span>.to_owned(),
         ));
 
         <span class="macro">assert_eq!</span>(
             headers.to_string(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: =?utf-8?b?77yL5Luu5ZCN?= :a;go; =?utf-8?b?Ozs7OztzOzs7Ozs7Ozs7?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?Ozs7Ozs7O2ZmZmVpbm1qZ2dnZ2dnZ2dn772G44Gj?=\r\n&quot;</span>,
+                <span class="string">"Subject: =?utf-8?b?77yL5Luu5ZCN?= :a;go; =?utf-8?b?Ozs7OztzOzs7Ozs7Ozs7?=\r\n"</span>,
+                <span class="string">" =?utf-8?b?Ozs7Ozs7O2ZmZmVpbm1qZ2dnZ2dnZ2dn772G44Gj?=\r\n"</span>,
             )
         );
     }

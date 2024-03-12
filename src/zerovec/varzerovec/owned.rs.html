@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/varzerovec/owned.rs`."><title>owned.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/varzerovec/owned.rs`."><title>owned.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -742,7 +743,7 @@
     }
 
     <span class="doccomment">/// Construct a VarZeroVecOwned from a list of elements
-    </span><span class="kw">pub fn </span>try_from_elements&lt;A&gt;(elements: <span class="kw-2">&amp;</span>[A]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;
+    </span><span class="kw">pub fn </span>try_from_elements&lt;A&gt;(elements: <span class="kw-2">&amp;</span>[A]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;
     <span class="kw">where
         </span>A: EncodeAsVarULE&lt;T&gt;,
     {
@@ -754,8 +755,8 @@
                 <span class="comment">// TODO(#1410): Rethink length errors in VZV.
                 </span>entire_slice: components::get_serializable_bytes_non_empty::&lt;T, A, F&gt;(elements)
                     .ok_or(
-                        <span class="string">&quot;Attempted to build VarZeroVec out of elements that \
-                                     cumulatively are larger than a u32 in size&quot;</span>,
+                        <span class="string">"Attempted to build VarZeroVec out of elements that \
+                                     cumulatively are larger than a u32 in size"</span>,
                     )<span class="question-mark">?</span>,
             }
         })
@@ -813,7 +814,7 @@
     </span><span class="kw">unsafe fn </span>element_range_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; core::ops::Range&lt;usize&gt; {
         <span class="kw">let </span>start = <span class="self">self</span>.element_position_unchecked(idx);
         <span class="kw">let </span>end = <span class="self">self</span>.element_position_unchecked(idx + <span class="number">1</span>);
-        <span class="macro">debug_assert!</span>(start &lt;= end, <span class="string">&quot;{start} &gt; {end}&quot;</span>);
+        <span class="macro">debug_assert!</span>(start &lt;= end, <span class="string">"{start} &gt; {end}"</span>);
         start..end
     }
 
@@ -851,7 +852,7 @@
         <span class="kw">let </span>ptr = <span class="self">self</span>.entire_slice.as_mut_ptr();
         <span class="kw">let </span>range = <span class="self">Self</span>::index_range(index);
 
-        <span class="comment">// Doing this instead of just `get_unchecked_mut()` because it&#39;s unclear
+        <span class="comment">// Doing this instead of just `get_unchecked_mut()` because it's unclear
         // if `get_unchecked_mut()` can be called out of bounds on a slice even
         // if we know the buffer is larger.
         </span><span class="kw">let </span>data = slice::from_raw_parts_mut(ptr.add(range.start), F::INDEX_WIDTH);
@@ -885,7 +886,7 @@
     ///
     /// If you wish to repeatedly call methods on this [`VarZeroVecOwned`],
     /// it is more efficient to perform this conversion first
-    </span><span class="kw">pub fn </span>as_varzerovec&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; VarZeroVec&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {
+    </span><span class="kw">pub fn </span>as_varzerovec&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; VarZeroVec&lt;<span class="lifetime">'a</span>, T, F&gt; {
         <span class="self">self</span>.as_slice().into()
     }
 
@@ -902,14 +903,14 @@
 
     <span class="doccomment">/// Invalidate and resize the data at an index, optionally inserting or removing the index.
     /// Also updates affected indices and the length.
-    /// Returns a slice to the new element data - it doesn&#39;t contain uninitialized data but its value is indeterminate.
+    /// Returns a slice to the new element data - it doesn't contain uninitialized data but its value is indeterminate.
     ///
     /// ## Safety
     /// - `index` must be a valid index, or, if `shift_type == ShiftType::Insert`, `index == self.len()` is allowed.
-    /// - `new_size` musn&#39;t result in the data segment growing larger than `F::MAX_VALUE`.
+    /// - `new_size` musn't result in the data segment growing larger than `F::MAX_VALUE`.
     </span><span class="kw">unsafe fn </span>shift(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, new_size: usize, shift_type: ShiftType) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
         <span class="comment">// The format of the encoded data is:
-        //  - four bytes of &quot;len&quot;
+        //  - four bytes of "len"
         //  - len*4 bytes for an array of indices
         //  - the actual data to which the indices point
         //
@@ -922,8 +923,8 @@
         <span class="kw">let </span>prev_element = <span class="kw">match </span>shift_type {
             ShiftType::Insert =&gt; {
                 <span class="kw">let </span>pos = <span class="self">self</span>.element_position_unchecked(index);
-                <span class="comment">// In the case of an insert, there&#39;s no previous element,
-                // so it&#39;s an empty range at the new position.
+                <span class="comment">// In the case of an insert, there's no previous element,
+                // so it's an empty range at the new position.
                 </span>pos..pos
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.element_range_unchecked(index),
@@ -942,14 +943,14 @@
         <span class="kw">if </span>shift &gt; <span class="number">0 </span>{
             <span class="kw">if </span>new_slice_len &gt; F::MAX_VALUE <span class="kw">as </span>usize {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;Attempted to grow VarZeroVec to an encoded size that does not fit within the length size used by {}&quot;</span>,
+                    <span class="string">"Attempted to grow VarZeroVec to an encoded size that does not fit within the length size used by {}"</span>,
                     any::type_name::&lt;F&gt;()
                 );
             }
             <span class="self">self</span>.entire_slice.resize(new_slice_len, <span class="number">0</span>);
         }
 
-        <span class="comment">// Now that we&#39;ve ensured there&#39;s enough space, we can shift the data around.
+        <span class="comment">// Now that we've ensured there's enough space, we can shift the data around.
         </span>{
             <span class="comment">// Note: There are no references introduced between pointer creation and pointer use, and all
             //       raw pointers are derived from a single &amp;mut. This preserves pointer provenance.
@@ -1027,7 +1028,7 @@
     <span class="doccomment">/// Checks the internal invariants of the vec to ensure safe code will not cause UB.
     /// Returns whether integrity was verified.
     ///
-    /// Note: an index is valid if it doesn&#39;t point to data past the end of the slice and is
+    /// Note: an index is valid if it doesn't point to data past the end of the slice and is
     /// less than or equal to all future indices. The length of the index segment is not part of each index.
     </span><span class="kw">fn </span>verify_integrity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">if </span><span class="self">self</span>.is_empty() &amp;&amp; !<span class="self">self</span>.entire_slice.is_empty() {
@@ -1091,7 +1092,7 @@
     </span><span class="kw">pub fn </span>insert&lt;A: EncodeAsVarULE&lt;T&gt; + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, element: <span class="kw-2">&amp;</span>A) {
         <span class="kw">let </span>len = <span class="self">self</span>.len();
         <span class="kw">if </span>index &gt; len {
-            <span class="macro">panic!</span>(<span class="string">&quot;Called out-of-bounds insert() on VarZeroVec, index {index} len {len}&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"Called out-of-bounds insert() on VarZeroVec, index {index} len {len}"</span>);
         }
 
         <span class="kw">let </span>value_len = element.encode_var_ule_len();
@@ -1116,7 +1117,7 @@
     </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) {
         <span class="kw">let </span>len = <span class="self">self</span>.len();
         <span class="kw">if </span>index &gt;= len {
-            <span class="macro">panic!</span>(<span class="string">&quot;Called out-of-bounds remove() on VarZeroVec, index {index} len {len}&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"Called out-of-bounds remove() on VarZeroVec, index {index} len {len}"</span>);
         }
         <span class="kw">if </span>len == <span class="number">1 </span>{
             <span class="comment">// This is removing the last element. Set the slice to empty to ensure all empty vecs have empty data slices.
@@ -1132,7 +1133,7 @@
     </span><span class="kw">pub fn </span>replace&lt;A: EncodeAsVarULE&lt;T&gt; + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize, element: <span class="kw-2">&amp;</span>A) {
         <span class="kw">let </span>len = <span class="self">self</span>.len();
         <span class="kw">if </span>index &gt;= len {
-            <span class="macro">panic!</span>(<span class="string">&quot;Called out-of-bounds replace() on VarZeroVec, index {index} len {len}&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"Called out-of-bounds replace() on VarZeroVec, index {index} len {len}"</span>);
         }
 
         <span class="kw">let </span>value_len = element.encode_var_ule_len();
@@ -1149,7 +1150,7 @@
 <span class="kw">where
     </span>T: fmt::Debug,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         VarZeroSlice::fmt(<span class="self">self</span>, f)
     }
 }
@@ -1160,7 +1161,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T, A, F&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>[A]&gt; <span class="kw">for </span>VarZeroVecOwned&lt;T, F&gt;
+<span class="kw">impl</span>&lt;T, A, F&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>[A]&gt; <span class="kw">for </span>VarZeroVecOwned&lt;T, F&gt;
 <span class="kw">where
     </span>T: VarULE + <span class="question-mark">?</span>Sized,
     T: PartialEq,
@@ -1173,10 +1174,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized + VarULE, F: VarZeroVecFormat&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VarZeroSlice&lt;T, F&gt;&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: <span class="question-mark">?</span>Sized + VarULE, F: VarZeroVecFormat&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>VarZeroSlice&lt;T, F&gt;&gt;
     <span class="kw">for </span>VarZeroVecOwned&lt;T, F&gt;
 {
-    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VarZeroSlice&lt;T, F&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>from(other: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>VarZeroSlice&lt;T, F&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::from_slice(other)
     }
 }
@@ -1190,25 +1191,25 @@
         <span class="kw">let </span><span class="kw-2">mut </span>zerovec = VarZeroVecOwned::&lt;str&gt;::new();
 
         <span class="comment">// Insert into an empty vec.
-        </span>items.insert(<span class="number">0</span>, <span class="string">&quot;1234567890&quot;</span>.into());
-        zerovec.insert(<span class="number">0</span>, <span class="string">&quot;1234567890&quot;</span>);
+        </span>items.insert(<span class="number">0</span>, <span class="string">"1234567890"</span>.into());
+        zerovec.insert(<span class="number">0</span>, <span class="string">"1234567890"</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
-        zerovec.insert(<span class="number">1</span>, <span class="string">&quot;foo3&quot;</span>);
-        items.insert(<span class="number">1</span>, <span class="string">&quot;foo3&quot;</span>.into());
+        zerovec.insert(<span class="number">1</span>, <span class="string">"foo3"</span>);
+        items.insert(<span class="number">1</span>, <span class="string">"foo3"</span>.into());
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
         <span class="comment">// Insert at the end.
-        </span>items.insert(items.len(), <span class="string">&quot;qwertyuiop&quot;</span>.into());
-        zerovec.insert(zerovec.len(), <span class="string">&quot;qwertyuiop&quot;</span>);
+        </span>items.insert(items.len(), <span class="string">"qwertyuiop"</span>.into());
+        zerovec.insert(zerovec.len(), <span class="string">"qwertyuiop"</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
-        items.insert(<span class="number">0</span>, <span class="string">&quot;asdfghjkl;&quot;</span>.into());
-        zerovec.insert(<span class="number">0</span>, <span class="string">&quot;asdfghjkl;&quot;</span>);
+        items.insert(<span class="number">0</span>, <span class="string">"asdfghjkl;"</span>.into());
+        zerovec.insert(<span class="number">0</span>, <span class="string">"asdfghjkl;"</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
-        items.insert(<span class="number">2</span>, <span class="string">&quot;&quot;</span>.into());
-        zerovec.insert(<span class="number">2</span>, <span class="string">&quot;&quot;</span>);
+        items.insert(<span class="number">2</span>, <span class="string">""</span>.into());
+        zerovec.insert(<span class="number">2</span>, <span class="string">""</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
     }
 
@@ -1219,20 +1220,20 @@
         <span class="kw">let </span><span class="kw-2">mut </span>zerovec = VarZeroVecOwned::&lt;str&gt;::new();
 
         <span class="comment">// Insert into an empty vec.
-        </span>items.insert(<span class="number">0</span>, <span class="string">&quot;&quot;</span>.into());
-        zerovec.insert(<span class="number">0</span>, <span class="string">&quot;&quot;</span>);
+        </span>items.insert(<span class="number">0</span>, <span class="string">""</span>.into());
+        zerovec.insert(<span class="number">0</span>, <span class="string">""</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
-        items.insert(<span class="number">0</span>, <span class="string">&quot;&quot;</span>.into());
-        zerovec.insert(<span class="number">0</span>, <span class="string">&quot;&quot;</span>);
+        items.insert(<span class="number">0</span>, <span class="string">""</span>.into());
+        zerovec.insert(<span class="number">0</span>, <span class="string">""</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
-        items.insert(<span class="number">0</span>, <span class="string">&quot;1234567890&quot;</span>.into());
-        zerovec.insert(<span class="number">0</span>, <span class="string">&quot;1234567890&quot;</span>);
+        items.insert(<span class="number">0</span>, <span class="string">"1234567890"</span>.into());
+        zerovec.insert(<span class="number">0</span>, <span class="string">"1234567890"</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
-        items.insert(<span class="number">0</span>, <span class="string">&quot;&quot;</span>.into());
-        zerovec.insert(<span class="number">0</span>, <span class="string">&quot;&quot;</span>);
+        items.insert(<span class="number">0</span>, <span class="string">""</span>.into());
+        zerovec.insert(<span class="number">0</span>, <span class="string">""</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
     }
 
@@ -1244,36 +1245,36 @@
         <span class="kw">let </span><span class="kw-2">mut </span>zerovec = VarZeroVecOwned::&lt;str&gt;::new();
 
         <span class="comment">// Insert into an empty vec.
-        </span>items.insert(<span class="number">0</span>, <span class="string">&quot;abc&quot;</span>.into());
-        zerovec.insert(<span class="number">0</span>, <span class="string">&quot;abc&quot;</span>);
+        </span>items.insert(<span class="number">0</span>, <span class="string">"abc"</span>.into());
+        zerovec.insert(<span class="number">0</span>, <span class="string">"abc"</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
-        zerovec.insert(<span class="number">1</span>, <span class="string">&quot;def&quot;</span>);
-        items.insert(<span class="number">1</span>, <span class="string">&quot;def&quot;</span>.into());
+        zerovec.insert(<span class="number">1</span>, <span class="string">"def"</span>);
+        items.insert(<span class="number">1</span>, <span class="string">"def"</span>.into());
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>test_insert_past_end() {
-        VarZeroVecOwned::&lt;str&gt;::new().insert(<span class="number">1</span>, <span class="string">&quot;&quot;</span>);
+        VarZeroVecOwned::&lt;str&gt;::new().insert(<span class="number">1</span>, <span class="string">""</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_remove_integrity() {
-        <span class="kw">let </span><span class="kw-2">mut </span>items: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = <span class="macro">vec!</span>[<span class="string">&quot;apples&quot;</span>, <span class="string">&quot;bananas&quot;</span>, <span class="string">&quot;eeples&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;baneenees&quot;</span>, <span class="string">&quot;five&quot;</span>, <span class="string">&quot;&quot;</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>items: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = <span class="macro">vec!</span>[<span class="string">"apples"</span>, <span class="string">"bananas"</span>, <span class="string">"eeples"</span>, <span class="string">""</span>, <span class="string">"baneenees"</span>, <span class="string">"five"</span>, <span class="string">""</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>zerovec = VarZeroVecOwned::&lt;str&gt;::try_from_elements(<span class="kw-2">&amp;</span>items).unwrap();
 
         <span class="kw">for </span>index <span class="kw">in </span>[<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>] {
             items.remove(index);
             zerovec.remove(index);
-            <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items, <span class="string">&quot;index {}, len {}&quot;</span>, index, items.len());
+            <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items, <span class="string">"index {}, len {}"</span>, index, items.len());
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_removing_last_element_clears() {
-        <span class="kw">let </span><span class="kw-2">mut </span>zerovec = VarZeroVecOwned::&lt;str&gt;::try_from_elements(<span class="kw-2">&amp;</span>[<span class="string">&quot;buy some apples&quot;</span>]).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>zerovec = VarZeroVecOwned::&lt;str&gt;::try_from_elements(<span class="kw-2">&amp;</span>[<span class="string">"buy some apples"</span>]).unwrap();
         <span class="macro">assert!</span>(!zerovec.as_bytes().is_empty());
         zerovec.remove(<span class="number">0</span>);
         <span class="macro">assert!</span>(zerovec.as_bytes().is_empty());
@@ -1287,39 +1288,39 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_replace_integrity() {
-        <span class="kw">let </span><span class="kw-2">mut </span>items: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = <span class="macro">vec!</span>[<span class="string">&quot;apples&quot;</span>, <span class="string">&quot;bananas&quot;</span>, <span class="string">&quot;eeples&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;baneenees&quot;</span>, <span class="string">&quot;five&quot;</span>, <span class="string">&quot;&quot;</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>items: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = <span class="macro">vec!</span>[<span class="string">"apples"</span>, <span class="string">"bananas"</span>, <span class="string">"eeples"</span>, <span class="string">""</span>, <span class="string">"baneenees"</span>, <span class="string">"five"</span>, <span class="string">""</span>];
         <span class="kw">let </span><span class="kw-2">mut </span>zerovec = VarZeroVecOwned::&lt;str&gt;::try_from_elements(<span class="kw-2">&amp;</span>items).unwrap();
 
         <span class="comment">// Replace with an element of the same size (and the first element)
-        </span>items[<span class="number">0</span>] = <span class="string">&quot;blablah&quot;</span>;
-        zerovec.replace(<span class="number">0</span>, <span class="string">&quot;blablah&quot;</span>);
+        </span>items[<span class="number">0</span>] = <span class="string">"blablah"</span>;
+        zerovec.replace(<span class="number">0</span>, <span class="string">"blablah"</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
         <span class="comment">// Replace with a smaller element
-        </span>items[<span class="number">1</span>] = <span class="string">&quot;twily&quot;</span>;
-        zerovec.replace(<span class="number">1</span>, <span class="string">&quot;twily&quot;</span>);
+        </span>items[<span class="number">1</span>] = <span class="string">"twily"</span>;
+        zerovec.replace(<span class="number">1</span>, <span class="string">"twily"</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
         <span class="comment">// Replace an empty element
-        </span>items[<span class="number">3</span>] = <span class="string">&quot;aoeuidhtns&quot;</span>;
-        zerovec.replace(<span class="number">3</span>, <span class="string">&quot;aoeuidhtns&quot;</span>);
+        </span>items[<span class="number">3</span>] = <span class="string">"aoeuidhtns"</span>;
+        zerovec.replace(<span class="number">3</span>, <span class="string">"aoeuidhtns"</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
         <span class="comment">// Replace the last element
-        </span>items[<span class="number">6</span>] = <span class="string">&quot;0123456789&quot;</span>;
-        zerovec.replace(<span class="number">6</span>, <span class="string">&quot;0123456789&quot;</span>);
+        </span>items[<span class="number">6</span>] = <span class="string">"0123456789"</span>;
+        zerovec.replace(<span class="number">6</span>, <span class="string">"0123456789"</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
 
         <span class="comment">// Replace with an empty element
-        </span>items[<span class="number">2</span>] = <span class="string">&quot;&quot;</span>;
-        zerovec.replace(<span class="number">2</span>, <span class="string">&quot;&quot;</span>);
+        </span>items[<span class="number">2</span>] = <span class="string">""</span>;
+        zerovec.replace(<span class="number">2</span>, <span class="string">""</span>);
         <span class="macro">assert_eq!</span>(zerovec, <span class="kw-2">&amp;*</span>items);
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>test_replace_past_end() {
-        VarZeroVecOwned::&lt;str&gt;::new().replace(<span class="number">0</span>, <span class="string">&quot;&quot;</span>);
+        VarZeroVecOwned::&lt;str&gt;::new().replace(<span class="number">0</span>, <span class="string">""</span>);
     }
 }
 </code></pre></div></section></main></body></html>

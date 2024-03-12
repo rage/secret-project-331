@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.27.1/src/sys/stat.rs`."><title>stat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="nix" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/nix-0.28.0/src/sys/stat.rs`."><title>stat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="nix" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -455,41 +456,14 @@
 <a href="#455" id="455">455</a>
 <a href="#456" id="456">456</a>
 <a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
-<a href="#460" id="460">460</a>
-<a href="#461" id="461">461</a>
-<a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>, target_os = <span class="string">&quot;openbsd&quot;</span>))]
+</pre></div><pre class="rust"><code><span class="attr">#[cfg(any(apple_targets, target_os = <span class="string">"openbsd"</span>))]
 </span><span class="kw">pub use </span>libc::c_uint;
-<span class="attr">#[cfg(any(
-    target_os = <span class="string">&quot;netbsd&quot;</span>,
-    target_os = <span class="string">&quot;freebsd&quot;</span>,
-    target_os = <span class="string">&quot;dragonfly&quot;
-</span>))]
+<span class="attr">#[cfg(any(target_os = <span class="string">"netbsd"</span>, freebsdlike))]
 </span><span class="kw">pub use </span>libc::c_ulong;
 <span class="kw">pub use </span>libc::stat <span class="kw">as </span>FileStat;
 <span class="kw">pub use </span>libc::{dev_t, mode_t};
 
-<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
+<span class="attr">#[cfg(not(target_os = <span class="string">"redox"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::fcntl::{at_rawfd, AtFlags};
 <span class="kw">use </span><span class="kw">crate</span>::sys::time::{TimeSpec, TimeVal};
 <span class="kw">use crate</span>::{errno::Errno, NixPath, <span class="prelude-ty">Result</span>};
@@ -497,7 +471,7 @@
 <span class="kw">use </span>std::os::unix::io::RawFd;
 
 <span class="macro">libc_bitflags!</span>(
-    <span class="doccomment">/// &quot;File type&quot; flags for `mknod` and related functions.
+    <span class="doccomment">/// "File type" flags for `mknod` and related functions.
     </span><span class="kw">pub struct </span>SFlag: mode_t {
         S_IFIFO;
         S_IFCHR;
@@ -511,7 +485,7 @@
 );
 
 <span class="macro">libc_bitflags! </span>{
-    <span class="doccomment">/// &quot;File mode / permissions&quot; flags.
+    <span class="doccomment">/// "File mode / permissions" flags.
     </span><span class="kw">pub struct </span>Mode: mode_t {
         <span class="doccomment">/// Read, write and execute for owner.
         </span>S_IRWXU;
@@ -523,7 +497,7 @@
         </span>S_IXUSR;
         <span class="doccomment">/// Read write and execute for group.
         </span>S_IRWXG;
-        <span class="doccomment">/// Read fr group.
+        <span class="doccomment">/// Read for group.
         </span>S_IRGRP;
         <span class="doccomment">/// Write for group.
         </span>S_IWGRP;
@@ -545,106 +519,93 @@
     }
 }
 
-<span class="attr">#[cfg(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>, target_os = <span class="string">&quot;openbsd&quot;</span>))]
+<span class="attr">#[cfg(any(apple_targets, target_os = <span class="string">"openbsd"</span>))]
 </span><span class="kw">pub type </span>type_of_file_flag = c_uint;
-<span class="attr">#[cfg(any(
-    target_os = <span class="string">&quot;netbsd&quot;</span>,
-    target_os = <span class="string">&quot;freebsd&quot;</span>,
-    target_os = <span class="string">&quot;dragonfly&quot;
-</span>))]
+<span class="attr">#[cfg(any(freebsdlike, target_os = <span class="string">"netbsd"</span>))]
 </span><span class="kw">pub type </span>type_of_file_flag = c_ulong;
 
-<span class="attr">#[cfg(any(
-    target_os = <span class="string">&quot;openbsd&quot;</span>,
-    target_os = <span class="string">&quot;netbsd&quot;</span>,
-    target_os = <span class="string">&quot;freebsd&quot;</span>,
-    target_os = <span class="string">&quot;dragonfly&quot;</span>,
-    target_os = <span class="string">&quot;macos&quot;</span>,
-    target_os = <span class="string">&quot;ios&quot;
-</span>))]
+<span class="attr">#[cfg(bsd)]
 </span><span class="macro">libc_bitflags! </span>{
     <span class="doccomment">/// File flags.
-    </span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all())))]
     </span><span class="kw">pub struct </span>FileFlag: type_of_file_flag {
         <span class="doccomment">/// The file may only be appended to.
         </span>SF_APPEND;
         <span class="doccomment">/// The file has been archived.
         </span>SF_ARCHIVED;
-        <span class="attr">#[cfg(any(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+        <span class="attr">#[cfg(any(target_os = <span class="string">"dragonfly"</span>))]
         </span>SF_CACHE;
         <span class="doccomment">/// The file may not be changed.
         </span>SF_IMMUTABLE;
         <span class="doccomment">/// Indicates a WAPBL journal file.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;netbsd&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"netbsd"</span>))]
         </span>SF_LOG;
         <span class="doccomment">/// Do not retain history for file
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"dragonfly"</span>))]
         </span>SF_NOHISTORY;
         <span class="doccomment">/// The file may not be renamed or deleted.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>, target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+        </span><span class="attr">#[cfg(freebsdlike)]
         </span>SF_NOUNLINK;
         <span class="doccomment">/// Mask of superuser changeable flags
         </span>SF_SETTABLE;
         <span class="doccomment">/// Snapshot is invalid.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;netbsd&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"netbsd"</span>))]
         </span>SF_SNAPINVAL;
         <span class="doccomment">/// The file is a snapshot file.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;netbsd&quot;</span>, target_os = <span class="string">&quot;freebsd&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"netbsd"</span>, target_os = <span class="string">"freebsd"</span>))]
         </span>SF_SNAPSHOT;
-        <span class="attr">#[cfg(any(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+        <span class="attr">#[cfg(any(target_os = <span class="string">"dragonfly"</span>))]
         </span>SF_XLINK;
         <span class="doccomment">/// The file may only be appended to.
         </span>UF_APPEND;
         <span class="doccomment">/// The file needs to be archived.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>))]
         </span>UF_ARCHIVE;
-        <span class="attr">#[cfg(any(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+        <span class="attr">#[cfg(any(target_os = <span class="string">"dragonfly"</span>))]
         </span>UF_CACHE;
         <span class="doccomment">/// File is compressed at the file system level.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))]
+        </span><span class="attr">#[cfg(apple_targets)]
         </span>UF_COMPRESSED;
-        <span class="doccomment">/// The file may be hidden from directory listings at the application&#39;s
+        <span class="doccomment">/// The file may be hidden from directory listings at the application's
         /// discretion.
         </span><span class="attr">#[cfg(any(
-            target_os = <span class="string">&quot;freebsd&quot;</span>,
-            target_os = <span class="string">&quot;macos&quot;</span>,
-            target_os = <span class="string">&quot;ios&quot;</span>,
+            target_os = <span class="string">"freebsd"</span>,
+            apple_targets,
         ))]
         </span>UF_HIDDEN;
         <span class="doccomment">/// The file may not be changed.
         </span>UF_IMMUTABLE;
         <span class="doccomment">/// Do not dump the file.
         </span>UF_NODUMP;
-        <span class="attr">#[cfg(any(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+        <span class="attr">#[cfg(any(target_os = <span class="string">"dragonfly"</span>))]
         </span>UF_NOHISTORY;
         <span class="doccomment">/// The file may not be renamed or deleted.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>, target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+        </span><span class="attr">#[cfg(freebsdlike)]
         </span>UF_NOUNLINK;
         <span class="doccomment">/// The file is offline, or has the Windows and CIFS
         /// `FILE_ATTRIBUTE_OFFLINE` attribute.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>))]
         </span>UF_OFFLINE;
         <span class="doccomment">/// The directory is opaque when viewed through a union stack.
         </span>UF_OPAQUE;
         <span class="doccomment">/// The file is read only, and may not be written or appended.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>))]
         </span>UF_READONLY;
         <span class="doccomment">/// The file contains a Windows reparse point.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>))]
         </span>UF_REPARSE;
         <span class="doccomment">/// Mask of owner changeable flags.
         </span>UF_SETTABLE;
         <span class="doccomment">/// The file has the Windows `FILE_ATTRIBUTE_SPARSE_FILE` attribute.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>))]
         </span>UF_SPARSE;
         <span class="doccomment">/// The file has the DOS, Windows and CIFS `FILE_ATTRIBUTE_SYSTEM`
         /// attribute.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>))]
+        </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>))]
         </span>UF_SYSTEM;
         <span class="doccomment">/// File renames and deletes are tracked.
-        </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))]
+        </span><span class="attr">#[cfg(apple_targets)]
         </span>UF_TRACKED;
-        <span class="attr">#[cfg(any(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+        <span class="attr">#[cfg(any(target_os = <span class="string">"dragonfly"</span>))]
         </span>UF_XLINK;
     }
 }
@@ -664,20 +625,15 @@
 }
 
 <span class="doccomment">/// Create a special or ordinary file, relative to a given directory.
-</span><span class="attr">#[cfg(not(any(
-    target_os = <span class="string">&quot;ios&quot;</span>,
-    target_os = <span class="string">&quot;macos&quot;</span>,
-    target_os = <span class="string">&quot;redox&quot;</span>,
-    target_os = <span class="string">&quot;haiku&quot;
-</span>)))]
-#[cfg_attr(docsrs, doc(cfg(all())))]
+</span><span class="attr">#[cfg(not(any(apple_targets, target_os = <span class="string">"redox"</span>, target_os = <span class="string">"haiku"</span>)))]
 </span><span class="kw">pub fn </span>mknodat&lt;P: <span class="question-mark">?</span>Sized + NixPath&gt;(
-    dirfd: RawFd,
+    dirfd: <span class="prelude-ty">Option</span>&lt;RawFd&gt;,
     path: <span class="kw-2">&amp;</span>P,
     kind: SFlag,
     perm: Mode,
     dev: dev_t,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>dirfd = at_rawfd(dirfd);
     <span class="kw">let </span>res = path.with_nix_path(|cstr| <span class="kw">unsafe </span>{
         libc::mknodat(
             dirfd,
@@ -690,20 +646,17 @@
     Errno::result(res).map(drop)
 }
 
-<span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(all())))]
+<span class="attr">#[cfg(target_os = <span class="string">"linux"</span>)]
 </span><span class="kw">pub const fn </span>major(dev: dev_t) -&gt; u64 {
     ((dev &gt;&gt; <span class="number">32</span>) &amp; <span class="number">0xffff_f000</span>) | ((dev &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0x0000_0fff</span>)
 }
 
-<span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(all())))]
+<span class="attr">#[cfg(target_os = <span class="string">"linux"</span>)]
 </span><span class="kw">pub const fn </span>minor(dev: dev_t) -&gt; u64 {
     ((dev &gt;&gt; <span class="number">12</span>) &amp; <span class="number">0xffff_ff00</span>) | ((dev) &amp; <span class="number">0x0000_00ff</span>)
 }
 
-<span class="attr">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(all())))]
+<span class="attr">#[cfg(target_os = <span class="string">"linux"</span>)]
 </span><span class="kw">pub const fn </span>makedev(major: u64, minor: u64) -&gt; dev_t {
     ((major &amp; <span class="number">0xffff_f000</span>) &lt;&lt; <span class="number">32</span>)
         | ((major &amp; <span class="number">0x0000_0fff</span>) &lt;&lt; <span class="number">8</span>)
@@ -713,7 +666,7 @@
 
 <span class="kw">pub fn </span>umask(mode: Mode) -&gt; Mode {
     <span class="kw">let </span>prev = <span class="kw">unsafe </span>{ libc::umask(mode.bits() <span class="kw">as </span>mode_t) };
-    Mode::from_bits(prev).expect(<span class="string">&quot;[BUG] umask returned invalid Mode&quot;</span>)
+    Mode::from_bits(prev).expect(<span class="string">"[BUG] umask returned invalid Mode"</span>)
 }
 
 <span class="kw">pub fn </span>stat&lt;P: <span class="question-mark">?</span>Sized + NixPath&gt;(path: <span class="kw-2">&amp;</span>P) -&gt; <span class="prelude-ty">Result</span>&lt;FileStat&gt; {
@@ -747,13 +700,13 @@
     <span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ dst.assume_init() })
 }
 
-<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
-#[cfg_attr(docsrs, doc(cfg(all())))]
+<span class="attr">#[cfg(not(target_os = <span class="string">"redox"</span>))]
 </span><span class="kw">pub fn </span>fstatat&lt;P: <span class="question-mark">?</span>Sized + NixPath&gt;(
-    dirfd: RawFd,
+    dirfd: <span class="prelude-ty">Option</span>&lt;RawFd&gt;,
     pathname: <span class="kw-2">&amp;</span>P,
     f: AtFlags,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;FileStat&gt; {
+    <span class="kw">let </span>dirfd = at_rawfd(dirfd);
     <span class="kw">let </span><span class="kw-2">mut </span>dst = mem::MaybeUninit::uninit();
     <span class="kw">let </span>res = pathname.with_nix_path(|cstr| <span class="kw">unsafe </span>{
         libc::fstatat(
@@ -797,14 +750,13 @@
 /// then the mode of the symbolic link is changed.
 ///
 /// `fchmodat(None, path, mode, FchmodatFlags::FollowSymlink)` is identical to
-/// a call `libc::chmod(path, mode)`. That&#39;s why `chmod` is unimplemented
+/// a call `libc::chmod(path, mode)`. That's why `chmod` is unimplemented
 /// in the `nix` crate.
 ///
 /// # References
 ///
 /// [fchmodat(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/fchmodat.html).
-</span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
-#[cfg_attr(docsrs, doc(cfg(all())))]
+</span><span class="attr">#[cfg(not(target_os = <span class="string">"redox"</span>))]
 </span><span class="kw">pub fn </span>fchmodat&lt;P: <span class="question-mark">?</span>Sized + NixPath&gt;(
     dirfd: <span class="prelude-ty">Option</span>&lt;RawFd&gt;,
     path: <span class="kw-2">&amp;</span>P,
@@ -861,14 +813,12 @@
 ///
 /// [lutimes(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/lutimes.html).
 </span><span class="attr">#[cfg(any(
-    target_os = <span class="string">&quot;linux&quot;</span>,
-    target_os = <span class="string">&quot;haiku&quot;</span>,
-    target_os = <span class="string">&quot;ios&quot;</span>,
-    target_os = <span class="string">&quot;macos&quot;</span>,
-    target_os = <span class="string">&quot;freebsd&quot;</span>,
-    target_os = <span class="string">&quot;netbsd&quot;
+    target_os = <span class="string">"linux"</span>,
+    target_os = <span class="string">"haiku"</span>,
+    apple_targets,
+    target_os = <span class="string">"freebsd"</span>,
+    target_os = <span class="string">"netbsd"
 </span>))]
-#[cfg_attr(docsrs, doc(cfg(all())))]
 </span><span class="kw">pub fn </span>lutimes&lt;P: <span class="question-mark">?</span>Sized + NixPath&gt;(
     path: <span class="kw-2">&amp;</span>P,
     atime: <span class="kw-2">&amp;</span>TimeVal,
@@ -883,6 +833,9 @@
 }
 
 <span class="doccomment">/// Change the access and modification times of the file specified by a file descriptor.
+///
+/// If you want to set the timestamp to now, use `TimeSpec::UTIME_NOW`. Use
+/// `TimeSpec::UTIME_OMIT` if you don't want to change it.
 ///
 /// # References
 ///
@@ -916,11 +869,13 @@
 /// `utimes(path, times)`. The latter is a deprecated API so prefer using the
 /// former if the platforms you care about support it.
 ///
+/// If you want to set the timestamp to now, use `TimeSpec::UTIME_NOW`. Use
+/// `TimeSpec::UTIME_OMIT` if you don't want to change it.
+///
 /// # References
 ///
 /// [utimensat(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/utimens.html).
-</span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
-#[cfg_attr(docsrs, doc(cfg(all())))]
+</span><span class="attr">#[cfg(not(target_os = <span class="string">"redox"</span>))]
 </span><span class="kw">pub fn </span>utimensat&lt;P: <span class="question-mark">?</span>Sized + NixPath&gt;(
     dirfd: <span class="prelude-ty">Option</span>&lt;RawFd&gt;,
     path: <span class="kw-2">&amp;</span>P,
@@ -945,13 +900,13 @@
     Errno::result(res).map(drop)
 }
 
-<span class="attr">#[cfg(not(target_os = <span class="string">&quot;redox&quot;</span>))]
-#[cfg_attr(docsrs, doc(cfg(all())))]
+<span class="attr">#[cfg(not(target_os = <span class="string">"redox"</span>))]
 </span><span class="kw">pub fn </span>mkdirat&lt;P: <span class="question-mark">?</span>Sized + NixPath&gt;(
-    fd: RawFd,
+    fd: <span class="prelude-ty">Option</span>&lt;RawFd&gt;,
     path: <span class="kw-2">&amp;</span>P,
     mode: Mode,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>fd = at_rawfd(fd);
     <span class="kw">let </span>res = path.with_nix_path(|cstr| <span class="kw">unsafe </span>{
         libc::mkdirat(fd, cstr.as_ptr(), mode.bits() <span class="kw">as </span>mode_t)
     })<span class="question-mark">?</span>;

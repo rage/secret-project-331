@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/locale.rs`."><title>locale.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid-1.4.0/src/locale.rs`."><title>locale.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_locid" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -544,15 +545,15 @@
 ///     subtags::{language, region},
 /// };
 ///
-/// let loc = locale!(&quot;en-US-u-ca-buddhist&quot;);
+/// let loc = locale!("en-US-u-ca-buddhist");
 ///
-/// assert_eq!(loc.id.language, language!(&quot;en&quot;));
+/// assert_eq!(loc.id.language, language!("en"));
 /// assert_eq!(loc.id.script, None);
-/// assert_eq!(loc.id.region, Some(region!(&quot;US&quot;)));
+/// assert_eq!(loc.id.region, Some(region!("US")));
 /// assert_eq!(loc.id.variants.len(), 0);
 /// assert_eq!(
-///     loc.extensions.unicode.keywords.get(&amp;key!(&quot;ca&quot;)),
-///     Some(&amp;value!(&quot;buddhist&quot;))
+///     loc.extensions.unicode.keywords.get(&amp;key!("ca")),
+///     Some(&amp;value!("buddhist"))
 /// );
 /// ```
 ///
@@ -576,16 +577,16 @@
 /// ```
 /// use icu::locid::{subtags::*, Locale};
 ///
-/// let loc: Locale = &quot;eN_latn_Us-Valencia_u-hC-H12&quot;
+/// let loc: Locale = "eN_latn_Us-Valencia_u-hC-H12"
 ///     .parse()
-///     .expect(&quot;Failed to parse.&quot;);
+///     .expect("Failed to parse.");
 ///
-/// assert_eq!(loc.id.language, &quot;en&quot;.parse::&lt;Language&gt;().unwrap());
-/// assert_eq!(loc.id.script, &quot;Latn&quot;.parse::&lt;Script&gt;().ok());
-/// assert_eq!(loc.id.region, &quot;US&quot;.parse::&lt;Region&gt;().ok());
+/// assert_eq!(loc.id.language, "en".parse::&lt;Language&gt;().unwrap());
+/// assert_eq!(loc.id.script, "Latn".parse::&lt;Script&gt;().ok());
+/// assert_eq!(loc.id.region, "US".parse::&lt;Region&gt;().ok());
 /// assert_eq!(
 ///     loc.id.variants.get(0),
-///     &quot;valencia&quot;.parse::&lt;Variant&gt;().ok().as_ref()
+///     "valencia".parse::&lt;Variant&gt;().ok().as_ref()
 /// );
 /// ```
 /// [`Unicode Locale Identifier`]: https://unicode.org/reports/tr35/tr35.html#Unicode_locale_identifier
@@ -629,13 +630,13 @@
     /// ```
     /// use icu::locid::Locale;
     ///
-    /// Locale::try_from_bytes(b&quot;en-US-u-hc-h12&quot;).unwrap();
+    /// Locale::try_from_bytes(b"en-US-u-hc-h12").unwrap();
     /// ```
     </span><span class="kw">pub fn </span>try_from_bytes(v: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParserError&gt; {
         parse_locale(v)
     }
 
-    <span class="doccomment">/// The default undefined locale &quot;und&quot;. Same as [`default()`](Default::default()).
+    <span class="doccomment">/// The default undefined locale "und". Same as [`default()`](Default::default()).
     ///
     /// # Examples
     ///
@@ -660,8 +661,8 @@
     /// use icu::locid::Locale;
     ///
     /// assert_eq!(
-    ///     Locale::canonicalize(&quot;pL_latn_pl-U-HC-H12&quot;).as_deref(),
-    ///     Ok(&quot;pl-Latn-PL-u-hc-h12&quot;)
+    ///     Locale::canonicalize("pL_latn_pl-U-HC-H12").as_deref(),
+    ///     Ok("pl-Latn-PL-u-hc-h12")
     /// );
     /// ```
     </span><span class="kw">pub fn </span>canonicalize&lt;S: AsRef&lt;[u8]&gt;&gt;(input: S) -&gt; <span class="prelude-ty">Result</span>&lt;String, ParserError&gt; {
@@ -684,13 +685,13 @@
     /// use std::cmp::Ordering;
     ///
     /// let bcp47_strings: &amp;[&amp;str] = &amp;[
-    ///     &quot;pl-Latn-PL&quot;,
-    ///     &quot;und&quot;,
-    ///     &quot;und-fonipa&quot;,
-    ///     &quot;und-t-m0-true&quot;,
-    ///     &quot;und-u-ca-hebrew&quot;,
-    ///     &quot;und-u-ca-japanese&quot;,
-    ///     &quot;zh&quot;,
+    ///     "pl-Latn-PL",
+    ///     "und",
+    ///     "und-fonipa",
+    ///     "und-t-m0-true",
+    ///     "und-u-ca-hebrew",
+    ///     "und-u-ca-japanese",
+    ///     "zh",
     /// ];
     ///
     /// for ab in bcp47_strings.windows(2) {
@@ -703,7 +704,7 @@
     /// }
     /// ```
     </span><span class="kw">pub fn </span>strict_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>[u8]) -&gt; Ordering {
-        <span class="self">self</span>.strict_cmp_iter(other.split(|b| <span class="kw-2">*</span>b == <span class="string">b&#39;-&#39;</span>)).end()
+        <span class="self">self</span>.strict_cmp_iter(other.split(|b| <span class="kw-2">*</span>b == <span class="string">b'-'</span>)).end()
     }
 
     <span class="doccomment">/// Compare this [`Locale`] with an iterator of BCP-47 subtags.
@@ -720,29 +721,29 @@
     /// use std::cmp::Ordering;
     ///
     /// let subtags: &amp;[&amp;[u8]] =
-    ///     &amp;[b&quot;ca&quot;, b&quot;ES&quot;, b&quot;valencia&quot;, b&quot;u&quot;, b&quot;ca&quot;, b&quot;hebrew&quot;];
+    ///     &amp;[b"ca", b"ES", b"valencia", b"u", b"ca", b"hebrew"];
     ///
-    /// let loc = locale!(&quot;ca-ES-valencia-u-ca-hebrew&quot;);
+    /// let loc = locale!("ca-ES-valencia-u-ca-hebrew");
     /// assert_eq!(
     ///     Ordering::Equal,
     ///     loc.strict_cmp_iter(subtags.iter().copied()).end()
     /// );
     ///
-    /// let loc = locale!(&quot;ca-ES-valencia&quot;);
+    /// let loc = locale!("ca-ES-valencia");
     /// assert_eq!(
     ///     Ordering::Less,
     ///     loc.strict_cmp_iter(subtags.iter().copied()).end()
     /// );
     ///
-    /// let loc = locale!(&quot;ca-ES-valencia-u-nu-arab&quot;);
+    /// let loc = locale!("ca-ES-valencia-u-nu-arab");
     /// assert_eq!(
     ///     Ordering::Greater,
     ///     loc.strict_cmp_iter(subtags.iter().copied()).end()
     /// );
     /// ```
-    </span><span class="kw">pub fn </span>strict_cmp_iter&lt;<span class="lifetime">&#39;l</span>, I&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>subtags: I) -&gt; SubtagOrderingResult&lt;I&gt;
+    </span><span class="kw">pub fn </span>strict_cmp_iter&lt;<span class="lifetime">'l</span>, I&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>subtags: I) -&gt; SubtagOrderingResult&lt;I&gt;
     <span class="kw">where
-        </span>I: Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span>[u8]&gt;,
+        </span>I: Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'l </span>[u8]&gt;,
     {
         <span class="kw">let </span>r = <span class="self">self</span>.for_each_subtag_str(<span class="kw-2">&amp;mut </span>|subtag| {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(other) = subtags.next() {
@@ -772,12 +773,12 @@
     /// use std::cmp::Ordering;
     ///
     /// let bcp47_strings: &amp;[&amp;str] = &amp;[
-    ///     &quot;pl-LaTn-pL&quot;,
-    ///     &quot;uNd&quot;,
-    ///     &quot;UND-FONIPA&quot;,
-    ///     &quot;UnD-t-m0-TrUe&quot;,
-    ///     &quot;uNd-u-CA-Japanese&quot;,
-    ///     &quot;ZH&quot;,
+    ///     "pl-LaTn-pL",
+    ///     "uNd",
+    ///     "UND-FONIPA",
+    ///     "UnD-t-m0-TrUe",
+    ///     "uNd-u-CA-Japanese",
+    ///     "ZH",
     /// ];
     ///
     /// for a in bcp47_strings {
@@ -904,31 +905,31 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_writeable() {
     <span class="kw">use </span>writeable::assert_writeable_eq;
-    <span class="macro">assert_writeable_eq!</span>(Locale::UND, <span class="string">&quot;und&quot;</span>);
-    <span class="macro">assert_writeable_eq!</span>(<span class="string">&quot;und-001&quot;</span>.parse::&lt;Locale&gt;().unwrap(), <span class="string">&quot;und-001&quot;</span>);
-    <span class="macro">assert_writeable_eq!</span>(<span class="string">&quot;und-Mymr&quot;</span>.parse::&lt;Locale&gt;().unwrap(), <span class="string">&quot;und-Mymr&quot;</span>);
-    <span class="macro">assert_writeable_eq!</span>(<span class="string">&quot;my-Mymr-MM&quot;</span>.parse::&lt;Locale&gt;().unwrap(), <span class="string">&quot;my-Mymr-MM&quot;</span>);
+    <span class="macro">assert_writeable_eq!</span>(Locale::UND, <span class="string">"und"</span>);
+    <span class="macro">assert_writeable_eq!</span>(<span class="string">"und-001"</span>.parse::&lt;Locale&gt;().unwrap(), <span class="string">"und-001"</span>);
+    <span class="macro">assert_writeable_eq!</span>(<span class="string">"und-Mymr"</span>.parse::&lt;Locale&gt;().unwrap(), <span class="string">"und-Mymr"</span>);
+    <span class="macro">assert_writeable_eq!</span>(<span class="string">"my-Mymr-MM"</span>.parse::&lt;Locale&gt;().unwrap(), <span class="string">"my-Mymr-MM"</span>);
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;my-Mymr-MM-posix&quot;</span>.parse::&lt;Locale&gt;().unwrap(),
-        <span class="string">&quot;my-Mymr-MM-posix&quot;</span>,
+        <span class="string">"my-Mymr-MM-posix"</span>.parse::&lt;Locale&gt;().unwrap(),
+        <span class="string">"my-Mymr-MM-posix"</span>,
     );
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;zh-macos-posix&quot;</span>.parse::&lt;Locale&gt;().unwrap(),
-        <span class="string">&quot;zh-macos-posix&quot;</span>,
+        <span class="string">"zh-macos-posix"</span>.parse::&lt;Locale&gt;().unwrap(),
+        <span class="string">"zh-macos-posix"</span>,
     );
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;my-t-my-d0-zawgyi&quot;</span>.parse::&lt;Locale&gt;().unwrap(),
-        <span class="string">&quot;my-t-my-d0-zawgyi&quot;</span>,
+        <span class="string">"my-t-my-d0-zawgyi"</span>.parse::&lt;Locale&gt;().unwrap(),
+        <span class="string">"my-t-my-d0-zawgyi"</span>,
     );
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;ar-SA-u-ca-islamic-civil&quot;</span>.parse::&lt;Locale&gt;().unwrap(),
-        <span class="string">&quot;ar-SA-u-ca-islamic-civil&quot;</span>,
+        <span class="string">"ar-SA-u-ca-islamic-civil"</span>.parse::&lt;Locale&gt;().unwrap(),
+        <span class="string">"ar-SA-u-ca-islamic-civil"</span>,
     );
     <span class="macro">assert_writeable_eq!</span>(
-        <span class="string">&quot;en-001-x-foo-bar&quot;</span>.parse::&lt;Locale&gt;().unwrap(),
-        <span class="string">&quot;en-001-x-foo-bar&quot;</span>,
+        <span class="string">"en-001-x-foo-bar"</span>.parse::&lt;Locale&gt;().unwrap(),
+        <span class="string">"en-001-x-foo-bar"</span>,
     );
-    <span class="macro">assert_writeable_eq!</span>(<span class="string">&quot;und-t-m0-true&quot;</span>.parse::&lt;Locale&gt;().unwrap(), <span class="string">&quot;und-t-m0-true&quot;</span>,);
+    <span class="macro">assert_writeable_eq!</span>(<span class="string">"und-t-m0-true"</span>.parse::&lt;Locale&gt;().unwrap(), <span class="string">"und-t-m0-true"</span>,);
 }
 
 <span class="doccomment">/// # Examples
@@ -937,7 +938,7 @@
 /// use icu::locid::Locale;
 /// use icu::locid::{locale, subtags::language};
 ///
-/// assert_eq!(Locale::from(language!(&quot;en&quot;)), locale!(&quot;en&quot;));
+/// assert_eq!(Locale::from(language!("en")), locale!("en"));
 /// ```
 </span><span class="kw">impl </span>From&lt;subtags::Language&gt; <span class="kw">for </span>Locale {
     <span class="kw">fn </span>from(language: subtags::Language) -&gt; <span class="self">Self </span>{
@@ -954,7 +955,7 @@
 /// use icu::locid::Locale;
 /// use icu::locid::{locale, subtags::script};
 ///
-/// assert_eq!(Locale::from(Some(script!(&quot;latn&quot;))), locale!(&quot;und-Latn&quot;));
+/// assert_eq!(Locale::from(Some(script!("latn"))), locale!("und-Latn"));
 /// ```
 </span><span class="kw">impl </span>From&lt;<span class="prelude-ty">Option</span>&lt;subtags::Script&gt;&gt; <span class="kw">for </span>Locale {
     <span class="kw">fn </span>from(script: <span class="prelude-ty">Option</span>&lt;subtags::Script&gt;) -&gt; <span class="self">Self </span>{
@@ -971,7 +972,7 @@
 /// use icu::locid::Locale;
 /// use icu::locid::{locale, subtags::region};
 ///
-/// assert_eq!(Locale::from(Some(region!(&quot;US&quot;))), locale!(&quot;und-US&quot;));
+/// assert_eq!(Locale::from(Some(region!("US"))), locale!("und-US"));
 /// ```
 </span><span class="kw">impl </span>From&lt;<span class="prelude-ty">Option</span>&lt;subtags::Region&gt;&gt; <span class="kw">for </span>Locale {
     <span class="kw">fn </span>from(region: <span class="prelude-ty">Option</span>&lt;subtags::Region&gt;) -&gt; <span class="self">Self </span>{
@@ -993,11 +994,11 @@
 ///
 /// assert_eq!(
 ///     Locale::from((
-///         language!(&quot;en&quot;),
-///         Some(script!(&quot;Latn&quot;)),
-///         Some(region!(&quot;US&quot;))
+///         language!("en"),
+///         Some(script!("Latn")),
+///         Some(region!("US"))
 ///     )),
-///     locale!(&quot;en-Latn-US&quot;)
+///     locale!("en-Latn-US")
 /// );
 /// ```
 </span><span class="kw">impl

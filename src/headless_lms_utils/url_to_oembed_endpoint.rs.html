@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/url_to_oembed_endpoint.rs`."><title>url_to_oembed_endpoint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_utils" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/url_to_oembed_endpoint.rs`."><title>url_to_oembed_endpoint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_utils" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -288,13 +289,13 @@
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ts_rs"</span>)]
 </span><span class="kw">use </span>ts_rs::TS;
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Deserialize, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>OEmbedResponse {
     <span class="kw">pub </span>author_name: String,
     <span class="kw">pub </span>author_url: String,
@@ -314,106 +315,106 @@
 </span><span class="kw">pub fn </span>url_to_oembed_endpoint(url: String, base_url: <span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; UtilResult&lt;Url&gt; {
     <span class="kw">let </span>parsed_url = Url::parse(url.as_str())<span class="question-mark">?</span>;
     <span class="kw">if let </span><span class="prelude-val">Some</span>(host) = parsed_url.host_str() {
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;youtu.be&quot;</span>) || host.ends_with(<span class="string">&quot;youtube.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"youtu.be"</span>) || host.ends_with(<span class="string">"youtube.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://www.youtube.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>, url),
+                <span class="string">"https://www.youtube.com/oembed"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=440"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;twitter.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"twitter.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://publish.twitter.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;maxwidth=780&amp;maxheight=440&quot;</span>, url),
+                <span class="string">"https://publish.twitter.com/oembed"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;maxwidth=780&amp;maxheight=440"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;soundcloud.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"soundcloud.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://soundcloud.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>, url),
+                <span class="string">"https://soundcloud.com/oembed"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=440"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;open.spotify.com&quot;</span>) || host.ends_with(<span class="string">&quot;play.spotify.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"open.spotify.com"</span>) || host.ends_with(<span class="string">"play.spotify.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://embed.spotify.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;height=335&amp;width=780&quot;</span>, url),
+                <span class="string">"https://embed.spotify.com/oembed"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;format=json&amp;height=335&amp;width=780"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;flickr.com&quot;</span>) || host.ends_with(<span class="string">&quot;flic.kr&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"flickr.com"</span>) || host.ends_with(<span class="string">"flic.kr"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://www.flickr.com/services/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=780&quot;</span>, url),
+                <span class="string">"https://www.flickr.com/services/oembed"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=780"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;vimeo.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"vimeo.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://vimeo.com/api/oembed.json&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;maxwidth=780&amp;maxheight=440&quot;</span>, url),
+                <span class="string">"https://vimeo.com/api/oembed.json"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;maxwidth=780&amp;maxheight=440"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;menti.com&quot;</span>) || host.ends_with(<span class="string">&quot;mentimeter.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"menti.com"</span>) || host.ends_with(<span class="string">"mentimeter.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;{}/api/v0/cms/gutenberg/oembed/mentimeter&quot;</span>,
+                    <span class="string">"{}/api/v0/cms/gutenberg/oembed/mentimeter"</span>,
                     base_url.unwrap()
                 ),
                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;url={}&quot;</span>,
+                    <span class="string">"url={}"</span>,
                     utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
                 ),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;thinglink.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"thinglink.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;{}/api/v0/cms/gutenberg/oembed/thinglink&quot;</span>,
+                    <span class="string">"{}/api/v0/cms/gutenberg/oembed/thinglink"</span>,
                     base_url.unwrap()
                 ),
                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;url={}&quot;</span>,
+                    <span class="string">"url={}"</span>,
                     utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
                 ),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;imgur.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"imgur.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://api.imgur.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;maxwidth=780&quot;</span>, url),
+                <span class="string">"https://api.imgur.com/oembed"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;maxwidth=780"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;reddit.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"reddit.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://www.reddit.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, url),
+                <span class="string">"https://www.reddit.com/oembed"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;format=json"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;slideshare.net&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"slideshare.net"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://www.slideshare.net/api/oembed/2&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, url),
+                <span class="string">"https://www.slideshare.net/api/oembed/2"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;format=json"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;ted.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"ted.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://www.ted.com/services/v1/oembed.json&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&quot;</span>, url),
+                <span class="string">"https://www.ted.com/services/v1/oembed.json"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}"</span>, url),
             );
         }
-        <span class="kw">if </span>host.ends_with(<span class="string">&quot;tumblr.com&quot;</span>) {
+        <span class="kw">if </span>host.ends_with(<span class="string">"tumblr.com"</span>) {
             <span class="comment">// Old tumblr api, v2 is latest, but WP uses 1.0
             </span><span class="kw">return </span>oembed_url_builder(
-                <span class="string">&quot;https://www.tumblr.com/oembed/1.0&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, url),
+                <span class="string">"https://www.tumblr.com/oembed/1.0"</span>,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;format=json"</span>, url),
             );
         }
         <span class="prelude-val">Err</span>(UtilError::new(
             UtilErrorType::Other,
-            <span class="string">&quot;Link not supported for embedding.&quot;</span>.to_string(),
+            <span class="string">"Link not supported for embedding."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ))
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(UtilError::new(
             UtilErrorType::Other,
-            <span class="string">&quot;Failed to parse host from URL.&quot;</span>.to_string(),
+            <span class="string">"Failed to parse host from URL."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ))
     }
@@ -426,33 +427,33 @@
     <span class="kw">let </span><span class="kw-2">mut </span>parsed_url = Url::parse(url.as_str()).unwrap();
     <span class="comment">// Get the height and title params
     </span><span class="kw">let </span>params: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = parsed_url.query_pairs().into_owned().collect();
-    <span class="comment">// We want to remove the query params so that the iframe src url doesn&#39;t have them
+    <span class="comment">// We want to remove the query params so that the iframe src url doesn't have them
     </span>parsed_url.set_query(<span class="prelude-val">None</span>);
     <span class="kw">let </span>decoded_title = percent_decode_str(
         params
-            .get(<span class="string">&quot;title&quot;</span>)
-            .unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;Mentimeter%20embed&quot;</span>.to_string()),
+            .get(<span class="string">"title"</span>)
+            .unwrap_or(<span class="kw-2">&amp;</span><span class="string">"Mentimeter%20embed"</span>.to_string()),
     )
     .decode_utf8()
-    .expect(<span class="string">&quot;Decoding title or default value for menti embed failed&quot;</span>)
+    .expect(<span class="string">"Decoding title or default value for menti embed failed"</span>)
     .to_string();
 
     <span class="kw">let </span>response = OEmbedResponse {
-        author_name: <span class="string">&quot;Mooc.fi&quot;</span>.to_string(),
+        author_name: <span class="string">"Mooc.fi"</span>.to_string(),
         author_url: base_url,
         html: <span class="macro">format!</span>(
-            <span class="string">&quot;&lt;iframe src={} style=&#39;width: 99%;&#39; height={:?} title={:?}&gt;&lt;/iframe&gt;&quot;</span>,
+            <span class="string">"&lt;iframe src={} style='width: 99%;' height={:?} title={:?}&gt;&lt;/iframe&gt;"</span>,
             parsed_url,
-            params.get(<span class="string">&quot;height&quot;</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;500&quot;</span>.to_string()),
+            params.get(<span class="string">"height"</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="string">"500"</span>.to_string()),
             decoded_title
         ),
-        provider_name: <span class="string">&quot;mentimeter&quot;</span>.to_string(),
+        provider_name: <span class="string">"mentimeter"</span>.to_string(),
         provider_url: parsed_url
             .host_str()
-            .unwrap_or(<span class="string">&quot;https://www.mentimeter.com&quot;</span>)
+            .unwrap_or(<span class="string">"https://www.mentimeter.com"</span>)
             .to_string(),
         title: decoded_title,
-        version: <span class="string">&quot;1.0&quot;</span>.to_string(),
+        version: <span class="string">"1.0"</span>.to_string(),
     };
     <span class="prelude-val">Ok</span>(response)
 }
@@ -464,33 +465,33 @@
     <span class="kw">let </span><span class="kw-2">mut </span>parsed_url = Url::parse(url.as_str()).unwrap();
     <span class="comment">// Get the height and title params
     </span><span class="kw">let </span>params: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = parsed_url.query_pairs().into_owned().collect();
-    <span class="comment">// We want to remove the query params so that the iframe src url doesn&#39;t have them
+    <span class="comment">// We want to remove the query params so that the iframe src url doesn't have them
     </span>parsed_url.set_query(<span class="prelude-val">None</span>);
     <span class="kw">let </span>decoded_title = percent_decode_str(
         params
-            .get(<span class="string">&quot;title&quot;</span>)
-            .unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;Thinlink%20embed&quot;</span>.to_string()),
+            .get(<span class="string">"title"</span>)
+            .unwrap_or(<span class="kw-2">&amp;</span><span class="string">"Thinlink%20embed"</span>.to_string()),
     )
     .decode_utf8()
-    .expect(<span class="string">&quot;Decoding title or default value for thinglink embed failed&quot;</span>)
+    .expect(<span class="string">"Decoding title or default value for thinglink embed failed"</span>)
     .to_string();
 
     <span class="kw">let </span>response = OEmbedResponse {
-        author_name: <span class="string">&quot;Mooc.fi&quot;</span>.to_string(),
+        author_name: <span class="string">"Mooc.fi"</span>.to_string(),
         author_url: base_url,
         html: <span class="macro">format!</span>(
-            <span class="string">&quot;&lt;iframe sandbox=\&quot;allow-scripts allow-same-origin\&quot; src={} style=&#39;width: 99%;&#39; height={:?} title={:?}&gt;&lt;/iframe&gt;&quot;</span>,
+            <span class="string">"&lt;iframe sandbox=\"allow-scripts allow-same-origin\" src={} style='width: 99%;' height={:?} title={:?}&gt;&lt;/iframe&gt;"</span>,
             parsed_url,
-            params.get(<span class="string">&quot;height&quot;</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;500&quot;</span>.to_string()),
+            params.get(<span class="string">"height"</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="string">"500"</span>.to_string()),
             decoded_title
         ),
-        provider_name: <span class="string">&quot;thinglink&quot;</span>.to_string(),
+        provider_name: <span class="string">"thinglink"</span>.to_string(),
         provider_url: parsed_url
             .host_str()
-            .unwrap_or(<span class="string">&quot;https://www.thinglink.com/&quot;</span>)
+            .unwrap_or(<span class="string">"https://www.thinglink.com/"</span>)
             .to_string(),
         title: decoded_title,
-        version: <span class="string">&quot;1.0&quot;</span>.to_string(),
+        version: <span class="string">"1.0"</span>.to_string(),
     };
     <span class="prelude-val">Ok</span>(response)
 }
@@ -509,9 +510,9 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>works_with_youtu_be() {
         <span class="macro">assert_eq!</span>(
-            url_to_oembed_endpoint(<span class="string">&quot;https://youtu.be/dQw4w9WgXcQ&quot;</span>.to_string(), <span class="prelude-val">None</span>).unwrap(),
+            url_to_oembed_endpoint(<span class="string">"https://youtu.be/dQw4w9WgXcQ"</span>.to_string(), <span class="prelude-val">None</span>).unwrap(),
             Url::parse(
-                <span class="string">&quot;https://www.youtube.com/oembed?url=https://youtu.be/dQw4w9WgXcQ&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;
+                <span class="string">"https://www.youtube.com/oembed?url=https://youtu.be/dQw4w9WgXcQ&amp;format=json&amp;maxwidth=780&amp;maxheight=440"
             </span>)
             .unwrap()
         )
@@ -519,35 +520,35 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>works_with_youtube_com() {
         <span class="macro">assert_eq!</span>(
-            url_to_oembed_endpoint(<span class="string">&quot;https://www.youtube.com/watch?v=dQw4w9WgXcQ&quot;</span>.to_string(), <span class="prelude-val">None</span>)
+            url_to_oembed_endpoint(<span class="string">"https://www.youtube.com/watch?v=dQw4w9WgXcQ"</span>.to_string(), <span class="prelude-val">None</span>)
                 .unwrap(),
-            Url::parse(<span class="string">&quot;https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>).unwrap()
+            Url::parse(<span class="string">"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;format=json&amp;maxwidth=780&amp;maxheight=440"</span>).unwrap()
         )
     }
     <span class="attr">#[test]
     </span><span class="kw">fn </span>works_with_youtube_com_playlist() {
         <span class="macro">assert_eq!</span>(
             url_to_oembed_endpoint(
-                <span class="string">&quot;https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1&quot;</span>.to_string(), <span class="prelude-val">None
+                <span class="string">"https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1"</span>.to_string(), <span class="prelude-val">None
             </span>)
             .unwrap(),
-            Url::parse(<span class="string">&quot;https://www.youtube.com/oembed?url=https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>).unwrap()
+            Url::parse(<span class="string">"https://www.youtube.com/oembed?url=https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1&amp;format=json&amp;maxwidth=780&amp;maxheight=440"</span>).unwrap()
         )
     }
     <span class="attr">#[test]
     </span><span class="kw">fn </span>works_with_open_spotify_com() {
         <span class="macro">assert_eq!</span>(url_to_oembed_endpoint(
-            <span class="string">&quot;http://open.spotify.com/track/298gs9ATwKlQR&quot;</span>.to_string(), <span class="prelude-val">None
+            <span class="string">"http://open.spotify.com/track/298gs9ATwKlQR"</span>.to_string(), <span class="prelude-val">None
         </span>)
         .unwrap(),
-        Url::parse(<span class="string">&quot;https://embed.spotify.com/oembed?url=http://open.spotify.com/track/298gs9ATwKlQR&amp;format=json&amp;height=335&amp;width=780&quot;</span>).unwrap())
+        Url::parse(<span class="string">"https://embed.spotify.com/oembed?url=http://open.spotify.com/track/298gs9ATwKlQR&amp;format=json&amp;height=335&amp;width=780"</span>).unwrap())
     }
     <span class="attr">#[test]
     </span><span class="kw">fn </span>works_with_flic_kr_com() {
         <span class="macro">assert_eq!</span>(
-            url_to_oembed_endpoint(<span class="string">&quot;https://flic.kr/p/2jJ&quot;</span>.to_string(), <span class="prelude-val">None</span>).unwrap(),
+            url_to_oembed_endpoint(<span class="string">"https://flic.kr/p/2jJ"</span>.to_string(), <span class="prelude-val">None</span>).unwrap(),
             Url::parse(
-                <span class="string">&quot;https://www.flickr.com/services/oembed?url=https://flic.kr/p/2jJ&amp;format=json&amp;maxwidth=780&amp;maxheight=780&quot;
+                <span class="string">"https://www.flickr.com/services/oembed?url=https://flic.kr/p/2jJ&amp;format=json&amp;maxwidth=780&amp;maxheight=780"
             </span>).unwrap()
         )
     }
@@ -556,11 +557,11 @@
     </span><span class="kw">fn </span>works_with_thinglink() {
         <span class="macro">assert_eq!</span>(
             url_to_oembed_endpoint(
-                <span class="string">&quot;https://www.thinglink.com/card/1205257932048957445&quot;</span>.to_string(),
-                <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local&quot;</span>.to_string())
+                <span class="string">"https://www.thinglink.com/card/1205257932048957445"</span>.to_string(),
+                <span class="prelude-val">Some</span>(<span class="string">"http://project-331.local"</span>.to_string())
             )
             .unwrap().to_string(),
-            <span class="string">&quot;http://project-331.local/api/v0/cms/gutenberg/oembed/thinglink?url=https%3A%2F%2Fwww%2Ethinglink%2Ecom%2Fcard%2F1205257932048957445&quot;
+            <span class="string">"http://project-331.local/api/v0/cms/gutenberg/oembed/thinglink?url=https%3A%2F%2Fwww%2Ethinglink%2Ecom%2Fcard%2F1205257932048957445"
         </span>)
     }
 }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/coff/import.rs`."><title>import.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/coff/import.rs`."><title>import.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -234,17 +235,17 @@
 /// This is a file that starts with [`pe::ImportObjectHeader`], and corresponds
 /// to [`crate::FileKind::CoffImport`].
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>ImportFile&lt;<span class="lifetime">&#39;data</span>&gt; {
-    header: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>pe::ImportObjectHeader,
+</span><span class="kw">pub struct </span>ImportFile&lt;<span class="lifetime">'data</span>&gt; {
+    header: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImportObjectHeader,
     kind: ImportType,
-    dll: ByteString&lt;<span class="lifetime">&#39;data</span>&gt;,
-    symbol: ByteString&lt;<span class="lifetime">&#39;data</span>&gt;,
-    import: <span class="prelude-ty">Option</span>&lt;ByteString&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
+    dll: ByteString&lt;<span class="lifetime">'data</span>&gt;,
+    symbol: ByteString&lt;<span class="lifetime">'data</span>&gt;,
+    import: <span class="prelude-ty">Option</span>&lt;ByteString&lt;<span class="lifetime">'data</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; ImportFile&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; ImportFile&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Parse it.
-    </span><span class="kw">pub fn </span>parse&lt;R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>parse&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
         <span class="kw">let </span>header = pe::ImportObjectHeader::parse(data, <span class="kw-2">&amp;mut </span>offset)<span class="question-mark">?</span>;
         <span class="kw">let </span>data = header.parse_data(data, <span class="kw-2">&amp;mut </span>offset)<span class="question-mark">?</span>;
@@ -252,7 +253,7 @@
         <span class="comment">// Unmangles a name by removing a `?`, `@` or `_` prefix.
         </span><span class="kw">fn </span>strip_prefix(s: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;</span>[u8] {
             <span class="kw">match </span>s.split_first() {
-                <span class="prelude-val">Some</span>((b, rest)) <span class="kw">if </span>[<span class="string">b&#39;?&#39;</span>, <span class="string">b&#39;@&#39;</span>, <span class="string">b&#39;_&#39;</span>].contains(b) =&gt; rest,
+                <span class="prelude-val">Some</span>((b, rest)) <span class="kw">if </span>[<span class="string">b'?'</span>, <span class="string">b'@'</span>, <span class="string">b'_'</span>].contains(b) =&gt; rest,
                 <span class="kw">_ </span>=&gt; s,
             }
         }
@@ -264,7 +265,7 @@
                 pe::IMPORT_OBJECT_CODE =&gt; ImportType::Code,
                 pe::IMPORT_OBJECT_DATA =&gt; ImportType::Data,
                 pe::IMPORT_OBJECT_CONST =&gt; ImportType::Const,
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Invalid COFF import library import type&quot;</span>)),
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid COFF import library import type"</span>)),
             },
             import: <span class="kw">match </span>header.name_type() {
                 pe::IMPORT_OBJECT_ORDINAL =&gt; <span class="prelude-val">None</span>,
@@ -272,12 +273,12 @@
                 pe::IMPORT_OBJECT_NAME_NO_PREFIX =&gt; <span class="prelude-val">Some</span>(strip_prefix(data.symbol())),
                 pe::IMPORT_OBJECT_NAME_UNDECORATE =&gt; <span class="prelude-val">Some</span>(
                     strip_prefix(data.symbol())
-                        .split(|<span class="kw-2">&amp;</span>b| b == <span class="string">b&#39;@&#39;</span>)
+                        .split(|<span class="kw-2">&amp;</span>b| b == <span class="string">b'@'</span>)
                         .next()
                         .unwrap(),
                 ),
                 pe::IMPORT_OBJECT_NAME_EXPORTAS =&gt; data.export(),
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unknown COFF import library name type&quot;</span>)),
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unknown COFF import library name type"</span>)),
             }
             .map(ByteString),
         })
@@ -303,17 +304,17 @@
     }
 
     <span class="doccomment">/// The public symbol name.
-    </span><span class="kw">pub fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.symbol.<span class="number">0
     </span>}
 
     <span class="doccomment">/// The name of the DLL to import the symbol from.
-    </span><span class="kw">pub fn </span>dll(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>dll(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.dll.<span class="number">0
     </span>}
 
     <span class="doccomment">/// The name exported from the DLL.
-    </span><span class="kw">pub fn </span>import(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ImportName&lt;<span class="lifetime">&#39;data</span>&gt; {
+    </span><span class="kw">pub fn </span>import(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ImportName&lt;<span class="lifetime">'data</span>&gt; {
         <span class="kw">match </span><span class="self">self</span>.import {
             <span class="prelude-val">Some</span>(name) =&gt; ImportName::Name(name.<span class="number">0</span>),
             <span class="prelude-val">None </span>=&gt; ImportName::Ordinal(<span class="self">self</span>.header.ordinal_or_hint.get(LE)),
@@ -328,11 +329,11 @@
 
 <span class="doccomment">/// The name or ordinal to import from a DLL.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-</span><span class="kw">pub enum </span>ImportName&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub enum </span>ImportName&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Import by ordinal. Ordinarily this is a 1-based index.
     </span>Ordinal(u16),
     <span class="doccomment">/// Import by name.
-    </span>Name(<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]),
+    </span>Name(<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]),
 }
 
 <span class="doccomment">/// The kind of import symbol.
@@ -351,42 +352,42 @@
     ///
     /// Also checks that the signature and version are valid.
     /// Directly following this header will be the string data.
-    </span><span class="kw">pub fn </span>parse&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>parse&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">Self</span>&gt; {
         <span class="kw">let </span>header = data
             .read::&lt;pe::ImportObjectHeader&gt;(offset)
-            .read_error(<span class="string">&quot;Invalid COFF import library header size&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid COFF import library header size"</span>)<span class="question-mark">?</span>;
         <span class="kw">if </span>header.sig1.get(LE) != <span class="number">0 </span>|| header.sig2.get(LE) != pe::IMPORT_OBJECT_HDR_SIG2 {
-            <span class="prelude-val">Err</span>(Error(<span class="string">&quot;Invalid COFF import library header&quot;</span>))
+            <span class="prelude-val">Err</span>(Error(<span class="string">"Invalid COFF import library header"</span>))
         } <span class="kw">else if </span>header.version.get(LE) != <span class="number">0 </span>{
-            <span class="prelude-val">Err</span>(Error(<span class="string">&quot;Unknown COFF import library header version&quot;</span>))
+            <span class="prelude-val">Err</span>(Error(<span class="string">"Unknown COFF import library header version"</span>))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(header)
         }
     }
 
     <span class="doccomment">/// Parse the data following the header.
-    </span><span class="kw">pub fn </span>parse_data&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">pub fn </span>parse_data&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
         offset: <span class="kw-2">&amp;mut </span>u64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;ImportObjectData&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ImportObjectData&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>data = Bytes(
             data.read_bytes(offset, u64::from(<span class="self">self</span>.size_of_data.get(LE)))
-                .read_error(<span class="string">&quot;Invalid COFF import library data size&quot;</span>)<span class="question-mark">?</span>,
+                .read_error(<span class="string">"Invalid COFF import library data size"</span>)<span class="question-mark">?</span>,
         );
         <span class="kw">let </span>symbol = data
             .read_string()
             .map(ByteString)
-            .read_error(<span class="string">&quot;Could not read COFF import library symbol name&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Could not read COFF import library symbol name"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>dll = data
             .read_string()
             .map(ByteString)
-            .read_error(<span class="string">&quot;Could not read COFF import library DLL name&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Could not read COFF import library DLL name"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>export = <span class="kw">if </span><span class="self">self</span>.name_type() == pe::IMPORT_OBJECT_NAME_EXPORTAS {
             data.read_string()
                 .map(ByteString)
                 .map(<span class="prelude-val">Some</span>)
-                .read_error(<span class="string">&quot;Could not read COFF import library export name&quot;</span>)<span class="question-mark">?
+                .read_error(<span class="string">"Could not read COFF import library export name"</span>)<span class="question-mark">?
         </span>} <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>};
@@ -414,27 +415,27 @@
 
 <span class="doccomment">/// The data following [`pe::ImportObjectHeader`].
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>ImportObjectData&lt;<span class="lifetime">&#39;data</span>&gt; {
-    symbol: ByteString&lt;<span class="lifetime">&#39;data</span>&gt;,
-    dll: ByteString&lt;<span class="lifetime">&#39;data</span>&gt;,
-    export: <span class="prelude-ty">Option</span>&lt;ByteString&lt;<span class="lifetime">&#39;data</span>&gt;&gt;,
+</span><span class="kw">pub struct </span>ImportObjectData&lt;<span class="lifetime">'data</span>&gt; {
+    symbol: ByteString&lt;<span class="lifetime">'data</span>&gt;,
+    dll: ByteString&lt;<span class="lifetime">'data</span>&gt;,
+    export: <span class="prelude-ty">Option</span>&lt;ByteString&lt;<span class="lifetime">'data</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; ImportObjectData&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; ImportObjectData&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// The public symbol name.
-    </span><span class="kw">pub fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.symbol.<span class="number">0
     </span>}
 
     <span class="doccomment">/// The name of the DLL to import the symbol from.
-    </span><span class="kw">pub fn </span>dll(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8] {
+    </span><span class="kw">pub fn </span>dll(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8] {
         <span class="self">self</span>.dll.<span class="number">0
     </span>}
 
     <span class="doccomment">/// The name exported from the DLL.
     ///
     /// This is only set if the name is not derived from the symbol name.
-    </span><span class="kw">pub fn </span>export(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>export(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.export.map(|export| export.<span class="number">0</span>)
     }
 }

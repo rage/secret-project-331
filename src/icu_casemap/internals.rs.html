@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_casemap-1.4.0/src/internals.rs`."><title>internals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_casemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_casemap-1.4.0/src/internals.rs`."><title>internals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_casemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -881,7 +882,7 @@
 <span class="kw">use </span>icu_locid::LanguageIdentifier;
 <span class="kw">use </span>writeable::Writeable;
 
-<span class="kw">const </span>ACUTE: char = <span class="string">&#39;\u{301}&#39;</span>;
+<span class="kw">const </span>ACUTE: char = <span class="string">'\u{301}'</span>;
 
 <span class="comment">// Used to control the behavior of CaseMapper::fold.
 // Currently only used to decide whether to use Turkic (T) mappings for dotted/dotless i.
@@ -899,12 +900,12 @@
 }
 
 <span class="doccomment">/// Helper type that wraps a writeable in a prefix string
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>StringAndWriteable&lt;<span class="lifetime">&#39;a</span>, W&gt; {
-    <span class="kw">pub </span>string: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>StringAndWriteable&lt;<span class="lifetime">'a</span>, W&gt; {
+    <span class="kw">pub </span>string: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     <span class="kw">pub </span>writeable: W,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Wr: Writeable&gt; Writeable <span class="kw">for </span>StringAndWriteable&lt;<span class="lifetime">&#39;a</span>, Wr&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Wr: Writeable&gt; Writeable <span class="kw">for </span>StringAndWriteable&lt;<span class="lifetime">'a</span>, Wr&gt; {
     <span class="kw">fn </span>write_to&lt;W: fmt::Write + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sink: <span class="kw-2">&amp;mut </span>W) -&gt; fmt::Result {
         sink.write_str(<span class="self">self</span>.string)<span class="question-mark">?</span>;
         <span class="self">self</span>.writeable.write_to(sink)
@@ -914,15 +915,15 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FullCaseWriteable&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>IS_TITLE_CONTEXT: bool&gt; {
-    data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CaseMapV1&lt;<span class="lifetime">&#39;a</span>&gt;,
-    src: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FullCaseWriteable&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>IS_TITLE_CONTEXT: bool&gt; {
+    data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CaseMapV1&lt;<span class="lifetime">'a</span>&gt;,
+    src: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     locale: CaseMapLocale,
     mapping: MappingKind,
     titlecase_tail_casing: TrailingCase,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>IS_TITLE_CONTEXT: bool&gt; Writeable <span class="kw">for </span>FullCaseWriteable&lt;<span class="lifetime">&#39;a</span>, IS_TITLE_CONTEXT&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>IS_TITLE_CONTEXT: bool&gt; Writeable <span class="kw">for </span>FullCaseWriteable&lt;<span class="lifetime">'a</span>, IS_TITLE_CONTEXT&gt; {
     <span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// last_uncopied_index and i are known to be in bounds
     </span><span class="kw">fn </span>write_to&lt;W: fmt::Write + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sink: <span class="kw-2">&amp;mut </span>W) -&gt; fmt::Result {
         <span class="kw">let </span>src = <span class="self">self</span>.src;
@@ -951,7 +952,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; CaseMapV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; CaseMapV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="kw">fn </span>simple_helper(<span class="kw-2">&amp;</span><span class="self">self</span>, c: char, kind: MappingKind) -&gt; char {
         <span class="kw">let </span>data = <span class="self">self</span>.lookup_data(c);
         <span class="kw">if </span>!data.has_exception() {
@@ -1015,7 +1016,7 @@
                 c
             } <span class="kw">else if </span>data.is_upper_or_title() &amp;&amp; exception.has_slot(ExceptionSlot::Delta) {
                 <span class="comment">// unwrap_or case should never happen but best to avoid panics
-                </span>exception.get_simple_case_slot_for(c).unwrap_or(<span class="string">&#39;\0&#39;</span>)
+                </span>exception.get_simple_case_slot_for(c).unwrap_or(<span class="string">'\0'</span>)
             } <span class="kw">else if let </span><span class="prelude-val">Some</span>(slot_char) = exception.slot_char_for_kind(MappingKind::Fold) {
                 slot_char
             } <span class="kw">else </span>{
@@ -1071,19 +1072,19 @@
             !IS_TITLE_CONTEXT || kind == MappingKind::Title || kind == MappingKind::Lower
         );
 
-        <span class="comment">// ICU4C&#39;s non-standard extension for Dutch IJ titlecasing
+        <span class="comment">// ICU4C's non-standard extension for Dutch IJ titlecasing
         // handled here instead of in full_lower_special_case because J does not have conditional
         // special casemapping.
         </span><span class="kw">if </span>IS_TITLE_CONTEXT &amp;&amp; locale == CaseMapLocale::Dutch &amp;&amp; kind == MappingKind::Lower {
             <span class="comment">// When titlecasing, a J found immediately after an I at the beginning of the segment
             // should also uppercase. They are both allowed to have an acute accent but it must
             // be present on both letters or neither. They may not have any other combining marks.
-            </span><span class="kw">if </span>(c == <span class="string">&#39;j&#39; </span>|| c == <span class="string">&#39;J&#39;</span>) &amp;&amp; context.is_dutch_ij_pair_at_beginning(<span class="self">self</span>) {
-                <span class="kw">return </span>sink.write_char(<span class="string">&#39;J&#39;</span>);
+            </span><span class="kw">if </span>(c == <span class="string">'j' </span>|| c == <span class="string">'J'</span>) &amp;&amp; context.is_dutch_ij_pair_at_beginning(<span class="self">self</span>) {
+                <span class="kw">return </span>sink.write_char(<span class="string">'J'</span>);
             }
         }
 
-        <span class="comment">// ICU4C&#39;s non-standard extension for Greek uppercasing:
+        <span class="comment">// ICU4C's non-standard extension for Greek uppercasing:
         // https://icu.unicode.org/design/case/greek-upper.
         // Effectively removes Greek accents from Greek vowels during uppercasing,
         // whilst attempting to preserve additional marks like the dialytika (diæresis)
@@ -1128,11 +1129,11 @@
                     <span class="comment">// Write the base of the uppercased combining character sequence.
                     // In most branches this is [`upper_base`], i.e., the uppercase letter with all accents removed.
                     // In some branches the base has a precomposed diacritic.
-                    // In the case of the Greek disjunctive &quot;or&quot;, a combining tonos may also be written.
+                    // In the case of the Greek disjunctive "or", a combining tonos may also be written.
                     </span><span class="kw">match </span>vowel {
                         GreekVowel::Η =&gt; {
                             <span class="comment">// The letter η (eta) is allowed to retain a tonos when it is form a single-letter word to distinguish
-                            // the feminine definite article ἡ (monotonic η) from the disjunctive &quot;or&quot; ἤ (monotonic ή).
+                            // the feminine definite article ἡ (monotonic η) from the disjunctive "or" ἤ (monotonic ή).
                             //
                             // A lone η with an accent other than the oxia/tonos is not expected,
                             // so there is no need to special-case the oxia/tonos.
@@ -1145,24 +1146,24 @@
                                 &amp;&amp; !diacritics.ypogegrammeni
                             {
                                 <span class="kw">if </span>precomposed_diacritics.accented {
-                                    sink.write_char(<span class="string">&#39;Ή&#39;</span>)<span class="question-mark">?</span>;
+                                    sink.write_char(<span class="string">'Ή'</span>)<span class="question-mark">?</span>;
                                 } <span class="kw">else </span>{
-                                    sink.write_char(<span class="string">&#39;Η&#39;</span>)<span class="question-mark">?</span>;
+                                    sink.write_char(<span class="string">'Η'</span>)<span class="question-mark">?</span>;
                                     sink.write_char(greek_to_me::TONOS)<span class="question-mark">?</span>;
                                 }
                             } <span class="kw">else </span>{
-                                sink.write_char(<span class="string">&#39;Η&#39;</span>)<span class="question-mark">?</span>;
+                                sink.write_char(<span class="string">'Η'</span>)<span class="question-mark">?</span>;
                             }
                         }
                         GreekVowel::Ι =&gt; sink.write_char(<span class="kw">if </span>precomposed_diacritics.dialytika {
                             diacritics.dialytika = <span class="bool-val">false</span>;
-                            <span class="string">&#39;Ϊ&#39;
+                            <span class="string">'Ϊ'
                         </span>} <span class="kw">else </span>{
                             vowel.into()
                         })<span class="question-mark">?</span>,
                         GreekVowel::Υ =&gt; sink.write_char(<span class="kw">if </span>precomposed_diacritics.dialytika {
                             diacritics.dialytika = <span class="bool-val">false</span>;
-                            <span class="string">&#39;Ϋ&#39;
+                            <span class="string">'Ϋ'
                         </span>} <span class="kw">else </span>{
                             vowel.into()
                         })<span class="question-mark">?</span>,
@@ -1172,7 +1173,7 @@
                         sink.write_char(greek_to_me::DIALYTIKA)<span class="question-mark">?</span>;
                     }
                     <span class="kw">if </span>precomposed_diacritics.ypogegrammeni {
-                        sink.write_char(<span class="string">&#39;Ι&#39;</span>)<span class="question-mark">?</span>;
+                        sink.write_char(<span class="string">'Ι'</span>)<span class="question-mark">?</span>;
                     }
 
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(());
@@ -1237,27 +1238,27 @@
     }
 
     <span class="comment">// These constants are used for hardcoded locale-specific foldings.
-    </span><span class="kw">const </span>I_DOT: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;\u{69}\u{307}&quot;</span>;
-    <span class="kw">const </span>J_DOT: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;\u{6a}\u{307}&quot;</span>;
-    <span class="kw">const </span>I_OGONEK_DOT: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;\u{12f}\u{307}&quot;</span>;
-    <span class="kw">const </span>I_DOT_GRAVE: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;\u{69}\u{307}\u{300}&quot;</span>;
-    <span class="kw">const </span>I_DOT_ACUTE: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;\u{69}\u{307}\u{301}&quot;</span>;
-    <span class="kw">const </span>I_DOT_TILDE: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;\u{69}\u{307}\u{303}&quot;</span>;
+    </span><span class="kw">const </span>I_DOT: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"\u{69}\u{307}"</span>;
+    <span class="kw">const </span>J_DOT: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"\u{6a}\u{307}"</span>;
+    <span class="kw">const </span>I_OGONEK_DOT: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"\u{12f}\u{307}"</span>;
+    <span class="kw">const </span>I_DOT_GRAVE: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"\u{69}\u{307}\u{300}"</span>;
+    <span class="kw">const </span>I_DOT_ACUTE: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"\u{69}\u{307}\u{301}"</span>;
+    <span class="kw">const </span>I_DOT_TILDE: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"\u{69}\u{307}\u{303}"</span>;
 
     <span class="comment">// Special case folding mappings, hardcoded.
     // This handles the special Turkic mappings for uppercase I and dotted uppercase I
     // For non-Turkic languages, this mapping is normally not used.
     // For Turkic languages (tr, az), this mapping can be used instead of the normal mapping for these characters.
     </span><span class="kw">fn </span>simple_fold_special_case(<span class="kw-2">&amp;</span><span class="self">self</span>, c: char, options: FoldOptions) -&gt; char {
-        <span class="macro">debug_assert!</span>(c == <span class="string">&#39;\u{49}&#39; </span>|| c == <span class="string">&#39;\u{130}&#39;</span>);
+        <span class="macro">debug_assert!</span>(c == <span class="string">'\u{49}' </span>|| c == <span class="string">'\u{130}'</span>);
         <span class="kw">let </span>is_turkic = options.exclude_special_i;
         <span class="kw">match </span>(c, is_turkic) {
             <span class="comment">// Turkic mappings
-            </span>(<span class="string">&#39;\u{49}&#39;</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&#39;\u{131}&#39;</span>, <span class="comment">// 0049; T; 0131; # LATIN CAPITAL LETTER I
-            </span>(<span class="string">&#39;\u{130}&#39;</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&#39;\u{69}&#39;</span>, <span class="comment">/* 0130; T; 0069; # LATIN CAPITAL LETTER I WITH DOT ABOVE */
+            </span>(<span class="string">'\u{49}'</span>, <span class="bool-val">true</span>) =&gt; <span class="string">'\u{131}'</span>, <span class="comment">// 0049; T; 0131; # LATIN CAPITAL LETTER I
+            </span>(<span class="string">'\u{130}'</span>, <span class="bool-val">true</span>) =&gt; <span class="string">'\u{69}'</span>, <span class="comment">/* 0130; T; 0069; # LATIN CAPITAL LETTER I WITH DOT ABOVE */
 
             // Default mappings
-            </span>(<span class="string">&#39;\u{49}&#39;</span>, <span class="bool-val">false</span>) =&gt; <span class="string">&#39;\u{69}&#39;</span>, <span class="comment">// 0049; C; 0069; # LATIN CAPITAL LETTER I
+            </span>(<span class="string">'\u{49}'</span>, <span class="bool-val">false</span>) =&gt; <span class="string">'\u{69}'</span>, <span class="comment">// 0049; C; 0069; # LATIN CAPITAL LETTER I
 
             // There is no simple case folding for U+130.
             </span>(c, <span class="kw">_</span>) =&gt; c,
@@ -1272,35 +1273,35 @@
     ) -&gt; <span class="prelude-ty">Option</span>&lt;FullMappingResult&gt; {
         <span class="kw">if </span>locale == CaseMapLocale::Lithuanian {
             <span class="comment">// Lithuanian retains the dot in a lowercase i when followed by accents.
-            // Introduce an explicit dot above when lowercasing capital I&#39;s and J&#39;s
+            // Introduce an explicit dot above when lowercasing capital I's and J's
             // whenever there are more accents above (of the accents used in
             // Lithuanian: grave, acute, and tilde above).
 
             // Check for accents above I, J, and I-with-ogonek.
-            </span><span class="kw">if </span>c == <span class="string">&#39;I&#39; </span>&amp;&amp; context.followed_by_more_above(<span class="self">self</span>) {
+            </span><span class="kw">if </span>c == <span class="string">'I' </span>&amp;&amp; context.followed_by_more_above(<span class="self">self</span>) {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::String(<span class="self">Self</span>::I_DOT));
-            } <span class="kw">else if </span>c == <span class="string">&#39;J&#39; </span>&amp;&amp; context.followed_by_more_above(<span class="self">self</span>) {
+            } <span class="kw">else if </span>c == <span class="string">'J' </span>&amp;&amp; context.followed_by_more_above(<span class="self">self</span>) {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::String(<span class="self">Self</span>::J_DOT));
-            } <span class="kw">else if </span>c == <span class="string">&#39;\u{12e}&#39; </span>&amp;&amp; context.followed_by_more_above(<span class="self">self</span>) {
+            } <span class="kw">else if </span>c == <span class="string">'\u{12e}' </span>&amp;&amp; context.followed_by_more_above(<span class="self">self</span>) {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::String(<span class="self">Self</span>::I_OGONEK_DOT));
             }
 
-            <span class="comment">// These characters are precomposed with accents above, so we don&#39;t
+            <span class="comment">// These characters are precomposed with accents above, so we don't
             // have to look at the context.
-            </span><span class="kw">if </span>c == <span class="string">&#39;\u{cc}&#39; </span>{
+            </span><span class="kw">if </span>c == <span class="string">'\u{cc}' </span>{
                 <span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::String(<span class="self">Self</span>::I_DOT_GRAVE));
-            } <span class="kw">else if </span>c == <span class="string">&#39;\u{cd}&#39; </span>{
+            } <span class="kw">else if </span>c == <span class="string">'\u{cd}' </span>{
                 <span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::String(<span class="self">Self</span>::I_DOT_ACUTE));
-            } <span class="kw">else if </span>c == <span class="string">&#39;\u{128}&#39; </span>{
+            } <span class="kw">else if </span>c == <span class="string">'\u{128}' </span>{
                 <span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::String(<span class="self">Self</span>::I_DOT_TILDE));
             }
         }
 
         <span class="kw">if </span>locale == CaseMapLocale::Turkish {
-            <span class="kw">if </span>c == <span class="string">&#39;\u{130}&#39; </span>{
+            <span class="kw">if </span>c == <span class="string">'\u{130}' </span>{
                 <span class="comment">// I and i-dotless; I-dot and i are case pairs in Turkish and Azeri
-                </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">&#39;i&#39;</span>));
-            } <span class="kw">else if </span>c == <span class="string">&#39;\u{307}&#39; </span>&amp;&amp; context.preceded_by_capital_i::&lt;IS_TITLE_CONTEXT&gt;(<span class="self">self</span>) {
+                </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">'i'</span>));
+            } <span class="kw">else if </span>c == <span class="string">'\u{307}' </span>&amp;&amp; context.preceded_by_capital_i::&lt;IS_TITLE_CONTEXT&gt;(<span class="self">self</span>) {
                 <span class="comment">// When lowercasing, remove dot_above in the sequence I + dot_above,
                 // which will turn into i. This matches the behaviour of the
                 // canonically equivalent I-dot_above.
@@ -1310,24 +1311,24 @@
                 // uppercasing rules (which ignore it, see below)
 
                 </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::Remove);
-            } <span class="kw">else if </span>c == <span class="string">&#39;I&#39; </span>&amp;&amp; !context.followed_by_dot_above(<span class="self">self</span>) {
+            } <span class="kw">else if </span>c == <span class="string">'I' </span>&amp;&amp; !context.followed_by_dot_above(<span class="self">self</span>) {
                 <span class="comment">// When lowercasing, unless an I is before a dot_above, it turns
                 // into a dotless i.
-                </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">&#39;\u{131}&#39;</span>));
+                </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">'\u{131}'</span>));
             }
         }
 
-        <span class="kw">if </span>c == <span class="string">&#39;\u{130}&#39; </span>{
+        <span class="kw">if </span>c == <span class="string">'\u{130}' </span>{
             <span class="comment">// Preserve canonical equivalence for I with dot. Turkic is handled above.
             </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::String(<span class="self">Self</span>::I_DOT));
         }
 
-        <span class="kw">if </span>c == <span class="string">&#39;\u{3a3}&#39;
+        <span class="kw">if </span>c == <span class="string">'\u{3a3}'
             </span>&amp;&amp; context.preceded_by_cased_letter(<span class="self">self</span>)
             &amp;&amp; !context.followed_by_cased_letter(<span class="self">self</span>)
         {
             <span class="comment">// Greek capital sigman maps depending on surrounding cased letters.
-            </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">&#39;\u{3c2}&#39;</span>));
+            </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">'\u{3c2}'</span>));
         }
 
         <span class="comment">// No relevant special case mapping. Use a normal mapping.
@@ -1340,25 +1341,25 @@
         context: ContextIterator,
         locale: CaseMapLocale,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;FullMappingResult&gt; {
-        <span class="kw">if </span>locale == CaseMapLocale::Turkish &amp;&amp; c == <span class="string">&#39;i&#39; </span>{
+        <span class="kw">if </span>locale == CaseMapLocale::Turkish &amp;&amp; c == <span class="string">'i' </span>{
             <span class="comment">// In Turkic languages, i turns into a dotted capital I.
-            </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">&#39;\u{130}&#39;</span>));
+            </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">'\u{130}'</span>));
         }
         <span class="kw">if </span>locale == CaseMapLocale::Lithuanian
-            &amp;&amp; c == <span class="string">&#39;\u{307}&#39;
+            &amp;&amp; c == <span class="string">'\u{307}'
             </span>&amp;&amp; context.preceded_by_soft_dotted(<span class="self">self</span>)
         {
             <span class="comment">// Lithuanian retains the dot in a lowercase i when followed by accents.
             // Remove dot_above after i with upper or titlecase.
             </span><span class="kw">return </span><span class="prelude-val">Some</span>(FullMappingResult::Remove);
         }
-        <span class="comment">// ICU4C&#39;s non-standard extension for Armenian ligature ech-yiwn.
-        </span><span class="kw">if </span>c == <span class="string">&#39;\u{587}&#39; </span>{
+        <span class="comment">// ICU4C's non-standard extension for Armenian ligature ech-yiwn.
+        </span><span class="kw">if </span>c == <span class="string">'\u{587}' </span>{
             <span class="kw">return match </span>(locale, IS_TITLE_CONTEXT) {
-                (CaseMapLocale::Armenian, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="string">&quot;ԵՎ&quot;</span>)),
-                (CaseMapLocale::Armenian, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="string">&quot;Եվ&quot;</span>)),
-                (<span class="kw">_</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="string">&quot;ԵՒ&quot;</span>)),
-                (<span class="kw">_</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="string">&quot;Եւ&quot;</span>)),
+                (CaseMapLocale::Armenian, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="string">"ԵՎ"</span>)),
+                (CaseMapLocale::Armenian, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="string">"Եվ"</span>)),
+                (<span class="kw">_</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="string">"ԵՒ"</span>)),
+                (<span class="kw">_</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="string">"Եւ"</span>)),
             };
         }
         <span class="prelude-val">None
@@ -1373,12 +1374,12 @@
         <span class="kw">let </span>is_turkic = locale == CaseMapLocale::Turkish;
         <span class="kw">match </span>(c, is_turkic) {
             <span class="comment">// Turkic mappings
-            </span>(<span class="string">&#39;\u{49}&#39;</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">&#39;\u{131}&#39;</span>)),
-            (<span class="string">&#39;\u{130}&#39;</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">&#39;\u{69}&#39;</span>)),
+            </span>(<span class="string">'\u{49}'</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">'\u{131}'</span>)),
+            (<span class="string">'\u{130}'</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">'\u{69}'</span>)),
 
             <span class="comment">// Default mappings
-            </span>(<span class="string">&#39;\u{49}&#39;</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">&#39;\u{69}&#39;</span>)),
-            (<span class="string">&#39;\u{130}&#39;</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="self">Self</span>::I_DOT)),
+            </span>(<span class="string">'\u{49}'</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::CodePoint(<span class="string">'\u{69}'</span>)),
+            (<span class="string">'\u{130}'</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(FullMappingResult::String(<span class="self">Self</span>::I_DOT)),
             (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
@@ -1386,13 +1387,13 @@
     /// to avoid perf impacts on other more common modes of operation
     ///
     /// titlecase_tail_casing is only read in IS_TITLE_CONTEXT
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>full_helper_writeable&lt;<span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;data</span>, <span class="kw">const </span>IS_TITLE_CONTEXT: bool&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        src: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>full_helper_writeable&lt;<span class="lifetime">'a</span>: <span class="lifetime">'data</span>, <span class="kw">const </span>IS_TITLE_CONTEXT: bool&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        src: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
         locale: CaseMapLocale,
         mapping: MappingKind,
         titlecase_tail_casing: TrailingCase,
-    ) -&gt; FullCaseWriteable&lt;<span class="lifetime">&#39;a</span>, IS_TITLE_CONTEXT&gt; {
+    ) -&gt; FullCaseWriteable&lt;<span class="lifetime">'a</span>, IS_TITLE_CONTEXT&gt; {
         <span class="comment">// Ensure that they are either both true or both false, i.e. an XNOR operation
         </span><span class="macro">debug_assert!</span>(!(IS_TITLE_CONTEXT ^ (mapping == MappingKind::Title)));
 
@@ -1420,23 +1421,23 @@
         // This code matches their closure behavior to their case folding behavior.
         </span><span class="kw">match </span>c {
             <span class="comment">// Regular i and I are in one equivalence class.
-            </span><span class="string">&#39;\u{49}&#39; </span>=&gt; {
-                set.add_char(<span class="string">&#39;\u{69}&#39;</span>);
+            </span><span class="string">'\u{49}' </span>=&gt; {
+                set.add_char(<span class="string">'\u{69}'</span>);
                 <span class="kw">return</span>;
             }
-            <span class="string">&#39;\u{69}&#39; </span>=&gt; {
-                set.add_char(<span class="string">&#39;\u{49}&#39;</span>);
+            <span class="string">'\u{69}' </span>=&gt; {
+                set.add_char(<span class="string">'\u{49}'</span>);
                 <span class="kw">return</span>;
             }
 
             <span class="comment">// Dotted I is in a class with &lt;0069 0307&gt; (for canonical equivalence with &lt;0049 0307&gt;)
-            </span><span class="string">&#39;\u{130}&#39; </span>=&gt; {
+            </span><span class="string">'\u{130}' </span>=&gt; {
                 set.add_string(<span class="self">Self</span>::I_DOT);
                 <span class="kw">return</span>;
             }
 
             <span class="comment">// Dotless i is in a class by itself
-            </span><span class="string">&#39;\u{131}&#39; </span>=&gt; {
+            </span><span class="string">'\u{131}' </span>=&gt; {
                 <span class="kw">return</span>;
             }
 
@@ -1523,12 +1524,12 @@
 <span class="kw">impl </span>CaseMapLocale {
     <span class="kw">pub const fn </span>from_langid(langid: <span class="kw-2">&amp;</span>LanguageIdentifier) -&gt; <span class="self">Self </span>{
         <span class="kw">use </span>icu_locid::subtags::{language, Language};
-        <span class="kw">const </span>TR: Language = <span class="macro">language!</span>(<span class="string">&quot;tr&quot;</span>);
-        <span class="kw">const </span>AZ: Language = <span class="macro">language!</span>(<span class="string">&quot;az&quot;</span>);
-        <span class="kw">const </span>LT: Language = <span class="macro">language!</span>(<span class="string">&quot;lt&quot;</span>);
-        <span class="kw">const </span>EL: Language = <span class="macro">language!</span>(<span class="string">&quot;el&quot;</span>);
-        <span class="kw">const </span>NL: Language = <span class="macro">language!</span>(<span class="string">&quot;nl&quot;</span>);
-        <span class="kw">const </span>HY: Language = <span class="macro">language!</span>(<span class="string">&quot;hy&quot;</span>);
+        <span class="kw">const </span>TR: Language = <span class="macro">language!</span>(<span class="string">"tr"</span>);
+        <span class="kw">const </span>AZ: Language = <span class="macro">language!</span>(<span class="string">"az"</span>);
+        <span class="kw">const </span>LT: Language = <span class="macro">language!</span>(<span class="string">"lt"</span>);
+        <span class="kw">const </span>EL: Language = <span class="macro">language!</span>(<span class="string">"el"</span>);
+        <span class="kw">const </span>NL: Language = <span class="macro">language!</span>(<span class="string">"nl"</span>);
+        <span class="kw">const </span>HY: Language = <span class="macro">language!</span>(<span class="string">"hy"</span>);
         <span class="kw">match </span>langid.language {
             TR | AZ =&gt; <span class="self">Self</span>::Turkish,
             LT =&gt; <span class="self">Self</span>::Lithuanian,
@@ -1540,13 +1541,13 @@
     }
 }
 
-<span class="kw">pub enum </span>FullMappingResult&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub enum </span>FullMappingResult&lt;<span class="lifetime">'a</span>&gt; {
     Remove,
     CodePoint(char),
-    String(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str),
+    String(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; FullMappingResult&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FullMappingResult&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[allow(dead_code)]
     </span><span class="kw">fn </span>add_to_set&lt;S: ClosureSink&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, set: <span class="kw-2">&amp;mut </span>S) {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
@@ -1557,7 +1558,7 @@
     }
 }
 
-<span class="kw">impl </span>Writeable <span class="kw">for </span>FullMappingResult&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Writeable <span class="kw">for </span>FullMappingResult&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>write_to&lt;W: fmt::Write + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sink: <span class="kw-2">&amp;mut </span>W) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             FullMappingResult::CodePoint(c) =&gt; sink.write_char(c),
@@ -1567,16 +1568,16 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ContextIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    before: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    after: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ContextIterator&lt;<span class="lifetime">'a</span>&gt; {
+    before: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    after: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ContextIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ContextIterator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="comment">// Returns a context iterator with the characters before
     // and after the character at a given index, given the preceding
     // string and the succeding string including the character itself
-    </span><span class="kw">pub fn </span>new(before: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, char_and_after: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(before: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, char_and_after: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>char_and_after = char_and_after.chars();
         char_and_after.next(); <span class="comment">// skip the character itself
         </span><span class="kw">let </span>after = char_and_after.as_str();
@@ -1617,7 +1618,7 @@
     ) -&gt; bool {
         <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.before.chars().rev();
         <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = iter.next() {
-            <span class="kw">if </span>c == <span class="string">&#39;I&#39; </span>{
+            <span class="kw">if </span>c == <span class="string">'I' </span>{
                 <span class="kw">if </span>I_MUST_NOT_START_STRING {
                     <span class="kw">return </span>iter.next().is_some();
                 } <span class="kw">else </span>{
@@ -1660,7 +1661,7 @@
     </span>}
     <span class="kw">fn </span>followed_by_dot_above(<span class="kw-2">&amp;</span><span class="self">self</span>, mapping: <span class="kw-2">&amp;</span>CaseMapV1) -&gt; bool {
         <span class="kw">for </span>c <span class="kw">in </span><span class="self">self</span>.after.chars() {
-            <span class="kw">if </span>c == <span class="string">&#39;\u{307}&#39; </span>{
+            <span class="kw">if </span>c == <span class="string">'\u{307}' </span>{
                 <span class="kw">return </span><span class="bool-val">true</span>;
             }
             <span class="kw">if </span>mapping.dot_type(c) != DotType::OtherAccent {
@@ -1679,8 +1680,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>i_has_acute = <span class="bool-val">false</span>;
         <span class="kw">loop </span>{
             <span class="kw">match </span>before.next() {
-                <span class="prelude-val">Some</span>(<span class="string">&#39;i&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;I&#39;</span>) =&gt; <span class="kw">break</span>,
-                <span class="prelude-val">Some</span>(<span class="string">&#39;í&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;Í&#39;</span>) =&gt; {
+                <span class="prelude-val">Some</span>(<span class="string">'i'</span>) | <span class="prelude-val">Some</span>(<span class="string">'I'</span>) =&gt; <span class="kw">break</span>,
+                <span class="prelude-val">Some</span>(<span class="string">'í'</span>) | <span class="prelude-val">Some</span>(<span class="string">'Í'</span>) =&gt; {
                     i_has_acute = <span class="bool-val">true</span>;
                     <span class="kw">break</span>;
                 }
@@ -1690,7 +1691,7 @@
         }
 
         <span class="kw">if </span>before.next().is_some() {
-            <span class="comment">// not at the beginning of a string, doesn&#39;t matter
+            <span class="comment">// not at the beginning of a string, doesn't matter
             </span><span class="kw">return </span><span class="bool-val">false</span>;
         }
         <span class="kw">let </span><span class="kw-2">mut </span>j_has_acute = <span class="bool-val">false</span>;

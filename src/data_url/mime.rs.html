@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/data-url-0.3.1/src/mime.rs`."><title>mime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="data_url" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/data-url-0.3.1/src/mime.rs`."><title>mime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="data_url" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -234,12 +235,12 @@
 </span><span class="kw">pub struct </span>MimeParsingError(());
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>MimeParsingError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;invalid mime type&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"invalid mime type"</span>)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>MimeParsingError {}
 
 <span class="doccomment">/// &lt;https://mimesniff.spec.whatwg.org/#parsing-a-mime-type&gt;
@@ -254,10 +255,10 @@
 <span class="kw">fn </span>parse(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Mime&gt; {
     <span class="kw">let </span>trimmed = s.trim_matches(http_whitespace);
 
-    <span class="kw">let </span>(type_, rest) = split2(trimmed, <span class="string">&#39;/&#39;</span>);
+    <span class="kw">let </span>(type_, rest) = split2(trimmed, <span class="string">'/'</span>);
     <span class="macro">require!</span>(only_http_token_code_points(type_) &amp;&amp; !type_.is_empty());
 
-    <span class="kw">let </span>(subtype, rest) = split2(rest<span class="question-mark">?</span>, <span class="string">&#39;;&#39;</span>);
+    <span class="kw">let </span>(subtype, rest) = split2(rest<span class="question-mark">?</span>, <span class="string">';'</span>);
     <span class="kw">let </span>subtype = subtype.trim_end_matches(http_whitespace);
     <span class="macro">require!</span>(only_http_token_code_points(subtype) &amp;&amp; !subtype.is_empty());
 
@@ -280,34 +281,34 @@
 }
 
 <span class="kw">fn </span>parse_parameters(s: <span class="kw-2">&amp;</span>str, parameters: <span class="kw-2">&amp;mut </span>Vec&lt;(String, String)&gt;) {
-    <span class="kw">let </span><span class="kw-2">mut </span>semicolon_separated = s.split(<span class="string">&#39;;&#39;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>semicolon_separated = s.split(<span class="string">';'</span>);
 
     <span class="kw">while let </span><span class="prelude-val">Some</span>(piece) = semicolon_separated.next() {
         <span class="kw">let </span>piece = piece.trim_start_matches(http_whitespace);
-        <span class="kw">let </span>(name, value) = split2(piece, <span class="string">&#39;=&#39;</span>);
+        <span class="kw">let </span>(name, value) = split2(piece, <span class="string">'='</span>);
         <span class="comment">// We can not early return on an invalid name here, because the value
         // parsing later may consume more semicolon seperated pieces.
         </span><span class="kw">let </span>name_valid =
             !name.is_empty() &amp;&amp; only_http_token_code_points(name) &amp;&amp; !contains(parameters, name);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = value {
-            <span class="kw">let </span>value = <span class="kw">if let </span><span class="prelude-val">Some</span>(stripped) = value.strip_prefix(<span class="string">&#39;&quot;&#39;</span>) {
+            <span class="kw">let </span>value = <span class="kw">if let </span><span class="prelude-val">Some</span>(stripped) = value.strip_prefix(<span class="string">'"'</span>) {
                 <span class="kw">let </span>max_len = stripped.len().saturating_sub(<span class="number">1</span>); <span class="comment">// without end quote
                 </span><span class="kw">let </span><span class="kw-2">mut </span>unescaped_value = String::with_capacity(max_len);
                 <span class="kw">let </span><span class="kw-2">mut </span>chars = stripped.chars();
-                <span class="lifetime">&#39;until_closing_quote</span>: <span class="kw">loop </span>{
+                <span class="lifetime">'until_closing_quote</span>: <span class="kw">loop </span>{
                     <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = chars.next() {
                         <span class="kw">match </span>c {
-                            <span class="string">&#39;&quot;&#39; </span>=&gt; <span class="kw">break </span><span class="lifetime">&#39;until_closing_quote</span>,
-                            <span class="string">&#39;\\&#39; </span>=&gt; unescaped_value.push(chars.next().unwrap_or_else(|| {
+                            <span class="string">'"' </span>=&gt; <span class="kw">break </span><span class="lifetime">'until_closing_quote</span>,
+                            <span class="string">'\\' </span>=&gt; unescaped_value.push(chars.next().unwrap_or_else(|| {
                                 semicolon_separated
                                     .next()
                                     .map(|piece| {
                                         <span class="comment">// A semicolon inside a quoted value is not a separator
                                         // for the next parameter, but part of the value.
                                         </span>chars = piece.chars();
-                                        <span class="string">&#39;;&#39;
+                                        <span class="string">';'
                                     </span>})
-                                    .unwrap_or(<span class="string">&#39;\\&#39;</span>)
+                                    .unwrap_or(<span class="string">'\\'</span>)
                             })),
                             <span class="kw">_ </span>=&gt; unescaped_value.push(c),
                         }
@@ -315,7 +316,7 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(piece) = semicolon_separated.next() {
                         <span class="comment">// A semicolon inside a quoted value is not a separator
                         // for the next parameter, but part of the value.
-                        </span>unescaped_value.push(<span class="string">&#39;;&#39;</span>);
+                        </span>unescaped_value.push(<span class="string">';'</span>);
                         chars = piece.chars()
                     } <span class="kw">else </span>{
                         <span class="kw">break</span>;
@@ -347,31 +348,31 @@
 <span class="kw">fn </span>valid_value(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
     s.chars().all(|c| {
         <span class="comment">// &lt;https://mimesniff.spec.whatwg.org/#http-quoted-string-token-code-point&gt;
-        </span><span class="macro">matches!</span>(c, <span class="string">&#39;\t&#39; </span>| <span class="string">&#39; &#39;</span>..=<span class="string">&#39;~&#39; </span>| <span class="string">&#39;\u{80}&#39;</span>..=<span class="string">&#39;\u{FF}&#39;</span>)
+        </span><span class="macro">matches!</span>(c, <span class="string">'\t' </span>| <span class="string">' '</span>..=<span class="string">'~' </span>| <span class="string">'\u{80}'</span>..=<span class="string">'\u{FF}'</span>)
     })
 }
 
 <span class="doccomment">/// &lt;https://mimesniff.spec.whatwg.org/#serializing-a-mime-type&gt;
 </span><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Mime {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.write_str(<span class="kw-2">&amp;</span><span class="self">self</span>.type_)<span class="question-mark">?</span>;
-        f.write_str(<span class="string">&quot;/&quot;</span>)<span class="question-mark">?</span>;
+        f.write_str(<span class="string">"/"</span>)<span class="question-mark">?</span>;
         f.write_str(<span class="kw-2">&amp;</span><span class="self">self</span>.subtype)<span class="question-mark">?</span>;
         <span class="kw">for </span>(name, value) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.parameters {
-            f.write_str(<span class="string">&quot;;&quot;</span>)<span class="question-mark">?</span>;
+            f.write_str(<span class="string">";"</span>)<span class="question-mark">?</span>;
             f.write_str(name)<span class="question-mark">?</span>;
-            f.write_str(<span class="string">&quot;=&quot;</span>)<span class="question-mark">?</span>;
+            f.write_str(<span class="string">"="</span>)<span class="question-mark">?</span>;
             <span class="kw">if </span>only_http_token_code_points(value) &amp;&amp; !value.is_empty() {
                 f.write_str(value)<span class="question-mark">?
             </span>} <span class="kw">else </span>{
-                f.write_str(<span class="string">&quot;\&quot;&quot;</span>)<span class="question-mark">?</span>;
+                f.write_str(<span class="string">"\""</span>)<span class="question-mark">?</span>;
                 <span class="kw">for </span>c <span class="kw">in </span>value.chars() {
-                    <span class="kw">if </span>c == <span class="string">&#39;&quot;&#39; </span>|| c == <span class="string">&#39;\\&#39; </span>{
-                        f.write_str(<span class="string">&quot;\\&quot;</span>)<span class="question-mark">?
+                    <span class="kw">if </span>c == <span class="string">'"' </span>|| c == <span class="string">'\\' </span>{
+                        f.write_str(<span class="string">"\\"</span>)<span class="question-mark">?
                     </span>}
                     f.write_char(c)<span class="question-mark">?
                 </span>}
-                f.write_str(<span class="string">&quot;\&quot;&quot;</span>)<span class="question-mark">?
+                f.write_str(<span class="string">"\""</span>)<span class="question-mark">?
             </span>}
         }
         <span class="prelude-val">Ok</span>(())
@@ -379,7 +380,7 @@
 }
 
 <span class="kw">fn </span>http_whitespace(c: char) -&gt; bool {
-    <span class="macro">matches!</span>(c, <span class="string">&#39; &#39; </span>| <span class="string">&#39;\t&#39; </span>| <span class="string">&#39;\n&#39; </span>| <span class="string">&#39;\r&#39;</span>)
+    <span class="macro">matches!</span>(c, <span class="string">' ' </span>| <span class="string">'\t' </span>| <span class="string">'\n' </span>| <span class="string">'\r'</span>)
 }
 
 <span class="kw">fn </span>only_http_token_code_points(s: <span class="kw-2">&amp;</span>str) -&gt; bool {

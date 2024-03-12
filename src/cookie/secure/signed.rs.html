@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cookie-0.16.2/src/secure/signed.rs`."><title>signed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cookie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cookie-0.16.2/src/secure/signed.rs`."><title>signed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="cookie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -270,7 +271,7 @@
 /// integrity and authenticity. In other words, clients cannot tamper with the
 /// contents of a cookie nor can they fabricate cookie values, but the data is
 /// visible in plaintext.
-</span><span class="attr">#[cfg_attr(all(nightly, doc), doc(cfg(feature = <span class="string">&quot;signed&quot;</span>)))]
+</span><span class="attr">#[cfg_attr(all(nightly, doc), doc(cfg(feature = <span class="string">"signed"</span>)))]
 </span><span class="kw">pub struct </span>SignedJar&lt;J&gt; {
     parent: J,
     key: [u8; KEY_LEN],
@@ -281,39 +282,39 @@
     /// method is typically called indirectly via the `signed{_mut}` methods of
     /// `CookieJar`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(parent: J, key: <span class="kw-2">&amp;</span>Key) -&gt; SignedJar&lt;J&gt; {
-        SignedJar { parent, key: key.signing().try_into().expect(<span class="string">&quot;sign key len&quot;</span>) }
+        SignedJar { parent, key: key.signing().try_into().expect(<span class="string">"sign key len"</span>) }
     }
 
-    <span class="doccomment">/// Signs the cookie&#39;s value providing integrity and authenticity.
+    <span class="doccomment">/// Signs the cookie's value providing integrity and authenticity.
     </span><span class="kw">fn </span>sign_cookie(<span class="kw-2">&amp;</span><span class="self">self</span>, cookie: <span class="kw-2">&amp;mut </span>Cookie) {
-        <span class="comment">// Compute HMAC-SHA256 of the cookie&#39;s value.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>mac = Hmac::&lt;Sha256&gt;::new_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.key).expect(<span class="string">&quot;good key&quot;</span>);
+        <span class="comment">// Compute HMAC-SHA256 of the cookie's value.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>mac = Hmac::&lt;Sha256&gt;::new_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.key).expect(<span class="string">"good key"</span>);
         mac.update(cookie.value().as_bytes());
 
-        <span class="comment">// Cookie&#39;s new value is [MAC | original-value].
+        <span class="comment">// Cookie's new value is [MAC | original-value].
         </span><span class="kw">let </span><span class="kw-2">mut </span>new_value = base64::encode(<span class="kw-2">&amp;</span>mac.finalize().into_bytes());
         new_value.push_str(cookie.value());
         cookie.set_value(new_value);
     }
 
     <span class="doccomment">/// Given a signed value `str` where the signature is prepended to `value`,
-    /// verifies the signed value and returns it. If there&#39;s a problem, returns
+    /// verifies the signed value and returns it. If there's a problem, returns
     /// an `Err` with a string describing the issue.
-    </span><span class="kw">fn </span>_verify(<span class="kw-2">&amp;</span><span class="self">self</span>, cookie_value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    </span><span class="kw">fn </span>_verify(<span class="kw-2">&amp;</span><span class="self">self</span>, cookie_value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">if </span>!cookie_value.is_char_boundary(BASE64_DIGEST_LEN) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;missing or invalid digest&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"missing or invalid digest"</span>);
         }
 
         <span class="comment">// Split [MAC | original-value] into its two parts.
         </span><span class="kw">let </span>(digest_str, value) = cookie_value.split_at(BASE64_DIGEST_LEN);
-        <span class="kw">let </span>digest = base64::decode(digest_str).map_err(|<span class="kw">_</span>| <span class="string">&quot;bad base64 digest&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>digest = base64::decode(digest_str).map_err(|<span class="kw">_</span>| <span class="string">"bad base64 digest"</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Perform the verification.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>mac = Hmac::&lt;Sha256&gt;::new_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.key).expect(<span class="string">&quot;good key&quot;</span>);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>mac = Hmac::&lt;Sha256&gt;::new_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.key).expect(<span class="string">"good key"</span>);
         mac.update(value.as_bytes());
         mac.verify_slice(<span class="kw-2">&amp;</span>digest)
             .map(|<span class="kw">_</span>| value.to_string())
-            .map_err(|<span class="kw">_</span>| <span class="string">&quot;value did not verify&quot;</span>)
+            .map_err(|<span class="kw">_</span>| <span class="string">"value did not verify"</span>)
     }
 
     <span class="doccomment">/// Verifies the authenticity and integrity of `cookie`, returning the
@@ -328,20 +329,20 @@
     ///
     /// let key = Key::generate();
     /// let mut jar = CookieJar::new();
-    /// assert!(jar.signed(&amp;key).get(&quot;name&quot;).is_none());
+    /// assert!(jar.signed(&amp;key).get("name").is_none());
     ///
-    /// jar.signed_mut(&amp;key).add(Cookie::new(&quot;name&quot;, &quot;value&quot;));
-    /// assert_eq!(jar.signed(&amp;key).get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);
+    /// jar.signed_mut(&amp;key).add(Cookie::new("name", "value"));
+    /// assert_eq!(jar.signed(&amp;key).get("name").unwrap().value(), "value");
     ///
-    /// let plain = jar.get(&quot;name&quot;).cloned().unwrap();
-    /// assert_ne!(plain.value(), &quot;value&quot;);
+    /// let plain = jar.get("name").cloned().unwrap();
+    /// assert_ne!(plain.value(), "value");
     /// let verified = jar.signed(&amp;key).verify(plain).unwrap();
-    /// assert_eq!(verified.value(), &quot;value&quot;);
+    /// assert_eq!(verified.value(), "value");
     ///
-    /// let plain = Cookie::new(&quot;plaintext&quot;, &quot;hello&quot;);
+    /// let plain = Cookie::new("plaintext", "hello");
     /// assert!(jar.signed(&amp;key).verify(plain).is_none());
     /// ```
-    </span><span class="kw">pub fn </span>verify(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>cookie: Cookie&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">&#39;static</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>verify(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>cookie: Cookie&lt;<span class="lifetime">'static</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">'static</span>&gt;&gt; {
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(value) = <span class="self">self</span>._verify(cookie.value()) {
             cookie.set_value(value);
             <span class="kw">return </span><span class="prelude-val">Some</span>(cookie);
@@ -353,7 +354,7 @@
 
 <span class="kw">impl</span>&lt;J: Borrow&lt;CookieJar&gt;&gt; SignedJar&lt;J&gt; {
     <span class="doccomment">/// Returns a reference to the `Cookie` inside this jar with the name `name`
-    /// and verifies the authenticity and integrity of the cookie&#39;s value,
+    /// and verifies the authenticity and integrity of the cookie's value,
     /// returning a `Cookie` with the authenticated value. If the cookie cannot
     /// be found, or the cookie fails to verify, `None` is returned.
     ///
@@ -364,20 +365,20 @@
     ///
     /// let key = Key::generate();
     /// let jar = CookieJar::new();
-    /// assert!(jar.signed(&amp;key).get(&quot;name&quot;).is_none());
+    /// assert!(jar.signed(&amp;key).get("name").is_none());
     ///
     /// let mut jar = jar;
     /// let mut signed_jar = jar.signed_mut(&amp;key);
-    /// signed_jar.add(Cookie::new(&quot;name&quot;, &quot;value&quot;));
-    /// assert_eq!(signed_jar.get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);
+    /// signed_jar.add(Cookie::new("name", "value"));
+    /// assert_eq!(signed_jar.get("name").unwrap().value(), "value");
     /// ```
-    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">&#39;static</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">'static</span>&gt;&gt; {
         <span class="self">self</span>.parent.borrow().get(name).and_then(|c| <span class="self">self</span>.verify(c.clone()))
     }
 }
 
 <span class="kw">impl</span>&lt;J: BorrowMut&lt;CookieJar&gt;&gt; SignedJar&lt;J&gt; {
-    <span class="doccomment">/// Adds `cookie` to the parent jar. The cookie&#39;s value is signed assuring
+    <span class="doccomment">/// Adds `cookie` to the parent jar. The cookie's value is signed assuring
     /// integrity and authenticity.
     ///
     /// # Example
@@ -387,21 +388,21 @@
     ///
     /// let key = Key::generate();
     /// let mut jar = CookieJar::new();
-    /// jar.signed_mut(&amp;key).add(Cookie::new(&quot;name&quot;, &quot;value&quot;));
+    /// jar.signed_mut(&amp;key).add(Cookie::new("name", "value"));
     ///
-    /// assert_ne!(jar.get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);
-    /// assert!(jar.get(&quot;name&quot;).unwrap().value().contains(&quot;value&quot;));
-    /// assert_eq!(jar.signed(&amp;key).get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);
+    /// assert_ne!(jar.get("name").unwrap().value(), "value");
+    /// assert!(jar.get("name").unwrap().value().contains("value"));
+    /// assert_eq!(jar.signed(&amp;key).get("name").unwrap().value(), "value");
     /// ```
-    </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>cookie: Cookie&lt;<span class="lifetime">&#39;static</span>&gt;) {
+    </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>cookie: Cookie&lt;<span class="lifetime">'static</span>&gt;) {
         <span class="self">self</span>.sign_cookie(<span class="kw-2">&amp;mut </span>cookie);
         <span class="self">self</span>.parent.borrow_mut().add(cookie);
     }
 
-    <span class="doccomment">/// Adds an &quot;original&quot; `cookie` to this jar. The cookie&#39;s value is signed
+    <span class="doccomment">/// Adds an "original" `cookie` to this jar. The cookie's value is signed
     /// assuring integrity and authenticity. Adding an original cookie does not
     /// affect the [`CookieJar::delta()`] computation. This method is intended
-    /// to be used to seed the cookie jar with cookies received from a client&#39;s
+    /// to be used to seed the cookie jar with cookies received from a client's
     /// HTTP message.
     ///
     /// For accurate `delta` computations, this method should not be called
@@ -414,12 +415,12 @@
     ///
     /// let key = Key::generate();
     /// let mut jar = CookieJar::new();
-    /// jar.signed_mut(&amp;key).add_original(Cookie::new(&quot;name&quot;, &quot;value&quot;));
+    /// jar.signed_mut(&amp;key).add_original(Cookie::new("name", "value"));
     ///
     /// assert_eq!(jar.iter().count(), 1);
     /// assert_eq!(jar.delta().count(), 0);
     /// ```
-    </span><span class="kw">pub fn </span>add_original(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>cookie: Cookie&lt;<span class="lifetime">&#39;static</span>&gt;) {
+    </span><span class="kw">pub fn </span>add_original(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>cookie: Cookie&lt;<span class="lifetime">'static</span>&gt;) {
         <span class="self">self</span>.sign_cookie(<span class="kw-2">&amp;mut </span>cookie);
         <span class="self">self</span>.parent.borrow_mut().add_original(cookie);
     }
@@ -429,7 +430,7 @@
     /// For correct removal, the passed in `cookie` must contain the same `path`
     /// and `domain` as the cookie that was initially set.
     ///
-    /// This is identical to [`CookieJar::remove()`]. See the method&#39;s
+    /// This is identical to [`CookieJar::remove()`]. See the method's
     /// documentation for more details.
     ///
     /// # Example
@@ -441,13 +442,13 @@
     /// let mut jar = CookieJar::new();
     /// let mut signed_jar = jar.signed_mut(&amp;key);
     ///
-    /// signed_jar.add(Cookie::new(&quot;name&quot;, &quot;value&quot;));
-    /// assert!(signed_jar.get(&quot;name&quot;).is_some());
+    /// signed_jar.add(Cookie::new("name", "value"));
+    /// assert!(signed_jar.get("name").is_some());
     ///
-    /// signed_jar.remove(Cookie::named(&quot;name&quot;));
-    /// assert!(signed_jar.get(&quot;name&quot;).is_none());
+    /// signed_jar.remove(Cookie::named("name"));
+    /// assert!(signed_jar.get("name").is_none());
     /// ```
-    </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cookie: Cookie&lt;<span class="lifetime">&#39;static</span>&gt;) {
+    </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cookie: Cookie&lt;<span class="lifetime">'static</span>&gt;) {
         <span class="self">self</span>.parent.borrow_mut().remove(cookie);
     }
 }
@@ -472,7 +473,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>roundtrip() {
-        <span class="comment">// Secret is SHA-256 hash of &#39;Super secret!&#39; passed through HKDF-SHA256.
+        <span class="comment">// Secret is SHA-256 hash of 'Super secret!' passed through HKDF-SHA256.
         </span><span class="kw">let </span>key = Key::from(<span class="kw-2">&amp;</span>[<span class="number">89</span>, <span class="number">202</span>, <span class="number">200</span>, <span class="number">125</span>, <span class="number">230</span>, <span class="number">90</span>, <span class="number">197</span>, <span class="number">245</span>, <span class="number">166</span>, <span class="number">249</span>,
             <span class="number">34</span>, <span class="number">169</span>, <span class="number">135</span>, <span class="number">31</span>, <span class="number">20</span>, <span class="number">197</span>, <span class="number">94</span>, <span class="number">154</span>, <span class="number">254</span>, <span class="number">79</span>, <span class="number">60</span>, <span class="number">26</span>, <span class="number">8</span>, <span class="number">143</span>, <span class="number">254</span>,
             <span class="number">24</span>, <span class="number">116</span>, <span class="number">138</span>, <span class="number">92</span>, <span class="number">225</span>, <span class="number">159</span>, <span class="number">60</span>, <span class="number">157</span>, <span class="number">41</span>, <span class="number">135</span>, <span class="number">129</span>, <span class="number">31</span>, <span class="number">226</span>, <span class="number">196</span>, <span class="number">16</span>,
@@ -480,20 +481,20 @@
             <span class="number">10</span>, <span class="number">180</span>, <span class="number">170</span>, <span class="number">187</span>, <span class="number">89</span>, <span class="number">252</span>, <span class="number">137</span>, <span class="number">110</span>, <span class="number">107</span>]);
 
         <span class="kw">let </span><span class="kw-2">mut </span>jar = CookieJar::new();
-        jar.add(Cookie::new(<span class="string">&quot;signed_with_ring014&quot;</span>,
-                <span class="string">&quot;3tdHXEQ2kf6fxC7dWzBGmpSLMtJenXLKrZ9cHkSsl1w=Tamper-proof&quot;</span>));
-        jar.add(Cookie::new(<span class="string">&quot;signed_with_ring016&quot;</span>,
-                <span class="string">&quot;3tdHXEQ2kf6fxC7dWzBGmpSLMtJenXLKrZ9cHkSsl1w=Tamper-proof&quot;</span>));
+        jar.add(Cookie::new(<span class="string">"signed_with_ring014"</span>,
+                <span class="string">"3tdHXEQ2kf6fxC7dWzBGmpSLMtJenXLKrZ9cHkSsl1w=Tamper-proof"</span>));
+        jar.add(Cookie::new(<span class="string">"signed_with_ring016"</span>,
+                <span class="string">"3tdHXEQ2kf6fxC7dWzBGmpSLMtJenXLKrZ9cHkSsl1w=Tamper-proof"</span>));
 
         <span class="kw">let </span>signed = jar.signed(<span class="kw-2">&amp;</span>key);
-        <span class="macro">assert_eq!</span>(signed.get(<span class="string">&quot;signed_with_ring014&quot;</span>).unwrap().value(), <span class="string">&quot;Tamper-proof&quot;</span>);
-        <span class="macro">assert_eq!</span>(signed.get(<span class="string">&quot;signed_with_ring016&quot;</span>).unwrap().value(), <span class="string">&quot;Tamper-proof&quot;</span>);
+        <span class="macro">assert_eq!</span>(signed.get(<span class="string">"signed_with_ring014"</span>).unwrap().value(), <span class="string">"Tamper-proof"</span>);
+        <span class="macro">assert_eq!</span>(signed.get(<span class="string">"signed_with_ring016"</span>).unwrap().value(), <span class="string">"Tamper-proof"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>issue_178() {
-        <span class="kw">let </span>data = <span class="string">&quot;x=yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy£&quot;</span>;
-        <span class="kw">let </span>c = Cookie::parse(data).expect(<span class="string">&quot;failed to parse cookie&quot;</span>);
+        <span class="kw">let </span>data = <span class="string">"x=yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy£"</span>;
+        <span class="kw">let </span>c = Cookie::parse(data).expect(<span class="string">"failed to parse cookie"</span>);
         <span class="kw">let </span>key = Key::from(<span class="kw-2">&amp;</span>[<span class="number">0u8</span>; <span class="number">64</span>]);
         <span class="kw">let </span><span class="kw-2">mut </span>jar = CookieJar::new();
         <span class="kw">let </span>signed = jar.signed_mut(<span class="kw-2">&amp;</span>key);

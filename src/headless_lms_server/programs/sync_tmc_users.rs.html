@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/sync_tmc_users.rs`."><title>sync_tmc_users.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/sync_tmc_users.rs`."><title>sync_tmc_users.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -166,7 +167,7 @@ Syncs tmc users
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>sqlx::{PgConnection, PgPool};
 
-<span class="kw">const </span>URL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;https://tmc.mooc.fi/api/v8/users/recently_changed_user_details&quot;</span>;
+<span class="kw">const </span>URL: <span class="kw-2">&amp;</span>str = <span class="string">"https://tmc.mooc.fi/api/v8/users/recently_changed_user_details"</span>;
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>TMCRecentChanges {
@@ -184,11 +185,11 @@ Syncs tmc users
 }
 
 <span class="kw">pub async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
-    env::set_var(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,actix_web=info,sqlx=warn&quot;</span>);
+    env::set_var(<span class="string">"RUST_LOG"</span>, <span class="string">"info,actix_web=info,sqlx=warn"</span>);
     dotenv().ok();
     setup_tracing()<span class="question-mark">?</span>;
-    <span class="kw">let </span>database_url = env::var(<span class="string">&quot;DATABASE_URL&quot;</span>)
-        .unwrap_or_else(|<span class="kw">_</span>| <span class="string">&quot;postgres://localhost/headless_lms_dev&quot;</span>.to_string());
+    <span class="kw">let </span>database_url = env::var(<span class="string">"DATABASE_URL"</span>)
+        .unwrap_or_else(|<span class="kw">_</span>| <span class="string">"postgres://localhost/headless_lms_dev"</span>.to_string());
     <span class="kw">let </span>recent_changes = fetch_recently_changed_user_details().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>db_pool = PgPool::connect(<span class="kw-2">&amp;</span>database_url).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -204,26 +205,26 @@ Syncs tmc users
     <span class="kw">let </span><span class="kw-2">mut </span>email_update_list = recent_changes
         .changes
         .iter()
-        .filter(|c| c.change_type == <span class="string">&quot;email_changed&quot;</span>)
+        .filter(|c| c.change_type == <span class="string">"email_changed"</span>)
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-    <span class="macro">info!</span>(<span class="string">&quot;Updating emails for {} users&quot;</span>, email_update_list.len());
+    <span class="macro">info!</span>(<span class="string">"Updating emails for {} users"</span>, email_update_list.len());
     email_update_list.sort_by(|a, b| {
         <span class="kw">let </span>date_a = <span class="kw">match </span>DateTime::parse_from_rfc3339(a.created_at.as_str()) {
             <span class="prelude-val">Ok</span>(val) =&gt; val,
             <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;Error converting date: &#39;{}&#39;&quot;</span>, a.created_at);
-                <span class="macro">error!</span>(<span class="string">&quot;Error: {}&quot;</span>, e);
-                DateTime::parse_from_str(<span class="string">&quot;01.01.1450&quot;</span>, <span class="string">&quot;%d.%m.%Y&quot;</span>).unwrap()
+                <span class="macro">error!</span>(<span class="string">"Error converting date: '{}'"</span>, a.created_at);
+                <span class="macro">error!</span>(<span class="string">"Error: {}"</span>, e);
+                DateTime::parse_from_str(<span class="string">"01.01.1450"</span>, <span class="string">"%d.%m.%Y"</span>).unwrap()
             }
         };
 
         <span class="kw">let </span>date_b = <span class="kw">match </span>DateTime::parse_from_rfc3339(b.created_at.as_str()) {
             <span class="prelude-val">Ok</span>(val) =&gt; val,
             <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;Error converting date: &#39;{}&#39;&quot;</span>, b.created_at);
-                <span class="macro">error!</span>(<span class="string">&quot;Error: {}&quot;</span>, e);
-                DateTime::parse_from_str(<span class="string">&quot;01.01.1450&quot;</span>, <span class="string">&quot;%d.%m.%Y&quot;</span>).unwrap()
+                <span class="macro">error!</span>(<span class="string">"Error converting date: '{}'"</span>, b.created_at);
+                <span class="macro">error!</span>(<span class="string">"Error: {}"</span>, e);
+                DateTime::parse_from_str(<span class="string">"01.01.1450"</span>, <span class="string">"%d.%m.%Y"</span>).unwrap()
             }
         };
 
@@ -235,20 +236,20 @@ Syncs tmc users
             <span class="kw">match </span>update_email_for_user(
                 <span class="kw-2">&amp;mut *</span>conn,
                 <span class="kw-2">&amp;</span>user_id,
-                change.new_value.as_deref().unwrap_or(<span class="string">&quot;unknown&quot;</span>).to_string(),
+                change.new_value.as_deref().unwrap_or(<span class="string">"unknown"</span>).to_string(),
             )
             .<span class="kw">await
             </span>{
                 <span class="prelude-val">Ok</span>(email) =&gt; email,
                 <span class="prelude-val">Err</span>(e) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;Error updating user with id {}&quot;</span>, user_id);
-                    <span class="macro">error!</span>(<span class="string">&quot;Error: {}&quot;</span>, e);
+                    <span class="macro">error!</span>(<span class="string">"Error updating user with id {}"</span>, user_id);
+                    <span class="macro">error!</span>(<span class="string">"Error: {}"</span>, e);
                 }
             };
         };
     }
 
-    <span class="macro">info!</span>(<span class="string">&quot;Update done&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Update done"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
@@ -259,46 +260,46 @@ Syncs tmc users
     <span class="kw">let </span>to_delete = recent_changes
         .changes
         .iter()
-        .filter(|c| c.change_type == <span class="string">&quot;deleted&quot;</span>)
+        .filter(|c| c.change_type == <span class="string">"deleted"</span>)
         .filter_map(|c| c.user_id)
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-    <span class="macro">info!</span>(<span class="string">&quot;Making sure {} users are deleted&quot;</span>, to_delete.len());
+    <span class="macro">info!</span>(<span class="string">"Making sure {} users are deleted"</span>, to_delete.len());
     <span class="kw">let </span>user_ids_in_db = get_users_ids_in_db_from_upstream_ids(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>to_delete).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;{} users need to be deleted&quot;</span>, to_delete.len());
+    <span class="macro">info!</span>(<span class="string">"{} users need to be deleted"</span>, to_delete.len());
     <span class="kw">for </span>id <span class="kw">in </span>user_ids_in_db {
         models::users::delete_user(<span class="kw-2">&amp;mut *</span>conn, id).<span class="kw">await</span><span class="question-mark">?</span>;
     }
-    <span class="macro">info!</span>(<span class="string">&quot;Deletions done&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Deletions done"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">pub async fn </span>fetch_recently_changed_user_details() -&gt; anyhow::Result&lt;TMCRecentChanges&gt; {
-    <span class="kw">let </span>access_token = env::var(<span class="string">&quot;TMC_ACCESS_TOKEN&quot;</span>).expect(<span class="string">&quot;TMC_ACCESS_TOKEN must be defined&quot;</span>);
-    <span class="kw">let </span>ratelimit_api_key = env::var(<span class="string">&quot;RATELIMIT_PROTECTION_SAFE_API_KEY&quot;</span>)
-        .expect(<span class="string">&quot;RATELIMIT_PROTECTION_SAFE_API_KEY must be defined&quot;</span>);
+    <span class="kw">let </span>access_token = env::var(<span class="string">"TMC_ACCESS_TOKEN"</span>).expect(<span class="string">"TMC_ACCESS_TOKEN must be defined"</span>);
+    <span class="kw">let </span>ratelimit_api_key = env::var(<span class="string">"RATELIMIT_PROTECTION_SAFE_API_KEY"</span>)
+        .expect(<span class="string">"RATELIMIT_PROTECTION_SAFE_API_KEY must be defined"</span>);
     <span class="kw">let </span>client = reqwest::Client::new();
     <span class="kw">let </span>res = client
         .get(URL)
-        .header(<span class="string">&quot;RATELIMIT-PROTECTION-SAFE-API-KEY&quot;</span>, ratelimit_api_key)
-        .header(reqwest::header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>)
-        .header(reqwest::header::ACCEPT, <span class="string">&quot;application/json&quot;</span>)
+        .header(<span class="string">"RATELIMIT-PROTECTION-SAFE-API-KEY"</span>, ratelimit_api_key)
+        .header(reqwest::header::CONTENT_TYPE, <span class="string">"application/json"</span>)
+        .header(reqwest::header::ACCEPT, <span class="string">"application/json"</span>)
         .bearer_auth(<span class="kw-2">&amp;</span>access_token)
         .send()
         .<span class="kw">await
-        </span>.context(<span class="string">&quot;Failed to send request to https://tmc.mooc.fi&quot;</span>)<span class="question-mark">?</span>;
+        </span>.context(<span class="string">"Failed to send request to https://tmc.mooc.fi"</span>)<span class="question-mark">?</span>;
     <span class="kw">if </span>res.status().is_success() {
         <span class="kw">let </span>res: TMCRecentChanges = res.json().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">info!</span>(<span class="string">&quot;Fetched {} changes&quot;</span>, res.changes.len());
+        <span class="macro">info!</span>(<span class="string">"Fetched {} changes"</span>, res.changes.len());
         <span class="prelude-val">Ok</span>(res)
     } <span class="kw">else </span>{
         <span class="kw">let </span>response_body = res.bytes().<span class="kw">await</span><span class="question-mark">?</span>.to_vec();
         <span class="kw">let </span>response_body_string = String::from_utf8_lossy(<span class="kw-2">&amp;</span>response_body);
         <span class="macro">error!</span>(
             <span class="question-mark">?</span>response_body_string,
-            <span class="string">&quot;Failed to fetch recently changed user details&quot;</span>,
+            <span class="string">"Failed to fetch recently changed user details"</span>,
         );
         <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(
-            <span class="string">&quot;Failed to get recently changed user details from TMC&quot;
+            <span class="string">"Failed to get recently changed user details from TMC"
         </span>))
     }
 }

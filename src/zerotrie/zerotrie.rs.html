@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/zerotrie.rs`."><title>zerotrie.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/zerotrie.rs`."><title>zerotrie.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -721,11 +722,11 @@
 
 <span class="kw">use </span>core::borrow::Borrow;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use crate</span>::{builder::bytestr::ByteStr, builder::nonconst::ZeroTrieBuilder, error::Error};
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">use </span>alloc::{boxed::Box, collections::BTreeMap, collections::VecDeque, string::String, vec::Vec};
-<span class="attr">#[cfg(feature = <span class="string">&quot;litemap&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"litemap"</span>)]
 </span><span class="kw">use </span>litemap::LiteMap;
 
 <span class="doccomment">/// A data structure that compactly maps from byte sequences to integers.
@@ -762,22 +763,22 @@
 /// use zerotrie::ZeroTrie;
 ///
 /// let mut map = LiteMap::&lt;&amp;[u8], usize&gt;::new_vec();
-/// map.insert(&quot;foo&quot;.as_bytes(), 1);
-/// map.insert(&quot;bar&quot;.as_bytes(), 2);
-/// map.insert(&quot;bazzoo&quot;.as_bytes(), 3);
+/// map.insert("foo".as_bytes(), 1);
+/// map.insert("bar".as_bytes(), 2);
+/// map.insert("bazzoo".as_bytes(), 3);
 ///
 /// let trie = ZeroTrie::try_from(&amp;map)?;
 ///
-/// assert_eq!(trie.get(&quot;foo&quot;), Some(1));
-/// assert_eq!(trie.get(&quot;bar&quot;), Some(2));
-/// assert_eq!(trie.get(&quot;bazzoo&quot;), Some(3));
-/// assert_eq!(trie.get(&quot;unknown&quot;), None);
+/// assert_eq!(trie.get("foo"), Some(1));
+/// assert_eq!(trie.get("bar"), Some(2));
+/// assert_eq!(trie.get("bazzoo"), Some(3));
+/// assert_eq!(trie.get("unknown"), None);
 ///
 /// # Ok::&lt;_, zerotrie::ZeroTrieError&gt;(())
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 </span><span class="comment">// Note: The absence of the following derive does not cause any test failures in this crate
-</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;yoke&quot;</span>, derive(yoke::Yokeable))]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">"yoke"</span>, derive(yoke::Yokeable))]
 </span><span class="kw">pub struct </span>ZeroTrie&lt;Store&gt;(<span class="kw">pub</span>(<span class="kw">crate</span>) ZeroTrieFlavor&lt;Store&gt;);
 
 <span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -798,22 +799,22 @@
 /// use zerotrie::ZeroTrieSimpleAscii;
 ///
 /// let mut map = LiteMap::new_vec();
-/// map.insert(&amp;b&quot;foo&quot;[..], 1);
-/// map.insert(b&quot;bar&quot;, 2);
-/// map.insert(b&quot;bazzoo&quot;, 3);
+/// map.insert(&amp;b"foo"[..], 1);
+/// map.insert(b"bar", 2);
+/// map.insert(b"bazzoo", 3);
 ///
 /// let trie = ZeroTrieSimpleAscii::try_from(&amp;map)?;
 ///
-/// assert_eq!(trie.get(b&quot;foo&quot;), Some(1));
-/// assert_eq!(trie.get(b&quot;bar&quot;), Some(2));
-/// assert_eq!(trie.get(b&quot;bazzoo&quot;), Some(3));
-/// assert_eq!(trie.get(b&quot;unknown&quot;), None);
+/// assert_eq!(trie.get(b"foo"), Some(1));
+/// assert_eq!(trie.get(b"bar"), Some(2));
+/// assert_eq!(trie.get(b"bazzoo"), Some(3));
+/// assert_eq!(trie.get(b"unknown"), None);
 ///
 /// # Ok::&lt;_, zerotrie::ZeroTrieError&gt;(())
 /// ```
 </span><span class="attr">#[repr(transparent)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-#[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerotrie))]
+#[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerotrie))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// databake hidden fields
 </span><span class="kw">pub struct </span>ZeroTrieSimpleAscii&lt;Store: <span class="question-mark">?</span>Sized&gt; {
     <span class="attr">#[doc(hidden)] </span><span class="comment">// for databake, but there are no invariants
@@ -831,22 +832,22 @@
 /// use zerotrie::ZeroTriePerfectHash;
 ///
 /// let mut map = LiteMap::&lt;&amp;[u8], usize&gt;::new_vec();
-/// map.insert(&quot;foo&quot;.as_bytes(), 1);
-/// map.insert(&quot;bår&quot;.as_bytes(), 2);
-/// map.insert(&quot;båzzøø&quot;.as_bytes(), 3);
+/// map.insert("foo".as_bytes(), 1);
+/// map.insert("bår".as_bytes(), 2);
+/// map.insert("båzzøø".as_bytes(), 3);
 ///
 /// let trie = ZeroTriePerfectHash::try_from(&amp;map)?;
 ///
-/// assert_eq!(trie.get(&quot;foo&quot;.as_bytes()), Some(1));
-/// assert_eq!(trie.get(&quot;bår&quot;.as_bytes()), Some(2));
-/// assert_eq!(trie.get(&quot;båzzøø&quot;.as_bytes()), Some(3));
-/// assert_eq!(trie.get(&quot;bazzoo&quot;.as_bytes()), None);
+/// assert_eq!(trie.get("foo".as_bytes()), Some(1));
+/// assert_eq!(trie.get("bår".as_bytes()), Some(2));
+/// assert_eq!(trie.get("båzzøø".as_bytes()), Some(3));
+/// assert_eq!(trie.get("bazzoo".as_bytes()), None);
 ///
 /// # Ok::&lt;_, zerotrie::ZeroTrieError&gt;(())
 /// ```
 </span><span class="attr">#[repr(transparent)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-#[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerotrie))]
+#[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerotrie))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// databake hidden fields
 </span><span class="kw">pub struct </span>ZeroTriePerfectHash&lt;Store: <span class="question-mark">?</span>Sized&gt; {
     <span class="attr">#[doc(hidden)] </span><span class="comment">// for databake, but there are no invariants
@@ -858,7 +859,7 @@
 /// For more information, see [`ZeroTrie`].
 </span><span class="attr">#[repr(transparent)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-#[cfg_attr(feature = <span class="string">&quot;databake&quot;</span>, derive(databake::Bake), databake(path = zerotrie))]
+#[cfg_attr(feature = <span class="string">"databake"</span>, derive(databake::Bake), databake(path = zerotrie))]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// databake hidden fields
 </span><span class="kw">pub struct </span>ZeroTrieExtendedCapacity&lt;Store: <span class="question-mark">?</span>Sized&gt; {
     <span class="attr">#[doc(hidden)] </span><span class="comment">// for databake, but there are no invariants
@@ -885,20 +886,20 @@
             </span><span class="kw">pub fn </span>take_store(<span class="self">self</span>) -&gt; Store {
                 <span class="self">self</span>.store
             }
-            <span class="doccomment">/// Converts this trie&#39;s store to a different store implementing the `From` trait.
+            <span class="doccomment">/// Converts this trie's store to a different store implementing the `From` trait.
             ///
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;For example, use this to change `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;Vec&lt;u8&gt;&gt;` to `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;Cow&lt;[u8]&gt;&gt;`.&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"For example, use this to change `"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;Vec&lt;u8&gt;&gt;` to `"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;Cow&lt;[u8]&gt;&gt;`."</span>)]
             </span><span class="doccomment">///
             /// # Examples
             ///
             /// ```
             /// use std::borrow::Cow;
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;use zerotrie::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;;&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use zerotrie::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">";"</span>)]
             </span><span class="doccomment">///
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;let trie: &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;Vec&lt;u8&gt;&gt; = &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;::from_bytes(b\&quot;abc\\x85\&quot;).to_owned();&quot;</span>)]
-            #[doc = <span class="macro">concat!</span>(<span class="string">&quot;let cow: &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;Cow&lt;[u8]&gt;&gt; = trie.convert_store();&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let trie: "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;Vec&lt;u8&gt;&gt; = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"::from_bytes(b\"abc\\x85\").to_owned();"</span>)]
+            #[doc = <span class="macro">concat!</span>(<span class="string">"let cow: "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;Cow&lt;[u8]&gt;&gt; = trie.convert_store();"</span>)]
             </span><span class="doccomment">///
-            /// assert_eq!(cow.get(b&quot;abc&quot;), Some(5));
+            /// assert_eq!(cow.get(b"abc"), Some(5));
             /// ```
             </span><span class="kw">pub fn </span>convert_store&lt;X: From&lt;Store&gt;&gt;(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$name</span>&lt;X&gt; {
                 <span class="macro-nonterminal">$name</span>::&lt;X&gt;::from_store(X::from(<span class="self">self</span>.store))
@@ -924,10 +925,10 @@
             /// To get the number of keys in the trie, use `.iter().count()`:
             ///
             /// ```
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;use zerotrie::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;;&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use zerotrie::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">";"</span>)]
             </span><span class="doccomment">///
-            /// // A trie with two values: &quot;abc&quot; and &quot;abcdef&quot;
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;let trie: &amp;&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;[u8]&gt; = &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;::from_bytes(b\&quot;abc\\x80def\\x81\&quot;);&quot;</span>)]
+            /// // A trie with two values: "abc" and "abcdef"
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let trie: &amp;"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;[u8]&gt; = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"::from_bytes(b\"abc\\x80def\\x81\");"</span>)]
             </span><span class="doccomment">///
             /// assert_eq!(8, trie.byte_len());
             /// assert_eq!(2, trie.iter().count());
@@ -947,7 +948,7 @@
                 <span class="macro-nonterminal">$name::from_bytes</span>(<span class="self">self</span>.store.as_ref())
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
         </span><span class="kw">impl</span>&lt;Store&gt; <span class="macro-nonterminal">$name</span>&lt;Store&gt;
         <span class="kw">where
         </span>Store: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized,
@@ -959,13 +960,13 @@
             /// # Examples
             ///
             /// ```
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;use zerotrie::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;;&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use zerotrie::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">";"</span>)]
             </span><span class="doccomment">///
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;let trie: &amp;&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;[u8]&gt; = &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;::from_bytes(b\&quot;abc\\x85\&quot;);&quot;</span>)]
-            #[doc = <span class="macro">concat!</span>(<span class="string">&quot;let owned: &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;Vec&lt;u8&gt;&gt; = trie.to_owned();&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let trie: &amp;"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;[u8]&gt; = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"::from_bytes(b\"abc\\x85\");"</span>)]
+            #[doc = <span class="macro">concat!</span>(<span class="string">"let owned: "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;Vec&lt;u8&gt;&gt; = trie.to_owned();"</span>)]
             </span><span class="doccomment">///
-            /// assert_eq!(trie.get(b&quot;abc&quot;), Some(5));
-            /// assert_eq!(owned.get(b&quot;abc&quot;), Some(5));
+            /// assert_eq!(trie.get(b"abc"), Some(5));
+            /// assert_eq!(owned.get(b"abc"), Some(5));
             /// ```
             </span><span class="attr">#[inline]
             </span><span class="kw">pub fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt; {
@@ -980,18 +981,18 @@
             /// # Examples
             ///
             /// ```
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;use zerotrie::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;;&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use zerotrie::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">";"</span>)]
             </span><span class="doccomment">///
-            /// // A trie with two values: &quot;abc&quot; and &quot;abcdef&quot;
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;let trie: &amp;&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;[u8]&gt; = &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;::from_bytes(b\&quot;abc\\x80def\\x81\&quot;);&quot;</span>)]
+            /// // A trie with two values: "abc" and "abcdef"
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let trie: &amp;"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;[u8]&gt; = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"::from_bytes(b\"abc\\x80def\\x81\");"</span>)]
             </span><span class="doccomment">///
             /// let mut it = trie.iter();
-            /// assert_eq!(it.next(), Some((&quot;abc&quot;.into(), 0)));
-            /// assert_eq!(it.next(), Some((&quot;abcdef&quot;.into(), 1)));
+            /// assert_eq!(it.next(), Some(("abc".into(), 0)));
+            /// assert_eq!(it.next(), Some(("abcdef".into(), 1)));
             /// assert_eq!(it.next(), None);
             /// ```
             </span><span class="attr">#[inline]
-            </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (<span class="macro-nonterminal">$iter_ty</span>, usize)&gt; + <span class="lifetime">&#39;_ </span>{
+            </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (<span class="macro-nonterminal">$iter_ty</span>, usize)&gt; + <span class="lifetime">'_ </span>{
                  <span class="macro-nonterminal">$iter_fn</span>(<span class="self">self</span>.as_bytes())
             }
         }
@@ -1005,7 +1006,7 @@
                 </span><span class="kw">unsafe </span>{ core::mem::transmute(trie) }
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
         </span><span class="kw">impl </span><span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt; {
             <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_from_tuple_slice(items: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>ByteStr, usize)]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
                 ZeroTrieBuilder::&lt;VecDeque&lt;u8&gt;&gt;::from_sorted_tuple_slice(
@@ -1017,8 +1018,8 @@
                 })
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-        </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K&gt; FromIterator&lt;(K, usize)&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt;
+        <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+        </span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K&gt; FromIterator&lt;(K, usize)&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt;
         <span class="kw">where
             </span>K: AsRef&lt;[u8]&gt;
         {
@@ -1034,13 +1035,13 @@
                 .unwrap()
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-        </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BTreeMap&lt;K, usize&gt;&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt;
+        <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+        </span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BTreeMap&lt;K, usize&gt;&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt;
         <span class="kw">where
             </span>K: Borrow&lt;[u8]&gt;
         {
             <span class="kw">type </span>Error = <span class="kw">crate</span>::error::Error;
-            <span class="kw">fn </span>try_from(map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BTreeMap&lt;K, usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+            <span class="kw">fn </span>try_from(map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BTreeMap&lt;K, usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
                 <span class="kw">let </span>tuples: Vec&lt;(<span class="kw-2">&amp;</span>[u8], usize)&gt; = map
                     .iter()
                     .map(|(k, v)| (k.borrow(), <span class="kw-2">*</span>v))
@@ -1049,7 +1050,7 @@
                 <span class="self">Self</span>::try_from_tuple_slice(byte_str_slice)
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
         </span><span class="kw">impl</span>&lt;Store&gt; <span class="macro-nonterminal">$name</span>&lt;Store&gt;
         <span class="kw">where
             </span>Store: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized
@@ -1061,15 +1062,15 @@
             /// # Examples
             ///
             /// ```
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;use zerotrie::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;;&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use zerotrie::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">";"</span>)]
             </span><span class="doccomment">/// use std::collections::BTreeMap;
             ///
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;let trie = &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;::from_bytes(b\&quot;abc\\x81def\\x82\&quot;);&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let trie = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"::from_bytes(b\"abc\\x81def\\x82\");"</span>)]
             </span><span class="doccomment">/// let items = trie.to_btreemap();
             ///
             /// assert_eq!(items.len(), 2);
             ///
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;let recovered_trie: &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;Vec&lt;u8&gt;&gt; = items&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let recovered_trie: "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;Vec&lt;u8&gt;&gt; = items"</span>)]
             </span><span class="doccomment">///     .into_iter()
             ///     .collect();
             /// assert_eq!(trie.as_bytes(), recovered_trie.as_bytes());
@@ -1081,7 +1082,7 @@
                 <span class="self">self</span>.iter().map(|(k, v)| (<span class="macro-nonterminal">$cnv_fn</span>(k), v)).collect()
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
         </span><span class="kw">impl</span>&lt;Store&gt; From&lt;<span class="kw-2">&amp;</span><span class="macro-nonterminal">$name</span>&lt;Store&gt;&gt; <span class="kw">for </span>BTreeMap&lt;<span class="macro-nonterminal">$iter_ty</span>, usize&gt;
         <span class="kw">where
             </span>Store: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized,
@@ -1091,14 +1092,14 @@
                 other.to_btreemap()
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;litemap&quot;</span>)]
-        </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K, S&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LiteMap&lt;K, usize, S&gt;&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt;
+        <span class="attr">#[cfg(feature = <span class="string">"litemap"</span>)]
+        </span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, S&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>LiteMap&lt;K, usize, S&gt;&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt;
         <span class="kw">where
             </span>K: Borrow&lt;[u8]&gt;,
-            S: litemap::store::StoreIterable&lt;<span class="lifetime">&#39;a</span>, K, usize&gt;,
+            S: litemap::store::StoreIterable&lt;<span class="lifetime">'a</span>, K, usize&gt;,
         {
             <span class="kw">type </span>Error = <span class="kw">crate</span>::error::Error;
-            <span class="kw">fn </span>try_from(map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LiteMap&lt;K, usize, S&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+            <span class="kw">fn </span>try_from(map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LiteMap&lt;K, usize, S&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
                 <span class="kw">let </span>tuples: Vec&lt;(<span class="kw-2">&amp;</span>[u8], usize)&gt; = map
                     .iter()
                     .map(|(k, v)| (k.borrow(), <span class="kw-2">*</span>v))
@@ -1107,7 +1108,7 @@
                 <span class="self">Self</span>::try_from_tuple_slice(byte_str_slice)
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;litemap&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"litemap"</span>)]
         </span><span class="kw">impl</span>&lt;Store&gt; <span class="macro-nonterminal">$name</span>&lt;Store&gt;
         <span class="kw">where
             </span>Store: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized,
@@ -1119,15 +1120,15 @@
             /// # Examples
             ///
             /// ```
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;use zerotrie::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;;&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use zerotrie::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">";"</span>)]
             </span><span class="doccomment">/// use litemap::LiteMap;
             ///
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;let trie = &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;::from_bytes(b\&quot;abc\\x81def\\x82\&quot;);&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let trie = "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"::from_bytes(b\"abc\\x81def\\x82\");"</span>)]
             </span><span class="doccomment">///
             /// let items = trie.to_litemap();
             /// assert_eq!(items.len(), 2);
             ///
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;let recovered_trie: &quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;Vec&lt;u8&gt;&gt; = items&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let recovered_trie: "</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;Vec&lt;u8&gt;&gt; = items"</span>)]
             </span><span class="doccomment">///     .iter()
             ///     .map(|(k, v)| (k, *v))
             ///     .collect();
@@ -1140,7 +1141,7 @@
                 <span class="self">self</span>.iter().map(|(k, v)| (<span class="macro-nonterminal">$cnv_fn</span>(k), v)).collect()
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;litemap&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"litemap"</span>)]
         </span><span class="kw">impl</span>&lt;Store&gt; From&lt;<span class="kw-2">&amp;</span><span class="macro-nonterminal">$name</span>&lt;Store&gt;&gt; <span class="kw">for </span>LiteMap&lt;<span class="macro-nonterminal">$iter_ty</span>, usize&gt;
         <span class="kw">where
             </span>Store: AsRef&lt;[u8]&gt; + <span class="question-mark">?</span>Sized,
@@ -1150,44 +1151,44 @@
                 other.to_litemap()
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;litemap&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"litemap"</span>)]
         </span><span class="kw">impl </span><span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt;
         {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
             </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_from_serde_litemap(items: <span class="kw-2">&amp;</span>LiteMap&lt;Box&lt;ByteStr&gt;, usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
                 <span class="kw">let </span>lm_borrowed: LiteMap&lt;<span class="kw-2">&amp;</span>ByteStr, usize&gt; = items.to_borrowed_keys();
                 <span class="self">Self</span>::try_from_tuple_slice(lm_borrowed.as_slice())
             }
         }
-        <span class="comment">// Note: Can&#39;t generalize this impl due to the `core::borrow::Borrow` blanket impl.
+        <span class="comment">// Note: Can't generalize this impl due to the `core::borrow::Borrow` blanket impl.
         </span><span class="kw">impl </span>Borrow&lt;<span class="macro-nonterminal">$name</span>&lt;[u8]&gt;&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="macro-nonterminal">$name</span>&lt;[u8]&gt; {
                 <span class="self">self</span>.as_borrowed()
             }
         }
-        <span class="comment">// Note: Can&#39;t generalize this impl due to the `core::borrow::Borrow` blanket impl.
-        </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+        <span class="comment">// Note: Can't generalize this impl due to the `core::borrow::Borrow` blanket impl.
+        </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
         </span><span class="kw">impl </span>Borrow&lt;<span class="macro-nonterminal">$name</span>&lt;[u8]&gt;&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Box&lt;[u8]&gt;&gt; {
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="macro-nonterminal">$name</span>&lt;[u8]&gt; {
                 <span class="self">self</span>.as_borrowed()
             }
         }
-        <span class="comment">// Note: Can&#39;t generalize this impl due to the `core::borrow::Borrow` blanket impl.
-        </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+        <span class="comment">// Note: Can't generalize this impl due to the `core::borrow::Borrow` blanket impl.
+        </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
         </span><span class="kw">impl </span>Borrow&lt;<span class="macro-nonterminal">$name</span>&lt;[u8]&gt;&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Vec&lt;u8&gt;&gt; {
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="macro-nonterminal">$name</span>&lt;[u8]&gt; {
                 <span class="self">self</span>.as_borrowed()
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
         </span><span class="kw">impl </span>alloc::borrow::ToOwned <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;[u8]&gt; {
             <span class="kw">type </span>Owned = <span class="macro-nonterminal">$name</span>&lt;Box&lt;[u8]&gt;&gt;;
-            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;This impl allows [`&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;`] to be used inside of a [`Cow`](alloc::borrow::Cow).&quot;</span>)]
+            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"This impl allows [`"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"`] to be used inside of a [`Cow`](alloc::borrow::Cow)."</span>)]
             </span><span class="doccomment">///
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;Note that it is also possible to use `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;ZeroVec&lt;u8&gt;&gt;` for a similar result.&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Note that it is also possible to use `"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;ZeroVec&lt;u8&gt;&gt;` for a similar result."</span>)]
             </span><span class="doccomment">///
             /// ✨ *Enabled with the `alloc` Cargo feature.*
             ///
@@ -1195,10 +1196,10 @@
             ///
             /// ```
             /// use std::borrow::Cow;
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;use zerotrie::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;;&quot;</span>)]
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"use zerotrie::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">";"</span>)]
             </span><span class="doccomment">///
-            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;let trie: Cow&lt;&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;&lt;[u8]&gt;&gt; = Cow::Borrowed(&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot;::from_bytes(b\&quot;abc\\x85\&quot;));&quot;</span>)]
-            </span><span class="doccomment">/// assert_eq!(trie.get(b&quot;abc&quot;), Some(5));
+            </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"let trie: Cow&lt;"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"&lt;[u8]&gt;&gt; = Cow::Borrowed("</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">"::from_bytes(b\"abc\\x85\"));"</span>)]
+            </span><span class="doccomment">/// assert_eq!(trie.get(b"abc"), Some(5));
             /// ```
             </span><span class="kw">fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Owned {
                 <span class="kw">let </span>bytes: <span class="kw-2">&amp;</span>[u8] = <span class="self">self</span>.store.as_ref();
@@ -1209,7 +1210,7 @@
         }
         <span class="comment">// TODO(#2778): Auto-derive these impls based on the repr(transparent).
         // Safety: $name is repr(transparent) over S, a VarULE
-        </span><span class="attr">#[cfg(feature = <span class="string">&quot;zerovec&quot;</span>)]
+        </span><span class="attr">#[cfg(feature = <span class="string">"zerovec"</span>)]
         </span><span class="kw">unsafe impl</span>&lt;Store&gt; zerovec::ule::VarULE <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Store&gt;
         <span class="kw">where
             </span>Store: zerovec::ule::VarULE,
@@ -1223,20 +1224,20 @@
                 core::mem::transmute(Store::from_byte_slice_unchecked(bytes))
             }
         }
-        <span class="attr">#[cfg(feature = <span class="string">&quot;zerofrom&quot;</span>)]
-        </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>, Store1, Store2&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, <span class="macro-nonterminal">$name</span>&lt;Store1&gt;&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Store2&gt;
+        <span class="attr">#[cfg(feature = <span class="string">"zerofrom"</span>)]
+        </span><span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, Store1, Store2&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, <span class="macro-nonterminal">$name</span>&lt;Store1&gt;&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;Store2&gt;
         <span class="kw">where
-            </span>Store2: zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, Store1&gt;,
+            </span>Store2: zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, Store1&gt;,
         {
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span><span class="macro-nonterminal">$name</span>&lt;Store1&gt;) -&gt; <span class="self">Self </span>{
+            </span><span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span><span class="macro-nonterminal">$name</span>&lt;Store1&gt;) -&gt; <span class="self">Self </span>{
                 <span class="macro-nonterminal">$name::from_store</span>(zerofrom::ZeroFrom::zero_from(<span class="kw-2">&amp;</span>other.store))
             }
         }
     };
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">fn </span>string_to_box_u8(input: String) -&gt; Box&lt;[u8]&gt; {
     input.into_boxed_str().into_boxed_bytes()
 }
@@ -1322,7 +1323,7 @@
     </span><span class="kw">pub fn </span>take_store(<span class="self">self</span>) -&gt; Store {
         <span class="macro">impl_dispatch!</span>(<span class="self">self</span>, take_store())
     }
-    <span class="doccomment">/// Converts this trie&#39;s store to a different store implementing the `From` trait.
+    <span class="doccomment">/// Converts this trie's store to a different store implementing the `From` trait.
     ///
     /// For example, use this to change `ZeroTrie&lt;Vec&lt;u8&gt;&gt;` to `ZeroTrie&lt;Cow&lt;[u8]&gt;&gt;`.
     </span><span class="kw">pub fn </span>convert_store&lt;NewStore&gt;(<span class="self">self</span>) -&gt; ZeroTrie&lt;NewStore&gt;
@@ -1356,7 +1357,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl</span>&lt;Store&gt; ZeroTrie&lt;Store&gt;
 <span class="kw">where
     </span>Store: AsRef&lt;[u8]&gt;,
@@ -1367,7 +1368,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;litemap&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"litemap"</span>)]
 </span><span class="kw">impl</span>&lt;Store&gt; ZeroTrie&lt;Store&gt;
 <span class="kw">where
     </span>Store: AsRef&lt;[u8]&gt;,
@@ -1378,7 +1379,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl </span>ZeroTrie&lt;Vec&lt;u8&gt;&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_from_tuple_slice(items: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>ByteStr, usize)]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span>is_all_ascii = items.iter().all(|(s, <span class="kw">_</span>)| s.is_all_ascii());
@@ -1390,7 +1391,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">impl</span>&lt;K&gt; FromIterator&lt;(K, usize)&gt; <span class="kw">for </span>ZeroTrie&lt;Vec&lt;u8&gt;&gt;
 <span class="kw">where
     </span>K: AsRef&lt;[u8]&gt;,
@@ -1406,7 +1407,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;databake&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"databake"</span>)]
 </span><span class="kw">impl</span>&lt;Store&gt; databake::Bake <span class="kw">for </span>ZeroTrie&lt;Store&gt;
 <span class="kw">where
     </span>Store: databake::Bake,
@@ -1418,12 +1419,12 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;zerofrom&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>, Store1, Store2&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, ZeroTrie&lt;Store1&gt;&gt; <span class="kw">for </span>ZeroTrie&lt;Store2&gt;
+<span class="attr">#[cfg(feature = <span class="string">"zerofrom"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, Store1, Store2&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, ZeroTrie&lt;Store1&gt;&gt; <span class="kw">for </span>ZeroTrie&lt;Store2&gt;
 <span class="kw">where
-    </span>Store2: zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, Store1&gt;,
+    </span>Store2: zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, Store1&gt;,
 {
-    <span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>ZeroTrie&lt;Store1&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>zero_from(other: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>ZeroTrie&lt;Store1&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">use </span>zerofrom::ZeroFrom;
         <span class="macro">impl_dispatch!</span>(<span class="kw-2">&amp;</span>other, ZeroFrom::zero_from())
     }

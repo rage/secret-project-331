@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exams.rs`."><title>exams.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exams.rs`."><title>exams.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -425,7 +426,7 @@
 <span class="kw">use </span>headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 <span class="attr">#[derive(Debug, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>Exam {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>name: String,
@@ -461,7 +462,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>OrgExam {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>name: String,
@@ -475,7 +476,7 @@
 
 <span class="kw">pub async fn </span>get(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;Exam&gt; {
     <span class="kw">let </span>exam = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT exams.id,
   exams.name,
   exams.instructions,
@@ -488,7 +489,7 @@ SELECT exams.id,
 FROM exams
   JOIN pages ON pages.exam_id = exams.id
 WHERE exams.id = $1
-&quot;</span>,
+"</span>,
         id
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
@@ -496,7 +497,7 @@ WHERE exams.id = $1
 
     <span class="kw">let </span>courses = <span class="macro">sqlx::query_as!</span>(
         Course,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id,
   slug,
   courses.created_at,
@@ -517,7 +518,7 @@ FROM courses
 WHERE course_exams.exam_id = $1
   AND courses.deleted_at IS NULL
   AND course_exams.deleted_at IS NULL
-&quot;</span>,
+"</span>,
         id
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -533,12 +534,12 @@ WHERE course_exams.exam_id = $1
         time_minutes: exam.time_minutes,
         courses,
         minimum_points_treshold: exam.minimum_points_treshold,
-        language: exam.language.unwrap_or(<span class="string">&quot;en-US&quot;</span>.to_string()),
+        language: exam.language.unwrap_or(<span class="string">"en-US"</span>.to_string()),
     })
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseExam {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>course_id: Uuid,
@@ -547,7 +548,7 @@ WHERE course_exams.exam_id = $1
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewExam {
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>starts_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
@@ -558,14 +559,14 @@ WHERE course_exams.exam_id = $1
 }
 
 <span class="attr">#[derive(Debug, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExamInstructions {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>instructions: serde_json::Value,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExamInstructionsUpdate {
     <span class="kw">pub </span>instructions: serde_json::Value,
 }
@@ -576,7 +577,7 @@ WHERE course_exams.exam_id = $1
     exam: <span class="kw-2">&amp;</span>NewExam,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exams (
     id,
     name,
@@ -589,7 +590,7 @@ INSERT INTO exams (
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
-        &quot;</span>,
+        "</span>,
         pkey_policy.into_uuid(),
         exam.name,
         serde_json::Value::Array(<span class="macro">vec!</span>[]),
@@ -616,19 +617,19 @@ RETURNING id
     <span class="kw">if </span>time_minutes.map(|i| i &gt; <span class="number">0</span>).unwrap_or_default() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::InvalidRequest,
-            <span class="string">&quot;Exam duration has to be positive&quot;</span>.to_string(),
+            <span class="string">"Exam duration has to be positive"</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE exams
 SET name = COALESCE($2, name),
   starts_at = $3,
   ends_at = $4,
   time_minutes = $5
 WHERE id = $1
-&quot;</span>,
+"</span>,
         id,
         name,
         starts_at,
@@ -646,7 +647,7 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;Vec&lt;OrgExam&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         OrgExam,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id,
   name,
   instructions,
@@ -658,7 +659,7 @@ SELECT id,
 FROM exams
 WHERE exams.organization_id = $1
   AND exams.deleted_at IS NULL
-&quot;</span>,
+"</span>,
         organization
     )
     .fetch_all(conn)
@@ -672,7 +673,7 @@ WHERE exams.organization_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;CourseExam&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         CourseExam,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT exams.id,
   courses.id as course_id,
   courses.name as course_name,
@@ -683,7 +684,7 @@ FROM exams
 WHERE exams.organization_id = $1
   AND exams.deleted_at IS NULL
   AND courses.deleted_at IS NULL
-&quot;</span>,
+"</span>,
         organization
     )
     .fetch_all(conn)
@@ -697,7 +698,7 @@ WHERE exams.organization_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;CourseExam&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         CourseExam,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT exams.id,
   courses.id as course_id,
   courses.name as course_name,
@@ -707,7 +708,7 @@ FROM exams
   JOIN courses ON courses.id = $1
   AND exams.deleted_at IS NULL
   AND courses.deleted_at IS NULL
-&quot;</span>,
+"</span>,
         course
     )
     .fetch_all(conn)
@@ -717,10 +718,10 @@ FROM exams
 
 <span class="kw">pub async fn </span>enroll(conn: <span class="kw-2">&amp;mut </span>PgConnection, exam_id: Uuid, user_id: Uuid) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exam_enrollments (exam_id, user_id)
 VALUES ($1, $2)
-&quot;</span>,
+"</span>,
         exam_id,
         user_id
     )
@@ -741,7 +742,7 @@ VALUES ($1, $2)
         </span>.ok_or_else(|| {
             ModelError::new(
                 ModelErrorType::PreconditionFailed,
-                <span class="string">&quot;User has no enrollment for the exam&quot;</span>.to_string(),
+                <span class="string">"User has no enrollment for the exam"</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })<span class="question-mark">?</span>;
@@ -752,7 +753,7 @@ VALUES ($1, $2)
 }
 
 <span class="attr">#[derive(Debug, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExamEnrollment {
     <span class="kw">pub </span>user_id: Uuid,
     <span class="kw">pub </span>exam_id: Uuid,
@@ -766,7 +767,7 @@ VALUES ($1, $2)
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExamEnrollment&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExamEnrollment,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT user_id,
   exam_id,
   started_at
@@ -774,7 +775,7 @@ FROM exam_enrollments
 WHERE exam_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
-&quot;</span>,
+"</span>,
         exam_id,
         user_id
     )
@@ -785,11 +786,11 @@ WHERE exam_id = $1
 
 <span class="kw">pub async fn </span>get_organization_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, exam_id: Uuid) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>organization_id = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT organization_id
 FROM exams
 WHERE id = $1
-&quot;</span>,
+"</span>,
         exam_id
     )
     .fetch_one(conn)
@@ -804,11 +805,11 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;ExamInstructions&gt; {
     <span class="kw">let </span>exam_instructions_data = <span class="macro">sqlx::query_as!</span>(
         ExamInstructions,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id, instructions
 FROM exams
 WHERE id = $1;
-&quot;</span>,
+"</span>,
         exam_id
     )
     .fetch_one(conn)
@@ -825,13 +826,13 @@ WHERE id = $1;
         serde_json::from_value(instructions_update.instructions)<span class="question-mark">?</span>;
     <span class="kw">let </span>updated_data = <span class="macro">sqlx::query_as!</span>(
         ExamInstructions,
-        <span class="string">&quot;
+        <span class="string">"
     UPDATE exams
     SET instructions = $1
     WHERE id = $2
     RETURNING id,
         instructions
-    &quot;</span>,
+    "</span>,
         serde_json::to_value(parsed_content)<span class="question-mark">?</span>,
         exam_id
     )

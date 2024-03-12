@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-files-0.6.5/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_files" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_files/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_files"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-files-0.6.5/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_files" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_files/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_files"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1046,13 +1047,13 @@
 //! use actix_files::Files;
 //!
 //! let app = App::new()
-//!     .service(Files::new(&quot;/static&quot;, &quot;.&quot;).prefer_utf8(true));
+//!     .service(Files::new("/static", ".").prefer_utf8(true));
 //! ```
 
 </span><span class="attr">#![deny(rust_2018_idioms, nonstandard_style)]
 #![warn(future_incompatible, missing_docs, missing_debug_implementations)]
-#![doc(html_logo_url = <span class="string">&quot;https://actix.rs/img/logo.png&quot;</span>)]
-#![doc(html_favicon_url = <span class="string">&quot;https://actix.rs/favicon.ico&quot;</span>)]
+#![doc(html_logo_url = <span class="string">"https://actix.rs/img/logo.png"</span>)]
+#![doc(html_favicon_url = <span class="string">"https://actix.rs/favicon.ico"</span>)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
 </span><span class="kw">use </span>std::path::Path;
@@ -1096,7 +1097,7 @@
     from_ext(ext).first_or_octet_stream()
 }
 
-<span class="kw">type </span>MimeOverride = <span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>mime::Name&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; DispositionType;
+<span class="kw">type </span>MimeOverride = <span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>mime::Name&lt;<span class="lifetime">'_</span>&gt;) -&gt; DispositionType;
 
 <span class="kw">type </span>PathFilter = <span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>Path, <span class="kw-2">&amp;</span>RequestHead) -&gt; bool;
 
@@ -1127,22 +1128,22 @@
 
     <span class="attr">#[actix_web::test]
     </span><span class="kw">async fn </span>test_file_extension_to_mime() {
-        <span class="kw">let </span>m = file_extension_to_mime(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span>m = file_extension_to_mime(<span class="string">""</span>);
         <span class="macro">assert_eq!</span>(m, mime::APPLICATION_OCTET_STREAM);
 
-        <span class="kw">let </span>m = file_extension_to_mime(<span class="string">&quot;jpg&quot;</span>);
+        <span class="kw">let </span>m = file_extension_to_mime(<span class="string">"jpg"</span>);
         <span class="macro">assert_eq!</span>(m, mime::IMAGE_JPEG);
 
-        <span class="kw">let </span>m = file_extension_to_mime(<span class="string">&quot;invalid extension!!&quot;</span>);
+        <span class="kw">let </span>m = file_extension_to_mime(<span class="string">"invalid extension!!"</span>);
         <span class="macro">assert_eq!</span>(m, mime::APPLICATION_OCTET_STREAM);
 
-        <span class="kw">let </span>m = file_extension_to_mime(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span>m = file_extension_to_mime(<span class="string">""</span>);
         <span class="macro">assert_eq!</span>(m, mime::APPLICATION_OCTET_STREAM);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_if_modified_since_without_if_none_match() {
-        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>since = header::HttpDate::from(SystemTime::now().add(Duration::from_secs(<span class="number">60</span>)));
 
         <span class="kw">let </span>req = TestRequest::default()
@@ -1154,7 +1155,7 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_if_modified_since_without_if_none_match_same() {
-        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>since = file.last_modified().unwrap();
 
         <span class="kw">let </span>req = TestRequest::default()
@@ -1166,11 +1167,11 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_if_modified_since_with_if_none_match() {
-        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>since = header::HttpDate::from(SystemTime::now().add(Duration::from_secs(<span class="number">60</span>)));
 
         <span class="kw">let </span>req = TestRequest::default()
-            .insert_header((header::IF_NONE_MATCH, <span class="string">&quot;miss_etag&quot;</span>))
+            .insert_header((header::IF_NONE_MATCH, <span class="string">"miss_etag"</span>))
             .insert_header((header::IF_MODIFIED_SINCE, since))
             .to_http_request();
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
@@ -1179,7 +1180,7 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_if_unmodified_since() {
-        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>since = file.last_modified().unwrap();
 
         <span class="kw">let </span>req = TestRequest::default()
@@ -1191,7 +1192,7 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_if_unmodified_since_failed() {
-        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>since = header::HttpDate::from(SystemTime::UNIX_EPOCH);
 
         <span class="kw">let </span>req = TestRequest::default()
@@ -1203,8 +1204,8 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_text() {
-        <span class="macro">assert!</span>(NamedFile::open_async(<span class="string">&quot;test--&quot;</span>).<span class="kw">await</span>.is_err());
-        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert!</span>(NamedFile::open_async(<span class="string">"test--"</span>).<span class="kw">await</span>.is_err());
+        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         {
             file.file();
             <span class="kw">let </span>_f: <span class="kw-2">&amp;</span>File = <span class="kw-2">&amp;</span>file;
@@ -1217,18 +1218,18 @@
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;text/x-toml&quot;
+            <span class="string">"text/x-toml"
         </span>);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;inline; filename=\&quot;Cargo.toml\&quot;&quot;
+            <span class="string">"inline; filename=\"Cargo.toml\""
         </span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_content_disposition() {
-        <span class="macro">assert!</span>(NamedFile::open_async(<span class="string">&quot;test--&quot;</span>).<span class="kw">await</span>.is_err());
-        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert!</span>(NamedFile::open_async(<span class="string">"test--"</span>).<span class="kw">await</span>.is_err());
+        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         {
             file.file();
             <span class="kw">let </span>_f: <span class="kw-2">&amp;</span>File = <span class="kw-2">&amp;</span>file;
@@ -1241,10 +1242,10 @@
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;inline; filename=\&quot;Cargo.toml\&quot;&quot;
+            <span class="string">"inline; filename=\"Cargo.toml\""
         </span>);
 
-        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>)
+        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>)
             .<span class="kw">await
             </span>.unwrap()
             .disable_content_disposition();
@@ -1256,18 +1257,18 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_non_ascii_file_name() {
         <span class="kw">let </span>file = {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental-io-uring"</span>)]
             </span>{
-                <span class="kw">crate</span>::named::File::open(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap()
+                <span class="kw">crate</span>::named::File::open(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap()
             }
 
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+            <span class="attr">#[cfg(not(feature = <span class="string">"experimental-io-uring"</span>))]
             </span>{
-                <span class="kw">crate</span>::named::File::open(<span class="string">&quot;Cargo.toml&quot;</span>).unwrap()
+                <span class="kw">crate</span>::named::File::open(<span class="string">"Cargo.toml"</span>).unwrap()
             }
         };
 
-        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::from_file(file, <span class="string">&quot;貨物.toml&quot;</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::from_file(file, <span class="string">"貨物.toml"</span>).unwrap();
         {
             file.file();
             <span class="kw">let </span>_f: <span class="kw-2">&amp;</span>File = <span class="kw-2">&amp;</span>file;
@@ -1280,17 +1281,17 @@
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;text/x-toml&quot;
+            <span class="string">"text/x-toml"
         </span>);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;inline; filename=\&quot;貨物.toml\&quot;; filename*=UTF-8&#39;&#39;%E8%B2%A8%E7%89%A9.toml&quot;
+            <span class="string">"inline; filename=\"貨物.toml\"; filename*=UTF-8''%E8%B2%A8%E7%89%A9.toml"
         </span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_set_content_type() {
-        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>)
             .<span class="kw">await
             </span>.unwrap()
             .set_content_type(mime::TEXT_XML);
@@ -1306,17 +1307,17 @@
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;text/xml&quot;
+            <span class="string">"text/xml"
         </span>);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;inline; filename=\&quot;Cargo.toml\&quot;&quot;
+            <span class="string">"inline; filename=\"Cargo.toml\""
         </span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_image() {
-        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">&quot;tests/test.png&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">"tests/test.png"</span>).<span class="kw">await</span>.unwrap();
         {
             file.file();
             <span class="kw">let </span>_f: <span class="kw-2">&amp;</span>File = <span class="kw-2">&amp;</span>file;
@@ -1329,27 +1330,27 @@
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;image/png&quot;
+            <span class="string">"image/png"
         </span>);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;inline; filename=\&quot;test.png\&quot;&quot;
+            <span class="string">"inline; filename=\"test.png\""
         </span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_javascript() {
-        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">&quot;tests/test.js&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">"tests/test.js"</span>).<span class="kw">await</span>.unwrap();
 
         <span class="kw">let </span>req = TestRequest::default().to_http_request();
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;application/javascript; charset=utf-8&quot;
+            <span class="string">"application/javascript; charset=utf-8"
         </span>);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;inline; filename=\&quot;test.js\&quot;&quot;
+            <span class="string">"inline; filename=\"test.js\""
         </span>);
     }
 
@@ -1357,9 +1358,9 @@
     </span><span class="kw">async fn </span>test_named_file_image_attachment() {
         <span class="kw">let </span>cd = ContentDisposition {
             disposition: DispositionType::Attachment,
-            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(String::from(<span class="string">&quot;test.png&quot;</span>))],
+            parameters: <span class="macro">vec!</span>[DispositionParam::Filename(String::from(<span class="string">"test.png"</span>))],
         };
-        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">&quot;tests/test.png&quot;</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">"tests/test.png"</span>)
             .<span class="kw">await
             </span>.unwrap()
             .set_content_disposition(cd);
@@ -1375,17 +1376,17 @@
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;image/png&quot;
+            <span class="string">"image/png"
         </span>);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;attachment; filename=\&quot;test.png\&quot;&quot;
+            <span class="string">"attachment; filename=\"test.png\""
         </span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_binary() {
-        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">&quot;tests/test.binary&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">"tests/test.binary"</span>).<span class="kw">await</span>.unwrap();
         {
             file.file();
             <span class="kw">let </span>_f: <span class="kw-2">&amp;</span>File = <span class="kw-2">&amp;</span>file;
@@ -1398,23 +1399,23 @@
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;application/octet-stream&quot;
+            <span class="string">"application/octet-stream"
         </span>);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;attachment; filename=\&quot;test.binary\&quot;&quot;
+            <span class="string">"attachment; filename=\"test.binary\""
         </span>);
     }
 
     <span class="attr">#[allow(deprecated)]
     #[actix_rt::test]
     </span><span class="kw">async fn </span>status_code_customize_same_output() {
-        <span class="kw">let </span>file1 = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>)
+        <span class="kw">let </span>file1 = NamedFile::open_async(<span class="string">"Cargo.toml"</span>)
             .<span class="kw">await
             </span>.unwrap()
             .set_status_code(StatusCode::NOT_FOUND);
 
-        <span class="kw">let </span>file2 = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>)
+        <span class="kw">let </span>file2 = NamedFile::open_async(<span class="string">"Cargo.toml"</span>)
             .<span class="kw">await
             </span>.unwrap()
             .customize()
@@ -1430,7 +1431,7 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_status_code_text() {
-        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
 
         {
             file.file();
@@ -1447,63 +1448,63 @@
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;text/x-toml&quot;
+            <span class="string">"text/x-toml"
         </span>);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;inline; filename=\&quot;Cargo.toml\&quot;&quot;
+            <span class="string">"inline; filename=\"Cargo.toml\""
         </span>);
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_mime_override() {
-        <span class="kw">fn </span>all_attachment(<span class="kw">_</span>: <span class="kw-2">&amp;</span>mime::Name&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; DispositionType {
+        <span class="kw">fn </span>all_attachment(<span class="kw">_</span>: <span class="kw-2">&amp;</span>mime::Name&lt;<span class="lifetime">'_</span>&gt;) -&gt; DispositionType {
             DispositionType::Attachment
         }
 
         <span class="kw">let </span>srv = test::init_service(
             App::new().service(
-                Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)
+                Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)
                     .mime_override(all_attachment)
-                    .index_file(<span class="string">&quot;Cargo.toml&quot;</span>),
+                    .index_file(<span class="string">"Cargo.toml"</span>),
             ),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>request = TestRequest::get().uri(<span class="string">&quot;/&quot;</span>).to_request();
+        <span class="kw">let </span>request = TestRequest::get().uri(<span class="string">"/"</span>).to_request();
         <span class="kw">let </span>response = test::call_service(<span class="kw-2">&amp;</span>srv, request).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
 
         <span class="kw">let </span>content_disposition = response
             .headers()
             .get(header::CONTENT_DISPOSITION)
-            .expect(<span class="string">&quot;To have CONTENT_DISPOSITION&quot;</span>);
+            .expect(<span class="string">"To have CONTENT_DISPOSITION"</span>);
         <span class="kw">let </span>content_disposition = content_disposition
             .to_str()
-            .expect(<span class="string">&quot;Convert CONTENT_DISPOSITION to str&quot;</span>);
-        <span class="macro">assert_eq!</span>(content_disposition, <span class="string">&quot;attachment; filename=\&quot;Cargo.toml\&quot;&quot;</span>);
+            .expect(<span class="string">"Convert CONTENT_DISPOSITION to str"</span>);
+        <span class="macro">assert_eq!</span>(content_disposition, <span class="string">"attachment; filename=\"Cargo.toml\""</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_ranges_status_code() {
         <span class="kw">let </span>srv = test::init_service(
-            App::new().service(Files::new(<span class="string">&quot;/test&quot;</span>, <span class="string">&quot;.&quot;</span>).index_file(<span class="string">&quot;Cargo.toml&quot;</span>)),
+            App::new().service(Files::new(<span class="string">"/test"</span>, <span class="string">"."</span>).index_file(<span class="string">"Cargo.toml"</span>)),
         )
         .<span class="kw">await</span>;
 
         <span class="comment">// Valid range header
         </span><span class="kw">let </span>request = TestRequest::get()
-            .uri(<span class="string">&quot;/t%65st/Cargo.toml&quot;</span>)
-            .insert_header((header::RANGE, <span class="string">&quot;bytes=10-20&quot;</span>))
+            .uri(<span class="string">"/t%65st/Cargo.toml"</span>)
+            .insert_header((header::RANGE, <span class="string">"bytes=10-20"</span>))
             .to_request();
         <span class="kw">let </span>response = test::call_service(<span class="kw-2">&amp;</span>srv, request).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::PARTIAL_CONTENT);
 
         <span class="comment">// Invalid range header
         </span><span class="kw">let </span>request = TestRequest::get()
-            .uri(<span class="string">&quot;/t%65st/Cargo.toml&quot;</span>)
-            .insert_header((header::RANGE, <span class="string">&quot;bytes=1-0&quot;</span>))
+            .uri(<span class="string">"/t%65st/Cargo.toml"</span>)
+            .insert_header((header::RANGE, <span class="string">"bytes=1-0"</span>))
             .to_request();
         <span class="kw">let </span>response = test::call_service(<span class="kw-2">&amp;</span>srv, request).<span class="kw">await</span>;
 
@@ -1512,57 +1513,57 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_content_range_headers() {
-        <span class="kw">let </span>srv = actix_test::start(|| App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)));
+        <span class="kw">let </span>srv = actix_test::start(|| App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)));
 
         <span class="comment">// Valid range header
         </span><span class="kw">let </span>response = srv
-            .get(<span class="string">&quot;/tests/test.binary&quot;</span>)
-            .insert_header((header::RANGE, <span class="string">&quot;bytes=10-20&quot;</span>))
+            .get(<span class="string">"/tests/test.binary"</span>)
+            .insert_header((header::RANGE, <span class="string">"bytes=10-20"</span>))
             .send()
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>content_range = response.headers().get(header::CONTENT_RANGE).unwrap();
-        <span class="macro">assert_eq!</span>(content_range.to_str().unwrap(), <span class="string">&quot;bytes 10-20/100&quot;</span>);
+        <span class="macro">assert_eq!</span>(content_range.to_str().unwrap(), <span class="string">"bytes 10-20/100"</span>);
 
         <span class="comment">// Invalid range header
         </span><span class="kw">let </span>response = srv
-            .get(<span class="string">&quot;/tests/test.binary&quot;</span>)
-            .insert_header((header::RANGE, <span class="string">&quot;bytes=10-5&quot;</span>))
+            .get(<span class="string">"/tests/test.binary"</span>)
+            .insert_header((header::RANGE, <span class="string">"bytes=10-5"</span>))
             .send()
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>content_range = response.headers().get(header::CONTENT_RANGE).unwrap();
-        <span class="macro">assert_eq!</span>(content_range.to_str().unwrap(), <span class="string">&quot;bytes */100&quot;</span>);
+        <span class="macro">assert_eq!</span>(content_range.to_str().unwrap(), <span class="string">"bytes */100"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_content_length_headers() {
-        <span class="kw">let </span>srv = actix_test::start(|| App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)));
+        <span class="kw">let </span>srv = actix_test::start(|| App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)));
 
         <span class="comment">// Valid range header
         </span><span class="kw">let </span>response = srv
-            .get(<span class="string">&quot;/tests/test.binary&quot;</span>)
-            .insert_header((header::RANGE, <span class="string">&quot;bytes=10-20&quot;</span>))
+            .get(<span class="string">"/tests/test.binary"</span>)
+            .insert_header((header::RANGE, <span class="string">"bytes=10-20"</span>))
             .send()
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>content_length = response.headers().get(header::CONTENT_LENGTH).unwrap();
-        <span class="macro">assert_eq!</span>(content_length.to_str().unwrap(), <span class="string">&quot;11&quot;</span>);
+        <span class="macro">assert_eq!</span>(content_length.to_str().unwrap(), <span class="string">"11"</span>);
 
         <span class="comment">// Valid range header, starting from 0
         </span><span class="kw">let </span>response = srv
-            .get(<span class="string">&quot;/tests/test.binary&quot;</span>)
-            .insert_header((header::RANGE, <span class="string">&quot;bytes=0-20&quot;</span>))
+            .get(<span class="string">"/tests/test.binary"</span>)
+            .insert_header((header::RANGE, <span class="string">"bytes=0-20"</span>))
             .send()
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>content_length = response.headers().get(header::CONTENT_LENGTH).unwrap();
-        <span class="macro">assert_eq!</span>(content_length.to_str().unwrap(), <span class="string">&quot;21&quot;</span>);
+        <span class="macro">assert_eq!</span>(content_length.to_str().unwrap(), <span class="string">"21"</span>);
 
         <span class="comment">// Without range header
-        </span><span class="kw">let </span><span class="kw-2">mut </span>response = srv.get(<span class="string">&quot;/tests/test.binary&quot;</span>).send().<span class="kw">await</span>.unwrap();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>response = srv.get(<span class="string">"/tests/test.binary"</span>).send().<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>content_length = response.headers().get(header::CONTENT_LENGTH).unwrap();
-        <span class="macro">assert_eq!</span>(content_length.to_str().unwrap(), <span class="string">&quot;100&quot;</span>);
+        <span class="macro">assert_eq!</span>(content_length.to_str().unwrap(), <span class="string">"100"</span>);
 
         <span class="comment">// Should be no transfer-encoding
         </span><span class="kw">let </span>transfer_encoding = response.headers().get(header::TRANSFER_ENCODING);
@@ -1570,15 +1571,15 @@
 
         <span class="comment">// Check file contents
         </span><span class="kw">let </span>bytes = response.body().<span class="kw">await</span>.unwrap();
-        <span class="kw">let </span>data = web::Bytes::from(fs::read(<span class="string">&quot;tests/test.binary&quot;</span>).unwrap());
+        <span class="kw">let </span>data = web::Bytes::from(fs::read(<span class="string">"tests/test.binary"</span>).unwrap());
         <span class="macro">assert_eq!</span>(bytes, data);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_head_content_length_headers() {
-        <span class="kw">let </span>srv = actix_test::start(|| App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)));
+        <span class="kw">let </span>srv = actix_test::start(|| App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)));
 
-        <span class="kw">let </span>response = srv.head(<span class="string">&quot;/tests/test.binary&quot;</span>).send().<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>response = srv.head(<span class="string">"/tests/test.binary"</span>).send().<span class="kw">await</span>.unwrap();
 
         <span class="kw">let </span>content_length = response
             .headers()
@@ -1587,39 +1588,39 @@
             .to_str()
             .unwrap();
 
-        <span class="macro">assert_eq!</span>(content_length, <span class="string">&quot;100&quot;</span>);
+        <span class="macro">assert_eq!</span>(content_length, <span class="string">"100"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_static_files_with_spaces() {
         <span class="kw">let </span>srv =
-            test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).index_file(<span class="string">&quot;Cargo.toml&quot;</span>)))
+            test::init_service(App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>).index_file(<span class="string">"Cargo.toml"</span>)))
                 .<span class="kw">await</span>;
         <span class="kw">let </span>request = TestRequest::get()
-            .uri(<span class="string">&quot;/tests/test%20space.binary&quot;</span>)
+            .uri(<span class="string">"/tests/test%20space.binary"</span>)
             .to_request();
         <span class="kw">let </span>response = test::call_service(<span class="kw-2">&amp;</span>srv, request).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
 
         <span class="kw">let </span>bytes = test::read_body(response).<span class="kw">await</span>;
-        <span class="kw">let </span>data = web::Bytes::from(fs::read(<span class="string">&quot;tests/test space.binary&quot;</span>).unwrap());
+        <span class="kw">let </span>data = web::Bytes::from(fs::read(<span class="string">"tests/test space.binary"</span>).unwrap());
         <span class="macro">assert_eq!</span>(bytes, data);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_static_files_with_special_characters() {
-        <span class="comment">// Create the file we want to test against ad-hoc. We can&#39;t check it in as otherwise
-        // Windows can&#39;t even checkout this repository.
+        <span class="comment">// Create the file we want to test against ad-hoc. We can't check it in as otherwise
+        // Windows can't even checkout this repository.
         </span><span class="kw">let </span>temp_dir = tempfile::tempdir().unwrap();
-        <span class="kw">let </span>file_with_newlines = temp_dir.path().join(<span class="string">&quot;test\n\x0B\x0C\rnewline.text&quot;</span>);
-        fs::write(<span class="kw-2">&amp;</span>file_with_newlines, <span class="string">&quot;Look at my newlines&quot;</span>).unwrap();
+        <span class="kw">let </span>file_with_newlines = temp_dir.path().join(<span class="string">"test\n\x0B\x0C\rnewline.text"</span>);
+        fs::write(<span class="kw-2">&amp;</span>file_with_newlines, <span class="string">"Look at my newlines"</span>).unwrap();
 
         <span class="kw">let </span>srv = test::init_service(
-            App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, temp_dir.path()).index_file(<span class="string">&quot;Cargo.toml&quot;</span>)),
+            App::new().service(Files::new(<span class="string">"/"</span>, temp_dir.path()).index_file(<span class="string">"Cargo.toml"</span>)),
         )
         .<span class="kw">await</span>;
         <span class="kw">let </span>request = TestRequest::get()
-            .uri(<span class="string">&quot;/test%0A%0B%0C%0Dnewline.text&quot;</span>)
+            .uri(<span class="string">"/test%0A%0B%0C%0Dnewline.text"</span>)
             .to_request();
         <span class="kw">let </span>response = test::call_service(<span class="kw-2">&amp;</span>srv, request).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(response.status(), StatusCode::OK);
@@ -1631,20 +1632,20 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_files_not_allowed() {
-        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>))).<span class="kw">await</span>;
+        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>))).<span class="kw">await</span>;
 
         <span class="kw">let </span>req = TestRequest::default()
-            .uri(<span class="string">&quot;/Cargo.toml&quot;</span>)
+            .uri(<span class="string">"/Cargo.toml"</span>)
             .method(Method::POST)
             .to_request();
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::METHOD_NOT_ALLOWED);
 
-        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>))).<span class="kw">await</span>;
+        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>))).<span class="kw">await</span>;
         <span class="kw">let </span>req = TestRequest::default()
             .method(Method::PUT)
-            .uri(<span class="string">&quot;/Cargo.toml&quot;</span>)
+            .uri(<span class="string">"/Cargo.toml"</span>)
             .to_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::METHOD_NOT_ALLOWED);
@@ -1653,12 +1654,12 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_files_guards() {
         <span class="kw">let </span>srv = test::init_service(
-            App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).method_guard(guard::Post())),
+            App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>).method_guard(guard::Post())),
         )
         .<span class="kw">await</span>;
 
         <span class="kw">let </span>req = TestRequest::default()
-            .uri(<span class="string">&quot;/Cargo.toml&quot;</span>)
+            .uri(<span class="string">"/Cargo.toml"</span>)
             .method(Method::POST)
             .to_request();
 
@@ -1669,8 +1670,8 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_content_encoding() {
         <span class="kw">let </span>srv = test::init_service(App::new().wrap(Compress::default()).service(
-            web::resource(<span class="string">&quot;/&quot;</span>).to(|| <span class="kw">async </span>{
-                NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>)
+            web::resource(<span class="string">"/"</span>).to(|| <span class="kw">async </span>{
+                NamedFile::open_async(<span class="string">"Cargo.toml"</span>)
                     .<span class="kw">await
                     </span>.unwrap()
                     .set_content_encoding(header::ContentEncoding::Identity)
@@ -1679,8 +1680,8 @@
         .<span class="kw">await</span>;
 
         <span class="kw">let </span>request = TestRequest::get()
-            .uri(<span class="string">&quot;/&quot;</span>)
-            .insert_header((header::ACCEPT_ENCODING, <span class="string">&quot;gzip&quot;</span>))
+            .uri(<span class="string">"/"</span>)
+            .insert_header((header::ACCEPT_ENCODING, <span class="string">"gzip"</span>))
             .to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, request).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
@@ -1691,8 +1692,8 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_content_encoding_gzip() {
         <span class="kw">let </span>srv = test::init_service(App::new().wrap(Compress::default()).service(
-            web::resource(<span class="string">&quot;/&quot;</span>).to(|| <span class="kw">async </span>{
-                NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>)
+            web::resource(<span class="string">"/"</span>).to(|| <span class="kw">async </span>{
+                NamedFile::open_async(<span class="string">"Cargo.toml"</span>)
                     .<span class="kw">await
                     </span>.unwrap()
                     .set_content_encoding(header::ContentEncoding::Gzip)
@@ -1701,8 +1702,8 @@
         .<span class="kw">await</span>;
 
         <span class="kw">let </span>request = TestRequest::get()
-            .uri(<span class="string">&quot;/&quot;</span>)
-            .insert_header((header::ACCEPT_ENCODING, <span class="string">&quot;gzip&quot;</span>))
+            .uri(<span class="string">"/"</span>)
+            .insert_header((header::ACCEPT_ENCODING, <span class="string">"gzip"</span>))
             .to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, request).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
@@ -1712,14 +1713,14 @@
                 .unwrap()
                 .to_str()
                 .unwrap(),
-            <span class="string">&quot;gzip&quot;
+            <span class="string">"gzip"
         </span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_allowed_method() {
         <span class="kw">let </span>req = TestRequest::default().method(Method::GET).to_http_request();
-        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>file = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>resp = file.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
     }
@@ -1727,79 +1728,79 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_static_files() {
         <span class="kw">let </span>srv =
-            test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).show_files_listing())).<span class="kw">await</span>;
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/missing&quot;</span>).to_request();
+            test::init_service(App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>).show_files_listing())).<span class="kw">await</span>;
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/missing"</span>).to_request();
 
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
 
-        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>))).<span class="kw">await</span>;
+        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>))).<span class="kw">await</span>;
 
         <span class="kw">let </span>req = TestRequest::default().to_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
 
         <span class="kw">let </span>srv =
-            test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).show_files_listing())).<span class="kw">await</span>;
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/tests&quot;</span>).to_request();
+            test::init_service(App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>).show_files_listing())).<span class="kw">await</span>;
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/tests"</span>).to_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;text/html; charset=utf-8&quot;
+            <span class="string">"text/html; charset=utf-8"
         </span>);
 
         <span class="kw">let </span>bytes = test::read_body(resp).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, bytes).contains(<span class="string">&quot;/tests/test.png&quot;</span>));
+        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">"{:?}"</span>, bytes).contains(<span class="string">"/tests/test.png"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_redirect_to_slash_directory() {
         <span class="comment">// should not redirect if no index and files listing is disabled
         </span><span class="kw">let </span>srv = test::init_service(
-            App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>).redirect_to_slash_directory()),
+            App::new().service(Files::new(<span class="string">"/"</span>, <span class="string">"."</span>).redirect_to_slash_directory()),
         )
         .<span class="kw">await</span>;
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/tests&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/tests"</span>).to_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
 
         <span class="comment">// should redirect if index present
         </span><span class="kw">let </span>srv = test::init_service(
             App::new().service(
-                Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)
-                    .index_file(<span class="string">&quot;test.png&quot;</span>)
+                Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)
+                    .index_file(<span class="string">"test.png"</span>)
                     .redirect_to_slash_directory(),
             ),
         )
         .<span class="kw">await</span>;
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/tests&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/tests"</span>).to_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::FOUND);
 
         <span class="comment">// should redirect if files listing is enabled
         </span><span class="kw">let </span>srv = test::init_service(
             App::new().service(
-                Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)
+                Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)
                     .show_files_listing()
                     .redirect_to_slash_directory(),
             ),
         )
         .<span class="kw">await</span>;
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/tests&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/tests"</span>).to_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::FOUND);
 
         <span class="comment">// should not redirect if the path is wrong
-        </span><span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/not_existing&quot;</span>).to_request();
+        </span><span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/not_existing"</span>).to_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_static_files_bad_directory() {
-        <span class="kw">let </span>service = Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;./missing&quot;</span>).new_service(()).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>service = Files::new(<span class="string">"/"</span>, <span class="string">"./missing"</span>).new_service(()).<span class="kw">await</span>.unwrap();
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/&quot;</span>).to_srv_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/"</span>).to_srv_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>service, req).<span class="kw">await</span>;
 
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
@@ -1807,73 +1808,73 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_default_handler_file_missing() {
-        <span class="kw">let </span>st = Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)
+        <span class="kw">let </span>st = Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)
             .default_handler(|req: ServiceRequest| <span class="kw">async </span>{
-                <span class="prelude-val">Ok</span>(req.into_response(HttpResponse::Ok().body(<span class="string">&quot;default content&quot;</span>)))
+                <span class="prelude-val">Ok</span>(req.into_response(HttpResponse::Ok().body(<span class="string">"default content"</span>)))
             })
             .new_service(())
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/missing&quot;</span>).to_srv_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/missing"</span>).to_srv_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>st, req).<span class="kw">await</span>;
 
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
         <span class="kw">let </span>bytes = test::read_body(resp).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(bytes, web::Bytes::from_static(<span class="string">b&quot;default content&quot;</span>));
+        <span class="macro">assert_eq!</span>(bytes, web::Bytes::from_static(<span class="string">b"default content"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_serve_index_nested() {
-        <span class="kw">let </span>service = Files::new(<span class="string">&quot;.&quot;</span>, <span class="string">&quot;.&quot;</span>)
-            .index_file(<span class="string">&quot;lib.rs&quot;</span>)
+        <span class="kw">let </span>service = Files::new(<span class="string">"."</span>, <span class="string">"."</span>)
+            .index_file(<span class="string">"lib.rs"</span>)
             .new_service(())
             .<span class="kw">await
             </span>.unwrap();
 
-        <span class="kw">let </span>req = TestRequest::default().uri(<span class="string">&quot;/src&quot;</span>).to_srv_request();
+        <span class="kw">let </span>req = TestRequest::default().uri(<span class="string">"/src"</span>).to_srv_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>service, req).<span class="kw">await</span>;
 
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;text/x-rust&quot;
+            <span class="string">"text/x-rust"
         </span>);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;inline; filename=\&quot;lib.rs\&quot;&quot;
+            <span class="string">"inline; filename=\"lib.rs\""
         </span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>integration_serve_index() {
         <span class="kw">let </span>srv = test::init_service(
-            App::new().service(Files::new(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;.&quot;</span>).index_file(<span class="string">&quot;Cargo.toml&quot;</span>)),
+            App::new().service(Files::new(<span class="string">"test"</span>, <span class="string">"."</span>).index_file(<span class="string">"Cargo.toml"</span>)),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/test"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
 
         <span class="kw">let </span>bytes = test::read_body(res).<span class="kw">await</span>;
 
-        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">&quot;Cargo.toml&quot;</span>).unwrap());
+        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">"Cargo.toml"</span>).unwrap());
         <span class="macro">assert_eq!</span>(bytes, data);
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test/&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/test/"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
 
         <span class="kw">let </span>bytes = test::read_body(res).<span class="kw">await</span>;
-        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">&quot;Cargo.toml&quot;</span>).unwrap());
+        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">"Cargo.toml"</span>).unwrap());
         <span class="macro">assert_eq!</span>(bytes, data);
 
         <span class="comment">// nonexistent index file
-        </span><span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test/unknown&quot;</span>).to_request();
+        </span><span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/test/unknown"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_FOUND);
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test/unknown/&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/test/unknown/"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_FOUND);
     }
@@ -1881,20 +1882,20 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>integration_percent_encoded() {
         <span class="kw">let </span>srv = test::init_service(
-            App::new().service(Files::new(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;.&quot;</span>).index_file(<span class="string">&quot;Cargo.toml&quot;</span>)),
+            App::new().service(Files::new(<span class="string">"test"</span>, <span class="string">"."</span>).index_file(<span class="string">"Cargo.toml"</span>)),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test/%43argo.toml&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/test/%43argo.toml"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
 
         <span class="comment">// `%2F` == `/`
-        </span><span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test%2Ftest.binary&quot;</span>).to_request();
+        </span><span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/test%2Ftest.binary"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_FOUND);
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test/Cargo.toml%00&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/test/Cargo.toml%00"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_FOUND);
     }
@@ -1903,22 +1904,22 @@
     </span><span class="kw">async fn </span>test_percent_encoding_2() {
         <span class="kw">let </span>temp_dir = tempfile::tempdir().unwrap();
         <span class="kw">let </span>filename = <span class="kw">match </span><span class="macro">cfg!</span>(unix) {
-            <span class="bool-val">true </span>=&gt; <span class="string">&quot;ض:?#[]{}&lt;&gt;()@!$&amp;&#39;`|*+,;= %20\n.test&quot;</span>,
-            <span class="bool-val">false </span>=&gt; <span class="string">&quot;ض#[]{}()@!$&amp;&#39;`+,;= %20.test&quot;</span>,
+            <span class="bool-val">true </span>=&gt; <span class="string">"ض:?#[]{}&lt;&gt;()@!$&amp;'`|*+,;= %20\n.test"</span>,
+            <span class="bool-val">false </span>=&gt; <span class="string">"ض#[]{}()@!$&amp;'`+,;= %20.test"</span>,
         };
         <span class="kw">let </span>filename_encoded = filename
             .as_bytes()
             .iter()
             .fold(String::new(), |<span class="kw-2">mut </span>buf, c| {
-                <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>buf, <span class="string">&quot;%{:02X}&quot;</span>, c).unwrap();
+                <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>buf, <span class="string">"%{:02X}"</span>, c).unwrap();
                 buf
             });
         std::fs::File::create(temp_dir.path().join(filename)).unwrap();
 
-        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">&quot;/&quot;</span>, temp_dir.path()))).<span class="kw">await</span>;
+        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">"/"</span>, temp_dir.path()))).<span class="kw">await</span>;
 
         <span class="kw">let </span>req = TestRequest::get()
-            .uri(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;/{}&quot;</span>, filename_encoded))
+            .uri(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"/{}"</span>, filename_encoded))
             .to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
@@ -1926,152 +1927,152 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_serve_named_file() {
-        <span class="kw">let </span>factory = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>factory = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>srv = test::init_service(App::new().service(factory)).<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/Cargo.toml&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/Cargo.toml"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
 
         <span class="kw">let </span>bytes = test::read_body(res).<span class="kw">await</span>;
-        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">&quot;Cargo.toml&quot;</span>).unwrap());
+        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">"Cargo.toml"</span>).unwrap());
         <span class="macro">assert_eq!</span>(bytes, data);
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test/unknown&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/test/unknown"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_FOUND);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_serve_named_file_prefix() {
-        <span class="kw">let </span>factory = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>factory = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>srv =
-            test::init_service(App::new().service(web::scope(<span class="string">&quot;/test&quot;</span>).service(factory))).<span class="kw">await</span>;
+            test::init_service(App::new().service(web::scope(<span class="string">"/test"</span>).service(factory))).<span class="kw">await</span>;
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test/Cargo.toml&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/test/Cargo.toml"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
 
         <span class="kw">let </span>bytes = test::read_body(res).<span class="kw">await</span>;
-        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">&quot;Cargo.toml&quot;</span>).unwrap());
+        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">"Cargo.toml"</span>).unwrap());
         <span class="macro">assert_eq!</span>(bytes, data);
 
-        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/Cargo.toml&quot;</span>).to_request();
+        <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">"/Cargo.toml"</span>).to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_FOUND);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_named_file_default_service() {
-        <span class="kw">let </span>factory = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>factory = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>srv = test::init_service(App::new().default_service(factory)).<span class="kw">await</span>;
 
-        <span class="kw">for </span>route <span class="kw">in </span>[<span class="string">&quot;/foobar&quot;</span>, <span class="string">&quot;/baz&quot;</span>, <span class="string">&quot;/&quot;</span>].iter() {
+        <span class="kw">for </span>route <span class="kw">in </span>[<span class="string">"/foobar"</span>, <span class="string">"/baz"</span>, <span class="string">"/"</span>].iter() {
             <span class="kw">let </span>req = TestRequest::get().uri(route).to_request();
             <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
             <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
 
             <span class="kw">let </span>bytes = test::read_body(res).<span class="kw">await</span>;
-            <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">&quot;Cargo.toml&quot;</span>).unwrap());
+            <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">"Cargo.toml"</span>).unwrap());
             <span class="macro">assert_eq!</span>(bytes, data);
         }
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_default_handler_named_file() {
-        <span class="kw">let </span>factory = NamedFile::open_async(<span class="string">&quot;Cargo.toml&quot;</span>).<span class="kw">await</span>.unwrap();
-        <span class="kw">let </span>st = Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)
+        <span class="kw">let </span>factory = NamedFile::open_async(<span class="string">"Cargo.toml"</span>).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>st = Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)
             .default_handler(factory)
             .new_service(())
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/missing&quot;</span>).to_srv_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/missing"</span>).to_srv_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>st, req).<span class="kw">await</span>;
 
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
         <span class="kw">let </span>bytes = test::read_body(resp).<span class="kw">await</span>;
-        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">&quot;Cargo.toml&quot;</span>).unwrap());
+        <span class="kw">let </span>data = Bytes::from(fs::read(<span class="string">"Cargo.toml"</span>).unwrap());
         <span class="macro">assert_eq!</span>(bytes, data);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_symlinks() {
-        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;.&quot;</span>))).<span class="kw">await</span>;
+        <span class="kw">let </span>srv = test::init_service(App::new().service(Files::new(<span class="string">"test"</span>, <span class="string">"."</span>))).<span class="kw">await</span>;
 
         <span class="kw">let </span>req = TestRequest::get()
-            .uri(<span class="string">&quot;/test/tests/symlink-test.png&quot;</span>)
+            .uri(<span class="string">"/test/tests/symlink-test.png"</span>)
             .to_request();
         <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(header::CONTENT_DISPOSITION).unwrap(),
-            <span class="string">&quot;inline; filename=\&quot;symlink-test.png\&quot;&quot;
+            <span class="string">"inline; filename=\"symlink-test.png\""
         </span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_index_with_show_files_listing() {
-        <span class="kw">let </span>service = Files::new(<span class="string">&quot;.&quot;</span>, <span class="string">&quot;.&quot;</span>)
-            .index_file(<span class="string">&quot;lib.rs&quot;</span>)
+        <span class="kw">let </span>service = Files::new(<span class="string">"."</span>, <span class="string">"."</span>)
+            .index_file(<span class="string">"lib.rs"</span>)
             .show_files_listing()
             .new_service(())
             .<span class="kw">await
             </span>.unwrap();
 
         <span class="comment">// Serve the index if exists
-        </span><span class="kw">let </span>req = TestRequest::default().uri(<span class="string">&quot;/src&quot;</span>).to_srv_request();
+        </span><span class="kw">let </span>req = TestRequest::default().uri(<span class="string">"/src"</span>).to_srv_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>service, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;text/x-rust&quot;
+            <span class="string">"text/x-rust"
         </span>);
 
         <span class="comment">// Show files listing, otherwise.
-        </span><span class="kw">let </span>req = TestRequest::default().uri(<span class="string">&quot;/tests&quot;</span>).to_srv_request();
+        </span><span class="kw">let </span>req = TestRequest::default().uri(<span class="string">"/tests"</span>).to_srv_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>service, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::CONTENT_TYPE).unwrap(),
-            <span class="string">&quot;text/html; charset=utf-8&quot;
+            <span class="string">"text/html; charset=utf-8"
         </span>);
         <span class="kw">let </span>bytes = test::read_body(resp).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, bytes).contains(<span class="string">&quot;/tests/test.png&quot;</span>));
+        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">"{:?}"</span>, bytes).contains(<span class="string">"/tests/test.png"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_path_filter() {
         <span class="comment">// prevent searching subdirectories
-        </span><span class="kw">let </span>st = Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)
+        </span><span class="kw">let </span>st = Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)
             .path_filter(|path, <span class="kw">_</span>| path.components().count() == <span class="number">1</span>)
             .new_service(())
             .<span class="kw">await
             </span>.unwrap();
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/Cargo.toml&quot;</span>).to_srv_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/Cargo.toml"</span>).to_srv_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>st, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
 
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/src/lib.rs&quot;</span>).to_srv_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/src/lib.rs"</span>).to_srv_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>st, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_default_handler_filter() {
-        <span class="kw">let </span>st = Files::new(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>)
+        <span class="kw">let </span>st = Files::new(<span class="string">"/"</span>, <span class="string">"."</span>)
             .default_handler(|req: ServiceRequest| <span class="kw">async </span>{
-                <span class="prelude-val">Ok</span>(req.into_response(HttpResponse::Ok().body(<span class="string">&quot;default content&quot;</span>)))
+                <span class="prelude-val">Ok</span>(req.into_response(HttpResponse::Ok().body(<span class="string">"default content"</span>)))
             })
-            .path_filter(|path, <span class="kw">_</span>| path.extension() == <span class="prelude-val">Some</span>(<span class="string">&quot;png&quot;</span>.as_ref()))
+            .path_filter(|path, <span class="kw">_</span>| path.extension() == <span class="prelude-val">Some</span>(<span class="string">"png"</span>.as_ref()))
             .new_service(())
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/Cargo.toml&quot;</span>).to_srv_request();
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">"/Cargo.toml"</span>).to_srv_request();
         <span class="kw">let </span>resp = test::call_service(<span class="kw-2">&amp;</span>st, req).<span class="kw">await</span>;
 
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
         <span class="kw">let </span>bytes = test::read_body(resp).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(bytes, web::Bytes::from_static(<span class="string">b&quot;default content&quot;</span>));
+        <span class="macro">assert_eq!</span>(bytes, web::Bytes::from_static(<span class="string">b"default content"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/oauth2-4.4.2/src/helpers.rs`."><title>helpers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oauth2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/oauth2-4.4.2/src/helpers.rs`."><title>helpers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oauth2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -377,16 +378,16 @@
 /// Serde case-insensitive deserializer for an untagged `enum`.
 ///
 /// This function converts values to lowercase before deserializing as the `enum`. Requires the
-/// `#[serde(rename_all = &quot;lowercase&quot;)]` attribute to be set on the `enum`.
+/// `#[serde(rename_all = "lowercase")]` attribute to be set on the `enum`.
 ///
 /// # Example
 ///
 /// In example below, the following JSON values all deserialize to
 /// `GroceryBasket { fruit_item: Fruit::Banana }`:
 ///
-///  * `{&quot;fruit_item&quot;: &quot;banana&quot;}`
-///  * `{&quot;fruit_item&quot;: &quot;BANANA&quot;}`
-///  * `{&quot;fruit_item&quot;: &quot;Banana&quot;}`
+///  * `{"fruit_item": "banana"}`
+///  * `{"fruit_item": "BANANA"}`
+///  * `{"fruit_item": "Banana"}`
 ///
 /// Note: this example does not compile automatically due to
 /// [Rust issue #29286](https://github.com/rust-lang/rust/issues/29286).
@@ -396,7 +397,7 @@
 /// use serde::Deserialize;
 ///
 /// #[derive(Deserialize)]
-/// #[serde(rename_all = &quot;lowercase&quot;)]
+/// #[serde(rename_all = "lowercase")]
 /// enum Fruit {
 ///     Apple,
 ///     Banana,
@@ -405,16 +406,16 @@
 ///
 /// #[derive(Deserialize)]
 /// struct GroceryBasket {
-///     #[serde(deserialize_with = &quot;helpers::deserialize_untagged_enum_case_insensitive&quot;)]
+///     #[serde(deserialize_with = "helpers::deserialize_untagged_enum_case_insensitive")]
 ///     fruit_item: Fruit,
 /// }
 /// # */
 /// ```
 ///
-</span><span class="kw">pub fn </span>deserialize_untagged_enum_case_insensitive&lt;<span class="lifetime">&#39;de</span>, T, D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;T, D::Error&gt;
+</span><span class="kw">pub fn </span>deserialize_untagged_enum_case_insensitive&lt;<span class="lifetime">'de</span>, T, D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;T, D::Error&gt;
 <span class="kw">where
-    </span>T: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+    </span>T: Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
 {
     <span class="kw">use </span>serde::de::Error;
     <span class="kw">use </span>serde_json::Value;
@@ -431,14 +432,14 @@
 ///
 /// # Example
 ///
-/// In example below, the JSON value `{&quot;items&quot;: &quot;foo bar baz&quot;}` would deserialize to:
+/// In example below, the JSON value `{"items": "foo bar baz"}` would deserialize to:
 ///
 /// ```
 /// # struct GroceryBasket {
 /// #     items: Vec&lt;String&gt;,
 /// # }
 /// GroceryBasket {
-///     items: vec![&quot;foo&quot;.to_string(), &quot;bar&quot;.to_string(), &quot;baz&quot;.to_string()]
+///     items: vec!["foo".to_string(), "bar".to_string(), "baz".to_string()]
 /// };
 /// ```
 ///
@@ -451,22 +452,22 @@
 ///
 /// #[derive(Deserialize)]
 /// struct GroceryBasket {
-///     #[serde(deserialize_with = &quot;helpers::deserialize_space_delimited_vec&quot;)]
+///     #[serde(deserialize_with = "helpers::deserialize_space_delimited_vec")]
 ///     items: Vec&lt;String&gt;,
 /// }
 /// # */
 /// ```
 ///
-</span><span class="kw">pub fn </span>deserialize_space_delimited_vec&lt;<span class="lifetime">&#39;de</span>, T, D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;T, D::Error&gt;
+</span><span class="kw">pub fn </span>deserialize_space_delimited_vec&lt;<span class="lifetime">'de</span>, T, D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;T, D::Error&gt;
 <span class="kw">where
-    </span>T: Default + Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
-    D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+    </span>T: Default + Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
 {
     <span class="kw">use </span>serde::de::Error;
     <span class="kw">use </span>serde_json::Value;
     <span class="kw">if let </span><span class="prelude-val">Some</span>(space_delimited) = <span class="prelude-ty">Option</span>::&lt;String&gt;::deserialize(deserializer)<span class="question-mark">? </span>{
         <span class="kw">let </span>entries = space_delimited
-            .split(<span class="string">&#39; &#39;</span>)
+            .split(<span class="string">' '</span>)
             .map(|s| Value::String(s.to_string()))
             .collect();
         T::deserialize(Value::Array(entries)).map_err(Error::custom)
@@ -479,19 +480,19 @@
 <span class="doccomment">///
 /// Deserializes a string or array of strings into an array of strings
 ///
-</span><span class="kw">pub fn </span>deserialize_optional_string_or_vec_string&lt;<span class="lifetime">&#39;de</span>, D&gt;(
+</span><span class="kw">pub fn </span>deserialize_optional_string_or_vec_string&lt;<span class="lifetime">'de</span>, D&gt;(
     deserializer: D,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;, D::Error&gt;
 <span class="kw">where
-    </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+    </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
 {
     <span class="kw">struct </span>StringOrVec(PhantomData&lt;Vec&lt;String&gt;&gt;);
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>StringOrVec {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::Visitor&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>StringOrVec {
         <span class="kw">type </span>Value = <span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;;
 
         <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-            formatter.write_str(<span class="string">&quot;string or list of strings&quot;</span>)
+            formatter.write_str(<span class="string">"string or list of strings"</span>)
         }
 
         <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
@@ -517,7 +518,7 @@
 
         <span class="kw">fn </span>visit_seq&lt;S&gt;(<span class="self">self</span>, visitor: S) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, S::Error&gt;
         <span class="kw">where
-            </span>S: de::SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt;,
+            </span>S: de::SeqAccess&lt;<span class="lifetime">'de</span>&gt;,
         {
             Deserialize::deserialize(de::value::SeqAccessDeserializer::new(visitor)).map(<span class="prelude-val">Some</span>)
         }
@@ -542,7 +543,7 @@
     S: Serializer,
 {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>vec) = <span class="kw-2">*</span>vec_opt {
-        <span class="kw">let </span>space_delimited = vec.iter().map(|s| s.as_ref()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot; &quot;</span>);
+        <span class="kw">let </span>space_delimited = vec.iter().map(|s| s.as_ref()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">" "</span>);
 
         serializer.serialize_str(<span class="kw-2">&amp;</span>space_delimited)
     } <span class="kw">else </span>{
@@ -556,13 +557,13 @@
 /// Source:
 /// [https://github.com/serde-rs/serde/issues/553](https://github.com/serde-rs/serde/issues/553)
 ///
-</span><span class="kw">pub fn </span>variant_name&lt;T: Serialize&gt;(t: <span class="kw-2">&amp;</span>T) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+</span><span class="kw">pub fn </span>variant_name&lt;T: Serialize&gt;(t: <span class="kw-2">&amp;</span>T) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">struct </span>NotEnum;
     <span class="kw">type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, NotEnum&gt;;
     <span class="kw">impl </span>std::error::Error <span class="kw">for </span>NotEnum {
         <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-            <span class="string">&quot;not struct&quot;
+            <span class="string">"not struct"
         </span>}
     }
     <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>NotEnum {
@@ -578,7 +579,7 @@
 
     <span class="kw">struct </span>VariantName;
     <span class="kw">impl </span>Serializer <span class="kw">for </span>VariantName {
-        <span class="kw">type </span><span class="prelude-val">Ok </span>= <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+        <span class="kw">type </span><span class="prelude-val">Ok </span>= <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
         <span class="kw">type </span>Error = NotEnum;
         <span class="kw">type </span>SerializeSeq = Impossible&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;;
         <span class="kw">type </span>SerializeTuple = Impossible&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;;
@@ -638,29 +639,29 @@
         <span class="kw">fn </span>serialize_unit(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok&gt; {
             <span class="prelude-val">Err</span>(NotEnum)
         }
-        <span class="kw">fn </span>serialize_unit_struct(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok&gt; {
+        <span class="kw">fn </span>serialize_unit_struct(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok&gt; {
             <span class="prelude-val">Err</span>(NotEnum)
         }
         <span class="kw">fn </span>serialize_unit_variant(
             <span class="self">self</span>,
-            _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _variant_index: u32,
-            variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok&gt; {
             <span class="prelude-val">Ok</span>(variant)
         }
         <span class="kw">fn </span>serialize_newtype_struct&lt;T: <span class="question-mark">?</span>Sized + Serialize&gt;(
             <span class="self">self</span>,
-            _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _value: <span class="kw-2">&amp;</span>T,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok&gt; {
             <span class="prelude-val">Err</span>(NotEnum)
         }
         <span class="kw">fn </span>serialize_newtype_variant&lt;T: <span class="question-mark">?</span>Sized + Serialize&gt;(
             <span class="self">self</span>,
-            _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _variant_index: u32,
-            variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _value: <span class="kw-2">&amp;</span>T,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok&gt; {
             <span class="prelude-val">Ok</span>(variant)
@@ -673,16 +674,16 @@
         }
         <span class="kw">fn </span>serialize_tuple_struct(
             <span class="self">self</span>,
-            _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _len: usize,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleStruct&gt; {
             <span class="prelude-val">Err</span>(NotEnum)
         }
         <span class="kw">fn </span>serialize_tuple_variant(
             <span class="self">self</span>,
-            _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _variant_index: u32,
-            variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _len: usize,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleVariant&gt; {
             <span class="prelude-val">Ok</span>(Enum(variant))
@@ -692,29 +693,29 @@
         }
         <span class="kw">fn </span>serialize_struct(
             <span class="self">self</span>,
-            _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _len: usize,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStruct&gt; {
             <span class="prelude-val">Err</span>(NotEnum)
         }
         <span class="kw">fn </span>serialize_struct_variant(
             <span class="self">self</span>,
-            _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _variant_index: u32,
-            variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _len: usize,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStructVariant&gt; {
             <span class="prelude-val">Ok</span>(Enum(variant))
         }
     }
 
-    <span class="kw">struct </span>Enum(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str);
+    <span class="kw">struct </span>Enum(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str);
     <span class="kw">impl </span>SerializeStructVariant <span class="kw">for </span>Enum {
-        <span class="kw">type </span><span class="prelude-val">Ok </span>= <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+        <span class="kw">type </span><span class="prelude-val">Ok </span>= <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
         <span class="kw">type </span>Error = NotEnum;
         <span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized + Serialize&gt;(
             <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-            _key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+            _key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
             _value: <span class="kw-2">&amp;</span>T,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
             <span class="prelude-val">Ok</span>(())
@@ -724,7 +725,7 @@
         }
     }
     <span class="kw">impl </span>SerializeTupleVariant <span class="kw">for </span>Enum {
-        <span class="kw">type </span><span class="prelude-val">Ok </span>= <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+        <span class="kw">type </span><span class="prelude-val">Ok </span>= <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
         <span class="kw">type </span>Error = NotEnum;
         <span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized + Serialize&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
             <span class="prelude-val">Ok</span>(())

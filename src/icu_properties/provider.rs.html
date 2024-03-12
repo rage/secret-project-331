@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.4.0/src/provider.rs`."><title>provider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.4.0/src/provider.rs`."><title>provider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -907,7 +908,7 @@
 
 </span><span class="doccomment">//! 🚧 \[Unstable\] Data provider struct definitions for this ICU4X component.
 //!
-//! &lt;div class=&quot;stab unstable&quot;&gt;
+//! &lt;div class="stab unstable"&gt;
 //! 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 //! including in SemVer minor releases. While the serde representation of data structs is guaranteed
 //! to be stable, their Rust representation might not be. Use with caution.
@@ -931,18 +932,18 @@
 
 <span class="kw">use </span>zerovec::{VarZeroVec, ZeroSlice, ZeroVecError};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 #[derive(Debug)]
 </span><span class="doccomment">/// Baked data
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. In particular, the `DataProvider` implementations are only
-/// guaranteed to match with this version&#39;s `*_unstable` providers. Use with caution.
+/// guaranteed to match with this version's `*_unstable` providers. Use with caution.
 /// &lt;/div&gt;
 </span><span class="kw">pub struct </span>Baked;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 </span><span class="kw">const _</span>: () = {
     <span class="kw">pub mod </span>icu {
         <span class="kw">pub use crate as </span>properties;
@@ -1074,22 +1075,22 @@
 /// This data enum is extensible, more backends may be added in the future.
 /// Old data can be used with newer code but not vice versa.
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[derive(Debug, Eq, PartialEq, Clone, yoke::Yokeable, zerofrom::ZeroFrom)]
 #[cfg_attr(
-    feature = <span class="string">&quot;datagen&quot;</span>, 
+    feature = <span class="string">"datagen"</span>, 
     derive(serde::Serialize, databake::Bake),
     databake(path = icu_properties::provider),
 )]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
 #[non_exhaustive]
-</span><span class="kw">pub enum </span>PropertyCodePointSetV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub enum </span>PropertyCodePointSetV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// The set of characters, represented as an inversion list
-    </span>InversionList(<span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))] </span>CodePointInversionList&lt;<span class="lifetime">&#39;data</span>&gt;),
+    </span>InversionList(<span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))] </span>CodePointInversionList&lt;<span class="lifetime">'data</span>&gt;),
     <span class="comment">// new variants should go BELOW existing ones
     // Serde serializes based on variant name and index in the enum
     // https://docs.rs/serde/latest/serde/trait.Serializer.html#tymethod.serialize_unit_variant
@@ -1100,22 +1101,22 @@
 /// This data enum is extensible, more backends may be added in the future.
 /// Old data can be used with newer code but not vice versa.
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[derive(Clone, Debug, Eq, PartialEq, yoke::Yokeable, zerofrom::ZeroFrom)]
 #[cfg_attr(
-    feature = <span class="string">&quot;datagen&quot;</span>, 
+    feature = <span class="string">"datagen"</span>, 
     derive(serde::Serialize, databake::Bake),
     databake(path = icu_properties::provider),
 )]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
 #[non_exhaustive]
-</span><span class="kw">pub enum </span>PropertyCodePointMapV1&lt;<span class="lifetime">&#39;data</span>, T: TrieValue&gt; {
+</span><span class="kw">pub enum </span>PropertyCodePointMapV1&lt;<span class="lifetime">'data</span>, T: TrieValue&gt; {
     <span class="doccomment">/// A codepoint trie storing the data
-    </span>CodePointTrie(<span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))] </span>CodePointTrie&lt;<span class="lifetime">&#39;data</span>, T&gt;),
+    </span>CodePointTrie(<span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))] </span>CodePointTrie&lt;<span class="lifetime">'data</span>, T&gt;),
     <span class="comment">// new variants should go BELOW existing ones
     // Serde serializes based on variant name and index in the enum
     // https://docs.rs/serde/latest/serde/trait.Serializer.html#tymethod.serialize_unit_variant
@@ -1123,30 +1124,30 @@
 
 <span class="doccomment">/// A set of characters and strings which share a particular property value.
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[derive(Debug, Eq, PartialEq, Clone, yoke::Yokeable, zerofrom::ZeroFrom)]
 #[cfg_attr(
-    feature = <span class="string">&quot;datagen&quot;</span>, 
+    feature = <span class="string">"datagen"</span>, 
     derive(serde::Serialize, databake::Bake),
     databake(path = icu_properties::provider),
 )]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
 #[non_exhaustive]
-</span><span class="kw">pub enum </span>PropertyUnicodeSetV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">pub enum </span>PropertyUnicodeSetV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// A set representing characters in an inversion list, and the strings in a list.
     </span>CPInversionListStrList(
-        <span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))] </span>CodePointInversionListAndStringList&lt;<span class="lifetime">&#39;data</span>&gt;,
+        <span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))] </span>CodePointInversionListAndStringList&lt;<span class="lifetime">'data</span>&gt;,
     ),
     <span class="comment">// new variants should go BELOW existing ones
     // Serde serializes based on variant name and index in the enum
     // https://docs.rs/serde/latest/serde/trait.Serializer.html#tymethod.serialize_unit_variant
 </span>}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; PropertyUnicodeSetV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; PropertyUnicodeSetV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
@@ -1170,15 +1171,15 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_code_point_inversion_list_string_list(
-        l: CodePointInversionListAndStringList&lt;<span class="lifetime">&#39;static</span>&gt;,
+        l: CodePointInversionListAndStringList&lt;<span class="lifetime">'static</span>&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::CPInversionListStrList(l)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_code_point_inversion_list_string_list(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>CodePointInversionListAndStringList&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="lifetime">'_ </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>CodePointInversionListAndStringList&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::CPInversionListStrList(<span class="kw-2">ref </span>l) =&gt; <span class="prelude-val">Some</span>(l),
             <span class="comment">// any other backing data structure that cannot return a CPInversionListStrList in O(1) time should return None
@@ -1188,7 +1189,7 @@
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_code_point_inversion_list_string_list(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) -&gt; CodePointInversionListAndStringList&lt;<span class="lifetime">&#39;_</span>&gt; {
+    ) -&gt; CodePointInversionListAndStringList&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::CPInversionListStrList(<span class="kw-2">ref </span>t) =&gt; ZeroFrom::zero_from(t),
         }
@@ -1197,24 +1198,24 @@
 
 <span class="doccomment">/// A struct that efficiently stores `Script` and `Script_Extensions` property data.
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="attr">#[icu_provider::data_struct(marker(
     ScriptWithExtensionsPropertyV1Marker,
-    <span class="string">&quot;props/scx@1&quot;</span>,
+    <span class="string">"props/scx@1"</span>,
     singleton
 ))]
 #[derive(Debug, Eq, PartialEq, Clone)]
 #[cfg_attr(
-    feature = <span class="string">&quot;datagen&quot;</span>, 
+    feature = <span class="string">"datagen"</span>, 
     derive(serde::Serialize, databake::Bake),
     databake(path = icu_properties::provider),
 )]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
-</span><span class="kw">pub struct </span>ScriptWithExtensionsPropertyV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
+</span><span class="kw">pub struct </span>ScriptWithExtensionsPropertyV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="doccomment">/// Note: The `ScriptWithExt` values in this array will assume a 12-bit layout. The 2
     /// higher order bits 11..10 will indicate how to deduce the Script value and
     /// Script_Extensions value, nearly matching the representation
@@ -1229,32 +1230,32 @@
     ///
     /// When the lower 10 bits of the value are used as an index, that index is
     /// used for the outer-level vector of the nested `extensions` structure.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>trie: CodePointTrie&lt;<span class="lifetime">&#39;data</span>, ScriptWithExt&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>trie: CodePointTrie&lt;<span class="lifetime">'data</span>, ScriptWithExt&gt;,
 
     <span class="doccomment">/// This companion structure stores Script_Extensions values, which are
     /// themselves arrays / vectors. This structure only stores the values for
     /// cases in which `scx(cp) != [ sc(cp) ]`. Each sub-vector is distinct. The
     /// sub-vector represents the Script_Extensions array value for a code point,
     /// and may also indicate Script value, as described for the `trie` field.
-    </span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, serde(borrow))]
-    </span><span class="kw">pub </span>extensions: VarZeroVec&lt;<span class="lifetime">&#39;data</span>, ZeroSlice&lt;Script&gt;&gt;,
+    </span><span class="attr">#[cfg_attr(feature = <span class="string">"serde"</span>, serde(borrow))]
+    </span><span class="kw">pub </span>extensions: VarZeroVec&lt;<span class="lifetime">'data</span>, ZeroSlice&lt;Script&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; ScriptWithExtensionsPropertyV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; ScriptWithExtensionsPropertyV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="comment">// This method is intended to be used by constructors of deserialized data
     // in a data provider.
     </span><span class="attr">#[doc(hidden)]
     </span><span class="kw">pub fn </span>new(
-        trie: CodePointTrie&lt;<span class="lifetime">&#39;data</span>, ScriptWithExt&gt;,
-        extensions: VarZeroVec&lt;<span class="lifetime">&#39;data</span>, ZeroSlice&lt;Script&gt;&gt;,
-    ) -&gt; ScriptWithExtensionsPropertyV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+        trie: CodePointTrie&lt;<span class="lifetime">'data</span>, ScriptWithExt&gt;,
+        extensions: VarZeroVec&lt;<span class="lifetime">'data</span>, ZeroSlice&lt;Script&gt;&gt;,
+    ) -&gt; ScriptWithExtensionsPropertyV1&lt;<span class="lifetime">'data</span>&gt; {
         ScriptWithExtensionsPropertyV1 { trie, extensions }
     }
 }
 
 <span class="comment">// See CodePointSetData for documentation of these functions
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>&gt; PropertyCodePointSetV1&lt;<span class="lifetime">&#39;data</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; PropertyCodePointSetV1&lt;<span class="lifetime">'data</span>&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, ch: char) -&gt; bool {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
@@ -1270,7 +1271,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_ranges(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">&#39;_ </span>{
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_ranges(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">'_ </span>{
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::InversionList(<span class="kw-2">ref </span>l) =&gt; l.iter_ranges(),
         }
@@ -1279,21 +1280,21 @@
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_ranges_complemented(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">&#39;_ </span>{
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = RangeInclusive&lt;u32&gt;&gt; + <span class="lifetime">'_ </span>{
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::InversionList(<span class="kw-2">ref </span>l) =&gt; l.iter_ranges_complemented(),
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_code_point_inversion_list(l: CodePointInversionList&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_code_point_inversion_list(l: CodePointInversionList&lt;<span class="lifetime">'static</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::InversionList(l)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_code_point_inversion_list(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>CodePointInversionList&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="lifetime">'_ </span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>CodePointInversionList&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::InversionList(<span class="kw-2">ref </span>l) =&gt; <span class="prelude-val">Some</span>(l),
             <span class="comment">// any other backing data structure that cannot return a CPInvList in O(1) time should return None
@@ -1301,7 +1302,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_code_point_inversion_list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointInversionList&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_code_point_inversion_list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointInversionList&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::InversionList(<span class="kw-2">ref </span>t) =&gt; ZeroFrom::zero_from(t),
         }
@@ -1309,7 +1310,7 @@
 }
 
 <span class="comment">// See CodePointMapData for documentation of these functions
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, T: TrieValue&gt; PropertyCodePointMapV1&lt;<span class="lifetime">&#39;data</span>, T&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, T: TrieValue&gt; PropertyCodePointMapV1&lt;<span class="lifetime">'data</span>, T&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get32(<span class="kw-2">&amp;</span><span class="self">self</span>, ch: u32) -&gt; T {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
@@ -1320,7 +1321,7 @@
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_into_converted&lt;P&gt;(
         <span class="self">self</span>,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;PropertyCodePointMapV1&lt;<span class="lifetime">&#39;data</span>, P&gt;, ZeroVecError&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PropertyCodePointMapV1&lt;<span class="lifetime">'data</span>, P&gt;, ZeroVecError&gt;
     <span class="kw">where
         </span>P: TrieValue,
     {
@@ -1332,35 +1333,35 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_set_for_value(<span class="kw-2">&amp;</span><span class="self">self</span>, value: T) -&gt; CodePointInversionList&lt;<span class="lifetime">&#39;static</span>&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_set_for_value(<span class="kw-2">&amp;</span><span class="self">self</span>, value: T) -&gt; CodePointInversionList&lt;<span class="lifetime">'static</span>&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::CodePointTrie(<span class="kw-2">ref </span>t) =&gt; t.get_set_for_value(value),
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_ranges(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = CodePointMapRange&lt;T&gt;&gt; + <span class="lifetime">&#39;_ </span>{
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_ranges(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = CodePointMapRange&lt;T&gt;&gt; + <span class="lifetime">'_ </span>{
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::CodePointTrie(<span class="kw-2">ref </span>t) =&gt; t.iter_ranges(),
         }
     }
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_ranges_mapped&lt;<span class="lifetime">&#39;a</span>, U: Eq + <span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        map: <span class="kw">impl </span>FnMut(T) -&gt; U + Copy + <span class="lifetime">&#39;a</span>,
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = CodePointMapRange&lt;U&gt;&gt; + <span class="lifetime">&#39;a </span>{
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>iter_ranges_mapped&lt;<span class="lifetime">'a</span>, U: Eq + <span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        map: <span class="kw">impl </span>FnMut(T) -&gt; U + Copy + <span class="lifetime">'a</span>,
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = CodePointMapRange&lt;U&gt;&gt; + <span class="lifetime">'a </span>{
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::CodePointTrie(<span class="kw-2">ref </span>t) =&gt; t.iter_ranges_mapped(map),
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_code_point_trie(trie: CodePointTrie&lt;<span class="lifetime">&#39;static</span>, T&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_code_point_trie(trie: CodePointTrie&lt;<span class="lifetime">'static</span>, T&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::CodePointTrie(trie)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_code_point_trie(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CodePointTrie&lt;<span class="lifetime">&#39;data</span>, T&gt;&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_code_point_trie(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CodePointTrie&lt;<span class="lifetime">'data</span>, T&gt;&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::CodePointTrie(<span class="kw-2">ref </span>t) =&gt; <span class="prelude-val">Some</span>(t),
             <span class="comment">// any other backing data structure that cannot return a CPT in O(1) time should return None
@@ -1368,7 +1369,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_code_point_trie(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointTrie&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_code_point_trie(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CodePointTrie&lt;<span class="lifetime">'_</span>, T&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::CodePointTrie(<span class="kw-2">ref </span>t) =&gt; ZeroFrom::zero_from(t),
         }
@@ -1391,20 +1392,20 @@
             <span class="comment">// Data keys that return code point sets (represented as CodePointSetData).
             // For now, synonymous with binary properties of code points only.
             </span>$(
-                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for the &#39;&quot;</span>, <span class="macro-nonterminal">$bin_cp_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for the '"</span>, <span class="macro-nonterminal">$bin_cp_s</span>, <span class="string">"' Unicode property"</span>)]
                 #[derive(Debug, Default)]
                 #[cfg_attr(
-                    feature = <span class="string">&quot;datagen&quot;</span>,
+                    feature = <span class="string">"datagen"</span>,
                     derive(databake::Bake),
                     databake(path = icu_properties::provider),
                 )]
                 </span><span class="kw">pub struct </span><span class="macro-nonterminal">$code_point_set_marker</span>;
 
                 <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$code_point_set_marker </span>{
-                    <span class="kw">type </span>Yokeable = PropertyCodePointSetV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+                    <span class="kw">type </span>Yokeable = PropertyCodePointSetV1&lt;<span class="lifetime">'static</span>&gt;;
                 }
                 <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$code_point_set_marker </span>{
-                    <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;props/&quot;</span>, <span class="macro-nonterminal">$bin_cp_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
+                    <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"props/"</span>, <span class="macro-nonterminal">$bin_cp_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
                 }
 
             )+
@@ -1414,155 +1415,155 @@
             //   - binary properties of strings + code points
             //   - exemplar characters
             </span>$(
-                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for the &#39;&quot;</span>, <span class="macro-nonterminal">$bin_us_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for the '"</span>, <span class="macro-nonterminal">$bin_us_s</span>, <span class="string">"' Unicode property"</span>)]
                 #[derive(Debug, Default)]
                 #[cfg_attr(
-                    feature = <span class="string">&quot;datagen&quot;</span>,
+                    feature = <span class="string">"datagen"</span>,
                     derive(databake::Bake),
                     databake(path = icu_properties::provider),
                 )]
                 </span><span class="kw">pub struct </span><span class="macro-nonterminal">$unicode_set_marker</span>;
 
                 <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$unicode_set_marker </span>{
-                    <span class="kw">type </span>Yokeable = PropertyUnicodeSetV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+                    <span class="kw">type </span>Yokeable = PropertyUnicodeSetV1&lt;<span class="lifetime">'static</span>&gt;;
                 }
                 <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$unicode_set_marker </span>{
-                    <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;props/&quot;</span>, <span class="macro-nonterminal">$bin_us_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="macro-nonterminal">$us_singleton</span>));
+                    <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"props/"</span>, <span class="macro-nonterminal">$bin_us_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="macro-nonterminal">$us_singleton</span>));
                 }
             )+
 
             <span class="comment">// Data keys that return code point map (represented as CodePointMapData).
             // For now, synonymous with enumerated properties [of code points only].
             </span>$(
-                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for the &#39;&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for the '"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"' Unicode property"</span>)]
                 #[derive(Debug, Default)]
                 #[cfg_attr(
-                    feature = <span class="string">&quot;datagen&quot;</span>,
+                    feature = <span class="string">"datagen"</span>,
                     derive(databake::Bake),
                     databake(path = icu_properties::provider),
                 )]
                 </span><span class="kw">pub struct </span><span class="macro-nonterminal">$code_point_map_marker</span>;
 
                 <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$code_point_map_marker </span>{
-                    <span class="kw">type </span>Yokeable = PropertyCodePointMapV1&lt;<span class="lifetime">&#39;static</span>, <span class="kw">crate</span>::<span class="macro-nonterminal">$value_ty</span>&gt;;
+                    <span class="kw">type </span>Yokeable = PropertyCodePointMapV1&lt;<span class="lifetime">'static</span>, <span class="kw">crate</span>::<span class="macro-nonterminal">$value_ty</span>&gt;;
                 }
 
                 <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$code_point_map_marker </span>{
-                    <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;props/&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
+                    <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"props/"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
                 }
 
 
-                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for parsing the names of the values of the &#39;&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for parsing the names of the values of the '"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"' Unicode property"</span>)]
                 #[derive(Debug, Default)]
                 #[cfg_attr(
-                    feature = <span class="string">&quot;datagen&quot;</span>,
+                    feature = <span class="string">"datagen"</span>,
                     derive(databake::Bake),
                     databake(path = icu_properties::provider),
                 )]
                 </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name_value_marker</span>;
 
                 <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$name_value_marker </span>{
-                    <span class="kw">type </span>Yokeable = names::PropertyValueNameToEnumMapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+                    <span class="kw">type </span>Yokeable = names::PropertyValueNameToEnumMapV1&lt;<span class="lifetime">'static</span>&gt;;
                 }
 
                 <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$name_value_marker </span>{
-                    <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;propnames/from/&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
+                    <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"propnames/from/"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
                 }
 
                 $(
-                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for producing short names of the values of the &#39;&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for producing short names of the values of the '"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"' Unicode property"</span>)]
                     #[derive(Debug, Default)]
                     #[cfg_attr(
-                        feature = <span class="string">&quot;datagen&quot;</span>,
+                        feature = <span class="string">"datagen"</span>,
                         derive(databake::Bake),
                         databake(path = icu_properties::provider),
                     )]
                     </span><span class="kw">pub struct </span><span class="macro-nonterminal">$value_short_name_marker_sparse</span>;
 
                     <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_short_name_marker_sparse </span>{
-                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">'static</span>&gt;;
                     }
 
                     <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_short_name_marker_sparse </span>{
-                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;propnames/to/short/sparse/&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
+                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"propnames/to/short/sparse/"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
                     }
 
-                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for producing long names of the values of the &#39;&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for producing long names of the values of the '"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"' Unicode property"</span>)]
                     #[derive(Debug, Default)]
                     #[cfg_attr(
-                        feature = <span class="string">&quot;datagen&quot;</span>,
+                        feature = <span class="string">"datagen"</span>,
                         derive(databake::Bake),
                         databake(path = icu_properties::provider),
                     )]
                     </span><span class="kw">pub struct </span><span class="macro-nonterminal">$value_long_name_marker_sparse</span>;
 
                     <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_long_name_marker_sparse </span>{
-                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameSparseMapV1&lt;<span class="lifetime">'static</span>&gt;;
                     }
 
                     <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_long_name_marker_sparse </span>{
-                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;propnames/to/long/sparse/&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
+                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"propnames/to/long/sparse/"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
                     }
                 )<span class="question-mark">?
 
                 </span>$(
-                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for producing short names of the values of the &#39;&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for producing short names of the values of the '"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"' Unicode property"</span>)]
                     #[derive(Debug, Default)]
                     #[cfg_attr(
-                        feature = <span class="string">&quot;datagen&quot;</span>,
+                        feature = <span class="string">"datagen"</span>,
                         derive(databake::Bake),
                         databake(path = icu_properties::provider),
                     )]
                     </span><span class="kw">pub struct </span><span class="macro-nonterminal">$value_short_name_marker_linear</span>;
 
                     <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_short_name_marker_linear </span>{
-                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">'static</span>&gt;;
                     }
 
                     <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_short_name_marker_linear </span>{
-                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;propnames/to/short/linear/&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
+                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"propnames/to/short/linear/"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
                     }
 
-                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for producing long names of the values of the &#39;&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for producing long names of the values of the '"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"' Unicode property"</span>)]
                     #[derive(Debug, Default)]
                     #[cfg_attr(
-                        feature = <span class="string">&quot;datagen&quot;</span>,
+                        feature = <span class="string">"datagen"</span>,
                         derive(databake::Bake),
                         databake(path = icu_properties::provider),
                     )]
                     </span><span class="kw">pub struct </span><span class="macro-nonterminal">$value_long_name_marker_linear</span>;
 
                     <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_long_name_marker_linear </span>{
-                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">'static</span>&gt;;
                     }
 
                     <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_long_name_marker_linear </span>{
-                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;propnames/to/long/linear/&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
+                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"propnames/to/long/linear/"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
                     }
                 )<span class="question-mark">?
 
                 </span>$(
-                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for producing short names of the values of the &#39;&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for producing short names of the values of the '"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"' Unicode property"</span>)]
                     #[derive(Debug, Default)]
                     #[cfg_attr(
-                        feature = <span class="string">&quot;datagen&quot;</span>,
+                        feature = <span class="string">"datagen"</span>,
                         derive(databake::Bake),
                         databake(path = icu_properties::provider),
                     )]
                     </span><span class="kw">pub struct </span><span class="macro-nonterminal">$value_short_name_marker_linear4</span>;
 
                     <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_short_name_marker_linear4 </span>{
-                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameLinearTiny4MapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+                        <span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameLinearTiny4MapV1&lt;<span class="lifetime">'static</span>&gt;;
                     }
 
                     <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_short_name_marker_linear4 </span>{
-                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;propnames/to/short/linear4/&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
+                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"propnames/to/short/linear4/"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
                     }
 
-                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;Data marker for producing long names of the values of the &#39;&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;&#39; Unicode property&quot;</span>)]
+                    <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"Data marker for producing long names of the values of the '"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"' Unicode property"</span>)]
                     #[derive(Debug, Default)]
                     #[cfg_attr(
-                        feature = <span class="string">&quot;datagen&quot;</span>,
+                        feature = <span class="string">"datagen"</span>,
                         derive(databake::Bake),
                         databake(path = icu_properties::provider),
                     )]
@@ -1570,11 +1571,11 @@
 
                     <span class="kw">impl </span>DataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_long_name_marker_linear4 </span>{
                         <span class="comment">// Tiny4 is only for short names
-                        </span><span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">&#39;static</span>&gt;;
+                        </span><span class="kw">type </span>Yokeable = names::PropertyEnumToValueNameLinearMapV1&lt;<span class="lifetime">'static</span>&gt;;
                     }
 
                     <span class="kw">impl </span>KeyedDataMarker <span class="kw">for </span><span class="macro-nonterminal">$value_long_name_marker_linear4 </span>{
-                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">&quot;propnames/to/long/linear/&quot;</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">&quot;@1&quot;</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
+                        <span class="kw">const </span>KEY: DataKey = <span class="macro">data_key!</span>(<span class="macro">concat!</span>(<span class="string">"propnames/to/long/linear/"</span>, <span class="macro-nonterminal">$enum_s</span>, <span class="string">"@1"</span>), DataKeyMetadata::construct_internal(FallbackPriority::Language, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>));
                     }
                 )<span class="question-mark">?
             </span>)+
@@ -1602,94 +1603,94 @@
 <span class="macro">expand!</span>(
     (
         <span class="comment">// code point sets
-        </span>(AsciiHexDigitV1Marker, <span class="string">&quot;AHex&quot;</span>),
-        (AlnumV1Marker, <span class="string">&quot;alnum&quot;</span>),
-        (AlphabeticV1Marker, <span class="string">&quot;Alpha&quot;</span>),
-        (BidiControlV1Marker, <span class="string">&quot;Bidi_C&quot;</span>),
-        (BidiMirroredV1Marker, <span class="string">&quot;Bidi_M&quot;</span>),
-        (BlankV1Marker, <span class="string">&quot;blank&quot;</span>),
-        (CasedV1Marker, <span class="string">&quot;Cased&quot;</span>),
-        (CaseIgnorableV1Marker, <span class="string">&quot;CI&quot;</span>),
-        (FullCompositionExclusionV1Marker, <span class="string">&quot;Comp_Ex&quot;</span>),
-        (ChangesWhenCasefoldedV1Marker, <span class="string">&quot;CWCF&quot;</span>),
-        (ChangesWhenCasemappedV1Marker, <span class="string">&quot;CWCM&quot;</span>),
-        (ChangesWhenNfkcCasefoldedV1Marker, <span class="string">&quot;CWKCF&quot;</span>),
-        (ChangesWhenLowercasedV1Marker, <span class="string">&quot;CWL&quot;</span>),
-        (ChangesWhenTitlecasedV1Marker, <span class="string">&quot;CWT&quot;</span>),
-        (ChangesWhenUppercasedV1Marker, <span class="string">&quot;CWU&quot;</span>),
-        (DashV1Marker, <span class="string">&quot;Dash&quot;</span>),
-        (DeprecatedV1Marker, <span class="string">&quot;Dep&quot;</span>),
-        (DefaultIgnorableCodePointV1Marker, <span class="string">&quot;DI&quot;</span>),
-        (DiacriticV1Marker, <span class="string">&quot;Dia&quot;</span>),
-        (EmojiModifierBaseV1Marker, <span class="string">&quot;EBase&quot;</span>),
-        (EmojiComponentV1Marker, <span class="string">&quot;EComp&quot;</span>),
-        (EmojiModifierV1Marker, <span class="string">&quot;EMod&quot;</span>),
-        (EmojiV1Marker, <span class="string">&quot;Emoji&quot;</span>),
-        (EmojiPresentationV1Marker, <span class="string">&quot;EPres&quot;</span>),
-        (ExtenderV1Marker, <span class="string">&quot;Ext&quot;</span>),
-        (ExtendedPictographicV1Marker, <span class="string">&quot;ExtPict&quot;</span>),
-        (GraphV1Marker, <span class="string">&quot;graph&quot;</span>),
-        (GraphemeBaseV1Marker, <span class="string">&quot;Gr_Base&quot;</span>),
-        (GraphemeExtendV1Marker, <span class="string">&quot;Gr_Ext&quot;</span>),
-        (GraphemeLinkV1Marker, <span class="string">&quot;Gr_Link&quot;</span>),
-        (HexDigitV1Marker, <span class="string">&quot;Hex&quot;</span>),
-        (HyphenV1Marker, <span class="string">&quot;Hyphen&quot;</span>),
-        (IdContinueV1Marker, <span class="string">&quot;IDC&quot;</span>),
-        (IdeographicV1Marker, <span class="string">&quot;Ideo&quot;</span>),
-        (IdStartV1Marker, <span class="string">&quot;IDS&quot;</span>),
-        (IdsBinaryOperatorV1Marker, <span class="string">&quot;IDSB&quot;</span>),
-        (IdsTrinaryOperatorV1Marker, <span class="string">&quot;IDST&quot;</span>),
-        (JoinControlV1Marker, <span class="string">&quot;Join_C&quot;</span>),
-        (LogicalOrderExceptionV1Marker, <span class="string">&quot;LOE&quot;</span>),
-        (LowercaseV1Marker, <span class="string">&quot;Lower&quot;</span>),
-        (MathV1Marker, <span class="string">&quot;Math&quot;</span>),
-        (NoncharacterCodePointV1Marker, <span class="string">&quot;NChar&quot;</span>),
-        (NfcInertV1Marker, <span class="string">&quot;nfcinert&quot;</span>),
-        (NfdInertV1Marker, <span class="string">&quot;nfdinert&quot;</span>),
-        (NfkcInertV1Marker, <span class="string">&quot;nfkcinert&quot;</span>),
-        (NfkdInertV1Marker, <span class="string">&quot;nfkdinert&quot;</span>),
-        (PatternSyntaxV1Marker, <span class="string">&quot;Pat_Syn&quot;</span>),
-        (PatternWhiteSpaceV1Marker, <span class="string">&quot;Pat_WS&quot;</span>),
-        (PrependedConcatenationMarkV1Marker, <span class="string">&quot;PCM&quot;</span>),
-        (PrintV1Marker, <span class="string">&quot;print&quot;</span>),
-        (QuotationMarkV1Marker, <span class="string">&quot;QMark&quot;</span>),
-        (RadicalV1Marker, <span class="string">&quot;Radical&quot;</span>),
-        (RegionalIndicatorV1Marker, <span class="string">&quot;RI&quot;</span>),
-        (SoftDottedV1Marker, <span class="string">&quot;SD&quot;</span>),
-        (SegmentStarterV1Marker, <span class="string">&quot;segstart&quot;</span>),
-        (CaseSensitiveV1Marker, <span class="string">&quot;Sensitive&quot;</span>),
-        (SentenceTerminalV1Marker, <span class="string">&quot;STerm&quot;</span>),
-        (TerminalPunctuationV1Marker, <span class="string">&quot;Term&quot;</span>),
-        (UnifiedIdeographV1Marker, <span class="string">&quot;UIdeo&quot;</span>),
-        (UppercaseV1Marker, <span class="string">&quot;Upper&quot;</span>),
-        (VariationSelectorV1Marker, <span class="string">&quot;VS&quot;</span>),
-        (WhiteSpaceV1Marker, <span class="string">&quot;WSpace&quot;</span>),
-        (XdigitV1Marker, <span class="string">&quot;xdigit&quot;</span>),
-        (XidContinueV1Marker, <span class="string">&quot;XIDC&quot;</span>),
-        (XidStartV1Marker, <span class="string">&quot;XIDS&quot;</span>),
+        </span>(AsciiHexDigitV1Marker, <span class="string">"AHex"</span>),
+        (AlnumV1Marker, <span class="string">"alnum"</span>),
+        (AlphabeticV1Marker, <span class="string">"Alpha"</span>),
+        (BidiControlV1Marker, <span class="string">"Bidi_C"</span>),
+        (BidiMirroredV1Marker, <span class="string">"Bidi_M"</span>),
+        (BlankV1Marker, <span class="string">"blank"</span>),
+        (CasedV1Marker, <span class="string">"Cased"</span>),
+        (CaseIgnorableV1Marker, <span class="string">"CI"</span>),
+        (FullCompositionExclusionV1Marker, <span class="string">"Comp_Ex"</span>),
+        (ChangesWhenCasefoldedV1Marker, <span class="string">"CWCF"</span>),
+        (ChangesWhenCasemappedV1Marker, <span class="string">"CWCM"</span>),
+        (ChangesWhenNfkcCasefoldedV1Marker, <span class="string">"CWKCF"</span>),
+        (ChangesWhenLowercasedV1Marker, <span class="string">"CWL"</span>),
+        (ChangesWhenTitlecasedV1Marker, <span class="string">"CWT"</span>),
+        (ChangesWhenUppercasedV1Marker, <span class="string">"CWU"</span>),
+        (DashV1Marker, <span class="string">"Dash"</span>),
+        (DeprecatedV1Marker, <span class="string">"Dep"</span>),
+        (DefaultIgnorableCodePointV1Marker, <span class="string">"DI"</span>),
+        (DiacriticV1Marker, <span class="string">"Dia"</span>),
+        (EmojiModifierBaseV1Marker, <span class="string">"EBase"</span>),
+        (EmojiComponentV1Marker, <span class="string">"EComp"</span>),
+        (EmojiModifierV1Marker, <span class="string">"EMod"</span>),
+        (EmojiV1Marker, <span class="string">"Emoji"</span>),
+        (EmojiPresentationV1Marker, <span class="string">"EPres"</span>),
+        (ExtenderV1Marker, <span class="string">"Ext"</span>),
+        (ExtendedPictographicV1Marker, <span class="string">"ExtPict"</span>),
+        (GraphV1Marker, <span class="string">"graph"</span>),
+        (GraphemeBaseV1Marker, <span class="string">"Gr_Base"</span>),
+        (GraphemeExtendV1Marker, <span class="string">"Gr_Ext"</span>),
+        (GraphemeLinkV1Marker, <span class="string">"Gr_Link"</span>),
+        (HexDigitV1Marker, <span class="string">"Hex"</span>),
+        (HyphenV1Marker, <span class="string">"Hyphen"</span>),
+        (IdContinueV1Marker, <span class="string">"IDC"</span>),
+        (IdeographicV1Marker, <span class="string">"Ideo"</span>),
+        (IdStartV1Marker, <span class="string">"IDS"</span>),
+        (IdsBinaryOperatorV1Marker, <span class="string">"IDSB"</span>),
+        (IdsTrinaryOperatorV1Marker, <span class="string">"IDST"</span>),
+        (JoinControlV1Marker, <span class="string">"Join_C"</span>),
+        (LogicalOrderExceptionV1Marker, <span class="string">"LOE"</span>),
+        (LowercaseV1Marker, <span class="string">"Lower"</span>),
+        (MathV1Marker, <span class="string">"Math"</span>),
+        (NoncharacterCodePointV1Marker, <span class="string">"NChar"</span>),
+        (NfcInertV1Marker, <span class="string">"nfcinert"</span>),
+        (NfdInertV1Marker, <span class="string">"nfdinert"</span>),
+        (NfkcInertV1Marker, <span class="string">"nfkcinert"</span>),
+        (NfkdInertV1Marker, <span class="string">"nfkdinert"</span>),
+        (PatternSyntaxV1Marker, <span class="string">"Pat_Syn"</span>),
+        (PatternWhiteSpaceV1Marker, <span class="string">"Pat_WS"</span>),
+        (PrependedConcatenationMarkV1Marker, <span class="string">"PCM"</span>),
+        (PrintV1Marker, <span class="string">"print"</span>),
+        (QuotationMarkV1Marker, <span class="string">"QMark"</span>),
+        (RadicalV1Marker, <span class="string">"Radical"</span>),
+        (RegionalIndicatorV1Marker, <span class="string">"RI"</span>),
+        (SoftDottedV1Marker, <span class="string">"SD"</span>),
+        (SegmentStarterV1Marker, <span class="string">"segstart"</span>),
+        (CaseSensitiveV1Marker, <span class="string">"Sensitive"</span>),
+        (SentenceTerminalV1Marker, <span class="string">"STerm"</span>),
+        (TerminalPunctuationV1Marker, <span class="string">"Term"</span>),
+        (UnifiedIdeographV1Marker, <span class="string">"UIdeo"</span>),
+        (UppercaseV1Marker, <span class="string">"Upper"</span>),
+        (VariationSelectorV1Marker, <span class="string">"VS"</span>),
+        (WhiteSpaceV1Marker, <span class="string">"WSpace"</span>),
+        (XdigitV1Marker, <span class="string">"xdigit"</span>),
+        (XidContinueV1Marker, <span class="string">"XIDC"</span>),
+        (XidStartV1Marker, <span class="string">"XIDS"</span>),
     ),
     (
         <span class="comment">// UnicodeSets (code points + strings)
-        </span>(BasicEmojiV1Marker, <span class="string">&quot;Basic_Emoji&quot;</span>, <span class="bool-val">true</span>),
-        (ExemplarCharactersMainV1Marker, <span class="string">&quot;exemplarchars/main&quot;</span>, <span class="bool-val">false</span>),
+        </span>(BasicEmojiV1Marker, <span class="string">"Basic_Emoji"</span>, <span class="bool-val">true</span>),
+        (ExemplarCharactersMainV1Marker, <span class="string">"exemplarchars/main"</span>, <span class="bool-val">false</span>),
         (
             ExemplarCharactersAuxiliaryV1Marker,
-            <span class="string">&quot;exemplarchars/auxiliary&quot;</span>,
+            <span class="string">"exemplarchars/auxiliary"</span>,
             <span class="bool-val">false
         </span>),
         (
             ExemplarCharactersPunctuationV1Marker,
-            <span class="string">&quot;exemplarchars/punctuation&quot;</span>,
+            <span class="string">"exemplarchars/punctuation"</span>,
             <span class="bool-val">false
         </span>),
         (
             ExemplarCharactersNumbersV1Marker,
-            <span class="string">&quot;exemplarchars/numbers&quot;</span>,
+            <span class="string">"exemplarchars/numbers"</span>,
             <span class="bool-val">false
         </span>),
         (
             ExemplarCharactersIndexV1Marker,
-            <span class="string">&quot;exemplarchars/index&quot;</span>,
+            <span class="string">"exemplarchars/index"</span>,
             <span class="bool-val">false
         </span>),
     ),
@@ -1702,7 +1703,7 @@
                 sparse: CanonicalCombiningClassValueToShortNameV1Marker,
                 CanonicalCombiningClassValueToLongNameV1Marker
             ),
-            <span class="string">&quot;ccc&quot;</span>,
+            <span class="string">"ccc"</span>,
             CanonicalCombiningClass
         ),
         (
@@ -1712,7 +1713,7 @@
                 linear: GeneralCategoryValueToShortNameV1Marker,
                 GeneralCategoryValueToLongNameV1Marker
             ),
-            <span class="string">&quot;gc&quot;</span>,
+            <span class="string">"gc"</span>,
             GeneralCategory
         ),
         (
@@ -1722,7 +1723,7 @@
                 linear: BidiClassValueToShortNameV1Marker,
                 BidiClassValueToLongNameV1Marker
             ),
-            <span class="string">&quot;bc&quot;</span>,
+            <span class="string">"bc"</span>,
             BidiClass
         ),
         (
@@ -1732,7 +1733,7 @@
                 linear4: ScriptValueToShortNameV1Marker,
                 ScriptValueToLongNameV1Marker
             ),
-            <span class="string">&quot;sc&quot;</span>,
+            <span class="string">"sc"</span>,
             Script
         ),
         (
@@ -1742,7 +1743,7 @@
                 linear: EastAsianWidthValueToShortNameV1Marker,
                 EastAsianWidthValueToLongNameV1Marker
             ),
-            <span class="string">&quot;ea&quot;</span>,
+            <span class="string">"ea"</span>,
             EastAsianWidth
         ),
         (
@@ -1752,7 +1753,7 @@
                 linear: LineBreakValueToShortNameV1Marker,
                 LineBreakValueToLongNameV1Marker
             ),
-            <span class="string">&quot;lb&quot;</span>,
+            <span class="string">"lb"</span>,
             LineBreak
         ),
         (
@@ -1762,7 +1763,7 @@
                 linear: GraphemeClusterBreakValueToShortNameV1Marker,
                 GraphemeClusterBreakValueToLongNameV1Marker
             ),
-            <span class="string">&quot;GCB&quot;</span>,
+            <span class="string">"GCB"</span>,
             GraphemeClusterBreak
         ),
         (
@@ -1772,7 +1773,7 @@
                 linear: WordBreakValueToShortNameV1Marker,
                 WordBreakValueToLongNameV1Marker
             ),
-            <span class="string">&quot;WB&quot;</span>,
+            <span class="string">"WB"</span>,
             WordBreak
         ),
         (
@@ -1782,7 +1783,7 @@
                 linear: SentenceBreakValueToShortNameV1Marker,
                 SentenceBreakValueToLongNameV1Marker
             ),
-            <span class="string">&quot;SB&quot;</span>,
+            <span class="string">"SB"</span>,
             SentenceBreak
         ),
         (
@@ -1792,7 +1793,7 @@
                 linear: IndicSyllabicCategoryValueToShortNameV1Marker,
                 IndicSyllabicCategoryValueToLongNameV1Marker
             ),
-            <span class="string">&quot;InSC&quot;</span>,
+            <span class="string">"InSC"</span>,
             IndicSyllabicCategory
         ),
         <span class="comment">// note: the names key for the GCM mask is handled above

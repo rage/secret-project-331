@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/byte_record.rs`."><title>byte_record.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/byte_record.rs`."><title>byte_record.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1216,10 +1217,10 @@
 /// need to interact with a `ByteRecord` or a `StringRecord`. However, there
 /// are some circumstances in which you might need to use a raw record type
 /// while still using Serde. For example, if you need to deserialize possibly
-/// invalid UTF-8 fields, then you&#39;ll need to first read your record into a
+/// invalid UTF-8 fields, then you'll need to first read your record into a
 /// `ByteRecord`, and then use `ByteRecord::deserialize` to run Serde. Another
-/// reason for using the raw record deserialization APIs is if you&#39;re using
-/// Serde to read into borrowed data such as a `&amp;&#39;a str` or a `&amp;&#39;a [u8]`.
+/// reason for using the raw record deserialization APIs is if you're using
+/// Serde to read into borrowed data such as a `&amp;'a str` or a `&amp;'a [u8]`.
 ///
 /// Two `ByteRecord`s are compared on the basis of their field data. Any
 /// position information associated with the records is ignored.
@@ -1241,7 +1242,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsRef&lt;[u8]&gt;&gt; PartialEq&lt;Vec&lt;T&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ByteRecord {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsRef&lt;[u8]&gt;&gt; PartialEq&lt;Vec&lt;T&gt;&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>ByteRecord {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Vec&lt;T&gt;) -&gt; bool {
         <span class="self">self</span>.iter_eq(other)
     }
@@ -1253,7 +1254,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsRef&lt;[u8]&gt;&gt; PartialEq&lt;[T]&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ByteRecord {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsRef&lt;[u8]&gt;&gt; PartialEq&lt;[T]&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>ByteRecord {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>[T]) -&gt; bool {
         <span class="self">self</span>.iter_eq(other)
     }
@@ -1261,11 +1262,11 @@
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ByteRecord {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;ByteRecord(&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">"ByteRecord("</span>)<span class="question-mark">?</span>;
         f.debug_list()
             .entries(<span class="self">self</span>.iter().map(<span class="kw">crate</span>::debug::Bytes))
             .finish()<span class="question-mark">?</span>;
-        <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">")"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }
@@ -1313,7 +1314,7 @@
     /// ```
     /// use csv::ByteRecord;
     ///
-    /// let record = ByteRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
+    /// let record = ByteRecord::from(vec!["a", "b", "c"]);
     /// assert_eq!(record.len(), 3);
     /// ```
     </span><span class="attr">#[inline]
@@ -1338,8 +1339,8 @@
     <span class="doccomment">/// Deserialize this record.
     ///
     /// The `D` type parameter refers to the type that this record should be
-    /// deserialized into. The `&#39;de` lifetime refers to the lifetime of the
-    /// `ByteRecord`. The `&#39;de` lifetime permits deserializing into structs
+    /// deserialized into. The `'de` lifetime refers to the lifetime of the
+    /// `ByteRecord`. The `'de` lifetime permits deserializing into structs
     /// that borrow field data from this record.
     ///
     /// An optional `headers` parameter permits deserializing into a struct
@@ -1360,21 +1361,21 @@
     /// use serde::Deserialize;
     ///
     /// #[derive(Deserialize)]
-    /// struct Row&lt;&#39;a&gt; {
-    ///     city: &amp;&#39;a str,
-    ///     country: &amp;&#39;a str,
+    /// struct Row&lt;'a&gt; {
+    ///     city: &amp;'a str,
+    ///     country: &amp;'a str,
     ///     population: u64,
     /// }
     ///
     /// # fn main() { example().unwrap() }
     /// fn example() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     ///     let record = ByteRecord::from(vec![
-    ///         &quot;Boston&quot;, &quot;United States&quot;, &quot;4628910&quot;,
+    ///         "Boston", "United States", "4628910",
     ///     ]);
     ///
     ///     let row: Row = record.deserialize(None)?;
-    ///     assert_eq!(row.city, &quot;Boston&quot;);
-    ///     assert_eq!(row.country, &quot;United States&quot;);
+    ///     assert_eq!(row.city, "Boston");
+    ///     assert_eq!(row.country, "United States");
     ///     assert_eq!(row.population, 4628910);
     ///     Ok(())
     /// }
@@ -1383,7 +1384,7 @@
     /// # Example: with headers
     ///
     /// This example is like the previous one, but shows how to deserialize
-    /// into a struct based on the struct&#39;s field names. For this to work,
+    /// into a struct based on the struct's field names. For this to work,
     /// you must provide a header row.
     ///
     /// This example also shows that you can deserialize into owned data
@@ -1407,22 +1408,22 @@
     ///     // Notice that the fields are not in the same order
     ///     // as the fields in the struct!
     ///     let header = ByteRecord::from(vec![
-    ///         &quot;country&quot;, &quot;city&quot;, &quot;population&quot;,
+    ///         "country", "city", "population",
     ///     ]);
     ///     let record = ByteRecord::from(vec![
-    ///         &quot;United States&quot;, &quot;Boston&quot;, &quot;4628910&quot;,
+    ///         "United States", "Boston", "4628910",
     ///     ]);
     ///
     ///     let row: Row = record.deserialize(Some(&amp;header))?;
-    ///     assert_eq!(row.city, &quot;Boston&quot;);
-    ///     assert_eq!(row.country, &quot;United States&quot;);
+    ///     assert_eq!(row.city, "Boston");
+    ///     assert_eq!(row.country, "United States");
     ///     assert_eq!(row.population, 4628910);
     ///     Ok(())
     /// }
     /// ```
-    </span><span class="kw">pub fn </span>deserialize&lt;<span class="lifetime">&#39;de</span>, D: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span><span class="self">self</span>,
-        headers: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>ByteRecord&gt;,
+    </span><span class="kw">pub fn </span>deserialize&lt;<span class="lifetime">'de</span>, D: Deserialize&lt;<span class="lifetime">'de</span>&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'de </span><span class="self">self</span>,
+        headers: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'de </span>ByteRecord&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;D&gt; {
         deserialize_byte_record(<span class="self">self</span>, headers)
     }
@@ -1436,9 +1437,9 @@
     /// ```
     /// use csv::ByteRecord;
     ///
-    /// let record = ByteRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
+    /// let record = ByteRecord::from(vec!["a", "b", "c"]);
     /// for field in record.iter() {
-    ///     assert!(field == b&quot;a&quot; || field == b&quot;b&quot; || field == b&quot;c&quot;);
+    ///     assert!(field == b"a" || field == b"b" || field == b"c");
     /// }
     /// ```
     </span><span class="attr">#[inline]
@@ -1455,8 +1456,8 @@
     /// ```
     /// use csv::ByteRecord;
     ///
-    /// let record = ByteRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
-    /// assert_eq!(record.get(1), Some(&amp;b&quot;b&quot;[..]));
+    /// let record = ByteRecord::from(vec!["a", "b", "c"]);
+    /// assert_eq!(record.get(1), Some(&amp;b"b"[..]));
     /// assert_eq!(record.get(3), None);
     /// ```
     </span><span class="attr">#[inline]
@@ -1485,7 +1486,7 @@
     /// ```
     /// use csv::ByteRecord;
     ///
-    /// let record = ByteRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
+    /// let record = ByteRecord::from(vec!["a", "b", "c"]);
     /// assert_eq!(record.len(), 3);
     /// ```
     </span><span class="attr">#[inline]
@@ -1503,11 +1504,11 @@
     /// ```
     /// use csv::ByteRecord;
     ///
-    /// let mut record = ByteRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
+    /// let mut record = ByteRecord::from(vec!["a", "b", "c"]);
     /// assert_eq!(record.len(), 3);
     /// record.truncate(1);
     /// assert_eq!(record.len(), 1);
-    /// assert_eq!(record, vec![&quot;a&quot;]);
+    /// assert_eq!(record, vec!["a"]);
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>truncate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) {
@@ -1528,7 +1529,7 @@
     /// ```
     /// use csv::ByteRecord;
     ///
-    /// let mut record = ByteRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
+    /// let mut record = ByteRecord::from(vec!["a", "b", "c"]);
     /// assert_eq!(record.len(), 3);
     /// record.clear();
     /// assert_eq!(record.len(), 0);
@@ -1550,10 +1551,10 @@
     /// use csv::ByteRecord;
     ///
     /// let mut record = ByteRecord::from(vec![
-    ///     &quot;  &quot;, &quot;\tfoo&quot;, &quot;bar  &quot;, &quot;b a z&quot;,
+    ///     "  ", "\tfoo", "bar  ", "b a z",
     /// ]);
     /// record.trim();
-    /// assert_eq!(record, vec![&quot;&quot;, &quot;foo&quot;, &quot;bar&quot;, &quot;b a z&quot;]);
+    /// assert_eq!(record, vec!["", "foo", "bar", "b a z"]);
     /// ```
     </span><span class="kw">pub fn </span>trim(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>length = <span class="self">self</span>.len();
@@ -1578,8 +1579,8 @@
     /// use csv::ByteRecord;
     ///
     /// let mut record = ByteRecord::new();
-    /// record.push_field(b&quot;foo&quot;);
-    /// assert_eq!(&amp;record[0], b&quot;foo&quot;);
+    /// record.push_field(b"foo");
+    /// assert_eq!(&amp;record[0], b"foo");
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>push_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: <span class="kw-2">&amp;</span>[u8]) {
@@ -1605,11 +1606,11 @@
     ///     let mut record = ByteRecord::new();
     ///     let mut rdr = ReaderBuilder::new()
     ///         .has_headers(false)
-    ///         .from_reader(&quot;a,b,c\nx,y,z&quot;.as_bytes());
+    ///         .from_reader("a,b,c\nx,y,z".as_bytes());
     ///
     ///     assert!(rdr.read_byte_record(&amp;mut record)?);
     ///     {
-    ///         let pos = record.position().expect(&quot;a record position&quot;);
+    ///         let pos = record.position().expect("a record position");
     ///         assert_eq!(pos.byte(), 0);
     ///         assert_eq!(pos.line(), 1);
     ///         assert_eq!(pos.record(), 0);
@@ -1617,7 +1618,7 @@
     ///
     ///     assert!(rdr.read_byte_record(&amp;mut record)?);
     ///     {
-    ///         let pos = record.position().expect(&quot;a record position&quot;);
+    ///         let pos = record.position().expect("a record position");
     ///         assert_eq!(pos.byte(), 6);
     ///         assert_eq!(pos.line(), 2);
     ///         assert_eq!(pos.record(), 1);
@@ -1640,7 +1641,7 @@
     /// ```
     /// use csv::{ByteRecord, Position};
     ///
-    /// let mut record = ByteRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
+    /// let mut record = ByteRecord::from(vec!["a", "b", "c"]);
     /// let mut pos = Position::new();
     /// pos.set_byte(100);
     /// pos.set_line(4);
@@ -1665,9 +1666,9 @@
     /// ```
     /// use csv::ByteRecord;
     ///
-    /// let record = ByteRecord::from(vec![&quot;foo&quot;, &quot;quux&quot;, &quot;z&quot;]);
-    /// let range = record.range(1).expect(&quot;a record range&quot;);
-    /// assert_eq!(&amp;record.as_slice()[range], &amp;b&quot;quux&quot;[..]);
+    /// let record = ByteRecord::from(vec!["foo", "quux", "z"]);
+    /// let range = record.range(1).expect("a record range");
+    /// assert_eq!(&amp;record.as_slice()[range], &amp;b"quux"[..]);
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>range(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;Range&lt;usize&gt;&gt; {
@@ -1683,8 +1684,8 @@
     /// ```
     /// use csv::ByteRecord;
     ///
-    /// let record = ByteRecord::from(vec![&quot;foo&quot;, &quot;quux&quot;, &quot;z&quot;]);
-    /// assert_eq!(record.as_slice(), &amp;b&quot;fooquuxz&quot;[..]);
+    /// let record = ByteRecord::from(vec!["foo", "quux", "z"]);
+    /// assert_eq!(record.as_slice(), &amp;b"fooquuxz"[..]);
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
@@ -1731,7 +1732,7 @@
 
     <span class="doccomment">/// Validate the given record as UTF-8.
     ///
-    /// If it&#39;s not UTF-8, return an error.
+    /// If it's not UTF-8, return an error.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>validate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; result::Result&lt;(), Utf8Error&gt; {
         <span class="comment">// If the entire buffer is ASCII, then we have nothing to fear.
@@ -1739,7 +1740,7 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
         <span class="comment">// Otherwise, we must check each field individually to ensure that
-        // it&#39;s valid UTF-8.
+        // it's valid UTF-8.
         </span><span class="kw">for </span>(i, field) <span class="kw">in </span><span class="self">self</span>.iter().enumerate() {
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = std::str::from_utf8(field) {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(new_utf8_error(i, err.valid_up_to()));
@@ -1938,9 +1939,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AsRef&lt;[u8]&gt;&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]&gt; <span class="kw">for </span>ByteRecord {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AsRef&lt;[u8]&gt;&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]&gt; <span class="kw">for </span>ByteRecord {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(xs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]) -&gt; ByteRecord {
+    </span><span class="kw">fn </span>from(xs: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]) -&gt; ByteRecord {
         ByteRecord::from_iter(xs)
     }
 }
@@ -1965,12 +1966,12 @@
 
 <span class="doccomment">/// A double-ended iterator over the fields in a byte record.
 ///
-/// The `&#39;r` lifetime variable refers to the lifetime of the `ByteRecord` that
+/// The `'r` lifetime variable refers to the lifetime of the `ByteRecord` that
 /// is being iterated over.
 </span><span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>ByteRecordIter&lt;<span class="lifetime">&#39;r</span>&gt; {
+</span><span class="kw">pub struct </span>ByteRecordIter&lt;<span class="lifetime">'r</span>&gt; {
     <span class="doccomment">/// The record we are iterating over.
-    </span>r: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>ByteRecord,
+    </span>r: <span class="kw-2">&amp;</span><span class="lifetime">'r </span>ByteRecord,
     <span class="doccomment">/// The starting index of the previous field. (For reverse iteration.)
     </span>last_start: usize,
     <span class="doccomment">/// The ending index of the previous field. (For forward iteration.)
@@ -1981,12 +1982,12 @@
     </span>i_reverse: usize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>ByteRecord {
-    <span class="kw">type </span>IntoIter = ByteRecordIter&lt;<span class="lifetime">&#39;r</span>&gt;;
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8];
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'r </span>ByteRecord {
+    <span class="kw">type </span>IntoIter = ByteRecordIter&lt;<span class="lifetime">'r</span>&gt;;
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8];
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; ByteRecordIter&lt;<span class="lifetime">&#39;r</span>&gt; {
+    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; ByteRecordIter&lt;<span class="lifetime">'r</span>&gt; {
         ByteRecordIter {
             r: <span class="self">self</span>,
             last_start: <span class="self">self</span>.as_slice().len(),
@@ -1997,13 +1998,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; ExactSizeIterator <span class="kw">for </span>ByteRecordIter&lt;<span class="lifetime">&#39;r</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>&gt; ExactSizeIterator <span class="kw">for </span>ByteRecordIter&lt;<span class="lifetime">'r</span>&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; Iterator <span class="kw">for </span>ByteRecordIter&lt;<span class="lifetime">&#39;r</span>&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8];
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>&gt; Iterator <span class="kw">for </span>ByteRecordIter&lt;<span class="lifetime">'r</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8];
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt; {
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt; {
         <span class="kw">if </span><span class="self">self</span>.i_forward == <span class="self">self</span>.i_reverse {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -2027,9 +2028,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; DoubleEndedIterator <span class="kw">for </span>ByteRecordIter&lt;<span class="lifetime">&#39;r</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'r</span>&gt; DoubleEndedIterator <span class="kw">for </span>ByteRecordIter&lt;<span class="lifetime">'r</span>&gt; {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]&gt; {
+    </span><span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'r </span>[u8]&gt; {
         <span class="kw">if </span><span class="self">self</span>.i_forward == <span class="self">self</span>.i_reverse {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -2085,10 +2086,10 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>record_1() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;foo&quot;</span>);
+        rec.push_field(<span class="string">b"foo"</span>);
 
         <span class="macro">assert_eq!</span>(rec.len(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;foo&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"foo"</span>)));
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">2</span>), <span class="prelude-val">None</span>);
     }
@@ -2096,12 +2097,12 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>record_2() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;foo&quot;</span>);
-        rec.push_field(<span class="string">b&quot;quux&quot;</span>);
+        rec.push_field(<span class="string">b"foo"</span>);
+        rec.push_field(<span class="string">b"quux"</span>);
 
         <span class="macro">assert_eq!</span>(rec.len(), <span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;foo&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;quux&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"foo"</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">"quux"</span>)));
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">2</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">3</span>), <span class="prelude-val">None</span>);
     }
@@ -2117,60 +2118,60 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>trim_whitespace_only() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b&quot; \t\n\r\x0c&quot;</span>]);
+        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b" \t\n\r\x0c"</span>]);
         rec.trim();
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>trim_front() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b&quot; abc&quot;</span>]);
+        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b" abc"</span>]);
         rec.trim();
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;abc&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"abc"</span>)));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[b(<span class="string">&quot; abc&quot;</span>), b(<span class="string">&quot;  xyz&quot;</span>)]);
+        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[b(<span class="string">" abc"</span>), b(<span class="string">"  xyz"</span>)]);
         rec.trim();
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;abc&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;xyz&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"abc"</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">"xyz"</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>trim_back() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b&quot;abc &quot;</span>]);
+        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b"abc "</span>]);
         rec.trim();
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;abc&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"abc"</span>)));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[b(<span class="string">&quot;abc &quot;</span>), b(<span class="string">&quot;xyz  &quot;</span>)]);
+        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[b(<span class="string">"abc "</span>), b(<span class="string">"xyz  "</span>)]);
         rec.trim();
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;abc&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;xyz&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"abc"</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">"xyz"</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>trim_both() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b&quot; abc &quot;</span>]);
+        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b" abc "</span>]);
         rec.trim();
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;abc&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"abc"</span>)));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[b(<span class="string">&quot; abc &quot;</span>), b(<span class="string">&quot;  xyz  &quot;</span>)]);
+        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[b(<span class="string">" abc "</span>), b(<span class="string">"  xyz  "</span>)]);
         rec.trim();
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;abc&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;xyz&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"abc"</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">"xyz"</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>trim_does_not_panic_on_empty_records_1() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>]);
+        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b""</span>]);
         rec.trim();
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>trim_does_not_panic_on_empty_records_2() {
-        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>, <span class="string">b&quot;&quot;</span>]);
+        <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">b""</span>, <span class="string">b""</span>]);
         rec.trim();
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
     }
 
     <span class="attr">#[test]
@@ -2183,10 +2184,10 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty_field_1() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;&quot;</span>);
+        rec.push_field(<span class="string">b""</span>);
 
         <span class="macro">assert_eq!</span>(rec.len(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">2</span>), <span class="prelude-val">None</span>);
     }
@@ -2194,12 +2195,12 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty_field_2() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;&quot;</span>);
-        rec.push_field(<span class="string">b&quot;&quot;</span>);
+        rec.push_field(<span class="string">b""</span>);
+        rec.push_field(<span class="string">b""</span>);
 
         <span class="macro">assert_eq!</span>(rec.len(), <span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">2</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">3</span>), <span class="prelude-val">None</span>);
     }
@@ -2207,14 +2208,14 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty_surround_1() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;foo&quot;</span>);
-        rec.push_field(<span class="string">b&quot;&quot;</span>);
-        rec.push_field(<span class="string">b&quot;quux&quot;</span>);
+        rec.push_field(<span class="string">b"foo"</span>);
+        rec.push_field(<span class="string">b""</span>);
+        rec.push_field(<span class="string">b"quux"</span>);
 
         <span class="macro">assert_eq!</span>(rec.len(), <span class="number">3</span>);
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;foo&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">2</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;quux&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"foo"</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">2</span>), <span class="prelude-val">Some</span>(b(<span class="string">"quux"</span>)));
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">3</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">4</span>), <span class="prelude-val">None</span>);
     }
@@ -2222,16 +2223,16 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>empty_surround_2() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;foo&quot;</span>);
-        rec.push_field(<span class="string">b&quot;&quot;</span>);
-        rec.push_field(<span class="string">b&quot;quux&quot;</span>);
-        rec.push_field(<span class="string">b&quot;&quot;</span>);
+        rec.push_field(<span class="string">b"foo"</span>);
+        rec.push_field(<span class="string">b""</span>);
+        rec.push_field(<span class="string">b"quux"</span>);
+        rec.push_field(<span class="string">b""</span>);
 
         <span class="macro">assert_eq!</span>(rec.len(), <span class="number">4</span>);
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;foo&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">2</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;quux&quot;</span>)));
-        <span class="macro">assert_eq!</span>(rec.get(<span class="number">3</span>), <span class="prelude-val">Some</span>(b(<span class="string">&quot;&quot;</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(b(<span class="string">"foo"</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">1</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">2</span>), <span class="prelude-val">Some</span>(b(<span class="string">"quux"</span>)));
+        <span class="macro">assert_eq!</span>(rec.get(<span class="number">3</span>), <span class="prelude-val">Some</span>(b(<span class="string">""</span>)));
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">4</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(rec.get(<span class="number">5</span>), <span class="prelude-val">None</span>);
     }
@@ -2239,8 +2240,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>utf8_error_1() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;foo&quot;</span>);
-        rec.push_field(<span class="string">b&quot;b\xFFar&quot;</span>);
+        rec.push_field(<span class="string">b"foo"</span>);
+        rec.push_field(<span class="string">b"b\xFFar"</span>);
 
         <span class="kw">let </span>err = StringRecord::from_byte_record(rec).unwrap_err();
         <span class="macro">assert_eq!</span>(err.utf8_error().field(), <span class="number">1</span>);
@@ -2250,7 +2251,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>utf8_error_2() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;\xFF&quot;</span>);
+        rec.push_field(<span class="string">b"\xFF"</span>);
 
         <span class="kw">let </span>err = StringRecord::from_byte_record(rec).unwrap_err();
         <span class="macro">assert_eq!</span>(err.utf8_error().field(), <span class="number">0</span>);
@@ -2260,7 +2261,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>utf8_error_3() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;a\xFF&quot;</span>);
+        rec.push_field(<span class="string">b"a\xFF"</span>);
 
         <span class="kw">let </span>err = StringRecord::from_byte_record(rec).unwrap_err();
         <span class="macro">assert_eq!</span>(err.utf8_error().field(), <span class="number">0</span>);
@@ -2270,11 +2271,11 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>utf8_error_4() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;a&quot;</span>);
-        rec.push_field(<span class="string">b&quot;b&quot;</span>);
-        rec.push_field(<span class="string">b&quot;c&quot;</span>);
-        rec.push_field(<span class="string">b&quot;d&quot;</span>);
-        rec.push_field(<span class="string">b&quot;xyz\xFF&quot;</span>);
+        rec.push_field(<span class="string">b"a"</span>);
+        rec.push_field(<span class="string">b"b"</span>);
+        rec.push_field(<span class="string">b"c"</span>);
+        rec.push_field(<span class="string">b"d"</span>);
+        rec.push_field(<span class="string">b"xyz\xFF"</span>);
 
         <span class="kw">let </span>err = StringRecord::from_byte_record(rec).unwrap_err();
         <span class="macro">assert_eq!</span>(err.utf8_error().field(), <span class="number">4</span>);
@@ -2284,24 +2285,24 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>utf8_error_5() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;a&quot;</span>);
-        rec.push_field(<span class="string">b&quot;b&quot;</span>);
-        rec.push_field(<span class="string">b&quot;c&quot;</span>);
-        rec.push_field(<span class="string">b&quot;d&quot;</span>);
-        rec.push_field(<span class="string">b&quot;\xFFxyz&quot;</span>);
+        rec.push_field(<span class="string">b"a"</span>);
+        rec.push_field(<span class="string">b"b"</span>);
+        rec.push_field(<span class="string">b"c"</span>);
+        rec.push_field(<span class="string">b"d"</span>);
+        rec.push_field(<span class="string">b"\xFFxyz"</span>);
 
         <span class="kw">let </span>err = StringRecord::from_byte_record(rec).unwrap_err();
         <span class="macro">assert_eq!</span>(err.utf8_error().field(), <span class="number">4</span>);
         <span class="macro">assert_eq!</span>(err.utf8_error().valid_up_to(), <span class="number">0</span>);
     }
 
-    <span class="comment">// This tests a tricky case where a single field on its own isn&#39;t valid
+    <span class="comment">// This tests a tricky case where a single field on its own isn't valid
     // UTF-8, but the concatenation of all fields is.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>utf8_error_6() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;a\xc9&quot;</span>);
-        rec.push_field(<span class="string">b&quot;\x91b&quot;</span>);
+        rec.push_field(<span class="string">b"a\xc9"</span>);
+        rec.push_field(<span class="string">b"\x91b"</span>);
 
         <span class="kw">let </span>err = StringRecord::from_byte_record(rec).unwrap_err();
         <span class="macro">assert_eq!</span>(err.utf8_error().field(), <span class="number">0</span>);
@@ -2313,18 +2314,18 @@
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>utf8_clear_ok() {
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;\xFF&quot;</span>);
+        rec.push_field(<span class="string">b"\xFF"</span>);
         <span class="macro">assert!</span>(StringRecord::from_byte_record(rec).is_err());
 
         <span class="kw">let </span><span class="kw-2">mut </span>rec = ByteRecord::new();
-        rec.push_field(<span class="string">b&quot;\xFF&quot;</span>);
+        rec.push_field(<span class="string">b"\xFF"</span>);
         rec.clear();
         <span class="macro">assert!</span>(StringRecord::from_byte_record(rec).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>iter() {
-        <span class="kw">let </span>data = <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;baz&quot;</span>, <span class="string">&quot;quux&quot;</span>, <span class="string">&quot;wat&quot;</span>];
+        <span class="kw">let </span>data = <span class="macro">vec!</span>[<span class="string">"foo"</span>, <span class="string">"bar"</span>, <span class="string">"baz"</span>, <span class="string">"quux"</span>, <span class="string">"wat"</span>];
         <span class="kw">let </span>rec = ByteRecord::from(<span class="kw-2">&amp;*</span>data);
         <span class="kw">let </span>got: Vec&lt;<span class="kw-2">&amp;</span>str&gt; =
             rec.iter().map(|x| ::std::str::from_utf8(x).unwrap()).collect();
@@ -2333,7 +2334,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>iter_reverse() {
-        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;baz&quot;</span>, <span class="string">&quot;quux&quot;</span>, <span class="string">&quot;wat&quot;</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[<span class="string">"foo"</span>, <span class="string">"bar"</span>, <span class="string">"baz"</span>, <span class="string">"quux"</span>, <span class="string">"wat"</span>];
         <span class="kw">let </span>rec = ByteRecord::from(<span class="kw-2">&amp;*</span>data);
         <span class="kw">let </span>got: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = rec
             .iter()
@@ -2346,15 +2347,15 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>iter_forward_and_reverse() {
-        <span class="kw">let </span>data = <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;baz&quot;</span>, <span class="string">&quot;quux&quot;</span>, <span class="string">&quot;wat&quot;</span>];
+        <span class="kw">let </span>data = <span class="macro">vec!</span>[<span class="string">"foo"</span>, <span class="string">"bar"</span>, <span class="string">"baz"</span>, <span class="string">"quux"</span>, <span class="string">"wat"</span>];
         <span class="kw">let </span>rec = ByteRecord::from(data);
         <span class="kw">let </span><span class="kw-2">mut </span>it = rec.iter();
 
-        <span class="macro">assert_eq!</span>(it.next_back(), <span class="prelude-val">Some</span>(b(<span class="string">&quot;wat&quot;</span>)));
-        <span class="macro">assert_eq!</span>(it.next(), <span class="prelude-val">Some</span>(b(<span class="string">&quot;foo&quot;</span>)));
-        <span class="macro">assert_eq!</span>(it.next(), <span class="prelude-val">Some</span>(b(<span class="string">&quot;bar&quot;</span>)));
-        <span class="macro">assert_eq!</span>(it.next_back(), <span class="prelude-val">Some</span>(b(<span class="string">&quot;quux&quot;</span>)));
-        <span class="macro">assert_eq!</span>(it.next(), <span class="prelude-val">Some</span>(b(<span class="string">&quot;baz&quot;</span>)));
+        <span class="macro">assert_eq!</span>(it.next_back(), <span class="prelude-val">Some</span>(b(<span class="string">"wat"</span>)));
+        <span class="macro">assert_eq!</span>(it.next(), <span class="prelude-val">Some</span>(b(<span class="string">"foo"</span>)));
+        <span class="macro">assert_eq!</span>(it.next(), <span class="prelude-val">Some</span>(b(<span class="string">"bar"</span>)));
+        <span class="macro">assert_eq!</span>(it.next_back(), <span class="prelude-val">Some</span>(b(<span class="string">"quux"</span>)));
+        <span class="macro">assert_eq!</span>(it.next(), <span class="prelude-val">Some</span>(b(<span class="string">"baz"</span>)));
         <span class="macro">assert_eq!</span>(it.next_back(), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(it.next(), <span class="prelude-val">None</span>);
     }
@@ -2364,8 +2365,8 @@
     // Regression test for #138.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>eq_field_boundaries() {
-        <span class="kw">let </span>test1 = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;12&quot;</span>, <span class="string">&quot;34&quot;</span>]);
-        <span class="kw">let </span>test2 = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;123&quot;</span>, <span class="string">&quot;4&quot;</span>]);
+        <span class="kw">let </span>test1 = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"12"</span>, <span class="string">"34"</span>]);
+        <span class="kw">let </span>test2 = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"123"</span>, <span class="string">"4"</span>]);
 
         <span class="macro">assert_ne!</span>(test1, test2);
     }
@@ -2375,8 +2376,8 @@
     // Regression test for #138.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>eq_record_len() {
-        <span class="kw">let </span>test1 = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;12&quot;</span>, <span class="string">&quot;34&quot;</span>, <span class="string">&quot;56&quot;</span>]);
-        <span class="kw">let </span>test2 = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;12&quot;</span>, <span class="string">&quot;34&quot;</span>]);
+        <span class="kw">let </span>test1 = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"12"</span>, <span class="string">"34"</span>, <span class="string">"56"</span>]);
+        <span class="kw">let </span>test2 = ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"12"</span>, <span class="string">"34"</span>]);
         <span class="macro">assert_ne!</span>(test1, test2);
     }
 }

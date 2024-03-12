@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A tutorial for handling CSV data in Rust."><title>csv::tutorial - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../csv/index.html">csv</a><span class="version">1.3.0</span></h2></div><h2 class="location"><a href="#">Module tutorial</a></h2><div class="sidebar-elems"><h2><a href="../index.html">In crate csv</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">csv</a>::<wbr><a class="mod" href="#">tutorial</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../../src/csv/tutorial.rs.html#1-2477">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A tutorial for handling CSV data in Rust.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A tutorial for handling CSV data in Rust."><title>csv::tutorial - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../csv/index.html">csv</a><span class="version">1.3.0</span></h2></div><h2 class="location"><a href="#">Module tutorial</a></h2><div class="sidebar-elems"><h2><a href="../index.html">In crate csv</a></h2></div></nav><div class="sidebar-resizer"></div>
+    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../csv/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">csv</a>::<wbr><a class="mod" href="#">tutorial</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../../src/csv/tutorial.rs.html#1-2477">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A tutorial for handling CSV data in Rust.</p>
 <p>This tutorial will cover basic CSV reading and writing, automatic
 (de)serialization with Serde, CSV transformations and performance.</p>
 <p>This tutorial is targeted at beginner Rust programmers. Experienced Rust
@@ -84,7 +85,7 @@ open <code>src/main.rs</code> in your favorite text editor and replace its conte
 this:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-setup-01.rs
-// Import the standard library&#39;s I/O module so we can read from stdin.
+// Import the standard library's I/O module so we can read from stdin.
 </span><span class="kw">use </span>std::io;
 
 <span class="comment">// The `main` function is where your program starts executing.
@@ -95,9 +96,9 @@ this:</p>
     </span><span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
         <span class="comment">// An error may occur, so abort the program in an unfriendly way.
         // We will make this more friendly later!
-        </span><span class="kw">let </span>record = result.expect(<span class="string">&quot;a CSV record&quot;</span>);
+        </span><span class="kw">let </span>record = result.expect(<span class="string">"a CSV record"</span>);
         <span class="comment">// Print a debug version of the record.
-        </span><span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
 }</code></pre></div>
 <p>Don’t worry too much about what this code means; we’ll dissect it in the next
@@ -165,8 +166,8 @@ its error handling.</p>
 <span class="kw">fn </span>main() {
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(io::stdin());
     <span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
-        <span class="kw">let </span>record = result.expect(<span class="string">&quot;a CSV record&quot;</span>);
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="kw">let </span>record = result.expect(<span class="string">"a CSV record"</span>);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
 }</code></pre></div>
 <p>There are two places where an error can occur in this program. The first is
@@ -203,8 +204,8 @@ config knob.)</p>
 first line in our loop:</p>
 
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
-    <span class="kw">let </span>record = result.expect(<span class="string">&quot;a CSV record&quot;</span>); <span class="comment">// this panics
-    </span><span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+    <span class="kw">let </span>record = result.expect(<span class="string">"a CSV record"</span>); <span class="comment">// this panics
+    </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
 }</code></pre></div>
 <p>The key thing to understand here is that <code>rdr.records()</code> returns an iterator
 that yields <code>Result</code> values. That is, instead of yielding records, it yields
@@ -216,13 +217,13 @@ it does contain an error.</p>
 
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::fmt;
 
-<span class="comment">// This says, &quot;for all types T and E, where E can be turned into a human
-// readable debug message, define the `expect` method.&quot;
+<span class="comment">// This says, "for all types T and E, where E can be turned into a human
+// readable debug message, define the `expect` method."
 </span><span class="kw">impl</span>&lt;T, E: fmt::Debug&gt; <span class="prelude-ty">Result</span>&lt;T, E&gt; {
     <span class="kw">fn </span>expect(<span class="self">self</span>, msg: <span class="kw-2">&amp;</span>str) -&gt; T {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="prelude-val">Ok</span>(t) =&gt; t,
-            <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, msg, e),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">"{}: {:?}"</span>, msg, e),
         }
     }
 }</code></pre></div>
@@ -245,9 +246,9 @@ let’s get rid of the panic and print an error message manually:</p>
         // If there was no problem, print the record.
         // Otherwise, print the error message and quit the program.
         </span><span class="kw">match </span>result {
-            <span class="prelude-val">Ok</span>(record) =&gt; <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record),
+            <span class="prelude-val">Ok</span>(record) =&gt; <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record),
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;error reading CSV from &lt;stdin&gt;: {}&quot;</span>, err);
+                <span class="macro">println!</span>(<span class="string">"error reading CSV from &lt;stdin&gt;: {}"</span>, err);
                 process::exit(<span class="number">1</span>);
             }
         }
@@ -272,7 +273,7 @@ error, which our <code>main</code> function can then inspect and decide what to 
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
 }
@@ -286,7 +287,7 @@ error, which our <code>main</code> function can then inspect and decide what to 
         </span><span class="kw">match </span>result {
             <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(From::from(err)),
             <span class="prelude-val">Ok</span>(record) =&gt; {
-              <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+              <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
             }
         }
     }
@@ -306,7 +307,7 @@ special Rust language feature: the question mark.</p>
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
 }
@@ -317,7 +318,7 @@ special Rust language feature: the question mark.</p>
         <span class="comment">// This is effectively the same code as our `match` in the
         // previous example. In other words, `?` is syntactic sugar.
         </span><span class="kw">let </span>record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -362,7 +363,7 @@ path argument instead of stdin.</p>
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(file);
     <span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
         <span class="kw">let </span>record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
     <span class="prelude-val">Ok</span>(())
 }
@@ -371,14 +372,14 @@ path argument instead of stdin.</p>
 /// positional arguments, then this returns an error.
 </span><span class="kw">fn </span>get_first_arg() -&gt; <span class="prelude-ty">Result</span>&lt;OsString, Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">match </span>env::args_os().nth(<span class="number">1</span>) {
-        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(From::from(<span class="string">&quot;expected 1 argument, but got none&quot;</span>)),
+        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(From::from(<span class="string">"expected 1 argument, but got none"</span>)),
         <span class="prelude-val">Some</span>(file_path) =&gt; <span class="prelude-val">Ok</span>(file_path),
     }
 }
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
 }</code></pre></div>
@@ -445,7 +446,7 @@ produces terser examples.)</p>
         .from_reader(io::stdin());
     <span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
         <span class="kw">let </span>record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -468,16 +469,16 @@ method like so:</p>
     {
         <span class="comment">// We nest this call in its own scope because of lifetimes.
         </span><span class="kw">let </span>headers = rdr.headers()<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, headers);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, headers);
     }
     <span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
         <span class="kw">let </span>record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
-    <span class="comment">// We can ask for the headers at any time. There&#39;s no need to nest this
+    <span class="comment">// We can ask for the headers at any time. There's no need to nest this
     // call in its own scope because we never try to borrow the reader again.
     </span><span class="kw">let </span>headers = rdr.headers()<span class="question-mark">?</span>;
-    <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, headers);
+    <span class="macro">println!</span>(<span class="string">"{:?}"</span>, headers);
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
 <p>One interesting thing to note in this example is that we put the call to
@@ -524,15 +525,15 @@ as seen in the following example:</p>
 </span><span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::ReaderBuilder::new()
         .has_headers(<span class="bool-val">false</span>)
-        .delimiter(<span class="string">b&#39;;&#39;</span>)
+        .delimiter(<span class="string">b';'</span>)
         .double_quote(<span class="bool-val">false</span>)
-        .escape(<span class="prelude-val">Some</span>(<span class="string">b&#39;\\&#39;</span>))
+        .escape(<span class="prelude-val">Some</span>(<span class="string">b'\\'</span>))
         .flexible(<span class="bool-val">true</span>)
-        .comment(<span class="prelude-val">Some</span>(<span class="string">b&#39;#&#39;</span>))
+        .comment(<span class="prelude-val">Some</span>(<span class="string">b'#'</span>))
         .from_reader(io::stdin());
     <span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
         <span class="kw">let </span>record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -593,18 +594,18 @@ a lot of manual work. This next example shows how.</p>
 
         <span class="kw">let </span>city = <span class="kw-2">&amp;</span>record[<span class="number">0</span>];
         <span class="kw">let </span>state = <span class="kw-2">&amp;</span>record[<span class="number">1</span>];
-        <span class="comment">// Some records are missing population counts, so if we can&#39;t
+        <span class="comment">// Some records are missing population counts, so if we can't
         // parse a number, treat the population count as missing instead
         // of returning an error.
         </span><span class="kw">let </span>pop: <span class="prelude-ty">Option</span>&lt;u64&gt; = record[<span class="number">2</span>].parse().ok();
         <span class="comment">// Lucky us! Latitudes and longitudes are available for every record.
-        // Therefore, if one couldn&#39;t be parsed, return an error.
+        // Therefore, if one couldn't be parsed, return an error.
         </span><span class="kw">let </span>latitude: f64 = record[<span class="number">3</span>].parse()<span class="question-mark">?</span>;
         <span class="kw">let </span>longitude: f64 = record[<span class="number">4</span>].parse()<span class="question-mark">?</span>;
 
         <span class="macro">println!</span>(
-            <span class="string">&quot;city: {:?}, state: {:?}, \
-             pop: {:?}, latitude: {:?}, longitude: {:?}&quot;</span>,
+            <span class="string">"city: {:?}, state: {:?}, \
+             pop: {:?}, latitude: {:?}, longitude: {:?}"</span>,
             city, state, pop, latitude, longitude);
     }
     <span class="prelude-val">Ok</span>(())
@@ -626,7 +627,7 @@ type: <code>(String, String, Option&lt;u64&gt;, f64, f64)</code>.</p>
     </span><span class="kw">for </span>result <span class="kw">in </span>rdr.deserialize() {
         <span class="comment">// We must tell Serde what type we want to deserialize into.
         </span><span class="kw">let </span>record: Record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -661,7 +662,7 @@ a new <code>use</code> statement that imports <code>HashMap</code> from the stan
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(io::stdin());
     <span class="kw">for </span>result <span class="kw">in </span>rdr.deserialize() {
         <span class="kw">let </span>record: Record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -695,13 +696,13 @@ how. Don’t miss the new Serde imports!</p>
 // This lets us write `#[derive(Deserialize)]`.
 </span><span class="kw">use </span>serde::Deserialize;
 
-<span class="comment">// We don&#39;t need to derive `Debug` (which doesn&#39;t require Serde), but it&#39;s a
+<span class="comment">// We don't need to derive `Debug` (which doesn't require Serde), but it's a
 // good habit to do it for all your types.
 //
 // Notice that the field names in this struct are NOT in the same order as
 // the fields in the CSV data!
 </span><span class="attr">#[derive(Debug, Deserialize)]
-#[serde(rename_all = <span class="string">&quot;PascalCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"PascalCase"</span>)]
 </span><span class="kw">struct </span>Record {
     latitude: f64,
     longitude: f64,
@@ -714,16 +715,16 @@ how. Don’t miss the new Serde imports!</p>
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(io::stdin());
     <span class="kw">for </span>result <span class="kw">in </span>rdr.deserialize() {
         <span class="kw">let </span>record: Record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
-        <span class="comment">// Try this if you don&#39;t like each record smushed on one line:
-        // println!(&quot;{:#?}&quot;, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
+        <span class="comment">// Try this if you don't like each record smushed on one line:
+        // println!("{:#?}", record);
     </span>}
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
 }</code></pre></div>
@@ -776,15 +777,15 @@ is useful when there is no consistent name mapping from fields to header names:<
 
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Deserialize)]
 </span><span class="kw">struct </span>Record {
-    <span class="attr">#[serde(rename = <span class="string">&quot;Latitude&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"Latitude"</span>)]
     </span>latitude: f64,
-    <span class="attr">#[serde(rename = <span class="string">&quot;Longitude&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"Longitude"</span>)]
     </span>longitude: f64,
-    <span class="attr">#[serde(rename = <span class="string">&quot;Population&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"Population"</span>)]
     </span>population: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-    <span class="attr">#[serde(rename = <span class="string">&quot;City&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"City"</span>)]
     </span>city: String,
-    <span class="attr">#[serde(rename = <span class="string">&quot;State&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"State"</span>)]
     </span>state: String,
 }</code></pre></div>
 <p>To read more about renaming fields and about other Serde directives, please
@@ -802,7 +803,7 @@ so:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-read-serde-invalid-01.rs
 </span><span class="attr">#[derive(Debug, Deserialize)]
-#[serde(rename_all = <span class="string">&quot;PascalCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"PascalCase"</span>)]
 </span><span class="kw">struct </span>Record {
     latitude: f64,
     longitude: f64,
@@ -815,7 +816,7 @@ so:</p>
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(io::stdin());
     <span class="kw">for </span>result <span class="kw">in </span>rdr.deserialize() {
         <span class="kw">let </span>record: Record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -847,11 +848,11 @@ to a <code>None</code> value, as shown in this next example:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-read-serde-invalid-02.rs
 </span><span class="attr">#[derive(Debug, Deserialize)]
-#[serde(rename_all = <span class="string">&quot;PascalCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"PascalCase"</span>)]
 </span><span class="kw">struct </span>Record {
     latitude: f64,
     longitude: f64,
-    <span class="attr">#[serde(deserialize_with = <span class="string">&quot;csv::invalid_option&quot;</span>)]
+    <span class="attr">#[serde(deserialize_with = <span class="string">"csv::invalid_option"</span>)]
     </span>population: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     city: String,
     state: String,
@@ -861,7 +862,7 @@ to a <code>None</code> value, as shown in this next example:</p>
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(io::stdin());
     <span class="kw">for </span>result <span class="kw">in </span>rdr.deserialize() {
         <span class="kw">let </span>record: Record = result<span class="question-mark">?</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, record);
+        <span class="macro">println!</span>(<span class="string">"{:?}"</span>, record);
     }
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -877,7 +878,7 @@ Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: &
 <p>The only change in this example was adding this attribute to the <code>population</code>
 field in our <code>Record</code> type:</p>
 
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[serde(deserialize_with = <span class="string">&quot;csv::invalid_option&quot;</span>)]</span></code></pre></div>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[serde(deserialize_with = <span class="string">"csv::invalid_option"</span>)]</span></code></pre></div>
 <p>The
 <a href="../fn.invalid_option.html"><code>invalid_option</code></a>
 function is a generic helper function that does one very simple thing: when
@@ -894,23 +895,23 @@ control the output format.</p>
 
 <span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>wtr = csv::Writer::from_writer(io::stdout());
-    <span class="comment">// Since we&#39;re writing records manually, we must explicitly write our
+    <span class="comment">// Since we're writing records manually, we must explicitly write our
     // header record. A header record is written the same way that other
     // records are written.
-    </span>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;City&quot;</span>, <span class="string">&quot;State&quot;</span>, <span class="string">&quot;Population&quot;</span>, <span class="string">&quot;Latitude&quot;</span>, <span class="string">&quot;Longitude&quot;</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;Davidsons Landing&quot;</span>, <span class="string">&quot;AK&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;65.2419444&quot;</span>, <span class="string">&quot;-165.2716667&quot;</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;Kenai&quot;</span>, <span class="string">&quot;AK&quot;</span>, <span class="string">&quot;7610&quot;</span>, <span class="string">&quot;60.5544444&quot;</span>, <span class="string">&quot;-151.2583333&quot;</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;Oakman&quot;</span>, <span class="string">&quot;AL&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;33.7133333&quot;</span>, <span class="string">&quot;-87.3886111&quot;</span>])<span class="question-mark">?</span>;
+    </span>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="string">""</span>, <span class="string">"65.2419444"</span>, <span class="string">"-165.2716667"</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="string">"7610"</span>, <span class="string">"60.5544444"</span>, <span class="string">"-151.2583333"</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="string">""</span>, <span class="string">"33.7133333"</span>, <span class="string">"-87.3886111"</span>])<span class="question-mark">?</span>;
 
-    <span class="comment">// A CSV writer maintains an internal buffer, so it&#39;s important
-    // to flush the buffer when you&#39;re done.
+    <span class="comment">// A CSV writer maintains an internal buffer, so it's important
+    // to flush the buffer when you're done.
     </span>wtr.flush()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
 }</code></pre></div>
@@ -958,7 +959,7 @@ on success or returns a <code>csv::Error</code> on failure.</li>
 <p>Now, let’s apply our new found understanding of the type signature of
 <code>write_record</code>. If you recall, in our previous example, we used it like so:</p>
 
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;field 1&quot;</span>, <span class="string">&quot;field 2&quot;</span>, <span class="string">&quot;etc&quot;</span>])<span class="question-mark">?</span>;</code></pre></div>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"field 1"</span>, <span class="string">"field 2"</span>, <span class="string">"etc"</span>])<span class="question-mark">?</span>;</code></pre></div>
 <p>So how do the types match up? Well, the type of each of our fields in this
 code is <code>&amp;'static str</code> (which is the type of a string literal in Rust). Since
 we put them in a slice literal, the type of our parameter is
@@ -968,13 +969,13 @@ strings satisfy the <code>AsRef&lt;[u8]&gt;</code> bound, this ends up being a l
 <p>Here are a few more examples of ways you can call <code>write_record</code>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// A slice of byte strings.
-</span>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">b&quot;a&quot;</span>, <span class="string">b&quot;b&quot;</span>, <span class="string">b&quot;c&quot;</span>]);
+</span>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">b"a"</span>, <span class="string">b"b"</span>, <span class="string">b"c"</span>]);
 <span class="comment">// A vector.
-</span>wtr.write_record(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]);
+</span>wtr.write_record(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]);
 <span class="comment">// A string record.
-</span>wtr.write_record(<span class="kw-2">&amp;</span>csv::StringRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]));
+</span>wtr.write_record(<span class="kw-2">&amp;</span>csv::StringRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]));
 <span class="comment">// A byte record.
-</span>wtr.write_record(<span class="kw-2">&amp;</span>csv::ByteRecord::from(<span class="macro">vec!</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]));</code></pre></div>
+</span>wtr.write_record(<span class="kw-2">&amp;</span>csv::ByteRecord::from(<span class="macro">vec!</span>[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]));</code></pre></div>
 <p>Finally, the example above can be easily adapted to write to a file instead
 of <code>stdout</code>:</p>
 
@@ -990,10 +991,10 @@ of <code>stdout</code>:</p>
     <span class="kw">let </span>file_path = get_first_arg()<span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>wtr = csv::Writer::from_path(file_path)<span class="question-mark">?</span>;
 
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;City&quot;</span>, <span class="string">&quot;State&quot;</span>, <span class="string">&quot;Population&quot;</span>, <span class="string">&quot;Latitude&quot;</span>, <span class="string">&quot;Longitude&quot;</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;Davidsons Landing&quot;</span>, <span class="string">&quot;AK&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;65.2419444&quot;</span>, <span class="string">&quot;-165.2716667&quot;</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;Kenai&quot;</span>, <span class="string">&quot;AK&quot;</span>, <span class="string">&quot;7610&quot;</span>, <span class="string">&quot;60.5544444&quot;</span>, <span class="string">&quot;-151.2583333&quot;</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;Oakman&quot;</span>, <span class="string">&quot;AL&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;33.7133333&quot;</span>, <span class="string">&quot;-87.3886111&quot;</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="string">""</span>, <span class="string">"65.2419444"</span>, <span class="string">"-165.2716667"</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="string">"7610"</span>, <span class="string">"60.5544444"</span>, <span class="string">"-151.2583333"</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="string">""</span>, <span class="string">"33.7133333"</span>, <span class="string">"-87.3886111"</span>])<span class="question-mark">?</span>;
 
     wtr.flush()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
@@ -1003,14 +1004,14 @@ of <code>stdout</code>:</p>
 /// positional arguments, then this returns an error.
 </span><span class="kw">fn </span>get_first_arg() -&gt; <span class="prelude-ty">Result</span>&lt;OsString, Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">match </span>env::args_os().nth(<span class="number">1</span>) {
-        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(From::from(<span class="string">&quot;expected 1 argument, but got none&quot;</span>)),
+        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(From::from(<span class="string">"expected 1 argument, but got none"</span>)),
         <span class="prelude-val">Some</span>(file_path) =&gt; <span class="prelude-val">Ok</span>(file_path),
     }
 }
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
 }</code></pre></div>
@@ -1036,14 +1037,14 @@ Here’s an example:</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-write-delimiter-01.rs
 </span><span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>wtr = csv::WriterBuilder::new()
-        .delimiter(<span class="string">b&#39;\t&#39;</span>)
+        .delimiter(<span class="string">b'\t'</span>)
         .quote_style(csv::QuoteStyle::NonNumeric)
         .from_writer(io::stdout());
 
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;City&quot;</span>, <span class="string">&quot;State&quot;</span>, <span class="string">&quot;Population&quot;</span>, <span class="string">&quot;Latitude&quot;</span>, <span class="string">&quot;Longitude&quot;</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;Davidsons Landing&quot;</span>, <span class="string">&quot;AK&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;65.2419444&quot;</span>, <span class="string">&quot;-165.2716667&quot;</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;Kenai&quot;</span>, <span class="string">&quot;AK&quot;</span>, <span class="string">&quot;7610&quot;</span>, <span class="string">&quot;60.5544444&quot;</span>, <span class="string">&quot;-151.2583333&quot;</span>])<span class="question-mark">?</span>;
-    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;Oakman&quot;</span>, <span class="string">&quot;AL&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;33.7133333&quot;</span>, <span class="string">&quot;-87.3886111&quot;</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="string">""</span>, <span class="string">"65.2419444"</span>, <span class="string">"-165.2716667"</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="string">"7610"</span>, <span class="string">"60.5544444"</span>, <span class="string">"-151.2583333"</span>])<span class="question-mark">?</span>;
+    wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="string">""</span>, <span class="string">"33.7133333"</span>, <span class="string">"-87.3886111"</span>])<span class="question-mark">?</span>;
 
     wtr.flush()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
@@ -1074,17 +1075,17 @@ into CSV records using Serde. In this section, we’ll learn how to use it.</p>
     <span class="kw">let </span><span class="kw-2">mut </span>wtr = csv::Writer::from_writer(io::stdout());
 
     <span class="comment">// We still need to write headers manually.
-    </span>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">&quot;City&quot;</span>, <span class="string">&quot;State&quot;</span>, <span class="string">&quot;Population&quot;</span>, <span class="string">&quot;Latitude&quot;</span>, <span class="string">&quot;Longitude&quot;</span>])<span class="question-mark">?</span>;
+    </span>wtr.write_record(<span class="kw-2">&amp;</span>[<span class="string">"City"</span>, <span class="string">"State"</span>, <span class="string">"Population"</span>, <span class="string">"Latitude"</span>, <span class="string">"Longitude"</span>])<span class="question-mark">?</span>;
 
     <span class="comment">// But now we can write records by providing a normal Rust value.
     //
     // Note that the odd `None::&lt;u64&gt;` syntax is required because `None` on
-    // its own doesn&#39;t have a concrete type, but Serde needs a concrete type
+    // its own doesn't have a concrete type, but Serde needs a concrete type
     // in order to serialize it. That is, `None` has type `Option&lt;T&gt;` but
     // `None::&lt;u64&gt;` has type `Option&lt;u64&gt;`.
-    </span>wtr.serialize((<span class="string">&quot;Davidsons Landing&quot;</span>, <span class="string">&quot;AK&quot;</span>, <span class="prelude-val">None</span>::&lt;u64&gt;, <span class="number">65.2419444</span>, -<span class="number">165.2716667</span>))<span class="question-mark">?</span>;
-    wtr.serialize((<span class="string">&quot;Kenai&quot;</span>, <span class="string">&quot;AK&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">7610</span>), <span class="number">60.5544444</span>, -<span class="number">151.2583333</span>))<span class="question-mark">?</span>;
-    wtr.serialize((<span class="string">&quot;Oakman&quot;</span>, <span class="string">&quot;AL&quot;</span>, <span class="prelude-val">None</span>::&lt;u64&gt;, <span class="number">33.7133333</span>, -<span class="number">87.3886111</span>))<span class="question-mark">?</span>;
+    </span>wtr.serialize((<span class="string">"Davidsons Landing"</span>, <span class="string">"AK"</span>, <span class="prelude-val">None</span>::&lt;u64&gt;, <span class="number">65.2419444</span>, -<span class="number">165.2716667</span>))<span class="question-mark">?</span>;
+    wtr.serialize((<span class="string">"Kenai"</span>, <span class="string">"AK"</span>, <span class="prelude-val">Some</span>(<span class="number">7610</span>), <span class="number">60.5544444</span>, -<span class="number">151.2583333</span>))<span class="question-mark">?</span>;
+    wtr.serialize((<span class="string">"Oakman"</span>, <span class="string">"AL"</span>, <span class="prelude-val">None</span>::&lt;u64&gt;, <span class="number">33.7133333</span>, -<span class="number">87.3886111</span>))<span class="question-mark">?</span>;
 
     wtr.flush()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
@@ -1124,10 +1125,10 @@ shown in the example:</p>
 
 <span class="comment">// Note that structs can derive both Serialize and Deserialize!
 </span><span class="attr">#[derive(Debug, Serialize)]
-#[serde(rename_all = <span class="string">&quot;PascalCase&quot;</span>)]
-</span><span class="kw">struct </span>Record&lt;<span class="lifetime">&#39;a</span>&gt; {
-    city: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+#[serde(rename_all = <span class="string">"PascalCase"</span>)]
+</span><span class="kw">struct </span>Record&lt;<span class="lifetime">'a</span>&gt; {
+    city: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    state: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     population: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     latitude: f64,
     longitude: f64,
@@ -1137,22 +1138,22 @@ shown in the example:</p>
     <span class="kw">let </span><span class="kw-2">mut </span>wtr = csv::Writer::from_writer(io::stdout());
 
     wtr.serialize(Record {
-        city: <span class="string">&quot;Davidsons Landing&quot;</span>,
-        state: <span class="string">&quot;AK&quot;</span>,
+        city: <span class="string">"Davidsons Landing"</span>,
+        state: <span class="string">"AK"</span>,
         population: <span class="prelude-val">None</span>,
         latitude: <span class="number">65.2419444</span>,
         longitude: -<span class="number">165.2716667</span>,
     })<span class="question-mark">?</span>;
     wtr.serialize(Record {
-        city: <span class="string">&quot;Kenai&quot;</span>,
-        state: <span class="string">&quot;AK&quot;</span>,
+        city: <span class="string">"Kenai"</span>,
+        state: <span class="string">"AK"</span>,
         population: <span class="prelude-val">Some</span>(<span class="number">7610</span>),
         latitude: <span class="number">60.5544444</span>,
         longitude: -<span class="number">151.2583333</span>,
     })<span class="question-mark">?</span>;
     wtr.serialize(Record {
-        city: <span class="string">&quot;Oakman&quot;</span>,
-        state: <span class="string">&quot;AL&quot;</span>,
+        city: <span class="string">"Oakman"</span>,
+        state: <span class="string">"AL"</span>,
         population: <span class="prelude-val">None</span>,
         latitude: <span class="number">33.7133333</span>,
         longitude: -<span class="number">87.3886111</span>,
@@ -1164,7 +1165,7 @@ shown in the example:</p>
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
 }</code></pre></div>
@@ -1187,9 +1188,9 @@ method.</p>
 <p>It’s also worth pointing out the use of a <em>lifetime parameter</em> in our <code>Record</code>
 struct:</p>
 
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">struct </span>Record&lt;<span class="lifetime">&#39;a</span>&gt; {
-    city: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">struct </span>Record&lt;<span class="lifetime">'a</span>&gt; {
+    city: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    state: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     population: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     latitude: f64,
     longitude: f64,
@@ -1231,9 +1232,9 @@ rows with a field that matches the query.</p>
 
 <span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="comment">// Get the query from the positional arguments.
-    // If one doesn&#39;t exist, return an error.
+    // If one doesn't exist, return an error.
     </span><span class="kw">let </span>query = <span class="kw">match </span>env::args().nth(<span class="number">1</span>) {
-        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(From::from(<span class="string">&quot;expected 1 argument, but got none&quot;</span>)),
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(From::from(<span class="string">"expected 1 argument, but got none"</span>)),
         <span class="prelude-val">Some</span>(query) =&gt; query,
     };
 
@@ -1260,7 +1261,7 @@ rows with a field that matches the query.</p>
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
 }</code></pre></div>
@@ -1327,7 +1328,7 @@ change:</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-pipeline-search-02.rs
 </span><span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">let </span>query = <span class="kw">match </span>env::args().nth(<span class="number">1</span>) {
-        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(From::from(<span class="string">&quot;expected 1 argument, but got none&quot;</span>)),
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(From::from(<span class="string">"expected 1 argument, but got none"</span>)),
         <span class="prelude-val">Some</span>(query) =&gt; query,
     };
 
@@ -1338,7 +1339,7 @@ change:</p>
 
     <span class="kw">for </span>result <span class="kw">in </span>rdr.byte_records() {
         <span class="kw">let </span>record = result<span class="question-mark">?</span>;
-        <span class="comment">// `query` is a `String` while `field` is now a `&amp;[u8]`, so we&#39;ll
+        <span class="comment">// `query` is a `String` while `field` is now a `&amp;[u8]`, so we'll
         // need to convert `query` to `&amp;[u8]` before doing a comparison.
         </span><span class="kw">if </span>record.iter().any(|field| field == query.as_bytes()) {
             wtr.write_record(<span class="kw-2">&amp;</span>record)<span class="question-mark">?</span>;
@@ -1376,9 +1377,9 @@ aren’t already there:</p>
 </span><span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="comment">// Unlike previous examples, we derive both Deserialize and Serialize. This
-// means we&#39;ll be able to automatically deserialize and serialize this type.
+// means we'll be able to automatically deserialize and serialize this type.
 </span><span class="attr">#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = <span class="string">&quot;PascalCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"PascalCase"</span>)]
 </span><span class="kw">struct </span>Record {
     city: String,
     state: String,
@@ -1389,15 +1390,15 @@ aren’t already there:</p>
 
 <span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="comment">// Get the query from the positional arguments.
-    // If one doesn&#39;t exist or isn&#39;t an integer, return an error.
+    // If one doesn't exist or isn't an integer, return an error.
     </span><span class="kw">let </span>minimum_pop: u64 = <span class="kw">match </span>env::args().nth(<span class="number">1</span>) {
-        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(From::from(<span class="string">&quot;expected 1 argument, but got none&quot;</span>)),
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(From::from(<span class="string">"expected 1 argument, but got none"</span>)),
         <span class="prelude-val">Some</span>(arg) =&gt; arg.parse()<span class="question-mark">?</span>,
     };
 
     <span class="comment">// Build CSV readers and writers to stdin and stdout, respectively.
-    // Note that we don&#39;t need to write headers explicitly. Since we&#39;re
-    // serializing a custom struct, that&#39;s done for us automatically.
+    // Note that we don't need to write headers explicitly. Since we're
+    // serializing a custom struct, that's done for us automatically.
     </span><span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(io::stdin());
     <span class="kw">let </span><span class="kw-2">mut </span>wtr = csv::Writer::from_writer(io::stdout());
 
@@ -1426,7 +1427,7 @@ aren’t already there:</p>
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
 }</code></pre></div>
@@ -1492,7 +1493,7 @@ adapting a previous example to count the number of records in
     <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
     <span class="kw">for </span>result <span class="kw">in </span>rdr.records() {
         <span class="kw">let </span>record = result<span class="question-mark">?</span>;
-        <span class="kw">if </span><span class="kw-2">&amp;</span>record[<span class="number">0</span>] == <span class="string">&quot;us&quot; </span>&amp;&amp; <span class="kw-2">&amp;</span>record[<span class="number">3</span>] == <span class="string">&quot;MA&quot; </span>{
+        <span class="kw">if </span><span class="kw-2">&amp;</span>record[<span class="number">0</span>] == <span class="string">"us" </span>&amp;&amp; <span class="kw-2">&amp;</span>record[<span class="number">3</span>] == <span class="string">"MA" </span>{
             count += <span class="number">1</span>;
         }
     }
@@ -1502,10 +1503,10 @@ adapting a previous example to count the number of records in
 <span class="kw">fn </span>main() {
     <span class="kw">match </span>run() {
         <span class="prelude-val">Ok</span>(count) =&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, count);
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, count);
         }
         <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
             process::exit(<span class="number">1</span>);
         }
     }
@@ -1540,7 +1541,7 @@ shown in the next example:</p>
     <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
     <span class="kw">for </span>result <span class="kw">in </span>rdr.byte_records() {
         <span class="kw">let </span>record = result<span class="question-mark">?</span>;
-        <span class="kw">if </span><span class="kw-2">&amp;</span>record[<span class="number">0</span>] == <span class="string">b&quot;us&quot; </span>&amp;&amp; <span class="kw-2">&amp;</span>record[<span class="number">3</span>] == <span class="string">b&quot;MA&quot; </span>{
+        <span class="kw">if </span><span class="kw-2">&amp;</span>record[<span class="number">0</span>] == <span class="string">b"us" </span>&amp;&amp; <span class="kw-2">&amp;</span>record[<span class="number">3</span>] == <span class="string">b"MA" </span>{
             count += <span class="number">1</span>;
         }
     }
@@ -1561,7 +1562,7 @@ lost? In this case, it is perfectly acceptable to drop UTF-8 validation and use
 <code>ByteRecord</code> instead because all we’re doing with the data in the record is
 comparing two of its fields to raw bytes:</p>
 
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">if </span><span class="kw-2">&amp;</span>record[<span class="number">0</span>] == <span class="string">b&quot;us&quot; </span>&amp;&amp; <span class="kw-2">&amp;</span>record[<span class="number">3</span>] == <span class="string">b&quot;MA&quot; </span>{
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">if </span><span class="kw-2">&amp;</span>record[<span class="number">0</span>] == <span class="string">b"us" </span>&amp;&amp; <span class="kw-2">&amp;</span>record[<span class="number">3</span>] == <span class="string">b"MA" </span>{
     count += <span class="number">1</span>;
 }</code></pre></div>
 <p>In particular, it doesn’t matter whether <code>record</code> is valid UTF-8 or not, since
@@ -1595,7 +1596,7 @@ method.</p>
 
     <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
     <span class="kw">while </span>rdr.read_byte_record(<span class="kw-2">&amp;mut </span>record)<span class="question-mark">? </span>{
-        <span class="kw">if </span><span class="kw-2">&amp;</span>record[<span class="number">0</span>] == <span class="string">b&quot;us&quot; </span>&amp;&amp; <span class="kw-2">&amp;</span>record[<span class="number">3</span>] == <span class="string">b&quot;MA&quot; </span>{
+        <span class="kw">if </span><span class="kw-2">&amp;</span>record[<span class="number">0</span>] == <span class="string">b"us" </span>&amp;&amp; <span class="kw-2">&amp;</span>record[<span class="number">3</span>] == <span class="string">b"MA" </span>{
             count += <span class="number">1</span>;
         }
     }
@@ -1645,7 +1646,7 @@ example using Serde in a previous section:</p>
 <span class="kw">use </span>serde::Deserialize;
 
 <span class="attr">#[derive(Debug, Deserialize)]
-#[serde(rename_all = <span class="string">&quot;PascalCase&quot;</span>)]
+#[serde(rename_all = <span class="string">"PascalCase"</span>)]
 </span><span class="kw">struct </span>Record {
     country: String,
     city: String,
@@ -1662,7 +1663,7 @@ example using Serde in a previous section:</p>
     <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
     <span class="kw">for </span>result <span class="kw">in </span>rdr.deserialize() {
         <span class="kw">let </span>record: Record = result<span class="question-mark">?</span>;
-        <span class="kw">if </span>record.country == <span class="string">&quot;us&quot; </span>&amp;&amp; record.region == <span class="string">&quot;MA&quot; </span>{
+        <span class="kw">if </span>record.country == <span class="string">"us" </span>&amp;&amp; record.region == <span class="string">"MA" </span>{
             count += <span class="number">1</span>;
         }
     }
@@ -1672,10 +1673,10 @@ example using Serde in a previous section:</p>
 <span class="kw">fn </span>main() {
     <span class="kw">match </span>run() {
         <span class="prelude-val">Ok</span>(count) =&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, count);
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, count);
         }
         <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
             process::exit(<span class="number">1</span>);
         }
     }
@@ -1701,12 +1702,12 @@ like:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-perf-serde-02.rs
 </span><span class="attr">#[derive(Debug, Deserialize)]
-#[serde(rename_all = <span class="string">&quot;PascalCase&quot;</span>)]
-</span><span class="kw">struct </span>Record&lt;<span class="lifetime">&#39;a</span>&gt; {
-    country: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    city: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    accent_city: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    region: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+#[serde(rename_all = <span class="string">"PascalCase"</span>)]
+</span><span class="kw">struct </span>Record&lt;<span class="lifetime">'a</span>&gt; {
+    country: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    city: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    accent_city: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+    region: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     population: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     latitude: f64,
     longitude: f64,
@@ -1720,7 +1721,7 @@ like:</p>
     <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
     <span class="kw">while </span>rdr.read_record(<span class="kw-2">&amp;mut </span>raw_record)<span class="question-mark">? </span>{
         <span class="kw">let </span>record: Record = raw_record.deserialize(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>headers))<span class="question-mark">?</span>;
-        <span class="kw">if </span>record.country == <span class="string">&quot;us&quot; </span>&amp;&amp; record.region == <span class="string">&quot;MA&quot; </span>{
+        <span class="kw">if </span>record.country == <span class="string">"us" </span>&amp;&amp; record.region == <span class="string">"MA" </span>{
             count += <span class="number">1</span>;
         }
     }
@@ -1760,12 +1761,12 @@ of <code>StringRecord</code>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-perf-serde-03.rs
 </span><span class="attr">#[derive(Debug, Deserialize)]
-#[serde(rename_all = <span class="string">&quot;PascalCase&quot;</span>)]
-</span><span class="kw">struct </span>Record&lt;<span class="lifetime">&#39;a</span>&gt; {
-    country: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-    city: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-    accent_city: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-    region: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+#[serde(rename_all = <span class="string">"PascalCase"</span>)]
+</span><span class="kw">struct </span>Record&lt;<span class="lifetime">'a</span>&gt; {
+    country: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
+    city: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
+    accent_city: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
+    region: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
     population: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     latitude: f64,
     longitude: f64,
@@ -1779,7 +1780,7 @@ of <code>StringRecord</code>:</p>
     <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
     <span class="kw">while </span>rdr.read_byte_record(<span class="kw-2">&amp;mut </span>raw_record)<span class="question-mark">? </span>{
         <span class="kw">let </span>record: Record = raw_record.deserialize(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>headers))<span class="question-mark">?</span>;
-        <span class="kw">if </span>record.country == <span class="string">b&quot;us&quot; </span>&amp;&amp; record.region == <span class="string">b&quot;MA&quot; </span>{
+        <span class="kw">if </span>record.country == <span class="string">b"us" </span>&amp;&amp; record.region == <span class="string">b"MA" </span>{
             count += <span class="number">1</span>;
         }
     }
@@ -1853,7 +1854,7 @@ access to I/O, which would be harder without the standard library.)</p>
         </span><span class="kw">let </span>field = <span class="kw-2">&amp;</span>field[..nwrite];
 
         <span class="kw">match </span>result {
-            <span class="comment">// We don&#39;t need to handle this case because we read all of the
+            <span class="comment">// We don't need to handle this case because we read all of the
             // data up front. If we were reading data incrementally, then this
             // would be a signal to read more.
             </span>ReadFieldResult::InputEmpty =&gt; {}
@@ -1862,12 +1863,12 @@ access to I/O, which would be harder without the standard library.)</p>
             </span>ReadFieldResult::OutputFull =&gt; {
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
-            <span class="comment">// This case happens when we&#39;ve successfully read a field. If the
+            <span class="comment">// This case happens when we've successfully read a field. If the
             // field is the last field in a record, then `record_end` is true.
             </span>ReadFieldResult::Field { record_end } =&gt; {
-                <span class="kw">if </span>fieldidx == <span class="number">0 </span>&amp;&amp; field == <span class="string">b&quot;us&quot; </span>{
+                <span class="kw">if </span>fieldidx == <span class="number">0 </span>&amp;&amp; field == <span class="string">b"us" </span>{
                     inus = <span class="bool-val">true</span>;
-                } <span class="kw">else if </span>inus &amp;&amp; fieldidx == <span class="number">3 </span>&amp;&amp; field == <span class="string">b&quot;MA&quot; </span>{
+                } <span class="kw">else if </span>inus &amp;&amp; fieldidx == <span class="number">3 </span>&amp;&amp; field == <span class="string">b"MA" </span>{
                     count += <span class="number">1</span>;
                 }
                 <span class="kw">if </span>record_end {
@@ -1891,16 +1892,16 @@ access to I/O, which would be harder without the standard library.)</p>
     <span class="comment">// Read the entire contents of stdin up front.
     </span><span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[];
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = io::stdin().read_to_end(<span class="kw-2">&amp;mut </span>data) {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, err);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, err);
         process::exit(<span class="number">1</span>);
     }
     <span class="kw">match </span>run(<span class="kw-2">&amp;</span>data) {
         <span class="prelude-val">None </span>=&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;error: could not count records, buffer too small&quot;</span>);
+            <span class="macro">println!</span>(<span class="string">"error: could not count records, buffer too small"</span>);
             process::exit(<span class="number">1</span>);
         }
         <span class="prelude-val">Some</span>(count) =&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, count);
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, count);
         }
     }
 }</code></pre></div>

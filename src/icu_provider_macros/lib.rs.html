@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider_macros-1.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider_macros" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider_macros-1.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider_macros" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -480,36 +481,36 @@
 ///
 /// #[icu_provider::data_struct(
 ///     FooV1Marker,
-///     BarV1Marker = &quot;demo/bar@1&quot;,
+///     BarV1Marker = "demo/bar@1",
 ///     marker(
 ///         BazV1Marker,
-///         &quot;demo/baz@1&quot;,
-///         fallback_by = &quot;region&quot;,
-///         extension_key = &quot;ca&quot;
+///         "demo/baz@1",
+///         fallback_by = "region",
+///         extension_key = "ca"
 ///     )
 /// )]
-/// pub struct FooV1&lt;&#39;data&gt; {
-///     message: Cow&lt;&#39;data, str&gt;,
+/// pub struct FooV1&lt;'data&gt; {
+///     message: Cow&lt;'data, str&gt;,
 /// };
 ///
 /// // Note: FooV1Marker implements `DataMarker` but not `KeyedDataMarker`.
 /// // The other two implement `KeyedDataMarker`.
 ///
-/// assert_eq!(&amp;*BarV1Marker::KEY.path(), &quot;demo/bar@1&quot;);
+/// assert_eq!(&amp;*BarV1Marker::KEY.path(), "demo/bar@1");
 /// assert_eq!(
 ///     BarV1Marker::KEY.metadata().fallback_priority,
 ///     LocaleFallbackPriority::Language
 /// );
 /// assert_eq!(BarV1Marker::KEY.metadata().extension_key, None);
 ///
-/// assert_eq!(&amp;*BazV1Marker::KEY.path(), &quot;demo/baz@1&quot;);
+/// assert_eq!(&amp;*BazV1Marker::KEY.path(), "demo/baz@1");
 /// assert_eq!(
 ///     BazV1Marker::KEY.metadata().fallback_priority,
 ///     LocaleFallbackPriority::Region
 /// );
 /// assert_eq!(
 ///     BazV1Marker::KEY.metadata().extension_key,
-///     Some(key!(&quot;ca&quot;))
+///     Some(key!("ca"))
 /// );
 /// ```
 ///
@@ -527,7 +528,7 @@
 }
 
 <span class="kw">impl </span>Parse <span class="kw">for </span>DataStructArgs {
-    <span class="kw">fn </span>parse(input: ParseStream&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; parse::Result&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse(input: ParseStream&lt;<span class="lifetime">'_</span>&gt;) -&gt; parse::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>args = input.parse_terminated(DataStructArg::parse, <span class="macro">Token!</span>[,])<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ args })
     }
@@ -555,7 +556,7 @@
 }
 
 <span class="kw">impl </span>Parse <span class="kw">for </span>DataStructArg {
-    <span class="kw">fn </span>parse(input: ParseStream&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; parse::Result&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse(input: ParseStream&lt;<span class="lifetime">'_</span>&gt;) -&gt; parse::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>path: Path = input.parse()<span class="question-mark">?</span>;
 
         <span class="kw">fn </span>at_most_one_option&lt;T&gt;(
@@ -567,14 +568,14 @@
             <span class="kw">if </span>o.replace(new).is_some() {
                 <span class="prelude-val">Err</span>(parse::Error::new(
                     span,
-                    <span class="macro">format!</span>(<span class="string">&quot;marker() cannot contain multiple {name}s&quot;</span>),
+                    <span class="macro">format!</span>(<span class="string">"marker() cannot contain multiple {name}s"</span>),
                 ))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(())
             }
         }
 
-        <span class="kw">if </span>path.is_ident(<span class="string">&quot;marker&quot;</span>) {
+        <span class="kw">if </span>path.is_ident(<span class="string">"marker"</span>) {
             <span class="kw">let </span>content;
             <span class="kw">let </span>paren = <span class="macro">parenthesized!</span>(content <span class="kw">in </span>input);
             <span class="kw">let </span><span class="kw-2">mut </span>marker_name: <span class="prelude-ty">Option</span>&lt;Path&gt; = <span class="prelude-val">None</span>;
@@ -588,39 +589,39 @@
             <span class="kw">for </span>entry <span class="kw">in </span>punct {
                 <span class="kw">match </span>entry {
                     DataStructMarkerArg::Path(path) =&gt; {
-                        at_most_one_option(<span class="kw-2">&amp;mut </span>marker_name, path, <span class="string">&quot;marker&quot;</span>, input.span())<span class="question-mark">?</span>;
+                        at_most_one_option(<span class="kw-2">&amp;mut </span>marker_name, path, <span class="string">"marker"</span>, input.span())<span class="question-mark">?</span>;
                     }
                     DataStructMarkerArg::NameValue(name, value) =&gt; {
-                        <span class="kw">if </span>name == <span class="string">&quot;fallback_by&quot; </span>{
+                        <span class="kw">if </span>name == <span class="string">"fallback_by" </span>{
                             at_most_one_option(
                                 <span class="kw-2">&amp;mut </span>fallback_by,
                                 value,
-                                <span class="string">&quot;fallback_by&quot;</span>,
+                                <span class="string">"fallback_by"</span>,
                                 paren.span.join(),
                             )<span class="question-mark">?</span>;
-                        } <span class="kw">else if </span>name == <span class="string">&quot;extension_key&quot; </span>{
+                        } <span class="kw">else if </span>name == <span class="string">"extension_key" </span>{
                             at_most_one_option(
                                 <span class="kw-2">&amp;mut </span>extension_key,
                                 value,
-                                <span class="string">&quot;extension_key&quot;</span>,
+                                <span class="string">"extension_key"</span>,
                                 paren.span.join(),
                             )<span class="question-mark">?</span>;
-                        } <span class="kw">else if </span>name == <span class="string">&quot;fallback_supplement&quot; </span>{
+                        } <span class="kw">else if </span>name == <span class="string">"fallback_supplement" </span>{
                             at_most_one_option(
                                 <span class="kw-2">&amp;mut </span>fallback_supplement,
                                 value,
-                                <span class="string">&quot;fallback_supplement&quot;</span>,
+                                <span class="string">"fallback_supplement"</span>,
                                 paren.span.join(),
                             )<span class="question-mark">?</span>;
                         } <span class="kw">else </span>{
                             <span class="kw">return </span><span class="prelude-val">Err</span>(parse::Error::new(
                                 name.span(),
-                                <span class="macro">format!</span>(<span class="string">&quot;unknown option {name} in marker()&quot;</span>),
+                                <span class="macro">format!</span>(<span class="string">"unknown option {name} in marker()"</span>),
                             ));
                         }
                     }
                     DataStructMarkerArg::Lit(lit) =&gt; {
-                        at_most_one_option(<span class="kw-2">&amp;mut </span>key_lit, lit, <span class="string">&quot;literal key&quot;</span>, input.span())<span class="question-mark">?</span>;
+                        at_most_one_option(<span class="kw-2">&amp;mut </span>key_lit, lit, <span class="string">"literal key"</span>, input.span())<span class="question-mark">?</span>;
                     }
                     DataStructMarkerArg::Singleton =&gt; {
                         singleton = <span class="bool-val">true</span>;
@@ -632,7 +633,7 @@
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(parse::Error::new(
                     input.span(),
-                    <span class="string">&quot;marker() must contain a marker!&quot;</span>,
+                    <span class="string">"marker() must contain a marker!"</span>,
                 ));
             };
 
@@ -667,7 +668,7 @@
     Singleton,
 }
 <span class="kw">impl </span>Parse <span class="kw">for </span>DataStructMarkerArg {
-    <span class="kw">fn </span>parse(input: ParseStream&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; parse::Result&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse(input: ParseStream&lt;<span class="lifetime">'_</span>&gt;) -&gt; parse::Result&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>lookahead = input.lookahead1();
         <span class="kw">if </span>lookahead.peek(LitStr) {
             <span class="prelude-val">Ok</span>(DataStructMarkerArg::Lit(input.parse()<span class="question-mark">?</span>))
@@ -677,13 +678,13 @@
             <span class="kw">if </span>lookahead.peek(<span class="macro">Token!</span>[=]) {
                 <span class="kw">let </span>_tok: <span class="macro">Token!</span>[=] = input.parse()<span class="question-mark">?</span>;
                 <span class="kw">let </span>ident = path.get_ident().ok_or_else(|| {
-                    parse::Error::new(path.span(), <span class="string">&quot;Expected identifier before `=`, found path&quot;</span>)
+                    parse::Error::new(path.span(), <span class="string">"Expected identifier before `=`, found path"</span>)
                 })<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(DataStructMarkerArg::NameValue(
                     ident.clone(),
                     input.parse()<span class="question-mark">?</span>,
                 ))
-            } <span class="kw">else if </span>path.is_ident(<span class="string">&quot;singleton&quot;</span>) {
+            } <span class="kw">else if </span>path.is_ident(<span class="string">"singleton"</span>) {
                 <span class="prelude-val">Ok</span>(DataStructMarkerArg::Singleton)
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(DataStructMarkerArg::Path(path))
@@ -696,7 +697,7 @@
     <span class="kw">if </span>input.generics.type_params().count() &gt; <span class="number">0 </span>{
         <span class="kw">return </span>syn::Error::new(
             input.generics.span(),
-            <span class="string">&quot;#[data_struct] does not support type parameters&quot;</span>,
+            <span class="string">"#[data_struct] does not support type parameters"</span>,
         )
         .to_compile_error();
     }
@@ -705,7 +706,7 @@
     <span class="kw">let </span>name = <span class="kw-2">&amp;</span>input.ident;
 
     <span class="kw">let </span>name_with_lt = <span class="kw">if </span>lifetimes.get(<span class="number">0</span>).is_some() {
-        <span class="macro">quote!</span>(#name&lt;<span class="lifetime">&#39;static</span>&gt;)
+        <span class="macro">quote!</span>(#name&lt;<span class="lifetime">'static</span>&gt;)
     } <span class="kw">else </span>{
         <span class="macro">quote!</span>(#name)
     };
@@ -713,7 +714,7 @@
     <span class="kw">if </span>lifetimes.len() &gt; <span class="number">1 </span>{
         <span class="kw">return </span>syn::Error::new(
             input.generics.span(),
-            <span class="string">&quot;#[data_struct] does not support more than one lifetime parameter&quot;</span>,
+            <span class="string">"#[data_struct] does not support more than one lifetime parameter"</span>,
         )
         .to_compile_error();
     }
@@ -721,7 +722,7 @@
     <span class="kw">let </span>bake_derive = input
         .attrs
         .iter()
-        .find(|a| a.path().is_ident(<span class="string">&quot;databake&quot;</span>))
+        .find(|a| a.path().is_ident(<span class="string">"databake"</span>))
         .map(|a| {
             <span class="macro">quote! </span>{
                 <span class="attr">#[derive(databake::Bake)]
@@ -745,15 +746,15 @@
         <span class="kw">let </span>docs = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>key_lit) = key_lit {
             <span class="kw">let </span>fallback_by_docs_str = <span class="kw">match </span>fallback_by {
                 <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>fallback_by) =&gt; fallback_by.value(),
-                <span class="prelude-val">None </span>=&gt; <span class="string">&quot;language (default)&quot;</span>.to_string(),
+                <span class="prelude-val">None </span>=&gt; <span class="string">"language (default)"</span>.to_string(),
             };
             <span class="kw">let </span>extension_key_docs_str = <span class="kw">match </span>extension_key {
                 <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>extension_key) =&gt; extension_key.value(),
-                <span class="prelude-val">None </span>=&gt; <span class="string">&quot;none (default)&quot;</span>.to_string(),
+                <span class="prelude-val">None </span>=&gt; <span class="string">"none (default)"</span>.to_string(),
             };
-            <span class="macro">format!</span>(<span class="string">&quot;Marker type for [`{}`]: \&quot;{}\&quot;\n\n- Fallback priority: {}\n- Extension keyword: {}&quot;</span>, name, key_lit.value(), fallback_by_docs_str, extension_key_docs_str)
+            <span class="macro">format!</span>(<span class="string">"Marker type for [`{}`]: \"{}\"\n\n- Fallback priority: {}\n- Extension keyword: {}"</span>, name, key_lit.value(), fallback_by_docs_str, extension_key_docs_str)
         } <span class="kw">else </span>{
-            <span class="macro">format!</span>(<span class="string">&quot;Marker type for [`{name}`]&quot;</span>)
+            <span class="macro">format!</span>(<span class="string">"Marker type for [`{name}`]"</span>)
         };
 
         result.extend(<span class="macro">quote!</span>(
@@ -769,16 +770,16 @@
             <span class="kw">let </span>key_str = key_lit.value();
             <span class="kw">let </span>fallback_by_expr = <span class="kw">if let </span><span class="prelude-val">Some</span>(fallback_by_lit) = fallback_by {
                 <span class="kw">match </span>fallback_by_lit.value().as_str() {
-                    <span class="string">&quot;region&quot; </span>=&gt; {
+                    <span class="string">"region" </span>=&gt; {
                         <span class="macro">quote! </span>{icu_provider::_internal::LocaleFallbackPriority::Region}
                     }
-                    <span class="string">&quot;collation&quot; </span>=&gt; {
+                    <span class="string">"collation" </span>=&gt; {
                         <span class="macro">quote! </span>{icu_provider::_internal::LocaleFallbackPriority::Collation}
                     }
-                    <span class="string">&quot;language&quot; </span>=&gt; {
+                    <span class="string">"language" </span>=&gt; {
                         <span class="macro">quote! </span>{icu_provider::_internal::LocaleFallbackPriority::Language}
                     }
-                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Invalid value for fallback_by&quot;</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Invalid value for fallback_by"</span>),
                 }
             } <span class="kw">else </span>{
                 <span class="macro">quote! </span>{icu_provider::_internal::LocaleFallbackPriority::const_default()}
@@ -792,10 +793,10 @@
                 fallback_supplement
             {
                 <span class="kw">match </span>fallback_supplement_lit.value().as_str() {
-                    <span class="string">&quot;collation&quot; </span>=&gt; {
+                    <span class="string">"collation" </span>=&gt; {
                         <span class="macro">quote! </span>{<span class="prelude-val">Some</span>(icu_provider::_internal::LocaleFallbackSupplement::Collation)}
                     }
-                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Invalid value for fallback_supplement&quot;</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Invalid value for fallback_supplement"</span>),
                 }
             } <span class="kw">else </span>{
                 <span class="macro">quote! </span>{<span class="prelude-val">None</span>}

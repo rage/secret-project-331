@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/cache_control.rs`."><title>cache_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/http/header/cache_control.rs`."><title>cache_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -207,12 +208,12 @@
     /// # ABNF
     /// ```text
     /// Cache-Control   = 1#cache-directive
-    /// cache-directive = token [ &quot;=&quot; ( token / quoted-string ) ]
+    /// cache-directive = token [ "=" ( token / quoted-string ) ]
     /// ```
     ///
     /// # Example Values
     /// * `no-cache`
-    /// * `private, community=&quot;UCI&quot;`
+    /// * `private, community="UCI"`
     /// * `max-age=30`
     ///
     /// # Examples
@@ -233,19 +234,19 @@
     ///     CacheDirective::NoCache,
     ///     CacheDirective::Private,
     ///     CacheDirective::MaxAge(360u32),
-    ///     CacheDirective::Extension(&quot;foo&quot;.to_owned(), Some(&quot;bar&quot;.to_owned())),
+    ///     CacheDirective::Extension("foo".to_owned(), Some("bar".to_owned())),
     /// ]));
     /// ```
     </span>(CacheControl, header::CACHE_CONTROL) =&gt; (CacheDirective)+
 
     test_parse_and_format {
-        <span class="macro">common_header_test!</span>(no_headers, [<span class="string">b&quot;&quot;</span>; <span class="number">0</span>], <span class="prelude-val">None</span>);
-        <span class="macro">common_header_test!</span>(empty_header, [<span class="string">b&quot;&quot;</span>; <span class="number">1</span>], <span class="prelude-val">None</span>);
-        <span class="macro">common_header_test!</span>(bad_syntax, [<span class="string">b&quot;foo=&quot;</span>], <span class="prelude-val">None</span>);
+        <span class="macro">common_header_test!</span>(no_headers, [<span class="string">b""</span>; <span class="number">0</span>], <span class="prelude-val">None</span>);
+        <span class="macro">common_header_test!</span>(empty_header, [<span class="string">b""</span>; <span class="number">1</span>], <span class="prelude-val">None</span>);
+        <span class="macro">common_header_test!</span>(bad_syntax, [<span class="string">b"foo="</span>], <span class="prelude-val">None</span>);
 
         <span class="macro">common_header_test!</span>(
             multiple_headers,
-            [<span class="kw-2">&amp;</span><span class="string">b&quot;no-cache&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;private&quot;</span>[..]],
+            [<span class="kw-2">&amp;</span><span class="string">b"no-cache"</span>[..], <span class="kw-2">&amp;</span><span class="string">b"private"</span>[..]],
             <span class="prelude-val">Some</span>(CacheControl(<span class="macro">vec!</span>[
                 CacheDirective::NoCache,
                 CacheDirective::Private,
@@ -254,7 +255,7 @@
 
         <span class="macro">common_header_test!</span>(
             argument,
-            [<span class="string">b&quot;max-age=100, private&quot;</span>],
+            [<span class="string">b"max-age=100, private"</span>],
             <span class="prelude-val">Some</span>(CacheControl(<span class="macro">vec!</span>[
                 CacheDirective::MaxAge(<span class="number">100</span>),
                 CacheDirective::Private,
@@ -263,17 +264,17 @@
 
         <span class="macro">common_header_test!</span>(
             extension,
-            [<span class="string">b&quot;foo, bar=baz&quot;</span>],
+            [<span class="string">b"foo, bar=baz"</span>],
             <span class="prelude-val">Some</span>(CacheControl(<span class="macro">vec!</span>[
-                CacheDirective::Extension(<span class="string">&quot;foo&quot;</span>.to_owned(), <span class="prelude-val">None</span>),
-                CacheDirective::Extension(<span class="string">&quot;bar&quot;</span>.to_owned(), <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.to_owned())),
+                CacheDirective::Extension(<span class="string">"foo"</span>.to_owned(), <span class="prelude-val">None</span>),
+                CacheDirective::Extension(<span class="string">"bar"</span>.to_owned(), <span class="prelude-val">Some</span>(<span class="string">"baz"</span>.to_owned())),
             ]))
         );
 
         <span class="attr">#[test]
         </span><span class="kw">fn </span>parse_quote_form() {
             <span class="kw">let </span>req = test::TestRequest::default()
-                .insert_header((header::CACHE_CONTROL, <span class="string">&quot;max-age=\&quot;200\&quot;&quot;</span>))
+                .insert_header((header::CACHE_CONTROL, <span class="string">"max-age=\"200\""</span>))
                 .finish();
 
             <span class="macro">assert_eq!</span>(
@@ -287,33 +288,33 @@
 <span class="doccomment">/// `CacheControl` contains a list of these directives.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>CacheDirective {
-    <span class="doccomment">/// &quot;no-cache&quot;
+    <span class="doccomment">/// "no-cache"
     </span>NoCache,
-    <span class="doccomment">/// &quot;no-store&quot;
+    <span class="doccomment">/// "no-store"
     </span>NoStore,
-    <span class="doccomment">/// &quot;no-transform&quot;
+    <span class="doccomment">/// "no-transform"
     </span>NoTransform,
-    <span class="doccomment">/// &quot;only-if-cached&quot;
+    <span class="doccomment">/// "only-if-cached"
     </span>OnlyIfCached,
 
     <span class="comment">// request directives
-    </span><span class="doccomment">/// &quot;max-age=delta&quot;
+    </span><span class="doccomment">/// "max-age=delta"
     </span>MaxAge(u32),
-    <span class="doccomment">/// &quot;max-stale=delta&quot;
+    <span class="doccomment">/// "max-stale=delta"
     </span>MaxStale(u32),
-    <span class="doccomment">/// &quot;min-fresh=delta&quot;
+    <span class="doccomment">/// "min-fresh=delta"
     </span>MinFresh(u32),
 
     <span class="comment">// response directives
-    </span><span class="doccomment">/// &quot;must-revalidate&quot;
+    </span><span class="doccomment">/// "must-revalidate"
     </span>MustRevalidate,
-    <span class="doccomment">/// &quot;public&quot;
+    <span class="doccomment">/// "public"
     </span>Public,
-    <span class="doccomment">/// &quot;private&quot;
+    <span class="doccomment">/// "private"
     </span>Private,
-    <span class="doccomment">/// &quot;proxy-revalidate&quot;
+    <span class="doccomment">/// "proxy-revalidate"
     </span>ProxyRevalidate,
-    <span class="doccomment">/// &quot;s-maxage=delta&quot;
+    <span class="doccomment">/// "s-maxage=delta"
     </span>SMaxAge(u32),
 
     <span class="doccomment">/// Extension directives. Optionally include an argument.
@@ -321,27 +322,27 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>CacheDirective {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">use </span><span class="self">self</span>::CacheDirective::<span class="kw-2">*</span>;
 
         <span class="kw">let </span>dir_str = <span class="kw">match </span><span class="self">self </span>{
-            NoCache =&gt; <span class="string">&quot;no-cache&quot;</span>,
-            NoStore =&gt; <span class="string">&quot;no-store&quot;</span>,
-            NoTransform =&gt; <span class="string">&quot;no-transform&quot;</span>,
-            OnlyIfCached =&gt; <span class="string">&quot;only-if-cached&quot;</span>,
+            NoCache =&gt; <span class="string">"no-cache"</span>,
+            NoStore =&gt; <span class="string">"no-store"</span>,
+            NoTransform =&gt; <span class="string">"no-transform"</span>,
+            OnlyIfCached =&gt; <span class="string">"only-if-cached"</span>,
 
-            MaxAge(secs) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;max-age={}&quot;</span>, secs),
-            MaxStale(secs) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;max-stale={}&quot;</span>, secs),
-            MinFresh(secs) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;min-fresh={}&quot;</span>, secs),
+            MaxAge(secs) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">"max-age={}"</span>, secs),
+            MaxStale(secs) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">"max-stale={}"</span>, secs),
+            MinFresh(secs) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">"min-fresh={}"</span>, secs),
 
-            MustRevalidate =&gt; <span class="string">&quot;must-revalidate&quot;</span>,
-            Public =&gt; <span class="string">&quot;public&quot;</span>,
-            Private =&gt; <span class="string">&quot;private&quot;</span>,
-            ProxyRevalidate =&gt; <span class="string">&quot;proxy-revalidate&quot;</span>,
-            SMaxAge(secs) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;s-maxage={}&quot;</span>, secs),
+            MustRevalidate =&gt; <span class="string">"must-revalidate"</span>,
+            Public =&gt; <span class="string">"public"</span>,
+            Private =&gt; <span class="string">"private"</span>,
+            ProxyRevalidate =&gt; <span class="string">"proxy-revalidate"</span>,
+            SMaxAge(secs) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">"s-maxage={}"</span>, secs),
 
             Extension(name, <span class="prelude-val">None</span>) =&gt; name.as_str(),
-            Extension(name, <span class="prelude-val">Some</span>(arg)) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">&quot;{}={}&quot;</span>, name, arg),
+            Extension(name, <span class="prelude-val">Some</span>(arg)) =&gt; <span class="kw">return </span><span class="macro">write!</span>(f, <span class="string">"{}={}"</span>, name, arg),
         };
 
         f.write_str(dir_str)
@@ -355,24 +356,24 @@
         <span class="kw">use </span><span class="self">self</span>::CacheDirective::<span class="kw-2">*</span>;
 
         <span class="kw">match </span>s {
-            <span class="string">&quot;&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
+            <span class="string">"" </span>=&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
 
-            <span class="string">&quot;no-cache&quot; </span>=&gt; <span class="prelude-val">Ok</span>(NoCache),
-            <span class="string">&quot;no-store&quot; </span>=&gt; <span class="prelude-val">Ok</span>(NoStore),
-            <span class="string">&quot;no-transform&quot; </span>=&gt; <span class="prelude-val">Ok</span>(NoTransform),
-            <span class="string">&quot;only-if-cached&quot; </span>=&gt; <span class="prelude-val">Ok</span>(OnlyIfCached),
-            <span class="string">&quot;must-revalidate&quot; </span>=&gt; <span class="prelude-val">Ok</span>(MustRevalidate),
-            <span class="string">&quot;public&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Public),
-            <span class="string">&quot;private&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Private),
-            <span class="string">&quot;proxy-revalidate&quot; </span>=&gt; <span class="prelude-val">Ok</span>(ProxyRevalidate),
+            <span class="string">"no-cache" </span>=&gt; <span class="prelude-val">Ok</span>(NoCache),
+            <span class="string">"no-store" </span>=&gt; <span class="prelude-val">Ok</span>(NoStore),
+            <span class="string">"no-transform" </span>=&gt; <span class="prelude-val">Ok</span>(NoTransform),
+            <span class="string">"only-if-cached" </span>=&gt; <span class="prelude-val">Ok</span>(OnlyIfCached),
+            <span class="string">"must-revalidate" </span>=&gt; <span class="prelude-val">Ok</span>(MustRevalidate),
+            <span class="string">"public" </span>=&gt; <span class="prelude-val">Ok</span>(Public),
+            <span class="string">"private" </span>=&gt; <span class="prelude-val">Ok</span>(Private),
+            <span class="string">"proxy-revalidate" </span>=&gt; <span class="prelude-val">Ok</span>(ProxyRevalidate),
 
-            <span class="kw">_ </span>=&gt; <span class="kw">match </span>s.find(<span class="string">&#39;=&#39;</span>) {
+            <span class="kw">_ </span>=&gt; <span class="kw">match </span>s.find(<span class="string">'='</span>) {
                 <span class="prelude-val">Some</span>(idx) <span class="kw">if </span>idx + <span class="number">1 </span>&lt; s.len() =&gt; {
-                    <span class="kw">match </span>(<span class="kw-2">&amp;</span>s[..idx], s[idx + <span class="number">1</span>..].trim_matches(<span class="string">&#39;&quot;&#39;</span>)) {
-                        (<span class="string">&quot;max-age&quot;</span>, secs) =&gt; secs.parse().map(MaxAge).map_err(<span class="prelude-val">Some</span>),
-                        (<span class="string">&quot;max-stale&quot;</span>, secs) =&gt; secs.parse().map(MaxStale).map_err(<span class="prelude-val">Some</span>),
-                        (<span class="string">&quot;min-fresh&quot;</span>, secs) =&gt; secs.parse().map(MinFresh).map_err(<span class="prelude-val">Some</span>),
-                        (<span class="string">&quot;s-maxage&quot;</span>, secs) =&gt; secs.parse().map(SMaxAge).map_err(<span class="prelude-val">Some</span>),
+                    <span class="kw">match </span>(<span class="kw-2">&amp;</span>s[..idx], s[idx + <span class="number">1</span>..].trim_matches(<span class="string">'"'</span>)) {
+                        (<span class="string">"max-age"</span>, secs) =&gt; secs.parse().map(MaxAge).map_err(<span class="prelude-val">Some</span>),
+                        (<span class="string">"max-stale"</span>, secs) =&gt; secs.parse().map(MaxStale).map_err(<span class="prelude-val">Some</span>),
+                        (<span class="string">"min-fresh"</span>, secs) =&gt; secs.parse().map(MinFresh).map_err(<span class="prelude-val">Some</span>),
+                        (<span class="string">"s-maxage"</span>, secs) =&gt; secs.parse().map(SMaxAge).map_err(<span class="prelude-val">Some</span>),
                         (left, right) =&gt; <span class="prelude-val">Ok</span>(Extension(left.to_owned(), <span class="prelude-val">Some</span>(right.to_owned()))),
                     }
                 }

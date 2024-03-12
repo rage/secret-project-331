@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_plurals-1.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_plurals" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_plurals-1.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_plurals" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -922,8 +923,8 @@
 //! use icu::plurals::{PluralCategory, PluralRuleType, PluralRules};
 //!
 //! let pr =
-//!     PluralRules::try_new(&amp;locale!(&quot;en&quot;).into(), PluralRuleType::Cardinal)
-//!         .expect(&quot;locale should be present&quot;);
+//!     PluralRules::try_new(&amp;locale!("en").into(), PluralRuleType::Cardinal)
+//!         .expect("locale should be present");
 //!
 //! assert_eq!(pr.category_for(5_usize), PluralCategory::Other);
 //! ```
@@ -953,7 +954,7 @@
 //! [Language Plural Rules]: https://unicode.org/reports/tr35/tr35-numbers.html#Language_Plural_Rules
 
 </span><span class="comment">// https://github.com/unicode-org/icu4x/blob/main/docs/process/boilerplate.md#library-annotations
-</span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">&quot;std&quot;</span>)), no_std)]
+</span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">"std"</span>)), no_std)]
 #![cfg_attr(
     not(test),
     deny(
@@ -984,9 +985,9 @@
 <span class="kw">use </span>provider::OrdinalV1Marker;
 <span class="kw">use </span>rules::runtime::test_rule;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
 </span><span class="kw">use </span>provider::PluralRangesV1Marker;
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
 </span><span class="kw">use </span>provider::UnvalidatedPluralRange;
 
 <span class="attr">#[doc(no_inline)]
@@ -997,7 +998,7 @@
 #[non_exhaustive]
 </span><span class="kw">pub enum </span>PluralRuleType {
     <span class="doccomment">/// Cardinal plural forms express quantities of units such as time, currency or distance,
-    /// used in conjunction with a number expressed in decimal digits (i.e. &quot;2&quot;, not &quot;two&quot;).
+    /// used in conjunction with a number expressed in decimal digits (i.e. "2", not "two").
     ///
     /// For example, English has two forms for cardinals:
     ///
@@ -1037,25 +1038,25 @@
 /// use icu::plurals::{PluralCategory, PluralRuleType, PluralRules};
 ///
 /// let pr =
-///     PluralRules::try_new(&amp;locale!(&quot;en&quot;).into(), PluralRuleType::Cardinal)
-///         .expect(&quot;locale should be present&quot;);
+///     PluralRules::try_new(&amp;locale!("en").into(), PluralRuleType::Cardinal)
+///         .expect("locale should be present");
 ///
 /// assert_eq!(pr.category_for(5_usize), PluralCategory::Other);
 /// ```
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Ord, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(serde::Serialize))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
 #[allow(clippy::exhaustive_enums)] </span><span class="comment">// this type is mostly stable. new categories may potentially be added in the future,
                                    // but at a cadence slower than the ICU4X release cycle
 </span><span class="kw">pub enum </span>PluralCategory {
-    <span class="doccomment">/// CLDR &quot;zero&quot; plural category. Used in Arabic and Latvian, among others.
+    <span class="doccomment">/// CLDR "zero" plural category. Used in Arabic and Latvian, among others.
     ///
     /// Examples of numbers having this category:
     ///
     /// - 0 in Arabic (ar), Latvian (lv)
     /// - 10~20, 30, 40, 50, ... in Latvian (lv)
     </span>Zero,
-    <span class="doccomment">/// CLDR &quot;one&quot; plural category. Signifies the singular form in many languages.
+    <span class="doccomment">/// CLDR "one" plural category. Signifies the singular form in many languages.
     ///
     /// Examples of numbers having this category:
     ///
@@ -1064,14 +1065,14 @@
     /// - 2.1 in Filipino (fil), Croatian (hr), Latvian (lv), Serbian (sr)
     /// - 2, 3, 5, 7, 8, ... in Filipino (fil)
     </span>One,
-    <span class="doccomment">/// CLDR &quot;two&quot; plural category. Used in Arabic, Hebrew, and Slovenian, among others.
+    <span class="doccomment">/// CLDR "two" plural category. Used in Arabic, Hebrew, and Slovenian, among others.
     ///
     /// Examples of numbers having this category:
     ///
     /// - 2 in Arabic (ar), Hebrew (iw), Slovenian (sl)
     /// - 2.0 in Arabic (ar)
     </span>Two,
-    <span class="doccomment">/// CLDR &quot;few&quot; plural category. Used in Romanian, Polish, Russian, and others.
+    <span class="doccomment">/// CLDR "few" plural category. Used in Romanian, Polish, Russian, and others.
     ///
     /// Examples of numbers having this category:
     ///
@@ -1080,7 +1081,7 @@
     /// - 2 in Polish (pl), Russian (ru), Czech (cs), ...
     /// - 5 in Arabic (ar), Lithuanian (lt), Romanian (ro)
     </span>Few,
-    <span class="doccomment">/// CLDR &quot;many&quot; plural category. Used in Polish, Russian, Ukrainian, and others.
+    <span class="doccomment">/// CLDR "many" plural category. Used in Polish, Russian, Ukrainian, and others.
     ///
     /// Examples of numbers having this category:
     ///
@@ -1089,7 +1090,7 @@
     /// - 1.1 in Czech (cs), Lithuanian (lt), Slovak (sk)
     /// - 15 in Arabic (ar), Polish (pl), Russian (ru), Ukrainian (uk)
     </span>Many,
-    <span class="doccomment">/// CLDR &quot;other&quot; plural category, used as a catch-all. Each language supports it, and it
+    <span class="doccomment">/// CLDR "other" plural category, used as a catch-all. Each language supports it, and it
     /// is also used as a fail safe result for in case no better match can be identified.
     ///
     /// In some languages, such as Japanese, Chinese, Korean, and Thai, this is the only
@@ -1145,12 +1146,12 @@
     <span class="doccomment">/// Returns the PluralCategory corresponding to given TR35 string as bytes
     </span><span class="kw">pub fn </span>get_for_cldr_bytes(category: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;PluralCategory&gt; {
         <span class="kw">match </span>category {
-            <span class="string">b&quot;zero&quot; </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Zero),
-            <span class="string">b&quot;one&quot; </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::One),
-            <span class="string">b&quot;two&quot; </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Two),
-            <span class="string">b&quot;few&quot; </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Few),
-            <span class="string">b&quot;many&quot; </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Many),
-            <span class="string">b&quot;other&quot; </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Other),
+            <span class="string">b"zero" </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Zero),
+            <span class="string">b"one" </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::One),
+            <span class="string">b"two" </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Two),
+            <span class="string">b"few" </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Few),
+            <span class="string">b"many" </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Many),
+            <span class="string">b"other" </span>=&gt; <span class="prelude-val">Some</span>(PluralCategory::Other),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
@@ -1166,8 +1167,8 @@
 /// use icu::plurals::{PluralCategory, PluralRuleType, PluralRules};
 ///
 /// let pr =
-///     PluralRules::try_new(&amp;locale!(&quot;en&quot;).into(), PluralRuleType::Cardinal)
-///         .expect(&quot;locale should be present&quot;);
+///     PluralRules::try_new(&amp;locale!("en").into(), PluralRuleType::Cardinal)
+///         .expect("locale should be present");
 ///
 /// assert_eq!(pr.category_for(5_usize), PluralCategory::Other);
 /// ```
@@ -1202,9 +1203,9 @@
         /// use icu::plurals::{PluralRuleType, PluralRules};
         ///
         /// let _ = PluralRules::try_new(
-        ///     &amp;locale!(&quot;en&quot;).into(),
+        ///     &amp;locale!("en").into(),
         ///     PluralRuleType::Cardinal,
-        /// ).expect(&quot;locale should be present&quot;);
+        /// ).expect("locale should be present");
         /// ```
         ///
         /// [`type`]: PluralRuleType
@@ -1230,7 +1231,7 @@
         <span class="doccomment">/// Constructs a new `PluralRules` for a given locale for cardinal numbers using compiled data.
         ///
         /// Cardinal plural forms express quantities of units such as time, currency or distance,
-        /// used in conjunction with a number expressed in decimal digits (i.e. &quot;2&quot;, not &quot;two&quot;).
+        /// used in conjunction with a number expressed in decimal digits (i.e. "2", not "two").
         ///
         /// For example, English has two forms for cardinals:
         ///
@@ -1247,7 +1248,7 @@
         /// use icu::locid::locale;
         /// use icu::plurals::{PluralCategory, PluralRules};
         ///
-        /// let rules = PluralRules::try_new_cardinal(&amp;locale!(&quot;ru&quot;).into()).expect(&quot;locale should be present&quot;);
+        /// let rules = PluralRules::try_new_cardinal(&amp;locale!("ru").into()).expect("locale should be present");
         ///
         /// assert_eq!(rules.category_for(2_usize), PluralCategory::Few);
         /// ```
@@ -1305,9 +1306,9 @@
         /// use icu::plurals::{PluralCategory, PluralRules};
         ///
         /// let rules = PluralRules::try_new_ordinal(
-        ///     &amp;locale!(&quot;ru&quot;).into(),
+        ///     &amp;locale!("ru").into(),
         /// )
-        /// .expect(&quot;locale should be present&quot;);
+        /// .expect("locale should be present");
         ///
         /// assert_eq!(rules.category_for(2_usize), PluralCategory::Other);
         /// ```
@@ -1350,12 +1351,12 @@
     /// use icu::plurals::{PluralCategory, PluralRuleType, PluralRules};
     ///
     /// let pr =
-    ///     PluralRules::try_new(&amp;locale!(&quot;en&quot;).into(), PluralRuleType::Cardinal)
-    ///         .expect(&quot;locale should be present&quot;);
+    ///     PluralRules::try_new(&amp;locale!("en").into(), PluralRuleType::Cardinal)
+    ///         .expect("locale should be present");
     ///
     /// match pr.category_for(1_usize) {
-    ///     PluralCategory::One =&gt; &quot;One item&quot;,
-    ///     PluralCategory::Other =&gt; &quot;Many items&quot;,
+    ///     PluralCategory::One =&gt; "One item",
+    ///     PluralCategory::Other =&gt; "Many items",
     ///     _ =&gt; unreachable!(),
     /// };
     /// ```
@@ -1376,11 +1377,11 @@
     /// use icu::plurals::{PluralRuleType, PluralRules};
     /// use std::convert::TryFrom;
     /// #
-    /// # let pr = PluralRules::try_new(&amp;locale!(&quot;en&quot;).into(), PluralRuleType::Cardinal)
-    /// #     .expect(&quot;locale should be present&quot;);
+    /// # let pr = PluralRules::try_new(&amp;locale!("en").into(), PluralRuleType::Cardinal)
+    /// #     .expect("locale should be present");
     ///
-    /// let operands = PluralOperands::try_from(-5).expect(&quot;Failed to parse to operands.&quot;);
-    /// let operands2: PluralOperands = &quot;5.10&quot;.parse().expect(&quot;Failed to parse to operands.&quot;);
+    /// let operands = PluralOperands::try_from(-5).expect("Failed to parse to operands.");
+    /// let operands2: PluralOperands = "5.10".parse().expect("Failed to parse to operands.");
     ///
     /// assert_eq!(pr.category_for(operands), PluralCategory::Other);
     /// assert_eq!(pr.category_for(operands2), PluralCategory::Other);
@@ -1423,8 +1424,8 @@
     /// use icu::plurals::{PluralCategory, PluralRuleType, PluralRules};
     ///
     /// let pr =
-    ///     PluralRules::try_new(&amp;locale!(&quot;fr&quot;).into(), PluralRuleType::Cardinal)
-    ///         .expect(&quot;locale should be present&quot;);
+    ///     PluralRules::try_new(&amp;locale!("fr").into(), PluralRuleType::Cardinal)
+    ///         .expect("locale should be present");
     ///
     /// let mut categories = pr.categories();
     /// assert_eq!(categories.next(), Some(PluralCategory::One));
@@ -1434,7 +1435,7 @@
     /// ```
     ///
     /// [`Plural Categories`]: PluralCategory
-    </span><span class="kw">pub fn </span>categories(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PluralCategory&gt; + <span class="lifetime">&#39;_ </span>{
+    </span><span class="kw">pub fn </span>categories(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = PluralCategory&gt; + <span class="lifetime">'_ </span>{
         <span class="kw">let </span>rules = <span class="self">self</span>.<span class="number">0</span>.get();
 
         <span class="macro">macro_rules! </span>test_rule {
@@ -1461,10 +1462,10 @@
 ///
 /// ✨ *Enabled with the `experimental` Cargo feature.*
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. Use with caution.
-/// &lt;a href=&quot;https://github.com/unicode-org/icu4x/issues/4140&quot;&gt;#4140&lt;/a&gt;
+/// &lt;a href="https://github.com/unicode-org/icu4x/issues/4140"&gt;#4140&lt;/a&gt;
 /// &lt;/div&gt;
 ///
 /// # Examples
@@ -1476,14 +1477,14 @@
 /// use std::convert::TryFrom;
 ///
 /// let ranges = PluralRulesWithRanges::try_new(
-///     &amp;locale!(&quot;ar&quot;).into(),
+///     &amp;locale!("ar").into(),
 ///     PluralRuleType::Cardinal,
 /// )
-/// .expect(&quot;locale should be present&quot;);
+/// .expect("locale should be present");
 ///
 /// let operands = PluralOperands::from(1_usize);
 /// let operands2: PluralOperands =
-///     &quot;2.0&quot;.parse().expect(&quot;parsing to operands should succeed&quot;);
+///     "2.0".parse().expect("parsing to operands should succeed");
 ///
 /// assert_eq!(
 ///     ranges.category_for_range(operands, operands2),
@@ -1492,14 +1493,14 @@
 /// ```
 ///
 /// [`Plural Category`]: PluralCategory
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
 #[derive(Debug)]
 </span><span class="kw">pub struct </span>PluralRulesWithRanges&lt;R&gt; {
     rules: R,
     ranges: DataPayload&lt;PluralRangesV1Marker&gt;,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
 </span><span class="kw">impl </span>PluralRulesWithRanges&lt;PluralRules&gt; {
     <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(
         locale: include,
@@ -1518,9 +1519,9 @@
         /// use icu::plurals::{PluralRuleType, PluralRulesWithRanges};
         ///
         /// let _ = PluralRulesWithRanges::try_new(
-        ///     &amp;locale!(&quot;en&quot;).into(),
+        ///     &amp;locale!("en").into(),
         ///     PluralRuleType::Cardinal,
-        /// ).expect(&quot;locale should be present&quot;);
+        /// ).expect("locale should be present");
         /// ```
     </span>);
 
@@ -1558,8 +1559,8 @@
         /// use icu::locid::locale;
         /// use icu::plurals::{PluralCategory, PluralRulesWithRanges};
         ///
-        /// let rules = PluralRulesWithRanges::try_new_cardinal(&amp;locale!(&quot;ru&quot;).into())
-        ///     .expect(&quot;locale should be present&quot;);
+        /// let rules = PluralRulesWithRanges::try_new_cardinal(&amp;locale!("ru").into())
+        ///     .expect("locale should be present");
         ///
         /// assert_eq!(rules.category_for_range(0_usize, 2_usize), PluralCategory::Few);
         /// ```
@@ -1602,9 +1603,9 @@
         /// use icu::plurals::{PluralCategory, PluralRulesWithRanges};
         ///
         /// let rules = PluralRulesWithRanges::try_new_ordinal(
-        ///     &amp;locale!(&quot;ru&quot;).into(),
+        ///     &amp;locale!("ru").into(),
         /// )
-        /// .expect(&quot;locale should be present&quot;);
+        /// .expect("locale should be present");
         ///
         /// assert_eq!(rules.category_for_range(0_usize, 2_usize), PluralCategory::Other);
         /// ```
@@ -1628,7 +1629,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
 </span><span class="kw">impl</span>&lt;R&gt; PluralRulesWithRanges&lt;R&gt;
 <span class="kw">where
     </span>R: AsRef&lt;PluralRules&gt;,
@@ -1655,12 +1656,12 @@
         /// use icu::locid::locale;
         /// use icu::plurals::{PluralRuleType, PluralRulesWithRanges, PluralRules};
         ///
-        /// let rules = PluralRules::try_new(&amp;locale!(&quot;en&quot;).into(), PluralRuleType::Cardinal)
-        ///     .expect(&quot;locale should be present&quot;);
+        /// let rules = PluralRules::try_new(&amp;locale!("en").into(), PluralRuleType::Cardinal)
+        ///     .expect("locale should be present");
         ///
         /// let _ =
-        ///     PluralRulesWithRanges::try_new_with_rules(&amp;locale!(&quot;en&quot;).into(), rules)
-        ///         .expect(&quot;locale should be present&quot;);
+        ///     PluralRulesWithRanges::try_new_with_rules(&amp;locale!("en").into(), rules)
+        ///         .expect("locale should be present");
         /// ```
         </span>functions: [
             try_new_with_rules,
@@ -1695,8 +1696,8 @@
     /// use icu::locid::locale;
     /// use icu::plurals::{PluralCategory, PluralRulesWithRanges};
     ///
-    /// let ranges = PluralRulesWithRanges::try_new_cardinal(&amp;locale!(&quot;en&quot;).into())
-    ///     .expect(&quot;locale should be present&quot;);
+    /// let ranges = PluralRulesWithRanges::try_new_cardinal(&amp;locale!("en").into())
+    ///     .expect("locale should be present");
     ///
     /// let rules = ranges.rules();
     ///
@@ -1721,12 +1722,12 @@
     /// };
     ///
     /// let ranges = PluralRulesWithRanges::try_new(
-    ///     &amp;locale!(&quot;ro&quot;).into(),
+    ///     &amp;locale!("ro").into(),
     ///     PluralRuleType::Cardinal,
     /// )
-    /// .expect(&quot;locale should be present&quot;);
+    /// .expect("locale should be present");
     /// let operands: PluralOperands =
-    ///     &quot;0.5&quot;.parse().expect(&quot;parsing to operands should succeed&quot;);
+    ///     "0.5".parse().expect("parsing to operands should succeed");
     /// let operands2 = PluralOperands::from(1_usize);
     ///
     /// assert_eq!(
@@ -1762,10 +1763,10 @@
     /// use icu::plurals::{PluralCategory, PluralRuleType, PluralRulesWithRanges};
     ///
     /// let ranges = PluralRulesWithRanges::try_new(
-    ///     &amp;locale!(&quot;sl&quot;).into(),
+    ///     &amp;locale!("sl").into(),
     ///     PluralRuleType::Ordinal,
     /// )
-    /// .expect(&quot;locale should be present&quot;);
+    /// .expect("locale should be present");
     ///
     /// assert_eq!(
     ///     ranges.resolve_range(PluralCategory::Other, PluralCategory::One),

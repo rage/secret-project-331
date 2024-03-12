@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid_transform-1.4.0/src/fallback/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_locid_transform" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid_transform-1.4.0/src/fallback/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_locid_transform" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -327,20 +328,20 @@
 //! // By default, uses language priority with no additional extension keywords.
 //! let mut fallback_iterator = fallbacker
 //!     .for_config(Default::default())
-//!     .fallback_for(locale!(&quot;hi-Latn-IN&quot;).into());
+//!     .fallback_for(locale!("hi-Latn-IN").into());
 //!
 //! // Run the algorithm and check the results.
-//! assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;hi-Latn-IN&quot;).into());
+//! assert_eq!(fallback_iterator.get(), &amp;locale!("hi-Latn-IN").into());
 //! fallback_iterator.step();
-//! assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;hi-Latn&quot;).into());
+//! assert_eq!(fallback_iterator.get(), &amp;locale!("hi-Latn").into());
 //! fallback_iterator.step();
-//! assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;en-IN&quot;).into());
+//! assert_eq!(fallback_iterator.get(), &amp;locale!("en-IN").into());
 //! fallback_iterator.step();
-//! assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;en-001&quot;).into());
+//! assert_eq!(fallback_iterator.get(), &amp;locale!("en-001").into());
 //! fallback_iterator.step();
-//! assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;en&quot;).into());
+//! assert_eq!(fallback_iterator.get(), &amp;locale!("en").into());
 //! fallback_iterator.step();
-//! assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;und&quot;).into());
+//! assert_eq!(fallback_iterator.get(), &amp;locale!("und").into());
 //! ```
 
 </span><span class="kw">use </span><span class="kw">crate</span>::provider::<span class="kw-2">*</span>;
@@ -372,20 +373,20 @@
 /// // By default, uses language priority with no additional extension keywords.
 /// let mut fallback_iterator = fallbacker
 ///     .for_config(Default::default())
-///     .fallback_for(locale!(&quot;hi-Latn-IN&quot;).into());
+///     .fallback_for(locale!("hi-Latn-IN").into());
 ///
 /// // Run the algorithm and check the results.
-/// assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;hi-Latn-IN&quot;).into());
+/// assert_eq!(fallback_iterator.get(), &amp;locale!("hi-Latn-IN").into());
 /// fallback_iterator.step();
-/// assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;hi-Latn&quot;).into());
+/// assert_eq!(fallback_iterator.get(), &amp;locale!("hi-Latn").into());
 /// fallback_iterator.step();
-/// assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;en-IN&quot;).into());
+/// assert_eq!(fallback_iterator.get(), &amp;locale!("en-IN").into());
 /// fallback_iterator.step();
-/// assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;en-001&quot;).into());
+/// assert_eq!(fallback_iterator.get(), &amp;locale!("en-001").into());
 /// fallback_iterator.step();
-/// assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;en&quot;).into());
+/// assert_eq!(fallback_iterator.get(), &amp;locale!("en").into());
 /// fallback_iterator.step();
-/// assert_eq!(fallback_iterator.get(), &amp;locale!(&quot;und&quot;).into());
+/// assert_eq!(fallback_iterator.get(), &amp;locale!("und").into());
 /// ```
 ///
 /// [UTS #35: Locale Inheritance and Matching]: https://www.unicode.org/reports/tr35/#Locale_Inheritance
@@ -400,27 +401,27 @@
 
 <span class="doccomment">/// Borrowed version of [`LocaleFallbacker`].
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
-</span><span class="kw">pub struct </span>LocaleFallbackerBorrowed&lt;<span class="lifetime">&#39;a</span>&gt; {
-    likely_subtags: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LocaleFallbackLikelySubtagsV1&lt;<span class="lifetime">&#39;a</span>&gt;,
-    parents: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LocaleFallbackParentsV1&lt;<span class="lifetime">&#39;a</span>&gt;,
-    collation_supplement: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LocaleFallbackSupplementV1&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+</span><span class="kw">pub struct </span>LocaleFallbackerBorrowed&lt;<span class="lifetime">'a</span>&gt; {
+    likely_subtags: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocaleFallbackLikelySubtagsV1&lt;<span class="lifetime">'a</span>&gt;,
+    parents: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocaleFallbackParentsV1&lt;<span class="lifetime">'a</span>&gt;,
+    collation_supplement: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocaleFallbackSupplementV1&lt;<span class="lifetime">'a</span>&gt;&gt;,
 }
 
 <span class="doccomment">/// A [`LocaleFallbackerBorrowed`] with an associated [`LocaleFallbackConfig`].
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
-</span><span class="kw">pub struct </span>LocaleFallbackerWithConfig&lt;<span class="lifetime">&#39;a</span>&gt; {
-    likely_subtags: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LocaleFallbackLikelySubtagsV1&lt;<span class="lifetime">&#39;a</span>&gt;,
-    parents: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LocaleFallbackParentsV1&lt;<span class="lifetime">&#39;a</span>&gt;,
-    supplement: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LocaleFallbackSupplementV1&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+</span><span class="kw">pub struct </span>LocaleFallbackerWithConfig&lt;<span class="lifetime">'a</span>&gt; {
+    likely_subtags: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocaleFallbackLikelySubtagsV1&lt;<span class="lifetime">'a</span>&gt;,
+    parents: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocaleFallbackParentsV1&lt;<span class="lifetime">'a</span>&gt;,
+    supplement: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocaleFallbackSupplementV1&lt;<span class="lifetime">'a</span>&gt;&gt;,
     config: LocaleFallbackConfig,
 }
 
 <span class="doccomment">/// Inner iteration type. Does not own the item under fallback.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">struct </span>LocaleFallbackIteratorInner&lt;<span class="lifetime">&#39;a</span>&gt; {
-    likely_subtags: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LocaleFallbackLikelySubtagsV1&lt;<span class="lifetime">&#39;a</span>&gt;,
-    parents: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LocaleFallbackParentsV1&lt;<span class="lifetime">&#39;a</span>&gt;,
-    supplement: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>LocaleFallbackSupplementV1&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+</span><span class="kw">struct </span>LocaleFallbackIteratorInner&lt;<span class="lifetime">'a</span>&gt; {
+    likely_subtags: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocaleFallbackLikelySubtagsV1&lt;<span class="lifetime">'a</span>&gt;,
+    parents: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocaleFallbackParentsV1&lt;<span class="lifetime">'a</span>&gt;,
+    supplement: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocaleFallbackSupplementV1&lt;<span class="lifetime">'a</span>&gt;&gt;,
     config: LocaleFallbackConfig,
     backup_extension: <span class="prelude-ty">Option</span>&lt;Value&gt;,
     backup_subdivision: <span class="prelude-ty">Option</span>&lt;Value&gt;,
@@ -432,10 +433,10 @@
 /// Because the `Iterator` trait does not allow items to borrow from the iterator, this class does
 /// not implement that trait. Instead, use `.step()` and `.get()`.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>LocaleFallbackIterator&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+</span><span class="kw">pub struct </span>LocaleFallbackIterator&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
     current: DataLocale,
-    inner: LocaleFallbackIteratorInner&lt;<span class="lifetime">&#39;a</span>&gt;,
-    phantom: core::marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>()&gt;,
+    inner: LocaleFallbackIteratorInner&lt;<span class="lifetime">'a</span>&gt;,
+    phantom: core::marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>()&gt;,
 }
 
 <span class="kw">impl </span>LocaleFallbacker {
@@ -444,15 +445,15 @@
     /// ✨ *Enabled with the `compiled_data` Cargo feature.*
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
     #[allow(clippy::new_ret_no_self)] </span><span class="comment">// keeping constructors together
-    </span><span class="kw">pub const fn </span>new&lt;<span class="lifetime">&#39;a</span>&gt;() -&gt; LocaleFallbackerBorrowed&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub const fn </span>new&lt;<span class="lifetime">'a</span>&gt;() -&gt; LocaleFallbackerBorrowed&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">let </span>tickstatic = LocaleFallbackerBorrowed {
             likely_subtags: <span class="kw">crate</span>::provider::Baked::SINGLETON_FALLBACK_LIKELYSUBTAGS_V1,
             parents: <span class="kw">crate</span>::provider::Baked::SINGLETON_FALLBACK_PARENTS_V1,
             collation_supplement: <span class="prelude-val">Some</span>(<span class="kw">crate</span>::provider::Baked::SINGLETON_FALLBACK_SUPPLEMENT_CO_V1),
         };
-        <span class="comment">// Safety: we&#39;re transmuting down from LocaleFallbackerBorrowed&lt;&#39;static&gt; to LocaleFallbackerBorrowed&lt;&#39;a&gt;
+        <span class="comment">// Safety: we're transmuting down from LocaleFallbackerBorrowed&lt;'static&gt; to LocaleFallbackerBorrowed&lt;'a&gt;
         // ZeroMaps use associated types in a way that confuse the compiler which gives up and marks them
         // as invariant. However, they are covariant, and in non-const code this covariance can be safely triggered
         // using Yokeable::transform. In const code we must transmute. In the long run we should
@@ -533,10 +534,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LocaleFallbackerBorrowed&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; LocaleFallbackerBorrowed&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Associates a configuration with this fallbacker.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>for_config(<span class="self">self</span>, config: LocaleFallbackConfig) -&gt; LocaleFallbackerWithConfig&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub const fn </span>for_config(<span class="self">self</span>, config: LocaleFallbackConfig) -&gt; LocaleFallbackerWithConfig&lt;<span class="lifetime">'a</span>&gt; {
         LocaleFallbackerWithConfig {
             likely_subtags: <span class="self">self</span>.likely_subtags,
             parents: <span class="self">self</span>.parents,
@@ -549,8 +550,8 @@
     }
 }
 
-<span class="kw">impl </span>LocaleFallbackerBorrowed&lt;<span class="lifetime">&#39;static</span>&gt; {
-    <span class="doccomment">/// Cheaply converts a `LocaleFallbackerBorrowed&lt;&#39;static&gt;` into a `LocaleFallbacker`.
+<span class="kw">impl </span>LocaleFallbackerBorrowed&lt;<span class="lifetime">'static</span>&gt; {
+    <span class="doccomment">/// Cheaply converts a `LocaleFallbackerBorrowed&lt;'static&gt;` into a `LocaleFallbacker`.
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; LocaleFallbacker {
         LocaleFallbacker {
             likely_subtags: DataPayload::from_static_ref(<span class="self">self</span>.likely_subtags),
@@ -563,13 +564,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LocaleFallbackerWithConfig&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; LocaleFallbackerWithConfig&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates an iterator based on a [`DataLocale`].
     ///
     /// If you have a [`Locale`](icu_locid::Locale), call `.into()` to get a [`DataLocale`].
     ///
     /// When first initialized, the locale is normalized according to the fallback algorithm.
-    </span><span class="kw">pub fn </span>fallback_for(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>locale: DataLocale) -&gt; LocaleFallbackIterator&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;static</span>&gt; {
+    </span><span class="kw">pub fn </span>fallback_for(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>locale: DataLocale) -&gt; LocaleFallbackIterator&lt;<span class="lifetime">'a</span>, <span class="lifetime">'static</span>&gt; {
         <span class="self">self</span>.normalize(<span class="kw-2">&amp;mut </span>locale);
         LocaleFallbackIterator {
             current: locale,
@@ -587,7 +588,7 @@
     }
 }
 
-<span class="kw">impl </span>LocaleFallbackIterator&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>LocaleFallbackIterator&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt; {
     <span class="doccomment">/// Borrows the current [`DataLocale`] under fallback.
     </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DataLocale {
         <span class="kw-2">&amp;</span><span class="self">self</span>.current

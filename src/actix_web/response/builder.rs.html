@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/response/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/response/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -590,7 +591,7 @@
     ///
     /// HttpResponse::Ok()
     ///     .insert_header(header::ContentType(mime::APPLICATION_JSON))
-    ///     .insert_header((&quot;X-TEST&quot;, &quot;value&quot;))
+    ///     .insert_header(("X-TEST", "value"))
     ///     .finish();
     /// ```
     </span><span class="kw">pub fn </span>insert_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
@@ -613,8 +614,8 @@
     ///
     /// HttpResponse::Ok()
     ///     .append_header(header::ContentType(mime::APPLICATION_JSON))
-    ///     .append_header((&quot;X-TEST&quot;, &quot;value1&quot;))
-    ///     .append_header((&quot;X-TEST&quot;, &quot;value2&quot;))
+    ///     .append_header(("X-TEST", "value1"))
+    ///     .append_header(("X-TEST", "value2"))
     ///     .finish();
     /// ```
     </span><span class="kw">pub fn </span>append_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
@@ -631,8 +632,8 @@
     <span class="doccomment">/// Replaced with [`Self::insert_header()`].
     </span><span class="attr">#[doc(hidden)]
     #[deprecated(
-        since = <span class="string">&quot;4.0.0&quot;</span>,
-        note = <span class="string">&quot;Replaced with `insert_header((key, value))`. Will be removed in v5.&quot;
+        since = <span class="string">"4.0.0"</span>,
+        note = <span class="string">"Replaced with `insert_header((key, value))`. Will be removed in v5."
     </span>)]
     </span><span class="kw">pub fn </span>set_header&lt;K, V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, value: V) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
     </span><span class="kw">where
@@ -656,8 +657,8 @@
     <span class="doccomment">/// Replaced with [`Self::append_header()`].
     </span><span class="attr">#[doc(hidden)]
     #[deprecated(
-        since = <span class="string">&quot;4.0.0&quot;</span>,
-        note = <span class="string">&quot;Replaced with `append_header((key, value))`. Will be removed in v5.&quot;
+        since = <span class="string">"4.0.0"</span>,
+        note = <span class="string">"Replaced with `append_header((key, value))`. Will be removed in v5."
     </span>)]
     </span><span class="kw">pub fn </span>header&lt;K, V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, value: V) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
     </span><span class="kw">where
@@ -680,7 +681,7 @@
 
     <span class="doccomment">/// Set the custom reason for the response.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>reason(<span class="kw-2">&amp;mut </span><span class="self">self</span>, reason: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>reason(<span class="kw-2">&amp;mut </span><span class="self">self</span>, reason: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="kw">if let </span><span class="prelude-val">Some</span>(parts) = <span class="self">self</span>.inner() {
             parts.reason = <span class="prelude-val">Some</span>(reason);
         }
@@ -753,7 +754,7 @@
 
     <span class="doccomment">/// Add a cookie to the response.
     ///
-    /// To send a &quot;removal&quot; cookie, call [`.make_removal()`](cookie::Cookie::make_removal) on the
+    /// To send a "removal" cookie, call [`.make_removal()`](cookie::Cookie::make_removal) on the
     /// given cookie. See [`HttpResponse::add_removal_cookie()`] to learn more.
     ///
     /// # Examples
@@ -763,9 +764,9 @@
     ///
     /// let res = HttpResponse::Ok()
     ///     .cookie(
-    ///         Cookie::build(&quot;name&quot;, &quot;value&quot;)
-    ///             .domain(&quot;www.rust-lang.org&quot;)
-    ///             .path(&quot;/&quot;)
+    ///         Cookie::build("name", "value")
+    ///             .domain("www.rust-lang.org")
+    ///             .path("/")
     ///             .secure(true)
     ///             .http_only(true)
     ///             .finish(),
@@ -778,9 +779,9 @@
     /// use actix_web::{HttpResponse, cookie::Cookie};
     ///
     /// // the name, domain and path match the cookie created in the previous example
-    /// let mut cookie = Cookie::build(&quot;name&quot;, &quot;value-does-not-matter&quot;)
-    ///     .domain(&quot;www.rust-lang.org&quot;)
-    ///     .path(&quot;/&quot;)
+    /// let mut cookie = Cookie::build("name", "value-does-not-matter")
+    ///     .domain("www.rust-lang.org")
+    ///     .path("/")
     ///     .finish();
     /// cookie.make_removal();
     ///
@@ -788,8 +789,8 @@
     ///     .cookie(cookie)
     ///     .finish();
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
-    </span><span class="kw">pub fn </span>cookie(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cookie: cookie::Cookie&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
+    </span><span class="kw">pub fn </span>cookie(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cookie: cookie::Cookie&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="kw">match </span>cookie.to_string().try_into_value() {
             <span class="prelude-val">Ok</span>(hdr_val) =&gt; <span class="self">self</span>.append_header((header::SET_COOKIE, hdr_val)),
             <span class="prelude-val">Err</span>(err) =&gt; {
@@ -801,19 +802,19 @@
 
     <span class="doccomment">/// Returns a reference to the response-local data/extensions container.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    </span><span class="kw">pub fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         <span class="self">self</span>.res
             .as_ref()
-            .expect(<span class="string">&quot;cannot reuse response builder&quot;</span>)
+            .expect(<span class="string">"cannot reuse response builder"</span>)
             .extensions()
     }
 
     <span class="doccomment">/// Returns a mutable reference to the response-local data/extensions container.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>extensions_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+    </span><span class="kw">pub fn </span>extensions_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'_</span>, Extensions&gt; {
         <span class="self">self</span>.res
             .as_mut()
-            .expect(<span class="string">&quot;cannot reuse response builder&quot;</span>)
+            .expect(<span class="string">"cannot reuse response builder"</span>)
             .extensions_mut()
     }
 
@@ -825,7 +826,7 @@
     /// `HttpResponseBuilder` can not be used after this call.
     </span><span class="kw">pub fn </span>body&lt;B&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, body: B) -&gt; HttpResponse&lt;BoxBody&gt;
     <span class="kw">where
-        </span>B: MessageBody + <span class="lifetime">&#39;static</span>,
+        </span>B: MessageBody + <span class="lifetime">'static</span>,
     {
         <span class="kw">match </span><span class="self">self</span>.message_body(body) {
             <span class="prelude-val">Ok</span>(res) =&gt; res.map_into_boxed_body(),
@@ -844,7 +845,7 @@
         <span class="kw">let </span>res = <span class="self">self
             </span>.res
             .take()
-            .expect(<span class="string">&quot;cannot reuse response builder&quot;</span>)
+            .expect(<span class="string">"cannot reuse response builder"</span>)
             .set_body(body);
 
         <span class="prelude-val">Ok</span>(HttpResponse::from(res))
@@ -856,8 +857,8 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>streaming&lt;S, E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: S) -&gt; HttpResponse
     <span class="kw">where
-        </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, E&gt;&gt; + <span class="lifetime">&#39;static</span>,
-        E: Into&lt;BoxError&gt; + <span class="lifetime">&#39;static</span>,
+        </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, E&gt;&gt; + <span class="lifetime">'static</span>,
+        E: Into&lt;BoxError&gt; + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.body(BodyStream::new(stream))
     }
@@ -924,7 +925,7 @@
 <span class="kw">impl </span>Future <span class="kw">for </span>HttpResponseBuilder {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;HttpResponse, Error&gt;;
 
-    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         Poll::Ready(<span class="prelude-val">Ok</span>(<span class="self">self</span>.finish()))
     }
 }
@@ -953,7 +954,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_basic_builder() {
         <span class="kw">let </span>resp = HttpResponse::Ok()
-            .insert_header((<span class="string">&quot;X-TEST&quot;</span>, <span class="string">&quot;value&quot;</span>))
+            .insert_header((<span class="string">"X-TEST"</span>, <span class="string">"value"</span>))
             .finish();
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
     }
@@ -961,12 +962,12 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_upgrade() {
         <span class="kw">let </span>resp = HttpResponseBuilder::new(StatusCode::OK)
-            .upgrade(<span class="string">&quot;websocket&quot;</span>)
+            .upgrade(<span class="string">"websocket"</span>)
             .finish();
         <span class="macro">assert!</span>(resp.upgrade());
         <span class="macro">assert_eq!</span>(
             resp.headers().get(header::UPGRADE).unwrap(),
-            HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>)
+            HeaderValue::from_static(<span class="string">"websocket"</span>)
         );
     }
 
@@ -981,52 +982,52 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_content_type() {
         <span class="kw">let </span>resp = HttpResponseBuilder::new(StatusCode::OK)
-            .content_type(<span class="string">&quot;text/plain&quot;</span>)
+            .content_type(<span class="string">"text/plain"</span>)
             .body(Bytes::new());
-        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;text/plain&quot;</span>)
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">"text/plain"</span>)
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_json() {
-        <span class="kw">let </span>res = HttpResponse::Ok().json(<span class="macro">vec!</span>[<span class="string">&quot;v1&quot;</span>, <span class="string">&quot;v2&quot;</span>, <span class="string">&quot;v3&quot;</span>]);
+        <span class="kw">let </span>res = HttpResponse::Ok().json(<span class="macro">vec!</span>[<span class="string">"v1"</span>, <span class="string">"v2"</span>, <span class="string">"v3"</span>]);
         <span class="kw">let </span>ct = res.headers().get(CONTENT_TYPE).unwrap();
-        <span class="macro">assert_eq!</span>(ct, HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>));
-        <span class="macro">assert_body_eq!</span>(res, <span class="string">br#&quot;[&quot;v1&quot;,&quot;v2&quot;,&quot;v3&quot;]&quot;#</span>);
+        <span class="macro">assert_eq!</span>(ct, HeaderValue::from_static(<span class="string">"application/json"</span>));
+        <span class="macro">assert_body_eq!</span>(res, <span class="string">br#"["v1","v2","v3"]"#</span>);
 
-        <span class="kw">let </span>res = HttpResponse::Ok().json([<span class="string">&quot;v1&quot;</span>, <span class="string">&quot;v2&quot;</span>, <span class="string">&quot;v3&quot;</span>]);
+        <span class="kw">let </span>res = HttpResponse::Ok().json([<span class="string">"v1"</span>, <span class="string">"v2"</span>, <span class="string">"v3"</span>]);
         <span class="kw">let </span>ct = res.headers().get(CONTENT_TYPE).unwrap();
-        <span class="macro">assert_eq!</span>(ct, HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>));
-        <span class="macro">assert_body_eq!</span>(res, <span class="string">br#&quot;[&quot;v1&quot;,&quot;v2&quot;,&quot;v3&quot;]&quot;#</span>);
+        <span class="macro">assert_eq!</span>(ct, HeaderValue::from_static(<span class="string">"application/json"</span>));
+        <span class="macro">assert_body_eq!</span>(res, <span class="string">br#"["v1","v2","v3"]"#</span>);
 
         <span class="comment">// content type override
         </span><span class="kw">let </span>res = HttpResponse::Ok()
-            .insert_header((CONTENT_TYPE, <span class="string">&quot;text/json&quot;</span>))
-            .json(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="string">&quot;v1&quot;</span>, <span class="string">&quot;v2&quot;</span>, <span class="string">&quot;v3&quot;</span>]);
+            .insert_header((CONTENT_TYPE, <span class="string">"text/json"</span>))
+            .json(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="string">"v1"</span>, <span class="string">"v2"</span>, <span class="string">"v3"</span>]);
         <span class="kw">let </span>ct = res.headers().get(CONTENT_TYPE).unwrap();
-        <span class="macro">assert_eq!</span>(ct, HeaderValue::from_static(<span class="string">&quot;text/json&quot;</span>));
-        <span class="macro">assert_body_eq!</span>(res, <span class="string">br#&quot;[&quot;v1&quot;,&quot;v2&quot;,&quot;v3&quot;]&quot;#</span>);
+        <span class="macro">assert_eq!</span>(ct, HeaderValue::from_static(<span class="string">"text/json"</span>));
+        <span class="macro">assert_body_eq!</span>(res, <span class="string">br#"["v1","v2","v3"]"#</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_serde_json_in_body() {
         <span class="kw">let </span>resp = HttpResponse::Ok()
-            .body(serde_json::to_vec(<span class="kw-2">&amp;</span><span class="macro">serde_json::json!</span>({ <span class="string">&quot;test-key&quot;</span>: <span class="string">&quot;test-value&quot; </span>})).unwrap());
+            .body(serde_json::to_vec(<span class="kw-2">&amp;</span><span class="macro">serde_json::json!</span>({ <span class="string">"test-key"</span>: <span class="string">"test-value" </span>})).unwrap());
 
         <span class="macro">assert_eq!</span>(
             body::to_bytes(resp.into_body()).<span class="kw">await</span>.unwrap().as_ref(),
-            <span class="string">br#&quot;{&quot;test-key&quot;:&quot;test-value&quot;}&quot;#
+            <span class="string">br#"{"test-key":"test-value"}"#
         </span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>response_builder_header_insert_kv() {
         <span class="kw">let </span><span class="kw-2">mut </span>res = HttpResponse::Ok();
-        res.insert_header((<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/octet-stream&quot;</span>));
+        res.insert_header((<span class="string">"Content-Type"</span>, <span class="string">"application/octet-stream"</span>));
         <span class="kw">let </span>res = res.finish();
 
         <span class="macro">assert_eq!</span>(
-            res.headers().get(<span class="string">&quot;Content-Type&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>))
+            res.headers().get(<span class="string">"Content-Type"</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/octet-stream"</span>))
         );
     }
 
@@ -1037,22 +1038,22 @@
         <span class="kw">let </span>res = res.finish();
 
         <span class="macro">assert_eq!</span>(
-            res.headers().get(<span class="string">&quot;Content-Type&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>))
+            res.headers().get(<span class="string">"Content-Type"</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/octet-stream"</span>))
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>response_builder_header_append_kv() {
         <span class="kw">let </span><span class="kw-2">mut </span>res = HttpResponse::Ok();
-        res.append_header((<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/octet-stream&quot;</span>));
-        res.append_header((<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json&quot;</span>));
+        res.append_header((<span class="string">"Content-Type"</span>, <span class="string">"application/octet-stream"</span>));
+        res.append_header((<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>));
         <span class="kw">let </span>res = res.finish();
 
-        <span class="kw">let </span>headers: Vec&lt;<span class="kw">_</span>&gt; = res.headers().get_all(<span class="string">&quot;Content-Type&quot;</span>).cloned().collect();
+        <span class="kw">let </span>headers: Vec&lt;<span class="kw">_</span>&gt; = res.headers().get_all(<span class="string">"Content-Type"</span>).cloned().collect();
         <span class="macro">assert_eq!</span>(headers.len(), <span class="number">2</span>);
-        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)));
-        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>)));
+        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/octet-stream"</span>)));
+        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/json"</span>)));
     }
 
     <span class="attr">#[test]
@@ -1062,10 +1063,10 @@
         res.append_header((header::CONTENT_TYPE, mime::APPLICATION_JSON));
         <span class="kw">let </span>res = res.finish();
 
-        <span class="kw">let </span>headers: Vec&lt;<span class="kw">_</span>&gt; = res.headers().get_all(<span class="string">&quot;Content-Type&quot;</span>).cloned().collect();
+        <span class="kw">let </span>headers: Vec&lt;<span class="kw">_</span>&gt; = res.headers().get_all(<span class="string">"Content-Type"</span>).cloned().collect();
         <span class="macro">assert_eq!</span>(headers.len(), <span class="number">2</span>);
-        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)));
-        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>)));
+        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/octet-stream"</span>)));
+        <span class="macro">assert!</span>(headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">"application/json"</span>)));
     }
 }
 </code></pre></div></section></main></body></html>

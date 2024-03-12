@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/native-tls-0.2.11/src/imp/openssl.rs`."><title>openssl.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="native_tls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/native-tls-0.2.11/src/imp/openssl.rs`."><title>openssl.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="native_tls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -576,18 +577,18 @@
     ONCE.call_once(openssl_probe::init_ssl_cert_env_vars);
 }
 
-<span class="attr">#[cfg(target_os = <span class="string">&quot;android&quot;</span>)]
+<span class="attr">#[cfg(target_os = <span class="string">"android"</span>)]
 </span><span class="kw">fn </span>load_android_root_certs(connector: <span class="kw-2">&amp;mut </span>SslContextBuilder) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">use </span>std::fs;
 
-    <span class="kw">if let </span><span class="prelude-val">Ok</span>(dir) = fs::read_dir(<span class="string">&quot;/system/etc/security/cacerts&quot;</span>) {
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(dir) = fs::read_dir(<span class="string">"/system/etc/security/cacerts"</span>) {
         <span class="kw">let </span>certs = dir
             .filter_map(|r| r.ok())
             .filter_map(|e| fs::read(e.path()).ok())
             .filter_map(|b| X509::from_pem(<span class="kw-2">&amp;</span>b).ok());
         <span class="kw">for </span>cert <span class="kw">in </span>certs {
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = connector.cert_store_mut().add_cert(cert) {
-                <span class="macro">debug!</span>(<span class="string">&quot;load_android_root_certs error: {:?}&quot;</span>, err);
+                <span class="macro">debug!</span>(<span class="string">"load_android_root_certs error: {:?}"</span>, err);
             }
         }
     }
@@ -604,7 +605,7 @@
 }
 
 <span class="kw">impl </span>error::Error <span class="kw">for </span>Error {
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">&#39;static</span>)&gt; {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">'static</span>)&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             Error::Normal(<span class="kw-2">ref </span>e) =&gt; error::Error::source(e),
             Error::Ssl(<span class="kw-2">ref </span>e, <span class="kw">_</span>) =&gt; error::Error::source(e),
@@ -619,12 +620,12 @@
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             Error::Normal(<span class="kw-2">ref </span>e) =&gt; fmt::Display::fmt(e, fmt),
             Error::Ssl(<span class="kw-2">ref </span>e, X509VerifyResult::OK) =&gt; fmt::Display::fmt(e, fmt),
-            Error::Ssl(<span class="kw-2">ref </span>e, v) =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;{} ({})&quot;</span>, e, v),
+            Error::Ssl(<span class="kw-2">ref </span>e, v) =&gt; <span class="macro">write!</span>(fmt, <span class="string">"{} ({})"</span>, e, v),
             Error::EmptyChain =&gt; <span class="macro">write!</span>(
                 fmt,
-                <span class="string">&quot;at least one certificate must be provided to create an identity&quot;
+                <span class="string">"at least one certificate must be provided to create an identity"
             </span>),
-            Error::NotPkcs8 =&gt; <span class="macro">write!</span>(fmt, <span class="string">&quot;expected PKCS#8 PEM&quot;</span>),
+            Error::NotPkcs8 =&gt; <span class="macro">write!</span>(fmt, <span class="string">"expected PKCS#8 PEM"</span>),
         }
     }
 }
@@ -657,7 +658,7 @@
     }
 
     <span class="kw">pub fn </span>from_pkcs8(buf: <span class="kw-2">&amp;</span>[u8], key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Identity, Error&gt; {
-        <span class="kw">if </span>!key.starts_with(<span class="string">b&quot;-----BEGIN PRIVATE KEY-----&quot;</span>) {
+        <span class="kw">if </span>!key.starts_with(<span class="string">b"-----BEGIN PRIVATE KEY-----"</span>) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::NotPkcs8);
         }
 
@@ -766,8 +767,8 @@
             connector.set_private_key(<span class="kw-2">&amp;</span>identity.<span class="number">0</span>.pkey)<span class="question-mark">?</span>;
             <span class="kw">for </span>cert <span class="kw">in </span>identity.<span class="number">0</span>.chain.iter() {
                 <span class="comment">// https://www.openssl.org/docs/manmaster/man3/SSL_CTX_add_extra_chain_cert.html
-                // specifies that &quot;When sending a certificate chain, extra chain certificates are
-                // sent in order following the end entity certificate.&quot;
+                // specifies that "When sending a certificate chain, extra chain certificates are
+                // sent in order following the end entity certificate."
                 </span>connector.add_extra_chain_cert(cert.to_owned())<span class="question-mark">?</span>;
             }
         }
@@ -779,11 +780,11 @@
 
         <span class="kw">for </span>cert <span class="kw">in </span><span class="kw-2">&amp;</span>builder.root_certificates {
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = connector.cert_store_mut().add_cert((cert.<span class="number">0</span>).<span class="number">0</span>.clone()) {
-                <span class="macro">debug!</span>(<span class="string">&quot;add_cert error: {:?}&quot;</span>, err);
+                <span class="macro">debug!</span>(<span class="string">"add_cert error: {:?}"</span>, err);
             }
         }
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;alpn&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"alpn"</span>)]
         </span>{
             <span class="kw">if </span>!builder.alpn.is_empty() {
                 <span class="comment">// Wire format is each alpn preceded by its length as a byte.
@@ -803,7 +804,7 @@
             }
         }
 
-        <span class="attr">#[cfg(target_os = <span class="string">&quot;android&quot;</span>)]
+        <span class="attr">#[cfg(target_os = <span class="string">"android"</span>)]
         </span>load_android_root_certs(<span class="kw-2">&amp;mut </span>connector)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(TlsConnector {
@@ -834,11 +835,11 @@
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>TlsConnector {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        fmt.debug_struct(<span class="string">&quot;TlsConnector&quot;</span>)
-            <span class="comment">// n.b. SslConnector is a newtype on SslContext which implements a noop Debug so it&#39;s omitted
-            </span>.field(<span class="string">&quot;use_sni&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.use_sni)
-            .field(<span class="string">&quot;accept_invalid_hostnames&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.accept_invalid_hostnames)
-            .field(<span class="string">&quot;accept_invalid_certs&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.accept_invalid_certs)
+        fmt.debug_struct(<span class="string">"TlsConnector"</span>)
+            <span class="comment">// n.b. SslConnector is a newtype on SslContext which implements a noop Debug so it's omitted
+            </span>.field(<span class="string">"use_sni"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.use_sni)
+            .field(<span class="string">"accept_invalid_hostnames"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.accept_invalid_hostnames)
+            .field(<span class="string">"accept_invalid_certs"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.accept_invalid_certs)
             .finish()
     }
 }
@@ -853,8 +854,8 @@
         acceptor.set_certificate(<span class="kw-2">&amp;</span>builder.identity.<span class="number">0</span>.cert)<span class="question-mark">?</span>;
         <span class="kw">for </span>cert <span class="kw">in </span>builder.identity.<span class="number">0</span>.chain.iter() {
             <span class="comment">// https://www.openssl.org/docs/manmaster/man3/SSL_CTX_add_extra_chain_cert.html
-            // specifies that &quot;When sending a certificate chain, extra chain certificates are
-            // sent in order following the end entity certificate.&quot;
+            // specifies that "When sending a certificate chain, extra chain certificates are
+            // sent in order following the end entity certificate."
             </span>acceptor.add_extra_chain_cert(cert.to_owned())<span class="question-mark">?</span>;
         }
         supported_protocols(builder.min_protocol, builder.max_protocol, <span class="kw-2">&amp;mut </span>acceptor)<span class="question-mark">?</span>;
@@ -898,7 +899,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="number">0</span>.ssl().peer_certificate().map(Certificate))
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;alpn&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"alpn"</span>)]
     </span><span class="kw">pub fn </span>negotiated_alpn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;, Error&gt; {
         <span class="prelude-val">Ok</span>(<span class="self">self
             </span>.<span class="number">0

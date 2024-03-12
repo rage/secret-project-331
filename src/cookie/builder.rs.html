@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cookie-0.16.2/src/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cookie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cookie-0.16.2/src/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cookie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -264,9 +265,9 @@
 /// use cookie::time::Duration;
 ///
 /// # fn main() {
-/// let cookie: Cookie = Cookie::build(&quot;name&quot;, &quot;value&quot;)
-///     .domain(&quot;www.rust-lang.org&quot;)
-///     .path(&quot;/&quot;)
+/// let cookie: Cookie = Cookie::build("name", "value")
+///     .domain("www.rust-lang.org")
+///     .path("/")
 ///     .secure(true)
 ///     .http_only(true)
 ///     .max_age(Duration::days(1))
@@ -274,12 +275,12 @@
 /// # }
 /// ```
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>CookieBuilder&lt;<span class="lifetime">&#39;c</span>&gt; {
+</span><span class="kw">pub struct </span>CookieBuilder&lt;<span class="lifetime">'c</span>&gt; {
     <span class="doccomment">/// The cookie being built.
-    </span>cookie: Cookie&lt;<span class="lifetime">&#39;c</span>&gt;,
+    </span>cookie: Cookie&lt;<span class="lifetime">'c</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>&gt; CookieBuilder&lt;<span class="lifetime">&#39;c</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'c</span>&gt; CookieBuilder&lt;<span class="lifetime">'c</span>&gt; {
     <span class="doccomment">/// Creates a new `CookieBuilder` instance from the given name and value.
     ///
     /// This method is typically called indirectly via [`Cookie::build()`].
@@ -289,12 +290,12 @@
     /// ```rust
     /// use cookie::Cookie;
     ///
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;).finish();
-    /// assert_eq!(c.name_value(), (&quot;foo&quot;, &quot;bar&quot;));
+    /// let c = Cookie::build("foo", "bar").finish();
+    /// assert_eq!(c.name_value(), ("foo", "bar"));
     /// ```
     </span><span class="kw">pub fn </span>new&lt;N, V&gt;(name: N, value: V) -&gt; <span class="self">Self
-        </span><span class="kw">where </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;c</span>, str&gt;&gt;,
-              V: Into&lt;Cow&lt;<span class="lifetime">&#39;c</span>, str&gt;&gt;
+        </span><span class="kw">where </span>N: Into&lt;Cow&lt;<span class="lifetime">'c</span>, str&gt;&gt;,
+              V: Into&lt;Cow&lt;<span class="lifetime">'c</span>, str&gt;&gt;
     {
         CookieBuilder { cookie: Cookie::new(name, value) }
     }
@@ -309,13 +310,13 @@
     /// use cookie::time::OffsetDateTime;
     ///
     /// # fn main() {
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    /// let c = Cookie::build("foo", "bar")
     ///     .expires(OffsetDateTime::now_utc())
     ///     .finish();
     ///
     /// assert!(c.expires().is_some());
     ///
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    /// let c = Cookie::build("foo", "bar")
     ///     .expires(None)
     ///     .finish();
     ///
@@ -338,7 +339,7 @@
     /// use cookie::time::Duration;
     ///
     /// # fn main() {
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    /// let c = Cookie::build("foo", "bar")
     ///     .max_age(Duration::minutes(30))
     ///     .finish();
     ///
@@ -358,13 +359,13 @@
     /// ```rust
     /// use cookie::Cookie;
     ///
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
-    ///     .domain(&quot;www.rust-lang.org&quot;)
+    /// let c = Cookie::build("foo", "bar")
+    ///     .domain("www.rust-lang.org")
     ///     .finish();
     ///
-    /// assert_eq!(c.domain(), Some(&quot;www.rust-lang.org&quot;));
+    /// assert_eq!(c.domain(), Some("www.rust-lang.org"));
     /// ```
-    </span><span class="kw">pub fn </span>domain&lt;D: Into&lt;Cow&lt;<span class="lifetime">&#39;c</span>, str&gt;&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, value: D) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>domain&lt;D: Into&lt;Cow&lt;<span class="lifetime">'c</span>, str&gt;&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, value: D) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.cookie.set_domain(value);
         <span class="self">self
     </span>}
@@ -376,13 +377,13 @@
     /// ```rust
     /// use cookie::Cookie;
     ///
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
-    ///     .path(&quot;/&quot;)
+    /// let c = Cookie::build("foo", "bar")
+    ///     .path("/")
     ///     .finish();
     ///
-    /// assert_eq!(c.path(), Some(&quot;/&quot;));
+    /// assert_eq!(c.path(), Some("/"));
     /// ```
-    </span><span class="kw">pub fn </span>path&lt;P: Into&lt;Cow&lt;<span class="lifetime">&#39;c</span>, str&gt;&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, path: P) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>path&lt;P: Into&lt;Cow&lt;<span class="lifetime">'c</span>, str&gt;&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, path: P) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.cookie.set_path(path);
         <span class="self">self
     </span>}
@@ -394,7 +395,7 @@
     /// ```rust
     /// use cookie::Cookie;
     ///
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    /// let c = Cookie::build("foo", "bar")
     ///     .secure(true)
     ///     .finish();
     ///
@@ -413,7 +414,7 @@
     /// ```rust
     /// use cookie::Cookie;
     ///
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    /// let c = Cookie::build("foo", "bar")
     ///     .http_only(true)
     ///     .finish();
     ///
@@ -432,7 +433,7 @@
     /// ```rust
     /// use cookie::{Cookie, SameSite};
     ///
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    /// let c = Cookie::build("foo", "bar")
     ///     .same_site(SameSite::Strict)
     ///     .finish();
     ///
@@ -444,7 +445,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Makes the cookie being built &#39;permanent&#39; by extending its expiration and
+    <span class="doccomment">/// Makes the cookie being built 'permanent' by extending its expiration and
     /// max age 20 years into the future.
     ///
     /// # Example
@@ -455,7 +456,7 @@
     /// use cookie::time::Duration;
     ///
     /// # fn main() {
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    /// let c = Cookie::build("foo", "bar")
     ///     .permanent()
     ///     .finish();
     ///
@@ -476,17 +477,17 @@
     /// ```rust
     /// use cookie::Cookie;
     ///
-    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
-    ///     .domain(&quot;crates.io&quot;)
-    ///     .path(&quot;/&quot;)
+    /// let c = Cookie::build("foo", "bar")
+    ///     .domain("crates.io")
+    ///     .path("/")
     ///     .finish();
     ///
-    /// assert_eq!(c.name_value(), (&quot;foo&quot;, &quot;bar&quot;));
-    /// assert_eq!(c.domain(), Some(&quot;crates.io&quot;));
-    /// assert_eq!(c.path(), Some(&quot;/&quot;));
+    /// assert_eq!(c.name_value(), ("foo", "bar"));
+    /// assert_eq!(c.domain(), Some("crates.io"));
+    /// assert_eq!(c.path(), Some("/"));
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>finish(<span class="self">self</span>) -&gt; Cookie&lt;<span class="lifetime">&#39;c</span>&gt; {
+    </span><span class="kw">pub fn </span>finish(<span class="self">self</span>) -&gt; Cookie&lt;<span class="lifetime">'c</span>&gt; {
         <span class="self">self</span>.cookie
     }
 }

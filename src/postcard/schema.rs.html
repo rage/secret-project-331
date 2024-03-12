@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.8/src/schema.rs`."><title>schema.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.8/src/schema.rs`."><title>schema.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -340,92 +341,92 @@
     </span>ByteArray,
 
     <span class="doccomment">/// The `Option&lt;T&gt;` Serde Data Model Type
-    </span><span class="prelude-ty">Option</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType),
+    </span><span class="prelude-ty">Option</span>(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType),
 
     <span class="doccomment">/// The `()` Serde Data Model Type
     </span>Unit,
 
-    <span class="doccomment">/// The &quot;unit struct&quot; Serde Data Model Type
+    <span class="doccomment">/// The "unit struct" Serde Data Model Type
     </span>UnitStruct,
 
-    <span class="doccomment">/// The &quot;unit variant&quot; Serde Data Model Type
+    <span class="doccomment">/// The "unit variant" Serde Data Model Type
     </span>UnitVariant,
 
-    <span class="doccomment">/// The &quot;newtype struct&quot; Serde Data Model Type
-    </span>NewtypeStruct(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType),
+    <span class="doccomment">/// The "newtype struct" Serde Data Model Type
+    </span>NewtypeStruct(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType),
 
-    <span class="doccomment">/// The &quot;newtype variant&quot; Serde Data Model Type
-    </span>NewtypeVariant(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType),
+    <span class="doccomment">/// The "newtype variant" Serde Data Model Type
+    </span>NewtypeVariant(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType),
 
-    <span class="doccomment">/// The &quot;Sequence&quot; Serde Data Model Type
-    </span>Seq(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType),
+    <span class="doccomment">/// The "Sequence" Serde Data Model Type
+    </span>Seq(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType),
 
-    <span class="doccomment">/// The &quot;Tuple&quot; Serde Data Model Type
-    </span>Tuple(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType]),
+    <span class="doccomment">/// The "Tuple" Serde Data Model Type
+    </span>Tuple(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType]),
 
-    <span class="doccomment">/// The &quot;Tuple Struct&quot; Serde Data Model Type
-    </span>TupleStruct(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType]),
+    <span class="doccomment">/// The "Tuple Struct" Serde Data Model Type
+    </span>TupleStruct(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType]),
 
-    <span class="doccomment">/// The &quot;Tuple Variant&quot; Serde Data Model Type
-    </span>TupleVariant(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType]),
+    <span class="doccomment">/// The "Tuple Variant" Serde Data Model Type
+    </span>TupleVariant(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType]),
 
-    <span class="doccomment">/// The &quot;Map&quot; Serde Data Model Type
+    <span class="doccomment">/// The "Map" Serde Data Model Type
     </span>Map {
-        <span class="doccomment">/// The map &quot;Key&quot; type
-        </span>key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType,
-        <span class="doccomment">/// The map &quot;Value&quot; type
-        </span>val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType,
+        <span class="doccomment">/// The map "Key" type
+        </span>key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType,
+        <span class="doccomment">/// The map "Value" type
+        </span>val: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType,
     },
 
-    <span class="doccomment">/// The &quot;Struct&quot; Serde Data Model Type
-    </span>Struct(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedValue]),
+    <span class="doccomment">/// The "Struct" Serde Data Model Type
+    </span>Struct(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedValue]),
 
-    <span class="doccomment">/// The &quot;Struct Variant&quot; Serde Data Model Type
-    </span>StructVariant(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedValue]),
+    <span class="doccomment">/// The "Struct Variant" Serde Data Model Type
+    </span>StructVariant(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedValue]),
 
-    <span class="doccomment">/// The &quot;Enum&quot; Serde Data Model Type (which contains any of the &quot;Variant&quot; types)
-    </span>Enum(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedVariant]),
+    <span class="doccomment">/// The "Enum" Serde Data Model Type (which contains any of the "Variant" types)
+    </span>Enum(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedVariant]),
 }
 
 <span class="doccomment">/// A data type with a name - e.g. a field of a Struct
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 </span><span class="kw">pub struct </span>NamedValue {
     <span class="doccomment">/// The name of this value
-    </span><span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    </span><span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     <span class="doccomment">/// The type of this value
-    </span><span class="kw">pub </span>ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType,
+    </span><span class="kw">pub </span>ty: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType,
 }
 
 <span class="doccomment">/// A data type - e.g. a custom `struct Foo{ ... }` type
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 </span><span class="kw">pub struct </span>NamedType {
     <span class="doccomment">/// The name of this type
-    </span><span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    </span><span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     <span class="doccomment">/// The type
-    </span><span class="kw">pub </span>ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>SdmTy,
+    </span><span class="kw">pub </span>ty: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>SdmTy,
 }
 
 <span class="doccomment">/// An enum variant with a name, e.g. `T::Bar(...)`
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 </span><span class="kw">pub struct </span>NamedVariant {
     <span class="doccomment">/// The name of this variant
-    </span><span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    </span><span class="kw">pub </span>name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     <span class="doccomment">/// The type of this variant
-    </span><span class="kw">pub </span>ty: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>SdmTy,
+    </span><span class="kw">pub </span>ty: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>SdmTy,
 }
 
 <span class="doccomment">/// A trait that represents a compile time calculated schema
 </span><span class="kw">pub trait </span>Schema {
     <span class="doccomment">/// A recursive data structure that describes the schema of the given
     /// type.
-    </span><span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType;
+    </span><span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType;
 }
 
 <span class="macro">macro_rules! </span>impl_schema {
     ($(<span class="macro-nonterminal">$t</span>:ty: <span class="macro-nonterminal">$sdm</span>:expr),<span class="kw-2">*</span>) =&gt; {
         $(
             <span class="kw">impl </span>Schema <span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-                <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+                <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
                     name: <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>),
                     ty: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$sdm</span>,
                 };
@@ -438,7 +439,7 @@
     (tuple =&gt; [$(($(<span class="macro-nonterminal">$generic</span>:ident),<span class="kw-2">*</span>)),<span class="kw-2">*</span>]) =&gt; {
         $(
             <span class="kw">impl</span>&lt;$(<span class="macro-nonterminal">$generic</span>: Schema),<span class="kw-2">*</span>&gt; Schema <span class="kw">for </span>($(<span class="macro-nonterminal">$generic</span>,)<span class="kw-2">*</span>) {
-                <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+                <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
                     name: <span class="macro">stringify!</span>(($(<span class="macro-nonterminal">$generic</span>,)<span class="kw-2">*</span>)),
                     ty: <span class="kw-2">&amp;</span>SdmTy::Tuple(<span class="kw-2">&amp;</span>[$(<span class="macro-nonterminal">$generic::SCHEMA</span>),<span class="kw-2">*</span>]),
                 };
@@ -471,94 +472,94 @@
 ]);
 
 <span class="kw">impl</span>&lt;T: Schema&gt; Schema <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;Option&lt;T&gt;&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"Option&lt;T&gt;"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::Option(T::SCHEMA),
     };
 }
 <span class="kw">impl</span>&lt;T: Schema, E: Schema&gt; Schema <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;T, E&gt; {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;Result&lt;T, E&gt;&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"Result&lt;T, E&gt;"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::Enum(<span class="kw-2">&amp;</span>[
             <span class="kw-2">&amp;</span>NamedVariant {
-                name: <span class="string">&quot;Ok&quot;</span>,
+                name: <span class="string">"Ok"</span>,
                 ty: <span class="kw-2">&amp;</span>SdmTy::TupleVariant(<span class="kw-2">&amp;</span>[T::SCHEMA]),
             },
             <span class="kw-2">&amp;</span>NamedVariant {
-                name: <span class="string">&quot;Err&quot;</span>,
+                name: <span class="string">"Err"</span>,
                 ty: <span class="kw-2">&amp;</span>SdmTy::TupleVariant(<span class="kw-2">&amp;</span>[E::SCHEMA]),
             },
         ]),
     };
 }
 
-<span class="kw">impl</span>&lt;T: Schema&gt; Schema <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = T::SCHEMA;
+<span class="kw">impl</span>&lt;T: Schema&gt; Schema <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'_ </span>T {
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = T::SCHEMA;
 }
 
 <span class="kw">impl</span>&lt;T: Schema&gt; Schema <span class="kw">for </span>[T] {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;&amp;[T]&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"&amp;[T]"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::Seq(T::SCHEMA),
     };
 }
 <span class="kw">impl</span>&lt;T: Schema, <span class="kw">const </span>N: usize&gt; Schema <span class="kw">for </span>[T; N] {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;[T; N]&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"[T; N]"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::Tuple(<span class="kw-2">&amp;</span>[T::SCHEMA; N]),
     };
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">&quot;heapless&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"heapless"</span>)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"heapless"</span>)))]
 </span><span class="kw">impl</span>&lt;T: Schema, <span class="kw">const </span>N: usize&gt; Schema <span class="kw">for </span>heapless::Vec&lt;T, N&gt; {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;heapless::Vec&lt;T, N&gt;&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"heapless::Vec&lt;T, N&gt;"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::Seq(T::SCHEMA),
     };
 }
-<span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">&quot;heapless&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"heapless"</span>)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"heapless"</span>)))]
 </span><span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize&gt; Schema <span class="kw">for </span>heapless::String&lt;N&gt; {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;heapless::String&lt;N&gt;&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"heapless::String&lt;N&gt;"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::String,
     };
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;use-std&quot;</span>)]
-#[cfg_attr(doc_cfg, doc(cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;use-std&quot;</span>))))]
+<span class="attr">#[cfg(feature = <span class="string">"use-std"</span>)]
+#[cfg_attr(doc_cfg, doc(cfg(any(feature = <span class="string">"alloc"</span>, feature = <span class="string">"use-std"</span>))))]
 </span><span class="kw">impl</span>&lt;T: Schema&gt; Schema <span class="kw">for </span>std::vec::Vec&lt;T&gt; {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;Vec&lt;T&gt;&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"Vec&lt;T&gt;"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::Seq(T::SCHEMA),
     };
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;use-std&quot;</span>)]
-#[cfg_attr(doc_cfg, doc(cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;use-std&quot;</span>))))]
+<span class="attr">#[cfg(feature = <span class="string">"use-std"</span>)]
+#[cfg_attr(doc_cfg, doc(cfg(any(feature = <span class="string">"alloc"</span>, feature = <span class="string">"use-std"</span>))))]
 </span><span class="kw">impl </span>Schema <span class="kw">for </span>std::string::String {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;String&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"String"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::String,
     };
 }
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;use-std&quot;</span>), feature = <span class="string">&quot;alloc&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"use-std"</span>), feature = <span class="string">"alloc"</span>))]
 </span><span class="kw">extern crate </span>alloc;
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;use-std&quot;</span>), feature = <span class="string">&quot;alloc&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"use-std"</span>), feature = <span class="string">"alloc"</span>))]
 </span><span class="kw">impl</span>&lt;T: Schema&gt; Schema <span class="kw">for </span>alloc::vec::Vec&lt;T&gt; {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;Vec&lt;T&gt;&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"Vec&lt;T&gt;"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::Seq(T::SCHEMA),
     };
 }
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;use-std&quot;</span>), feature = <span class="string">&quot;alloc&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"use-std"</span>), feature = <span class="string">"alloc"</span>))]
 </span><span class="kw">impl </span>Schema <span class="kw">for </span>alloc::string::String {
-    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
-        name: <span class="string">&quot;String&quot;</span>,
+    <span class="kw">const </span>SCHEMA: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>NamedType = <span class="kw-2">&amp;</span>NamedType {
+        name: <span class="string">"String"</span>,
         ty: <span class="kw-2">&amp;</span>SdmTy::String,
     };
 }

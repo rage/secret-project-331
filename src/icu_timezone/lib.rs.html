@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_timezone-1.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_timezone" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_timezone-1.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_timezone" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -161,7 +162,7 @@
 //! The GMT offset precisely states the time difference between the time zone in question and
 //! Greenwich Mean Time (GMT) or Coordinated Universal Time (UTC).
 //!
-//! In localized strings, it is often rendered as &quot;GMT-6&quot;, meaning 6 hours less than GMT.
+//! In localized strings, it is often rendered as "GMT-6", meaning 6 hours less than GMT.
 //!
 //! ## Time Zone
 //!
@@ -170,8 +171,8 @@
 //!
 //! There are two mostly-interchangeable standards for time zone IDs:
 //!
-//! 1. IANA time zone IDs, like `&quot;America/Chicago&quot;`
-//! 2. BCP-47 time zone IDs, like `&quot;uschi&quot;`
+//! 1. IANA time zone IDs, like `"America/Chicago"`
+//! 2. BCP-47 time zone IDs, like `"uschi"`
 //!
 //! ICU4X uses BCP-47 time zone IDs for all of its APIs. To get a BCP-47 time zone from an
 //! IANA time zone, use [`IanaToBcp47Mapper`].
@@ -181,21 +182,21 @@
 //! A metazone is a collection of multiple time zones that share the same localized formatting
 //! at a particular date and time.
 //!
-//! For example, &quot;America/Chicago&quot; and &quot;America/Indiana/Knox&quot; both map to US Central Time, or
-//! `&quot;America_Central&quot;`.
+//! For example, "America/Chicago" and "America/Indiana/Knox" both map to US Central Time, or
+//! `"America_Central"`.
 //!
 //! The mapping from time zone to metazone depends on the date. For example, from 1991 to 2006,
-//! &quot;America/Indiana/Knox&quot; mapped to US Eastern Time instead of US Central Time.
+//! "America/Indiana/Knox" mapped to US Eastern Time instead of US Central Time.
 //!
 //! As with time zone IDs, there are two interchangeable forms:
 //!
-//! 1. Long form, like `&quot;America_Central&quot;`
-//! 2. Short form compatible with BCP-47, like `&quot;amce&quot;`
+//! 1. Long form, like `"America_Central"`
+//! 2. Short form compatible with BCP-47, like `"amce"`
 //!
 //! ICU4X uses the short form.
 //!
-//! Note: in ICU4X, &quot;metazone&quot; is one word and &quot;time zone&quot; is two words, except for this crate
-//! and module name, where &quot;timezone&quot; is used with no separators. See
+//! Note: in ICU4X, "metazone" is one word and "time zone" is two words, except for this crate
+//! and module name, where "timezone" is used with no separators. See
 //! &lt;https://github.com/unicode-org/icu4x/issues/2507&gt;.
 //!
 //! ## Zone Variant
@@ -203,8 +204,8 @@
 //! Many metazones use different names and offsets in the summer than in the winter. In ICU4X,
 //! this is called the _zone variant_. There are two zone variants:
 //!
-//! 1. `&quot;dt&quot;` = daylight or summer time
-//! 2. `&quot;st&quot;` = standard or winter time
+//! 1. `"dt"` = daylight or summer time
+//! 2. `"st"` = standard or winter time
 //!
 //! Note: It is optional (not required) to set the zone variant when constructing a
 //! [`CustomTimeZone`]. Therefore, the list of possible variants does not include a generic variant
@@ -235,23 +236,23 @@
 //!
 //! // Create a time zone for America/Chicago at GMT-6:
 //! let mut time_zone = CustomTimeZone::new_empty();
-//! time_zone.gmt_offset = &quot;-0600&quot;.parse::&lt;GmtOffset&gt;().ok();
+//! time_zone.gmt_offset = "-0600".parse::&lt;GmtOffset&gt;().ok();
 //! let mapper = IanaToBcp47Mapper::new();
-//! time_zone.time_zone_id = mapper.as_borrowed().get(&quot;America/Chicago&quot;);
+//! time_zone.time_zone_id = mapper.as_borrowed().get("America/Chicago");
 //!
 //! // Alternatively, set it directly from the BCP-47 ID
-//! assert_eq!(time_zone.time_zone_id, Some(tinystr!(8, &quot;uschi&quot;).into()));
+//! assert_eq!(time_zone.time_zone_id, Some(tinystr!(8, "uschi").into()));
 //!
 //! // Compute the metazone at January 1, 2022:
 //! let mzc = MetazoneCalculator::new();
 //! let datetime = DateTime::try_new_iso_datetime(2022, 1, 1, 0, 0, 0).unwrap();
 //! time_zone.maybe_calculate_metazone(&amp;mzc, &amp;datetime);
 //!
-//! assert_eq!(&quot;amce&quot;, time_zone.metazone_id.unwrap().0.as_str());
+//! assert_eq!("amce", time_zone.metazone_id.unwrap().0.as_str());
 //! ```
 
 </span><span class="comment">// https://github.com/unicode-org/icu4x/blob/main/docs/process/boilerplate.md#library-annotations
-</span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">&quot;std&quot;</span>)), no_std)]
+</span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">"std"</span>)), no_std)]
 #![cfg_attr(
     not(test),
     deny(

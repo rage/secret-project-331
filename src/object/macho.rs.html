@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/macho.rs`."><title>macho.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/macho.rs`."><title>macho.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3317,7 +3318,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::endian::{BigEndian, Endian, U64Bytes, U16, U32, U64};
 <span class="kw">use </span><span class="kw">crate</span>::pod::Pod;
 
-<span class="comment">// Definitions from &quot;/usr/include/mach/machine.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach/machine.h".
 
 /*
  * Capability bits used in the definition of cpu_type.
@@ -3364,7 +3365,7 @@
 </span><span class="kw">pub const </span>CPU_SUBTYPE_PTRAUTH_ABI: u32 = <span class="number">0x8000_0000</span>;
 
 <span class="doccomment">/// When selecting a slice, ANY will pick the slice with the best
-/// grading for the selected cpu_type_t, unlike the &quot;ALL&quot; subtypes,
+/// grading for the selected cpu_type_t, unlike the "ALL" subtypes,
 /// which are the slices that can run on any hardware for that cpu type.
 </span><span class="kw">pub const </span>CPU_SUBTYPE_ANY: u32 = !<span class="number">0</span>;
 
@@ -3372,7 +3373,7 @@
  *	Object files that are hand-crafted to run on any
  *	implementation of an architecture are tagged with
  *	CPU_SUBTYPE_MULTIPLE.  This functions essentially the same as
- *	the &quot;ALL&quot; subtype of an architecture except that it allows us
+ *	the "ALL" subtype of an architecture except that it allows us
  *	to easily find object files that may need to be modified
  *	whenever a new implementation of an architecture comes out.
  *
@@ -3580,7 +3581,7 @@
 </span><span class="kw">pub const </span>CPU_SUBTYPE_ARM64_32_ALL: u32 = <span class="number">0</span>;
 <span class="kw">pub const </span>CPU_SUBTYPE_ARM64_32_V8: u32 = <span class="number">1</span>;
 
-<span class="comment">// Definitions from &quot;/usr/include/mach/vm_prot.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach/vm_prot.h".
 
 </span><span class="doccomment">/// read permission
 </span><span class="kw">pub const </span>VM_PROT_READ: u32 = <span class="number">0x01</span>;
@@ -3600,7 +3601,7 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>DyldCacheHeader&lt;E: Endian&gt; {
-    <span class="doccomment">/// e.g. &quot;dyld_v0    i386&quot;
+    <span class="doccomment">/// e.g. "dyld_v0    i386"
     </span><span class="kw">pub </span>magic: [u8; <span class="number">16</span>],
     <span class="doccomment">/// file offset to first dyld_cache_mapping_info
     </span><span class="kw">pub </span>mapping_offset: U32&lt;E&gt;, <span class="comment">// offset: 0x10
@@ -3697,17 +3698,17 @@
     </span><span class="kw">pub </span>cumulative_size: U64&lt;E&gt;,
 }
 
-<span class="comment">// Definitions from &quot;/usr/include/mach-o/loader.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach-o/loader.h".
 
 /*
- * This header file describes the structures of the file format for &quot;fat&quot;
+ * This header file describes the structures of the file format for "fat"
  * architecture specific file (wrapper design).  At the beginning of the file
  * there is one `FatHeader` structure followed by a number of `FatArch*`
  * structures.  For each architecture in the file, specified by a pair of
  * cputype and cpusubtype, the `FatHeader` describes the file offset, file
  * size and alignment in the file of the architecture specific member.
- * The padded bytes in the file to place each member on it&#39;s specific alignment
- * are defined to be read as zeros and can be left as &quot;holes&quot; if the file system
+ * The padded bytes in the file to place each member on it's specific alignment
+ * are defined to be read as zeros and can be left as "holes" if the file system
  * can support them as long as they read as zeros.
  *
  * All structures defined here are always written and read to/from disk
@@ -3770,7 +3771,7 @@
     </span><span class="kw">pub </span>reserved: U32&lt;BigEndian&gt;,
 }
 
-<span class="comment">// Definitions from &quot;/usr/include/mach-o/loader.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach-o/loader.h".
 
 </span><span class="doccomment">/// The 32-bit mach header.
 ///
@@ -3875,17 +3876,17 @@
 </span><span class="kw">pub const </span>MH_DSYM: u32 = <span class="number">0xa</span>;
 <span class="doccomment">/// x86_64 kexts
 </span><span class="kw">pub const </span>MH_KEXT_BUNDLE: u32 = <span class="number">0xb</span>;
-<span class="doccomment">/// set of mach-o&#39;s
+<span class="doccomment">/// set of mach-o's
 </span><span class="kw">pub const </span>MH_FILESET: u32 = <span class="number">0xc</span>;
 
 <span class="comment">// Values for `MachHeader*::flags`.
 </span><span class="doccomment">/// the object file has no undefined references
 </span><span class="kw">pub const </span>MH_NOUNDEFS: u32 = <span class="number">0x1</span>;
-<span class="doccomment">/// the object file is the output of an incremental link against a base file and can&#39;t be link edited again
+<span class="doccomment">/// the object file is the output of an incremental link against a base file and can't be link edited again
 </span><span class="kw">pub const </span>MH_INCRLINK: u32 = <span class="number">0x2</span>;
-<span class="doccomment">/// the object file is input for the dynamic linker and can&#39;t be statically link edited again
+<span class="doccomment">/// the object file is input for the dynamic linker and can't be statically link edited again
 </span><span class="kw">pub const </span>MH_DYLDLINK: u32 = <span class="number">0x4</span>;
-<span class="doccomment">/// the object file&#39;s undefined references are bound by the dynamic linker when loaded.
+<span class="doccomment">/// the object file's undefined references are bound by the dynamic linker when loaded.
 </span><span class="kw">pub const </span>MH_BINDATLOAD: u32 = <span class="number">0x8</span>;
 <span class="doccomment">/// the file has its dynamic undefined references prebound.
 </span><span class="kw">pub const </span>MH_PREBOUND: u32 = <span class="number">0x10</span>;
@@ -3927,7 +3928,7 @@
 </span><span class="kw">pub const </span>MH_DEAD_STRIPPABLE_DYLIB: u32 = <span class="number">0x40_0000</span>;
 <span class="doccomment">/// Contains a section of type S_THREAD_LOCAL_VARIABLES
 </span><span class="kw">pub const </span>MH_HAS_TLV_DESCRIPTORS: u32 = <span class="number">0x80_0000</span>;
-<span class="doccomment">/// When this bit is set, the OS will run the main executable with a non-executable heap even on platforms (e.g. i386) that don&#39;t require it. Only used in MH_EXECUTE filetypes.
+<span class="doccomment">/// When this bit is set, the OS will run the main executable with a non-executable heap even on platforms (e.g. i386) that don't require it. Only used in MH_EXECUTE filetypes.
 </span><span class="kw">pub const </span>MH_NO_HEAP_EXECUTION: u32 = <span class="number">0x100_0000</span>;
 <span class="doccomment">/// The code was linked for use in an application extension.
 </span><span class="kw">pub const </span>MH_APP_EXTENSION_SAFE: u32 = <span class="number">0x0200_0000</span>;
@@ -3971,9 +3972,9 @@
 <span class="comment">/*
  * After MacOS X 10.1 when a new load command is added that is required to be
  * understood by the dynamic linker for the image to execute properly the
- * LC_REQ_DYLD bit will be or&#39;ed into the load command constant.  If the dynamic
+ * LC_REQ_DYLD bit will be or'ed into the load command constant.  If the dynamic
  * linker sees such a load command it it does not understand will issue a
- * &quot;unknown load command required for execution&quot; error and refuse to use the
+ * "unknown load command required for execution" error and refuse to use the
  * image.  Other load commands without this bit that are not understood will
  * simply be ignored.
  */
@@ -4107,11 +4108,11 @@
 <span class="doccomment">/// 32-bit segment load command.
 ///
 /// The segment load command indicates that a part of this file is to be
-/// mapped into the task&#39;s address space.  The size of this segment in memory,
+/// mapped into the task's address space.  The size of this segment in memory,
 /// vmsize, maybe equal to or larger than the amount to map from this file,
 /// filesize.  The file is mapped starting at fileoff to the beginning of
 /// the segment in memory, vmaddr.  The rest of the memory of the segment,
-/// if any, is allocated zero fill on demand.  The segment&#39;s maximum virtual
+/// if any, is allocated zero fill on demand.  The segment's maximum virtual
 /// memory protection and initial virtual memory protection are specified
 /// by the maxprot and initprot fields.  If the segment has sections then the
 /// `Section32` structures directly follow the segment command and their size is
@@ -4146,7 +4147,7 @@
 <span class="doccomment">/// 64-bit segment load command.
 ///
 /// The 64-bit segment load command indicates that a part of this file is to be
-/// mapped into a 64-bit task&#39;s address space.  If the 64-bit segment has
+/// mapped into a 64-bit task's address space.  If the 64-bit segment has
 /// sections then `Section64` structures directly follow the 64-bit segment
 /// command and their size is reflected in `cmdsize`.
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
@@ -4206,7 +4207,7 @@
  *
  * Sections with the same section name, sectname, going into the same segment,
  * segname, are combined by the link editor.  The resulting section is aligned
- * to the maximum alignment of the combined sections and is the new section&#39;s
+ * to the maximum alignment of the combined sections and is the new section's
  * alignment.  The combined sections are aligned to their original alignment in
  * the combined section.  Any padded bytes to get the specified alignment are
  * zeroed.
@@ -4391,66 +4392,66 @@
  * executables that require the link-editor and assembler to use some names
  * agreed upon by convention.
  *
- * The initial protection of the &quot;__TEXT&quot; segment has write protection turned
+ * The initial protection of the "__TEXT" segment has write protection turned
  * off (not writeable).
  *
- * The link-editor will allocate common symbols at the end of the &quot;__common&quot;
- * section in the &quot;__DATA&quot; segment.  It will create the section and segment
+ * The link-editor will allocate common symbols at the end of the "__common"
+ * section in the "__DATA" segment.  It will create the section and segment
  * if needed.
  */
 
 /* The currently known segment names and the section names in those segments */
 
 </span><span class="doccomment">/// the pagezero segment which has no protections and catches NULL references for MH_EXECUTE files
-</span><span class="kw">pub const </span>SEG_PAGEZERO: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__PAGEZERO&quot;</span>;
+</span><span class="kw">pub const </span>SEG_PAGEZERO: <span class="kw-2">&amp;</span>str = <span class="string">"__PAGEZERO"</span>;
 
 <span class="doccomment">/// the tradition UNIX text segment
-</span><span class="kw">pub const </span>SEG_TEXT: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__TEXT&quot;</span>;
+</span><span class="kw">pub const </span>SEG_TEXT: <span class="kw-2">&amp;</span>str = <span class="string">"__TEXT"</span>;
 <span class="doccomment">/// the real text part of the text section no headers, and no padding
-</span><span class="kw">pub const </span>SECT_TEXT: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__text&quot;</span>;
+</span><span class="kw">pub const </span>SECT_TEXT: <span class="kw-2">&amp;</span>str = <span class="string">"__text"</span>;
 <span class="doccomment">/// the fvmlib initialization section
-</span><span class="kw">pub const </span>SECT_FVMLIB_INIT0: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__fvmlib_init0&quot;</span>;
+</span><span class="kw">pub const </span>SECT_FVMLIB_INIT0: <span class="kw-2">&amp;</span>str = <span class="string">"__fvmlib_init0"</span>;
 <span class="doccomment">/// the section following the fvmlib initialization section
-</span><span class="kw">pub const </span>SECT_FVMLIB_INIT1: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__fvmlib_init1&quot;</span>;
+</span><span class="kw">pub const </span>SECT_FVMLIB_INIT1: <span class="kw-2">&amp;</span>str = <span class="string">"__fvmlib_init1"</span>;
 
 <span class="doccomment">/// the tradition UNIX data segment
-</span><span class="kw">pub const </span>SEG_DATA: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__DATA&quot;</span>;
+</span><span class="kw">pub const </span>SEG_DATA: <span class="kw-2">&amp;</span>str = <span class="string">"__DATA"</span>;
 <span class="doccomment">/// the real initialized data section no padding, no bss overlap
-</span><span class="kw">pub const </span>SECT_DATA: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__data&quot;</span>;
+</span><span class="kw">pub const </span>SECT_DATA: <span class="kw-2">&amp;</span>str = <span class="string">"__data"</span>;
 <span class="doccomment">/// the real uninitialized data section no padding
-</span><span class="kw">pub const </span>SECT_BSS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__bss&quot;</span>;
+</span><span class="kw">pub const </span>SECT_BSS: <span class="kw-2">&amp;</span>str = <span class="string">"__bss"</span>;
 <span class="doccomment">/// the section common symbols are allocated in by the link editor
-</span><span class="kw">pub const </span>SECT_COMMON: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__common&quot;</span>;
+</span><span class="kw">pub const </span>SECT_COMMON: <span class="kw-2">&amp;</span>str = <span class="string">"__common"</span>;
 
 <span class="doccomment">/// objective-C runtime segment
-</span><span class="kw">pub const </span>SEG_OBJC: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__OBJC&quot;</span>;
+</span><span class="kw">pub const </span>SEG_OBJC: <span class="kw-2">&amp;</span>str = <span class="string">"__OBJC"</span>;
 <span class="doccomment">/// symbol table
-</span><span class="kw">pub const </span>SECT_OBJC_SYMBOLS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__symbol_table&quot;</span>;
+</span><span class="kw">pub const </span>SECT_OBJC_SYMBOLS: <span class="kw-2">&amp;</span>str = <span class="string">"__symbol_table"</span>;
 <span class="doccomment">/// module information
-</span><span class="kw">pub const </span>SECT_OBJC_MODULES: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__module_info&quot;</span>;
+</span><span class="kw">pub const </span>SECT_OBJC_MODULES: <span class="kw-2">&amp;</span>str = <span class="string">"__module_info"</span>;
 <span class="doccomment">/// string table
-</span><span class="kw">pub const </span>SECT_OBJC_STRINGS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__selector_strs&quot;</span>;
+</span><span class="kw">pub const </span>SECT_OBJC_STRINGS: <span class="kw-2">&amp;</span>str = <span class="string">"__selector_strs"</span>;
 <span class="doccomment">/// string table
-</span><span class="kw">pub const </span>SECT_OBJC_REFS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__selector_refs&quot;</span>;
+</span><span class="kw">pub const </span>SECT_OBJC_REFS: <span class="kw-2">&amp;</span>str = <span class="string">"__selector_refs"</span>;
 
 <span class="doccomment">/// the icon segment
-</span><span class="kw">pub const </span>SEG_ICON: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__ICON&quot;</span>;
+</span><span class="kw">pub const </span>SEG_ICON: <span class="kw-2">&amp;</span>str = <span class="string">"__ICON"</span>;
 <span class="doccomment">/// the icon headers
-</span><span class="kw">pub const </span>SECT_ICON_HEADER: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__header&quot;</span>;
+</span><span class="kw">pub const </span>SECT_ICON_HEADER: <span class="kw-2">&amp;</span>str = <span class="string">"__header"</span>;
 <span class="doccomment">/// the icons in tiff format
-</span><span class="kw">pub const </span>SECT_ICON_TIFF: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__tiff&quot;</span>;
+</span><span class="kw">pub const </span>SECT_ICON_TIFF: <span class="kw-2">&amp;</span>str = <span class="string">"__tiff"</span>;
 
 <span class="doccomment">/// the segment containing all structs created and maintained by the link editor.  Created with -seglinkedit option to ld(1) for MH_EXECUTE and FVMLIB file types only
-</span><span class="kw">pub const </span>SEG_LINKEDIT: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__LINKEDIT&quot;</span>;
+</span><span class="kw">pub const </span>SEG_LINKEDIT: <span class="kw-2">&amp;</span>str = <span class="string">"__LINKEDIT"</span>;
 
 <span class="doccomment">/// the segment overlapping with linkedit containing linking information
-</span><span class="kw">pub const </span>SEG_LINKINFO: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__LINKINFO&quot;</span>;
+</span><span class="kw">pub const </span>SEG_LINKINFO: <span class="kw-2">&amp;</span>str = <span class="string">"__LINKINFO"</span>;
 
 <span class="doccomment">/// the unix stack segment
-</span><span class="kw">pub const </span>SEG_UNIXSTACK: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__UNIXSTACK&quot;</span>;
+</span><span class="kw">pub const </span>SEG_UNIXSTACK: <span class="kw-2">&amp;</span>str = <span class="string">"__UNIXSTACK"</span>;
 
 <span class="doccomment">/// the segment for the self (dyld) modifying code stubs that has read, write and execute permissions
-</span><span class="kw">pub const </span>SEG_IMPORT: <span class="kw-2">&amp;</span>str = <span class="string">&quot;__IMPORT&quot;</span>;
+</span><span class="kw">pub const </span>SEG_IMPORT: <span class="kw-2">&amp;</span>str = <span class="string">"__IMPORT"</span>;
 
 <span class="comment">/*
  * Fixed virtual memory shared libraries are identified by two things.  The
@@ -4461,11 +4462,11 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>Fvmlib&lt;E: Endian&gt; {
-    <span class="doccomment">/// library&#39;s target pathname
+    <span class="doccomment">/// library's target pathname
     </span><span class="kw">pub </span>name: LcStr&lt;E&gt;,
-    <span class="doccomment">/// library&#39;s minor version number
+    <span class="doccomment">/// library's minor version number
     </span><span class="kw">pub </span>minor_version: U32&lt;E&gt;,
-    <span class="doccomment">/// library&#39;s header address
+    <span class="doccomment">/// library's header address
     </span><span class="kw">pub </span>header_addr: U32&lt;E&gt;,
 }
 
@@ -4499,13 +4500,13 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>Dylib&lt;E: Endian&gt; {
-    <span class="doccomment">/// library&#39;s path name
+    <span class="doccomment">/// library's path name
     </span><span class="kw">pub </span>name: LcStr&lt;E&gt;,
-    <span class="doccomment">/// library&#39;s build time stamp
+    <span class="doccomment">/// library's build time stamp
     </span><span class="kw">pub </span>timestamp: U32&lt;E&gt;,
-    <span class="doccomment">/// library&#39;s current version number
+    <span class="doccomment">/// library's current version number
     </span><span class="kw">pub </span>current_version: U32&lt;E&gt;,
-    <span class="doccomment">/// library&#39;s compatibility vers number
+    <span class="doccomment">/// library's compatibility vers number
     </span><span class="kw">pub </span>compatibility_version: U32&lt;E&gt;,
 }
 
@@ -4529,8 +4530,8 @@
 
 <span class="comment">/*
  * A dynamically linked shared library may be a subframework of an umbrella
- * framework.  If so it will be linked with &quot;-umbrella umbrella_name&quot; where
- * Where &quot;umbrella_name&quot; is the name of the umbrella framework. A subframework
+ * framework.  If so it will be linked with "-umbrella umbrella_name" where
+ * Where "umbrella_name" is the name of the umbrella framework. A subframework
  * can only be linked against by its umbrella framework or other subframeworks
  * that are part of the same umbrella framework.  Otherwise the static link
  * editor produces an error and states to link against the umbrella framework.
@@ -4552,10 +4553,10 @@
  * For dynamically linked shared libraries that are subframework of an umbrella
  * framework they can allow clients other than the umbrella framework or other
  * subframeworks in the same umbrella framework.  To do this the subframework
- * is built with &quot;-allowable_client client_name&quot; and an LC_SUB_CLIENT load
+ * is built with "-allowable_client client_name" and an LC_SUB_CLIENT load
  * command is created for each -allowable_client flag.  The client_name is
  * usually a framework name.  It can also be a name used for bundles clients
- * where the bundle is built with &quot;-client_name client_name&quot;.
+ * where the bundle is built with "-client_name client_name".
  */
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -4570,8 +4571,8 @@
 
 <span class="comment">/*
  * A dynamically linked shared library may be a sub_umbrella of an umbrella
- * framework.  If so it will be linked with &quot;-sub_umbrella umbrella_name&quot; where
- * Where &quot;umbrella_name&quot; is the name of the sub_umbrella framework.  When
+ * framework.  If so it will be linked with "-sub_umbrella umbrella_name" where
+ * Where "umbrella_name" is the name of the sub_umbrella framework.  When
  * statically linking when -twolevel_namespace is in effect a twolevel namespace
  * umbrella framework will only cause its subframeworks and those frameworks
  * listed as sub_umbrella frameworks to be implicited linked in.  Any other
@@ -4594,8 +4595,8 @@
 
 <span class="comment">/*
  * A dynamically linked shared library may be a sub_library of another shared
- * library.  If so it will be linked with &quot;-sub_library library_name&quot; where
- * Where &quot;library_name&quot; is the name of the sub_library shared library.  When
+ * library.  If so it will be linked with "-sub_library library_name" where
+ * Where "library_name" is the name of the sub_library shared library.  When
  * statically linking when -twolevel_namespace is in effect a twolevel namespace
  * shared library will only cause its subframeworks and those frameworks
  * listed as sub_umbrella frameworks and libraries listed as sub_libraries to
@@ -4605,7 +4606,7 @@
  * will be the umbrella framework (or dynamic library). Zero or more sub_library
  * shared libraries may be use by an umbrella framework or (or dynamic library).
  * The name of a sub_library framework is recorded in the following structure.
- * For example /usr/lib/libobjc_profile.A.dylib would be recorded as &quot;libobjc&quot;.
+ * For example /usr/lib/libobjc_profile.A.dylib would be recorded as "libobjc".
  */
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -4634,7 +4635,7 @@
     </span><span class="kw">pub </span>cmd: U32&lt;E&gt;,
     <span class="doccomment">/// includes strings
     </span><span class="kw">pub </span>cmdsize: U32&lt;E&gt;,
-    <span class="doccomment">/// library&#39;s path name
+    <span class="doccomment">/// library's path name
     </span><span class="kw">pub </span>name: LcStr&lt;E&gt;,
     <span class="doccomment">/// number of modules in library
     </span><span class="kw">pub </span>nmodules: U32&lt;E&gt;,
@@ -4657,7 +4658,7 @@
     </span><span class="kw">pub </span>cmd: U32&lt;E&gt;,
     <span class="doccomment">/// includes pathname string
     </span><span class="kw">pub </span>cmdsize: U32&lt;E&gt;,
-    <span class="doccomment">/// dynamic linker&#39;s path name
+    <span class="doccomment">/// dynamic linker's path name
     </span><span class="kw">pub </span>name: LcStr&lt;E&gt;,
 }
 
@@ -4667,7 +4668,7 @@
  * follow the struct `ThreadCommand` as follows.
  * Each flavor of machine specific data structure is preceded by an uint32_t
  * constant for the flavor of that data structure, an uint32_t that is the
- * count of uint32_t&#39;s of the size of the state data structure and then
+ * count of uint32_t's of the size of the state data structure and then
  * the state data structure follows.  This triple may be repeated for many
  * flavors.  The constants for the flavors, counts and state data structure
  * definitions are expected to be in the header file &lt;machine/thread_status.h&gt;.
@@ -4679,7 +4680,7 @@
  * For executable objects that are unix processes there will be one
  * `ThreadCommand` (cmd == LC_UNIXTHREAD) created for it by the link-editor.
  * This is the same as a LC_THREAD, except that a stack is automatically
- * created (based on the shell&#39;s limit for the stack size).  Command arguments
+ * created (based on the shell's limit for the stack size).  Command arguments
  * and environment variables are copied onto that stack.
  */
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
@@ -4690,7 +4691,7 @@
     <span class="doccomment">/// total size of this command
     </span><span class="kw">pub </span>cmdsize: U32&lt;E&gt;,
     <span class="comment">/* uint32_t flavor		   flavor of thread state */
-    /* uint32_t count		   count of uint32_t&#39;s in thread state */
+    /* uint32_t count		   count of uint32_t's in thread state */
     /* struct XXX_thread_state state   thread state for this flavor */
     /* ... */
 </span>}
@@ -4748,7 +4749,7 @@
 
 <span class="comment">/*
  * The `SymtabCommand` contains the offsets and sizes of the link-edit 4.3BSD
- * &quot;stab&quot; style symbol table information as described in the header files
+ * "stab" style symbol table information as described in the header files
  * &lt;nlist.h&gt; and &lt;stab.h&gt;.
  */
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
@@ -4860,7 +4861,7 @@
     </span><span class="kw">pub </span>ntoc: U32&lt;E&gt;,
 
     <span class="comment">/*
-     * To support dynamic binding of &quot;modules&quot; (whole object files) the symbol
+     * To support dynamic binding of "modules" (whole object files) the symbol
      * table must reflect the modules that the file was created from.  This is
      * done by having a module table that has indexes and counts into the merged
      * tables for each module.  The module structure that these two entries
@@ -4888,9 +4889,9 @@
     </span><span class="kw">pub </span>nextrefsyms: U32&lt;E&gt;,
 
     <span class="comment">/*
-     * The sections that contain &quot;symbol pointers&quot; and &quot;routine stubs&quot; have
+     * The sections that contain "symbol pointers" and "routine stubs" have
      * indexes and (implied counts based on the size of the section and fixed
-     * size of the entry) into the &quot;indirect symbol&quot; table for each pointer
+     * size of the entry) into the "indirect symbol" table for each pointer
      * and stub.  For every section of these two types the index into the
      * indirect symbol table is stored in the section header in the field
      * reserved1.  An indirect symbol table entry is simply a 32bit index into
@@ -4905,10 +4906,10 @@
     <span class="comment">/*
      * To support relocating an individual module in a library file quickly the
      * external relocation entries for each module in the library need to be
-     * accessed efficiently.  Since the relocation entries can&#39;t be accessed
+     * accessed efficiently.  Since the relocation entries can't be accessed
      * through the section headers for a library file they are separated into
      * groups of local and external entries further grouped by module.  In this
-     * case the presents of this load command who&#39;s extreloff, nextrel,
+     * case the presents of this load command who's extreloff, nextrel,
      * locreloff and nlocrel fields are non-zero indicates that the relocation
      * entries of non-merged sections are not referenced through the section
      * structures (and the reloff and nreloc fields in the section headers are
@@ -4950,7 +4951,7 @@
  * to the symbol that the pointer or stub is referring to.  Unless it is for a
  * non-lazy symbol pointer section for a defined symbol which strip(1) as
  * removed.  In which case it has the value INDIRECT_SYMBOL_LOCAL.  If the
- * symbol was also absolute INDIRECT_SYMBOL_ABS is or&#39;ed with that.
+ * symbol was also absolute INDIRECT_SYMBOL_ABS is or'ed with that.
  */
 </span><span class="kw">pub const </span>INDIRECT_SYMBOL_LOCAL: u32 = <span class="number">0x8000_0000</span>;
 <span class="kw">pub const </span>INDIRECT_SYMBOL_ABS: u32 = <span class="number">0x4000_0000</span>;
@@ -5041,7 +5042,7 @@
  * The entries in the reference symbol table are used when loading the module
  * (both by the static and dynamic link editors) and if the module is unloaded
  * or replaced.  Therefore all external symbols (defined and undefined) are
- * listed in the module&#39;s reference table.  The flags describe the type of
+ * listed in the module's reference table.  The flags describe the type of
  * reference that is being made.  The constants for the flags are defined in
  * &lt;mach-o/nlist.h&gt; as they are also used for symbol table entries.
  */
@@ -5085,7 +5086,7 @@
  * 1. The array of sub-images is the ordered list of sub-images of the umbrella
  * that would be searched for a symbol that has the umbrella recorded as its
  * primary library.  The table of contents index is an index into the
- * library&#39;s table of contents.  This is used as the starting point of the
+ * library's table of contents.  This is used as the starting point of the
  * binary search or a directed linear search.
  */
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
@@ -5222,7 +5223,7 @@
     </span><span class="kw">pub </span>cryptsize: U32&lt;E&gt;,
     <span class="doccomment">/// which enryption system, 0 means not-encrypted yet
     </span><span class="kw">pub </span>cryptid: U32&lt;E&gt;,
-    <span class="doccomment">/// padding to make this struct&#39;s size a multiple of 8 bytes
+    <span class="doccomment">/// padding to make this struct's size a multiple of 8 bytes
     </span><span class="kw">pub </span>pad: U32&lt;E&gt;,
 }
 
@@ -5315,7 +5316,7 @@
      *    &lt;seg-index, seg-offset, type&gt;
      * The opcodes are a compressed way to encode the table by only
      * encoding when a column changes.  In addition simple patterns
-     * like &quot;every n&#39;th offset for m times&quot; can be encoded in a few
+     * like "every n'th offset for m times" can be encoded in a few
      * bytes.
      */
     </span><span class="doccomment">/// file offset to rebase info
@@ -5349,7 +5350,7 @@
      * all images with weak binding information in order and look
      * for collisions.  If there are no collisions, dyld does
      * no updating.  That means that some fixups are also encoded
-     * in the bind_info.  For instance, all calls to &quot;operator new&quot;
+     * in the bind_info.  For instance, all calls to "operator new"
      * are first bound to libstdc++.dylib using the information
      * in bind_info.  Then if some image overrides operator new
      * that is detected when the weak_bind information is processed
@@ -5641,7 +5642,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
     </span><span class="kw">pub </span>size: U64&lt;E&gt;,
 }
 
-<span class="comment">// Definitions from &quot;/usr/include/mach-o/nlist.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach-o/nlist.h".
 
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -5679,7 +5680,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 
 <span class="comment">/*
  * Symbols with a index into the string table of zero (n_un.n_strx == 0) are
- * defined to have a null, &quot;&quot;, name.  Therefore all string indexes to non null
+ * defined to have a null, "", name.  Therefore all string indexes to non null
  * names must not have a zero string index.  This is bit historical information
  * that has never been well documented.
  */
@@ -5725,7 +5726,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 <span class="comment">/*
  * If the type is N_INDR then the symbol is defined to be the same as another
  * symbol.  In this case the n_value field is an index into the string table
- * of the other symbol&#39;s name.  When the other symbol is defined then they both
+ * of the other symbol's name.  When the other symbol is defined then they both
  * take on the defined type and value.
  */
 
@@ -5736,10 +5737,10 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
  * they are in.  This means the same ordinal may very well refer to different
  * sections in different files.
  *
- * The n_value field for all symbol table entries (including N_STAB&#39;s) gets
- * updated by the link editor based on the value of it&#39;s n_sect field and where
+ * The n_value field for all symbol table entries (including N_STAB's) gets
+ * updated by the link editor based on the value of it's n_sect field and where
  * the section n_sect references gets relocated.  If the value of the n_sect
- * field is NO_SECT then it&#39;s n_value field is not changed by the link editor.
+ * field is NO_SECT then it's n_value field is not changed by the link editor.
  */
 </span><span class="doccomment">/// symbol is not in any section
 </span><span class="kw">pub const </span>NO_SECT: u8 = <span class="number">0</span>;
@@ -5748,7 +5749,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 
 <span class="comment">/*
  * Common symbols are represented by undefined (N_UNDF) external (N_EXT) types
- * who&#39;s values (n_value) are non-zero.  In which case the value of the n_value
+ * who's values (n_value) are non-zero.  In which case the value of the n_value
  * field is the size (in bytes) of the common symbol.  The n_sect field is set
  * to NO_SECT.  The alignment of a common symbol may be set as a power of 2
  * between 2^1 and 2^15 as part of the n_desc field using the macros below. If
@@ -5805,7 +5806,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
  * determined by the static link editor.  Which library an undefined symbol is
  * bound to is recorded by the static linker in the high 8 bits of the n_desc
  * field using the SET_LIBRARY_ORDINAL macro below.  The ordinal recorded
- * references the libraries listed in the Mach-O&#39;s LC_LOAD_DYLIB,
+ * references the libraries listed in the Mach-O's LC_LOAD_DYLIB,
  * LC_LOAD_WEAK_DYLIB, LC_REEXPORT_DYLIB, LC_LOAD_UPWARD_DYLIB, and
  * LC_LAZY_LOAD_DYLIB, etc. load commands in the order they appear in the
  * headers.   The library ordinals start from 1.
@@ -5901,7 +5902,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
  */
 </span><span class="kw">pub const </span>N_ALT_ENTRY: u16 = <span class="number">0x0200</span>;
 
-<span class="comment">// Definitions from &quot;/usr/include/mach-o/stab.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach-o/stab.h".
 
 /*
  * This file gives definitions supplementing &lt;nlist.h&gt; for permanent symbol
@@ -5922,7 +5923,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 /*
  * Symbolic debugger symbols.  The comments give the conventional use for
  *
- * 	.stabs &quot;n_name&quot;, n_type, n_sect, n_desc, n_value
+ * 	.stabs "n_name", n_type, n_sect, n_desc, n_value
  *
  * where n_type is the defined constant and not listed in the comment.  Other
  * fields not listed are zero. n_sect is the section ordinal the entry is
@@ -5995,7 +5996,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 </span><span class="doccomment">/// global pascal symbol: name,,NO_SECT,subtype,line
 </span><span class="kw">pub const </span>N_PC: u8 = <span class="number">0x30</span>;
 
-<span class="comment">// Definitions from &quot;/usr/include/mach-o/reloc.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach-o/reloc.h".
 
 </span><span class="doccomment">/// A relocation entry.
 ///
@@ -6064,7 +6065,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 <span class="comment">/*
  * Format of a relocation entry of a Mach-O file.  Modified from the 4.3BSD
  * format.  The modifications from the original format were changing the value
- * of the r_symbolnum field for &quot;local&quot; (r_extern == 0) relocation entries.
+ * of the r_symbolnum field for "local" (r_extern == 0) relocation entries.
  * This modification is required to support symbols in an arbitrary number of
  * sections not just the three sections (text, data and bss) in a 4.3BSD file.
  * Also the last 4 bits have had the r_type tag added to them.
@@ -6114,10 +6115,10 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 </span><span class="kw">pub const </span>R_ABS: u8 = <span class="number">0</span>;
 
 <span class="comment">/*
- * The r_address is not really the address as it&#39;s name indicates but an offset.
- * In 4.3BSD a.out objects this offset is from the start of the &quot;segment&quot; for
+ * The r_address is not really the address as it's name indicates but an offset.
+ * In 4.3BSD a.out objects this offset is from the start of the "segment" for
  * which relocation entry is for (text or data).  For Mach-O object files it is
- * also an offset but from the start of the &quot;section&quot; for which the relocation
+ * also an offset but from the start of the "section" for which the relocation
  * entry is for.  See comments in &lt;mach-o/loader.h&gt; about the r_address feild
  * in images for used with the dynamic linker.
  *
@@ -6139,14 +6140,14 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
  * In these cases a second, or paired relocation entry, follows each of these
  * relocation entries, using a PAIR r_type, which contains the other part of the
  * reference not contained in the instruction.  This other part is stored in the
- * pair&#39;s r_address field.  The exact number of bits of the other part of the
+ * pair's r_address field.  The exact number of bits of the other part of the
  * reference store in the r_address field is dependent on the particular
  * relocation type for the particular architecture.
  */
 
 /*
- * To make scattered loading by the link editor work correctly &quot;local&quot;
- * relocation entries can&#39;t be used when the item to be relocated is the value
+ * To make scattered loading by the link editor work correctly "local"
+ * relocation entries can't be used when the item to be relocated is the value
  * of a symbol plus an offset (where the resulting expression is outside the
  * block the link editor is moving, a blocks are divided at symbol addresses).
  * In this case. where the item is a symbol value plus offset, the link editor
@@ -6154,8 +6155,8 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
  * needed is the actual value of the symbol without the offset so it can do the
  * relocation correctly based on where the value of the symbol got relocated to
  * not the value of the expression (with the offset added to the symbol value).
- * So for the NeXT 2.0 release no &quot;local&quot; relocation entries are ever used when
- * there is a non-zero offset added to a symbol.  The &quot;external&quot; and &quot;local&quot;
+ * So for the NeXT 2.0 release no "local" relocation entries are ever used when
+ * there is a non-zero offset added to a symbol.  The "external" and "local"
  * relocation entries remain unchanged.
  *
  * The implementation is quite messy given the compatibility with the existing
@@ -6164,15 +6165,15 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
  * allows the r_address (which is really an offset) to fit in 24 bits and high
  * bit of the r_address field in the relocation_info structure to indicate
  * it is really a scattered_relocation_info structure.  Since these are only
- * used in places where &quot;local&quot; relocation entries are used and not where
- * &quot;external&quot; relocation entries are used the r_extern field has been removed.
+ * used in places where "local" relocation entries are used and not where
+ * "external" relocation entries are used the r_extern field has been removed.
  *
  * For scattered loading to work on a RISC machine where some of the references
  * are split across two instructions the link editor needs to be assured that
  * each reference has a unique 32 bit reference (that more than one reference is
  * NOT sharing the same high 16 bits for example) so it move each referenced
  * item independent of each other.  Some compilers guarantees this but the
- * compilers don&#39;t so scattered loading can be done on those that do guarantee
+ * compilers don't so scattered loading can be done on those that do guarantee
  * this.
  */
 
@@ -6216,11 +6217,11 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
  *
  * Another type of generic relocation, GENERIC_RELOC_SECTDIFF, is to support
  * the difference of two symbols defined in different sections.  That is the
- * expression &quot;symbol1 - symbol2 + constant&quot; is a relocatable expression when
+ * expression "symbol1 - symbol2 + constant" is a relocatable expression when
  * both symbols are defined in some section.  For this type of relocation the
  * both relocations entries are scattered relocation entries.  The value of
- * symbol1 is stored in the first relocation entry&#39;s r_value field and the
- * value of symbol2 is stored in the pair&#39;s r_value field.
+ * symbol1 is stored in the first relocation entry's r_value field and the
+ * value of symbol2 is stored in the pair's r_value field.
  *
  * A special case for a prebound lazy pointer is needed to beable to set the
  * value of the lazy pointer back to its non-prebound state.  This is done
@@ -6238,7 +6239,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 <span class="doccomment">/// thread local variables
 </span><span class="kw">pub const </span>GENERIC_RELOC_TLV: u8 = <span class="number">5</span>;
 
-<span class="comment">// Definitions from &quot;/usr/include/mach-o/arm/reloc.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach-o/arm/reloc.h".
 
 /*
  * Relocation types used in the arm implementation.  Relocation entries for
@@ -6281,7 +6282,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 </span><span class="kw">pub const </span>ARM_RELOC_HALF: u8 = <span class="number">8</span>;
 <span class="kw">pub const </span>ARM_RELOC_HALF_SECTDIFF: u8 = <span class="number">9</span>;
 
-<span class="comment">// Definitions from &quot;/usr/include/mach-o/arm64/reloc.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach-o/arm64/reloc.h".
 
 /*
  * Relocation types used in the arm64 implementation.
@@ -6330,7 +6331,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 //
 </span><span class="kw">pub const </span>ARM64_RELOC_AUTHENTICATED_POINTER: u8 = <span class="number">11</span>;
 
-<span class="comment">// Definitions from &quot;/usr/include/mach-o/ppc/reloc.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach-o/ppc/reloc.h".
 
 /*
  * Relocation types used in the ppc implementation.  Relocation entries for
@@ -6380,7 +6381,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
 <span class="doccomment">/// like PPC_RELOC_SECTDIFF, but the symbol referenced was local.
 </span><span class="kw">pub const </span>PPC_RELOC_LOCAL_SECTDIFF: u8 = <span class="number">15</span>;
 
-<span class="comment">// Definitions from &quot;/usr/include/mach-o/x86_64/reloc.h&quot;.
+<span class="comment">// Definitions from "/usr/include/mach-o/x86_64/reloc.h".
 
 /*
  * Relocations for x86_64 are a bit different than for other architectures in
@@ -6390,7 +6391,7 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
  * index of the target label.
  *
  * When the assembler is generating relocations, if the target label is a local
- * label (begins with &#39;L&#39;), then the previous non-local label in the same
+ * label (begins with 'L'), then the previous non-local label in the same
  * section is used as the target of the external relocation.  An addend is used
  * with the distance from that non-local label to the target label.  Only when
  * there is no previous non-local label in the section is an internal

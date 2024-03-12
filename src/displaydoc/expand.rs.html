@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/displaydoc-0.2.4/src/expand.rs`."><title>expand.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="displaydoc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/displaydoc-0.2.4/src/expand.rs`."><title>expand.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="displaydoc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -425,11 +426,11 @@
     <span class="kw">let </span>impls = <span class="kw">match </span><span class="kw-2">&amp;</span>input.data {
         Data::Struct(data) =&gt; impl_struct(input, data),
         Data::Enum(data) =&gt; impl_enum(input, data),
-        Data::Union(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::new_spanned(input, <span class="string">&quot;Unions are not supported&quot;</span>)),
+        Data::Union(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::new_spanned(input, <span class="string">"Unions are not supported"</span>)),
     }<span class="question-mark">?</span>;
 
     <span class="kw">let </span>helpers = specialization();
-    <span class="kw">let </span>dummy_const = <span class="macro">format_ident!</span>(<span class="string">&quot;_DERIVE_Display_FOR_{}&quot;</span>, input.ident);
+    <span class="kw">let </span>dummy_const = <span class="macro">format_ident!</span>(<span class="string">"_DERIVE_Display_FOR_{}"</span>, input.ident);
     <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
         <span class="attr">#[allow(non_upper_case_globals, unused_attributes, unused_qualifications)]
         </span><span class="kw">const </span>#dummy_const: () = {
@@ -439,7 +440,7 @@
     })
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">fn </span>specialization() -&gt; TokenStream {
     <span class="macro">quote! </span>{
         <span class="kw">trait </span>DisplayToDisplayDoc {
@@ -459,24 +460,24 @@
         </span><span class="kw">extern crate </span>std;
 
         <span class="kw">trait </span>PathToDisplayDoc {
-            <span class="kw">fn </span>__displaydoc_display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::path::Display&lt;<span class="lifetime">&#39;_</span>&gt;;
+            <span class="kw">fn </span>__displaydoc_display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::path::Display&lt;<span class="lifetime">'_</span>&gt;;
         }
 
         <span class="kw">impl </span>PathToDisplayDoc <span class="kw">for </span>std::path::Path {
-            <span class="kw">fn </span>__displaydoc_display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::path::Display&lt;<span class="lifetime">&#39;_</span>&gt; {
+            <span class="kw">fn </span>__displaydoc_display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::path::Display&lt;<span class="lifetime">'_</span>&gt; {
                 <span class="self">self</span>.display()
             }
         }
 
         <span class="kw">impl </span>PathToDisplayDoc <span class="kw">for </span>std::path::PathBuf {
-            <span class="kw">fn </span>__displaydoc_display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::path::Display&lt;<span class="lifetime">&#39;_</span>&gt; {
+            <span class="kw">fn </span>__displaydoc_display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::path::Display&lt;<span class="lifetime">'_</span>&gt; {
                 <span class="self">self</span>.display()
             }
         }
     }
 }
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">fn </span>specialization() -&gt; TokenStream {
     <span class="macro">quote! </span>{}
 }
@@ -495,7 +496,7 @@
                 <span class="macro">quote!</span>(<span class="self">Self </span>{ #(#var),* })
             }
             Fields::Unnamed(fields) =&gt; {
-                <span class="kw">let </span>var = (<span class="number">0</span>..fields.unnamed.len()).map(|i| <span class="macro">format_ident!</span>(<span class="string">&quot;_{}&quot;</span>, i));
+                <span class="kw">let </span>var = (<span class="number">0</span>..fields.unnamed.len()).map(|i| <span class="macro">format_ident!</span>(<span class="string">"_{}"</span>, i));
                 <span class="macro">quote!</span>(<span class="self">Self</span>(#(#var),<span class="kw-2">*</span>))
             }
             Fields::Unit =&gt; <span class="macro">quote!</span>(<span class="kw">_</span>),
@@ -505,7 +506,7 @@
                 <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
                     <span class="comment">// NB: This destructures the fields of `self` into named variables (for unnamed
                     // fields, it uses _0, _1, etc as above). The `#[allow(unused_variables)]`
-                    // section means it doesn&#39;t have to parse the individual field references out of
+                    // section means it doesn't have to parse the individual field references out of
                     // the docstring.
                     </span><span class="attr">#[allow(unused_variables)]
                     </span><span class="kw">let </span>#pat = <span class="self">self</span>;
@@ -606,7 +607,7 @@
     predicate_that_needs_a_display_impl: <span class="kw-2">&amp;mut </span>PredicateType,
 ) {
     <span class="comment">// Create a `Path` of `::core::fmt::Display`.
-    </span><span class="kw">let </span>display_path = join_paths(<span class="kw-2">&amp;</span>[<span class="string">&quot;core&quot;</span>, <span class="string">&quot;fmt&quot;</span>, <span class="string">&quot;Display&quot;</span>], UseGlobalPrefix::LeadingColon);
+    </span><span class="kw">let </span>display_path = join_paths(<span class="kw-2">&amp;</span>[<span class="string">"core"</span>, <span class="string">"fmt"</span>, <span class="string">"Display"</span>], UseGlobalPrefix::LeadingColon);
 
     <span class="kw">let </span>display_bound = TypeParamBound::Trait(TraitBound {
         paren_token: <span class="prelude-val">None</span>,
@@ -665,7 +666,7 @@
                 },
                 <span class="kw">_ </span>=&gt; <span class="kw">continue</span>,
             };
-            <span class="comment">// We ignore any type constraints that aren&#39;t direct references to type
+            <span class="comment">// We ignore any type constraints that aren't direct references to type
             // parameters of the current enum of struct definition. No types can be
             // constrained in a `where` clause unless they are a type parameter or a generic
             // type instantiated with one of the type parameters, so by only allowing single
@@ -697,12 +698,12 @@
         <span class="comment">// Find the `where` predicate constraining the current type param, if it exists.
         </span>.flat_map(|predicate| <span class="kw">match </span>predicate {
             WherePredicate::Type(pred_ty) =&gt; <span class="prelude-val">Some</span>(pred_ty),
-            <span class="comment">// We&#39;re looking through type constraints, not lifetime constraints.
+            <span class="comment">// We're looking through type constraints, not lifetime constraints.
             </span><span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         })
     {
         <span class="comment">// Do a complicated destructuring in order to check if the type being constrained in this
-        // `where` clause is the type we&#39;re looking for, so we can use the mutable reference to
+        // `where` clause is the type we're looking for, so we can use the mutable reference to
         // `pred_ty` if so.
         </span><span class="kw">let </span>matches_desired_type = <span class="macro">matches!</span>(
             <span class="kw-2">&amp;</span>pred_ty.bounded_ty,
@@ -728,7 +729,7 @@
     <span class="kw">let </span>param_constraint_mapping = extract_trait_constraints_from_source(where_clause, type_params);
 
     <span class="kw">for </span>(ident, known_bounds) <span class="kw">in </span>param_constraint_mapping.into_iter() {
-        <span class="comment">// If the type parameter has any constraints already, we don&#39;t want to touch it, to avoid
+        <span class="comment">// If the type parameter has any constraints already, we don't want to touch it, to avoid
         // breaking use cases where a type parameter only needs to impl `Debug`, for example.
         </span><span class="kw">if </span>known_bounds.is_empty() {
             ensure_display_in_where_clause_for_type(where_clause, ident);
@@ -742,14 +743,14 @@
 /// This approach allows struct/enum definitions deriving [crate::Display] to avoid hardcoding
 /// a [core::fmt::Display] constraint into every type parameter.
 ///
-/// If the type parameter isn&#39;t already constrained, we add a `where _: Display` clause to our
+/// If the type parameter isn't already constrained, we add a `where _: Display` clause to our
 /// display implementation to expect to be able to format every enum case or struct member.
 ///
 /// In fact, we would preferably only require `where _: Display` or `where _: Debug` where the
 /// format string actually requires it. However, while [`std::fmt` defines a formal syntax for
-/// `format!()`][format syntax], it *doesn&#39;t* expose the actual logic to parse the format string,
+/// `format!()`][format syntax], it *doesn't* expose the actual logic to parse the format string,
 /// which appears to live in [`rustc_parse_format`]. While we use the [`syn`] crate to parse rust
-/// syntax, it also doesn&#39;t currently provide any method to introspect a `format!()` string. It
+/// syntax, it also doesn't currently provide any method to introspect a `format!()` string. It
 /// would be nice to contribute this upstream in [`syn`].
 ///
 /// [format syntax]: std::fmt#syntax
@@ -778,7 +779,7 @@
         <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
             <span class="kw">impl </span>#impl_generics core::fmt::Display <span class="kw">for </span>#ty #ty_generics #where_clause {
                 <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
-                    <span class="macro">unreachable!</span>(<span class="string">&quot;empty enums cannot be instantiated and thus cannot be printed&quot;</span>)
+                    <span class="macro">unreachable!</span>(<span class="string">"empty enums cannot be instantiated and thus cannot be printed"</span>)
                 }
             }
         })
@@ -789,7 +790,7 @@
             .zip(displays)
             .map(|(variant, display)| {
                 <span class="kw">let </span>display =
-                    display.ok_or_else(|| Error::new_spanned(variant, <span class="string">&quot;missing doc comment&quot;</span>))<span class="question-mark">?</span>;
+                    display.ok_or_else(|| Error::new_spanned(variant, <span class="string">"missing doc comment"</span>))<span class="question-mark">?</span>;
                 <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>variant.ident;
                 <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="kw-2">&amp;</span>variant.fields {
                     Fields::Named(fields) =&gt; {
@@ -797,7 +798,7 @@
                         <span class="macro">quote!</span>(<span class="self">Self</span>::#ident { #(#var),* } =&gt; { #display })
                     }
                     Fields::Unnamed(fields) =&gt; {
-                        <span class="kw">let </span>var = (<span class="number">0</span>..fields.unnamed.len()).map(|i| <span class="macro">format_ident!</span>(<span class="string">&quot;_{}&quot;</span>, i));
+                        <span class="kw">let </span>var = (<span class="number">0</span>..fields.unnamed.len()).map(|i| <span class="macro">format_ident!</span>(<span class="string">"_{}"</span>, i));
                         <span class="macro">quote!</span>(<span class="self">Self</span>::#ident(#(#var),<span class="kw-2">*</span>) =&gt; { #display })
                     }
                     Fields::Unit =&gt; <span class="macro">quote!</span>(<span class="self">Self</span>::#ident =&gt; { #display }),
@@ -815,7 +816,7 @@
             }
         })
     } <span class="kw">else </span>{
-        <span class="prelude-val">Err</span>(Error::new_spanned(input, <span class="string">&quot;Missing doc comments&quot;</span>))
+        <span class="prelude-val">Err</span>(Error::new_spanned(input, <span class="string">"Missing doc comments"</span>))
     }
 }
 </code></pre></div></section></main></body></html>

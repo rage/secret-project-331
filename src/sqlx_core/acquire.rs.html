@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/acquire.rs`."><title>acquire.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/acquire.rs`."><title>acquire.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -144,35 +145,35 @@
 /// ```rust
 /// # use sqlx::{Acquire, postgres::Postgres, error::BoxDynError};
 /// # #[cfg(any(postgres_9_6, postgres_15))]
-/// async fn run_query&lt;&#39;a, A&gt;(conn: A) -&gt; Result&lt;(), BoxDynError&gt;
+/// async fn run_query&lt;'a, A&gt;(conn: A) -&gt; Result&lt;(), BoxDynError&gt;
 /// where
-///     A: Acquire&lt;&#39;a, Database = Postgres&gt;,
+///     A: Acquire&lt;'a, Database = Postgres&gt;,
 /// {
 ///     let mut conn = conn.acquire().await?;
 ///
-///     sqlx::query!(&quot;SELECT 1 as v&quot;).fetch_one(&amp;mut *conn).await?;
-///     sqlx::query!(&quot;SELECT 2 as v&quot;).fetch_one(&amp;mut *conn).await?;
+///     sqlx::query!("SELECT 1 as v").fetch_one(&amp;mut *conn).await?;
+///     sqlx::query!("SELECT 2 as v").fetch_one(&amp;mut *conn).await?;
 ///
 ///     Ok(())
 /// }
 /// ```
 ///
-/// If you run into a lifetime error about &quot;implementation of `sqlx::Acquire` is
-/// not general enough&quot;, the [workaround] looks like this:
+/// If you run into a lifetime error about "implementation of `sqlx::Acquire` is
+/// not general enough", the [workaround] looks like this:
 ///
 /// ```rust
 /// # use std::future::Future;
 /// # use sqlx::{Acquire, postgres::Postgres, error::BoxDynError};
 /// # #[cfg(any(postgres_9_6, postgres_15))]
-/// fn run_query&lt;&#39;a, &#39;c, A&gt;(conn: A) -&gt; impl Future&lt;Output = Result&lt;(), BoxDynError&gt;&gt; + Send + &#39;a
+/// fn run_query&lt;'a, 'c, A&gt;(conn: A) -&gt; impl Future&lt;Output = Result&lt;(), BoxDynError&gt;&gt; + Send + 'a
 /// where
-///     A: Acquire&lt;&#39;c, Database = Postgres&gt; + Send + &#39;a,
+///     A: Acquire&lt;'c, Database = Postgres&gt; + Send + 'a,
 /// {
 ///     async move {
 ///         let mut conn = conn.acquire().await?;
 ///
-///         sqlx::query!(&quot;SELECT 1 as v&quot;).fetch_one(&amp;mut *conn).await?;
-///         sqlx::query!(&quot;SELECT 2 as v&quot;).fetch_one(&amp;mut *conn).await?;
+///         sqlx::query!("SELECT 1 as v").fetch_one(&amp;mut *conn).await?;
+///         sqlx::query!("SELECT 2 as v").fetch_one(&amp;mut *conn).await?;
 ///
 ///         Ok(())
 ///     }
@@ -180,44 +181,44 @@
 /// ```
 ///
 /// However, if you really just want to accept both, a transaction or a
-/// connection as an argument to a function, then it&#39;s easier to just accept a
+/// connection as an argument to a function, then it's easier to just accept a
 /// mutable reference to a database connection like so:
 ///
 /// ```rust
 /// # use sqlx::{postgres::PgConnection, error::BoxDynError};
 /// # #[cfg(any(postgres_9_6, postgres_15))]
 /// async fn run_query(conn: &amp;mut PgConnection) -&gt; Result&lt;(), BoxDynError&gt; {
-///     sqlx::query!(&quot;SELECT 1 as v&quot;).fetch_one(&amp;mut *conn).await?;
-///     sqlx::query!(&quot;SELECT 2 as v&quot;).fetch_one(&amp;mut *conn).await?;
+///     sqlx::query!("SELECT 1 as v").fetch_one(&amp;mut *conn).await?;
+///     sqlx::query!("SELECT 2 as v").fetch_one(&amp;mut *conn).await?;
 ///
 ///     Ok(())
 /// }
 /// ```
 ///
 /// The downside of this approach is that you have to `acquire` a connection
-/// from a pool first and can&#39;t directly pass the pool as argument.
+/// from a pool first and can't directly pass the pool as argument.
 ///
 /// [workaround]: https://github.com/launchbadge/sqlx/issues/1015#issuecomment-767787777
-</span><span class="kw">pub trait </span>Acquire&lt;<span class="lifetime">&#39;c</span>&gt; {
+</span><span class="kw">pub trait </span>Acquire&lt;<span class="lifetime">'c</span>&gt; {
     <span class="kw">type </span>Database: Database;
 
     <span class="kw">type </span>Connection: Deref&lt;Target = &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Connection&gt; + DerefMut + Send;
 
-    <span class="kw">fn </span>acquire(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt;;
+    <span class="kw">fn </span>acquire(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt;;
 
-    <span class="kw">fn </span>begin(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;c</span>, <span class="self">Self</span>::Database&gt;, Error&gt;&gt;;
+    <span class="kw">fn </span>begin(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">'c</span>, <span class="self">Self</span>::Database&gt;, Error&gt;&gt;;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, DB: Database&gt; Acquire&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Pool&lt;DB&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, DB: Database&gt; Acquire&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'_ </span>Pool&lt;DB&gt; {
     <span class="kw">type </span>Database = DB;
 
     <span class="kw">type </span>Connection = PoolConnection&lt;DB&gt;;
 
-    <span class="kw">fn </span>acquire(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt; {
+    <span class="kw">fn </span>acquire(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt; {
         Box::pin(<span class="self">self</span>.acquire())
     }
 
-    <span class="kw">fn </span>begin(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;a</span>, DB&gt;, Error&gt;&gt; {
+    <span class="kw">fn </span>begin(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">'a</span>, DB&gt;, Error&gt;&gt; {
         <span class="kw">let </span>conn = <span class="self">self</span>.acquire();
 
         Box::pin(<span class="kw">async move </span>{
@@ -229,15 +230,15 @@
 <span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>impl_acquire {
     (<span class="macro-nonterminal">$DB</span>:ident, <span class="macro-nonterminal">$C</span>:ident) =&gt; {
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="macro-nonterminal">$crate::acquire::Acquire</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span><span class="macro-nonterminal">$C </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">'c</span>&gt; <span class="macro-nonterminal">$crate::acquire::Acquire</span>&lt;<span class="lifetime">'c</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="kw-2">mut </span><span class="macro-nonterminal">$C </span>{
             <span class="kw">type </span>Database = <span class="macro-nonterminal">$DB</span>;
 
-            <span class="kw">type </span>Connection = <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>&lt;<span class="macro-nonterminal">$DB </span><span class="kw">as </span><span class="macro-nonterminal">$crate::database::Database</span>&gt;::Connection;
+            <span class="kw">type </span>Connection = <span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="kw-2">mut </span>&lt;<span class="macro-nonterminal">$DB </span><span class="kw">as </span><span class="macro-nonterminal">$crate::database::Database</span>&gt;::Connection;
 
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>acquire(
                 <span class="self">self</span>,
-            ) -&gt; futures_core::future::BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, <span class="macro-nonterminal">$crate::error::Error</span>&gt;&gt;
+            ) -&gt; futures_core::future::BoxFuture&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, <span class="macro-nonterminal">$crate::error::Error</span>&gt;&gt;
             {
                 Box::pin(futures_util::future::ok(<span class="self">self</span>))
             }
@@ -246,8 +247,8 @@
             </span><span class="kw">fn </span>begin(
                 <span class="self">self</span>,
             ) -&gt; futures_core::future::BoxFuture&lt;
-                <span class="lifetime">&#39;c</span>,
-                <span class="prelude-ty">Result</span>&lt;<span class="macro-nonterminal">$crate::transaction::Transaction</span>&lt;<span class="lifetime">&#39;c</span>, <span class="macro-nonterminal">$DB</span>&gt;, <span class="macro-nonterminal">$crate::error::Error</span>&gt;,
+                <span class="lifetime">'c</span>,
+                <span class="prelude-ty">Result</span>&lt;<span class="macro-nonterminal">$crate::transaction::Transaction</span>&lt;<span class="lifetime">'c</span>, <span class="macro-nonterminal">$DB</span>&gt;, <span class="macro-nonterminal">$crate::error::Error</span>&gt;,
             &gt; {
                 <span class="macro-nonterminal">$crate::transaction::Transaction::begin</span>(<span class="self">self</span>)
             }

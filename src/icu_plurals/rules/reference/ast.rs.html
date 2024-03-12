@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_plurals-1.4.0/src/rules/reference/ast.rs`."><title>ast.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_plurals" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_plurals-1.4.0/src/rules/reference/ast.rs`."><title>ast.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="icu_plurals" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -497,9 +498,9 @@
 //! use icu::plurals::rules::reference::ast::*;
 //! use icu::plurals::rules::reference::parse_condition;
 //!
-//! let input = &quot;i = 1&quot;;
+//! let input = "i = 1";
 //!
-//! let ast = parse_condition(input.as_bytes()).expect(&quot;Parsing failed.&quot;);
+//! let ast = parse_condition(input.as_bytes()).expect("Parsing failed.");
 //!
 //! assert_eq!(
 //!     ast,
@@ -531,19 +532,19 @@
 /// use icu::plurals::rules::reference::{parse, parse_condition};
 ///
 /// let condition =
-///     parse_condition(b&quot;i = 5 or v = 2&quot;).expect(&quot;Parsing failed.&quot;);
+///     parse_condition(b"i = 5 or v = 2").expect("Parsing failed.");
 ///
 /// let samples = Samples {
 ///     integer: Some(SampleList {
 ///         sample_ranges: vec![SampleRange {
-///             lower_val: DecimalValue(&quot;2&quot;.to_string()),
+///             lower_val: DecimalValue("2".to_string()),
 ///             upper_val: None,
 ///         }],
 ///         ellipsis: true,
 ///     }),
 ///     decimal: Some(SampleList {
 ///         sample_ranges: vec![SampleRange {
-///             lower_val: DecimalValue(&quot;2.5&quot;.to_string()),
+///             lower_val: DecimalValue("2.5".to_string()),
 ///             upper_val: None,
 ///         }],
 ///         ellipsis: false,
@@ -557,8 +558,8 @@
 ///
 /// assert_eq!(
 ///     rule,
-///     parse(&quot;i = 5 or v = 2 @integer 2, … @decimal 2.5&quot;.as_bytes())
-///         .expect(&quot;Parsing failed&quot;)
+///     parse("i = 5 or v = 2 @integer 2, … @decimal 2.5".as_bytes())
+///         .expect("Parsing failed")
 /// )
 /// ```
 ///
@@ -572,7 +573,7 @@
     </span><span class="kw">pub </span>samples: <span class="prelude-ty">Option</span>&lt;Samples&gt;,
 }
 
-<span class="doccomment">/// A complete AST representation of a plural rule&#39;s condition. Comprises a vector of [`AndConditions`].
+<span class="doccomment">/// A complete AST representation of a plural rule's condition. Comprises a vector of [`AndConditions`].
 ///
 /// # Examples
 ///
@@ -601,7 +602,7 @@
 ///
 /// assert_eq!(
 ///     condition,
-///     parse_condition(b&quot;i = 5 or v = 2&quot;).expect(&quot;Parsing failed&quot;)
+///     parse_condition(b"i = 5 or v = 2").expect("Parsing failed")
 /// )
 /// ```
 ///
@@ -618,7 +619,7 @@
 /// AST using the [`parse()`](crate::rules::reference::parser::parse()) function.
 ///
 /// ```text
-/// &quot;i = 3 and v = 0&quot;
+/// "i = 3 and v = 0"
 /// ```
 ///
 /// Can be represented by the AST:
@@ -659,7 +660,7 @@
 /// AST using the [`parse()`](crate::rules::reference::parser::parse()) function.
 ///
 /// ```text
-/// &quot;i = 3&quot;
+/// "i = 3"
 /// ```
 ///
 /// Can be represented by the AST:
@@ -683,10 +684,10 @@
     </span><span class="kw">pub </span>expression: Expression,
     <span class="doccomment">/// The operator (equals, not equals) indicating whether the resolved expression value
     /// at runtime should match the set of possible values in `range_list`. Note: `Operator::Eq`
-    /// effectively means &quot;is contained within the set of&quot;.
+    /// effectively means "is contained within the set of".
     </span><span class="kw">pub </span>operator: Operator,
     <span class="doccomment">/// A sequence of `RangeListItem`, each of which represents a scalar number or a numerical range,
-    /// that creates the interval set within which `expression`&#39;s resolved value should exist.
+    /// that creates the interval set within which `expression`'s resolved value should exist.
     </span><span class="kw">pub </span>range_list: RangeList,
 }
 
@@ -696,15 +697,15 @@
 ///
 /// | Enum Operator | Symbolic Operator | Meaning                                        |
 /// | --------------| ----------------- |------------------------------------------------|
-/// | `Eq`          | &quot;=&quot;               | is contained within the following interval set |
-/// | `NotEq`       | &quot;!=&quot;              | complement of `Eq` (&quot;is _not_ contained...&quot;&quot;)  |
+/// | `Eq`          | "="               | is contained within the following interval set |
+/// | `NotEq`       | "!="              | complement of `Eq` ("is _not_ contained..."")  |
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
 #[allow(clippy::exhaustive_enums)] </span><span class="comment">// this type is stable
 </span><span class="kw">pub enum </span>Operator {
-    <span class="doccomment">/// In a plural rule [`Relation`], represents that the plural operand [`Expression`]&#39;s value at
+    <span class="doccomment">/// In a plural rule [`Relation`], represents that the plural operand [`Expression`]'s value at
     /// should be contained within the [`RangeList`] interval set.
     </span>Eq,
-    <span class="doccomment">/// The opposite of `Eq` -- that the plural operand [`Expression`]&#39;s value at
+    <span class="doccomment">/// The opposite of `Eq` -- that the plural operand [`Expression`]'s value at
     /// _should not be contained_ within the [`RangeList`] interval set.
     </span>NotEq,
 }
@@ -717,7 +718,7 @@
 /// AST using the [`parse()`](crate::rules::reference::parser::parse()) function.
 ///
 /// ```text
-/// &quot;i % 100&quot;
+/// "i % 100"
 /// ```
 ///
 /// Can be represented by the AST:
@@ -748,7 +749,7 @@
 /// AST using the [`parse()`](crate::rules::reference::parser::parse()) function.
 ///
 /// ```text
-/// &quot;i&quot;
+/// "i"
 /// ```
 ///
 /// Can be represented by the AST:
@@ -788,7 +789,7 @@
 /// AST using the [`parse()`](crate::rules::reference::parser::parse()) function.
 ///
 /// ```text
-/// &quot;5, 7, 9&quot;
+/// "5, 7, 9"
 /// ```
 ///
 /// Can be represented by the AST:
@@ -845,7 +846,7 @@
 /// AST using the [`parse()`](crate::rules::reference::parser::parse()) function.
 ///
 /// ```text
-/// &quot;99&quot;
+/// "99"
 /// ```
 ///
 /// Can be represented by the AST:
@@ -872,14 +873,14 @@
 /// Samples {
 ///     integer: Some(SampleList {
 ///         sample_ranges: vec![SampleRange {
-///             lower_val: DecimalValue(&quot;2&quot;.to_string()),
+///             lower_val: DecimalValue("2".to_string()),
 ///             upper_val: None,
 ///         }],
 ///         ellipsis: true,
 ///     }),
 ///     decimal: Some(SampleList {
 ///         sample_ranges: vec![SampleRange {
-///             lower_val: DecimalValue(&quot;2.5&quot;.to_string()),
+///             lower_val: DecimalValue("2.5".to_string()),
 ///             upper_val: None,
 ///         }],
 ///         ellipsis: false,
@@ -909,8 +910,8 @@
 /// use icu::plurals::rules::reference::ast::*;
 /// SampleList {
 ///     sample_ranges: vec![SampleRange {
-///         lower_val: DecimalValue(&quot;0.0&quot;.to_string()),
-///         upper_val: Some(DecimalValue(&quot;1.5&quot;.to_string())),
+///         lower_val: DecimalValue("0.0".to_string()),
+///         upper_val: Some(DecimalValue("1.5".to_string())),
 ///     }],
 ///     ellipsis: true,
 /// };
@@ -937,8 +938,8 @@
 /// ```
 /// use icu::plurals::rules::reference::ast::*;
 /// SampleRange {
-///     lower_val: DecimalValue(&quot;0.0&quot;.to_string()),
-///     upper_val: Some(DecimalValue(&quot;1.5&quot;.to_string())),
+///     lower_val: DecimalValue("0.0".to_string()),
+///     upper_val: Some(DecimalValue("1.5".to_string())),
 /// };
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, PartialEq)]
@@ -963,7 +964,7 @@
 ///
 /// ```
 /// use icu::plurals::rules::reference::ast::*;
-/// DecimalValue(&quot;1.00&quot;.to_string());
+/// DecimalValue("1.00".to_string());
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, PartialEq)]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this type is stable

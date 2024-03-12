@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/indian.rs`."><title>indian.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/indian.rs`."><title>indian.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -586,12 +587,12 @@
 //!
 //! // `Date` type
 //! let date_iso = Date::try_new_iso_date(1970, 1, 2)
-//!     .expect(&quot;Failed to initialize ISO Date instance.&quot;);
+//!     .expect("Failed to initialize ISO Date instance.");
 //! let date_indian = Date::new_from_iso(date_iso, Indian);
 //!
 //! // `DateTime` type
 //! let datetime_iso = DateTime::try_new_iso_datetime(1970, 1, 2, 13, 1, 0)
-//!     .expect(&quot;Failed to initialize ISO DateTime instance.&quot;);
+//!     .expect("Failed to initialize ISO DateTime instance.");
 //! let datetime_indian = DateTime::new_from_iso(datetime_iso, Indian);
 //!
 //! // `Date` checks
@@ -624,11 +625,11 @@
 ///
 /// # Era codes
 ///
-/// This calendar has a single era: `&quot;saka&quot;`, with Saka 0 being 78 CE. Dates before this era use negative years.
+/// This calendar has a single era: `"saka"`, with Saka 0 being 78 CE. Dates before this era use negative years.
 ///
 /// # Month codes
 ///
-/// This calendar supports 12 solar month codes (`&quot;M01&quot; - &quot;M12&quot;`)
+/// This calendar supports 12 solar month codes (`"M01" - "M12"`)
 </span><span class="attr">#[derive(Copy, Clone, Debug, Hash, Default, Eq, PartialEq, PartialOrd, Ord)]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this type is stable
 </span><span class="kw">pub struct </span>Indian;
@@ -690,14 +691,14 @@
         month_code: types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, CalendarError&gt; {
-        <span class="kw">if </span>era.<span class="number">0 </span>!= <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;saka&quot;</span>) &amp;&amp; era.<span class="number">0 </span>!= <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;indian&quot;</span>) {
+        <span class="kw">if </span>era.<span class="number">0 </span>!= <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"saka"</span>) &amp;&amp; era.<span class="number">0 </span>!= <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"indian"</span>) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownEra(era.<span class="number">0</span>, <span class="self">self</span>.debug_name()));
         }
 
         ArithmeticDate::new_from_codes(<span class="self">self</span>, year, month_code, day).map(IndianDateInner)
     }
 
-    <span class="comment">// Algorithms directly implemented in icu_calendar since they&#39;re not from the book
+    <span class="comment">// Algorithms directly implemented in icu_calendar since they're not from the book
     </span><span class="kw">fn </span>date_from_iso(<span class="kw-2">&amp;</span><span class="self">self</span>, iso: Date&lt;Iso&gt;) -&gt; IndianDateInner {
         <span class="comment">// Get day number in year (1 indexed)
         </span><span class="kw">let </span>day_of_year_iso = Iso::day_of_year(<span class="kw-2">*</span>iso.inner());
@@ -719,7 +720,7 @@
         ))
     }
 
-    <span class="comment">// Algorithms directly implemented in icu_calendar since they&#39;re not from the book
+    <span class="comment">// Algorithms directly implemented in icu_calendar since they're not from the book
     </span><span class="kw">fn </span>date_to_iso(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; Date&lt;Iso&gt; {
         <span class="kw">let </span>day_of_year_indian = date.<span class="number">0</span>.day_of_year();
         <span class="kw">let </span>days_in_year = date.<span class="number">0</span>.days_in_year();
@@ -770,7 +771,7 @@
 
     <span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableYear {
         types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;saka&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"saka"</span>)),
             number: date.<span class="number">0</span>.year,
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">None</span>,
@@ -791,13 +792,13 @@
 
     <span class="kw">fn </span>day_of_year_info(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::DayOfYearInfo {
         <span class="kw">let </span>prev_year = types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;saka&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"saka"</span>)),
             number: date.<span class="number">0</span>.year - <span class="number">1</span>,
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">None</span>,
         };
         <span class="kw">let </span>next_year = types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;saka&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"saka"</span>)),
             number: date.<span class="number">0</span>.year + <span class="number">1</span>,
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">None</span>,
@@ -811,8 +812,8 @@
         }
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;Indian&quot;
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        <span class="string">"Indian"
     </span>}
 
     <span class="kw">fn </span>any_calendar_kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AnyCalendarKind&gt; {
@@ -842,7 +843,7 @@
     /// use icu::calendar::Date;
     ///
     /// let date_indian = Date::try_new_indian_date(1891, 10, 12)
-    ///     .expect(&quot;Failed to initialize Indian Date instance.&quot;);
+    ///     .expect("Failed to initialize Indian Date instance.");
     ///
     /// assert_eq!(date_indian.year().number, 1891);
     /// assert_eq!(date_indian.month().ordinal, 10);
@@ -867,7 +868,7 @@
     ///
     /// let datetime_indian =
     ///     DateTime::try_new_indian_datetime(1891, 10, 12, 13, 1, 0)
-    ///         .expect(&quot;Failed to initialize Indian DateTime instance.&quot;);
+    ///         .expect("Failed to initialize Indian DateTime instance.");
     ///
     /// assert_eq!(datetime_indian.date.year().number, 1891);
     /// assert_eq!(datetime_indian.date.month().ordinal, 10);
@@ -897,23 +898,23 @@
     <span class="kw">use </span>calendrical_calculations::rata_die::RataDie;
     <span class="kw">fn </span>assert_roundtrip(y: i32, m: u8, d: u8, iso_y: i32, iso_m: u8, iso_d: u8) {
         <span class="kw">let </span>indian =
-            Date::try_new_indian_date(y, m, d).expect(<span class="string">&quot;Indian date should construct successfully&quot;</span>);
+            Date::try_new_indian_date(y, m, d).expect(<span class="string">"Indian date should construct successfully"</span>);
         <span class="kw">let </span>iso = indian.to_iso();
 
         <span class="macro">assert_eq!</span>(
             iso.year().number,
             iso_y,
-            <span class="string">&quot;{y}-{m}-{d}: ISO year did not match&quot;
+            <span class="string">"{y}-{m}-{d}: ISO year did not match"
         </span>);
         <span class="macro">assert_eq!</span>(
             iso.month().ordinal <span class="kw">as </span>u8,
             iso_m,
-            <span class="string">&quot;{y}-{m}-{d}: ISO month did not match&quot;
+            <span class="string">"{y}-{m}-{d}: ISO month did not match"
         </span>);
         <span class="macro">assert_eq!</span>(
             iso.day_of_month().<span class="number">0 </span><span class="kw">as </span>u8,
             iso_d,
-            <span class="string">&quot;{y}-{m}-{d}: ISO day did not match&quot;
+            <span class="string">"{y}-{m}-{d}: ISO day did not match"
         </span>);
 
         <span class="kw">let </span>roundtrip = iso.to_calendar(Indian);
@@ -921,17 +922,17 @@
         <span class="macro">assert_eq!</span>(
             roundtrip.year().number,
             indian.year().number,
-            <span class="string">&quot;{y}-{m}-{d}: roundtrip year did not match&quot;
+            <span class="string">"{y}-{m}-{d}: roundtrip year did not match"
         </span>);
         <span class="macro">assert_eq!</span>(
             roundtrip.month().ordinal,
             indian.month().ordinal,
-            <span class="string">&quot;{y}-{m}-{d}: roundtrip month did not match&quot;
+            <span class="string">"{y}-{m}-{d}: roundtrip month did not match"
         </span>);
         <span class="macro">assert_eq!</span>(
             roundtrip.day_of_month(),
             indian.day_of_month(),
-            <span class="string">&quot;{y}-{m}-{d}: roundtrip day did not match&quot;
+            <span class="string">"{y}-{m}-{d}: roundtrip day did not match"
         </span>);
     }
 
@@ -967,17 +968,17 @@
         <span class="macro">assert_eq!</span>(
             saka.year().number,
             case.expected_year,
-            <span class="string">&quot;Year check failed for case: {case:?}&quot;
+            <span class="string">"Year check failed for case: {case:?}"
         </span>);
         <span class="macro">assert_eq!</span>(
             saka.month().ordinal,
             case.expected_month,
-            <span class="string">&quot;Month check failed for case: {case:?}&quot;
+            <span class="string">"Month check failed for case: {case:?}"
         </span>);
         <span class="macro">assert_eq!</span>(
             saka.day_of_month().<span class="number">0</span>,
             case.expected_day,
-            <span class="string">&quot;Day check failed for case: {case:?}&quot;
+            <span class="string">"Day check failed for case: {case:?}"
         </span>);
     }
 
@@ -1101,7 +1102,7 @@
             );
             <span class="macro">assert_eq!</span>(
                 initial, result,
-                <span class="string">&quot;Roundtrip failed for initial: {initial:?}, result: {result:?}&quot;
+                <span class="string">"Roundtrip failed for initial: {initial:?}, result: {result:?}"
             </span>);
         }
     }
@@ -1119,7 +1120,7 @@
             );
             <span class="macro">assert_eq!</span>(
                 initial, result,
-                <span class="string">&quot;Roundtrip failed for initial: {initial:?}, result: {result:?}&quot;
+                <span class="string">"Roundtrip failed for initial: {initial:?}, result: {result:?}"
             </span>);
         }
     }
@@ -1134,7 +1135,7 @@
                 <span class="kw">let </span>indian_i = Iso::iso_from_fixed(rd_i).to_calendar(Indian);
                 <span class="kw">let </span>indian_j = Iso::iso_from_fixed(rd_j).to_calendar(Indian);
 
-                <span class="macro">assert_eq!</span>(i.cmp(<span class="kw-2">&amp;</span>j), indian_i.cmp(<span class="kw-2">&amp;</span>indian_j), <span class="string">&quot;Directionality test failed for i: {i}, j: {j}, indian_i: {indian_i:?}, indian_j: {indian_j:?}&quot;</span>);
+                <span class="macro">assert_eq!</span>(i.cmp(<span class="kw-2">&amp;</span>j), indian_i.cmp(<span class="kw-2">&amp;</span>indian_j), <span class="string">"Directionality test failed for i: {i}, j: {j}, indian_i: {indian_i:?}, indian_j: {indian_j:?}"</span>);
             }
         }
     }
@@ -1147,7 +1148,7 @@
                 <span class="kw">let </span>indian_i = Iso::iso_from_fixed(RataDie::new(i)).to_calendar(Indian);
                 <span class="kw">let </span>indian_j = Iso::iso_from_fixed(RataDie::new(j)).to_calendar(Indian);
 
-                <span class="macro">assert_eq!</span>(i.cmp(<span class="kw-2">&amp;</span>j), indian_i.cmp(<span class="kw-2">&amp;</span>indian_j), <span class="string">&quot;Directionality test failed for i: {i}, j: {j}, indian_i: {indian_i:?}, indian_j: {indian_j:?}&quot;</span>);
+                <span class="macro">assert_eq!</span>(i.cmp(<span class="kw-2">&amp;</span>j), indian_i.cmp(<span class="kw-2">&amp;</span>indian_j), <span class="string">"Directionality test failed for i: {i}, j: {j}, indian_i: {indian_i:?}, indian_j: {indian_j:?}"</span>);
             }
         }
     }

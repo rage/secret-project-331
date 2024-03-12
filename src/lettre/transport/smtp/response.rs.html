@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/response.rs`."><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/response.rs`."><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -581,7 +582,7 @@
 
 <span class="doccomment">/// The first digit indicates severity
 </span><span class="attr">#[derive(PartialEq, Eq, Copy, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub enum </span>Severity {
     <span class="doccomment">/// 2yx
     </span>PositiveCompletion = <span class="number">2</span>,
@@ -594,14 +595,14 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Severity {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u8)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u8)
     }
 }
 
 <span class="doccomment">/// Second digit
 </span><span class="attr">#[derive(PartialEq, Eq, Copy, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub enum </span>Category {
     <span class="doccomment">/// x0z
     </span>Syntax = <span class="number">0</span>,
@@ -618,14 +619,14 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Category {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u8)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u8)
     }
 }
 
 <span class="doccomment">/// The detail digit of a response code (third digit)
 </span><span class="attr">#[derive(PartialEq, Eq, Copy, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub enum </span>Detail {
     <span class="attr">#[allow(missing_docs)]
     </span>Zero = <span class="number">0</span>,
@@ -650,14 +651,14 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Detail {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u8)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u8)
     }
 }
 
 <span class="doccomment">/// Represents a 3 digit SMTP response code
 </span><span class="attr">#[derive(PartialEq, Eq, Copy, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Code {
     <span class="doccomment">/// First digit of the response code
     </span><span class="kw">pub </span>severity: Severity,
@@ -668,8 +669,8 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Code {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}{}{}&quot;</span>, <span class="self">self</span>.severity, <span class="self">self</span>.category, <span class="self">self</span>.detail)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="macro">write!</span>(f, <span class="string">"{}{}{}"</span>, <span class="self">self</span>.severity, <span class="self">self</span>.category, <span class="self">self</span>.detail)
     }
 }
 
@@ -696,7 +697,7 @@
 ///
 /// The text message is optional, only the code is mandatory
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Response {
     <span class="doccomment">/// Response code
     </span>code: Code,
@@ -772,53 +773,53 @@
 
 <span class="kw">fn </span>parse_severity(i: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Severity&gt; {
     alt((
-        map(tag(<span class="string">&quot;2&quot;</span>), |<span class="kw">_</span>| Severity::PositiveCompletion),
-        map(tag(<span class="string">&quot;3&quot;</span>), |<span class="kw">_</span>| Severity::PositiveIntermediate),
-        map(tag(<span class="string">&quot;4&quot;</span>), |<span class="kw">_</span>| Severity::TransientNegativeCompletion),
-        map(tag(<span class="string">&quot;5&quot;</span>), |<span class="kw">_</span>| Severity::PermanentNegativeCompletion),
+        map(tag(<span class="string">"2"</span>), |<span class="kw">_</span>| Severity::PositiveCompletion),
+        map(tag(<span class="string">"3"</span>), |<span class="kw">_</span>| Severity::PositiveIntermediate),
+        map(tag(<span class="string">"4"</span>), |<span class="kw">_</span>| Severity::TransientNegativeCompletion),
+        map(tag(<span class="string">"5"</span>), |<span class="kw">_</span>| Severity::PermanentNegativeCompletion),
     ))(i)
 }
 
 <span class="kw">fn </span>parse_category(i: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Category&gt; {
     alt((
-        map(tag(<span class="string">&quot;0&quot;</span>), |<span class="kw">_</span>| Category::Syntax),
-        map(tag(<span class="string">&quot;1&quot;</span>), |<span class="kw">_</span>| Category::Information),
-        map(tag(<span class="string">&quot;2&quot;</span>), |<span class="kw">_</span>| Category::Connections),
-        map(tag(<span class="string">&quot;3&quot;</span>), |<span class="kw">_</span>| Category::Unspecified3),
-        map(tag(<span class="string">&quot;4&quot;</span>), |<span class="kw">_</span>| Category::Unspecified4),
-        map(tag(<span class="string">&quot;5&quot;</span>), |<span class="kw">_</span>| Category::MailSystem),
+        map(tag(<span class="string">"0"</span>), |<span class="kw">_</span>| Category::Syntax),
+        map(tag(<span class="string">"1"</span>), |<span class="kw">_</span>| Category::Information),
+        map(tag(<span class="string">"2"</span>), |<span class="kw">_</span>| Category::Connections),
+        map(tag(<span class="string">"3"</span>), |<span class="kw">_</span>| Category::Unspecified3),
+        map(tag(<span class="string">"4"</span>), |<span class="kw">_</span>| Category::Unspecified4),
+        map(tag(<span class="string">"5"</span>), |<span class="kw">_</span>| Category::MailSystem),
     ))(i)
 }
 
 <span class="kw">fn </span>parse_detail(i: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Detail&gt; {
     alt((
-        map(tag(<span class="string">&quot;0&quot;</span>), |<span class="kw">_</span>| Detail::Zero),
-        map(tag(<span class="string">&quot;1&quot;</span>), |<span class="kw">_</span>| Detail::One),
-        map(tag(<span class="string">&quot;2&quot;</span>), |<span class="kw">_</span>| Detail::Two),
-        map(tag(<span class="string">&quot;3&quot;</span>), |<span class="kw">_</span>| Detail::Three),
-        map(tag(<span class="string">&quot;4&quot;</span>), |<span class="kw">_</span>| Detail::Four),
-        map(tag(<span class="string">&quot;5&quot;</span>), |<span class="kw">_</span>| Detail::Five),
-        map(tag(<span class="string">&quot;6&quot;</span>), |<span class="kw">_</span>| Detail::Six),
-        map(tag(<span class="string">&quot;7&quot;</span>), |<span class="kw">_</span>| Detail::Seven),
-        map(tag(<span class="string">&quot;8&quot;</span>), |<span class="kw">_</span>| Detail::Eight),
-        map(tag(<span class="string">&quot;9&quot;</span>), |<span class="kw">_</span>| Detail::Nine),
+        map(tag(<span class="string">"0"</span>), |<span class="kw">_</span>| Detail::Zero),
+        map(tag(<span class="string">"1"</span>), |<span class="kw">_</span>| Detail::One),
+        map(tag(<span class="string">"2"</span>), |<span class="kw">_</span>| Detail::Two),
+        map(tag(<span class="string">"3"</span>), |<span class="kw">_</span>| Detail::Three),
+        map(tag(<span class="string">"4"</span>), |<span class="kw">_</span>| Detail::Four),
+        map(tag(<span class="string">"5"</span>), |<span class="kw">_</span>| Detail::Five),
+        map(tag(<span class="string">"6"</span>), |<span class="kw">_</span>| Detail::Six),
+        map(tag(<span class="string">"7"</span>), |<span class="kw">_</span>| Detail::Seven),
+        map(tag(<span class="string">"8"</span>), |<span class="kw">_</span>| Detail::Eight),
+        map(tag(<span class="string">"9"</span>), |<span class="kw">_</span>| Detail::Nine),
     ))(i)
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_response(i: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Response&gt; {
     <span class="kw">let </span>(i, lines) = many0(tuple((
         parse_code,
-        preceded(tag(<span class="string">&quot;-&quot;</span>), take_until(<span class="string">&quot;\r\n&quot;</span>)),
-        tag(<span class="string">&quot;\r\n&quot;</span>),
+        preceded(tag(<span class="string">"-"</span>), take_until(<span class="string">"\r\n"</span>)),
+        tag(<span class="string">"\r\n"</span>),
     )))(i)<span class="question-mark">?</span>;
     <span class="kw">let </span>(i, (last_code, last_line)) =
-        tuple((parse_code, preceded(tag(<span class="string">&quot; &quot;</span>), take_until(<span class="string">&quot;\r\n&quot;</span>))))(i)<span class="question-mark">?</span>;
-    <span class="kw">let </span>(i, <span class="kw">_</span>) = complete(tag(<span class="string">&quot;\r\n&quot;</span>))(i)<span class="question-mark">?</span>;
+        tuple((parse_code, preceded(tag(<span class="string">" "</span>), take_until(<span class="string">"\r\n"</span>))))(i)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(i, <span class="kw">_</span>) = complete(tag(<span class="string">"\r\n"</span>))(i)<span class="question-mark">?</span>;
 
     <span class="comment">// Check that all codes are equal.
     </span><span class="kw">if </span>!lines.iter().all(|<span class="kw-2">&amp;</span>(code, <span class="kw">_</span>, <span class="kw">_</span>)| code == last_code) {
         <span class="kw">return </span><span class="prelude-val">Err</span>(nom::Err::Failure(nom::error::Error::new(
-            <span class="string">&quot;&quot;</span>,
+            <span class="string">""</span>,
             nom::error::ErrorKind::Not,
         )));
     }
@@ -842,12 +843,12 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_severity_fmt() {
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Severity::PositiveCompletion), <span class="string">&quot;2&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, Severity::PositiveCompletion), <span class="string">"2"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_category_fmt() {
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Category::Unspecified4), <span class="string">&quot;4&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, Category::Unspecified4), <span class="string">"4"</span>);
     }
 
     <span class="attr">#[test]
@@ -874,12 +875,12 @@
             detail: Detail::One,
         };
 
-        <span class="macro">assert_eq!</span>(code.to_string(), <span class="string">&quot;421&quot;</span>);
+        <span class="macro">assert_eq!</span>(code.to_string(), <span class="string">"421"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_response_from_str() {
-        <span class="kw">let </span>raw_response = <span class="string">&quot;250-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250 AUTH PLAIN CRAM-MD5\r\n&quot;</span>;
+        <span class="kw">let </span>raw_response = <span class="string">"250-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250 AUTH PLAIN CRAM-MD5\r\n"</span>;
         <span class="macro">assert_eq!</span>(
             raw_response.parse::&lt;Response&gt;().unwrap(),
             Response {
@@ -889,18 +890,18 @@
                     detail: Detail::Zero,
                 },
                 message: <span class="macro">vec!</span>[
-                    <span class="string">&quot;me&quot;</span>.to_owned(),
-                    <span class="string">&quot;8BITMIME&quot;</span>.to_owned(),
-                    <span class="string">&quot;SIZE 42&quot;</span>.to_owned(),
-                    <span class="string">&quot;AUTH PLAIN CRAM-MD5&quot;</span>.to_owned(),
+                    <span class="string">"me"</span>.to_owned(),
+                    <span class="string">"8BITMIME"</span>.to_owned(),
+                    <span class="string">"SIZE 42"</span>.to_owned(),
+                    <span class="string">"AUTH PLAIN CRAM-MD5"</span>.to_owned(),
                 ],
             }
         );
 
-        <span class="kw">let </span>wrong_code = <span class="string">&quot;2506-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250 AUTH PLAIN CRAM-MD5\r\n&quot;</span>;
+        <span class="kw">let </span>wrong_code = <span class="string">"2506-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250 AUTH PLAIN CRAM-MD5\r\n"</span>;
         <span class="macro">assert!</span>(wrong_code.parse::&lt;Response&gt;().is_err());
 
-        <span class="kw">let </span>wrong_end = <span class="string">&quot;250-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250-AUTH PLAIN CRAM-MD5\r\n&quot;</span>;
+        <span class="kw">let </span>wrong_end = <span class="string">"250-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250-AUTH PLAIN CRAM-MD5\r\n"</span>;
         <span class="macro">assert!</span>(wrong_end.parse::&lt;Response&gt;().is_err());
     }
 
@@ -912,7 +913,7 @@
                 category: Category::MailSystem,
                 detail: Detail::Zero,
             },
-            <span class="macro">vec!</span>[<span class="string">&quot;me&quot;</span>.to_owned(), <span class="string">&quot;8BITMIME&quot;</span>.to_owned(), <span class="string">&quot;SIZE 42&quot;</span>.to_owned(),],
+            <span class="macro">vec!</span>[<span class="string">"me"</span>.to_owned(), <span class="string">"8BITMIME"</span>.to_owned(), <span class="string">"SIZE 42"</span>.to_owned(),],
         )
         .is_positive());
         <span class="macro">assert!</span>(!Response::new(
@@ -921,7 +922,7 @@
                 category: Category::MailSystem,
                 detail: Detail::Zero,
             },
-            <span class="macro">vec!</span>[<span class="string">&quot;me&quot;</span>.to_owned(), <span class="string">&quot;8BITMIME&quot;</span>.to_owned(), <span class="string">&quot;SIZE 42&quot;</span>.to_owned(),],
+            <span class="macro">vec!</span>[<span class="string">"me"</span>.to_owned(), <span class="string">"8BITMIME"</span>.to_owned(), <span class="string">"SIZE 42"</span>.to_owned(),],
         )
         .is_positive());
     }
@@ -934,7 +935,7 @@
                 category: Category::MailSystem,
                 detail: Detail::One,
             },
-            <span class="macro">vec!</span>[<span class="string">&quot;me&quot;</span>.to_owned(), <span class="string">&quot;8BITMIME&quot;</span>.to_owned(), <span class="string">&quot;SIZE 42&quot;</span>.to_owned(),],
+            <span class="macro">vec!</span>[<span class="string">"me"</span>.to_owned(), <span class="string">"8BITMIME"</span>.to_owned(), <span class="string">"SIZE 42"</span>.to_owned(),],
         )
         .has_code(<span class="number">451</span>));
         <span class="macro">assert!</span>(!Response::new(
@@ -943,7 +944,7 @@
                 category: Category::MailSystem,
                 detail: Detail::One,
             },
-            <span class="macro">vec!</span>[<span class="string">&quot;me&quot;</span>.to_owned(), <span class="string">&quot;8BITMIME&quot;</span>.to_owned(), <span class="string">&quot;SIZE 42&quot;</span>.to_owned(),],
+            <span class="macro">vec!</span>[<span class="string">"me"</span>.to_owned(), <span class="string">"8BITMIME"</span>.to_owned(), <span class="string">"SIZE 42"</span>.to_owned(),],
         )
         .has_code(<span class="number">251</span>));
     }
@@ -957,10 +958,10 @@
                     category: Category::MailSystem,
                     detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;me&quot;</span>.to_owned(), <span class="string">&quot;8BITMIME&quot;</span>.to_owned(), <span class="string">&quot;SIZE 42&quot;</span>.to_owned(),],
+                <span class="macro">vec!</span>[<span class="string">"me"</span>.to_owned(), <span class="string">"8BITMIME"</span>.to_owned(), <span class="string">"SIZE 42"</span>.to_owned(),],
             )
             .first_word(),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;me&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"me"</span>)
         );
         <span class="macro">assert_eq!</span>(
             Response::new(
@@ -970,13 +971,13 @@
                     detail: Detail::One,
                 },
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;me mo&quot;</span>.to_owned(),
-                    <span class="string">&quot;8BITMIME&quot;</span>.to_owned(),
-                    <span class="string">&quot;SIZE 42&quot;</span>.to_owned(),
+                    <span class="string">"me mo"</span>.to_owned(),
+                    <span class="string">"8BITMIME"</span>.to_owned(),
+                    <span class="string">"SIZE 42"</span>.to_owned(),
                 ],
             )
             .first_word(),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;me&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"me"</span>)
         );
         <span class="macro">assert_eq!</span>(
             Response::new(
@@ -997,7 +998,7 @@
                     category: Category::MailSystem,
                     detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot; &quot;</span>.to_owned()],
+                <span class="macro">vec!</span>[<span class="string">" "</span>.to_owned()],
             )
             .first_word(),
             <span class="prelude-val">None
@@ -1009,7 +1010,7 @@
                     category: Category::MailSystem,
                     detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;  &quot;</span>.to_owned()],
+                <span class="macro">vec!</span>[<span class="string">"  "</span>.to_owned()],
             )
             .first_word(),
             <span class="prelude-val">None
@@ -1021,7 +1022,7 @@
                     category: Category::MailSystem,
                     detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>.to_owned()],
+                <span class="macro">vec!</span>[<span class="string">""</span>.to_owned()],
             )
             .first_word(),
             <span class="prelude-val">None
@@ -1030,11 +1031,11 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_response_incomplete() {
-        <span class="kw">let </span>raw_response = <span class="string">&quot;250-smtp.example.org\r\n&quot;</span>;
+        <span class="kw">let </span>raw_response = <span class="string">"250-smtp.example.org\r\n"</span>;
         <span class="kw">let </span>res = parse_response(raw_response);
         <span class="kw">match </span>res {
             <span class="prelude-val">Err</span>(nom::Err::Incomplete(<span class="kw">_</span>)) =&gt; {}
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected incomplete response, got {res:?}&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Expected incomplete response, got {res:?}"</span>),
         }
     }
 
@@ -1047,10 +1048,10 @@
                     category: Category::MailSystem,
                     detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;me&quot;</span>.to_owned(), <span class="string">&quot;8BITMIME&quot;</span>.to_owned(), <span class="string">&quot;SIZE 42&quot;</span>.to_owned(),],
+                <span class="macro">vec!</span>[<span class="string">"me"</span>.to_owned(), <span class="string">"8BITMIME"</span>.to_owned(), <span class="string">"SIZE 42"</span>.to_owned(),],
             )
             .first_line(),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;me&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"me"</span>)
         );
         <span class="macro">assert_eq!</span>(
             Response::new(
@@ -1060,13 +1061,13 @@
                     detail: Detail::One,
                 },
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;me mo&quot;</span>.to_owned(),
-                    <span class="string">&quot;8BITMIME&quot;</span>.to_owned(),
-                    <span class="string">&quot;SIZE 42&quot;</span>.to_owned(),
+                    <span class="string">"me mo"</span>.to_owned(),
+                    <span class="string">"8BITMIME"</span>.to_owned(),
+                    <span class="string">"SIZE 42"</span>.to_owned(),
                 ],
             )
             .first_line(),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;me mo&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"me mo"</span>)
         );
         <span class="macro">assert_eq!</span>(
             Response::new(
@@ -1087,10 +1088,10 @@
                     category: Category::MailSystem,
                     detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot; &quot;</span>.to_owned()],
+                <span class="macro">vec!</span>[<span class="string">" "</span>.to_owned()],
             )
             .first_line(),
-            <span class="prelude-val">Some</span>(<span class="string">&quot; &quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">" "</span>)
         );
         <span class="macro">assert_eq!</span>(
             Response::new(
@@ -1099,10 +1100,10 @@
                     category: Category::MailSystem,
                     detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;  &quot;</span>.to_owned()],
+                <span class="macro">vec!</span>[<span class="string">"  "</span>.to_owned()],
             )
             .first_line(),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;  &quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"  "</span>)
         );
         <span class="macro">assert_eq!</span>(
             Response::new(
@@ -1111,10 +1112,10 @@
                     category: Category::MailSystem,
                     detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>.to_owned()],
+                <span class="macro">vec!</span>[<span class="string">""</span>.to_owned()],
             )
             .first_line(),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">""</span>)
         );
     }
 }

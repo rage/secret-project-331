@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/tutorial.rs`."><title>tutorial.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/csv-1.3.0/src/tutorial.rs`."><title>tutorial.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="csv" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2489,7 +2490,7 @@ of examples for those that prefer more information density.
 
 For an introduction to Rust, please see the
 [official book](https://doc.rust-lang.org/book/second-edition/).
-If you haven&#39;t written any Rust code yet but have written code in another
+If you haven't written any Rust code yet but have written code in another
 language, then this tutorial might be accessible to you without needing to read
 the book first.
 
@@ -2517,12 +2518,12 @@ the book first.
 
 # Setup
 
-In this section, we&#39;ll get you setup with a simple program that reads CSV data
-and prints a &quot;debug&quot; version of each record. This assumes that you have the
+In this section, we'll get you setup with a simple program that reads CSV data
+and prints a "debug" version of each record. This assumes that you have the
 [Rust toolchain installed](https://www.rust-lang.org/install.html),
 which includes both Rust and Cargo.
 
-We&#39;ll start by creating a new Cargo project:
+We'll start by creating a new Cargo project:
 
 ```text
 $ cargo new --bin csvtutor
@@ -2530,20 +2531,20 @@ $ cd csvtutor
 ```
 
 Once inside `csvtutor`, open `Cargo.toml` in your favorite text editor and add
-`csv = &quot;1.1&quot;` to your `[dependencies]` section. At this point, your
+`csv = "1.1"` to your `[dependencies]` section. At this point, your
 `Cargo.toml` should look something like this:
 
 ```text
 [package]
-name = &quot;csvtutor&quot;
-version = &quot;0.1.0&quot;
-authors = [&quot;Your Name&quot;]
+name = "csvtutor"
+version = "0.1.0"
+authors = ["Your Name"]
 
 [dependencies]
-csv = &quot;1.1&quot;
+csv = "1.1"
 ```
 
-Next, let&#39;s build your project. Since you added the `csv` crate as a
+Next, let's build your project. Since you added the `csv` crate as a
 dependency, Cargo will automatically download it and compile it for you. To
 build your project, use Cargo:
 
@@ -2552,21 +2553,21 @@ $ cargo build
 ```
 
 This will produce a new binary, `csvtutor`, in your `target/debug` directory.
-It won&#39;t do much at this point, but you can run it:
+It won't do much at this point, but you can run it:
 
 ```text
 $ ./target/debug/csvtutor
 Hello, world!
 ```
 
-Let&#39;s make our program do something useful. Our program will read CSV data on
+Let's make our program do something useful. Our program will read CSV data on
 stdin and print debug output for each record on stdout. To write this program,
 open `src/main.rs` in your favorite text editor and replace its contents with
 this:
 
 ```no_run
 //tutorial-setup-01.rs
-// Import the standard library&#39;s I/O module so we can read from stdin.
+// Import the standard library's I/O module so we can read from stdin.
 use std::io;
 
 // The `main` function is where your program starts executing.
@@ -2577,46 +2578,46 @@ fn main() {
     for result in rdr.records() {
         // An error may occur, so abort the program in an unfriendly way.
         // We will make this more friendly later!
-        let record = result.expect(&quot;a CSV record&quot;);
+        let record = result.expect("a CSV record");
         // Print a debug version of the record.
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
 }
 ```
 
-Don&#39;t worry too much about what this code means; we&#39;ll dissect it in the next
+Don't worry too much about what this code means; we'll dissect it in the next
 section. For now, try rebuilding your project:
 
 ```text
 $ cargo build
 ```
 
-Assuming that succeeds, let&#39;s try running our program. But first, we will need
+Assuming that succeeds, let's try running our program. But first, we will need
 some CSV data to play with! For that, we will use a random selection of 100
 US cities, along with their population size and geographical coordinates. (We
 will use this same CSV data throughout the entire tutorial.) To get the data,
 download it from github:
 
 ```text
-$ curl -LO &#39;https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop.csv&#39;
+$ curl -LO 'https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop.csv'
 ```
 
 And now finally, run your program on `uspop.csv`:
 
 ```text
 $ ./target/debug/csvtutor &lt; uspop.csv
-StringRecord([&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot;65.2419444&quot;, &quot;-165.2716667&quot;])
-StringRecord([&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])
-StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])
+StringRecord(["Davidsons Landing", "AK", "", "65.2419444", "-165.2716667"])
+StringRecord(["Kenai", "AK", "7610", "60.5544444", "-151.2583333"])
+StringRecord(["Oakman", "AL", "", "33.7133333", "-87.3886111"])
 # ... and much more
 ```
 
 # Basic error handling
 
 Since reading CSV data can result in errors, error handling is pervasive
-throughout the examples in this tutorial. Therefore, we&#39;re going to spend a
+throughout the examples in this tutorial. Therefore, we're going to spend a
 little bit of time going over basic error handling, and in particular, fix
-our previous example to show errors in a more friendly way. **If you&#39;re already
+our previous example to show errors in a more friendly way. **If you're already
 comfortable with things like `Result` and `try!`/`?` in Rust, then you can
 safely skip this section.**
 
@@ -2633,7 +2634,7 @@ unrecoverable errors and recoverable errors.
 
 Unrecoverable errors generally correspond to things like bugs in your program,
 which might occur when an invariant or contract is broken. At that point, the
-state of your program is unpredictable, and there&#39;s typically little recourse
+state of your program is unpredictable, and there's typically little recourse
 other than *panicking*. In Rust, a panic is similar to simply aborting your
 program, but it will unwind the stack and clean up resources before your
 program exits.
@@ -2658,9 +2659,9 @@ The relationship between unrecoverable errors and recoverable errors is
 important. In particular, it is **strongly discouraged** to treat recoverable
 errors as if they were unrecoverable. For example, panicking when a file could
 not be found, or if some CSV data is invalid, is considered bad practice.
-Instead, predictable errors should be handled using Rust&#39;s `Result` type.
+Instead, predictable errors should be handled using Rust's `Result` type.
 
-With our new found knowledge, let&#39;s re-examine our previous example and dissect
+With our new found knowledge, let's re-examine our previous example and dissect
 its error handling.
 
 ```no_run
@@ -2670,8 +2671,8 @@ use std::io;
 fn main() {
     let mut rdr = csv::Reader::from_reader(io::stdin());
     for result in rdr.records() {
-        let record = result.expect(&quot;a CSV record&quot;);
-        println!(&quot;{:?}&quot;, record);
+        let record = result.expect("a CSV record");
+        println!("{:?}", record);
     }
 }
 ```
@@ -2690,8 +2691,8 @@ header1,header2
 foo,bar
 quux,baz,foobar
 $ ./target/debug/csvtutor &lt; invalid
-StringRecord([&quot;foo&quot;, &quot;bar&quot;])
-thread &#39;main&#39; panicked at &#39;a CSV record: Error(UnequalLengths { pos: Some(Position { byte: 24, line: 3, record: 2 }), expected_len: 2, len: 3 })&#39;, src/main.rs:13:29
+StringRecord(["foo", "bar"])
+thread 'main' panicked at 'a CSV record: Error(UnequalLengths { pos: Some(Position { byte: 24, line: 3, record: 2 }), expected_len: 2, len: 3 })', src/main.rs:13:29
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
@@ -2704,7 +2705,7 @@ record lengths as an error.
 [`ReaderBuilder::flexible`](../struct.ReaderBuilder.html#method.flexible)
 config knob.) This explains why the first data record is printed in this
 example, since it has the same number of fields as the header record. That is,
-we don&#39;t actually hit an error until we parse the second data record.
+we don't actually hit an error until we parse the second data record.
 
 (Note that the CSV reader automatically interprets the first record as a
 header. This can be toggled with the
@@ -2716,8 +2717,8 @@ first line in our loop:
 
 ```ignore
 for result in rdr.records() {
-    let record = result.expect(&quot;a CSV record&quot;); // this panics
-    println!(&quot;{:?}&quot;, record);
+    let record = result.expect("a CSV record"); // this panics
+    println!("{:?}", record);
 }
 ```
 
@@ -2733,28 +2734,28 @@ It might help to look at the implementation of `expect`:
 ```ignore
 use std::fmt;
 
-// This says, &quot;for all types T and E, where E can be turned into a human
-// readable debug message, define the `expect` method.&quot;
+// This says, "for all types T and E, where E can be turned into a human
+// readable debug message, define the `expect` method."
 impl&lt;T, E: fmt::Debug&gt; Result&lt;T, E&gt; {
     fn expect(self, msg: &amp;str) -&gt; T {
         match self {
             Ok(t) =&gt; t,
-            Err(e) =&gt; panic!(&quot;{}: {:?}&quot;, msg, e),
+            Err(e) =&gt; panic!("{}: {:?}", msg, e),
         }
     }
 }
 ```
 
 Since this causes a panic if the CSV data is invalid, and invalid CSV data is
-a perfectly predictable error, we&#39;ve turned what should be a *recoverable*
+a perfectly predictable error, we've turned what should be a *recoverable*
 error into an *unrecoverable* error. We did this because it is expedient to
 use unrecoverable errors. Since this is bad practice, we will endeavor to avoid
 unrecoverable errors throughout the rest of the tutorial.
 
 ## Switch to recoverable errors
 
-We&#39;ll convert our unrecoverable error to a recoverable error in 3 steps. First,
-let&#39;s get rid of the panic and print an error message manually:
+We'll convert our unrecoverable error to a recoverable error in 3 steps. First,
+let's get rid of the panic and print an error message manually:
 
 ```no_run
 //tutorial-error-02.rs
@@ -2767,9 +2768,9 @@ fn main() {
         // If there was no problem, print the record.
         // Otherwise, print the error message and quit the program.
         match result {
-            Ok(record) =&gt; println!(&quot;{:?}&quot;, record),
+            Ok(record) =&gt; println!("{:?}", record),
             Err(err) =&gt; {
-                println!(&quot;error reading CSV from &lt;stdin&gt;: {}&quot;, err);
+                println!("error reading CSV from &lt;stdin&gt;: {}", err);
                 process::exit(1);
             }
         }
@@ -2777,7 +2778,7 @@ fn main() {
 }
 ```
 
-If we run our program again, we&#39;ll still see an error message, but it is no
+If we run our program again, we'll still see an error message, but it is no
 longer a panic message:
 
 ```text
@@ -2786,7 +2787,7 @@ header1,header2
 foo,bar
 quux,baz,foobar
 $ ./target/debug/csvtutor &lt; invalid
-StringRecord { position: Some(Position { byte: 16, line: 2, record: 1 }), fields: [&quot;foo&quot;, &quot;bar&quot;] }
+StringRecord { position: Some(Position { byte: 16, line: 2, record: 1 }), fields: ["foo", "bar"] }
 error reading CSV from &lt;stdin&gt;: CSV error: record 2 (line: 3, byte: 24): found record with 3 fields, but the previous record has 2 fields
 ```
 
@@ -2800,7 +2801,7 @@ use std::{error::Error, io, process};
 
 fn main() {
     if let Err(err) = run() {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
 }
@@ -2814,7 +2815,7 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
         match result {
             Err(err) =&gt; return Err(From::from(err)),
             Ok(record) =&gt; {
-              println!(&quot;{:?}&quot;, record);
+              println!("{:?}", record);
             }
         }
     }
@@ -2824,8 +2825,8 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 
 Our new function, `run`, has a return type of `Result&lt;(), Box&lt;dyn Error&gt;&gt;`. In
 simple terms, this says that `run` either returns nothing when successful, or
-if an error occurred, it returns a `Box&lt;dyn Error&gt;`, which stands for &quot;any kind of
-error.&quot; A `Box&lt;dyn Error&gt;` is hard to inspect if we cared about the specific error
+if an error occurred, it returns a `Box&lt;dyn Error&gt;`, which stands for "any kind of
+error." A `Box&lt;dyn Error&gt;` is hard to inspect if we cared about the specific error
 that occurred. But for our purposes, all we need to do is gracefully print an
 error message and exit the program.
 
@@ -2838,7 +2839,7 @@ use std::{error::Error, io, process};
 
 fn main() {
     if let Err(err) = run() {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
 }
@@ -2849,7 +2850,7 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
         // This is effectively the same code as our `match` in the
         // previous example. In other words, `?` is syntactic sugar.
         let record = result?;
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
     Ok(())
 }
@@ -2857,33 +2858,33 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 
 This last step shows how we can use the `?` to automatically forward errors
 to our caller without having to do explicit case analysis with `match`
-ourselves. We will use the `?` heavily throughout this tutorial, and it&#39;s
+ourselves. We will use the `?` heavily throughout this tutorial, and it's
 important to note that it can **only be used in functions that return
 `Result`.**
 
-We&#39;ll end this section with a word of caution: using `Box&lt;dyn Error&gt;` as our error
+We'll end this section with a word of caution: using `Box&lt;dyn Error&gt;` as our error
 type is the minimally acceptable thing we can do here. Namely, while it allows
 our program to gracefully handle errors, it makes it hard for callers to
 inspect the specific error condition that occurred. However, since this is a
 tutorial on writing command line programs that do CSV parsing, we will consider
-ourselves satisfied. If you&#39;d like to know more, or are interested in writing
+ourselves satisfied. If you'd like to know more, or are interested in writing
 a library that handles CSV data, then you should check out my
 [blog post on error handling](http://blog.burntsushi.net/rust-error-handling/).
 
-With all that said, if all you&#39;re doing is writing a one-off program to do
+With all that said, if all you're doing is writing a one-off program to do
 CSV transformations, then using methods like `expect` and panicking when an
 error occurs is a perfectly reasonable thing to do. Nevertheless, this tutorial
 will endeavor to show idiomatic code.
 
 # Reading CSV
 
-Now that we&#39;ve got you setup and covered basic error handling, it&#39;s time to do
-what we came here to do: handle CSV data. We&#39;ve already seen how to read
+Now that we've got you setup and covered basic error handling, it's time to do
+what we came here to do: handle CSV data. We've already seen how to read
 CSV data from `stdin`, but this section will cover how to read CSV data from
 files and how to configure our CSV reader to data formatted with different
 delimiters and quoting strategies.
 
-First up, let&#39;s adapt the example we&#39;ve been working with to accept a file
+First up, let's adapt the example we've been working with to accept a file
 path argument instead of stdin.
 
 ```no_run
@@ -2902,7 +2903,7 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut rdr = csv::Reader::from_reader(file);
     for result in rdr.records() {
         let record = result?;
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
     Ok(())
 }
@@ -2911,14 +2912,14 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 /// positional arguments, then this returns an error.
 fn get_first_arg() -&gt; Result&lt;OsString, Box&lt;dyn Error&gt;&gt; {
     match env::args_os().nth(1) {
-        None =&gt; Err(From::from(&quot;expected 1 argument, but got none&quot;)),
+        None =&gt; Err(From::from("expected 1 argument, but got none")),
         Some(file_path) =&gt; Ok(file_path),
     }
 }
 
 fn main() {
     if let Err(err) = run() {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
 }
@@ -2930,9 +2931,9 @@ then you should be able to rebuild your project and try it out:
 ```text
 $ cargo build
 $ ./target/debug/csvtutor uspop.csv
-StringRecord([&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot;65.2419444&quot;, &quot;-165.2716667&quot;])
-StringRecord([&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])
-StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])
+StringRecord(["Davidsons Landing", "AK", "", "65.2419444", "-165.2716667"])
+StringRecord(["Kenai", "AK", "7610", "60.5544444", "-151.2583333"])
+StringRecord(["Oakman", "AL", "", "33.7133333", "-87.3886111"])
 # ... and much more
 ```
 
@@ -2941,12 +2942,12 @@ This example contains two new pieces of code:
 1. Code for querying the positional arguments of your program. We put this code
    into its own function called `get_first_arg`. Our program expects a file
    path in the first position (which is indexed at `1`; the argument at index
-   `0` is the executable name), so if one doesn&#39;t exist, then `get_first_arg`
+   `0` is the executable name), so if one doesn't exist, then `get_first_arg`
    returns an error.
 2. Code for opening a file. In `run`, we open a file using `File::open`. If
    there was a problem opening the file, we forward the error to the caller of
    `run` (which is `main` in this program). Note that we do *not* wrap the
-   `File` in a buffer. The CSV reader does buffering internally, so there&#39;s
+   `File` in a buffer. The CSV reader does buffering internally, so there's
    no need for the caller to do it.
 
 Now is a good time to introduce an alternate CSV reader constructor, which
@@ -2978,7 +2979,7 @@ that there is a header record that looks like this:
 City,State,Population,Latitude,Longitude
 ```
 
-Now, if you look back at the output of the commands you&#39;ve run so far, you&#39;ll
+Now, if you look back at the output of the commands you've run so far, you'll
 notice that the header record is never printed. Why is that? By default, the
 CSV reader will interpret the first record in CSV data as a header, which
 is typically distinct from the actual data in the records that follow.
@@ -2987,13 +2988,13 @@ iterate over the records in CSV data.
 
 The CSV reader does not try to be smart about the header record and does
 **not** employ any heuristics for automatically detecting whether the first
-record is a header or not. Instead, if you don&#39;t want to treat the first record
-as a header, you&#39;ll need to tell the CSV reader that there are no headers.
+record is a header or not. Instead, if you don't want to treat the first record
+as a header, you'll need to tell the CSV reader that there are no headers.
 
-To configure a CSV reader to do this, we&#39;ll need to use a
+To configure a CSV reader to do this, we'll need to use a
 [`ReaderBuilder`](../struct.ReaderBuilder.html)
-to build a CSV reader with our desired configuration. Here&#39;s an example that
-does just that. (Note that we&#39;ve moved back to reading from `stdin`, since it
+to build a CSV reader with our desired configuration. Here's an example that
+does just that. (Note that we've moved back to reading from `stdin`, since it
 produces terser examples.)
 
 ```no_run
@@ -3006,29 +3007,29 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
         .from_reader(io::stdin());
     for result in rdr.records() {
         let record = result?;
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
     Ok(())
 }
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
 ```
 
-If you compile and run this program with our `uspop.csv` data, then you&#39;ll see
+If you compile and run this program with our `uspop.csv` data, then you'll see
 that the header record is now printed:
 
 ```text
 $ cargo build
 $ ./target/debug/csvtutor &lt; uspop.csv
-StringRecord([&quot;City&quot;, &quot;State&quot;, &quot;Population&quot;, &quot;Latitude&quot;, &quot;Longitude&quot;])
-StringRecord([&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot;65.2419444&quot;, &quot;-165.2716667&quot;])
-StringRecord([&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])
-StringRecord([&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])
+StringRecord(["City", "State", "Population", "Latitude", "Longitude"])
+StringRecord(["Davidsons Landing", "AK", "", "65.2419444", "-165.2716667"])
+StringRecord(["Kenai", "AK", "7610", "60.5544444", "-151.2583333"])
+StringRecord(["Oakman", "AL", "", "33.7133333", "-87.3886111"])
 ```
 
 If you ever need to access the header record directly, then you can use the
@@ -3044,22 +3045,22 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     {
         // We nest this call in its own scope because of lifetimes.
         let headers = rdr.headers()?;
-        println!(&quot;{:?}&quot;, headers);
+        println!("{:?}", headers);
     }
     for result in rdr.records() {
         let record = result?;
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
-    // We can ask for the headers at any time. There&#39;s no need to nest this
+    // We can ask for the headers at any time. There's no need to nest this
     // call in its own scope because we never try to borrow the reader again.
     let headers = rdr.headers()?;
-    println!(&quot;{:?}&quot;, headers);
+    println!("{:?}", headers);
     Ok(())
 }
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
@@ -3067,10 +3068,10 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 
 One interesting thing to note in this example is that we put the call to
 `rdr.headers()` in its own scope. We do this because `rdr.headers()` returns
-a *borrow* of the reader&#39;s internal header state. The nested scope in this
+a *borrow* of the reader's internal header state. The nested scope in this
 code allows the borrow to end before we try to iterate over the records. If
-we didn&#39;t nest the call to `rdr.headers()` in its own scope, then the code
-wouldn&#39;t compile because we cannot borrow the reader&#39;s headers at the same time
+we didn't nest the call to `rdr.headers()` in its own scope, then the code
+wouldn't compile because we cannot borrow the reader's headers at the same time
 that we try to borrow the reader to iterate over its records.
 
 Another way of solving this problem is to *clone* the header record:
@@ -3085,28 +3086,28 @@ record into a new allocation.
 
 ## Delimiters, quotes and variable length records
 
-In this section we&#39;ll temporarily depart from our `uspop.csv` data set and
+In this section we'll temporarily depart from our `uspop.csv` data set and
 show how to read some CSV data that is a little less clean. This CSV data
-uses `;` as a delimiter, escapes quotes with `\&quot;` (instead of `&quot;&quot;`) and has
-records of varying length. Here&#39;s the data, which contains a list of WWE
-wrestlers and the year they started, if it&#39;s known:
+uses `;` as a delimiter, escapes quotes with `\"` (instead of `""`) and has
+records of varying length. Here's the data, which contains a list of WWE
+wrestlers and the year they started, if it's known:
 
 ```text
 $ cat strange.csv
-&quot;\&quot;Hacksaw\&quot; Jim Duggan&quot;;1987
-&quot;Bret \&quot;Hit Man\&quot; Hart&quot;;1984
-# We&#39;re not sure when Rafael started, so omit the year.
+"\"Hacksaw\" Jim Duggan";1987
+"Bret \"Hit Man\" Hart";1984
+# We're not sure when Rafael started, so omit the year.
 Rafael Halperin
-&quot;\&quot;Big Cat\&quot; Ernie Ladd&quot;;1964
-&quot;\&quot;Macho Man\&quot; Randy Savage&quot;;1985
-&quot;Jake \&quot;The Snake\&quot; Roberts&quot;;1986
+"\"Big Cat\" Ernie Ladd";1964
+"\"Macho Man\" Randy Savage";1985
+"Jake \"The Snake\" Roberts";1986
 ```
 
-To read this CSV data, we&#39;ll want to do the following:
+To read this CSV data, we'll want to do the following:
 
 1. Disable headers, since this data has none.
 2. Change the delimiter from `,` to `;`.
-3. Change the quote strategy from doubled (e.g., `&quot;&quot;`) to escaped (e.g., `\&quot;`).
+3. Change the quote strategy from doubled (e.g., `""`) to escaped (e.g., `\"`).
 4. Permit flexible length records, since some omit the year.
 5. Ignore lines beginning with a `#`.
 
@@ -3121,22 +3122,22 @@ as seen in the following example:
 fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut rdr = csv::ReaderBuilder::new()
         .has_headers(false)
-        .delimiter(b&#39;;&#39;)
+        .delimiter(b';')
         .double_quote(false)
-        .escape(Some(b&#39;\\&#39;))
+        .escape(Some(b'\\'))
         .flexible(true)
-        .comment(Some(b&#39;#&#39;))
+        .comment(Some(b'#'))
         .from_reader(io::stdin());
     for result in rdr.records() {
         let record = result?;
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
     Ok(())
 }
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
@@ -3147,12 +3148,12 @@ Now re-compile your project and try running the program on `strange.csv`:
 ```text
 $ cargo build
 $ ./target/debug/csvtutor &lt; strange.csv
-StringRecord([&quot;\&quot;Hacksaw\&quot; Jim Duggan&quot;, &quot;1987&quot;])
-StringRecord([&quot;Bret \&quot;Hit Man\&quot; Hart&quot;, &quot;1984&quot;])
-StringRecord([&quot;Rafael Halperin&quot;])
-StringRecord([&quot;\&quot;Big Cat\&quot; Ernie Ladd&quot;, &quot;1964&quot;])
-StringRecord([&quot;\&quot;Macho Man\&quot; Randy Savage&quot;, &quot;1985&quot;])
-StringRecord([&quot;Jake \&quot;The Snake\&quot; Roberts&quot;, &quot;1986&quot;])
+StringRecord(["\"Hacksaw\" Jim Duggan", "1987"])
+StringRecord(["Bret \"Hit Man\" Hart", "1984"])
+StringRecord(["Rafael Halperin"])
+StringRecord(["\"Big Cat\" Ernie Ladd", "1964"])
+StringRecord(["\"Macho Man\" Randy Savage", "1985"])
+StringRecord(["Jake \"The Snake\" Roberts", "1986"])
 ```
 
 You should feel encouraged to play around with the settings. Some interesting
@@ -3186,7 +3187,7 @@ Rust types. In simpler terms, that means instead of iterating over records
 as an array of string fields, we can iterate over records of a specific type
 of our choosing.
 
-For example, let&#39;s take a look at some data from our `uspop.csv` file:
+For example, let's take a look at some data from our `uspop.csv` file:
 
 ```text
 City,State,Population,Latitude,Longitude
@@ -3197,7 +3198,7 @@ Kenai,AK,7610,60.5544444,-151.2583333
 While some of these fields make sense as strings (`City`, `State`), other
 fields look more like numbers. For example, `Population` looks like it contains
 integers while `Latitude` and `Longitude` appear to contain decimals. If we
-wanted to convert these fields to their &quot;proper&quot; types, then we need to do
+wanted to convert these fields to their "proper" types, then we need to do
 a lot of manual work. This next example shows how.
 
 ```no_run
@@ -3211,18 +3212,18 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 
         let city = &amp;record[0];
         let state = &amp;record[1];
-        // Some records are missing population counts, so if we can&#39;t
+        // Some records are missing population counts, so if we can't
         // parse a number, treat the population count as missing instead
         // of returning an error.
         let pop: Option&lt;u64&gt; = record[2].parse().ok();
         // Lucky us! Latitudes and longitudes are available for every record.
-        // Therefore, if one couldn&#39;t be parsed, return an error.
+        // Therefore, if one couldn't be parsed, return an error.
         let latitude: f64 = record[3].parse()?;
         let longitude: f64 = record[4].parse()?;
 
         println!(
-            &quot;city: {:?}, state: {:?}, \
-             pop: {:?}, latitude: {:?}, longitude: {:?}&quot;,
+            "city: {:?}, state: {:?}, \
+             pop: {:?}, latitude: {:?}, longitude: {:?}",
             city, state, pop, latitude, longitude);
     }
     Ok(())
@@ -3230,7 +3231,7 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
@@ -3256,14 +3257,14 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     for result in rdr.deserialize() {
         // We must tell Serde what type we want to deserialize into.
         let record: Record = result?;
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
     Ok(())
 }
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
@@ -3274,9 +3275,9 @@ Running this code should show similar output as previous examples:
 ```text
 $ cargo build
 $ ./target/debug/csvtutor &lt; uspop.csv
-(&quot;Davidsons Landing&quot;, &quot;AK&quot;, None, 65.2419444, -165.2716667)
-(&quot;Kenai&quot;, &quot;AK&quot;, Some(7610), 60.5544444, -151.2583333)
-(&quot;Oakman&quot;, &quot;AL&quot;, None, 33.7133333, -87.3886111)
+("Davidsons Landing", "AK", None, 65.2419444, -165.2716667)
+("Kenai", "AK", Some(7610), 60.5544444, -151.2583333)
+("Oakman", "AL", None, 33.7133333, -87.3886111)
 # ... and much more
 ```
 
@@ -3305,14 +3306,14 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut rdr = csv::Reader::from_reader(io::stdin());
     for result in rdr.deserialize() {
         let record: Record = result?;
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
     Ok(())
 }
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
@@ -3324,30 +3325,30 @@ printed as a map:
 ```text
 $ cargo build
 $ ./target/debug/csvtutor &lt; uspop.csv
-{&quot;City&quot;: &quot;Davidsons Landing&quot;, &quot;Latitude&quot;: &quot;65.2419444&quot;, &quot;State&quot;: &quot;AK&quot;, &quot;Population&quot;: &quot;&quot;, &quot;Longitude&quot;: &quot;-165.2716667&quot;}
-{&quot;City&quot;: &quot;Kenai&quot;, &quot;Population&quot;: &quot;7610&quot;, &quot;State&quot;: &quot;AK&quot;, &quot;Longitude&quot;: &quot;-151.2583333&quot;, &quot;Latitude&quot;: &quot;60.5544444&quot;}
-{&quot;State&quot;: &quot;AL&quot;, &quot;City&quot;: &quot;Oakman&quot;, &quot;Longitude&quot;: &quot;-87.3886111&quot;, &quot;Population&quot;: &quot;&quot;, &quot;Latitude&quot;: &quot;33.7133333&quot;}
+{"City": "Davidsons Landing", "Latitude": "65.2419444", "State": "AK", "Population": "", "Longitude": "-165.2716667"}
+{"City": "Kenai", "Population": "7610", "State": "AK", "Longitude": "-151.2583333", "Latitude": "60.5544444"}
+{"State": "AL", "City": "Oakman", "Longitude": "-87.3886111", "Population": "", "Latitude": "33.7133333"}
 ```
 
 This method works especially well if you need to read CSV data with header
-records, but whose exact structure isn&#39;t known until your program runs.
+records, but whose exact structure isn't known until your program runs.
 However, in our case, we know the structure of the data in `uspop.csv`. In
-particular, with the `HashMap` approach, we&#39;ve lost the specific types we had
+particular, with the `HashMap` approach, we've lost the specific types we had
 for each field in the previous example when we deserialized each record into a
 `(String, String, Option&lt;u64&gt;, f64, f64)`. Is there a way to identify fields
 by their corresponding header name *and* assign each field its own unique
-type? The answer is yes, but we&#39;ll need to bring in Serde&#39;s `derive` feature
+type? The answer is yes, but we'll need to bring in Serde's `derive` feature
 first. You can do that by adding this to the `[dependencies]` section of your
 `Cargo.toml` file:
 
 ```text
-serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }
+serde = { version = "1", features = ["derive"] }
 ```
 
 With these crates added to our project, we can now define our own custom struct
 that represents our record. We then ask Serde to automatically write the glue
 code required to populate our struct from a CSV record. The next example shows
-how. Don&#39;t miss the new Serde imports!
+how. Don't miss the new Serde imports!
 
 ```no_run
 //tutorial-read-serde-04.rs
@@ -3357,13 +3358,13 @@ how. Don&#39;t miss the new Serde imports!
 // This lets us write `#[derive(Deserialize)]`.
 use serde::Deserialize;
 
-// We don&#39;t need to derive `Debug` (which doesn&#39;t require Serde), but it&#39;s a
+// We don't need to derive `Debug` (which doesn't require Serde), but it's a
 // good habit to do it for all your types.
 //
 // Notice that the field names in this struct are NOT in the same order as
 // the fields in the CSV data!
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = &quot;PascalCase&quot;)]
+#[serde(rename_all = "PascalCase")]
 struct Record {
     latitude: f64,
     longitude: f64,
@@ -3376,16 +3377,16 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut rdr = csv::Reader::from_reader(io::stdin());
     for result in rdr.deserialize() {
         let record: Record = result?;
-        println!(&quot;{:?}&quot;, record);
-        // Try this if you don&#39;t like each record smushed on one line:
-        // println!(&quot;{:#?}&quot;, record);
+        println!("{:?}", record);
+        // Try this if you don't like each record smushed on one line:
+        // println!("{:#?}", record);
     }
     Ok(())
 }
 
 fn main() {
     if let Err(err) = run() {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
 }
@@ -3396,25 +3397,25 @@ Compile and run this program to see similar output as before:
 ```text
 $ cargo build
 $ ./target/debug/csvtutor &lt; uspop.csv
-Record { latitude: 65.2419444, longitude: -165.2716667, population: None, city: &quot;Davidsons Landing&quot;, state: &quot;AK&quot; }
-Record { latitude: 60.5544444, longitude: -151.2583333, population: Some(7610), city: &quot;Kenai&quot;, state: &quot;AK&quot; }
-Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: &quot;Oakman&quot;, state: &quot;AL&quot; }
+Record { latitude: 65.2419444, longitude: -165.2716667, population: None, city: "Davidsons Landing", state: "AK" }
+Record { latitude: 60.5544444, longitude: -151.2583333, population: Some(7610), city: "Kenai", state: "AK" }
+Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: "Oakman", state: "AL" }
 ```
 
-Once again, we didn&#39;t need to change our `run` function at all: we&#39;re still
+Once again, we didn't need to change our `run` function at all: we're still
 iterating over records using the `deserialize` iterator that we started with
 in the beginning of this section. The only thing that changed in this example
 was the definition of the `Record` type and a new `use` statement. Our `Record`
 type is now a custom struct that we defined instead of a type alias, and as a
-result, Serde doesn&#39;t know how to deserialize it by default. However, a special
+result, Serde doesn't know how to deserialize it by default. However, a special
 compiler plugin provided by Serde is available, which will read your struct
 definition at compile time and generate code that will deserialize a CSV record
 into a `Record` value. To see what happens if you leave out the automatic
 derive, change `#[derive(Debug, Deserialize)]` to `#[derive(Debug)]`.
 
 One other thing worth mentioning in this example is the use of
-`#[serde(rename_all = &quot;PascalCase&quot;)]`. This directive helps Serde map your
-struct&#39;s field names to the header names in the CSV data. If you recall, our
+`#[serde(rename_all = "PascalCase")]`. This directive helps Serde map your
+struct's field names to the header names in the CSV data. If you recall, our
 header record is:
 
 ```text
@@ -3422,9 +3423,9 @@ City,State,Population,Latitude,Longitude
 ```
 
 Notice that each name is capitalized, but the fields in our struct are not. The
-`#[serde(rename_all = &quot;PascalCase&quot;)]` directive fixes that by interpreting each
+`#[serde(rename_all = "PascalCase")]` directive fixes that by interpreting each
 field in `PascalCase`, where the first letter of the field is capitalized. If
-we didn&#39;t tell Serde about the name remapping, then the program will quit with
+we didn't tell Serde about the name remapping, then the program will quit with
 an error:
 
 ```text
@@ -3455,15 +3456,15 @@ is useful when there is no consistent name mapping from fields to header names:
 ```ignore
 #[derive(Debug, Deserialize)]
 struct Record {
-    #[serde(rename = &quot;Latitude&quot;)]
+    #[serde(rename = "Latitude")]
     latitude: f64,
-    #[serde(rename = &quot;Longitude&quot;)]
+    #[serde(rename = "Longitude")]
     longitude: f64,
-    #[serde(rename = &quot;Population&quot;)]
+    #[serde(rename = "Population")]
     population: Option&lt;u64&gt;,
-    #[serde(rename = &quot;City&quot;)]
+    #[serde(rename = "City")]
     city: String,
-    #[serde(rename = &quot;State&quot;)]
+    #[serde(rename = "State")]
     state: String,
 }
 ```
@@ -3474,17 +3475,17 @@ consult the
 
 ## Handling invalid data with Serde
 
-In this section we will see a brief example of how to deal with data that isn&#39;t
-clean. To do this exercise, we&#39;ll work with a slightly tweaked version of the
-US population data we&#39;ve been using throughout this tutorial. This version of
-the data is slightly messier than what we&#39;ve been using. You can get it like
+In this section we will see a brief example of how to deal with data that isn't
+clean. To do this exercise, we'll work with a slightly tweaked version of the
+US population data we've been using throughout this tutorial. This version of
+the data is slightly messier than what we've been using. You can get it like
 so:
 
 ```text
-$ curl -LO &#39;https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop-null.csv&#39;
+$ curl -LO 'https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop-null.csv'
 ```
 
-Let&#39;s start by running our program from the previous section:
+Let's start by running our program from the previous section:
 
 ```no_run
 //tutorial-read-serde-invalid-01.rs
@@ -3494,7 +3495,7 @@ Let&#39;s start by running our program from the previous section:
 # use serde::Deserialize;
 #
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = &quot;PascalCase&quot;)]
+#[serde(rename_all = "PascalCase")]
 struct Record {
     latitude: f64,
     longitude: f64,
@@ -3507,14 +3508,14 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut rdr = csv::Reader::from_reader(io::stdin());
     for result in rdr.deserialize() {
         let record: Record = result?;
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
     Ok(())
 }
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
@@ -3525,9 +3526,9 @@ Compile and run it on our messier data:
 ```text
 $ cargo build
 $ ./target/debug/csvtutor &lt; uspop-null.csv
-Record { latitude: 65.2419444, longitude: -165.2716667, population: None, city: &quot;Davidsons Landing&quot;, state: &quot;AK&quot; }
-Record { latitude: 60.5544444, longitude: -151.2583333, population: Some(7610), city: &quot;Kenai&quot;, state: &quot;AK&quot; }
-Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: &quot;Oakman&quot;, state: &quot;AL&quot; }
+Record { latitude: 65.2419444, longitude: -165.2716667, population: None, city: "Davidsons Landing", state: "AK" }
+Record { latitude: 60.5544444, longitude: -151.2583333, population: Some(7610), city: "Kenai", state: "AK" }
+Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: "Oakman", state: "AL" }
 # ... more records
 CSV deserialize error: record 42 (line: 43, byte: 1710): field 2: invalid digit found in string
 ```
@@ -3547,7 +3548,7 @@ population count. However, in this data, it seems that `NULL` sometimes appears
 as a value, presumably to indicate that there is no count available.
 
 The problem with our current program is that it fails to read this record
-because it doesn&#39;t know how to deserialize a `NULL` string into an
+because it doesn't know how to deserialize a `NULL` string into an
 `Option&lt;u64&gt;`. That is, a `Option&lt;u64&gt;` either corresponds to an empty field
 or an integer.
 
@@ -3561,11 +3562,11 @@ to a `None` value, as shown in this next example:
 #
 # use serde::Deserialize;
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = &quot;PascalCase&quot;)]
+#[serde(rename_all = "PascalCase")]
 struct Record {
     latitude: f64,
     longitude: f64,
-    #[serde(deserialize_with = &quot;csv::invalid_option&quot;)]
+    #[serde(deserialize_with = "csv::invalid_option")]
     population: Option&lt;u64&gt;,
     city: String,
     state: String,
@@ -3575,14 +3576,14 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut rdr = csv::Reader::from_reader(io::stdin());
     for result in rdr.deserialize() {
         let record: Record = result?;
-        println!(&quot;{:?}&quot;, record);
+        println!("{:?}", record);
     }
     Ok(())
 }
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
@@ -3594,9 +3595,9 @@ like the other examples:
 ```text
 $ cargo build
 $ ./target/debug/csvtutor &lt; uspop-null.csv
-Record { latitude: 65.2419444, longitude: -165.2716667, population: None, city: &quot;Davidsons Landing&quot;, state: &quot;AK&quot; }
-Record { latitude: 60.5544444, longitude: -151.2583333, population: Some(7610), city: &quot;Kenai&quot;, state: &quot;AK&quot; }
-Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: &quot;Oakman&quot;, state: &quot;AL&quot; }
+Record { latitude: 65.2419444, longitude: -165.2716667, population: None, city: "Davidsons Landing", state: "AK" }
+Record { latitude: 60.5544444, longitude: -151.2583333, population: Some(7610), city: "Kenai", state: "AK" }
+Record { latitude: 33.7133333, longitude: -87.3886111, population: None, city: "Oakman", state: "AL" }
 # ... and more
 ```
 
@@ -3604,7 +3605,7 @@ The only change in this example was adding this attribute to the `population`
 field in our `Record` type:
 
 ```ignore
-#[serde(deserialize_with = &quot;csv::invalid_option&quot;)]
+#[serde(deserialize_with = "csv::invalid_option")]
 ```
 
 The
@@ -3615,11 +3616,11 @@ applied to `Option` fields, it will convert any deserialization error into a
 
 # Writing CSV
 
-In this section we&#39;ll show a few examples that write CSV data. Writing CSV data
+In this section we'll show a few examples that write CSV data. Writing CSV data
 tends to be a bit more straight-forward than reading CSV data, since you get to
 control the output format.
 
-Let&#39;s start with the most basic example: writing a few CSV records to `stdout`.
+Let's start with the most basic example: writing a few CSV records to `stdout`.
 
 ```no_run
 //tutorial-write-01.rs
@@ -3627,23 +3628,23 @@ use std::{error::Error, io, process};
 
 fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut wtr = csv::Writer::from_writer(io::stdout());
-    // Since we&#39;re writing records manually, we must explicitly write our
+    // Since we're writing records manually, we must explicitly write our
     // header record. A header record is written the same way that other
     // records are written.
-    wtr.write_record(&amp;[&quot;City&quot;, &quot;State&quot;, &quot;Population&quot;, &quot;Latitude&quot;, &quot;Longitude&quot;])?;
-    wtr.write_record(&amp;[&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot;65.2419444&quot;, &quot;-165.2716667&quot;])?;
-    wtr.write_record(&amp;[&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])?;
-    wtr.write_record(&amp;[&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])?;
+    wtr.write_record(&amp;["City", "State", "Population", "Latitude", "Longitude"])?;
+    wtr.write_record(&amp;["Davidsons Landing", "AK", "", "65.2419444", "-165.2716667"])?;
+    wtr.write_record(&amp;["Kenai", "AK", "7610", "60.5544444", "-151.2583333"])?;
+    wtr.write_record(&amp;["Oakman", "AL", "", "33.7133333", "-87.3886111"])?;
 
-    // A CSV writer maintains an internal buffer, so it&#39;s important
-    // to flush the buffer when you&#39;re done.
+    // A CSV writer maintains an internal buffer, so it's important
+    // to flush the buffer when you're done.
     wtr.flush()?;
     Ok(())
 }
 
 fn main() {
     if let Err(err) = run() {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
 }
@@ -3660,8 +3661,8 @@ Kenai,AK,7610,60.5544444,-151.2583333
 Oakman,AL,,33.7133333,-87.3886111
 ```
 
-Before moving on, it&#39;s worth taking a closer look at the `write_record`
-method. In this example, it looks rather simple, but if you&#39;re new to Rust then
+Before moving on, it's worth taking a closer look at the `write_record`
+method. In this example, it looks rather simple, but if you're new to Rust then
 its type signature might look a little daunting:
 
 ```ignore
@@ -3676,16 +3677,16 @@ To understand the type signature, we can break it down piece by piece.
 
 1. The method takes two parameters: `self` and `record`.
 2. `self` is a special parameter that corresponds to the `Writer` itself.
-3. `record` is the CSV record we&#39;d like to write. Its type is `I`, which is
+3. `record` is the CSV record we'd like to write. Its type is `I`, which is
    a generic type.
-4. In the method&#39;s `where` clause, the `I` type is constrained by the
+4. In the method's `where` clause, the `I` type is constrained by the
    `IntoIterator&lt;Item=T&gt;` bound. What that means is that `I` must satisfy the
    `IntoIterator` trait. If you look at the documentation of the
    [`IntoIterator` trait](https://doc.rust-lang.org/std/iter/trait.IntoIterator.html),
    then we can see that it describes types that can build iterators. In this
    case, we want an iterator that yields *another* generic type `T`, where
    `T` is the type of each field we want to write.
-5. `T` also appears in the method&#39;s `where` clause, but its constraint is the
+5. `T` also appears in the method's `where` clause, but its constraint is the
    `AsRef&lt;[u8]&gt;` bound. The `AsRef` trait is a way to describe zero cost
    conversions between types in Rust. In this case, the `[u8]` in `AsRef&lt;[u8]&gt;`
    means that we want to be able to *borrow* a slice of bytes from `T`.
@@ -3696,17 +3697,17 @@ To understand the type signature, we can break it down piece by piece.
    `Result&lt;(), csv::Error&gt;`. That means `write_record` either returns nothing
    on success or returns a `csv::Error` on failure.
 
-Now, let&#39;s apply our new found understanding of the type signature of
+Now, let's apply our new found understanding of the type signature of
 `write_record`. If you recall, in our previous example, we used it like so:
 
 ```ignore
-wtr.write_record(&amp;[&quot;field 1&quot;, &quot;field 2&quot;, &quot;etc&quot;])?;
+wtr.write_record(&amp;["field 1", "field 2", "etc"])?;
 ```
 
 So how do the types match up? Well, the type of each of our fields in this
-code is `&amp;&#39;static str` (which is the type of a string literal in Rust). Since
+code is `&amp;'static str` (which is the type of a string literal in Rust). Since
 we put them in a slice literal, the type of our parameter is
-`&amp;&#39;static [&amp;&#39;static str]`, or more succinctly written as `&amp;[&amp;str]` without the
+`&amp;'static [&amp;'static str]`, or more succinctly written as `&amp;[&amp;str]` without the
 lifetime annotations. Since slices satisfy the `IntoIterator` bound and
 strings satisfy the `AsRef&lt;[u8]&gt;` bound, this ends up being a legal call.
 
@@ -3716,13 +3717,13 @@ Here are a few more examples of ways you can call `write_record`:
 # use csv;
 # let mut wtr = csv::Writer::from_writer(vec![]);
 // A slice of byte strings.
-wtr.write_record(&amp;[b&quot;a&quot;, b&quot;b&quot;, b&quot;c&quot;]);
+wtr.write_record(&amp;[b"a", b"b", b"c"]);
 // A vector.
-wtr.write_record(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]);
+wtr.write_record(vec!["a", "b", "c"]);
 // A string record.
-wtr.write_record(&amp;csv::StringRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]));
+wtr.write_record(&amp;csv::StringRecord::from(vec!["a", "b", "c"]));
 // A byte record.
-wtr.write_record(&amp;csv::ByteRecord::from(vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]));
+wtr.write_record(&amp;csv::ByteRecord::from(vec!["a", "b", "c"]));
 ```
 
 Finally, the example above can be easily adapted to write to a file instead
@@ -3741,10 +3742,10 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let file_path = get_first_arg()?;
     let mut wtr = csv::Writer::from_path(file_path)?;
 
-    wtr.write_record(&amp;[&quot;City&quot;, &quot;State&quot;, &quot;Population&quot;, &quot;Latitude&quot;, &quot;Longitude&quot;])?;
-    wtr.write_record(&amp;[&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot;65.2419444&quot;, &quot;-165.2716667&quot;])?;
-    wtr.write_record(&amp;[&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])?;
-    wtr.write_record(&amp;[&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])?;
+    wtr.write_record(&amp;["City", "State", "Population", "Latitude", "Longitude"])?;
+    wtr.write_record(&amp;["Davidsons Landing", "AK", "", "65.2419444", "-165.2716667"])?;
+    wtr.write_record(&amp;["Kenai", "AK", "7610", "60.5544444", "-151.2583333"])?;
+    wtr.write_record(&amp;["Oakman", "AL", "", "33.7133333", "-87.3886111"])?;
 
     wtr.flush()?;
     Ok(())
@@ -3754,14 +3755,14 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 /// positional arguments, then this returns an error.
 fn get_first_arg() -&gt; Result&lt;OsString, Box&lt;dyn Error&gt;&gt; {
     match env::args_os().nth(1) {
-        None =&gt; Err(From::from(&quot;expected 1 argument, but got none&quot;)),
+        None =&gt; Err(From::from("expected 1 argument, but got none")),
         Some(file_path) =&gt; Ok(file_path),
     }
 }
 
 fn main() {
     if let Err(err) = run() {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
 }
@@ -3779,17 +3780,17 @@ Kenai,AK,7610,60.5544444,-151.2583333
 Oakman,AL,,33.7133333,-87.3886111
 ```
 
-You might wonder to yourself: what&#39;s the point of using a CSV writer if the
+You might wonder to yourself: what's the point of using a CSV writer if the
 data is so simple? Well, the benefit of a CSV writer is that it can handle all
 types of data without sacrificing the integrity of your data. That is, it knows
 when to quote fields that contain special CSV characters (like commas or new
 lines) or escape literal quotes that appear in your data. The CSV writer can
 also be easily configured to use different delimiters or quoting strategies.
 
-In this section, we&#39;ll take a look a look at how to tweak some of the settings
-on a CSV writer. In particular, we&#39;ll write TSV (&quot;tab separated values&quot;)
-instead of CSV, and we&#39;ll ask the CSV writer to quote all non-numeric fields.
-Here&#39;s an example:
+In this section, we'll take a look a look at how to tweak some of the settings
+on a CSV writer. In particular, we'll write TSV ("tab separated values")
+instead of CSV, and we'll ask the CSV writer to quote all non-numeric fields.
+Here's an example:
 
 ```no_run
 //tutorial-write-delimiter-01.rs
@@ -3797,14 +3798,14 @@ Here&#39;s an example:
 #
 fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut wtr = csv::WriterBuilder::new()
-        .delimiter(b&#39;\t&#39;)
+        .delimiter(b'\t')
         .quote_style(csv::QuoteStyle::NonNumeric)
         .from_writer(io::stdout());
 
-    wtr.write_record(&amp;[&quot;City&quot;, &quot;State&quot;, &quot;Population&quot;, &quot;Latitude&quot;, &quot;Longitude&quot;])?;
-    wtr.write_record(&amp;[&quot;Davidsons Landing&quot;, &quot;AK&quot;, &quot;&quot;, &quot;65.2419444&quot;, &quot;-165.2716667&quot;])?;
-    wtr.write_record(&amp;[&quot;Kenai&quot;, &quot;AK&quot;, &quot;7610&quot;, &quot;60.5544444&quot;, &quot;-151.2583333&quot;])?;
-    wtr.write_record(&amp;[&quot;Oakman&quot;, &quot;AL&quot;, &quot;&quot;, &quot;33.7133333&quot;, &quot;-87.3886111&quot;])?;
+    wtr.write_record(&amp;["City", "State", "Population", "Latitude", "Longitude"])?;
+    wtr.write_record(&amp;["Davidsons Landing", "AK", "", "65.2419444", "-165.2716667"])?;
+    wtr.write_record(&amp;["Kenai", "AK", "7610", "60.5544444", "-151.2583333"])?;
+    wtr.write_record(&amp;["Oakman", "AL", "", "33.7133333", "-87.3886111"])?;
 
     wtr.flush()?;
     Ok(())
@@ -3812,7 +3813,7 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
@@ -3823,10 +3824,10 @@ Compiling and running this example gives:
 ```text
 $ cargo build
 $ ./target/debug/csvtutor
-&quot;City&quot;  &quot;State&quot; &quot;Population&quot;    &quot;Latitude&quot;      &quot;Longitude&quot;
-&quot;Davidsons Landing&quot;     &quot;AK&quot;    &quot;&quot;      65.2419444      -165.2716667
-&quot;Kenai&quot; &quot;AK&quot;    7610    60.5544444      -151.2583333
-&quot;Oakman&quot;        &quot;AL&quot;    &quot;&quot;      33.7133333      -87.3886111
+"City"  "State" "Population"    "Latitude"      "Longitude"
+"Davidsons Landing"     "AK"    ""      65.2419444      -165.2716667
+"Kenai" "AK"    7610    60.5544444      -151.2583333
+"Oakman"        "AL"    ""      33.7133333      -87.3886111
 ```
 
 In this example, we used a new type
@@ -3841,9 +3842,9 @@ non-numeric fields.
 
 Just like the CSV reader supports automatic deserialization into Rust types
 with Serde, the CSV writer supports automatic serialization from Rust types
-into CSV records using Serde. In this section, we&#39;ll learn how to use it.
+into CSV records using Serde. In this section, we'll learn how to use it.
 
-As with reading, let&#39;s start by seeing how we can serialize a Rust tuple.
+As with reading, let's start by seeing how we can serialize a Rust tuple.
 
 ```no_run
 //tutorial-write-serde-01.rs
@@ -3853,17 +3854,17 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut wtr = csv::Writer::from_writer(io::stdout());
 
     // We still need to write headers manually.
-    wtr.write_record(&amp;[&quot;City&quot;, &quot;State&quot;, &quot;Population&quot;, &quot;Latitude&quot;, &quot;Longitude&quot;])?;
+    wtr.write_record(&amp;["City", "State", "Population", "Latitude", "Longitude"])?;
 
     // But now we can write records by providing a normal Rust value.
     //
     // Note that the odd `None::&lt;u64&gt;` syntax is required because `None` on
-    // its own doesn&#39;t have a concrete type, but Serde needs a concrete type
+    // its own doesn't have a concrete type, but Serde needs a concrete type
     // in order to serialize it. That is, `None` has type `Option&lt;T&gt;` but
     // `None::&lt;u64&gt;` has type `Option&lt;u64&gt;`.
-    wtr.serialize((&quot;Davidsons Landing&quot;, &quot;AK&quot;, None::&lt;u64&gt;, 65.2419444, -165.2716667))?;
-    wtr.serialize((&quot;Kenai&quot;, &quot;AK&quot;, Some(7610), 60.5544444, -151.2583333))?;
-    wtr.serialize((&quot;Oakman&quot;, &quot;AL&quot;, None::&lt;u64&gt;, 33.7133333, -87.3886111))?;
+    wtr.serialize(("Davidsons Landing", "AK", None::&lt;u64&gt;, 65.2419444, -165.2716667))?;
+    wtr.serialize(("Kenai", "AK", Some(7610), 60.5544444, -151.2583333))?;
+    wtr.serialize(("Oakman", "AL", None::&lt;u64&gt;, 33.7133333, -87.3886111))?;
 
     wtr.flush()?;
     Ok(())
@@ -3871,7 +3872,7 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
@@ -3900,17 +3901,17 @@ As with reading, we can also serialize custom structs as CSV records. As a
 bonus, the fields in a struct will automatically be written as a header
 record!
 
-To write custom structs as CSV records, we&#39;ll need to make use of Serde&#39;s
+To write custom structs as CSV records, we'll need to make use of Serde's
 automatic `derive` feature again. As in the
 [previous section on reading with Serde](#reading-with-serde),
-we&#39;ll need to add a couple crates to our `[dependencies]` section in our
-`Cargo.toml` (if they aren&#39;t already there):
+we'll need to add a couple crates to our `[dependencies]` section in our
+`Cargo.toml` (if they aren't already there):
 
 ```text
-serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }
+serde = { version = "1", features = ["derive"] }
 ```
 
-And we&#39;ll also need to add a new `use` statement to our code, for Serde, as
+And we'll also need to add a new `use` statement to our code, for Serde, as
 shown in the example:
 
 ```no_run
@@ -3921,10 +3922,10 @@ use serde::Serialize;
 
 // Note that structs can derive both Serialize and Deserialize!
 #[derive(Debug, Serialize)]
-#[serde(rename_all = &quot;PascalCase&quot;)]
-struct Record&lt;&#39;a&gt; {
-    city: &amp;&#39;a str,
-    state: &amp;&#39;a str,
+#[serde(rename_all = "PascalCase")]
+struct Record&lt;'a&gt; {
+    city: &amp;'a str,
+    state: &amp;'a str,
     population: Option&lt;u64&gt;,
     latitude: f64,
     longitude: f64,
@@ -3934,22 +3935,22 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let mut wtr = csv::Writer::from_writer(io::stdout());
 
     wtr.serialize(Record {
-        city: &quot;Davidsons Landing&quot;,
-        state: &quot;AK&quot;,
+        city: "Davidsons Landing",
+        state: "AK",
         population: None,
         latitude: 65.2419444,
         longitude: -165.2716667,
     })?;
     wtr.serialize(Record {
-        city: &quot;Kenai&quot;,
-        state: &quot;AK&quot;,
+        city: "Kenai",
+        state: "AK",
         population: Some(7610),
         latitude: 60.5544444,
         longitude: -151.2583333,
     })?;
     wtr.serialize(Record {
-        city: &quot;Oakman&quot;,
-        state: &quot;AL&quot;,
+        city: "Oakman",
+        state: "AL",
         population: None,
         latitude: 33.7133333,
         longitude: -87.3886111,
@@ -3961,14 +3962,14 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 
 fn main() {
     if let Err(err) = run() {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
 }
 ```
 
 Compiling and running this example has the same output as last time, even
-though we didn&#39;t explicitly write a header record:
+though we didn't explicitly write a header record:
 
 ```text
 $ cargo build
@@ -3987,20 +3988,20 @@ this behavior can be disabled with the
 [`WriterBuilder::has_headers`](../struct.WriterBuilder.html#method.has_headers)
 method.
 
-It&#39;s also worth pointing out the use of a *lifetime parameter* in our `Record`
+It's also worth pointing out the use of a *lifetime parameter* in our `Record`
 struct:
 
 ```ignore
-struct Record&lt;&#39;a&gt; {
-    city: &amp;&#39;a str,
-    state: &amp;&#39;a str,
+struct Record&lt;'a&gt; {
+    city: &amp;'a str,
+    state: &amp;'a str,
     population: Option&lt;u64&gt;,
     latitude: f64,
     longitude: f64,
 }
 ```
 
-The `&#39;a` lifetime parameter corresponds to the lifetime of the `city` and
+The `'a` lifetime parameter corresponds to the lifetime of the `city` and
 `state` string slices. This says that the `Record` struct contains *borrowed*
 data. We could have written our struct without borrowing any data, and
 therefore, without any lifetime parameters:
@@ -4016,8 +4017,8 @@ struct Record {
 ```
 
 However, since we had to replace our borrowed `&amp;str` types with owned `String`
-types, we&#39;re now forced to allocate a new `String` value for both of `city`
-and `state` for every record that we write. There&#39;s no intrinsic problem with
+types, we're now forced to allocate a new `String` value for both of `city`
+and `state` for every record that we write. There's no intrinsic problem with
 doing that, but it might be a bit wasteful.
 
 For more examples and more details on the rules for serialization, please see
@@ -4027,15 +4028,15 @@ method.
 
 # Pipelining
 
-In this section, we&#39;re going to cover a few examples that demonstrate programs
+In this section, we're going to cover a few examples that demonstrate programs
 that take CSV data as input, and produce possibly transformed or filtered CSV
 data as output. This shows how to write a complete program that efficiently
 reads and writes CSV data. Rust is well positioned to perform this task, since
-you&#39;ll get great performance with the convenience of a high level CSV library.
+you'll get great performance with the convenience of a high level CSV library.
 
 ## Filter by search
 
-The first example of CSV pipelining we&#39;ll look at is a simple filter. It takes
+The first example of CSV pipelining we'll look at is a simple filter. It takes
 as input some CSV data on stdin and a single string query as its only
 positional argument, and it will produce as output CSV data that only contains
 rows with a field that matches the query.
@@ -4046,9 +4047,9 @@ use std::{env, error::Error, io, process};
 
 fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     // Get the query from the positional arguments.
-    // If one doesn&#39;t exist, return an error.
+    // If one doesn't exist, return an error.
     let query = match env::args().nth(1) {
-        None =&gt; return Err(From::from(&quot;expected 1 argument, but got none&quot;)),
+        None =&gt; return Err(From::from("expected 1 argument, but got none")),
         Some(query) =&gt; query,
     };
 
@@ -4075,13 +4076,13 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 
 fn main() {
     if let Err(err) = run() {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
 }
 ```
 
-If we compile and run this program with a query of `MA` on `uspop.csv`, we&#39;ll
+If we compile and run this program with a query of `MA` on `uspop.csv`, we'll
 see that only one record matches:
 
 ```text
@@ -4091,25 +4092,25 @@ City,State,Population,Latitude,Longitude
 Reading,MA,23441,42.5255556,-71.0958333
 ```
 
-This example doesn&#39;t actually introduce anything new. It merely combines what
-you&#39;ve already learned about CSV readers and writers from previous sections.
+This example doesn't actually introduce anything new. It merely combines what
+you've already learned about CSV readers and writers from previous sections.
 
-Let&#39;s add a twist to this example. In the real world, you&#39;re often faced with
+Let's add a twist to this example. In the real world, you're often faced with
 messy CSV data that might not be encoded correctly. One example you might come
 across is CSV data encoded in
 [Latin-1](https://en.wikipedia.org/wiki/ISO/IEC_8859-1).
-Unfortunately, for the examples we&#39;ve seen so far, our CSV reader assumes that
-all of the data is UTF-8. Since all of the data we&#39;ve worked on has been
-ASCII---which is a subset of both Latin-1 and UTF-8---we haven&#39;t had any
-problems. But let&#39;s introduce a slightly tweaked version of our `uspop.csv`
+Unfortunately, for the examples we've seen so far, our CSV reader assumes that
+all of the data is UTF-8. Since all of the data we've worked on has been
+ASCII---which is a subset of both Latin-1 and UTF-8---we haven't had any
+problems. But let's introduce a slightly tweaked version of our `uspop.csv`
 file that contains an encoding of a Latin-1 character that is invalid UTF-8.
 You can get the data like so:
 
 ```text
-$ curl -LO &#39;https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop-latin1.csv&#39;
+$ curl -LO 'https://raw.githubusercontent.com/BurntSushi/rust-csv/master/examples/data/uspop-latin1.csv'
 ```
 
-Even though I&#39;ve already given away the problem, let&#39;s see what happen when
+Even though I've already given away the problem, let's see what happen when
 we try to run our previous example on this new data:
 
 ```text
@@ -4118,8 +4119,8 @@ City,State,Population,Latitude,Longitude
 CSV parse error: record 3 (line 4, field: 0, byte: 125): invalid utf-8: invalid UTF-8 in field 0 near byte index 0
 ```
 
-The error message tells us exactly what&#39;s wrong. Let&#39;s take a look at line 4
-to see what we&#39;re dealing with:
+The error message tells us exactly what's wrong. Let's take a look at line 4
+to see what we're dealing with:
 
 ```text
 $ head -n4 uspop-latin1.csv | tail -n1
@@ -4129,13 +4130,13 @@ $ head -n4 uspop-latin1.csv | tail -n1
 In this case, the very first character is the Latin-1 `Õ`, which is encoded as
 the byte `0xD5`, which is in turn invalid UTF-8. So what do we do now that our
 CSV parser has choked on our data? You have two choices. The first is to go in
-and fix up your CSV data so that it&#39;s valid UTF-8. This is probably a good
+and fix up your CSV data so that it's valid UTF-8. This is probably a good
 idea anyway, and tools like `iconv` can help with the task of transcoding.
-But if you can&#39;t or don&#39;t want to do that, then you can instead read CSV data
+But if you can't or don't want to do that, then you can instead read CSV data
 in a way that is mostly encoding agnostic (so long as ASCII is still a valid
 subset). The trick is to use *byte records* instead of *string records*.
 
-Thus far, we haven&#39;t actually talked much about the type of a record in this
+Thus far, we haven't actually talked much about the type of a record in this
 library, but now is a good time to introduce them. There are two of them,
 [`StringRecord`](../struct.StringRecord.html)
 and
@@ -4146,7 +4147,7 @@ and `ByteRecord` is that `StringRecord` is guaranteed to be valid UTF-8, where
 as `ByteRecord` contains arbitrary bytes.
 
 Armed with that knowledge, we can now begin to understand why we saw an error
-when we ran the last example on data that wasn&#39;t UTF-8. Namely, when we call
+when we ran the last example on data that wasn't UTF-8. Namely, when we call
 `records`, we get back an iterator of `StringRecord`. Since `StringRecord` is
 guaranteed to be valid UTF-8, trying to build a `StringRecord` with invalid
 UTF-8 will result in the error that we see.
@@ -4154,7 +4155,7 @@ UTF-8 will result in the error that we see.
 All we need to do to make our example work is to switch from a `StringRecord`
 to a `ByteRecord`. This means using `byte_records` to create our iterator
 instead of `records`, and similarly using `byte_headers` instead of `headers`
-if we think our header data might contain invalid UTF-8 as well. Here&#39;s the
+if we think our header data might contain invalid UTF-8 as well. Here's the
 change:
 
 ```no_run
@@ -4163,7 +4164,7 @@ change:
 #
 fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     let query = match env::args().nth(1) {
-        None =&gt; return Err(From::from(&quot;expected 1 argument, but got none&quot;)),
+        None =&gt; return Err(From::from("expected 1 argument, but got none")),
         Some(query) =&gt; query,
     };
 
@@ -4174,7 +4175,7 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 
     for result in rdr.byte_records() {
         let record = result?;
-        // `query` is a `String` while `field` is now a `&amp;[u8]`, so we&#39;ll
+        // `query` is a `String` while `field` is now a `&amp;[u8]`, so we'll
         // need to convert `query` to `&amp;[u8]` before doing a comparison.
         if record.iter().any(|field| field == query.as_bytes()) {
             wtr.write_record(&amp;record)?;
@@ -4187,14 +4188,14 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 #
 # fn main() {
 #     if let Err(err) = run() {
-#         println!(&quot;{}&quot;, err);
+#         println!("{}", err);
 #         process::exit(1);
 #     }
 # }
 ```
 
 Compiling and running this now yields the same results as our first example,
-but this time it works on data that isn&#39;t valid UTF-8.
+but this time it works on data that isn't valid UTF-8.
 
 ```text
 $ cargo build
@@ -4209,22 +4210,22 @@ In this section, we will show another example program that both reads and
 writes CSV data, but instead of dealing with arbitrary records, we will use
 Serde to deserialize and serialize records with specific types.
 
-For this program, we&#39;d like to be able to filter records in our population data
-by population count. Specifically, we&#39;d like to see which records meet a
+For this program, we'd like to be able to filter records in our population data
+by population count. Specifically, we'd like to see which records meet a
 certain population threshold. In addition to using a simple inequality, we must
 also account for records that have a missing population count. This is where
 types like `Option&lt;T&gt;` come in handy, because the compiler will force us to
 consider the case when the population count is missing.
 
-Since we&#39;re using Serde in this example, don&#39;t forget to add the Serde
+Since we're using Serde in this example, don't forget to add the Serde
 dependencies to your `Cargo.toml` in your `[dependencies]` section if they
-aren&#39;t already there:
+aren't already there:
 
 ```text
-serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }
+serde = { version = "1", features = ["derive"] }
 ```
 
-Now here&#39;s the code:
+Now here's the code:
 
 ```no_run
 //tutorial-pipeline-pop-01.rs
@@ -4233,9 +4234,9 @@ Now here&#39;s the code:
 use serde::{Deserialize, Serialize};
 
 // Unlike previous examples, we derive both Deserialize and Serialize. This
-// means we&#39;ll be able to automatically deserialize and serialize this type.
+// means we'll be able to automatically deserialize and serialize this type.
 #[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = &quot;PascalCase&quot;)]
+#[serde(rename_all = "PascalCase")]
 struct Record {
     city: String,
     state: String,
@@ -4246,15 +4247,15 @@ struct Record {
 
 fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
     // Get the query from the positional arguments.
-    // If one doesn&#39;t exist or isn&#39;t an integer, return an error.
+    // If one doesn't exist or isn't an integer, return an error.
     let minimum_pop: u64 = match env::args().nth(1) {
-        None =&gt; return Err(From::from(&quot;expected 1 argument, but got none&quot;)),
+        None =&gt; return Err(From::from("expected 1 argument, but got none")),
         Some(arg) =&gt; arg.parse()?,
     };
 
     // Build CSV readers and writers to stdin and stdout, respectively.
-    // Note that we don&#39;t need to write headers explicitly. Since we&#39;re
-    // serializing a custom struct, that&#39;s done for us automatically.
+    // Note that we don't need to write headers explicitly. Since we're
+    // serializing a custom struct, that's done for us automatically.
     let mut rdr = csv::Reader::from_reader(io::stdin());
     let mut wtr = csv::Writer::from_writer(io::stdout());
 
@@ -4283,7 +4284,7 @@ fn run() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 
 fn main() {
     if let Err(err) = run() {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
 }
@@ -4304,8 +4305,8 @@ Indianapolis,IN,773283,39.7683333,-86.1580556
 
 # Performance
 
-In this section, we&#39;ll go over how to squeeze the most juice out of our CSV
-reader. As it happens, most of the APIs we&#39;ve seen so far were designed with
+In this section, we'll go over how to squeeze the most juice out of our CSV
+reader. As it happens, most of the APIs we've seen so far were designed with
 high level convenience in mind, and that often comes with some costs. For the
 most part, those costs revolve around unnecessary allocations. Therefore, most
 of the section will show how to do CSV parsing with as little allocation as
@@ -4316,17 +4317,17 @@ There are two critical preliminaries we must cover.
 Firstly, when you care about performance, you should compile your code
 with `cargo build --release` instead of `cargo build`. The `--release`
 flag instructs the compiler to spend more time optimizing your code. When
-compiling with the `--release` flag, you&#39;ll find your compiled program at
+compiling with the `--release` flag, you'll find your compiled program at
 `target/release/csvtutor` instead of `target/debug/csvtutor`. Throughout this
-tutorial, we&#39;ve used `cargo build` because our dataset was small and we weren&#39;t
+tutorial, we've used `cargo build` because our dataset was small and we weren't
 focused on speed. The downside of `cargo build --release` is that it will take
 longer than `cargo build`.
 
-Secondly, the dataset we&#39;ve used throughout this tutorial only has 100 records.
-We&#39;d have to try really hard to cause our program to run slowly on 100 records,
+Secondly, the dataset we've used throughout this tutorial only has 100 records.
+We'd have to try really hard to cause our program to run slowly on 100 records,
 even when we compile without the `--release` flag. Therefore, in order to
 actually witness a performance difference, we need a bigger dataset. To get
-such a dataset, we&#39;ll use the original source of `uspop.csv`. **Warning: the
+such a dataset, we'll use the original source of `uspop.csv`. **Warning: the
 download is 41MB compressed and decompresses to 145MB.**
 
 ```text
@@ -4338,21 +4339,21 @@ $ md5sum worldcitiespop.csv
 6198bd180b6d6586626ecbf044c1cca5  worldcitiespop.csv
 ```
 
-Finally, it&#39;s worth pointing out that this section is not attempting to
+Finally, it's worth pointing out that this section is not attempting to
 present a rigorous set of benchmarks. We will stay away from rigorous analysis
 and instead rely a bit more on wall clock times and intuition.
 
 ## Amortizing allocations
 
-In order to measure performance, we must be careful about what it is we&#39;re
-measuring. We must also be careful to not change the thing we&#39;re measuring as
+In order to measure performance, we must be careful about what it is we're
+measuring. We must also be careful to not change the thing we're measuring as
 we make improvements to the code. For this reason, we will focus on measuring
 how long it takes to count the number of records corresponding to city
 population counts in Massachusetts. This represents a very small amount of work
 that requires us to visit every record, and therefore represents a decent way
 to measure how long it takes to do CSV parsing.
 
-Before diving into our first optimization, let&#39;s start with a baseline by
+Before diving into our first optimization, let's start with a baseline by
 adapting a previous example to count the number of records in
 `worldcitiespop.csv`:
 
@@ -4366,7 +4367,7 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
     let mut count = 0;
     for result in rdr.records() {
         let record = result?;
-        if &amp;record[0] == &quot;us&quot; &amp;&amp; &amp;record[3] == &quot;MA&quot; {
+        if &amp;record[0] == "us" &amp;&amp; &amp;record[3] == "MA" {
             count += 1;
         }
     }
@@ -4376,17 +4377,17 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
 fn main() {
     match run() {
         Ok(count) =&gt; {
-            println!(&quot;{}&quot;, count);
+            println!("{}", count);
         }
         Err(err) =&gt; {
-            println!(&quot;{}&quot;, err);
+            println!("{}", err);
             process::exit(1);
         }
     }
 }
 ```
 
-Now let&#39;s compile and run it and see what kind of timing we get. Don&#39;t forget
+Now let's compile and run it and see what kind of timing we get. Don't forget
 to compile with the `--release` flag. (For grins, try compiling without the
 `--release` flag and see how long it takes to run the program!)
 
@@ -4400,7 +4401,7 @@ user    0m0.627s
 sys     0m0.017s
 ```
 
-All right, so what&#39;s the first thing we can do to make this faster? This
+All right, so what's the first thing we can do to make this faster? This
 section promised to speed things up by amortizing allocation, but we can do
 something even simpler first: iterate over
 [`ByteRecord`](../struct.ByteRecord.html)s
@@ -4422,7 +4423,7 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
     let mut count = 0;
     for result in rdr.byte_records() {
         let record = result?;
-        if &amp;record[0] == b&quot;us&quot; &amp;&amp; &amp;record[3] == b&quot;MA&quot; {
+        if &amp;record[0] == b"us" &amp;&amp; &amp;record[3] == b"MA" {
             count += 1;
         }
     }
@@ -4432,10 +4433,10 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
 # fn main() {
 #     match run() {
 #         Ok(count) =&gt; {
-#             println!(&quot;{}&quot;, count);
+#             println!("{}", count);
 #         }
 #         Err(err) =&gt; {
-#             println!(&quot;{}&quot;, err);
+#             println!("{}", err);
 #             process::exit(1);
 #         }
 #     }
@@ -4457,17 +4458,17 @@ sys     0m0.023s
 Our program is now approximately 30% faster, all because we removed UTF-8
 validation. But was it actually okay to remove UTF-8 validation? What have we
 lost? In this case, it is perfectly acceptable to drop UTF-8 validation and use
-`ByteRecord` instead because all we&#39;re doing with the data in the record is
+`ByteRecord` instead because all we're doing with the data in the record is
 comparing two of its fields to raw bytes:
 
 ```ignore
-if &amp;record[0] == b&quot;us&quot; &amp;&amp; &amp;record[3] == b&quot;MA&quot; {
+if &amp;record[0] == b"us" &amp;&amp; &amp;record[3] == b"MA" {
     count += 1;
 }
 ```
 
-In particular, it doesn&#39;t matter whether `record` is valid UTF-8 or not, since
-we&#39;re checking for equality on the raw bytes themselves.
+In particular, it doesn't matter whether `record` is valid UTF-8 or not, since
+we're checking for equality on the raw bytes themselves.
 
 UTF-8 validation via `StringRecord` is useful because it provides access to
 fields as `&amp;str` types, where as `ByteRecord` provides fields as `&amp;[u8]` types.
@@ -4477,7 +4478,7 @@ in other areas, so they tend to be a useful thing to have. Therefore, sticking
 with `StringRecord` is a good default, but if you need the extra speed and can
 deal with arbitrary bytes, then switching to `ByteRecord` might be a good idea.
 
-Moving on, let&#39;s try to get another speed boost by amortizing allocation.
+Moving on, let's try to get another speed boost by amortizing allocation.
 Amortizing allocation is the technique that creates an allocation once (or
 very rarely), and then attempts to reuse it instead of creating additional
 allocations. In the case of the previous examples, we used iterators created
@@ -4487,7 +4488,7 @@ to a new allocation. It does this because iterators cannot yield items that
 borrow from the iterator itself, and because creating new allocations tends to
 be a lot more convenient.
 
-If we&#39;re willing to forgo use of iterators, then we can amortize allocations
+If we're willing to forgo use of iterators, then we can amortize allocations
 by creating a *single* `ByteRecord` and asking the CSV reader to read into it.
 We do this by using the
 [`Reader::read_byte_record`](../struct.Reader.html#method.read_byte_record)
@@ -4503,7 +4504,7 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
 
     let mut count = 0;
     while rdr.read_byte_record(&amp;mut record)? {
-        if &amp;record[0] == b&quot;us&quot; &amp;&amp; &amp;record[3] == b&quot;MA&quot; {
+        if &amp;record[0] == b"us" &amp;&amp; &amp;record[3] == b"MA" {
             count += 1;
         }
     }
@@ -4513,10 +4514,10 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
 # fn main() {
 #     match run() {
 #         Ok(count) =&gt; {
-#             println!(&quot;{}&quot;, count);
+#             println!("{}", count);
 #         }
 #         Err(err) =&gt; {
-#             println!(&quot;{}&quot;, err);
+#             println!("{}", err);
 #             process::exit(1);
 #         }
 #     }
@@ -4538,7 +4539,7 @@ sys     0m0.023s
 Woohoo! This represents *another* 30% boost over the previous example, which is
 a 50% boost over the first example.
 
-Let&#39;s dissect this code by taking a look at the type signature of the
+Let's dissect this code by taking a look at the type signature of the
 `read_byte_record` method:
 
 ```ignore
@@ -4548,7 +4549,7 @@ fn read_byte_record(&amp;mut self, record: &amp;mut ByteRecord) -&gt; csv::Resul
 This method takes as input a CSV reader (the `self` parameter) and a *mutable
 borrow* of a `ByteRecord`, and returns a `csv::Result&lt;bool&gt;`. (The
 `csv::Result&lt;bool&gt;` is equivalent to `Result&lt;bool, csv::Error&gt;`.) The return
-value is `true` if and only if a record was read. When it&#39;s `false`, that means
+value is `true` if and only if a record was read. When it's `false`, that means
 the reader has exhausted its input. This method works by copying the contents
 of the next record into the provided `ByteRecord`. Since the same `ByteRecord`
 is used to read every record, it will already have space allocated for data.
@@ -4566,10 +4567,10 @@ at the cost of UTF-8 validation but *without* the cost of allocating a new
 ## Serde and zero allocation
 
 In this section, we are going to briefly examine how we use Serde and what we
-can do to speed it up. The key optimization we&#39;ll want to make is to---you
+can do to speed it up. The key optimization we'll want to make is to---you
 guessed it---amortize allocation.
 
-As with the previous section, let&#39;s start with a simple baseline based off an
+As with the previous section, let's start with a simple baseline based off an
 example using Serde in a previous section:
 
 ```no_run
@@ -4580,7 +4581,7 @@ use std::{error::Error, io, process};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = &quot;PascalCase&quot;)]
+#[serde(rename_all = "PascalCase")]
 struct Record {
     country: String,
     city: String,
@@ -4597,7 +4598,7 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
     let mut count = 0;
     for result in rdr.deserialize() {
         let record: Record = result?;
-        if record.country == &quot;us&quot; &amp;&amp; record.region == &quot;MA&quot; {
+        if record.country == "us" &amp;&amp; record.region == "MA" {
             count += 1;
         }
     }
@@ -4607,10 +4608,10 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
 fn main() {
     match run() {
         Ok(count) =&gt; {
-            println!(&quot;{}&quot;, count);
+            println!("{}", count);
         }
         Err(err) =&gt; {
-            println!(&quot;{}&quot;, err);
+            println!("{}", err);
             process::exit(1);
         }
     }
@@ -4632,12 +4633,12 @@ sys     0m0.013s
 The first thing you might notice is that this is quite a bit slower than our
 programs in the previous section. This is because deserializing each record
 has a certain amount of overhead to it. In particular, some of the fields need
-to be parsed as integers or floating point numbers, which isn&#39;t free. However,
+to be parsed as integers or floating point numbers, which isn't free. However,
 there is hope yet, because we can speed up this program!
 
 Our first attempt to speed up the program will be to amortize allocation. Doing
 this with Serde is a bit trickier than before, because we need to change our
-`Record` type and use the manual deserialization API. Let&#39;s see what that looks
+`Record` type and use the manual deserialization API. Let's see what that looks
 like:
 
 ```no_run
@@ -4647,12 +4648,12 @@ like:
 # use serde::Deserialize;
 #
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = &quot;PascalCase&quot;)]
-struct Record&lt;&#39;a&gt; {
-    country: &amp;&#39;a str,
-    city: &amp;&#39;a str,
-    accent_city: &amp;&#39;a str,
-    region: &amp;&#39;a str,
+#[serde(rename_all = "PascalCase")]
+struct Record&lt;'a&gt; {
+    country: &amp;'a str,
+    city: &amp;'a str,
+    accent_city: &amp;'a str,
+    region: &amp;'a str,
     population: Option&lt;u64&gt;,
     latitude: f64,
     longitude: f64,
@@ -4666,7 +4667,7 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
     let mut count = 0;
     while rdr.read_record(&amp;mut raw_record)? {
         let record: Record = raw_record.deserialize(Some(&amp;headers))?;
-        if record.country == &quot;us&quot; &amp;&amp; record.region == &quot;MA&quot; {
+        if record.country == "us" &amp;&amp; record.region == "MA" {
             count += 1;
         }
     }
@@ -4676,10 +4677,10 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
 # fn main() {
 #     match run() {
 #         Ok(count) =&gt; {
-#             println!(&quot;{}&quot;, count);
+#             println!("{}", count);
 #         }
 #         Err(err) =&gt; {
-#             println!(&quot;{}&quot;, err);
+#             println!("{}", err);
 #             process::exit(1);
 #         }
 #     }
@@ -4733,12 +4734,12 @@ of `StringRecord`:
 # use serde::Deserialize;
 #
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = &quot;PascalCase&quot;)]
-struct Record&lt;&#39;a&gt; {
-    country: &amp;&#39;a [u8],
-    city: &amp;&#39;a [u8],
-    accent_city: &amp;&#39;a [u8],
-    region: &amp;&#39;a [u8],
+#[serde(rename_all = "PascalCase")]
+struct Record&lt;'a&gt; {
+    country: &amp;'a [u8],
+    city: &amp;'a [u8],
+    accent_city: &amp;'a [u8],
+    region: &amp;'a [u8],
     population: Option&lt;u64&gt;,
     latitude: f64,
     longitude: f64,
@@ -4752,7 +4753,7 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
     let mut count = 0;
     while rdr.read_byte_record(&amp;mut raw_record)? {
         let record: Record = raw_record.deserialize(Some(&amp;headers))?;
-        if record.country == b&quot;us&quot; &amp;&amp; record.region == b&quot;MA&quot; {
+        if record.country == b"us" &amp;&amp; record.region == b"MA" {
             count += 1;
         }
     }
@@ -4762,10 +4763,10 @@ fn run() -&gt; Result&lt;u64, Box&lt;dyn Error&gt;&gt; {
 # fn main() {
 #     match run() {
 #         Ok(count) =&gt; {
-#             println!(&quot;{}&quot;, count);
+#             println!("{}", count);
 #         }
 #         Err(err) =&gt; {
-#             println!(&quot;{}&quot;, err);
+#             println!("{}", err);
 #             process::exit(1);
 #         }
 #     }
@@ -4810,15 +4811,15 @@ and
 [`WriterBuilder`](../../csv_core/struct.WriterBuilder.html).
 The `csv-core` crate has no record types or iterators. Instead, CSV data
 can either be read one field at a time or one record at a time. In this
-section, we&#39;ll focus on reading a field at a time since it is simpler, but it
+section, we'll focus on reading a field at a time since it is simpler, but it
 is generally faster to read a record at a time since it does more work per
 function call.
 
-In keeping with this section on performance, let&#39;s write a program using only
+In keeping with this section on performance, let's write a program using only
 `csv-core` that counts the number of records in the state of Massachusetts.
 
 (Note that we unfortunately use the standard library in this example even
-though `csv-core` doesn&#39;t technically require it. We do this for convenient
+though `csv-core` doesn't technically require it. We do this for convenient
 access to I/O, which would be harder without the standard library.)
 
 ```no_run
@@ -4850,7 +4851,7 @@ fn run(mut data: &amp;[u8]) -&gt; Option&lt;u64&gt; {
         let field = &amp;field[..nwrite];
 
         match result {
-            // We don&#39;t need to handle this case because we read all of the
+            // We don't need to handle this case because we read all of the
             // data up front. If we were reading data incrementally, then this
             // would be a signal to read more.
             ReadFieldResult::InputEmpty =&gt; {}
@@ -4859,12 +4860,12 @@ fn run(mut data: &amp;[u8]) -&gt; Option&lt;u64&gt; {
             ReadFieldResult::OutputFull =&gt; {
                 return None;
             }
-            // This case happens when we&#39;ve successfully read a field. If the
+            // This case happens when we've successfully read a field. If the
             // field is the last field in a record, then `record_end` is true.
             ReadFieldResult::Field { record_end } =&gt; {
-                if fieldidx == 0 &amp;&amp; field == b&quot;us&quot; {
+                if fieldidx == 0 &amp;&amp; field == b"us" {
                     inus = true;
-                } else if inus &amp;&amp; fieldidx == 3 &amp;&amp; field == b&quot;MA&quot; {
+                } else if inus &amp;&amp; fieldidx == 3 &amp;&amp; field == b"MA" {
                     count += 1;
                 }
                 if record_end {
@@ -4888,16 +4889,16 @@ fn main() {
     // Read the entire contents of stdin up front.
     let mut data = vec![];
     if let Err(err) = io::stdin().read_to_end(&amp;mut data) {
-        println!(&quot;{}&quot;, err);
+        println!("{}", err);
         process::exit(1);
     }
     match run(&amp;data) {
         None =&gt; {
-            println!(&quot;error: could not count records, buffer too small&quot;);
+            println!("error: could not count records, buffer too small");
             process::exit(1);
         }
         Some(count) =&gt; {
-            println!(&quot;{}&quot;, count);
+            println!("{}", count);
         }
     }
 }
@@ -4915,7 +4916,7 @@ user    0m0.513s
 sys     0m0.057s
 ```
 
-This isn&#39;t as fast as some of our previous examples where we used the `csv`
+This isn't as fast as some of our previous examples where we used the `csv`
 crate to read into a `StringRecord` or a `ByteRecord`. This is mostly because
 this example reads a field at a time, which incurs more overhead than reading a
 record at a time. To fix this, you would want to use the
@@ -4924,10 +4925,10 @@ method instead, which is defined on `csv_core::Reader`.
 
 The other thing to notice here is that the example is considerably longer than
 the other examples. This is because we need to do more book keeping to keep
-track of which field we&#39;re reading and how much data we&#39;ve already fed to the
+track of which field we're reading and how much data we've already fed to the
 reader. There are basically two reasons to use the `csv_core` crate:
 
-1. If you&#39;re in an environment where the standard library is not usable.
+1. If you're in an environment where the standard library is not usable.
 2. If you wanted to build your own csv-like library, you could build it on top
    of `csv-core`.
 

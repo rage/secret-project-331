@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/commands/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/commands/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2163,7 +2164,7 @@
 <a href="#2163" id="2163">2163</a>
 <a href="#2164" id="2164">2164</a>
 <a href="#2165" id="2165">2165</a>
-</pre></div><pre class="rust"><code><span class="comment">// can&#39;t use rustfmt here because it screws up the file.
+</pre></div><pre class="rust"><code><span class="comment">// can't use rustfmt here because it screws up the file.
 </span><span class="attr">#![cfg_attr(rustfmt, rustfmt_skip)]
 </span><span class="kw">use </span><span class="kw">crate</span>::cmd::{cmd, Cmd, Iter};
 <span class="kw">use </span><span class="kw">crate</span>::connection::{Connection, ConnectionLike, Msg};
@@ -2173,325 +2174,325 @@
 <span class="attr">#[macro_use]
 </span><span class="kw">mod </span>macros;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;json&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"json"</span>)))]
 </span><span class="kw">mod </span>json;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
 </span><span class="kw">pub use </span>json::JsonCommands;
 
-<span class="attr">#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, feature = <span class="string">&quot;aio&quot;</span>))]
+<span class="attr">#[cfg(all(feature = <span class="string">"json"</span>, feature = <span class="string">"aio"</span>))]
 </span><span class="kw">pub use </span>json::JsonAsyncCommands;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::cluster_pipeline::ClusterPipeline;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;geospatial&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::geo;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::streams;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::acl;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_readonly_cmd(cmd: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
     <span class="macro">matches!</span>(
         cmd,
-        <span class="string">b&quot;BITCOUNT&quot; </span>| <span class="string">b&quot;BITFIELD_RO&quot; </span>| <span class="string">b&quot;BITPOS&quot; </span>| <span class="string">b&quot;DBSIZE&quot; </span>| <span class="string">b&quot;DUMP&quot; </span>| <span class="string">b&quot;EVALSHA_RO&quot; </span>| <span class="string">b&quot;EVAL_RO&quot; </span>| <span class="string">b&quot;EXISTS&quot; </span>| <span class="string">b&quot;EXPIRETIME&quot; </span>| <span class="string">b&quot;FCALL_RO&quot; </span>| <span class="string">b&quot;GEODIST&quot; </span>| <span class="string">b&quot;GEOHASH&quot; </span>| <span class="string">b&quot;GEOPOS&quot; </span>| <span class="string">b&quot;GEORADIUSBYMEMBER_RO&quot; </span>| <span class="string">b&quot;GEORADIUS_RO&quot; </span>| <span class="string">b&quot;GEOSEARCH&quot; </span>| <span class="string">b&quot;GET&quot; </span>| <span class="string">b&quot;GETBIT&quot; </span>| <span class="string">b&quot;GETRANGE&quot; </span>| <span class="string">b&quot;HEXISTS&quot; </span>| <span class="string">b&quot;HGET&quot; </span>| <span class="string">b&quot;HGETALL&quot; </span>| <span class="string">b&quot;HKEYS&quot; </span>| <span class="string">b&quot;HLEN&quot; </span>| <span class="string">b&quot;HMGET&quot; </span>| <span class="string">b&quot;HRANDFIELD&quot; </span>| <span class="string">b&quot;HSCAN&quot; </span>| <span class="string">b&quot;HSTRLEN&quot; </span>| <span class="string">b&quot;HVALS&quot; </span>| <span class="string">b&quot;KEYS&quot; </span>| <span class="string">b&quot;LCS&quot; </span>| <span class="string">b&quot;LINDEX&quot; </span>| <span class="string">b&quot;LLEN&quot; </span>| <span class="string">b&quot;LOLWUT&quot; </span>| <span class="string">b&quot;LPOS&quot; </span>| <span class="string">b&quot;LRANGE&quot; </span>| <span class="string">b&quot;MEMORY USAGE&quot; </span>| <span class="string">b&quot;MGET&quot; </span>| <span class="string">b&quot;OBJECT ENCODING&quot; </span>| <span class="string">b&quot;OBJECT FREQ&quot; </span>| <span class="string">b&quot;OBJECT IDLETIME&quot; </span>| <span class="string">b&quot;OBJECT REFCOUNT&quot; </span>| <span class="string">b&quot;PEXPIRETIME&quot; </span>| <span class="string">b&quot;PFCOUNT&quot; </span>| <span class="string">b&quot;PTTL&quot; </span>| <span class="string">b&quot;RANDOMKEY&quot; </span>| <span class="string">b&quot;SCAN&quot; </span>| <span class="string">b&quot;SCARD&quot; </span>| <span class="string">b&quot;SDIFF&quot; </span>| <span class="string">b&quot;SINTER&quot; </span>| <span class="string">b&quot;SINTERCARD&quot; </span>| <span class="string">b&quot;SISMEMBER&quot; </span>| <span class="string">b&quot;SMEMBERS&quot; </span>| <span class="string">b&quot;SMISMEMBER&quot; </span>| <span class="string">b&quot;SORT_RO&quot; </span>| <span class="string">b&quot;SRANDMEMBER&quot; </span>| <span class="string">b&quot;SSCAN&quot; </span>| <span class="string">b&quot;STRLEN&quot; </span>| <span class="string">b&quot;SUBSTR&quot; </span>| <span class="string">b&quot;SUNION&quot; </span>| <span class="string">b&quot;TOUCH&quot; </span>| <span class="string">b&quot;TTL&quot; </span>| <span class="string">b&quot;TYPE&quot; </span>| <span class="string">b&quot;XINFO CONSUMERS&quot; </span>| <span class="string">b&quot;XINFO GROUPS&quot; </span>| <span class="string">b&quot;XINFO STREAM&quot; </span>| <span class="string">b&quot;XLEN&quot; </span>| <span class="string">b&quot;XPENDING&quot; </span>| <span class="string">b&quot;XRANGE&quot; </span>| <span class="string">b&quot;XREAD&quot; </span>| <span class="string">b&quot;XREVRANGE&quot; </span>| <span class="string">b&quot;ZCARD&quot; </span>| <span class="string">b&quot;ZCOUNT&quot; </span>| <span class="string">b&quot;ZDIFF&quot; </span>| <span class="string">b&quot;ZINTER&quot; </span>| <span class="string">b&quot;ZINTERCARD&quot; </span>| <span class="string">b&quot;ZLEXCOUNT&quot; </span>| <span class="string">b&quot;ZMSCORE&quot; </span>| <span class="string">b&quot;ZRANDMEMBER&quot; </span>| <span class="string">b&quot;ZRANGE&quot; </span>| <span class="string">b&quot;ZRANGEBYLEX&quot; </span>| <span class="string">b&quot;ZRANGEBYSCORE&quot; </span>| <span class="string">b&quot;ZRANK&quot; </span>| <span class="string">b&quot;ZREVRANGE&quot; </span>| <span class="string">b&quot;ZREVRANGEBYLEX&quot; </span>| <span class="string">b&quot;ZREVRANGEBYSCORE&quot; </span>| <span class="string">b&quot;ZREVRANK&quot; </span>| <span class="string">b&quot;ZSCAN&quot; </span>| <span class="string">b&quot;ZSCORE&quot; </span>| <span class="string">b&quot;ZUNION&quot;
+        <span class="string">b"BITCOUNT" </span>| <span class="string">b"BITFIELD_RO" </span>| <span class="string">b"BITPOS" </span>| <span class="string">b"DBSIZE" </span>| <span class="string">b"DUMP" </span>| <span class="string">b"EVALSHA_RO" </span>| <span class="string">b"EVAL_RO" </span>| <span class="string">b"EXISTS" </span>| <span class="string">b"EXPIRETIME" </span>| <span class="string">b"FCALL_RO" </span>| <span class="string">b"GEODIST" </span>| <span class="string">b"GEOHASH" </span>| <span class="string">b"GEOPOS" </span>| <span class="string">b"GEORADIUSBYMEMBER_RO" </span>| <span class="string">b"GEORADIUS_RO" </span>| <span class="string">b"GEOSEARCH" </span>| <span class="string">b"GET" </span>| <span class="string">b"GETBIT" </span>| <span class="string">b"GETRANGE" </span>| <span class="string">b"HEXISTS" </span>| <span class="string">b"HGET" </span>| <span class="string">b"HGETALL" </span>| <span class="string">b"HKEYS" </span>| <span class="string">b"HLEN" </span>| <span class="string">b"HMGET" </span>| <span class="string">b"HRANDFIELD" </span>| <span class="string">b"HSCAN" </span>| <span class="string">b"HSTRLEN" </span>| <span class="string">b"HVALS" </span>| <span class="string">b"KEYS" </span>| <span class="string">b"LCS" </span>| <span class="string">b"LINDEX" </span>| <span class="string">b"LLEN" </span>| <span class="string">b"LOLWUT" </span>| <span class="string">b"LPOS" </span>| <span class="string">b"LRANGE" </span>| <span class="string">b"MEMORY USAGE" </span>| <span class="string">b"MGET" </span>| <span class="string">b"OBJECT ENCODING" </span>| <span class="string">b"OBJECT FREQ" </span>| <span class="string">b"OBJECT IDLETIME" </span>| <span class="string">b"OBJECT REFCOUNT" </span>| <span class="string">b"PEXPIRETIME" </span>| <span class="string">b"PFCOUNT" </span>| <span class="string">b"PTTL" </span>| <span class="string">b"RANDOMKEY" </span>| <span class="string">b"SCAN" </span>| <span class="string">b"SCARD" </span>| <span class="string">b"SDIFF" </span>| <span class="string">b"SINTER" </span>| <span class="string">b"SINTERCARD" </span>| <span class="string">b"SISMEMBER" </span>| <span class="string">b"SMEMBERS" </span>| <span class="string">b"SMISMEMBER" </span>| <span class="string">b"SORT_RO" </span>| <span class="string">b"SRANDMEMBER" </span>| <span class="string">b"SSCAN" </span>| <span class="string">b"STRLEN" </span>| <span class="string">b"SUBSTR" </span>| <span class="string">b"SUNION" </span>| <span class="string">b"TOUCH" </span>| <span class="string">b"TTL" </span>| <span class="string">b"TYPE" </span>| <span class="string">b"XINFO CONSUMERS" </span>| <span class="string">b"XINFO GROUPS" </span>| <span class="string">b"XINFO STREAM" </span>| <span class="string">b"XLEN" </span>| <span class="string">b"XPENDING" </span>| <span class="string">b"XRANGE" </span>| <span class="string">b"XREAD" </span>| <span class="string">b"XREVRANGE" </span>| <span class="string">b"ZCARD" </span>| <span class="string">b"ZCOUNT" </span>| <span class="string">b"ZDIFF" </span>| <span class="string">b"ZINTER" </span>| <span class="string">b"ZINTERCARD" </span>| <span class="string">b"ZLEXCOUNT" </span>| <span class="string">b"ZMSCORE" </span>| <span class="string">b"ZRANDMEMBER" </span>| <span class="string">b"ZRANGE" </span>| <span class="string">b"ZRANGEBYLEX" </span>| <span class="string">b"ZRANGEBYSCORE" </span>| <span class="string">b"ZRANK" </span>| <span class="string">b"ZREVRANGE" </span>| <span class="string">b"ZREVRANGEBYLEX" </span>| <span class="string">b"ZREVRANGEBYSCORE" </span>| <span class="string">b"ZREVRANK" </span>| <span class="string">b"ZSCAN" </span>| <span class="string">b"ZSCORE" </span>| <span class="string">b"ZUNION"
     </span>)
 }
 
 <span class="macro">implement_commands! </span>{
-    <span class="lifetime">&#39;a
+    <span class="lifetime">'a
     </span><span class="comment">// most common operations
 
     </span><span class="doccomment">/// Get the value of a key.  If key is a vec this becomes an `MGET`.
     </span><span class="kw">fn </span>get&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="kw">if </span>key.is_single_arg() { <span class="string">&quot;GET&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;MGET&quot; </span>}).arg(key)
+        cmd(<span class="kw">if </span>key.is_single_arg() { <span class="string">"GET" </span>} <span class="kw">else </span>{ <span class="string">"MGET" </span>}).arg(key)
     }
 
     <span class="doccomment">/// Get values of keys
     </span><span class="kw">fn </span>mget&lt;K: ToRedisArgs&gt;(key: K){
-        cmd(<span class="string">&quot;MGET&quot;</span>).arg(key)
+        cmd(<span class="string">"MGET"</span>).arg(key)
     }
 
     <span class="doccomment">/// Gets all keys matching pattern
     </span><span class="kw">fn </span>keys&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;KEYS&quot;</span>).arg(key)
+        cmd(<span class="string">"KEYS"</span>).arg(key)
     }
 
     <span class="doccomment">/// Set the string value of a key.
     </span><span class="kw">fn </span>set&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V) {
-        cmd(<span class="string">&quot;SET&quot;</span>).arg(key).arg(value)
+        cmd(<span class="string">"SET"</span>).arg(key).arg(value)
     }
 
     <span class="doccomment">/// Set the string value of a key with options.
     </span><span class="kw">fn </span>set_options&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V, options: SetOptions) {
-        cmd(<span class="string">&quot;SET&quot;</span>).arg(key).arg(value).arg(options)
+        cmd(<span class="string">"SET"</span>).arg(key).arg(value).arg(options)
     }
 
     <span class="doccomment">/// Sets multiple keys to their values.
     </span><span class="attr">#[allow(deprecated)]
-    #[deprecated(since = <span class="string">&quot;0.22.4&quot;</span>, note = <span class="string">&quot;Renamed to mset() to reflect Redis name&quot;</span>)]
-    </span><span class="kw">fn </span>set_multiple&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(items: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, V)]) {
-        cmd(<span class="string">&quot;MSET&quot;</span>).arg(items)
+    #[deprecated(since = <span class="string">"0.22.4"</span>, note = <span class="string">"Renamed to mset() to reflect Redis name"</span>)]
+    </span><span class="kw">fn </span>set_multiple&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(items: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, V)]) {
+        cmd(<span class="string">"MSET"</span>).arg(items)
     }
 
     <span class="doccomment">/// Sets multiple keys to their values.
-    </span><span class="kw">fn </span>mset&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(items: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, V)]) {
-        cmd(<span class="string">&quot;MSET&quot;</span>).arg(items)
+    </span><span class="kw">fn </span>mset&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(items: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, V)]) {
+        cmd(<span class="string">"MSET"</span>).arg(items)
     }
 
     <span class="doccomment">/// Set the value and expiration of a key.
     </span><span class="kw">fn </span>set_ex&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V, seconds: u64) {
-        cmd(<span class="string">&quot;SETEX&quot;</span>).arg(key).arg(seconds).arg(value)
+        cmd(<span class="string">"SETEX"</span>).arg(key).arg(seconds).arg(value)
     }
 
     <span class="doccomment">/// Set the value and expiration in milliseconds of a key.
     </span><span class="kw">fn </span>pset_ex&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V, milliseconds: u64) {
-        cmd(<span class="string">&quot;PSETEX&quot;</span>).arg(key).arg(milliseconds).arg(value)
+        cmd(<span class="string">"PSETEX"</span>).arg(key).arg(milliseconds).arg(value)
     }
 
     <span class="doccomment">/// Set the value of a key, only if the key does not exist
     </span><span class="kw">fn </span>set_nx&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V) {
-        cmd(<span class="string">&quot;SETNX&quot;</span>).arg(key).arg(value)
+        cmd(<span class="string">"SETNX"</span>).arg(key).arg(value)
     }
 
     <span class="doccomment">/// Sets multiple keys to their values failing if at least one already exists.
-    </span><span class="kw">fn </span>mset_nx&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(items: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, V)]) {
-        cmd(<span class="string">&quot;MSETNX&quot;</span>).arg(items)
+    </span><span class="kw">fn </span>mset_nx&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(items: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, V)]) {
+        cmd(<span class="string">"MSETNX"</span>).arg(items)
     }
 
     <span class="doccomment">/// Set the string value of a key and return its old value.
     </span><span class="kw">fn </span>getset&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V) {
-        cmd(<span class="string">&quot;GETSET&quot;</span>).arg(key).arg(value)
+        cmd(<span class="string">"GETSET"</span>).arg(key).arg(value)
     }
 
     <span class="doccomment">/// Get a range of bytes/substring from the value of a key. Negative values provide an offset from the end of the value.
     </span><span class="kw">fn </span>getrange&lt;K: ToRedisArgs&gt;(key: K, from: isize, to: isize) {
-        cmd(<span class="string">&quot;GETRANGE&quot;</span>).arg(key).arg(from).arg(to)
+        cmd(<span class="string">"GETRANGE"</span>).arg(key).arg(from).arg(to)
     }
 
     <span class="doccomment">/// Overwrite the part of the value stored in key at the specified offset.
     </span><span class="kw">fn </span>setrange&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, offset: isize, value: V) {
-        cmd(<span class="string">&quot;SETRANGE&quot;</span>).arg(key).arg(offset).arg(value)
+        cmd(<span class="string">"SETRANGE"</span>).arg(key).arg(offset).arg(value)
     }
 
     <span class="doccomment">/// Delete one or more keys.
     </span><span class="kw">fn </span>del&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;DEL&quot;</span>).arg(key)
+        cmd(<span class="string">"DEL"</span>).arg(key)
     }
 
     <span class="doccomment">/// Determine if a key exists.
     </span><span class="kw">fn </span>exists&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;EXISTS&quot;</span>).arg(key)
+        cmd(<span class="string">"EXISTS"</span>).arg(key)
     }
 
     <span class="doccomment">/// Determine the type of a key.
     </span><span class="kw">fn </span>key_type&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;TYPE&quot;</span>).arg(key)
+        cmd(<span class="string">"TYPE"</span>).arg(key)
     }
 
-    <span class="doccomment">/// Set a key&#39;s time to live in seconds.
+    <span class="doccomment">/// Set a key's time to live in seconds.
     </span><span class="kw">fn </span>expire&lt;K: ToRedisArgs&gt;(key: K, seconds: i64) {
-        cmd(<span class="string">&quot;EXPIRE&quot;</span>).arg(key).arg(seconds)
+        cmd(<span class="string">"EXPIRE"</span>).arg(key).arg(seconds)
     }
 
     <span class="doccomment">/// Set the expiration for a key as a UNIX timestamp.
     </span><span class="kw">fn </span>expire_at&lt;K: ToRedisArgs&gt;(key: K, ts: i64) {
-        cmd(<span class="string">&quot;EXPIREAT&quot;</span>).arg(key).arg(ts)
+        cmd(<span class="string">"EXPIREAT"</span>).arg(key).arg(ts)
     }
 
-    <span class="doccomment">/// Set a key&#39;s time to live in milliseconds.
+    <span class="doccomment">/// Set a key's time to live in milliseconds.
     </span><span class="kw">fn </span>pexpire&lt;K: ToRedisArgs&gt;(key: K, ms: i64) {
-        cmd(<span class="string">&quot;PEXPIRE&quot;</span>).arg(key).arg(ms)
+        cmd(<span class="string">"PEXPIRE"</span>).arg(key).arg(ms)
     }
 
     <span class="doccomment">/// Set the expiration for a key as a UNIX timestamp in milliseconds.
     </span><span class="kw">fn </span>pexpire_at&lt;K: ToRedisArgs&gt;(key: K, ts: i64) {
-        cmd(<span class="string">&quot;PEXPIREAT&quot;</span>).arg(key).arg(ts)
+        cmd(<span class="string">"PEXPIREAT"</span>).arg(key).arg(ts)
     }
 
     <span class="doccomment">/// Remove the expiration from a key.
     </span><span class="kw">fn </span>persist&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;PERSIST&quot;</span>).arg(key)
+        cmd(<span class="string">"PERSIST"</span>).arg(key)
     }
 
     <span class="doccomment">/// Get the expiration time of a key.
     </span><span class="kw">fn </span>ttl&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;TTL&quot;</span>).arg(key)
+        cmd(<span class="string">"TTL"</span>).arg(key)
     }
 
     <span class="doccomment">/// Get the expiration time of a key in milliseconds.
     </span><span class="kw">fn </span>pttl&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;PTTL&quot;</span>).arg(key)
+        cmd(<span class="string">"PTTL"</span>).arg(key)
     }
 
     <span class="doccomment">/// Get the value of a key and set expiration
     </span><span class="kw">fn </span>get_ex&lt;K: ToRedisArgs&gt;(key: K, expire_at: Expiry) {
         <span class="kw">let </span>(option, time_arg) = <span class="kw">match </span>expire_at {
-            Expiry::EX(sec) =&gt; (<span class="string">&quot;EX&quot;</span>, <span class="prelude-val">Some</span>(sec)),
-            Expiry::PX(ms) =&gt; (<span class="string">&quot;PX&quot;</span>, <span class="prelude-val">Some</span>(ms)),
-            Expiry::EXAT(timestamp_sec) =&gt; (<span class="string">&quot;EXAT&quot;</span>, <span class="prelude-val">Some</span>(timestamp_sec)),
-            Expiry::PXAT(timestamp_ms) =&gt; (<span class="string">&quot;PXAT&quot;</span>, <span class="prelude-val">Some</span>(timestamp_ms)),
-            Expiry::PERSIST =&gt; (<span class="string">&quot;PERSIST&quot;</span>, <span class="prelude-val">None</span>),
+            Expiry::EX(sec) =&gt; (<span class="string">"EX"</span>, <span class="prelude-val">Some</span>(sec)),
+            Expiry::PX(ms) =&gt; (<span class="string">"PX"</span>, <span class="prelude-val">Some</span>(ms)),
+            Expiry::EXAT(timestamp_sec) =&gt; (<span class="string">"EXAT"</span>, <span class="prelude-val">Some</span>(timestamp_sec)),
+            Expiry::PXAT(timestamp_ms) =&gt; (<span class="string">"PXAT"</span>, <span class="prelude-val">Some</span>(timestamp_ms)),
+            Expiry::PERSIST =&gt; (<span class="string">"PERSIST"</span>, <span class="prelude-val">None</span>),
         };
 
-        cmd(<span class="string">&quot;GETEX&quot;</span>).arg(key).arg(option).arg(time_arg)
+        cmd(<span class="string">"GETEX"</span>).arg(key).arg(option).arg(time_arg)
     }
 
     <span class="doccomment">/// Get the value of a key and delete it
     </span><span class="kw">fn </span>get_del&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;GETDEL&quot;</span>).arg(key)
+        cmd(<span class="string">"GETDEL"</span>).arg(key)
     }
 
     <span class="doccomment">/// Rename a key.
     </span><span class="kw">fn </span>rename&lt;K: ToRedisArgs, N: ToRedisArgs&gt;(key: K, new_key: N) {
-        cmd(<span class="string">&quot;RENAME&quot;</span>).arg(key).arg(new_key)
+        cmd(<span class="string">"RENAME"</span>).arg(key).arg(new_key)
     }
 
     <span class="doccomment">/// Rename a key, only if the new key does not exist.
     </span><span class="kw">fn </span>rename_nx&lt;K: ToRedisArgs, N: ToRedisArgs&gt;(key: K, new_key: N) {
-        cmd(<span class="string">&quot;RENAMENX&quot;</span>).arg(key).arg(new_key)
+        cmd(<span class="string">"RENAMENX"</span>).arg(key).arg(new_key)
     }
 
     <span class="doccomment">/// Unlink one or more keys.
     </span><span class="kw">fn </span>unlink&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;UNLINK&quot;</span>).arg(key)
+        cmd(<span class="string">"UNLINK"</span>).arg(key)
     }
 
     <span class="comment">// common string operations
 
     </span><span class="doccomment">/// Append a value to a key.
     </span><span class="kw">fn </span>append&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V) {
-        cmd(<span class="string">&quot;APPEND&quot;</span>).arg(key).arg(value)
+        cmd(<span class="string">"APPEND"</span>).arg(key).arg(value)
     }
 
     <span class="doccomment">/// Increment the numeric value of a key by the given amount.  This
     /// issues a `INCRBY` or `INCRBYFLOAT` depending on the type.
     </span><span class="kw">fn </span>incr&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, delta: V) {
         cmd(<span class="kw">if </span>delta.describe_numeric_behavior() == NumericBehavior::NumberIsFloat {
-            <span class="string">&quot;INCRBYFLOAT&quot;
+            <span class="string">"INCRBYFLOAT"
         </span>} <span class="kw">else </span>{
-            <span class="string">&quot;INCRBY&quot;
+            <span class="string">"INCRBY"
         </span>}).arg(key).arg(delta)
     }
 
     <span class="doccomment">/// Decrement the numeric value of a key by the given amount.
     </span><span class="kw">fn </span>decr&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, delta: V) {
-        cmd(<span class="string">&quot;DECRBY&quot;</span>).arg(key).arg(delta)
+        cmd(<span class="string">"DECRBY"</span>).arg(key).arg(delta)
     }
 
     <span class="doccomment">/// Sets or clears the bit at offset in the string value stored at key.
     </span><span class="kw">fn </span>setbit&lt;K: ToRedisArgs&gt;(key: K, offset: usize, value: bool) {
-        cmd(<span class="string">&quot;SETBIT&quot;</span>).arg(key).arg(offset).arg(i32::from(value))
+        cmd(<span class="string">"SETBIT"</span>).arg(key).arg(offset).arg(i32::from(value))
     }
 
     <span class="doccomment">/// Returns the bit value at offset in the string value stored at key.
     </span><span class="kw">fn </span>getbit&lt;K: ToRedisArgs&gt;(key: K, offset: usize) {
-        cmd(<span class="string">&quot;GETBIT&quot;</span>).arg(key).arg(offset)
+        cmd(<span class="string">"GETBIT"</span>).arg(key).arg(offset)
     }
 
     <span class="doccomment">/// Count set bits in a string.
     </span><span class="kw">fn </span>bitcount&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;BITCOUNT&quot;</span>).arg(key)
+        cmd(<span class="string">"BITCOUNT"</span>).arg(key)
     }
 
     <span class="doccomment">/// Count set bits in a string in a range.
     </span><span class="kw">fn </span>bitcount_range&lt;K: ToRedisArgs&gt;(key: K, start: usize, end: usize) {
-        cmd(<span class="string">&quot;BITCOUNT&quot;</span>).arg(key).arg(start).arg(end)
+        cmd(<span class="string">"BITCOUNT"</span>).arg(key).arg(start).arg(end)
     }
 
     <span class="doccomment">/// Perform a bitwise AND between multiple keys (containing string values)
     /// and store the result in the destination key.
     </span><span class="kw">fn </span>bit_and&lt;D: ToRedisArgs, S: ToRedisArgs&gt;(dstkey: D, srckeys: S) {
-        cmd(<span class="string">&quot;BITOP&quot;</span>).arg(<span class="string">&quot;AND&quot;</span>).arg(dstkey).arg(srckeys)
+        cmd(<span class="string">"BITOP"</span>).arg(<span class="string">"AND"</span>).arg(dstkey).arg(srckeys)
     }
 
     <span class="doccomment">/// Perform a bitwise OR between multiple keys (containing string values)
     /// and store the result in the destination key.
     </span><span class="kw">fn </span>bit_or&lt;D: ToRedisArgs, S: ToRedisArgs&gt;(dstkey: D, srckeys: S) {
-        cmd(<span class="string">&quot;BITOP&quot;</span>).arg(<span class="string">&quot;OR&quot;</span>).arg(dstkey).arg(srckeys)
+        cmd(<span class="string">"BITOP"</span>).arg(<span class="string">"OR"</span>).arg(dstkey).arg(srckeys)
     }
 
     <span class="doccomment">/// Perform a bitwise XOR between multiple keys (containing string values)
     /// and store the result in the destination key.
     </span><span class="kw">fn </span>bit_xor&lt;D: ToRedisArgs, S: ToRedisArgs&gt;(dstkey: D, srckeys: S) {
-        cmd(<span class="string">&quot;BITOP&quot;</span>).arg(<span class="string">&quot;XOR&quot;</span>).arg(dstkey).arg(srckeys)
+        cmd(<span class="string">"BITOP"</span>).arg(<span class="string">"XOR"</span>).arg(dstkey).arg(srckeys)
     }
 
     <span class="doccomment">/// Perform a bitwise NOT of the key (containing string values)
     /// and store the result in the destination key.
     </span><span class="kw">fn </span>bit_not&lt;D: ToRedisArgs, S: ToRedisArgs&gt;(dstkey: D, srckey: S) {
-        cmd(<span class="string">&quot;BITOP&quot;</span>).arg(<span class="string">&quot;NOT&quot;</span>).arg(dstkey).arg(srckey)
+        cmd(<span class="string">"BITOP"</span>).arg(<span class="string">"NOT"</span>).arg(dstkey).arg(srckey)
     }
 
     <span class="doccomment">/// Get the length of the value stored in a key.
     </span><span class="kw">fn </span>strlen&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;STRLEN&quot;</span>).arg(key)
+        cmd(<span class="string">"STRLEN"</span>).arg(key)
     }
 
     <span class="comment">// hash operations
 
     </span><span class="doccomment">/// Gets a single (or multiple) fields from a hash.
     </span><span class="kw">fn </span>hget&lt;K: ToRedisArgs, F: ToRedisArgs&gt;(key: K, field: F) {
-        cmd(<span class="kw">if </span>field.is_single_arg() { <span class="string">&quot;HGET&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;HMGET&quot; </span>}).arg(key).arg(field)
+        cmd(<span class="kw">if </span>field.is_single_arg() { <span class="string">"HGET" </span>} <span class="kw">else </span>{ <span class="string">"HMGET" </span>}).arg(key).arg(field)
     }
 
     <span class="doccomment">/// Deletes a single (or multiple) fields from a hash.
     </span><span class="kw">fn </span>hdel&lt;K: ToRedisArgs, F: ToRedisArgs&gt;(key: K, field: F) {
-        cmd(<span class="string">&quot;HDEL&quot;</span>).arg(key).arg(field)
+        cmd(<span class="string">"HDEL"</span>).arg(key).arg(field)
     }
 
     <span class="doccomment">/// Sets a single field in a hash.
     </span><span class="kw">fn </span>hset&lt;K: ToRedisArgs, F: ToRedisArgs, V: ToRedisArgs&gt;(key: K, field: F, value: V) {
-        cmd(<span class="string">&quot;HSET&quot;</span>).arg(key).arg(field).arg(value)
+        cmd(<span class="string">"HSET"</span>).arg(key).arg(field).arg(value)
     }
 
     <span class="doccomment">/// Sets a single field in a hash if it does not exist.
     </span><span class="kw">fn </span>hset_nx&lt;K: ToRedisArgs, F: ToRedisArgs, V: ToRedisArgs&gt;(key: K, field: F, value: V) {
-        cmd(<span class="string">&quot;HSETNX&quot;</span>).arg(key).arg(field).arg(value)
+        cmd(<span class="string">"HSETNX"</span>).arg(key).arg(field).arg(value)
     }
 
     <span class="doccomment">/// Sets a multiple fields in a hash.
-    </span><span class="kw">fn </span>hset_multiple&lt;K: ToRedisArgs, F: ToRedisArgs, V: ToRedisArgs&gt;(key: K, items: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(F, V)]) {
-        cmd(<span class="string">&quot;HMSET&quot;</span>).arg(key).arg(items)
+    </span><span class="kw">fn </span>hset_multiple&lt;K: ToRedisArgs, F: ToRedisArgs, V: ToRedisArgs&gt;(key: K, items: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(F, V)]) {
+        cmd(<span class="string">"HMSET"</span>).arg(key).arg(items)
     }
 
     <span class="doccomment">/// Increments a value.
     </span><span class="kw">fn </span>hincr&lt;K: ToRedisArgs, F: ToRedisArgs, D: ToRedisArgs&gt;(key: K, field: F, delta: D) {
         cmd(<span class="kw">if </span>delta.describe_numeric_behavior() == NumericBehavior::NumberIsFloat {
-            <span class="string">&quot;HINCRBYFLOAT&quot;
+            <span class="string">"HINCRBYFLOAT"
         </span>} <span class="kw">else </span>{
-            <span class="string">&quot;HINCRBY&quot;
+            <span class="string">"HINCRBY"
         </span>}).arg(key).arg(field).arg(delta)
     }
 
     <span class="doccomment">/// Checks if a field in a hash exists.
     </span><span class="kw">fn </span>hexists&lt;K: ToRedisArgs, F: ToRedisArgs&gt;(key: K, field: F) {
-        cmd(<span class="string">&quot;HEXISTS&quot;</span>).arg(key).arg(field)
+        cmd(<span class="string">"HEXISTS"</span>).arg(key).arg(field)
     }
 
     <span class="doccomment">/// Gets all the keys in a hash.
     </span><span class="kw">fn </span>hkeys&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;HKEYS&quot;</span>).arg(key)
+        cmd(<span class="string">"HKEYS"</span>).arg(key)
     }
 
     <span class="doccomment">/// Gets all the values in a hash.
     </span><span class="kw">fn </span>hvals&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;HVALS&quot;</span>).arg(key)
+        cmd(<span class="string">"HVALS"</span>).arg(key)
     }
 
     <span class="doccomment">/// Gets all the fields and values in a hash.
     </span><span class="kw">fn </span>hgetall&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;HGETALL&quot;</span>).arg(key)
+        cmd(<span class="string">"HGETALL"</span>).arg(key)
     }
 
     <span class="doccomment">/// Gets the length of a hash.
     </span><span class="kw">fn </span>hlen&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;HLEN&quot;</span>).arg(key)
+        cmd(<span class="string">"HLEN"</span>).arg(key)
     }
 
     <span class="comment">// list operations
@@ -2499,559 +2500,559 @@
     </span><span class="doccomment">/// Pop an element from a list, push it to another list
     /// and return it; or block until one is available
     </span><span class="kw">fn </span>blmove&lt;S: ToRedisArgs, D: ToRedisArgs&gt;(srckey: S, dstkey: D, src_dir: Direction, dst_dir: Direction, timeout: f64) {
-        cmd(<span class="string">&quot;BLMOVE&quot;</span>).arg(srckey).arg(dstkey).arg(src_dir).arg(dst_dir).arg(timeout)
+        cmd(<span class="string">"BLMOVE"</span>).arg(srckey).arg(dstkey).arg(src_dir).arg(dst_dir).arg(timeout)
     }
 
     <span class="doccomment">/// Pops `count` elements from the first non-empty list key from the list of
     /// provided key names; or blocks until one is available.
     </span><span class="kw">fn </span>blmpop&lt;K: ToRedisArgs&gt;(timeout: f64, numkeys: usize, key: K, dir: Direction, count: usize){
-        cmd(<span class="string">&quot;BLMPOP&quot;</span>).arg(timeout).arg(numkeys).arg(key).arg(dir).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
+        cmd(<span class="string">"BLMPOP"</span>).arg(timeout).arg(numkeys).arg(key).arg(dir).arg(<span class="string">"COUNT"</span>).arg(count)
     }
 
     <span class="doccomment">/// Remove and get the first element in a list, or block until one is available.
     </span><span class="kw">fn </span>blpop&lt;K: ToRedisArgs&gt;(key: K, timeout: f64) {
-        cmd(<span class="string">&quot;BLPOP&quot;</span>).arg(key).arg(timeout)
+        cmd(<span class="string">"BLPOP"</span>).arg(key).arg(timeout)
     }
 
     <span class="doccomment">/// Remove and get the last element in a list, or block until one is available.
     </span><span class="kw">fn </span>brpop&lt;K: ToRedisArgs&gt;(key: K, timeout: f64) {
-        cmd(<span class="string">&quot;BRPOP&quot;</span>).arg(key).arg(timeout)
+        cmd(<span class="string">"BRPOP"</span>).arg(key).arg(timeout)
     }
 
     <span class="doccomment">/// Pop a value from a list, push it to another list and return it;
     /// or block until one is available.
     </span><span class="kw">fn </span>brpoplpush&lt;S: ToRedisArgs, D: ToRedisArgs&gt;(srckey: S, dstkey: D, timeout: f64) {
-        cmd(<span class="string">&quot;BRPOPLPUSH&quot;</span>).arg(srckey).arg(dstkey).arg(timeout)
+        cmd(<span class="string">"BRPOPLPUSH"</span>).arg(srckey).arg(dstkey).arg(timeout)
     }
 
     <span class="doccomment">/// Get an element from a list by its index.
     </span><span class="kw">fn </span>lindex&lt;K: ToRedisArgs&gt;(key: K, index: isize) {
-        cmd(<span class="string">&quot;LINDEX&quot;</span>).arg(key).arg(index)
+        cmd(<span class="string">"LINDEX"</span>).arg(key).arg(index)
     }
 
     <span class="doccomment">/// Insert an element before another element in a list.
     </span><span class="kw">fn </span>linsert_before&lt;K: ToRedisArgs, P: ToRedisArgs, V: ToRedisArgs&gt;(
             key: K, pivot: P, value: V) {
-        cmd(<span class="string">&quot;LINSERT&quot;</span>).arg(key).arg(<span class="string">&quot;BEFORE&quot;</span>).arg(pivot).arg(value)
+        cmd(<span class="string">"LINSERT"</span>).arg(key).arg(<span class="string">"BEFORE"</span>).arg(pivot).arg(value)
     }
 
     <span class="doccomment">/// Insert an element after another element in a list.
     </span><span class="kw">fn </span>linsert_after&lt;K: ToRedisArgs, P: ToRedisArgs, V: ToRedisArgs&gt;(
             key: K, pivot: P, value: V) {
-        cmd(<span class="string">&quot;LINSERT&quot;</span>).arg(key).arg(<span class="string">&quot;AFTER&quot;</span>).arg(pivot).arg(value)
+        cmd(<span class="string">"LINSERT"</span>).arg(key).arg(<span class="string">"AFTER"</span>).arg(pivot).arg(value)
     }
 
     <span class="doccomment">/// Returns the length of the list stored at key.
     </span><span class="kw">fn </span>llen&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;LLEN&quot;</span>).arg(key)
+        cmd(<span class="string">"LLEN"</span>).arg(key)
     }
 
     <span class="doccomment">/// Pop an element a list, push it to another list and return it
     </span><span class="kw">fn </span>lmove&lt;S: ToRedisArgs, D: ToRedisArgs&gt;(srckey: S, dstkey: D, src_dir: Direction, dst_dir: Direction) {
-        cmd(<span class="string">&quot;LMOVE&quot;</span>).arg(srckey).arg(dstkey).arg(src_dir).arg(dst_dir)
+        cmd(<span class="string">"LMOVE"</span>).arg(srckey).arg(dstkey).arg(src_dir).arg(dst_dir)
     }
 
     <span class="doccomment">/// Pops `count` elements from the first non-empty list key from the list of
     /// provided key names.
     </span><span class="kw">fn </span>lmpop&lt;K: ToRedisArgs&gt;( numkeys: usize, key: K, dir: Direction, count: usize) {
-        cmd(<span class="string">&quot;LMPOP&quot;</span>).arg(numkeys).arg(key).arg(dir).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
+        cmd(<span class="string">"LMPOP"</span>).arg(numkeys).arg(key).arg(dir).arg(<span class="string">"COUNT"</span>).arg(count)
     }
 
     <span class="doccomment">/// Removes and returns the up to `count` first elements of the list stored at key.
     ///
     /// If `count` is not specified, then defaults to first element.
     </span><span class="kw">fn </span>lpop&lt;K: ToRedisArgs&gt;(key: K, count: <span class="prelude-ty">Option</span>&lt;core::num::NonZeroUsize&gt;) {
-        cmd(<span class="string">&quot;LPOP&quot;</span>).arg(key).arg(count)
+        cmd(<span class="string">"LPOP"</span>).arg(key).arg(count)
     }
 
     <span class="doccomment">/// Returns the index of the first matching value of the list stored at key.
     </span><span class="kw">fn </span>lpos&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V, options: LposOptions) {
-        cmd(<span class="string">&quot;LPOS&quot;</span>).arg(key).arg(value).arg(options)
+        cmd(<span class="string">"LPOS"</span>).arg(key).arg(value).arg(options)
     }
 
     <span class="doccomment">/// Insert all the specified values at the head of the list stored at key.
     </span><span class="kw">fn </span>lpush&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V) {
-        cmd(<span class="string">&quot;LPUSH&quot;</span>).arg(key).arg(value)
+        cmd(<span class="string">"LPUSH"</span>).arg(key).arg(value)
     }
 
     <span class="doccomment">/// Inserts a value at the head of the list stored at key, only if key
     /// already exists and holds a list.
     </span><span class="kw">fn </span>lpush_exists&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V) {
-        cmd(<span class="string">&quot;LPUSHX&quot;</span>).arg(key).arg(value)
+        cmd(<span class="string">"LPUSHX"</span>).arg(key).arg(value)
     }
 
     <span class="doccomment">/// Returns the specified elements of the list stored at key.
     </span><span class="kw">fn </span>lrange&lt;K: ToRedisArgs&gt;(key: K, start: isize, stop: isize) {
-        cmd(<span class="string">&quot;LRANGE&quot;</span>).arg(key).arg(start).arg(stop)
+        cmd(<span class="string">"LRANGE"</span>).arg(key).arg(start).arg(stop)
     }
 
     <span class="doccomment">/// Removes the first count occurrences of elements equal to value
     /// from the list stored at key.
     </span><span class="kw">fn </span>lrem&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, count: isize, value: V) {
-        cmd(<span class="string">&quot;LREM&quot;</span>).arg(key).arg(count).arg(value)
+        cmd(<span class="string">"LREM"</span>).arg(key).arg(count).arg(value)
     }
 
     <span class="doccomment">/// Trim an existing list so that it will contain only the specified
     /// range of elements specified.
     </span><span class="kw">fn </span>ltrim&lt;K: ToRedisArgs&gt;(key: K, start: isize, stop: isize) {
-        cmd(<span class="string">&quot;LTRIM&quot;</span>).arg(key).arg(start).arg(stop)
+        cmd(<span class="string">"LTRIM"</span>).arg(key).arg(start).arg(stop)
     }
 
     <span class="doccomment">/// Sets the list element at index to value
     </span><span class="kw">fn </span>lset&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, index: isize, value: V) {
-        cmd(<span class="string">&quot;LSET&quot;</span>).arg(key).arg(index).arg(value)
+        cmd(<span class="string">"LSET"</span>).arg(key).arg(index).arg(value)
     }
 
     <span class="doccomment">/// Removes and returns the up to `count` last elements of the list stored at key
     ///
     /// If `count` is not specified, then defaults to last element.
     </span><span class="kw">fn </span>rpop&lt;K: ToRedisArgs&gt;(key: K, count: <span class="prelude-ty">Option</span>&lt;core::num::NonZeroUsize&gt;) {
-        cmd(<span class="string">&quot;RPOP&quot;</span>).arg(key).arg(count)
+        cmd(<span class="string">"RPOP"</span>).arg(key).arg(count)
     }
 
     <span class="doccomment">/// Pop a value from a list, push it to another list and return it.
     </span><span class="kw">fn </span>rpoplpush&lt;K: ToRedisArgs, D: ToRedisArgs&gt;(key: K, dstkey: D) {
-        cmd(<span class="string">&quot;RPOPLPUSH&quot;</span>).arg(key).arg(dstkey)
+        cmd(<span class="string">"RPOPLPUSH"</span>).arg(key).arg(dstkey)
     }
 
     <span class="doccomment">/// Insert all the specified values at the tail of the list stored at key.
     </span><span class="kw">fn </span>rpush&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V) {
-        cmd(<span class="string">&quot;RPUSH&quot;</span>).arg(key).arg(value)
+        cmd(<span class="string">"RPUSH"</span>).arg(key).arg(value)
     }
 
     <span class="doccomment">/// Inserts value at the tail of the list stored at key, only if key
     /// already exists and holds a list.
     </span><span class="kw">fn </span>rpush_exists&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V) {
-        cmd(<span class="string">&quot;RPUSHX&quot;</span>).arg(key).arg(value)
+        cmd(<span class="string">"RPUSHX"</span>).arg(key).arg(value)
     }
 
     <span class="comment">// set commands
 
     </span><span class="doccomment">/// Add one or more members to a set.
     </span><span class="kw">fn </span>sadd&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, member: M) {
-        cmd(<span class="string">&quot;SADD&quot;</span>).arg(key).arg(member)
+        cmd(<span class="string">"SADD"</span>).arg(key).arg(member)
     }
 
     <span class="doccomment">/// Get the number of members in a set.
     </span><span class="kw">fn </span>scard&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;SCARD&quot;</span>).arg(key)
+        cmd(<span class="string">"SCARD"</span>).arg(key)
     }
 
     <span class="doccomment">/// Subtract multiple sets.
     </span><span class="kw">fn </span>sdiff&lt;K: ToRedisArgs&gt;(keys: K) {
-        cmd(<span class="string">&quot;SDIFF&quot;</span>).arg(keys)
+        cmd(<span class="string">"SDIFF"</span>).arg(keys)
     }
 
     <span class="doccomment">/// Subtract multiple sets and store the resulting set in a key.
     </span><span class="kw">fn </span>sdiffstore&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: K) {
-        cmd(<span class="string">&quot;SDIFFSTORE&quot;</span>).arg(dstkey).arg(keys)
+        cmd(<span class="string">"SDIFFSTORE"</span>).arg(dstkey).arg(keys)
     }
 
     <span class="doccomment">/// Intersect multiple sets.
     </span><span class="kw">fn </span>sinter&lt;K: ToRedisArgs&gt;(keys: K) {
-        cmd(<span class="string">&quot;SINTER&quot;</span>).arg(keys)
+        cmd(<span class="string">"SINTER"</span>).arg(keys)
     }
 
     <span class="doccomment">/// Intersect multiple sets and store the resulting set in a key.
     </span><span class="kw">fn </span>sinterstore&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: K) {
-        cmd(<span class="string">&quot;SINTERSTORE&quot;</span>).arg(dstkey).arg(keys)
+        cmd(<span class="string">"SINTERSTORE"</span>).arg(dstkey).arg(keys)
     }
 
     <span class="doccomment">/// Determine if a given value is a member of a set.
     </span><span class="kw">fn </span>sismember&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, member: M) {
-        cmd(<span class="string">&quot;SISMEMBER&quot;</span>).arg(key).arg(member)
+        cmd(<span class="string">"SISMEMBER"</span>).arg(key).arg(member)
     }
 
     <span class="doccomment">/// Get all the members in a set.
     </span><span class="kw">fn </span>smembers&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;SMEMBERS&quot;</span>).arg(key)
+        cmd(<span class="string">"SMEMBERS"</span>).arg(key)
     }
 
     <span class="doccomment">/// Move a member from one set to another.
     </span><span class="kw">fn </span>smove&lt;S: ToRedisArgs, D: ToRedisArgs, M: ToRedisArgs&gt;(srckey: S, dstkey: D, member: M) {
-        cmd(<span class="string">&quot;SMOVE&quot;</span>).arg(srckey).arg(dstkey).arg(member)
+        cmd(<span class="string">"SMOVE"</span>).arg(srckey).arg(dstkey).arg(member)
     }
 
     <span class="doccomment">/// Remove and return a random member from a set.
     </span><span class="kw">fn </span>spop&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;SPOP&quot;</span>).arg(key)
+        cmd(<span class="string">"SPOP"</span>).arg(key)
     }
 
     <span class="doccomment">/// Get one random member from a set.
     </span><span class="kw">fn </span>srandmember&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;SRANDMEMBER&quot;</span>).arg(key)
+        cmd(<span class="string">"SRANDMEMBER"</span>).arg(key)
     }
 
     <span class="doccomment">/// Get multiple random members from a set.
     </span><span class="kw">fn </span>srandmember_multiple&lt;K: ToRedisArgs&gt;(key: K, count: usize) {
-        cmd(<span class="string">&quot;SRANDMEMBER&quot;</span>).arg(key).arg(count)
+        cmd(<span class="string">"SRANDMEMBER"</span>).arg(key).arg(count)
     }
 
     <span class="doccomment">/// Remove one or more members from a set.
     </span><span class="kw">fn </span>srem&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, member: M) {
-        cmd(<span class="string">&quot;SREM&quot;</span>).arg(key).arg(member)
+        cmd(<span class="string">"SREM"</span>).arg(key).arg(member)
     }
 
     <span class="doccomment">/// Add multiple sets.
     </span><span class="kw">fn </span>sunion&lt;K: ToRedisArgs&gt;(keys: K) {
-        cmd(<span class="string">&quot;SUNION&quot;</span>).arg(keys)
+        cmd(<span class="string">"SUNION"</span>).arg(keys)
     }
 
     <span class="doccomment">/// Add multiple sets and store the resulting set in a key.
     </span><span class="kw">fn </span>sunionstore&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: K) {
-        cmd(<span class="string">&quot;SUNIONSTORE&quot;</span>).arg(dstkey).arg(keys)
+        cmd(<span class="string">"SUNIONSTORE"</span>).arg(dstkey).arg(keys)
     }
 
     <span class="comment">// sorted set commands
 
     </span><span class="doccomment">/// Add one member to a sorted set, or update its score if it already exists.
     </span><span class="kw">fn </span>zadd&lt;K: ToRedisArgs, S: ToRedisArgs, M: ToRedisArgs&gt;(key: K, member: M, score: S) {
-        cmd(<span class="string">&quot;ZADD&quot;</span>).arg(key).arg(score).arg(member)
+        cmd(<span class="string">"ZADD"</span>).arg(key).arg(score).arg(member)
     }
 
     <span class="doccomment">/// Add multiple members to a sorted set, or update its score if it already exists.
-    </span><span class="kw">fn </span>zadd_multiple&lt;K: ToRedisArgs, S: ToRedisArgs, M: ToRedisArgs&gt;(key: K, items: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(S, M)]) {
-        cmd(<span class="string">&quot;ZADD&quot;</span>).arg(key).arg(items)
+    </span><span class="kw">fn </span>zadd_multiple&lt;K: ToRedisArgs, S: ToRedisArgs, M: ToRedisArgs&gt;(key: K, items: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(S, M)]) {
+        cmd(<span class="string">"ZADD"</span>).arg(key).arg(items)
     }
 
     <span class="doccomment">/// Get the number of members in a sorted set.
     </span><span class="kw">fn </span>zcard&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;ZCARD&quot;</span>).arg(key)
+        cmd(<span class="string">"ZCARD"</span>).arg(key)
     }
 
     <span class="doccomment">/// Count the members in a sorted set with scores within the given values.
     </span><span class="kw">fn </span>zcount&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;(key: K, min: M, max: MM) {
-        cmd(<span class="string">&quot;ZCOUNT&quot;</span>).arg(key).arg(min).arg(max)
+        cmd(<span class="string">"ZCOUNT"</span>).arg(key).arg(min).arg(max)
     }
 
     <span class="doccomment">/// Increments the member in a sorted set at key by delta.
     /// If the member does not exist, it is added with delta as its score.
     </span><span class="kw">fn </span>zincr&lt;K: ToRedisArgs, M: ToRedisArgs, D: ToRedisArgs&gt;(key: K, member: M, delta: D) {
-        cmd(<span class="string">&quot;ZINCRBY&quot;</span>).arg(key).arg(delta).arg(member)
+        cmd(<span class="string">"ZINCRBY"</span>).arg(key).arg(delta).arg(member)
     }
 
     <span class="doccomment">/// Intersect multiple sorted sets and store the resulting sorted set in
     /// a new key using SUM as aggregation function.
-    </span><span class="kw">fn </span>zinterstore&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K]) {
-        cmd(<span class="string">&quot;ZINTERSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys)
+    </span><span class="kw">fn </span>zinterstore&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K]) {
+        cmd(<span class="string">"ZINTERSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys)
     }
 
     <span class="doccomment">/// Intersect multiple sorted sets and store the resulting sorted set in
     /// a new key using MIN as aggregation function.
-    </span><span class="kw">fn </span>zinterstore_min&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K]) {
-        cmd(<span class="string">&quot;ZINTERSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;AGGREGATE&quot;</span>).arg(<span class="string">&quot;MIN&quot;</span>)
+    </span><span class="kw">fn </span>zinterstore_min&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K]) {
+        cmd(<span class="string">"ZINTERSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"AGGREGATE"</span>).arg(<span class="string">"MIN"</span>)
     }
 
     <span class="doccomment">/// Intersect multiple sorted sets and store the resulting sorted set in
     /// a new key using MAX as aggregation function.
-    </span><span class="kw">fn </span>zinterstore_max&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K]) {
-        cmd(<span class="string">&quot;ZINTERSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;AGGREGATE&quot;</span>).arg(<span class="string">&quot;MAX&quot;</span>)
+    </span><span class="kw">fn </span>zinterstore_max&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K]) {
+        cmd(<span class="string">"ZINTERSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"AGGREGATE"</span>).arg(<span class="string">"MAX"</span>)
     }
 
     <span class="doccomment">/// [`Commands::zinterstore`], but with the ability to specify a
     /// multiplication factor for each sorted set by pairing one with each key
     /// in a tuple.
-    </span><span class="kw">fn </span>zinterstore_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, W)]) {
+    </span><span class="kw">fn </span>zinterstore_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, W)]) {
         <span class="kw">let </span>(keys, weights): (Vec&lt;<span class="kw-2">&amp;</span>K&gt;, Vec&lt;<span class="kw-2">&amp;</span>W&gt;) = keys.iter().map(|(key, weight)| (key, weight)).unzip();
-        cmd(<span class="string">&quot;ZINTERSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;WEIGHTS&quot;</span>).arg(weights)
+        cmd(<span class="string">"ZINTERSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"WEIGHTS"</span>).arg(weights)
     }
 
     <span class="doccomment">/// [`Commands::zinterstore_min`], but with the ability to specify a
     /// multiplication factor for each sorted set by pairing one with each key
     /// in a tuple.
-    </span><span class="kw">fn </span>zinterstore_min_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, W)]) {
+    </span><span class="kw">fn </span>zinterstore_min_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, W)]) {
         <span class="kw">let </span>(keys, weights): (Vec&lt;<span class="kw-2">&amp;</span>K&gt;, Vec&lt;<span class="kw-2">&amp;</span>W&gt;) = keys.iter().map(|(key, weight)| (key, weight)).unzip();
-        cmd(<span class="string">&quot;ZINTERSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;AGGREGATE&quot;</span>).arg(<span class="string">&quot;MIN&quot;</span>).arg(<span class="string">&quot;WEIGHTS&quot;</span>).arg(weights)
+        cmd(<span class="string">"ZINTERSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"AGGREGATE"</span>).arg(<span class="string">"MIN"</span>).arg(<span class="string">"WEIGHTS"</span>).arg(weights)
     }
 
     <span class="doccomment">/// [`Commands::zinterstore_max`], but with the ability to specify a
     /// multiplication factor for each sorted set by pairing one with each key
     /// in a tuple.
-    </span><span class="kw">fn </span>zinterstore_max_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, W)]) {
+    </span><span class="kw">fn </span>zinterstore_max_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, W)]) {
         <span class="kw">let </span>(keys, weights): (Vec&lt;<span class="kw-2">&amp;</span>K&gt;, Vec&lt;<span class="kw-2">&amp;</span>W&gt;) = keys.iter().map(|(key, weight)| (key, weight)).unzip();
-        cmd(<span class="string">&quot;ZINTERSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;AGGREGATE&quot;</span>).arg(<span class="string">&quot;MAX&quot;</span>).arg(<span class="string">&quot;WEIGHTS&quot;</span>).arg(weights)
+        cmd(<span class="string">"ZINTERSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"AGGREGATE"</span>).arg(<span class="string">"MAX"</span>).arg(<span class="string">"WEIGHTS"</span>).arg(weights)
     }
 
     <span class="doccomment">/// Count the number of members in a sorted set between a given lexicographical range.
     </span><span class="kw">fn </span>zlexcount&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;(key: K, min: M, max: MM) {
-        cmd(<span class="string">&quot;ZLEXCOUNT&quot;</span>).arg(key).arg(min).arg(max)
+        cmd(<span class="string">"ZLEXCOUNT"</span>).arg(key).arg(min).arg(max)
     }
 
     <span class="doccomment">/// Removes and returns the member with the highest score in a sorted set.
     /// Blocks until a member is available otherwise.
     </span><span class="kw">fn </span>bzpopmax&lt;K: ToRedisArgs&gt;(key: K, timeout: f64) {
-        cmd(<span class="string">&quot;BZPOPMAX&quot;</span>).arg(key).arg(timeout)
+        cmd(<span class="string">"BZPOPMAX"</span>).arg(key).arg(timeout)
     }
 
     <span class="doccomment">/// Removes and returns up to count members with the highest scores in a sorted set
     </span><span class="kw">fn </span>zpopmax&lt;K: ToRedisArgs&gt;(key: K, count: isize) {
-        cmd(<span class="string">&quot;ZPOPMAX&quot;</span>).arg(key).arg(count)
+        cmd(<span class="string">"ZPOPMAX"</span>).arg(key).arg(count)
     }
 
     <span class="doccomment">/// Removes and returns the member with the lowest score in a sorted set.
     /// Blocks until a member is available otherwise.
     </span><span class="kw">fn </span>bzpopmin&lt;K: ToRedisArgs&gt;(key: K, timeout: f64) {
-        cmd(<span class="string">&quot;BZPOPMIN&quot;</span>).arg(key).arg(timeout)
+        cmd(<span class="string">"BZPOPMIN"</span>).arg(key).arg(timeout)
     }
 
     <span class="doccomment">/// Removes and returns up to count members with the lowest scores in a sorted set
     </span><span class="kw">fn </span>zpopmin&lt;K: ToRedisArgs&gt;(key: K, count: isize) {
-        cmd(<span class="string">&quot;ZPOPMIN&quot;</span>).arg(key).arg(count)
+        cmd(<span class="string">"ZPOPMIN"</span>).arg(key).arg(count)
     }
 
     <span class="doccomment">/// Removes and returns up to count members with the highest scores,
     /// from the first non-empty sorted set in the provided list of key names.
     /// Blocks until a member is available otherwise.
-    </span><span class="kw">fn </span>bzmpop_max&lt;K: ToRedisArgs&gt;(timeout: f64, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K], count: isize) {
-        cmd(<span class="string">&quot;BZMPOP&quot;</span>).arg(timeout).arg(keys.len()).arg(keys).arg(<span class="string">&quot;MAX&quot;</span>).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
+    </span><span class="kw">fn </span>bzmpop_max&lt;K: ToRedisArgs&gt;(timeout: f64, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K], count: isize) {
+        cmd(<span class="string">"BZMPOP"</span>).arg(timeout).arg(keys.len()).arg(keys).arg(<span class="string">"MAX"</span>).arg(<span class="string">"COUNT"</span>).arg(count)
     }
 
     <span class="doccomment">/// Removes and returns up to count members with the highest scores,
     /// from the first non-empty sorted set in the provided list of key names.
-    </span><span class="kw">fn </span>zmpop_max&lt;K: ToRedisArgs&gt;(keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K], count: isize) {
-        cmd(<span class="string">&quot;ZMPOP&quot;</span>).arg(keys.len()).arg(keys).arg(<span class="string">&quot;MAX&quot;</span>).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
+    </span><span class="kw">fn </span>zmpop_max&lt;K: ToRedisArgs&gt;(keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K], count: isize) {
+        cmd(<span class="string">"ZMPOP"</span>).arg(keys.len()).arg(keys).arg(<span class="string">"MAX"</span>).arg(<span class="string">"COUNT"</span>).arg(count)
     }
 
     <span class="doccomment">/// Removes and returns up to count members with the lowest scores,
     /// from the first non-empty sorted set in the provided list of key names.
     /// Blocks until a member is available otherwise.
-    </span><span class="kw">fn </span>bzmpop_min&lt;K: ToRedisArgs&gt;(timeout: f64, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K], count: isize) {
-        cmd(<span class="string">&quot;BZMPOP&quot;</span>).arg(timeout).arg(keys.len()).arg(keys).arg(<span class="string">&quot;MIN&quot;</span>).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
+    </span><span class="kw">fn </span>bzmpop_min&lt;K: ToRedisArgs&gt;(timeout: f64, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K], count: isize) {
+        cmd(<span class="string">"BZMPOP"</span>).arg(timeout).arg(keys.len()).arg(keys).arg(<span class="string">"MIN"</span>).arg(<span class="string">"COUNT"</span>).arg(count)
     }
 
     <span class="doccomment">/// Removes and returns up to count members with the lowest scores,
     /// from the first non-empty sorted set in the provided list of key names.
-    </span><span class="kw">fn </span>zmpop_min&lt;K: ToRedisArgs&gt;(keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K], count: isize) {
-        cmd(<span class="string">&quot;ZMPOP&quot;</span>).arg(keys.len()).arg(keys).arg(<span class="string">&quot;MIN&quot;</span>).arg(<span class="string">&quot;COUNT&quot;</span>).arg(count)
+    </span><span class="kw">fn </span>zmpop_min&lt;K: ToRedisArgs&gt;(keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K], count: isize) {
+        cmd(<span class="string">"ZMPOP"</span>).arg(keys.len()).arg(keys).arg(<span class="string">"MIN"</span>).arg(<span class="string">"COUNT"</span>).arg(count)
     }
 
     <span class="doccomment">/// Return up to count random members in a sorted set (or 1 if `count == None`)
     </span><span class="kw">fn </span>zrandmember&lt;K: ToRedisArgs&gt;(key: K, count: <span class="prelude-ty">Option</span>&lt;isize&gt;) {
-        cmd(<span class="string">&quot;ZRANDMEMBER&quot;</span>).arg(key).arg(count)
+        cmd(<span class="string">"ZRANDMEMBER"</span>).arg(key).arg(count)
     }
 
     <span class="doccomment">/// Return up to count random members in a sorted set with scores
     </span><span class="kw">fn </span>zrandmember_withscores&lt;K: ToRedisArgs&gt;(key: K, count: isize) {
-        cmd(<span class="string">&quot;ZRANDMEMBER&quot;</span>).arg(key).arg(count).arg(<span class="string">&quot;WITHSCORES&quot;</span>)
+        cmd(<span class="string">"ZRANDMEMBER"</span>).arg(key).arg(count).arg(<span class="string">"WITHSCORES"</span>)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by index
     </span><span class="kw">fn </span>zrange&lt;K: ToRedisArgs&gt;(key: K, start: isize, stop: isize) {
-        cmd(<span class="string">&quot;ZRANGE&quot;</span>).arg(key).arg(start).arg(stop)
+        cmd(<span class="string">"ZRANGE"</span>).arg(key).arg(start).arg(stop)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by index with scores.
     </span><span class="kw">fn </span>zrange_withscores&lt;K: ToRedisArgs&gt;(key: K, start: isize, stop: isize) {
-        cmd(<span class="string">&quot;ZRANGE&quot;</span>).arg(key).arg(start).arg(stop).arg(<span class="string">&quot;WITHSCORES&quot;</span>)
+        cmd(<span class="string">"ZRANGE"</span>).arg(key).arg(start).arg(stop).arg(<span class="string">"WITHSCORES"</span>)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by lexicographical range.
     </span><span class="kw">fn </span>zrangebylex&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;(key: K, min: M, max: MM) {
-        cmd(<span class="string">&quot;ZRANGEBYLEX&quot;</span>).arg(key).arg(min).arg(max)
+        cmd(<span class="string">"ZRANGEBYLEX"</span>).arg(key).arg(min).arg(max)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by lexicographical
     /// range with offset and limit.
     </span><span class="kw">fn </span>zrangebylex_limit&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;(
             key: K, min: M, max: MM, offset: isize, count: isize) {
-        cmd(<span class="string">&quot;ZRANGEBYLEX&quot;</span>).arg(key).arg(min).arg(max).arg(<span class="string">&quot;LIMIT&quot;</span>).arg(offset).arg(count)
+        cmd(<span class="string">"ZRANGEBYLEX"</span>).arg(key).arg(min).arg(max).arg(<span class="string">"LIMIT"</span>).arg(offset).arg(count)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by lexicographical range.
     </span><span class="kw">fn </span>zrevrangebylex&lt;K: ToRedisArgs, MM: ToRedisArgs, M: ToRedisArgs&gt;(key: K, max: MM, min: M) {
-        cmd(<span class="string">&quot;ZREVRANGEBYLEX&quot;</span>).arg(key).arg(max).arg(min)
+        cmd(<span class="string">"ZREVRANGEBYLEX"</span>).arg(key).arg(max).arg(min)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by lexicographical
     /// range with offset and limit.
     </span><span class="kw">fn </span>zrevrangebylex_limit&lt;K: ToRedisArgs, MM: ToRedisArgs, M: ToRedisArgs&gt;(
             key: K, max: MM, min: M, offset: isize, count: isize) {
-        cmd(<span class="string">&quot;ZREVRANGEBYLEX&quot;</span>).arg(key).arg(max).arg(min).arg(<span class="string">&quot;LIMIT&quot;</span>).arg(offset).arg(count)
+        cmd(<span class="string">"ZREVRANGEBYLEX"</span>).arg(key).arg(max).arg(min).arg(<span class="string">"LIMIT"</span>).arg(offset).arg(count)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by score.
     </span><span class="kw">fn </span>zrangebyscore&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;(key: K, min: M, max: MM) {
-        cmd(<span class="string">&quot;ZRANGEBYSCORE&quot;</span>).arg(key).arg(min).arg(max)
+        cmd(<span class="string">"ZRANGEBYSCORE"</span>).arg(key).arg(min).arg(max)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by score with scores.
     </span><span class="kw">fn </span>zrangebyscore_withscores&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;(key: K, min: M, max: MM) {
-        cmd(<span class="string">&quot;ZRANGEBYSCORE&quot;</span>).arg(key).arg(min).arg(max).arg(<span class="string">&quot;WITHSCORES&quot;</span>)
+        cmd(<span class="string">"ZRANGEBYSCORE"</span>).arg(key).arg(min).arg(max).arg(<span class="string">"WITHSCORES"</span>)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by score with limit.
     </span><span class="kw">fn </span>zrangebyscore_limit&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;
             (key: K, min: M, max: MM, offset: isize, count: isize) {
-        cmd(<span class="string">&quot;ZRANGEBYSCORE&quot;</span>).arg(key).arg(min).arg(max).arg(<span class="string">&quot;LIMIT&quot;</span>).arg(offset).arg(count)
+        cmd(<span class="string">"ZRANGEBYSCORE"</span>).arg(key).arg(min).arg(max).arg(<span class="string">"LIMIT"</span>).arg(offset).arg(count)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by score with limit with scores.
     </span><span class="kw">fn </span>zrangebyscore_limit_withscores&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;
             (key: K, min: M, max: MM, offset: isize, count: isize) {
-        cmd(<span class="string">&quot;ZRANGEBYSCORE&quot;</span>).arg(key).arg(min).arg(max).arg(<span class="string">&quot;WITHSCORES&quot;</span>)
-            .arg(<span class="string">&quot;LIMIT&quot;</span>).arg(offset).arg(count)
+        cmd(<span class="string">"ZRANGEBYSCORE"</span>).arg(key).arg(min).arg(max).arg(<span class="string">"WITHSCORES"</span>)
+            .arg(<span class="string">"LIMIT"</span>).arg(offset).arg(count)
     }
 
     <span class="doccomment">/// Determine the index of a member in a sorted set.
     </span><span class="kw">fn </span>zrank&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, member: M) {
-        cmd(<span class="string">&quot;ZRANK&quot;</span>).arg(key).arg(member)
+        cmd(<span class="string">"ZRANK"</span>).arg(key).arg(member)
     }
 
     <span class="doccomment">/// Remove one or more members from a sorted set.
     </span><span class="kw">fn </span>zrem&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, members: M) {
-        cmd(<span class="string">&quot;ZREM&quot;</span>).arg(key).arg(members)
+        cmd(<span class="string">"ZREM"</span>).arg(key).arg(members)
     }
 
     <span class="doccomment">/// Remove all members in a sorted set between the given lexicographical range.
     </span><span class="kw">fn </span>zrembylex&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;(key: K, min: M, max: MM) {
-        cmd(<span class="string">&quot;ZREMRANGEBYLEX&quot;</span>).arg(key).arg(min).arg(max)
+        cmd(<span class="string">"ZREMRANGEBYLEX"</span>).arg(key).arg(min).arg(max)
     }
 
     <span class="doccomment">/// Remove all members in a sorted set within the given indexes.
     </span><span class="kw">fn </span>zremrangebyrank&lt;K: ToRedisArgs&gt;(key: K, start: isize, stop: isize) {
-        cmd(<span class="string">&quot;ZREMRANGEBYRANK&quot;</span>).arg(key).arg(start).arg(stop)
+        cmd(<span class="string">"ZREMRANGEBYRANK"</span>).arg(key).arg(start).arg(stop)
     }
 
     <span class="doccomment">/// Remove all members in a sorted set within the given scores.
     </span><span class="kw">fn </span>zrembyscore&lt;K: ToRedisArgs, M: ToRedisArgs, MM: ToRedisArgs&gt;(key: K, min: M, max: MM) {
-        cmd(<span class="string">&quot;ZREMRANGEBYSCORE&quot;</span>).arg(key).arg(min).arg(max)
+        cmd(<span class="string">"ZREMRANGEBYSCORE"</span>).arg(key).arg(min).arg(max)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by index, with scores
     /// ordered from high to low.
     </span><span class="kw">fn </span>zrevrange&lt;K: ToRedisArgs&gt;(key: K, start: isize, stop: isize) {
-        cmd(<span class="string">&quot;ZREVRANGE&quot;</span>).arg(key).arg(start).arg(stop)
+        cmd(<span class="string">"ZREVRANGE"</span>).arg(key).arg(start).arg(stop)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by index, with scores
     /// ordered from high to low.
     </span><span class="kw">fn </span>zrevrange_withscores&lt;K: ToRedisArgs&gt;(key: K, start: isize, stop: isize) {
-        cmd(<span class="string">&quot;ZREVRANGE&quot;</span>).arg(key).arg(start).arg(stop).arg(<span class="string">&quot;WITHSCORES&quot;</span>)
+        cmd(<span class="string">"ZREVRANGE"</span>).arg(key).arg(start).arg(stop).arg(<span class="string">"WITHSCORES"</span>)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by score.
     </span><span class="kw">fn </span>zrevrangebyscore&lt;K: ToRedisArgs, MM: ToRedisArgs, M: ToRedisArgs&gt;(key: K, max: MM, min: M) {
-        cmd(<span class="string">&quot;ZREVRANGEBYSCORE&quot;</span>).arg(key).arg(max).arg(min)
+        cmd(<span class="string">"ZREVRANGEBYSCORE"</span>).arg(key).arg(max).arg(min)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by score with scores.
     </span><span class="kw">fn </span>zrevrangebyscore_withscores&lt;K: ToRedisArgs, MM: ToRedisArgs, M: ToRedisArgs&gt;(key: K, max: MM, min: M) {
-        cmd(<span class="string">&quot;ZREVRANGEBYSCORE&quot;</span>).arg(key).arg(max).arg(min).arg(<span class="string">&quot;WITHSCORES&quot;</span>)
+        cmd(<span class="string">"ZREVRANGEBYSCORE"</span>).arg(key).arg(max).arg(min).arg(<span class="string">"WITHSCORES"</span>)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by score with limit.
     </span><span class="kw">fn </span>zrevrangebyscore_limit&lt;K: ToRedisArgs, MM: ToRedisArgs, M: ToRedisArgs&gt;
             (key: K, max: MM, min: M, offset: isize, count: isize) {
-        cmd(<span class="string">&quot;ZREVRANGEBYSCORE&quot;</span>).arg(key).arg(max).arg(min).arg(<span class="string">&quot;LIMIT&quot;</span>).arg(offset).arg(count)
+        cmd(<span class="string">"ZREVRANGEBYSCORE"</span>).arg(key).arg(max).arg(min).arg(<span class="string">"LIMIT"</span>).arg(offset).arg(count)
     }
 
     <span class="doccomment">/// Return a range of members in a sorted set, by score with limit with scores.
     </span><span class="kw">fn </span>zrevrangebyscore_limit_withscores&lt;K: ToRedisArgs, MM: ToRedisArgs, M: ToRedisArgs&gt;
             (key: K, max: MM, min: M, offset: isize, count: isize) {
-        cmd(<span class="string">&quot;ZREVRANGEBYSCORE&quot;</span>).arg(key).arg(max).arg(min).arg(<span class="string">&quot;WITHSCORES&quot;</span>)
-            .arg(<span class="string">&quot;LIMIT&quot;</span>).arg(offset).arg(count)
+        cmd(<span class="string">"ZREVRANGEBYSCORE"</span>).arg(key).arg(max).arg(min).arg(<span class="string">"WITHSCORES"</span>)
+            .arg(<span class="string">"LIMIT"</span>).arg(offset).arg(count)
     }
 
     <span class="doccomment">/// Determine the index of a member in a sorted set, with scores ordered from high to low.
     </span><span class="kw">fn </span>zrevrank&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, member: M) {
-        cmd(<span class="string">&quot;ZREVRANK&quot;</span>).arg(key).arg(member)
+        cmd(<span class="string">"ZREVRANK"</span>).arg(key).arg(member)
     }
 
     <span class="doccomment">/// Get the score associated with the given member in a sorted set.
     </span><span class="kw">fn </span>zscore&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, member: M) {
-        cmd(<span class="string">&quot;ZSCORE&quot;</span>).arg(key).arg(member)
+        cmd(<span class="string">"ZSCORE"</span>).arg(key).arg(member)
     }
 
     <span class="doccomment">/// Get the scores associated with multiple members in a sorted set.
-    </span><span class="kw">fn </span>zscore_multiple&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, members: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[M]) {
-        cmd(<span class="string">&quot;ZMSCORE&quot;</span>).arg(key).arg(members)
+    </span><span class="kw">fn </span>zscore_multiple&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, members: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[M]) {
+        cmd(<span class="string">"ZMSCORE"</span>).arg(key).arg(members)
     }
 
     <span class="doccomment">/// Unions multiple sorted sets and store the resulting sorted set in
     /// a new key using SUM as aggregation function.
-    </span><span class="kw">fn </span>zunionstore&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K]) {
-        cmd(<span class="string">&quot;ZUNIONSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys)
+    </span><span class="kw">fn </span>zunionstore&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K]) {
+        cmd(<span class="string">"ZUNIONSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys)
     }
 
     <span class="doccomment">/// Unions multiple sorted sets and store the resulting sorted set in
     /// a new key using MIN as aggregation function.
-    </span><span class="kw">fn </span>zunionstore_min&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K]) {
-        cmd(<span class="string">&quot;ZUNIONSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;AGGREGATE&quot;</span>).arg(<span class="string">&quot;MIN&quot;</span>)
+    </span><span class="kw">fn </span>zunionstore_min&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K]) {
+        cmd(<span class="string">"ZUNIONSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"AGGREGATE"</span>).arg(<span class="string">"MIN"</span>)
     }
 
     <span class="doccomment">/// Unions multiple sorted sets and store the resulting sorted set in
     /// a new key using MAX as aggregation function.
-    </span><span class="kw">fn </span>zunionstore_max&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K]) {
-        cmd(<span class="string">&quot;ZUNIONSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;AGGREGATE&quot;</span>).arg(<span class="string">&quot;MAX&quot;</span>)
+    </span><span class="kw">fn </span>zunionstore_max&lt;D: ToRedisArgs, K: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K]) {
+        cmd(<span class="string">"ZUNIONSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"AGGREGATE"</span>).arg(<span class="string">"MAX"</span>)
     }
 
     <span class="doccomment">/// [`Commands::zunionstore`], but with the ability to specify a
     /// multiplication factor for each sorted set by pairing one with each key
     /// in a tuple.
-    </span><span class="kw">fn </span>zunionstore_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, W)]) {
+    </span><span class="kw">fn </span>zunionstore_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, W)]) {
         <span class="kw">let </span>(keys, weights): (Vec&lt;<span class="kw-2">&amp;</span>K&gt;, Vec&lt;<span class="kw-2">&amp;</span>W&gt;) = keys.iter().map(|(key, weight)| (key, weight)).unzip();
-        cmd(<span class="string">&quot;ZUNIONSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;WEIGHTS&quot;</span>).arg(weights)
+        cmd(<span class="string">"ZUNIONSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"WEIGHTS"</span>).arg(weights)
     }
 
     <span class="doccomment">/// [`Commands::zunionstore_min`], but with the ability to specify a
     /// multiplication factor for each sorted set by pairing one with each key
     /// in a tuple.
-    </span><span class="kw">fn </span>zunionstore_min_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, W)]) {
+    </span><span class="kw">fn </span>zunionstore_min_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, W)]) {
         <span class="kw">let </span>(keys, weights): (Vec&lt;<span class="kw-2">&amp;</span>K&gt;, Vec&lt;<span class="kw-2">&amp;</span>W&gt;) = keys.iter().map(|(key, weight)| (key, weight)).unzip();
-        cmd(<span class="string">&quot;ZUNIONSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;AGGREGATE&quot;</span>).arg(<span class="string">&quot;MIN&quot;</span>).arg(<span class="string">&quot;WEIGHTS&quot;</span>).arg(weights)
+        cmd(<span class="string">"ZUNIONSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"AGGREGATE"</span>).arg(<span class="string">"MIN"</span>).arg(<span class="string">"WEIGHTS"</span>).arg(weights)
     }
 
     <span class="doccomment">/// [`Commands::zunionstore_max`], but with the ability to specify a
     /// multiplication factor for each sorted set by pairing one with each key
     /// in a tuple.
-    </span><span class="kw">fn </span>zunionstore_max_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, W)]) {
+    </span><span class="kw">fn </span>zunionstore_max_weights&lt;D: ToRedisArgs, K: ToRedisArgs, W: ToRedisArgs&gt;(dstkey: D, keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(K, W)]) {
         <span class="kw">let </span>(keys, weights): (Vec&lt;<span class="kw-2">&amp;</span>K&gt;, Vec&lt;<span class="kw-2">&amp;</span>W&gt;) = keys.iter().map(|(key, weight)| (key, weight)).unzip();
-        cmd(<span class="string">&quot;ZUNIONSTORE&quot;</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">&quot;AGGREGATE&quot;</span>).arg(<span class="string">&quot;MAX&quot;</span>).arg(<span class="string">&quot;WEIGHTS&quot;</span>).arg(weights)
+        cmd(<span class="string">"ZUNIONSTORE"</span>).arg(dstkey).arg(keys.len()).arg(keys).arg(<span class="string">"AGGREGATE"</span>).arg(<span class="string">"MAX"</span>).arg(<span class="string">"WEIGHTS"</span>).arg(weights)
     }
 
     <span class="comment">// hyperloglog commands
 
     </span><span class="doccomment">/// Adds the specified elements to the specified HyperLogLog.
     </span><span class="kw">fn </span>pfadd&lt;K: ToRedisArgs, E: ToRedisArgs&gt;(key: K, element: E) {
-        cmd(<span class="string">&quot;PFADD&quot;</span>).arg(key).arg(element)
+        cmd(<span class="string">"PFADD"</span>).arg(key).arg(element)
     }
 
     <span class="doccomment">/// Return the approximated cardinality of the set(s) observed by the
     /// HyperLogLog at key(s).
     </span><span class="kw">fn </span>pfcount&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;PFCOUNT&quot;</span>).arg(key)
+        cmd(<span class="string">"PFCOUNT"</span>).arg(key)
     }
 
     <span class="doccomment">/// Merge N different HyperLogLogs into a single one.
     </span><span class="kw">fn </span>pfmerge&lt;D: ToRedisArgs, S: ToRedisArgs&gt;(dstkey: D, srckeys: S) {
-        cmd(<span class="string">&quot;PFMERGE&quot;</span>).arg(dstkey).arg(srckeys)
+        cmd(<span class="string">"PFMERGE"</span>).arg(dstkey).arg(srckeys)
     }
 
     <span class="doccomment">/// Posts a message to the given channel.
     </span><span class="kw">fn </span>publish&lt;K: ToRedisArgs, E: ToRedisArgs&gt;(channel: K, message: E) {
-        cmd(<span class="string">&quot;PUBLISH&quot;</span>).arg(channel).arg(message)
+        cmd(<span class="string">"PUBLISH"</span>).arg(channel).arg(message)
     }
 
     <span class="comment">// Object commands
 
     </span><span class="doccomment">/// Returns the encoding of a key.
     </span><span class="kw">fn </span>object_encoding&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;OBJECT&quot;</span>).arg(<span class="string">&quot;ENCODING&quot;</span>).arg(key)
+        cmd(<span class="string">"OBJECT"</span>).arg(<span class="string">"ENCODING"</span>).arg(key)
     }
 
     <span class="doccomment">/// Returns the time in seconds since the last access of a key.
     </span><span class="kw">fn </span>object_idletime&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;OBJECT&quot;</span>).arg(<span class="string">&quot;IDLETIME&quot;</span>).arg(key)
+        cmd(<span class="string">"OBJECT"</span>).arg(<span class="string">"IDLETIME"</span>).arg(key)
     }
 
     <span class="doccomment">/// Returns the logarithmic access frequency counter of a key.
     </span><span class="kw">fn </span>object_freq&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;OBJECT&quot;</span>).arg(<span class="string">&quot;FREQ&quot;</span>).arg(key)
+        cmd(<span class="string">"OBJECT"</span>).arg(<span class="string">"FREQ"</span>).arg(key)
     }
 
     <span class="doccomment">/// Returns the reference count of a key.
     </span><span class="kw">fn </span>object_refcount&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;OBJECT&quot;</span>).arg(<span class="string">&quot;REFCOUNT&quot;</span>).arg(key)
+        cmd(<span class="string">"OBJECT"</span>).arg(<span class="string">"REFCOUNT"</span>).arg(key)
     }
 
     <span class="comment">// ACL commands
@@ -3059,121 +3060,121 @@
     </span><span class="doccomment">/// When Redis is configured to use an ACL file (with the aclfile
     /// configuration option), this command will reload the ACLs from the file,
     /// replacing all the current ACL rules with the ones defined in the file.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_load&lt;&gt;() {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;LOAD&quot;</span>)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"LOAD"</span>)
     }
 
     <span class="doccomment">/// When Redis is configured to use an ACL file (with the aclfile
     /// configuration option), this command will save the currently defined
     /// ACLs from the server memory to the ACL file.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_save&lt;&gt;() {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;SAVE&quot;</span>)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"SAVE"</span>)
     }
 
     <span class="doccomment">/// Shows the currently active ACL rules in the Redis server.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_list&lt;&gt;() {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;LIST&quot;</span>)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"LIST"</span>)
     }
 
     <span class="doccomment">/// Shows a list of all the usernames of the currently configured users in
     /// the Redis ACL system.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_users&lt;&gt;() {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;USERS&quot;</span>)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"USERS"</span>)
     }
 
     <span class="doccomment">/// Returns all the rules defined for an existing ACL user.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_getuser&lt;K: ToRedisArgs&gt;(username: K) {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;GETUSER&quot;</span>).arg(username)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"GETUSER"</span>).arg(username)
     }
 
     <span class="doccomment">/// Creates an ACL user without any privilege.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_setuser&lt;K: ToRedisArgs&gt;(username: K) {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;SETUSER&quot;</span>).arg(username)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"SETUSER"</span>).arg(username)
     }
 
     <span class="doccomment">/// Creates an ACL user with the specified rules or modify the rules of
     /// an existing user.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
-    </span><span class="kw">fn </span>acl_setuser_rules&lt;K: ToRedisArgs&gt;(username: K, rules: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[acl::Rule]) {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;SETUSER&quot;</span>).arg(username).arg(rules)
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
+    </span><span class="kw">fn </span>acl_setuser_rules&lt;K: ToRedisArgs&gt;(username: K, rules: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[acl::Rule]) {
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"SETUSER"</span>).arg(username).arg(rules)
     }
 
     <span class="doccomment">/// Delete all the specified ACL users and terminate all the connections
     /// that are authenticated with such users.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
-    </span><span class="kw">fn </span>acl_deluser&lt;K: ToRedisArgs&gt;(usernames: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K]) {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;DELUSER&quot;</span>).arg(usernames)
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
+    </span><span class="kw">fn </span>acl_deluser&lt;K: ToRedisArgs&gt;(usernames: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K]) {
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"DELUSER"</span>).arg(usernames)
     }
 
     <span class="doccomment">/// Shows the available ACL categories.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_cat&lt;&gt;() {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;CAT&quot;</span>)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"CAT"</span>)
     }
 
     <span class="doccomment">/// Shows all the Redis commands in the specified category.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_cat_categoryname&lt;K: ToRedisArgs&gt;(categoryname: K) {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;CAT&quot;</span>).arg(categoryname)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"CAT"</span>).arg(categoryname)
     }
 
     <span class="doccomment">/// Generates a 256-bits password starting from /dev/urandom if available.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_genpass&lt;&gt;() {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;GENPASS&quot;</span>)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"GENPASS"</span>)
     }
 
     <span class="doccomment">/// Generates a 1-to-1024-bits password starting from /dev/urandom if available.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_genpass_bits&lt;&gt;(bits: isize) {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;GENPASS&quot;</span>).arg(bits)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"GENPASS"</span>).arg(bits)
     }
 
     <span class="doccomment">/// Returns the username the current connection is authenticated with.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_whoami&lt;&gt;() {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;WHOAMI&quot;</span>)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"WHOAMI"</span>)
     }
 
     <span class="doccomment">/// Shows a list of recent ACL security events
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_log&lt;&gt;(count: isize) {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;LOG&quot;</span>).arg(count)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"LOG"</span>).arg(count)
 
     }
 
     <span class="doccomment">/// Clears the ACL log.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_log_reset&lt;&gt;() {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;LOG&quot;</span>).arg(<span class="string">&quot;RESET&quot;</span>)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"LOG"</span>).arg(<span class="string">"RESET"</span>)
     }
 
     <span class="doccomment">/// Returns a helpful text describing the different subcommands.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;acl&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;acl&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"acl"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"acl"</span>)))]
     </span><span class="kw">fn </span>acl_help&lt;&gt;() {
-        cmd(<span class="string">&quot;ACL&quot;</span>).arg(<span class="string">&quot;HELP&quot;</span>)
+        cmd(<span class="string">"ACL"</span>).arg(<span class="string">"HELP"</span>)
     }
 
     <span class="comment">//
@@ -3199,24 +3200,24 @@
     /// use redis::geo::Coord;
     ///
     /// fn add_point(con: &amp;mut Connection) -&gt; RedisResult&lt;isize&gt; {
-    ///     con.geo_add(&quot;my_gis&quot;, (Coord::lon_lat(13.361389, 38.115556), &quot;Palermo&quot;))
+    ///     con.geo_add("my_gis", (Coord::lon_lat(13.361389, 38.115556), "Palermo"))
     /// }
     ///
     /// fn add_point_with_tuples(con: &amp;mut Connection) -&gt; RedisResult&lt;isize&gt; {
-    ///     con.geo_add(&quot;my_gis&quot;, (&quot;13.361389&quot;, &quot;38.115556&quot;, &quot;Palermo&quot;))
+    ///     con.geo_add("my_gis", ("13.361389", "38.115556", "Palermo"))
     /// }
     ///
     /// fn add_many_points(con: &amp;mut Connection) -&gt; RedisResult&lt;isize&gt; {
-    ///     con.geo_add(&quot;my_gis&quot;, &amp;[
-    ///         (&quot;13.361389&quot;, &quot;38.115556&quot;, &quot;Palermo&quot;),
-    ///         (&quot;15.087269&quot;, &quot;37.502669&quot;, &quot;Catania&quot;)
+    ///     con.geo_add("my_gis", &amp;[
+    ///         ("13.361389", "38.115556", "Palermo"),
+    ///         ("15.087269", "37.502669", "Catania")
     ///     ])
     /// }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;geospatial&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;geospatial&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"geospatial"</span>)))]
     </span><span class="kw">fn </span>geo_add&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, members: M) {
-        cmd(<span class="string">&quot;GEOADD&quot;</span>).arg(key).arg(members)
+        cmd(<span class="string">"GEOADD"</span>).arg(key).arg(members)
     }
 
     <span class="doccomment">/// Return the distance between two members in the geospatial index
@@ -3234,31 +3235,31 @@
     ///
     /// fn get_dists(con: &amp;mut redis::Connection) {
     ///     let x: RedisResult&lt;f64&gt; = con.geo_dist(
-    ///         &quot;my_gis&quot;,
-    ///         &quot;Palermo&quot;,
-    ///         &quot;Catania&quot;,
+    ///         "my_gis",
+    ///         "Palermo",
+    ///         "Catania",
     ///         Unit::Kilometers
     ///     );
     ///     // x is Ok(166.2742)
     ///
     ///     let x: RedisResult&lt;Option&lt;f64&gt;&gt; = con.geo_dist(
-    ///         &quot;my_gis&quot;,
-    ///         &quot;Palermo&quot;,
-    ///         &quot;Atlantis&quot;,
+    ///         "my_gis",
+    ///         "Palermo",
+    ///         "Atlantis",
     ///         Unit::Meters
     ///     );
     ///     // x is Ok(None)
     /// }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;geospatial&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;geospatial&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"geospatial"</span>)))]
     </span><span class="kw">fn </span>geo_dist&lt;K: ToRedisArgs, M1: ToRedisArgs, M2: ToRedisArgs&gt;(
         key: K,
         member1: M1,
         member2: M2,
         unit: geo::Unit
     ) {
-        cmd(<span class="string">&quot;GEODIST&quot;</span>)
+        cmd(<span class="string">"GEODIST"</span>)
             .arg(key)
             .arg(member1)
             .arg(member2)
@@ -3277,17 +3278,17 @@
     /// use redis::{Commands, RedisResult};
     ///
     /// fn get_hash(con: &amp;mut redis::Connection) {
-    ///     let x: RedisResult&lt;Vec&lt;String&gt;&gt; = con.geo_hash(&quot;my_gis&quot;, &quot;Palermo&quot;);
-    ///     // x is vec![&quot;sqc8b49rny0&quot;]
+    ///     let x: RedisResult&lt;Vec&lt;String&gt;&gt; = con.geo_hash("my_gis", "Palermo");
+    ///     // x is vec!["sqc8b49rny0"]
     ///
-    ///     let x: RedisResult&lt;Vec&lt;String&gt;&gt; = con.geo_hash(&quot;my_gis&quot;, &amp;[&quot;Palermo&quot;, &quot;Catania&quot;]);
-    ///     // x is vec![&quot;sqc8b49rny0&quot;, &quot;sqdtr74hyu0&quot;]
+    ///     let x: RedisResult&lt;Vec&lt;String&gt;&gt; = con.geo_hash("my_gis", &amp;["Palermo", "Catania"]);
+    ///     // x is vec!["sqc8b49rny0", "sqdtr74hyu0"]
     /// }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;geospatial&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;geospatial&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"geospatial"</span>)))]
     </span><span class="kw">fn </span>geo_hash&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, members: M) {
-        cmd(<span class="string">&quot;GEOHASH&quot;</span>).arg(key).arg(members)
+        cmd(<span class="string">"GEOHASH"</span>).arg(key).arg(members)
     }
 
     <span class="doccomment">/// Return the positions of all the specified members of the geospatial
@@ -3305,18 +3306,18 @@
     /// use redis::geo::Coord;
     ///
     /// fn get_position(con: &amp;mut redis::Connection) {
-    ///     let x: RedisResult&lt;Vec&lt;Vec&lt;f64&gt;&gt;&gt; = con.geo_pos(&quot;my_gis&quot;, &amp;[&quot;Palermo&quot;, &quot;Catania&quot;]);
+    ///     let x: RedisResult&lt;Vec&lt;Vec&lt;f64&gt;&gt;&gt; = con.geo_pos("my_gis", &amp;["Palermo", "Catania"]);
     ///     // x is [ [ 13.361389, 38.115556 ], [ 15.087269, 37.502669 ] ];
     ///
-    ///     let x: Vec&lt;Coord&lt;f64&gt;&gt; = con.geo_pos(&quot;my_gis&quot;, &quot;Palermo&quot;).unwrap();
+    ///     let x: Vec&lt;Coord&lt;f64&gt;&gt; = con.geo_pos("my_gis", "Palermo").unwrap();
     ///     // x[0].longitude is 13.361389
     ///     // x[0].latitude is 38.115556
     /// }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;geospatial&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;geospatial&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"geospatial"</span>)))]
     </span><span class="kw">fn </span>geo_pos&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(key: K, members: M) {
-        cmd(<span class="string">&quot;GEOPOS&quot;</span>).arg(key).arg(members)
+        cmd(<span class="string">"GEOPOS"</span>).arg(key).arg(members)
     }
 
     <span class="doccomment">/// Return the members of a sorted set populated with geospatial information
@@ -3335,11 +3336,11 @@
     ///
     /// fn radius(con: &amp;mut redis::Connection) -&gt; Vec&lt;RadiusSearchResult&gt; {
     ///     let opts = RadiusOptions::default().with_dist().order(RadiusOrder::Asc);
-    ///     con.geo_radius(&quot;my_gis&quot;, 15.90, 37.21, 51.39, Unit::Kilometers, opts).unwrap()
+    ///     con.geo_radius("my_gis", 15.90, 37.21, 51.39, Unit::Kilometers, opts).unwrap()
     /// }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;geospatial&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;geospatial&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"geospatial"</span>)))]
     </span><span class="kw">fn </span>geo_radius&lt;K: ToRedisArgs&gt;(
         key: K,
         longitude: f64,
@@ -3348,7 +3349,7 @@
         unit: geo::Unit,
         options: geo::RadiusOptions
     ) {
-        cmd(<span class="string">&quot;GEORADIUS&quot;</span>)
+        cmd(<span class="string">"GEORADIUS"</span>)
             .arg(key)
             .arg(longitude)
             .arg(latitude)
@@ -3359,8 +3360,8 @@
 
     <span class="doccomment">/// Retrieve members selected by distance with the center of `member`. The
     /// member itself is always contained in the results.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;geospatial&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;geospatial&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"geospatial"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"geospatial"</span>)))]
     </span><span class="kw">fn </span>geo_radius_by_member&lt;K: ToRedisArgs, M: ToRedisArgs&gt;(
         key: K,
         member: M,
@@ -3368,7 +3369,7 @@
         unit: geo::Unit,
         options: geo::RadiusOptions
     ) {
-        cmd(<span class="string">&quot;GEORADIUSBYMEMBER&quot;</span>)
+        cmd(<span class="string">"GEORADIUSBYMEMBER"</span>)
             .arg(key)
             .arg(member)
             .arg(radius)
@@ -3385,13 +3386,13 @@
     /// ```text
     /// XACK &lt;key&gt; &lt;group&gt; &lt;id&gt; &lt;id&gt; ... &lt;id&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xack&lt;K: ToRedisArgs, G: ToRedisArgs, I: ToRedisArgs&gt;(
         key: K,
         group: G,
-        ids: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[I]) {
-        cmd(<span class="string">&quot;XACK&quot;</span>)
+        ids: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[I]) {
+        cmd(<span class="string">"XACK"</span>)
             .arg(key)
             .arg(group)
             .arg(ids)
@@ -3403,14 +3404,14 @@
     /// ```text
     /// XADD key &lt;ID or *&gt; [field value] [field value] ...
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xadd&lt;K: ToRedisArgs, ID: ToRedisArgs, F: ToRedisArgs, V: ToRedisArgs&gt;(
         key: K,
         id: ID,
-        items: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(F, V)]
+        items: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(F, V)]
     ) {
-        cmd(<span class="string">&quot;XADD&quot;</span>).arg(key).arg(id).arg(items)
+        cmd(<span class="string">"XADD"</span>).arg(key).arg(id).arg(items)
     }
 
 
@@ -3420,14 +3421,14 @@
     /// ```text
     /// XADD key &lt;ID or *&gt; [rust BTreeMap] ...
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xadd_map&lt;K: ToRedisArgs, ID: ToRedisArgs, BTM: ToRedisArgs&gt;(
         key: K,
         id: ID,
         map: BTM
     ) {
-        cmd(<span class="string">&quot;XADD&quot;</span>).arg(key).arg(id).arg(map)
+        cmd(<span class="string">"XADD"</span>).arg(key).arg(id).arg(map)
     }
 
     <span class="doccomment">/// Add a stream message while capping the stream at a maxlength.
@@ -3435,8 +3436,8 @@
     /// ```text
     /// XADD key [MAXLEN [~|=] &lt;count&gt;] &lt;ID or *&gt; [field value] [field value] ...
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xadd_maxlen&lt;
         K: ToRedisArgs,
         ID: ToRedisArgs,
@@ -3446,9 +3447,9 @@
         key: K,
         maxlen: streams::StreamMaxlen,
         id: ID,
-        items: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(F, V)]
+        items: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(F, V)]
     ) {
-        cmd(<span class="string">&quot;XADD&quot;</span>)
+        cmd(<span class="string">"XADD"</span>)
             .arg(key)
             .arg(maxlen)
             .arg(id)
@@ -3461,15 +3462,15 @@
     /// ```text
     /// XADD key [MAXLEN [~|=] &lt;count&gt;] &lt;ID or *&gt; [rust BTreeMap] ...
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xadd_maxlen_map&lt;K: ToRedisArgs, ID: ToRedisArgs, BTM: ToRedisArgs&gt;(
         key: K,
         maxlen: streams::StreamMaxlen,
         id: ID,
         map: BTM
     ) {
-        cmd(<span class="string">&quot;XADD&quot;</span>)
+        cmd(<span class="string">"XADD"</span>)
             .arg(key)
             .arg(maxlen)
             .arg(id)
@@ -3487,16 +3488,16 @@
     /// ```text
     /// XCLAIM &lt;key&gt; &lt;group&gt; &lt;consumer&gt; &lt;min-idle-time&gt; [&lt;ID-1&gt; &lt;ID-2&gt;]
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xclaim&lt;K: ToRedisArgs, G: ToRedisArgs, C: ToRedisArgs, MIT: ToRedisArgs, ID: ToRedisArgs&gt;(
         key: K,
         group: G,
         consumer: C,
         min_idle_time: MIT,
-        ids: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[ID]
+        ids: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[ID]
     ) {
-        cmd(<span class="string">&quot;XCLAIM&quot;</span>)
+        cmd(<span class="string">"XCLAIM"</span>)
             .arg(key)
             .arg(group)
             .arg(consumer)
@@ -3510,18 +3511,18 @@
     /// ```no_run
     /// use redis::{Connection,Commands,RedisResult};
     /// use redis::streams::{StreamClaimOptions,StreamClaimReply};
-    /// let client = redis::Client::open(&quot;redis://127.0.0.1/0&quot;).unwrap();
+    /// let client = redis::Client::open("redis://127.0.0.1/0").unwrap();
     /// let mut con = client.get_connection().unwrap();
     ///
-    /// // Claim all pending messages for key &quot;k1&quot;,
-    /// // from group &quot;g1&quot;, checked out by consumer &quot;c1&quot;
+    /// // Claim all pending messages for key "k1",
+    /// // from group "g1", checked out by consumer "c1"
     /// // for 10ms with RETRYCOUNT 2 and FORCE
     ///
     /// let opts = StreamClaimOptions::default()
     ///     .with_force()
     ///     .retry(2);
     /// let results: RedisResult&lt;StreamClaimReply&gt; =
-    ///     con.xclaim_options(&quot;k1&quot;, &quot;g1&quot;, &quot;c1&quot;, 10, &amp;[&quot;0&quot;], opts);
+    ///     con.xclaim_options("k1", "g1", "c1", 10, &amp;["0"], opts);
     ///
     /// // All optional arguments return a `Result&lt;StreamClaimReply&gt;` with one exception:
     /// // Passing JUSTID returns only the message `id` and omits the HashMap for each message.
@@ -3529,7 +3530,7 @@
     /// let opts = StreamClaimOptions::default()
     ///     .with_justid();
     /// let results: RedisResult&lt;Vec&lt;String&gt;&gt; =
-    ///     con.xclaim_options(&quot;k1&quot;, &quot;g1&quot;, &quot;c1&quot;, 10, &amp;[&quot;0&quot;], opts);
+    ///     con.xclaim_options("k1", "g1", "c1", 10, &amp;["0"], opts);
     /// ```
     ///
     /// ```text
@@ -3537,8 +3538,8 @@
     ///     [IDLE &lt;milliseconds&gt;] [TIME &lt;mstime&gt;] [RETRYCOUNT &lt;count&gt;]
     ///     [FORCE] [JUSTID]
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xclaim_options&lt;
         K: ToRedisArgs,
         G: ToRedisArgs,
@@ -3550,10 +3551,10 @@
         group: G,
         consumer: C,
         min_idle_time: MIT,
-        ids: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[ID],
+        ids: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[ID],
         options: streams::StreamClaimOptions
     ) {
-        cmd(<span class="string">&quot;XCLAIM&quot;</span>)
+        cmd(<span class="string">"XCLAIM"</span>)
             .arg(key)
             .arg(group)
             .arg(consumer)
@@ -3568,33 +3569,33 @@
     /// ```text
     /// XDEL &lt;key&gt; [&lt;ID1&gt; &lt;ID2&gt; ... &lt;IDN&gt;]
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xdel&lt;K: ToRedisArgs, ID: ToRedisArgs&gt;(
         key: K,
-        ids: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[ID]
+        ids: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[ID]
     ) {
-        cmd(<span class="string">&quot;XDEL&quot;</span>).arg(key).arg(ids)
+        cmd(<span class="string">"XDEL"</span>).arg(key).arg(ids)
     }
 
 
     <span class="doccomment">/// This command is used for creating a consumer `group`. It expects the stream key
-    /// to already exist. Otherwise, use `xgroup_create_mkstream` if it doesn&#39;t.
+    /// to already exist. Otherwise, use `xgroup_create_mkstream` if it doesn't.
     /// The `id` is the starting message id all consumers should read from. Use `$` If you want
     /// all consumers to read from the last message added to stream.
     ///
     /// ```text
     /// XGROUP CREATE &lt;key&gt; &lt;groupname&gt; &lt;id or $&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xgroup_create&lt;K: ToRedisArgs, G: ToRedisArgs, ID: ToRedisArgs&gt;(
         key: K,
         group: G,
         id: ID
     ) {
-        cmd(<span class="string">&quot;XGROUP&quot;</span>)
-            .arg(<span class="string">&quot;CREATE&quot;</span>)
+        cmd(<span class="string">"XGROUP"</span>)
+            .arg(<span class="string">"CREATE"</span>)
             .arg(key)
             .arg(group)
             .arg(id)
@@ -3602,13 +3603,13 @@
 
 
     <span class="doccomment">/// This is the alternate version for creating a consumer `group`
-    /// which makes the stream if it doesn&#39;t exist.
+    /// which makes the stream if it doesn't exist.
     ///
     /// ```text
     /// XGROUP CREATE &lt;key&gt; &lt;groupname&gt; &lt;id or $&gt; [MKSTREAM]
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xgroup_create_mkstream&lt;
         K: ToRedisArgs,
         G: ToRedisArgs,
@@ -3618,12 +3619,12 @@
         group: G,
         id: ID
     ) {
-        cmd(<span class="string">&quot;XGROUP&quot;</span>)
-            .arg(<span class="string">&quot;CREATE&quot;</span>)
+        cmd(<span class="string">"XGROUP"</span>)
+            .arg(<span class="string">"CREATE"</span>)
             .arg(key)
             .arg(group)
             .arg(id)
-            .arg(<span class="string">&quot;MKSTREAM&quot;</span>)
+            .arg(<span class="string">"MKSTREAM"</span>)
     }
 
 
@@ -3633,15 +3634,15 @@
     /// ```text
     /// XGROUP SETID &lt;key&gt; &lt;groupname&gt; &lt;id or $&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xgroup_setid&lt;K: ToRedisArgs, G: ToRedisArgs, ID: ToRedisArgs&gt;(
         key: K,
         group: G,
         id: ID
     ) {
-        cmd(<span class="string">&quot;XGROUP&quot;</span>)
-            .arg(<span class="string">&quot;SETID&quot;</span>)
+        cmd(<span class="string">"XGROUP"</span>)
+            .arg(<span class="string">"SETID"</span>)
             .arg(key)
             .arg(group)
             .arg(id)
@@ -3653,13 +3654,13 @@
     /// ```text
     /// XGROUP SETID &lt;key&gt; &lt;groupname&gt; &lt;id or $&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xgroup_destroy&lt;K: ToRedisArgs, G: ToRedisArgs&gt;(
         key: K,
         group: G
     ) {
-        cmd(<span class="string">&quot;XGROUP&quot;</span>).arg(<span class="string">&quot;DESTROY&quot;</span>).arg(key).arg(group)
+        cmd(<span class="string">"XGROUP"</span>).arg(<span class="string">"DESTROY"</span>).arg(key).arg(group)
     }
 
     <span class="doccomment">/// This deletes a `consumer` from an existing consumer `group`
@@ -3668,15 +3669,15 @@
     /// ```text
     /// XGROUP DELCONSUMER &lt;key&gt; &lt;groupname&gt; &lt;consumername&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xgroup_delconsumer&lt;K: ToRedisArgs, G: ToRedisArgs, C: ToRedisArgs&gt;(
         key: K,
         group: G,
         consumer: C
     ) {
-        cmd(<span class="string">&quot;XGROUP&quot;</span>)
-            .arg(<span class="string">&quot;DELCONSUMER&quot;</span>)
+        cmd(<span class="string">"XGROUP"</span>)
+            .arg(<span class="string">"DELCONSUMER"</span>)
             .arg(key)
             .arg(group)
             .arg(consumer)
@@ -3687,20 +3688,20 @@
     /// which consumers have read messages for given consumer `group`.
     /// Take note of the StreamInfoConsumersReply return type.
     ///
-    /// *It&#39;s possible this return value might not contain new fields
+    /// *It's possible this return value might not contain new fields
     /// added by Redis in future versions.*
     ///
     /// ```text
     /// XINFO CONSUMERS &lt;key&gt; &lt;group&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xinfo_consumers&lt;K: ToRedisArgs, G: ToRedisArgs&gt;(
         key: K,
         group: G
     ) {
-        cmd(<span class="string">&quot;XINFO&quot;</span>)
-            .arg(<span class="string">&quot;CONSUMERS&quot;</span>)
+        cmd(<span class="string">"XINFO"</span>)
+            .arg(<span class="string">"CONSUMERS"</span>)
             .arg(key)
             .arg(group)
     }
@@ -3709,16 +3710,16 @@
     <span class="doccomment">/// Returns all consumer `group`s created for a given stream `key`.
     /// Take note of the StreamInfoGroupsReply return type.
     ///
-    /// *It&#39;s possible this return value might not contain new fields
+    /// *It's possible this return value might not contain new fields
     /// added by Redis in future versions.*
     ///
     /// ```text
     /// XINFO GROUPS &lt;key&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xinfo_groups&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;XINFO&quot;</span>).arg(<span class="string">&quot;GROUPS&quot;</span>).arg(key)
+        cmd(<span class="string">"XINFO"</span>).arg(<span class="string">"GROUPS"</span>).arg(key)
     }
 
 
@@ -3726,16 +3727,16 @@
     /// (first &amp; last message `id`, length, number of groups, etc.)
     /// Take note of the StreamInfoStreamReply return type.
     ///
-    /// *It&#39;s possible this return value might not contain new fields
+    /// *It's possible this return value might not contain new fields
     /// added by Redis in future versions.*
     ///
     /// ```text
     /// XINFO STREAM &lt;key&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xinfo_stream&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;XINFO&quot;</span>).arg(<span class="string">&quot;STREAM&quot;</span>).arg(key)
+        cmd(<span class="string">"XINFO"</span>).arg(<span class="string">"STREAM"</span>).arg(key)
     }
 
     <span class="doccomment">/// Returns the number of messages for a given stream `key`.
@@ -3743,17 +3744,17 @@
     /// ```text
     /// XLEN &lt;key&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xlen&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;XLEN&quot;</span>).arg(key)
+        cmd(<span class="string">"XLEN"</span>).arg(key)
     }
 
 
     <span class="doccomment">/// This is a basic version of making XPENDING command calls which only
     /// passes a stream `key` and consumer `group` and it
     /// returns details about which consumers have pending messages
-    /// that haven&#39;t been acked.
+    /// that haven't been acked.
     ///
     /// You can use this method along with
     /// `xclaim` or `xclaim_options` for determining which messages
@@ -3764,13 +3765,13 @@
     /// ```text
     /// XPENDING &lt;key&gt; &lt;group&gt; [&lt;start&gt; &lt;stop&gt; &lt;count&gt; [&lt;consumer&gt;]]
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xpending&lt;K: ToRedisArgs, G: ToRedisArgs&gt;(
         key: K,
         group: G
     )  {
-        cmd(<span class="string">&quot;XPENDING&quot;</span>).arg(key).arg(group)
+        cmd(<span class="string">"XPENDING"</span>).arg(key).arg(group)
     }
 
 
@@ -3785,8 +3786,8 @@
     /// ```text
     /// XPENDING &lt;key&gt; &lt;group&gt; &lt;start&gt; &lt;stop&gt; &lt;count&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xpending_count&lt;
         K: ToRedisArgs,
         G: ToRedisArgs,
@@ -3800,7 +3801,7 @@
         end: E,
         count: C
     )  {
-        cmd(<span class="string">&quot;XPENDING&quot;</span>)
+        cmd(<span class="string">"XPENDING"</span>)
             .arg(key)
             .arg(group)
             .arg(start)
@@ -3819,8 +3820,8 @@
     /// ```text
     /// XPENDING &lt;key&gt; &lt;group&gt; &lt;start&gt; &lt;stop&gt; &lt;count&gt; &lt;consumer&gt;
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xpending_consumer_count&lt;
         K: ToRedisArgs,
         G: ToRedisArgs,
@@ -3836,7 +3837,7 @@
         count: C,
         consumer: CN
     ) {
-        cmd(<span class="string">&quot;XPENDING&quot;</span>)
+        cmd(<span class="string">"XPENDING"</span>)
             .arg(key)
             .arg(group)
             .arg(start)
@@ -3856,14 +3857,14 @@
     /// ```text
     /// XRANGE key start end
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xrange&lt;K: ToRedisArgs, S: ToRedisArgs, E: ToRedisArgs&gt;(
         key: K,
         start: S,
         end: E
     )  {
-        cmd(<span class="string">&quot;XRANGE&quot;</span>).arg(key).arg(start).arg(end)
+        cmd(<span class="string">"XRANGE"</span>).arg(key).arg(start).arg(end)
     }
 
 
@@ -3873,10 +3874,10 @@
     /// ```text
     /// XRANGE key - +
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xrange_all&lt;K: ToRedisArgs&gt;(key: K)  {
-        cmd(<span class="string">&quot;XRANGE&quot;</span>).arg(key).arg(<span class="string">&quot;-&quot;</span>).arg(<span class="string">&quot;+&quot;</span>)
+        cmd(<span class="string">"XRANGE"</span>).arg(key).arg(<span class="string">"-"</span>).arg(<span class="string">"+"</span>)
     }
 
 
@@ -3885,19 +3886,19 @@
     /// ```text
     /// XRANGE key start end [COUNT &lt;n&gt;]
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xrange_count&lt;K: ToRedisArgs, S: ToRedisArgs, E: ToRedisArgs, C: ToRedisArgs&gt;(
         key: K,
         start: S,
         end: E,
         count: C
     )  {
-        cmd(<span class="string">&quot;XRANGE&quot;</span>)
+        cmd(<span class="string">"XRANGE"</span>)
             .arg(key)
             .arg(start)
             .arg(end)
-            .arg(<span class="string">&quot;COUNT&quot;</span>)
+            .arg(<span class="string">"COUNT"</span>)
             .arg(count)
     }
 
@@ -3910,13 +3911,13 @@
     /// ```text
     /// XREAD STREAMS key_1 key_2 ... key_N ID_1 ID_2 ... ID_N
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xread&lt;K: ToRedisArgs, ID: ToRedisArgs&gt;(
-        keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K],
-        ids: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[ID]
+        keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K],
+        ids: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[ID]
     ) {
-        cmd(<span class="string">&quot;XREAD&quot;</span>).arg(<span class="string">&quot;STREAMS&quot;</span>).arg(keys).arg(ids)
+        cmd(<span class="string">"XREAD"</span>).arg(<span class="string">"STREAMS"</span>).arg(keys).arg(ids)
     }
 
     <span class="doccomment">/// This method handles setting optional arguments for
@@ -3924,7 +3925,7 @@
     /// ```no_run
     /// use redis::{Connection,RedisResult,Commands};
     /// use redis::streams::{StreamReadOptions,StreamReadReply};
-    /// let client = redis::Client::open(&quot;redis://127.0.0.1/0&quot;).unwrap();
+    /// let client = redis::Client::open("redis://127.0.0.1/0").unwrap();
     /// let mut con = client.get_connection().unwrap();
     ///
     /// // Read 10 messages from the start of the stream,
@@ -3933,17 +3934,17 @@
     /// let opts = StreamReadOptions::default()
     ///     .count(10);
     /// let results: RedisResult&lt;StreamReadReply&gt; =
-    ///     con.xread_options(&amp;[&quot;k1&quot;], &amp;[&quot;0&quot;], &amp;opts);
+    ///     con.xread_options(&amp;["k1"], &amp;["0"], &amp;opts);
     ///
     /// // Read all undelivered messages for a given
     /// // consumer group. Be advised: the consumer group must already
-    /// // exist before making this call. Also note: we&#39;re passing
-    /// // &#39;&gt;&#39; as the id here, which means all undelivered messages.
+    /// // exist before making this call. Also note: we're passing
+    /// // '&gt;' as the id here, which means all undelivered messages.
     ///
     /// let opts = StreamReadOptions::default()
-    ///     .group(&quot;group-1&quot;, &quot;consumer-1&quot;);
+    ///     .group("group-1", "consumer-1");
     /// let results: RedisResult&lt;StreamReadReply&gt; =
-    ///     con.xread_options(&amp;[&quot;k1&quot;], &amp;[&quot;&gt;&quot;], &amp;opts);
+    ///     con.xread_options(&amp;["k1"], &amp;["&gt;"], &amp;opts);
     /// ```
     ///
     /// ```text
@@ -3955,20 +3956,20 @@
     ///     STREAMS key_1 key_2 ... key_N
     ///     ID_1 ID_2 ... ID_N
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xread_options&lt;K: ToRedisArgs, ID: ToRedisArgs&gt;(
-        keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[K],
-        ids: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[ID],
-        options: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>streams::StreamReadOptions
+        keys: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[K],
+        ids: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[ID],
+        options: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>streams::StreamReadOptions
     ) {
         cmd(<span class="kw">if </span>options.read_only() {
-            <span class="string">&quot;XREAD&quot;
+            <span class="string">"XREAD"
         </span>} <span class="kw">else </span>{
-            <span class="string">&quot;XREADGROUP&quot;
+            <span class="string">"XREADGROUP"
         </span>})
         .arg(options)
-        .arg(<span class="string">&quot;STREAMS&quot;</span>)
+        .arg(<span class="string">"STREAMS"</span>)
         .arg(keys)
         .arg(ids)
     }
@@ -3979,14 +3980,14 @@
     /// ```text
     /// XREVRANGE key end start
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xrevrange&lt;K: ToRedisArgs, E: ToRedisArgs, S: ToRedisArgs&gt;(
         key: K,
         end: E,
         start: S
     ) {
-        cmd(<span class="string">&quot;XREVRANGE&quot;</span>).arg(key).arg(end).arg(start)
+        cmd(<span class="string">"XREVRANGE"</span>).arg(key).arg(end).arg(start)
     }
 
     <span class="doccomment">/// This is the reverse version of `xrange_all`.
@@ -3996,7 +3997,7 @@
     /// XREVRANGE key + -
     /// ```
     </span><span class="kw">fn </span>xrevrange_all&lt;K: ToRedisArgs&gt;(key: K) {
-        cmd(<span class="string">&quot;XREVRANGE&quot;</span>).arg(key).arg(<span class="string">&quot;+&quot;</span>).arg(<span class="string">&quot;-&quot;</span>)
+        cmd(<span class="string">"XREVRANGE"</span>).arg(key).arg(<span class="string">"+"</span>).arg(<span class="string">"-"</span>)
     }
 
     <span class="doccomment">/// This is the reverse version of `xrange_count`.
@@ -4005,19 +4006,19 @@
     /// ```text
     /// XREVRANGE key end start [COUNT &lt;n&gt;]
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xrevrange_count&lt;K: ToRedisArgs, E: ToRedisArgs, S: ToRedisArgs, C: ToRedisArgs&gt;(
         key: K,
         end: E,
         start: S,
         count: C
     ) {
-        cmd(<span class="string">&quot;XREVRANGE&quot;</span>)
+        cmd(<span class="string">"XREVRANGE"</span>)
             .arg(key)
             .arg(end)
             .arg(start)
-            .arg(<span class="string">&quot;COUNT&quot;</span>)
+            .arg(<span class="string">"COUNT"</span>)
             .arg(count)
     }
 
@@ -4027,13 +4028,13 @@
     /// ```text
     /// XTRIM &lt;key&gt; MAXLEN [~|=] &lt;count&gt;  (Same as XADD MAXLEN option)
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;streams&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;streams&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"streams"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"streams"</span>)))]
     </span><span class="kw">fn </span>xtrim&lt;K: ToRedisArgs&gt;(
         key: K,
         maxlen: streams::StreamMaxlen
     ) {
-        cmd(<span class="string">&quot;XTRIM&quot;</span>).arg(key).arg(maxlen)
+        cmd(<span class="string">"XTRIM"</span>).arg(key).arg(maxlen)
     }
 }
 
@@ -4062,12 +4063,12 @@
 /// ```rust,no_run
 /// # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
 /// use redis::{PubSubCommands, ControlFlow};
-/// let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;)?;
+/// let client = redis::Client::open("redis://127.0.0.1/")?;
 /// let mut con = client.get_connection()?;
 /// let mut count = 0;
-/// con.subscribe(&amp;[&quot;foo&quot;], |msg| {
+/// con.subscribe(&amp;["foo"], |msg| {
 ///     // do something with message
-///     assert_eq!(msg.get_channel(), Ok(String::from(&quot;foo&quot;)));
+///     assert_eq!(msg.get_channel(), Ok(String::from("foo")));
 ///
 ///     // increment messages seen counter
 ///     count += 1;
@@ -4107,7 +4108,7 @@
 
 <span class="kw">impl</span>&lt;T&gt; Commands <span class="kw">for </span>T <span class="kw">where </span>T: ConnectionLike {}
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
 </span><span class="kw">impl</span>&lt;T&gt; AsyncCommands <span class="kw">for </span>T <span class="kw">where </span>T: <span class="kw">crate</span>::aio::ConnectionLike + Send + Sized {}
 
 <span class="kw">impl </span>PubSubCommands <span class="kw">for </span>Connection {
@@ -4200,17 +4201,17 @@
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
     {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = <span class="self">self</span>.count {
-            out.write_arg(<span class="string">b&quot;COUNT&quot;</span>);
+            out.write_arg(<span class="string">b"COUNT"</span>);
             out.write_arg_fmt(n);
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = <span class="self">self</span>.rank {
-            out.write_arg(<span class="string">b&quot;RANK&quot;</span>);
+            out.write_arg(<span class="string">b"RANK"</span>);
             out.write_arg_fmt(n);
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = <span class="self">self</span>.maxlen {
-            out.write_arg(<span class="string">b&quot;MAXLEN&quot;</span>);
+            out.write_arg(<span class="string">b"MAXLEN"</span>);
             out.write_arg_fmt(n);
         }
     }
@@ -4234,8 +4235,8 @@
         </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
     {
         <span class="kw">let </span>s: <span class="kw-2">&amp;</span>[u8] = <span class="kw">match </span><span class="self">self </span>{
-            Direction::Left =&gt; <span class="string">b&quot;LEFT&quot;</span>,
-            Direction::Right =&gt; <span class="string">b&quot;RIGHT&quot;</span>,
+            Direction::Left =&gt; <span class="string">b"LEFT"</span>,
+            Direction::Right =&gt; <span class="string">b"RIGHT"</span>,
         };
         out.write_arg(s);
     }
@@ -4293,36 +4294,36 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>conditional_set) = <span class="self">self</span>.conditional_set {
             <span class="kw">match </span>conditional_set {
                 ExistenceCheck::NX =&gt; {
-                    out.write_arg(<span class="string">b&quot;NX&quot;</span>);
+                    out.write_arg(<span class="string">b"NX"</span>);
                 }
                 ExistenceCheck::XX =&gt; {
-                    out.write_arg(<span class="string">b&quot;XX&quot;</span>);
+                    out.write_arg(<span class="string">b"XX"</span>);
                 }
             }
         }
         <span class="kw">if </span><span class="self">self</span>.get {
-            out.write_arg(<span class="string">b&quot;GET&quot;</span>);
+            out.write_arg(<span class="string">b"GET"</span>);
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>expiration) = <span class="self">self</span>.expiration {
             <span class="kw">match </span>expiration {
                 SetExpiry::EX(secs) =&gt; {
-                    out.write_arg(<span class="string">b&quot;EX&quot;</span>);
-                    out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, secs).as_bytes());
+                    out.write_arg(<span class="string">b"EX"</span>);
+                    out.write_arg(<span class="macro">format!</span>(<span class="string">"{}"</span>, secs).as_bytes());
                 }
                 SetExpiry::PX(millis) =&gt; {
-                    out.write_arg(<span class="string">b&quot;PX&quot;</span>);
-                    out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, millis).as_bytes());
+                    out.write_arg(<span class="string">b"PX"</span>);
+                    out.write_arg(<span class="macro">format!</span>(<span class="string">"{}"</span>, millis).as_bytes());
                 }
                 SetExpiry::EXAT(unix_time) =&gt; {
-                    out.write_arg(<span class="string">b&quot;EXAT&quot;</span>);
-                    out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, unix_time).as_bytes());
+                    out.write_arg(<span class="string">b"EXAT"</span>);
+                    out.write_arg(<span class="macro">format!</span>(<span class="string">"{}"</span>, unix_time).as_bytes());
                 }
                 SetExpiry::PXAT(unix_time) =&gt; {
-                    out.write_arg(<span class="string">b&quot;PXAT&quot;</span>);
-                    out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, unix_time).as_bytes());
+                    out.write_arg(<span class="string">b"PXAT"</span>);
+                    out.write_arg(<span class="macro">format!</span>(<span class="string">"{}"</span>, unix_time).as_bytes());
                 }
                 SetExpiry::KEEPTTL =&gt; {
-                    out.write_arg(<span class="string">b&quot;KEEPTTL&quot;</span>);
+                    out.write_arg(<span class="string">b"KEEPTTL"</span>);
                 }
             }
         }

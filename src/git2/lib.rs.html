@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1694,9 +1695,9 @@
 //! # #![allow(unstable)]
 //! use git2::Repository;
 //!
-//! let repo = match Repository::init(&quot;/path/to/a/repo&quot;) {
+//! let repo = match Repository::init("/path/to/a/repo") {
 //!     Ok(repo) =&gt; repo,
-//!     Err(e) =&gt; panic!(&quot;failed to init: {}&quot;, e),
+//!     Err(e) =&gt; panic!("failed to init: {}", e),
 //! };
 //! ```
 //!
@@ -1706,9 +1707,9 @@
 //! # #![allow(unstable)]
 //! use git2::Repository;
 //!
-//! let repo = match Repository::open(&quot;/path/to/a/repo&quot;) {
+//! let repo = match Repository::open("/path/to/a/repo") {
 //!     Ok(repo) =&gt; repo,
-//!     Err(e) =&gt; panic!(&quot;failed to open: {}&quot;, e),
+//!     Err(e) =&gt; panic!("failed to open: {}", e),
 //! };
 //! ```
 //!
@@ -1718,10 +1719,10 @@
 //! # #![allow(unstable)]
 //! use git2::Repository;
 //!
-//! let url = &quot;https://github.com/alexcrichton/git2-rs&quot;;
-//! let repo = match Repository::clone(url, &quot;/path/to/a/repo&quot;) {
+//! let url = "https://github.com/alexcrichton/git2-rs";
+//! let repo = match Repository::clone(url, "/path/to/a/repo") {
 //!     Ok(repo) =&gt; repo,
-//!     Err(e) =&gt; panic!(&quot;failed to clone: {}&quot;, e),
+//!     Err(e) =&gt; panic!("failed to clone: {}", e),
 //! };
 //! ```
 //!
@@ -1733,7 +1734,7 @@
 //! source `Repository`, to ensure that they do not outlive the repository
 //! itself.
 
-</span><span class="attr">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/git2/0.18&quot;</span>)]
+</span><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/git2/0.18"</span>)]
 #![allow(trivial_numeric_casts, trivial_casts)]
 #![deny(missing_docs)]
 #![warn(rust_2018_idioms)]
@@ -1948,7 +1949,7 @@
     </span>Callback,
     <span class="doccomment">/// Error cherry-picking commit
     </span>CherryPick,
-    <span class="doccomment">/// Can&#39;t describe object
+    <span class="doccomment">/// Can't describe object
     </span>Describe,
     <span class="doccomment">/// Error during rebase
     </span>Rebase,
@@ -2068,11 +2069,11 @@
     /// conflict markers in the working directory. This is the default.
     </span>Normal,
     <span class="doccomment">/// When a region of a file is changed in both branches, the file created
-    /// in the index will contain the &quot;ours&quot; side of any conflicting region.
+    /// in the index will contain the "ours" side of any conflicting region.
     /// The index will not record a conflict.
     </span>Ours,
     <span class="doccomment">/// When a region of a file is changed in both branches, the file created
-    /// in the index will contain the &quot;theirs&quot; side of any conflicting region.
+    /// in the index will contain the "theirs" side of any conflicting region.
     /// The index will not record a conflict.
     </span>Theirs,
     <span class="doccomment">/// When a region of a file is changed in both branches, the file created
@@ -2159,7 +2160,7 @@
     </span><span class="kw">pub struct </span>IndexEntryFlag: u16 {
         <span class="doccomment">/// Set when the `extended_flags` field is valid.
         </span><span class="kw">const </span>EXTENDED = raw::GIT_INDEX_ENTRY_EXTENDED <span class="kw">as </span>u16;
-        <span class="doccomment">/// &quot;Assume valid&quot; flag
+        <span class="doccomment">/// "Assume valid" flag
         </span><span class="kw">const </span>VALID = raw::GIT_INDEX_ENTRY_VALID <span class="kw">as </span>u16;
     }
 }
@@ -2173,7 +2174,7 @@
     <span class="doccomment">/// Flags for the `extended_flags` field of an IndexEntry.
     </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>IndexEntryExtendedFlag: u16 {
-        <span class="doccomment">/// An &quot;intent to add&quot; entry from &quot;git add -N&quot;
+        <span class="doccomment">/// An "intent to add" entry from "git add -N"
         </span><span class="kw">const </span>INTENT_TO_ADD = raw::GIT_INDEX_ENTRY_INTENT_TO_ADD <span class="kw">as </span>u16;
         <span class="doccomment">/// Skip the associated worktree file, for sparse checkouts
         </span><span class="kw">const </span>SKIP_WORKTREE = raw::GIT_INDEX_ENTRY_SKIP_WORKTREE <span class="kw">as </span>u16;
@@ -2225,13 +2226,13 @@
     <span class="doccomment">/// Flags for `Repository::open_ext`
     </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>RepositoryOpenFlags: u32 {
-        <span class="doccomment">/// Only open the specified path; don&#39;t walk upward searching.
+        <span class="doccomment">/// Only open the specified path; don't walk upward searching.
         </span><span class="kw">const </span>NO_SEARCH = raw::GIT_REPOSITORY_OPEN_NO_SEARCH <span class="kw">as </span>u32;
         <span class="doccomment">/// Search across filesystem boundaries.
         </span><span class="kw">const </span>CROSS_FS = raw::GIT_REPOSITORY_OPEN_CROSS_FS <span class="kw">as </span>u32;
         <span class="doccomment">/// Force opening as bare repository, and defer loading its config.
         </span><span class="kw">const </span>BARE = raw::GIT_REPOSITORY_OPEN_BARE <span class="kw">as </span>u32;
-        <span class="doccomment">/// Don&#39;t try appending `/.git` to the specified repository path.
+        <span class="doccomment">/// Don't try appending `/.git` to the specified repository path.
         </span><span class="kw">const </span>NO_DOTGIT = raw::GIT_REPOSITORY_OPEN_NO_DOTGIT <span class="kw">as </span>u32;
         <span class="doccomment">/// Respect environment variables like `$GIT_DIR`.
         </span><span class="kw">const </span>FROM_ENV = raw::GIT_REPOSITORY_OPEN_FROM_ENV <span class="kw">as </span>u32;
@@ -2271,7 +2272,7 @@
     </span><span class="kw">pub struct </span>MergeAnalysis: u32 {
         <span class="doccomment">/// No merge is possible.
         </span><span class="kw">const </span>ANALYSIS_NONE = raw::GIT_MERGE_ANALYSIS_NONE <span class="kw">as </span>u32;
-        <span class="doccomment">/// A &quot;normal&quot; merge; both HEAD and the given merge input have diverged
+        <span class="doccomment">/// A "normal" merge; both HEAD and the given merge input have diverged
         /// from their common ancestor. The divergent commits must be merged.
         </span><span class="kw">const </span>ANALYSIS_NORMAL = raw::GIT_MERGE_ANALYSIS_NORMAL <span class="kw">as </span>u32;
         <span class="doccomment">/// All given merge inputs are reachable from HEAD, meaning the
@@ -2281,7 +2282,7 @@
         /// needs to be performed.  Instead, the client can check out the
         /// given merge input.
         </span><span class="kw">const </span>ANALYSIS_FASTFORWARD = raw::GIT_MERGE_ANALYSIS_FASTFORWARD <span class="kw">as </span>u32;
-        <span class="doccomment">/// The HEAD of the current repository is &quot;unborn&quot; and does not point to
+        <span class="doccomment">/// The HEAD of the current repository is "unborn" and does not point to
         /// a valid commit.  No merge can be performed, but the caller may wish
         /// to simply set HEAD to the target commit(s).
         </span><span class="kw">const </span>ANALYSIS_UNBORN = raw::GIT_MERGE_ANALYSIS_UNBORN <span class="kw">as </span>u32;
@@ -2297,7 +2298,7 @@
 }
 
 <span class="macro">bitflags! </span>{
-    <span class="doccomment">/// The user&#39;s stated preference for merges.
+    <span class="doccomment">/// The user's stated preference for merges.
     </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>MergePreference: u32 {
         <span class="doccomment">/// No configuration was found that suggests a preferred behavior for
@@ -2322,7 +2323,7 @@
     <span class="doccomment">/// Flags controlling the behavior of ODB lookup operations
     </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>OdbLookupFlags: u32 {
-        <span class="doccomment">/// Don&#39;t call `git_odb_refresh` if the lookup fails. Useful when doing
+        <span class="doccomment">/// Don't call `git_odb_refresh` if the lookup fails. Useful when doing
         /// a batch of lookup operations for objects that may legitimately not
         /// exist. When using this flag, you may wish to manually call
         /// `git_odb_refresh` before processing a batch of objects.
@@ -2410,22 +2411,22 @@
 
 <span class="attr">#[cfg(all(
     unix,
-    not(target_os = <span class="string">&quot;macos&quot;</span>),
-    not(target_os = <span class="string">&quot;ios&quot;</span>),
-    feature = <span class="string">&quot;https&quot;
+    not(target_os = <span class="string">"macos"</span>),
+    not(target_os = <span class="string">"ios"</span>),
+    feature = <span class="string">"https"
 </span>))]
 </span><span class="kw">fn </span>openssl_env_init() {
     <span class="comment">// Currently, libgit2 leverages OpenSSL for SSL support when cloning
-    // repositories over HTTPS. This means that we&#39;re picking up an OpenSSL
+    // repositories over HTTPS. This means that we're picking up an OpenSSL
     // dependency on non-Windows platforms (where it has its own HTTPS
     // subsystem). As a result, we need to link to OpenSSL.
     //
-    // Now actually *linking* to OpenSSL isn&#39;t so hard. We just need to make
+    // Now actually *linking* to OpenSSL isn't so hard. We just need to make
     // sure to use pkg-config to discover any relevant system dependencies for
     // differences between distributions like CentOS and Ubuntu. The actual
     // trickiness comes about when we start *distributing* the resulting
     // binaries. Currently Cargo is distributed in binary form as nightlies,
-    // which means we&#39;re distributing a binary with OpenSSL linked in.
+    // which means we're distributing a binary with OpenSSL linked in.
     //
     // For historical reasons, the Linux nightly builder is running a CentOS
     // distribution in order to have as much ABI compatibility with other
@@ -2449,14 +2450,14 @@
     // There are a number of sneaky things we could do, including, but not
     // limited to:
     //
-    // 1. Create a shim program which runs &quot;just before&quot; cargo runs. The
+    // 1. Create a shim program which runs "just before" cargo runs. The
     //    responsibility of this shim program would be to locate `libssl.so`,
-    //    whatever it&#39;s called, on the current system, make sure there&#39;s a
+    //    whatever it's called, on the current system, make sure there's a
     //    symlink *somewhere* called `libssl.so.10`, and then set up
     //    LD_LIBRARY_PATH and run the actual cargo.
     //
     //    This approach definitely seems unconventional, and is borderline
-    //    overkill for this problem. It&#39;s also dubious if we can find a
+    //    overkill for this problem. It's also dubious if we can find a
     //    libssl.so reliably on the target system.
     //
     // 2. Somehow re-work the CentOS installation so that the linked-against
@@ -2474,16 +2475,16 @@
     //    This approach clearly has drawbacks in terms of infrastructure and
     //    feasibility.
     //
-    // 4. Build a nightly of Cargo for each distribution we&#39;d like to support.
+    // 4. Build a nightly of Cargo for each distribution we'd like to support.
     //    You would then pick the appropriate Cargo nightly to install locally.
     //
     // So, with all this in mind, the decision was made to *statically* link
     // OpenSSL. This solves any problem of relying on a downstream OpenSSL
     // version being available. This does, however, open a can of worms related
-    // to security issues. It&#39;s generally a good idea to dynamically link
-    // OpenSSL as you&#39;ll get security updates over time without having to do
+    // to security issues. It's generally a good idea to dynamically link
+    // OpenSSL as you'll get security updates over time without having to do
     // anything (the system administrator will update the local openssl
-    // package). By statically linking, we&#39;re forfeiting this feature.
+    // package). By statically linking, we're forfeiting this feature.
     //
     // The conclusion was made it is likely appropriate for the Cargo nightlies
     // to statically link OpenSSL, but highly encourage distributions and
@@ -2504,8 +2505,8 @@
     // copies of a static OpenSSL (with very few dependencies) while allowing
     // most other builds of Cargo to naturally dynamically link OpenSSL.
     //
-    // So in summary, if you&#39;re with me so far, we&#39;ve statically linked OpenSSL
-    // to the Cargo binary (or any binary, for that matter) and we&#39;re ready to
+    // So in summary, if you're with me so far, we've statically linked OpenSSL
+    // to the Cargo binary (or any binary, for that matter) and we're ready to
     // distribute it to *all* linux distributions. Remember that our original
     // intent for openssl was for HTTPS support, which implies that we need some
     // for of CA certificate store to validate certificates. This is normally
@@ -2518,26 +2519,26 @@
     // in discovering the location of this file (hurray!).
     //
     // So, finally getting to the point, this function solely exists to support
-    // our static builds of OpenSSL by probing for the &quot;standard system
-    // location&quot; of certificates and setting relevant environment variable to
+    // our static builds of OpenSSL by probing for the "standard system
+    // location" of certificates and setting relevant environment variable to
     // point to them.
     //
     // Ah, and as a final note, this is only a problem on Linux, not on OS X. On
     // OS X the OpenSSL binaries are stable enough that we can just rely on
     // dynamic linkage (plus they have some weird modifications to OpenSSL which
-    // means we wouldn&#39;t want to link statically).
+    // means we wouldn't want to link statically).
     </span>openssl_probe::init_ssl_cert_env_vars();
 }
 
 <span class="attr">#[cfg(any(
     windows,
-    target_os = <span class="string">&quot;macos&quot;</span>,
-    target_os = <span class="string">&quot;ios&quot;</span>,
-    not(feature = <span class="string">&quot;https&quot;</span>)
+    target_os = <span class="string">"macos"</span>,
+    target_os = <span class="string">"ios"</span>,
+    not(feature = <span class="string">"https"</span>)
 ))]
 </span><span class="kw">fn </span>openssl_env_init() {}
 
-<span class="kw">unsafe fn </span>opt_bytes&lt;<span class="lifetime">&#39;a</span>, T&gt;(_anchor: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T, c: <span class="kw-2">*const </span>libc::c_char) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+<span class="kw">unsafe fn </span>opt_bytes&lt;<span class="lifetime">'a</span>, T&gt;(_anchor: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T, c: <span class="kw-2">*const </span>libc::c_char) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
     <span class="kw">if </span>c.is_null() {
         <span class="prelude-val">None
     </span>} <span class="kw">else </span>{
@@ -2554,7 +2555,7 @@
 
 <span class="kw">impl </span>ObjectType {
     <span class="doccomment">/// Convert an object type to its string representation.
-    </span><span class="kw">pub fn </span>str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = <span class="macro">call!</span>(raw::git_object_type2string(<span class="kw-2">*</span><span class="self">self</span>)) <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>;
             <span class="kw">let </span>data = CStr::from_ptr(ptr).to_bytes();
@@ -2592,17 +2593,17 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ObjectType {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="self">self</span>.str().fmt(f)
     }
 }
 
 <span class="kw">impl </span>ReferenceType {
     <span class="doccomment">/// Convert an object type to its string representation.
-    </span><span class="kw">pub fn </span>str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    </span><span class="kw">pub fn </span>str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            ReferenceType::Direct =&gt; <span class="string">&quot;direct&quot;</span>,
-            ReferenceType::Symbolic =&gt; <span class="string">&quot;symbolic&quot;</span>,
+            ReferenceType::Direct =&gt; <span class="string">"direct"</span>,
+            ReferenceType::Symbolic =&gt; <span class="string">"symbolic"</span>,
         }
     }
 
@@ -2617,7 +2618,7 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ReferenceType {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="self">self</span>.str().fmt(f)
     }
 }
@@ -2633,7 +2634,7 @@
             raw::GIT_CONFIG_LEVEL_LOCAL =&gt; ConfigLevel::Local,
             raw::GIT_CONFIG_LEVEL_APP =&gt; ConfigLevel::App,
             raw::GIT_CONFIG_HIGHEST_LEVEL =&gt; ConfigLevel::Highest,
-            n =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unknown config level: {}&quot;</span>, n),
+            n =&gt; <span class="macro">panic!</span>(<span class="string">"unknown config level: {}"</span>, n),
         }
     }
 }
@@ -2647,7 +2648,7 @@
             raw::GIT_SUBMODULE_IGNORE_UNTRACKED =&gt; SubmoduleIgnore::Untracked,
             raw::GIT_SUBMODULE_IGNORE_DIRTY =&gt; SubmoduleIgnore::Dirty,
             raw::GIT_SUBMODULE_IGNORE_ALL =&gt; SubmoduleIgnore::All,
-            n =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unknown submodule ignore rule: {}&quot;</span>, n),
+            n =&gt; <span class="macro">panic!</span>(<span class="string">"unknown submodule ignore rule: {}"</span>, n),
         }
     }
 }
@@ -2661,7 +2662,7 @@
             raw::GIT_SUBMODULE_UPDATE_MERGE =&gt; SubmoduleUpdate::Merge,
             raw::GIT_SUBMODULE_UPDATE_NONE =&gt; SubmoduleUpdate::None,
             raw::GIT_SUBMODULE_UPDATE_DEFAULT =&gt; SubmoduleUpdate::Default,
-            n =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unknown submodule update strategy: {}&quot;</span>, n),
+            n =&gt; <span class="macro">panic!</span>(<span class="string">"unknown submodule update strategy: {}"</span>, n),
         }
     }
 }
@@ -2730,8 +2731,8 @@
     </span><span class="kw">pub struct </span>RepositoryInitMode: u32 {
         <span class="doccomment">/// Use permissions configured by umask - the default
         </span><span class="kw">const </span>SHARED_UMASK = raw::GIT_REPOSITORY_INIT_SHARED_UMASK <span class="kw">as </span>u32;
-        <span class="doccomment">/// Use `--shared=group` behavior, chmod&#39;ing the new repo to be
-        /// group writable and \&quot;g+sx\&quot; for sticky group assignment
+        <span class="doccomment">/// Use `--shared=group` behavior, chmod'ing the new repo to be
+        /// group writable and \"g+sx\" for sticky group assignment
         </span><span class="kw">const </span>SHARED_GROUP = raw::GIT_REPOSITORY_INIT_SHARED_GROUP <span class="kw">as </span>u32;
         <span class="doccomment">/// Use `--shared=all` behavior, adding world readability.
         </span><span class="kw">const </span>SHARED_ALL = raw::GIT_REPOSITORY_INIT_SHARED_ALL <span class="kw">as </span>u32;
@@ -2822,7 +2823,7 @@
     <span class="doccomment">/// Return codes for submodule status.
     ///
     /// A combination of these flags will be returned to describe the status of a
-    /// submodule.  Depending on the &quot;ignore&quot; property of the submodule, some of
+    /// submodule.  Depending on the "ignore" property of the submodule, some of
     /// the flags may never be returned because they indicate changes that are
     /// supposed to be ignored.
     ///
@@ -2834,29 +2835,29 @@
     ///
     /// There are four values that are not really status, but give basic info
     /// about what sources of submodule data are available.  These will be
-    /// returned even if ignore is set to &quot;ALL&quot;.
+    /// returned even if ignore is set to "ALL".
     ///
     /// * IN_HEAD   - superproject head contains submodule
     /// * IN_INDEX  - superproject index contains submodule
     /// * IN_CONFIG - superproject gitmodules has submodule
     /// * IN_WD     - superproject workdir has submodule
     ///
-    /// The following values will be returned so long as ignore is not &quot;ALL&quot;.
+    /// The following values will be returned so long as ignore is not "ALL".
     ///
     /// * INDEX_ADDED       - in index, not in head
     /// * INDEX_DELETED     - in head, not in index
-    /// * INDEX_MODIFIED    - index and head don&#39;t match
+    /// * INDEX_MODIFIED    - index and head don't match
     /// * WD_UNINITIALIZED  - workdir contains empty directory
     /// * WD_ADDED          - in workdir, not index
     /// * WD_DELETED        - in index, not workdir
-    /// * WD_MODIFIED       - index and workdir head don&#39;t match
+    /// * WD_MODIFIED       - index and workdir head don't match
     ///
-    /// The following can only be returned if ignore is &quot;NONE&quot; or &quot;UNTRACKED&quot;.
+    /// The following can only be returned if ignore is "NONE" or "UNTRACKED".
     ///
     /// * WD_INDEX_MODIFIED - submodule workdir index is dirty
     /// * WD_WD_MODIFIED    - submodule workdir has modified files
     ///
-    /// Lastly, the following will only be returned for ignore &quot;NONE&quot;.
+    /// Lastly, the following will only be returned for ignore "NONE".
     ///
     /// * WD_UNTRACKED      - workdir contains untracked files
     </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -2917,7 +2918,7 @@
 /// directory when getting the submodule status.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>SubmoduleIgnore {
-    <span class="doccomment">/// Use the submodule&#39;s configuration
+    <span class="doccomment">/// Use the submodule's configuration
     </span>Unspecified,
     <span class="doccomment">/// Any change or untracked file is considered dirty
     </span><span class="prelude-val">None</span>,
@@ -2933,8 +2934,8 @@
 ///
 /// These values represent settings for the `submodule.$name.update`
 /// configuration value which says how to handle `git submodule update`
-/// for this submodule. The value is usually set in the &quot;.gitmodules&quot;
-/// file and copied to &quot;.git/config&quot; when the submodule is initialized.
+/// for this submodule. The value is usually set in the ".gitmodules"
+/// file and copied to ".git/config" when the submodule is initialized.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>SubmoduleUpdate {
     <span class="doccomment">/// The default; when a submodule is updated, checkout the new detached
@@ -2949,7 +2950,7 @@
     <span class="doccomment">/// Do not update this submodule even when the commit in the superproject
     /// is updated.
     </span><span class="prelude-val">None</span>,
-    <span class="doccomment">/// Not used except as static initializer when we don&#39;t want any particular
+    <span class="doccomment">/// Not used except as static initializer when we don't want any particular
     /// update rule to be specified.
     </span>Default,
 }
@@ -3046,7 +3047,7 @@
     <span class="doccomment">/// Formatting options for diff stats
     </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>DiffStatsFormat: raw::git_diff_stats_format_t {
-        <span class="doccomment">/// Don&#39;t generate any stats
+        <span class="doccomment">/// Don't generate any stats
         </span><span class="kw">const </span>NONE = raw::GIT_DIFF_STATS_NONE;
         <span class="doccomment">/// Equivalent of `--stat` in git
         </span><span class="kw">const </span>FULL = raw::GIT_DIFF_STATS_FULL;
@@ -3071,11 +3072,11 @@
 <span class="doccomment">/// Automatic tag following options.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>AutotagOption {
-    <span class="doccomment">/// Use the setting from the remote&#39;s configuration
+    <span class="doccomment">/// Use the setting from the remote's configuration
     </span>Unspecified,
-    <span class="doccomment">/// Ask the server for tags pointing to objects we&#39;re already downloading
+    <span class="doccomment">/// Ask the server for tags pointing to objects we're already downloading
     </span>Auto,
-    <span class="doccomment">/// Don&#39;t ask for any tags beyond the refspecs
+    <span class="doccomment">/// Don't ask for any tags beyond the refspecs
     </span><span class="prelude-val">None</span>,
     <span class="doccomment">/// Ask for all the tags
     </span>All,
@@ -3119,8 +3120,8 @@
     </span><span class="kw">pub struct </span>StashApplyFlags: u32 {
         <span class="attr">#[allow(missing_docs)]
         </span><span class="kw">const </span>DEFAULT = raw::GIT_STASH_APPLY_DEFAULT <span class="kw">as </span>u32;
-        <span class="doccomment">/// Try to reinstate not only the working tree&#39;s changes,
-        /// but also the index&#39;s changes.
+        <span class="doccomment">/// Try to reinstate not only the working tree's changes,
+        /// but also the index's changes.
         </span><span class="kw">const </span>REINSTATE_INDEX = raw::GIT_STASH_APPLY_REINSTATE_INDEX <span class="kw">as </span>u32;
     }
 }
@@ -3229,7 +3230,7 @@
         /// components (e.g., `foo/*/bar` but not `foo/bar*`).
         </span><span class="kw">const </span>REFSPEC_PATTERN = raw::GIT_REFERENCE_FORMAT_REFSPEC_PATTERN <span class="kw">as </span>u32;
         <span class="doccomment">/// Interpret the name as part of a refspec in shorthand form so the
-        /// `ALLOW_ONELEVEL` naming rules aren&#39;t enforced and `main` becomes a
+        /// `ALLOW_ONELEVEL` naming rules aren't enforced and `main` becomes a
         /// valid name.
         </span><span class="kw">const </span>REFSPEC_SHORTHAND = raw::GIT_REFERENCE_FORMAT_REFSPEC_SHORTHAND <span class="kw">as </span>u32;
     }
@@ -3253,8 +3254,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>convert() {
-        <span class="macro">assert_eq!</span>(ObjectType::Blob.str(), <span class="string">&quot;blob&quot;</span>);
-        <span class="macro">assert_eq!</span>(ObjectType::from_str(<span class="string">&quot;blob&quot;</span>), <span class="prelude-val">Some</span>(ObjectType::Blob));
+        <span class="macro">assert_eq!</span>(ObjectType::Blob.str(), <span class="string">"blob"</span>);
+        <span class="macro">assert_eq!</span>(ObjectType::from_str(<span class="string">"blob"</span>), <span class="prelude-val">Some</span>(ObjectType::Blob));
         <span class="macro">assert!</span>(ObjectType::Blob.is_loose());
     }
 

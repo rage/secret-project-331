@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tracing-subscriber-0.3.18/src/fmt/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tracing_subscriber" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../tracing_subscriber/index.html"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="tracing_subscriber"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1374,7 +1375,7 @@
 //!
 //! [`tracing`] is a framework for instrumenting Rust programs with context-aware,
 //! structured, event-based diagnostic information. This crate provides an
-//! implementation of the [`Subscriber`] trait that records `tracing`&#39;s `Event`s
+//! implementation of the [`Subscriber`] trait that records `tracing`'s `Event`s
 //! and `Span`s by formatting them as text and logging them to stdout.
 //!
 //! # Usage
@@ -1383,7 +1384,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! tracing-subscriber = &quot;0.3&quot;
+//! tracing-subscriber = "0.3"
 //! ```
 //!
 //! *Compiler support: [requires `rustc` 1.63+][msrv]*
@@ -1465,8 +1466,8 @@
 //! The formatting of log lines for spans and events is controlled by two
 //! traits, [`FormatEvent`] and [`FormatFields`]. The [`FormatEvent`] trait
 //! determines the overall formatting of the log line, such as what information
-//! from the event&#39;s metadata and span context is included and in what order.
-//! The [`FormatFields`] trait determines how fields &amp;mdash; both the event&#39;s
+//! from the event's metadata and span context is included and in what order.
+//! The [`FormatFields`] trait determines how fields &amp;mdash; both the event's
 //! fields and fields on spans &amp;mdash; are formatted.
 //!
 //! The [`fmt::format`] module provides several types which implement these traits,
@@ -1480,8 +1481,8 @@
 //!
 //! // Configure a custom event formatter
 //! let format = fmt::format()
-//!    .with_level(false) // don&#39;t include levels in formatted output
-//!    .with_target(false) // don&#39;t include targets
+//!    .with_level(false) // don't include levels in formatted output
+//!    .with_target(false) // don't include targets
 //!    .with_thread_ids(true) // include the thread ID of the current thread
 //!    .with_thread_names(true) // include the name of the current thread
 //!    .compact(); // use the `Compact` formatting style.
@@ -1494,7 +1495,7 @@
 //! ```
 //!
 //! However, if a specific output format is needed, other crates can
-//! also implement [`FormatEvent`] and [`FormatFields`]. See those traits&#39;
+//! also implement [`FormatEvent`] and [`FormatFields`]. See those traits'
 //! documentation for details on how to implement them.
 //!
 //! ## Filters
@@ -1526,7 +1527,7 @@
 //! let subscriber = FmtSubscriber::new();
 //!
 //! tracing::subscriber::set_global_default(subscriber)
-//!     .map_err(|_err| eprintln!(&quot;Unable to set global default subscriber&quot;));
+//!     .map_err(|_err| eprintln!("Unable to set global default subscriber"));
 //! // Note this will only fail if you try to set the global default
 //! // subscriber multiple times
 //! ```
@@ -1542,7 +1543,7 @@
 //! let fmt_layer = fmt::layer()
 //!     .with_target(false);
 //! let filter_layer = EnvFilter::try_from_default_env()
-//!     .or_else(|_| EnvFilter::try_new(&quot;info&quot;))
+//!     .or_else(|_| EnvFilter::try_new("info"))
 //!     .unwrap();
 //!
 //! tracing_subscriber::registry()
@@ -1563,11 +1564,11 @@
 <span class="kw">use </span>tracing_core::{span, subscriber::Interest, Event, Metadata};
 
 <span class="kw">mod </span>fmt_layer;
-<span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+<span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>))))]
 </span><span class="kw">pub mod </span>format;
-<span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+<span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>))))]
 </span><span class="kw">pub mod </span>time;
-<span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+<span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>))))]
 </span><span class="kw">pub mod </span>writer;
 
 <span class="kw">pub use </span>fmt_layer::{FmtContext, FormattedFields, Layer};
@@ -1590,7 +1591,7 @@
 <span class="doccomment">/// A `Subscriber` that logs formatted representations of `tracing` events.
 ///
 /// This consists of an inner `Formatter` wrapped in a layer that performs filtering.
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>))))]
 #[derive(Debug)]
 </span><span class="kw">pub struct </span>Subscriber&lt;
     N = format::DefaultFields,
@@ -1603,7 +1604,7 @@
 
 <span class="doccomment">/// A `Subscriber` that logs formatted representations of `tracing` events.
 /// This type only logs formatted events; it does not perform any filtering.
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>))))]
 </span><span class="kw">pub type </span>Formatter&lt;
     N = format::DefaultFields,
     E = format::Format&lt;format::Full&gt;,
@@ -1611,7 +1612,7 @@
 &gt; = layer::Layered&lt;fmt_layer::Layer&lt;Registry, N, E, W&gt;, Registry&gt;;
 
 <span class="doccomment">/// Configures and constructs `Subscriber`s.
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>))))]
 #[derive(Debug)]
 #[must_use]
 </span><span class="kw">pub struct </span>SubscriberBuilder&lt;
@@ -1654,7 +1655,7 @@
 /// ```rust
 /// use std::error::Error;
 ///
-/// fn init_subscriber() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync + &#39;static&gt;&gt; {
+/// fn init_subscriber() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync + 'static&gt;&gt; {
 ///     tracing_subscriber::fmt()
 ///         // Configure the subscriber to emit logs in JSON format.
 ///         .json()
@@ -1687,7 +1688,7 @@
 /// [`init`]: SubscriberBuilder::init()
 /// [`try_init`]: SubscriberBuilder::try_init()
 /// [`finish`]: SubscriberBuilder::finish()
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>))))]
 </span><span class="kw">pub fn </span>fmt() -&gt; SubscriberBuilder {
     SubscriberBuilder::default()
 }
@@ -1700,7 +1701,7 @@
 /// [formatting layer]: Layer
 /// [composed]: crate::layer
 /// [`Layer::default()`]: Layer::default
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;fmt&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">"fmt"</span>, feature = <span class="string">"std"</span>))))]
 </span><span class="kw">pub fn </span>layer&lt;S&gt;() -&gt; Layer&lt;S&gt; {
     Layer::default()
 }
@@ -1736,30 +1737,30 @@
 
 </span><span class="kw">impl</span>&lt;N, E, F, W&gt; tracing_core::Subscriber <span class="kw">for </span>Subscriber&lt;N, E, F, W&gt;
 <span class="kw">where
-    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-    E: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">&#39;static</span>,
-    F: layer::Layer&lt;Formatter&lt;N, E, W&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    W: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+    E: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">'static</span>,
+    F: layer::Layer&lt;Formatter&lt;N, E, W&gt;&gt; + <span class="lifetime">'static</span>,
+    W: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     layer::Layered&lt;F, Formatter&lt;N, E, W&gt;&gt;: tracing_core::Subscriber,
     fmt_layer::Layer&lt;Registry, N, E, W&gt;: layer::Layer&lt;Registry&gt;,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Metadata&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; Interest {
+    </span><span class="kw">fn </span>register_callsite(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Metadata&lt;<span class="lifetime">'static</span>&gt;) -&gt; Interest {
         <span class="self">self</span>.inner.register_callsite(meta)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, meta: <span class="kw-2">&amp;</span>Metadata&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="self">self</span>.inner.enabled(meta)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; span::Id {
+    </span><span class="kw">fn </span>new_span(<span class="kw-2">&amp;</span><span class="self">self</span>, attrs: <span class="kw-2">&amp;</span>span::Attributes&lt;<span class="lifetime">'_</span>&gt;) -&gt; span::Id {
         <span class="self">self</span>.inner.new_span(attrs)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">&#39;_</span>&gt;) {
+    </span><span class="kw">fn </span>record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: <span class="kw-2">&amp;</span>span::Id, values: <span class="kw-2">&amp;</span>span::Record&lt;<span class="lifetime">'_</span>&gt;) {
         <span class="self">self</span>.inner.record(span, values)
     }
 
@@ -1769,12 +1770,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+    </span><span class="kw">fn </span>event_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="self">self</span>.inner.event_enabled(event)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">&#39;_</span>&gt;) {
+    </span><span class="kw">fn </span>event(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Event&lt;<span class="lifetime">'_</span>&gt;) {
         <span class="self">self</span>.inner.event(event);
     }
 
@@ -1818,13 +1819,13 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, N, E, F, W&gt; LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>Subscriber&lt;N, E, F, W&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N, E, F, W&gt; LookupSpan&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Subscriber&lt;N, E, F, W&gt;
 <span class="kw">where
-    </span>layer::Layered&lt;F, Formatter&lt;N, E, W&gt;&gt;: LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;,
+    </span>layer::Layered&lt;F, Formatter&lt;N, E, W&gt;&gt;: LookupSpan&lt;<span class="lifetime">'a</span>&gt;,
 {
-    <span class="kw">type </span>Data = &lt;layer::Layered&lt;F, Formatter&lt;N, E, W&gt;&gt; <span class="kw">as </span>LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Data;
+    <span class="kw">type </span>Data = &lt;layer::Layered&lt;F, Formatter&lt;N, E, W&gt;&gt; <span class="kw">as </span>LookupSpan&lt;<span class="lifetime">'a</span>&gt;&gt;::Data;
 
-    <span class="kw">fn </span>span_data(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Data&gt; {
+    <span class="kw">fn </span>span_data(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>span::Id) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Data&gt; {
         <span class="self">self</span>.inner.span_data(id)
     }
 }
@@ -1843,11 +1844,11 @@
 
 <span class="kw">impl</span>&lt;N, E, F, W&gt; SubscriberBuilder&lt;N, E, F, W&gt;
 <span class="kw">where
-    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-    E: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">&#39;static</span>,
-    W: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-    F: layer::Layer&lt;Formatter&lt;N, E, W&gt;&gt; + Send + Sync + <span class="lifetime">&#39;static</span>,
-    fmt_layer::Layer&lt;Registry, N, E, W&gt;: layer::Layer&lt;Registry&gt; + Send + Sync + <span class="lifetime">&#39;static</span>,
+    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+    E: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">'static</span>,
+    W: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+    F: layer::Layer&lt;Formatter&lt;N, E, W&gt;&gt; + Send + Sync + <span class="lifetime">'static</span>,
+    fmt_layer::Layer&lt;Registry, N, E, W&gt;: layer::Layer&lt;Registry&gt; + Send + Sync + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Finish the builder, returning a new `FmtSubscriber`.
     </span><span class="kw">pub fn </span>finish(<span class="self">self</span>) -&gt; Subscriber&lt;N, E, F, W&gt; {
@@ -1867,7 +1868,7 @@
     /// Returns an Error if the initialization was unsuccessful, likely
     /// because a global subscriber was already installed by another
     /// call to `try_init`.
-    </span><span class="kw">pub fn </span>try_init(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">&#39;static</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>try_init(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">'static</span>&gt;&gt; {
         <span class="kw">use </span><span class="kw">crate</span>::util::SubscriberInitExt;
         <span class="self">self</span>.finish().try_init()<span class="question-mark">?</span>;
 
@@ -1884,17 +1885,17 @@
     /// global subscriber was already installed by another call to `try_init`.
     </span><span class="kw">pub fn </span>init(<span class="self">self</span>) {
         <span class="self">self</span>.try_init()
-            .expect(<span class="string">&quot;Unable to install global subscriber&quot;</span>)
+            .expect(<span class="string">"Unable to install global subscriber"</span>)
     }
 }
 
 <span class="kw">impl</span>&lt;N, E, F, W&gt; From&lt;SubscriberBuilder&lt;N, E, F, W&gt;&gt; <span class="kw">for </span>tracing_core::Dispatch
 <span class="kw">where
-    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-    E: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">&#39;static</span>,
-    W: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-    F: layer::Layer&lt;Formatter&lt;N, E, W&gt;&gt; + Send + Sync + <span class="lifetime">&#39;static</span>,
-    fmt_layer::Layer&lt;Registry, N, E, W&gt;: layer::Layer&lt;Registry&gt; + Send + Sync + <span class="lifetime">&#39;static</span>,
+    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+    E: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">'static</span>,
+    W: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+    F: layer::Layer&lt;Formatter&lt;N, E, W&gt;&gt; + Send + Sync + <span class="lifetime">'static</span>,
+    fmt_layer::Layer&lt;Registry, N, E, W&gt;: layer::Layer&lt;Registry&gt; + Send + Sync + <span class="lifetime">'static</span>,
 {
     <span class="kw">fn </span>from(builder: SubscriberBuilder&lt;N, E, F, W&gt;) -&gt; tracing_core::Dispatch {
         tracing_core::Dispatch::new(builder.finish())
@@ -1903,13 +1904,13 @@
 
 <span class="kw">impl</span>&lt;N, L, T, F, W&gt; SubscriberBuilder&lt;N, format::Format&lt;L, T&gt;, F, W&gt;
 <span class="kw">where
-    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+    </span>N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Use the given [`timer`] for log message timestamps.
     ///
     /// See the [`time` module] for the provided timer implementations.
     ///
-    /// Note that using the `&quot;time`&quot;&quot; feature flag enables the
+    /// Note that using the `"time`"" feature flag enables the
     /// additional time formatters [`UtcTime`] and [`LocalTime`], which use the
     /// [`time` crate] to provide more sophisticated timestamp formatting
     /// options.
@@ -1947,14 +1948,14 @@
     /// - `FmtSpan::EXIT`: An event will be synthesized when spans are exited.
     /// - `FmtSpan::CLOSE`: An event will be synthesized when a span closes. If
     ///    [timestamps are enabled][time] for this formatter, the generated
-    ///    event will contain fields with the span&#39;s _busy time_ (the total
+    ///    event will contain fields with the span's _busy time_ (the total
     ///    time for which it was entered) and _idle time_ (the total time that
     ///    the span existed but was not entered).
     /// - `FmtSpan::ACTIVE`: An event will be synthesized when spans are entered
     ///    or exited.
     /// - `FmtSpan::FULL`: Events will be synthesized whenever a span is
     ///    created, entered, exited, or closed. If timestamps are enabled, the
-    ///    close event will contain the span&#39;s busy and idle time, as
+    ///    close event will contain the span's busy and idle time, as
     ///    described above.
     ///
     /// The options can be enabled in any combination. For instance, the following
@@ -1985,8 +1986,8 @@
     <span class="doccomment">/// Sets whether or not the formatter emits ANSI terminal escape codes
     /// for colors and other text formatting.
     ///
-    /// Enabling ANSI escapes (calling `with_ansi(true)`) requires the &quot;ansi&quot;
-    /// crate feature flag. Calling `with_ansi(true)` without the &quot;ansi&quot;
+    /// Enabling ANSI escapes (calling `with_ansi(true)`) requires the "ansi"
+    /// crate feature flag. Calling `with_ansi(true)` without the "ansi"
     /// feature flag enabled will panic if debug assertions are enabled, or
     /// print a warning otherwise.
     ///
@@ -1995,10 +1996,10 @@
     /// having to opt-in to the dependencies required to emit ANSI formatting.
     /// This way, code which constructs a formatter that should never emit
     /// ANSI escape codes can ensure that they are not used, regardless of
-    /// whether or not other crates in the dependency graph enable the &quot;ansi&quot;
+    /// whether or not other crates in the dependency graph enable the "ansi"
     /// feature flag.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;ansi&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"ansi"</span>)))]
     </span><span class="kw">pub fn </span>with_ansi(<span class="self">self</span>, ansi: bool) -&gt; SubscriberBuilder&lt;N, format::Format&lt;L, T&gt;, F, W&gt; {
         SubscriberBuilder {
             inner: <span class="self">self</span>.inner.with_ansi(ansi),
@@ -2027,7 +2028,7 @@
         </span>}
     }
 
-    <span class="doccomment">/// Sets whether or not an event&#39;s target is displayed.
+    <span class="doccomment">/// Sets whether or not an event's target is displayed.
     </span><span class="kw">pub fn </span>with_target(
         <span class="self">self</span>,
         display_target: bool,
@@ -2038,7 +2039,7 @@
         </span>}
     }
 
-    <span class="doccomment">/// Sets whether or not an event&#39;s [source code file path][file] is
+    <span class="doccomment">/// Sets whether or not an event's [source code file path][file] is
     /// displayed.
     ///
     /// [file]: tracing_core::Metadata::file
@@ -2052,7 +2053,7 @@
         </span>}
     }
 
-    <span class="doccomment">/// Sets whether or not an event&#39;s [source code line number][line] is
+    <span class="doccomment">/// Sets whether or not an event's [source code line number][line] is
     /// displayed.
     ///
     /// [line]: tracing_core::Metadata::line
@@ -2066,7 +2067,7 @@
         </span>}
     }
 
-    <span class="doccomment">/// Sets whether or not an event&#39;s level is displayed.
+    <span class="doccomment">/// Sets whether or not an event's level is displayed.
     </span><span class="kw">pub fn </span>with_level(
         <span class="self">self</span>,
         display_level: bool,
@@ -2110,7 +2111,7 @@
     /// See [`format::Compact`].
     </span><span class="kw">pub fn </span>compact(<span class="self">self</span>) -&gt; SubscriberBuilder&lt;N, format::Format&lt;format::Compact, T&gt;, F, W&gt;
     <span class="kw">where
-        </span>N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         SubscriberBuilder {
             filter: <span class="self">self</span>.filter,
@@ -2119,8 +2120,8 @@
     }
 
     <span class="doccomment">/// Sets the subscriber being built to use an [excessively pretty, human-readable formatter](crate::fmt::format::Pretty).
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;ansi&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;ansi&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"ansi"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"ansi"</span>)))]
     </span><span class="kw">pub fn </span>pretty(
         <span class="self">self</span>,
     ) -&gt; SubscriberBuilder&lt;format::Pretty, format::Format&lt;format::Pretty, T&gt;, F, W&gt; {
@@ -2133,13 +2134,13 @@
     <span class="doccomment">/// Sets the subscriber being built to use a JSON formatter.
     ///
     /// See [`format::Json`] for details.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;json&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"json"</span>)))]
     </span><span class="kw">pub fn </span>json(
         <span class="self">self</span>,
     ) -&gt; SubscriberBuilder&lt;format::JsonFields, format::Format&lt;format::Json, T&gt;, F, W&gt;
     <span class="kw">where
-        </span>N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         SubscriberBuilder {
             filter: <span class="self">self</span>.filter,
@@ -2148,8 +2149,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;json&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"json"</span>)))]
 </span><span class="kw">impl</span>&lt;T, F, W&gt; SubscriberBuilder&lt;format::JsonFields, format::Format&lt;format::Json, T&gt;, F, W&gt; {
     <span class="doccomment">/// Sets the json subscriber being built to flatten event metadata.
     ///
@@ -2193,11 +2194,11 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;env-filter&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;env-filter&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"env-filter"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"env-filter"</span>)))]
 </span><span class="kw">impl</span>&lt;N, E, W&gt; SubscriberBuilder&lt;N, E, <span class="kw">crate</span>::EnvFilter, W&gt;
 <span class="kw">where
-    </span>Formatter&lt;N, E, W&gt;: tracing_core::Subscriber + <span class="lifetime">&#39;static</span>,
+    </span>Formatter&lt;N, E, W&gt;: tracing_core::Subscriber + <span class="lifetime">'static</span>,
 {
     <span class="doccomment">/// Configures the subscriber being built to allow filter reloading at
     /// runtime.
@@ -2213,13 +2214,13 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;env-filter&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;env-filter&quot;</span>)))]
+<span class="attr">#[cfg(feature = <span class="string">"env-filter"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"env-filter"</span>)))]
 </span><span class="kw">impl</span>&lt;N, E, W&gt; SubscriberBuilder&lt;N, E, <span class="kw">crate</span>::reload::Layer&lt;<span class="kw">crate</span>::EnvFilter, Formatter&lt;N, E, W&gt;&gt;, W&gt;
 <span class="kw">where
-    </span>Formatter&lt;N, E, W&gt;: tracing_core::Subscriber + <span class="lifetime">&#39;static</span>,
+    </span>Formatter&lt;N, E, W&gt;: tracing_core::Subscriber + <span class="lifetime">'static</span>,
 {
-    <span class="doccomment">/// Returns a `Handle` that may be used to reload the constructed subscriber&#39;s
+    <span class="doccomment">/// Returns a `Handle` that may be used to reload the constructed subscriber's
     /// filter.
     </span><span class="kw">pub fn </span>reload_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::reload::Handle&lt;<span class="kw">crate</span>::EnvFilter, Formatter&lt;N, E, W&gt;&gt; {
         <span class="self">self</span>.filter.handle()
@@ -2237,10 +2238,10 @@
     ///
     /// let formatter =
     ///     // Construct a custom formatter for `Debug` fields
-    ///     format::debug_fn(|writer, field, value| write!(writer, &quot;{}: {:?}&quot;, field, value))
+    ///     format::debug_fn(|writer, field, value| write!(writer, "{}: {:?}", field, value))
     ///         // Use the `tracing_subscriber::MakeFmtExt` trait to wrap the
     ///         // formatter so that a delimiter is added between fields.
-    ///         .delimited(&quot;, &quot;);
+    ///         .delimited(", ");
     ///
     /// let subscriber = tracing_subscriber::fmt()
     ///     .fmt_fields(formatter)
@@ -2249,7 +2250,7 @@
     /// ```
     </span><span class="kw">pub fn </span>fmt_fields&lt;N2&gt;(<span class="self">self</span>, fmt_fields: N2) -&gt; SubscriberBuilder&lt;N2, E, F, W&gt;
     <span class="kw">where
-        </span>N2: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>N2: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         SubscriberBuilder {
             filter: <span class="self">self</span>.filter,
@@ -2260,7 +2261,7 @@
     <span class="doccomment">/// Sets the [`EnvFilter`] that the subscriber will use to determine if
     /// a span or event is enabled.
     ///
-    /// Note that this method requires the &quot;env-filter&quot; feature flag to be enabled.
+    /// Note that this method requires the "env-filter" feature flag to be enabled.
     ///
     /// If a filter was previously set, or a maximum level was set by the
     /// [`with_max_level`] method, that value is replaced by the new filter.
@@ -2282,7 +2283,7 @@
     /// use tracing_subscriber::fmt;
     ///
     /// fmt()
-    ///     .with_env_filter(&quot;my_crate=info,my_crate::my_mod=debug,[my_span]=trace&quot;)
+    ///     .with_env_filter("my_crate=info,my_crate::my_mod=debug,[my_span]=trace")
     ///     .init();
     /// ```
     ///
@@ -2290,13 +2291,13 @@
     /// ```rust
     /// use tracing_subscriber::{fmt, filter::{EnvFilter, LevelFilter}};
     ///
-    /// # fn filter() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + Send + Sync + &#39;static&gt;&gt; {
-    /// let filter = EnvFilter::try_from_env(&quot;MY_CUSTOM_FILTER_ENV_VAR&quot;)?
+    /// # fn filter() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + Send + Sync + 'static&gt;&gt; {
+    /// let filter = EnvFilter::try_from_env("MY_CUSTOM_FILTER_ENV_VAR")?
     ///     // Set the base level when not matched by other directives to WARN.
     ///     .add_directive(LevelFilter::WARN.into())
     ///     // Set the max level for `my_crate::my_mod` to DEBUG, overriding
     ///     // any directives parsed from the env variable.
-    ///     .add_directive(&quot;my_crate::my_mod=debug&quot;.parse()?);
+    ///     .add_directive("my_crate::my_mod=debug".parse()?);
     ///
     /// fmt()
     ///     .with_env_filter(filter)
@@ -2305,14 +2306,14 @@
     /// ```
     /// [`EnvFilter`]: super::filter::EnvFilter
     /// [`with_max_level`]: SubscriberBuilder::with_max_level()
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;env-filter&quot;</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;env-filter&quot;</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"env-filter"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"env-filter"</span>)))]
     </span><span class="kw">pub fn </span>with_env_filter(
         <span class="self">self</span>,
         filter: <span class="kw">impl </span>Into&lt;<span class="kw">crate</span>::EnvFilter&gt;,
     ) -&gt; SubscriberBuilder&lt;N, E, <span class="kw">crate</span>::EnvFilter, W&gt;
     <span class="kw">where
-        </span>Formatter&lt;N, E, W&gt;: tracing_core::Subscriber + <span class="lifetime">&#39;static</span>,
+        </span>Formatter&lt;N, E, W&gt;: tracing_core::Subscriber + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>filter = filter.into();
         SubscriberBuilder {
@@ -2339,7 +2340,7 @@
     ///     .with_max_level(Level::DEBUG)
     ///     .init();
     /// ```
-    /// This subscriber won&#39;t record any spans or events!
+    /// This subscriber won't record any spans or events!
     /// ```rust
     /// use tracing_subscriber::{fmt, filter::LevelFilter};
     ///
@@ -2383,9 +2384,9 @@
     /// [`Writer`]: struct@self::format::Writer
     </span><span class="kw">pub fn </span>event_format&lt;E2&gt;(<span class="self">self</span>, fmt_event: E2) -&gt; SubscriberBuilder&lt;N, E2, F, W&gt;
     <span class="kw">where
-        </span>E2: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">&#39;static</span>,
-        N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-        W: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>E2: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">'static</span>,
+        N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+        W: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         SubscriberBuilder {
             filter: <span class="self">self</span>.filter,
@@ -2409,7 +2410,7 @@
     /// ```
     </span><span class="kw">pub fn </span>with_writer&lt;W2&gt;(<span class="self">self</span>, make_writer: W2) -&gt; SubscriberBuilder&lt;N, E, F, W2&gt;
     <span class="kw">where
-        </span>W2: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>W2: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         SubscriberBuilder {
             filter: <span class="self">self</span>.filter,
@@ -2417,7 +2418,7 @@
         }
     }
 
-    <span class="doccomment">/// Configures the subscriber to support [`libtest`&#39;s output capturing][capturing] when used in
+    <span class="doccomment">/// Configures the subscriber to support [`libtest`'s output capturing][capturing] when used in
     /// unit tests.
     ///
     /// See [`TestWriter`] for additional details.
@@ -2463,9 +2464,9 @@
     /// ```
     </span><span class="kw">pub fn </span>map_event_format&lt;E2&gt;(<span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(E) -&gt; E2) -&gt; SubscriberBuilder&lt;N, E2, F, W&gt;
     <span class="kw">where
-        </span>E2: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">&#39;static</span>,
-        N: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
-        W: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>E2: FormatEvent&lt;Registry, N&gt; + <span class="lifetime">'static</span>,
+        N: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
+        W: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         SubscriberBuilder {
             filter: <span class="self">self</span>.filter,
@@ -2489,7 +2490,7 @@
     /// ```
     </span><span class="kw">pub fn </span>map_fmt_fields&lt;N2&gt;(<span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(N) -&gt; N2) -&gt; SubscriberBuilder&lt;N2, E, F, W&gt;
     <span class="kw">where
-        </span>N2: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; FormatFields&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>N2: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; FormatFields&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         SubscriberBuilder {
             filter: <span class="self">self</span>.filter,
@@ -2516,7 +2517,7 @@
     /// ```
     </span><span class="kw">pub fn </span>map_writer&lt;W2&gt;(<span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(W) -&gt; W2) -&gt; SubscriberBuilder&lt;N, E, F, W2&gt;
     <span class="kw">where
-        </span>W2: <span class="kw">for</span>&lt;<span class="lifetime">&#39;writer</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;writer</span>&gt; + <span class="lifetime">&#39;static</span>,
+        </span>W2: <span class="kw">for</span>&lt;<span class="lifetime">'writer</span>&gt; MakeWriter&lt;<span class="lifetime">'writer</span>&gt; + <span class="lifetime">'static</span>,
     {
         SubscriberBuilder {
             filter: <span class="self">self</span>.filter,
@@ -2535,7 +2536,7 @@
 /// This is shorthand for
 ///
 /// ```rust
-/// # fn doc() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + Send + Sync + &#39;static&gt;&gt; {
+/// # fn doc() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + Send + Sync + 'static&gt;&gt; {
 /// tracing_subscriber::fmt().try_init()
 /// # }
 /// ```
@@ -2550,36 +2551,36 @@
 /// [`LogTracer`]:
 ///     https://docs.rs/tracing-log/0.1.0/tracing_log/struct.LogTracer.html
 /// [`RUST_LOG` environment variable]: crate::filter::EnvFilter::DEFAULT_ENV
-</span><span class="kw">pub fn </span>try_init() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">&#39;static</span>&gt;&gt; {
+</span><span class="kw">pub fn </span>try_init() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error + Send + Sync + <span class="lifetime">'static</span>&gt;&gt; {
     <span class="kw">let </span>builder = Subscriber::builder();
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;env-filter&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"env-filter"</span>)]
     </span><span class="kw">let </span>builder = builder.with_env_filter(<span class="kw">crate</span>::EnvFilter::from_default_env());
 
     <span class="comment">// If `env-filter` is disabled, remove the default max level filter from the
     // subscriber; it will be added to the `Targets` filter instead if no filter
     // is set in `RUST_LOG`.
     // Replacing the default `LevelFilter` with an `EnvFilter` would imply this,
-    // but we can&#39;t replace the builder&#39;s filter with a `Targets` filter yet.
-    </span><span class="attr">#[cfg(not(feature = <span class="string">&quot;env-filter&quot;</span>))]
+    // but we can't replace the builder's filter with a `Targets` filter yet.
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"env-filter"</span>))]
     </span><span class="kw">let </span>builder = builder.with_max_level(LevelFilter::TRACE);
 
     <span class="kw">let </span>subscriber = builder.finish();
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;env-filter&quot;</span>))]
+    <span class="attr">#[cfg(not(feature = <span class="string">"env-filter"</span>))]
     </span><span class="kw">let </span>subscriber = {
         <span class="kw">use crate</span>::{filter::Targets, layer::SubscriberExt};
         <span class="kw">use </span>std::{env, str::FromStr};
-        <span class="kw">let </span>targets = <span class="kw">match </span>env::var(<span class="string">&quot;RUST_LOG&quot;</span>) {
+        <span class="kw">let </span>targets = <span class="kw">match </span>env::var(<span class="string">"RUST_LOG"</span>) {
             <span class="prelude-val">Ok</span>(var) =&gt; Targets::from_str(<span class="kw-2">&amp;</span>var)
                 .map_err(|e| {
-                    <span class="macro">eprintln!</span>(<span class="string">&quot;Ignoring `RUST_LOG={:?}`: {}&quot;</span>, var, e);
+                    <span class="macro">eprintln!</span>(<span class="string">"Ignoring `RUST_LOG={:?}`: {}"</span>, var, e);
                 })
                 .unwrap_or_default(),
             <span class="prelude-val">Err</span>(env::VarError::NotPresent) =&gt; {
                 Targets::new().with_default(Subscriber::DEFAULT_MAX_LEVEL)
             }
             <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="macro">eprintln!</span>(<span class="string">&quot;Ignoring `RUST_LOG`: {}&quot;</span>, e);
+                <span class="macro">eprintln!</span>(<span class="string">"Ignoring `RUST_LOG`: {}"</span>, e);
                 Targets::new().with_default(Subscriber::DEFAULT_MAX_LEVEL)
             }
         };
@@ -2613,7 +2614,7 @@
 ///
 /// [`RUST_LOG` environment variable]: crate::filter::EnvFilter::DEFAULT_ENV
 </span><span class="kw">pub fn </span>init() {
-    try_init().expect(<span class="string">&quot;Unable to install global subscriber&quot;</span>)
+    try_init().expect(<span class="string">"Unable to install global subscriber"</span>)
 }
 
 <span class="attr">#[cfg(test)]
@@ -2649,7 +2650,7 @@
             }
         }
 
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>buf(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;MutexGuard&lt;<span class="lifetime">&#39;_</span>, Vec&lt;u8&gt;&gt;&gt; {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>buf(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;MutexGuard&lt;<span class="lifetime">'_</span>, Vec&lt;u8&gt;&gt;&gt; {
             <span class="self">self</span>.buf.try_lock().map_err(<span class="self">Self</span>::map_error)
         }
     }
@@ -2677,25 +2678,25 @@
         <span class="comment">// this is currently only used by the JSON formatter tests. if we need
         // it elsewhere in the future, feel free to remove the `#[cfg]`
         // attribute!
-        </span><span class="attr">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
-        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>buf(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MutexGuard&lt;<span class="lifetime">&#39;_</span>, Vec&lt;u8&gt;&gt; {
+        </span><span class="attr">#[cfg(feature = <span class="string">"json"</span>)]
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>buf(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MutexGuard&lt;<span class="lifetime">'_</span>, Vec&lt;u8&gt;&gt; {
             <span class="self">self</span>.buf.lock().unwrap()
         }
 
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-            <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="self">self</span>.buf.lock().expect(<span class="string">&quot;lock shouldn&#39;t be poisoned&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="self">self</span>.buf.lock().expect(<span class="string">"lock shouldn't be poisoned"</span>);
             <span class="kw">let </span>string = std::str::from_utf8(<span class="kw-2">&amp;</span>buf[..])
-                .expect(<span class="string">&quot;formatter should not have produced invalid utf-8&quot;</span>)
+                .expect(<span class="string">"formatter should not have produced invalid utf-8"</span>)
                 .to_owned();
             buf.clear();
             string
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MakeWriter&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>MockMakeWriter {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MakeWriter&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>MockMakeWriter {
         <span class="kw">type </span>Writer = MockWriter;
 
-        <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
+        <span class="kw">fn </span>make_writer(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Writer {
             MockWriter::new(<span class="self">self</span>.buf.clone())
         }
     }
@@ -2733,7 +2734,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_lookup_span() {
-        <span class="kw">fn </span>assert_lookup_span&lt;T: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">crate</span>::registry::LookupSpan&lt;<span class="lifetime">&#39;a</span>&gt;&gt;(<span class="kw">_</span>: T) {}
+        <span class="kw">fn </span>assert_lookup_span&lt;T: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; <span class="kw">crate</span>::registry::LookupSpan&lt;<span class="lifetime">'a</span>&gt;&gt;(<span class="kw">_</span>: T) {}
         <span class="kw">let </span>subscriber = Subscriber::new();
         assert_lookup_span(subscriber)
     }

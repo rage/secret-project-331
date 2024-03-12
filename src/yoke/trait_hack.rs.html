@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-0.7.3/src/trait_hack.rs`."><title>trait_hack.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yoke-0.7.3/src/trait_hack.rs`."><title>trait_hack.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yoke" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -329,18 +330,18 @@
 //!
 //! For example, you may want to write:
 //!
-//! `where for&lt;&#39;a&gt; &lt;Y as Yokeable&lt;&#39;a&gt;&gt;::Output: MyTrait`
+//! `where for&lt;'a&gt; &lt;Y as Yokeable&lt;'a&gt;&gt;::Output: MyTrait`
 //!
 //! The above trait bound will compile, but at call sites, you get errors such as:
 //!
-//! &gt; the trait `for&lt;&#39;de&gt; MyTrait` is not implemented for `&lt;Y as Yokeable&lt;&#39;de&gt;&gt;::Output`
+//! &gt; the trait `for&lt;'de&gt; MyTrait` is not implemented for `&lt;Y as Yokeable&lt;'de&gt;&gt;::Output`
 //!
 //! There are two known workarounds:
 //!
 //! 1. If the trait is well-defined on references, like `Debug`, bind the trait to a reference:
-//!     `where for&lt;&#39;a&gt; &amp;&#39;a &lt;Y as Yokeable&lt;&#39;a&gt;&gt;::Output: MyTrait`
+//!     `where for&lt;'a&gt; &amp;'a &lt;Y as Yokeable&lt;'a&gt;&gt;::Output: MyTrait`
 //! 2. If the trait involves `Self`, like `Clone`, use [`YokeTraitHack`]:
-//!     `where for&lt;&#39;a&gt; YokeTraitHack&lt;&lt;Y as Yokeable&lt;&#39;a&gt;&gt;::Output&gt;: MyTrait`
+//!     `where for&lt;'a&gt; YokeTraitHack&lt;&lt;Y as Yokeable&lt;'a&gt;&gt;::Output&gt;: MyTrait`
 //!
 //! # Examples
 //!
@@ -350,7 +351,7 @@
 //! use yoke::*;
 //!
 //! trait MiniDataMarker {
-//!     type Yokeable: for&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt;;
+//!     type Yokeable: for&lt;'a&gt; Yokeable&lt;'a&gt;;
 //! }
 //!
 //! struct MiniDataPayload&lt;M&gt;
@@ -363,7 +364,7 @@
 //! impl&lt;M&gt; Clone for MiniDataPayload&lt;M&gt;
 //! where
 //!     M: MiniDataMarker,
-//!     for&lt;&#39;a&gt; &lt;M::Yokeable as Yokeable&lt;&#39;a&gt;&gt;::Output: Clone,
+//!     for&lt;'a&gt; &lt;M::Yokeable as Yokeable&lt;'a&gt;&gt;::Output: Clone,
 //! {
 //!     fn clone(&amp;self) -&gt; Self {
 //!         unimplemented!()
@@ -387,7 +388,7 @@
 //! impl&lt;M&gt; MiniDataProvider&lt;M&gt; for MiniStructProvider&lt;M&gt;
 //! where
 //!     M: MiniDataMarker,
-//!     for&lt;&#39;a&gt; &lt;M::Yokeable as Yokeable&lt;&#39;a&gt;&gt;::Output: Clone,
+//!     for&lt;'a&gt; &lt;M::Yokeable as Yokeable&lt;'a&gt;&gt;::Output: Clone,
 //! {
 //!     fn mini_load_data(&amp;self) -&gt; MiniDataPayload&lt;M&gt; {
 //!         self.payload.clone()
@@ -397,10 +398,10 @@
 //! #[derive(Clone)]
 //! struct SimpleStruct(pub u32);
 //!
-//! unsafe impl&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt; for SimpleStruct {
+//! unsafe impl&lt;'a&gt; Yokeable&lt;'a&gt; for SimpleStruct {
 //!     // (not shown; see `Yokeable` for examples)
 //! #    type Output = SimpleStruct;
-//! #    fn transform(&amp;&#39;a self) -&gt; &amp;&#39;a Self::Output {
+//! #    fn transform(&amp;'a self) -&gt; &amp;'a Self::Output {
 //! #        self
 //! #    }
 //! #    fn transform_owned(self) -&gt; Self::Output {
@@ -409,12 +410,12 @@
 //! #    unsafe fn make(from: Self::Output) -&gt; Self {
 //! #        std::mem::transmute(from)
 //! #    }
-//! #    fn transform_mut&lt;F&gt;(&amp;&#39;a mut self, f: F)
+//! #    fn transform_mut&lt;F&gt;(&amp;'a mut self, f: F)
 //! #    where
-//! #        F: &#39;static + for&lt;&#39;b&gt; FnOnce(&amp;&#39;b mut Self::Output),
+//! #        F: 'static + for&lt;'b&gt; FnOnce(&amp;'b mut Self::Output),
 //! #    {
 //! #        unsafe {
-//! #            f(std::mem::transmute::&lt;&amp;&#39;a mut Self, &amp;&#39;a mut Self::Output&gt;(
+//! #            f(std::mem::transmute::&lt;&amp;'a mut Self, &amp;'a mut Self::Output&gt;(
 //! #                self,
 //! #            ))
 //! #        }
@@ -432,7 +433,7 @@
 //! };
 //!
 //! // Broken:
-//! // &quot;method cannot be called on `MiniStructProvider&lt;_&gt;` due to unsatisfied trait bounds&quot;
+//! // "method cannot be called on `MiniStructProvider&lt;_&gt;` due to unsatisfied trait bounds"
 //! let payload: MiniDataPayload&lt;SimpleStruct&gt; = provider.mini_load_data();
 //!
 //! // Working:
@@ -457,10 +458,10 @@
 //!         self.0
 //!     }
 //! }
-//! unsafe impl&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt; for MyStruct {
+//! unsafe impl&lt;'a&gt; Yokeable&lt;'a&gt; for MyStruct {
 //!     // (not shown; see `Yokeable` for examples)
 //! #    type Output = MyStruct;
-//! #    fn transform(&amp;&#39;a self) -&gt; &amp;&#39;a Self::Output {
+//! #    fn transform(&amp;'a self) -&gt; &amp;'a Self::Output {
 //! #        self
 //! #    }
 //! #    fn transform_owned(self) -&gt; Self::Output {
@@ -469,12 +470,12 @@
 //! #    unsafe fn make(from: Self::Output) -&gt; Self {
 //! #        std::mem::transmute(from)
 //! #    }
-//! #    fn transform_mut&lt;F&gt;(&amp;&#39;a mut self, f: F)
+//! #    fn transform_mut&lt;F&gt;(&amp;'a mut self, f: F)
 //! #    where
-//! #        F: &#39;static + for&lt;&#39;b&gt; FnOnce(&amp;&#39;b mut Self::Output),
+//! #        F: 'static + for&lt;'b&gt; FnOnce(&amp;'b mut Self::Output),
 //! #    {
 //! #        unsafe {
-//! #            f(std::mem::transmute::&lt;&amp;&#39;a mut Self, &amp;&#39;a mut Self::Output&gt;(
+//! #            f(std::mem::transmute::&lt;&amp;'a mut Self, &amp;'a mut Self::Output&gt;(
 //! #                self,
 //! #            ))
 //! #        }
@@ -482,7 +483,7 @@
 //! }
 //!
 //! // The trait needs to be defined on references:
-//! impl&lt;&#39;a, T&gt; MyTrait for &amp;&#39;a T
+//! impl&lt;'a, T&gt; MyTrait for &amp;'a T
 //! where
 //!     T: MyTrait,
 //! {
@@ -493,8 +494,8 @@
 //!
 //! impl&lt;Y, C&gt; MyTrait for Yoke&lt;Y, C&gt;
 //! where
-//!     Y: for&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt;,
-//!     for&lt;&#39;a&gt; &amp;&#39;a &lt;Y as Yokeable&lt;&#39;a&gt;&gt;::Output: MyTrait,
+//!     Y: for&lt;'a&gt; Yokeable&lt;'a&gt;,
+//!     for&lt;'a&gt; &amp;'a &lt;Y as Yokeable&lt;'a&gt;&gt;::Output: MyTrait,
 //! {
 //!     fn demo(&amp;self) -&gt; u32 {
 //!         self.get().demo()
@@ -525,10 +526,10 @@
 //!         Self(data)
 //!     }
 //! }
-//! unsafe impl&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt; for MyStruct {
+//! unsafe impl&lt;'a&gt; Yokeable&lt;'a&gt; for MyStruct {
 //!     // (not shown; see `Yokeable` for examples)
 //! #    type Output = MyStruct;
-//! #    fn transform(&amp;&#39;a self) -&gt; &amp;&#39;a Self::Output {
+//! #    fn transform(&amp;'a self) -&gt; &amp;'a Self::Output {
 //! #        self
 //! #    }
 //! #    fn transform_owned(self) -&gt; Self::Output {
@@ -537,12 +538,12 @@
 //! #    unsafe fn make(from: Self::Output) -&gt; Self {
 //! #        std::mem::transmute(from)
 //! #    }
-//! #    fn transform_mut&lt;F&gt;(&amp;&#39;a mut self, f: F)
+//! #    fn transform_mut&lt;F&gt;(&amp;'a mut self, f: F)
 //! #    where
-//! #        F: &#39;static + for&lt;&#39;b&gt; FnOnce(&amp;&#39;b mut Self::Output),
+//! #        F: 'static + for&lt;'b&gt; FnOnce(&amp;'b mut Self::Output),
 //! #    {
 //! #        unsafe {
-//! #            f(std::mem::transmute::&lt;&amp;&#39;a mut Self, &amp;&#39;a mut Self::Output&gt;(
+//! #            f(std::mem::transmute::&lt;&amp;'a mut Self, &amp;'a mut Self::Output&gt;(
 //! #                self,
 //! #            ))
 //! #        }
@@ -550,7 +551,7 @@
 //! }
 //!
 //! // The trait needs to be defined on YokeTraitHack:
-//! impl&lt;&#39;a, T&gt; MyTrait for YokeTraitHack&lt;T&gt;
+//! impl&lt;'a, T&gt; MyTrait for YokeTraitHack&lt;T&gt;
 //! where
 //!     T: MyTrait,
 //! {
@@ -561,8 +562,8 @@
 //!
 //! impl&lt;Y&gt; MyTrait for Yoke&lt;Y, Rc&lt;u32&gt;&gt;
 //! where
-//!     Y: for&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt;,
-//!     for&lt;&#39;a&gt; YokeTraitHack&lt;&lt;Y as Yokeable&lt;&#39;a&gt;&gt;::Output&gt;: MyTrait,
+//!     Y: for&lt;'a&gt; Yokeable&lt;'a&gt;,
+//!     for&lt;'a&gt; YokeTraitHack&lt;&lt;Y as Yokeable&lt;'a&gt;&gt;::Output&gt;: MyTrait,
 //! {
 //!     fn demo(data: u32) -&gt; Self {
 //!         let rc_u32: Rc&lt;u32&gt; = Rc::new(data);
@@ -596,8 +597,8 @@
 ///
 /// fn compare_yokes&lt;Y, C1, C2&gt;(y1: Yoke&lt;Y, C1&gt;, y2: Yoke&lt;Y, C2&gt;) -&gt; bool
 /// where
-///     Y: for&lt;&#39;a&gt; Yokeable&lt;&#39;a&gt;,
-///     for&lt;&#39;a&gt; YokeTraitHack&lt;&lt;Y as Yokeable&lt;&#39;a&gt;&gt;::Output&gt;: PartialEq,
+///     Y: for&lt;'a&gt; Yokeable&lt;'a&gt;,
+///     for&lt;'a&gt; YokeTraitHack&lt;&lt;Y as Yokeable&lt;'a&gt;&gt;::Output&gt;: PartialEq,
 /// {
 ///     YokeTraitHack(y1.get()).into_ref() == YokeTraitHack(y2.get()).into_ref()
 /// }
@@ -607,29 +608,29 @@
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="kw">pub struct </span>YokeTraitHack&lt;T&gt;(<span class="kw">pub </span>T);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; YokeTraitHack&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; YokeTraitHack&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
     <span class="doccomment">/// Converts from `YokeTraitHack&lt;&amp;T&gt;` to `&amp;YokeTraitHack&lt;T&gt;`.
     ///
     /// This is safe because `YokeTraitHack` is `repr(transparent)`.
     ///
     /// This method is required to implement `Clone` on `Yoke`.
-    </span><span class="kw">pub fn </span>into_ref(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>YokeTraitHack&lt;T&gt; {
-        <span class="comment">// YokeTraitHack is repr(transparent) so it&#39;s always safe
+    </span><span class="kw">pub fn </span>into_ref(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>YokeTraitHack&lt;T&gt; {
+        <span class="comment">// YokeTraitHack is repr(transparent) so it's always safe
         // to transmute YTH&lt;&amp;T&gt; to &amp;YTH&lt;T&gt;
         </span><span class="kw">unsafe </span>{ mem::transmute::&lt;YokeTraitHack&lt;<span class="kw-2">&amp;</span>T&gt;, <span class="kw-2">&amp;</span>YokeTraitHack&lt;T&gt;&gt;(<span class="self">self</span>) }
     }
 }
 
 <span class="comment">// This is implemented manually to avoid the serde derive dependency.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, T&gt; serde::de::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>YokeTraitHack&lt;T&gt;
+</span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, T&gt; serde::de::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>YokeTraitHack&lt;T&gt;
 <span class="kw">where
-    </span>T: serde::de::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt;,
+    </span>T: serde::de::Deserialize&lt;<span class="lifetime">'de</span>&gt;,
 {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::de::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::de::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         T::deserialize(deserializer).map(YokeTraitHack)
     }

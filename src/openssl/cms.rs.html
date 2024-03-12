@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.63/src/cms.rs`."><title>cms.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/cms.rs`."><title>cms.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -543,7 +544,7 @@
     /// CMS supports nesting various types of data, including signatures, certificates,
     /// encrypted data, smime messages (encrypted email), and data digest.  The ContentInfo
     /// content type is the encapsulation of all those content types.  [`RFC 5652`] describes
-    /// CMS and OpenSSL follows this RFC&#39;s implementation.
+    /// CMS and OpenSSL follows this RFC's implementation.
     ///
     /// [`RFC 5652`]: https://tools.ietf.org/html/rfc5652#page-6
     </span><span class="kw">pub struct </span>CmsContentInfo;
@@ -554,7 +555,7 @@
 }
 
 <span class="kw">impl </span>CmsContentInfoRef {
-    <span class="doccomment">/// Given the sender&#39;s private key, `pkey` and the recipient&#39;s certificate, `cert`,
+    <span class="doccomment">/// Given the sender's private key, `pkey` and the recipient's certificate, `cert`,
     /// decrypt the data in `self`.
     </span><span class="attr">#[corresponds(CMS_decrypt)]
     </span><span class="kw">pub fn </span>decrypt&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, pkey: <span class="kw-2">&amp;</span>PKeyRef&lt;T&gt;, cert: <span class="kw-2">&amp;</span>X509) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, ErrorStack&gt;
@@ -579,10 +580,10 @@
         }
     }
 
-    <span class="doccomment">/// Given the sender&#39;s private key, `pkey`,
+    <span class="doccomment">/// Given the sender's private key, `pkey`,
     /// decrypt the data in `self` without validating the recipient certificate.
     ///
-    /// *Warning*: Not checking the recipient certificate may leave you vulnerable to Bleichenbacher&#39;s attack on PKCS#1 v1.5 RSA padding.
+    /// *Warning*: Not checking the recipient certificate may leave you vulnerable to Bleichenbacher's attack on PKCS#1 v1.5 RSA padding.
     </span><span class="attr">#[corresponds(CMS_decrypt)]
     </span><span class="comment">// FIXME merge into decrypt
     </span><span class="kw">pub fn </span>decrypt_without_cert_check&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, pkey: <span class="kw-2">&amp;</span>PKeyRef&lt;T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, ErrorStack&gt;
@@ -714,10 +715,10 @@
         }
     }
 
-    <span class="doccomment">/// Verify this CmsContentInfo&#39;s signature,
-    /// This will search the &#39;certs&#39; list for the signing certificate.      
+    <span class="doccomment">/// Verify this CmsContentInfo's signature,
+    /// This will search the 'certs' list for the signing certificate.      
     /// Additional certificates, needed for building the certificate chain, may be
-    /// given in &#39;store&#39; as well as additional CRLs.
+    /// given in 'store' as well as additional CRLs.
     /// A detached signature may be passed in `detached_data`. The signed content
     /// without signature, will be copied into output_data if it is present.
     ///
@@ -776,25 +777,25 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>cms_encrypt_decrypt() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
         <span class="comment">// load cert with public key only
-        </span><span class="kw">let </span>pub_cert_bytes = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/cms_pubkey.der&quot;</span>);
-        <span class="kw">let </span>pub_cert = X509::from_der(pub_cert_bytes).expect(<span class="string">&quot;failed to load pub cert&quot;</span>);
+        </span><span class="kw">let </span>pub_cert_bytes = <span class="macro">include_bytes!</span>(<span class="string">"../test/cms_pubkey.der"</span>);
+        <span class="kw">let </span>pub_cert = X509::from_der(pub_cert_bytes).expect(<span class="string">"failed to load pub cert"</span>);
 
         <span class="comment">// load cert with private key
-        </span><span class="kw">let </span>priv_cert_bytes = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/cms.p12&quot;</span>);
-        <span class="kw">let </span>priv_cert = Pkcs12::from_der(priv_cert_bytes).expect(<span class="string">&quot;failed to load priv cert&quot;</span>);
+        </span><span class="kw">let </span>priv_cert_bytes = <span class="macro">include_bytes!</span>(<span class="string">"../test/cms.p12"</span>);
+        <span class="kw">let </span>priv_cert = Pkcs12::from_der(priv_cert_bytes).expect(<span class="string">"failed to load priv cert"</span>);
         <span class="kw">let </span>priv_cert = priv_cert
-            .parse2(<span class="string">&quot;mypass&quot;</span>)
-            .expect(<span class="string">&quot;failed to parse priv cert&quot;</span>);
+            .parse2(<span class="string">"mypass"</span>)
+            .expect(<span class="string">"failed to parse priv cert"</span>);
 
         <span class="comment">// encrypt cms message using public key cert
-        </span><span class="kw">let </span>input = String::from(<span class="string">&quot;My Message&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>cert_stack = Stack::new().expect(<span class="string">&quot;failed to create stack&quot;</span>);
+        </span><span class="kw">let </span>input = String::from(<span class="string">"My Message"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>cert_stack = Stack::new().expect(<span class="string">"failed to create stack"</span>);
         cert_stack
             .push(pub_cert)
-            .expect(<span class="string">&quot;failed to add pub cert to stack&quot;</span>);
+            .expect(<span class="string">"failed to add pub cert to stack"</span>);
 
         <span class="kw">let </span>encrypt = CmsContentInfo::encrypt(
             <span class="kw-2">&amp;</span>cert_stack,
@@ -802,28 +803,28 @@
             Cipher::des_ede3_cbc(),
             CMSOptions::empty(),
         )
-        .expect(<span class="string">&quot;failed create encrypted cms&quot;</span>);
+        .expect(<span class="string">"failed create encrypted cms"</span>);
 
         <span class="comment">// decrypt cms message using private key cert (DER)
         </span>{
-            <span class="kw">let </span>encrypted_der = encrypt.to_der().expect(<span class="string">&quot;failed to create der from cms&quot;</span>);
+            <span class="kw">let </span>encrypted_der = encrypt.to_der().expect(<span class="string">"failed to create der from cms"</span>);
             <span class="kw">let </span>decrypt =
-                CmsContentInfo::from_der(<span class="kw-2">&amp;</span>encrypted_der).expect(<span class="string">&quot;failed read cms from der&quot;</span>);
+                CmsContentInfo::from_der(<span class="kw-2">&amp;</span>encrypted_der).expect(<span class="string">"failed read cms from der"</span>);
 
             <span class="kw">let </span>decrypt_with_cert_check = decrypt
                 .decrypt(
                     priv_cert.pkey.as_ref().unwrap(),
                     priv_cert.cert.as_ref().unwrap(),
                 )
-                .expect(<span class="string">&quot;failed to decrypt cms&quot;</span>);
+                .expect(<span class="string">"failed to decrypt cms"</span>);
             <span class="kw">let </span>decrypt_with_cert_check = String::from_utf8(decrypt_with_cert_check)
-                .expect(<span class="string">&quot;failed to create string from cms content&quot;</span>);
+                .expect(<span class="string">"failed to create string from cms content"</span>);
 
             <span class="kw">let </span>decrypt_without_cert_check = decrypt
                 .decrypt_without_cert_check(priv_cert.pkey.as_ref().unwrap())
-                .expect(<span class="string">&quot;failed to decrypt cms&quot;</span>);
+                .expect(<span class="string">"failed to decrypt cms"</span>);
             <span class="kw">let </span>decrypt_without_cert_check = String::from_utf8(decrypt_without_cert_check)
-                .expect(<span class="string">&quot;failed to create string from cms content&quot;</span>);
+                .expect(<span class="string">"failed to create string from cms content"</span>);
 
             <span class="macro">assert_eq!</span>(input, decrypt_with_cert_check);
             <span class="macro">assert_eq!</span>(input, decrypt_without_cert_check);
@@ -831,24 +832,24 @@
 
         <span class="comment">// decrypt cms message using private key cert (PEM)
         </span>{
-            <span class="kw">let </span>encrypted_pem = encrypt.to_pem().expect(<span class="string">&quot;failed to create pem from cms&quot;</span>);
+            <span class="kw">let </span>encrypted_pem = encrypt.to_pem().expect(<span class="string">"failed to create pem from cms"</span>);
             <span class="kw">let </span>decrypt =
-                CmsContentInfo::from_pem(<span class="kw-2">&amp;</span>encrypted_pem).expect(<span class="string">&quot;failed read cms from pem&quot;</span>);
+                CmsContentInfo::from_pem(<span class="kw-2">&amp;</span>encrypted_pem).expect(<span class="string">"failed read cms from pem"</span>);
 
             <span class="kw">let </span>decrypt_with_cert_check = decrypt
                 .decrypt(
                     priv_cert.pkey.as_ref().unwrap(),
                     priv_cert.cert.as_ref().unwrap(),
                 )
-                .expect(<span class="string">&quot;failed to decrypt cms&quot;</span>);
+                .expect(<span class="string">"failed to decrypt cms"</span>);
             <span class="kw">let </span>decrypt_with_cert_check = String::from_utf8(decrypt_with_cert_check)
-                .expect(<span class="string">&quot;failed to create string from cms content&quot;</span>);
+                .expect(<span class="string">"failed to create string from cms content"</span>);
 
             <span class="kw">let </span>decrypt_without_cert_check = decrypt
                 .decrypt_without_cert_check(priv_cert.pkey.as_ref().unwrap())
-                .expect(<span class="string">&quot;failed to decrypt cms&quot;</span>);
+                .expect(<span class="string">"failed to decrypt cms"</span>);
             <span class="kw">let </span>decrypt_without_cert_check = String::from_utf8(decrypt_without_cert_check)
-                .expect(<span class="string">&quot;failed to create string from cms content&quot;</span>);
+                .expect(<span class="string">"failed to create string from cms content"</span>);
 
             <span class="macro">assert_eq!</span>(input, decrypt_with_cert_check);
             <span class="macro">assert_eq!</span>(input, decrypt_without_cert_check);
@@ -857,17 +858,17 @@
 
     <span class="kw">fn </span>cms_sign_verify_generic_helper(is_detached: bool) {
         <span class="comment">// load cert with private key
-        </span><span class="kw">let </span>cert_bytes = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/cert.pem&quot;</span>);
-        <span class="kw">let </span>cert = X509::from_pem(cert_bytes).expect(<span class="string">&quot;failed to load cert.pem&quot;</span>);
+        </span><span class="kw">let </span>cert_bytes = <span class="macro">include_bytes!</span>(<span class="string">"../test/cert.pem"</span>);
+        <span class="kw">let </span>cert = X509::from_pem(cert_bytes).expect(<span class="string">"failed to load cert.pem"</span>);
 
-        <span class="kw">let </span>key_bytes = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/key.pem&quot;</span>);
-        <span class="kw">let </span>key = PKey::private_key_from_pem(key_bytes).expect(<span class="string">&quot;failed to load key.pem&quot;</span>);
+        <span class="kw">let </span>key_bytes = <span class="macro">include_bytes!</span>(<span class="string">"../test/key.pem"</span>);
+        <span class="kw">let </span>key = PKey::private_key_from_pem(key_bytes).expect(<span class="string">"failed to load key.pem"</span>);
 
-        <span class="kw">let </span>root_bytes = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/root-ca.pem&quot;</span>);
-        <span class="kw">let </span>root = X509::from_pem(root_bytes).expect(<span class="string">&quot;failed to load root-ca.pem&quot;</span>);
+        <span class="kw">let </span>root_bytes = <span class="macro">include_bytes!</span>(<span class="string">"../test/root-ca.pem"</span>);
+        <span class="kw">let </span>root = X509::from_pem(root_bytes).expect(<span class="string">"failed to load root-ca.pem"</span>);
 
         <span class="comment">// sign cms message using public key cert
-        </span><span class="kw">let </span>data = <span class="string">b&quot;Hello world!&quot;</span>;
+        </span><span class="kw">let </span>data = <span class="string">b"Hello world!"</span>;
 
         <span class="kw">let </span>(opt, ext_data): (CMSOptions, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;) = <span class="kw">if </span>is_detached {
             (CMSOptions::DETACHED | CMSOptions::BINARY, <span class="prelude-val">Some</span>(data))
@@ -876,19 +877,19 @@
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>cms = CmsContentInfo::sign(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>cert), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>key), <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(data), opt)
-            .expect(<span class="string">&quot;failed to CMS sign a message&quot;</span>);
+            .expect(<span class="string">"failed to CMS sign a message"</span>);
 
         <span class="comment">// check CMS signature length
         </span><span class="kw">let </span>pem_cms = cms
             .to_pem()
-            .expect(<span class="string">&quot;failed to pack CmsContentInfo into PEM&quot;</span>);
+            .expect(<span class="string">"failed to pack CmsContentInfo into PEM"</span>);
         <span class="macro">assert!</span>(!pem_cms.is_empty());
 
         <span class="comment">// verify CMS signature
-        </span><span class="kw">let </span><span class="kw-2">mut </span>builder = X509StoreBuilder::new().expect(<span class="string">&quot;failed to create X509StoreBuilder&quot;</span>);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>builder = X509StoreBuilder::new().expect(<span class="string">"failed to create X509StoreBuilder"</span>);
         builder
             .add_cert(root)
-            .expect(<span class="string">&quot;failed to add root-ca into X509StoreBuilder&quot;</span>);
+            .expect(<span class="string">"failed to add root-ca into X509StoreBuilder"</span>);
         <span class="kw">let </span>store: X509Store = builder.build();
         <span class="kw">let </span><span class="kw-2">mut </span>out_data: Vec&lt;u8&gt; = Vec::new();
         <span class="kw">let </span>res = cms.verify(
@@ -917,17 +918,17 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>cms_sign_verify_error() {
         <span class="attr">#[cfg(ossl300)]
-        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        </span><span class="kw">let </span>_provider = <span class="kw">crate</span>::provider::Provider::try_load(<span class="prelude-val">None</span>, <span class="string">"legacy"</span>, <span class="bool-val">true</span>).unwrap();
 
         <span class="comment">// load cert with private key
-        </span><span class="kw">let </span>priv_cert_bytes = <span class="macro">include_bytes!</span>(<span class="string">&quot;../test/cms.p12&quot;</span>);
-        <span class="kw">let </span>priv_cert = Pkcs12::from_der(priv_cert_bytes).expect(<span class="string">&quot;failed to load priv cert&quot;</span>);
+        </span><span class="kw">let </span>priv_cert_bytes = <span class="macro">include_bytes!</span>(<span class="string">"../test/cms.p12"</span>);
+        <span class="kw">let </span>priv_cert = Pkcs12::from_der(priv_cert_bytes).expect(<span class="string">"failed to load priv cert"</span>);
         <span class="kw">let </span>priv_cert = priv_cert
-            .parse2(<span class="string">&quot;mypass&quot;</span>)
-            .expect(<span class="string">&quot;failed to parse priv cert&quot;</span>);
+            .parse2(<span class="string">"mypass"</span>)
+            .expect(<span class="string">"failed to parse priv cert"</span>);
 
         <span class="comment">// sign cms message using public key cert
-        </span><span class="kw">let </span>data = <span class="string">b&quot;Hello world!&quot;</span>;
+        </span><span class="kw">let </span>data = <span class="string">b"Hello world!"</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>cms = CmsContentInfo::sign(
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>priv_cert.cert.unwrap()),
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>priv_cert.pkey.unwrap()),
@@ -935,16 +936,16 @@
             <span class="prelude-val">Some</span>(data),
             CMSOptions::empty(),
         )
-        .expect(<span class="string">&quot;failed to CMS sign a message&quot;</span>);
+        .expect(<span class="string">"failed to CMS sign a message"</span>);
 
         <span class="comment">// check CMS signature length
         </span><span class="kw">let </span>pem_cms = cms
             .to_pem()
-            .expect(<span class="string">&quot;failed to pack CmsContentInfo into PEM&quot;</span>);
+            .expect(<span class="string">"failed to pack CmsContentInfo into PEM"</span>);
         <span class="macro">assert!</span>(!pem_cms.is_empty());
 
         <span class="kw">let </span>empty_store = X509StoreBuilder::new()
-            .expect(<span class="string">&quot;failed to create X509StoreBuilder&quot;</span>)
+            .expect(<span class="string">"failed to create X509StoreBuilder"</span>)
             .build();
 
         <span class="comment">// verify CMS signature

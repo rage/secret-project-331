@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-path-0.11.4/src/path_geometry.rs`."><title>path_geometry.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-path-0.11.4/src/path_geometry.rs`."><title>path_geometry.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -946,7 +947,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::floating_point::{NormalizedF32, NormalizedF32Exclusive};
 <span class="kw">use </span><span class="kw">crate</span>::path_builder::PathDirection;
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), feature = <span class="string">&quot;no-std-float&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"no-std-float"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::NoStdFloat;
 
 <span class="comment">// use for : eval(t) == A * t^2 + B * t + C
@@ -1043,7 +1044,7 @@
         }
     }
 
-    <span class="comment">// use doubles so we don&#39;t overflow temporarily trying to compute R
+    <span class="comment">// use doubles so we don't overflow temporarily trying to compute R
     </span><span class="kw">let </span><span class="kw-2">mut </span>dr = f64::from(b) * f64::from(b) - <span class="number">4.0 </span>* f64::from(a) * f64::from(c);
     <span class="kw">if </span>dr &lt; <span class="number">0.0 </span>{
         <span class="kw">return </span><span class="number">0</span>;
@@ -1106,7 +1107,7 @@
     dst[<span class="number">6</span>] = Point::from_f32x2(p3);
 }
 
-<span class="comment">// Quad&#39;(t) = At + B, where
+<span class="comment">// Quad'(t) = At + B, where
 // A = 2(a - 2b + c)
 // B = 2(b - a)
 // Solve for t, only if it fits between 0 &lt; t &lt; 1
@@ -1139,14 +1140,14 @@
 }
 
 <span class="comment">// F(t)    = a (1 - t) ^ 2 + 2 b t (1 - t) + c t ^ 2
-// F&#39;(t)   = 2 (b - a) + 2 (a - 2b + c) t
-// F&#39;&#39;(t)  = 2 (a - 2b + c)
+// F'(t)   = 2 (b - a) + 2 (a - 2b + c) t
+// F''(t)  = 2 (a - 2b + c)
 //
 // A = 2 (b - a)
 // B = 2 (a - 2b + c)
 //
 // Maximum curvature for a quadratic means solving
-// Fx&#39; Fx&#39;&#39; + Fy&#39; Fy&#39;&#39; = 0
+// Fx' Fx'' + Fy' Fy'' = 0
 //
 // t = - (Ax Bx + Ay By) / (Bx ^ 2 + By ^ 2)
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>find_quad_max_curvature(src: <span class="kw-2">&amp;</span>[Point; <span class="number">3</span>]) -&gt; NormalizedF32 {
@@ -1200,20 +1201,20 @@
     Point::from_f32x2(t + t)
 }
 
-<span class="comment">// Looking for F&#39; dot F&#39;&#39; == 0
+<span class="comment">// Looking for F' dot F'' == 0
 //
 // A = b - a
 // B = c - 2b + a
 // C = d - 3c + 3b - a
 //
-// F&#39; = 3Ct^2 + 6Bt + 3A
-// F&#39;&#39; = 6Ct + 6B
+// F' = 3Ct^2 + 6Bt + 3A
+// F'' = 6Ct + 6B
 //
-// F&#39; dot F&#39;&#39; -&gt; CCt^3 + 3BCt^2 + (2BB + CA)t + AB
-</span><span class="kw">pub fn </span>find_cubic_max_curvature&lt;<span class="lifetime">&#39;a</span>&gt;(
+// F' dot F'' -&gt; CCt^3 + 3BCt^2 + (2BB + CA)t + AB
+</span><span class="kw">pub fn </span>find_cubic_max_curvature&lt;<span class="lifetime">'a</span>&gt;(
     src: <span class="kw-2">&amp;</span>[Point; <span class="number">4</span>],
-    t_values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[NormalizedF32; <span class="number">3</span>],
-) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[NormalizedF32] {
+    t_values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[NormalizedF32; <span class="number">3</span>],
+) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[NormalizedF32] {
     <span class="kw">let </span><span class="kw-2">mut </span>coeff_x = formulate_f1_dot_f2(<span class="kw-2">&amp;</span>[src[<span class="number">0</span>].x, src[<span class="number">1</span>].x, src[<span class="number">2</span>].x, src[<span class="number">3</span>].x]);
     <span class="kw">let </span>coeff_y = formulate_f1_dot_f2(<span class="kw-2">&amp;</span>[src[<span class="number">0</span>].y, src[<span class="number">1</span>].y, src[<span class="number">2</span>].y, src[<span class="number">3</span>].y]);
 
@@ -1225,16 +1226,16 @@
     <span class="kw-2">&amp;</span>t_values[<span class="number">0</span>..len]
 }
 
-<span class="comment">// Looking for F&#39; dot F&#39;&#39; == 0
+<span class="comment">// Looking for F' dot F'' == 0
 //
 // A = b - a
 // B = c - 2b + a
 // C = d - 3c + 3b - a
 //
-// F&#39; = 3Ct^2 + 6Bt + 3A
-// F&#39;&#39; = 6Ct + 6B
+// F' = 3Ct^2 + 6Bt + 3A
+// F'' = 6Ct + 6B
 //
-// F&#39; dot F&#39;&#39; -&gt; CCt^3 + 3BCt^2 + (2BB + CA)t + AB
+// F' dot F'' -&gt; CCt^3 + 3BCt^2 + (2BB + CA)t + AB
 </span><span class="kw">fn </span>formulate_f1_dot_f2(src: <span class="kw-2">&amp;</span>[f32; <span class="number">4</span>]) -&gt; [f32; <span class="number">4</span>] {
     <span class="kw">let </span>a = src[<span class="number">1</span>] - src[<span class="number">0</span>];
     <span class="kw">let </span>b = src[<span class="number">2</span>] - <span class="number">2.0 </span>* src[<span class="number">1</span>] + src[<span class="number">0</span>];
@@ -1250,7 +1251,7 @@
 /// in increasing order.
 </span><span class="kw">fn </span>solve_cubic_poly(coeff: <span class="kw-2">&amp;</span>[f32; <span class="number">4</span>], t_values: <span class="kw-2">&amp;mut </span>[NormalizedF32; <span class="number">3</span>]) -&gt; usize {
     <span class="kw">if </span>coeff[<span class="number">0</span>].is_nearly_zero() {
-        <span class="comment">// we&#39;re just a quadratic
+        <span class="comment">// we're just a quadratic
         </span><span class="kw">let </span><span class="kw-2">mut </span>tmp_t = new_t_values();
         <span class="kw">let </span>count = find_unit_quad_roots(coeff[<span class="number">1</span>], coeff[<span class="number">2</span>], coeff[<span class="number">3</span>], <span class="kw-2">&amp;mut </span>tmp_t);
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..count {
@@ -1382,7 +1383,7 @@
     Point::from_f32x2(coeff.eval(f32x2::splat(t.get())))
 }
 
-<span class="comment">// Cubic&#39;(t) = At^2 + Bt + C, where
+<span class="comment">// Cubic'(t) = At^2 + Bt + C, where
 // A = 3(-a + 3(b - c) + d)
 // B = 6(a - 2b + c)
 // C = 3(b - a)
@@ -1405,17 +1406,17 @@
 <span class="comment">// http://www.faculty.idc.ac.il/arik/quality/appendixA.html
 //
 // Inflection means that curvature is zero.
-// Curvature is [F&#39; x F&#39;&#39;] / [F&#39;^3]
-// So we solve F&#39;x X F&#39;&#39;y - F&#39;y X F&#39;&#39;y == 0
+// Curvature is [F' x F''] / [F'^3]
+// So we solve F'x X F''y - F'y X F''y == 0
 // After some canceling of the cubic term, we get
 // A = b - a
 // B = c - 2b + a
 // C = d - 3c + 3b - a
 // (BxCy - ByCx)t^2 + (AxCy - AyCx)t + AxBy - AyBx == 0
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>find_cubic_inflections&lt;<span class="lifetime">&#39;a</span>&gt;(
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>find_cubic_inflections&lt;<span class="lifetime">'a</span>&gt;(
     src: <span class="kw-2">&amp;</span>[Point; <span class="number">4</span>],
-    t_values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[NormalizedF32Exclusive; <span class="number">3</span>],
-) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[NormalizedF32Exclusive] {
+    t_values: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[NormalizedF32Exclusive; <span class="number">3</span>],
+) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[NormalizedF32Exclusive] {
     <span class="kw">let </span>ax = src[<span class="number">1</span>].x - src[<span class="number">0</span>].x;
     <span class="kw">let </span>ay = src[<span class="number">1</span>].y - src[<span class="number">0</span>].y;
     <span class="kw">let </span>bx = src[<span class="number">2</span>].x - <span class="number">2.0 </span>* src[<span class="number">1</span>].x + src[<span class="number">0</span>].x;
@@ -1434,11 +1435,11 @@
 }
 
 <span class="comment">// Return location (in t) of cubic cusp, if there is one.
-// Note that classify cubic code does not reliably return all cusp&#39;d cubics, so
+// Note that classify cubic code does not reliably return all cusp'd cubics, so
 // it is not called here.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>find_cubic_cusp(src: <span class="kw-2">&amp;</span>[Point; <span class="number">4</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;NormalizedF32Exclusive&gt; {
     <span class="comment">// When the adjacent control point matches the end point, it behaves as if
-    // the cubic has a cusp: there&#39;s a point of max curvature where the derivative
+    // the cubic has a cusp: there's a point of max curvature where the derivative
     // goes to zero. Ideally, this would be where t is zero or one, but math
     // error makes not so. It is not uncommon to create cubics this way; skip them.
     </span><span class="kw">if </span>src[<span class="number">0</span>] == src[<span class="number">1</span>] {
@@ -1466,7 +1467,7 @@
         }
 
         <span class="comment">// A cusp is at the max curvature, and also has a derivative close to zero.
-        // Choose the &#39;close to zero&#39; meaning by comparing the derivative length
+        // Choose the 'close to zero' meaning by comparing the derivative length
         // with the overall cubic size.
         </span><span class="kw">let </span>d_pt = eval_cubic_derivative(src, <span class="kw-2">*</span>test_t);
         <span class="kw">let </span>d_pt_magnitude = d_pt.length_sqd();
@@ -1496,7 +1497,7 @@
 </span>}
 
 <span class="comment">// Returns a constant proportional to the dimensions of the cubic.
-// Constant found through experimentation -- maybe there&#39;s a better way....
+// Constant found through experimentation -- maybe there's a better way....
 </span><span class="kw">fn </span>calc_cubic_precision(src: <span class="kw-2">&amp;</span>[Point; <span class="number">4</span>]) -&gt; f32 {
     (src[<span class="number">1</span>].distance_to_sqd(src[<span class="number">0</span>])
         + src[<span class="number">2</span>].distance_to_sqd(src[<span class="number">1</span>])
@@ -1538,7 +1539,7 @@
         <span class="comment">// Limit the number of suggested quads to approximate a conic
         </span><span class="kw">const </span>MAX_CONIC_TO_QUAD_POW2: usize = <span class="number">4</span>;
 
-        <span class="comment">// &quot;High order approximation of conic sections by quadratic splines&quot;
+        <span class="comment">// "High order approximation of conic sections by quadratic splines"
         // by Michael Floater, 1993
         </span><span class="kw">let </span>a = <span class="self">self</span>.weight - <span class="number">1.0</span>;
         <span class="kw">let </span>k = a / (<span class="number">4.0 </span>* (<span class="number">2.0 </span>+ a));
@@ -1733,7 +1734,7 @@
     (<span class="number">0.5 </span>+ w * <span class="number">0.5</span>).sqrt()
 }
 
-<span class="kw">fn </span>subdivide&lt;<span class="lifetime">&#39;a</span>&gt;(src: <span class="kw-2">&amp;</span>Conic, <span class="kw-2">mut </span>points: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[Point], <span class="kw-2">mut </span>level: u8) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[Point] {
+<span class="kw">fn </span>subdivide&lt;<span class="lifetime">'a</span>&gt;(src: <span class="kw-2">&amp;</span>Conic, <span class="kw-2">mut </span>points: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[Point], <span class="kw-2">mut </span>level: u8) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[Point] {
     <span class="kw">if </span>level == <span class="number">0 </span>{
         points[<span class="number">0</span>] = src.points[<span class="number">1</span>];
         points[<span class="number">1</span>] = src.points[<span class="number">2</span>];

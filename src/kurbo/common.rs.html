@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/common.rs`."><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/common.rs`."><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1107,15 +1108,15 @@
         <span class="kw">fn </span><span class="macro-nonterminal">$name</span>:ident(<span class="self">self </span>$(,<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$arg_ty</span>:ty)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret</span>:ty
         =&gt; <span class="macro-nonterminal">$lname</span>:ident/<span class="macro-nonterminal">$lfname</span>:ident;
     )+) =&gt; {
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
         </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>FloatFuncs : Sized {
-            <span class="doccomment">/// Special implementation for signum, because libm doesn&#39;t have it.
+            <span class="doccomment">/// Special implementation for signum, because libm doesn't have it.
             </span><span class="kw">fn </span>signum(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
 
             $(<span class="kw">fn </span><span class="macro-nonterminal">$name</span>(<span class="self">self </span>$(,<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$arg_ty</span>)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret</span>;)+
         }
 
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
         </span><span class="kw">impl </span>FloatFuncs <span class="kw">for </span>f32 {
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>signum(<span class="self">self</span>) -&gt; f32 {
@@ -1127,15 +1128,15 @@
             }
 
             $(<span class="kw">fn </span><span class="macro-nonterminal">$name</span>(<span class="self">self </span>$(,<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$arg_ty</span>)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret </span>{
-                <span class="attr">#[cfg(feature = <span class="string">&quot;libm&quot;</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"libm"</span>)]
                 </span><span class="kw">return </span>libm::<span class="macro-nonterminal">$lfname</span>(<span class="self">self </span>$(,<span class="macro-nonterminal">$arg </span><span class="kw">as _</span>)<span class="kw-2">*</span>);
 
-                <span class="attr">#[cfg(not(feature = <span class="string">&quot;libm&quot;</span>))]
-                </span><span class="macro">compile_error!</span>(<span class="string">&quot;kurbo requires either the `std` or `libm` feature&quot;</span>)
+                <span class="attr">#[cfg(not(feature = <span class="string">"libm"</span>))]
+                </span><span class="macro">compile_error!</span>(<span class="string">"kurbo requires either the `std` or `libm` feature"</span>)
             })+
         }
 
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
         </span><span class="kw">impl </span>FloatFuncs <span class="kw">for </span>f64 {
             <span class="attr">#[inline]
             </span><span class="kw">fn </span>signum(<span class="self">self</span>) -&gt; f64 {
@@ -1147,11 +1148,11 @@
             }
 
             $(<span class="kw">fn </span><span class="macro-nonterminal">$name</span>(<span class="self">self </span>$(,<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$arg_ty</span>)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret </span>{
-                <span class="attr">#[cfg(feature = <span class="string">&quot;libm&quot;</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"libm"</span>)]
                 </span><span class="kw">return </span>libm::<span class="macro-nonterminal">$lname</span>(<span class="self">self </span>$(,<span class="macro-nonterminal">$arg </span><span class="kw">as _</span>)<span class="kw-2">*</span>);
 
-                <span class="attr">#[cfg(not(feature = <span class="string">&quot;libm&quot;</span>))]
-                </span><span class="macro">compile_error!</span>(<span class="string">&quot;kurbo requires either the `std` or `libm` feature&quot;</span>)
+                <span class="attr">#[cfg(not(feature = <span class="string">"libm"</span>))]
+                </span><span class="macro">compile_error!</span>(<span class="string">"kurbo requires either the `std` or `libm` feature"</span>)
             })+
         }
     }
@@ -1225,8 +1226,8 @@
 ///
 /// See: &lt;https://momentsingraphics.de/CubicRoots.html&gt;
 ///
-/// That implementation is in turn based on Jim Blinn&#39;s &quot;How to Solve a Cubic
-/// Equation&quot;, which is masterful.
+/// That implementation is in turn based on Jim Blinn's "How to Solve a Cubic
+/// Equation", which is masterful.
 ///
 /// Return values of x for which c0 + c1 x + c2 x² + c3 x³ = 0.
 </span><span class="kw">pub fn </span>solve_cubic(c0: f64, c1: f64, c2: f64, c3: f64) -&gt; ArrayVec&lt;f64, <span class="number">3</span>&gt; {
@@ -1241,13 +1242,13 @@
         </span><span class="kw">return </span>solve_quadratic(c0, c1, c2).iter().copied().collect();
     }
     <span class="kw">let </span>(c0, c1, c2) = (scaled_c0, scaled_c1, scaled_c2);
-    <span class="comment">// (d0, d1, d2) is called &quot;Delta&quot; in article
+    <span class="comment">// (d0, d1, d2) is called "Delta" in article
     </span><span class="kw">let </span>d0 = (-c2).mul_add(c2, c1);
     <span class="kw">let </span>d1 = (-c1).mul_add(c2, c0);
     <span class="kw">let </span>d2 = c2 * c0 - c1 * c1;
-    <span class="comment">// d is called &quot;Discriminant&quot;
+    <span class="comment">// d is called "Discriminant"
     </span><span class="kw">let </span>d = <span class="number">4.0 </span>* d0 * d2 - d1 * d1;
-    <span class="comment">// de is called &quot;Depressed.x&quot;, Depressed.y = d0
+    <span class="comment">// de is called "Depressed.x", Depressed.y = d0
     </span><span class="kw">let </span>de = (-<span class="number">2.0 </span>* c2).mul_add(d0, d1);
     <span class="comment">// TODO: handle the cases where these intermediate results overflow.
     </span><span class="kw">if </span>d &lt; <span class="number">0.0 </span>{
@@ -1261,9 +1262,9 @@
         result.push(-<span class="number">2.0 </span>* t1 - c2);
     } <span class="kw">else </span>{
         <span class="kw">let </span>th = d.sqrt().atan2(-de) * ONETHIRD;
-        <span class="comment">// (th_cos, th_sin) is called &quot;CubicRoot&quot;
+        <span class="comment">// (th_cos, th_sin) is called "CubicRoot"
         </span><span class="kw">let </span>(th_sin, th_cos) = th.sin_cos();
-        <span class="comment">// (r0, r1, r2) is called &quot;Root&quot;
+        <span class="comment">// (r0, r1, r2) is called "Root"
         </span><span class="kw">let </span>r0 = th_cos;
         <span class="kw">let </span>ss3 = th_sin * <span class="number">3.0f64</span>.sqrt();
         <span class="kw">let </span>r1 = <span class="number">0.5 </span>* (-th_cos + ss3);
@@ -1353,7 +1354,7 @@
         <span class="kw">return </span>solve_cubic(c0, c1, c2, c3).iter().copied().collect();
     }
     <span class="kw">if </span>c0 == <span class="number">0.0 </span>{
-        <span class="comment">// Note: appends 0 root at end, doesn&#39;t sort. We might want to do that.
+        <span class="comment">// Note: appends 0 root at end, doesn't sort. We might want to do that.
         </span><span class="kw">return </span>solve_cubic(c1, c2, c3, c4)
             .iter()
             .copied()
@@ -1381,7 +1382,7 @@
         }
     }
     <span class="comment">// Overflow happened, just return no roots.
-    //println!(&quot;overflow, no roots returned&quot;);
+    //println!("overflow, no roots returned");
     </span>Default::default()
 }
 
@@ -1487,7 +1488,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>beta_1;
     <span class="kw">let </span><span class="kw-2">mut </span>alpha_2;
     <span class="kw">let </span><span class="kw-2">mut </span>beta_2;
-    <span class="comment">//println!(&quot;phi = {}, d_2 = {}&quot;, phi, d_2);
+    <span class="comment">//println!("phi = {}, d_2 = {}", phi, d_2);
     </span><span class="kw">if </span>d_2 &lt; <span class="number">0.0 </span>{
         <span class="kw">let </span>sq = (-d_2).sqrt();
         alpha_1 = l_1 + sq;
@@ -1550,11 +1551,11 @@
         // to factor into quadratic equations with complex coefficients.
         </span><span class="kw">return </span><span class="prelude-val">None</span>;
     }
-    <span class="comment">// Newton-Raphson iteration on alpha/beta coeff&#39;s.
+    <span class="comment">// Newton-Raphson iteration on alpha/beta coeff's.
     </span><span class="kw">let </span><span class="kw-2">mut </span>eps_t = calc_eps_t(alpha_1, beta_1, alpha_2, beta_2);
     <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">8 </span>{
-        <span class="comment">//println!(&quot;a1 {} b1 {} a2 {} b2 {}&quot;, alpha_1, beta_1, alpha_2, beta_2);
-        //println!(&quot;eps_t = {:e}&quot;, eps_t);
+        <span class="comment">//println!("a1 {} b1 {} a2 {} b2 {}", alpha_1, beta_1, alpha_2, beta_2);
+        //println!("eps_t = {:e}", eps_t);
         </span><span class="kw">if </span>eps_t == <span class="number">0.0 </span>{
             <span class="kw">break</span>;
         }
@@ -1594,7 +1595,7 @@
             beta_2 = b2;
             eps_t = new_eps_t;
         } <span class="kw">else </span>{
-            <span class="comment">//println!(&quot;new_eps_t got worse: {:e}&quot;, new_eps_t);
+            <span class="comment">//println!("new_eps_t got worse: {:e}", new_eps_t);
             </span><span class="kw">break</span>;
         }
     }
@@ -1647,7 +1648,7 @@
     <span class="comment">// Refine with Newton-Raphson iteration
     </span><span class="kw">let </span><span class="kw-2">mut </span>x = phi_0;
     <span class="kw">let </span><span class="kw-2">mut </span>f = (x * x + g) * x + h;
-    <span class="comment">//println!(&quot;g = {:e}, h = {:e}, x = {:e}, f = {:e}&quot;, g, h, x, f);
+    <span class="comment">//println!("g = {:e}, h = {:e}, x = {:e}, f = {:e}", g, h, x, f);
     </span><span class="kw">const </span>EPS_M: f64 = <span class="number">2.22045e-16</span>;
     <span class="kw">if </span>f.abs() &lt; EPS_M * x.powi(<span class="number">3</span>).max(g * x).max(h) {
         <span class="kw">return </span>x;
@@ -1659,7 +1660,7 @@
         }
         <span class="kw">let </span>new_x = x - f / delt_f;
         <span class="kw">let </span>new_f = (new_x * new_x + g) * new_x + h;
-        <span class="comment">//println!(&quot;delt_f = {:e}, new_f = {:e}&quot;, delt_f, new_f);
+        <span class="comment">//println!("delt_f = {:e}, new_f = {:e}", delt_f, new_f);
         </span><span class="kw">if </span>new_f == <span class="number">0.0 </span>{
             <span class="kw">return </span>new_x;
         }
@@ -2078,7 +2079,7 @@
             <span class="kw">for </span>(actual, expected) <span class="kw">in </span>actual.iter().zip(roots) {
                 <span class="macro">assert!</span>(
                     (actual - expected).abs() &lt; rel_err * expected.abs(),
-                    <span class="string">&quot;actual {:e}, expected {:e}, err {:e}&quot;</span>,
+                    <span class="string">"actual {:e}, expected {:e}, err {:e}"</span>,
                     actual,
                     expected,
                     actual - expected
@@ -2139,7 +2140,7 @@
         <span class="comment">// case 20
         // FAILS, error too big
         </span>test_vieta(<span class="number">1.</span>, <span class="number">1e7</span>, <span class="number">1e7</span>, <span class="number">1e14</span>, <span class="number">1e-7</span>);
-        <span class="comment">// case 21 doesn&#39;t pick up double root
+        <span class="comment">// case 21 doesn't pick up double root
         // case 22
         </span>test_vieta(<span class="number">1.</span>, <span class="number">10.</span>, <span class="number">1e152</span>, <span class="number">1e154</span>, <span class="number">3e-16</span>);
         <span class="comment">// case 23

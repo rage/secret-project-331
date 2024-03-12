@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/displaydoc-0.2.4/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="displaydoc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/displaydoc-0.2.4/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="displaydoc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -185,14 +186,14 @@
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! This library provides a convenient derive macro for the standard library&#39;s
+</pre></div><pre class="rust"><code><span class="doccomment">//! This library provides a convenient derive macro for the standard library's
 //! [`core::fmt::Display`] trait.
 //!
 //! [`core::fmt::Display`]: https://doc.rust-lang.org/std/fmt/trait.Display.html
 //!
 //! ```toml
 //! [dependencies]
-//! displaydoc = &quot;0.2&quot;
+//! displaydoc = "0.2"
 //! ```
 //!
 //! *Compiler support: requires rustc 1.56+*
@@ -223,8 +224,8 @@
 //!     Unknown,
 //! }
 //!
-//! let error = DataStoreError::Redaction(&quot;CLASSIFIED CONTENT&quot;.to_string());
-//! assert!(&quot;the data for key `CLASSIFIED CONTENT` is not available&quot; == &amp;format!(&quot;{}&quot;, error));
+//! let error = DataStoreError::Redaction("CLASSIFIED CONTENT".to_string());
+//! assert!("the data for key `CLASSIFIED CONTENT` is not available" == &amp;format!("{}", error));
 //! ```
 //! *Note that although [`io::Error`][std::io::Error] implements `Display`, we do not add it to the
 //! generated message for `DataStoreError::Disconnect`, since it is already made available via
@@ -239,10 +240,10 @@
 //!   a docstring comment on each variant as shown above in the example. The
 //!   `Display` derive macro supports a shorthand for interpolating fields from
 //!   the error:
-//!     - `/// {var}` ⟶ `write!(&quot;{}&quot;, self.var)`
-//!     - `/// {0}` ⟶ `write!(&quot;{}&quot;, self.0)`
-//!     - `/// {var:?}` ⟶ `write!(&quot;{:?}&quot;, self.var)`
-//!     - `/// {0:?}` ⟶ `write!(&quot;{:?}&quot;, self.0)`
+//!     - `/// {var}` ⟶ `write!("{}", self.var)`
+//!     - `/// {0}` ⟶ `write!("{}", self.0)`
+//!     - `/// {var:?}` ⟶ `write!("{:?}", self.var)`
+//!     - `/// {0:?}` ⟶ `write!("{:?}", self.0)`
 //! - This also works with structs and [generic types][crate::Display#generic-type-parameters]:
 //! ```rust
 //! # use displaydoc::Display;
@@ -250,8 +251,8 @@
 //! #[derive(Display)]
 //! pub struct Error&lt;E&gt;(pub E);
 //!
-//! let error: Error&lt;&amp;str&gt; = Error(&quot;muahaha i am an error&quot;);
-//! assert!(&quot;oh no, an error: muahaha i am an error&quot; == &amp;format!(&quot;{}&quot;, error));
+//! let error: Error&lt;&amp;str&gt; = Error("muahaha i am an error");
+//! assert!("oh no, an error: muahaha i am an error" == &amp;format!("{}", error));
 //! ```
 //!
 //! - Two optional attributes can be added to your types next to the derive:
@@ -267,7 +268,7 @@
 //!       becomes mandatory. When added to any other type, it has no effect.
 //!
 //! - In case you want to have an independent doc comment, the
-//!   `#[displaydoc(&quot;...&quot;)` atrribute may be used on the variant or struct to
+//!   `#[displaydoc("...")` atrribute may be used on the variant or struct to
 //!   override it.
 //!
 //! &lt;br&gt;
@@ -278,8 +279,8 @@
 //!     * Yes! This crate implements the [`core::fmt::Display`] trait, not the [`std::fmt::Display`] trait, so it should work in `std` and `no_std` environments. Just add `default-features = false`.
 //!
 //! 2. **Does this crate work with `Path` and `PathBuf` via the `Display` trait?**
-//!     * Yuuup. This crate uses @dtolnay&#39;s [autoref specialization technique](https://github.com/dtolnay/case-studies/blob/master/autoref-specialization/README.md) to add a special trait for types to get the display impl. It then specializes for `Path` and `PathBuf`, and when either of these types are found, it calls `self.display()` to get a `std::path::Display&lt;&#39;_&gt;` type which can be used with the `Display` format specifier!
-</span><span class="attr">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/displaydoc/0.2.3&quot;</span>)]
+//!     * Yuuup. This crate uses @dtolnay's [autoref specialization technique](https://github.com/dtolnay/case-studies/blob/master/autoref-specialization/README.md) to add a special trait for types to get the display impl. It then specializes for `Path` and `PathBuf`, and when either of these types are found, it calls `self.display()` to get a `std::path::Display&lt;'_&gt;` type which can be used with the `Display` format specifier!
+</span><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/displaydoc/0.2.3"</span>)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![warn(
     rust_2018_idioms,
@@ -332,7 +333,7 @@
 /// // No need to require `E: Display`, since `displaydoc::Display` adds that implicitly.
 /// fn generate_error&lt;E&gt;(e: E) -&gt; Error&lt;E&gt; { Error(e) }
 ///
-/// assert!(&quot;oh no, an error: muahaha&quot; == &amp;format!(&quot;{}&quot;, generate_error(&quot;muahaha&quot;)));
+/// assert!("oh no, an error: muahaha" == &amp;format!("{}", generate_error("muahaha")));
 /// ```
 ///
 /// ### Using [`Debug`][core::fmt::Debug] Implementations with Type Parameters
@@ -343,7 +344,7 @@
 /// formatted with `{:?}` via [`displaydoc`][crate], and a generic type
 /// parameter must implement `Debug` to do that, then that struct or enum
 /// definition will need to propagate the `Debug` constraint to every type
-/// parameter it&#39;s instantiated with:
+/// parameter it's instantiated with:
 /// ```rust
 /// use core::fmt::Debug;
 /// use displaydoc::Display;
@@ -355,12 +356,12 @@
 /// // `E: Debug` now has to propagate to callers.
 /// fn generate_error&lt;E: Debug&gt;(e: E) -&gt; Error&lt;E&gt; { Error(e) }
 ///
-/// assert!(&quot;oh no, an error: \&quot;cool\&quot;&quot; == &amp;format!(&quot;{}&quot;, generate_error(&quot;cool&quot;)));
+/// assert!("oh no, an error: \"cool\"" == &amp;format!("{}", generate_error("cool")));
 ///
-/// // Try this with a struct that doesn&#39;t impl `Display` at all, unlike `str`.
+/// // Try this with a struct that doesn't impl `Display` at all, unlike `str`.
 /// #[derive(Debug)]
 /// pub struct Oh;
-/// assert!(&quot;oh no, an error: Oh&quot; == &amp;format!(&quot;{}&quot;, generate_error(Oh)));
+/// assert!("oh no, an error: Oh" == &amp;format!("{}", generate_error(Oh)));
 /// ```
 </span><span class="attr">#[proc_macro_derive(
     Display,

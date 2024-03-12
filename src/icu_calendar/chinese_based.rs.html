@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/chinese_based.rs`."><title>chinese_based.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/chinese_based.rs`."><title>chinese_based.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -766,7 +767,7 @@
     /// Will be zero for the first month as the last day of the previous month
     /// is not in this year
     </span><span class="kw">fn </span>last_day_of_previous_month(<span class="self">self</span>, month: u8) -&gt; u16 {
-        <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>month), <span class="string">&quot;Month out of bounds!&quot;</span>);
+        <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>month), <span class="string">"Month out of bounds!"</span>);
         <span class="comment">// Get the last day of the previous month.
         // Since `month` is 1-indexed, this needs to subtract *two* to get to the right index of the array
         </span><span class="kw">if </span>month &lt; <span class="number">2 </span>{
@@ -786,7 +787,7 @@
     /// Will be zero for the first month as the last day of the previous month
     /// is not in this year
     </span><span class="kw">fn </span>last_day_of_month(<span class="self">self</span>, month: u8) -&gt; u16 {
-        <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>month), <span class="string">&quot;Month out of bounds!&quot;</span>);
+        <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>month), <span class="string">"Month out of bounds!"</span>);
         <span class="comment">// Get the last day of the previous month.
         // Since `month` is 1-indexed, this needs to subtract one
         </span><span class="self">self</span>.last_day_of_month
@@ -798,7 +799,7 @@
     <span class="kw">fn </span>days_in_month(<span class="self">self</span>, month: u8) -&gt; u8 {
         <span class="kw">let </span>ret =
             u8::try_from(<span class="self">self</span>.last_day_of_month(month) - <span class="self">self</span>.last_day_of_previous_month(month));
-        <span class="macro">debug_assert!</span>(ret.is_ok(), <span class="string">&quot;Month too big!&quot;</span>);
+        <span class="macro">debug_assert!</span>(ret.is_ok(), <span class="string">"Month too big!"</span>);
         ret.unwrap_or(<span class="number">30</span>)
     }
 }
@@ -836,11 +837,11 @@
     ) -&gt; ChineseBasedDateInner&lt;C&gt; {
         <span class="macro">debug_assert!</span>(
             date &lt; data.next_new_year(),
-            <span class="string">&quot;Stored date {date:?} out of bounds!&quot;
+            <span class="string">"Stored date {date:?} out of bounds!"
         </span>);
         <span class="comment">// 1-indexed day of year
         </span><span class="kw">let </span>day_of_year = u16::try_from(date - data.new_year + <span class="number">1</span>);
-        <span class="macro">debug_assert!</span>(day_of_year.is_ok(), <span class="string">&quot;Somehow got a very large year in data&quot;</span>);
+        <span class="macro">debug_assert!</span>(day_of_year.is_ok(), <span class="string">"Somehow got a very large year in data"</span>);
         <span class="kw">let </span>day_of_year = day_of_year.unwrap_or(<span class="number">1</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>month = <span class="number">1</span>;
         <span class="comment">// todo perhaps use a binary search
@@ -851,16 +852,16 @@
             }
         }
 
-        <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>month), <span class="string">&quot;Month out of bounds!&quot;</span>);
+        <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>month), <span class="string">"Month out of bounds!"</span>);
 
         <span class="macro">debug_assert!</span>(
             month &lt; <span class="number">13 </span>|| data.leap_month.is_some(),
-            <span class="string">&quot;Cannot have 13 months in a non-leap year!&quot;
+            <span class="string">"Cannot have 13 months in a non-leap year!"
         </span>);
         <span class="kw">let </span>day_before_month_start = data.last_day_of_previous_month(month);
         <span class="kw">let </span>day_of_month = day_of_year - day_before_month_start;
         <span class="kw">let </span>day_of_month = u8::try_from(day_of_month);
-        <span class="macro">debug_assert!</span>(day_of_month.is_ok(), <span class="string">&quot;Month too big!&quot;</span>);
+        <span class="macro">debug_assert!</span>(day_of_month.is_ok(), <span class="string">"Month too big!"</span>);
         <span class="kw">let </span>day_of_month = day_of_month.unwrap_or(<span class="number">1</span>);
 
         <span class="comment">// This can use `new_unchecked` because this function is only ever called from functions which
@@ -929,7 +930,7 @@
         <span class="kw">let </span>max_month = <span class="self">Self</span>::months_in_year_with_info(year_info);
         <span class="kw">if </span>!(<span class="number">1</span>..=max_month).contains(<span class="kw-2">&amp;</span>month) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::Overflow {
-                field: <span class="string">&quot;month&quot;</span>,
+                field: <span class="string">"month"</span>,
                 max: max_month <span class="kw">as </span>usize,
             });
         }
@@ -941,7 +942,7 @@
         </span>};
         <span class="kw">if </span>day &gt; max_day {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::Overflow {
-                field: <span class="string">&quot;day&quot;</span>,
+                field: <span class="string">"day"</span>,
                 max: max_day <span class="kw">as </span>usize,
             });
         }
@@ -1013,7 +1014,7 @@
         } = year_bounds;
         <span class="kw">let </span>is_leap_year = year_bounds.is_leap();
         <span class="kw">let </span>leap_month = <span class="kw">if </span>is_leap_year {
-            <span class="comment">// This doesn&#39;t need to be checked for None because `get_leap_month_from_new_year`
+            <span class="comment">// This doesn't need to be checked for None because `get_leap_month_from_new_year`
             // will always return a value between 1..=13
             </span>NonZeroU8::new(chinese_based::get_leap_month_from_new_year::&lt;C::CB&gt;(
                 new_year,
@@ -1094,21 +1095,21 @@
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
     <span class="kw">let </span>bytes = code.<span class="number">0</span>.all_bytes();
-    <span class="kw">if </span>bytes[<span class="number">0</span>] != <span class="string">b&#39;M&#39; </span>{
+    <span class="kw">if </span>bytes[<span class="number">0</span>] != <span class="string">b'M' </span>{
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
-    <span class="kw">if </span>code.<span class="number">0</span>.len() == <span class="number">4 </span>&amp;&amp; bytes[<span class="number">3</span>] != <span class="string">b&#39;L&#39; </span>{
+    <span class="kw">if </span>code.<span class="number">0</span>.len() == <span class="number">4 </span>&amp;&amp; bytes[<span class="number">3</span>] != <span class="string">b'L' </span>{
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
     <span class="kw">let </span><span class="kw-2">mut </span>unadjusted = <span class="number">0</span>;
-    <span class="kw">if </span>bytes[<span class="number">1</span>] == <span class="string">b&#39;0&#39; </span>{
-        <span class="kw">if </span>bytes[<span class="number">2</span>] &gt;= <span class="string">b&#39;1&#39; </span>&amp;&amp; bytes[<span class="number">2</span>] &lt;= <span class="string">b&#39;9&#39; </span>{
-            unadjusted = bytes[<span class="number">2</span>] - <span class="string">b&#39;0&#39;</span>;
+    <span class="kw">if </span>bytes[<span class="number">1</span>] == <span class="string">b'0' </span>{
+        <span class="kw">if </span>bytes[<span class="number">2</span>] &gt;= <span class="string">b'1' </span>&amp;&amp; bytes[<span class="number">2</span>] &lt;= <span class="string">b'9' </span>{
+            unadjusted = bytes[<span class="number">2</span>] - <span class="string">b'0'</span>;
         }
-    } <span class="kw">else if </span>bytes[<span class="number">1</span>] == <span class="string">b&#39;1&#39; </span>&amp;&amp; bytes[<span class="number">2</span>] &gt;= <span class="string">b&#39;0&#39; </span>&amp;&amp; bytes[<span class="number">2</span>] &lt;= <span class="string">b&#39;2&#39; </span>{
-        unadjusted = <span class="number">10 </span>+ bytes[<span class="number">2</span>] - <span class="string">b&#39;0&#39;</span>;
+    } <span class="kw">else if </span>bytes[<span class="number">1</span>] == <span class="string">b'1' </span>&amp;&amp; bytes[<span class="number">2</span>] &gt;= <span class="string">b'0' </span>&amp;&amp; bytes[<span class="number">2</span>] &lt;= <span class="string">b'2' </span>{
+        unadjusted = <span class="number">10 </span>+ bytes[<span class="number">2</span>] - <span class="string">b'0'</span>;
     }
-    <span class="kw">if </span>bytes[<span class="number">3</span>] == <span class="string">b&#39;L&#39; </span>{
+    <span class="kw">if </span>bytes[<span class="number">3</span>] == <span class="string">b'L' </span>{
         <span class="kw">if </span>unadjusted + <span class="number">1 </span>!= leap_month {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         } <span class="kw">else </span>{

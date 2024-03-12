@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/read_ref.rs`."><title>read_ref.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/read_ref.rs`."><title>read_ref.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -154,7 +155,7 @@
 ///   to read on demand to minimize I/O and memory usage.
 ///
 /// The methods accept `self` by value because `Self` is expected to behave
-/// similar to a reference: it may be a reference with a lifetime of `&#39;a`,
+/// similar to a reference: it may be a reference with a lifetime of `'a`,
 /// or it may be a wrapper of a reference.
 ///
 /// The `Clone` and `Copy` bounds are for convenience, and since `Self` is
@@ -171,14 +172,14 @@
 // An alternative would be for methods to accept `&amp;mut self` and use a
 // `seek` method instead of the `offset` parameters, but this is less
 // convenient for implementers.
-</span><span class="kw">pub trait </span>ReadRef&lt;<span class="lifetime">&#39;a</span>&gt;: Clone + Copy {
+</span><span class="kw">pub trait </span>ReadRef&lt;<span class="lifetime">'a</span>&gt;: Clone + Copy {
     <span class="doccomment">/// The total size of the block of data.
     </span><span class="kw">fn </span>len(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt;;
 
     <span class="doccomment">/// Get a reference to a `u8` slice at the given offset.
     ///
     /// Returns an error if offset or size are out of bounds.
-    </span><span class="kw">fn </span>read_bytes_at(<span class="self">self</span>, offset: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;;
+    </span><span class="kw">fn </span>read_bytes_at(<span class="self">self</span>, offset: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;;
 
     <span class="doccomment">/// Get a reference to a delimited `u8` slice which starts at range.start.
     ///
@@ -186,12 +187,12 @@
     ///
     /// Returns an error if the range is out of bounds or the delimiter is
     /// not found in the range.
-    </span><span class="kw">fn </span>read_bytes_at_until(<span class="self">self</span>, range: Range&lt;u64&gt;, delimiter: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;;
+    </span><span class="kw">fn </span>read_bytes_at_until(<span class="self">self</span>, range: Range&lt;u64&gt;, delimiter: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;;
 
     <span class="doccomment">/// Get a reference to a `u8` slice at the given offset, and update the offset.
     ///
     /// Returns an error if offset or size are out of bounds.
-    </span><span class="kw">fn </span>read_bytes(<span class="self">self</span>, offset: <span class="kw-2">&amp;mut </span>u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+    </span><span class="kw">fn </span>read_bytes(<span class="self">self</span>, offset: <span class="kw-2">&amp;mut </span>u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
         <span class="kw">let </span>bytes = <span class="self">self</span>.read_bytes_at(<span class="kw-2">*</span>offset, size)<span class="question-mark">?</span>;
         <span class="kw-2">*</span>offset = offset.wrapping_add(size);
         <span class="prelude-val">Ok</span>(bytes)
@@ -206,7 +207,7 @@
     /// Implementors may want to provide their own implementation that ensures
     /// the alignment can be satisfied. Alternatively, only use this method with
     /// types that do not need alignment (see the `unaligned` feature of this crate).
-    </span><span class="kw">fn </span>read&lt;T: Pod&gt;(<span class="self">self</span>, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">fn </span>read&lt;T: Pod&gt;(<span class="self">self</span>, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="kw">let </span>size = mem::size_of::&lt;T&gt;().try_into().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
         <span class="kw">let </span>bytes = <span class="self">self</span>.read_bytes(offset, size)<span class="question-mark">?</span>;
         <span class="kw">let </span>(t, <span class="kw">_</span>) = from_bytes(bytes)<span class="question-mark">?</span>;
@@ -218,7 +219,7 @@
     /// Returns an error if offset or size are out of bounds.
     ///
     /// Also see the `read` method for information regarding alignment of `T`.
-    </span><span class="kw">fn </span>read_at&lt;T: Pod&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>offset: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    </span><span class="kw">fn </span>read_at&lt;T: Pod&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>offset: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="self">self</span>.read(<span class="kw-2">&amp;mut </span>offset)
     }
 
@@ -227,7 +228,7 @@
     /// Returns an error if offset or size are out of bounds.
     ///
     /// Also see the `read` method for information regarding alignment of `T`.
-    </span><span class="kw">fn </span>read_slice&lt;T: Pod&gt;(<span class="self">self</span>, offset: <span class="kw-2">&amp;mut </span>u64, count: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]&gt; {
+    </span><span class="kw">fn </span>read_slice&lt;T: Pod&gt;(<span class="self">self</span>, offset: <span class="kw-2">&amp;mut </span>u64, count: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]&gt; {
         <span class="kw">let </span>size = count
             .checked_mul(mem::size_of::&lt;T&gt;())
             .ok_or(())<span class="question-mark">?
@@ -243,23 +244,23 @@
     /// Returns an error if offset or size are out of bounds.
     ///
     /// Also see the `read` method for information regarding alignment of `T`.
-    </span><span class="kw">fn </span>read_slice_at&lt;T: Pod&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>offset: u64, count: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T]&gt; {
+    </span><span class="kw">fn </span>read_slice_at&lt;T: Pod&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>offset: u64, count: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[T]&gt; {
         <span class="self">self</span>.read_slice(<span class="kw-2">&amp;mut </span>offset, count)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ReadRef&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ReadRef&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
     <span class="kw">fn </span>len(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         <span class="self">self</span>.len().try_into().map_err(|<span class="kw">_</span>| ())
     }
 
-    <span class="kw">fn </span>read_bytes_at(<span class="self">self</span>, offset: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+    <span class="kw">fn </span>read_bytes_at(<span class="self">self</span>, offset: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
         <span class="kw">let </span>offset: usize = offset.try_into().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
         <span class="kw">let </span>size: usize = size.try_into().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
         <span class="self">self</span>.get(offset..).ok_or(())<span class="question-mark">?</span>.get(..size).ok_or(())
     }
 
-    <span class="kw">fn </span>read_bytes_at_until(<span class="self">self</span>, range: Range&lt;u64&gt;, delimiter: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; {
+    <span class="kw">fn </span>read_bytes_at_until(<span class="self">self</span>, range: Range&lt;u64&gt;, delimiter: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
         <span class="kw">let </span>start: usize = range.start.try_into().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
         <span class="kw">let </span>end: usize = range.end.try_into().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
         <span class="kw">let </span>bytes = <span class="self">self</span>.get(start..end).ok_or(())<span class="question-mark">?</span>;

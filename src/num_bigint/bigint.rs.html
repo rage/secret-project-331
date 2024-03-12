@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num-bigint-0.2.6/src/bigint.rs`."><title>bigint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="num_bigint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num-bigint-0.2.6/src/bigint.rs`."><title>bigint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="num_bigint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3124,7 +3125,7 @@
 </span><span class="kw">use </span>std::{i128, u128};
 <span class="kw">use </span>std::{i64, u64};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">use </span>serde;
 
 <span class="kw">use </span>integer::{Integer, Roots};
@@ -3144,10 +3145,10 @@
 <span class="kw">use </span>IsizePromotion;
 <span class="kw">use </span>UsizePromotion;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;quickcheck&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"quickcheck"</span>)]
 </span><span class="kw">use </span>quickcheck::{Arbitrary, Gen};
 
-<span class="doccomment">/// A Sign is a `BigInt`&#39;s composing element.
+<span class="doccomment">/// A Sign is a `BigInt`'s composing element.
 </span><span class="attr">#[derive(PartialEq, PartialOrd, Eq, Ord, Copy, Clone, Debug, Hash)]
 </span><span class="kw">pub enum </span>Sign {
     Minus,
@@ -3182,7 +3183,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">impl </span>serde::Serialize <span class="kw">for </span>Sign {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
@@ -3198,11 +3199,11 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Sign {
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Sign {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">use </span>serde::de::Error;
         <span class="kw">use </span>serde::de::Unexpected;
@@ -3214,7 +3215,7 @@
             <span class="number">1 </span>=&gt; <span class="prelude-val">Ok</span>(Sign::Plus),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(D::Error::invalid_value(
                 Unexpected::Signed(sign.into()),
-                <span class="kw-2">&amp;</span><span class="string">&quot;a sign of -1, 0, or 1&quot;</span>,
+                <span class="kw-2">&amp;</span><span class="string">"a sign of -1, 0, or 1"</span>,
             )),
         }
     }
@@ -3227,7 +3228,7 @@
     data: BigUint,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;quickcheck&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"quickcheck"</span>)]
 </span><span class="kw">impl </span>Arbitrary <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>arbitrary&lt;G: Gen&gt;(g: <span class="kw-2">&amp;mut </span>G) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>positive = bool::arbitrary(g);
@@ -3246,7 +3247,7 @@
 <span class="doccomment">/// Return the magnitude of a `BigInt`.
 ///
 /// This is in a private module, pseudo pub(crate)
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;rand&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"rand"</span>)]
 </span><span class="kw">pub fn </span>magnitude(i: <span class="kw-2">&amp;</span>BigInt) -&gt; <span class="kw-2">&amp;</span>BigUint {
     <span class="kw-2">&amp;</span>i.data
 }
@@ -3254,7 +3255,7 @@
 <span class="doccomment">/// Return the owned magnitude of a `BigInt`.
 ///
 /// This is in a private module, pseudo pub(crate)
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;rand&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"rand"</span>)]
 </span><span class="kw">pub fn </span>into_magnitude(i: BigInt) -&gt; BigUint {
     i.data
 }
@@ -3300,25 +3301,25 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">&quot;&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data.to_str_radix(<span class="number">10</span>))
+        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">""</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data.to_str_radix(<span class="number">10</span>))
     }
 }
 
 <span class="kw">impl </span>fmt::Binary <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">&quot;0b&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data.to_str_radix(<span class="number">2</span>))
+        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">"0b"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data.to_str_radix(<span class="number">2</span>))
     }
 }
 
 <span class="kw">impl </span>fmt::Octal <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">&quot;0o&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data.to_str_radix(<span class="number">8</span>))
+        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">"0o"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data.to_str_radix(<span class="number">8</span>))
     }
 }
 
 <span class="kw">impl </span>fmt::LowerHex <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">&quot;0x&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data.to_str_radix(<span class="number">16</span>))
+        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">"0x"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data.to_str_radix(<span class="number">16</span>))
     }
 }
 
@@ -3326,11 +3327,11 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="self">self</span>.data.to_str_radix(<span class="number">16</span>);
         s.make_ascii_uppercase();
-        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">&quot;0x&quot;</span>, <span class="kw-2">&amp;</span>s)
+        f.pad_integral(!<span class="self">self</span>.is_negative(), <span class="string">"0x"</span>, <span class="kw-2">&amp;</span>s)
     }
 }
 
-<span class="comment">// Negation in two&#39;s complement.
+<span class="comment">// Negation in two's complement.
 // acc must be initialized as 1 for least-significant digit.
 //
 // When negating, a carry (acc == 1) means that all the digits
@@ -3376,7 +3377,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Not <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Not <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; BigInt {
@@ -3456,7 +3457,7 @@
 
 <span class="comment">// do not use forward_ref_ref_binop_commutative! for bitand so that we can
 // clone as needed, avoiding over-allocation
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; BitAnd&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; BitAnd&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -3478,7 +3479,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BitAnd&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; BitAnd&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -3490,7 +3491,7 @@
 
 <span class="macro">forward_val_assign!</span>(<span class="kw">impl </span>BitAndAssign <span class="kw">for </span>BigInt, bitand_assign);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BitAndAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; BitAndAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>bitand_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>BigInt) {
         <span class="kw">match </span>(<span class="self">self</span>.sign, other.sign) {
             (NoSign, <span class="kw">_</span>) =&gt; {}
@@ -3591,7 +3592,7 @@
 
 <span class="comment">// do not use forward_ref_ref_binop_commutative! for bitor so that we can
 // clone as needed, avoiding over-allocation
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; BitOr&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; BitOr&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -3614,7 +3615,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BitOr&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; BitOr&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -3626,7 +3627,7 @@
 
 <span class="macro">forward_val_assign!</span>(<span class="kw">impl </span>BitOrAssign <span class="kw">for </span>BigInt, bitor_assign);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BitOrAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; BitOrAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>bitor_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>BigInt) {
         <span class="kw">match </span>(<span class="self">self</span>.sign, other.sign) {
             (<span class="kw">_</span>, NoSign) =&gt; {}
@@ -3740,7 +3741,7 @@
 
 <span class="macro">forward_all_binop_to_val_ref_commutative!</span>(<span class="kw">impl </span>BitXor <span class="kw">for </span>BigInt, bitxor);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BitXor&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; BitXor&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -3752,7 +3753,7 @@
 
 <span class="macro">forward_val_assign!</span>(<span class="kw">impl </span>BitXorAssign <span class="kw">for </span>BigInt, bitxor_assign);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BitXorAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; BitXorAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>bitxor_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>BigInt) {
         <span class="kw">match </span>(<span class="self">self</span>.sign, other.sign) {
             (<span class="kw">_</span>, NoSign) =&gt; {}
@@ -3796,9 +3797,9 @@
     <span class="doccomment">/// Creates and initializes a BigInt.
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>from_str_radix(<span class="kw-2">mut </span>s: <span class="kw-2">&amp;</span>str, radix: u32) -&gt; <span class="prelude-ty">Result</span>&lt;BigInt, ParseBigIntError&gt; {
-        <span class="kw">let </span>sign = <span class="kw">if </span>s.starts_with(<span class="string">&#39;-&#39;</span>) {
+        <span class="kw">let </span>sign = <span class="kw">if </span>s.starts_with(<span class="string">'-'</span>) {
             <span class="kw">let </span>tail = <span class="kw-2">&amp;</span>s[<span class="number">1</span>..];
-            <span class="kw">if </span>!tail.starts_with(<span class="string">&#39;+&#39;</span>) {
+            <span class="kw">if </span>!tail.starts_with(<span class="string">'+'</span>) {
                 s = tail
             }
             Minus
@@ -3820,7 +3821,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Shl&lt;usize&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Shl&lt;usize&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -3855,7 +3856,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Shr&lt;usize&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Shr&lt;usize&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -3971,7 +3972,7 @@
 
 <span class="macro">macro_rules! </span>pow_impl {
     (<span class="macro-nonterminal">$T</span>:ty) =&gt; {
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Pow&lt;<span class="macro-nonterminal">$T</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Pow&lt;<span class="macro-nonterminal">$T</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
             <span class="kw">type </span>Output = BigInt;
 
             <span class="attr">#[inline]
@@ -3980,7 +3981,7 @@
             }
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; Pow&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="macro-nonterminal">$T</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; Pow&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="macro-nonterminal">$T</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
             <span class="kw">type </span>Output = BigInt;
 
             <span class="attr">#[inline]
@@ -4031,9 +4032,9 @@
     }
 }
 
-<span class="comment">// We want to forward to BigUint::add, but it&#39;s not clear how that will go until
+<span class="comment">// We want to forward to BigUint::add, but it's not clear how that will go until
 // we compare both sign and magnitude.  So we duplicate this body for every
-// val/ref combination, deferring that decision to BigUint&#39;s own forwarding.
+// val/ref combination, deferring that decision to BigUint's own forwarding.
 </span><span class="macro">macro_rules! </span>bigint_add {
     (<span class="macro-nonterminal">$a</span>:expr, <span class="macro-nonterminal">$a_owned</span>:expr, <span class="macro-nonterminal">$a_data</span>:expr, <span class="macro-nonterminal">$b</span>:expr, <span class="macro-nonterminal">$b_owned</span>:expr, <span class="macro-nonterminal">$b_data</span>:expr) =&gt; {
         <span class="kw">match </span>(<span class="macro-nonterminal">$a</span>.sign, <span class="macro-nonterminal">$b</span>.sign) {
@@ -4051,7 +4052,7 @@
     };
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; Add&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; Add&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -4067,7 +4068,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Add&lt;BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Add&lt;BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -4076,7 +4077,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Add&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Add&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -4094,7 +4095,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AddAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; AddAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>BigInt) {
         <span class="kw">let </span>n = mem::replace(<span class="self">self</span>, BigInt::zero());
@@ -4260,9 +4261,9 @@
     }
 }
 
-<span class="comment">// We want to forward to BigUint::sub, but it&#39;s not clear how that will go until
+<span class="comment">// We want to forward to BigUint::sub, but it's not clear how that will go until
 // we compare both sign and magnitude.  So we duplicate this body for every
-// val/ref combination, deferring that decision to BigUint&#39;s own forwarding.
+// val/ref combination, deferring that decision to BigUint's own forwarding.
 </span><span class="macro">macro_rules! </span>bigint_sub {
     (<span class="macro-nonterminal">$a</span>:expr, <span class="macro-nonterminal">$a_owned</span>:expr, <span class="macro-nonterminal">$a_data</span>:expr, <span class="macro-nonterminal">$b</span>:expr, <span class="macro-nonterminal">$b_owned</span>:expr, <span class="macro-nonterminal">$b_data</span>:expr) =&gt; {
         <span class="kw">match </span>(<span class="macro-nonterminal">$a</span>.sign, <span class="macro-nonterminal">$b</span>.sign) {
@@ -4280,7 +4281,7 @@
     };
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; Sub&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; Sub&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -4296,7 +4297,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sub&lt;BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Sub&lt;BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -4305,7 +4306,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sub&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Sub&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -4323,7 +4324,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SubAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SubAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>BigInt) {
         <span class="kw">let </span>n = mem::replace(<span class="self">self</span>, BigInt::zero());
@@ -4557,7 +4558,7 @@
 
 <span class="macro">forward_all_binop_to_ref_ref!</span>(<span class="kw">impl </span>Mul <span class="kw">for </span>BigInt, mul);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; Mul&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; Mul&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -4566,7 +4567,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MulAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MulAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>BigInt) {
         <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">&amp;*</span><span class="self">self </span>* other;
@@ -4720,7 +4721,7 @@
 
 <span class="macro">forward_all_binop_to_ref_ref!</span>(<span class="kw">impl </span>Div <span class="kw">for </span>BigInt, div);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; Div&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; Div&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -4730,7 +4731,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; DivAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DivAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>div_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>BigInt) {
         <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">&amp;*</span><span class="self">self </span>/ other;
@@ -4956,7 +4957,7 @@
 
 <span class="macro">forward_all_binop_to_ref_ref!</span>(<span class="kw">impl </span>Rem <span class="kw">for </span>BigInt, rem);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; Rem&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; Rem&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>BigInt&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -4966,7 +4967,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; RemAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt&gt; <span class="kw">for </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; RemAssign&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt&gt; <span class="kw">for </span>BigInt {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>rem_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>BigInt) {
         <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">&amp;*</span><span class="self">self </span>% other;
@@ -5195,7 +5196,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Neg <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BigInt {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Neg <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>BigInt {
     <span class="kw">type </span>Output = BigInt;
 
     <span class="attr">#[inline]
@@ -5331,7 +5332,7 @@
     <span class="kw">fn </span>nth_root(<span class="kw-2">&amp;</span><span class="self">self</span>, n: u32) -&gt; <span class="self">Self </span>{
         <span class="macro">assert!</span>(
             !(<span class="self">self</span>.is_negative() &amp;&amp; n.is_even()),
-            <span class="string">&quot;root of degree {} is imaginary&quot;</span>,
+            <span class="string">"root of degree {} is imaginary"</span>,
             n
         );
 
@@ -5339,7 +5340,7 @@
     }
 
     <span class="kw">fn </span>sqrt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="macro">assert!</span>(!<span class="self">self</span>.is_negative(), <span class="string">&quot;square root is imaginary&quot;</span>);
+        <span class="macro">assert!</span>(!<span class="self">self</span>.is_negative(), <span class="string">"square root is imaginary"</span>);
 
         BigInt::from_biguint(<span class="self">self</span>.sign, <span class="self">self</span>.data.sqrt())
     }
@@ -5586,7 +5587,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">impl </span>serde::Serialize <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
     <span class="kw">where
@@ -5598,11 +5599,11 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>BigInt {
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>BigInt {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
-        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span>(sign, data) = serde::Deserialize::deserialize(deserializer)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(BigInt::from_biguint(sign, data))
@@ -5739,14 +5740,14 @@
     /// ```
     /// use num_bigint::{BigInt, Sign};
     ///
-    /// assert_eq!(BigInt::from_bytes_be(Sign::Plus, b&quot;A&quot;),
-    ///            BigInt::parse_bytes(b&quot;65&quot;, 10).unwrap());
-    /// assert_eq!(BigInt::from_bytes_be(Sign::Plus, b&quot;AA&quot;),
-    ///            BigInt::parse_bytes(b&quot;16705&quot;, 10).unwrap());
-    /// assert_eq!(BigInt::from_bytes_be(Sign::Plus, b&quot;AB&quot;),
-    ///            BigInt::parse_bytes(b&quot;16706&quot;, 10).unwrap());
-    /// assert_eq!(BigInt::from_bytes_be(Sign::Plus, b&quot;Hello world!&quot;),
-    ///            BigInt::parse_bytes(b&quot;22405534230753963835153736737&quot;, 10).unwrap());
+    /// assert_eq!(BigInt::from_bytes_be(Sign::Plus, b"A"),
+    ///            BigInt::parse_bytes(b"65", 10).unwrap());
+    /// assert_eq!(BigInt::from_bytes_be(Sign::Plus, b"AA"),
+    ///            BigInt::parse_bytes(b"16705", 10).unwrap());
+    /// assert_eq!(BigInt::from_bytes_be(Sign::Plus, b"AB"),
+    ///            BigInt::parse_bytes(b"16706", 10).unwrap());
+    /// assert_eq!(BigInt::from_bytes_be(Sign::Plus, b"Hello world!"),
+    ///            BigInt::parse_bytes(b"22405534230753963835153736737", 10).unwrap());
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>from_bytes_be(sign: Sign, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; BigInt {
@@ -5762,7 +5763,7 @@
     }
 
     <span class="doccomment">/// Creates and initializes a `BigInt` from an array of bytes in
-    /// two&#39;s complement binary representation.
+    /// two's complement binary representation.
     ///
     /// The digits are in big-endian base 2&lt;sup&gt;8&lt;/sup&gt;.
     </span><span class="attr">#[inline]
@@ -5774,7 +5775,7 @@
         };
 
         <span class="kw">if </span>sign == Sign::Minus {
-            <span class="comment">// two&#39;s-complement the content to retrieve the magnitude
+            <span class="comment">// two's-complement the content to retrieve the magnitude
             </span><span class="kw">let </span><span class="kw-2">mut </span>digits = Vec::from(digits);
             twos_complement_be(<span class="kw-2">&amp;mut </span>digits);
             BigInt::from_biguint(sign, BigUint::from_bytes_be(<span class="kw-2">&amp;*</span>digits))
@@ -5783,7 +5784,7 @@
         }
     }
 
-    <span class="doccomment">/// Creates and initializes a `BigInt` from an array of bytes in two&#39;s complement.
+    <span class="doccomment">/// Creates and initializes a `BigInt` from an array of bytes in two's complement.
     ///
     /// The digits are in little-endian base 2&lt;sup&gt;8&lt;/sup&gt;.
     </span><span class="attr">#[inline]
@@ -5795,7 +5796,7 @@
         };
 
         <span class="kw">if </span>sign == Sign::Minus {
-            <span class="comment">// two&#39;s-complement the content to retrieve the magnitude
+            <span class="comment">// two's-complement the content to retrieve the magnitude
             </span><span class="kw">let </span><span class="kw-2">mut </span>digits = Vec::from(digits);
             twos_complement_le(<span class="kw-2">&amp;mut </span>digits);
             BigInt::from_biguint(sign, BigUint::from_bytes_le(<span class="kw-2">&amp;*</span>digits))
@@ -5811,9 +5812,9 @@
     /// ```
     /// use num_bigint::{BigInt, ToBigInt};
     ///
-    /// assert_eq!(BigInt::parse_bytes(b&quot;1234&quot;, 10), ToBigInt::to_bigint(&amp;1234));
-    /// assert_eq!(BigInt::parse_bytes(b&quot;ABCD&quot;, 16), ToBigInt::to_bigint(&amp;0xABCD));
-    /// assert_eq!(BigInt::parse_bytes(b&quot;G&quot;, 16), None);
+    /// assert_eq!(BigInt::parse_bytes(b"1234", 10), ToBigInt::to_bigint(&amp;1234));
+    /// assert_eq!(BigInt::parse_bytes(b"ABCD", 16), ToBigInt::to_bigint(&amp;0xABCD));
+    /// assert_eq!(BigInt::parse_bytes(b"G", 16), None);
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>parse_bytes(buf: <span class="kw-2">&amp;</span>[u8], radix: u32) -&gt; <span class="prelude-ty">Option</span>&lt;BigInt&gt; {
@@ -5911,7 +5912,7 @@
         (<span class="self">self</span>.sign, <span class="self">self</span>.data.to_u32_digits())
     }
 
-    <span class="doccomment">/// Returns the two&#39;s-complement byte representation of the `BigInt` in big-endian byte order.
+    <span class="doccomment">/// Returns the two's-complement byte representation of the `BigInt` in big-endian byte order.
     ///
     /// # Examples
     ///
@@ -5939,7 +5940,7 @@
         bytes
     }
 
-    <span class="doccomment">/// Returns the two&#39;s-complement byte representation of the `BigInt` in little-endian byte order.
+    <span class="doccomment">/// Returns the two's-complement byte representation of the `BigInt` in little-endian byte order.
     ///
     /// # Examples
     ///
@@ -5975,15 +5976,15 @@
     /// ```
     /// use num_bigint::BigInt;
     ///
-    /// let i = BigInt::parse_bytes(b&quot;ff&quot;, 16).unwrap();
-    /// assert_eq!(i.to_str_radix(16), &quot;ff&quot;);
+    /// let i = BigInt::parse_bytes(b"ff", 16).unwrap();
+    /// assert_eq!(i.to_str_radix(16), "ff");
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>to_str_radix(<span class="kw-2">&amp;</span><span class="self">self</span>, radix: u32) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>v = to_str_radix_reversed(<span class="kw-2">&amp;</span><span class="self">self</span>.data, radix);
 
         <span class="kw">if </span><span class="self">self</span>.is_negative() {
-            v.push(<span class="string">b&#39;-&#39;</span>);
+            v.push(<span class="string">b'-'</span>);
         }
 
         v.reverse();
@@ -6051,7 +6052,7 @@
         <span class="self">self</span>.data.bits()
     }
 
-    <span class="doccomment">/// Converts this `BigInt` into a `BigUint`, if it&#39;s not negative.
+    <span class="doccomment">/// Converts this `BigInt` into a `BigUint`, if it's not negative.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>to_biguint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;BigUint&gt; {
         <span class="kw">match </span><span class="self">self</span>.sign {
@@ -6095,9 +6096,9 @@
     </span><span class="kw">pub fn </span>modpow(<span class="kw-2">&amp;</span><span class="self">self</span>, exponent: <span class="kw-2">&amp;</span><span class="self">Self</span>, modulus: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">assert!</span>(
             !exponent.is_negative(),
-            <span class="string">&quot;negative exponentiation is not supported!&quot;
+            <span class="string">"negative exponentiation is not supported!"
         </span>);
-        <span class="macro">assert!</span>(!modulus.is_zero(), <span class="string">&quot;divide by zero!&quot;</span>);
+        <span class="macro">assert!</span>(!modulus.is_zero(), <span class="string">"divide by zero!"</span>);
 
         <span class="kw">let </span>result = <span class="self">self</span>.data.modpow(<span class="kw-2">&amp;</span>exponent.data, <span class="kw-2">&amp;</span>modulus.data);
         <span class="kw">if </span>result.is_zero() {
@@ -6139,26 +6140,26 @@
 <span class="macro">impl_sum_iter_type!</span>(BigInt);
 <span class="macro">impl_product_iter_type!</span>(BigInt);
 
-<span class="doccomment">/// Perform in-place two&#39;s complement of the given binary representation,
+<span class="doccomment">/// Perform in-place two's complement of the given binary representation,
 /// in little-endian byte order.
 </span><span class="attr">#[inline]
 </span><span class="kw">fn </span>twos_complement_le(digits: <span class="kw-2">&amp;mut </span>[u8]) {
     twos_complement(digits)
 }
 
-<span class="doccomment">/// Perform in-place two&#39;s complement of the given binary representation
+<span class="doccomment">/// Perform in-place two's complement of the given binary representation
 /// in big-endian byte order.
 </span><span class="attr">#[inline]
 </span><span class="kw">fn </span>twos_complement_be(digits: <span class="kw-2">&amp;mut </span>[u8]) {
     twos_complement(digits.iter_mut().rev())
 }
 
-<span class="doccomment">/// Perform in-place two&#39;s complement of the given digit iterator
+<span class="doccomment">/// Perform in-place two's complement of the given digit iterator
 /// starting from the least significant byte.
 </span><span class="attr">#[inline]
-</span><span class="kw">fn </span>twos_complement&lt;<span class="lifetime">&#39;a</span>, I&gt;(digits: I)
+</span><span class="kw">fn </span>twos_complement&lt;<span class="lifetime">'a</span>, I&gt;(digits: I)
 <span class="kw">where
-    </span>I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>u8&gt;,
+    </span>I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>u8&gt;,
 {
     <span class="kw">let </span><span class="kw-2">mut </span>carry = <span class="bool-val">true</span>;
     <span class="kw">for </span>d <span class="kw">in </span>digits {

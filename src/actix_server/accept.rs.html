@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.3.0/src/accept.rs`."><title>accept.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_server/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_server"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.3.0/src/accept.rs`."><title>accept.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_server/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_server"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -481,7 +482,7 @@
 
     lst: MioListener,
 
-    <span class="doccomment">/// Timeout is used to mark the deadline when this socket&#39;s listener should be registered again
+    <span class="doccomment">/// Timeout is used to mark the deadline when this socket's listener should be registered again
     /// after an error.
     </span>timeout: <span class="prelude-ty">Option</span>&lt;actix_rt::time::Instant&gt;,
 }
@@ -536,7 +537,7 @@
         )<span class="question-mark">?</span>;
 
         <span class="kw">let </span>accept_handle = thread::Builder::new()
-            .name(<span class="string">&quot;actix-server acceptor&quot;</span>.to_owned())
+            .name(<span class="string">"actix-server acceptor"</span>.to_owned())
             .spawn(<span class="kw">move </span>|| accept.poll_with(<span class="kw-2">&amp;mut </span>sockets))
             .map_err(|err| io::Error::new(io::ErrorKind::Other, err))<span class="question-mark">?</span>;
 
@@ -592,7 +593,7 @@
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.poll.poll(<span class="kw-2">&amp;mut </span>events, <span class="self">self</span>.timeout) {
                 <span class="kw">match </span>err.kind() {
                     io::ErrorKind::Interrupted =&gt; {}
-                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Poll error: {}&quot;</span>, err),
+                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Poll error: {}"</span>, err),
                 }
             }
 
@@ -602,7 +603,7 @@
                     WAKER_TOKEN =&gt; {
                         <span class="kw">let </span>exit = <span class="self">self</span>.handle_waker(sockets);
                         <span class="kw">if </span>exit {
-                            <span class="macro">info!</span>(<span class="string">&quot;accept thread stopped&quot;</span>);
+                            <span class="macro">info!</span>(<span class="string">"accept thread stopped"</span>);
                             <span class="kw">return</span>;
                         }
                     }
@@ -620,8 +621,8 @@
 
     <span class="kw">fn </span>handle_waker(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sockets: <span class="kw-2">&amp;mut </span>[ServerSocketInfo]) -&gt; bool {
         <span class="comment">// This is a loop because interests for command from previous version was
-        // a loop that would try to drain the command channel. It&#39;s yet unknown
-        // if it&#39;s necessary/good practice to actively drain the waker queue.
+        // a loop that would try to drain the command channel. It's yet unknown
+        // if it's necessary/good practice to actively drain the waker queue.
         </span><span class="kw">loop </span>{
             <span class="comment">// Take guard with every iteration so no new interests can be added until the current
             // task is done. Take care not to take the guard again inside this loop.
@@ -735,7 +736,7 @@
         }
     }
 
-    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;windows&quot;</span>))]
+    <span class="attr">#[cfg(not(target_os = <span class="string">"windows"</span>))]
     </span><span class="kw">fn </span>register(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;mut </span>ServerSocketInfo) -&gt; io::Result&lt;()&gt; {
         <span class="kw">let </span>token = MioToken(info.token);
         <span class="self">self</span>.poll
@@ -743,7 +744,7 @@
             .register(<span class="kw-2">&amp;mut </span>info.lst, token, Interest::READABLE)
     }
 
-    <span class="attr">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)]
+    <span class="attr">#[cfg(target_os = <span class="string">"windows"</span>)]
     </span><span class="kw">fn </span>register(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;mut </span>ServerSocketInfo) -&gt; io::Result&lt;()&gt; {
         <span class="comment">// On windows, calling register without deregister cause an error.
         // See https://github.com/actix/actix-web/issues/905
@@ -761,16 +762,16 @@
 
     <span class="kw">fn </span>register_logged(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;mut </span>ServerSocketInfo) {
         <span class="kw">match </span><span class="self">self</span>.register(info) {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">debug!</span>(<span class="string">&quot;resume accepting connections on {}&quot;</span>, info.lst.local_addr()),
-            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">error!</span>(<span class="string">&quot;can not register server socket {}&quot;</span>, err),
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">debug!</span>(<span class="string">"resume accepting connections on {}"</span>, info.lst.local_addr()),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">error!</span>(<span class="string">"can not register server socket {}"</span>, err),
         }
     }
 
     <span class="kw">fn </span>deregister_logged(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;mut </span>ServerSocketInfo) {
         <span class="kw">match </span><span class="self">self</span>.poll.registry().deregister(<span class="kw-2">&amp;mut </span>info.lst) {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">debug!</span>(<span class="string">&quot;paused accepting connections on {}&quot;</span>, info.lst.local_addr()),
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">debug!</span>(<span class="string">"paused accepting connections on {}"</span>, info.lst.local_addr()),
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;can not deregister server socket {}&quot;</span>, err)
+                <span class="macro">error!</span>(<span class="string">"can not deregister server socket {}"</span>, err)
             }
         }
     }
@@ -778,7 +779,7 @@
     <span class="kw">fn </span>deregister_all(<span class="kw-2">&amp;</span><span class="self">self</span>, sockets: <span class="kw-2">&amp;mut </span>[ServerSocketInfo]) {
         <span class="comment">// This is a best effort implementation with following limitation:
         //
-        // Every ServerSocketInfo with associated timeout will be skipped and it&#39;s timeout is
+        // Every ServerSocketInfo with associated timeout will be skipped and it's timeout is
         // removed in the process.
         //
         // Therefore WakerInterest::Pause followed by WakerInterest::Resume in a very short gap
@@ -814,7 +815,7 @@
                 </span><span class="self">self</span>.remove_next();
 
                 <span class="kw">if </span><span class="self">self</span>.handles.is_empty() {
-                    <span class="macro">error!</span>(<span class="string">&quot;no workers&quot;</span>);
+                    <span class="macro">error!</span>(<span class="string">"no workers"</span>);
                     <span class="comment">// All workers are gone and Conn is nowhere to be sent.
                     // Treat this situation as Ok and drop Conn.
                     </span><span class="kw">return </span><span class="prelude-val">Ok</span>(());
@@ -863,13 +864,13 @@
                 <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>err) <span class="kw">if </span>err.kind() == io::ErrorKind::WouldBlock =&gt; <span class="kw">return</span>,
                 <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>err) <span class="kw">if </span>connection_error(err) =&gt; <span class="kw">continue</span>,
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;error accepting connection: {}&quot;</span>, err);
+                    <span class="macro">error!</span>(<span class="string">"error accepting connection: {}"</span>, err);
 
                     <span class="comment">// deregister listener temporary
                     </span><span class="self">self</span>.deregister_logged(info);
 
                     <span class="comment">// sleep after error. write the timeout to socket info as later
-                    // the poll would need it mark which socket and when it&#39;s
+                    // the poll would need it mark which socket and when it's
                     // listener should be registered
                     </span>info.timeout = <span class="prelude-val">Some</span>(Instant::now() + Duration::from_millis(<span class="number">500</span>));
                     <span class="self">self</span>.set_timeout(TIMEOUT_DURATION_ON_ERROR);

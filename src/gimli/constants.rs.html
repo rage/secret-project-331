@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/constants.rs`."><title>constants.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/constants.rs`."><title>constants.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1438,21 +1439,21 @@
 //
 // Copyright 2016 The rust-dwarf Developers
 //
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
 </span><span class="doccomment">//! Constant definitions.
 //!
-//! The DWARF spec&#39;s `DW_AT_*` type is represented as `struct DwAt(u16)`,
+//! The DWARF spec's `DW_AT_*` type is represented as `struct DwAt(u16)`,
 //! `DW_FORM_*` as `DwForm(u16)`, etc.
 //!
 //! There are also exported const definitions for each constant.
@@ -1480,7 +1481,7 @@
 //     pub const DW_FOO_bang: DwFoo = DwFoo(2);
 //
 //     impl DwFoo {
-//         pub fn static_string(&amp;self) -&gt; Option&lt;&amp;&#39;static str&gt; {
+//         pub fn static_string(&amp;self) -&gt; Option&lt;&amp;'static str&gt; {
 //             ...
 //         }
 //     }
@@ -1507,7 +1508,7 @@
         )+)*
 
         <span class="kw">impl </span><span class="macro-nonterminal">$struct_name </span>{
-            <span class="kw">pub fn </span>static_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+            <span class="kw">pub fn </span>static_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
                 <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
                     $(
                         <span class="macro-nonterminal">$name </span>=&gt; <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>),
@@ -1522,13 +1523,13 @@
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(s) = <span class="self">self</span>.static_string() {
                     f.pad(s)
                 } <span class="kw">else </span>{
-                    <span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
+                    <span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
                     </span>{
-                        f.pad(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Unknown {}: {}&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$struct_name</span>), <span class="self">self</span>.<span class="number">0</span>))
+                        f.pad(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Unknown {}: {}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$struct_name</span>), <span class="self">self</span>.<span class="number">0</span>))
                     }
-                    <span class="attr">#[cfg(not(feature = <span class="string">&quot;read&quot;</span>))]
+                    <span class="attr">#[cfg(not(feature = <span class="string">"read"</span>))]
                     </span>{
-                        <span class="macro">write!</span>(f, <span class="string">&quot;Unknown {}: {}&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$struct_name</span>), <span class="self">self</span>.<span class="number">0</span>)
+                        <span class="macro">write!</span>(f, <span class="string">"Unknown {}: {}"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$struct_name</span>), <span class="self">self</span>.<span class="number">0</span>)
                     }
                 }
             }
@@ -2151,7 +2152,7 @@ aliases {
     </span>DW_FORM_GNU_addr_index = <span class="number">0x1f01</span>,
     DW_FORM_GNU_str_index = <span class="number">0x1f02</span>,
 
-<span class="comment">// Alternate debug sections proposal (output of &quot;dwz&quot; tool).
+<span class="comment">// Alternate debug sections proposal (output of "dwz" tool).
     </span>DW_FORM_GNU_ref_alt = <span class="number">0x1f20</span>,
     DW_FORM_GNU_strp_alt = <span class="number">0x1f21
 </span>});
@@ -2725,48 +2726,48 @@ aliases {
 </span>DwEhPe(u8) {
 <span class="comment">// Format of pointer encoding.
 
-// &quot;Unsigned value is encoded using the Little Endian Base 128&quot;
+// "Unsigned value is encoded using the Little Endian Base 128"
     </span>DW_EH_PE_uleb128 = <span class="number">0x1</span>,
-<span class="comment">// &quot;A 2 bytes unsigned value.&quot;
+<span class="comment">// "A 2 bytes unsigned value."
     </span>DW_EH_PE_udata2 = <span class="number">0x2</span>,
-<span class="comment">// &quot;A 4 bytes unsigned value.&quot;
+<span class="comment">// "A 4 bytes unsigned value."
     </span>DW_EH_PE_udata4 = <span class="number">0x3</span>,
-<span class="comment">// &quot;An 8 bytes unsigned value.&quot;
+<span class="comment">// "An 8 bytes unsigned value."
     </span>DW_EH_PE_udata8 = <span class="number">0x4</span>,
-<span class="comment">// &quot;Signed value is encoded using the Little Endian Base 128&quot;
+<span class="comment">// "Signed value is encoded using the Little Endian Base 128"
     </span>DW_EH_PE_sleb128 = <span class="number">0x9</span>,
-<span class="comment">// &quot;A 2 bytes signed value.&quot;
+<span class="comment">// "A 2 bytes signed value."
     </span>DW_EH_PE_sdata2 = <span class="number">0x0a</span>,
-<span class="comment">// &quot;A 4 bytes signed value.&quot;
+<span class="comment">// "A 4 bytes signed value."
     </span>DW_EH_PE_sdata4 = <span class="number">0x0b</span>,
-<span class="comment">// &quot;An 8 bytes signed value.&quot;
+<span class="comment">// "An 8 bytes signed value."
     </span>DW_EH_PE_sdata8 = <span class="number">0x0c</span>,
 
 <span class="comment">// How the pointer encoding should be applied.
 
 // `DW_EH_PE_pcrel` pointers are relative to their own location.
     </span>DW_EH_PE_pcrel = <span class="number">0x10</span>,
-<span class="comment">// &quot;Value is relative to the beginning of the .text section.&quot;
+<span class="comment">// "Value is relative to the beginning of the .text section."
     </span>DW_EH_PE_textrel = <span class="number">0x20</span>,
-<span class="comment">// &quot;Value is relative to the beginning of the .got or .eh_frame_hdr section.&quot;
+<span class="comment">// "Value is relative to the beginning of the .got or .eh_frame_hdr section."
     </span>DW_EH_PE_datarel = <span class="number">0x30</span>,
-<span class="comment">// &quot;Value is relative to the beginning of the function.&quot;
+<span class="comment">// "Value is relative to the beginning of the function."
     </span>DW_EH_PE_funcrel = <span class="number">0x40</span>,
-<span class="comment">// &quot;Value is aligned to an address unit sized boundary.&quot;
+<span class="comment">// "Value is aligned to an address unit sized boundary."
     </span>DW_EH_PE_aligned = <span class="number">0x50</span>,
 
 <span class="comment">// This bit can be set for any of the above encoding applications. When set,
 // the encoded value is the address of the real pointer result, not the
 // pointer result itself.
 //
-// This isn&#39;t defined in the DWARF or the `.eh_frame` standards, but is
+// This isn't defined in the DWARF or the `.eh_frame` standards, but is
 // generated by both GNU/Linux and macOS tooling.
     </span>DW_EH_PE_indirect = <span class="number">0x80</span>,
 
 <span class="comment">// These constants apply to both the lower and upper bits.
 
-// &quot;The Value is a literal pointer whose size is determined by the
-// architecture.&quot;
+// "The Value is a literal pointer whose size is determined by the
+// architecture."
     </span>DW_EH_PE_absptr = <span class="number">0x0</span>,
 <span class="comment">// The absence of a pointer and encoding.
     </span>DW_EH_PE_omit = <span class="number">0xff</span>,
@@ -2778,13 +2779,13 @@ aliases {
 </span><span class="kw">const </span>DW_EH_PE_APPLICATION_MASK: u8 = <span class="number">0b0111_0000</span>;
 
 <span class="kw">impl </span>DwEhPe {
-    <span class="doccomment">/// Get the pointer encoding&#39;s format.
+    <span class="doccomment">/// Get the pointer encoding's format.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>format(<span class="self">self</span>) -&gt; DwEhPe {
         DwEhPe(<span class="self">self</span>.<span class="number">0 </span>&amp; DW_EH_PE_FORMAT_MASK)
     }
 
-    <span class="doccomment">/// Get the pointer encoding&#39;s application.
+    <span class="doccomment">/// Get the pointer encoding's application.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>application(<span class="self">self</span>) -&gt; DwEhPe {
         DwEhPe(<span class="self">self</span>.<span class="number">0 </span>&amp; DW_EH_PE_APPLICATION_MASK)

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/pixmap.rs`."><title>pixmap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/pixmap.rs`."><title>pixmap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -620,7 +621,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::color::PremultipliedColorU8;
 <span class="kw">use </span><span class="kw">crate</span>::geom::{IntSizeExt, ScreenIntRect};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::color::{premultiply_u8, ALPHA_U8_OPAQUE};
 
 <span class="doccomment">/// Number of bytes per pixel.
@@ -642,7 +643,7 @@
     ///
     /// Zero size in an error.
     ///
-    /// Pixmap&#39;s width is limited by i32::MAX/4.
+    /// Pixmap's width is limited by i32::MAX/4.
     </span><span class="kw">pub fn </span>new(width: u32, height: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>size = IntSize::from_wh(width, height)<span class="question-mark">?</span>;
         <span class="kw">let </span>data_len = data_len_for_size(size)<span class="question-mark">?</span>;
@@ -661,7 +662,7 @@
     ///
     /// The size needs to match the data provided.
     ///
-    /// Pixmap&#39;s width is limited by i32::MAX/4.
+    /// Pixmap's width is limited by i32::MAX/4.
     </span><span class="kw">pub fn </span>from_vec(data: Vec&lt;u8&gt;, size: IntSize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>data_len = data_len_for_size(size)<span class="question-mark">?</span>;
         <span class="kw">if </span>data.len() != data_len {
@@ -675,7 +676,7 @@
     ///
     /// Only 8-bit images are supported.
     /// Index PNGs are not supported.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>decode_png(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, png::DecodingError&gt; {
         <span class="kw">fn </span>make_custom_png_error(msg: <span class="kw-2">&amp;</span>str) -&gt; png::DecodingError {
             std::io::Error::new(std::io::ErrorKind::Other, msg).into()
@@ -688,13 +689,13 @@
         <span class="kw">let </span>info = reader.next_frame(<span class="kw-2">&amp;mut </span>img_data)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>info.bit_depth != png::BitDepth::Eight {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(make_custom_png_error(<span class="string">&quot;unsupported bit depth&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(make_custom_png_error(<span class="string">"unsupported bit depth"</span>));
         }
 
         <span class="kw">let </span>size = IntSize::from_wh(info.width, info.height)
-            .ok_or_else(|| make_custom_png_error(<span class="string">&quot;invalid image size&quot;</span>))<span class="question-mark">?</span>;
+            .ok_or_else(|| make_custom_png_error(<span class="string">"invalid image size"</span>))<span class="question-mark">?</span>;
         <span class="kw">let </span>data_len =
-            data_len_for_size(size).ok_or_else(|| make_custom_png_error(<span class="string">&quot;image is too big&quot;</span>))<span class="question-mark">?</span>;
+            data_len_for_size(size).ok_or_else(|| make_custom_png_error(<span class="string">"image is too big"</span>))<span class="question-mark">?</span>;
 
         img_data = <span class="kw">match </span>info.color_type {
             png::ColorType::Rgb =&gt; {
@@ -734,7 +735,7 @@
                 rgba_data
             }
             png::ColorType::Indexed =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(make_custom_png_error(<span class="string">&quot;indexed PNG is not supported&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(make_custom_png_error(<span class="string">"indexed PNG is not supported"</span>));
             }
         };
 
@@ -754,35 +755,35 @@
         }
 
         Pixmap::from_vec(img_data, size)
-            .ok_or_else(|| make_custom_png_error(<span class="string">&quot;failed to create a pixmap&quot;</span>))
+            .ok_or_else(|| make_custom_png_error(<span class="string">"failed to create a pixmap"</span>))
     }
 
     <span class="doccomment">/// Loads a PNG file into a `Pixmap`.
     ///
     /// Only 8-bit images are supported.
     /// Index PNGs are not supported.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>load_png&lt;P: AsRef&lt;std::path::Path&gt;&gt;(path: P) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, png::DecodingError&gt; {
         <span class="comment">// `png::Decoder` is generic over input, which means that it will instance
         // two copies: one for `&amp;[]` and one for `File`. Which will simply bloat the code.
-        // Therefore we&#39;re using only one type for input.
+        // Therefore we're using only one type for input.
         </span><span class="kw">let </span>data = std::fs::read(path)<span class="question-mark">?</span>;
         <span class="self">Self</span>::decode_png(<span class="kw-2">&amp;</span>data)
     }
 
     <span class="doccomment">/// Encodes pixmap into a PNG data.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>encode_png(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, png::EncodingError&gt; {
         <span class="self">self</span>.as_ref().encode_png()
     }
 
     <span class="doccomment">/// Saves pixmap as a PNG file.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>save_png&lt;P: AsRef&lt;std::path::Path&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, path: P) -&gt; <span class="prelude-ty">Result</span>&lt;(), png::EncodingError&gt; {
         <span class="self">self</span>.as_ref().save_png(path)
     }
 
-    <span class="doccomment">/// Returns a container that references Pixmap&#39;s data.
+    <span class="doccomment">/// Returns a container that references Pixmap's data.
     </span><span class="kw">pub fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PixmapRef {
         PixmapRef {
             data: <span class="kw-2">&amp;</span><span class="self">self</span>.data,
@@ -790,7 +791,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns a container that references Pixmap&#39;s data.
+    <span class="doccomment">/// Returns a container that references Pixmap's data.
     </span><span class="kw">pub fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; PixmapMut {
         PixmapMut {
             data: <span class="kw-2">&amp;mut </span><span class="self">self</span>.data,
@@ -798,19 +799,19 @@
         }
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s width.
+    <span class="doccomment">/// Returns pixmap's width.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.size.width()
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s height.
+    <span class="doccomment">/// Returns pixmap's height.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.size.height()
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s size.
+    <span class="doccomment">/// Returns pixmap's size.
     </span><span class="attr">#[allow(dead_code)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IntSize {
         <span class="self">self</span>.size
@@ -865,18 +866,18 @@
 
     <span class="doccomment">/// Returns a copy of the pixmap that intersects the `rect`.
     ///
-    /// Returns `None` when `Pixmap`&#39;s rect doesn&#39;t contain `rect`.
+    /// Returns `None` when `Pixmap`'s rect doesn't contain `rect`.
     </span><span class="kw">pub fn </span>clone_rect(<span class="kw-2">&amp;</span><span class="self">self</span>, rect: IntRect) -&gt; <span class="prelude-ty">Option</span>&lt;Pixmap&gt; {
         <span class="self">self</span>.as_ref().clone_rect(rect)
     }
 }
 
 <span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>Pixmap {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;Pixmap&quot;</span>)
-            .field(<span class="string">&quot;data&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;...&quot;</span>)
-            .field(<span class="string">&quot;width&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.width())
-            .field(<span class="string">&quot;height&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.height())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"Pixmap"</span>)
+            .field(<span class="string">"data"</span>, <span class="kw-2">&amp;</span><span class="string">"..."</span>)
+            .field(<span class="string">"width"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.width())
+            .field(<span class="string">"height"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.height())
             .finish()
     }
 }
@@ -887,19 +888,19 @@
 ///
 /// The data is not aligned, therefore width == stride.
 </span><span class="attr">#[derive(Clone, Copy, PartialEq)]
-</span><span class="kw">pub struct </span>PixmapRef&lt;<span class="lifetime">&#39;a</span>&gt; {
-    data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+</span><span class="kw">pub struct </span>PixmapRef&lt;<span class="lifetime">'a</span>&gt; {
+    data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
     size: IntSize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PixmapRef&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PixmapRef&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates a new `PixmapRef` from bytes.
     ///
     /// The size must be at least `size.width() * size.height() * BYTES_PER_PIXEL`.
     /// Zero size in an error. Width is limited by i32::MAX/4.
     ///
     /// The `data` is assumed to have premultiplied RGBA pixels (byteorder: RGBA).
-    </span><span class="kw">pub fn </span>from_bytes(data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], width: u32, height: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>from_bytes(data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], width: u32, height: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>size = IntSize::from_wh(width, height)<span class="question-mark">?</span>;
         <span class="kw">let </span>data_len = data_len_for_size(size)<span class="question-mark">?</span>;
         <span class="kw">if </span>data.len() &lt; data_len {
@@ -919,24 +920,24 @@
         }
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s width.
+    <span class="doccomment">/// Returns pixmap's width.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.size.width()
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s height.
+    <span class="doccomment">/// Returns pixmap's height.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.size.height()
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s size.
+    <span class="doccomment">/// Returns pixmap's size.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IntSize {
         <span class="self">self</span>.size
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s rect.
+    <span class="doccomment">/// Returns pixmap's rect.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>rect(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenIntRect {
         <span class="self">self</span>.size.to_screen_int_rect(<span class="number">0</span>, <span class="number">0</span>)
     }
@@ -944,7 +945,7 @@
     <span class="doccomment">/// Returns the internal data.
     ///
     /// Byteorder: RGBA
-    </span><span class="kw">pub fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+    </span><span class="kw">pub fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
         <span class="self">self</span>.data
     }
 
@@ -957,7 +958,7 @@
     }
 
     <span class="doccomment">/// Returns a slice of pixels.
-    </span><span class="kw">pub fn </span>pixels(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[PremultipliedColorU8] {
+    </span><span class="kw">pub fn </span>pixels(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[PremultipliedColorU8] {
         bytemuck::cast_slice(<span class="self">self</span>.data())
     }
 
@@ -965,7 +966,7 @@
 
     </span><span class="doccomment">/// Returns a copy of the pixmap that intersects the `rect`.
     ///
-    /// Returns `None` when `Pixmap`&#39;s rect doesn&#39;t contain `rect`.
+    /// Returns `None` when `Pixmap`'s rect doesn't contain `rect`.
     </span><span class="kw">pub fn </span>clone_rect(<span class="kw-2">&amp;</span><span class="self">self</span>, rect: IntRect) -&gt; <span class="prelude-ty">Option</span>&lt;Pixmap&gt; {
         <span class="comment">// TODO: to ScreenIntRect?
 
@@ -990,7 +991,7 @@
     }
 
     <span class="doccomment">/// Encodes pixmap into a PNG data.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>encode_png(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, png::EncodingError&gt; {
         <span class="comment">// Skia uses skcms here, which is somewhat similar to RasterPipeline.
 
@@ -1022,7 +1023,7 @@
     }
 
     <span class="doccomment">/// Saves pixmap as a PNG file.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;png-format&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"png-format"</span>)]
     </span><span class="kw">pub fn </span>save_png&lt;P: AsRef&lt;std::path::Path&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, path: P) -&gt; <span class="prelude-ty">Result</span>&lt;(), png::EncodingError&gt; {
         <span class="kw">let </span>data = <span class="self">self</span>.encode_png()<span class="question-mark">?</span>;
         std::fs::write(path, data)<span class="question-mark">?</span>;
@@ -1030,12 +1031,12 @@
     }
 }
 
-<span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>PixmapRef&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;PixmapRef&quot;</span>)
-            .field(<span class="string">&quot;data&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;...&quot;</span>)
-            .field(<span class="string">&quot;width&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.width())
-            .field(<span class="string">&quot;height&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.height())
+<span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>PixmapRef&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"PixmapRef"</span>)
+            .field(<span class="string">"data"</span>, <span class="kw-2">&amp;</span><span class="string">"..."</span>)
+            .field(<span class="string">"width"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.width())
+            .field(<span class="string">"height"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.height())
             .finish()
     }
 }
@@ -1046,19 +1047,19 @@
 ///
 /// The data is not aligned, therefore width == stride.
 </span><span class="attr">#[derive(PartialEq)]
-</span><span class="kw">pub struct </span>PixmapMut&lt;<span class="lifetime">&#39;a</span>&gt; {
-    data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
+</span><span class="kw">pub struct </span>PixmapMut&lt;<span class="lifetime">'a</span>&gt; {
+    data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8],
     size: IntSize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PixmapMut&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PixmapMut&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates a new `PixmapMut` from bytes.
     ///
     /// The size must be at least `size.width() * size.height() * BYTES_PER_PIXEL`.
     /// Zero size in an error. Width is limited by i32::MAX/4.
     ///
     /// The `data` is assumed to have premultiplied RGBA pixels (byteorder: RGBA).
-    </span><span class="kw">pub fn </span>from_bytes(data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8], width: u32, height: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>from_bytes(data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8], width: u32, height: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>size = IntSize::from_wh(width, height)<span class="question-mark">?</span>;
         <span class="kw">let </span>data_len = data_len_for_size(size)<span class="question-mark">?</span>;
         <span class="kw">if </span>data.len() &lt; data_len {
@@ -1078,7 +1079,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns a container that references Pixmap&#39;s data.
+    <span class="doccomment">/// Returns a container that references Pixmap's data.
     </span><span class="kw">pub fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PixmapRef {
         PixmapRef {
             data: <span class="self">self</span>.data,
@@ -1086,19 +1087,19 @@
         }
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s width.
+    <span class="doccomment">/// Returns pixmap's width.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.size.width()
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s height.
+    <span class="doccomment">/// Returns pixmap's height.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.size.height()
     }
 
-    <span class="doccomment">/// Returns pixmap&#39;s size.
+    <span class="doccomment">/// Returns pixmap's size.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IntSize {
         <span class="self">self</span>.size
     }
@@ -1134,7 +1135,7 @@
 
     <span class="doccomment">/// Returns a mutable reference to the pixmap region that intersects the `rect`.
     ///
-    /// Returns `None` when `Pixmap`&#39;s rect doesn&#39;t contain `rect`.
+    /// Returns `None` when `Pixmap`'s rect doesn't contain `rect`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>subpixmap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rect: IntRect) -&gt; <span class="prelude-ty">Option</span>&lt;SubPixmapMut&gt; {
         <span class="kw">let </span>rect = <span class="self">self</span>.size.to_int_rect(<span class="number">0</span>, <span class="number">0</span>).intersect(<span class="kw-2">&amp;</span>rect)<span class="question-mark">?</span>;
         <span class="kw">let </span>row_bytes = <span class="self">self</span>.width() <span class="kw">as </span>usize * BYTES_PER_PIXEL;
@@ -1148,12 +1149,12 @@
     }
 }
 
-<span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>PixmapMut&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;PixmapMut&quot;</span>)
-            .field(<span class="string">&quot;data&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;...&quot;</span>)
-            .field(<span class="string">&quot;width&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.width())
-            .field(<span class="string">&quot;height&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.height())
+<span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>PixmapMut&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"PixmapMut"</span>)
+            .field(<span class="string">"data"</span>, <span class="kw-2">&amp;</span><span class="string">"..."</span>)
+            .field(<span class="string">"width"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.width())
+            .field(<span class="string">"height"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size.height())
             .finish()
     }
 }
@@ -1166,15 +1167,15 @@
 ///
 /// We cannot implement it in `PixmapMut` directly, because it will brake `fill`, `data_mut`
 /// `pixels_mut` and other similar methods.
-/// This is because `SubPixmapMut.data` references more &quot;data&quot; than it actually allowed to access.
-/// On the other hand, `PixmapMut.data` can access all it&#39;s data and it&#39;s stored linearly.
-</span><span class="kw">pub struct </span>SubPixmapMut&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
+/// This is because `SubPixmapMut.data` references more "data" than it actually allowed to access.
+/// On the other hand, `PixmapMut.data` can access all it's data and it's stored linearly.
+</span><span class="kw">pub struct </span>SubPixmapMut&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub </span>data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8],
     <span class="kw">pub </span>size: IntSize,
     <span class="kw">pub </span>real_width: usize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SubPixmapMut&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SubPixmapMut&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a mutable slice of pixels.
     </span><span class="kw">pub fn </span>pixels_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[PremultipliedColorU8] {
         bytemuck::cast_slice_mut(<span class="self">self</span>.data)
@@ -1183,7 +1184,7 @@
 
 <span class="doccomment">/// Returns minimum bytes per row as usize.
 ///
-/// Pixmap&#39;s maximum value for row bytes must fit in 31 bits.
+/// Pixmap's maximum value for row bytes must fit in 31 bits.
 </span><span class="kw">fn </span>min_row_bytes(size: IntSize) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroUsize&gt; {
     <span class="kw">let </span>w = i32::try_from(size.width()).ok()<span class="question-mark">?</span>;
     <span class="kw">let </span>w = w.checked_mul(BYTES_PER_PIXEL <span class="kw">as </span>i32)<span class="question-mark">?</span>;

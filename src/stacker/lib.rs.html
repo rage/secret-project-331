@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.15/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="stacker" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.15/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="stacker" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -459,9 +460,9 @@
 <a href="#459" id="459">459</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A library to help grow the stack when it runs out of space.
 //!
-//! This is an implementation of manually instrumented segmented stacks where points in a program&#39;s
-//! control flow are annotated with &quot;maybe grow the stack here&quot;. Each point of annotation indicates
-//! how far away from the end of the stack it&#39;s allowed to be, plus the amount of stack to allocate
+//! This is an implementation of manually instrumented segmented stacks where points in a program's
+//! control flow are annotated with "maybe grow the stack here". Each point of annotation indicates
+//! how far away from the end of the stack it's allowed to be, plus the amount of stack to allocate
 //! if it does reach the end.
 //!
 //! Once a program has reached the end of its stack, a temporary stack on the heap is allocated and
@@ -472,10 +473,10 @@
 //! # Examples
 //!
 //! ```
-//! // Grow the stack if we are within the &quot;red zone&quot; of 32K, and if we allocate
+//! // Grow the stack if we are within the "red zone" of 32K, and if we allocate
 //! // a new stack allocate 1MB of stack space.
 //! //
-//! // If we&#39;re already in bounds, just run the provided closure on current stack.
+//! // If we're already in bounds, just run the provided closure on current stack.
 //! stacker::maybe_grow(32 * 1024, 1024 * 1024, || {
 //!     // guaranteed to have at least 32K of stack
 //! });
@@ -496,15 +497,15 @@
 <span class="doccomment">/// Grows the call stack if necessary.
 ///
 /// This function is intended to be called at manually instrumented points in a program where
-/// recursion is known to happen quite a bit. This function will check to see if we&#39;re within
+/// recursion is known to happen quite a bit. This function will check to see if we're within
 /// `red_zone` bytes of the end of the stack, and if so it will allocate a new stack of at least
 /// `stack_size` bytes.
 ///
 /// The closure `f` is guaranteed to run on a stack with at least `red_zone` bytes, and it will be
-/// run on the current stack if there&#39;s space available.
+/// run on the current stack if there's space available.
 </span><span class="attr">#[inline(always)]
 </span><span class="kw">pub fn </span>maybe_grow&lt;R, F: FnOnce() -&gt; R&gt;(red_zone: usize, stack_size: usize, callback: F) -&gt; R {
-    <span class="comment">// if we can&#39;t guess the remaining stack (unsupported on some platforms) we immediately grow
+    <span class="comment">// if we can't guess the remaining stack (unsupported on some platforms) we immediately grow
     // the stack and then cache the new stack size (which we do know now because we allocated it.
     </span><span class="kw">let </span>enough_space = <span class="kw">match </span>remaining_stack() {
         <span class="prelude-val">Some</span>(remaining) =&gt; remaining &gt;= red_zone,
@@ -530,9 +531,9 @@
     <span class="comment">// This wrapper around `callback` achieves two things:
     // * It converts the `impl FnOnce` to a `dyn FnMut`.
     //   `dyn` because we want it to not be generic, and
-    //   `FnMut` because we can&#39;t pass a `dyn FnOnce` around without boxing it.
+    //   `FnMut` because we can't pass a `dyn FnOnce` around without boxing it.
     // * It eliminates the generic return value, by writing it to the stack of this function.
-    //   Otherwise the closure would have to return an unsized value, which isn&#39;t possible.
+    //   Otherwise the closure would have to return an unsized value, which isn't possible.
     </span><span class="kw">let </span>dyn_callback: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut() = <span class="kw-2">&amp;mut </span>|| {
         <span class="kw">let </span>taken_callback = opt_callback.take().unwrap();
         <span class="kw-2">*</span>ret_ref = <span class="prelude-val">Some</span>(taken_callback());
@@ -599,11 +600,11 @@
         }
 
         <span class="kw">impl </span>StackRestoreGuard {
-            <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+            <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
             </span><span class="kw">unsafe fn </span>new(stack_bytes: usize, _page_size: usize) -&gt; StackRestoreGuard {
                 <span class="kw">let </span>layout = std::alloc::Layout::from_size_align(stack_bytes, <span class="number">16</span>).unwrap();
                 <span class="kw">let </span>ptr = std::alloc::alloc(layout);
-                <span class="macro">assert!</span>(!ptr.is_null(), <span class="string">&quot;unable to allocate stack&quot;</span>);
+                <span class="macro">assert!</span>(!ptr.is_null(), <span class="string">"unable to allocate stack"</span>);
                 StackRestoreGuard {
                     new_stack: ptr <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>,
                     stack_bytes,
@@ -611,7 +612,7 @@
                 }
             }
 
-            <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+            <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
             </span><span class="kw">unsafe fn </span>new(stack_bytes: usize, page_size: usize) -&gt; StackRestoreGuard {
                 <span class="kw">let </span>new_stack = libc::mmap(
                     std::ptr::null_mut(),
@@ -624,7 +625,7 @@
                 </span>);
                 <span class="kw">if </span>new_stack == libc::MAP_FAILED {
                     <span class="kw">let </span>error = std::io::Error::last_os_error();
-                    <span class="macro">panic!</span>(<span class="string">&quot;allocating stack failed with: {}&quot;</span>, error)
+                    <span class="macro">panic!</span>(<span class="string">"allocating stack failed with: {}"</span>, error)
                 }
                 <span class="kw">let </span>guard = StackRestoreGuard {
                     new_stack,
@@ -632,13 +633,13 @@
                     old_stack_limit: get_stack_limit(),
                 };
                 <span class="kw">let </span>above_guard_page = new_stack.add(page_size);
-                <span class="attr">#[cfg(not(target_os = <span class="string">&quot;openbsd&quot;</span>))]
+                <span class="attr">#[cfg(not(target_os = <span class="string">"openbsd"</span>))]
                 </span><span class="kw">let </span>result = libc::mprotect(
                     above_guard_page,
                     stack_bytes - page_size,
                     libc::PROT_READ | libc::PROT_WRITE
                 );
-                <span class="attr">#[cfg(target_os = <span class="string">&quot;openbsd&quot;</span>)]
+                <span class="attr">#[cfg(target_os = <span class="string">"openbsd"</span>)]
                 </span><span class="kw">let </span>result = <span class="kw">if </span>libc::mmap(
                         above_guard_page,
                         stack_bytes - page_size,
@@ -653,7 +654,7 @@
                 <span class="kw">if </span>result == -<span class="number">1 </span>{
                     <span class="kw">let </span>error = std::io::Error::last_os_error();
                     drop(guard);
-                    <span class="macro">panic!</span>(<span class="string">&quot;setting stack permissions failed with: {}&quot;</span>, error)
+                    <span class="macro">panic!</span>(<span class="string">"setting stack permissions failed with: {}"</span>, error)
                 }
                 guard
             }
@@ -661,14 +662,14 @@
 
         <span class="kw">impl </span>Drop <span class="kw">for </span>StackRestoreGuard {
             <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-                <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+                <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
                 </span><span class="kw">unsafe </span>{
                     std::alloc::dealloc(
                         <span class="self">self</span>.new_stack <span class="kw">as </span><span class="kw-2">*mut </span>u8,
                         std::alloc::Layout::from_size_align_unchecked(<span class="self">self</span>.stack_bytes, <span class="number">16</span>),
                     );
                 }
-                <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+                <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
                 </span><span class="kw">unsafe </span>{
                     <span class="comment">// FIXME: check the error code and decide what to do with it.
                     // Perhaps a debug_assertion?
@@ -687,10 +688,10 @@
             </span><span class="kw">let </span>page_size = page_size();
             <span class="kw">let </span>requested_pages = stack_size
                 .checked_add(page_size - <span class="number">1</span>)
-                .expect(<span class="string">&quot;unreasonably large stack requested&quot;</span>) / page_size;
+                .expect(<span class="string">"unreasonably large stack requested"</span>) / page_size;
             <span class="kw">let </span>stack_pages = std::cmp::max(<span class="number">1</span>, requested_pages) + <span class="number">2</span>;
             <span class="kw">let </span>stack_bytes = stack_pages.checked_mul(page_size)
-                .expect(<span class="string">&quot;unreasonably large stack requesteed&quot;</span>);
+                .expect(<span class="string">"unreasonably large stack requesteed"</span>);
 
             <span class="comment">// Next, there are a couple of approaches to how we allocate the new stack. We take the
             // most obvious path and use `mmap`. We also `mprotect` a guard page into our
@@ -717,9 +718,9 @@
 
         <span class="kw">fn </span>page_size() -&gt; usize {
             <span class="comment">// FIXME: consider caching the page size.
-            </span><span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+            </span><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
             </span><span class="kw">unsafe </span>{ libc::sysconf(libc::_SC_PAGE_SIZE) <span class="kw">as </span>usize }
-            <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+            <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
             </span>{ <span class="number">65536 </span>}
         }
     }
@@ -748,20 +749,20 @@
 
         <span class="comment">// Make sure the libstacker.a (implemented in C) is linked.
         // See https://github.com/rust-lang/rust/issues/65610
-        </span><span class="attr">#[link(name=<span class="string">&quot;stacker&quot;</span>)]
+        </span><span class="attr">#[link(name=<span class="string">"stacker"</span>)]
         </span><span class="kw">extern </span>{
             <span class="kw">fn </span>__stacker_get_current_fiber() -&gt; PVOID;
         }
 
         <span class="kw">struct </span>FiberInfo&lt;F&gt; {
             callback: std::mem::MaybeUninit&lt;F&gt;,
-            panic: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>std::any::Any + Send + <span class="lifetime">&#39;static</span>&gt;&gt;,
+            panic: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>std::any::Any + Send + <span class="lifetime">'static</span>&gt;&gt;,
             parent_fiber: LPVOID,
         }
 
-        <span class="kw">unsafe extern </span><span class="string">&quot;system&quot; </span><span class="kw">fn </span>fiber_proc&lt;F: FnOnce()&gt;(data: LPVOID) {
+        <span class="kw">unsafe extern </span><span class="string">"system" </span><span class="kw">fn </span>fiber_proc&lt;F: FnOnce()&gt;(data: LPVOID) {
             <span class="comment">// This function is the entry point to our inner fiber, and as argument we get an
-            // instance of `FiberInfo`. We will set-up the &quot;runtime&quot; for the callback and execute
+            // instance of `FiberInfo`. We will set-up the "runtime" for the callback and execute
             // it.
             </span><span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>FiberInfo&lt;F&gt;);
             <span class="kw">let </span>old_stack_limit = get_stack_limit();
@@ -778,7 +779,7 @@
         <span class="kw">fn </span>_grow(stack_size: usize, callback: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut()) {
             <span class="comment">// Fibers (or stackful coroutines) is the only official way to create new stacks on the
             // same thread on Windows. So in order to extend the stack we create fiber and switch
-            // to it so we can use it&#39;s stack. After running `callback` within our fiber, we switch
+            // to it so we can use it's stack. After running `callback` within our fiber, we switch
             // back to the current stack and destroy the fiber and its associated stack.
             </span><span class="kw">unsafe </span>{
                 <span class="kw">let </span>was_fiber = IsThreadAFiber() == TRUE <span class="kw">as </span>BOOL;
@@ -801,7 +802,7 @@
                 };
 
                 <span class="kw">if </span>data.parent_fiber.is_null() {
-                    <span class="macro">panic!</span>(<span class="string">&quot;unable to convert thread to fiber: {}&quot;</span>, io::Error::last_os_error());
+                    <span class="macro">panic!</span>(<span class="string">"unable to convert thread to fiber: {}"</span>, io::Error::last_os_error());
                 }
 
                 <span class="kw">let </span>fiber = CreateFiber(
@@ -810,7 +811,7 @@
                     <span class="kw-2">&amp;mut </span>data <span class="kw">as </span><span class="kw-2">*mut </span>FiberInfo&lt;<span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut()&gt; <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>,
                 );
                 <span class="kw">if </span>fiber.is_null() {
-                    <span class="macro">panic!</span>(<span class="string">&quot;unable to allocate fiber: {}&quot;</span>, io::Error::last_os_error());
+                    <span class="macro">panic!</span>(<span class="string">"unable to allocate fiber: {}"</span>, io::Error::last_os_error());
                 }
 
                 <span class="comment">// Switch to the fiber we created. This changes stacks and starts executing
@@ -823,7 +824,7 @@
                 </span><span class="kw">if </span>!was_fiber {
                     <span class="kw">if </span>ConvertFiberToThread() == <span class="number">0 </span>{
                         <span class="comment">// FIXME: Perhaps should not panic here?
-                        </span><span class="macro">panic!</span>(<span class="string">&quot;unable to convert back to thread: {}&quot;</span>, io::Error::last_os_error());
+                        </span><span class="macro">panic!</span>(<span class="string">"unable to convert back to thread: {}"</span>, io::Error::last_os_error());
                     }
                 }
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = data.panic {
@@ -834,7 +835,7 @@
 
         <span class="attr">#[inline(always)]
         </span><span class="kw">fn </span>get_thread_stack_guarantee() -&gt; usize {
-            <span class="kw">let </span>min_guarantee = <span class="kw">if </span><span class="macro">cfg!</span>(target_pointer_width = <span class="string">&quot;32&quot;</span>) {
+            <span class="kw">let </span>min_guarantee = <span class="kw">if </span><span class="macro">cfg!</span>(target_pointer_width = <span class="string">"32"</span>) {
                 <span class="number">0x1000
             </span>} <span class="kw">else </span>{
                 <span class="number">0x2000
@@ -844,7 +845,7 @@
                 <span class="comment">// Read the current thread stack guarantee
                 // This is the stack reserved for stack overflow
                 // exception handling.
-                // This doesn&#39;t return the true value so we need
+                // This doesn't return the true value so we need
                 // some further logic to calculate the real stack
                 // guarantee. This logic is what is used on x86-32 and
                 // x86-64 Windows 10. Other versions and platforms may differ
@@ -868,7 +869,7 @@
             );
             <span class="prelude-val">Some</span>(mi.assume_init().AllocationBase <span class="kw">as </span>usize + get_thread_stack_guarantee() + <span class="number">0x1000</span>)
         }
-    } <span class="kw">else if </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os=<span class="string">&quot;solaris&quot;</span>, target_os = <span class="string">&quot;netbsd&quot;</span>))] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(any(target_os = <span class="string">"linux"</span>, target_os=<span class="string">"solaris"</span>, target_os = <span class="string">"netbsd"</span>))] </span>{
         <span class="kw">unsafe fn </span>guess_os_stack_limit() -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>attr = std::mem::MaybeUninit::&lt;libc::pthread_attr_t&gt;::uninit();
             <span class="macro">assert_eq!</span>(libc::pthread_attr_init(attr.as_mut_ptr()), <span class="number">0</span>);
@@ -882,7 +883,7 @@
             <span class="macro">assert_eq!</span>(libc::pthread_attr_destroy(attr.as_mut_ptr()), <span class="number">0</span>);
             <span class="prelude-val">Some</span>(stackaddr <span class="kw">as </span>usize)
         }
-    } <span class="kw">else if </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;freebsd&quot;</span>, target_os = <span class="string">&quot;dragonfly&quot;</span>))] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>, target_os = <span class="string">"dragonfly"</span>))] </span>{
         <span class="kw">unsafe fn </span>guess_os_stack_limit() -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>attr = std::mem::MaybeUninit::&lt;libc::pthread_attr_t&gt;::uninit();
             <span class="macro">assert_eq!</span>(libc::pthread_attr_init(attr.as_mut_ptr()), <span class="number">0</span>);
@@ -895,21 +896,21 @@
             <span class="macro">assert_eq!</span>(libc::pthread_attr_destroy(attr.as_mut_ptr()), <span class="number">0</span>);
             <span class="prelude-val">Some</span>(stackaddr <span class="kw">as </span>usize)
         }
-    } <span class="kw">else if </span><span class="attr">#[cfg(target_os = <span class="string">&quot;openbsd&quot;</span>)] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(target_os = <span class="string">"openbsd"</span>)] </span>{
         <span class="kw">unsafe fn </span>guess_os_stack_limit() -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>stackinfo = std::mem::MaybeUninit::&lt;libc::stack_t&gt;::uninit();
             <span class="macro">assert_eq!</span>(libc::pthread_stackseg_np(libc::pthread_self(), stackinfo.as_mut_ptr()), <span class="number">0</span>);
             <span class="prelude-val">Some</span>(stackinfo.assume_init().ss_sp <span class="kw">as </span>usize - stackinfo.assume_init().ss_size)
         }
-    } <span class="kw">else if </span><span class="attr">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(target_os = <span class="string">"macos"</span>)] </span>{
         <span class="kw">unsafe fn </span>guess_os_stack_limit() -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
             <span class="prelude-val">Some</span>(libc::pthread_get_stackaddr_np(libc::pthread_self()) <span class="kw">as </span>usize -
                 libc::pthread_get_stacksize_np(libc::pthread_self()) <span class="kw">as </span>usize)
         }
     } <span class="kw">else </span>{
-        <span class="comment">// fallback for other platforms is to always increase the stack if we&#39;re on
+        <span class="comment">// fallback for other platforms is to always increase the stack if we're on
         // the root stack. After we increased the stack once, we know the new stack
-        // size and don&#39;t need this pessimization anymore
+        // size and don't need this pessimization anymore
         </span><span class="attr">#[inline(always)]
         </span><span class="kw">unsafe fn </span>guess_os_stack_limit() -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
             <span class="prelude-val">None

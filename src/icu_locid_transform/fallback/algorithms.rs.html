@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid_transform-1.4.0/src/fallback/algorithms.rs`."><title>algorithms.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_locid_transform" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_locid_transform-1.4.0/src/fallback/algorithms.rs`."><title>algorithms.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_locid_transform" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -496,9 +497,9 @@
 
 <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">const </span>SUBDIVISION_KEY: Key = <span class="macro">key!</span>(<span class="string">&quot;sd&quot;</span>);
+<span class="kw">const </span>SUBDIVISION_KEY: Key = <span class="macro">key!</span>(<span class="string">"sd"</span>);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LocaleFallbackerWithConfig&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; LocaleFallbackerWithConfig&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>normalize(<span class="kw-2">&amp;</span><span class="self">self</span>, locale: <span class="kw-2">&amp;mut </span>DataLocale) {
         <span class="kw">let </span>language = locale.language();
         <span class="comment">// 1. Populate the region (required for region fallback only)
@@ -560,12 +561,12 @@
                 </span><span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
             }
         });
-        <span class="comment">// 4. If there is an invalid &quot;sd&quot; subtag, drop it
+        <span class="comment">// 4. If there is an invalid "sd" subtag, drop it
         // For now, ignore it, and let fallback do it for us
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LocaleFallbackIteratorInner&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; LocaleFallbackIteratorInner&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub fn </span>step(<span class="kw-2">&amp;mut </span><span class="self">self</span>, locale: <span class="kw-2">&amp;mut </span>DataLocale) {
         <span class="kw">match </span><span class="self">self</span>.config.priority {
             FallbackPriority::Language =&gt; <span class="self">self</span>.step_language(locale),
@@ -578,7 +579,7 @@
             </span><span class="kw">_ </span>=&gt; {
                 <span class="macro">debug_assert!</span>(
                     <span class="bool-val">false</span>,
-                    <span class="string">&quot;Unknown FallbackPriority: {:?}&quot;</span>,
+                    <span class="string">"Unknown FallbackPriority: {:?}"</span>,
                     <span class="self">self</span>.config.priority
                 );
                 <span class="kw-2">*</span>locale = Default::default()
@@ -633,7 +634,7 @@
             <span class="kw">return</span>;
         }
         <span class="comment">// 8. Remove language+script
-        </span><span class="macro">debug_assert!</span>(!locale.language().is_empty()); <span class="comment">// don&#39;t call .step() on und
+        </span><span class="macro">debug_assert!</span>(!locale.language().is_empty()); <span class="comment">// don't call .step() on und
         </span>locale.set_script(<span class="prelude-val">None</span>);
         locale.set_language(Language::UND);
     }
@@ -666,7 +667,7 @@
             <span class="kw">return</span>;
         }
         <span class="comment">// 6. Remove region
-        </span><span class="macro">debug_assert!</span>(locale.region().is_some()); <span class="comment">// don&#39;t call .step() on und
+        </span><span class="macro">debug_assert!</span>(locale.region().is_some()); <span class="comment">// don't call .step() on und
         </span>locale.set_region(<span class="prelude-val">None</span>);
     }
 
@@ -707,222 +708,222 @@
     <span class="kw">use </span>writeable::Writeable;
 
     <span class="kw">struct </span>TestCase {
-        input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        input: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         requires_data: bool,
         extension_key: <span class="prelude-ty">Option</span>&lt;Key&gt;,
         fallback_supplement: <span class="prelude-ty">Option</span>&lt;LocaleFallbackSupplement&gt;,
         <span class="comment">// Note: The first entry in the chain is the normalized locale
-        </span>expected_language_chain: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
-        expected_region_chain: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        </span>expected_language_chain: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
+        expected_region_chain: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
     }
 
     <span class="comment">// TODO: Consider loading these from a JSON file
     </span><span class="kw">const </span>TEST_CASES: <span class="kw-2">&amp;</span>[TestCase] = <span class="kw-2">&amp;</span>[
         TestCase {
-            input: <span class="string">&quot;en-u-hc-h12-sd-usca&quot;</span>,
+            input: <span class="string">"en-u-hc-h12-sd-usca"</span>,
             requires_data: <span class="bool-val">false</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-u-sd-usca&quot;</span>, <span class="string">&quot;en&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-u-sd-usca&quot;</span>, <span class="string">&quot;en&quot;</span>, <span class="string">&quot;und-u-sd-usca&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-u-sd-usca"</span>, <span class="string">"en"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-u-sd-usca"</span>, <span class="string">"en"</span>, <span class="string">"und-u-sd-usca"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;en-US-u-hc-h12-sd-usca&quot;</span>,
+            input: <span class="string">"en-US-u-hc-h12-sd-usca"</span>,
             requires_data: <span class="bool-val">false</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-US-u-sd-usca&quot;</span>, <span class="string">&quot;en-US&quot;</span>, <span class="string">&quot;en-u-sd-usca&quot;</span>, <span class="string">&quot;en&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-US-u-sd-usca&quot;</span>, <span class="string">&quot;en-US&quot;</span>, <span class="string">&quot;und-US-u-sd-usca&quot;</span>, <span class="string">&quot;und-US&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-US-u-sd-usca"</span>, <span class="string">"en-US"</span>, <span class="string">"en-u-sd-usca"</span>, <span class="string">"en"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-US-u-sd-usca"</span>, <span class="string">"en-US"</span>, <span class="string">"und-US-u-sd-usca"</span>, <span class="string">"und-US"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;en-US-fonipa-u-hc-h12-sd-usca&quot;</span>,
+            input: <span class="string">"en-US-fonipa-u-hc-h12-sd-usca"</span>,
             requires_data: <span class="bool-val">false</span>,
-            extension_key: <span class="prelude-val">Some</span>(<span class="macro">key!</span>(<span class="string">&quot;hc&quot;</span>)),
+            extension_key: <span class="prelude-val">Some</span>(<span class="macro">key!</span>(<span class="string">"hc"</span>)),
             fallback_supplement: <span class="prelude-val">None</span>,
             expected_language_chain: <span class="kw-2">&amp;</span>[
-                <span class="string">&quot;en-US-fonipa-u-hc-h12-sd-usca&quot;</span>,
-                <span class="string">&quot;en-US-fonipa-u-sd-usca&quot;</span>,
-                <span class="string">&quot;en-US-fonipa&quot;</span>,
-                <span class="string">&quot;en-US&quot;</span>,
-                <span class="string">&quot;en-fonipa-u-hc-h12-sd-usca&quot;</span>,
-                <span class="string">&quot;en-fonipa-u-sd-usca&quot;</span>,
-                <span class="string">&quot;en-fonipa&quot;</span>,
-                <span class="string">&quot;en&quot;</span>,
+                <span class="string">"en-US-fonipa-u-hc-h12-sd-usca"</span>,
+                <span class="string">"en-US-fonipa-u-sd-usca"</span>,
+                <span class="string">"en-US-fonipa"</span>,
+                <span class="string">"en-US"</span>,
+                <span class="string">"en-fonipa-u-hc-h12-sd-usca"</span>,
+                <span class="string">"en-fonipa-u-sd-usca"</span>,
+                <span class="string">"en-fonipa"</span>,
+                <span class="string">"en"</span>,
             ],
             expected_region_chain: <span class="kw-2">&amp;</span>[
-                <span class="string">&quot;en-US-fonipa-u-hc-h12-sd-usca&quot;</span>,
-                <span class="string">&quot;en-US-fonipa-u-sd-usca&quot;</span>,
-                <span class="string">&quot;en-US-fonipa&quot;</span>,
-                <span class="string">&quot;en-US&quot;</span>,
-                <span class="string">&quot;und-US-fonipa-u-hc-h12-sd-usca&quot;</span>,
-                <span class="string">&quot;und-US-fonipa-u-sd-usca&quot;</span>,
-                <span class="string">&quot;und-US-fonipa&quot;</span>,
-                <span class="string">&quot;und-US&quot;</span>,
+                <span class="string">"en-US-fonipa-u-hc-h12-sd-usca"</span>,
+                <span class="string">"en-US-fonipa-u-sd-usca"</span>,
+                <span class="string">"en-US-fonipa"</span>,
+                <span class="string">"en-US"</span>,
+                <span class="string">"und-US-fonipa-u-hc-h12-sd-usca"</span>,
+                <span class="string">"und-US-fonipa-u-sd-usca"</span>,
+                <span class="string">"und-US-fonipa"</span>,
+                <span class="string">"und-US"</span>,
             ],
         },
         TestCase {
-            input: <span class="string">&quot;en-u-hc-h12-sd-usca&quot;</span>,
+            input: <span class="string">"en-u-hc-h12-sd-usca"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-u-sd-usca&quot;</span>, <span class="string">&quot;en&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-US-u-sd-usca&quot;</span>, <span class="string">&quot;en-US&quot;</span>, <span class="string">&quot;und-US-u-sd-usca&quot;</span>, <span class="string">&quot;und-US&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-u-sd-usca"</span>, <span class="string">"en"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-US-u-sd-usca"</span>, <span class="string">"en-US"</span>, <span class="string">"und-US-u-sd-usca"</span>, <span class="string">"und-US"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;en-Latn-u-sd-usca&quot;</span>,
+            input: <span class="string">"en-Latn-u-sd-usca"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-u-sd-usca&quot;</span>, <span class="string">&quot;en&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-US-u-sd-usca&quot;</span>, <span class="string">&quot;en-US&quot;</span>, <span class="string">&quot;und-US-u-sd-usca&quot;</span>, <span class="string">&quot;und-US&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-u-sd-usca"</span>, <span class="string">"en"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-US-u-sd-usca"</span>, <span class="string">"en-US"</span>, <span class="string">"und-US-u-sd-usca"</span>, <span class="string">"und-US"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;en-Latn-US-u-sd-usca&quot;</span>,
+            input: <span class="string">"en-Latn-US-u-sd-usca"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-US-u-sd-usca&quot;</span>, <span class="string">&quot;en-US&quot;</span>, <span class="string">&quot;en-u-sd-usca&quot;</span>, <span class="string">&quot;en&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en-US-u-sd-usca&quot;</span>, <span class="string">&quot;en-US&quot;</span>, <span class="string">&quot;und-US-u-sd-usca&quot;</span>, <span class="string">&quot;und-US&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-US-u-sd-usca"</span>, <span class="string">"en-US"</span>, <span class="string">"en-u-sd-usca"</span>, <span class="string">"en"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"en-US-u-sd-usca"</span>, <span class="string">"en-US"</span>, <span class="string">"und-US-u-sd-usca"</span>, <span class="string">"und-US"</span>],
         },
         TestCase {
             <span class="comment">// NOTE: -u-rg is not yet supported; when it is, this test should be updated
-            </span>input: <span class="string">&quot;en-u-rg-gbxxxx&quot;</span>,
+            </span>input: <span class="string">"en-u-rg-gbxxxx"</span>,
             requires_data: <span class="bool-val">false</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;en&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"en"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"en"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;sr-ME&quot;</span>,
+            input: <span class="string">"sr-ME"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-ME&quot;</span>, <span class="string">&quot;sr-Latn-ME&quot;</span>, <span class="string">&quot;sr-Latn&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-ME&quot;</span>, <span class="string">&quot;und-ME&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-ME"</span>, <span class="string">"sr-Latn-ME"</span>, <span class="string">"sr-Latn"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-ME"</span>, <span class="string">"und-ME"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;sr-Latn-ME&quot;</span>,
+            input: <span class="string">"sr-Latn-ME"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-ME&quot;</span>, <span class="string">&quot;sr-Latn-ME&quot;</span>, <span class="string">&quot;sr-Latn&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-ME&quot;</span>, <span class="string">&quot;und-ME&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-ME"</span>, <span class="string">"sr-Latn-ME"</span>, <span class="string">"sr-Latn"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-ME"</span>, <span class="string">"und-ME"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;sr-ME-fonipa&quot;</span>,
+            input: <span class="string">"sr-ME-fonipa"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
             expected_language_chain: <span class="kw-2">&amp;</span>[
-                <span class="string">&quot;sr-ME-fonipa&quot;</span>,
-                <span class="string">&quot;sr-ME&quot;</span>,
-                <span class="string">&quot;sr-Latn-ME-fonipa&quot;</span>,
-                <span class="string">&quot;sr-Latn-ME&quot;</span>,
-                <span class="string">&quot;sr-Latn-fonipa&quot;</span>,
-                <span class="string">&quot;sr-Latn&quot;</span>,
+                <span class="string">"sr-ME-fonipa"</span>,
+                <span class="string">"sr-ME"</span>,
+                <span class="string">"sr-Latn-ME-fonipa"</span>,
+                <span class="string">"sr-Latn-ME"</span>,
+                <span class="string">"sr-Latn-fonipa"</span>,
+                <span class="string">"sr-Latn"</span>,
             ],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-ME-fonipa&quot;</span>, <span class="string">&quot;sr-ME&quot;</span>, <span class="string">&quot;und-ME-fonipa&quot;</span>, <span class="string">&quot;und-ME&quot;</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-ME-fonipa"</span>, <span class="string">"sr-ME"</span>, <span class="string">"und-ME-fonipa"</span>, <span class="string">"und-ME"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;sr-RS&quot;</span>,
+            input: <span class="string">"sr-RS"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-RS&quot;</span>, <span class="string">&quot;sr&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-RS&quot;</span>, <span class="string">&quot;und-RS&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-RS"</span>, <span class="string">"sr"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-RS"</span>, <span class="string">"und-RS"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;sr-Cyrl-RS&quot;</span>,
+            input: <span class="string">"sr-Cyrl-RS"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-RS&quot;</span>, <span class="string">&quot;sr&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-RS&quot;</span>, <span class="string">&quot;und-RS&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-RS"</span>, <span class="string">"sr"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-RS"</span>, <span class="string">"und-RS"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;sr-Latn-RS&quot;</span>,
+            input: <span class="string">"sr-Latn-RS"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-Latn-RS&quot;</span>, <span class="string">&quot;sr-Latn&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;sr-Latn-RS&quot;</span>, <span class="string">&quot;und-RS&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-Latn-RS"</span>, <span class="string">"sr-Latn"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"sr-Latn-RS"</span>, <span class="string">"und-RS"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;de-Latn-LI&quot;</span>,
+            input: <span class="string">"de-Latn-LI"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;de-LI&quot;</span>, <span class="string">&quot;de&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;de-LI&quot;</span>, <span class="string">&quot;und-LI&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"de-LI"</span>, <span class="string">"de"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"de-LI"</span>, <span class="string">"und-LI"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;ca-ES-valencia&quot;</span>,
+            input: <span class="string">"ca-ES-valencia"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;ca-ES-valencia&quot;</span>, <span class="string">&quot;ca-ES&quot;</span>, <span class="string">&quot;ca-valencia&quot;</span>, <span class="string">&quot;ca&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;ca-ES-valencia&quot;</span>, <span class="string">&quot;ca-ES&quot;</span>, <span class="string">&quot;und-ES-valencia&quot;</span>, <span class="string">&quot;und-ES&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"ca-ES-valencia"</span>, <span class="string">"ca-ES"</span>, <span class="string">"ca-valencia"</span>, <span class="string">"ca"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"ca-ES-valencia"</span>, <span class="string">"ca-ES"</span>, <span class="string">"und-ES-valencia"</span>, <span class="string">"und-ES"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;es-AR&quot;</span>,
+            input: <span class="string">"es-AR"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;es-AR&quot;</span>, <span class="string">&quot;es-419&quot;</span>, <span class="string">&quot;es&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;es-AR&quot;</span>, <span class="string">&quot;und-AR&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"es-AR"</span>, <span class="string">"es-419"</span>, <span class="string">"es"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"es-AR"</span>, <span class="string">"und-AR"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;hi-IN&quot;</span>,
+            input: <span class="string">"hi-IN"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;hi-IN&quot;</span>, <span class="string">&quot;hi&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;hi-IN&quot;</span>, <span class="string">&quot;und-IN&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"hi-IN"</span>, <span class="string">"hi"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"hi-IN"</span>, <span class="string">"und-IN"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;hi-Latn-IN&quot;</span>,
+            input: <span class="string">"hi-Latn-IN"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;hi-Latn-IN&quot;</span>, <span class="string">&quot;hi-Latn&quot;</span>, <span class="string">&quot;en-IN&quot;</span>, <span class="string">&quot;en-001&quot;</span>, <span class="string">&quot;en&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;hi-Latn-IN&quot;</span>, <span class="string">&quot;und-IN&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"hi-Latn-IN"</span>, <span class="string">"hi-Latn"</span>, <span class="string">"en-IN"</span>, <span class="string">"en-001"</span>, <span class="string">"en"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"hi-Latn-IN"</span>, <span class="string">"und-IN"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;zh-CN&quot;</span>,
+            input: <span class="string">"zh-CN"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            <span class="comment">// Note: &quot;zh-Hans&quot; is not reachable because it is the default script for &quot;zh&quot;.
+            <span class="comment">// Note: "zh-Hans" is not reachable because it is the default script for "zh".
             // The fallback algorithm does not visit the language-script bundle when the
             // script is the default for the language
-            </span>expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;zh-CN&quot;</span>, <span class="string">&quot;zh&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;zh-CN&quot;</span>, <span class="string">&quot;und-CN&quot;</span>],
+            </span>expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"zh-CN"</span>, <span class="string">"zh"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"zh-CN"</span>, <span class="string">"und-CN"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;zh-TW&quot;</span>,
+            input: <span class="string">"zh-TW"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;zh-TW&quot;</span>, <span class="string">&quot;zh-Hant-TW&quot;</span>, <span class="string">&quot;zh-Hant&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;zh-TW&quot;</span>, <span class="string">&quot;und-TW&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"zh-TW"</span>, <span class="string">"zh-Hant-TW"</span>, <span class="string">"zh-Hant"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"zh-TW"</span>, <span class="string">"und-TW"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;yue-HK&quot;</span>,
+            input: <span class="string">"yue-HK"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">None</span>,
-            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;yue-HK&quot;</span>, <span class="string">&quot;yue&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;yue-HK&quot;</span>, <span class="string">&quot;und-HK&quot;</span>],
+            expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"yue-HK"</span>, <span class="string">"yue"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"yue-HK"</span>, <span class="string">"und-HK"</span>],
         },
         TestCase {
-            input: <span class="string">&quot;yue-HK&quot;</span>,
+            input: <span class="string">"yue-HK"</span>,
             requires_data: <span class="bool-val">true</span>,
             extension_key: <span class="prelude-val">None</span>,
             fallback_supplement: <span class="prelude-val">Some</span>(LocaleFallbackSupplement::Collation),
-            <span class="comment">// TODO(#1964): add &quot;zh&quot; as a target.
-            </span>expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;yue-HK&quot;</span>, <span class="string">&quot;yue&quot;</span>, <span class="string">&quot;zh-Hant&quot;</span>],
-            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">&quot;yue-HK&quot;</span>, <span class="string">&quot;und-HK&quot;</span>],
+            <span class="comment">// TODO(#1964): add "zh" as a target.
+            </span>expected_language_chain: <span class="kw-2">&amp;</span>[<span class="string">"yue-HK"</span>, <span class="string">"yue"</span>, <span class="string">"zh-Hant"</span>],
+            expected_region_chain: <span class="kw-2">&amp;</span>[<span class="string">"yue-HK"</span>, <span class="string">"und-HK"</span>],
         },
     ];
 
@@ -955,16 +956,16 @@
                     <span class="macro">assert_eq!</span>(
                         expected,
                         <span class="kw-2">&amp;*</span>it.get().write_to_string(),
-                        <span class="string">&quot;{:?} ({:?})&quot;</span>,
+                        <span class="string">"{:?} ({:?})"</span>,
                         cas.input,
                         priority
                     );
                     it.step();
                 }
                 <span class="macro">assert_eq!</span>(
-                    <span class="string">&quot;und&quot;</span>,
+                    <span class="string">"und"</span>,
                     <span class="kw-2">&amp;*</span>it.get().write_to_string(),
-                    <span class="string">&quot;{:?} ({:?})&quot;</span>,
+                    <span class="string">"{:?} ({:?})"</span>,
                     cas.input,
                     priority
                 );

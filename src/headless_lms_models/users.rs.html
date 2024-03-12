@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/users.rs`."><title>users.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/users.rs`."><title>users.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -272,7 +273,7 @@
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>User {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -290,13 +291,13 @@
     last_name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>email_domain = email.trim().split(<span class="string">&#39;@&#39;</span>).last();
+    <span class="kw">let </span>email_domain = email.trim().split(<span class="string">'@'</span>).last();
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO users (id, email_domain)
 VALUES ($1, $2)
 RETURNING id
-&quot;</span>,
+"</span>,
         pkey_policy.into_uuid(),
         email_domain
     )
@@ -304,10 +305,10 @@ RETURNING id
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>_res2 = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO user_details (user_id, email, first_name, last_name)
 VALUES ($1, $2, $3, $4)
-&quot;</span>,
+"</span>,
         res.id,
         email,
         first_name,
@@ -327,17 +328,17 @@ VALUES ($1, $2, $3, $4)
     upstream_id: i32,
     moocfi_id: Uuid,
 ) -&gt; ModelResult&lt;User&gt; {
-    <span class="macro">info!</span>(<span class="string">&quot;The user is not in the database yet, inserting&quot;</span>);
-    <span class="kw">let </span>email_domain = email.trim().split(<span class="string">&#39;@&#39;</span>).last();
+    <span class="macro">info!</span>(<span class="string">"The user is not in the database yet, inserting"</span>);
+    <span class="kw">let </span>email_domain = email.trim().split(<span class="string">'@'</span>).last();
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
         User,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 INSERT INTO
   users (id, upstream_id, email_domain)
 VALUES ($1, $2, $3)
 RETURNING *;
-          &quot;#</span>,
+          "#</span>,
         moocfi_id,
         upstream_id,
         email_domain
@@ -346,10 +347,10 @@ RETURNING *;
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>_res2 = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO user_details (user_id, email, first_name, last_name)
 VALUES ($1, $2, $3, $4)
-&quot;</span>,
+"</span>,
         user.id,
         email,
         first_name,
@@ -364,12 +365,12 @@ VALUES ($1, $2, $3, $4)
 <span class="kw">pub async fn </span>get_by_email(conn: <span class="kw-2">&amp;mut </span>PgConnection, email: <span class="kw-2">&amp;</span>str) -&gt; ModelResult&lt;User&gt; {
     <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
         User,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT users.*
 FROM user_details
 JOIN users ON (user_details.user_id = users.id)
 WHERE user_details.email = $1
-        &quot;</span>,
+        "</span>,
         email
     )
     .fetch_one(conn)
@@ -380,12 +381,12 @@ WHERE user_details.email = $1
 <span class="kw">pub async fn </span>try_get_by_email(conn: <span class="kw-2">&amp;mut </span>PgConnection, email: <span class="kw-2">&amp;</span>str) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;User&gt;&gt; {
     <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
         User,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT users.*
 FROM user_details
 JOIN users ON (user_details.user_id = users.id)
 WHERE user_details.email = $1
-        &quot;</span>,
+        "</span>,
         email
     )
     .fetch_optional(conn)
@@ -396,11 +397,11 @@ WHERE user_details.email = $1
 <span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;User&gt; {
     <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
         User,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM users
 WHERE id = $1
-        &quot;</span>,
+        "</span>,
         id
     )
     .fetch_one(conn)
@@ -414,7 +415,7 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;User&gt;&gt; {
     <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
         User,
-        <span class="string">&quot;SELECT * FROM users WHERE upstream_id = $1&quot;</span>,
+        <span class="string">"SELECT * FROM users WHERE upstream_id = $1"</span>,
         upstream_id
     )
     .fetch_optional(conn)
@@ -428,12 +429,12 @@ WHERE id = $1
     course_instance_id: Uuid,
 ) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT DISTINCT user_id
 FROM user_exercise_states
 WHERE course_instance_id = $1
   AND deleted_at IS NULL
-        &quot;</span>,
+        "</span>,
         course_instance_id
     )
     .map(|x| x.user_id)
@@ -448,7 +449,7 @@ WHERE course_instance_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;User&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         User,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM users
 WHERE id IN (
@@ -457,7 +458,7 @@ WHERE id IN (
     WHERE course_instance_id = $1
       AND deleted_at IS NULL
   )
-&quot;</span>,
+"</span>,
         course_instance_id,
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -470,14 +471,14 @@ WHERE id IN (
     upstream_ids: <span class="kw-2">&amp;</span>[i32],
 ) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT id
 FROM users
 WHERE upstream_id IN (
     SELECT UNNEST($1::integer [])
   )
 AND deleted_at IS NULL
-&quot;</span>,
+"</span>,
         upstream_ids,
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -490,28 +491,28 @@ AND deleted_at IS NULL
     upstream_id: <span class="kw-2">&amp;</span>i32,
     new_email: String,
 ) -&gt; ModelResult&lt;()&gt; {
-    <span class="macro">info!</span>(<span class="string">&quot;Updating user (Upstream id: {upstream_id})&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Updating user (Upstream id: {upstream_id})"</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
         User,
-        <span class="string">&quot;SELECT * FROM users WHERE upstream_id = $1&quot;</span>,
+        <span class="string">"SELECT * FROM users WHERE upstream_id = $1"</span>,
         upstream_id
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE user_details SET email = $1 WHERE user_id = $2&quot;</span>,
+        <span class="string">"UPDATE user_details SET email = $1 WHERE user_id = $2"</span>,
         new_email,
         user.id,
     )
     .execute(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>email_domain = new_email.trim().split(<span class="string">&#39;@&#39;</span>).last();
+    <span class="kw">let </span>email_domain = new_email.trim().split(<span class="string">'@'</span>).last();
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE users SET email_domain = $1 WHERE id = $2&quot;</span>,
+        <span class="string">"UPDATE users SET email_domain = $1 WHERE id = $2"</span>,
         email_domain,
         user.id,
     )
@@ -520,24 +521,24 @@ AND deleted_at IS NULL
 
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="macro">info!</span>(<span class="string">&quot;Email change succeeded&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Email change succeeded"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">pub async fn </span>delete_user(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;()&gt; {
-    <span class="macro">info!</span>(<span class="string">&quot;Deleting user {id}&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Deleting user {id}"</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">sqlx::query!</span>(<span class="string">&quot;DELETE FROM user_details WHERE user_id = $1&quot;</span>, id,)
+    <span class="macro">sqlx::query!</span>(<span class="string">"DELETE FROM user_details WHERE user_id = $1"</span>, id,)
         .execute(<span class="kw-2">&amp;mut *</span>tx)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">sqlx::query!</span>(<span class="string">&quot;UPDATE users set deleted_at = now() WHERE id = $1&quot;</span>, id,)
+    <span class="macro">sqlx::query!</span>(<span class="string">"UPDATE users set deleted_at = now() WHERE id = $1"</span>, id,)
         .execute(<span class="kw-2">&amp;mut *</span>tx)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">sqlx::query!</span>(<span class="string">&quot;UPDATE roles set deleted_at = now() WHERE user_id = $1&quot;</span>, id,)
+    <span class="macro">sqlx::query!</span>(<span class="string">"UPDATE roles set deleted_at = now() WHERE user_id = $1"</span>, id,)
         .execute(<span class="kw-2">&amp;mut *</span>tx)
         .<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;Deletion succeeded&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Deletion succeeded"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div></section></main></body></html>

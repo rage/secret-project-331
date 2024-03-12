@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercises.rs`."><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercises.rs`."><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1040,7 +1041,7 @@
 <span class="kw">use </span>std::collections::HashMap;
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>Exercise {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -1067,7 +1068,7 @@
         <span class="self">self</span>.course_id.ok_or_else(|| {
             ModelError::new(
                 ModelErrorType::Generic,
-                <span class="string">&quot;Exercise is not related to a course.&quot;</span>.to_string(),
+                <span class="string">"Exercise is not related to a course."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })
@@ -1075,7 +1076,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseGradingStatus {
     <span class="kw">pub </span>exercise_id: Uuid,
     <span class="kw">pub </span>exercise_name: String,
@@ -1087,7 +1088,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseStatusSummaryForUser {
     <span class="kw">pub </span>exercise: Exercise,
     <span class="kw">pub </span>user_exercise_state: <span class="prelude-ty">Option</span>&lt;UserExerciseState&gt;,
@@ -1102,14 +1103,14 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseMaterialExercise {
     <span class="kw">pub </span>exercise: Exercise,
     <span class="kw">pub </span>can_post_submission: bool,
     <span class="kw">pub </span>current_exercise_slide: CourseMaterialExerciseSlide,
     <span class="doccomment">/// None for logged out users.
     </span><span class="kw">pub </span>exercise_status: <span class="prelude-ty">Option</span>&lt;ExerciseStatus&gt;,
-    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, ts(<span class="kw">type </span>= <span class="string">&quot;Record&lt;string, number&gt;&quot;</span>))]
+    <span class="attr">#[cfg_attr(feature = <span class="string">"ts_rs"</span>, ts(<span class="kw">type </span>= <span class="string">"Record&lt;string, number&gt;"</span>))]
     </span><span class="kw">pub </span>exercise_slide_submission_counts: HashMap&lt;Uuid, i64&gt;,
     <span class="kw">pub </span>peer_review_config: <span class="prelude-ty">Option</span>&lt;CourseMaterialPeerReviewConfig&gt;,
     <span class="kw">pub </span>previous_exercise_slide_submission: <span class="prelude-ty">Option</span>&lt;ExerciseSlideSubmission&gt;,
@@ -1140,13 +1141,13 @@
 }
 
 <span class="doccomment">/**
-Indicates what is the user&#39;s completion status for a exercise.
+Indicates what is the user's completion status for a exercise.
 
-As close as possible to LTI&#39;s activity progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress&gt;.
+As close as possible to LTI's activity progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress&gt;.
 */
 </span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, sqlx::Type)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-#[sqlx(type_name = <span class="string">&quot;activity_progress&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">"activity_progress"</span>, rename_all = <span class="string">"kebab-case"</span>)]
 </span><span class="kw">pub enum </span>ActivityProgress {
     <span class="doccomment">/// The user has not started the activity, or the activity has been reset for that student.
     </span><span class="attr">#[default]
@@ -1163,15 +1164,15 @@ As close as possible to LTI&#39;s activity progress for compatibility: &lt;https
 
 <span class="doccomment">/**
 
-Tells what&#39;s the status of the grading progress for a user and exercise.
+Tells what's the status of the grading progress for a user and exercise.
 
-As close as possible LTI&#39;s grading progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress&gt;
+As close as possible LTI's grading progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress&gt;
 */
 </span><span class="attr">#[derive(
     Clone, Copy, Debug, Deserialize, Eq, Serialize, Ord, PartialEq, PartialOrd, sqlx::Type,
 )]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-#[sqlx(type_name = <span class="string">&quot;grading_progress&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">"grading_progress"</span>, rename_all = <span class="string">"kebab-case"</span>)]
 </span><span class="kw">pub enum </span>GradingProgress {
     <span class="doccomment">/// The grading could not complete.
     </span>Failed,
@@ -1192,7 +1193,7 @@ As close as possible LTI&#39;s grading progress for compatibility: &lt;https://w
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ExerciseStatus {
     <span class="comment">// None when grading has not completed yet. Max score can be found from the associated exercise.
     </span><span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
@@ -1220,7 +1221,7 @@ As close as possible LTI&#39;s grading progress for compatibility: &lt;https://w
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exercises (
     id,
     course_id,
@@ -1232,7 +1233,7 @@ INSERT INTO exercises (
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
-        &quot;</span>,
+        "</span>,
         pkey_policy.into_uuid(),
         course_id,
         name,
@@ -1249,11 +1250,11 @@ RETURNING id
 <span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;Exercise&gt; {
     <span class="kw">let </span>exercise = <span class="macro">sqlx::query_as!</span>(
         Exercise,
-        <span class="string">&quot;
+        <span class="string">"
 SELECT *
 FROM exercises
 WHERE id = $1
-&quot;</span>,
+"</span>,
         id
     )
     .fetch_one(conn)
@@ -1262,7 +1263,7 @@ WHERE id = $1
 }
 
 <span class="kw">pub async fn </span>get_exercise_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;Exercise&gt; {
-    <span class="kw">let </span>exercise = <span class="macro">sqlx::query_as!</span>(Exercise, <span class="string">&quot;SELECT * FROM exercises WHERE id = $1;&quot;</span>, id)
+    <span class="kw">let </span>exercise = <span class="macro">sqlx::query_as!</span>(Exercise, <span class="string">"SELECT * FROM exercises WHERE id = $1;"</span>, id)
         .fetch_one(conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(exercise)
@@ -1274,12 +1275,12 @@ WHERE id = $1
 ) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
     <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
         Exercise,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT *
 FROM exercises
 WHERE course_id = $1
   AND deleted_at IS NULL
-&quot;#</span>,
+"#</span>,
         course_id
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -1293,7 +1294,7 @@ WHERE course_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
     <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
         Exercise,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT *
 FROM exercises
 WHERE course_id = (
@@ -1303,7 +1304,7 @@ WHERE course_id = (
   )
   AND deleted_at IS NULL
 ORDER BY order_number ASC
-&quot;#</span>,
+"#</span>,
         course_instance_id
     )
     .fetch_all(conn)
@@ -1318,13 +1319,13 @@ ORDER BY order_number ASC
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseGradingStatus&gt;&gt; {
     <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
         ExerciseGradingStatus,
-        <span class="string">r#&quot;
+        <span class="string">r#"
         SELECT
         e.id as exercise_id,
         e.name as exercise_name,
         e.score_maximum,
         ues.score_given,
-        tgd.teacher_decision as &quot;teacher_decision: _&quot;,
+        tgd.teacher_decision as "teacher_decision: _",
         ess.id as submission_id,
         ess.updated_at
         FROM exercises e
@@ -1340,7 +1341,7 @@ ORDER BY order_number ASC
           AND ess.user_id = $2
           AND ues.user_id = $2
         ORDER BY e.order_number ASC;
-&quot;#</span>,
+"#</span>,
         course_instance_id,
         user_id
     )
@@ -1355,12 +1356,12 @@ ORDER BY order_number ASC
 ) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
     <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
         Exercise,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT *
 FROM exercises
 WHERE chapter_id = $1
   AND deleted_at IS NULL
-&quot;#</span>,
+"#</span>,
         chapter_id
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -1374,12 +1375,12 @@ WHERE chapter_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
     <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
         Exercise,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT *
   FROM exercises
 WHERE page_id = $1
   AND deleted_at IS NULL;
-&quot;#</span>,
+"#</span>,
         page_id,
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -1393,12 +1394,12 @@ WHERE page_id = $1
 ) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
     <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
         Exercise,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT *
 FROM exercises
 WHERE exam_id = $1
   AND deleted_at IS NULL
-&quot;#</span>,
+"#</span>,
         exam_id,
     )
     .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -1411,12 +1412,12 @@ WHERE exam_id = $1
     id: Uuid,
 ) -&gt; ModelResult&lt;CourseOrExamId&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT course_id,
   exam_id
 FROM exercises
 WHERE id = $1
-&quot;</span>,
+"</span>,
         id
     )
     .fetch_one(conn)
@@ -1428,13 +1429,13 @@ WHERE id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     exercise_id: Uuid,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialExercise&gt; {
     <span class="kw">let </span>exercise = get_by_id(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>(current_exercise_slide, instance_or_exam_id) =
         get_or_select_exercise_slide(<span class="kw-2">&amp;mut *</span>conn, user_id, <span class="kw-2">&amp;</span>exercise, fetch_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info!</span>(
-        <span class="string">&quot;Current exercise slide id: {:#?}&quot;</span>,
+        <span class="string">"Current exercise slide id: {:#?}"</span>,
         current_exercise_slide.id
     );
 
@@ -1555,7 +1556,7 @@ WHERE id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     exercise: <span class="kw-2">&amp;</span>Exercise,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;(CourseMaterialExerciseSlide, <span class="prelude-ty">Option</span>&lt;CourseInstanceOrExamId&gt;)&gt; {
     <span class="kw">match </span>(user_id, exercise.course_id, exercise.exam_id) {
         (<span class="prelude-val">None</span>, ..) =&gt; {
@@ -1650,7 +1651,7 @@ WHERE id = $1
                             ))
                         }
                     } <span class="kw">else </span>{
-                        <span class="comment">// user has enrolled on a different course language version and haven&#39;t enrolled
+                        <span class="comment">// user has enrolled on a different course language version and haven't enrolled
                         // on this one. The idea is that they can look around the material but not submit
                         // without changing the language version, so show a random exercise.
                         </span><span class="kw">let </span>random_slide = exercise_slides::get_random_exercise_slide_for_exercise(
@@ -1680,14 +1681,14 @@ WHERE id = $1
                     // tasks are based on a specific instance.
                     </span><span class="prelude-val">Err</span>(ModelError::new(
                         ModelErrorType::PreconditionFailed,
-                        <span class="string">&quot;User must be enrolled to the course&quot;</span>.to_string(),
+                        <span class="string">"User must be enrolled to the course"</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     ))
                 }
             }
         }
         (<span class="prelude-val">Some</span>(user_id), <span class="kw">_</span>, <span class="prelude-val">Some</span>(exam_id)) =&gt; {
-            <span class="macro">info!</span>(<span class="string">&quot;selecting exam task&quot;</span>);
+            <span class="macro">info!</span>(<span class="string">"selecting exam task"</span>);
             <span class="comment">// signed in, exam exercise
             </span><span class="kw">let </span>tasks =
                 exercise_tasks::get_or_select_user_exercise_tasks_for_course_instance_or_exam(
@@ -1699,12 +1700,12 @@ WHERE id = $1
                     fetch_service_info,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="macro">info!</span>(<span class="string">&quot;selecting exam task {:#?}&quot;</span>, tasks);
+            <span class="macro">info!</span>(<span class="string">"selecting exam task {:#?}"</span>, tasks);
             <span class="prelude-val">Ok</span>((tasks, <span class="prelude-val">Some</span>(CourseInstanceOrExamId::Exam(exam_id))))
         }
         (<span class="prelude-val">Some</span>(<span class="kw">_</span>), ..) =&gt; <span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::Generic,
-            <span class="string">&quot;The selected exercise is not attached to any course or exam&quot;</span>.to_string(),
+            <span class="string">"The selected exercise is not attached to any course or exam"</span>.to_string(),
             <span class="prelude-val">None</span>,
         )),
     }
@@ -1715,12 +1716,12 @@ WHERE id = $1
     page_id: Uuid,
 ) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
     <span class="kw">let </span>deleted_ids = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE exercises
 SET deleted_at = now()
 WHERE page_id = $1
 RETURNING id;
-        &quot;</span>,
+        "</span>,
         page_id
     )
     .fetch_all(conn)
@@ -1738,13 +1739,13 @@ RETURNING id;
     use_course_default_peer_review_config: bool,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>id = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 UPDATE exercises
 SET use_course_default_peer_review_config = $1,
   needs_peer_review = $2
 WHERE id = $3
 RETURNING id;
-        &quot;</span>,
+        "</span>,
         use_course_default_peer_review_config,
         needs_peer_review,
         exercise_id
@@ -1899,7 +1900,7 @@ RETURNING id;
 ) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
     <span class="kw">let </span>res: Vec&lt;Exercise&gt; = <span class="macro">sqlx::query_as!</span>(
         Exercise,
-        <span class="string">r#&quot;
+        <span class="string">r#"
 SELECT ex.*
 FROM exercises ex
   JOIN exercise_slides slides ON ex.id = slides.exercise_id
@@ -1911,7 +1912,7 @@ where tasks.exercise_type = $1
   AND tasks.deleted_at IS NULL
   and c.deleted_at IS NULL
   and slides.deleted_at IS NULL
-        &quot;#</span>,
+        "#</span>,
         exercise_type,
         course_module_id
     )
@@ -1950,9 +1951,9 @@ where tasks.exercise_type = $1
         <span class="kw">let </span>exercise_service = exercise_services::insert_exercise_service(
             tx.as_mut(),
             <span class="kw-2">&amp;</span>ExerciseServiceNewOrUpdate {
-                name: <span class="string">&quot;text-exercise&quot;</span>.to_string(),
+                name: <span class="string">"text-exercise"</span>.to_string(),
                 slug: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),
-                public_url: <span class="string">&quot;https://example.com&quot;</span>.to_string(),
+                public_url: <span class="string">"https://example.com"</span>.to_string(),
                 internal_url: <span class="prelude-val">None</span>,
                 max_reprocessing_submissions_at_once: <span class="number">1</span>,
             },
@@ -1963,10 +1964,10 @@ where tasks.exercise_type = $1
             tx.as_mut(),
             <span class="kw-2">&amp;</span>PathInfo {
                 exercise_service_id: exercise_service.id,
-                user_interface_iframe_path: <span class="string">&quot;/iframe&quot;</span>.to_string(),
-                grade_endpoint_path: <span class="string">&quot;/grade&quot;</span>.to_string(),
-                public_spec_endpoint_path: <span class="string">&quot;/public-spec&quot;</span>.to_string(),
-                model_solution_spec_endpoint_path: <span class="string">&quot;test-only-empty-path&quot;</span>.to_string(),
+                user_interface_iframe_path: <span class="string">"/iframe"</span>.to_string(),
+                grade_endpoint_path: <span class="string">"/grade"</span>.to_string(),
+                public_spec_endpoint_path: <span class="string">"/public-spec"</span>.to_string(),
+                model_solution_spec_endpoint_path: <span class="string">"test-only-empty-path"</span>.to_string(),
                 has_custom_view: <span class="bool-val">false</span>,
             },
         )

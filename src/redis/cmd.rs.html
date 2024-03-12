@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/cmd.rs`."><title>cmd.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/cmd.rs`."><title>cmd.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -627,13 +628,13 @@
 <a href="#627" id="627">627</a>
 <a href="#628" id="628">628</a>
 <a href="#629" id="629">629</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
 </span><span class="kw">use </span>futures_util::{
     future::BoxFuture,
     task::{Context, Poll},
     Stream, StreamExt,
 };
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
 </span><span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::{fmt, io};
 
@@ -660,14 +661,14 @@
 }
 
 <span class="doccomment">/// Represents a redis iterator.
-</span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">&#39;a</span>, T: FromRedisValue&gt; {
+</span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">'a</span>, T: FromRedisValue&gt; {
     batch: std::vec::IntoIter&lt;T&gt;,
     cursor: u64,
-    con: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>ConnectionLike + <span class="lifetime">&#39;a</span>),
+    con: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>ConnectionLike + <span class="lifetime">'a</span>),
     cmd: Cmd,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: FromRedisValue&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: FromRedisValue&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">type </span>Item = T;
 
     <span class="attr">#[inline]
@@ -697,33 +698,33 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::aio::ConnectionLike <span class="kw">as </span>AsyncConnection;
 
 <span class="doccomment">/// The inner future of AsyncIter
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-</span><span class="kw">struct </span>AsyncIterInner&lt;<span class="lifetime">&#39;a</span>, T: FromRedisValue + <span class="lifetime">&#39;a</span>&gt; {
+</span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+</span><span class="kw">struct </span>AsyncIterInner&lt;<span class="lifetime">'a</span>, T: FromRedisValue + <span class="lifetime">'a</span>&gt; {
     batch: std::vec::IntoIter&lt;T&gt;,
-    con: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>AsyncConnection + Send + <span class="lifetime">&#39;a</span>),
+    con: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>AsyncConnection + Send + <span class="lifetime">'a</span>),
     cmd: Cmd,
 }
 
 <span class="doccomment">/// Represents the state of AsyncIter
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-</span><span class="kw">enum </span>IterOrFuture&lt;<span class="lifetime">&#39;a</span>, T: FromRedisValue + <span class="lifetime">&#39;a</span>&gt; {
-    Iter(AsyncIterInner&lt;<span class="lifetime">&#39;a</span>, T&gt;),
-    Future(BoxFuture&lt;<span class="lifetime">&#39;a</span>, (AsyncIterInner&lt;<span class="lifetime">&#39;a</span>, T&gt;, <span class="prelude-ty">Option</span>&lt;T&gt;)&gt;),
+</span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+</span><span class="kw">enum </span>IterOrFuture&lt;<span class="lifetime">'a</span>, T: FromRedisValue + <span class="lifetime">'a</span>&gt; {
+    Iter(AsyncIterInner&lt;<span class="lifetime">'a</span>, T&gt;),
+    Future(BoxFuture&lt;<span class="lifetime">'a</span>, (AsyncIterInner&lt;<span class="lifetime">'a</span>, T&gt;, <span class="prelude-ty">Option</span>&lt;T&gt;)&gt;),
     Empty,
 }
 
 <span class="doccomment">/// Represents a redis iterator that can be used with async connections.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-</span><span class="kw">pub struct </span>AsyncIter&lt;<span class="lifetime">&#39;a</span>, T: FromRedisValue + <span class="lifetime">&#39;a</span>&gt; {
-    inner: IterOrFuture&lt;<span class="lifetime">&#39;a</span>, T&gt;,
+</span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+</span><span class="kw">pub struct </span>AsyncIter&lt;<span class="lifetime">'a</span>, T: FromRedisValue + <span class="lifetime">'a</span>&gt; {
+    inner: IterOrFuture&lt;<span class="lifetime">'a</span>, T&gt;,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: FromRedisValue + <span class="lifetime">&#39;a</span>&gt; AsyncIterInner&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: FromRedisValue + <span class="lifetime">'a</span>&gt; AsyncIterInner&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub async fn </span>next_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
         <span class="comment">// we need to do this in a loop until we produce at least one item
@@ -754,16 +755,16 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: FromRedisValue + <span class="lifetime">&#39;a </span>+ Unpin + Send&gt; AsyncIter&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: FromRedisValue + <span class="lifetime">'a </span>+ Unpin + Send&gt; AsyncIter&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="doccomment">/// ```rust,no_run
     /// # use redis::AsyncCommands;
     /// # async fn scan_set() -&gt; redis::RedisResult&lt;()&gt; {
-    /// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;)?;
+    /// # let client = redis::Client::open("redis://127.0.0.1/")?;
     /// # let mut con = client.get_async_connection().await?;
-    /// con.sadd(&quot;my_set&quot;, 42i32).await?;
-    /// con.sadd(&quot;my_set&quot;, 43i32).await?;
-    /// let mut iter: redis::AsyncIter&lt;i32&gt; = con.sscan(&quot;my_set&quot;).await?;
+    /// con.sadd("my_set", 42i32).await?;
+    /// con.sadd("my_set", 43i32).await?;
+    /// let mut iter: redis::AsyncIter&lt;i32&gt; = con.sscan("my_set").await?;
     /// while let Some(element) = iter.next_item().await {
     ///     assert!(element == 42 || element == 43);
     /// }
@@ -776,11 +777,11 @@
     </span>}
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: FromRedisValue + Unpin + Send + <span class="lifetime">&#39;a</span>&gt; Stream <span class="kw">for </span>AsyncIter&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: FromRedisValue + Unpin + Send + <span class="lifetime">'a</span>&gt; Stream <span class="kw">for </span>AsyncIter&lt;<span class="lifetime">'a</span>, T&gt; {
     <span class="kw">type </span>Item = T;
 
-    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt; {
+    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
         <span class="kw">let </span>inner = std::mem::replace(<span class="kw-2">&amp;mut </span>this.inner, IterOrFuture::Empty);
         <span class="kw">match </span>inner {
@@ -833,9 +834,9 @@
     <span class="number">1 </span>+ countdigits(len) + <span class="number">2 </span>+ len + <span class="number">2
 </span>}
 
-<span class="kw">fn </span>args_len&lt;<span class="lifetime">&#39;a</span>, I&gt;(args: I, cursor: u64) -&gt; usize
+<span class="kw">fn </span>args_len&lt;<span class="lifetime">'a</span>, I&gt;(args: I, cursor: u64) -&gt; usize
 <span class="kw">where
-    </span>I: IntoIterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;&gt; + ExactSizeIterator,
+    </span>I: IntoIterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;&gt; + ExactSizeIterator,
 {
     <span class="kw">let </span><span class="kw-2">mut </span>totlen = <span class="number">1 </span>+ countdigits(args.len()) + <span class="number">2</span>;
     <span class="kw">for </span>item <span class="kw">in </span>args {
@@ -851,18 +852,18 @@
     args_len(cmd.args_iter(), cmd.cursor.unwrap_or(<span class="number">0</span>))
 }
 
-<span class="kw">fn </span>encode_command&lt;<span class="lifetime">&#39;a</span>, I&gt;(args: I, cursor: u64) -&gt; Vec&lt;u8&gt;
+<span class="kw">fn </span>encode_command&lt;<span class="lifetime">'a</span>, I&gt;(args: I, cursor: u64) -&gt; Vec&lt;u8&gt;
 <span class="kw">where
-    </span>I: IntoIterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;&gt; + Clone + ExactSizeIterator,
+    </span>I: IntoIterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;&gt; + Clone + ExactSizeIterator,
 {
     <span class="kw">let </span><span class="kw-2">mut </span>cmd = Vec::new();
     write_command_to_vec(<span class="kw-2">&amp;mut </span>cmd, args, cursor);
     cmd
 }
 
-<span class="kw">fn </span>write_command_to_vec&lt;<span class="lifetime">&#39;a</span>, I&gt;(cmd: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;, args: I, cursor: u64)
+<span class="kw">fn </span>write_command_to_vec&lt;<span class="lifetime">'a</span>, I&gt;(cmd: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;, args: I, cursor: u64)
 <span class="kw">where
-    </span>I: IntoIterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;&gt; + Clone + ExactSizeIterator,
+    </span>I: IntoIterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;&gt; + Clone + ExactSizeIterator,
 {
     <span class="kw">let </span>totlen = args_len(args.clone(), cursor);
 
@@ -871,16 +872,16 @@
     write_command(cmd, args, cursor).unwrap()
 }
 
-<span class="kw">fn </span>write_command&lt;<span class="lifetime">&#39;a</span>, I&gt;(cmd: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span><span class="question-mark">?</span>Sized + io::Write), args: I, cursor: u64) -&gt; io::Result&lt;()&gt;
+<span class="kw">fn </span>write_command&lt;<span class="lifetime">'a</span>, I&gt;(cmd: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span><span class="question-mark">?</span>Sized + io::Write), args: I, cursor: u64) -&gt; io::Result&lt;()&gt;
 <span class="kw">where
-    </span>I: IntoIterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;&gt; + Clone + ExactSizeIterator,
+    </span>I: IntoIterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;&gt; + Clone + ExactSizeIterator,
 {
     <span class="kw">let </span><span class="kw-2">mut </span>buf = ::itoa::Buffer::new();
 
-    cmd.write_all(<span class="string">b&quot;*&quot;</span>)<span class="question-mark">?</span>;
+    cmd.write_all(<span class="string">b"*"</span>)<span class="question-mark">?</span>;
     <span class="kw">let </span>s = buf.format(args.len());
     cmd.write_all(s.as_bytes())<span class="question-mark">?</span>;
-    cmd.write_all(<span class="string">b&quot;\r\n&quot;</span>)<span class="question-mark">?</span>;
+    cmd.write_all(<span class="string">b"\r\n"</span>)<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>cursor_bytes = itoa::Buffer::new();
     <span class="kw">for </span>item <span class="kw">in </span>args {
@@ -889,13 +890,13 @@
             Arg::Simple(val) =&gt; val,
         };
 
-        cmd.write_all(<span class="string">b&quot;$&quot;</span>)<span class="question-mark">?</span>;
+        cmd.write_all(<span class="string">b"$"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>s = buf.format(bytes.len());
         cmd.write_all(s.as_bytes())<span class="question-mark">?</span>;
-        cmd.write_all(<span class="string">b&quot;\r\n&quot;</span>)<span class="question-mark">?</span>;
+        cmd.write_all(<span class="string">b"\r\n"</span>)<span class="question-mark">?</span>;
 
         cmd.write_all(bytes)<span class="question-mark">?</span>;
-        cmd.write_all(<span class="string">b&quot;\r\n&quot;</span>)<span class="question-mark">?</span>;
+        cmd.write_all(<span class="string">b"\r\n"</span>)<span class="question-mark">?</span>;
     }
     <span class="prelude-val">Ok</span>(())
 }
@@ -908,7 +909,7 @@
 
     <span class="kw">fn </span>write_arg_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: <span class="kw">impl </span>fmt::Display) {
         <span class="kw">use </span>std::io::Write;
-        <span class="macro">write!</span>(<span class="self">self</span>.data, <span class="string">&quot;{arg}&quot;</span>).unwrap();
+        <span class="macro">write!</span>(<span class="self">self</span>.data, <span class="string">"{arg}"</span>).unwrap();
         <span class="self">self</span>.args.push(Arg::Simple(<span class="self">self</span>.data.len()));
     }
 }
@@ -926,14 +927,14 @@
 /// Basic example:
 ///
 /// ```rust
-/// redis::Cmd::new().arg(&quot;SET&quot;).arg(&quot;my_key&quot;).arg(42);
+/// redis::Cmd::new().arg("SET").arg("my_key").arg(42);
 /// ```
 ///
 /// There is also a helper function called `cmd` which makes it a
 /// tiny bit shorter:
 ///
 /// ```rust
-/// redis::cmd(&quot;SET&quot;).arg(&quot;my_key&quot;).arg(42);
+/// redis::cmd("SET").arg("my_key").arg(42);
 /// ```
 ///
 /// Because Rust currently does not have an ideal system
@@ -941,10 +942,10 @@
 /// the initially generated command:
 ///
 /// ```rust,no_run
-/// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+/// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
 /// # let mut con = client.get_connection().unwrap();
-/// let mut cmd = redis::cmd(&quot;SMEMBERS&quot;);
-/// let mut iter : redis::Iter&lt;i32&gt; = cmd.arg(&quot;my_set&quot;).clone().iter(&amp;mut con).unwrap();
+/// let mut cmd = redis::cmd("SMEMBERS");
+/// let mut iter : redis::Iter&lt;i32&gt; = cmd.arg("my_set").clone().iter(&amp;mut con).unwrap();
 /// ```
 </span><span class="kw">impl </span>Cmd {
     <span class="doccomment">/// Creates a new empty command.
@@ -972,11 +973,11 @@
     /// For instance all of the following are valid:
     ///
     /// ```rust,no_run
-    /// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+    /// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
     /// # let mut con = client.get_connection().unwrap();
-    /// redis::cmd(&quot;SET&quot;).arg(&amp;[&quot;my_key&quot;, &quot;my_value&quot;]);
-    /// redis::cmd(&quot;SET&quot;).arg(&quot;my_key&quot;).arg(42);
-    /// redis::cmd(&quot;SET&quot;).arg(&quot;my_key&quot;).arg(b&quot;my_value&quot;);
+    /// redis::cmd("SET").arg(&amp;["my_key", "my_value"]);
+    /// redis::cmd("SET").arg("my_key").arg(42);
+    /// redis::cmd("SET").arg("my_key").arg(b"my_value");
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>arg&lt;T: ToRedisArgs&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: T) -&gt; <span class="kw-2">&amp;mut </span>Cmd {
@@ -990,11 +991,11 @@
     /// another batch of items when the local data is exhausted.
     ///
     /// ```rust,no_run
-    /// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+    /// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
     /// # let mut con = client.get_connection().unwrap();
-    /// let mut cmd = redis::cmd(&quot;SSCAN&quot;);
+    /// let mut cmd = redis::cmd("SSCAN");
     /// let mut iter : redis::Iter&lt;isize&gt; =
-    ///     cmd.arg(&quot;my_set&quot;).cursor_arg(0).clone().iter(&amp;mut con).unwrap();
+    ///     cmd.arg("my_set").cursor_arg(0).clone().iter(&amp;mut con).unwrap();
     /// for x in iter {
     ///     // do something with the item
     /// }
@@ -1054,7 +1055,7 @@
 
     <span class="doccomment">/// Async version of `query`.
     </span><span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+    #[cfg(feature = <span class="string">"aio"</span>)]
     </span><span class="kw">pub async fn </span>query_async&lt;C, T: FromRedisValue&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span>C) -&gt; RedisResult&lt;T&gt;
     <span class="kw">where
         </span>C: <span class="kw">crate</span>::aio::ConnectionLike,
@@ -1065,7 +1066,7 @@
 
     <span class="doccomment">/// Similar to `query()` but returns an iterator over the items of the
     /// bulk result or iterator.  In normal mode this is not in any way more
-    /// efficient than just querying into a `Vec&lt;T&gt;` as it&#39;s internally
+    /// efficient than just querying into a `Vec&lt;T&gt;` as it's internally
     /// implemented as buffering into a vector.  This however is useful when
     /// `cursor_arg` was used in which case the iterator will query for more
     /// items until the server side cursor is exhausted.
@@ -1078,7 +1079,7 @@
     /// format of `KEYS` (just a list) as well as `SSCAN` (which returns a
     /// tuple of cursor and list).
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>iter&lt;T: FromRedisValue&gt;(<span class="self">self</span>, con: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>ConnectionLike) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">&#39;_</span>, T&gt;&gt; {
+    </span><span class="kw">pub fn </span>iter&lt;T: FromRedisValue&gt;(<span class="self">self</span>, con: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>ConnectionLike) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, T&gt;&gt; {
         <span class="kw">let </span>rv = con.req_command(<span class="kw-2">&amp;</span><span class="self">self</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>(cursor, batch) = <span class="kw">if </span>rv.looks_like_cursor() {
@@ -1098,7 +1099,7 @@
     <span class="doccomment">/// Similar to `iter()` but returns an AsyncIter over the items of the
     /// bulk result or iterator.  A [futures::Stream](https://docs.rs/futures/0.3.3/futures/stream/trait.Stream.html)
     /// is implemented on AsyncIter. In normal mode this is not in any way more
-    /// efficient than just querying into a `Vec&lt;T&gt;` as it&#39;s internally
+    /// efficient than just querying into a `Vec&lt;T&gt;` as it's internally
     /// implemented as buffering into a vector.  This however is useful when
     /// `cursor_arg` was used in which case the stream will query for more
     /// items until the server side cursor is exhausted.
@@ -1110,12 +1111,12 @@
     /// This way you can use the function the same for responses in the
     /// format of `KEYS` (just a list) as well as `SSCAN` (which returns a
     /// tuple of cursor and list).
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;aio&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
     #[inline]
-    </span><span class="kw">pub async fn </span>iter_async&lt;<span class="lifetime">&#39;a</span>, T: FromRedisValue + <span class="lifetime">&#39;a</span>&gt;(
+    </span><span class="kw">pub async fn </span>iter_async&lt;<span class="lifetime">'a</span>, T: FromRedisValue + <span class="lifetime">'a</span>&gt;(
         <span class="kw-2">mut </span><span class="self">self</span>,
-        con: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>AsyncConnection + Send),
-    ) -&gt; RedisResult&lt;AsyncIter&lt;<span class="lifetime">&#39;a</span>, T&gt;&gt; {
+        con: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>AsyncConnection + Send),
+    ) -&gt; RedisResult&lt;AsyncIter&lt;<span class="lifetime">'a</span>, T&gt;&gt; {
         <span class="kw">let </span>rv = con.req_packed_command(<span class="kw-2">&amp;</span><span class="self">self</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let </span>(cursor, batch) = <span class="kw">if </span>rv.looks_like_cursor() {
@@ -1146,9 +1147,9 @@
     /// This is equivalent to a call of query like this:
     ///
     /// ```rust,no_run
-    /// # let client = redis::Client::open(&quot;redis://127.0.0.1/&quot;).unwrap();
+    /// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
     /// # let mut con = client.get_connection().unwrap();
-    /// let _ : () = redis::cmd(&quot;PING&quot;).query(&amp;mut con).unwrap();
+    /// let _ : () = redis::cmd("PING").query(&amp;mut con).unwrap();
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>execute(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>ConnectionLike) {
@@ -1170,7 +1171,7 @@
     }
 
     <span class="comment">// Get a reference to the argument at `idx`
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"cluster"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>arg_idx(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="kw">if </span>idx &gt;= <span class="self">self</span>.args.len() {
             <span class="kw">return </span><span class="prelude-val">None</span>;
@@ -1202,7 +1203,7 @@
 /// command pipe.
 ///
 /// ```rust
-/// redis::cmd(&quot;PING&quot;);
+/// redis::cmd("PING");
 /// ```
 </span><span class="kw">pub fn </span>cmd(name: <span class="kw-2">&amp;</span>str) -&gt; Cmd {
     <span class="kw">let </span><span class="kw-2">mut </span>rv = Cmd::new();
@@ -1220,11 +1221,11 @@
 /// ```rust
 /// # use redis::ToRedisArgs;
 /// let mut args = vec![];
-/// args.extend(&quot;SET&quot;.to_redis_args());
-/// args.extend(&quot;my_key&quot;.to_redis_args());
+/// args.extend("SET".to_redis_args());
+/// args.extend("my_key".to_redis_args());
 /// args.extend(42.to_redis_args());
 /// let cmd = redis::pack_command(&amp;args);
-/// assert_eq!(cmd, b&quot;*3\r\n$3\r\nSET\r\n$6\r\nmy_key\r\n$2\r\n42\r\n&quot;.to_vec());
+/// assert_eq!(cmd, b"*3\r\n$3\r\nSET\r\n$6\r\nmy_key\r\n$2\r\n42\r\n".to_vec());
 /// ```
 </span><span class="kw">pub fn </span>pack_command(args: <span class="kw-2">&amp;</span>[Vec&lt;u8&gt;]) -&gt; Vec&lt;u8&gt; {
     encode_command(args.iter().map(|x| Arg::Simple(<span class="kw-2">&amp;</span>x[..])), <span class="number">0</span>)
@@ -1236,7 +1237,7 @@
 }
 
 <span class="attr">#[cfg(test)]
-#[cfg(feature = <span class="string">&quot;cluster&quot;</span>)]
+#[cfg(feature = <span class="string">"cluster"</span>)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">super</span>::Cmd;
 
@@ -1245,13 +1246,13 @@
         <span class="kw">let </span><span class="kw-2">mut </span>c = Cmd::new();
         <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">0</span>), <span class="prelude-val">None</span>);
 
-        c.arg(<span class="string">&quot;SET&quot;</span>);
-        <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;SET&quot;</span>[..]));
+        c.arg(<span class="string">"SET"</span>);
+        <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b"SET"</span>[..]));
         <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">1</span>), <span class="prelude-val">None</span>);
 
-        c.arg(<span class="string">&quot;foo&quot;</span>).arg(<span class="string">&quot;42&quot;</span>);
-        <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;foo&quot;</span>[..]));
-        <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">2</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;42&quot;</span>[..]));
+        c.arg(<span class="string">"foo"</span>).arg(<span class="string">"42"</span>);
+        <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b"foo"</span>[..]));
+        <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">2</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b"42"</span>[..]));
         <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">3</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(c.arg_idx(<span class="number">4</span>), <span class="prelude-val">None</span>);
     }

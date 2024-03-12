@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/varzerovec/slice.rs`."><title>slice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/varzerovec/slice.rs`."><title>slice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -588,7 +589,7 @@
 <span class="kw">use </span>core::ops::Index;
 <span class="kw">use </span>core::ops::Range;
 
-<span class="doccomment">/// A zero-copy &quot;slice&quot;, that works for unsized types, i.e. the zero-copy version of `[T]`
+<span class="doccomment">/// A zero-copy "slice", that works for unsized types, i.e. the zero-copy version of `[T]`
 /// where `T` is not `Sized`.
 ///
 /// This behaves similarly to [`VarZeroVec&lt;T&gt;`], however [`VarZeroVec&lt;T&gt;`] is allowed to contain
@@ -613,10 +614,10 @@
 /// ```rust
 /// use zerovec::ule::*;
 /// use zerovec::{VarZeroSlice, VarZeroVec, ZeroVec};
-/// let strings_1: Vec&lt;&amp;str&gt; = vec![&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;];
-/// let strings_2: Vec&lt;&amp;str&gt; = vec![&quot;twelve&quot;, &quot;seventeen&quot;, &quot;forty two&quot;];
-/// let strings_3: Vec&lt;&amp;str&gt; = vec![&quot;我&quot;, &quot;喜歡&quot;, &quot;烏龍茶&quot;];
-/// let strings_4: Vec&lt;&amp;str&gt; = vec![&quot;w&quot;, &quot;ω&quot;, &quot;文&quot;, &quot;𑄃&quot;];
+/// let strings_1: Vec&lt;&amp;str&gt; = vec!["foo", "bar", "baz"];
+/// let strings_2: Vec&lt;&amp;str&gt; = vec!["twelve", "seventeen", "forty two"];
+/// let strings_3: Vec&lt;&amp;str&gt; = vec!["我", "喜歡", "烏龍茶"];
+/// let strings_4: Vec&lt;&amp;str&gt; = vec!["w", "ω", "文", "𑄃"];
 /// let strings_12 = vec![&amp;*strings_1, &amp;*strings_2];
 /// let strings_34 = vec![&amp;*strings_3, &amp;*strings_4];
 /// let all_strings = vec![strings_12, strings_34];
@@ -658,7 +659,7 @@
 /// ```
 /// use zerovec::VarZeroVec;
 ///
-/// let vzv = VarZeroVec::&lt;str&gt;::from(&amp;[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;]);
+/// let vzv = VarZeroVec::&lt;str&gt;::from(&amp;["a", "b", "c", "d"]);
 /// # let mut pairs: Vec&lt;(&amp;str, &amp;str)&gt; = Vec::new();
 ///
 /// let mut it = vzv.iter().peekable();
@@ -666,7 +667,7 @@
 ///     // Evaluate (x, y) here.
 /// #   pairs.push((x, y));
 /// }
-/// # assert_eq!(pairs, &amp;[(&quot;a&quot;, &quot;b&quot;), (&quot;b&quot;, &quot;c&quot;), (&quot;c&quot;, &quot;d&quot;)]);
+/// # assert_eq!(pairs, &amp;[("a", "b"), ("b", "c"), ("c", "d")]);
 /// ```
 </span><span class="comment">//
 // safety invariant: The slice MUST be one which parses to
@@ -680,14 +681,14 @@
 
 <span class="kw">impl</span>&lt;T: VarULE + <span class="question-mark">?</span>Sized, F: VarZeroVecFormat&gt; VarZeroSlice&lt;T, F&gt; {
     <span class="doccomment">/// Construct a new empty VarZeroSlice
-    </span><span class="kw">pub const fn </span>new_empty() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new_empty() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self </span>{
         <span class="comment">// The empty VZV is special-cased to the empty slice
         </span><span class="kw">unsafe </span>{ mem::transmute(<span class="kw-2">&amp;</span>[] <span class="kw">as </span><span class="kw-2">&amp;</span>[u8]) }
     }
 
     <span class="doccomment">/// Obtain a [`VarZeroVecComponents`] borrowing from the internal buffer
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_components&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; VarZeroVecComponents&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_components&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; VarZeroVecComponents&lt;<span class="lifetime">'a</span>, T, F&gt; {
         <span class="kw">unsafe </span>{
             <span class="comment">// safety: VarZeroSlice is guaranteed to parse here
             </span>VarZeroVecComponents::from_bytes_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.entire_slice)
@@ -713,7 +714,7 @@
     /// # use zerovec::ule::ZeroVecError;
     /// # use zerovec::VarZeroVec;
     ///
-    /// let strings = vec![&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;, &quot;quux&quot;];
+    /// let strings = vec!["foo", "bar", "baz", "quux"];
     /// let vec = VarZeroVec::&lt;str&gt;::from(&amp;strings);
     ///
     /// assert_eq!(vec.len(), 4);
@@ -742,7 +743,7 @@
         <span class="self">self</span>.as_components().is_empty()
     }
 
-    <span class="doccomment">/// Obtain an iterator over this slice&#39;s elements
+    <span class="doccomment">/// Obtain an iterator over this slice's elements
     ///
     /// # Example
     ///
@@ -751,21 +752,21 @@
     /// # use zerovec::ule::ZeroVecError;
     /// # use zerovec::VarZeroVec;
     ///
-    /// let strings = vec![&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;, &quot;quux&quot;];
+    /// let strings = vec!["foo", "bar", "baz", "quux"];
     /// let vec = VarZeroVec::&lt;str&gt;::from(&amp;strings);
     ///
     /// let mut iter_results: Vec&lt;&amp;str&gt; = vec.iter().collect();
-    /// assert_eq!(iter_results[0], &quot;foo&quot;);
-    /// assert_eq!(iter_results[1], &quot;bar&quot;);
-    /// assert_eq!(iter_results[2], &quot;baz&quot;);
-    /// assert_eq!(iter_results[3], &quot;quux&quot;);
+    /// assert_eq!(iter_results[0], "foo");
+    /// assert_eq!(iter_results[1], "bar");
+    /// assert_eq!(iter_results[2], "baz");
+    /// assert_eq!(iter_results[3], "quux");
     /// # Ok::&lt;(), ZeroVecError&gt;(())
     /// ```
-    </span><span class="kw">pub fn </span>iter&lt;<span class="lifetime">&#39;b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>T&gt; {
+    </span><span class="kw">pub fn </span>iter&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'b </span>T&gt; {
         <span class="self">self</span>.as_components().iter()
     }
 
-    <span class="doccomment">/// Get one of this slice&#39;s elements, returning `None` if the index is out of bounds
+    <span class="doccomment">/// Get one of this slice's elements, returning `None` if the index is out of bounds
     ///
     /// # Example
     ///
@@ -774,14 +775,14 @@
     /// # use zerovec::ule::ZeroVecError;
     /// # use zerovec::VarZeroVec;
     ///
-    /// let strings = vec![&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;, &quot;quux&quot;];
+    /// let strings = vec!["foo", "bar", "baz", "quux"];
     /// let vec = VarZeroVec::&lt;str&gt;::from(&amp;strings);
     ///
     /// let mut iter_results: Vec&lt;&amp;str&gt; = vec.iter().collect();
-    /// assert_eq!(vec.get(0), Some(&quot;foo&quot;));
-    /// assert_eq!(vec.get(1), Some(&quot;bar&quot;));
-    /// assert_eq!(vec.get(2), Some(&quot;baz&quot;));
-    /// assert_eq!(vec.get(3), Some(&quot;quux&quot;));
+    /// assert_eq!(vec.get(0), Some("foo"));
+    /// assert_eq!(vec.get(1), Some("bar"));
+    /// assert_eq!(vec.get(2), Some("baz"));
+    /// assert_eq!(vec.get(3), Some("quux"));
     /// assert_eq!(vec.get(4), None);
     /// # Ok::&lt;(), ZeroVecError&gt;(())
     /// ```
@@ -789,7 +790,7 @@
         <span class="self">self</span>.as_components().get(idx)
     }
 
-    <span class="doccomment">/// Get one of this slice&#39;s elements
+    <span class="doccomment">/// Get one of this slice's elements
     ///
     /// # Safety
     ///
@@ -802,15 +803,15 @@
     /// # use zerovec::ule::ZeroVecError;
     /// # use zerovec::VarZeroVec;
     ///
-    /// let strings = vec![&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;, &quot;quux&quot;];
+    /// let strings = vec!["foo", "bar", "baz", "quux"];
     /// let vec = VarZeroVec::&lt;str&gt;::from(&amp;strings);
     ///
     /// let mut iter_results: Vec&lt;&amp;str&gt; = vec.iter().collect();
     /// unsafe {
-    ///     assert_eq!(vec.get_unchecked(0), &quot;foo&quot;);
-    ///     assert_eq!(vec.get_unchecked(1), &quot;bar&quot;);
-    ///     assert_eq!(vec.get_unchecked(2), &quot;baz&quot;);
-    ///     assert_eq!(vec.get_unchecked(3), &quot;quux&quot;);
+    ///     assert_eq!(vec.get_unchecked(0), "foo");
+    ///     assert_eq!(vec.get_unchecked(1), "bar");
+    ///     assert_eq!(vec.get_unchecked(2), "baz");
+    ///     assert_eq!(vec.get_unchecked(3), "quux");
     /// }
     /// # Ok::&lt;(), ZeroVecError&gt;(())
     /// ```
@@ -836,7 +837,7 @@
     /// # use zerovec::ule::ZeroVecError;
     /// # use zerovec::VarZeroVec;
     ///
-    /// let strings = vec![&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;];
+    /// let strings = vec!["foo", "bar", "baz"];
     /// let vzv = VarZeroVec::&lt;str&gt;::from(&amp;strings);
     ///
     /// assert_eq!(vzv, VarZeroVec::parse_byte_slice(vzv.as_bytes()).unwrap());
@@ -852,14 +853,14 @@
     ///
     /// If you wish to repeatedly call methods on this [`VarZeroSlice`],
     /// it is more efficient to perform this conversion first
-    </span><span class="kw">pub const fn </span>as_varzerovec&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; VarZeroVec&lt;<span class="lifetime">&#39;a</span>, T, F&gt; {
+    </span><span class="kw">pub const fn </span>as_varzerovec&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; VarZeroVec&lt;<span class="lifetime">'a</span>, T, F&gt; {
         VarZeroVec::Borrowed(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Parse a VarZeroSlice from a slice of the appropriate format
     ///
     /// Slices of the right format can be obtained via [`VarZeroSlice::as_bytes()`]
-    </span><span class="kw">pub fn </span>parse_byte_slice&lt;<span class="lifetime">&#39;a</span>&gt;(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">Self</span>, ZeroVecError&gt; {
+    </span><span class="kw">pub fn </span>parse_byte_slice&lt;<span class="lifetime">'a</span>&gt;(slice: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">Self</span>, ZeroVecError&gt; {
         &lt;<span class="self">Self </span><span class="kw">as </span>VarULE&gt;::parse_byte_slice(slice)
     }
 
@@ -896,11 +897,11 @@
     /// # use zerovec::ule::ZeroVecError;
     /// # use zerovec::VarZeroVec;
     ///
-    /// let strings = vec![&quot;a&quot;, &quot;b&quot;, &quot;f&quot;, &quot;g&quot;];
+    /// let strings = vec!["a", "b", "f", "g"];
     /// let vec = VarZeroVec::&lt;str&gt;::from(&amp;strings);
     ///
-    /// assert_eq!(vec.binary_search(&quot;f&quot;), Ok(2));
-    /// assert_eq!(vec.binary_search(&quot;e&quot;), Err(2));
+    /// assert_eq!(vec.binary_search("f"), Ok(2));
+    /// assert_eq!(vec.binary_search("e"), Err(2));
     /// # Ok::&lt;(), ZeroVecError&gt;(())
     /// ```
     ///
@@ -924,24 +925,24 @@
     /// # use zerovec::ule::ZeroVecError;
     /// # use zerovec::VarZeroVec;
     ///
-    /// let strings = vec![&quot;a&quot;, &quot;b&quot;, &quot;f&quot;, &quot;g&quot;, &quot;m&quot;, &quot;n&quot;, &quot;q&quot;];
+    /// let strings = vec!["a", "b", "f", "g", "m", "n", "q"];
     /// let vec = VarZeroVec::&lt;str&gt;::from(&amp;strings);
     ///
     /// // Same behavior as binary_search when the range covers the whole slice:
-    /// assert_eq!(vec.binary_search_in_range(&quot;g&quot;, 0..7), Some(Ok(3)));
-    /// assert_eq!(vec.binary_search_in_range(&quot;h&quot;, 0..7), Some(Err(4)));
+    /// assert_eq!(vec.binary_search_in_range("g", 0..7), Some(Ok(3)));
+    /// assert_eq!(vec.binary_search_in_range("h", 0..7), Some(Err(4)));
     ///
     /// // Will not look outside of the range:
-    /// assert_eq!(vec.binary_search_in_range(&quot;g&quot;, 0..1), Some(Err(1)));
-    /// assert_eq!(vec.binary_search_in_range(&quot;g&quot;, 6..7), Some(Err(0)));
+    /// assert_eq!(vec.binary_search_in_range("g", 0..1), Some(Err(1)));
+    /// assert_eq!(vec.binary_search_in_range("g", 6..7), Some(Err(0)));
     ///
     /// // Will return indices relative to the start of the range:
-    /// assert_eq!(vec.binary_search_in_range(&quot;g&quot;, 1..6), Some(Ok(2)));
-    /// assert_eq!(vec.binary_search_in_range(&quot;h&quot;, 1..6), Some(Err(3)));
+    /// assert_eq!(vec.binary_search_in_range("g", 1..6), Some(Ok(2)));
+    /// assert_eq!(vec.binary_search_in_range("h", 1..6), Some(Err(3)));
     ///
     /// // Will return `None` if the range is out of bounds:
-    /// assert_eq!(vec.binary_search_in_range(&quot;x&quot;, 100..200), None);
-    /// assert_eq!(vec.binary_search_in_range(&quot;x&quot;, 0..200), None);
+    /// assert_eq!(vec.binary_search_in_range("x", 100..200), None);
+    /// assert_eq!(vec.binary_search_in_range("x", 0..200), None);
     /// # Ok::&lt;(), ZeroVecError&gt;(())
     /// ```
     ///
@@ -972,11 +973,11 @@
     /// # use zerovec::ule::ZeroVecError;
     /// # use zerovec::VarZeroVec;
     ///
-    /// let strings = vec![&quot;a&quot;, &quot;b&quot;, &quot;f&quot;, &quot;g&quot;];
+    /// let strings = vec!["a", "b", "f", "g"];
     /// let vec = VarZeroVec::&lt;str&gt;::from(&amp;strings);
     ///
-    /// assert_eq!(vec.binary_search_by(|probe| probe.cmp(&quot;f&quot;)), Ok(2));
-    /// assert_eq!(vec.binary_search_by(|probe| probe.cmp(&quot;e&quot;)), Err(2));
+    /// assert_eq!(vec.binary_search_by(|probe| probe.cmp("f")), Ok(2));
+    /// assert_eq!(vec.binary_search_by(|probe| probe.cmp("e")), Err(2));
     /// # Ok::&lt;(), ZeroVecError&gt;(())
     /// ```
     ///
@@ -1000,45 +1001,45 @@
     /// # use zerovec::ule::ZeroVecError;
     /// # use zerovec::VarZeroVec;
     ///
-    /// let strings = vec![&quot;a&quot;, &quot;b&quot;, &quot;f&quot;, &quot;g&quot;, &quot;m&quot;, &quot;n&quot;, &quot;q&quot;];
+    /// let strings = vec!["a", "b", "f", "g", "m", "n", "q"];
     /// let vec = VarZeroVec::&lt;str&gt;::from(&amp;strings);
     ///
     /// // Same behavior as binary_search when the range covers the whole slice:
     /// assert_eq!(
-    ///     vec.binary_search_in_range_by(|v| v.cmp(&quot;g&quot;), 0..7),
+    ///     vec.binary_search_in_range_by(|v| v.cmp("g"), 0..7),
     ///     Some(Ok(3))
     /// );
     /// assert_eq!(
-    ///     vec.binary_search_in_range_by(|v| v.cmp(&quot;h&quot;), 0..7),
+    ///     vec.binary_search_in_range_by(|v| v.cmp("h"), 0..7),
     ///     Some(Err(4))
     /// );
     ///
     /// // Will not look outside of the range:
     /// assert_eq!(
-    ///     vec.binary_search_in_range_by(|v| v.cmp(&quot;g&quot;), 0..1),
+    ///     vec.binary_search_in_range_by(|v| v.cmp("g"), 0..1),
     ///     Some(Err(1))
     /// );
     /// assert_eq!(
-    ///     vec.binary_search_in_range_by(|v| v.cmp(&quot;g&quot;), 6..7),
+    ///     vec.binary_search_in_range_by(|v| v.cmp("g"), 6..7),
     ///     Some(Err(0))
     /// );
     ///
     /// // Will return indices relative to the start of the range:
     /// assert_eq!(
-    ///     vec.binary_search_in_range_by(|v| v.cmp(&quot;g&quot;), 1..6),
+    ///     vec.binary_search_in_range_by(|v| v.cmp("g"), 1..6),
     ///     Some(Ok(2))
     /// );
     /// assert_eq!(
-    ///     vec.binary_search_in_range_by(|v| v.cmp(&quot;h&quot;), 1..6),
+    ///     vec.binary_search_in_range_by(|v| v.cmp("h"), 1..6),
     ///     Some(Err(3))
     /// );
     ///
     /// // Will return `None` if the range is out of bounds:
     /// assert_eq!(
-    ///     vec.binary_search_in_range_by(|v| v.cmp(&quot;x&quot;), 100..200),
+    ///     vec.binary_search_in_range_by(|v| v.cmp("x"), 100..200),
     ///     None
     /// );
-    /// assert_eq!(vec.binary_search_in_range_by(|v| v.cmp(&quot;x&quot;), 0..200), None);
+    /// assert_eq!(vec.binary_search_in_range_by(|v| v.cmp("x"), 0..200), None);
     /// # Ok::&lt;(), ZeroVecError&gt;(())
     /// ```
     ///
@@ -1062,7 +1063,7 @@
 //  5. The impl of `from_byte_slice_unchecked()` returns a reference to the same data.
 //  6. `as_byte_slice()` is equivalent to a regular transmute of the underlying data
 //  7. VarZeroSlice byte equality is semantic equality (relying on the guideline of the underlying VarULE type)
-</span><span class="kw">unsafe impl</span>&lt;T: VarULE + <span class="question-mark">?</span>Sized + <span class="lifetime">&#39;static</span>, F: VarZeroVecFormat&gt; VarULE <span class="kw">for </span>VarZeroSlice&lt;T, F&gt; {
+</span><span class="kw">unsafe impl</span>&lt;T: VarULE + <span class="question-mark">?</span>Sized + <span class="lifetime">'static</span>, F: VarZeroVecFormat&gt; VarULE <span class="kw">for </span>VarZeroSlice&lt;T, F&gt; {
     <span class="kw">fn </span>validate_byte_slice(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), ZeroVecError&gt; {
         <span class="kw">let _</span>: VarZeroVecComponents&lt;T, F&gt; = VarZeroVecComponents::parse_byte_slice(bytes)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
@@ -1085,7 +1086,7 @@
         </span><span class="kw">match </span><span class="self">self</span>.get(index) {
             <span class="prelude-val">Some</span>(x) =&gt; x,
             <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;index out of bounds: the len is {} but the index is {index}&quot;</span>,
+                <span class="string">"index out of bounds: the len is {} but the index is {index}"</span>,
                 <span class="self">self</span>.len()
             ),
         }
@@ -1134,7 +1135,7 @@
 <span class="kw">where
     </span>T: fmt::Debug,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_list().entries(<span class="self">self</span>.iter()).finish()
     }
 }

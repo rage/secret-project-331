@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/macho/section.rs`."><title>section.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/macho/section.rs`."><title>section.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -401,39 +402,39 @@
 <span class="kw">use super</span>::{MachHeader, MachOFile, MachORelocationIterator};
 
 <span class="doccomment">/// An iterator for the sections in a [`MachOFile32`](super::MachOFile32).
-</span><span class="kw">pub type </span>MachOSectionIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    MachOSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader32&lt;Endian&gt;, R&gt;;
+</span><span class="kw">pub type </span>MachOSectionIterator32&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    MachOSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, macho::MachHeader32&lt;Endian&gt;, R&gt;;
 <span class="doccomment">/// An iterator for the sections in a [`MachOFile64`](super::MachOFile64).
-</span><span class="kw">pub type </span>MachOSectionIterator64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    MachOSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader64&lt;Endian&gt;, R&gt;;
+</span><span class="kw">pub type </span>MachOSectionIterator64&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    MachOSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, macho::MachHeader64&lt;Endian&gt;, R&gt;;
 
 <span class="doccomment">/// An iterator for the sections in a [`MachOFile`].
-</span><span class="kw">pub struct </span>MachOSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>MachOSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>Mach: MachHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>MachOFile&lt;<span class="lifetime">&#39;data</span>, Mach, R&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) iter: slice::Iter&lt;<span class="lifetime">&#39;file</span>, MachOSectionInternal&lt;<span class="lifetime">&#39;data</span>, Mach&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>MachOFile&lt;<span class="lifetime">'data</span>, Mach, R&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) iter: slice::Iter&lt;<span class="lifetime">'file</span>, MachOSectionInternal&lt;<span class="lifetime">'data</span>, Mach&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt; fmt::Debug <span class="kw">for </span>MachOSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; fmt::Debug <span class="kw">for </span>MachOSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;
 <span class="kw">where
     </span>Mach: MachHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="comment">// It&#39;s painful to do much better than this
-        </span>f.debug_struct(<span class="string">&quot;MachOSectionIterator&quot;</span>).finish()
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="comment">// It's painful to do much better than this
+        </span>f.debug_struct(<span class="string">"MachOSectionIterator"</span>).finish()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt; Iterator <span class="kw">for </span>MachOSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; Iterator <span class="kw">for </span>MachOSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;
 <span class="kw">where
     </span>Mach: MachHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>Item = MachOSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt;;
+    <span class="kw">type </span>Item = MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="self">self</span>.iter.next().map(|<span class="kw-2">&amp;</span>internal| MachOSection {
@@ -444,53 +445,53 @@
 }
 
 <span class="doccomment">/// A section in a [`MachOFile32`](super::MachOFile32).
-</span><span class="kw">pub type </span>MachOSection32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    MachOSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader32&lt;Endian&gt;, R&gt;;
+</span><span class="kw">pub type </span>MachOSection32&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, macho::MachHeader32&lt;Endian&gt;, R&gt;;
 <span class="doccomment">/// A section in a [`MachOFile64`](super::MachOFile64).
-</span><span class="kw">pub type </span>MachOSection64&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; =
-    MachOSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, macho::MachHeader64&lt;Endian&gt;, R&gt;;
+</span><span class="kw">pub type </span>MachOSection64&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Endian = Endianness, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; =
+    MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, macho::MachHeader64&lt;Endian&gt;, R&gt;;
 
 <span class="doccomment">/// A section in a [`MachOFile`].
 ///
 /// Most functionality is provided by the [`ObjectSection`] trait implementation.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>MachOSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
+</span><span class="kw">pub struct </span>MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;
 <span class="kw">where
     </span>Mach: MachHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span>MachOFile&lt;<span class="lifetime">&#39;data</span>, Mach, R&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) internal: MachOSectionInternal&lt;<span class="lifetime">&#39;data</span>, Mach&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>MachOFile&lt;<span class="lifetime">'data</span>, Mach, R&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) internal: MachOSectionInternal&lt;<span class="lifetime">'data</span>, Mach&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt; MachOSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;
 <span class="kw">where
     </span>Mach: MachHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">fn </span>bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    <span class="kw">fn </span>bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="kw">let </span>segment_index = <span class="self">self</span>.internal.segment_index;
         <span class="kw">let </span>segment = <span class="self">self</span>.file.segment_internal(segment_index)<span class="question-mark">?</span>;
         <span class="self">self</span>.internal
             .section
             .data(<span class="self">self</span>.file.endian, segment.data)
-            .read_error(<span class="string">&quot;Invalid Mach-O section size or offset&quot;</span>)
+            .read_error(<span class="string">"Invalid Mach-O section size or offset"</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt; read::private::Sealed <span class="kw">for </span>MachOSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; read::private::Sealed <span class="kw">for </span>MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;
 <span class="kw">where
     </span>Mach: MachHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt; ObjectSection&lt;<span class="lifetime">&#39;data</span>&gt; <span class="kw">for </span>MachOSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; ObjectSection&lt;<span class="lifetime">'data</span>&gt; <span class="kw">for </span>MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;
 <span class="kw">where
     </span>Mach: MachHeader,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>RelocationIterator = MachORelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt;;
+    <span class="kw">type </span>RelocationIterator = MachORelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SectionIndex {
@@ -523,11 +524,11 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
+    </span><span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.bytes()
     }
 
-    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;&gt; {
+    <span class="kw">fn </span>data_range(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;&gt; {
         <span class="prelude-val">Ok</span>(read::util::data_range(
             <span class="self">self</span>.bytes()<span class="question-mark">?</span>,
             <span class="self">self</span>.address(),
@@ -542,7 +543,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>compressed_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedData&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+    </span><span class="kw">fn </span>compressed_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;CompressedData&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="self">self</span>.data().map(CompressedData::none)
     }
 
@@ -555,7 +556,7 @@
     </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         str::from_utf8(<span class="self">self</span>.internal.section.name())
             .ok()
-            .read_error(<span class="string">&quot;Non UTF-8 Mach-O section name&quot;</span>)
+            .read_error(<span class="string">"Non UTF-8 Mach-O section name"</span>)
     }
 
     <span class="attr">#[inline]
@@ -568,7 +569,7 @@
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(
             str::from_utf8(<span class="self">self</span>.internal.section.segment_name())
                 .ok()
-                .read_error(<span class="string">&quot;Non UTF-8 Mach-O segment name&quot;</span>)<span class="question-mark">?</span>,
+                .read_error(<span class="string">"Non UTF-8 Mach-O segment name"</span>)<span class="question-mark">?</span>,
         ))
     }
 
@@ -576,7 +577,7 @@
         <span class="self">self</span>.internal.kind
     }
 
-    <span class="kw">fn </span>relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MachORelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Mach, R&gt; {
+    <span class="kw">fn </span>relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MachORelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; {
         MachORelocationIterator {
             file: <span class="self">self</span>.file,
             relocations: <span class="self">self
@@ -596,37 +597,37 @@
 }
 
 <span class="attr">#[derive(Debug, Clone, Copy)]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>MachOSectionInternal&lt;<span class="lifetime">&#39;data</span>, Mach: MachHeader&gt; {
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>MachOSectionInternal&lt;<span class="lifetime">'data</span>, Mach: MachHeader&gt; {
     <span class="kw">pub </span>index: SectionIndex,
     <span class="kw">pub </span>segment_index: usize,
     <span class="kw">pub </span>kind: SectionKind,
-    <span class="kw">pub </span>section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Mach::Section,
+    <span class="kw">pub </span>section: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Mach::Section,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, Mach: MachHeader&gt; MachOSectionInternal&lt;<span class="lifetime">&#39;data</span>, Mach&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Mach: MachHeader&gt; MachOSectionInternal&lt;<span class="lifetime">'data</span>, Mach&gt; {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse(
         index: SectionIndex,
         segment_index: usize,
-        section: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Mach::Section,
+        section: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Mach::Section,
     ) -&gt; <span class="self">Self </span>{
-        <span class="comment">// TODO: we don&#39;t validate flags, should we?
+        <span class="comment">// TODO: we don't validate flags, should we?
         </span><span class="kw">let </span>kind = <span class="kw">match </span>(section.segment_name(), section.name()) {
-            (<span class="string">b&quot;__TEXT&quot;</span>, <span class="string">b&quot;__text&quot;</span>) =&gt; SectionKind::Text,
-            (<span class="string">b&quot;__TEXT&quot;</span>, <span class="string">b&quot;__const&quot;</span>) =&gt; SectionKind::ReadOnlyData,
-            (<span class="string">b&quot;__TEXT&quot;</span>, <span class="string">b&quot;__cstring&quot;</span>) =&gt; SectionKind::ReadOnlyString,
-            (<span class="string">b&quot;__TEXT&quot;</span>, <span class="string">b&quot;__literal4&quot;</span>) =&gt; SectionKind::ReadOnlyData,
-            (<span class="string">b&quot;__TEXT&quot;</span>, <span class="string">b&quot;__literal8&quot;</span>) =&gt; SectionKind::ReadOnlyData,
-            (<span class="string">b&quot;__TEXT&quot;</span>, <span class="string">b&quot;__literal16&quot;</span>) =&gt; SectionKind::ReadOnlyData,
-            (<span class="string">b&quot;__TEXT&quot;</span>, <span class="string">b&quot;__eh_frame&quot;</span>) =&gt; SectionKind::ReadOnlyData,
-            (<span class="string">b&quot;__TEXT&quot;</span>, <span class="string">b&quot;__gcc_except_tab&quot;</span>) =&gt; SectionKind::ReadOnlyData,
-            (<span class="string">b&quot;__DATA&quot;</span>, <span class="string">b&quot;__data&quot;</span>) =&gt; SectionKind::Data,
-            (<span class="string">b&quot;__DATA&quot;</span>, <span class="string">b&quot;__const&quot;</span>) =&gt; SectionKind::ReadOnlyData,
-            (<span class="string">b&quot;__DATA&quot;</span>, <span class="string">b&quot;__bss&quot;</span>) =&gt; SectionKind::UninitializedData,
-            (<span class="string">b&quot;__DATA&quot;</span>, <span class="string">b&quot;__common&quot;</span>) =&gt; SectionKind::Common,
-            (<span class="string">b&quot;__DATA&quot;</span>, <span class="string">b&quot;__thread_data&quot;</span>) =&gt; SectionKind::Tls,
-            (<span class="string">b&quot;__DATA&quot;</span>, <span class="string">b&quot;__thread_bss&quot;</span>) =&gt; SectionKind::UninitializedTls,
-            (<span class="string">b&quot;__DATA&quot;</span>, <span class="string">b&quot;__thread_vars&quot;</span>) =&gt; SectionKind::TlsVariables,
-            (<span class="string">b&quot;__DWARF&quot;</span>, <span class="kw">_</span>) =&gt; SectionKind::Debug,
+            (<span class="string">b"__TEXT"</span>, <span class="string">b"__text"</span>) =&gt; SectionKind::Text,
+            (<span class="string">b"__TEXT"</span>, <span class="string">b"__const"</span>) =&gt; SectionKind::ReadOnlyData,
+            (<span class="string">b"__TEXT"</span>, <span class="string">b"__cstring"</span>) =&gt; SectionKind::ReadOnlyString,
+            (<span class="string">b"__TEXT"</span>, <span class="string">b"__literal4"</span>) =&gt; SectionKind::ReadOnlyData,
+            (<span class="string">b"__TEXT"</span>, <span class="string">b"__literal8"</span>) =&gt; SectionKind::ReadOnlyData,
+            (<span class="string">b"__TEXT"</span>, <span class="string">b"__literal16"</span>) =&gt; SectionKind::ReadOnlyData,
+            (<span class="string">b"__TEXT"</span>, <span class="string">b"__eh_frame"</span>) =&gt; SectionKind::ReadOnlyData,
+            (<span class="string">b"__TEXT"</span>, <span class="string">b"__gcc_except_tab"</span>) =&gt; SectionKind::ReadOnlyData,
+            (<span class="string">b"__DATA"</span>, <span class="string">b"__data"</span>) =&gt; SectionKind::Data,
+            (<span class="string">b"__DATA"</span>, <span class="string">b"__const"</span>) =&gt; SectionKind::ReadOnlyData,
+            (<span class="string">b"__DATA"</span>, <span class="string">b"__bss"</span>) =&gt; SectionKind::UninitializedData,
+            (<span class="string">b"__DATA"</span>, <span class="string">b"__common"</span>) =&gt; SectionKind::Common,
+            (<span class="string">b"__DATA"</span>, <span class="string">b"__thread_data"</span>) =&gt; SectionKind::Tls,
+            (<span class="string">b"__DATA"</span>, <span class="string">b"__thread_bss"</span>) =&gt; SectionKind::UninitializedTls,
+            (<span class="string">b"__DATA"</span>, <span class="string">b"__thread_vars"</span>) =&gt; SectionKind::TlsVariables,
+            (<span class="string">b"__DWARF"</span>, <span class="kw">_</span>) =&gt; SectionKind::Debug,
             <span class="kw">_ </span>=&gt; SectionKind::Unknown,
         };
         MachOSectionInternal {
@@ -657,7 +658,7 @@
     <span class="doccomment">/// Return the `sectname` bytes up until the null terminator.
     </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="kw">let </span>sectname = <span class="kw-2">&amp;</span><span class="self">self</span>.sectname()[..];
-        <span class="kw">match </span>memchr::memchr(<span class="string">b&#39;\0&#39;</span>, sectname) {
+        <span class="kw">match </span>memchr::memchr(<span class="string">b'\0'</span>, sectname) {
             <span class="prelude-val">Some</span>(end) =&gt; <span class="kw-2">&amp;</span>sectname[..end],
             <span class="prelude-val">None </span>=&gt; sectname,
         }
@@ -666,7 +667,7 @@
     <span class="doccomment">/// Return the `segname` bytes up until the null terminator.
     </span><span class="kw">fn </span>segment_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="kw">let </span>segname = <span class="kw-2">&amp;</span><span class="self">self</span>.segname()[..];
-        <span class="kw">match </span>memchr::memchr(<span class="string">b&#39;\0&#39;</span>, segname) {
+        <span class="kw">match </span>memchr::memchr(<span class="string">b'\0'</span>, segname) {
             <span class="prelude-val">Some</span>(end) =&gt; <span class="kw-2">&amp;</span>segname[..end],
             <span class="prelude-val">None </span>=&gt; segname,
         }
@@ -686,11 +687,11 @@
     ///
     /// Returns `Ok(&amp;[])` if the section has no data.
     /// Returns `Err` for invalid values.
-    </span><span class="kw">fn </span>data&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>data&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
-    ) -&gt; result::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], ()&gt; {
+    ) -&gt; result::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], ()&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>((offset, size)) = <span class="self">self</span>.file_range(endian) {
             data.read_bytes_at(offset, size)
         } <span class="kw">else </span>{
@@ -701,13 +702,13 @@
     <span class="doccomment">/// Return the relocation array.
     ///
     /// Returns `Err` for invalid values.
-    </span><span class="kw">fn </span>relocations&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>relocations&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         endian: <span class="self">Self</span>::Endian,
         data: R,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[macho::Relocation&lt;<span class="self">Self</span>::Endian&gt;]&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[macho::Relocation&lt;<span class="self">Self</span>::Endian&gt;]&gt; {
         data.read_slice_at(<span class="self">self</span>.reloff(endian).into(), <span class="self">self</span>.nreloc(endian) <span class="kw">as </span>usize)
-            .read_error(<span class="string">&quot;Invalid Mach-O relocations offset or number&quot;</span>)
+            .read_error(<span class="string">"Invalid Mach-O relocations offset or number"</span>)
     }
 }
 

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/any.rs`."><title>any.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/any.rs`."><title>any.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -527,22 +528,22 @@
 <span class="kw">use </span>yoke::Yokeable;
 <span class="kw">use </span>zerofrom::ZeroFrom;
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;sync&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"sync"</span>))]
 </span><span class="kw">use </span>alloc::rc::Rc <span class="kw">as </span>SelectedRc;
-<span class="attr">#[cfg(feature = <span class="string">&quot;sync&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"sync"</span>)]
 </span><span class="kw">use </span>alloc::sync::Arc <span class="kw">as </span>SelectedRc;
 
 <span class="doccomment">/// A trait that allows to specify `Send + Sync` bounds that are only required when
 /// the `sync` Cargo feature is enabled. Without the Cargo feature, this is an empty bound.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;sync&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"sync"</span>)]
 </span><span class="kw">pub trait </span>MaybeSendSync: Send + Sync {}
-<span class="attr">#[cfg(feature = <span class="string">&quot;sync&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"sync"</span>)]
 </span><span class="kw">impl</span>&lt;T: Send + Sync&gt; MaybeSendSync <span class="kw">for </span>T {}
 
 <span class="attr">#[allow(missing_docs)] </span><span class="comment">// docs generated with all features
-</span><span class="attr">#[cfg(not(feature = <span class="string">&quot;sync&quot;</span>))]
+</span><span class="attr">#[cfg(not(feature = <span class="string">"sync"</span>))]
 </span><span class="kw">pub trait </span>MaybeSendSync {}
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;sync&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"sync"</span>))]
 </span><span class="kw">impl</span>&lt;T&gt; MaybeSendSync <span class="kw">for </span>T {}
 
 <span class="doccomment">/// Representations of the `Any` trait object.
@@ -552,17 +553,17 @@
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">enum </span>AnyPayloadInner {
     <span class="doccomment">/// A reference to `M::Yokeable`
-    </span>StructRef(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>Any),
+    </span>StructRef(<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>Any),
     <span class="doccomment">/// A boxed `DataPayload&lt;M&gt;`.
     ///
     /// Note: This needs to be reference counted, not a `Box`, so that `AnyPayload` is cloneable.
     /// If an `AnyPayload` is cloned, the actual cloning of the data is delayed until
     /// `downcast()` is invoked (at which point we have the concrete type).
 
-    </span><span class="attr">#[cfg(not(feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"sync"</span>))]
     </span>PayloadRc(SelectedRc&lt;<span class="kw">dyn </span>Any&gt;),
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;sync&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"sync"</span>)]
     </span>PayloadRc(SelectedRc&lt;<span class="kw">dyn </span>Any + Send + Sync&gt;),
 }
 
@@ -575,7 +576,7 @@
 </span><span class="attr">#[derive(Debug, Clone, Yokeable)]
 </span><span class="kw">pub struct </span>AnyPayload {
     inner: AnyPayloadInner,
-    type_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    type_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
 }
 
 <span class="doccomment">/// The [`DataMarker`] marker type for [`AnyPayload`].
@@ -608,16 +609,16 @@
     <span class="kw">where
         </span>M: DataMarker,
         <span class="comment">// For the StructRef case:
-        </span>M::Yokeable: ZeroFrom&lt;<span class="lifetime">&#39;static</span>, M::Yokeable&gt;,
+        </span>M::Yokeable: ZeroFrom&lt;<span class="lifetime">'static</span>, M::Yokeable&gt;,
         <span class="comment">// For the PayloadRc case:
         </span>M::Yokeable: MaybeSendSync,
-        <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output&gt;: Clone,
+        <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output&gt;: Clone,
     {
         <span class="kw">use </span>AnyPayloadInner::<span class="kw-2">*</span>;
         <span class="kw">let </span>type_name = <span class="self">self</span>.type_name;
         <span class="kw">match </span><span class="self">self</span>.inner {
             StructRef(any_ref) =&gt; {
-                <span class="kw">let </span>down_ref: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>M::Yokeable = any_ref
+                <span class="kw">let </span>down_ref: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>M::Yokeable = any_ref
                     .downcast_ref()
                     .ok_or_else(|| DataError::for_type::&lt;M&gt;().with_str_context(type_name))<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(DataPayload::from_static_ref(down_ref))
@@ -636,10 +637,10 @@
     <span class="kw">where
         </span>M: DataMarker,
         <span class="comment">// For the StructRef case:
-        </span>M::Yokeable: ZeroFrom&lt;<span class="lifetime">&#39;static</span>, M::Yokeable&gt;,
+        </span>M::Yokeable: ZeroFrom&lt;<span class="lifetime">'static</span>, M::Yokeable&gt;,
         <span class="comment">// For the PayloadRc case:
         </span>M::Yokeable: MaybeSendSync,
-        <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output&gt;: Clone,
+        <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output&gt;: Clone,
     {
         <span class="self">self</span>.clone().downcast()
     }
@@ -653,19 +654,19 @@
     /// use icu_provider::prelude::*;
     /// use std::borrow::Cow;
     ///
-    /// const HELLO_DATA: HelloWorldV1&lt;&#39;static&gt; = HelloWorldV1 {
-    ///     message: Cow::Borrowed(&quot;Custom Hello World&quot;),
+    /// const HELLO_DATA: HelloWorldV1&lt;'static&gt; = HelloWorldV1 {
+    ///     message: Cow::Borrowed("Custom Hello World"),
     /// };
     ///
     /// let any_payload = AnyPayload::from_static_ref(&amp;HELLO_DATA);
     ///
     /// let payload: DataPayload&lt;HelloWorldV1Marker&gt; =
-    ///     any_payload.downcast().expect(&quot;TypeId matches&quot;);
-    /// assert_eq!(&quot;Custom Hello World&quot;, payload.get().message);
+    ///     any_payload.downcast().expect("TypeId matches");
+    /// assert_eq!("Custom Hello World", payload.get().message);
     /// ```
-    </span><span class="kw">pub fn </span>from_static_ref&lt;Y&gt;(static_ref: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Y) -&gt; <span class="self">Self
+    </span><span class="kw">pub fn </span>from_static_ref&lt;Y&gt;(static_ref: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Y) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>Y: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>Y: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Yokeable&lt;<span class="lifetime">'a</span>&gt;,
     {
         AnyPayload {
             inner: AnyPayloadInner::StructRef(static_ref),
@@ -694,14 +695,14 @@
     ///
     /// let payload: DataPayload&lt;HelloWorldV1Marker&gt; =
     ///     DataPayload::from_owned(HelloWorldV1 {
-    ///         message: Cow::Borrowed(&quot;Custom Hello World&quot;),
+    ///         message: Cow::Borrowed("Custom Hello World"),
     ///     });
     ///
     /// let any_payload = payload.wrap_into_any_payload();
     ///
     /// let payload: DataPayload&lt;HelloWorldV1Marker&gt; =
-    ///     any_payload.downcast().expect(&quot;TypeId matches&quot;);
-    /// assert_eq!(&quot;Custom Hello World&quot;, payload.get().message);
+    ///     any_payload.downcast().expect("TypeId matches");
+    /// assert_eq!("Custom Hello World", payload.get().message);
     /// ```
     </span><span class="kw">pub fn </span>wrap_into_any_payload(<span class="self">self</span>) -&gt; AnyPayload {
         AnyPayload {
@@ -720,8 +721,8 @@
     </span><span class="kw">pub fn </span>downcast&lt;M&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DataPayload&lt;M&gt;, DataError&gt;
     <span class="kw">where
         </span>M: DataMarker,
-        <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output&gt;: Clone,
-        M::Yokeable: ZeroFrom&lt;<span class="lifetime">&#39;static</span>, M::Yokeable&gt;,
+        <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output&gt;: Clone,
+        M::Yokeable: ZeroFrom&lt;<span class="lifetime">'static</span>, M::Yokeable&gt;,
         M::Yokeable: MaybeSendSync,
     {
         <span class="self">self</span>.try_unwrap_owned()<span class="question-mark">?</span>.downcast()
@@ -768,8 +769,8 @@
     </span><span class="kw">pub fn </span>downcast&lt;M&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DataResponse&lt;M&gt;, DataError&gt;
     <span class="kw">where
         </span>M: DataMarker,
-        <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output&gt;: Clone,
-        M::Yokeable: ZeroFrom&lt;<span class="lifetime">&#39;static</span>, M::Yokeable&gt;,
+        <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output&gt;: Clone,
+        M::Yokeable: ZeroFrom&lt;<span class="lifetime">'static</span>, M::Yokeable&gt;,
         M::Yokeable: MaybeSendSync,
     {
         <span class="prelude-val">Ok</span>(DataResponse {
@@ -782,9 +783,9 @@
     </span><span class="kw">pub fn </span>downcast_cloned&lt;M&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DataResponse&lt;M&gt;, DataError&gt;
     <span class="kw">where
         </span>M: DataMarker,
-        M::Yokeable: ZeroFrom&lt;<span class="lifetime">&#39;static</span>, M::Yokeable&gt;,
+        M::Yokeable: ZeroFrom&lt;<span class="lifetime">'static</span>, M::Yokeable&gt;,
         M::Yokeable: MaybeSendSync,
-        <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output&gt;: Clone,
+        <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output&gt;: Clone,
     {
         <span class="prelude-val">Ok</span>(DataResponse {
             metadata: <span class="self">self</span>.metadata.clone(),
@@ -824,7 +825,7 @@
 /// let any_provider = HelloWorldProvider.as_any_provider();
 ///
 /// let req = DataRequest {
-///     locale: &amp;icu_locid::locale!(&quot;de&quot;).into(),
+///     locale: &amp;icu_locid::locale!("de").into(),
 ///     metadata: Default::default(),
 /// };
 ///
@@ -832,14 +833,14 @@
 /// assert_eq!(
 ///     any_provider
 ///         .load_any(HelloWorldV1Marker::KEY, req)
-///         .expect(&quot;load should succeed&quot;)
+///         .expect("load should succeed")
 ///         .downcast::&lt;HelloWorldV1Marker&gt;()
-///         .expect(&quot;types should match&quot;)
+///         .expect("types should match")
 ///         .take_payload()
 ///         .unwrap()
 ///         .get(),
 ///     &amp;HelloWorldV1 {
-///         message: Cow::Borrowed(&quot;Hallo Welt&quot;),
+///         message: Cow::Borrowed("Hallo Welt"),
 ///     },
 /// );
 ///
@@ -850,12 +851,12 @@
 /// assert_eq!(
 ///     downcasting_provider
 ///         .load(req)
-///         .expect(&quot;load should succeed&quot;)
+///         .expect("load should succeed")
 ///         .take_payload()
 ///         .unwrap()
 ///         .get(),
 ///     &amp;HelloWorldV1 {
-///         message: Cow::Borrowed(&quot;Hallo Welt&quot;),
+///         message: Cow::Borrowed("Hallo Welt"),
 ///     },
 /// );
 /// ```
@@ -864,7 +865,7 @@
     </span><span class="kw">fn </span>load_any(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;AnyResponse, DataError&gt;;
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: AnyProvider + <span class="question-mark">?</span>Sized&gt; AnyProvider <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: AnyProvider + <span class="question-mark">?</span>Sized&gt; AnyProvider <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>T {
     <span class="kw">fn </span>load_any(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;AnyResponse, DataError&gt; {
         (<span class="kw-2">**</span><span class="self">self</span>).load_any(key, req)
     }
@@ -882,7 +883,7 @@
     }
 }
 
-<span class="attr">#[cfg(target_has_atomic = <span class="string">&quot;ptr&quot;</span>)]
+<span class="attr">#[cfg(target_has_atomic = <span class="string">"ptr"</span>)]
 </span><span class="kw">impl</span>&lt;T: AnyProvider + <span class="question-mark">?</span>Sized&gt; AnyProvider <span class="kw">for </span>alloc::sync::Arc&lt;T&gt; {
     <span class="kw">fn </span>load_any(<span class="kw-2">&amp;</span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="prelude-ty">Result</span>&lt;AnyResponse, DataError&gt; {
         (<span class="kw-2">**</span><span class="self">self</span>).load_any(key, req)
@@ -892,7 +893,7 @@
 <span class="doccomment">/// A wrapper over `DynamicDataProvider&lt;AnyMarker&gt;` that implements `AnyProvider`
 </span><span class="attr">#[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>DynamicDataProviderAnyMarkerWrap&lt;<span class="lifetime">&#39;a</span>, P: <span class="question-mark">?</span>Sized&gt;(<span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>P);
+</span><span class="kw">pub struct </span>DynamicDataProviderAnyMarkerWrap&lt;<span class="lifetime">'a</span>, P: <span class="question-mark">?</span>Sized&gt;(<span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>P);
 
 <span class="doccomment">/// Blanket-implemented trait adding the [`Self::as_any_provider()`] function.
 </span><span class="kw">pub trait </span>AsDynamicDataProviderAnyMarkerWrap {
@@ -910,7 +911,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;P&gt; AnyProvider <span class="kw">for </span>DynamicDataProviderAnyMarkerWrap&lt;<span class="lifetime">&#39;_</span>, P&gt;
+<span class="kw">impl</span>&lt;P&gt; AnyProvider <span class="kw">for </span>DynamicDataProviderAnyMarkerWrap&lt;<span class="lifetime">'_</span>, P&gt;
 <span class="kw">where
     </span>P: DynamicDataProvider&lt;AnyMarker&gt; + <span class="question-mark">?</span>Sized,
 {
@@ -923,7 +924,7 @@
 <span class="doccomment">/// A wrapper over `AnyProvider` that implements `DynamicDataProvider&lt;M&gt;` via downcasting
 </span><span class="attr">#[allow(clippy::exhaustive_structs)] </span><span class="comment">// newtype
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>DowncastingAnyProvider&lt;<span class="lifetime">&#39;a</span>, P: <span class="question-mark">?</span>Sized&gt;(<span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>P);
+</span><span class="kw">pub struct </span>DowncastingAnyProvider&lt;<span class="lifetime">'a</span>, P: <span class="question-mark">?</span>Sized&gt;(<span class="kw">pub </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>P);
 
 <span class="doccomment">/// Blanket-implemented trait adding the [`Self::as_downcasting()`] function.
 </span><span class="kw">pub trait </span>AsDowncastingAnyProvider {
@@ -941,12 +942,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;M, P&gt; DataProvider&lt;M&gt; <span class="kw">for </span>DowncastingAnyProvider&lt;<span class="lifetime">&#39;_</span>, P&gt;
+<span class="kw">impl</span>&lt;M, P&gt; DataProvider&lt;M&gt; <span class="kw">for </span>DowncastingAnyProvider&lt;<span class="lifetime">'_</span>, P&gt;
 <span class="kw">where
     </span>P: AnyProvider + <span class="question-mark">?</span>Sized,
     M: KeyedDataMarker,
-    <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output&gt;: Clone,
-    M::Yokeable: ZeroFrom&lt;<span class="lifetime">&#39;static</span>, M::Yokeable&gt;,
+    <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output&gt;: Clone,
+    M::Yokeable: ZeroFrom&lt;<span class="lifetime">'static</span>, M::Yokeable&gt;,
     M::Yokeable: MaybeSendSync,
 {
     <span class="attr">#[inline]
@@ -958,12 +959,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;M, P&gt; DynamicDataProvider&lt;M&gt; <span class="kw">for </span>DowncastingAnyProvider&lt;<span class="lifetime">&#39;_</span>, P&gt;
+<span class="kw">impl</span>&lt;M, P&gt; DynamicDataProvider&lt;M&gt; <span class="kw">for </span>DowncastingAnyProvider&lt;<span class="lifetime">'_</span>, P&gt;
 <span class="kw">where
     </span>P: AnyProvider + <span class="question-mark">?</span>Sized,
     M: DataMarker,
-    <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Output&gt;: Clone,
-    M::Yokeable: ZeroFrom&lt;<span class="lifetime">&#39;static</span>, M::Yokeable&gt;,
+    <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; YokeTraitHack&lt;&lt;M::Yokeable <span class="kw">as </span>Yokeable&lt;<span class="lifetime">'a</span>&gt;&gt;::Output&gt;: Clone,
+    M::Yokeable: ZeroFrom&lt;<span class="lifetime">'static</span>, M::Yokeable&gt;,
     M::Yokeable: MaybeSendSync,
 {
     <span class="attr">#[inline]
@@ -981,20 +982,20 @@
     <span class="kw">use </span><span class="kw">crate</span>::hello_world::<span class="kw-2">*</span>;
     <span class="kw">use </span>alloc::borrow::Cow;
 
-    <span class="kw">const </span>CONST_DATA: HelloWorldV1&lt;<span class="lifetime">&#39;static</span>&gt; = HelloWorldV1 {
-        message: Cow::Borrowed(<span class="string">&quot;Custom Hello World&quot;</span>),
+    <span class="kw">const </span>CONST_DATA: HelloWorldV1&lt;<span class="lifetime">'static</span>&gt; = HelloWorldV1 {
+        message: Cow::Borrowed(<span class="string">"Custom Hello World"</span>),
     };
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_debug() {
         <span class="kw">let </span>payload: DataPayload&lt;HelloWorldV1Marker&gt; = DataPayload::from_owned(HelloWorldV1 {
-            message: Cow::Borrowed(<span class="string">&quot;Custom Hello World&quot;</span>),
+            message: Cow::Borrowed(<span class="string">"Custom Hello World"</span>),
         });
 
         <span class="kw">let </span>any_payload = payload.wrap_into_any_payload();
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;AnyPayload { inner: PayloadRc(Any { .. }), type_name: \&quot;icu_provider::hello_world::HelloWorldV1Marker\&quot; }&quot;</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;{any_payload:?}&quot;</span>)
+            <span class="string">"AnyPayload { inner: PayloadRc(Any { .. }), type_name: \"icu_provider::hello_world::HelloWorldV1Marker\" }"</span>,
+            <span class="macro">format!</span>(<span class="string">"{any_payload:?}"</span>)
         );
 
         <span class="kw">struct </span>WrongMarker;
@@ -1005,8 +1006,8 @@
 
         <span class="kw">let </span>err = any_payload.downcast::&lt;WrongMarker&gt;().unwrap_err();
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;ICU4X data error: Mismatched types: tried to downcast with icu_provider::any::test::test_debug::WrongMarker, but actual type is different: icu_provider::hello_world::HelloWorldV1Marker&quot;</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;{err}&quot;</span>)
+            <span class="string">"ICU4X data error: Mismatched types: tried to downcast with icu_provider::any::test::test_debug::WrongMarker, but actual type is different: icu_provider::hello_world::HelloWorldV1Marker"</span>,
+            <span class="macro">format!</span>(<span class="string">"{err}"</span>)
         );
     }
 
@@ -1014,7 +1015,7 @@
     </span><span class="kw">fn </span>test_non_owned_any_marker() {
         <span class="comment">// This test demonstrates a code path that can trigger the InvalidState error kind.
         </span><span class="kw">let </span>payload_result: DataPayload&lt;AnyMarker&gt; =
-            DataPayload::from_owned_buffer(Box::new(<span class="kw-2">*</span><span class="string">b&quot;pretend we&#39;re borrowing from here&quot;</span>))
+            DataPayload::from_owned_buffer(Box::new(<span class="kw-2">*</span><span class="string">b"pretend we're borrowing from here"</span>))
                 .map_project(|<span class="kw">_</span>, <span class="kw">_</span>| AnyPayload::from_static_ref(<span class="kw-2">&amp;</span>CONST_DATA));
         <span class="kw">let </span>err = payload_result.downcast::&lt;HelloWorldV1Marker&gt;().unwrap_err();
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(

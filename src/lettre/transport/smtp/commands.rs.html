@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/commands.rs`."><title>commands.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.4/src/transport/smtp/commands.rs`."><title>commands.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="lettre"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -385,14 +386,14 @@
 
 <span class="doccomment">/// EHLO command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Ehlo {
     client_id: ClientId,
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Ehlo {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;EHLO {}\r\n&quot;</span>, <span class="self">self</span>.client_id)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"EHLO {}\r\n"</span>, <span class="self">self</span>.client_id)
     }
 }
 
@@ -405,34 +406,34 @@
 
 <span class="doccomment">/// STARTTLS command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Starttls;
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Starttls {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;STARTTLS\r\n&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"STARTTLS\r\n"</span>)
     }
 }
 
 <span class="doccomment">/// MAIL command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Mail {
     sender: <span class="prelude-ty">Option</span>&lt;Address&gt;,
     parameters: Vec&lt;MailParameter&gt;,
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Mail {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;MAIL FROM:&lt;{}&gt;&quot;</span>,
-            <span class="self">self</span>.sender.as_ref().map_or(<span class="string">&quot;&quot;</span>, |s| s.as_ref())
+            <span class="string">"MAIL FROM:&lt;{}&gt;"</span>,
+            <span class="self">self</span>.sender.as_ref().map_or(<span class="string">""</span>, |s| s.as_ref())
         )<span class="question-mark">?</span>;
         <span class="kw">for </span>parameter <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.parameters {
-            <span class="macro">write!</span>(f, <span class="string">&quot; {parameter}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">" {parameter}"</span>)<span class="question-mark">?</span>;
         }
-        f.write_str(<span class="string">&quot;\r\n&quot;</span>)
+        f.write_str(<span class="string">"\r\n"</span>)
     }
 }
 
@@ -445,19 +446,19 @@
 
 <span class="doccomment">/// RCPT command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Rcpt {
     recipient: Address,
     parameters: Vec&lt;RcptParameter&gt;,
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Rcpt {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;RCPT TO:&lt;{}&gt;&quot;</span>, <span class="self">self</span>.recipient)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"RCPT TO:&lt;{}&gt;"</span>, <span class="self">self</span>.recipient)<span class="question-mark">?</span>;
         <span class="kw">for </span>parameter <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.parameters {
-            <span class="macro">write!</span>(f, <span class="string">&quot; {parameter}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">" {parameter}"</span>)<span class="question-mark">?</span>;
         }
-        f.write_str(<span class="string">&quot;\r\n&quot;</span>)
+        f.write_str(<span class="string">"\r\n"</span>)
     }
 }
 
@@ -473,51 +474,51 @@
 
 <span class="doccomment">/// DATA command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Data;
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Data {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;DATA\r\n&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"DATA\r\n"</span>)
     }
 }
 
 <span class="doccomment">/// QUIT command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Quit;
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Quit {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;QUIT\r\n&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"QUIT\r\n"</span>)
     }
 }
 
 <span class="doccomment">/// NOOP command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Noop;
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Noop {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;NOOP\r\n&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"NOOP\r\n"</span>)
     }
 }
 
 <span class="doccomment">/// HELP command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Help {
     argument: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Help {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;HELP&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"HELP"</span>)<span class="question-mark">?</span>;
         <span class="kw">if let </span><span class="prelude-val">Some</span>(argument) = <span class="kw-2">&amp;</span><span class="self">self</span>.argument {
-            <span class="macro">write!</span>(f, <span class="string">&quot; {argument}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">" {argument}"</span>)<span class="question-mark">?</span>;
         }
-        f.write_str(<span class="string">&quot;\r\n&quot;</span>)
+        f.write_str(<span class="string">"\r\n"</span>)
     }
 }
 
@@ -530,14 +531,14 @@
 
 <span class="doccomment">/// VRFY command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Vrfy {
     argument: String,
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Vrfy {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;VRFY {}\r\n&quot;</span>, <span class="self">self</span>.argument)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"VRFY {}\r\n"</span>, <span class="self">self</span>.argument)
     }
 }
 
@@ -550,14 +551,14 @@
 
 <span class="doccomment">/// EXPN command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Expn {
     argument: String,
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Expn {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;EXPN {}\r\n&quot;</span>, <span class="self">self</span>.argument)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"EXPN {}\r\n"</span>, <span class="self">self</span>.argument)
     }
 }
 
@@ -570,18 +571,18 @@
 
 <span class="doccomment">/// RSET command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Rset;
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Rset {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;RSET\r\n&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"RSET\r\n"</span>)
     }
 }
 
 <span class="doccomment">/// AUTH command
 </span><span class="attr">#[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>Auth {
     mechanism: Mechanism,
     credentials: Credentials,
@@ -590,18 +591,18 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Auth {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span>encoded_response = <span class="self">self</span>.response.as_ref().map(<span class="kw">crate</span>::base64::encode);
 
         <span class="kw">if </span><span class="self">self</span>.mechanism.supports_initial_response() {
-            <span class="macro">write!</span>(f, <span class="string">&quot;AUTH {} {}&quot;</span>, <span class="self">self</span>.mechanism, encoded_response.unwrap())<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"AUTH {} {}"</span>, <span class="self">self</span>.mechanism, encoded_response.unwrap())<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="kw">match </span>encoded_response {
                 <span class="prelude-val">Some</span>(response) =&gt; f.write_str(<span class="kw-2">&amp;</span>response)<span class="question-mark">?</span>,
-                <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;AUTH {}&quot;</span>, <span class="self">self</span>.mechanism)<span class="question-mark">?</span>,
+                <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"AUTH {}"</span>, <span class="self">self</span>.mechanism)<span class="question-mark">?</span>,
             }
         }
-        f.write_str(<span class="string">&quot;\r\n&quot;</span>)
+        f.write_str(<span class="string">"\r\n"</span>)
     }
 }
 
@@ -633,19 +634,19 @@
         response: <span class="kw-2">&amp;</span>Response,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Auth, Error&gt; {
         <span class="kw">if </span>!response.has_code(<span class="number">334</span>) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(error::response(<span class="string">&quot;Expecting a challenge&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(error::response(<span class="string">"Expecting a challenge"</span>));
         }
 
         <span class="kw">let </span>encoded_challenge = response
             .first_word()
-            .ok_or_else(|| error::response(<span class="string">&quot;Could not read auth challenge&quot;</span>))<span class="question-mark">?</span>;
-        <span class="attr">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
-        </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;auth encoded challenge: {}&quot;</span>, encoded_challenge);
+            .ok_or_else(|| error::response(<span class="string">"Could not read auth challenge"</span>))<span class="question-mark">?</span>;
+        <span class="attr">#[cfg(feature = <span class="string">"tracing"</span>)]
+        </span><span class="macro">tracing::debug!</span>(<span class="string">"auth encoded challenge: {}"</span>, encoded_challenge);
 
         <span class="kw">let </span>decoded_base64 = <span class="kw">crate</span>::base64::decode(encoded_challenge).map_err(error::response)<span class="question-mark">?</span>;
         <span class="kw">let </span>decoded_challenge = String::from_utf8(decoded_base64).map_err(error::response)<span class="question-mark">?</span>;
-        <span class="attr">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
-        </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;auth decoded challenge: {}&quot;</span>, decoded_challenge);
+        <span class="attr">#[cfg(feature = <span class="string">"tracing"</span>)]
+        </span><span class="macro">tracing::debug!</span>(<span class="string">"auth decoded challenge: {}"</span>, decoded_challenge);
 
         <span class="kw">let </span>response = <span class="prelude-val">Some</span>(mechanism.response(<span class="kw-2">&amp;</span>credentials, <span class="prelude-val">Some</span>(decoded_challenge.as_ref()))<span class="question-mark">?</span>);
 
@@ -667,32 +668,32 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_display() {
-        <span class="kw">let </span>id = ClientId::Domain(<span class="string">&quot;localhost&quot;</span>.to_owned());
-        <span class="kw">let </span>email = Address::from_str(<span class="string">&quot;test@example.com&quot;</span>).unwrap();
+        <span class="kw">let </span>id = ClientId::Domain(<span class="string">"localhost"</span>.to_owned());
+        <span class="kw">let </span>email = Address::from_str(<span class="string">"test@example.com"</span>).unwrap();
         <span class="kw">let </span>mail_parameter = MailParameter::Other {
-            keyword: <span class="string">&quot;TEST&quot;</span>.to_owned(),
-            value: <span class="prelude-val">Some</span>(<span class="string">&quot;value&quot;</span>.to_owned()),
+            keyword: <span class="string">"TEST"</span>.to_owned(),
+            value: <span class="prelude-val">Some</span>(<span class="string">"value"</span>.to_owned()),
         };
         <span class="kw">let </span>rcpt_parameter = RcptParameter::Other {
-            keyword: <span class="string">&quot;TEST&quot;</span>.to_owned(),
-            value: <span class="prelude-val">Some</span>(<span class="string">&quot;value&quot;</span>.to_owned()),
+            keyword: <span class="string">"TEST"</span>.to_owned(),
+            value: <span class="prelude-val">Some</span>(<span class="string">"value"</span>.to_owned()),
         };
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Ehlo::new(id)), <span class="string">&quot;EHLO localhost\r\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, Ehlo::new(id)), <span class="string">"EHLO localhost\r\n"</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Mail::new(<span class="prelude-val">Some</span>(email.clone()), <span class="macro">vec!</span>[])),
-            <span class="string">&quot;MAIL FROM:&lt;test@example.com&gt;\r\n&quot;
+            <span class="macro">format!</span>(<span class="string">"{}"</span>, Mail::new(<span class="prelude-val">Some</span>(email.clone()), <span class="macro">vec!</span>[])),
+            <span class="string">"MAIL FROM:&lt;test@example.com&gt;\r\n"
         </span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Mail::new(<span class="prelude-val">None</span>, <span class="macro">vec!</span>[])), <span class="string">&quot;MAIL FROM:&lt;&gt;\r\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, Mail::new(<span class="prelude-val">None</span>, <span class="macro">vec!</span>[])), <span class="string">"MAIL FROM:&lt;&gt;\r\n"</span>);
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
-                <span class="string">&quot;{}&quot;</span>,
+                <span class="string">"{}"</span>,
                 Mail::new(<span class="prelude-val">Some</span>(email.clone()), <span class="macro">vec!</span>[MailParameter::Size(<span class="number">42</span>)])
             ),
-            <span class="string">&quot;MAIL FROM:&lt;test@example.com&gt; SIZE=42\r\n&quot;
+            <span class="string">"MAIL FROM:&lt;test@example.com&gt; SIZE=42\r\n"
         </span>);
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
-                <span class="string">&quot;{}&quot;</span>,
+                <span class="string">"{}"</span>,
                 Mail::new(
                     <span class="prelude-val">Some</span>(email.clone()),
                     <span class="macro">vec!</span>[
@@ -702,41 +703,41 @@
                     ],
                 )
             ),
-            <span class="string">&quot;MAIL FROM:&lt;test@example.com&gt; SIZE=42 BODY=8BITMIME TEST=value\r\n&quot;
+            <span class="string">"MAIL FROM:&lt;test@example.com&gt; SIZE=42 BODY=8BITMIME TEST=value\r\n"
         </span>);
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Rcpt::new(email.clone(), <span class="macro">vec!</span>[])),
-            <span class="string">&quot;RCPT TO:&lt;test@example.com&gt;\r\n&quot;
+            <span class="macro">format!</span>(<span class="string">"{}"</span>, Rcpt::new(email.clone(), <span class="macro">vec!</span>[])),
+            <span class="string">"RCPT TO:&lt;test@example.com&gt;\r\n"
         </span>);
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Rcpt::new(email, <span class="macro">vec!</span>[rcpt_parameter])),
-            <span class="string">&quot;RCPT TO:&lt;test@example.com&gt; TEST=value\r\n&quot;
+            <span class="macro">format!</span>(<span class="string">"{}"</span>, Rcpt::new(email, <span class="macro">vec!</span>[rcpt_parameter])),
+            <span class="string">"RCPT TO:&lt;test@example.com&gt; TEST=value\r\n"
         </span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{Quit}&quot;</span>), <span class="string">&quot;QUIT\r\n&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{Data}&quot;</span>), <span class="string">&quot;DATA\r\n&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{Noop}&quot;</span>), <span class="string">&quot;NOOP\r\n&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Help::new(<span class="prelude-val">None</span>)), <span class="string">&quot;HELP\r\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{Quit}"</span>), <span class="string">"QUIT\r\n"</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{Data}"</span>), <span class="string">"DATA\r\n"</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{Noop}"</span>), <span class="string">"NOOP\r\n"</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, Help::new(<span class="prelude-val">None</span>)), <span class="string">"HELP\r\n"</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Help::new(<span class="prelude-val">Some</span>(<span class="string">&quot;test&quot;</span>.to_owned()))),
-            <span class="string">&quot;HELP test\r\n&quot;
+            <span class="macro">format!</span>(<span class="string">"{}"</span>, Help::new(<span class="prelude-val">Some</span>(<span class="string">"test"</span>.to_owned()))),
+            <span class="string">"HELP test\r\n"
         </span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Vrfy::new(<span class="string">&quot;test&quot;</span>.to_owned())), <span class="string">&quot;VRFY test\r\n&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Expn::new(<span class="string">&quot;test&quot;</span>.to_owned())), <span class="string">&quot;EXPN test\r\n&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{Rset}&quot;</span>), <span class="string">&quot;RSET\r\n&quot;</span>);
-        <span class="kw">let </span>credentials = Credentials::new(<span class="string">&quot;user&quot;</span>.to_owned(), <span class="string">&quot;password&quot;</span>.to_owned());
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, Vrfy::new(<span class="string">"test"</span>.to_owned())), <span class="string">"VRFY test\r\n"</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, Expn::new(<span class="string">"test"</span>.to_owned())), <span class="string">"EXPN test\r\n"</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{Rset}"</span>), <span class="string">"RSET\r\n"</span>);
+        <span class="kw">let </span>credentials = Credentials::new(<span class="string">"user"</span>.to_owned(), <span class="string">"password"</span>.to_owned());
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
-                <span class="string">&quot;{}&quot;</span>,
+                <span class="string">"{}"</span>,
                 Auth::new(Mechanism::Plain, credentials.clone(), <span class="prelude-val">None</span>).unwrap()
             ),
-            <span class="string">&quot;AUTH PLAIN AHVzZXIAcGFzc3dvcmQ=\r\n&quot;
+            <span class="string">"AUTH PLAIN AHVzZXIAcGFzc3dvcmQ=\r\n"
         </span>);
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
-                <span class="string">&quot;{}&quot;</span>,
+                <span class="string">"{}"</span>,
                 Auth::new(Mechanism::Login, credentials, <span class="prelude-val">None</span>).unwrap()
             ),
-            <span class="string">&quot;AUTH LOGIN\r\n&quot;
+            <span class="string">"AUTH LOGIN\r\n"
         </span>);
     }
 }

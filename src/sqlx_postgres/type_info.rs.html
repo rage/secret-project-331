@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/type_info.rs`."><title>type_info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/type_info.rs`."><title>type_info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1172,7 +1173,7 @@
 
 <span class="doccomment">/// Type information for a PostgreSQL type.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = <span class="string">&quot;offline&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"offline"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>PgTypeInfo(<span class="kw">pub</span>(<span class="kw">crate</span>) PgType);
 
 <span class="kw">impl </span>Deref <span class="kw">for </span>PgTypeInfo {
@@ -1184,7 +1185,7 @@
 }
 
 <span class="attr">#[derive(Debug, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;offline&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"offline"</span>, derive(serde::Serialize, serde::Deserialize))]
 #[repr(u32)]
 </span><span class="kw">pub enum </span>PgType {
     Bool,
@@ -1289,22 +1290,22 @@
     <span class="comment">// From [`PgTypeInfo::with_name`]
     </span>DeclareWithName(UStr),
 
-    <span class="comment">// NOTE: Do we want to bring back type declaration by ID? It&#39;s notoriously fragile but
+    <span class="comment">// NOTE: Do we want to bring back type declaration by ID? It's notoriously fragile but
     //       someone may have a user for it
     </span>DeclareWithOid(Oid),
 }
 
 <span class="attr">#[derive(Debug, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;offline&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"offline"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>PgCustomType {
-    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;offline&quot;</span>, serde(skip))]
+    <span class="attr">#[cfg_attr(feature = <span class="string">"offline"</span>, serde(skip))]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) oid: Oid,
     <span class="kw">pub</span>(<span class="kw">crate</span>) name: UStr,
     <span class="kw">pub</span>(<span class="kw">crate</span>) kind: PgTypeKind,
 }
 
 <span class="attr">#[derive(Debug, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;offline&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"offline"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub enum </span>PgTypeKind {
     Simple,
     Pseudo,
@@ -1346,7 +1347,7 @@
     }
 
     <span class="attr">#[doc(hidden)]
-    </span><span class="kw">pub fn </span>__type_feature_gate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    </span><span class="kw">pub fn </span>__type_feature_gate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
         <span class="kw">if </span>[
             PgTypeInfo::DATE,
             PgTypeInfo::TIME,
@@ -1359,9 +1360,9 @@
         ]
         .contains(<span class="self">self</span>)
         {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;time&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"time"</span>)
         } <span class="kw">else if </span>[PgTypeInfo::UUID, PgTypeInfo::UUID_ARRAY].contains(<span class="self">self</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;uuid&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"uuid"</span>)
         } <span class="kw">else if </span>[
             PgTypeInfo::JSON,
             PgTypeInfo::JSONB,
@@ -1370,7 +1371,7 @@
         ]
         .contains(<span class="self">self</span>)
         {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;json&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"json"</span>)
         } <span class="kw">else if </span>[
             PgTypeInfo::CIDR,
             PgTypeInfo::INET,
@@ -1379,11 +1380,11 @@
         ]
         .contains(<span class="self">self</span>)
         {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;ipnetwork&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"ipnetwork"</span>)
         } <span class="kw">else if </span>[PgTypeInfo::MACADDR].contains(<span class="self">self</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;mac_address&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"mac_address"</span>)
         } <span class="kw">else if </span>[PgTypeInfo::NUMERIC, PgTypeInfo::NUMERIC_ARRAY].contains(<span class="self">self</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;bigdecimal&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"bigdecimal"</span>)
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
@@ -1393,7 +1394,7 @@
     ///
     /// The OID for the type will be fetched from Postgres on use of
     /// a value of this type. The fetched OID will be cached per-connection.
-    </span><span class="kw">pub const fn </span>with_name(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>with_name(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(PgType::DeclareWithName(UStr::Static(name)))
     }
 
@@ -1411,7 +1412,7 @@
 // https://github.com/postgres/postgres/blob/master/src/include/catalog/pg_type.dat
 //
 // If you have Postgres running locally you can also try
-// SELECT oid, typarray FROM pg_type where typname = &#39;&lt;type name&gt;&#39;
+// SELECT oid, typarray FROM pg_type where typname = '&lt;type name&gt;'
 
 </span><span class="kw">impl </span>PgType {
     <span class="doccomment">/// Returns the corresponding `PgType` if the OID is a built-in type and recognized by SQLx.
@@ -1519,7 +1520,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>oid(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Oid {
         <span class="kw">match </span><span class="self">self</span>.try_oid() {
             <span class="prelude-val">Some</span>(oid) =&gt; oid,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [oid]&quot;</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"(bug) use of unresolved type declaration [oid]"</span>),
         }
     }
 
@@ -1629,200 +1630,200 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>display_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            PgType::Bool =&gt; <span class="string">&quot;BOOL&quot;</span>,
-            PgType::Bytea =&gt; <span class="string">&quot;BYTEA&quot;</span>,
-            PgType::Char =&gt; <span class="string">&quot;\&quot;CHAR\&quot;&quot;</span>,
-            PgType::Name =&gt; <span class="string">&quot;NAME&quot;</span>,
-            PgType::Int8 =&gt; <span class="string">&quot;INT8&quot;</span>,
-            PgType::Int2 =&gt; <span class="string">&quot;INT2&quot;</span>,
-            PgType::Int4 =&gt; <span class="string">&quot;INT4&quot;</span>,
-            PgType::Text =&gt; <span class="string">&quot;TEXT&quot;</span>,
-            PgType::Oid =&gt; <span class="string">&quot;OID&quot;</span>,
-            PgType::Json =&gt; <span class="string">&quot;JSON&quot;</span>,
-            PgType::JsonArray =&gt; <span class="string">&quot;JSON[]&quot;</span>,
-            PgType::Point =&gt; <span class="string">&quot;POINT&quot;</span>,
-            PgType::Lseg =&gt; <span class="string">&quot;LSEG&quot;</span>,
-            PgType::Path =&gt; <span class="string">&quot;PATH&quot;</span>,
-            PgType::Box =&gt; <span class="string">&quot;BOX&quot;</span>,
-            PgType::Polygon =&gt; <span class="string">&quot;POLYGON&quot;</span>,
-            PgType::Line =&gt; <span class="string">&quot;LINE&quot;</span>,
-            PgType::LineArray =&gt; <span class="string">&quot;LINE[]&quot;</span>,
-            PgType::Cidr =&gt; <span class="string">&quot;CIDR&quot;</span>,
-            PgType::CidrArray =&gt; <span class="string">&quot;CIDR[]&quot;</span>,
-            PgType::Float4 =&gt; <span class="string">&quot;FLOAT4&quot;</span>,
-            PgType::Float8 =&gt; <span class="string">&quot;FLOAT8&quot;</span>,
-            PgType::Unknown =&gt; <span class="string">&quot;UNKNOWN&quot;</span>,
-            PgType::Circle =&gt; <span class="string">&quot;CIRCLE&quot;</span>,
-            PgType::CircleArray =&gt; <span class="string">&quot;CIRCLE[]&quot;</span>,
-            PgType::Macaddr8 =&gt; <span class="string">&quot;MACADDR8&quot;</span>,
-            PgType::Macaddr8Array =&gt; <span class="string">&quot;MACADDR8[]&quot;</span>,
-            PgType::Macaddr =&gt; <span class="string">&quot;MACADDR&quot;</span>,
-            PgType::Inet =&gt; <span class="string">&quot;INET&quot;</span>,
-            PgType::BoolArray =&gt; <span class="string">&quot;BOOL[]&quot;</span>,
-            PgType::ByteaArray =&gt; <span class="string">&quot;BYTEA[]&quot;</span>,
-            PgType::CharArray =&gt; <span class="string">&quot;\&quot;CHAR\&quot;[]&quot;</span>,
-            PgType::NameArray =&gt; <span class="string">&quot;NAME[]&quot;</span>,
-            PgType::Int2Array =&gt; <span class="string">&quot;INT2[]&quot;</span>,
-            PgType::Int4Array =&gt; <span class="string">&quot;INT4[]&quot;</span>,
-            PgType::TextArray =&gt; <span class="string">&quot;TEXT[]&quot;</span>,
-            PgType::BpcharArray =&gt; <span class="string">&quot;CHAR[]&quot;</span>,
-            PgType::VarcharArray =&gt; <span class="string">&quot;VARCHAR[]&quot;</span>,
-            PgType::Int8Array =&gt; <span class="string">&quot;INT8[]&quot;</span>,
-            PgType::PointArray =&gt; <span class="string">&quot;POINT[]&quot;</span>,
-            PgType::LsegArray =&gt; <span class="string">&quot;LSEG[]&quot;</span>,
-            PgType::PathArray =&gt; <span class="string">&quot;PATH[]&quot;</span>,
-            PgType::BoxArray =&gt; <span class="string">&quot;BOX[]&quot;</span>,
-            PgType::Float4Array =&gt; <span class="string">&quot;FLOAT4[]&quot;</span>,
-            PgType::Float8Array =&gt; <span class="string">&quot;FLOAT8[]&quot;</span>,
-            PgType::PolygonArray =&gt; <span class="string">&quot;POLYGON[]&quot;</span>,
-            PgType::OidArray =&gt; <span class="string">&quot;OID[]&quot;</span>,
-            PgType::MacaddrArray =&gt; <span class="string">&quot;MACADDR[]&quot;</span>,
-            PgType::InetArray =&gt; <span class="string">&quot;INET[]&quot;</span>,
-            PgType::Bpchar =&gt; <span class="string">&quot;CHAR&quot;</span>,
-            PgType::Varchar =&gt; <span class="string">&quot;VARCHAR&quot;</span>,
-            PgType::Date =&gt; <span class="string">&quot;DATE&quot;</span>,
-            PgType::Time =&gt; <span class="string">&quot;TIME&quot;</span>,
-            PgType::Timestamp =&gt; <span class="string">&quot;TIMESTAMP&quot;</span>,
-            PgType::TimestampArray =&gt; <span class="string">&quot;TIMESTAMP[]&quot;</span>,
-            PgType::DateArray =&gt; <span class="string">&quot;DATE[]&quot;</span>,
-            PgType::TimeArray =&gt; <span class="string">&quot;TIME[]&quot;</span>,
-            PgType::Timestamptz =&gt; <span class="string">&quot;TIMESTAMPTZ&quot;</span>,
-            PgType::TimestamptzArray =&gt; <span class="string">&quot;TIMESTAMPTZ[]&quot;</span>,
-            PgType::Interval =&gt; <span class="string">&quot;INTERVAL&quot;</span>,
-            PgType::IntervalArray =&gt; <span class="string">&quot;INTERVAL[]&quot;</span>,
-            PgType::NumericArray =&gt; <span class="string">&quot;NUMERIC[]&quot;</span>,
-            PgType::Timetz =&gt; <span class="string">&quot;TIMETZ&quot;</span>,
-            PgType::TimetzArray =&gt; <span class="string">&quot;TIMETZ[]&quot;</span>,
-            PgType::Bit =&gt; <span class="string">&quot;BIT&quot;</span>,
-            PgType::BitArray =&gt; <span class="string">&quot;BIT[]&quot;</span>,
-            PgType::Varbit =&gt; <span class="string">&quot;VARBIT&quot;</span>,
-            PgType::VarbitArray =&gt; <span class="string">&quot;VARBIT[]&quot;</span>,
-            PgType::Numeric =&gt; <span class="string">&quot;NUMERIC&quot;</span>,
-            PgType::Record =&gt; <span class="string">&quot;RECORD&quot;</span>,
-            PgType::RecordArray =&gt; <span class="string">&quot;RECORD[]&quot;</span>,
-            PgType::Uuid =&gt; <span class="string">&quot;UUID&quot;</span>,
-            PgType::UuidArray =&gt; <span class="string">&quot;UUID[]&quot;</span>,
-            PgType::Jsonb =&gt; <span class="string">&quot;JSONB&quot;</span>,
-            PgType::JsonbArray =&gt; <span class="string">&quot;JSONB[]&quot;</span>,
-            PgType::Int4Range =&gt; <span class="string">&quot;INT4RANGE&quot;</span>,
-            PgType::Int4RangeArray =&gt; <span class="string">&quot;INT4RANGE[]&quot;</span>,
-            PgType::NumRange =&gt; <span class="string">&quot;NUMRANGE&quot;</span>,
-            PgType::NumRangeArray =&gt; <span class="string">&quot;NUMRANGE[]&quot;</span>,
-            PgType::TsRange =&gt; <span class="string">&quot;TSRANGE&quot;</span>,
-            PgType::TsRangeArray =&gt; <span class="string">&quot;TSRANGE[]&quot;</span>,
-            PgType::TstzRange =&gt; <span class="string">&quot;TSTZRANGE&quot;</span>,
-            PgType::TstzRangeArray =&gt; <span class="string">&quot;TSTZRANGE[]&quot;</span>,
-            PgType::DateRange =&gt; <span class="string">&quot;DATERANGE&quot;</span>,
-            PgType::DateRangeArray =&gt; <span class="string">&quot;DATERANGE[]&quot;</span>,
-            PgType::Int8Range =&gt; <span class="string">&quot;INT8RANGE&quot;</span>,
-            PgType::Int8RangeArray =&gt; <span class="string">&quot;INT8RANGE[]&quot;</span>,
-            PgType::Jsonpath =&gt; <span class="string">&quot;JSONPATH&quot;</span>,
-            PgType::JsonpathArray =&gt; <span class="string">&quot;JSONPATH[]&quot;</span>,
-            PgType::Money =&gt; <span class="string">&quot;MONEY&quot;</span>,
-            PgType::MoneyArray =&gt; <span class="string">&quot;MONEY[]&quot;</span>,
-            PgType::Void =&gt; <span class="string">&quot;VOID&quot;</span>,
+            PgType::Bool =&gt; <span class="string">"BOOL"</span>,
+            PgType::Bytea =&gt; <span class="string">"BYTEA"</span>,
+            PgType::Char =&gt; <span class="string">"\"CHAR\""</span>,
+            PgType::Name =&gt; <span class="string">"NAME"</span>,
+            PgType::Int8 =&gt; <span class="string">"INT8"</span>,
+            PgType::Int2 =&gt; <span class="string">"INT2"</span>,
+            PgType::Int4 =&gt; <span class="string">"INT4"</span>,
+            PgType::Text =&gt; <span class="string">"TEXT"</span>,
+            PgType::Oid =&gt; <span class="string">"OID"</span>,
+            PgType::Json =&gt; <span class="string">"JSON"</span>,
+            PgType::JsonArray =&gt; <span class="string">"JSON[]"</span>,
+            PgType::Point =&gt; <span class="string">"POINT"</span>,
+            PgType::Lseg =&gt; <span class="string">"LSEG"</span>,
+            PgType::Path =&gt; <span class="string">"PATH"</span>,
+            PgType::Box =&gt; <span class="string">"BOX"</span>,
+            PgType::Polygon =&gt; <span class="string">"POLYGON"</span>,
+            PgType::Line =&gt; <span class="string">"LINE"</span>,
+            PgType::LineArray =&gt; <span class="string">"LINE[]"</span>,
+            PgType::Cidr =&gt; <span class="string">"CIDR"</span>,
+            PgType::CidrArray =&gt; <span class="string">"CIDR[]"</span>,
+            PgType::Float4 =&gt; <span class="string">"FLOAT4"</span>,
+            PgType::Float8 =&gt; <span class="string">"FLOAT8"</span>,
+            PgType::Unknown =&gt; <span class="string">"UNKNOWN"</span>,
+            PgType::Circle =&gt; <span class="string">"CIRCLE"</span>,
+            PgType::CircleArray =&gt; <span class="string">"CIRCLE[]"</span>,
+            PgType::Macaddr8 =&gt; <span class="string">"MACADDR8"</span>,
+            PgType::Macaddr8Array =&gt; <span class="string">"MACADDR8[]"</span>,
+            PgType::Macaddr =&gt; <span class="string">"MACADDR"</span>,
+            PgType::Inet =&gt; <span class="string">"INET"</span>,
+            PgType::BoolArray =&gt; <span class="string">"BOOL[]"</span>,
+            PgType::ByteaArray =&gt; <span class="string">"BYTEA[]"</span>,
+            PgType::CharArray =&gt; <span class="string">"\"CHAR\"[]"</span>,
+            PgType::NameArray =&gt; <span class="string">"NAME[]"</span>,
+            PgType::Int2Array =&gt; <span class="string">"INT2[]"</span>,
+            PgType::Int4Array =&gt; <span class="string">"INT4[]"</span>,
+            PgType::TextArray =&gt; <span class="string">"TEXT[]"</span>,
+            PgType::BpcharArray =&gt; <span class="string">"CHAR[]"</span>,
+            PgType::VarcharArray =&gt; <span class="string">"VARCHAR[]"</span>,
+            PgType::Int8Array =&gt; <span class="string">"INT8[]"</span>,
+            PgType::PointArray =&gt; <span class="string">"POINT[]"</span>,
+            PgType::LsegArray =&gt; <span class="string">"LSEG[]"</span>,
+            PgType::PathArray =&gt; <span class="string">"PATH[]"</span>,
+            PgType::BoxArray =&gt; <span class="string">"BOX[]"</span>,
+            PgType::Float4Array =&gt; <span class="string">"FLOAT4[]"</span>,
+            PgType::Float8Array =&gt; <span class="string">"FLOAT8[]"</span>,
+            PgType::PolygonArray =&gt; <span class="string">"POLYGON[]"</span>,
+            PgType::OidArray =&gt; <span class="string">"OID[]"</span>,
+            PgType::MacaddrArray =&gt; <span class="string">"MACADDR[]"</span>,
+            PgType::InetArray =&gt; <span class="string">"INET[]"</span>,
+            PgType::Bpchar =&gt; <span class="string">"CHAR"</span>,
+            PgType::Varchar =&gt; <span class="string">"VARCHAR"</span>,
+            PgType::Date =&gt; <span class="string">"DATE"</span>,
+            PgType::Time =&gt; <span class="string">"TIME"</span>,
+            PgType::Timestamp =&gt; <span class="string">"TIMESTAMP"</span>,
+            PgType::TimestampArray =&gt; <span class="string">"TIMESTAMP[]"</span>,
+            PgType::DateArray =&gt; <span class="string">"DATE[]"</span>,
+            PgType::TimeArray =&gt; <span class="string">"TIME[]"</span>,
+            PgType::Timestamptz =&gt; <span class="string">"TIMESTAMPTZ"</span>,
+            PgType::TimestamptzArray =&gt; <span class="string">"TIMESTAMPTZ[]"</span>,
+            PgType::Interval =&gt; <span class="string">"INTERVAL"</span>,
+            PgType::IntervalArray =&gt; <span class="string">"INTERVAL[]"</span>,
+            PgType::NumericArray =&gt; <span class="string">"NUMERIC[]"</span>,
+            PgType::Timetz =&gt; <span class="string">"TIMETZ"</span>,
+            PgType::TimetzArray =&gt; <span class="string">"TIMETZ[]"</span>,
+            PgType::Bit =&gt; <span class="string">"BIT"</span>,
+            PgType::BitArray =&gt; <span class="string">"BIT[]"</span>,
+            PgType::Varbit =&gt; <span class="string">"VARBIT"</span>,
+            PgType::VarbitArray =&gt; <span class="string">"VARBIT[]"</span>,
+            PgType::Numeric =&gt; <span class="string">"NUMERIC"</span>,
+            PgType::Record =&gt; <span class="string">"RECORD"</span>,
+            PgType::RecordArray =&gt; <span class="string">"RECORD[]"</span>,
+            PgType::Uuid =&gt; <span class="string">"UUID"</span>,
+            PgType::UuidArray =&gt; <span class="string">"UUID[]"</span>,
+            PgType::Jsonb =&gt; <span class="string">"JSONB"</span>,
+            PgType::JsonbArray =&gt; <span class="string">"JSONB[]"</span>,
+            PgType::Int4Range =&gt; <span class="string">"INT4RANGE"</span>,
+            PgType::Int4RangeArray =&gt; <span class="string">"INT4RANGE[]"</span>,
+            PgType::NumRange =&gt; <span class="string">"NUMRANGE"</span>,
+            PgType::NumRangeArray =&gt; <span class="string">"NUMRANGE[]"</span>,
+            PgType::TsRange =&gt; <span class="string">"TSRANGE"</span>,
+            PgType::TsRangeArray =&gt; <span class="string">"TSRANGE[]"</span>,
+            PgType::TstzRange =&gt; <span class="string">"TSTZRANGE"</span>,
+            PgType::TstzRangeArray =&gt; <span class="string">"TSTZRANGE[]"</span>,
+            PgType::DateRange =&gt; <span class="string">"DATERANGE"</span>,
+            PgType::DateRangeArray =&gt; <span class="string">"DATERANGE[]"</span>,
+            PgType::Int8Range =&gt; <span class="string">"INT8RANGE"</span>,
+            PgType::Int8RangeArray =&gt; <span class="string">"INT8RANGE[]"</span>,
+            PgType::Jsonpath =&gt; <span class="string">"JSONPATH"</span>,
+            PgType::JsonpathArray =&gt; <span class="string">"JSONPATH[]"</span>,
+            PgType::Money =&gt; <span class="string">"MONEY"</span>,
+            PgType::MoneyArray =&gt; <span class="string">"MONEY[]"</span>,
+            PgType::Void =&gt; <span class="string">"VOID"</span>,
             PgType::Custom(ty) =&gt; <span class="kw-2">&amp;*</span>ty.name,
-            PgType::DeclareWithOid(<span class="kw">_</span>) =&gt; <span class="string">&quot;?&quot;</span>,
+            PgType::DeclareWithOid(<span class="kw">_</span>) =&gt; <span class="string">"?"</span>,
             PgType::DeclareWithName(name) =&gt; name,
         }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            PgType::Bool =&gt; <span class="string">&quot;bool&quot;</span>,
-            PgType::Bytea =&gt; <span class="string">&quot;bytea&quot;</span>,
-            PgType::Char =&gt; <span class="string">&quot;char&quot;</span>,
-            PgType::Name =&gt; <span class="string">&quot;name&quot;</span>,
-            PgType::Int8 =&gt; <span class="string">&quot;int8&quot;</span>,
-            PgType::Int2 =&gt; <span class="string">&quot;int2&quot;</span>,
-            PgType::Int4 =&gt; <span class="string">&quot;int4&quot;</span>,
-            PgType::Text =&gt; <span class="string">&quot;text&quot;</span>,
-            PgType::Oid =&gt; <span class="string">&quot;oid&quot;</span>,
-            PgType::Json =&gt; <span class="string">&quot;json&quot;</span>,
-            PgType::JsonArray =&gt; <span class="string">&quot;_json&quot;</span>,
-            PgType::Point =&gt; <span class="string">&quot;point&quot;</span>,
-            PgType::Lseg =&gt; <span class="string">&quot;lseg&quot;</span>,
-            PgType::Path =&gt; <span class="string">&quot;path&quot;</span>,
-            PgType::Box =&gt; <span class="string">&quot;box&quot;</span>,
-            PgType::Polygon =&gt; <span class="string">&quot;polygon&quot;</span>,
-            PgType::Line =&gt; <span class="string">&quot;line&quot;</span>,
-            PgType::LineArray =&gt; <span class="string">&quot;_line&quot;</span>,
-            PgType::Cidr =&gt; <span class="string">&quot;cidr&quot;</span>,
-            PgType::CidrArray =&gt; <span class="string">&quot;_cidr&quot;</span>,
-            PgType::Float4 =&gt; <span class="string">&quot;float4&quot;</span>,
-            PgType::Float8 =&gt; <span class="string">&quot;float8&quot;</span>,
-            PgType::Unknown =&gt; <span class="string">&quot;unknown&quot;</span>,
-            PgType::Circle =&gt; <span class="string">&quot;circle&quot;</span>,
-            PgType::CircleArray =&gt; <span class="string">&quot;_circle&quot;</span>,
-            PgType::Macaddr8 =&gt; <span class="string">&quot;macaddr8&quot;</span>,
-            PgType::Macaddr8Array =&gt; <span class="string">&quot;_macaddr8&quot;</span>,
-            PgType::Macaddr =&gt; <span class="string">&quot;macaddr&quot;</span>,
-            PgType::Inet =&gt; <span class="string">&quot;inet&quot;</span>,
-            PgType::BoolArray =&gt; <span class="string">&quot;_bool&quot;</span>,
-            PgType::ByteaArray =&gt; <span class="string">&quot;_bytea&quot;</span>,
-            PgType::CharArray =&gt; <span class="string">&quot;_char&quot;</span>,
-            PgType::NameArray =&gt; <span class="string">&quot;_name&quot;</span>,
-            PgType::Int2Array =&gt; <span class="string">&quot;_int2&quot;</span>,
-            PgType::Int4Array =&gt; <span class="string">&quot;_int4&quot;</span>,
-            PgType::TextArray =&gt; <span class="string">&quot;_text&quot;</span>,
-            PgType::BpcharArray =&gt; <span class="string">&quot;_bpchar&quot;</span>,
-            PgType::VarcharArray =&gt; <span class="string">&quot;_varchar&quot;</span>,
-            PgType::Int8Array =&gt; <span class="string">&quot;_int8&quot;</span>,
-            PgType::PointArray =&gt; <span class="string">&quot;_point&quot;</span>,
-            PgType::LsegArray =&gt; <span class="string">&quot;_lseg&quot;</span>,
-            PgType::PathArray =&gt; <span class="string">&quot;_path&quot;</span>,
-            PgType::BoxArray =&gt; <span class="string">&quot;_box&quot;</span>,
-            PgType::Float4Array =&gt; <span class="string">&quot;_float4&quot;</span>,
-            PgType::Float8Array =&gt; <span class="string">&quot;_float8&quot;</span>,
-            PgType::PolygonArray =&gt; <span class="string">&quot;_polygon&quot;</span>,
-            PgType::OidArray =&gt; <span class="string">&quot;_oid&quot;</span>,
-            PgType::MacaddrArray =&gt; <span class="string">&quot;_macaddr&quot;</span>,
-            PgType::InetArray =&gt; <span class="string">&quot;_inet&quot;</span>,
-            PgType::Bpchar =&gt; <span class="string">&quot;bpchar&quot;</span>,
-            PgType::Varchar =&gt; <span class="string">&quot;varchar&quot;</span>,
-            PgType::Date =&gt; <span class="string">&quot;date&quot;</span>,
-            PgType::Time =&gt; <span class="string">&quot;time&quot;</span>,
-            PgType::Timestamp =&gt; <span class="string">&quot;timestamp&quot;</span>,
-            PgType::TimestampArray =&gt; <span class="string">&quot;_timestamp&quot;</span>,
-            PgType::DateArray =&gt; <span class="string">&quot;_date&quot;</span>,
-            PgType::TimeArray =&gt; <span class="string">&quot;_time&quot;</span>,
-            PgType::Timestamptz =&gt; <span class="string">&quot;timestamptz&quot;</span>,
-            PgType::TimestamptzArray =&gt; <span class="string">&quot;_timestamptz&quot;</span>,
-            PgType::Interval =&gt; <span class="string">&quot;interval&quot;</span>,
-            PgType::IntervalArray =&gt; <span class="string">&quot;_interval&quot;</span>,
-            PgType::NumericArray =&gt; <span class="string">&quot;_numeric&quot;</span>,
-            PgType::Timetz =&gt; <span class="string">&quot;timetz&quot;</span>,
-            PgType::TimetzArray =&gt; <span class="string">&quot;_timetz&quot;</span>,
-            PgType::Bit =&gt; <span class="string">&quot;bit&quot;</span>,
-            PgType::BitArray =&gt; <span class="string">&quot;_bit&quot;</span>,
-            PgType::Varbit =&gt; <span class="string">&quot;varbit&quot;</span>,
-            PgType::VarbitArray =&gt; <span class="string">&quot;_varbit&quot;</span>,
-            PgType::Numeric =&gt; <span class="string">&quot;numeric&quot;</span>,
-            PgType::Record =&gt; <span class="string">&quot;record&quot;</span>,
-            PgType::RecordArray =&gt; <span class="string">&quot;_record&quot;</span>,
-            PgType::Uuid =&gt; <span class="string">&quot;uuid&quot;</span>,
-            PgType::UuidArray =&gt; <span class="string">&quot;_uuid&quot;</span>,
-            PgType::Jsonb =&gt; <span class="string">&quot;jsonb&quot;</span>,
-            PgType::JsonbArray =&gt; <span class="string">&quot;_jsonb&quot;</span>,
-            PgType::Int4Range =&gt; <span class="string">&quot;int4range&quot;</span>,
-            PgType::Int4RangeArray =&gt; <span class="string">&quot;_int4range&quot;</span>,
-            PgType::NumRange =&gt; <span class="string">&quot;numrange&quot;</span>,
-            PgType::NumRangeArray =&gt; <span class="string">&quot;_numrange&quot;</span>,
-            PgType::TsRange =&gt; <span class="string">&quot;tsrange&quot;</span>,
-            PgType::TsRangeArray =&gt; <span class="string">&quot;_tsrange&quot;</span>,
-            PgType::TstzRange =&gt; <span class="string">&quot;tstzrange&quot;</span>,
-            PgType::TstzRangeArray =&gt; <span class="string">&quot;_tstzrange&quot;</span>,
-            PgType::DateRange =&gt; <span class="string">&quot;daterange&quot;</span>,
-            PgType::DateRangeArray =&gt; <span class="string">&quot;_daterange&quot;</span>,
-            PgType::Int8Range =&gt; <span class="string">&quot;int8range&quot;</span>,
-            PgType::Int8RangeArray =&gt; <span class="string">&quot;_int8range&quot;</span>,
-            PgType::Jsonpath =&gt; <span class="string">&quot;jsonpath&quot;</span>,
-            PgType::JsonpathArray =&gt; <span class="string">&quot;_jsonpath&quot;</span>,
-            PgType::Money =&gt; <span class="string">&quot;money&quot;</span>,
-            PgType::MoneyArray =&gt; <span class="string">&quot;_money&quot;</span>,
-            PgType::Void =&gt; <span class="string">&quot;void&quot;</span>,
+            PgType::Bool =&gt; <span class="string">"bool"</span>,
+            PgType::Bytea =&gt; <span class="string">"bytea"</span>,
+            PgType::Char =&gt; <span class="string">"char"</span>,
+            PgType::Name =&gt; <span class="string">"name"</span>,
+            PgType::Int8 =&gt; <span class="string">"int8"</span>,
+            PgType::Int2 =&gt; <span class="string">"int2"</span>,
+            PgType::Int4 =&gt; <span class="string">"int4"</span>,
+            PgType::Text =&gt; <span class="string">"text"</span>,
+            PgType::Oid =&gt; <span class="string">"oid"</span>,
+            PgType::Json =&gt; <span class="string">"json"</span>,
+            PgType::JsonArray =&gt; <span class="string">"_json"</span>,
+            PgType::Point =&gt; <span class="string">"point"</span>,
+            PgType::Lseg =&gt; <span class="string">"lseg"</span>,
+            PgType::Path =&gt; <span class="string">"path"</span>,
+            PgType::Box =&gt; <span class="string">"box"</span>,
+            PgType::Polygon =&gt; <span class="string">"polygon"</span>,
+            PgType::Line =&gt; <span class="string">"line"</span>,
+            PgType::LineArray =&gt; <span class="string">"_line"</span>,
+            PgType::Cidr =&gt; <span class="string">"cidr"</span>,
+            PgType::CidrArray =&gt; <span class="string">"_cidr"</span>,
+            PgType::Float4 =&gt; <span class="string">"float4"</span>,
+            PgType::Float8 =&gt; <span class="string">"float8"</span>,
+            PgType::Unknown =&gt; <span class="string">"unknown"</span>,
+            PgType::Circle =&gt; <span class="string">"circle"</span>,
+            PgType::CircleArray =&gt; <span class="string">"_circle"</span>,
+            PgType::Macaddr8 =&gt; <span class="string">"macaddr8"</span>,
+            PgType::Macaddr8Array =&gt; <span class="string">"_macaddr8"</span>,
+            PgType::Macaddr =&gt; <span class="string">"macaddr"</span>,
+            PgType::Inet =&gt; <span class="string">"inet"</span>,
+            PgType::BoolArray =&gt; <span class="string">"_bool"</span>,
+            PgType::ByteaArray =&gt; <span class="string">"_bytea"</span>,
+            PgType::CharArray =&gt; <span class="string">"_char"</span>,
+            PgType::NameArray =&gt; <span class="string">"_name"</span>,
+            PgType::Int2Array =&gt; <span class="string">"_int2"</span>,
+            PgType::Int4Array =&gt; <span class="string">"_int4"</span>,
+            PgType::TextArray =&gt; <span class="string">"_text"</span>,
+            PgType::BpcharArray =&gt; <span class="string">"_bpchar"</span>,
+            PgType::VarcharArray =&gt; <span class="string">"_varchar"</span>,
+            PgType::Int8Array =&gt; <span class="string">"_int8"</span>,
+            PgType::PointArray =&gt; <span class="string">"_point"</span>,
+            PgType::LsegArray =&gt; <span class="string">"_lseg"</span>,
+            PgType::PathArray =&gt; <span class="string">"_path"</span>,
+            PgType::BoxArray =&gt; <span class="string">"_box"</span>,
+            PgType::Float4Array =&gt; <span class="string">"_float4"</span>,
+            PgType::Float8Array =&gt; <span class="string">"_float8"</span>,
+            PgType::PolygonArray =&gt; <span class="string">"_polygon"</span>,
+            PgType::OidArray =&gt; <span class="string">"_oid"</span>,
+            PgType::MacaddrArray =&gt; <span class="string">"_macaddr"</span>,
+            PgType::InetArray =&gt; <span class="string">"_inet"</span>,
+            PgType::Bpchar =&gt; <span class="string">"bpchar"</span>,
+            PgType::Varchar =&gt; <span class="string">"varchar"</span>,
+            PgType::Date =&gt; <span class="string">"date"</span>,
+            PgType::Time =&gt; <span class="string">"time"</span>,
+            PgType::Timestamp =&gt; <span class="string">"timestamp"</span>,
+            PgType::TimestampArray =&gt; <span class="string">"_timestamp"</span>,
+            PgType::DateArray =&gt; <span class="string">"_date"</span>,
+            PgType::TimeArray =&gt; <span class="string">"_time"</span>,
+            PgType::Timestamptz =&gt; <span class="string">"timestamptz"</span>,
+            PgType::TimestamptzArray =&gt; <span class="string">"_timestamptz"</span>,
+            PgType::Interval =&gt; <span class="string">"interval"</span>,
+            PgType::IntervalArray =&gt; <span class="string">"_interval"</span>,
+            PgType::NumericArray =&gt; <span class="string">"_numeric"</span>,
+            PgType::Timetz =&gt; <span class="string">"timetz"</span>,
+            PgType::TimetzArray =&gt; <span class="string">"_timetz"</span>,
+            PgType::Bit =&gt; <span class="string">"bit"</span>,
+            PgType::BitArray =&gt; <span class="string">"_bit"</span>,
+            PgType::Varbit =&gt; <span class="string">"varbit"</span>,
+            PgType::VarbitArray =&gt; <span class="string">"_varbit"</span>,
+            PgType::Numeric =&gt; <span class="string">"numeric"</span>,
+            PgType::Record =&gt; <span class="string">"record"</span>,
+            PgType::RecordArray =&gt; <span class="string">"_record"</span>,
+            PgType::Uuid =&gt; <span class="string">"uuid"</span>,
+            PgType::UuidArray =&gt; <span class="string">"_uuid"</span>,
+            PgType::Jsonb =&gt; <span class="string">"jsonb"</span>,
+            PgType::JsonbArray =&gt; <span class="string">"_jsonb"</span>,
+            PgType::Int4Range =&gt; <span class="string">"int4range"</span>,
+            PgType::Int4RangeArray =&gt; <span class="string">"_int4range"</span>,
+            PgType::NumRange =&gt; <span class="string">"numrange"</span>,
+            PgType::NumRangeArray =&gt; <span class="string">"_numrange"</span>,
+            PgType::TsRange =&gt; <span class="string">"tsrange"</span>,
+            PgType::TsRangeArray =&gt; <span class="string">"_tsrange"</span>,
+            PgType::TstzRange =&gt; <span class="string">"tstzrange"</span>,
+            PgType::TstzRangeArray =&gt; <span class="string">"_tstzrange"</span>,
+            PgType::DateRange =&gt; <span class="string">"daterange"</span>,
+            PgType::DateRangeArray =&gt; <span class="string">"_daterange"</span>,
+            PgType::Int8Range =&gt; <span class="string">"int8range"</span>,
+            PgType::Int8RangeArray =&gt; <span class="string">"_int8range"</span>,
+            PgType::Jsonpath =&gt; <span class="string">"jsonpath"</span>,
+            PgType::JsonpathArray =&gt; <span class="string">"_jsonpath"</span>,
+            PgType::Money =&gt; <span class="string">"money"</span>,
+            PgType::MoneyArray =&gt; <span class="string">"_money"</span>,
+            PgType::Void =&gt; <span class="string">"void"</span>,
             PgType::Custom(ty) =&gt; <span class="kw-2">&amp;*</span>ty.name,
-            PgType::DeclareWithOid(<span class="kw">_</span>) =&gt; <span class="string">&quot;?&quot;</span>,
+            PgType::DeclareWithOid(<span class="kw">_</span>) =&gt; <span class="string">"?"</span>,
             PgType::DeclareWithName(name) =&gt; name,
         }
     }
@@ -1926,10 +1927,10 @@
             PgType::Custom(ty) =&gt; <span class="kw-2">&amp;</span>ty.kind,
 
             PgType::DeclareWithOid(oid) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [oid={}]&quot;</span>, oid.<span class="number">0</span>);
+                <span class="macro">unreachable!</span>(<span class="string">"(bug) use of unresolved type declaration [oid={}]"</span>, oid.<span class="number">0</span>);
             }
             PgType::DeclareWithName(name) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [name={name}]&quot;</span>);
+                <span class="macro">unreachable!</span>(<span class="string">"(bug) use of unresolved type declaration [name={name}]"</span>);
             }
         }
     }
@@ -1938,7 +1939,7 @@
     ///
     /// This method should only be called on resolved types: calling it on
     /// a type that is merely declared (DeclareWithOid/Name) is a bug.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_array_element(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;_</span>, PgTypeInfo&gt;&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_array_element(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'_</span>, PgTypeInfo&gt;&gt; {
         <span class="comment">// We explicitly match on all the `None` cases to ensure an exhaustive match.
         </span><span class="kw">match </span><span class="self">self </span>{
             PgType::Bool =&gt; <span class="prelude-val">None</span>,
@@ -2046,10 +2047,10 @@
                 PgTypeKind::Range(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             },
             PgType::DeclareWithOid(oid) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [oid={}]&quot;</span>, oid.<span class="number">0</span>);
+                <span class="macro">unreachable!</span>(<span class="string">"(bug) use of unresolved type declaration [oid={}]"</span>, oid.<span class="number">0</span>);
             }
             PgType::DeclareWithName(name) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [name={name}]&quot;</span>);
+                <span class="macro">unreachable!</span>(<span class="string">"(bug) use of unresolved type declaration [name={name}]"</span>);
             }
         }
     }
@@ -2293,7 +2294,7 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>PgTypeInfo {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.pad(<span class="self">self</span>.name())
     }
 }

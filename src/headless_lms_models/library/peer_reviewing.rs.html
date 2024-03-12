@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/peer_reviewing.rs`."><title>peer_reviewing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/peer_reviewing.rs`."><title>peer_reviewing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -736,7 +737,7 @@
     <span class="kw">if </span>user_exercise_state.reviewing_stage != ReviewingStage::NotStarted {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::PreconditionFailed,
-            <span class="string">&quot;Cannot start peer review anymore.&quot;</span>.to_string(),
+            <span class="string">"Cannot start peer review anymore."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -750,7 +751,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseMaterialPeerReviewSubmission {
     <span class="kw">pub </span>exercise_slide_submission_id: Uuid,
     <span class="kw">pub </span>peer_review_config_id: Uuid,
@@ -759,7 +760,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseMaterialPeerReviewQuestionAnswer {
     <span class="kw">pub </span>peer_review_question_id: Uuid,
     <span class="kw">pub </span>text_data: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -805,7 +806,7 @@
     </span><span class="kw">if </span>peer_reviews_given &gt; unacceptable_amount_of_peer_reviews {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::PreconditionFailed,
-            <span class="string">&quot;You have given too many peer reviews to this exercise&quot;</span>.to_string(),
+            <span class="string">"You have given too many peer reviews to this exercise"</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -828,7 +829,7 @@
             </span><span class="kw">if </span>Utc::now() - Duration::seconds(<span class="number">30 </span>* coefficient <span class="kw">as </span>i64) &lt; last_submission_time {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                     ModelErrorType::InvalidRequest,
-                    <span class="string">&quot;You are submitting too fast. Try again later.&quot;</span>.to_string(),
+                    <span class="string">"You are submitting too fast. Try again later."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 ));
             }
@@ -882,7 +883,7 @@
                 .ok_or_else(|| {
                     ModelError::new(
                         ModelErrorType::PreconditionFailed,
-                        <span class="string">&quot;Exercise slide not part of a course instance.&quot;</span>.to_string(),
+                        <span class="string">"Exercise slide not part of a course instance."</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>,
@@ -926,13 +927,13 @@
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::PreconditionFailed,
-            <span class="string">&quot;All required questions need to be answered.&quot;</span>.to_string(),
+            <span class="string">"All required questions need to be answered."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ))
     }
 }
 
-<span class="doccomment">/// Creates or updates submitter&#39;s exercise state and peer review queue entry.
+<span class="doccomment">/// Creates or updates submitter's exercise state and peer review queue entry.
 </span><span class="kw">async fn </span>update_peer_review_giver_exercise_progress(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise: <span class="kw-2">&amp;</span>Exercise,
@@ -1040,18 +1041,18 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseMaterialPeerReviewData {
     <span class="doccomment">/// If none, no answer was available for review.
     </span><span class="kw">pub </span>answer_to_review: <span class="prelude-ty">Option</span>&lt;CourseMaterialPeerReviewDataAnswerToReview&gt;,
     <span class="kw">pub </span>peer_review_config: PeerReviewConfig,
     <span class="kw">pub </span>peer_review_questions: Vec&lt;PeerReviewQuestion&gt;,
-    <span class="attr">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, ts(<span class="kw">type </span>= <span class="string">&quot;number&quot;</span>))]
+    <span class="attr">#[cfg_attr(feature = <span class="string">"ts_rs"</span>, ts(<span class="kw">type </span>= <span class="string">"number"</span>))]
     </span><span class="kw">pub </span>num_peer_reviews_given: i64,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseMaterialPeerReviewDataAnswerToReview {
     <span class="kw">pub </span>exercise_slide_submission_id: Uuid,
     <span class="doccomment">/// Uses the same type as we use when we render and exercise in course material. Allows us to reuse existing logic for getting all the necessary information for rendering the submission.
@@ -1068,7 +1069,7 @@
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise: <span class="kw-2">&amp;</span>Exercise,
     reviewer_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialPeerReviewData&gt; {
     <span class="kw">let </span>peer_review_config = peer_review_configs::get_by_exercise_or_course_id(
         conn,
@@ -1122,7 +1123,7 @@
             <span class="prelude-val">Some</span>(exercise_slide_submission)
         }
         <span class="prelude-val">None </span>=&gt; {
-            <span class="comment">// At the start of a course there can be a short period when there aren&#39;t any peer reviews.
+            <span class="comment">// At the start of a course there can be a short period when there aren't any peer reviews.
             // In that case just get a random one.
             </span>exercise_slide_submissions::try_to_get_random_filtered_by_user_and_submissions(
                 conn,
@@ -1162,7 +1163,7 @@
             excluded_exercise_slide_submission_ids,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="comment">// Let&#39;s make sure we don&#39;t return peer review queue entries for exercise slide submissions that are deleted.
+        <span class="comment">// Let's make sure we don't return peer review queue entries for exercise slide submissions that are deleted.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ess_id) = exercise_slide_submission_id {
             <span class="kw">let </span>ess = exercise_slide_submissions::get_by_id(conn, ess_id)
                 .<span class="kw">await
@@ -1174,13 +1175,13 @@
             }
             <span class="comment">// We found a submission from the peer reveiw queue but the submission was deleted. This is unfortunate since if
             // the submission was deleted the peer review queue entry should have been deleted too. We can try to fix the situation somehow.
-            </span><span class="macro">warn!</span>(exercise_slide_submission_id = %ess_id, <span class="string">&quot;Selected exercise slide submission that was deleted from the peer review queue. The peer review queue entry should&#39;ve been deleted too! Deleting it now.&quot;</span>);
+            </span><span class="macro">warn!</span>(exercise_slide_submission_id = %ess_id, <span class="string">"Selected exercise slide submission that was deleted from the peer review queue. The peer review queue entry should've been deleted too! Deleting it now."</span>);
             peer_review_queue_entries::delete_by_receiving_peer_reviews_exercise_slide_submission_id(
                 conn, ess_id,
             ).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="macro">info!</span>(<span class="string">&quot;Deleting done, trying to select a new peer review candidate&quot;</span>);
+            <span class="macro">info!</span>(<span class="string">"Deleting done, trying to select a new peer review candidate"</span>);
         } <span class="kw">else </span>{
-            <span class="comment">// We didn&#39;t manage to select a candidate from the queue
+            <span class="comment">// We didn't manage to select a candidate from the queue
             </span><span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
     }
@@ -1232,7 +1233,7 @@
     reviewer_user_id: Uuid,
     reviewer_course_instance_id: Uuid,
     exercise_id: Uuid,
-    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialPeerReviewData&gt; {
     <span class="kw">let </span>peer_review_questions =
         peer_review_questions::get_all_by_peer_review_config_id(conn, peer_review_config.id)
@@ -1277,14 +1278,14 @@
     course_id: Uuid,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;Updating peer review queue reviews received&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Updating peer review queue reviews received"</span>);
     <span class="kw">let </span>exercises = <span class="kw">crate</span>::exercises::get_exercises_by_course_id(<span class="kw-2">&amp;mut </span>tx, course_id)
         .<span class="kw">await</span><span class="question-mark">?
         </span>.into_iter()
         .filter(|e| e.needs_peer_review)
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
     <span class="kw">for </span>exercise <span class="kw">in </span>exercises {
-        <span class="macro">info!</span>(<span class="string">&quot;Processing exercise {:?}&quot;</span>, exercise.id);
+        <span class="macro">info!</span>(<span class="string">"Processing exercise {:?}"</span>, exercise.id);
         <span class="kw">let </span>peer_review_config =
             peer_review_configs::get_by_exercise_or_course_id(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">&amp;</span>exercise, course_id)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1295,7 +1296,7 @@
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">info!</span>(
-            <span class="string">&quot;Processing {:?} peer review queue entries&quot;</span>,
+            <span class="string">"Processing {:?} peer review queue entries"</span>,
             peer_review_queue_entries.len()
         );
         <span class="kw">for </span>peer_review_queue_entry <span class="kw">in </span>peer_review_queue_entries {
@@ -1308,7 +1309,7 @@
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
     }
-    <span class="macro">info!</span>(<span class="string">&quot;Done&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Done"</span>);
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
@@ -1327,8 +1328,8 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>accepts_valid_answers() {
             <span class="kw">let </span>peer_review_config_id =
-                Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
-            <span class="kw">let </span>question_id = Uuid::parse_str(<span class="string">&quot;68d5cda3-6ad8-464b-9af1-bd1692fcbee1&quot;</span>).unwrap();
+                Uuid::parse_str(<span class="string">"5f464818-1e68-4839-ae86-850b310f508c"</span>).unwrap();
+            <span class="kw">let </span>question_id = Uuid::parse_str(<span class="string">"68d5cda3-6ad8-464b-9af1-bd1692fcbee1"</span>).unwrap();
             <span class="kw">let </span>questions = HashMap::from([(
                 question_id,
                 create_peer_review_question(question_id, peer_review_config_id, <span class="bool-val">true</span>).unwrap(),
@@ -1345,7 +1346,7 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>filters_illegal_answers() {
             <span class="kw">let </span>peer_review_config_id =
-                Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+                Uuid::parse_str(<span class="string">"5f464818-1e68-4839-ae86-850b310f508c"</span>).unwrap();
             <span class="kw">let </span>questions = HashMap::new();
             <span class="kw">let </span>answers = <span class="macro">vec!</span>[create_peer_review_answer(peer_review_config_id)];
             <span class="macro">assert_eq!</span>(
@@ -1359,8 +1360,8 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>errors_on_missing_required_answers() {
             <span class="kw">let </span>peer_review_config_id =
-                Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
-            <span class="kw">let </span>question_id = Uuid::parse_str(<span class="string">&quot;68d5cda3-6ad8-464b-9af1-bd1692fcbee1&quot;</span>).unwrap();
+                Uuid::parse_str(<span class="string">"5f464818-1e68-4839-ae86-850b310f508c"</span>).unwrap();
+            <span class="kw">let </span>question_id = Uuid::parse_str(<span class="string">"68d5cda3-6ad8-464b-9af1-bd1692fcbee1"</span>).unwrap();
             <span class="kw">let </span>questions = HashMap::from([(
                 question_id,
                 create_peer_review_question(question_id, peer_review_config_id, <span class="bool-val">true</span>).unwrap(),
@@ -1382,7 +1383,7 @@
                 deleted_at: <span class="prelude-val">None</span>,
                 peer_review_config_id,
                 order_number: <span class="number">0</span>,
-                question: <span class="string">&quot;&quot;</span>.to_string(),
+                question: <span class="string">""</span>.to_string(),
                 question_type: PeerReviewQuestionType::Essay,
                 answer_required,
                 weight: <span class="number">0.0</span>,
@@ -1394,7 +1395,7 @@
         ) -&gt; CourseMaterialPeerReviewQuestionAnswer {
             CourseMaterialPeerReviewQuestionAnswer {
                 peer_review_question_id,
-                text_data: <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>.to_string()),
+                text_data: <span class="prelude-val">Some</span>(<span class="string">""</span>.to_string()),
                 number_data: <span class="prelude-val">None</span>,
             }
         }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-sys-0.9.99/src/./macros.rs`."><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-sys-0.9.101/src/./macros.rs`."><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -338,7 +339,7 @@
 <span class="macro">macro_rules! </span>stack {
     (<span class="macro-nonterminal">$t</span>:ident) =&gt; {
         <span class="macro">cfg_if! </span>{
-            <span class="kw">if </span><span class="attr">#[cfg(ossl110)] </span>{
+            <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl390))] </span>{
                 <span class="kw">pub enum </span><span class="macro-nonterminal">$t </span>{}
             } <span class="kw">else </span>{
                 <span class="attr">#[repr(C)]
@@ -357,7 +358,7 @@
 // parameter got converted in which version.
 //
 // Input is:
-//    extern &quot;C&quot; {
+//    extern "C" {
 //        #[attributes...]
 //        pub fn name(args) -&gt; rettype; // `-&gt; rettype` optional
 //        // more functions...
@@ -367,16 +368,16 @@
 // (depending on the inner cfg flags)
 //
 // Walks through all argument and return types, but only finds inner types of
-// `*const` and `*mut`; doesn&#39;t walk arrays or generics.
+// `*const` and `*mut`; doesn't walk arrays or generics.
 //
-// NOTE: can&#39;t abstract `pub` as `$fn_vis:vis`, as ctest macro handling doesn&#39;t
+// NOTE: can't abstract `pub` as `$fn_vis:vis`, as ctest macro handling doesn't
 // support it (old syntax crate). But we really only need `pub` anyway.
 //
-// NOTE: ctest seams to simply ignore macros it can&#39;t expand (whatever the
+// NOTE: ctest seams to simply ignore macros it can't expand (whatever the
 // reason)
 </span><span class="macro">macro_rules! </span>const_ptr_api {
     <span class="comment">// ----------------------------------------------------------------
-    // (partialarg): partial argument, waiting for &quot;final&quot; argument type
+    // (partialarg): partial argument, waiting for "final" argument type
     // MAGIC PART 1: hande conditional const ptr in argument type
     </span>( (partialarg)
         { $(<span class="attr">#[<span class="macro-nonterminal">$fn_attr</span>:meta]</span>)* <span class="kw">pub fn </span><span class="macro-nonterminal">$fn_name</span>:ident }
@@ -506,7 +507,7 @@
         { $({ <span class="macro-nonterminal">$arg_name</span>:ident: $(<span class="macro-nonterminal">$arg_ty</span>:tt)* })* }
         { <span class="macro-nonterminal">$ret_ty</span>:ty }
     ) =&gt; {
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             $(<span class="attr">#[<span class="macro-nonterminal">$fn_attr</span>]</span>)*
             <span class="kw">pub fn </span><span class="macro-nonterminal">$fn_name</span>( $(
                 <span class="macro-nonterminal">$arg_name</span>: $(<span class="macro-nonterminal">$arg_ty</span>)*
@@ -515,7 +516,7 @@
     };
 
     <span class="comment">// ----------------------------------------------------------------
-    // (fn): gather tokens for return type until &quot;;&quot;
+    // (fn): gather tokens for return type until ";"
     // found end; start parsing current function, and parse remaining functions
     </span>( (<span class="kw">fn</span>)
         <span class="macro-nonterminal">$def_packed</span>:tt
@@ -526,8 +527,8 @@
         <span class="macro">const_ptr_api!</span>( (parseargs) <span class="macro-nonterminal">$def_packed </span>{} <span class="macro-nonterminal">$arg_tts_packed $ret_packed </span>);
         <span class="macro">const_ptr_api!</span>( (<span class="kw">extern</span>) [ $(<span class="macro-nonterminal">$rem</span>)* ] );
     };
-    <span class="comment">// not &quot;;&quot; - all other tokens are part of the return type.
-    // don&#39;t expand return type yet; otherwise we&#39;d have to remember in which branch `rem` needs
+    <span class="comment">// not ";" - all other tokens are part of the return type.
+    // don't expand return type yet; otherwise we'd have to remember in which branch `rem` needs
     // to be used to parse further functions.
     </span>( (<span class="kw">fn</span>)
         <span class="macro-nonterminal">$def_packed</span>:tt
@@ -554,7 +555,7 @@
 
     <span class="comment">// ----------------------------------------------------------------
     // macro start; find extern block
-    </span>( <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{ $(<span class="macro-nonterminal">$rem</span>:tt)* } ) =&gt; {
+    </span>( <span class="kw">extern </span><span class="string">"C" </span>{ $(<span class="macro-nonterminal">$rem</span>:tt)* } ) =&gt; {
         <span class="macro">const_ptr_api!</span>( (<span class="kw">extern</span>) [ $(<span class="macro-nonterminal">$rem</span>)* ] );
     };
 }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/test/test_utils.rs`."><title>test_utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/test/test_utils.rs`."><title>test_utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -617,11 +618,11 @@
 /// async fn test_init_service() {
 ///     let app = test::init_service(
 ///         App::new()
-///             .service(web::resource(&quot;/test&quot;).to(|| async { &quot;OK&quot; }))
+///             .service(web::resource("/test").to(|| async { "OK" }))
 ///     ).await;
 ///
 ///     // Create request object
-///     let req = test::TestRequest::with_uri(&quot;/test&quot;).to_request();
+///     let req = test::TestRequest::with_uri("/test").to_request();
 ///
 ///     // Execute application
 ///     let res = app.call(req).await.unwrap();
@@ -641,7 +642,7 @@
 {
     try_init_service(app)
         .<span class="kw">await
-        </span>.expect(<span class="string">&quot;service initialization failed&quot;</span>)
+        </span>.expect(<span class="string">"service initialization failed"</span>)
 }
 
 <span class="doccomment">/// Fallible version of [`init_service`] that allows testing initialization errors.
@@ -667,13 +668,13 @@
 /// async fn test_response() {
 ///     let app = test::init_service(
 ///         App::new()
-///             .service(web::resource(&quot;/test&quot;).to(|| async {
+///             .service(web::resource("/test").to(|| async {
 ///                 HttpResponse::Ok()
 ///             }))
 ///     ).await;
 ///
 ///     // Create request object
-///     let req = test::TestRequest::with_uri(&quot;/test&quot;).to_request();
+///     let req = test::TestRequest::with_uri("/test").to_request();
 ///
 ///     // Call application
 ///     let res = test::call_service(&amp;app, req).await;
@@ -690,7 +691,7 @@
 {
     app.call(req)
         .<span class="kw">await
-        </span>.expect(<span class="string">&quot;test service call returned error&quot;</span>)
+        </span>.expect(<span class="string">"test service call returned error"</span>)
 }
 
 <span class="doccomment">/// Fallible version of [`call_service`] that allows testing response completion errors.
@@ -713,19 +714,19 @@
 /// async fn test_index() {
 ///     let app = test::init_service(
 ///         App::new().service(
-///             web::resource(&quot;/index.html&quot;)
+///             web::resource("/index.html")
 ///                 .route(web::post().to(|| async {
-///                     HttpResponse::Ok().body(&quot;welcome!&quot;)
+///                     HttpResponse::Ok().body("welcome!")
 ///                 })))
 ///     ).await;
 ///
 ///     let req = test::TestRequest::post()
-///         .uri(&quot;/index.html&quot;)
-///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)
+///         .uri("/index.html")
+///         .header(header::CONTENT_TYPE, "application/json")
 ///         .to_request();
 ///
 ///     let result = test::call_and_read_body(&amp;app, req).await;
-///     assert_eq!(result, Bytes::from_static(b&quot;welcome!&quot;));
+///     assert_eq!(result, Bytes::from_static(b"welcome!"));
 /// }
 /// ```
 ///
@@ -743,7 +744,7 @@
 </span>}
 
 <span class="attr">#[doc(hidden)]
-#[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `call_and_read_body`.&quot;</span>)]
+#[deprecated(since = <span class="string">"4.0.0"</span>, note = <span class="string">"Renamed to `call_and_read_body`."</span>)]
 </span><span class="kw">pub async fn </span>read_response&lt;S, B&gt;(app: <span class="kw-2">&amp;</span>S, req: Request) -&gt; Bytes
 <span class="kw">where
     </span>S: Service&lt;Request, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
@@ -764,20 +765,20 @@
 /// async fn test_index() {
 ///     let app = test::init_service(
 ///         App::new().service(
-///             web::resource(&quot;/index.html&quot;)
+///             web::resource("/index.html")
 ///                 .route(web::post().to(|| async {
-///                     HttpResponse::Ok().body(&quot;welcome!&quot;)
+///                     HttpResponse::Ok().body("welcome!")
 ///                 })))
 ///     ).await;
 ///
 ///     let req = test::TestRequest::post()
-///         .uri(&quot;/index.html&quot;)
-///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)
+///         .uri("/index.html")
+///         .header(header::CONTENT_TYPE, "application/json")
 ///         .to_request();
 ///
 ///     let res = test::call_service(&amp;app, req).await;
 ///     let result = test::read_body(res).await;
-///     assert_eq!(result, Bytes::from_static(b&quot;welcome!&quot;));
+///     assert_eq!(result, Bytes::from_static(b"welcome!"));
 /// }
 /// ```
 ///
@@ -790,7 +791,7 @@
     try_read_body(res)
         .<span class="kw">await
         </span>.map_err(Into::&lt;Box&lt;<span class="kw">dyn </span>StdError&gt;&gt;::into)
-        .expect(<span class="string">&quot;error reading test response body&quot;</span>)
+        .expect(<span class="string">"error reading test response body"</span>)
 }
 
 <span class="doccomment">/// Fallible version of [`read_body`] that allows testing MessageBody reading errors.
@@ -819,18 +820,18 @@
 /// async fn test_post_person() {
 ///     let app = test::init_service(
 ///         App::new().service(
-///             web::resource(&quot;/people&quot;)
+///             web::resource("/people")
 ///                 .route(web::post().to(|person: web::Json&lt;Person&gt;| async {
 ///                     HttpResponse::Ok()
 ///                         .json(person)})
 ///                     ))
 ///     ).await;
 ///
-///     let payload = r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#.as_bytes();
+///     let payload = r#"{"id":"12345","name":"User name"}"#.as_bytes();
 ///
 ///     let res = test::TestRequest::post()
-///         .uri(&quot;/people&quot;)
-///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)
+///         .uri("/people")
+///         .header(header::CONTENT_TYPE, "application/json")
 ///         .set_payload(payload)
 ///         .send_request(&amp;mut app)
 ///         .await;
@@ -852,7 +853,7 @@
 {
     try_read_body_json(res).<span class="kw">await</span>.unwrap_or_else(|err| {
         <span class="macro">panic!</span>(
-            <span class="string">&quot;could not deserialize body into a {}\nerr: {}&quot;</span>,
+            <span class="string">"could not deserialize body into a {}\nerr: {}"</span>,
             std::any::type_name::&lt;T&gt;(),
             err,
         )
@@ -888,18 +889,18 @@
 /// async fn test_add_person() {
 ///     let app = test::init_service(
 ///         App::new().service(
-///             web::resource(&quot;/people&quot;)
+///             web::resource("/people")
 ///                 .route(web::post().to(|person: web::Json&lt;Person&gt;| async {
 ///                     HttpResponse::Ok()
 ///                         .json(person)})
 ///                     ))
 ///     ).await;
 ///
-///     let payload = r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#.as_bytes();
+///     let payload = r#"{"id":"12345","name":"User name"}"#.as_bytes();
 ///
 ///     let req = test::TestRequest::post()
-///         .uri(&quot;/people&quot;)
-///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)
+///         .uri("/people")
+///         .header(header::CONTENT_TYPE, "application/json")
 ///         .set_payload(payload)
 ///         .to_request();
 ///
@@ -938,7 +939,7 @@
 </span>}
 
 <span class="attr">#[doc(hidden)]
-#[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `call_and_read_body_json`.&quot;</span>)]
+#[deprecated(since = <span class="string">"4.0.0"</span>, note = <span class="string">"Renamed to `call_and_read_body_json`."</span>)]
 </span><span class="kw">pub async fn </span>read_response_json&lt;S, B, T&gt;(app: <span class="kw-2">&amp;</span>S, req: Request) -&gt; T
 <span class="kw">where
     </span>S: Service&lt;Request, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
@@ -961,33 +962,33 @@
     </span><span class="kw">async fn </span>test_request_methods() {
         <span class="kw">let </span>app = init_service(
             App::new().service(
-                web::resource(<span class="string">&quot;/index.html&quot;</span>)
-                    .route(web::put().to(|| HttpResponse::Ok().body(<span class="string">&quot;put!&quot;</span>)))
-                    .route(web::patch().to(|| HttpResponse::Ok().body(<span class="string">&quot;patch!&quot;</span>)))
-                    .route(web::delete().to(|| HttpResponse::Ok().body(<span class="string">&quot;delete!&quot;</span>))),
+                web::resource(<span class="string">"/index.html"</span>)
+                    .route(web::put().to(|| HttpResponse::Ok().body(<span class="string">"put!"</span>)))
+                    .route(web::patch().to(|| HttpResponse::Ok().body(<span class="string">"patch!"</span>)))
+                    .route(web::delete().to(|| HttpResponse::Ok().body(<span class="string">"delete!"</span>))),
             ),
         )
         .<span class="kw">await</span>;
 
         <span class="kw">let </span>put_req = TestRequest::put()
-            .uri(<span class="string">&quot;/index.html&quot;</span>)
-            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .uri(<span class="string">"/index.html"</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">"application/json"</span>))
             .to_request();
 
         <span class="kw">let </span>result = call_and_read_body(<span class="kw-2">&amp;</span>app, put_req).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b&quot;put!&quot;</span>));
+        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b"put!"</span>));
 
         <span class="kw">let </span>patch_req = TestRequest::patch()
-            .uri(<span class="string">&quot;/index.html&quot;</span>)
-            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .uri(<span class="string">"/index.html"</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">"application/json"</span>))
             .to_request();
 
         <span class="kw">let </span>result = call_and_read_body(<span class="kw-2">&amp;</span>app, patch_req).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b&quot;patch!&quot;</span>));
+        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b"patch!"</span>));
 
-        <span class="kw">let </span>delete_req = TestRequest::delete().uri(<span class="string">&quot;/index.html&quot;</span>).to_request();
+        <span class="kw">let </span>delete_req = TestRequest::delete().uri(<span class="string">"/index.html"</span>).to_request();
         <span class="kw">let </span>result = call_and_read_body(<span class="kw-2">&amp;</span>app, delete_req).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b&quot;delete!&quot;</span>));
+        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b"delete!"</span>));
     }
 
     <span class="attr">#[derive(Serialize, Deserialize, Debug)]
@@ -999,36 +1000,36 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_response_json() {
         <span class="kw">let </span>app =
-            init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            init_service(App::new().service(web::resource(<span class="string">"/people"</span>).route(
                 web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
             )))
             .<span class="kw">await</span>;
 
-        <span class="kw">let </span>payload = <span class="string">r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#</span>.as_bytes();
+        <span class="kw">let </span>payload = <span class="string">r#"{"id":"12345","name":"User name"}"#</span>.as_bytes();
 
         <span class="kw">let </span>req = TestRequest::post()
-            .uri(<span class="string">&quot;/people&quot;</span>)
-            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .uri(<span class="string">"/people"</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">"application/json"</span>))
             .set_payload(payload)
             .to_request();
 
         <span class="kw">let </span>result: Person = call_and_read_body_json(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.id, <span class="string">&quot;12345&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.id, <span class="string">"12345"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_try_response_json_error() {
         <span class="kw">let </span>app =
-            init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            init_service(App::new().service(web::resource(<span class="string">"/people"</span>).route(
                 web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
             )))
             .<span class="kw">await</span>;
 
-        <span class="kw">let </span>payload = <span class="string">r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#</span>.as_bytes();
+        <span class="kw">let </span>payload = <span class="string">r#"{"id":"12345","name":"User name"}"#</span>.as_bytes();
 
         <span class="kw">let </span>req = TestRequest::post()
-            .uri(<span class="string">&quot;/animals&quot;</span>) <span class="comment">// Not registered to ensure an error occurs.
-            </span>.insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .uri(<span class="string">"/animals"</span>) <span class="comment">// Not registered to ensure an error occurs.
+            </span>.insert_header((header::CONTENT_TYPE, <span class="string">"application/json"</span>))
             .set_payload(payload)
             .to_request();
 
@@ -1040,38 +1041,38 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_body_json() {
         <span class="kw">let </span>app =
-            init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            init_service(App::new().service(web::resource(<span class="string">"/people"</span>).route(
                 web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
             )))
             .<span class="kw">await</span>;
 
-        <span class="kw">let </span>payload = <span class="string">r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#</span>.as_bytes();
+        <span class="kw">let </span>payload = <span class="string">r#"{"id":"12345","name":"User name"}"#</span>.as_bytes();
 
         <span class="kw">let </span>res = TestRequest::post()
-            .uri(<span class="string">&quot;/people&quot;</span>)
-            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .uri(<span class="string">"/people"</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">"application/json"</span>))
             .set_payload(payload)
             .send_request(<span class="kw-2">&amp;</span>app)
             .<span class="kw">await</span>;
 
         <span class="kw">let </span>result: Person = read_body_json(res).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.name, <span class="string">&quot;User name&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.name, <span class="string">"User name"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_try_body_json_error() {
         <span class="kw">let </span>app =
-            init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            init_service(App::new().service(web::resource(<span class="string">"/people"</span>).route(
                 web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
             )))
             .<span class="kw">await</span>;
 
         <span class="comment">// Use a number for id to cause a deserialization error.
-        </span><span class="kw">let </span>payload = <span class="string">r#&quot;{&quot;id&quot;:12345,&quot;name&quot;:&quot;User name&quot;}&quot;#</span>.as_bytes();
+        </span><span class="kw">let </span>payload = <span class="string">r#"{"id":12345,"name":"User name"}"#</span>.as_bytes();
 
         <span class="kw">let </span>res = TestRequest::post()
-            .uri(<span class="string">&quot;/people&quot;</span>)
-            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .uri(<span class="string">"/people"</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">"application/json"</span>))
             .set_payload(payload)
             .send_request(<span class="kw-2">&amp;</span>app)
             .<span class="kw">await</span>;
@@ -1083,70 +1084,70 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_request_response_form() {
         <span class="kw">let </span>app =
-            init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            init_service(App::new().service(web::resource(<span class="string">"/people"</span>).route(
                 web::post().to(|person: web::Form&lt;Person&gt;| HttpResponse::Ok().json(person)),
             )))
             .<span class="kw">await</span>;
 
         <span class="kw">let </span>payload = Person {
-            id: <span class="string">&quot;12345&quot;</span>.to_string(),
-            name: <span class="string">&quot;User name&quot;</span>.to_string(),
+            id: <span class="string">"12345"</span>.to_string(),
+            name: <span class="string">"User name"</span>.to_string(),
         };
 
         <span class="kw">let </span>req = TestRequest::post()
-            .uri(<span class="string">&quot;/people&quot;</span>)
+            .uri(<span class="string">"/people"</span>)
             .set_form(<span class="kw-2">&amp;</span>payload)
             .to_request();
 
-        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">"application/x-www-form-urlencoded"</span>);
 
         <span class="kw">let </span>result: Person = call_and_read_body_json(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.id, <span class="string">&quot;12345&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.name, <span class="string">&quot;User name&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.id, <span class="string">"12345"</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.name, <span class="string">"User name"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_response() {
         <span class="kw">let </span>app = init_service(
             App::new().service(
-                web::resource(<span class="string">&quot;/index.html&quot;</span>)
-                    .route(web::post().to(|| HttpResponse::Ok().body(<span class="string">&quot;welcome!&quot;</span>))),
+                web::resource(<span class="string">"/index.html"</span>)
+                    .route(web::post().to(|| HttpResponse::Ok().body(<span class="string">"welcome!"</span>))),
             ),
         )
         .<span class="kw">await</span>;
 
         <span class="kw">let </span>req = TestRequest::post()
-            .uri(<span class="string">&quot;/index.html&quot;</span>)
-            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .uri(<span class="string">"/index.html"</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">"application/json"</span>))
             .to_request();
 
         <span class="kw">let </span>result = call_and_read_body(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b&quot;welcome!&quot;</span>));
+        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b"welcome!"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_request_response_json() {
         <span class="kw">let </span>app =
-            init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            init_service(App::new().service(web::resource(<span class="string">"/people"</span>).route(
                 web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
             )))
             .<span class="kw">await</span>;
 
         <span class="kw">let </span>payload = Person {
-            id: <span class="string">&quot;12345&quot;</span>.to_string(),
-            name: <span class="string">&quot;User name&quot;</span>.to_string(),
+            id: <span class="string">"12345"</span>.to_string(),
+            name: <span class="string">"User name"</span>.to_string(),
         };
 
         <span class="kw">let </span>req = TestRequest::post()
-            .uri(<span class="string">&quot;/people&quot;</span>)
+            .uri(<span class="string">"/people"</span>)
             .set_json(<span class="kw-2">&amp;</span>payload)
             .to_request();
 
-        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;application/json&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">"application/json"</span>);
 
         <span class="kw">let </span>result: Person = call_and_read_body_json(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.id, <span class="string">&quot;12345&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.name, <span class="string">&quot;User name&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.id, <span class="string">"12345"</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.name, <span class="string">"User name"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1162,7 +1163,7 @@
             &gt;,
         &gt; {
             App::new().service(
-                web::resource(<span class="string">&quot;/people&quot;</span>).route(
+                web::resource(<span class="string">"/people"</span>).route(
                     web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
                 ),
             )

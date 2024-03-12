@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/types/json.rs`."><title>json.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.5.1/src/types/json.rs`."><title>json.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -784,7 +785,7 @@
 <span class="kw">use </span>futures_core::{ready, Stream <span class="kw">as _</span>};
 <span class="kw">use </span>serde::{de::DeserializeOwned, Serialize};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"__compress"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::dev::Decompress;
 <span class="kw">use crate</span>::{
     body::EitherBody,
@@ -814,10 +815,10 @@
 ///     username: String,
 /// }
 ///
-/// /// deserialize `Info` from request&#39;s body
-/// #[post(&quot;/&quot;)]
+/// /// deserialize `Info` from request's body
+/// #[post("/")]
 /// async fn index(info: web::Json&lt;Info&gt;) -&gt; String {
-///     format!(&quot;Welcome {}!&quot;, info.username)
+///     format!("Welcome {}!", info.username)
 /// }
 /// ```
 ///
@@ -835,10 +836,10 @@
 ///     name: String,
 /// }
 ///
-/// #[post(&quot;/{name}&quot;)]
+/// #[post("/{name}")]
 /// async fn index(req: HttpRequest) -&gt; web::Json&lt;Info&gt; {
 ///     web::Json(Info {
-///         name: req.match_info().get(&quot;name&quot;).unwrap().to_owned(),
+///         name: req.match_info().get("name").unwrap().to_owned(),
 ///     })
 /// }
 /// ```
@@ -867,7 +868,7 @@
 }
 
 <span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>Json&lt;T&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, f)
     }
 }
@@ -937,7 +938,7 @@
 <span class="kw">impl</span>&lt;T: DeserializeOwned&gt; Future <span class="kw">for </span>JsonExtractFut&lt;T&gt; {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Json&lt;T&gt;, Error&gt;;
 
-    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
 
         <span class="kw">let </span>res = <span class="macro">ready!</span>(Pin::new(<span class="kw-2">&amp;mut </span>this.fut).poll(cx));
@@ -946,8 +947,8 @@
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="kw">let </span>req = this.req.take().unwrap();
                 <span class="macro">log::debug!</span>(
-                    <span class="string">&quot;Failed to deserialize Json from payload. \
-                         Request path: {}&quot;</span>,
+                    <span class="string">"Failed to deserialize Json from payload. \
+                         Request path: {}"</span>,
                     req.path()
                 );
 
@@ -977,9 +978,9 @@
 /// }
 ///
 /// // `Json` extraction is bound by custom `JsonConfig` applied to App.
-/// #[post(&quot;/&quot;)]
+/// #[post("/")]
 /// async fn index(info: web::Json&lt;Info&gt;) -&gt; String {
-///     format!(&quot;Welcome {}!&quot;, info.name)
+///     format!("Welcome {}!", info.name)
 /// }
 ///
 /// // custom `Json` extractor configuration
@@ -1015,7 +1016,7 @@
     <span class="doccomment">/// Set custom error handler.
     </span><span class="kw">pub fn </span>error_handler&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(JsonPayloadError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(JsonPayloadError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + Send + Sync + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.err_handler = <span class="prelude-val">Some</span>(Arc::new(f));
         <span class="self">self
@@ -1024,7 +1025,7 @@
     <span class="doccomment">/// Set predicate for allowed content types.
     </span><span class="kw">pub fn </span>content_type&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, predicate: F) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>F: Fn(mime::Mime) -&gt; bool + Send + Sync + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(mime::Mime) -&gt; bool + Send + Sync + <span class="lifetime">'static</span>,
     {
         <span class="self">self</span>.content_type = <span class="prelude-val">Some</span>(Arc::new(predicate));
         <span class="self">self
@@ -1076,9 +1077,9 @@
         limit: usize,
         <span class="doccomment">/// Length as reported by `Content-Length` header, if present.
         </span>length: <span class="prelude-ty">Option</span>&lt;usize&gt;,
-        <span class="attr">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"__compress"</span>)]
         </span>payload: Decompress&lt;Payload&gt;,
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;__compress&quot;</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"__compress"</span>))]
         </span>payload: Payload,
         buf: BytesMut,
         _res: PhantomData&lt;T&gt;,
@@ -1124,7 +1125,7 @@
 
         </span><span class="kw">let </span>payload = {
             <span class="macro">cfg_if::cfg_if! </span>{
-                <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)] </span>{
+                <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">"__compress"</span>)] </span>{
                     Decompress::from_headers(payload.take(), req.headers())
                 } <span class="kw">else </span>{
                     payload.take()
@@ -1175,7 +1176,7 @@
 <span class="kw">impl</span>&lt;T: DeserializeOwned&gt; Future <span class="kw">for </span>JsonBody&lt;T&gt; {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;T, JsonPayloadError&gt;;
 
-    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
 
         <span class="kw">match </span>this {
@@ -1247,15 +1248,15 @@
         <span class="kw">let </span>req = TestRequest::default().to_http_request();
 
         <span class="kw">let </span>j = Json(MyObject {
-            name: <span class="string">&quot;test&quot;</span>.to_string(),
+            name: <span class="string">"test"</span>.to_string(),
         });
         <span class="kw">let </span>res = j.respond_to(<span class="kw-2">&amp;</span>req);
         <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
             res.headers().get(header::CONTENT_TYPE).unwrap(),
-            header::HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>)
+            header::HeaderValue::from_static(<span class="string">"application/json"</span>)
         );
-        <span class="macro">assert_body_eq!</span>(res, <span class="string">b&quot;{\&quot;name\&quot;:\&quot;test\&quot;}&quot;</span>);
+        <span class="macro">assert_body_eq!</span>(res, <span class="string">b"{\"name\":\"test\"}"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1263,16 +1264,16 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"application/json"</span>),
             ))
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .app_data(JsonConfig::default().limit(<span class="number">10</span>).error_handler(|err, <span class="kw">_</span>| {
                 <span class="kw">let </span>msg = MyObject {
-                    name: <span class="string">&quot;invalid request&quot;</span>.to_string(),
+                    name: <span class="string">"invalid request"</span>.to_string(),
                 };
                 <span class="kw">let </span>resp = HttpResponse::BadRequest().body(serde_json::to_string(<span class="kw-2">&amp;</span>msg).unwrap());
                 InternalError::from_response(err, resp).into()
@@ -1285,7 +1286,7 @@
 
         <span class="kw">let </span>body = body::to_bytes(resp.into_body()).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>msg: MyObject = serde_json::from_slice(<span class="kw-2">&amp;</span>body).unwrap();
-        <span class="macro">assert_eq!</span>(msg.name, <span class="string">&quot;invalid request&quot;</span>);
+        <span class="macro">assert_eq!</span>(msg.name, <span class="string">"invalid request"</span>);
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1293,51 +1294,51 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"application/json"</span>),
             ))
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .to_http_parts();
 
         <span class="kw">let </span>s = Json::&lt;MyObject&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
-        <span class="macro">assert_eq!</span>(s.name, <span class="string">&quot;test&quot;</span>);
+        <span class="macro">assert_eq!</span>(s.name, <span class="string">"test"</span>);
         <span class="macro">assert_eq!</span>(
             s.into_inner(),
             MyObject {
-                name: <span class="string">&quot;test&quot;</span>.to_string()
+                name: <span class="string">"test"</span>.to_string()
             }
         );
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"application/json"</span>),
             ))
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .app_data(JsonConfig::default().limit(<span class="number">10</span>))
             .to_http_parts();
 
         <span class="kw">let </span>s = Json::&lt;MyObject&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, s.err().unwrap())
-            .contains(<span class="string">&quot;JSON payload (16 bytes) is larger than allowed (limit: 10 bytes).&quot;</span>));
+        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, s.err().unwrap())
+            .contains(<span class="string">"JSON payload (16 bytes) is larger than allowed (limit: 10 bytes)."</span>));
 
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"application/json"</span>),
             ))
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .app_data(
                 JsonConfig::default()
                     .limit(<span class="number">10</span>)
@@ -1345,7 +1346,7 @@
             )
             .to_http_parts();
         <span class="kw">let </span>s = Json::&lt;MyObject&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, s.err().unwrap()).contains(<span class="string">&quot;Content type error&quot;</span>));
+        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, s.err().unwrap()).contains(<span class="string">"Content type error"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1357,7 +1358,7 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;application/text&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"application/text"</span>),
             ))
             .to_http_parts();
         <span class="kw">let </span>json = JsonBody::&lt;MyObject&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl, <span class="prelude-val">None</span>, <span class="bool-val">true</span>).<span class="kw">await</span>;
@@ -1366,11 +1367,11 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"application/json"</span>),
             ))
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;10000&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"10000"</span>),
             ))
             .to_http_parts();
 
@@ -1388,7 +1389,7 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"application/json"</span>),
             ))
             .set_payload(Bytes::from_static(<span class="kw-2">&amp;</span>[<span class="number">0u8</span>; <span class="number">1000</span>]))
             .to_http_parts();
@@ -1405,20 +1406,20 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"application/json"</span>),
             ))
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .to_http_parts();
 
         <span class="kw">let </span>json = JsonBody::&lt;MyObject&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl, <span class="prelude-val">None</span>, <span class="bool-val">true</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(
             json.ok().unwrap(),
             MyObject {
-                name: <span class="string">&quot;test&quot;</span>.to_owned()
+                name: <span class="string">"test"</span>.to_owned()
             }
         );
     }
@@ -1428,13 +1429,13 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;text/plain&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"text/plain"</span>),
             ))
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .app_data(JsonConfig::default().limit(<span class="number">4096</span>))
             .to_http_parts();
 
@@ -1447,13 +1448,13 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;text/plain&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"text/plain"</span>),
             ))
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .app_data(JsonConfig::default().content_type(|mime: mime::Mime| {
                 mime.type_() == mime::TEXT &amp;&amp; mime.subtype() == mime::PLAIN
             }))
@@ -1468,13 +1469,13 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;text/html&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"text/html"</span>),
             ))
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .app_data(JsonConfig::default().content_type(|mime: mime::Mime| {
                 mime.type_() == mime::TEXT &amp;&amp; mime.subtype() == mime::PLAIN
             }))
@@ -1489,9 +1490,9 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .app_data(JsonConfig::default().content_type_required(<span class="bool-val">false</span>))
             .to_http_parts();
 
@@ -1504,13 +1505,13 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((
                 header::CONTENT_LENGTH,
-                header::HeaderValue::from_static(<span class="string">&quot;16&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"16"</span>),
             ))
             .insert_header((
                 header::CONTENT_TYPE,
-                header::HeaderValue::from_static(<span class="string">&quot;invalid/value&quot;</span>),
+                header::HeaderValue::from_static(<span class="string">"invalid/value"</span>),
             ))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .app_data(JsonConfig::default().content_type_required(<span class="bool-val">false</span>))
             .to_http_parts();
 
@@ -1523,7 +1524,7 @@
         <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
             .insert_header((CONTENT_TYPE, mime::APPLICATION_JSON))
             .insert_header((CONTENT_LENGTH, <span class="number">16</span>))
-            .set_payload(Bytes::from_static(<span class="string">b&quot;{\&quot;name\&quot;: \&quot;test\&quot;}&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b"{\"name\": \"test\"}"</span>))
             .app_data(web::Data::new(JsonConfig::default().limit(<span class="number">10</span>)))
             .to_http_parts();
 
@@ -1532,7 +1533,7 @@
 
         <span class="kw">let </span>err_str = s.err().unwrap().to_string();
         <span class="macro">assert!</span>(
-            err_str.contains(<span class="string">&quot;JSON payload (16 bytes) is larger than allowed (limit: 10 bytes).&quot;</span>)
+            err_str.contains(<span class="string">"JSON payload (16 bytes) is larger than allowed (limit: 10 bytes)."</span>)
         );
     }
 }

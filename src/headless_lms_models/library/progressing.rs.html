@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/progressing.rs`."><title>progressing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/progressing.rs`."><title>progressing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1122,7 +1123,7 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Creates completion for the user if eligible and previous one doesn&#39;t exist. Returns a boolean indicating
+<span class="doccomment">/// Creates completion for the user if eligible and previous one doesn't exist. Returns a boolean indicating
 /// whether a completion exists after calling this function.
 </span><span class="attr">#[instrument(skip(conn))]
 </span><span class="kw">async fn </span>create_automatic_course_module_completion_if_eligible(
@@ -1175,10 +1176,10 @@
                 CourseModuleCompletionGranter::Automatic,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="macro">info!</span>(<span class="string">&quot;Created a completion&quot;</span>);
+            <span class="macro">info!</span>(<span class="string">"Created a completion"</span>);
             <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
         } <span class="kw">else </span>{
-            <span class="comment">// Can&#39;t grant automatic completion; no-op.
+            <span class="comment">// Can't grant automatic completion; no-op.
             </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
         }
     }
@@ -1202,7 +1203,7 @@
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">if </span>eligible {
                 <span class="kw">if </span>requirements.requires_exam {
-                    <span class="macro">info!</span>(<span class="string">&quot;To complete this module automatically, the user must pass an exam.&quot;</span>);
+                    <span class="macro">info!</span>(<span class="string">"To complete this module automatically, the user must pass an exam."</span>);
                     user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
                         .<span class="kw">await
                 </span>} <span class="kw">else </span>{
@@ -1381,7 +1382,7 @@
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_instance_id: Uuid,
 ) -&gt; ModelResult&lt;()&gt; {
-    <span class="macro">info!</span>(<span class="string">&quot;Reprocessing course module completions&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Reprocessing course module completions"</span>);
     <span class="kw">let </span>course_instance = course_instances::get_course_instance(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course = courses::get_course(conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>submodule_completions_required = course
@@ -1394,9 +1395,9 @@
         course_instance_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">info!</span>(users = <span class="question-mark">?</span>users.len(), course_modules = <span class="question-mark">?</span>course_modules.len(), <span class="question-mark">?</span>submodule_completions_required, <span class="string">&quot;Completion reprocessing info&quot;</span>);
+    <span class="macro">info!</span>(users = <span class="question-mark">?</span>users.len(), course_modules = <span class="question-mark">?</span>course_modules.len(), <span class="question-mark">?</span>submodule_completions_required, <span class="string">"Completion reprocessing info"</span>);
     <span class="kw">for </span>course_module <span class="kw">in </span>course_modules.iter() {
-        <span class="macro">info!</span>(<span class="question-mark">?</span>course_module, <span class="string">&quot;Course module information&quot;</span>);
+        <span class="macro">info!</span>(<span class="question-mark">?</span>course_module, <span class="string">"Course module information"</span>);
     }
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">for </span>user_id <span class="kw">in </span>users {
@@ -1424,19 +1425,19 @@
         }
     }
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;Reprocessing course module completions complete&quot;</span>);
+    <span class="macro">info!</span>(<span class="string">"Reprocessing course module completions complete"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseInstanceCompletionSummary {
     <span class="kw">pub </span>course_modules: Vec&lt;CourseModule&gt;,
     <span class="kw">pub </span>users_with_course_module_completions: Vec&lt;UserWithModuleCompletions&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserWithModuleCompletions {
     <span class="kw">pub </span>completed_modules: Vec&lt;CourseModuleCompletionWithRegistrationInfo&gt;,
     <span class="kw">pub </span>email: String,
@@ -1446,7 +1447,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserCourseModuleCompletion {
     <span class="kw">pub </span>course_module_id: Uuid,
     <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
@@ -1522,7 +1523,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>TeacherManualCompletionRequest {
     <span class="kw">pub </span>course_module_id: Uuid,
     <span class="kw">pub </span>new_completions: Vec&lt;TeacherManualCompletion&gt;,
@@ -1530,7 +1531,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>TeacherManualCompletion {
     <span class="kw">pub </span>user_id: Uuid,
     <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
@@ -1548,7 +1549,7 @@
     <span class="kw">if </span>course_module.course_id != course_instance.course_id {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::PreconditionFailed,
-            <span class="string">&quot;Course module not part of the course.&quot;</span>.to_string(),
+            <span class="string">"Course module not part of the course."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -1613,7 +1614,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ManualCompletionPreview {
     <span class="kw">pub </span>already_completed_users: Vec&lt;ManualCompletionPreviewUser&gt;,
     <span class="kw">pub </span>first_time_completing_users: Vec&lt;ManualCompletionPreviewUser&gt;,
@@ -1621,7 +1622,7 @@
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>ManualCompletionPreviewUser {
     <span class="kw">pub </span>user_id: Uuid,
     <span class="kw">pub </span>first_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -1641,7 +1642,7 @@
     <span class="kw">if </span>course_module.course_id != course_instance.course_id {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::PreconditionFailed,
-            <span class="string">&quot;Course module not part of the course.&quot;</span>.to_string(),
+            <span class="string">"Course module not part of the course."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -1690,7 +1691,7 @@
 }
 
 <span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserCompletionInformation {
     <span class="kw">pub </span>course_module_completion_id: Uuid,
     <span class="kw">pub </span>course_name: String,
@@ -1713,7 +1714,7 @@
             </span>.ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::Generic,
-                    <span class="string">&quot;Missing settings&quot;</span>.to_string(),
+                    <span class="string">"Missing settings"</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
@@ -1729,7 +1730,7 @@
     </span><span class="kw">let </span>uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
         ModelError::new(
             ModelErrorType::InvalidRequest,
-            <span class="string">&quot;Course module is missing uh_course_code.&quot;</span>.to_string(),
+            <span class="string">"Course module is missing uh_course_code."</span>.to_string(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
@@ -1748,7 +1749,7 @@
 }
 
 <span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserModuleCompletionStatus {
     <span class="kw">pub </span>completed: bool,
     <span class="kw">pub </span>default: bool,
@@ -1763,7 +1764,7 @@
     <span class="kw">pub </span>certificate_configuration_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
-<span class="doccomment">/// Gets course modules with user&#39;s completion status for the given instance.
+<span class="doccomment">/// Gets course modules with user's completion status for the given instance.
 </span><span class="kw">pub async fn </span>get_user_module_completion_statuses_for_course_instance(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: Uuid,
@@ -1826,7 +1827,7 @@
 }
 
 <span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CompletionRegistrationLink {
     <span class="kw">pub </span>url: String,
 }
@@ -1839,7 +1840,7 @@
     <span class="kw">if </span>!course_module.enable_registering_completion_to_uh_open_university {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::InvalidRequest,
-            <span class="string">&quot;Completion registration is not enabled for this course module.&quot;</span>.to_string(),
+            <span class="string">"Completion registration is not enabled for this course module."</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -1851,7 +1852,7 @@
             </span>.ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::Generic,
-                    <span class="string">&quot;Missing settings&quot;</span>.to_string(),
+                    <span class="string">"Missing settings"</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
@@ -1875,7 +1876,7 @@
             <span class="kw">let </span>uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::PreconditionFailed,
-                    <span class="string">&quot;Course module doesn&#39;t have an assossiated University of Helsinki course code.&quot;
+                    <span class="string">"Course module doesn't have an assossiated University of Helsinki course code."
                         </span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
@@ -2008,8 +2009,8 @@
         }
 
         <span class="kw">async fn </span>create_test_data(
-            <span class="kw-2">mut </span>tx: Tx&lt;<span class="lifetime">&#39;_</span>&gt;,
-        ) -&gt; (Tx&lt;<span class="lifetime">&#39;_</span>&gt;, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
+            <span class="kw-2">mut </span>tx: Tx&lt;<span class="lifetime">'_</span>&gt;,
+        ) -&gt; (Tx&lt;<span class="lifetime">'_</span>&gt;, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
             <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
             <span class="kw">let </span>automatic_completion_policy =
                 CompletionPolicy::Automatic(AutomaticCompletionRequirements {
@@ -2024,7 +2025,7 @@
             <span class="kw">let </span>course_module_2 = course_modules::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
-                <span class="kw-2">&amp;</span>NewCourseModule::new(course, <span class="prelude-val">Some</span>(<span class="string">&quot;Module 2&quot;</span>.to_string()), <span class="number">1</span>),
+                <span class="kw-2">&amp;</span>NewCourseModule::new(course, <span class="prelude-val">Some</span>(<span class="string">"Module 2"</span>.to_string()), <span class="number">1</span>),
             )
             .<span class="kw">await
             </span>.unwrap();
@@ -2032,7 +2033,7 @@
                 tx.as_mut(),
                 PKeyPolicy::Generate,
                 <span class="kw-2">&amp;</span>NewChapter {
-                    name: <span class="string">&quot;chapter 2&quot;</span>.to_string(),
+                    name: <span class="string">"chapter 2"</span>.to_string(),
                     color: <span class="prelude-val">None</span>,
                     course_id: course,
                     chapter_number: <span class="number">2</span>,
@@ -2052,7 +2053,7 @@
                 tx.as_mut(),
                 PKeyPolicy::Generate,
                 course,
-                <span class="string">&quot;&quot;</span>,
+                <span class="string">""</span>,
                 page2.id,
                 chapter_2.id,
                 <span class="number">0</span>,

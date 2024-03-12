@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_helpers.rs`."><title>seed_helpers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_helpers.rs`."><title>seed_helpers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -675,7 +676,7 @@
     <span class="kw">let </span>new_page = NewPage {
         content: Value::Array(<span class="macro">vec!</span>[]),
         url_path: page_data.url_path.to_string(),
-        title: <span class="macro">format!</span>(<span class="string">&quot;{} WIP&quot;</span>, page_data.title),
+        title: <span class="macro">format!</span>(<span class="string">"{} WIP"</span>, page_data.title),
         course_id: <span class="prelude-val">Some</span>(course_id),
         exam_id: <span class="prelude-val">None</span>,
         chapter_id,
@@ -720,24 +721,24 @@
 
 <span class="kw">pub fn </span>paragraph(content: <span class="kw-2">&amp;</span>str, block: Uuid) -&gt; GutenbergBlock {
     GutenbergBlock {
-        name: <span class="string">&quot;core/paragraph&quot;</span>.to_string(),
+        name: <span class="string">"core/paragraph"</span>.to_string(),
         is_valid: <span class="bool-val">true</span>,
         client_id: block,
         attributes: <span class="macro">attributes! </span>{
-            <span class="string">&quot;content&quot;</span>: content,
-            <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
+            <span class="string">"content"</span>: content,
+            <span class="string">"dropCap"</span>: <span class="bool-val">false</span>,
         },
         inner_blocks: <span class="macro">vec!</span>[],
     }
 }
 <span class="kw">pub fn </span>heading(content: <span class="kw-2">&amp;</span>str, client_id: Uuid, level: i32) -&gt; GutenbergBlock {
     GutenbergBlock {
-        name: <span class="string">&quot;core/heading&quot;</span>.to_string(),
+        name: <span class="string">"core/heading"</span>.to_string(),
         is_valid: <span class="bool-val">true</span>,
         client_id,
         attributes: <span class="macro">attributes! </span>{
-            <span class="string">&quot;content&quot;</span>: content,
-            <span class="string">&quot;level&quot;</span>: level,
+            <span class="string">"content"</span>: content,
+            <span class="string">"level"</span>: level,
         },
         inner_blocks: <span class="macro">vec!</span>[],
     }
@@ -772,28 +773,28 @@
     } = exercise_data;
     <span class="kw">let </span>(exercise_block, exercise, <span class="kw-2">mut </span>slides, <span class="kw-2">mut </span>tasks) = example_exercise_flexible(
         exercise_id,
-        exercise_name.unwrap_or_else(|| <span class="string">&quot;Best exercise&quot;</span>.to_string()),
+        exercise_name.unwrap_or_else(|| <span class="string">"Best exercise"</span>.to_string()),
         <span class="macro">vec!</span>[(
             exercise_slide_id,
             <span class="macro">vec!</span>[(
                 exercise_task_id,
-                <span class="string">&quot;example-exercise&quot;</span>.to_string(),
-                <span class="macro">serde_json::json!</span>([paragraph(<span class="string">&quot;Answer this question.&quot;</span>, paragraph_id)]),
+                <span class="string">"example-exercise"</span>.to_string(),
+                <span class="macro">serde_json::json!</span>([paragraph(<span class="string">"Answer this question."</span>, paragraph_id)]),
                 <span class="macro">serde_json::json!</span>([
                     {
-                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>,
-                        <span class="string">&quot;correct&quot;</span>: <span class="bool-val">false</span>,
-                        <span class="string">&quot;id&quot;</span>: spec_1,
+                        <span class="string">"name"</span>: <span class="string">"a"</span>,
+                        <span class="string">"correct"</span>: <span class="bool-val">false</span>,
+                        <span class="string">"id"</span>: spec_1,
                     },
                     {
-                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;b&quot;</span>,
-                        <span class="string">&quot;correct&quot;</span>: <span class="bool-val">true</span>,
-                        <span class="string">&quot;id&quot;</span>: spec_2,
+                        <span class="string">"name"</span>: <span class="string">"b"</span>,
+                        <span class="string">"correct"</span>: <span class="bool-val">true</span>,
+                        <span class="string">"id"</span>: spec_2,
                     },
                     {
-                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;c&quot;</span>,
-                        <span class="string">&quot;correct&quot;</span>: <span class="bool-val">true</span>,
-                        <span class="string">&quot;id&quot;</span>: spec_3,
+                        <span class="string">"name"</span>: <span class="string">"c"</span>,
+                        <span class="string">"correct"</span>: <span class="bool-val">true</span>,
+                        <span class="string">"id"</span>: spec_3,
                     },
                 ]),
             )],
@@ -822,12 +823,12 @@
 ) {
     <span class="kw">let </span>block = GutenbergBlock {
         client_id,
-        name: <span class="string">&quot;moocfi/exercise&quot;</span>.to_string(),
+        name: <span class="string">"moocfi/exercise"</span>.to_string(),
         is_valid: <span class="bool-val">true</span>,
         attributes: <span class="macro">attributes! </span>{
-            <span class="string">&quot;id&quot;</span>: exercise_id,
-            <span class="string">&quot;name&quot;</span>: exercise_name,
-            <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
+            <span class="string">"id"</span>: exercise_id,
+            <span class="string">"name"</span>: exercise_name,
+            <span class="string">"dropCap"</span>: <span class="bool-val">false</span>,
         },
         inner_blocks: <span class="macro">vec!</span>[],
     };
@@ -906,12 +907,12 @@
     } = exercise_data;
     <span class="kw">let </span>block = GutenbergBlock {
         client_id: block_id,
-        name: <span class="string">&quot;moocfi/exercise&quot;</span>.to_string(),
+        name: <span class="string">"moocfi/exercise"</span>.to_string(),
         is_valid: <span class="bool-val">true</span>,
         attributes: <span class="macro">attributes! </span>{
-            <span class="string">&quot;id&quot;</span>: exercise_id,
-            <span class="string">&quot;name&quot;</span>: name,
-            <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
+            <span class="string">"id"</span>: exercise_id,
+            <span class="string">"name"</span>: name,
+            <span class="string">"dropCap"</span>: <span class="bool-val">false</span>,
         },
         inner_blocks: <span class="macro">vec!</span>[],
     };
@@ -936,8 +937,8 @@
     <span class="kw">let </span>exercise_task = CmsPageExerciseTask {
         id: exercise_task_id,
         exercise_slide_id,
-        assignment: <span class="macro">serde_json::json!</span>([paragraph(<span class="string">&quot;Answer this question.&quot;</span>, paragraph_id)]),
-        exercise_type: <span class="string">&quot;quizzes&quot;</span>.to_string(),
+        assignment: <span class="macro">serde_json::json!</span>([paragraph(<span class="string">"Answer this question."</span>, paragraph_id)]),
+        exercise_type: <span class="string">"quizzes"</span>.to_string(),
         private_spec: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span>(private_spec)),
         order_number: <span class="number">0</span>,
     };
@@ -963,12 +964,12 @@
 ) {
     <span class="kw">let </span>block = GutenbergBlock {
         client_id: block_id,
-        name: <span class="string">&quot;moocfi/exercise&quot;</span>.to_string(),
+        name: <span class="string">"moocfi/exercise"</span>.to_string(),
         is_valid: <span class="bool-val">true</span>,
         attributes: <span class="macro">attributes! </span>{
-            <span class="string">&quot;id&quot;</span>: exercise_id,
-            <span class="string">&quot;name&quot;</span>: name,
-            <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
+            <span class="string">"id"</span>: exercise_id,
+            <span class="string">"name"</span>: name,
+            <span class="string">"dropCap"</span>: <span class="bool-val">false</span>,
         },
         inner_blocks: <span class="macro">vec!</span>[],
     };
@@ -993,8 +994,8 @@
     <span class="kw">let </span>exercise_task = CmsPageExerciseTask {
         id: exercise_task_id,
         exercise_slide_id,
-        assignment: <span class="macro">serde_json::json!</span>([paragraph(<span class="string">&quot;Write an `add` function.&quot;</span>, paragraph_id)]),
-        exercise_type: <span class="string">&quot;tmc&quot;</span>.to_string(),
+        assignment: <span class="macro">serde_json::json!</span>([paragraph(<span class="string">"Write an `add` function."</span>, paragraph_id)]),
+        exercise_type: <span class="string">"tmc"</span>.to_string(),
         private_spec: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span>(private_spec)),
         order_number: <span class="number">0</span>,
     };
@@ -1014,7 +1015,7 @@
     spec: String,
     out_of_100: f32,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="comment">// combine the id with the user id to ensure it&#39;s unique
+    <span class="comment">// combine the id with the user id to ensure it's unique
     </span><span class="kw">let </span>id: Vec&lt;u8&gt; = [id, <span class="kw-2">&amp;</span>user_id.as_bytes()[..]].concat();
     <span class="kw">let </span>slide_submission = exercise_slide_submissions::insert_exercise_slide_submission_with_id(
         conn,
@@ -1074,8 +1075,8 @@
     <span class="kw">let </span>exercise = exercises::get_by_id(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>grading = exercise_task_gradings::new_grading(conn, <span class="kw-2">&amp;</span>exercise, <span class="kw-2">&amp;</span>task_submission).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>grading_result = ExerciseTaskGradingResult {
-        feedback_json: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span>([{<span class="string">&quot;SelectedOptioIsCorrect&quot;</span>: <span class="bool-val">true</span>}])),
-        feedback_text: <span class="prelude-val">Some</span>(<span class="string">&quot;Good job!&quot;</span>.to_string()),
+        feedback_json: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span>([{<span class="string">"SelectedOptioIsCorrect"</span>: <span class="bool-val">true</span>}])),
+        feedback_text: <span class="prelude-val">Some</span>(<span class="string">"Good job!"</span>.to_string()),
         grading_progress: GradingProgress::FullyGraded,
         score_given: out_of_100,
         score_maximum: <span class="number">100</span>,
@@ -1125,38 +1126,38 @@
 
     <span class="kw">let </span>(exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
         quizzes_exercise(
-            <span class="string">&quot;Multiple choice with feedback&quot;</span>.to_string(),
-            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;eced4875-ece9-4c3d-ad0a-2443e61b3e78&quot;</span>),
+            <span class="string">"Multiple choice with feedback"</span>.to_string(),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"eced4875-ece9-4c3d-ad0a-2443e61b3e78"</span>),
             <span class="bool-val">false</span>,
             serde_json::from_str(<span class="macro">include_str!</span>(
-                <span class="string">&quot;../../assets/quizzes-multiple-choice-feedback.json&quot;
+                <span class="string">"../../assets/quizzes-multiple-choice-feedback.json"
             </span>))<span class="question-mark">?</span>,
             <span class="prelude-val">None</span>,
             CommonExerciseData {
-                exercise_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;b1b16970-60bc-426e-9537-b29bd2185db3&quot;</span>),
+                exercise_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"b1b16970-60bc-426e-9537-b29bd2185db3"</span>),
                 exercise_slide_id: Uuid::new_v5(
                     <span class="kw-2">&amp;</span>course_id,
-                    <span class="string">b&quot;ea461a21-e0b4-4e09-a811-231f583b3dcb&quot;</span>,
+                    <span class="string">b"ea461a21-e0b4-4e09-a811-231f583b3dcb"</span>,
                 ),
-                exercise_task_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;9d8ccf47-3e83-4459-8f2f-8e546a75f372&quot;</span>),
-                block_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;a4edb4e5-507d-43f1-8058-9d95941dbf09&quot;</span>),
+                exercise_task_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"</span>),
+                block_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"a4edb4e5-507d-43f1-8058-9d95941dbf09"</span>),
             },
         );
     <span class="kw">let </span>(exam_exercise_block_2, exam_exercise_2, exam_exercise_slide_2, exam_exercise_task_2) =
         create_best_exercise(
-            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;fe5bb5a9-d0ab-4072-abe1-119c9c1e4f4a&quot;</span>),
-            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;22959aad-26fc-4212-8259-c128cdab8b08&quot;</span>),
-            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;d8ba9e92-4530-4a74-9b11-eb708fa54d40&quot;</span>),
-            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;846f4895-f573-41e2-9926-cd700723ac18&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;Best exercise&quot;</span>.to_string()),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"fe5bb5a9-d0ab-4072-abe1-119c9c1e4f4a"</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"22959aad-26fc-4212-8259-c128cdab8b08"</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"d8ba9e92-4530-4a74-9b11-eb708fa54d40"</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"846f4895-f573-41e2-9926-cd700723ac18"</span>),
+            <span class="prelude-val">Some</span>(<span class="string">"Best exercise"</span>.to_string()),
             CommonExerciseData {
-                exercise_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;44f472e5-b726-4c50-89a1-93f4170673f5&quot;</span>),
+                exercise_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"44f472e5-b726-4c50-89a1-93f4170673f5"</span>),
                 exercise_slide_id: Uuid::new_v5(
                     <span class="kw-2">&amp;</span>course_id,
-                    <span class="string">b&quot;23182b3d-fbf4-4c0d-93fa-e9ddc199cc52&quot;</span>,
+                    <span class="string">b"23182b3d-fbf4-4c0d-93fa-e9ddc199cc52"</span>,
                 ),
-                exercise_task_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;ca105826-5007-439f-87be-c25f9c79506e&quot;</span>),
-                block_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;96a9e586-cf88-4cb2-b7c9-efc2bc47e90b&quot;</span>),
+                exercise_task_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"ca105826-5007-439f-87be-c25f9c79506e"</span>),
+                block_id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b"96a9e586-cf88-4cb2-b7c9-efc2bc47e90b"</span>),
             },
         );
     pages::insert_page(
@@ -1167,19 +1168,19 @@
             exercise_tasks: <span class="macro">vec!</span>[exam_exercise_task_1, exam_exercise_task_2],
             content: <span class="macro">serde_json::json!</span>([
                 heading(
-                    <span class="string">&quot;The exam&quot;</span>,
-                    Uuid::parse_str(<span class="string">&quot;d6cf16ce-fe78-4e57-8399-e8b63d7fddac&quot;</span>).unwrap(),
+                    <span class="string">"The exam"</span>,
+                    Uuid::parse_str(<span class="string">"d6cf16ce-fe78-4e57-8399-e8b63d7fddac"</span>).unwrap(),
                     <span class="number">1
                 </span>),
                 paragraph(
-                    <span class="string">&quot;In this exam you&#39;re supposed to answer to two easy questions. Good luck!&quot;</span>,
-                    Uuid::parse_str(<span class="string">&quot;474d4f21-798b-4ba0-b39f-120b134e7fa0&quot;</span>).unwrap(),
+                    <span class="string">"In this exam you're supposed to answer to two easy questions. Good luck!"</span>,
+                    Uuid::parse_str(<span class="string">"474d4f21-798b-4ba0-b39f-120b134e7fa0"</span>).unwrap(),
                 ),
                 exam_exercise_block_1,
                 exam_exercise_block_2,
             ]),
-            url_path: <span class="string">&quot;&quot;</span>.to_string(),
-            title: <span class="string">&quot;&quot;</span>.to_string(),
+            url_path: <span class="string">""</span>.to_string(),
+            title: <span class="string">""</span>.to_string(),
             course_id: <span class="prelude-val">None</span>,
             exam_id: <span class="prelude-val">Some</span>(new_exam_id),
             chapter_id: <span class="prelude-val">None</span>,
@@ -1229,7 +1230,7 @@
             id: Uuid::new_v4(),
             peer_review_config_id: prc.id,
             order_number: <span class="number">0</span>,
-            question: <span class="string">&quot;What are your thoughts on the answer&quot;</span>.to_string(),
+            question: <span class="string">"What are your thoughts on the answer"</span>.to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Essay,
             answer_required: <span class="bool-val">true</span>,
             weight: <span class="number">0.0</span>,
@@ -1244,7 +1245,7 @@
             id: Uuid::new_v4(),
             peer_review_config_id: prc.id,
             order_number: <span class="number">1</span>,
-            question: <span class="string">&quot;Was the answer correct?&quot;</span>.to_string(),
+            question: <span class="string">"Was the answer correct?"</span>.to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Scale,
             answer_required: <span class="bool-val">true</span>,
             weight: <span class="number">0.0</span>,
@@ -1259,7 +1260,7 @@
             id: Uuid::new_v4(),
             peer_review_config_id: prc.id,
             order_number: <span class="number">2</span>,
-            question: <span class="string">&quot;Was the answer good?&quot;</span>.to_string(),
+            question: <span class="string">"Was the answer good?"</span>.to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Scale,
             answer_required: <span class="bool-val">true</span>,
             weight: <span class="number">0.0</span>,

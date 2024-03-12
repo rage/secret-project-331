@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-path-0.11.4/src/dash.rs`."><title>dash.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-path-0.11.4/src/dash.rs`."><title>dash.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia_path" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -898,13 +899,13 @@
 <span class="kw">use </span><span class="kw">crate</span>::path_geometry;
 <span class="kw">use </span><span class="kw">crate</span>::scalar::Scalar;
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), feature = <span class="string">&quot;no-std-float&quot;</span>))]
+<span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"no-std-float"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::NoStdFloat;
 
 <span class="doccomment">/// A stroke dashing properties.
 ///
-/// Contains an array of pairs, where the first number indicates an &quot;on&quot; interval
-/// and the second one indicates an &quot;off&quot; interval;
+/// Contains an array of pairs, where the first number indicates an "on" interval
+/// and the second one indicates an "off" interval;
 /// a dash offset value and internal properties.
 ///
 /// # Guarantees
@@ -992,7 +993,7 @@
     }
 }
 
-<span class="comment">// Adjust phase to be between 0 and len, &quot;flipping&quot; phase if negative.
+<span class="comment">// Adjust phase to be between 0 and len, "flipping" phase if negative.
 // e.g., if len is 100, then phase of -20 (or -120) is equivalent to 80.
 </span><span class="kw">fn </span>adjust_dash_offset(<span class="kw-2">mut </span>offset: f32, len: f32) -&gt; f32 {
     <span class="kw">if </span>offset &lt; <span class="number">0.0 </span>{
@@ -1003,7 +1004,7 @@
 
         offset = len - offset;
 
-        <span class="comment">// Due to finite precision, it&#39;s possible that phase == len,
+        <span class="comment">// Due to finite precision, it's possible that phase == len,
         // even after the subtract (if len &gt;&gt;&gt; phase), so fix that here.
         </span><span class="macro">debug_assert!</span>(offset &lt;= len);
         <span class="kw">if </span>offset == len {
@@ -1027,8 +1028,8 @@
         }
     }
 
-    <span class="comment">// If we get here, phase &quot;appears&quot; to be larger than our length. This
-    // shouldn&#39;t happen with perfect precision, but we can accumulate errors
+    <span class="comment">// If we get here, phase "appears" to be larger than our length. This
+    // shouldn't happen with perfect precision, but we can accumulate errors
     // during the initial length computation (rounding can make our sum be too
     // big or too small. In that event, we just have to eat the error here.
     </span>(dash_array[<span class="number">0</span>], <span class="number">0</span>)
@@ -1053,7 +1054,7 @@
     // or when a path is a rect. Not sure why.
     // We simply ignoring it for the sake of simplicity.
 
-    // We also doesn&#39;t support the `SpecialLineRec` case.
+    // We also doesn't support the `SpecialLineRec` case.
     // I have no idea what the point in it.
 
     </span><span class="kw">fn </span>is_even(x: usize) -&gt; bool {
@@ -1122,14 +1123,14 @@
 
 <span class="kw">const </span>MAX_T_VALUE: u32 = <span class="number">0x3FFFFFFF</span>;
 
-<span class="kw">struct </span>ContourMeasureIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    iter: PathSegmentsIter&lt;<span class="lifetime">&#39;a</span>&gt;,
+<span class="kw">struct </span>ContourMeasureIter&lt;<span class="lifetime">'a</span>&gt; {
+    iter: PathSegmentsIter&lt;<span class="lifetime">'a</span>&gt;,
     tolerance: f32,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ContourMeasureIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Path, res_scale: f32) -&gt; <span class="self">Self </span>{
-        <span class="comment">// can&#39;t use tangents, since we need [0..1..................2] to be seen
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ContourMeasureIter&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>new(path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Path, res_scale: f32) -&gt; <span class="self">Self </span>{
+        <span class="comment">// can't use tangents, since we need [0..1..................2] to be seen
         // as definitely not a line (it is when drawn, but not parametrically)
         // so we compare midpoints
         </span><span class="kw">const </span>CHEAP_DIST_LIMIT: f32 = <span class="number">0.5</span>; <span class="comment">// just made this value up
@@ -1141,7 +1142,7 @@
     }
 }
 
-<span class="kw">impl </span>Iterator <span class="kw">for </span>ContourMeasureIter&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Iterator <span class="kw">for </span>ContourMeasureIter&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">type </span>Item = ContourMeasure;
 
     <span class="comment">// If it encounters a zero-length contour, it is skipped.
@@ -1279,7 +1280,7 @@
 <span class="kw">impl </span>Segment {
     <span class="kw">fn </span>scalar_t(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f32 {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.t_value &lt;= MAX_T_VALUE);
-        <span class="comment">// 1/kMaxTValue can&#39;t be represented as a float, but it&#39;s close and the limits work fine.
+        <span class="comment">// 1/kMaxTValue can't be represented as a float, but it's close and the limits work fine.
         </span><span class="kw">const </span>MAX_T_RECIPROCAL: f32 = <span class="number">1.0 </span>/ MAX_T_VALUE <span class="kw">as </span>f32;
         <span class="self">self</span>.t_value <span class="kw">as </span>f32 * MAX_T_RECIPROCAL
     }
@@ -1392,7 +1393,7 @@
         <span class="macro">debug_assert!</span>(distance &gt;= <span class="number">0.0 </span>&amp;&amp; distance &lt;= <span class="self">self</span>.length);
 
         <span class="kw">let </span><span class="kw-2">mut </span>index = find_segment(<span class="kw-2">&amp;</span><span class="self">self</span>.segments, distance);
-        <span class="comment">// don&#39;t care if we hit an exact match or not, so we xor index if it is negative
+        <span class="comment">// don't care if we hit an exact match or not, so we xor index if it is negative
         </span>index ^= index &gt;&gt; <span class="number">31</span>;
         <span class="kw">let </span>index = index <span class="kw">as </span>usize;
         <span class="kw">let </span>seg = <span class="self">self</span>.segments[index];

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/pool/connection.rs`."><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/pool/connection.rs`."><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -411,12 +412,12 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) guard: DecrementSizeGuard&lt;DB&gt;,
 }
 
-<span class="kw">const </span>EXPECT_MSG: <span class="kw-2">&amp;</span>str = <span class="string">&quot;BUG: inner connection already taken!&quot;</span>;
+<span class="kw">const </span>EXPECT_MSG: <span class="kw-2">&amp;</span>str = <span class="string">"BUG: inner connection already taken!"</span>;
 
 <span class="kw">impl</span>&lt;DB: Database&gt; Debug <span class="kw">for </span>PoolConnection&lt;DB&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="comment">// TODO: Show the type name of the connection ?
-        </span>f.debug_struct(<span class="string">&quot;PoolConnection&quot;</span>).finish()
+        </span>f.debug_struct(<span class="string">"PoolConnection"</span>).finish()
     }
 }
 
@@ -479,7 +480,7 @@
     ///
     /// This effectively will reduce the maximum capacity of the pool by 1 every time it is used.
     ///
-    /// If you don&#39;t want to impact the pool&#39;s capacity, use [`.detach()`][Self::detach] instead.
+    /// If you don't want to impact the pool's capacity, use [`.detach()`][Self::detach] instead.
     </span><span class="kw">pub fn </span>leak(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; DB::Connection {
         <span class="self">self</span>.take_live().raw
     }
@@ -492,9 +493,9 @@
     ///
     /// This effectively runs the drop handler eagerly instead of spawning a task to do it.
     </span><span class="attr">#[doc(hidden)]
-    </span><span class="kw">pub fn </span>return_to_pool(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Future&lt;Output = ()&gt; + Send + <span class="lifetime">&#39;static </span>{
+    </span><span class="kw">pub fn </span>return_to_pool(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Future&lt;Output = ()&gt; + Send + <span class="lifetime">'static </span>{
         <span class="comment">// float the connection in the pool before we move into the task
-        // in case the returned `Future` isn&#39;t executed, like if it&#39;s spawned into a dying runtime
+        // in case the returned `Future` isn't executed, like if it's spawned into a dying runtime
         // https://github.com/launchbadge/sqlx/issues/1396
         // Type hints seem to be broken by `Option` combinators in IntelliJ Rust right now (6/22).
         </span><span class="kw">let </span>floating: <span class="prelude-ty">Option</span>&lt;Floating&lt;DB, Live&lt;DB&gt;&gt;&gt; =
@@ -516,20 +517,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>, DB: Database&gt; <span class="kw">crate</span>::acquire::Acquire&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>PoolConnection&lt;DB&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'c</span>, DB: Database&gt; <span class="kw">crate</span>::acquire::Acquire&lt;<span class="lifetime">'c</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="kw-2">mut </span>PoolConnection&lt;DB&gt; {
     <span class="kw">type </span>Database = DB;
 
-    <span class="kw">type </span>Connection = <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>&lt;DB <span class="kw">as </span>Database&gt;::Connection;
+    <span class="kw">type </span>Connection = <span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="kw-2">mut </span>&lt;DB <span class="kw">as </span>Database&gt;::Connection;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>acquire(<span class="self">self</span>) -&gt; futures_core::future::BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt; {
+    </span><span class="kw">fn </span>acquire(<span class="self">self</span>) -&gt; futures_core::future::BoxFuture&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt; {
         Box::pin(futures_util::future::ok(<span class="kw-2">&amp;mut **</span><span class="self">self</span>))
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>begin(
         <span class="self">self</span>,
-    ) -&gt; futures_core::future::BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;<span class="kw">crate</span>::transaction::Transaction&lt;<span class="lifetime">&#39;c</span>, DB&gt;, Error&gt;&gt;
+    ) -&gt; futures_core::future::BoxFuture&lt;<span class="lifetime">'c</span>, <span class="prelude-ty">Result</span>&lt;<span class="kw">crate</span>::transaction::Transaction&lt;<span class="lifetime">'c</span>, DB&gt;, Error&gt;&gt;
     {
         <span class="kw">crate</span>::transaction::Transaction::begin(<span class="kw-2">&amp;mut **</span><span class="self">self</span>)
     }
@@ -622,8 +623,8 @@
                     <span class="kw">return </span><span class="bool-val">false</span>;
                 }
                 <span class="prelude-val">Err</span>(error) =&gt; {
-                    <span class="macro">tracing::warn!</span>(%error, <span class="string">&quot;error from `after_release`&quot;</span>);
-                    <span class="comment">// Connection is broken, don&#39;t try to gracefully close as
+                    <span class="macro">tracing::warn!</span>(%error, <span class="string">"error from `after_release`"</span>);
+                    <span class="comment">// Connection is broken, don't try to gracefully close as
                     // something weird might happen.
                     </span><span class="self">self</span>.close_hard().<span class="kw">await</span>;
                     <span class="kw">return </span><span class="bool-val">false</span>;
@@ -641,10 +642,10 @@
         </span><span class="kw">if let </span><span class="prelude-val">Err</span>(error) = <span class="self">self</span>.raw.ping().<span class="kw">await </span>{
             <span class="macro">tracing::warn!</span>(
                 %error,
-                <span class="string">&quot;error occurred while testing the connection on-release&quot;</span>,
+                <span class="string">"error occurred while testing the connection on-release"</span>,
             );
 
-            <span class="comment">// Connection is broken, don&#39;t try to gracefully close.
+            <span class="comment">// Connection is broken, don't try to gracefully close.
             </span><span class="self">self</span>.close_hard().<span class="kw">await</span>;
             <span class="bool-val">false
         </span>} <span class="kw">else </span>{
@@ -655,7 +656,7 @@
     }
 
     <span class="kw">pub async fn </span>close(<span class="self">self</span>) {
-        <span class="comment">// This isn&#39;t used anywhere that we care about the return value
+        <span class="comment">// This isn't used anywhere that we care about the return value
         </span><span class="kw">let _ </span>= <span class="self">self</span>.inner.raw.close().<span class="kw">await</span>;
 
         <span class="comment">// `guard` is dropped as intended
@@ -688,7 +689,7 @@
     <span class="kw">pub fn </span>from_idle(
         idle: Idle&lt;DB&gt;,
         pool: Arc&lt;PoolInner&lt;DB&gt;&gt;,
-        permit: AsyncSemaphoreReleaser&lt;<span class="lifetime">&#39;_</span>&gt;,
+        permit: AsyncSemaphoreReleaser&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             inner: idle,
@@ -709,7 +710,7 @@
 
     <span class="kw">pub async fn </span>close(<span class="self">self</span>) -&gt; DecrementSizeGuard&lt;DB&gt; {
         <span class="kw">if let </span><span class="prelude-val">Err</span>(error) = <span class="self">self</span>.inner.live.raw.close().<span class="kw">await </span>{
-            <span class="macro">tracing::debug!</span>(%error, <span class="string">&quot;error occurred while closing the pool connection&quot;</span>);
+            <span class="macro">tracing::debug!</span>(%error, <span class="string">"error occurred while closing the pool connection"</span>);
         }
         <span class="self">self</span>.guard
     }

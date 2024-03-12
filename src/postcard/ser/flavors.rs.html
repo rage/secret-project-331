@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.8/src/ser/flavors.rs`."><title>flavors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.8/src/ser/flavors.rs`."><title>flavors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -722,13 +723,13 @@
 <a href="#722" id="722">722</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Serialization Flavors
 //!
-//! &quot;Flavors&quot; in `postcard` are used as modifiers to the serialization or deserialization
+//! "Flavors" in `postcard` are used as modifiers to the serialization or deserialization
 //! process. Flavors typically modify one or both of the following:
 //!
 //! 1. The output medium of the serialization, e.g. whether the data is serialized to a `[u8]` slice, or a `heapless::Vec`.
 //! 2. The format of the serialization, such as encoding the serialized output in a COBS format, performing CRC32 checksumming while serializing, etc.
 //!
-//! Flavors are implemented using the [`Flavor`] trait, which acts as a &quot;middleware&quot; for receiving the bytes as serialized by `serde`.
+//! Flavors are implemented using the [`Flavor`] trait, which acts as a "middleware" for receiving the bytes as serialized by `serde`.
 //! Multiple flavors may be combined to obtain a desired combination of behavior and storage.
 //! When flavors are combined, it is expected that the storage flavor (such as `Slice` or `HVec`) is the innermost flavor.
 //!
@@ -742,7 +743,7 @@
 //! the user from having to specify generic parameters, setting correct initialization values, or handling the output of
 //! the flavor correctly. See `postcard::to_vec()` for an example of this.
 //!
-//! It is recommended to use the [`serialize_with_flavor()`](../fn.serialize_with_flavor.html) method for serialization. See it&#39;s documentation for information
+//! It is recommended to use the [`serialize_with_flavor()`](../fn.serialize_with_flavor.html) method for serialization. See it's documentation for information
 //! regarding usage and generic type parameters.
 //!
 //! ## When to use (multiple) flavors
@@ -755,8 +756,8 @@
 //! ## When NOT to use (multiple) flavors
 //!
 //! The downside of passing serialization through multiple steps is that it is typically slower than
-//! performing each step serially. Said simply, &quot;cobs encoding while serializing&quot; is often slower
-//! than &quot;serialize then cobs encode&quot;, due to the ability to handle longer &quot;runs&quot; of data in each
+//! performing each step serially. Said simply, "cobs encoding while serializing" is often slower
+//! than "serialize then cobs encode", due to the ability to handle longer "runs" of data in each
 //! stage. The downside is that if these stages can not be performed in-place on the buffer, you
 //! will need additional buffers for each stage.
 //!
@@ -814,16 +815,16 @@
 <span class="kw">use </span>core::ops::Index;
 <span class="kw">use </span>core::ops::IndexMut;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"heapless"</span>)]
 </span><span class="kw">pub use </span>heapless_vec::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;use-std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"use-std"</span>)]
 </span><span class="kw">pub use </span>std_vec::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">pub use </span>alloc_vec::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">extern crate </span>alloc;
 
 <span class="doccomment">/// The serialization Flavor trait
@@ -833,7 +834,7 @@
 ///
 /// See the module level docs for an example of how flavors are used.
 </span><span class="kw">pub trait </span>Flavor {
-    <span class="doccomment">/// The `Output` type is what this storage &quot;resolves&quot; to when the serialization is complete,
+    <span class="doccomment">/// The `Output` type is what this storage "resolves" to when the serialization is complete,
     /// such as a slice or a Vec of some sort.
     </span><span class="kw">type </span>Output;
 
@@ -858,16 +859,16 @@
 
 </span><span class="doccomment">/// The `Slice` flavor is a storage flavor, storing the serialized (or otherwise modified) bytes into a plain
 /// `[u8]` slice. The `Slice` flavor resolves into a sub-slice of the original slice buffer.
-</span><span class="kw">pub struct </span>Slice&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Slice&lt;<span class="lifetime">'a</span>&gt; {
     start: <span class="kw-2">*mut </span>u8,
     cursor: <span class="kw-2">*mut </span>u8,
     end: <span class="kw-2">*mut </span>u8,
-    _pl: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;,
+    _pl: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Slice&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Slice&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Create a new `Slice` flavor from a given backing buffer
-    </span><span class="kw">pub fn </span>new(buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(buf: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>ptr = buf.as_mut_ptr();
         Slice {
             start: ptr,
@@ -878,8 +879,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Flavor <span class="kw">for </span>Slice&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Output = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8];
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Flavor <span class="kw">for </span>Slice&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">type </span>Output = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8];
 
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>try_push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: u8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
@@ -916,7 +917,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Index&lt;usize&gt; <span class="kw">for </span>Slice&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Index&lt;usize&gt; <span class="kw">for </span>Slice&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Output = u8;
 
     <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; <span class="kw-2">&amp;</span>u8 {
@@ -926,7 +927,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IndexMut&lt;usize&gt; <span class="kw">for </span>Slice&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; IndexMut&lt;usize&gt; <span class="kw">for </span>Slice&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: usize) -&gt; <span class="kw-2">&amp;mut </span>u8 {
         <span class="kw">let </span>len = (<span class="self">self</span>.end <span class="kw">as </span>usize) - (<span class="self">self</span>.start <span class="kw">as </span>usize);
         <span class="macro">assert!</span>(idx &lt; len);
@@ -973,7 +974,7 @@
 }
 
 <span class="doccomment">/// Support for the [embedded-io] traits
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;embedded-io&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"embedded-io"</span>)]
 </span><span class="kw">pub mod </span>eio {
 
     <span class="kw">use </span><span class="kw">super</span>::Flavor;
@@ -1026,7 +1027,7 @@
 }
 
 <span class="doccomment">/// Support for the [std::io] traits
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;use-std&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"use-std"</span>)]
 </span><span class="kw">pub mod </span>io {
 
     <span class="kw">use </span><span class="kw">super</span>::Flavor;
@@ -1078,7 +1079,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"heapless"</span>)]
 </span><span class="kw">mod </span>heapless_vec {
     <span class="kw">use </span><span class="kw">super</span>::Flavor;
     <span class="kw">use </span><span class="kw">super</span>::Index;
@@ -1141,7 +1142,7 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;use-std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"use-std"</span>)]
 </span><span class="kw">mod </span>std_vec {
     <span class="doccomment">/// The `StdVec` flavor is a wrapper type around a `std::vec::Vec`.
     ///
@@ -1149,7 +1150,7 @@
     </span><span class="kw">pub type </span>StdVec = <span class="kw">super</span>::alloc_vec::AllocVec;
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">mod </span>alloc_vec {
     <span class="kw">extern crate </span>alloc;
     <span class="kw">use </span><span class="kw">super</span>::Flavor;
@@ -1285,7 +1286,7 @@
 // CRC
 ////////////////////////////////////////
 
-</span><span class="doccomment">/// This Cyclic Redundancy Check flavor applies [the CRC crate&#39;s `Algorithm`](https://docs.rs/crc/latest/crc/struct.Algorithm.html) struct on
+</span><span class="doccomment">/// This Cyclic Redundancy Check flavor applies [the CRC crate's `Algorithm`](https://docs.rs/crc/latest/crc/struct.Algorithm.html) struct on
 /// the serialized data. The output of this flavor receives the CRC appended to the bytes.
 ///
 /// CRCs are used for error detection when reading data back.
@@ -1293,14 +1294,14 @@
 /// The `crc` feature requires enabling to use this module.
 ///
 /// More on CRCs: &lt;https://en.wikipedia.org/wiki/Cyclic_redundancy_check&gt;.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;use-crc&quot;</span>)]
-#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">&quot;use-crc&quot;</span>)))]
+</span><span class="attr">#[cfg(feature = <span class="string">"use-crc"</span>)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"use-crc"</span>)))]
 </span><span class="kw">pub mod </span>crc {
     <span class="kw">use </span>crc::Digest;
     <span class="kw">use </span>crc::Width;
     <span class="kw">use </span>serde::Serialize;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
     </span><span class="kw">use </span><span class="kw">super</span>::alloc;
     <span class="kw">use </span><span class="kw">super</span>::Flavor;
     <span class="kw">use </span><span class="kw">super</span>::Slice;
@@ -1310,22 +1311,22 @@
     <span class="kw">use </span>paste::paste;
 
     <span class="doccomment">/// Manages CRC modifications as a flavor.
-    </span><span class="kw">pub struct </span>CrcModifier&lt;<span class="lifetime">&#39;a</span>, B, W&gt;
+    </span><span class="kw">pub struct </span>CrcModifier&lt;<span class="lifetime">'a</span>, B, W&gt;
     <span class="kw">where
         </span>B: Flavor,
         W: Width,
     {
         flav: B,
-        digest: Digest&lt;<span class="lifetime">&#39;a</span>, W&gt;,
+        digest: Digest&lt;<span class="lifetime">'a</span>, W&gt;,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, B, W&gt; CrcModifier&lt;<span class="lifetime">&#39;a</span>, B, W&gt;
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, B, W&gt; CrcModifier&lt;<span class="lifetime">'a</span>, B, W&gt;
     <span class="kw">where
         </span>B: Flavor,
         W: Width,
     {
         <span class="doccomment">/// Create a new CRC modifier Flavor.
-        </span><span class="kw">pub fn </span>new(bee: B, digest: Digest&lt;<span class="lifetime">&#39;a</span>, W&gt;) -&gt; <span class="self">Self </span>{
+        </span><span class="kw">pub fn </span>new(bee: B, digest: Digest&lt;<span class="lifetime">'a</span>, W&gt;) -&gt; <span class="self">Self </span>{
             <span class="self">Self </span>{ flav: bee, digest }
         }
     }
@@ -1334,7 +1335,7 @@
         ($( <span class="macro-nonterminal">$int</span>:ty ),<span class="kw-2">*</span>) =&gt; {
             $(
                 <span class="macro">paste! </span>{
-                    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, B&gt; Flavor <span class="kw">for </span>CrcModifier&lt;<span class="lifetime">&#39;a</span>, B, <span class="macro-nonterminal">$int</span>&gt;
+                    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, B&gt; Flavor <span class="kw">for </span>CrcModifier&lt;<span class="lifetime">'a</span>, B, <span class="macro-nonterminal">$int</span>&gt;
                     <span class="kw">where
                         </span>B: Flavor,
                     {
@@ -1360,11 +1361,11 @@
                     ///
                     /// When successful, this function returns the slice containing the
                     /// serialized and encoded message.
-                    </span><span class="kw">pub fn </span>[&lt;to_slice_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, T&gt;(
-                        value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>T,
-                        buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
-                        digest: Digest&lt;<span class="lifetime">&#39;a</span>, <span class="macro-nonterminal">$int</span>&gt;,
-                    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]&gt;
+                    </span><span class="kw">pub fn </span>[&lt;to_slice_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, T&gt;(
+                        value: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>T,
+                        buf: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8],
+                        digest: Digest&lt;<span class="lifetime">'a</span>, <span class="macro-nonterminal">$int</span>&gt;,
+                    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8]&gt;
                     <span class="kw">where
                         </span>T: Serialize + <span class="question-mark">?</span>Sized,
                     {
@@ -1373,11 +1374,11 @@
 
                     <span class="doccomment">/// Serialize a `T` to a `heapless::Vec&lt;u8&gt;`, with the `Vec` containing
                     /// data followed by a CRC. The CRC bytes are included in the output `Vec`.
-                    </span><span class="attr">#[cfg(feature = <span class="string">&quot;heapless&quot;</span>)]
-                    #[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">&quot;heapless&quot;</span>)))]
-                    </span><span class="kw">pub fn </span>[&lt;to_vec_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">&#39;a</span>, T, <span class="kw">const </span>B: usize&gt;(
+                    </span><span class="attr">#[cfg(feature = <span class="string">"heapless"</span>)]
+                    #[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"heapless"</span>)))]
+                    </span><span class="kw">pub fn </span>[&lt;to_vec_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">'a</span>, T, <span class="kw">const </span>B: usize&gt;(
                         value: <span class="kw-2">&amp;</span>T,
-                        digest: Digest&lt;<span class="lifetime">&#39;a</span>, <span class="macro-nonterminal">$int</span>&gt;,
+                        digest: Digest&lt;<span class="lifetime">'a</span>, <span class="macro-nonterminal">$int</span>&gt;,
                     ) -&gt; <span class="prelude-ty">Result</span>&lt;heapless::Vec&lt;u8, B&gt;&gt;
                     <span class="kw">where
                         </span>T: Serialize + <span class="question-mark">?</span>Sized,
@@ -1389,9 +1390,9 @@
 
                     <span class="doccomment">/// Serialize a `T` to a `heapless::Vec&lt;u8&gt;`, with the `Vec` containing
                     /// data followed by a CRC. The CRC bytes are included in the output `Vec`.
-                    </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
-                    #[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">&quot;alloc&quot;</span>)))]
-                    </span><span class="kw">pub fn </span>[&lt;to_allocvec_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">&#39;a</span>, T&gt;(value: <span class="kw-2">&amp;</span>T, digest: Digest&lt;<span class="lifetime">&#39;a</span>, <span class="macro-nonterminal">$int</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;alloc::vec::Vec&lt;u8&gt;&gt;
+                    </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
+                    #[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">"alloc"</span>)))]
+                    </span><span class="kw">pub fn </span>[&lt;to_allocvec_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">'a</span>, T&gt;(value: <span class="kw-2">&amp;</span>T, digest: Digest&lt;<span class="lifetime">'a</span>, <span class="macro-nonterminal">$int</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;alloc::vec::Vec&lt;u8&gt;&gt;
                     <span class="kw">where
                         </span>T: Serialize + <span class="question-mark">?</span>Sized,
                     {

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thread_local-1.1.7/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="thread_local" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thread_local-1.1.8/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="thread_local" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -644,7 +645,44 @@
 <a href="#644" id="644">644</a>
 <a href="#645" id="645">645</a>
 <a href="#646" id="646">646</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright 2017 Amanieu d&#39;Antras
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+</pre></div><pre class="rust"><code><span class="comment">// Copyright 2017 Amanieu d'Antras
 //
 // Licensed under the Apache License, Version 2.0, &lt;LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0&gt; or the MIT license &lt;LICENSE-MIT or
@@ -655,7 +693,7 @@
 //!
 //! This library provides the `ThreadLocal` type which allows a separate copy of
 //! an object to be used for each thread. This allows for per-object
-//! thread-local storage, unlike the standard library&#39;s `thread_local!` macro
+//! thread-local storage, unlike the standard library's `thread_local!` macro
 //! which only allows static thread-local storage.
 //!
 //! Per-thread objects are not destroyed when a thread exits. Instead, objects
@@ -711,7 +749,7 @@
 
 </span><span class="attr">#![warn(missing_docs)]
 #![allow(clippy::mutex_atomic)]
-#![cfg_attr(feature = <span class="string">&quot;nightly&quot;</span>, feature(thread_local))]
+#![cfg_attr(feature = <span class="string">"nightly"</span>, feature(thread_local))]
 
 </span><span class="kw">mod </span>cached;
 <span class="kw">mod </span>thread_id;
@@ -732,21 +770,22 @@
 <span class="kw">use </span>unreachable::UncheckedResultExt;
 
 <span class="comment">// Use usize::BITS once it has stabilized and the MSRV has been bumped.
-</span><span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;16&quot;</span>)]
+</span><span class="attr">#[cfg(target_pointer_width = <span class="string">"16"</span>)]
 </span><span class="kw">const </span>POINTER_WIDTH: u8 = <span class="number">16</span>;
-<span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
+<span class="attr">#[cfg(target_pointer_width = <span class="string">"32"</span>)]
 </span><span class="kw">const </span>POINTER_WIDTH: u8 = <span class="number">32</span>;
-<span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
+<span class="attr">#[cfg(target_pointer_width = <span class="string">"64"</span>)]
 </span><span class="kw">const </span>POINTER_WIDTH: u8 = <span class="number">64</span>;
 
 <span class="doccomment">/// The total number of buckets stored in each thread local.
-</span><span class="kw">const </span>BUCKETS: usize = (POINTER_WIDTH + <span class="number">1</span>) <span class="kw">as </span>usize;
+/// All buckets combined can hold up to `usize::MAX - 1` entries.
+</span><span class="kw">const </span>BUCKETS: usize = (POINTER_WIDTH - <span class="number">1</span>) <span class="kw">as </span>usize;
 
 <span class="doccomment">/// Thread-local variable wrapper
 ///
 /// See the [module-level documentation](index.html) for more.
 </span><span class="kw">pub struct </span>ThreadLocal&lt;T: Send&gt; {
-    <span class="doccomment">/// The buckets in the thread local. The nth bucket contains `2^(n-1)`
+    <span class="doccomment">/// The buckets in the thread local. The nth bucket contains `2^n`
     /// elements. Each bucket is lazily allocated.
     </span>buckets: [AtomicPtr&lt;Entry&lt;T&gt;&gt;; BUCKETS],
 
@@ -770,7 +809,7 @@
     }
 }
 
-<span class="comment">// ThreadLocal is always Sync, even if T isn&#39;t
+<span class="comment">// ThreadLocal is always Sync, even if T isn't
 </span><span class="kw">unsafe impl</span>&lt;T: Send&gt; Sync <span class="kw">for </span>ThreadLocal&lt;T&gt; {}
 
 <span class="kw">impl</span>&lt;T: Send&gt; Default <span class="kw">for </span>ThreadLocal&lt;T&gt; {
@@ -781,16 +820,11 @@
 
 <span class="kw">impl</span>&lt;T: Send&gt; Drop <span class="kw">for </span>ThreadLocal&lt;T&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">let </span><span class="kw-2">mut </span>bucket_size = <span class="number">1</span>;
-
         <span class="comment">// Free each non-null bucket
         </span><span class="kw">for </span>(i, bucket) <span class="kw">in </span><span class="self">self</span>.buckets.iter_mut().enumerate() {
             <span class="kw">let </span>bucket_ptr = <span class="kw-2">*</span>bucket.get_mut();
 
-            <span class="kw">let </span>this_bucket_size = bucket_size;
-            <span class="kw">if </span>i != <span class="number">0 </span>{
-                bucket_size &lt;&lt;= <span class="number">1</span>;
-            }
+            <span class="kw">let </span>this_bucket_size = <span class="number">1 </span>&lt;&lt; i;
 
             <span class="kw">if </span>bucket_ptr.is_null() {
                 <span class="kw">continue</span>;
@@ -803,30 +837,26 @@
 
 <span class="kw">impl</span>&lt;T: Send&gt; ThreadLocal&lt;T&gt; {
     <span class="doccomment">/// Creates a new empty `ThreadLocal`.
-    </span><span class="kw">pub fn </span>new() -&gt; ThreadLocal&lt;T&gt; {
-        <span class="self">Self</span>::with_capacity(<span class="number">2</span>)
+    </span><span class="kw">pub const fn </span>new() -&gt; ThreadLocal&lt;T&gt; {
+        <span class="kw">let </span>buckets = [ptr::null_mut::&lt;Entry&lt;T&gt;&gt;(); BUCKETS];
+        <span class="self">Self </span>{
+            buckets: <span class="kw">unsafe </span>{ mem::transmute(buckets) },
+            values: AtomicUsize::new(<span class="number">0</span>),
+        }
     }
 
     <span class="doccomment">/// Creates a new `ThreadLocal` with an initial capacity. If less than the capacity threads
     /// access the thread local it will never reallocate. The capacity may be rounded up to the
     /// nearest power of two.
     </span><span class="kw">pub fn </span>with_capacity(capacity: usize) -&gt; ThreadLocal&lt;T&gt; {
-        <span class="kw">let </span>allocated_buckets = capacity
-            .checked_sub(<span class="number">1</span>)
-            .map(|c| usize::from(POINTER_WIDTH) - (c.leading_zeros() <span class="kw">as </span>usize) + <span class="number">1</span>)
-            .unwrap_or(<span class="number">0</span>);
+        <span class="kw">let </span>allocated_buckets = usize::from(POINTER_WIDTH) - (capacity.leading_zeros() <span class="kw">as </span>usize);
 
         <span class="kw">let </span><span class="kw-2">mut </span>buckets = [ptr::null_mut(); BUCKETS];
-        <span class="kw">let </span><span class="kw-2">mut </span>bucket_size = <span class="number">1</span>;
         <span class="kw">for </span>(i, bucket) <span class="kw">in </span>buckets[..allocated_buckets].iter_mut().enumerate() {
-            <span class="kw-2">*</span>bucket = allocate_bucket::&lt;T&gt;(bucket_size);
-
-            <span class="kw">if </span>i != <span class="number">0 </span>{
-                bucket_size &lt;&lt;= <span class="number">1</span>;
-            }
+            <span class="kw-2">*</span>bucket = allocate_bucket::&lt;T&gt;(<span class="number">1 </span>&lt;&lt; i);
         }
 
-        ThreadLocal {
+        <span class="self">Self </span>{
             <span class="comment">// Safety: AtomicPtr has the same representation as a pointer and arrays have the same
             // representation as a sequence of their inner type.
             </span>buckets: <span class="kw">unsafe </span>{ mem::transmute(buckets) },
@@ -839,7 +869,7 @@
         <span class="self">self</span>.get_inner(thread_id::get())
     }
 
-    <span class="doccomment">/// Returns the element for the current thread, or creates it if it doesn&#39;t
+    <span class="doccomment">/// Returns the element for the current thread, or creates it if it doesn't
     /// exist.
     </span><span class="kw">pub fn </span>get_or&lt;F&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, create: F) -&gt; <span class="kw-2">&amp;</span>T
     <span class="kw">where
@@ -851,7 +881,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the element for the current thread, or creates it if it doesn&#39;t
+    <span class="doccomment">/// Returns the element for the current thread, or creates it if it doesn't
     /// exist. If `create` fails, that error is returned and no element is
     /// added.
     </span><span class="kw">pub fn </span>get_or_try&lt;F, E&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, create: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>T, E&gt;
@@ -863,7 +893,7 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>(val);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.insert(create()<span class="question-mark">?</span>))
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.insert(thread, create()<span class="question-mark">?</span>))
     }
 
     <span class="kw">fn </span>get_inner(<span class="kw-2">&amp;</span><span class="self">self</span>, thread: Thread) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
@@ -874,8 +904,7 @@
         }
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>entry = <span class="kw-2">&amp;*</span>bucket_ptr.add(thread.index);
-            <span class="comment">// Read without atomic operations as only this thread can set the value.
-            </span><span class="kw">if </span>(<span class="kw-2">&amp;</span>entry.present <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*const </span>bool).read() {
+            <span class="kw">if </span>entry.present.load(Ordering::Relaxed) {
                 <span class="prelude-val">Some</span>(<span class="kw-2">&amp;*</span>(<span class="kw-2">&amp;*</span>entry.value.get()).as_ptr())
             } <span class="kw">else </span>{
                 <span class="prelude-val">None
@@ -884,12 +913,11 @@
     }
 
     <span class="attr">#[cold]
-    </span><span class="kw">fn </span>insert(<span class="kw-2">&amp;</span><span class="self">self</span>, data: T) -&gt; <span class="kw-2">&amp;</span>T {
-        <span class="kw">let </span>thread = thread_id::get();
+    </span><span class="kw">fn </span>insert(<span class="kw-2">&amp;</span><span class="self">self</span>, thread: Thread, data: T) -&gt; <span class="kw-2">&amp;</span>T {
         <span class="kw">let </span>bucket_atomic_ptr = <span class="kw">unsafe </span>{ <span class="self">self</span>.buckets.get_unchecked(thread.bucket) };
         <span class="kw">let </span>bucket_ptr: <span class="kw-2">*const </span><span class="kw">_ </span>= bucket_atomic_ptr.load(Ordering::Acquire);
 
-        <span class="comment">// If the bucket doesn&#39;t already exist, we need to allocate it
+        <span class="comment">// If the bucket doesn't already exist, we need to allocate it
         </span><span class="kw">let </span>bucket_ptr = <span class="kw">if </span>bucket_ptr.is_null() {
             <span class="kw">let </span>new_bucket = allocate_bucket(thread.bucket_size);
 
@@ -927,7 +955,7 @@
     /// order.
     ///
     /// This call can be done safely, as `T` is required to implement [`Sync`].
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;_</span>, T&gt;
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">'_</span>, T&gt;
     <span class="kw">where
         </span>T: Sync,
     {
@@ -973,27 +1001,27 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Send + Sync&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ThreadLocal&lt;T&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T;
-    <span class="kw">type </span>IntoIter = Iter&lt;<span class="lifetime">&#39;a</span>, T&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Send + Sync&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>ThreadLocal&lt;T&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T;
+    <span class="kw">type </span>IntoIter = Iter&lt;<span class="lifetime">'a</span>, T&gt;;
 
     <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
         <span class="self">self</span>.iter()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Send&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>ThreadLocal&lt;T&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T;
-    <span class="kw">type </span>IntoIter = IterMut&lt;<span class="lifetime">&#39;a</span>, T&gt;;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Send&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ThreadLocal&lt;T&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>T;
+    <span class="kw">type </span>IntoIter = IterMut&lt;<span class="lifetime">'a</span>, T&gt;;
 
-    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; IterMut&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; IterMut&lt;<span class="lifetime">'a</span>, T&gt; {
         <span class="self">self</span>.iter_mut()
     }
 }
 
 <span class="kw">impl</span>&lt;T: Send + Default&gt; ThreadLocal&lt;T&gt; {
     <span class="doccomment">/// Returns the element for the current thread, or creates a default one if
-    /// it doesn&#39;t exist.
+    /// it doesn't exist.
     </span><span class="kw">pub fn </span>get_or_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
         <span class="self">self</span>.get_or(Default::default)
     }
@@ -1001,7 +1029,7 @@
 
 <span class="kw">impl</span>&lt;T: Send + fmt::Debug&gt; fmt::Debug <span class="kw">for </span>ThreadLocal&lt;T&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;ThreadLocal {{ local_data: {:?} }}&quot;</span>, <span class="self">self</span>.get())
+        <span class="macro">write!</span>(f, <span class="string">"ThreadLocal {{ local_data: {:?} }}"</span>, <span class="self">self</span>.get())
     }
 }
 
@@ -1025,7 +1053,7 @@
         }
     }
 
-    <span class="kw">fn </span>next&lt;<span class="lifetime">&#39;a</span>, T: Send + Sync&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, thread_local: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ThreadLocal&lt;T&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; {
+    <span class="kw">fn </span>next&lt;<span class="lifetime">'a</span>, T: Send + Sync&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, thread_local: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ThreadLocal&lt;T&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; {
         <span class="kw">while </span><span class="self">self</span>.bucket &lt; BUCKETS {
             <span class="kw">let </span>bucket = <span class="kw">unsafe </span>{ thread_local.buckets.get_unchecked(<span class="self">self</span>.bucket) };
             <span class="kw">let </span>bucket = bucket.load(Ordering::Acquire);
@@ -1045,10 +1073,10 @@
         }
         <span class="prelude-val">None
     </span>}
-    <span class="kw">fn </span>next_mut&lt;<span class="lifetime">&#39;a</span>, T: Send&gt;(
+    <span class="kw">fn </span>next_mut&lt;<span class="lifetime">'a</span>, T: Send&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        thread_local: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>ThreadLocal&lt;T&gt;,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Entry&lt;T&gt;&gt; {
+        thread_local: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ThreadLocal&lt;T&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Entry&lt;T&gt;&gt; {
         <span class="kw">if </span><span class="kw-2">*</span>thread_local.values.get_mut() == <span class="self">self</span>.yielded {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -1074,9 +1102,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next_bucket(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">if </span><span class="self">self</span>.bucket != <span class="number">0 </span>{
-            <span class="self">self</span>.bucket_size &lt;&lt;= <span class="number">1</span>;
-        }
+        <span class="self">self</span>.bucket_size &lt;&lt;= <span class="number">1</span>;
         <span class="self">self</span>.bucket += <span class="number">1</span>;
         <span class="self">self</span>.index = <span class="number">0</span>;
     }
@@ -1094,13 +1120,13 @@
 
 <span class="doccomment">/// Iterator over the contents of a `ThreadLocal`.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">&#39;a</span>, T: Send + Sync&gt; {
-    thread_local: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ThreadLocal&lt;T&gt;,
+</span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">'a</span>, T: Send + Sync&gt; {
+    thread_local: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ThreadLocal&lt;T&gt;,
     raw: RawIter,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Send + Sync&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Send + Sync&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'a</span>, T&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T;
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="self">self</span>.raw.next(<span class="self">self</span>.thread_local)
     }
@@ -1108,17 +1134,17 @@
         <span class="self">self</span>.raw.size_hint(<span class="self">self</span>.thread_local)
     }
 }
-<span class="kw">impl</span>&lt;T: Send + Sync&gt; FusedIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;_</span>, T&gt; {}
+<span class="kw">impl</span>&lt;T: Send + Sync&gt; FusedIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">'_</span>, T&gt; {}
 
 <span class="doccomment">/// Mutable iterator over the contents of a `ThreadLocal`.
-</span><span class="kw">pub struct </span>IterMut&lt;<span class="lifetime">&#39;a</span>, T: Send&gt; {
-    thread_local: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>ThreadLocal&lt;T&gt;,
+</span><span class="kw">pub struct </span>IterMut&lt;<span class="lifetime">'a</span>, T: Send&gt; {
+    thread_local: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ThreadLocal&lt;T&gt;,
     raw: RawIter,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Send&gt; Iterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T;
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Send&gt; Iterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">'a</span>, T&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>T;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>T&gt; {
         <span class="self">self</span>.raw
             .next_mut(<span class="self">self</span>.thread_local)
             .map(|entry| <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>(<span class="kw-2">&amp;mut *</span>entry.value.get()).as_mut_ptr() })
@@ -1128,14 +1154,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: Send&gt; ExactSizeIterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;_</span>, T&gt; {}
-<span class="kw">impl</span>&lt;T: Send&gt; FusedIterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;_</span>, T&gt; {}
+<span class="kw">impl</span>&lt;T: Send&gt; ExactSizeIterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">'_</span>, T&gt; {}
+<span class="kw">impl</span>&lt;T: Send&gt; FusedIterator <span class="kw">for </span>IterMut&lt;<span class="lifetime">'_</span>, T&gt; {}
 
-<span class="comment">// Manual impl so we don&#39;t call Debug on the ThreadLocal, as doing so would create a reference to
-// this thread&#39;s value that potentially aliases with a mutable reference we have given out.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: Send + fmt::Debug&gt; fmt::Debug <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;a</span>, T&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;IterMut&quot;</span>).field(<span class="string">&quot;raw&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.raw).finish()
+<span class="comment">// Manual impl so we don't call Debug on the ThreadLocal, as doing so would create a reference to
+// this thread's value that potentially aliases with a mutable reference we have given out.
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Send + fmt::Debug&gt; fmt::Debug <span class="kw">for </span>IterMut&lt;<span class="lifetime">'a</span>, T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"IterMut"</span>).field(<span class="string">"raw"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.raw).finish()
     }
 }
 
@@ -1181,7 +1207,8 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span><span class="kw">super</span>::ThreadLocal;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
     <span class="kw">use </span>std::cell::RefCell;
     <span class="kw">use </span>std::sync::atomic::AtomicUsize;
     <span class="kw">use </span>std::sync::atomic::Ordering::Relaxed;
@@ -1198,14 +1225,14 @@
         <span class="kw">let </span>create = make_create();
         <span class="kw">let </span><span class="kw-2">mut </span>tls = ThreadLocal::new();
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, tls.get());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;ThreadLocal { local_data: None }&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span>tls));
+        <span class="macro">assert_eq!</span>(<span class="string">"ThreadLocal { local_data: None }"</span>, <span class="macro">format!</span>(<span class="string">"{:?}"</span>, <span class="kw-2">&amp;</span>tls));
         <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="kw-2">*</span>tls.get_or(|| create()));
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">0</span>), tls.get());
         <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="kw-2">*</span>tls.get_or(|| create()));
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">0</span>), tls.get());
         <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="kw-2">*</span>tls.get_or(|| create()));
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">0</span>), tls.get());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;ThreadLocal { local_data: Some(0) }&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span>tls));
+        <span class="macro">assert_eq!</span>(<span class="string">"ThreadLocal { local_data: Some(0) }"</span>, <span class="macro">format!</span>(<span class="string">"{:?}"</span>, <span class="kw-2">&amp;</span>tls));
         tls.clear();
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, tls.get());
     }
@@ -1267,6 +1294,28 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>miri_iter_soundness_check() {
+        <span class="kw">let </span>tls = Arc::new(ThreadLocal::new());
+        <span class="kw">let </span>_local = tls.get_or(|| Box::new(<span class="number">1</span>));
+
+        <span class="kw">let </span>tls2 = tls.clone();
+        <span class="kw">let </span>join_1 = thread::spawn(<span class="kw">move </span>|| {
+            <span class="kw">let </span>_tls = tls2.get_or(|| Box::new(<span class="number">2</span>));
+            <span class="kw">let </span>iter = tls2.iter();
+            <span class="kw">for </span>item <span class="kw">in </span>iter {
+                <span class="macro">println!</span>(<span class="string">"{:?}"</span>, item);
+            }
+        });
+
+        <span class="kw">let </span>iter = tls.iter();
+        <span class="kw">for </span>item <span class="kw">in </span>iter {
+            <span class="macro">println!</span>(<span class="string">"{:?}"</span>, item);
+        }
+
+        join_1.join().ok();
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_drop() {
         <span class="kw">let </span>local = ThreadLocal::new();
         <span class="kw">struct </span>Dropped(Arc&lt;AtomicUsize&gt;);
@@ -1279,6 +1328,32 @@
         <span class="kw">let </span>dropped = Arc::new(AtomicUsize::new(<span class="number">0</span>));
         local.get_or(|| Dropped(dropped.clone()));
         <span class="macro">assert_eq!</span>(dropped.load(Relaxed), <span class="number">0</span>);
+        drop(local);
+        <span class="macro">assert_eq!</span>(dropped.load(Relaxed), <span class="number">1</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_earlyreturn_buckets() {
+        <span class="kw">struct </span>Dropped(Arc&lt;AtomicUsize&gt;);
+        <span class="kw">impl </span>Drop <span class="kw">for </span>Dropped {
+            <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                <span class="self">self</span>.<span class="number">0</span>.fetch_add(<span class="number">1</span>, Relaxed);
+            }
+        }
+        <span class="kw">let </span>dropped = Arc::new(AtomicUsize::new(<span class="number">0</span>));
+
+        <span class="comment">// We use a high `id` here to guarantee that a lazily allocated bucket somewhere in the middle is used.
+        // Neither iteration nor `Drop` must early-return on `null` buckets that are used for lower `buckets`.
+        </span><span class="kw">let </span>thread = Thread::new(<span class="number">1234</span>);
+        <span class="macro">assert!</span>(thread.bucket &gt; <span class="number">1</span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>local = ThreadLocal::new();
+        local.insert(thread, Dropped(dropped.clone()));
+
+        <span class="kw">let </span>item = local.iter().next().unwrap();
+        <span class="macro">assert_eq!</span>(item.<span class="number">0</span>.load(Relaxed), <span class="number">0</span>);
+        <span class="kw">let </span>item = local.iter_mut().next().unwrap();
+        <span class="macro">assert_eq!</span>(item.<span class="number">0</span>.load(Relaxed), <span class="number">0</span>);
         drop(local);
         <span class="macro">assert_eq!</span>(dropped.load(Relaxed), <span class="number">1</span>);
     }

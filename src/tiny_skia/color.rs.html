@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/color.rs`."><title>color.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tiny-skia-0.11.4/src/color.rs`."><title>color.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tiny_skia" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -520,22 +521,22 @@
         ColorU8([r, g, b, a])
     }
 
-    <span class="doccomment">/// Returns color&#39;s red component.
+    <span class="doccomment">/// Returns color's red component.
     </span><span class="kw">pub const fn </span>red(<span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>]
     }
 
-    <span class="doccomment">/// Returns color&#39;s green component.
+    <span class="doccomment">/// Returns color's green component.
     </span><span class="kw">pub const fn </span>green(<span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>]
     }
 
-    <span class="doccomment">/// Returns color&#39;s blue component.
+    <span class="doccomment">/// Returns color's blue component.
     </span><span class="kw">pub const fn </span>blue(<span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>]
     }
 
-    <span class="doccomment">/// Returns color&#39;s alpha component.
+    <span class="doccomment">/// Returns color's alpha component.
     </span><span class="kw">pub const fn </span>alpha(<span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>]
     }
@@ -564,12 +565,12 @@
 }
 
 <span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>ColorU8 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;ColorU8&quot;</span>)
-            .field(<span class="string">&quot;r&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.red())
-            .field(<span class="string">&quot;g&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.green())
-            .field(<span class="string">&quot;b&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.blue())
-            .field(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.alpha())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"ColorU8"</span>)
+            .field(<span class="string">"r"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.red())
+            .field(<span class="string">"g"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.green())
+            .field(<span class="string">"b"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.blue())
+            .field(<span class="string">"a"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.alpha())
             .finish()
     }
 }
@@ -605,28 +606,28 @@
         PremultipliedColorU8([r, g, b, a])
     }
 
-    <span class="doccomment">/// Returns color&#39;s red component.
+    <span class="doccomment">/// Returns color's red component.
     ///
     /// The value is &lt;= alpha.
     </span><span class="kw">pub const fn </span>red(<span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>]
     }
 
-    <span class="doccomment">/// Returns color&#39;s green component.
+    <span class="doccomment">/// Returns color's green component.
     ///
     /// The value is &lt;= alpha.
     </span><span class="kw">pub const fn </span>green(<span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>]
     }
 
-    <span class="doccomment">/// Returns color&#39;s blue component.
+    <span class="doccomment">/// Returns color's blue component.
     ///
     /// The value is &lt;= alpha.
     </span><span class="kw">pub const fn </span>blue(<span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>]
     }
 
-    <span class="doccomment">/// Returns color&#39;s alpha component.
+    <span class="doccomment">/// Returns color's alpha component.
     </span><span class="kw">pub const fn </span>alpha(<span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>]
     }
@@ -656,12 +657,12 @@
 }
 
 <span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>PremultipliedColorU8 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;PremultipliedColorU8&quot;</span>)
-            .field(<span class="string">&quot;r&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.red())
-            .field(<span class="string">&quot;g&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.green())
-            .field(<span class="string">&quot;b&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.blue())
-            .field(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.alpha())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"PremultipliedColorU8"</span>)
+            .field(<span class="string">"r"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.red())
+            .field(<span class="string">"g"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.green())
+            .field(<span class="string">"b"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.blue())
+            .field(<span class="string">"a"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.alpha())
             .finish()
     }
 }
@@ -729,28 +730,28 @@
         }
     }
 
-    <span class="doccomment">/// Returns color&#39;s red component.
+    <span class="doccomment">/// Returns color's red component.
     ///
     /// The value is guarantee to be in a 0..=1 range.
     </span><span class="kw">pub fn </span>red(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f32 {
         <span class="self">self</span>.r.get()
     }
 
-    <span class="doccomment">/// Returns color&#39;s green component.
+    <span class="doccomment">/// Returns color's green component.
     ///
     /// The value is guarantee to be in a 0..=1 range.
     </span><span class="kw">pub fn </span>green(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f32 {
         <span class="self">self</span>.g.get()
     }
 
-    <span class="doccomment">/// Returns color&#39;s blue component.
+    <span class="doccomment">/// Returns color's blue component.
     ///
     /// The value is guarantee to be in a 0..=1 range.
     </span><span class="kw">pub fn </span>blue(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f32 {
         <span class="self">self</span>.b.get()
     }
 
-    <span class="doccomment">/// Returns color&#39;s alpha component.
+    <span class="doccomment">/// Returns color's alpha component.
     ///
     /// The value is guarantee to be in a 0..=1 range.
     </span><span class="kw">pub fn </span>alpha(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f32 {
@@ -785,9 +786,9 @@
         <span class="self">self</span>.a = NormalizedF32::new_clamped(c);
     }
 
-    <span class="doccomment">/// Shifts color&#39;s opacity.
+    <span class="doccomment">/// Shifts color's opacity.
     ///
-    /// Essentially, multiplies color&#39;s alpha by opacity.
+    /// Essentially, multiplies color's alpha by opacity.
     ///
     /// `opacity` will be clamped to the 0..=1 range first.
     /// The final alpha will also be clamped.
@@ -843,7 +844,7 @@
 }
 
 <span class="kw">impl </span>PremultipliedColor {
-    <span class="doccomment">/// Returns color&#39;s red component.
+    <span class="doccomment">/// Returns color's red component.
     ///
     /// - The value is guarantee to be in a 0..=1 range.
     /// - The value is &lt;= alpha.
@@ -851,7 +852,7 @@
         <span class="self">self</span>.r.get()
     }
 
-    <span class="doccomment">/// Returns color&#39;s green component.
+    <span class="doccomment">/// Returns color's green component.
     ///
     /// - The value is guarantee to be in a 0..=1 range.
     /// - The value is &lt;= alpha.
@@ -859,7 +860,7 @@
         <span class="self">self</span>.g.get()
     }
 
-    <span class="doccomment">/// Returns color&#39;s blue component.
+    <span class="doccomment">/// Returns color's blue component.
     ///
     /// - The value is guarantee to be in a 0..=1 range.
     /// - The value is &lt;= alpha.
@@ -867,7 +868,7 @@
         <span class="self">self</span>.b.get()
     }
 
-    <span class="doccomment">/// Returns color&#39;s alpha component.
+    <span class="doccomment">/// Returns color's alpha component.
     ///
     /// - The value is guarantee to be in a 0..=1 range.
     </span><span class="kw">pub fn </span>alpha(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f32 {

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/fields/symbols.rs`."><title>symbols.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/fields/symbols.rs`."><title>symbols.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -675,17 +676,17 @@
 #[non_exhaustive]
 </span><span class="kw">pub enum </span>SymbolError {
     <span class="doccomment">/// Invalid field symbol index.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Invalid field symbol index: {0}&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Invalid field symbol index: {0}"</span>)]
     </span>InvalidIndex(u8),
     <span class="doccomment">/// Unknown field symbol.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Unknown field symbol: {0}&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Unknown field symbol: {0}"</span>)]
     </span>Unknown(char),
     <span class="doccomment">/// Invalid character for a field symbol.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Invalid character for a field symbol: {0}&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Invalid character for a field symbol: {0}"</span>)]
     </span>Invalid(u8),
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>SymbolError {}
 
 <span class="doccomment">/// A field symbol for a date formatting pattern. Field symbols are a more granular distinction
@@ -694,8 +695,8 @@
 /// [`Hour::H24`]. Each field symbol is represented within the date formatting pattern string
 /// by a distinct character from the set of `A..Z` and `a..z`.
 </span><span class="attr">#[derive(Debug, Eq, PartialEq, Clone, Copy)]
-#[cfg_attr(feature = <span class="string">&quot;datagen&quot;</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_datetime::fields))]
-#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_datetime::fields))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
 #[allow(clippy::exhaustive_enums)] </span><span class="comment">// part of data struct
 </span><span class="kw">pub enum </span>FieldSymbol {
     <span class="doccomment">/// Era name.
@@ -732,7 +733,7 @@
     /// The serialization model packages the variant in one byte.
     ///
     /// 1) The top four bits are used to determine the type of the field
-    ///    using that type&#39;s `idx()/from_idx()` for the mapping.
+    ///    using that type's `idx()/from_idx()` for the mapping.
     ///    (Examples: `Year`, `Month`, `Hour`)
     ///
     /// 2) The bottom four bits are used to determine the symbol of the type.
@@ -800,7 +801,7 @@
     }
 
     <span class="doccomment">/// Returns the index associated with this FieldSymbol.
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;datagen&quot;</span>, feature = <span class="string">&quot;experimental&quot;</span>))] </span><span class="comment">// only referenced in experimental code
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))] </span><span class="comment">// only referenced in experimental code
     </span><span class="kw">fn </span>discriminant_idx(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="kw">match </span><span class="self">self </span>{
             FieldSymbol::Era =&gt; <span class="number">0</span>,
@@ -818,8 +819,8 @@
     }
 
     <span class="doccomment">/// Compares this enum with other solely based on the enum variant,
-    /// ignoring the enum&#39;s data.
-    </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;datagen&quot;</span>, feature = <span class="string">&quot;experimental&quot;</span>))] </span><span class="comment">// only referenced in experimental code
+    /// ignoring the enum's data.
+    </span><span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))] </span><span class="comment">// only referenced in experimental code
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>discriminant_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
         <span class="self">self</span>.discriminant_idx().cmp(<span class="kw-2">&amp;</span>other.discriminant_idx())
     }
@@ -884,7 +885,7 @@
 <span class="kw">impl </span>FieldSymbol {
     <span class="doccomment">/// Skeletons are a Vec&lt;Field&gt;, and represent the Fields that can be used to match to a
     /// specific pattern. The order of the Vec does not affect the Pattern that is output.
-    /// However, it&#39;s more performant when matching these fields, and it&#39;s more deterministic
+    /// However, it's more performant when matching these fields, and it's more deterministic
     /// when serializing them to present them in a consistent order.
     ///
     /// This ordering is taken by the order of the fields listed in the [UTS 35 Date Field Symbol Table]
@@ -936,7 +937,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(SymbolError::Invalid(ch <span class="kw">as </span>u8));
         }
 
-        (<span class="kw">if </span>ch == <span class="string">&#39;G&#39; </span>{
+        (<span class="kw">if </span>ch == <span class="string">'G' </span>{
             <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Era)
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(SymbolError::Unknown(ch))
@@ -949,7 +950,7 @@
         .or_else(|<span class="kw">_</span>| DayPeriod::try_from(ch).map(<span class="self">Self</span>::DayPeriod))
         .or_else(|<span class="kw">_</span>| Hour::try_from(ch).map(<span class="self">Self</span>::Hour))
         .or({
-            <span class="kw">if </span>ch == <span class="string">&#39;m&#39; </span>{
+            <span class="kw">if </span>ch == <span class="string">'m' </span>{
                 <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Minute)
             } <span class="kw">else </span>{
                 <span class="prelude-val">Err</span>(SymbolError::Unknown(ch))
@@ -963,7 +964,7 @@
 <span class="kw">impl </span>From&lt;FieldSymbol&gt; <span class="kw">for </span>char {
     <span class="kw">fn </span>from(symbol: FieldSymbol) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>symbol {
-            FieldSymbol::Era =&gt; <span class="string">&#39;G&#39;</span>,
+            FieldSymbol::Era =&gt; <span class="string">'G'</span>,
             FieldSymbol::Year(year) =&gt; year.into(),
             FieldSymbol::Month(month) =&gt; month.into(),
             FieldSymbol::Week(week) =&gt; week.into(),
@@ -971,7 +972,7 @@
             FieldSymbol::Weekday(weekday) =&gt; weekday.into(),
             FieldSymbol::DayPeriod(dayperiod) =&gt; dayperiod.into(),
             FieldSymbol::Hour(hour) =&gt; hour.into(),
-            FieldSymbol::Minute =&gt; <span class="string">&#39;m&#39;</span>,
+            FieldSymbol::Minute =&gt; <span class="string">'m'</span>,
             FieldSymbol::Second(second) =&gt; second.into(),
             FieldSymbol::TimeZone(time_zone) =&gt; time_zone.into(),
         }
@@ -1005,11 +1006,11 @@
         </span><span class="comment">// FIXME: This should be replaced with a custom derive.
         // See: https://github.com/unicode-org/icu4x/issues/1044
         </span><span class="attr">#[cfg_attr(
-            feature = <span class="string">&quot;datagen&quot;</span>,
+            feature = <span class="string">"datagen"</span>,
             derive(serde::Serialize, databake::Bake),
             databake(path = icu_datetime::fields),
         )]
-        #[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Deserialize))]
+        #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
         #[allow(clippy::enum_variant_names)]
         #[repr(u8)]
         #[zerovec::make_ule(<span class="macro-nonterminal">$ule_name</span>)]
@@ -1019,8 +1020,8 @@
         <span class="kw">pub enum </span><span class="macro-nonterminal">$i </span>{
             $(
                 $(<span class="attr">#[<span class="macro-nonterminal">$variant_attr</span>]</span>)*
-                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">&quot;\n\nThis field symbol is represented by the character `&quot;</span>, <span class="macro-nonterminal">$key</span>, <span class="string">&quot;` in a date formatting pattern string.&quot;</span>)]
-                #[doc = <span class="string">&quot;\n\nFor more details, see documentation on [date field symbols](https://unicode.org/reports/tr35/tr35-dates.html#table-date-field-symbol-table).&quot;</span>]
+                <span class="attr">#[doc = <span class="macro">core::concat!</span>(<span class="string">"\n\nThis field symbol is represented by the character `"</span>, <span class="macro-nonterminal">$key</span>, <span class="string">"` in a date formatting pattern string."</span>)]
+                #[doc = <span class="string">"\n\nFor more details, see documentation on [date field symbols](https://unicode.org/reports/tr35/tr35-dates.html#table-date-field-symbol-table)."</span>]
                 </span><span class="macro-nonterminal">$val </span>= <span class="macro-nonterminal">$idx</span>,
             )*
         }
@@ -1105,15 +1106,15 @@
         <span class="doccomment">/// Field symbol for calendar year (numeric).
         ///
         /// In most cases the length of this field specifies the minimum number of digits to display, zero-padded as necessary. For most use cases, [`Year::Calendar`] or [`Year::WeekOf`] should be adequate.
-        </span><span class="string">&#39;y&#39; </span>=&gt; Calendar = <span class="number">0</span>,
-        <span class="doccomment">/// Field symbol for year in &quot;week of year&quot;.
+        </span><span class="string">'y' </span>=&gt; Calendar = <span class="number">0</span>,
+        <span class="doccomment">/// Field symbol for year in "week of year".
         ///
         /// This works for “week of year” based calendars in which the year transition occurs on a week boundary; may differ from calendar year [`Year::Calendar`] near a year transition. This numeric year designation is used in conjunction with [`Week::WeekOfYear`], but can be used in non-Gregorian based calendar systems where week date processing is desired. The field length is interpreted in the same way as for [`Year::Calendar`].
-        </span><span class="string">&#39;Y&#39; </span>=&gt; WeekOf = <span class="number">1</span>,
+        </span><span class="string">'Y' </span>=&gt; WeekOf = <span class="number">1</span>,
         <span class="doccomment">/// Field symbol for cyclic year; used in calendars where years are tracked in cycles, such as the Chinese or Dangi calendars.
-        </span><span class="string">&#39;U&#39; </span>=&gt; Cyclic = <span class="number">2</span>,
+        </span><span class="string">'U' </span>=&gt; Cyclic = <span class="number">2</span>,
         <span class="doccomment">/// Field symbol for related ISO; some calendars which use different year numbering than ISO, or no year numbering, may express years in an ISO year corresponding to a calendar year.
-        </span><span class="string">&#39;r&#39; </span>=&gt; RelatedIso = <span class="number">3</span>,
+        </span><span class="string">'r' </span>=&gt; RelatedIso = <span class="number">3</span>,
     };
     YearULE
 );
@@ -1132,11 +1133,11 @@
     <span class="doccomment">/// An enum for the possible symbols of a month field in a date pattern.
     </span>Month; {
         <span class="doccomment">/// Field symbol for month number or name in a pattern that contains multiple fields.
-        </span><span class="string">&#39;M&#39; </span>=&gt; Format = <span class="number">0</span>,
-        <span class="doccomment">/// Field symbol for a &quot;stand-alone&quot; month number or name.
+        </span><span class="string">'M' </span>=&gt; Format = <span class="number">0</span>,
+        <span class="doccomment">/// Field symbol for a "stand-alone" month number or name.
         /// 
         /// The stand-alone month name is used when the month is displayed by itself. This may differ from the standard form based on the language and context.
-        </span><span class="string">&#39;L&#39; </span>=&gt; StandAlone = <span class="number">1</span>,
+        </span><span class="string">'L' </span>=&gt; StandAlone = <span class="number">1</span>,
 }; MonthULE);
 
 <span class="kw">impl </span>LengthType <span class="kw">for </span>Month {
@@ -1150,7 +1151,7 @@
             FieldLength::Narrow =&gt; TextOrNumeric::Text,
             FieldLength::Six =&gt; TextOrNumeric::Text,
             FieldLength::Fixed(<span class="kw">_</span>) =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Fixed field length is only supported for seconds&quot;</span>);
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"Fixed field length is only supported for seconds"</span>);
                 TextOrNumeric::Text
             }
         }
@@ -1161,17 +1162,17 @@
     <span class="doccomment">/// An enum for the possible symbols of a day field in a date pattern.
     </span>Day; {
         <span class="doccomment">/// Field symbol for day of month (numeric).
-        </span><span class="string">&#39;d&#39; </span>=&gt; DayOfMonth = <span class="number">0</span>,
+        </span><span class="string">'d' </span>=&gt; DayOfMonth = <span class="number">0</span>,
         <span class="doccomment">/// Field symbol for day of year (numeric).
-        </span><span class="string">&#39;D&#39; </span>=&gt; DayOfYear = <span class="number">1</span>,
+        </span><span class="string">'D' </span>=&gt; DayOfYear = <span class="number">1</span>,
         <span class="doccomment">/// Field symbol for the day of week occurrence relative to the month (numeric).
         ///
-        /// For the example `&quot;2nd Wed in July&quot;`, this field would provide `&quot;2&quot;`.  Should likely be paired with the [`Weekday`] field.
-        </span><span class="string">&#39;F&#39; </span>=&gt; DayOfWeekInMonth = <span class="number">2</span>,
+        /// For the example `"2nd Wed in July"`, this field would provide `"2"`.  Should likely be paired with the [`Weekday`] field.
+        </span><span class="string">'F' </span>=&gt; DayOfWeekInMonth = <span class="number">2</span>,
         <span class="doccomment">/// Field symbol for the modified Julian day (numeric).
         ///
         /// The value of this field differs from the conventional Julian day number in a couple of ways, which are based on measuring relative to the local time zone.
-        </span><span class="string">&#39;g&#39; </span>=&gt; ModifiedJulianDay = <span class="number">3</span>,
+        </span><span class="string">'g' </span>=&gt; ModifiedJulianDay = <span class="number">3</span>,
     };
     Numeric;
     DayULE
@@ -1181,13 +1182,13 @@
     <span class="doccomment">/// An enum for the possible symbols of an hour field in a date pattern.
     </span>Hour; {
         <span class="doccomment">/// Field symbol for numeric hour [0-11].
-        </span><span class="string">&#39;K&#39; </span>=&gt; H11 = <span class="number">0</span>,
+        </span><span class="string">'K' </span>=&gt; H11 = <span class="number">0</span>,
         <span class="doccomment">/// Field symbol for numeric hour [1-12].
-        </span><span class="string">&#39;h&#39; </span>=&gt; H12 = <span class="number">1</span>,
+        </span><span class="string">'h' </span>=&gt; H12 = <span class="number">1</span>,
         <span class="doccomment">/// Field symbol for numeric hour [0-23].
-        </span><span class="string">&#39;H&#39; </span>=&gt; H23 = <span class="number">2</span>,
+        </span><span class="string">'H' </span>=&gt; H23 = <span class="number">2</span>,
         <span class="doccomment">/// Field symbol for numeric hour [1-24].
-        </span><span class="string">&#39;k&#39; </span>=&gt; H24 = <span class="number">3</span>,
+        </span><span class="string">'k' </span>=&gt; H24 = <span class="number">3</span>,
     };
     Numeric;
     HourULE
@@ -1197,15 +1198,15 @@
     <span class="doccomment">/// An enum for the possible symbols of a second field in a date pattern.
     </span>Second; {
         <span class="doccomment">/// Field symbol for second (numeric).
-        </span><span class="string">&#39;s&#39; </span>=&gt; Second = <span class="number">0</span>,
+        </span><span class="string">'s' </span>=&gt; Second = <span class="number">0</span>,
         <span class="doccomment">/// Field symbol for fractional second (numeric).
         ///
         /// Produces the number of digits specified by the field length.
-        </span><span class="string">&#39;S&#39; </span>=&gt; FractionalSecond = <span class="number">1</span>,
+        </span><span class="string">'S' </span>=&gt; FractionalSecond = <span class="number">1</span>,
         <span class="doccomment">/// Field symbol for milliseconds in day (numeric).
         ///
         /// This field behaves exactly like a composite of all time-related fields, not including the zone fields.
-        </span><span class="string">&#39;A&#39; </span>=&gt; Millisecond = <span class="number">2</span>,
+        </span><span class="string">'A' </span>=&gt; Millisecond = <span class="number">2</span>,
     };
     Numeric;
     SecondULE
@@ -1217,9 +1218,9 @@
         <span class="doccomment">/// Field symbol for week of year (numeric).
         ///
         /// When used in a pattern with year, use [`Year::WeekOf`] for the year field instead of [`Year::Calendar`].
-        </span><span class="string">&#39;w&#39; </span>=&gt; WeekOfYear = <span class="number">0</span>,
+        </span><span class="string">'w' </span>=&gt; WeekOfYear = <span class="number">0</span>,
         <span class="doccomment">/// Field symbol for week of month (numeric).
-        </span><span class="string">&#39;W&#39; </span>=&gt; WeekOfMonth = <span class="number">1</span>,
+        </span><span class="string">'W' </span>=&gt; WeekOfMonth = <span class="number">1</span>,
     };
     Numeric;
     WeekULE
@@ -1229,15 +1230,15 @@
     <span class="doccomment">/// An enum for the possible symbols of a weekday field in a date pattern.
     </span>Weekday;  {
         <span class="doccomment">/// Field symbol for day of week (text format only).
-        </span><span class="string">&#39;E&#39; </span>=&gt; Format = <span class="number">0</span>,
+        </span><span class="string">'E' </span>=&gt; Format = <span class="number">0</span>,
         <span class="doccomment">/// Field symbol for day of week; numeric formats produce a locale-dependent ordinal weekday number.
         ///
         /// For example, in de-DE, Monday is the 1st day of the week.
-        </span><span class="string">&#39;e&#39; </span>=&gt; Local = <span class="number">1</span>,
+        </span><span class="string">'e' </span>=&gt; Local = <span class="number">1</span>,
         <span class="doccomment">/// Field symbol for stand-alone local day of week number/name.
         ///
         /// The stand-alone weekday name is used when the weekday is displayed by itself. This may differ from the standard form based on the language and context.
-        </span><span class="string">&#39;c&#39; </span>=&gt; StandAlone = <span class="number">2</span>,
+        </span><span class="string">'c' </span>=&gt; StandAlone = <span class="number">2</span>,
     };
     WeekdayULE
 );
@@ -1258,9 +1259,9 @@
     <span class="doccomment">/// An enum for the possible symbols of a day period field in a date pattern.
     </span>DayPeriod; {
         <span class="doccomment">/// Field symbol for the AM, PM day period.  (Does not include noon, midnight.)
-        </span><span class="string">&#39;a&#39; </span>=&gt; AmPm = <span class="number">0</span>,
+        </span><span class="string">'a' </span>=&gt; AmPm = <span class="number">0</span>,
         <span class="doccomment">/// Field symbol for the am, pm, noon, midnight day period.
-        </span><span class="string">&#39;b&#39; </span>=&gt; NoonMidnight = <span class="number">1</span>,
+        </span><span class="string">'b' </span>=&gt; NoonMidnight = <span class="number">1</span>,
     };
     Text;
     DayPeriodULE
@@ -1271,26 +1272,26 @@
     </span>TimeZone; {
         <span class="doccomment">/// Field symbol for the specific non-location format of a time zone.
         ///
-        /// For example: &quot;Pacific Standard Time&quot;
-        </span><span class="string">&#39;z&#39; </span>=&gt; LowerZ = <span class="number">0</span>,
+        /// For example: "Pacific Standard Time"
+        </span><span class="string">'z' </span>=&gt; LowerZ = <span class="number">0</span>,
         <span class="doccomment">/// Field symbol for any of: the ISO8601 basic format with hours, minutes and optional seconds fields, the
         /// long localized GMT format, or the ISO8601 extended format with hours, minutes and optional seconds fields.
-        </span><span class="string">&#39;Z&#39; </span>=&gt; UpperZ = <span class="number">1</span>,
+        </span><span class="string">'Z' </span>=&gt; UpperZ = <span class="number">1</span>,
         <span class="doccomment">/// Field symbol for the localized GMT format of a time zone.
         ///
-        /// For example: &quot;GMT-07:00&quot;
-        </span><span class="string">&#39;O&#39; </span>=&gt; UpperO = <span class="number">2</span>,
+        /// For example: "GMT-07:00"
+        </span><span class="string">'O' </span>=&gt; UpperO = <span class="number">2</span>,
         <span class="doccomment">/// Field symbol for the generic non-location format of a time zone.
         ///
-        /// For example: &quot;Pacific Time&quot;
-        </span><span class="string">&#39;v&#39; </span>=&gt; LowerV = <span class="number">3</span>,
+        /// For example: "Pacific Time"
+        </span><span class="string">'v' </span>=&gt; LowerV = <span class="number">3</span>,
         <span class="doccomment">/// Field symbol for any of: the time zone id, time zone exemplar city, or generic location format.
-        </span><span class="string">&#39;V&#39; </span>=&gt; UpperV = <span class="number">4</span>,
+        </span><span class="string">'V' </span>=&gt; UpperV = <span class="number">4</span>,
         <span class="doccomment">/// Field symbol for either the ISO8601 basic format or ISO8601 extended format, with an optional ISO8601 UTC indicator `Z`.
-        </span><span class="string">&#39;x&#39; </span>=&gt; LowerX = <span class="number">5</span>,
+        </span><span class="string">'x' </span>=&gt; LowerX = <span class="number">5</span>,
         <span class="doccomment">/// Field symbol for either the ISO8601 basic format or ISO8601 extended format.  This does not allow an
         /// optional ISO8601 UTC indicator `Z`, whereas [`TimeZone::LowerX`] allows the optional `Z`.
-        </span><span class="string">&#39;X&#39; </span>=&gt; UpperX = <span class="number">6</span>,
+        </span><span class="string">'X' </span>=&gt; UpperX = <span class="number">6</span>,
     };
     TimeZoneULE
 );

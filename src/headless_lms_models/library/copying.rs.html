@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/copying.rs`."><title>copying.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/copying.rs`."><title>copying.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1164,7 +1165,7 @@
     <span class="comment">// Create new course.
     </span><span class="kw">let </span>copied_course = <span class="macro">sqlx::query_as!</span>(
         Course,
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO courses (
     name,
     organization_id,
@@ -1192,7 +1193,7 @@ RETURNING id,
   is_draft,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions
-    &quot;</span>,
+    "</span>,
         new_course.name,
         new_course.organization_id,
         new_course.slug,
@@ -1214,7 +1215,7 @@ RETURNING id,
         copy_user_permissions(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
-    <span class="comment">// Copy course pages. At this point, exercise ids in content will point to old course&#39;s exercises.
+    <span class="comment">// Copy course pages. At this point, exercise ids in content will point to old course's exercises.
     </span><span class="kw">let </span>contents_iter =
         copy_course_pages_and_return_contents(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1228,29 +1229,29 @@ RETURNING id,
     </span><span class="kw">for </span>(page_id, content) <span class="kw">in </span>contents_iter {
         <span class="kw">if let </span>Value::Array(<span class="kw-2">mut </span>blocks) = content {
             <span class="kw">for </span>block <span class="kw">in </span>blocks.iter_mut() {
-                <span class="kw">if </span>block[<span class="string">&quot;name&quot;</span>] != Value::String(<span class="string">&quot;moocfi/exercise&quot;</span>.to_string()) {
+                <span class="kw">if </span>block[<span class="string">"name"</span>] != Value::String(<span class="string">"moocfi/exercise"</span>.to_string()) {
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">if let </span>Value::String(old_id) = <span class="kw-2">&amp;</span>block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] {
+                <span class="kw">if let </span>Value::String(old_id) = <span class="kw-2">&amp;</span>block[<span class="string">"attributes"</span>][<span class="string">"id"</span>] {
                     <span class="kw">let </span>new_id = old_to_new_exercise_ids
                         .get(old_id)
                         .ok_or_else(|| {
                             ModelError::new(
                                 ModelErrorType::Generic,
-                                <span class="string">&quot;Invalid exercise id in content.&quot;</span>.to_string(),
+                                <span class="string">"Invalid exercise id in content."</span>.to_string(),
                                 <span class="prelude-val">None</span>,
                             )
                         })<span class="question-mark">?
                         </span>.to_string();
-                    block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] = Value::String(new_id);
+                    block[<span class="string">"attributes"</span>][<span class="string">"id"</span>] = Value::String(new_id);
                 }
             }
             <span class="macro">sqlx::query!</span>(
-                <span class="string">&quot;
+                <span class="string">"
 UPDATE pages
 SET content = $1
 WHERE id = $2;
-                &quot;</span>,
+                "</span>,
                 Value::Array(blocks),
                 page_id,
             )
@@ -1274,24 +1275,24 @@ WHERE id = $2;
     </span><span class="kw">for </span>(page_id, content) <span class="kw">in </span>pages_contents {
         <span class="kw">if let </span>Value::Array(<span class="kw-2">mut </span>blocks) = content {
             <span class="kw">for </span>block <span class="kw">in </span>blocks.iter_mut() {
-                <span class="kw">let </span>content = block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;content&quot;</span>].as_str();
+                <span class="kw">let </span>content = block[<span class="string">"attributes"</span>][<span class="string">"content"</span>].as_str();
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(content) = content {
-                    <span class="kw">if </span>content.contains(<span class="string">&quot;&lt;a href=&quot;</span>) {
+                    <span class="kw">if </span>content.contains(<span class="string">"&lt;a href="</span>) {
                         <span class="kw">let </span>content_with_new_slug = content.replace(
                             <span class="kw-2">&amp;</span>parent_course.slug.to_string(),
                             <span class="kw-2">&amp;</span>new_course.slug.to_string(),
                         );
-                        block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;content&quot;</span>] = Value::String(content_with_new_slug);
+                        block[<span class="string">"attributes"</span>][<span class="string">"content"</span>] = Value::String(content_with_new_slug);
                     }
                 }
             }
             <span class="macro">sqlx::query!</span>(
-                <span class="string">&quot;
+                <span class="string">"
 UPDATE pages
 SET content = $1
 WHERE id = $2;
-                &quot;</span>,
+                "</span>,
                 Value::Array(blocks),
                 page_id,
             )
@@ -1336,13 +1337,13 @@ WHERE id = $2;
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>parent_exam_fields = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 SELECT language,
   organization_id,
   minimum_points_treshold
 FROM exams
 WHERE id = $1
-        &quot;</span>,
+        "</span>,
         parent_exam.id
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
@@ -1350,7 +1351,7 @@ WHERE id = $1
 
     <span class="comment">// create new exam
     </span><span class="kw">let </span>copied_exam = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exams(
     name,
     organization_id,
@@ -1363,7 +1364,7 @@ INSERT INTO exams(
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *
-        &quot;</span>,
+        "</span>,
         new_exam.name,
         parent_exam_fields.organization_id,
         parent_exam.instructions,
@@ -1387,29 +1388,29 @@ RETURNING *
     </span><span class="kw">for </span>(page_id, content) <span class="kw">in </span>contents_iter {
         <span class="kw">if let </span>Value::Array(<span class="kw-2">mut </span>blocks) = content {
             <span class="kw">for </span>block <span class="kw">in </span>blocks.iter_mut() {
-                <span class="kw">if </span>block[<span class="string">&quot;name&quot;</span>] != Value::String(<span class="string">&quot;moocfi/exercise&quot;</span>.to_string()) {
+                <span class="kw">if </span>block[<span class="string">"name"</span>] != Value::String(<span class="string">"moocfi/exercise"</span>.to_string()) {
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">if let </span>Value::String(old_id) = <span class="kw-2">&amp;</span>block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] {
+                <span class="kw">if let </span>Value::String(old_id) = <span class="kw-2">&amp;</span>block[<span class="string">"attributes"</span>][<span class="string">"id"</span>] {
                     <span class="kw">let </span>new_id = old_to_new_exercise_ids
                         .get(old_id)
                         .ok_or_else(|| {
                             ModelError::new(
                                 ModelErrorType::Generic,
-                                <span class="string">&quot;Invalid exercise id in content.&quot;</span>.to_string(),
+                                <span class="string">"Invalid exercise id in content."</span>.to_string(),
                                 <span class="prelude-val">None</span>,
                             )
                         })<span class="question-mark">?
                         </span>.to_string();
-                    block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] = Value::String(new_id);
+                    block[<span class="string">"attributes"</span>][<span class="string">"id"</span>] = Value::String(new_id);
                 }
             }
             <span class="macro">sqlx::query!</span>(
-                <span class="string">&quot;
+                <span class="string">"
 UPDATE pages
 SET content = $1
 WHERE id = $2;
-                &quot;</span>,
+                "</span>,
                 Value::Array(blocks),
                 page_id,
             )
@@ -1425,7 +1426,7 @@ WHERE id = $2;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>get_page_id = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;SELECT id AS page_id FROM pages WHERE exam_id = $1;&quot;</span>,
+        <span class="string">"SELECT id AS page_id FROM pages WHERE exam_id = $1;"</span>,
         copied_exam.id
     )
     .fetch_one(conn)
@@ -1441,7 +1442,7 @@ WHERE id = $2;
         time_minutes: copied_exam.time_minutes,
         page_id: get_page_id.page_id,
         minimum_points_treshold: copied_exam.minimum_points_treshold,
-        language: copied_exam.language.unwrap_or(<span class="string">&quot;en-US&quot;</span>.to_string()),
+        language: copied_exam.language.unwrap_or(<span class="string">"en-US"</span>.to_string()),
     })
 }
 
@@ -1450,9 +1451,9 @@ WHERE id = $2;
     namespace_id: Uuid,
     parent_course_id: Uuid,
 ) -&gt; ModelResult&lt;HashMap&lt;Uuid, Value&gt;&gt; {
-    <span class="comment">// Copy course pages. At this point, exercise ids in content will point to old course&#39;s exercises.
+    <span class="comment">// Copy course pages. At this point, exercise ids in content will point to old course's exercises.
     </span><span class="kw">let </span>contents = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
     INSERT INTO pages (
         id,
         course_id,
@@ -1480,7 +1481,7 @@ WHERE id = $2;
     AND deleted_at IS NULL
     RETURNING id,
       content;
-        &quot;</span>,
+        "</span>,
         namespace_id,
         parent_course_id
     )
@@ -1499,7 +1500,7 @@ WHERE id = $2;
     parent_exam_id: Uuid,
 ) -&gt; ModelResult&lt;HashMap&lt;Uuid, Value&gt;&gt; {
     <span class="kw">let </span>contents = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
     INSERT INTO pages (
         id,
         exam_id,
@@ -1525,7 +1526,7 @@ WHERE id = $2;
     AND deleted_at IS NULL
     RETURNING id,
       content;
-        &quot;</span>,
+        "</span>,
         namespace_id,
         parent_exam_id
     )
@@ -1541,12 +1542,12 @@ WHERE id = $2;
 <span class="kw">async fn </span>set_chapter_front_pages(tx: <span class="kw-2">&amp;mut </span>PgConnection, namespace_id: Uuid) -&gt; ModelResult&lt;()&gt; {
     <span class="comment">// Update front_page_id of chapters now that new pages exist.
     </span><span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
     UPDATE chapters
     SET front_page_id = uuid_generate_v5(course_id, front_page_id::text)
     WHERE course_id = $1
         AND front_page_id IS NOT NULL;
-            &quot;</span>,
+            "</span>,
         namespace_id,
     )
     .execute(<span class="kw-2">&amp;mut *</span>tx)
@@ -1561,7 +1562,7 @@ WHERE id = $2;
     old_course_id: Uuid,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO course_modules (
     id,
     course_id,
@@ -1577,7 +1578,7 @@ SELECT uuid_generate_v5($1, id::text),
 FROM course_modules
 WHERE course_id = $2
   AND deleted_at IS NULL
-        &quot;</span>,
+        "</span>,
         new_course_id,
         old_course_id,
     )
@@ -1593,7 +1594,7 @@ WHERE course_id = $2
     parent_course_id: Uuid,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO chapters (
     id,
     name,
@@ -1617,7 +1618,7 @@ SELECT uuid_generate_v5($1, id::text),
 FROM chapters
 WHERE (course_id = $2)
 AND deleted_at IS NULL;
-    &quot;</span>,
+    "</span>,
         namespace_id,
         parent_course_id
     )
@@ -1633,7 +1634,7 @@ AND deleted_at IS NULL;
     parent_course_id: Uuid,
 ) -&gt; ModelResult&lt;HashMap&lt;String, String&gt;&gt; {
     <span class="kw">let </span>old_to_new_exercise_ids = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exercises (
     id,
     course_id,
@@ -1669,7 +1670,7 @@ WHERE course_id = $2
   AND deleted_at IS NULL
 RETURNING id,
   copied_from;
-            &quot;</span>,
+            "</span>,
         namespace_id,
         parent_course_id
     )
@@ -1683,7 +1684,7 @@ RETURNING id,
                 .ok_or_else(|| {
                     ModelError::new(
                         ModelErrorType::Generic,
-                        <span class="string">&quot;Query failed to return valid data.&quot;</span>.to_string(),
+                        <span class="string">"Query failed to return valid data."</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?
@@ -1702,7 +1703,7 @@ RETURNING id,
     parent_exam_id: Uuid,
 ) -&gt; ModelResult&lt;HashMap&lt;String, String&gt;&gt; {
     <span class="kw">let </span>old_to_new_exercise_ids = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exercises (
     id,
     exam_id,
@@ -1736,7 +1737,7 @@ WHERE exam_id = $2
   AND deleted_at IS NULL
 RETURNING id,
   copied_from;
-            &quot;</span>,
+            "</span>,
         namespace_id,
         parent_exam_id
     )
@@ -1750,7 +1751,7 @@ RETURNING id,
                 .ok_or_else(|| {
                     ModelError::new(
                         ModelErrorType::Generic,
-                        <span class="string">&quot;Query failed to return valid data.&quot;</span>.to_string(),
+                        <span class="string">"Query failed to return valid data."</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?
@@ -1770,7 +1771,7 @@ RETURNING id,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="comment">// Copy exercise slides
     </span><span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
     INSERT INTO exercise_slides (
         id, exercise_id, order_number
     )
@@ -1780,7 +1781,7 @@ RETURNING id,
     FROM exercise_slides
     WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2 OR exam_id = $2 AND deleted_at IS NULL)
     AND deleted_at IS NULL;
-            &quot;</span>,
+            "</span>,
         namespace_id,
         parent_id
     )
@@ -1797,7 +1798,7 @@ RETURNING id,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="comment">// Copy exercise tasks
     </span><span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO exercise_tasks (
     id,
     exercise_slide_id,
@@ -1828,7 +1829,7 @@ WHERE exercise_slide_id IN (
     AND s.deleted_at IS NULL
   )
 AND deleted_at IS NULL;
-    &quot;</span>,
+    "</span>,
         namespace_id,
         parent_id,
     )
@@ -1844,7 +1845,7 @@ AND deleted_at IS NULL;
     user_id: Uuid,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO roles (
     id,
     user_id,
@@ -1861,7 +1862,7 @@ FROM roles
 WHERE (course_id = $1)
 AND NOT (user_id = $3)
 AND deleted_at IS NULL;
-    &quot;</span>,
+    "</span>,
         old_course_id,
         new_course_id,
         user_id
@@ -1878,7 +1879,7 @@ AND deleted_at IS NULL;
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="comment">// Copy exercise tasks
     </span><span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
+        <span class="string">"
 INSERT INTO peer_review_configs (
     id,
     course_id,
@@ -1898,7 +1899,7 @@ SELECT uuid_generate_v5($1, id::text),
 FROM peer_review_configs
 WHERE course_id = $2
 AND deleted_at IS NULL;
-    &quot;</span>,
+    "</span>,
         namespace_id,
         parent_id,
     )
@@ -1923,11 +1924,11 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;en-US&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"en-US"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">false</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="macro">assert_eq!</span>(copied_course.name, <span class="string">&quot;Copied course&quot;</span>.to_string());
+            <span class="macro">assert_eq!</span>(copied_course.name, <span class="string">"Copied course"</span>.to_string());
             <span class="macro">assert_eq!</span>(copied_course.copied_from, <span class="prelude-val">Some</span>(course.id));
             <span class="macro">assert_ne!</span>(course.id, copied_course.id);
             <span class="macro">assert_ne!</span>(
@@ -1942,11 +1943,11 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;fi-FI&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"fi-FI"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="macro">assert_eq!</span>(copied_course.name, <span class="string">&quot;Copied course&quot;</span>.to_string());
+            <span class="macro">assert_eq!</span>(copied_course.name, <span class="string">"Copied course"</span>.to_string());
             <span class="macro">assert_eq!</span>(copied_course.copied_from, <span class="prelude-val">Some</span>(course.id));
             <span class="macro">assert_ne!</span>(course.id, copied_course.id);
             <span class="macro">assert_eq!</span>(
@@ -1961,7 +1962,7 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;en-GB&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"en-GB"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
@@ -1981,7 +1982,7 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;pt-BR&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"pt-BR"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
@@ -2005,7 +2006,7 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;sv-SV&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"sv-SV"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
@@ -2022,7 +2023,7 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;fr-CA&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"fr-CA"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
@@ -2043,7 +2044,7 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;es-US&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"es-US"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
@@ -2086,21 +2087,21 @@ AND deleted_at IS NULL;
                 tx.as_mut(),
                 page,
                 <span class="kw-2">&amp;</span><span class="macro">serde_json::json!</span>([{
-                    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;core/paragraph&quot;</span>,
-                    <span class="string">&quot;isValid&quot;</span>: <span class="bool-val">true</span>,
-                    <span class="string">&quot;clientId&quot;</span>: <span class="string">&quot;b2ecb473-38cc-4df1-84f7-45709cc63e95&quot;</span>,
-                    <span class="string">&quot;attributes&quot;</span>: {
-                        <span class="string">&quot;content&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;Internal link &lt;a href=\&quot;http://project-331.local/org/uh-cs/courses/{slug2}\&quot;&gt;http://project-331.local/org/uh-cs/courses/{slug1}&lt;/a&gt;&quot;</span>, slug2 = course.slug, slug1 = course.slug)
+                    <span class="string">"name"</span>: <span class="string">"core/paragraph"</span>,
+                    <span class="string">"isValid"</span>: <span class="bool-val">true</span>,
+                    <span class="string">"clientId"</span>: <span class="string">"b2ecb473-38cc-4df1-84f7-45709cc63e95"</span>,
+                    <span class="string">"attributes"</span>: {
+                        <span class="string">"content"</span>: <span class="macro">format!</span>(<span class="string">"Internal link &lt;a href=\"http://project-331.local/org/uh-cs/courses/{slug2}\"&gt;http://project-331.local/org/uh-cs/courses/{slug1}&lt;/a&gt;"</span>, slug2 = course.slug, slug1 = course.slug)
                         ,
-                        <span class="string">&quot;dropCap&quot;</span>:<span class="bool-val">false
+                        <span class="string">"dropCap"</span>:<span class="bool-val">false
                     </span>},
-                    <span class="string">&quot;innerBlocks&quot;</span>: []
+                    <span class="string">"innerBlocks"</span>: []
                 }]),
             )
             .<span class="kw">await
             </span>.unwrap();
 
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;fi-FI&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"fi-FI"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
@@ -2116,11 +2117,11 @@ AND deleted_at IS NULL;
                 .into_iter()
                 .find(|copied_page| copied_page.copied_from == <span class="prelude-val">Some</span>(page))
                 .unwrap();
-            <span class="kw">let </span>copied_content_in_page = copied_page.content[<span class="number">0</span>][<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;content&quot;</span>]
+            <span class="kw">let </span>copied_content_in_page = copied_page.content[<span class="number">0</span>][<span class="string">"attributes"</span>][<span class="string">"content"</span>]
                 .as_str()
                 .unwrap();
             <span class="kw">let </span>content_with_updated_course_slug =
-            <span class="string">&quot;Internal link &lt;a href=\&quot;http://project-331.local/org/uh-cs/courses/copied-course\&quot;&gt;http://project-331.local/org/uh-cs/courses/copied-course&lt;/a&gt;&quot;</span>;
+            <span class="string">"Internal link &lt;a href=\"http://project-331.local/org/uh-cs/courses/copied-course\"&gt;http://project-331.local/org/uh-cs/courses/copied-course&lt;/a&gt;"</span>;
             <span class="macro">assert_eq!</span>(copied_content_in_page, content_with_updated_course_slug);
         }
         <span class="attr">#[tokio::test]
@@ -2133,19 +2134,19 @@ AND deleted_at IS NULL;
                 tx.as_mut(),
                 page,
                 <span class="kw-2">&amp;</span><span class="macro">serde_json::json!</span>([{
-                    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;moocfi/exercise&quot;</span>,
-                    <span class="string">&quot;isValid&quot;</span>: <span class="bool-val">true</span>,
-                    <span class="string">&quot;clientId&quot;</span>: <span class="string">&quot;b2ecb473-38cc-4df1-84f7-06709cc63e95&quot;</span>,
-                    <span class="string">&quot;attributes&quot;</span>: {
-                        <span class="string">&quot;id&quot;</span>: exercise,
-                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Exercise&quot;
+                    <span class="string">"name"</span>: <span class="string">"moocfi/exercise"</span>,
+                    <span class="string">"isValid"</span>: <span class="bool-val">true</span>,
+                    <span class="string">"clientId"</span>: <span class="string">"b2ecb473-38cc-4df1-84f7-06709cc63e95"</span>,
+                    <span class="string">"attributes"</span>: {
+                        <span class="string">"id"</span>: exercise,
+                        <span class="string">"name"</span>: <span class="string">"Exercise"
                     </span>},
-                    <span class="string">&quot;innerBlocks&quot;</span>: []
+                    <span class="string">"innerBlocks"</span>: []
                 }]),
             )
             .<span class="kw">await
             </span>.unwrap();
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;es-MX&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"es-MX"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
@@ -2161,7 +2162,7 @@ AND deleted_at IS NULL;
                 .find(|copied_page| copied_page.copied_from == <span class="prelude-val">Some</span>(page))
                 .unwrap();
             <span class="kw">let </span>copied_exercise_id_in_content =
-                Uuid::parse_str(copied_page.content[<span class="number">0</span>][<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>].as_str().unwrap())
+                Uuid::parse_str(copied_page.content[<span class="number">0</span>][<span class="string">"attributes"</span>][<span class="string">"id"</span>].as_str().unwrap())
                     .unwrap();
             <span class="kw">let </span>copied_exercise =
                 <span class="kw">crate</span>::exercises::get_by_id(tx.as_mut(), copied_exercise_id_in_content)
@@ -2176,7 +2177,7 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
                 .<span class="kw">await
                 </span>.unwrap();
-            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;fi-SV&quot;</span>.to_string());
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">"fi-SV"</span>.to_string());
             <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
@@ -2215,7 +2216,7 @@ AND deleted_at IS NULL;
             </span>.unwrap();
             <span class="macro">assert_eq!</span>(copied_slides.len(), <span class="number">1</span>);
             <span class="kw">let </span>copied_slide = copied_slides.first().unwrap();
-            <span class="comment">// Exercise slides don&#39;t have copied_from field
+            <span class="comment">// Exercise slides don't have copied_from field
             </span><span class="kw">let </span>copied_tasks: Vec&lt;ExerciseTask&gt; =
                 <span class="kw">crate</span>::exercise_tasks::get_exercise_tasks_by_exercise_slide_id(
                     tx.as_mut(),
@@ -2227,7 +2228,7 @@ AND deleted_at IS NULL;
             <span class="kw">let </span>copied_task = copied_tasks.first().unwrap();
             <span class="macro">assert_eq!</span>(copied_task.copied_from, <span class="prelude-val">Some</span>(task));
 
-            <span class="comment">// Make sure we don&#39;t have the bug where the chapter id pointed to the old chapter in the exercises.
+            <span class="comment">// Make sure we don't have the bug where the chapter id pointed to the old chapter in the exercises.
             </span><span class="kw">let </span>original_course_chapters = <span class="kw">crate</span>::chapters::course_chapters(tx.as_mut(), course.id)
                 .<span class="kw">await
                 </span>.unwrap();
@@ -2240,13 +2241,13 @@ AND deleted_at IS NULL;
 
         <span class="kw">fn </span>create_new_course(organization_id: Uuid, language_code: String) -&gt; NewCourse {
             NewCourse {
-                name: <span class="string">&quot;Copied course&quot;</span>.to_string(),
-                slug: <span class="string">&quot;copied-course&quot;</span>.to_string(),
+                name: <span class="string">"Copied course"</span>.to_string(),
+                slug: <span class="string">"copied-course"</span>.to_string(),
                 organization_id,
                 language_code,
-                teacher_in_charge_name: <span class="string">&quot;Teacher&quot;</span>.to_string(),
-                teacher_in_charge_email: <span class="string">&quot;teacher@example.com&quot;</span>.to_string(),
-                description: <span class="string">&quot;&quot;</span>.to_string(),
+                teacher_in_charge_name: <span class="string">"Teacher"</span>.to_string(),
+                teacher_in_charge_email: <span class="string">"teacher@example.com"</span>.to_string(),
+                description: <span class="string">""</span>.to_string(),
                 is_draft: <span class="bool-val">true</span>,
                 is_test_mode: <span class="bool-val">false</span>,
                 copy_user_permissions: <span class="bool-val">false</span>,

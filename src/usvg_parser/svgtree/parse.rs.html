@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/svgtree/parse.rs`."><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.38.0/src/svgtree/parse.rs`."><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -716,13 +717,13 @@
 
 <span class="kw">use super</span>::{AId, Attribute, Document, EId, NodeData, NodeId, NodeKind, ShortRange};
 
-<span class="kw">const </span>SVG_NS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;http://www.w3.org/2000/svg&quot;</span>;
-<span class="kw">const </span>XLINK_NS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;http://www.w3.org/1999/xlink&quot;</span>;
-<span class="kw">const </span>XML_NAMESPACE_NS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;http://www.w3.org/XML/1998/namespace&quot;</span>;
+<span class="kw">const </span>SVG_NS: <span class="kw-2">&amp;</span>str = <span class="string">"http://www.w3.org/2000/svg"</span>;
+<span class="kw">const </span>XLINK_NS: <span class="kw-2">&amp;</span>str = <span class="string">"http://www.w3.org/1999/xlink"</span>;
+<span class="kw">const </span>XML_NAMESPACE_NS: <span class="kw-2">&amp;</span>str = <span class="string">"http://www.w3.org/XML/1998/namespace"</span>;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>&gt; Document&lt;<span class="lifetime">&#39;input</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'input</span>&gt; Document&lt;<span class="lifetime">'input</span>&gt; {
     <span class="doccomment">/// Parses a [`Document`] from a [`roxmltree::Document`].
-    </span><span class="kw">pub fn </span>parse_tree(xml: <span class="kw-2">&amp;</span>roxmltree::Document&lt;<span class="lifetime">&#39;input</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Document&lt;<span class="lifetime">&#39;input</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>parse_tree(xml: <span class="kw-2">&amp;</span>roxmltree::Document&lt;<span class="lifetime">'input</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Document&lt;<span class="lifetime">'input</span>&gt;, Error&gt; {
         parse(xml)
     }
 
@@ -752,12 +753,12 @@
         new_child_id
     }
 
-    <span class="kw">fn </span>append_attribute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: AId, value: roxmltree::StringStorage&lt;<span class="lifetime">&#39;input</span>&gt;) {
+    <span class="kw">fn </span>append_attribute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: AId, value: roxmltree::StringStorage&lt;<span class="lifetime">'input</span>&gt;) {
         <span class="self">self</span>.attrs.push(Attribute { name, value });
     }
 }
 
-<span class="kw">fn </span>parse&lt;<span class="lifetime">&#39;input</span>&gt;(xml: <span class="kw-2">&amp;</span>roxmltree::Document&lt;<span class="lifetime">&#39;input</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Document&lt;<span class="lifetime">&#39;input</span>&gt;, Error&gt; {
+<span class="kw">fn </span>parse&lt;<span class="lifetime">'input</span>&gt;(xml: <span class="kw-2">&amp;</span>roxmltree::Document&lt;<span class="lifetime">'input</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Document&lt;<span class="lifetime">'input</span>&gt;, Error&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>doc = Document {
         nodes: Vec::new(),
         attrs: Vec::new(),
@@ -767,7 +768,7 @@
     <span class="comment">// build a map of id -&gt; node for resolve_href
     </span><span class="kw">let </span><span class="kw-2">mut </span>id_map = HashMap::new();
     <span class="kw">for </span>node <span class="kw">in </span>xml.descendants() {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = node.attribute(<span class="string">&quot;id&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = node.attribute(<span class="string">"id"</span>) {
             <span class="kw">if </span>!id_map.contains_key(id) {
                 id_map.insert(id, node);
             }
@@ -835,15 +836,15 @@
     EId::from_str(node.tag_name().name())
 }
 
-<span class="kw">fn </span>parse_xml_node_children&lt;<span class="lifetime">&#39;input</span>&gt;(
-    parent: roxmltree::Node&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;input</span>&gt;,
+<span class="kw">fn </span>parse_xml_node_children&lt;<span class="lifetime">'input</span>&gt;(
+    parent: roxmltree::Node&lt;<span class="lifetime">'_</span>, <span class="lifetime">'input</span>&gt;,
     origin: roxmltree::Node,
     parent_id: NodeId,
     style_sheet: <span class="kw-2">&amp;</span>simplecss::StyleSheet,
     ignore_ids: bool,
     depth: u32,
-    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
-    id_map: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>str, roxmltree::Node&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;input</span>&gt;&gt;,
+    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">'input</span>&gt;,
+    id_map: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>str, roxmltree::Node&lt;<span class="lifetime">'_</span>, <span class="lifetime">'input</span>&gt;&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">for </span>node <span class="kw">in </span>parent.children() {
         parse_xml_node(
@@ -861,15 +862,15 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn </span>parse_xml_node&lt;<span class="lifetime">&#39;input</span>&gt;(
-    node: roxmltree::Node&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;input</span>&gt;,
+<span class="kw">fn </span>parse_xml_node&lt;<span class="lifetime">'input</span>&gt;(
+    node: roxmltree::Node&lt;<span class="lifetime">'_</span>, <span class="lifetime">'input</span>&gt;,
     origin: roxmltree::Node,
     parent_id: NodeId,
     style_sheet: <span class="kw-2">&amp;</span>simplecss::StyleSheet,
     ignore_ids: bool,
     depth: u32,
-    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
-    id_map: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>str, roxmltree::Node&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;input</span>&gt;&gt;,
+    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">'input</span>&gt;,
+    id_map: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>str, roxmltree::Node&lt;<span class="lifetime">'_</span>, <span class="lifetime">'input</span>&gt;&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">if </span>depth &gt; <span class="number">1024 </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::NodesLimitReached);
@@ -911,13 +912,13 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_svg_element&lt;<span class="lifetime">&#39;input</span>&gt;(
-    xml_node: roxmltree::Node&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;input</span>&gt;,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_svg_element&lt;<span class="lifetime">'input</span>&gt;(
+    xml_node: roxmltree::Node&lt;<span class="lifetime">'_</span>, <span class="lifetime">'input</span>&gt;,
     parent_id: NodeId,
     tag_name: EId,
     style_sheet: <span class="kw-2">&amp;</span>simplecss::StyleSheet,
     ignore_ids: bool,
-    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
+    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">'input</span>&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;NodeId, Error&gt; {
     <span class="kw">let </span>attrs_start_idx = doc.attrs.len();
 
@@ -934,7 +935,7 @@
         };
 
         <span class="comment">// During a `use` resolving, all `id` attributes must be ignored.
-        // Otherwise we will get elements with duplicated id&#39;s.
+        // Otherwise we will get elements with duplicated id's.
         </span><span class="kw">if </span>ignore_ids &amp;&amp; aid == AId::Id {
             <span class="kw">continue</span>;
         }
@@ -984,7 +985,7 @@
                     </span><span class="kw">if </span>aid.is_presentation() {
                         insert_attribute(aid, declaration.value);
                     }
-                } <span class="kw">else if </span>declaration.name == <span class="string">&quot;marker&quot; </span>{
+                } <span class="kw">else if </span>declaration.name == <span class="string">"marker" </span>{
                     insert_attribute(AId::MarkerStart, declaration.value);
                     insert_attribute(AId::MarkerMid, declaration.value);
                     insert_attribute(AId::MarkerEnd, declaration.value);
@@ -994,7 +995,7 @@
     }
 
     <span class="comment">// Split a `style` attribute.
-    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(value) = xml_node.attribute(<span class="string">&quot;style&quot;</span>) {
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(value) = xml_node.attribute(<span class="string">"style"</span>) {
         <span class="kw">for </span>declaration <span class="kw">in </span>simplecss::DeclarationTokenizer::from(value) {
             <span class="comment">// TODO: preform XML attribute normalization
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(aid) = AId::from_str(declaration.name) {
@@ -1021,15 +1022,15 @@
     <span class="prelude-val">Ok</span>(node_id)
 }
 
-<span class="kw">fn </span>append_attribute&lt;<span class="lifetime">&#39;input</span>&gt;(
+<span class="kw">fn </span>append_attribute&lt;<span class="lifetime">'input</span>&gt;(
     parent_id: NodeId,
     tag_name: EId,
     aid: AId,
-    value: roxmltree::StringStorage&lt;<span class="lifetime">&#39;input</span>&gt;,
-    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
+    value: roxmltree::StringStorage&lt;<span class="lifetime">'input</span>&gt;,
+    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">'input</span>&gt;,
 ) -&gt; bool {
     <span class="kw">match </span>aid {
-        <span class="comment">// The `style` attribute will be split into attributes, so we don&#39;t need it.
+        <span class="comment">// The `style` attribute will be split into attributes, so we don't need it.
         </span>AId::Style |
         <span class="comment">// No need to copy a `class` attribute since CSS were already resolved.
         </span>AId::Class =&gt; <span class="kw">return </span><span class="bool-val">false</span>,
@@ -1042,7 +1043,7 @@
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
 
-    <span class="kw">if </span>aid.allows_inherit_value() &amp;&amp; <span class="kw-2">&amp;*</span>value == <span class="string">&quot;inherit&quot; </span>{
+    <span class="kw">if </span>aid.allows_inherit_value() &amp;&amp; <span class="kw-2">&amp;*</span>value == <span class="string">"inherit" </span>{
         <span class="kw">return </span>resolve_inherit(parent_id, aid, doc);
     }
 
@@ -1094,7 +1095,7 @@
 
     <span class="comment">// Fallback to a default value if possible.
     </span><span class="kw">let </span>value = <span class="kw">match </span>aid {
-        AId::ImageRendering | AId::ShapeRendering | AId::TextRendering =&gt; <span class="string">&quot;auto&quot;</span>,
+        AId::ImageRendering | AId::ShapeRendering | AId::TextRendering =&gt; <span class="string">"auto"</span>,
 
         AId::ClipPath
         | AId::Filter
@@ -1104,39 +1105,39 @@
         | AId::Mask
         | AId::Stroke
         | AId::StrokeDasharray
-        | AId::TextDecoration =&gt; <span class="string">&quot;none&quot;</span>,
+        | AId::TextDecoration =&gt; <span class="string">"none"</span>,
 
         AId::FontStretch
         | AId::FontStyle
         | AId::FontVariant
         | AId::FontWeight
         | AId::LetterSpacing
-        | AId::WordSpacing =&gt; <span class="string">&quot;normal&quot;</span>,
+        | AId::WordSpacing =&gt; <span class="string">"normal"</span>,
 
-        AId::Fill | AId::FloodColor | AId::StopColor =&gt; <span class="string">&quot;black&quot;</span>,
+        AId::Fill | AId::FloodColor | AId::StopColor =&gt; <span class="string">"black"</span>,
 
         AId::FillOpacity
         | AId::FloodOpacity
         | AId::Opacity
         | AId::StopOpacity
-        | AId::StrokeOpacity =&gt; <span class="string">&quot;1&quot;</span>,
+        | AId::StrokeOpacity =&gt; <span class="string">"1"</span>,
 
-        AId::ClipRule | AId::FillRule =&gt; <span class="string">&quot;nonzero&quot;</span>,
+        AId::ClipRule | AId::FillRule =&gt; <span class="string">"nonzero"</span>,
 
-        AId::BaselineShift =&gt; <span class="string">&quot;baseline&quot;</span>,
-        AId::ColorInterpolationFilters =&gt; <span class="string">&quot;linearRGB&quot;</span>,
-        AId::Direction =&gt; <span class="string">&quot;ltr&quot;</span>,
-        AId::Display =&gt; <span class="string">&quot;inline&quot;</span>,
-        AId::FontSize =&gt; <span class="string">&quot;medium&quot;</span>,
-        AId::Overflow =&gt; <span class="string">&quot;visible&quot;</span>,
-        AId::StrokeDashoffset =&gt; <span class="string">&quot;0&quot;</span>,
-        AId::StrokeLinecap =&gt; <span class="string">&quot;butt&quot;</span>,
-        AId::StrokeLinejoin =&gt; <span class="string">&quot;miter&quot;</span>,
-        AId::StrokeMiterlimit =&gt; <span class="string">&quot;4&quot;</span>,
-        AId::StrokeWidth =&gt; <span class="string">&quot;1&quot;</span>,
-        AId::TextAnchor =&gt; <span class="string">&quot;start&quot;</span>,
-        AId::Visibility =&gt; <span class="string">&quot;visible&quot;</span>,
-        AId::WritingMode =&gt; <span class="string">&quot;lr-tb&quot;</span>,
+        AId::BaselineShift =&gt; <span class="string">"baseline"</span>,
+        AId::ColorInterpolationFilters =&gt; <span class="string">"linearRGB"</span>,
+        AId::Direction =&gt; <span class="string">"ltr"</span>,
+        AId::Display =&gt; <span class="string">"inline"</span>,
+        AId::FontSize =&gt; <span class="string">"medium"</span>,
+        AId::Overflow =&gt; <span class="string">"visible"</span>,
+        AId::StrokeDashoffset =&gt; <span class="string">"0"</span>,
+        AId::StrokeLinecap =&gt; <span class="string">"butt"</span>,
+        AId::StrokeLinejoin =&gt; <span class="string">"miter"</span>,
+        AId::StrokeMiterlimit =&gt; <span class="string">"4"</span>,
+        AId::StrokeWidth =&gt; <span class="string">"1"</span>,
+        AId::TextAnchor =&gt; <span class="string">"start"</span>,
+        AId::Visibility =&gt; <span class="string">"visible"</span>,
+        AId::WritingMode =&gt; <span class="string">"lr-tb"</span>,
         <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
     };
 
@@ -1144,27 +1145,27 @@
     <span class="bool-val">true
 </span>}
 
-<span class="kw">fn </span>resolve_href&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(
-    node: roxmltree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
-    id_map: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>str, roxmltree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt;,
-) -&gt; <span class="prelude-ty">Option</span>&lt;roxmltree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt; {
+<span class="kw">fn </span>resolve_href&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt;(
+    node: roxmltree::Node&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;,
+    id_map: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>str, roxmltree::Node&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;roxmltree::Node&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;&gt; {
     <span class="kw">let </span>link_value = node
-        .attribute((XLINK_NS, <span class="string">&quot;href&quot;</span>))
-        .or_else(|| node.attribute(<span class="string">&quot;href&quot;</span>))<span class="question-mark">?</span>;
+        .attribute((XLINK_NS, <span class="string">"href"</span>))
+        .or_else(|| node.attribute(<span class="string">"href"</span>))<span class="question-mark">?</span>;
 
     <span class="kw">let </span>link_id = svgtypes::IRI::from_str(link_value).ok()<span class="question-mark">?</span>.<span class="number">0</span>;
 
     id_map.get(link_id).copied()
 }
 
-<span class="kw">fn </span>parse_svg_use_element&lt;<span class="lifetime">&#39;input</span>&gt;(
-    node: roxmltree::Node&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;input</span>&gt;,
+<span class="kw">fn </span>parse_svg_use_element&lt;<span class="lifetime">'input</span>&gt;(
+    node: roxmltree::Node&lt;<span class="lifetime">'_</span>, <span class="lifetime">'input</span>&gt;,
     origin: roxmltree::Node,
     parent_id: NodeId,
     style_sheet: <span class="kw-2">&amp;</span>simplecss::StyleSheet,
     depth: u32,
-    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">&#39;input</span>&gt;,
-    id_map: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>str, roxmltree::Node&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;input</span>&gt;&gt;,
+    doc: <span class="kw-2">&amp;mut </span>Document&lt;<span class="lifetime">'input</span>&gt;,
+    id_map: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>str, roxmltree::Node&lt;<span class="lifetime">'_</span>, <span class="lifetime">'input</span>&gt;&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">let </span>link = <span class="kw">match </span>resolve_href(node, id_map) {
         <span class="prelude-val">Some</span>(v) =&gt; v,
@@ -1173,31 +1174,31 @@
 
     <span class="kw">if </span>link == node || link == origin {
         <span class="macro">log::warn!</span>(
-            <span class="string">&quot;Recursive &#39;use&#39; detected. &#39;{}&#39; will be skipped.&quot;</span>,
-            node.attribute((SVG_NS, <span class="string">&quot;id&quot;</span>)).unwrap_or_default()
+            <span class="string">"Recursive 'use' detected. '{}' will be skipped."</span>,
+            node.attribute((SVG_NS, <span class="string">"id"</span>)).unwrap_or_default()
         );
         <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
 
-    <span class="comment">// Make sure we&#39;re linked to an SVG element.
+    <span class="comment">// Make sure we're linked to an SVG element.
     </span><span class="kw">if </span>parse_tag_name(link).is_none() {
         <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
 
-    <span class="comment">// Check that none of the linked node&#39;s children reference current `use` node
+    <span class="comment">// Check that none of the linked node's children reference current `use` node
     // via other `use` node.
     //
     // Example:
-    // &lt;g id=&quot;g1&quot;&gt;
-    //     &lt;use xlink:href=&quot;#use1&quot; id=&quot;use2&quot;/&gt;
+    // &lt;g id="g1"&gt;
+    //     &lt;use xlink:href="#use1" id="use2"/&gt;
     // &lt;/g&gt;
-    // &lt;use xlink:href=&quot;#g1&quot; id=&quot;use1&quot;/&gt;
+    // &lt;use xlink:href="#g1" id="use1"/&gt;
     //
     // `use2` should be removed.
     //
     // Also, child should not reference its parent:
-    // &lt;g id=&quot;g1&quot;&gt;
-    //     &lt;use xlink:href=&quot;#g1&quot; id=&quot;use1&quot;/&gt;
+    // &lt;g id="g1"&gt;
+    //     &lt;use xlink:href="#g1" id="use1"/&gt;
     // &lt;/g&gt;
     //
     // `use1` should be removed.
@@ -1205,7 +1206,7 @@
     <span class="kw">for </span>link_child <span class="kw">in </span>link
         .descendants()
         .skip(<span class="number">1</span>)
-        .filter(|n| n.has_tag_name((SVG_NS, <span class="string">&quot;use&quot;</span>)))
+        .filter(|n| n.has_tag_name((SVG_NS, <span class="string">"use"</span>)))
     {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(link2) = resolve_href(link_child, id_map) {
             <span class="kw">if </span>link2 == node || link2 == link {
@@ -1217,8 +1218,8 @@
 
     <span class="kw">if </span>is_recursive {
         <span class="macro">log::warn!</span>(
-            <span class="string">&quot;Recursive &#39;use&#39; detected. &#39;{}&#39; will be skipped.&quot;</span>,
-            node.attribute((SVG_NS, <span class="string">&quot;id&quot;</span>)).unwrap_or_default()
+            <span class="string">"Recursive 'use' detected. '{}' will be skipped."</span>,
+            node.attribute((SVG_NS, <span class="string">"id"</span>)).unwrap_or_default()
         );
         <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
@@ -1235,12 +1236,12 @@
     )
 }
 
-<span class="kw">fn </span>resolve_css&lt;<span class="lifetime">&#39;a</span>&gt;(xml: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>roxmltree::Document&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; simplecss::StyleSheet&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">fn </span>resolve_css&lt;<span class="lifetime">'a</span>&gt;(xml: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>roxmltree::Document&lt;<span class="lifetime">'a</span>&gt;) -&gt; simplecss::StyleSheet&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>sheet = simplecss::StyleSheet::new();
 
-    <span class="kw">for </span>node <span class="kw">in </span>xml.descendants().filter(|n| n.has_tag_name(<span class="string">&quot;style&quot;</span>)) {
-        <span class="kw">match </span>node.attribute(<span class="string">&quot;type&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;text/css&quot;</span>) =&gt; {}
+    <span class="kw">for </span>node <span class="kw">in </span>xml.descendants().filter(|n| n.has_tag_name(<span class="string">"style"</span>)) {
+        <span class="kw">match </span>node.attribute(<span class="string">"type"</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">"text/css"</span>) =&gt; {}
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
             <span class="prelude-val">None </span>=&gt; {}
         }
@@ -1256,9 +1257,9 @@
     sheet
 }
 
-<span class="kw">struct </span>XmlNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(roxmltree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;);
+<span class="kw">struct </span>XmlNode&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>: <span class="lifetime">'a</span>&gt;(roxmltree::Node&lt;<span class="lifetime">'a</span>, <span class="lifetime">'input</span>&gt;);
 
-<span class="kw">impl </span>simplecss::Element <span class="kw">for </span>XmlNode&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>simplecss::Element <span class="kw">for </span>XmlNode&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>parent_element(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="self">self</span>.<span class="number">0</span>.parent_element().map(XmlNode)
     }
@@ -1290,12 +1291,12 @@
 <span class="kw">fn </span>fix_recursive_patterns(doc: <span class="kw-2">&amp;mut </span>Document) {
     <span class="kw">while let </span><span class="prelude-val">Some</span>(node_id) = find_recursive_pattern(AId::Fill, doc) {
         <span class="kw">let </span>idx = doc.get(node_id).attribute_id(AId::Fill).unwrap();
-        doc.attrs[idx].value = roxmltree::StringStorage::Borrowed(<span class="string">&quot;none&quot;</span>);
+        doc.attrs[idx].value = roxmltree::StringStorage::Borrowed(<span class="string">"none"</span>);
     }
 
     <span class="kw">while let </span><span class="prelude-val">Some</span>(node_id) = find_recursive_pattern(AId::Stroke, doc) {
         <span class="kw">let </span>idx = doc.get(node_id).attribute_id(AId::Stroke).unwrap();
-        doc.attrs[idx].value = roxmltree::StringStorage::Borrowed(<span class="string">&quot;none&quot;</span>);
+        doc.attrs[idx].value = roxmltree::StringStorage::Borrowed(<span class="string">"none"</span>);
     }
 }
 
@@ -1318,7 +1319,7 @@
                     // Otherwise we will get endless loop/recursion and stack overflow.
                     </span><span class="kw">return </span><span class="prelude-val">Some</span>(node.id);
                 } <span class="kw">else </span>{
-                    <span class="comment">// Check that linked node children doesn&#39;t link this pattern.
+                    <span class="comment">// Check that linked node children doesn't link this pattern.
                     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(linked_node) = doc.element_by_id(link_id) {
                         <span class="kw">for </span>node2 <span class="kw">in </span>linked_node.descendants() {
                             <span class="kw">let </span>value2 = <span class="kw">match </span>node2.attribute(aid) {
@@ -1346,7 +1347,7 @@
 <span class="kw">fn </span>fix_recursive_links(eid: EId, aid: AId, doc: <span class="kw-2">&amp;mut </span>Document) {
     <span class="kw">while let </span><span class="prelude-val">Some</span>(node_id) = find_recursive_link(eid, aid, doc) {
         <span class="kw">let </span>idx = doc.get(node_id).attribute_id(aid).unwrap();
-        doc.attrs[idx].value = roxmltree::StringStorage::Borrowed(<span class="string">&quot;none&quot;</span>);
+        doc.attrs[idx].value = roxmltree::StringStorage::Borrowed(<span class="string">"none"</span>);
     }
 }
 
@@ -1364,7 +1365,7 @@
                     // Otherwise we will get endless loop/recursion and stack overflow.
                     </span><span class="kw">return </span><span class="prelude-val">Some</span>(child.id);
                 } <span class="kw">else </span>{
-                    <span class="comment">// Check that linked node children doesn&#39;t link this element.
+                    <span class="comment">// Check that linked node children doesn't link this element.
                     </span><span class="kw">for </span>node2 <span class="kw">in </span>link.descendants() {
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(link2) = node2.node_attribute(aid) {
                             <span class="kw">if </span>link2 == node {
@@ -1383,10 +1384,10 @@
 <span class="doccomment">/// Detects cases like:
 ///
 /// ```xml
-/// &lt;filter id=&quot;filter1&quot;&gt;
-///   &lt;feImage xlink:href=&quot;#rect1&quot;/&gt;
+/// &lt;filter id="filter1"&gt;
+///   &lt;feImage xlink:href="#rect1"/&gt;
 /// &lt;/filter&gt;
-/// &lt;rect id=&quot;rect1&quot; x=&quot;36&quot; y=&quot;36&quot; width=&quot;120&quot; height=&quot;120&quot; fill=&quot;green&quot; filter=&quot;url(#filter1)&quot;/&gt;
+/// &lt;rect id="rect1" x="36" y="36" width="120" height="120" fill="green" filter="url(#filter1)"/&gt;
 /// ```
 </span><span class="kw">fn </span>fix_recursive_fe_image(doc: <span class="kw-2">&amp;mut </span>Document) {
     <span class="kw">let </span><span class="kw-2">mut </span>ids = Vec::new();
@@ -1411,7 +1412,7 @@
 
     <span class="kw">for </span>id <span class="kw">in </span>ids {
         <span class="kw">let </span>idx = doc.get(id).attribute_id(AId::Filter).unwrap();
-        doc.attrs[idx].value = roxmltree::StringStorage::Borrowed(<span class="string">&quot;none&quot;</span>);
+        doc.attrs[idx].value = roxmltree::StringStorage::Borrowed(<span class="string">"none"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

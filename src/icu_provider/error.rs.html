@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -307,61 +308,61 @@
 #[non_exhaustive]
 </span><span class="kw">pub enum </span>DataErrorKind {
     <span class="doccomment">/// No data for the provided resource key.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Missing data for key&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Missing data for key"</span>)]
     </span>MissingDataKey,
 
     <span class="doccomment">/// There is data for the key, but not for this particular locale.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Missing data for locale&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Missing data for locale"</span>)]
     </span>MissingLocale,
 
     <span class="doccomment">/// The request should include a locale.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Request needs a locale&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Request needs a locale"</span>)]
     </span>NeedsLocale,
 
     <span class="doccomment">/// The request should not contain a locale.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Request has an extraneous locale&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Request has an extraneous locale"</span>)]
     </span>ExtraneousLocale,
 
     <span class="doccomment">/// The resource was blocked by a filter. The resource may or may not be available.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Resource blocked by filter&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Resource blocked by filter"</span>)]
     </span>FilteredResource,
 
     <span class="doccomment">/// The generic type parameter does not match the TypeId. The expected type name is stored
     /// as context when this error is returned.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Mismatched types: tried to downcast with {0}, but actual type is different&quot;</span>)]
-    </span>MismatchedType(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str),
+    </span><span class="attr">#[displaydoc(<span class="string">"Mismatched types: tried to downcast with {0}, but actual type is different"</span>)]
+    </span>MismatchedType(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
 
     <span class="doccomment">/// The payload is missing. This is usually caused by a previous error.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Missing payload&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Missing payload"</span>)]
     </span>MissingPayload,
 
     <span class="doccomment">/// A data provider object was given to an operation in an invalid state.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Invalid state&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Invalid state"</span>)]
     </span>InvalidState,
 
     <span class="doccomment">/// The syntax of the [`DataKey`] or [`DataLocale`] was invalid.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Parse error for data key or data locale&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Parse error for data key or data locale"</span>)]
     </span>KeyLocaleSyntax,
 
     <span class="doccomment">/// An unspecified error occurred, such as a Serde error.
     ///
     /// Check debug logs for potentially more information.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Custom&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Custom"</span>)]
     </span>Custom,
 
     <span class="doccomment">/// An error occurred while accessing a system resource.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;I/O error: {0:?}&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"I/O error: {0:?}"</span>)]
+    #[cfg(feature = <span class="string">"std"</span>)]
     </span>Io(std::io::ErrorKind),
 
     <span class="doccomment">/// An unspecified data source containing the required data is unavailable.
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Missing source data&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Missing source data"</span>)]
+    #[cfg(feature = <span class="string">"datagen"</span>)]
     </span>MissingSourceData,
 
     <span class="doccomment">/// An error indicating that the desired buffer format is not available. This usually
     /// means that a required Cargo feature was not enabled
-    </span><span class="attr">#[displaydoc(<span class="string">&quot;Unavailable buffer format: {0:?} (does icu_provider need to be compiled with an additional Cargo feature?)&quot;</span>)]
+    </span><span class="attr">#[displaydoc(<span class="string">"Unavailable buffer format: {0:?} (does icu_provider need to be compiled with an additional Cargo feature?)"</span>)]
     </span>UnavailableBufferFormat(BufferFormat),
 }
 
@@ -384,7 +385,7 @@
 ///
 /// ```
 /// # use icu_provider::prelude::*;
-/// DataError::custom(&quot;This is an example error&quot;);
+/// DataError::custom("This is an example error");
 /// ```
 </span><span class="attr">#[derive(Clone, Copy, Eq, PartialEq, Debug)]
 #[non_exhaustive]
@@ -396,23 +397,23 @@
     </span><span class="kw">pub </span>key: <span class="prelude-ty">Option</span>&lt;DataKey&gt;,
 
     <span class="doccomment">/// Additional context, if available.
-    </span><span class="kw">pub </span>str_context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    </span><span class="kw">pub </span>str_context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;,
 
     <span class="doccomment">/// Whether this error was created in silent mode to not log.
     </span><span class="kw">pub </span>silent: bool,
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DataError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;ICU4X data error&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"ICU4X data error"</span>)<span class="question-mark">?</span>;
         <span class="kw">if </span><span class="self">self</span>.kind != DataErrorKind::Custom {
-            <span class="macro">write!</span>(f, <span class="string">&quot;: {}&quot;</span>, <span class="self">self</span>.kind)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">": {}"</span>, <span class="self">self</span>.kind)<span class="question-mark">?</span>;
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = <span class="self">self</span>.key {
-            <span class="macro">write!</span>(f, <span class="string">&quot; (key: {key})&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">" (key: {key})"</span>)<span class="question-mark">?</span>;
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(str_context) = <span class="self">self</span>.str_context {
-            <span class="macro">write!</span>(f, <span class="string">&quot;: {str_context}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">": {str_context}"</span>)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -440,7 +441,7 @@
 
     <span class="doccomment">/// Creates a DataError with a string context.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>with_str_context(<span class="self">self</span>, context: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; DataError {
+    </span><span class="kw">pub const fn </span>with_str_context(<span class="self">self</span>, context: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; DataError {
         <span class="self">self</span>.into_error().with_str_context(context)
     }
 
@@ -460,7 +461,7 @@
 <span class="kw">impl </span>DataError {
     <span class="doccomment">/// Returns a new, empty DataError with kind Custom and a string error message.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>custom(str_context: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>custom(str_context: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             kind: DataErrorKind::Custom,
             key: <span class="prelude-val">None</span>,
@@ -482,7 +483,7 @@
 
     <span class="doccomment">/// Sets the string context of a DataError, returning a modified error.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>with_str_context(<span class="self">self</span>, context: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>with_str_context(<span class="self">self</span>, context: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             kind: <span class="self">self</span>.kind,
             key: <span class="self">self</span>.key,
@@ -494,68 +495,68 @@
     <span class="doccomment">/// Sets the string context of a DataError to the given type name, returning a modified error.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>with_type_context&lt;T&gt;(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="attr">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
         </span><span class="kw">if </span>!<span class="self">self</span>.silent {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;{self}: Type context: {}&quot;</span>, core::any::type_name::&lt;T&gt;());
+            <span class="macro">log::warn!</span>(<span class="string">"{self}: Type context: {}"</span>, core::any::type_name::&lt;T&gt;());
         }
         <span class="self">self</span>.with_str_context(core::any::type_name::&lt;T&gt;())
     }
 
     <span class="doccomment">/// Logs the data error with the given request, returning an error containing the resource key.
     ///
-    /// If the &quot;logging&quot; Cargo feature is enabled, this logs the whole request. Either way,
+    /// If the "logging" Cargo feature is enabled, this logs the whole request. Either way,
     /// it returns an error with the resource key portion of the request as context.
-    </span><span class="attr">#[cfg_attr(not(feature = <span class="string">&quot;logging&quot;</span>), allow(unused_variables))]
+    </span><span class="attr">#[cfg_attr(not(feature = <span class="string">"logging"</span>), allow(unused_variables))]
     </span><span class="kw">pub fn </span>with_req(<span class="kw-2">mut </span><span class="self">self</span>, key: DataKey, req: DataRequest) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>req.metadata.silent {
             <span class="self">self</span>.silent = <span class="bool-val">true</span>;
         }
-        <span class="comment">// Don&#39;t write out a log for MissingDataKey since there is no context to add
-        </span><span class="attr">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
+        <span class="comment">// Don't write out a log for MissingDataKey since there is no context to add
+        </span><span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
         </span><span class="kw">if </span>!<span class="self">self</span>.silent &amp;&amp; <span class="self">self</span>.kind != DataErrorKind::MissingDataKey {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;{} (key: {}, request: {})&quot;</span>, <span class="self">self</span>, key, req);
+            <span class="macro">log::warn!</span>(<span class="string">"{} (key: {}, request: {})"</span>, <span class="self">self</span>, key, req);
         }
         <span class="self">self</span>.with_key(key)
     }
 
     <span class="doccomment">/// Logs the data error with the given context, then return self.
     ///
-    /// This does not modify the error, but if the &quot;logging&quot; Cargo feature is enabled,
+    /// This does not modify the error, but if the "logging" Cargo feature is enabled,
     /// it will print out the context.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-    #[cfg_attr(not(feature = <span class="string">&quot;logging&quot;</span>), allow(unused_variables))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    #[cfg_attr(not(feature = <span class="string">"logging"</span>), allow(unused_variables))]
     </span><span class="kw">pub fn </span>with_path_context&lt;P: AsRef&lt;std::path::Path&gt; + <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, path: <span class="kw-2">&amp;</span>P) -&gt; <span class="self">Self </span>{
-        <span class="attr">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
         </span><span class="kw">if </span>!<span class="self">self</span>.silent {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;{} (path: {:?})&quot;</span>, <span class="self">self</span>, path.as_ref());
+            <span class="macro">log::warn!</span>(<span class="string">"{} (path: {:?})"</span>, <span class="self">self</span>, path.as_ref());
         }
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Logs the data error with the given context, then return self.
     ///
-    /// This does not modify the error, but if the &quot;logging&quot; Cargo feature is enabled,
+    /// This does not modify the error, but if the "logging" Cargo feature is enabled,
     /// it will print out the context.
-    </span><span class="attr">#[cfg_attr(not(feature = <span class="string">&quot;logging&quot;</span>), allow(unused_variables))]
+    </span><span class="attr">#[cfg_attr(not(feature = <span class="string">"logging"</span>), allow(unused_variables))]
     #[inline]
     </span><span class="kw">pub fn </span>with_display_context&lt;D: fmt::Display + <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, context: <span class="kw-2">&amp;</span>D) -&gt; <span class="self">Self </span>{
-        <span class="attr">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
         </span><span class="kw">if </span>!<span class="self">self</span>.silent {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="self">self</span>, context);
+            <span class="macro">log::warn!</span>(<span class="string">"{}: {}"</span>, <span class="self">self</span>, context);
         }
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Logs the data error with the given context, then return self.
     ///
-    /// This does not modify the error, but if the &quot;logging&quot; Cargo feature is enabled,
+    /// This does not modify the error, but if the "logging" Cargo feature is enabled,
     /// it will print out the context.
-    </span><span class="attr">#[cfg_attr(not(feature = <span class="string">&quot;logging&quot;</span>), allow(unused_variables))]
+    </span><span class="attr">#[cfg_attr(not(feature = <span class="string">"logging"</span>), allow(unused_variables))]
     #[inline]
     </span><span class="kw">pub fn </span>with_debug_context&lt;D: fmt::Debug + <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, context: <span class="kw-2">&amp;</span>D) -&gt; <span class="self">Self </span>{
-        <span class="attr">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
         </span><span class="kw">if </span>!<span class="self">self</span>.silent {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, <span class="self">self</span>, context);
+            <span class="macro">log::warn!</span>(<span class="string">"{}: {:?}"</span>, <span class="self">self</span>, context);
         }
         <span class="self">self
     </span>}
@@ -571,14 +572,14 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>DataError {}
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>From&lt;std::io::Error&gt; <span class="kw">for </span>DataError {
     <span class="kw">fn </span>from(e: std::io::Error) -&gt; <span class="self">Self </span>{
-        <span class="attr">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
-        </span><span class="macro">log::warn!</span>(<span class="string">&quot;I/O error: {}&quot;</span>, e);
+        <span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
+        </span><span class="macro">log::warn!</span>(<span class="string">"I/O error: {}"</span>, e);
         DataErrorKind::Io(e.kind()).into_error()
     }
 }

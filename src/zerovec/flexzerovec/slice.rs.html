@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/flexzerovec/slice.rs`."><title>slice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/flexzerovec/slice.rs`."><title>slice.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -734,7 +735,7 @@
 
 <span class="kw">const </span>USIZE_WIDTH: usize = mem::size_of::&lt;usize&gt;();
 
-<span class="doccomment">/// A zero-copy &quot;slice&quot; that efficiently represents `[usize]`.
+<span class="doccomment">/// A zero-copy "slice" that efficiently represents `[usize]`.
 </span><span class="attr">#[repr(packed)]
 </span><span class="kw">pub struct </span>FlexZeroSlice {
     <span class="comment">// Hard Invariant: 1 &lt;= width &lt;= USIZE_WIDTH (which is target_pointer_width)
@@ -757,7 +758,7 @@
 }
 <span class="kw">impl </span>Eq <span class="kw">for </span>FlexZeroSlice {}
 
-<span class="doccomment">/// Helper function to decode a little-endian &quot;chunk&quot; (byte slice of a specific length)
+<span class="doccomment">/// Helper function to decode a little-endian "chunk" (byte slice of a specific length)
 /// into a `usize`. We cannot call `usize::from_le_bytes` directly because that function
 /// requires the high bits to be set to 0.
 </span><span class="attr">#[inline]
@@ -782,7 +783,7 @@
     /// assert_eq!(EMPTY_SLICE.first(), None);
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>new_empty() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new_empty() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="self">Self </span>{
         <span class="kw">const </span>ARR: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[<span class="number">1u8</span>];
         <span class="comment">// Safety: The slice is a valid empty `FlexZeroSlice`
         </span><span class="kw">unsafe </span>{ <span class="self">Self</span>::from_byte_slice_unchecked(ARR) }
@@ -802,7 +803,7 @@
     ///     0xFF, 0xFF, // third value
     /// ]) {
     ///     Ok(v) =&gt; v,
-    ///     Err(_) =&gt; panic!(&quot;invalid bytes&quot;),
+    ///     Err(_) =&gt; panic!("invalid bytes"),
     /// };
     ///
     /// assert!(!FZS.is_empty());
@@ -819,7 +820,7 @@
             <span class="prelude-val">Some</span>(v) =&gt; v,
             <span class="prelude-val">None </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ZeroVecError::InvalidLength {
-                    ty: <span class="string">&quot;FlexZeroSlice&quot;</span>,
+                    ty: <span class="string">"FlexZeroSlice"</span>,
                     len: <span class="number">0</span>,
                 })
             }
@@ -827,17 +828,17 @@
         <span class="kw">let </span>width = <span class="kw-2">*</span>width_u8 <span class="kw">as </span>usize;
         <span class="kw">if </span>width &lt; <span class="number">1 </span>|| width &gt; USIZE_WIDTH {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ZeroVecError::ParseError {
-                ty: <span class="string">&quot;FlexZeroSlice&quot;</span>,
+                ty: <span class="string">"FlexZeroSlice"</span>,
             });
         }
         <span class="kw">if </span>data.len() % width != <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(ZeroVecError::InvalidLength {
-                ty: <span class="string">&quot;FlexZeroSlice&quot;</span>,
+                ty: <span class="string">"FlexZeroSlice"</span>,
                 len: bytes.len(),
             });
         }
         <span class="comment">// Safety: All hard invariants have been checked.
-        // Note: The soft invariant requires a linear search that we don&#39;t do here.
+        // Note: The soft invariant requires a linear search that we don't do here.
         </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ <span class="self">Self</span>::from_byte_slice_unchecked(bytes) })
     }
 
@@ -857,7 +858,7 @@
         // overall array.
         </span><span class="attr">#[allow(clippy::panic)] </span><span class="comment">// panic is documented in function contract
         </span><span class="kw">if </span>bytes.is_empty() {
-            <span class="macro">panic!</span>(<span class="string">&quot;from_byte_slice_unchecked called with empty slice&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"from_byte_slice_unchecked called with empty slice"</span>)
         }
         <span class="kw">let </span>slice = core::ptr::slice_from_raw_parts(bytes.as_ptr(), bytes.len() - <span class="number">1</span>);
         <span class="kw-2">&amp;*</span>(slice <span class="kw">as </span><span class="kw-2">*const </span><span class="self">Self</span>)
@@ -880,7 +881,7 @@
     /// use zerovec::vecs::FlexZeroSlice;
     ///
     /// let bytes: &amp;[u8] = &amp;[2, 0xD3, 0x00, 0x19, 0x01, 0xA5, 0x01, 0xCD, 0x80];
-    /// let fzv = FlexZeroSlice::parse_byte_slice(bytes).expect(&quot;valid bytes&quot;);
+    /// let fzv = FlexZeroSlice::parse_byte_slice(bytes).expect("valid bytes");
     ///
     /// assert_eq!(bytes, fzv.as_bytes());
     /// ```
@@ -992,7 +993,7 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>iter(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = usize&gt; + <span class="lifetime">&#39;_ </span>+ ExactSizeIterator&lt;Item = usize&gt; {
+    ) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = usize&gt; + <span class="lifetime">'_ </span>+ ExactSizeIterator&lt;Item = usize&gt; {
         <span class="kw">let </span>w = <span class="self">self</span>.get_width();
         <span class="self">self</span>.data
             .chunks_exact(w)
@@ -1019,7 +1020,7 @@
     /// assert_eq!(pairs_it.next(), Some((461, None)));
     /// assert_eq!(pairs_it.next(), None);
     /// ```
-    </span><span class="kw">pub fn </span>iter_pairs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;)&gt; + <span class="lifetime">&#39;_ </span>{
+    </span><span class="kw">pub fn </span>iter_pairs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;)&gt; + <span class="lifetime">'_ </span>{
         <span class="self">self</span>.iter().zip(<span class="self">self</span>.iter().skip(<span class="number">1</span>).map(<span class="prelude-val">Some</span>).chain([<span class="prelude-val">None</span>]))
     }
 
@@ -1204,11 +1205,11 @@
         <span class="comment">// This code is an absolute atrocity. This code is not a place of honor. This
         // code is known to the State of California to cause cancer.
         //
-        // Unfortunately, the stdlib&#39;s `binary_search*` functions can only operate on slices.
+        // Unfortunately, the stdlib's `binary_search*` functions can only operate on slices.
         // We do not have a slice. We have something we can .get() and index on, but that is not
         // a slice.
         //
-        // The `binary_search*` functions also do not have a variant where they give you the element&#39;s
+        // The `binary_search*` functions also do not have a variant where they give you the element's
         // index, which we could otherwise use to directly index `self`.
         // We do have `self.indices`, but these are indices into a byte buffer, which cannot in
         // isolation be used to recoup the logical index of the element they refer to.
@@ -1217,7 +1218,7 @@
         // Since the layout of Rust slices is well-defined, we can do pointer arithmetic on these references
         // to obtain the index being used by the search.
         //
-        // It&#39;s worth noting that the slice we choose to search is irrelevant, as long as it has the appropriate
+        // It's worth noting that the slice we choose to search is irrelevant, as long as it has the appropriate
         // length. `self.indices` is defined to have length `self.len()`, so it is convenient to use
         // here and does not require additional allocations.
         //
@@ -1369,7 +1370,7 @@
             largest_width
         };
         <span class="kw">let </span>new_count = old_count - <span class="number">1</span>;
-        <span class="comment">// Note: the following line won&#39;t overflow because we are making the slice shorter.
+        <span class="comment">// Note: the following line won't overflow because we are making the slice shorter.
         </span><span class="kw">let </span>new_bytes_len = new_count * new_width + <span class="number">1</span>;
         RemoveInfo {
             remove_index,
@@ -1382,7 +1383,7 @@
     <span class="doccomment">/// Returns the [`RemoveInfo`] for removing the last element. Should be called
     /// on a slice sorted in ascending order.
     ///
-    /// This is more efficient than `get_remove_info()` because it doesn&#39;t require a
+    /// This is more efficient than `get_remove_info()` because it doesn't require a
     /// linear traversal of the vector in order to calculate `new_width`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_sorted_pop_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RemoveInfo {
         <span class="macro">debug_assert!</span>(!<span class="self">self</span>.is_empty());
@@ -1396,7 +1397,7 @@
             get_item_width(<span class="kw-2">&amp;</span>largest_item)
         };
         <span class="kw">let </span>new_count = old_count - <span class="number">1</span>;
-        <span class="comment">// Note: the following line won&#39;t overflow because we are making the slice shorter.
+        <span class="comment">// Note: the following line won't overflow because we are making the slice shorter.
         </span><span class="kw">let </span>new_bytes_len = new_count * new_width + <span class="number">1</span>;
         RemoveInfo {
             remove_index,

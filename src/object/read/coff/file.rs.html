@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/coff/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/coff/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -396,9 +397,9 @@
 
 <span class="doccomment">/// The common parts of `PeFile` and `CoffFile`.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>CoffCommon&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader = pe::ImageFileHeader&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) sections: SectionTable&lt;<span class="lifetime">&#39;data</span>&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) symbols: SymbolTable&lt;<span class="lifetime">&#39;data</span>, R, Coff&gt;,
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>CoffCommon&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader = pe::ImageFileHeader&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) sections: SectionTable&lt;<span class="lifetime">'data</span>&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) symbols: SymbolTable&lt;<span class="lifetime">'data</span>, R, Coff&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) image_base: u64,
 }
 
@@ -408,7 +409,7 @@
 /// to [`crate::FileKind::CoffBig`].
 ///
 /// Most functionality is provided by the [`Object`] trait implementation.
-</span><span class="kw">pub type </span>CoffBigFile&lt;<span class="lifetime">&#39;data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; = CoffFile&lt;<span class="lifetime">&#39;data</span>, R, pe::AnonObjectHeaderBigobj&gt;;
+</span><span class="kw">pub type </span>CoffBigFile&lt;<span class="lifetime">'data</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; = CoffFile&lt;<span class="lifetime">'data</span>, R, pe::AnonObjectHeaderBigobj&gt;;
 
 <span class="doccomment">/// A COFF object file.
 ///
@@ -417,14 +418,14 @@
 ///
 /// Most functionality is provided by the [`Object`] trait implementation.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>CoffFile&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8], Coff: CoffHeader = pe::ImageFileHeader&gt;
+</span><span class="kw">pub struct </span>CoffFile&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8], Coff: CoffHeader = pe::ImageFileHeader&gt;
 {
-    <span class="kw">pub</span>(<span class="kw">super</span>) header: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>Coff,
-    <span class="kw">pub</span>(<span class="kw">super</span>) common: CoffCommon&lt;<span class="lifetime">&#39;data</span>, R, Coff&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) header: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Coff,
+    <span class="kw">pub</span>(<span class="kw">super</span>) common: CoffCommon&lt;<span class="lifetime">'data</span>, R, Coff&gt;,
     <span class="kw">pub</span>(<span class="kw">super</span>) data: R,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; CoffFile&lt;<span class="lifetime">&#39;data</span>, R, Coff&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; CoffFile&lt;<span class="lifetime">'data</span>, R, Coff&gt; {
     <span class="doccomment">/// Parse the raw COFF file data.
     </span><span class="kw">pub fn </span>parse(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
@@ -444,26 +445,26 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;, Coff: CoffHeader&gt; read::private::Sealed
-    <span class="kw">for </span>CoffFile&lt;<span class="lifetime">&#39;data</span>, R, Coff&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; read::private::Sealed
+    <span class="kw">for </span>CoffFile&lt;<span class="lifetime">'data</span>, R, Coff&gt;
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt; Object&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>&gt; <span class="kw">for </span>CoffFile&lt;<span class="lifetime">&#39;data</span>, R, Coff&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; Object&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>&gt; <span class="kw">for </span>CoffFile&lt;<span class="lifetime">'data</span>, R, Coff&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-    R: <span class="lifetime">&#39;file </span>+ ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span><span class="lifetime">'data</span>: <span class="lifetime">'file</span>,
+    R: <span class="lifetime">'file </span>+ ReadRef&lt;<span class="lifetime">'data</span>&gt;,
     Coff: CoffHeader,
 {
-    <span class="kw">type </span>Segment = CoffSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
-    <span class="kw">type </span>SegmentIterator = CoffSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
-    <span class="kw">type </span>Section = CoffSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
-    <span class="kw">type </span>SectionIterator = CoffSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
-    <span class="kw">type </span>Comdat = CoffComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
-    <span class="kw">type </span>ComdatIterator = CoffComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
-    <span class="kw">type </span>Symbol = CoffSymbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
-    <span class="kw">type </span>SymbolIterator = CoffSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
-    <span class="kw">type </span>SymbolTable = CoffSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;;
+    <span class="kw">type </span>Segment = CoffSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
+    <span class="kw">type </span>SegmentIterator = CoffSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
+    <span class="kw">type </span>Section = CoffSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
+    <span class="kw">type </span>SectionIterator = CoffSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
+    <span class="kw">type </span>Comdat = CoffComdat&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
+    <span class="kw">type </span>ComdatIterator = CoffComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
+    <span class="kw">type </span>Symbol = CoffSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
+    <span class="kw">type </span>SymbolIterator = CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
+    <span class="kw">type </span>SymbolTable = CoffSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
     <span class="kw">type </span>DynamicRelocationIterator = NoDynamicRelocationIterator;
 
     <span class="kw">fn </span>architecture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Architecture {
@@ -498,7 +499,7 @@
         ObjectKind::Relocatable
     }
 
-    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; CoffSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt; {
+    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; CoffSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
         CoffSegmentIterator {
             file: <span class="self">self</span>,
             iter: <span class="self">self</span>.common.sections.iter(),
@@ -506,17 +507,17 @@
     }
 
     <span class="kw">fn </span>section_by_name_bytes(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         section_name: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;&gt; {
         <span class="self">self</span>.sections()
             .find(|section| section.name_bytes() == <span class="prelude-val">Ok</span>(section_name))
     }
 
     <span class="kw">fn </span>section_by_index(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         index: SectionIndex,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;CoffSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;CoffSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;&gt; {
         <span class="kw">let </span>section = <span class="self">self</span>.common.sections.section(index.<span class="number">0</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(CoffSection {
             file: <span class="self">self</span>,
@@ -525,14 +526,14 @@
         })
     }
 
-    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; CoffSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt; {
+    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; CoffSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
         CoffSectionIterator {
             file: <span class="self">self</span>,
             iter: <span class="self">self</span>.common.sections.iter().enumerate(),
         }
     }
 
-    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; CoffComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt; {
+    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; CoffComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
         CoffComdatIterator {
             file: <span class="self">self</span>,
             index: <span class="number">0</span>,
@@ -540,9 +541,9 @@
     }
 
     <span class="kw">fn </span>symbol_by_index(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>,
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         index: SymbolIndex,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;CoffSymbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;CoffSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;&gt; {
         <span class="kw">let </span>symbol = <span class="self">self</span>.common.symbols.symbol(index.<span class="number">0</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(CoffSymbol {
             file: <span class="kw-2">&amp;</span><span class="self">self</span>.common,
@@ -551,7 +552,7 @@
         })
     }
 
-    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; CoffSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt; {
+    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
         CoffSymbolIterator {
             file: <span class="kw-2">&amp;</span><span class="self">self</span>.common,
             index: <span class="number">0</span>,
@@ -559,42 +560,42 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;&gt; {
+    </span><span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;&gt; {
         <span class="prelude-val">Some</span>(CoffSymbolTable { file: <span class="kw-2">&amp;</span><span class="self">self</span>.common })
     }
 
-    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; CoffSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt; {
+    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
         CoffSymbolIterator {
             file: <span class="kw-2">&amp;</span><span class="self">self</span>.common,
-            <span class="comment">// Hack: don&#39;t return any.
+            <span class="comment">// Hack: don't return any.
             </span>index: <span class="self">self</span>.common.symbols.len(),
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R, Coff&gt;&gt; {
+    </span><span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;&gt; {
         <span class="prelude-val">None
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="lifetime">&#39;file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NoDynamicRelocationIterator&gt; {
+    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NoDynamicRelocationIterator&gt; {
         <span class="prelude-val">None
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>imports(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Import&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+    </span><span class="kw">fn </span>imports(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Import&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="comment">// TODO: this could return undefined symbols, but not needed yet.
         </span><span class="prelude-val">Ok</span>(Vec::new())
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>exports(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Export&lt;<span class="lifetime">&#39;data</span>&gt;&gt;&gt; {
+    </span><span class="kw">fn </span>exports(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Export&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
         <span class="comment">// TODO: this could return global symbols, but not needed yet.
         </span><span class="prelude-val">Ok</span>(Vec::new())
     }
 
     <span class="kw">fn </span>has_debug_symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.section_by_name(<span class="string">&quot;.debug_info&quot;</span>).is_some()
+        <span class="self">self</span>.section_by_name(<span class="string">".debug_info"</span>).is_some()
     }
 
     <span class="kw">fn </span>relative_address_base(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
@@ -616,10 +617,10 @@
 <span class="doccomment">/// Read the `class_id` field from a [`pe::AnonObjectHeader`].
 ///
 /// This can be used to determine the format of the header.
-</span><span class="kw">pub fn </span>anon_object_class_id&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;pe::ClsId&gt; {
+</span><span class="kw">pub fn </span>anon_object_class_id&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;pe::ClsId&gt; {
     <span class="kw">let </span>header = data
         .read_at::&lt;pe::AnonObjectHeader&gt;(<span class="number">0</span>)
-        .read_error(<span class="string">&quot;Invalid anon object header size or alignment&quot;</span>)<span class="question-mark">?</span>;
+        .read_error(<span class="string">"Invalid anon object header size or alignment"</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(header.class_id)
 }
 
@@ -645,18 +646,18 @@
     /// `data` must be the entire file data.
     /// `offset` must be the file header offset. It is updated to point after the optional header,
     /// which is where the section headers are located.
-    </span><span class="kw">fn </span>parse&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">Self</span>&gt;;
+    </span><span class="kw">fn </span>parse&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">Self</span>&gt;;
 
     <span class="doccomment">/// Read the section table.
     ///
     /// `data` must be the entire file data.
     /// `offset` must be after the optional file header.
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>sections&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>sections&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
         offset: u64,
-    ) -&gt; read::Result&lt;SectionTable&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
+    ) -&gt; read::Result&lt;SectionTable&lt;<span class="lifetime">'data</span>&gt;&gt; {
         SectionTable::parse(<span class="self">self</span>, data, offset)
     }
 
@@ -664,10 +665,10 @@
     ///
     /// `data` must be the entire file data.
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>symbols&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(
+    </span><span class="kw">fn </span>symbols&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: R,
-    ) -&gt; read::Result&lt;SymbolTable&lt;<span class="lifetime">&#39;data</span>, R, <span class="self">Self</span>&gt;&gt; {
+    ) -&gt; read::Result&lt;SymbolTable&lt;<span class="lifetime">'data</span>, R, <span class="self">Self</span>&gt;&gt; {
         SymbolTable::parse(<span class="self">self</span>, data)
     }
 }
@@ -700,15 +701,15 @@
         <span class="self">self</span>.characteristics.get(LE)
     }
 
-    <span class="kw">fn </span>parse&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">Self</span>&gt; {
         <span class="kw">let </span>header = data
             .read::&lt;pe::ImageFileHeader&gt;(offset)
-            .read_error(<span class="string">&quot;Invalid COFF file header size or alignment&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid COFF file header size or alignment"</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Skip over the optional header.
         </span><span class="kw-2">*</span>offset = offset
             .checked_add(header.size_of_optional_header.get(LE).into())
-            .read_error(<span class="string">&quot;Invalid COFF optional header size&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid COFF optional header size"</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// TODO: maybe validate that the machine is known?
         </span><span class="prelude-val">Ok</span>(header)
@@ -743,17 +744,17 @@
         <span class="number">0
     </span>}
 
-    <span class="kw">fn </span>parse&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;(data: R, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span><span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R, offset: <span class="kw-2">&amp;mut </span>u64) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span><span class="self">Self</span>&gt; {
         <span class="kw">let </span>header = data
             .read::&lt;pe::AnonObjectHeaderBigobj&gt;(offset)
-            .read_error(<span class="string">&quot;Invalid COFF bigobj file header size or alignment&quot;</span>)<span class="question-mark">?</span>;
+            .read_error(<span class="string">"Invalid COFF bigobj file header size or alignment"</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>header.sig1.get(LE) != pe::IMAGE_FILE_MACHINE_UNKNOWN
             || header.sig2.get(LE) != <span class="number">0xffff
             </span>|| header.version.get(LE) &lt; <span class="number">2
             </span>|| header.class_id != pe::ANON_OBJECT_HEADER_BIGOBJ_CLASS_ID
         {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(read::Error(<span class="string">&quot;Invalid COFF bigobj header values&quot;</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(read::Error(<span class="string">"Invalid COFF bigobj header values"</span>));
         }
 
         <span class="comment">// TODO: maybe validate that the machine is known?

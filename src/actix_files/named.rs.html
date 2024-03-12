@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-files-0.6.5/src/named.rs`."><title>named.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_files" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_files/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_files"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-files-0.6.5/src/named.rs`."><title>named.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_files" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_files/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_files"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -740,7 +741,7 @@
 /// use actix_files::NamedFile;
 ///
 /// # async fn run() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
-/// let file = NamedFile::open_async(&quot;./static/index.html&quot;).await?;
+/// let file = NamedFile::open_async("./static/index.html").await?;
 /// let app = App::new().service(file);
 /// # Ok(())
 /// # }
@@ -751,9 +752,9 @@
 /// use actix_web::{Responder, get};
 /// use actix_files::NamedFile;
 ///
-/// #[get(&quot;/&quot;)]
+/// #[get("/")]
 /// async fn index() -&gt; impl Responder {
-///     NamedFile::open_async(&quot;./static/index.html&quot;).await
+///     NamedFile::open_async("./static/index.html").await
 /// }
 /// ```
 </span><span class="attr">#[derive(Debug, Deref, DerefMut)]
@@ -771,10 +772,10 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) encoding: <span class="prelude-ty">Option</span>&lt;ContentEncoding&gt;,
 }
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"experimental-io-uring"</span>))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>std::fs::File;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"experimental-io-uring"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>tokio_uring::fs::File;
 
 <span class="kw">use </span><span class="kw">super</span>::chunked;
@@ -794,10 +795,10 @@
     /// };
     /// use actix_files::NamedFile;
     ///
-    /// let mut file = File::create(&quot;foo.txt&quot;)?;
-    /// file.write_all(b&quot;Hello, world!&quot;)?;
-    /// let named_file = NamedFile::from_file(file, &quot;bar.txt&quot;)?;
-    /// # std::fs::remove_file(&quot;foo.txt&quot;);
+    /// let mut file = File::create("foo.txt")?;
+    /// file.write_all(b"Hello, world!")?;
+    /// let named_file = NamedFile::from_file(file, "bar.txt")?;
+    /// # std::fs::remove_file("foo.txt");
     /// Ok(())
     /// ```
     </span><span class="kw">pub fn </span>from_file&lt;P: AsRef&lt;Path&gt;&gt;(file: File, path: P) -&gt; io::Result&lt;NamedFile&gt; {
@@ -811,7 +812,7 @@
                 <span class="prelude-val">None </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
                         io::ErrorKind::InvalidInput,
-                        <span class="string">&quot;Provided path has no filename&quot;</span>,
+                        <span class="string">"Provided path has no filename"</span>,
                     ));
                 }
             };
@@ -822,7 +823,7 @@
                 mime::IMAGE | mime::TEXT | mime::AUDIO | mime::VIDEO =&gt; DispositionType::Inline,
                 mime::APPLICATION =&gt; <span class="kw">match </span>ct.subtype() {
                     mime::JAVASCRIPT | mime::JSON =&gt; DispositionType::Inline,
-                    name <span class="kw">if </span>name == <span class="string">&quot;wasm&quot; </span>|| name == <span class="string">&quot;xhtml&quot; </span>=&gt; DispositionType::Inline,
+                    name <span class="kw">if </span>name == <span class="string">"wasm" </span>|| name == <span class="string">"xhtml" </span>=&gt; DispositionType::Inline,
                     <span class="kw">_ </span>=&gt; DispositionType::Attachment,
                 },
                 <span class="kw">_ </span>=&gt; DispositionType::Attachment,
@@ -830,15 +831,15 @@
 
             <span class="comment">// replace special characters in filenames which could occur on some filesystems
             </span><span class="kw">let </span>filename_s = filename
-                .replace(<span class="string">&#39;\n&#39;</span>, <span class="string">&quot;%0A&quot;</span>) <span class="comment">// \n line break
-                </span>.replace(<span class="string">&#39;\x0B&#39;</span>, <span class="string">&quot;%0B&quot;</span>) <span class="comment">// \v vertical tab
-                </span>.replace(<span class="string">&#39;\x0C&#39;</span>, <span class="string">&quot;%0C&quot;</span>) <span class="comment">// \f form feed
-                </span>.replace(<span class="string">&#39;\r&#39;</span>, <span class="string">&quot;%0D&quot;</span>); <span class="comment">// \r carriage return
+                .replace(<span class="string">'\n'</span>, <span class="string">"%0A"</span>) <span class="comment">// \n line break
+                </span>.replace(<span class="string">'\x0B'</span>, <span class="string">"%0B"</span>) <span class="comment">// \v vertical tab
+                </span>.replace(<span class="string">'\x0C'</span>, <span class="string">"%0C"</span>) <span class="comment">// \f form feed
+                </span>.replace(<span class="string">'\r'</span>, <span class="string">"%0D"</span>); <span class="comment">// \r carriage return
             </span><span class="kw">let </span><span class="kw-2">mut </span>parameters = <span class="macro">vec!</span>[DispositionParam::Filename(filename_s)];
 
             <span class="kw">if </span>!filename.is_ascii() {
                 parameters.push(DispositionParam::FilenameExt(ExtendedValue {
-                    charset: Charset::Ext(String::from(<span class="string">&quot;UTF-8&quot;</span>)),
+                    charset: Charset::Ext(String::from(<span class="string">"UTF-8"</span>)),
                     language_tag: <span class="prelude-val">None</span>,
                     value: filename.into_owned().into_bytes(),
                 }))
@@ -853,12 +854,12 @@
         };
 
         <span class="kw">let </span>md = {
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+            <span class="attr">#[cfg(not(feature = <span class="string">"experimental-io-uring"</span>))]
             </span>{
                 file.metadata()<span class="question-mark">?
             </span>}
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental-io-uring"</span>)]
             </span>{
                 <span class="kw">use </span>std::os::unix::prelude::{AsRawFd, FromRawFd};
 
@@ -868,7 +869,7 @@
                 </span><span class="kw">unsafe </span>{
                     <span class="kw">let </span>file = std::fs::File::from_raw_fd(fd);
                     <span class="kw">let </span>md = file.metadata();
-                    <span class="comment">// SAFETY: forget the fd before exiting block in success or error case but don&#39;t
+                    <span class="comment">// SAFETY: forget the fd before exiting block in success or error case but don't
                     // run destructor (that would close file handle)
                     </span>std::mem::forget(file);
                     md<span class="question-mark">?
@@ -897,9 +898,9 @@
     /// # Examples
     /// ```
     /// use actix_files::NamedFile;
-    /// let file = NamedFile::open(&quot;foo.txt&quot;);
+    /// let file = NamedFile::open("foo.txt");
     /// ```
-    </span><span class="attr">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"experimental-io-uring"</span>))]
     </span><span class="kw">pub fn </span>open&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;NamedFile&gt; {
         <span class="kw">let </span>file = File::open(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
         <span class="self">Self</span>::from_file(file, path)
@@ -914,17 +915,17 @@
     /// ```
     /// use actix_files::NamedFile;
     /// # async fn open() {
-    /// let file = NamedFile::open_async(&quot;foo.txt&quot;).await.unwrap();
+    /// let file = NamedFile::open_async("foo.txt").await.unwrap();
     /// # }
     /// ```
     </span><span class="kw">pub async fn </span>open_async&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;NamedFile&gt; {
         <span class="kw">let </span>file = {
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+            <span class="attr">#[cfg(not(feature = <span class="string">"experimental-io-uring"</span>))]
             </span>{
                 File::open(<span class="kw-2">&amp;</span>path)<span class="question-mark">?
             </span>}
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"experimental-io-uring"</span>)]
             </span>{
                 File::open(<span class="kw-2">&amp;</span>path).<span class="kw">await</span><span class="question-mark">?
             </span>}
@@ -947,8 +948,8 @@
     /// use actix_files::NamedFile;
     ///
     /// # async fn path() -&gt; io::Result&lt;()&gt; {
-    /// let file = NamedFile::open_async(&quot;test.txt&quot;).await?;
-    /// assert_eq!(file.path().as_os_str(), &quot;foo.txt&quot;);
+    /// let file = NamedFile::open_async("test.txt").await?;
+    /// assert_eq!(file.path().as_os_str(), "foo.txt");
     /// # Ok(())
     /// # }
     /// ```
@@ -994,7 +995,7 @@
     }
 
     <span class="doccomment">/// Set response status code.
-    </span><span class="attr">#[deprecated(since = <span class="string">&quot;0.7.0&quot;</span>, note = <span class="string">&quot;Prefer `Responder::customize()`.&quot;</span>)]
+    </span><span class="attr">#[deprecated(since = <span class="string">"0.7.0"</span>, note = <span class="string">"Prefer `Responder::customize()`."</span>)]
     </span><span class="kw">pub fn </span>set_status_code(<span class="kw-2">mut </span><span class="self">self</span>, status: StatusCode) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.status_code = status;
         <span class="self">self
@@ -1069,7 +1070,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Creates an `ETag` in a format is similar to Apache&#39;s.
+    <span class="doccomment">/// Creates an `ETag` in a format is similar to Apache's.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>etag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;header::EntityTag&gt; {
         <span class="self">self</span>.modified.as_ref().map(|mtime| {
             <span class="kw">let </span>ino = {
@@ -1089,10 +1090,10 @@
 
             <span class="kw">let </span>dur = mtime
                 .duration_since(UNIX_EPOCH)
-                .expect(<span class="string">&quot;modification time must be after epoch&quot;</span>);
+                .expect(<span class="string">"modification time must be after epoch"</span>);
 
             header::EntityTag::new_strong(<span class="macro">format!</span>(
-                <span class="string">&quot;{:x}:{:x}:{:x}:{:x}&quot;</span>,
+                <span class="string">"{:x}:{:x}:{:x}:{:x}"</span>,
                 ino,
                 <span class="self">self</span>.md.len(),
                 dur.as_secs(),
@@ -1211,7 +1212,7 @@
             res.insert_header((header::ETAG, etag.to_string()));
         }
 
-        res.insert_header((header::ACCEPT_RANGES, <span class="string">&quot;bytes&quot;</span>));
+        res.insert_header((header::ACCEPT_RANGES, <span class="string">"bytes"</span>));
 
         <span class="kw">let </span><span class="kw-2">mut </span>length = <span class="self">self</span>.md.len();
         <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
@@ -1237,19 +1238,19 @@
                     // range is requested. Reject request? Ignoring self.encoding seems wrong, too.
                     // In practice, it should not come up.
                     </span><span class="kw">if </span>req.headers().contains_key(<span class="kw-2">&amp;</span>header::ACCEPT_ENCODING) {
-                        <span class="comment">// don&#39;t allow compression middleware to modify partial content
+                        <span class="comment">// don't allow compression middleware to modify partial content
                         </span>res.insert_header((
                             header::CONTENT_ENCODING,
-                            HeaderValue::from_static(<span class="string">&quot;identity&quot;</span>),
+                            HeaderValue::from_static(<span class="string">"identity"</span>),
                         ));
                     }
 
                     res.insert_header((
                         header::CONTENT_RANGE,
-                        <span class="macro">format!</span>(<span class="string">&quot;bytes {}-{}/{}&quot;</span>, offset, offset + length - <span class="number">1</span>, <span class="self">self</span>.md.len()),
+                        <span class="macro">format!</span>(<span class="string">"bytes {}-{}/{}"</span>, offset, offset + length - <span class="number">1</span>, <span class="self">self</span>.md.len()),
                     ));
                 } <span class="kw">else </span>{
-                    res.insert_header((header::CONTENT_RANGE, <span class="macro">format!</span>(<span class="string">&quot;bytes */{}&quot;</span>, length)));
+                    res.insert_header((header::CONTENT_RANGE, <span class="macro">format!</span>(<span class="string">"bytes */{}"</span>, length)));
                     <span class="kw">return </span>res.status(StatusCode::RANGE_NOT_SATISFIABLE).finish();
                 };
             } <span class="kw">else </span>{
@@ -1295,7 +1296,7 @@
     }
 }
 
-<span class="doccomment">/// Returns true if `req` doesn&#39;t have an `If-None-Match` header matching `req`.
+<span class="doccomment">/// Returns true if `req` doesn't have an `If-None-Match` header matching `req`.
 </span><span class="kw">fn </span>none_match(etag: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>header::EntityTag&gt;, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; bool {
     <span class="kw">match </span>req.get_header::&lt;header::IfNoneMatch&gt;() {
         <span class="prelude-val">Some</span>(header::IfNoneMatch::Any) =&gt; <span class="bool-val">false</span>,
@@ -1330,7 +1331,7 @@
     <span class="kw">type </span>Config = ();
     <span class="kw">type </span>Service = NamedFileService;
     <span class="kw">type </span>InitError = ();
-    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Service, <span class="self">Self</span>::InitError&gt;&gt;;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Service, <span class="self">Self</span>::InitError&gt;&gt;;
 
     <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="self">Self</span>::Future {
         <span class="kw">let </span>service = NamedFileService {
@@ -1350,7 +1351,7 @@
 <span class="kw">impl </span>Service&lt;ServiceRequest&gt; <span class="kw">for </span>NamedFileService {
     <span class="kw">type </span>Response = ServiceResponse;
     <span class="kw">type </span>Error = Error;
-    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Response, <span class="self">Self</span>::Error&gt;&gt;;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Response, <span class="self">Self</span>::Error&gt;&gt;;
 
     <span class="macro">dev::always_ready!</span>();
 

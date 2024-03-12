@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/provider/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/provider/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -316,7 +317,7 @@
 
 </span><span class="doccomment">//! 🚧 \[Unstable\] Data provider struct definitions for this ICU4X component.
 //!
-//! &lt;div class=&quot;stab unstable&quot;&gt;
+//! &lt;div class="stab unstable"&gt;
 //! 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 //! including in SemVer minor releases. While the serde representation of data structs is guaranteed
 //! to be stable, their Rust representation might not be. Use with caution.
@@ -331,29 +332,29 @@
 <span class="doccomment">/// Module for experimental new DateSymbols design
 /// &lt;https://github.com/unicode-org/icu4x/issues/3865&gt;
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. While the serde representation of data structs is guaranteed
 /// to be stable, their Rust representation might not be. Use with caution.
 /// &lt;/div&gt;
 </span><span class="comment">//
 //
-// WHEN THIS GRADUATES; be sure to update the check for &quot;neo&quot; in baked_exporter!
-</span><span class="attr">#[cfg(any(feature = <span class="string">&quot;datagen&quot;</span>, feature = <span class="string">&quot;experimental&quot;</span>))]
+// WHEN THIS GRADUATES; be sure to update the check for "neo" in baked_exporter!
+</span><span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))]
 </span><span class="kw">pub mod </span>neo;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 #[derive(Debug)]
 </span><span class="doccomment">/// Baked data
 ///
-/// &lt;div class=&quot;stab unstable&quot;&gt;
+/// &lt;div class="stab unstable"&gt;
 /// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
 /// including in SemVer minor releases. In particular, the `DataProvider` implementations are only
-/// guaranteed to match with this version&#39;s `*_unstable` providers. Use with caution.
+/// guaranteed to match with this version's `*_unstable` providers. Use with caution.
 /// &lt;/div&gt;
 </span><span class="kw">pub struct </span>Baked;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
 </span><span class="kw">const _</span>: () = {
     <span class="kw">pub mod </span>icu {
         <span class="kw">pub use crate as </span>datetime;
@@ -386,7 +387,7 @@
     <span class="macro">icu_datetime_data::impl_datetime_persian_datesymbols_v1!</span>(Baked);
     <span class="macro">icu_datetime_data::impl_datetime_roc_datelengths_v1!</span>(Baked);
     <span class="macro">icu_datetime_data::impl_datetime_roc_datesymbols_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_skeletons_v1!</span>(Baked);
     <span class="macro">icu_datetime_data::impl_datetime_timelengths_v1!</span>(Baked);
     <span class="macro">icu_datetime_data::impl_datetime_timesymbols_v1!</span>(Baked);
@@ -397,100 +398,100 @@
     <span class="macro">icu_datetime_data::impl_time_zone_specific_long_v1!</span>(Baked);
     <span class="macro">icu_datetime_data::impl_time_zone_specific_short_v1!</span>(Baked);
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_weekdays_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_dayperiods_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_datetime_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_time_v1!</span>(Baked);
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_buddhist_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_buddhist_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_chinese_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_chinese_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_coptic_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_coptic_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_dangi_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_dangi_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_ethiopic_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_ethiopic_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_gregory_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_gregory_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_hebrew_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_hebrew_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_indian_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_indian_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_islamic_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_islamic_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_japanese_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_japanese_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_japanext_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_japanext_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_persian_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_persian_years_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_roc_months_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_symbols_roc_years_v1!</span>(Baked);
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_buddhist_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_chinese_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_coptic_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_dangi_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_ethiopic_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_gregory_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_hebrew_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_indian_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_islamic_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_japanese_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_japanext_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_persian_date_v1!</span>(Baked);
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="macro">icu_datetime_data::impl_datetime_patterns_roc_date_v1!</span>(Baked);
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
 </span><span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;datagen&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
 </span><span class="doccomment">/// The latest minimum set of keys required by this component.
 </span><span class="kw">pub const </span>KEYS: <span class="kw-2">&amp;</span>[DataKey] = <span class="kw-2">&amp;</span>[
     calendar::BuddhistDateLengthsV1Marker::KEY,
@@ -527,93 +528,93 @@
     time_zones::MetazoneSpecificNamesLongV1Marker::KEY,
     time_zones::MetazoneSpecificNamesShortV1Marker::KEY,
     time_zones::TimeZoneFormatsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>calendar::DateSkeletonPatternsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::WeekdaySymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::DayPeriodSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::DateTimePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::TimePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::BuddhistYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::ChineseYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::CopticYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::DangiYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::EthiopianYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::GregorianYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::HebrewYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::IndianYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::IslamicYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::JapaneseYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::JapaneseExtendedYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::PersianYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::RocYearSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::BuddhistMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::ChineseMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::CopticMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::DangiMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::EthiopianMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::GregorianMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::HebrewMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::IndianMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::IslamicMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::JapaneseMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::JapaneseExtendedMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::PersianMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::RocMonthSymbolsV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::BuddhistDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::ChineseDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::CopticDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::DangiDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::EthiopianDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::GregorianDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::HebrewDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::IndianDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::IslamicDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::JapaneseDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::JapaneseExtendedDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::PersianDatePatternV1Marker::KEY,
-    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span>neo::RocDatePatternV1Marker::KEY,
 ];
 </code></pre></div></section></main></body></html>

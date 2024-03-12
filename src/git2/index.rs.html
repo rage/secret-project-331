@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/index.rs`."><title>index.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/index.rs`."><title>index.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -948,26 +949,26 @@
 }
 
 <span class="doccomment">/// An iterator over the entries in an index
-</span><span class="kw">pub struct </span>IndexEntries&lt;<span class="lifetime">&#39;index</span>&gt; {
+</span><span class="kw">pub struct </span>IndexEntries&lt;<span class="lifetime">'index</span>&gt; {
     range: Range&lt;usize&gt;,
-    index: <span class="kw-2">&amp;</span><span class="lifetime">&#39;index </span>Index,
+    index: <span class="kw-2">&amp;</span><span class="lifetime">'index </span>Index,
 }
 
 <span class="doccomment">/// An iterator over the conflicting entries in an index
-</span><span class="kw">pub struct </span>IndexConflicts&lt;<span class="lifetime">&#39;index</span>&gt; {
+</span><span class="kw">pub struct </span>IndexConflicts&lt;<span class="lifetime">'index</span>&gt; {
     conflict_iter: <span class="kw-2">*mut </span>raw::git_index_conflict_iterator,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;index </span>Index&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'index </span>Index&gt;,
 }
 
 <span class="doccomment">/// A structure to represent the information returned when a conflict is detected in an index entry
 </span><span class="kw">pub struct </span>IndexConflict {
     <span class="doccomment">/// The ancestor index entry of the two conflicting index entries
     </span><span class="kw">pub </span>ancestor: <span class="prelude-ty">Option</span>&lt;IndexEntry&gt;,
-    <span class="doccomment">/// The index entry originating from the user&#39;s copy of the repository.
-    /// Its contents conflict with &#39;their&#39; index entry
+    <span class="doccomment">/// The index entry originating from the user's copy of the repository.
+    /// Its contents conflict with 'their' index entry
     </span><span class="kw">pub </span>our: <span class="prelude-ty">Option</span>&lt;IndexEntry&gt;,
     <span class="doccomment">/// The index entry originating from the external repository.
-    /// Its contents conflict with &#39;our&#39; index entry
+    /// Its contents conflict with 'our' index entry
     </span><span class="kw">pub </span>their: <span class="prelude-ty">Option</span>&lt;IndexEntry&gt;,
 }
 
@@ -976,7 +977,7 @@
 /// Used by `Index::{add_all,remove_all,update_all}`.  The first argument is the
 /// path, and the second is the pathspec that matched it.  Return 0 to confirm
 /// the operation on the item, &gt; 0 to skip the item, and &lt; 0 to abort the scan.
-</span><span class="kw">pub type </span>IndexMatchedPath&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>Path, <span class="kw-2">&amp;</span>[u8]) -&gt; i32 + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>IndexMatchedPath&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>Path, <span class="kw-2">&amp;</span>[u8]) -&gt; i32 + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// A structure to represent an entry or a file inside of an index.
 ///
@@ -1029,7 +1030,7 @@
     }
 
     <span class="doccomment">/// Create a new bare Git index object as a memory representation of the Git
-    /// index file in &#39;index_path&#39;, without a repository to back it.
+    /// index file in 'index_path', without a repository to back it.
     ///
     /// Since there is no ODB or working directory behind this index, any Index
     /// methods which rely on these (e.g. add_path) will fail.
@@ -1071,14 +1072,14 @@
     <span class="doccomment">/// Add or update an index entry from an in-memory struct
     ///
     /// If a previous index entry exists that has the same path and stage as the
-    /// given &#39;source_entry&#39;, it will be replaced. Otherwise, the &#39;source_entry&#39;
+    /// given 'source_entry', it will be replaced. Otherwise, the 'source_entry'
     /// will be added.
     </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>IndexEntry) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>path = CString::new(<span class="kw-2">&amp;</span>entry.path[..])<span class="question-mark">?</span>;
 
         <span class="comment">// libgit2 encodes the length of the path in the lower bits of the
         // `flags` entry, so mask those out and recalculate here to ensure we
-        // don&#39;t corrupt anything.
+        // don't corrupt anything.
         </span><span class="kw">let </span><span class="kw-2">mut </span>flags = entry.flags &amp; !raw::GIT_INDEX_ENTRY_NAMEMASK;
 
         <span class="kw">if </span>entry.path.len() &lt; raw::GIT_INDEX_ENTRY_NAMEMASK <span class="kw">as </span>usize {
@@ -1117,11 +1118,11 @@
     ///
     /// This method will create a blob in the repository that owns the index and
     /// then add the index entry to the index. The path of the entry represents
-    /// the position of the blob relative to the repository&#39;s root folder.
+    /// the position of the blob relative to the repository's root folder.
     ///
     /// If a previous index entry exists that has the same path as the given
-    /// &#39;entry&#39;, it will be replaced. Otherwise, the &#39;entry&#39; will be added.
-    /// The id and the file_size of the &#39;entry&#39; are updated with the real value
+    /// 'entry', it will be replaced. Otherwise, the 'entry' will be added.
+    /// The id and the file_size of the 'entry' are updated with the real value
     /// of the blob.
     ///
     /// This forces the file to be added to the index, not looking at gitignore
@@ -1129,13 +1130,13 @@
     ///
     /// If this file currently is the result of a merge conflict, this file will
     /// no longer be marked as conflicting. The data about the conflict will be
-    /// moved to the &quot;resolve undo&quot; (REUC) section.
+    /// moved to the "resolve undo" (REUC) section.
     </span><span class="kw">pub fn </span>add_frombuffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>IndexEntry, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>path = CString::new(<span class="kw-2">&amp;</span>entry.path[..])<span class="question-mark">?</span>;
 
         <span class="comment">// libgit2 encodes the length of the path in the lower bits of the
         // `flags` entry, so mask those out and recalculate here to ensure we
-        // don&#39;t corrupt anything.
+        // don't corrupt anything.
         </span><span class="kw">let </span><span class="kw-2">mut </span>flags = entry.flags &amp; !raw::GIT_INDEX_ENTRY_NAMEMASK;
 
         <span class="kw">if </span>entry.path.len() &lt; raw::GIT_INDEX_ENTRY_NAMEMASK <span class="kw">as </span>usize {
@@ -1175,7 +1176,7 @@
 
     <span class="doccomment">/// Add or update an index entry from a file on disk
     ///
-    /// The file path must be relative to the repository&#39;s working folder and
+    /// The file path must be relative to the repository's working folder and
     /// must be readable.
     ///
     /// This method will fail in bare index instances.
@@ -1185,7 +1186,7 @@
     ///
     /// If this file currently is the result of a merge conflict, this file will
     /// no longer be marked as conflicting. The data about the conflict will be
-    /// moved to the &quot;resolve undo&quot; (REUC) section.
+    /// moved to the "resolve undo" (REUC) section.
     </span><span class="kw">pub fn </span>add_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>posix_path = path_to_repo_path(path)<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
@@ -1199,7 +1200,7 @@
     /// This method will fail in bare index instances.
     ///
     /// The `pathspecs` are a list of file names or shell glob patterns that
-    /// will matched against files in the repository&#39;s working directory. Each
+    /// will matched against files in the repository's working directory. Each
     /// file that matches will be added to the index (either updating an
     /// existing entry or adding a new entry). You can disable glob expansion
     /// and force exact matching with the `AddDisablePathspecMatch` flag.
@@ -1215,12 +1216,12 @@
     /// already in the index. If this check fails, the function will return
     /// an error.
     ///
-    /// To emulate `git add -A` with the &quot;dry-run&quot; option, just use a callback
+    /// To emulate `git add -A` with the "dry-run" option, just use a callback
     /// function that always returns a positive value. See below for details.
     ///
     /// If any files are currently the result of a merge conflict, those files
     /// will no longer be marked as conflicting. The data about the conflicts
-    /// will be moved to the &quot;resolve undo&quot; (REUC) section.
+    /// will be moved to the "resolve undo" (REUC) section.
     ///
     /// If you provide a callback function, it will be invoked on each matching
     /// item in the working directory immediately before it is added to /
@@ -1235,16 +1236,16 @@
     /// ```no_run
     /// use git2::{Index, IndexAddOption, Repository};
     ///
-    /// let repo = Repository::open(&quot;/path/to/a/repo&quot;).expect(&quot;failed to open&quot;);
-    /// let mut index = repo.index().expect(&quot;cannot get the Index file&quot;);
-    /// index.add_all([&quot;*&quot;].iter(), IndexAddOption::DEFAULT, None);
+    /// let repo = Repository::open("/path/to/a/repo").expect("failed to open");
+    /// let mut index = repo.index().expect("cannot get the Index file");
+    /// index.add_all(["*"].iter(), IndexAddOption::DEFAULT, None);
     /// index.write();
     /// ```
     </span><span class="kw">pub fn </span>add_all&lt;T, I&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         pathspecs: I,
         flag: IndexAddOption,
-        <span class="kw-2">mut </span>cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>IndexMatchedPath&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        <span class="kw-2">mut </span>cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>IndexMatchedPath&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
         </span>T: IntoCString,
@@ -1254,7 +1255,7 @@
         <span class="kw">let </span>ptr = cb.as_mut();
         <span class="kw">let </span>callback = ptr
             .as_ref()
-            .map(|<span class="kw">_</span>| index_matched_path_cb <span class="kw">as extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) -&gt; <span class="kw">_</span>);
+            .map(|<span class="kw">_</span>| index_matched_path_cb <span class="kw">as extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) -&gt; <span class="kw">_</span>);
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_index_add_all(
                 <span class="self">self</span>.raw,
@@ -1301,7 +1302,7 @@
     }
 
     <span class="doccomment">/// Get an iterator over the entries in this index.
-    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IndexEntries&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IndexEntries&lt;<span class="lifetime">'_</span>&gt; {
         IndexEntries {
             range: <span class="number">0</span>..<span class="self">self</span>.len(),
             index: <span class="self">self</span>,
@@ -1309,7 +1310,7 @@
     }
 
     <span class="doccomment">/// Get an iterator over the index entries that have conflicts
-    </span><span class="kw">pub fn </span>conflicts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IndexConflicts&lt;<span class="lifetime">&#39;_</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>conflicts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IndexConflicts&lt;<span class="lifetime">'_</span>&gt;, Error&gt; {
         <span class="kw">crate</span>::init();
         <span class="kw">let </span><span class="kw-2">mut </span>conflict_iter = ptr::null_mut();
         <span class="kw">unsafe </span>{
@@ -1351,11 +1352,11 @@
     <span class="doccomment">/// Update the contents of an existing index object in memory by reading
     /// from the hard disk.
     ///
-    /// If force is true, this performs a &quot;hard&quot; read that discards in-memory
+    /// If force is true, this performs a "hard" read that discards in-memory
     /// changes and always reloads the on-disk index data. If there is no
     /// on-disk version, the index will be cleared.
     ///
-    /// If force is false, this does a &quot;soft&quot; read that reloads the index data
+    /// If force is false, this does a "soft" read that reloads the index data
     /// from disk only if it has changed since the last time it was loaded.
     /// Purely in-memory index data will be untouched. Be aware: if there are
     /// changes on disk, unwritten in-memory changes are discarded.
@@ -1369,7 +1370,7 @@
     <span class="doccomment">/// Read a tree into the index file with stats
     ///
     /// The current index contents will be replaced by the specified tree.
-    </span><span class="kw">pub fn </span>read_tree(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">pub fn </span>read_tree(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_index_read_tree(<span class="self">self</span>.raw, <span class="kw-2">&amp;*</span>tree.raw()));
         }
@@ -1387,12 +1388,12 @@
 
     <span class="doccomment">/// Remove an index entry corresponding to a file on disk.
     ///
-    /// The file path must be relative to the repository&#39;s working folder. It
+    /// The file path must be relative to the repository's working folder. It
     /// may exist.
     ///
     /// If this file currently is the result of a merge conflict, this file will
     /// no longer be marked as conflicting. The data about the conflict will be
-    /// moved to the &quot;resolve undo&quot; (REUC) section.
+    /// moved to the "resolve undo" (REUC) section.
     </span><span class="kw">pub fn </span>remove_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>path = path_to_repo_path(path)<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
@@ -1422,7 +1423,7 @@
     </span><span class="kw">pub fn </span>remove_all&lt;T, I&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         pathspecs: I,
-        <span class="kw-2">mut </span>cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>IndexMatchedPath&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        <span class="kw-2">mut </span>cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>IndexMatchedPath&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
         </span>T: IntoCString,
@@ -1432,7 +1433,7 @@
         <span class="kw">let </span>ptr = cb.as_mut();
         <span class="kw">let </span>callback = ptr
             .as_ref()
-            .map(|<span class="kw">_</span>| index_matched_path_cb <span class="kw">as extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) -&gt; <span class="kw">_</span>);
+            .map(|<span class="kw">_</span>| index_matched_path_cb <span class="kw">as extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) -&gt; <span class="kw">_</span>);
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_index_remove_all(
                 <span class="self">self</span>.raw,
@@ -1460,7 +1461,7 @@
     </span><span class="kw">pub fn </span>update_all&lt;T, I&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         pathspecs: I,
-        <span class="kw-2">mut </span>cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>IndexMatchedPath&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        <span class="kw-2">mut </span>cb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>IndexMatchedPath&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
         </span>T: IntoCString,
@@ -1470,7 +1471,7 @@
         <span class="kw">let </span>ptr = cb.as_mut();
         <span class="kw">let </span>callback = ptr
             .as_ref()
-            .map(|<span class="kw">_</span>| index_matched_path_cb <span class="kw">as extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) -&gt; <span class="kw">_</span>);
+            .map(|<span class="kw">_</span>| index_matched_path_cb <span class="kw">as extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) -&gt; <span class="kw">_</span>);
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_index_update_all(
                 <span class="self">self</span>.raw,
@@ -1528,7 +1529,7 @@
 
     <span class="doccomment">/// Find the first position of any entries matching a prefix.
     ///
-    /// To find the first position of a path inside a given folder, suffix the prefix with a &#39;/&#39;.
+    /// To find the first position of a path inside a given folder, suffix the prefix with a '/'.
     </span><span class="kw">pub fn </span>find_prefix&lt;T: IntoCString&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, prefix: T) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>at_pos: size_t = <span class="number">0</span>;
         <span class="kw">let </span>entry_path = prefix.into_c_string()<span class="question-mark">?</span>;
@@ -1553,10 +1554,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;index</span>&gt; Binding <span class="kw">for </span>IndexConflicts&lt;<span class="lifetime">&#39;index</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'index</span>&gt; Binding <span class="kw">for </span>IndexConflicts&lt;<span class="lifetime">'index</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_index_conflict_iterator;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_index_conflict_iterator) -&gt; IndexConflicts&lt;<span class="lifetime">&#39;index</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_index_conflict_iterator) -&gt; IndexConflicts&lt;<span class="lifetime">'index</span>&gt; {
         IndexConflicts {
             conflict_iter: raw,
             _marker: marker::PhantomData,
@@ -1567,7 +1568,7 @@
     }
 }
 
-<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>index_matched_path_cb(
+<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>index_matched_path_cb(
     path: <span class="kw-2">*const </span>c_char,
     matched_pathspec: <span class="kw-2">*const </span>c_char,
     payload: <span class="kw-2">*mut </span>c_void,
@@ -1577,7 +1578,7 @@
         <span class="kw">let </span>matched_pathspec = CStr::from_ptr(matched_pathspec).to_bytes();
 
         panic::wrap(|| {
-            <span class="kw">let </span>payload = payload <span class="kw">as </span><span class="kw-2">*mut &amp;mut </span>IndexMatchedPath&lt;<span class="lifetime">&#39;_</span>&gt;;
+            <span class="kw">let </span>payload = payload <span class="kw">as </span><span class="kw-2">*mut &amp;mut </span>IndexMatchedPath&lt;<span class="lifetime">'_</span>&gt;;
             (<span class="kw-2">*</span>payload)(util::bytes2path(path), matched_pathspec) <span class="kw">as </span>c_int
         })
         .unwrap_or(-<span class="number">1</span>)
@@ -1590,20 +1591,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;index</span>&gt; Drop <span class="kw">for </span>IndexConflicts&lt;<span class="lifetime">&#39;index</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'index</span>&gt; Drop <span class="kw">for </span>IndexConflicts&lt;<span class="lifetime">'index</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_index_conflict_iterator_free(<span class="self">self</span>.conflict_iter) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;index</span>&gt; Iterator <span class="kw">for </span>IndexEntries&lt;<span class="lifetime">&#39;index</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'index</span>&gt; Iterator <span class="kw">for </span>IndexEntries&lt;<span class="lifetime">'index</span>&gt; {
     <span class="kw">type </span>Item = IndexEntry;
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;IndexEntry&gt; {
         <span class="self">self</span>.range.next().map(|i| <span class="self">self</span>.index.get(i).unwrap())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;index</span>&gt; Iterator <span class="kw">for </span>IndexConflicts&lt;<span class="lifetime">&#39;index</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'index</span>&gt; Iterator <span class="kw">for </span>IndexConflicts&lt;<span class="lifetime">'index</span>&gt; {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;IndexConflict, Error&gt;;
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;IndexConflict, Error&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ancestor = ptr::null();
@@ -1696,7 +1697,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke() {
         <span class="kw">let </span><span class="kw-2">mut </span>index = Index::new().unwrap();
-        <span class="macro">assert!</span>(index.add_path(<span class="kw-2">&amp;</span>Path::new(<span class="string">&quot;.&quot;</span>)).is_err());
+        <span class="macro">assert!</span>(index.add_path(<span class="kw-2">&amp;</span>Path::new(<span class="string">"."</span>)).is_err());
         index.clear().unwrap();
         <span class="macro">assert_eq!</span>(index.len(), <span class="number">0</span>);
         <span class="macro">assert!</span>(index.get(<span class="number">0</span>).is_none());
@@ -1710,9 +1711,9 @@
         <span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
         <span class="macro">assert_eq!</span>(
             index.path().map(|s| s.to_path_buf()),
-            <span class="prelude-val">Some</span>(repo.path().join(<span class="string">&quot;index&quot;</span>))
+            <span class="prelude-val">Some</span>(repo.path().join(<span class="string">"index"</span>))
         );
-        Index::open(<span class="kw-2">&amp;</span>repo.path().join(<span class="string">&quot;index&quot;</span>)).unwrap();
+        Index::open(<span class="kw-2">&amp;</span>repo.path().join(<span class="string">"index"</span>)).unwrap();
 
         index.clear().unwrap();
         index.read(<span class="bool-val">true</span>).unwrap();
@@ -1727,18 +1728,18 @@
         <span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
 
         <span class="kw">let </span>root = repo.path().parent().unwrap();
-        fs::create_dir(<span class="kw-2">&amp;</span>root.join(<span class="string">&quot;foo&quot;</span>)).unwrap();
-        File::create(<span class="kw-2">&amp;</span>root.join(<span class="string">&quot;foo/bar&quot;</span>)).unwrap();
+        fs::create_dir(<span class="kw-2">&amp;</span>root.join(<span class="string">"foo"</span>)).unwrap();
+        File::create(<span class="kw-2">&amp;</span>root.join(<span class="string">"foo/bar"</span>)).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>called = <span class="bool-val">false</span>;
         index
             .add_all(
-                [<span class="string">&quot;foo&quot;</span>].iter(),
+                [<span class="string">"foo"</span>].iter(),
                 <span class="kw">crate</span>::IndexAddOption::DEFAULT,
                 <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>|a: <span class="kw-2">&amp;</span>Path, b: <span class="kw-2">&amp;</span>[u8]| {
                     <span class="macro">assert!</span>(!called);
                     called = <span class="bool-val">true</span>;
-                    <span class="macro">assert_eq!</span>(b, <span class="string">b&quot;foo&quot;</span>);
-                    <span class="macro">assert_eq!</span>(a, Path::new(<span class="string">&quot;foo/bar&quot;</span>));
+                    <span class="macro">assert_eq!</span>(b, <span class="string">b"foo"</span>);
+                    <span class="macro">assert_eq!</span>(a, Path::new(<span class="string">"foo/bar"</span>));
                     <span class="number">0
                 </span>}),
             )
@@ -1748,12 +1749,12 @@
         called = <span class="bool-val">false</span>;
         index
             .remove_all(
-                [<span class="string">&quot;.&quot;</span>].iter(),
+                [<span class="string">"."</span>].iter(),
                 <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>|a: <span class="kw-2">&amp;</span>Path, b: <span class="kw-2">&amp;</span>[u8]| {
                     <span class="macro">assert!</span>(!called);
                     called = <span class="bool-val">true</span>;
-                    <span class="macro">assert_eq!</span>(b, <span class="string">b&quot;.&quot;</span>);
-                    <span class="macro">assert_eq!</span>(a, Path::new(<span class="string">&quot;foo/bar&quot;</span>));
+                    <span class="macro">assert_eq!</span>(b, <span class="string">b"."</span>);
+                    <span class="macro">assert_eq!</span>(a, Path::new(<span class="string">"foo/bar"</span>));
                     <span class="number">0
                 </span>}),
             )
@@ -1767,9 +1768,9 @@
         <span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
 
         <span class="kw">let </span>root = repo.path().parent().unwrap();
-        fs::create_dir(<span class="kw-2">&amp;</span>root.join(<span class="string">&quot;foo&quot;</span>)).unwrap();
-        File::create(<span class="kw-2">&amp;</span>root.join(<span class="string">&quot;foo/bar&quot;</span>)).unwrap();
-        index.add_path(Path::new(<span class="string">&quot;foo/bar&quot;</span>)).unwrap();
+        fs::create_dir(<span class="kw-2">&amp;</span>root.join(<span class="string">"foo"</span>)).unwrap();
+        File::create(<span class="kw-2">&amp;</span>root.join(<span class="string">"foo/bar"</span>)).unwrap();
+        index.add_path(Path::new(<span class="string">"foo/bar"</span>)).unwrap();
         index.write().unwrap();
         <span class="macro">assert_eq!</span>(index.iter().count(), <span class="number">1</span>);
 
@@ -1777,10 +1778,10 @@
         </span><span class="kw">let </span>id = index.write_tree().unwrap();
         <span class="kw">let </span>tree = repo.find_tree(id).unwrap();
         <span class="kw">let </span>sig = repo.signature().unwrap();
-        <span class="kw">let </span>id = repo.refname_to_id(<span class="string">&quot;HEAD&quot;</span>).unwrap();
+        <span class="kw">let </span>id = repo.refname_to_id(<span class="string">"HEAD"</span>).unwrap();
         <span class="kw">let </span>parent = repo.find_commit(id).unwrap();
         <span class="kw">let </span>commit = repo
-            .commit(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">&quot;commit&quot;</span>, <span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>parent])
+            .commit(<span class="prelude-val">Some</span>(<span class="string">"HEAD"</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">"commit"</span>, <span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>parent])
             .unwrap();
         <span class="kw">let </span>obj = repo.find_object(commit, <span class="prelude-val">None</span>).unwrap();
         repo.reset(<span class="kw-2">&amp;</span>obj, ResetType::Hard, <span class="prelude-val">None</span>).unwrap();
@@ -1796,7 +1797,7 @@
     </span><span class="kw">fn </span>add_then_read() {
         <span class="kw">let </span><span class="kw-2">mut </span>index = Index::new().unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>e = entry();
-        e.path = <span class="string">b&quot;foobar&quot;</span>.to_vec();
+        e.path = <span class="string">b"foobar"</span>.to_vec();
         index.add(<span class="kw-2">&amp;</span>e).unwrap();
         <span class="kw">let </span>e = index.get(<span class="number">0</span>).unwrap();
         <span class="macro">assert_eq!</span>(e.path.len(), <span class="number">6</span>);
@@ -1806,19 +1807,19 @@
     </span><span class="kw">fn </span>add_then_find() {
         <span class="kw">let </span><span class="kw-2">mut </span>index = Index::new().unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>e = entry();
-        e.path = <span class="string">b&quot;foo/bar&quot;</span>.to_vec();
+        e.path = <span class="string">b"foo/bar"</span>.to_vec();
         index.add(<span class="kw-2">&amp;</span>e).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>e = entry();
-        e.path = <span class="string">b&quot;foo2/bar&quot;</span>.to_vec();
+        e.path = <span class="string">b"foo2/bar"</span>.to_vec();
         index.add(<span class="kw-2">&amp;</span>e).unwrap();
-        <span class="macro">assert_eq!</span>(index.get(<span class="number">0</span>).unwrap().path, <span class="string">b&quot;foo/bar&quot;</span>);
+        <span class="macro">assert_eq!</span>(index.get(<span class="number">0</span>).unwrap().path, <span class="string">b"foo/bar"</span>);
         <span class="macro">assert_eq!</span>(
-            index.get_path(Path::new(<span class="string">&quot;foo/bar&quot;</span>), <span class="number">0</span>).unwrap().path,
-            <span class="string">b&quot;foo/bar&quot;
+            index.get_path(Path::new(<span class="string">"foo/bar"</span>), <span class="number">0</span>).unwrap().path,
+            <span class="string">b"foo/bar"
         </span>);
-        <span class="macro">assert_eq!</span>(index.find_prefix(Path::new(<span class="string">&quot;foo2/&quot;</span>)), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
+        <span class="macro">assert_eq!</span>(index.find_prefix(Path::new(<span class="string">"foo2/"</span>)), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
         <span class="macro">assert_eq!</span>(
-            index.find_prefix(Path::new(<span class="string">&quot;empty/&quot;</span>)).unwrap_err().code(),
+            index.find_prefix(Path::new(<span class="string">"empty/"</span>)).unwrap_err().code(),
             ErrorCode::NotFound
         );
     }
@@ -1829,8 +1830,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>e = entry();
-        e.path = <span class="string">b&quot;foobar&quot;</span>.to_vec();
-        <span class="kw">let </span>content = <span class="string">b&quot;the contents&quot;</span>;
+        e.path = <span class="string">b"foobar"</span>.to_vec();
+        <span class="kw">let </span>content = <span class="string">b"the contents"</span>;
         index.add_frombuffer(<span class="kw-2">&amp;</span>e, content).unwrap();
         <span class="kw">let </span>e = index.get(<span class="number">0</span>).unwrap();
         <span class="macro">assert_eq!</span>(e.path.len(), <span class="number">6</span>);

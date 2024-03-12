@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/indexer.rs`."><title>indexer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/indexer.rs`."><title>indexer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -264,9 +265,9 @@
 <span class="kw">use crate</span>::{raw, Error, IntoCString, Odb};
 
 <span class="doccomment">/// Struct representing the progress by an in-flight transfer.
-</span><span class="kw">pub struct </span>Progress&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Progress&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) raw: ProgressState,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>raw::git_indexer_progress&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>raw::git_indexer_progress&gt;,
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>ProgressState {
@@ -282,9 +283,9 @@
 /// indexing or transfer.
 ///
 /// * `progress` - the progress being made so far.
-</span><span class="kw">pub type </span>IndexerProgress&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(Progress&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool + <span class="lifetime">&#39;a</span>;
+</span><span class="kw">pub type </span>IndexerProgress&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(Progress&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool + <span class="lifetime">'a</span>;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Progress&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Progress&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Number of objects in the packfile being downloaded
     </span><span class="kw">pub fn </span>total_objects(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw()).total_objects <span class="kw">as </span>usize }
@@ -316,7 +317,7 @@
     }
 
     <span class="doccomment">/// Convert this to an owned version of `Progress`.
-    </span><span class="kw">pub fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Progress&lt;<span class="lifetime">&#39;static</span>&gt; {
+    </span><span class="kw">pub fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Progress&lt;<span class="lifetime">'static</span>&gt; {
         Progress {
             raw: ProgressState::Owned(<span class="kw">unsafe </span>{ <span class="kw-2">*</span><span class="self">self</span>.raw() }),
             _marker: marker::PhantomData,
@@ -324,9 +325,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>Progress&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Binding <span class="kw">for </span>Progress&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*const </span>raw::git_indexer_progress;
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_indexer_progress) -&gt; Progress&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*const </span>raw::git_indexer_progress) -&gt; Progress&lt;<span class="lifetime">'a</span>&gt; {
         Progress {
             raw: ProgressState::Borrowed(raw),
             _marker: marker::PhantomData,
@@ -349,24 +350,24 @@
 ///
 /// * `progress` - the progress being made so far.
 </span><span class="attr">#[deprecated(
-    since = <span class="string">&quot;0.11.0&quot;</span>,
-    note = <span class="string">&quot;renamed to `IndexerProgress` to match upstream&quot;
+    since = <span class="string">"0.11.0"</span>,
+    note = <span class="string">"renamed to `IndexerProgress` to match upstream"
 </span>)]
 #[allow(dead_code)]
-</span><span class="kw">pub type </span>TransportProgress&lt;<span class="lifetime">&#39;a</span>&gt; = IndexerProgress&lt;<span class="lifetime">&#39;a</span>&gt;;
+</span><span class="kw">pub type </span>TransportProgress&lt;<span class="lifetime">'a</span>&gt; = IndexerProgress&lt;<span class="lifetime">'a</span>&gt;;
 
 <span class="doccomment">/// A stream to write and index a packfile
 ///
 /// This is equivalent to [`crate::OdbPackwriter`], but allows to store the pack
 /// and index at an arbitrary path. It also does not require access to an object
-/// database if, and only if, the pack file is self-contained (i.e. not &quot;thin&quot;).
-</span><span class="kw">pub struct </span>Indexer&lt;<span class="lifetime">&#39;odb</span>&gt; {
+/// database if, and only if, the pack file is self-contained (i.e. not "thin").
+</span><span class="kw">pub struct </span>Indexer&lt;<span class="lifetime">'odb</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_indexer,
     progress: raw::git_indexer_progress,
-    progress_payload_ptr: <span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">&#39;odb</span>&gt;,
+    progress_payload_ptr: <span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">'odb</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Indexer&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Indexer&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Create a new indexer
     ///
     /// The [`Odb`] is used to resolve base objects when fixing thin packs. It
@@ -376,7 +377,7 @@
     /// `mode` is the permissions to use for the output files, use `0` for defaults.
     ///
     /// If `verify` is `false`, the indexer will bypass object connectivity checks.
-    </span><span class="kw">pub fn </span>new(odb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Odb&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, path: <span class="kw-2">&amp;</span>Path, mode: u32, verify: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+    </span><span class="kw">pub fn </span>new(odb: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Odb&lt;<span class="lifetime">'a</span>&gt;&gt;, path: <span class="kw-2">&amp;</span>Path, mode: u32, verify: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span>path = path.into_c_string()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>odb = odb.map(Binding::raw).unwrap_or_else(ptr::null_mut);
@@ -417,7 +418,7 @@
             <span class="macro">try_call!</span>(raw::git_indexer_commit(<span class="self">self</span>.raw, <span class="kw-2">&amp;mut </span><span class="self">self</span>.progress));
 
             <span class="kw">let </span>name = CStr::from_ptr(raw::git_indexer_name(<span class="self">self</span>.raw));
-            <span class="prelude-val">Ok</span>(name.to_str().expect(<span class="string">&quot;pack name not utf8&quot;</span>).to_owned())
+            <span class="prelude-val">Ok</span>(name.to_str().expect(<span class="string">"pack name not utf8"</span>).to_owned())
         }
     }
 
@@ -425,17 +426,17 @@
     /// called inline, so performance may be affected.
     </span><span class="kw">pub fn </span>progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
     </span><span class="kw">where
-        </span>F: FnMut(Progress&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool + <span class="lifetime">&#39;a</span>,
+        </span>F: FnMut(Progress&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool + <span class="lifetime">'a</span>,
     {
         <span class="kw">let </span>progress_payload =
-            <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>(<span class="self">self</span>.progress_payload_ptr <span class="kw">as </span><span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">&#39;_</span>&gt;) };
-        progress_payload.cb = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;IndexerProgress&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+            <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>(<span class="self">self</span>.progress_payload_ptr <span class="kw">as </span><span class="kw-2">*mut </span>OdbPackwriterCb&lt;<span class="lifetime">'_</span>&gt;) };
+        progress_payload.cb = <span class="prelude-val">Some</span>(Box::new(cb) <span class="kw">as </span>Box&lt;IndexerProgress&lt;<span class="lifetime">'a</span>&gt;&gt;);
 
         <span class="self">self
     </span>}
 }
 
-<span class="kw">impl </span>io::Write <span class="kw">for </span>Indexer&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>io::Write <span class="kw">for </span>Indexer&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = buf.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>c_void;
@@ -458,7 +459,7 @@
     }
 }
 
-<span class="kw">impl </span>Drop <span class="kw">for </span>Indexer&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>Drop <span class="kw">for </span>Indexer&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             raw::git_indexer_free(<span class="self">self</span>.raw);
@@ -490,7 +491,7 @@
         </span><span class="kw">let </span>odb = repo_source.odb().unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>indexer = Indexer::new(
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>odb),
-            repo_target.path().join(<span class="string">&quot;objects&quot;</span>).join(<span class="string">&quot;pack&quot;</span>).as_path(),
+            repo_target.path().join(<span class="string">"objects"</span>).join(<span class="string">"pack"</span>).as_path(),
             <span class="number">0o644</span>,
             <span class="bool-val">true</span>,
         )

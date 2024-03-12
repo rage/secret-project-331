@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/roc.rs`."><title>roc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/roc.rs`."><title>roc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -507,12 +508,12 @@
 //!
 //! // `Date` type
 //! let date_iso = Date::try_new_iso_date(1970, 1, 2)
-//!     .expect(&quot;Failed to initialize ISO Date instance.&quot;);
+//!     .expect("Failed to initialize ISO Date instance.");
 //! let date_roc = Date::new_from_iso(date_iso, Roc);
 //!
 //! // `DateTime` type
 //! let datetime_iso = DateTime::try_new_iso_datetime(1970, 1, 2, 13, 1, 0)
-//!     .expect(&quot;Failed to initialize ISO DateTime instance.&quot;);
+//!     .expect("Failed to initialize ISO DateTime instance.");
 //! let datetime_roc = DateTime::new_from_iso(datetime_iso, Roc);
 //!
 //! // `Date` checks
@@ -553,13 +554,13 @@
 ///
 /// # Era codes
 ///
-/// This calendar supports two era codes: `&quot;roc&quot;`, corresponding to years in the 民國 (minguo) era (CE year 1912 and
-/// after), and `&quot;roc-inverse&quot;`, corresponding to years before the 民國 (minguo) era (CE year 1911 and before).
+/// This calendar supports two era codes: `"roc"`, corresponding to years in the 民國 (minguo) era (CE year 1912 and
+/// after), and `"roc-inverse"`, corresponding to years before the 民國 (minguo) era (CE year 1911 and before).
 ///
 ///
 /// # Month codes
 ///
-/// This calendar supports 12 solar month codes (`&quot;M01&quot; - &quot;M12&quot;`)
+/// This calendar supports 12 solar month codes (`"M01" - "M12"`)
 ///
 /// [`Chinese`]: crate::chinese::Chinese
 /// [`Gregorian`]: crate::Gregorian
@@ -581,12 +582,12 @@
         month_code: <span class="kw">crate</span>::types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, <span class="kw">crate</span>::Error&gt; {
-        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc&quot;</span>) {
+        <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc"</span>) {
             <span class="kw">if </span>year &lt;= <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
             }
             year + ROC_ERA_OFFSET
-        } <span class="kw">else if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc-inverse&quot;</span>) {
+        } <span class="kw">else if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc-inverse"</span>) {
             <span class="kw">if </span>year &lt;= <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::OutOfRange);
             }
@@ -636,8 +637,8 @@
             .cast_unit()
     }
 
-    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-        <span class="string">&quot;ROC&quot;
+    <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+        <span class="string">"ROC"
     </span>}
 
     <span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; <span class="kw">crate</span>::types::FormattableYear {
@@ -677,7 +678,7 @@
 <span class="kw">impl </span>Date&lt;Roc&gt; {
     <span class="doccomment">/// Construct a new Republic of China calendar Date.
     ///
-    /// Years are specified in the &quot;roc&quot; era. This function accepts an extended year in that era, so dates
+    /// Years are specified in the "roc" era. This function accepts an extended year in that era, so dates
     /// before Minguo are negative and year 0 is 1 Before Minguo. To specify dates using explicit era
     /// codes, use [`Roc::date_from_codes()`].
     ///
@@ -688,19 +689,19 @@
     ///
     /// // Create a new ROC Date
     /// let date_roc = Date::try_new_roc_date(1, 2, 3)
-    ///     .expect(&quot;Failed to initialize ROC Date instance.&quot;);
+    ///     .expect("Failed to initialize ROC Date instance.");
     ///
-    /// assert_eq!(date_roc.year().era.0, tinystr!(16, &quot;roc&quot;));
-    /// assert_eq!(date_roc.year().number, 1, &quot;ROC year check failed!&quot;);
-    /// assert_eq!(date_roc.month().ordinal, 2, &quot;ROC month check failed!&quot;);
-    /// assert_eq!(date_roc.day_of_month().0, 3, &quot;ROC day of month check failed!&quot;);
+    /// assert_eq!(date_roc.year().era.0, tinystr!(16, "roc"));
+    /// assert_eq!(date_roc.year().number, 1, "ROC year check failed!");
+    /// assert_eq!(date_roc.month().ordinal, 2, "ROC month check failed!");
+    /// assert_eq!(date_roc.day_of_month().0, 3, "ROC day of month check failed!");
     ///
     /// // Convert to an equivalent Gregorian date
     /// let date_gregorian = date_roc.to_calendar(Gregorian);
     ///
-    /// assert_eq!(date_gregorian.year().number, 1912, &quot;Gregorian from ROC year check failed!&quot;);
-    /// assert_eq!(date_gregorian.month().ordinal, 2, &quot;Gregorian from ROC month check failed!&quot;);
-    /// assert_eq!(date_gregorian.day_of_month().0, 3, &quot;Gregorian from ROC day of month check failed!&quot;);
+    /// assert_eq!(date_gregorian.year().number, 1912, "Gregorian from ROC year check failed!");
+    /// assert_eq!(date_gregorian.month().ordinal, 2, "Gregorian from ROC month check failed!");
+    /// assert_eq!(date_gregorian.day_of_month().0, 3, "Gregorian from ROC day of month check failed!");
     </span><span class="kw">pub fn </span>try_new_roc_date(year: i32, month: u8, day: u8) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;Roc&gt;, CalendarError&gt; {
         <span class="kw">let </span>iso_year = year.saturating_add(ROC_ERA_OFFSET);
         Date::try_new_iso_date(iso_year, month, day).map(|d| Date::new_from_iso(d, Roc))
@@ -710,7 +711,7 @@
 <span class="kw">impl </span>DateTime&lt;Roc&gt; {
     <span class="doccomment">/// Construct a new Republic of China calendar datetime from integers.
     ///
-    /// Years are specified in the &quot;roc&quot; era, Before Minguo dates are negative (year 0 is 1 Before Minguo)
+    /// Years are specified in the "roc" era, Before Minguo dates are negative (year 0 is 1 Before Minguo)
     ///
     /// ```rust
     /// use icu::calendar::gregorian::Gregorian;
@@ -719,19 +720,19 @@
     ///
     /// // Create a new ROC DateTime
     /// let datetime_roc = DateTime::try_new_roc_datetime(1, 2, 3, 13, 1, 0)
-    ///     .expect(&quot;Failed to initialize ROC DateTime instance.&quot;);
+    ///     .expect("Failed to initialize ROC DateTime instance.");
     ///
-    /// assert_eq!(datetime_roc.date.year().era.0, tinystr!(16, &quot;roc&quot;));
-    /// assert_eq!(datetime_roc.date.year().number, 1, &quot;ROC year check failed!&quot;);
+    /// assert_eq!(datetime_roc.date.year().era.0, tinystr!(16, "roc"));
+    /// assert_eq!(datetime_roc.date.year().number, 1, "ROC year check failed!");
     /// assert_eq!(
     ///     datetime_roc.date.month().ordinal,
     ///     2,
-    ///     &quot;ROC month check failed!&quot;
+    ///     "ROC month check failed!"
     /// );
     /// assert_eq!(
     ///     datetime_roc.date.day_of_month().0,
     ///     3,
-    ///     &quot;ROC day of month check failed!&quot;
+    ///     "ROC day of month check failed!"
     /// );
     /// assert_eq!(datetime_roc.time.hour.number(), 13);
     /// assert_eq!(datetime_roc.time.minute.number(), 1);
@@ -757,14 +758,14 @@
     <span class="kw">let </span>offset_i64 = ROC_ERA_OFFSET <span class="kw">as </span>i64;
     <span class="kw">if </span>year &gt; offset_i64 {
         types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc"</span>)),
             number: year_i32.saturating_sub(ROC_ERA_OFFSET),
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">Some</span>(year_i32),
         }
     } <span class="kw">else </span>{
         types::FormattableYear {
-            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc-inverse&quot;</span>)),
+            era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc-inverse"</span>)),
             number: (ROC_ERA_OFFSET + <span class="number">1</span>).saturating_sub(year_i32),
             cyclic: <span class="prelude-val">None</span>,
             related_iso: <span class="prelude-val">Some</span>(year_i32),
@@ -795,21 +796,21 @@
         <span class="kw">let </span>iso_from_fixed = Iso::iso_from_fixed(case.fixed_date);
         <span class="kw">let </span>roc_from_fixed = Date::new_from_iso(iso_from_fixed, Roc);
         <span class="macro">assert_eq!</span>(roc_from_fixed.year().number, case.expected_year,
-            <span class="string">&quot;Failed year check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nROC: {roc_from_fixed:?}&quot;</span>);
+            <span class="string">"Failed year check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nROC: {roc_from_fixed:?}"</span>);
         <span class="macro">assert_eq!</span>(roc_from_fixed.year().era, case.expected_era,
-            <span class="string">&quot;Failed era check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nROC: {roc_from_fixed:?}&quot;</span>);
+            <span class="string">"Failed era check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nROC: {roc_from_fixed:?}"</span>);
         <span class="macro">assert_eq!</span>(roc_from_fixed.month().ordinal, case.expected_month,
-            <span class="string">&quot;Failed month check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nROC: {roc_from_fixed:?}&quot;</span>);
+            <span class="string">"Failed month check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nROC: {roc_from_fixed:?}"</span>);
         <span class="macro">assert_eq!</span>(roc_from_fixed.day_of_month().<span class="number">0</span>, case.expected_day,
-            <span class="string">&quot;Failed day_of_month check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nROC: {roc_from_fixed:?}&quot;</span>);
+            <span class="string">"Failed day_of_month check from fixed: {case:?}\nISO: {iso_from_fixed:?}\nROC: {roc_from_fixed:?}"</span>);
 
         <span class="kw">let </span>iso_from_case = Date::try_new_iso_date(case.iso_year, case.iso_month, case.iso_day)
-            .expect(<span class="string">&quot;Failed to initialize ISO date for {case:?}&quot;</span>);
+            .expect(<span class="string">"Failed to initialize ISO date for {case:?}"</span>);
         <span class="kw">let </span>roc_from_case = Date::new_from_iso(iso_from_case, Roc);
         <span class="macro">assert_eq!</span>(iso_from_fixed, iso_from_case,
-            <span class="string">&quot;ISO from fixed not equal to ISO generated from manually-input ymd\nCase: {case:?}\nFixed: {iso_from_fixed:?}\nManual: {iso_from_case:?}&quot;</span>);
+            <span class="string">"ISO from fixed not equal to ISO generated from manually-input ymd\nCase: {case:?}\nFixed: {iso_from_fixed:?}\nManual: {iso_from_case:?}"</span>);
         <span class="macro">assert_eq!</span>(roc_from_fixed, roc_from_case,
-            <span class="string">&quot;ROC date from fixed not equal to ROC generated from manually-input ymd\nCase: {case:?}\nFixed: {roc_from_fixed:?}\nManual: {roc_from_case:?}&quot;</span>);
+            <span class="string">"ROC date from fixed not equal to ROC generated from manually-input ymd\nCase: {case:?}\nFixed: {roc_from_fixed:?}\nManual: {roc_from_case:?}"</span>);
     }
 
     <span class="attr">#[test]
@@ -826,7 +827,7 @@
                 iso_month: <span class="number">1</span>,
                 iso_day: <span class="number">1</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc"</span>)),
                 expected_month: <span class="number">1</span>,
                 expected_day: <span class="number">1</span>,
             },
@@ -836,7 +837,7 @@
                 iso_month: <span class="number">2</span>,
                 iso_day: <span class="number">29</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc"</span>)),
                 expected_month: <span class="number">2</span>,
                 expected_day: <span class="number">29</span>,
             },
@@ -846,7 +847,7 @@
                 iso_month: <span class="number">6</span>,
                 iso_day: <span class="number">30</span>,
                 expected_year: <span class="number">2</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc"</span>)),
                 expected_month: <span class="number">6</span>,
                 expected_day: <span class="number">30</span>,
             },
@@ -856,7 +857,7 @@
                 iso_month: <span class="number">7</span>,
                 iso_day: <span class="number">13</span>,
                 expected_year: <span class="number">112</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc"</span>)),
                 expected_month: <span class="number">7</span>,
                 expected_day: <span class="number">13</span>,
             },
@@ -880,7 +881,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">31</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc-inverse&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc-inverse"</span>)),
                 expected_month: <span class="number">12</span>,
                 expected_day: <span class="number">31</span>,
             },
@@ -890,7 +891,7 @@
                 iso_month: <span class="number">1</span>,
                 iso_day: <span class="number">1</span>,
                 expected_year: <span class="number">1</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc-inverse&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc-inverse"</span>)),
                 expected_month: <span class="number">1</span>,
                 expected_day: <span class="number">1</span>,
             },
@@ -900,7 +901,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">31</span>,
                 expected_year: <span class="number">2</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc-inverse&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc-inverse"</span>)),
                 expected_month: <span class="number">12</span>,
                 expected_day: <span class="number">31</span>,
             },
@@ -910,7 +911,7 @@
                 iso_month: <span class="number">2</span>,
                 iso_day: <span class="number">29</span>,
                 expected_year: <span class="number">4</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc-inverse&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc-inverse"</span>)),
                 expected_month: <span class="number">2</span>,
                 expected_day: <span class="number">29</span>,
             },
@@ -920,7 +921,7 @@
                 iso_month: <span class="number">1</span>,
                 iso_day: <span class="number">1</span>,
                 expected_year: <span class="number">1911</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc-inverse&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc-inverse"</span>)),
                 expected_month: <span class="number">1</span>,
                 expected_day: <span class="number">1</span>,
             },
@@ -930,7 +931,7 @@
                 iso_month: <span class="number">12</span>,
                 iso_day: <span class="number">31</span>,
                 expected_year: <span class="number">1912</span>,
-                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">&quot;roc-inverse&quot;</span>)),
+                expected_era: Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"roc-inverse"</span>)),
                 expected_month: <span class="number">12</span>,
                 expected_day: <span class="number">31</span>,
             },
@@ -958,12 +959,12 @@
                 <span class="macro">assert_eq!</span>(
                     i.cmp(<span class="kw-2">&amp;</span>j),
                     iso_i.cmp(<span class="kw-2">&amp;</span>iso_j),
-                    <span class="string">&quot;ISO directionality inconsistent with directionality for i: {i}, j: {j}&quot;
+                    <span class="string">"ISO directionality inconsistent with directionality for i: {i}, j: {j}"
                 </span>);
                 <span class="macro">assert_eq!</span>(
                     i.cmp(<span class="kw-2">&amp;</span>j),
                     roc_i.cmp(<span class="kw-2">&amp;</span>roc_j),
-                    <span class="string">&quot;ROC directionality inconsistent with directionality for i: {i}, j: {j}&quot;
+                    <span class="string">"ROC directionality inconsistent with directionality for i: {i}, j: {j}"
                 </span>);
             }
         }
@@ -983,12 +984,12 @@
                 <span class="macro">assert_eq!</span>(
                     i.cmp(<span class="kw-2">&amp;</span>j),
                     iso_i.cmp(<span class="kw-2">&amp;</span>iso_j),
-                    <span class="string">&quot;ISO directionality inconsistent with directionality for i: {i}, j: {j}&quot;
+                    <span class="string">"ISO directionality inconsistent with directionality for i: {i}, j: {j}"
                 </span>);
                 <span class="macro">assert_eq!</span>(
                     i.cmp(<span class="kw-2">&amp;</span>j),
                     roc_i.cmp(<span class="kw-2">&amp;</span>roc_j),
-                    <span class="string">&quot;ROC directionality inconsistent with directionality for i: {i}, j: {j}&quot;
+                    <span class="string">"ROC directionality inconsistent with directionality for i: {i}, j: {j}"
                 </span>);
             }
         }

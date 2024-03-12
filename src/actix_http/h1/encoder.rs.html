@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/h1/encoder.rs`."><title>encoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.6.0/src/h1/encoder.rs`."><title>encoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_http"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -765,36 +766,36 @@
                 <span class="kw">if </span>chunked {
                     skip_len = <span class="bool-val">true</span>;
                     <span class="kw">if </span>camel_case {
-                        dst.put_slice(<span class="string">b&quot;\r\nTransfer-Encoding: chunked\r\n&quot;</span>)
+                        dst.put_slice(<span class="string">b"\r\nTransfer-Encoding: chunked\r\n"</span>)
                     } <span class="kw">else </span>{
-                        dst.put_slice(<span class="string">b&quot;\r\ntransfer-encoding: chunked\r\n&quot;</span>)
+                        dst.put_slice(<span class="string">b"\r\ntransfer-encoding: chunked\r\n"</span>)
                     }
                 } <span class="kw">else </span>{
                     skip_len = <span class="bool-val">false</span>;
-                    dst.put_slice(<span class="string">b&quot;\r\n&quot;</span>);
+                    dst.put_slice(<span class="string">b"\r\n"</span>);
                 }
             }
-            BodySize::Sized(<span class="number">0</span>) <span class="kw">if </span>camel_case =&gt; dst.put_slice(<span class="string">b&quot;\r\nContent-Length: 0\r\n&quot;</span>),
-            BodySize::Sized(<span class="number">0</span>) =&gt; dst.put_slice(<span class="string">b&quot;\r\ncontent-length: 0\r\n&quot;</span>),
+            BodySize::Sized(<span class="number">0</span>) <span class="kw">if </span>camel_case =&gt; dst.put_slice(<span class="string">b"\r\nContent-Length: 0\r\n"</span>),
+            BodySize::Sized(<span class="number">0</span>) =&gt; dst.put_slice(<span class="string">b"\r\ncontent-length: 0\r\n"</span>),
             BodySize::Sized(len) =&gt; helpers::write_content_length(len, dst, camel_case),
-            BodySize::None =&gt; dst.put_slice(<span class="string">b&quot;\r\n&quot;</span>),
+            BodySize::None =&gt; dst.put_slice(<span class="string">b"\r\n"</span>),
         }
 
         <span class="comment">// Connection
         </span><span class="kw">match </span>conn_type {
-            ConnectionType::Upgrade =&gt; dst.put_slice(<span class="string">b&quot;connection: upgrade\r\n&quot;</span>),
+            ConnectionType::Upgrade =&gt; dst.put_slice(<span class="string">b"connection: upgrade\r\n"</span>),
             ConnectionType::KeepAlive <span class="kw">if </span>version &lt; Version::HTTP_11 =&gt; {
                 <span class="kw">if </span>camel_case {
-                    dst.put_slice(<span class="string">b&quot;Connection: keep-alive\r\n&quot;</span>)
+                    dst.put_slice(<span class="string">b"Connection: keep-alive\r\n"</span>)
                 } <span class="kw">else </span>{
-                    dst.put_slice(<span class="string">b&quot;connection: keep-alive\r\n&quot;</span>)
+                    dst.put_slice(<span class="string">b"connection: keep-alive\r\n"</span>)
                 }
             }
             ConnectionType::Close <span class="kw">if </span>version &gt;= Version::HTTP_11 =&gt; {
                 <span class="kw">if </span>camel_case {
-                    dst.put_slice(<span class="string">b&quot;Connection: close\r\n&quot;</span>)
+                    dst.put_slice(<span class="string">b"Connection: close\r\n"</span>)
                 } <span class="kw">else </span>{
-                    dst.put_slice(<span class="string">b&quot;connection: close\r\n&quot;</span>)
+                    dst.put_slice(<span class="string">b"connection: close\r\n"</span>)
                 }
             }
             <span class="kw">_ </span>=&gt; {}
@@ -809,7 +810,7 @@
 
         <span class="comment">// tracks bytes written since last buffer resize
         // since buf is a raw pointer to a bytes container storage but is written to without the
-        // container&#39;s knowledge, this is used to sync the containers cursor after data is written
+        // container's knowledge, this is used to sync the containers cursor after data is written
         </span><span class="kw">let </span><span class="kw-2">mut </span>pos = <span class="number">0</span>;
 
         <span class="self">self</span>.write_headers(|key, value| {
@@ -831,7 +832,7 @@
                 </span><span class="kw">let </span>len = k_len + v_len + <span class="number">4</span>;
 
                 <span class="kw">if </span>len &gt; remaining {
-                    <span class="comment">// SAFETY: all the bytes written up to position &quot;pos&quot; are initialized
+                    <span class="comment">// SAFETY: all the bytes written up to position "pos" are initialized
                     // the written byte count and pointer advancement are kept in sync
                     </span><span class="kw">unsafe </span>{
                         dst.advance_mut(pos);
@@ -841,7 +842,7 @@
                     dst.reserve(len * <span class="number">2</span>);
                     remaining = dst.capacity() - dst.len();
 
-                    <span class="comment">// re-assign buf raw pointer since it&#39;s possible that the buffer was
+                    <span class="comment">// re-assign buf raw pointer since it's possible that the buffer was
                     // reallocated and/or resized
                     </span>buf = dst.chunk_mut().as_mut_ptr();
                 }
@@ -858,13 +859,13 @@
 
                     buf = buf.add(k_len);
 
-                    write_data(<span class="string">b&quot;: &quot;</span>, buf, <span class="number">2</span>);
+                    write_data(<span class="string">b": "</span>, buf, <span class="number">2</span>);
                     buf = buf.add(<span class="number">2</span>);
 
                     write_data(v, buf, v_len);
                     buf = buf.add(v_len);
 
-                    write_data(<span class="string">b&quot;\r\n&quot;</span>, buf, <span class="number">2</span>);
+                    write_data(<span class="string">b"\r\n"</span>, buf, <span class="number">2</span>);
                     buf = buf.add(<span class="number">2</span>);
                 };
 
@@ -875,7 +876,7 @@
 
         <span class="comment">// final cursor synchronization with the bytes container
         //
-        // SAFETY: all the bytes written up to position &quot;pos&quot; are initialized
+        // SAFETY: all the bytes written up to position "pos" are initialized
         // the written byte count and pointer advancement are kept in sync
         </span><span class="kw">unsafe </span>{
             dst.advance_mut(pos);
@@ -887,7 +888,7 @@
         }
 
         <span class="comment">// end-of-headers marker
-        </span>dst.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+        </span>dst.extend_from_slice(<span class="string">b"\r\n"</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -972,16 +973,16 @@
         dst.reserve(<span class="number">256 </span>+ head.headers.len() * AVERAGE_HEADER_SIZE);
         <span class="macro">write!</span>(
             helpers::MutWriter(dst),
-            <span class="string">&quot;{} {} {}&quot;</span>,
+            <span class="string">"{} {} {}"</span>,
             head.method,
-            head.uri.path_and_query().map(|u| u.as_str()).unwrap_or(<span class="string">&quot;/&quot;</span>),
+            head.uri.path_and_query().map(|u| u.as_str()).unwrap_or(<span class="string">"/"</span>),
             <span class="kw">match </span>head.version {
-                Version::HTTP_09 =&gt; <span class="string">&quot;HTTP/0.9&quot;</span>,
-                Version::HTTP_10 =&gt; <span class="string">&quot;HTTP/1.0&quot;</span>,
-                Version::HTTP_11 =&gt; <span class="string">&quot;HTTP/1.1&quot;</span>,
-                Version::HTTP_2 =&gt; <span class="string">&quot;HTTP/2.0&quot;</span>,
-                Version::HTTP_3 =&gt; <span class="string">&quot;HTTP/3.0&quot;</span>,
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">&quot;unsupported version&quot;</span>)),
+                Version::HTTP_09 =&gt; <span class="string">"HTTP/0.9"</span>,
+                Version::HTTP_10 =&gt; <span class="string">"HTTP/1.0"</span>,
+                Version::HTTP_11 =&gt; <span class="string">"HTTP/1.1"</span>,
+                Version::HTTP_2 =&gt; <span class="string">"HTTP/2.0"</span>,
+                Version::HTTP_3 =&gt; <span class="string">"HTTP/3.0"</span>,
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">"unsupported version"</span>)),
             }
         )
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
@@ -1101,14 +1102,14 @@
 
                 <span class="kw">if </span>msg.is_empty() {
                     <span class="kw-2">*</span>eof = <span class="bool-val">true</span>;
-                    buf.extend_from_slice(<span class="string">b&quot;0\r\n\r\n&quot;</span>);
+                    buf.extend_from_slice(<span class="string">b"0\r\n\r\n"</span>);
                 } <span class="kw">else </span>{
-                    <span class="macro">writeln!</span>(helpers::MutWriter(buf), <span class="string">&quot;{:X}\r&quot;</span>, msg.len())
+                    <span class="macro">writeln!</span>(helpers::MutWriter(buf), <span class="string">"{:X}\r"</span>, msg.len())
                         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))<span class="question-mark">?</span>;
 
                     buf.reserve(msg.len() + <span class="number">2</span>);
                     buf.extend_from_slice(msg);
-                    buf.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+                    buf.extend_from_slice(<span class="string">b"\r\n"</span>);
                 }
                 <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>eof)
             }
@@ -1137,7 +1138,7 @@
             TransferEncodingKind::Eof =&gt; <span class="prelude-val">Ok</span>(()),
             TransferEncodingKind::Length(rem) =&gt; {
                 <span class="kw">if </span>rem != <span class="number">0 </span>{
-                    <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::UnexpectedEof, <span class="string">&quot;&quot;</span>))
+                    <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::UnexpectedEof, <span class="string">""</span>))
                 } <span class="kw">else </span>{
                     <span class="prelude-val">Ok</span>(())
                 }
@@ -1145,7 +1146,7 @@
             TransferEncodingKind::Chunked(<span class="kw-2">ref mut </span>eof) =&gt; {
                 <span class="kw">if </span>!<span class="kw-2">*</span>eof {
                     <span class="kw-2">*</span>eof = <span class="bool-val">true</span>;
-                    buf.extend_from_slice(<span class="string">b&quot;0\r\n\r\n&quot;</span>);
+                    buf.extend_from_slice(<span class="string">b"0\r\n\r\n"</span>);
                 }
                 <span class="prelude-val">Ok</span>(())
             }
@@ -1174,18 +1175,18 @@
     <span class="kw">let </span><span class="kw-2">mut </span>iter = value.iter();
 
     <span class="comment">// first character should be uppercase
-    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(c @ <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;z&#39;</span>) = iter.next() {
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(c @ <span class="string">b'a'</span>..=<span class="string">b'z'</span>) = iter.next() {
         buffer[<span class="number">0</span>] = c &amp; <span class="number">0b1101_1111</span>;
     }
 
-    <span class="comment">// track 1 ahead of the current position since that&#39;s the location being assigned to
+    <span class="comment">// track 1 ahead of the current position since that's the location being assigned to
     </span><span class="kw">let </span><span class="kw-2">mut </span>index = <span class="number">2</span>;
 
     <span class="comment">// remaining characters after hyphens should also be uppercase
     </span><span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>c) = iter.next() {
-        <span class="kw">if </span>c == <span class="string">b&#39;-&#39; </span>{
+        <span class="kw">if </span>c == <span class="string">b'-' </span>{
             <span class="comment">// advance iter by one and uppercase if needed
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(c @ <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;z&#39;</span>) = iter.next() {
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(c @ <span class="string">b'a'</span>..=<span class="string">b'z'</span>) = iter.next() {
                 buffer[index] = c &amp; <span class="number">0b1101_1111</span>;
             }
             index += <span class="number">1</span>;
@@ -1213,12 +1214,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::new();
         <span class="kw">let </span><span class="kw-2">mut </span>enc = TransferEncoding::chunked();
         {
-            <span class="macro">assert!</span>(!enc.encode(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut </span>bytes).ok().unwrap());
-            <span class="macro">assert!</span>(enc.encode(<span class="string">b&quot;&quot;</span>, <span class="kw-2">&amp;mut </span>bytes).ok().unwrap());
+            <span class="macro">assert!</span>(!enc.encode(<span class="string">b"test"</span>, <span class="kw-2">&amp;mut </span>bytes).ok().unwrap());
+            <span class="macro">assert!</span>(enc.encode(<span class="string">b""</span>, <span class="kw-2">&amp;mut </span>bytes).ok().unwrap());
         }
         <span class="macro">assert_eq!</span>(
             bytes.split().freeze(),
-            Bytes::from_static(<span class="string">b&quot;4\r\ntest\r\n0\r\n\r\n&quot;</span>)
+            Bytes::from_static(<span class="string">b"4\r\ntest\r\n0\r\n\r\n"</span>)
         );
     }
 
@@ -1227,12 +1228,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::with_capacity(<span class="number">2048</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHead::default();
         head.set_camel_case_headers(<span class="bool-val">true</span>);
-        head.headers.insert(DATE, HeaderValue::from_static(<span class="string">&quot;date&quot;</span>));
+        head.headers.insert(DATE, HeaderValue::from_static(<span class="string">"date"</span>));
         head.headers
-            .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;plain/text&quot;</span>));
+            .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"plain/text"</span>));
 
         head.headers
-            .insert(UPGRADE_INSECURE_REQUESTS, HeaderValue::from_static(<span class="string">&quot;1&quot;</span>));
+            .insert(UPGRADE_INSECURE_REQUESTS, HeaderValue::from_static(<span class="string">"1"</span>));
 
         <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHeadType::Owned(head);
 
@@ -1245,11 +1246,11 @@
         );
         <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
 
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Content-Length: 0\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Connection: close\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Content-Type: plain/text\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Date: date\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Upgrade-Insecure-Requests: 1\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"Content-Length: 0\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"Connection: close\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"Content-Type: plain/text\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"Date: date\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"Upgrade-Insecure-Requests: 1\r\n"</span>));
 
         <span class="kw">let _ </span>= head.encode_headers(
             <span class="kw-2">&amp;mut </span>bytes,
@@ -1259,17 +1260,17 @@
             <span class="kw-2">&amp;</span>ServiceConfig::default(),
         );
         <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Transfer-Encoding: chunked\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Content-Type: plain/text\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Date: date\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"Transfer-Encoding: chunked\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"Content-Type: plain/text\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"Date: date\r\n"</span>));
 
         <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHead::default();
         head.set_camel_case_headers(<span class="bool-val">false</span>);
-        head.headers.insert(DATE, HeaderValue::from_static(<span class="string">&quot;date&quot;</span>));
+        head.headers.insert(DATE, HeaderValue::from_static(<span class="string">"date"</span>));
         head.headers
-            .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;plain/text&quot;</span>));
+            .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"plain/text"</span>));
         head.headers
-            .append(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;xml&quot;</span>));
+            .append(CONTENT_TYPE, HeaderValue::from_static(<span class="string">"xml"</span>));
 
         <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHeadType::Owned(head);
         <span class="kw">let _ </span>= head.encode_headers(
@@ -1280,10 +1281,10 @@
             <span class="kw-2">&amp;</span>ServiceConfig::default(),
         );
         <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;transfer-encoding: chunked\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;content-type: xml\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;content-type: plain/text\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;date: date\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"transfer-encoding: chunked\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"content-type: xml\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"content-type: plain/text\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"date: date\r\n"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1293,15 +1294,15 @@
         <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHead::default();
         head.headers.insert(
             AUTHORIZATION,
-            HeaderValue::from_static(<span class="string">&quot;some authorization&quot;</span>),
+            HeaderValue::from_static(<span class="string">"some authorization"</span>),
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>extra_headers = HeaderMap::new();
         extra_headers.insert(
             AUTHORIZATION,
-            HeaderValue::from_static(<span class="string">&quot;another authorization&quot;</span>),
+            HeaderValue::from_static(<span class="string">"another authorization"</span>),
         );
-        extra_headers.insert(DATE, HeaderValue::from_static(<span class="string">&quot;date&quot;</span>));
+        extra_headers.insert(DATE, HeaderValue::from_static(<span class="string">"date"</span>));
 
         <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHeadType::Rc(Rc::new(head), <span class="prelude-val">Some</span>(extra_headers));
 
@@ -1313,10 +1314,10 @@
             <span class="kw-2">&amp;</span>ServiceConfig::default(),
         );
         <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;content-length: 0\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;connection: close\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;authorization: another authorization\r\n&quot;</span>));
-        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;date: date\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"content-length: 0\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"connection: close\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"authorization: another authorization\r\n"</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">"date: date\r\n"</span>));
     }
 
     <span class="attr">#[actix_rt::test]
@@ -1324,9 +1325,9 @@
         <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::with_capacity(<span class="number">2048</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::SWITCHING_PROTOCOLS, ());
-        res.headers_mut().insert(DATE, HeaderValue::from_static(<span class="string">&quot;&quot;</span>));
+        res.headers_mut().insert(DATE, HeaderValue::from_static(<span class="string">""</span>));
         res.headers_mut()
-            .insert(CONTENT_LENGTH, HeaderValue::from_static(<span class="string">&quot;0&quot;</span>));
+            .insert(CONTENT_LENGTH, HeaderValue::from_static(<span class="string">"0"</span>));
 
         <span class="kw">let _ </span>= res.encode_headers(
             <span class="kw-2">&amp;mut </span>bytes,
@@ -1336,8 +1337,8 @@
             <span class="kw-2">&amp;</span>ServiceConfig::default(),
         );
         <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
-        <span class="macro">assert!</span>(!data.contains(<span class="string">&quot;content-length: 0\r\n&quot;</span>));
-        <span class="macro">assert!</span>(!data.contains(<span class="string">&quot;transfer-encoding: chunked\r\n&quot;</span>));
+        <span class="macro">assert!</span>(!data.contains(<span class="string">"content-length: 0\r\n"</span>));
+        <span class="macro">assert!</span>(!data.contains(<span class="string">"transfer-encoding: chunked\r\n"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

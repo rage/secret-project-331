@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.7/src/arithmetic/bigint.rs`."><title>bigint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ring-0.17.8/src/arithmetic/bigint.rs`."><title>bigint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ring" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -880,16 +881,13 @@
 <a href="#880" id="880">880</a>
 <a href="#881" id="881">881</a>
 <a href="#882" id="882">882</a>
-<a href="#883" id="883">883</a>
-<a href="#884" id="884">884</a>
-<a href="#885" id="885">885</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2023 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
 // copyright notice and this permission notice appear in all copies.
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHORS DISCLAIM ALL WARRANTIES
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHORS DISCLAIM ALL WARRANTIES
 // WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
 // SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
@@ -910,12 +908,12 @@
 //! In some calculations we need to deal with multiple rings at once. For
 //! example, RSA private key operations operate in the rings ℤ/nℤ, ℤ/pℤ, and
 //! ℤ/qℤ. Types and functions dealing with such rings are all parameterized
-//! over a type `M` to ensure that we don&#39;t wrongly mix up the math, e.g. by
+//! over a type `M` to ensure that we don't wrongly mix up the math, e.g. by
 //! multiplying an element of ℤ/pℤ by an element of ℤ/qℤ modulo q. This follows
-//! the &quot;unit&quot; pattern described in [Static checking of units in Servo].
+//! the "unit" pattern described in [Static checking of units in Servo].
 //!
 //! `Elem` also uses the static unit checking pattern to statically track the
-//! Montgomery factors that need to be canceled out in each value using it&#39;s
+//! Montgomery factors that need to be canceled out in each value using it's
 //! `E` parameter.
 //!
 //! [Static checking of units in Servo]:
@@ -972,7 +970,7 @@
     }
 }
 
-<span class="doccomment">/// Does a Montgomery reduction on `limbs` assuming they are Montgomery-encoded (&#39;R&#39;) and assuming
+<span class="doccomment">/// Does a Montgomery reduction on `limbs` assuming they are Montgomery-encoded ('R') and assuming
 /// they are the same size as `m`, but perhaps not reduced mod `m`. The result will be
 /// fully reduced mod `m`.
 </span><span class="kw">fn </span>from_montgomery_amm&lt;M&gt;(limbs: BoxedLimbs&lt;M&gt;, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; Elem&lt;M, Unencoded&gt; {
@@ -989,7 +987,7 @@
     }
 }
 
-<span class="attr">#[cfg(any(test, not(target_arch = <span class="string">&quot;x86_64&quot;</span>)))]
+<span class="attr">#[cfg(any(test, not(target_arch = <span class="string">"x86_64"</span>)))]
 </span><span class="kw">impl</span>&lt;M&gt; Elem&lt;M, R&gt; {
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>into_unencoded(<span class="self">self</span>, m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;) -&gt; Elem&lt;M, Unencoded&gt; {
@@ -1010,7 +1008,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>fill_be_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>[u8]) {
-        <span class="comment">// See Falko Strenzke, &quot;Manger&#39;s Attack revisited&quot;, ICICS 2010.
+        <span class="comment">// See Falko Strenzke, "Manger's Attack revisited", ICICS 2010.
         </span>limb::big_endian_from_limbs(<span class="kw-2">&amp;</span><span class="self">self</span>.limbs, out)
     }
 
@@ -1200,12 +1198,12 @@
         //   = lg(2**b)
         //   = b
         // TODO(MSRV:1.67): const B: u32 = LIMB_BITS.ilog2();
-        </span><span class="kw">const </span>B: u32 = <span class="kw">if </span><span class="macro">cfg!</span>(target_pointer_width = <span class="string">&quot;64&quot;</span>) {
+        </span><span class="kw">const </span>B: u32 = <span class="kw">if </span><span class="macro">cfg!</span>(target_pointer_width = <span class="string">"64"</span>) {
             <span class="number">6
-        </span>} <span class="kw">else if </span><span class="macro">cfg!</span>(target_pointer_width = <span class="string">&quot;32&quot;</span>) {
+        </span>} <span class="kw">else if </span><span class="macro">cfg!</span>(target_pointer_width = <span class="string">"32"</span>) {
             <span class="number">5
         </span>} <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;unsupported target_pointer_width&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"unsupported target_pointer_width"</span>)
         };
         <span class="attr">#[allow(clippy::assertions_on_constants)]
         </span><span class="kw">const </span>_LIMB_BITS_IS_2_POW_B: () = <span class="macro">assert!</span>(LIMB_BITS == <span class="number">1 </span>&lt;&lt; B);
@@ -1253,14 +1251,14 @@
     exponent: NonZeroU64,
     m: <span class="kw-2">&amp;</span>Modulus&lt;M&gt;,
 ) -&gt; Elem&lt;M, R&gt; {
-    <span class="comment">// Use what [Knuth] calls the &quot;S-and-X binary method&quot;, i.e. variable-time
+    <span class="comment">// Use what [Knuth] calls the "S-and-X binary method", i.e. variable-time
     // square-and-multiply that scans the exponent from the most significant
     // bit to the least significant bit (left-to-right). Left-to-right requires
     // less storage compared to right-to-left scanning, at the cost of needing
     // to compute `exponent.leading_zeros()`, which we assume to be cheap.
     //
     // As explained in [Knuth], exponentiation by squaring is the most
-    // efficient algorithm when the Hamming weight is 2 or less. It isn&#39;t the
+    // efficient algorithm when the Hamming weight is 2 or less. It isn't the
     // most efficient for all other, uncommon, exponent values but any
     // suboptimality is bounded at least by the small bit length of `exponent`
     // as enforced by its type.
@@ -1284,7 +1282,7 @@
     acc
 }
 
-<span class="attr">#[cfg(not(target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+<span class="attr">#[cfg(not(target_arch = <span class="string">"x86_64"</span>))]
 </span><span class="kw">pub fn </span>elem_exp_consttime&lt;M&gt;(
     base: Elem&lt;M, R&gt;,
     exponent: <span class="kw-2">&amp;</span>PrivateExponent,
@@ -1370,7 +1368,7 @@
     <span class="prelude-val">Ok</span>(acc.into_unencoded(m))
 }
 
-<span class="attr">#[cfg(target_arch = <span class="string">&quot;x86_64&quot;</span>)]
+<span class="attr">#[cfg(target_arch = <span class="string">"x86_64"</span>)]
 </span><span class="kw">pub fn </span>elem_exp_consttime&lt;M&gt;(
     base: Elem&lt;M, R&gt;,
     exponent: <span class="kw-2">&amp;</span>PrivateExponent,
@@ -1379,7 +1377,7 @@
     <span class="kw">use crate</span>::{cpu, limb::LIMB_BYTES};
 
     <span class="comment">// Pretty much all the math here requires CPU feature detection to have
-    // been done. `cpu_features` isn&#39;t threaded through all the internal
+    // been done. `cpu_features` isn't threaded through all the internal
     // functions, so just make it clear that it has been done at this point.
     </span><span class="kw">let </span>cpu_features = m.cpu_features();
 
@@ -1496,7 +1494,7 @@
         </span>base_cached.copy_from_slice(<span class="kw-2">&amp;</span>base.limbs);
 
         <span class="kw">let </span>m_cached = <span class="kw-2">&amp;mut </span>rest[..num_limbs];
-        <span class="comment">// &quot;To improve cache locality&quot; according to upstream.
+        <span class="comment">// "To improve cache locality" according to upstream.
         </span>m_cached.copy_from_slice(m.limbs());
 
         (acc, base_cached, m_cached)
@@ -1600,18 +1598,18 @@
     </span><span class="kw">fn </span>test_elem_exp_consttime() {
         <span class="kw">let </span>cpu_features = cpu::features();
         test::run(
-            <span class="macro">test_file!</span>(<span class="string">&quot;../../crypto/fipsmodule/bn/test/mod_exp_tests.txt&quot;</span>),
+            <span class="macro">test_file!</span>(<span class="string">"../../crypto/fipsmodule/bn/test/mod_exp_tests.txt"</span>),
             |section, test_case| {
-                <span class="macro">assert_eq!</span>(section, <span class="string">&quot;&quot;</span>);
+                <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
-                <span class="kw">let </span>m = consume_modulus::&lt;M&gt;(test_case, <span class="string">&quot;M&quot;</span>, cpu_features);
-                <span class="kw">let </span>m = m.modulus();
-                <span class="kw">let </span>expected_result = consume_elem(test_case, <span class="string">&quot;ModExp&quot;</span>, <span class="kw-2">&amp;</span>m);
-                <span class="kw">let </span>base = consume_elem(test_case, <span class="string">&quot;A&quot;</span>, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>m = consume_modulus::&lt;M&gt;(test_case, <span class="string">"M"</span>);
+                <span class="kw">let </span>m = m.modulus(cpu_features);
+                <span class="kw">let </span>expected_result = consume_elem(test_case, <span class="string">"ModExp"</span>, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>base = consume_elem(test_case, <span class="string">"A"</span>, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>e = {
-                    <span class="kw">let </span>bytes = test_case.consume_bytes(<span class="string">&quot;E&quot;</span>);
+                    <span class="kw">let </span>bytes = test_case.consume_bytes(<span class="string">"E"</span>);
                     PrivateExponent::from_be_bytes_for_test_only(untrusted::Input::from(<span class="kw-2">&amp;</span>bytes), <span class="kw-2">&amp;</span>m)
-                        .expect(<span class="string">&quot;valid exponent&quot;</span>)
+                        .expect(<span class="string">"valid exponent"</span>)
                 };
                 <span class="kw">let </span>base = into_encoded(base, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>actual_result = elem_exp_consttime(base, <span class="kw-2">&amp;</span>e, <span class="kw-2">&amp;</span>m).unwrap();
@@ -1623,22 +1621,22 @@
     }
 
     <span class="comment">// TODO: fn test_elem_exp_vartime() using
-    // &quot;src/rsa/bigint_elem_exp_vartime_tests.txt&quot;. See that file for details.
+    // "src/rsa/bigint_elem_exp_vartime_tests.txt". See that file for details.
     // In the meantime, the function is tested indirectly via the RSA
     // verification and signing tests.
     </span><span class="attr">#[test]
     </span><span class="kw">fn </span>test_elem_mul() {
         <span class="kw">let </span>cpu_features = cpu::features();
         test::run(
-            <span class="macro">test_file!</span>(<span class="string">&quot;../../crypto/fipsmodule/bn/test/mod_mul_tests.txt&quot;</span>),
+            <span class="macro">test_file!</span>(<span class="string">"../../crypto/fipsmodule/bn/test/mod_mul_tests.txt"</span>),
             |section, test_case| {
-                <span class="macro">assert_eq!</span>(section, <span class="string">&quot;&quot;</span>);
+                <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
-                <span class="kw">let </span>m = consume_modulus::&lt;M&gt;(test_case, <span class="string">&quot;M&quot;</span>, cpu_features);
-                <span class="kw">let </span>m = m.modulus();
-                <span class="kw">let </span>expected_result = consume_elem(test_case, <span class="string">&quot;ModMul&quot;</span>, <span class="kw-2">&amp;</span>m);
-                <span class="kw">let </span>a = consume_elem(test_case, <span class="string">&quot;A&quot;</span>, <span class="kw-2">&amp;</span>m);
-                <span class="kw">let </span>b = consume_elem(test_case, <span class="string">&quot;B&quot;</span>, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>m = consume_modulus::&lt;M&gt;(test_case, <span class="string">"M"</span>);
+                <span class="kw">let </span>m = m.modulus(cpu_features);
+                <span class="kw">let </span>expected_result = consume_elem(test_case, <span class="string">"ModMul"</span>, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>a = consume_elem(test_case, <span class="string">"A"</span>, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>b = consume_elem(test_case, <span class="string">"B"</span>, <span class="kw-2">&amp;</span>m);
 
                 <span class="kw">let </span>b = into_encoded(b, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>a = into_encoded(a, <span class="kw-2">&amp;</span>m);
@@ -1655,14 +1653,14 @@
     </span><span class="kw">fn </span>test_elem_squared() {
         <span class="kw">let </span>cpu_features = cpu::features();
         test::run(
-            <span class="macro">test_file!</span>(<span class="string">&quot;bigint_elem_squared_tests.txt&quot;</span>),
+            <span class="macro">test_file!</span>(<span class="string">"bigint_elem_squared_tests.txt"</span>),
             |section, test_case| {
-                <span class="macro">assert_eq!</span>(section, <span class="string">&quot;&quot;</span>);
+                <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
-                <span class="kw">let </span>m = consume_modulus::&lt;M&gt;(test_case, <span class="string">&quot;M&quot;</span>, cpu_features);
-                <span class="kw">let </span>m = m.modulus();
-                <span class="kw">let </span>expected_result = consume_elem(test_case, <span class="string">&quot;ModSquare&quot;</span>, <span class="kw-2">&amp;</span>m);
-                <span class="kw">let </span>a = consume_elem(test_case, <span class="string">&quot;A&quot;</span>, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>m = consume_modulus::&lt;M&gt;(test_case, <span class="string">"M"</span>);
+                <span class="kw">let </span>m = m.modulus(cpu_features);
+                <span class="kw">let </span>expected_result = consume_elem(test_case, <span class="string">"ModSquare"</span>, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>a = consume_elem(test_case, <span class="string">"A"</span>, <span class="kw-2">&amp;</span>m);
 
                 <span class="kw">let </span>a = into_encoded(a, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>actual_result = elem_squared(a, <span class="kw-2">&amp;</span>m);
@@ -1678,17 +1676,17 @@
     </span><span class="kw">fn </span>test_elem_reduced() {
         <span class="kw">let </span>cpu_features = cpu::features();
         test::run(
-            <span class="macro">test_file!</span>(<span class="string">&quot;bigint_elem_reduced_tests.txt&quot;</span>),
+            <span class="macro">test_file!</span>(<span class="string">"bigint_elem_reduced_tests.txt"</span>),
             |section, test_case| {
-                <span class="macro">assert_eq!</span>(section, <span class="string">&quot;&quot;</span>);
+                <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
                 <span class="kw">struct </span>M {}
 
-                <span class="kw">let </span>m_ = consume_modulus::&lt;M&gt;(test_case, <span class="string">&quot;M&quot;</span>, cpu_features);
-                <span class="kw">let </span>m = m_.modulus();
-                <span class="kw">let </span>expected_result = consume_elem(test_case, <span class="string">&quot;R&quot;</span>, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>m_ = consume_modulus::&lt;M&gt;(test_case, <span class="string">"M"</span>);
+                <span class="kw">let </span>m = m_.modulus(cpu_features);
+                <span class="kw">let </span>expected_result = consume_elem(test_case, <span class="string">"R"</span>, <span class="kw-2">&amp;</span>m);
                 <span class="kw">let </span>a =
-                    consume_elem_unchecked::&lt;M&gt;(test_case, <span class="string">&quot;A&quot;</span>, expected_result.limbs.len() * <span class="number">2</span>);
+                    consume_elem_unchecked::&lt;M&gt;(test_case, <span class="string">"A"</span>, expected_result.limbs.len() * <span class="number">2</span>);
                 <span class="kw">let </span>other_modulus_len_bits = m_.len_bits();
 
                 <span class="kw">let </span>actual_result = elem_reduced(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>m, other_modulus_len_bits);
@@ -1705,18 +1703,19 @@
     </span><span class="kw">fn </span>test_elem_reduced_once() {
         <span class="kw">let </span>cpu_features = cpu::features();
         test::run(
-            <span class="macro">test_file!</span>(<span class="string">&quot;bigint_elem_reduced_once_tests.txt&quot;</span>),
+            <span class="macro">test_file!</span>(<span class="string">"bigint_elem_reduced_once_tests.txt"</span>),
             |section, test_case| {
-                <span class="macro">assert_eq!</span>(section, <span class="string">&quot;&quot;</span>);
+                <span class="macro">assert_eq!</span>(section, <span class="string">""</span>);
 
                 <span class="kw">struct </span>M {}
                 <span class="kw">struct </span>O {}
-                <span class="kw">let </span>m = consume_modulus::&lt;M&gt;(test_case, <span class="string">&quot;m&quot;</span>, cpu_features);
-                <span class="kw">let </span>a = consume_elem_unchecked::&lt;O&gt;(test_case, <span class="string">&quot;a&quot;</span>, m.modulus().limbs().len());
-                <span class="kw">let </span>expected_result = consume_elem::&lt;M&gt;(test_case, <span class="string">&quot;r&quot;</span>, <span class="kw-2">&amp;</span>m.modulus());
-                <span class="kw">let </span>other_modulus_len_bits = m.modulus().len_bits();
+                <span class="kw">let </span>m = consume_modulus::&lt;M&gt;(test_case, <span class="string">"m"</span>);
+                <span class="kw">let </span>m = m.modulus(cpu_features);
+                <span class="kw">let </span>a = consume_elem_unchecked::&lt;O&gt;(test_case, <span class="string">"a"</span>, m.limbs().len());
+                <span class="kw">let </span>expected_result = consume_elem::&lt;M&gt;(test_case, <span class="string">"r"</span>, <span class="kw-2">&amp;</span>m);
+                <span class="kw">let </span>other_modulus_len_bits = m.len_bits();
 
-                <span class="kw">let </span>actual_result = elem_reduced_once(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>m.modulus(), other_modulus_len_bits);
+                <span class="kw">let </span>actual_result = elem_reduced_once(<span class="kw-2">&amp;</span>a, <span class="kw-2">&amp;</span>m, other_modulus_len_bits);
                 assert_elem_eq(<span class="kw-2">&amp;</span>actual_result, <span class="kw-2">&amp;</span>expected_result);
 
                 <span class="prelude-val">Ok</span>(())
@@ -1748,18 +1747,14 @@
         }
     }
 
-    <span class="kw">fn </span>consume_modulus&lt;M&gt;(
-        test_case: <span class="kw-2">&amp;mut </span>test::TestCase,
-        name: <span class="kw-2">&amp;</span>str,
-        cpu_features: cpu::Features,
-    ) -&gt; OwnedModulus&lt;M&gt; {
+    <span class="kw">fn </span>consume_modulus&lt;M&gt;(test_case: <span class="kw-2">&amp;mut </span>test::TestCase, name: <span class="kw-2">&amp;</span>str) -&gt; OwnedModulus&lt;M&gt; {
         <span class="kw">let </span>value = test_case.consume_bytes(name);
-        OwnedModulus::from_be_bytes(untrusted::Input::from(<span class="kw-2">&amp;</span>value), cpu_features).unwrap()
+        OwnedModulus::from_be_bytes(untrusted::Input::from(<span class="kw-2">&amp;</span>value)).unwrap()
     }
 
     <span class="kw">fn </span>assert_elem_eq&lt;M, E&gt;(a: <span class="kw-2">&amp;</span>Elem&lt;M, E&gt;, b: <span class="kw-2">&amp;</span>Elem&lt;M, E&gt;) {
         <span class="kw">if </span>elem_verify_equal_consttime(a, b).is_err() {
-            <span class="macro">panic!</span>(<span class="string">&quot;{:x?} != {:x?}&quot;</span>, <span class="kw-2">&amp;*</span>a.limbs, <span class="kw-2">&amp;*</span>b.limbs);
+            <span class="macro">panic!</span>(<span class="string">"{:x?} != {:x?}"</span>, <span class="kw-2">&amp;*</span>a.limbs, <span class="kw-2">&amp;*</span>b.limbs);
         }
     }
 

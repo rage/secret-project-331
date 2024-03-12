@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerofrom-derive-0.1.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerofrom_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerofrom-derive-0.1.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerofrom_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -330,11 +331,11 @@
 <span class="doccomment">/// Custom derive for `zerofrom::ZeroFrom`,
 ///
 /// This implements `ZeroFrom&lt;Ty&gt; for Ty` for types
-/// without a lifetime parameter, and `ZeroFrom&lt;Ty&lt;&#39;data&gt;&gt; for Ty&lt;&#39;static&gt;`
+/// without a lifetime parameter, and `ZeroFrom&lt;Ty&lt;'data&gt;&gt; for Ty&lt;'static&gt;`
 /// for types with a lifetime parameter.
 ///
-/// Apply the `#[zerofrom(clone)]` attribute to a field if it doesn&#39;t implement
-/// Copy or ZeroFrom; this data will be cloned when the struct is zero_from&#39;ed.
+/// Apply the `#[zerofrom(clone)]` attribute to a field if it doesn't implement
+/// Copy or ZeroFrom; this data will be cloned when the struct is zero_from'ed.
 ///
 /// Apply the `#[zerofrom(maybe_borrow(T, U, V))]` attribute to the struct to indicate
 /// that certain type parameters may themselves contain borrows (by default
@@ -360,13 +361,13 @@
 }
 
 <span class="comment">// Collects all idents from #[zerofrom(may_borrow(A, B, C, D))]
-// needed since #[zerofrom(may_borrow)] doesn&#39;t work yet
+// needed since #[zerofrom(may_borrow)] doesn't work yet
 // (https://github.com/rust-lang/rust/issues/114393)
 </span><span class="kw">fn </span>get_may_borrow_attr(attrs: <span class="kw-2">&amp;</span>[syn::Attribute]) -&gt; <span class="prelude-ty">Result</span>&lt;HashSet&lt;Ident&gt;, Span&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>params = HashSet::new();
     <span class="kw">for </span>attr <span class="kw">in </span>attrs {
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(list) = attr.parse_args::&lt;MetaList&gt;() {
-            <span class="kw">if </span>list.path.is_ident(<span class="string">&quot;may_borrow&quot;</span>) {
+            <span class="kw">if </span>list.path.is_ident(<span class="string">"may_borrow"</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(list) =
                     list.parse_args_with(Punctuated::&lt;Ident, <span class="macro">Token!</span>[,]&gt;::parse_terminated)
                 {
@@ -385,7 +386,7 @@
         .generics
         .type_params()
         .map(|ty| {
-            <span class="comment">// Strip out param defaults, we don&#39;t need them in the impl
+            <span class="comment">// Strip out param defaults, we don't need them in the impl
             </span><span class="kw">let </span><span class="kw-2">mut </span>ty = ty.clone();
             ty.eq_token = <span class="prelude-val">None</span>;
             ty.default = <span class="prelude-val">None</span>;
@@ -405,7 +406,7 @@
         <span class="prelude-val">Err</span>(span) =&gt; {
             <span class="kw">return </span>syn::Error::new(
             span,
-            <span class="string">&quot;#[zerofrom(may_borrow)] on the struct takes in a comma separated list of type parameters, like so: `#[zerofrom(may_borrow(A, B, C, D)]`&quot;</span>,
+            <span class="string">"#[zerofrom(may_borrow)] on the struct takes in a comma separated list of type parameters, like so: `#[zerofrom(may_borrow(A, B, C, D)]`"</span>,
         ).to_compile_error();
         }
     };
@@ -413,16 +414,16 @@
     <span class="comment">// This contains every generic type introduced in this code.
     // If the gneeric type is may_borrow, this additionally contains the identifier corresponding to
     // a newly introduced mirror type parameter that we are borrowing from, similar to C in the original trait.
-    // For convenience, we are calling these &quot;C types&quot;
+    // For convenience, we are calling these "C types"
     </span><span class="kw">let </span>generics_env: HashMap&lt;Ident, <span class="prelude-ty">Option</span>&lt;Ident&gt;&gt; = tybounds
         .iter()
         .map(|param| {
-            <span class="comment">// First one doesn&#39;t work yet https://github.com/rust-lang/rust/issues/114393
-            </span><span class="kw">let </span>maybe_new_param = <span class="kw">if </span>has_attr(<span class="kw-2">&amp;</span>param.attrs, <span class="string">&quot;may_borrow&quot;</span>)
+            <span class="comment">// First one doesn't work yet https://github.com/rust-lang/rust/issues/114393
+            </span><span class="kw">let </span>maybe_new_param = <span class="kw">if </span>has_attr(<span class="kw-2">&amp;</span>param.attrs, <span class="string">"may_borrow"</span>)
                 || may_borrow_attrs.contains(<span class="kw-2">&amp;</span>param.ident)
             {
                 <span class="prelude-val">Some</span>(Ident::new(
-                    <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}ZFParamC&quot;</span>, param.ident),
+                    <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}ZFParamC"</span>, param.ident),
                     param.ident.span(),
                 ))
             } <span class="kw">else </span>{
@@ -440,7 +441,7 @@
             .variants()
             .iter()
             .flat_map(|variant| variant.bindings().iter())
-            .any(|binding| has_attr(<span class="kw-2">&amp;</span>binding.ast().attrs, <span class="string">&quot;clone&quot;</span>));
+            .any(|binding| has_attr(<span class="kw-2">&amp;</span>binding.ast().attrs, <span class="string">"clone"</span>));
         <span class="kw">let </span>(clone, clone_trait) = <span class="kw">if </span>has_clone {
             (<span class="macro">quote!</span>(this.clone()), <span class="macro">quote!</span>(Clone))
         } <span class="kw">else </span>{
@@ -448,11 +449,11 @@
         };
         <span class="kw">let </span>bounds: Vec&lt;WherePredicate&gt; = typarams
             .iter()
-            .map(|ty| <span class="macro">parse_quote!</span>(#ty: #clone_trait + <span class="lifetime">&#39;static</span>))
+            .map(|ty| <span class="macro">parse_quote!</span>(#ty: #clone_trait + <span class="lifetime">'static</span>))
             .collect();
         <span class="macro">quote! </span>{
-            <span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>, #(#tybounds),<span class="kw-2">*</span>&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, #name&lt;#(#typarams),<span class="kw-2">*</span>&gt;&gt; <span class="kw">for </span>#name&lt;#(#typarams),<span class="kw-2">*</span>&gt; <span class="kw">where </span>#(#bounds),* {
-                <span class="kw">fn </span>zero_from(this: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+            <span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, #(#tybounds),<span class="kw-2">*</span>&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, #name&lt;#(#typarams),<span class="kw-2">*</span>&gt;&gt; <span class="kw">for </span>#name&lt;#(#typarams),<span class="kw-2">*</span>&gt; <span class="kw">where </span>#(#bounds),* {
+                <span class="kw">fn </span>zero_from(this: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
                     #clone
                 }
             }
@@ -461,7 +462,7 @@
         <span class="kw">if </span>lts &gt; <span class="number">1 </span>{
             <span class="kw">return </span>syn::Error::new(
                 input.generics.span(),
-                <span class="string">&quot;derive(ZeroFrom) cannot have multiple lifetime parameters&quot;</span>,
+                <span class="string">"derive(ZeroFrom) cannot have multiple lifetime parameters"</span>,
             )
             .to_compile_error();
         }
@@ -469,38 +470,38 @@
         <span class="kw">let </span><span class="kw-2">mut </span>zf_bounds: Vec&lt;WherePredicate&gt; = <span class="macro">vec!</span>[];
         <span class="kw">let </span>body = structure.each_variant(|vi| {
             vi.construct(|f, i| {
-                <span class="kw">let </span>binding = <span class="macro">format!</span>(<span class="string">&quot;__binding_{i}&quot;</span>);
+                <span class="kw">let </span>binding = <span class="macro">format!</span>(<span class="string">"__binding_{i}"</span>);
                 <span class="kw">let </span>field = Ident::new(<span class="kw-2">&amp;</span>binding, Span::call_site());
 
-                <span class="kw">if </span>has_attr(<span class="kw-2">&amp;</span>f.attrs, <span class="string">&quot;clone&quot;</span>) {
+                <span class="kw">if </span>has_attr(<span class="kw-2">&amp;</span>f.attrs, <span class="string">"clone"</span>) {
                     <span class="macro">quote! </span>{
                         #field.clone()
                     }
                 } <span class="kw">else </span>{
                     <span class="comment">// the field type
-                    </span><span class="kw">let </span>fty = replace_lifetime(<span class="kw-2">&amp;</span>f.ty, custom_lt(<span class="string">&quot;&#39;zf&quot;</span>));
+                    </span><span class="kw">let </span>fty = replace_lifetime(<span class="kw-2">&amp;</span>f.ty, custom_lt(<span class="string">"'zf"</span>));
                     <span class="comment">// the corresponding lifetimey type we are borrowing from (effectively, the C type)
                     </span><span class="kw">let </span>lifetime_ty =
-                        replace_lifetime_and_type(<span class="kw-2">&amp;</span>f.ty, custom_lt(<span class="string">&quot;&#39;zf_inner&quot;</span>), <span class="kw-2">&amp;</span>generics_env);
+                        replace_lifetime_and_type(<span class="kw-2">&amp;</span>f.ty, custom_lt(<span class="string">"'zf_inner"</span>), <span class="kw-2">&amp;</span>generics_env);
 
                     <span class="kw">let </span>(has_ty, has_lt) = visitor::check_type_for_parameters(<span class="kw-2">&amp;</span>f.ty, <span class="kw-2">&amp;</span>generics_env);
                     <span class="kw">if </span>has_ty {
                         <span class="comment">// For types without type parameters, the compiler can figure out that the field implements
                         // ZeroFrom on its own. However, if there are type parameters, there may be complex preconditions
                         // to `FieldTy: ZeroFrom` that need to be satisfied. We get them to be satisfied by requiring
-                        // `FieldTy&lt;&#39;zf&gt;: ZeroFrom&lt;&#39;zf, FieldTy&lt;&#39;zf_inner&gt;&gt;`
+                        // `FieldTy&lt;'zf&gt;: ZeroFrom&lt;'zf, FieldTy&lt;'zf_inner&gt;&gt;`
                         </span><span class="kw">if </span>has_lt {
                             zf_bounds
-                                .push(<span class="macro">parse_quote!</span>(#fty: zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, #lifetime_ty&gt;));
+                                .push(<span class="macro">parse_quote!</span>(#fty: zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, #lifetime_ty&gt;));
                         } <span class="kw">else </span>{
-                            zf_bounds.push(<span class="macro">parse_quote!</span>(#fty: zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, #fty&gt;));
+                            zf_bounds.push(<span class="macro">parse_quote!</span>(#fty: zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, #fty&gt;));
                         }
                     }
                     <span class="kw">if </span>has_ty || has_lt {
                         <span class="comment">// By doing this we essentially require ZF to be implemented
                         // on all fields
                         </span><span class="macro">quote! </span>{
-                            &lt;#fty <span class="kw">as </span>zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, #lifetime_ty&gt;&gt;::zero_from(#field)
+                            &lt;#fty <span class="kw">as </span>zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, #lifetime_ty&gt;&gt;::zero_from(#field)
                         }
                     } <span class="kw">else </span>{
                         <span class="comment">// No lifetimes, so we can just copy
@@ -510,11 +511,11 @@
             })
         });
         <span class="comment">// Due to the possibility of generics_may_borrow, we might reach here with no lifetimes on self,
-        // don&#39;t accidentally feed them to self later
+        // don't accidentally feed them to self later
         </span><span class="kw">let </span>(maybe_zf_lifetime, maybe_zf_inner_lifetime) = <span class="kw">if </span>lts == <span class="number">0 </span>{
             (<span class="macro">quote!</span>(), <span class="macro">quote!</span>())
         } <span class="kw">else </span>{
-            (<span class="macro">quote!</span>(<span class="lifetime">&#39;zf</span>,), <span class="macro">quote!</span>(<span class="lifetime">&#39;zf_inner</span>,))
+            (<span class="macro">quote!</span>(<span class="lifetime">'zf</span>,), <span class="macro">quote!</span>(<span class="lifetime">'zf_inner</span>,))
         };
 
         <span class="comment">// Array of C types. Only different if generics are allowed to borrow
@@ -526,17 +527,17 @@
                     <span class="comment">// we use mem::replace here so we can be really clear about the C vs the T type
                     </span><span class="kw">let </span>typaram_t = mem::replace(typaram_c, replacement.clone());
                     zf_bounds
-                        .push(<span class="macro">parse_quote!</span>(#typaram_c: zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf_inner</span>, #typaram_t&gt;));
+                        .push(<span class="macro">parse_quote!</span>(#typaram_c: zerofrom::ZeroFrom&lt;<span class="lifetime">'zf_inner</span>, #typaram_t&gt;));
                     tybounds.push(<span class="macro">parse_quote!</span>(#typaram_c));
                 }
             }
         }
 
         <span class="macro">quote! </span>{
-            <span class="kw">impl</span>&lt;<span class="lifetime">&#39;zf</span>, <span class="lifetime">&#39;zf_inner</span>, #(#tybounds),<span class="kw-2">*</span>&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">&#39;zf</span>, #name&lt;#maybe_zf_inner_lifetime #(#typarams_c),<span class="kw-2">*</span>&gt;&gt; <span class="kw">for </span>#name&lt;#maybe_zf_lifetime #(#typarams),<span class="kw-2">*</span>&gt;
+            <span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, <span class="lifetime">'zf_inner</span>, #(#tybounds),<span class="kw-2">*</span>&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, #name&lt;#maybe_zf_inner_lifetime #(#typarams_c),<span class="kw-2">*</span>&gt;&gt; <span class="kw">for </span>#name&lt;#maybe_zf_lifetime #(#typarams),<span class="kw-2">*</span>&gt;
                 <span class="kw">where
                 </span>#(#zf_bounds,)* {
-                <span class="kw">fn </span>zero_from(this: <span class="kw-2">&amp;</span><span class="lifetime">&#39;zf </span>#name&lt;#maybe_zf_inner_lifetime #(#typarams_c),<span class="kw-2">*</span>&gt;) -&gt; <span class="self">Self </span>{
+                <span class="kw">fn </span>zero_from(this: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span>#name&lt;#maybe_zf_inner_lifetime #(#typarams_c),<span class="kw-2">*</span>&gt;) -&gt; <span class="self">Self </span>{
                     <span class="kw">match </span><span class="kw-2">*</span>this { #body }
                 }
             }
@@ -567,9 +568,9 @@
     lt: Lifetime,
     generics_env: <span class="kw-2">&amp;</span>HashMap&lt;Ident, <span class="prelude-ty">Option</span>&lt;Ident&gt;&gt;,
 ) -&gt; Type {
-    <span class="kw">struct </span>ReplaceLifetimeAndTy&lt;<span class="lifetime">&#39;a</span>&gt;(Lifetime, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HashMap&lt;Ident, <span class="prelude-ty">Option</span>&lt;Ident&gt;&gt;);
+    <span class="kw">struct </span>ReplaceLifetimeAndTy&lt;<span class="lifetime">'a</span>&gt;(Lifetime, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>HashMap&lt;Ident, <span class="prelude-ty">Option</span>&lt;Ident&gt;&gt;);
 
-    <span class="kw">impl </span>Fold <span class="kw">for </span>ReplaceLifetimeAndTy&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">impl </span>Fold <span class="kw">for </span>ReplaceLifetimeAndTy&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">fn </span>fold_lifetime(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: Lifetime) -&gt; Lifetime {
             <span class="self">self</span>.<span class="number">0</span>.clone()
         }

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -270,7 +271,7 @@
     /// Might run to multiple lines.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>detail(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;D&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b'D'</span>)
     }
 
     <span class="doccomment">/// An optional suggestion what to do about the problem. This is intended to differ from
@@ -278,20 +279,20 @@
     /// Might run to multiple lines.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;H&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b'H'</span>)
     }
 
     <span class="doccomment">/// Indicates an error cursor position as an index into the original query string; or,
     /// a position into an internally generated query.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>position(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PgErrorPosition&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>position(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PgErrorPosition&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="self">self</span>.<span class="number">0
-            </span>.get_raw(<span class="string">b&#39;P&#39;</span>)
+            </span>.get_raw(<span class="string">b'P'</span>)
             .and_then(atoi)
             .map(PgErrorPosition::Original)
             .or_else(|| {
-                <span class="kw">let </span>position = <span class="self">self</span>.<span class="number">0</span>.get_raw(<span class="string">b&#39;p&#39;</span>).and_then(atoi)<span class="question-mark">?</span>;
-                <span class="kw">let </span>query = <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;q&#39;</span>)<span class="question-mark">?</span>;
+                <span class="kw">let </span>position = <span class="self">self</span>.<span class="number">0</span>.get_raw(<span class="string">b'p'</span>).and_then(atoi)<span class="question-mark">?</span>;
+                <span class="kw">let </span>query = <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b'q'</span>)<span class="question-mark">?</span>;
 
                 <span class="prelude-val">Some</span>(PgErrorPosition::Internal { position, query })
             })
@@ -301,55 +302,55 @@
     /// stack traceback of active procedural language functions and internally-generated queries.
     /// The trace is one entry per line, most recent first.
     </span><span class="kw">pub fn </span>r#where(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;W&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b'W'</span>)
     }
 
     <span class="doccomment">/// If this error is with a specific database object, the
     /// name of the schema containing that object, if any.
     </span><span class="kw">pub fn </span>schema(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;s&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b's'</span>)
     }
 
     <span class="doccomment">/// If this error is with a specific table, the name of the table.
     </span><span class="kw">pub fn </span>table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;t&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b't'</span>)
     }
 
     <span class="doccomment">/// If the error is with a specific table column, the name of the column.
     </span><span class="kw">pub fn </span>column(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;c&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b'c'</span>)
     }
 
     <span class="doccomment">/// If the error is with a specific data type, the name of the data type.
     </span><span class="kw">pub fn </span>data_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;d&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b'd'</span>)
     }
 
     <span class="doccomment">/// If the error is with a specific constraint, the name of the constraint.
-    /// For this purpose, indexes are constraints, even if they weren&#39;t created
+    /// For this purpose, indexes are constraints, even if they weren't created
     /// with constraint syntax.
     </span><span class="kw">pub fn </span>constraint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;n&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b'n'</span>)
     }
 
     <span class="doccomment">/// The file name of the source-code location where this error was reported.
     </span><span class="kw">pub fn </span>file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;F&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b'F'</span>)
     }
 
     <span class="doccomment">/// The line number of the source-code location where this error was reported.
     </span><span class="kw">pub fn </span>line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get_raw(<span class="string">b&#39;L&#39;</span>).and_then(atoi)
+        <span class="self">self</span>.<span class="number">0</span>.get_raw(<span class="string">b'L'</span>).and_then(atoi)
     }
 
     <span class="doccomment">/// The name of the source-code routine reporting this error.
     </span><span class="kw">pub fn </span>routine(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b&#39;R&#39;</span>)
+        <span class="self">self</span>.<span class="number">0</span>.get(<span class="string">b'R'</span>)
     }
 }
 
 <span class="attr">#[derive(Debug, Eq, PartialEq)]
-</span><span class="kw">pub enum </span>PgErrorPosition&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub enum </span>PgErrorPosition&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// A position (in characters) into the original query.
     </span>Original(usize),
 
@@ -360,34 +361,34 @@
 
         <span class="doccomment">/// The text of a failed internally-generated command. This could be, for example,
         /// the SQL query issued by a PL/pgSQL function.
-        </span>query: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        </span>query: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     },
 }
 
 <span class="kw">impl </span>Debug <span class="kw">for </span>PgDatabaseError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;PgDatabaseError&quot;</span>)
-            .field(<span class="string">&quot;severity&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.severity())
-            .field(<span class="string">&quot;code&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.code())
-            .field(<span class="string">&quot;message&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.message())
-            .field(<span class="string">&quot;detail&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.detail())
-            .field(<span class="string">&quot;hint&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.hint())
-            .field(<span class="string">&quot;position&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.position())
-            .field(<span class="string">&quot;where&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.r#where())
-            .field(<span class="string">&quot;schema&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.schema())
-            .field(<span class="string">&quot;table&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.table())
-            .field(<span class="string">&quot;column&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.column())
-            .field(<span class="string">&quot;data_type&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data_type())
-            .field(<span class="string">&quot;constraint&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.constraint())
-            .field(<span class="string">&quot;file&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.file())
-            .field(<span class="string">&quot;line&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.line())
-            .field(<span class="string">&quot;routine&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.routine())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"PgDatabaseError"</span>)
+            .field(<span class="string">"severity"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.severity())
+            .field(<span class="string">"code"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.code())
+            .field(<span class="string">"message"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.message())
+            .field(<span class="string">"detail"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.detail())
+            .field(<span class="string">"hint"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.hint())
+            .field(<span class="string">"position"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.position())
+            .field(<span class="string">"where"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.r#where())
+            .field(<span class="string">"schema"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.schema())
+            .field(<span class="string">"table"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.table())
+            .field(<span class="string">"column"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.column())
+            .field(<span class="string">"data_type"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.data_type())
+            .field(<span class="string">"constraint"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.constraint())
+            .field(<span class="string">"file"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.file())
+            .field(<span class="string">"line"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.line())
+            .field(<span class="string">"routine"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.routine())
             .finish()
     }
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>PgDatabaseError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.write_str(<span class="self">self</span>.message())
     }
 }
@@ -399,17 +400,17 @@
         <span class="self">self</span>.message()
     }
 
-    <span class="kw">fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;_</span>, str&gt;&gt; {
+    <span class="kw">fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'_</span>, str&gt;&gt; {
         <span class="prelude-val">Some</span>(Cow::Borrowed(<span class="self">self</span>.code()))
     }
 
     <span class="attr">#[doc(hidden)]
-    </span><span class="kw">fn </span>as_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>) {
+    </span><span class="kw">fn </span>as_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">'static</span>) {
         <span class="self">self
     </span>}
 
     <span class="attr">#[doc(hidden)]
-    </span><span class="kw">fn </span>as_error_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>) {
+    </span><span class="kw">fn </span>as_error_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">'static</span>) {
         <span class="self">self
     </span>}
 
@@ -424,10 +425,10 @@
             <span class="comment">// too_many_connections
             // This may be returned if we just un-gracefully closed a connection,
             // give the database a chance to notice it and clean it up.
-            </span><span class="string">&quot;53300&quot;</span>,
+            </span><span class="string">"53300"</span>,
             <span class="comment">// cannot_connect_now
             // Returned if the database is still starting up.
-            </span><span class="string">&quot;57P03&quot;</span>,
+            </span><span class="string">"57P03"</span>,
         ]
         .contains(<span class="kw-2">&amp;</span><span class="self">self</span>.code())
     }
@@ -454,12 +455,12 @@
 <span class="doccomment">/// For reference: &lt;https://www.postgresql.org/docs/current/errcodes-appendix.html&gt;
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>error_codes {
     <span class="doccomment">/// Caused when a unique or primary key is violated.
-    </span><span class="kw">pub const </span>UNIQUE_VIOLATION: <span class="kw-2">&amp;</span>str = <span class="string">&quot;23505&quot;</span>;
+    </span><span class="kw">pub const </span>UNIQUE_VIOLATION: <span class="kw-2">&amp;</span>str = <span class="string">"23505"</span>;
     <span class="doccomment">/// Caused when a foreign key is violated.
-    </span><span class="kw">pub const </span>FOREIGN_KEY_VIOLATION: <span class="kw-2">&amp;</span>str = <span class="string">&quot;23503&quot;</span>;
+    </span><span class="kw">pub const </span>FOREIGN_KEY_VIOLATION: <span class="kw-2">&amp;</span>str = <span class="string">"23503"</span>;
     <span class="doccomment">/// Caused when a column marked as NOT NULL received a null value.
-    </span><span class="kw">pub const </span>NOT_NULL_VIOLATION: <span class="kw-2">&amp;</span>str = <span class="string">&quot;23502&quot;</span>;
+    </span><span class="kw">pub const </span>NOT_NULL_VIOLATION: <span class="kw-2">&amp;</span>str = <span class="string">"23502"</span>;
     <span class="doccomment">/// Caused when a check constraint is violated.
-    </span><span class="kw">pub const </span>CHECK_VIOLATION: <span class="kw-2">&amp;</span>str = <span class="string">&quot;23514&quot;</span>;
+    </span><span class="kw">pub const </span>CHECK_VIOLATION: <span class="kw-2">&amp;</span>str = <span class="string">"23514"</span>;
 }
 </code></pre></div></section></main></body></html>

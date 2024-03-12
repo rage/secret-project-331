@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/symbolize/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/symbolize/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -486,7 +487,7 @@
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{fmt, str};
 
 <span class="macro">cfg_if::cfg_if! </span>{
-    <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)] </span>{
+    <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)] </span>{
         <span class="kw">use </span>std::path::Path;
         <span class="kw">use </span>std::prelude::v1::<span class="kw-2">*</span>;
     }
@@ -510,7 +511,7 @@
 /// Symbols yielded represent the execution at the specified `addr`, returning
 /// file/line pairs for that address (if available).
 ///
-/// Note that if you have a `Frame` then it&#39;s recommended to use the
+/// Note that if you have a `Frame` then it's recommended to use the
 /// `resolve_frame` function instead of this one.
 ///
 /// # Required features
@@ -542,7 +543,7 @@
 ///     });
 /// }
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">pub fn </span>resolve&lt;F: FnMut(<span class="kw-2">&amp;</span>Symbol)&gt;(addr: <span class="kw-2">*mut </span>c_void, cb: F) {
     <span class="kw">let </span>_guard = <span class="kw">crate</span>::lock::lock();
     <span class="kw">unsafe </span>{ resolve_unsynchronized(addr, cb) }
@@ -554,7 +555,7 @@
 /// This function performs the same function as `resolve` except that it takes a
 /// `Frame` as an argument instead of an address. This can allow some platform
 /// implementations of backtracing to provide more accurate symbol information
-/// or information about inline frames for example. It&#39;s recommended to use this
+/// or information about inline frames for example. It's recommended to use this
 /// if you can.
 ///
 /// # Required features
@@ -584,18 +585,18 @@
 ///     });
 /// }
 /// ```
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">pub fn </span>resolve_frame&lt;F: FnMut(<span class="kw-2">&amp;</span>Symbol)&gt;(frame: <span class="kw-2">&amp;</span>Frame, cb: F) {
     <span class="kw">let </span>_guard = <span class="kw">crate</span>::lock::lock();
     <span class="kw">unsafe </span>{ resolve_frame_unsynchronized(frame, cb) }
 }
 
-<span class="kw">pub enum </span>ResolveWhat&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub enum </span>ResolveWhat&lt;<span class="lifetime">'a</span>&gt; {
     Address(<span class="kw-2">*mut </span>c_void),
-    Frame(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Frame),
+    Frame(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Frame),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ResolveWhat&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ResolveWhat&lt;<span class="lifetime">'a</span>&gt; {
     <span class="attr">#[allow(dead_code)]
     </span><span class="kw">fn </span>address_or_ip(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>c_void {
         <span class="kw">match </span><span class="self">self </span>{
@@ -606,9 +607,9 @@
 }
 
 <span class="comment">// IP values from stack frames are typically (always?) the instruction
-// *after* the call that&#39;s the actual stack trace. Symbolizing this on
+// *after* the call that's the actual stack trace. Symbolizing this on
 // causes the filename/line number to be one ahead and perhaps into
-// the void if it&#39;s near the end of the function.
+// the void if it's near the end of the function.
 //
 // This appears to basically always be the case on all platforms, so we always
 // subtract one from a resolved ip to resolve it to the previous call
@@ -616,7 +617,7 @@
 //
 // Ideally we would not do this. Ideally we would require callers of the
 // `resolve` APIs here to manually do the -1 and account that they want location
-// information for the *previous* instruction, not the current. Ideally we&#39;d
+// information for the *previous* instruction, not the current. Ideally we'd
 // also expose on `Frame` if we are indeed the address of the next instruction
 // or the current.
 //
@@ -631,10 +632,10 @@
     }
 }
 
-<span class="doccomment">/// Same as `resolve`, only unsafe as it&#39;s unsynchronized.
+<span class="doccomment">/// Same as `resolve`, only unsafe as it's unsynchronized.
 ///
 /// This function does not have synchronization guarantees but is available when
-/// the `std` feature of this crate isn&#39;t compiled in. See the `resolve`
+/// the `std` feature of this crate isn't compiled in. See the `resolve`
 /// function for more documentation and examples.
 ///
 /// # Panics
@@ -647,10 +648,10 @@
     imp::resolve(ResolveWhat::Address(addr), <span class="kw-2">&amp;mut </span>cb)
 }
 
-<span class="doccomment">/// Same as `resolve_frame`, only unsafe as it&#39;s unsynchronized.
+<span class="doccomment">/// Same as `resolve_frame`, only unsafe as it's unsynchronized.
 ///
 /// This function does not have synchronization guarantees but is available
-/// when the `std` feature of this crate isn&#39;t compiled in. See the
+/// when the `std` feature of this crate isn't compiled in. See the
 /// `resolve_frame` function for more documentation and examples.
 ///
 /// # Panics
@@ -666,7 +667,7 @@
 <span class="doccomment">/// A trait representing the resolution of a symbol in a file.
 ///
 /// This trait is yielded as a trait object to the closure given to the
-/// `backtrace::resolve` function, and it is virtually dispatched as it&#39;s
+/// `backtrace::resolve` function, and it is virtually dispatched as it's
 /// unknown which implementation is behind it.
 ///
 /// A symbol can give contextual information about a function, for example the
@@ -674,9 +675,9 @@
 /// always available in a symbol, however, so all methods return an `Option`.
 </span><span class="kw">pub struct </span>Symbol {
     <span class="comment">// TODO: this lifetime bound needs to be persisted eventually to `Symbol`,
-    // but that&#39;s currently a breaking change. For now this is safe since
-    // `Symbol` is only ever handed out by reference and can&#39;t be cloned.
-    </span>inner: imp::Symbol&lt;<span class="lifetime">&#39;static</span>&gt;,
+    // but that's currently a breaking change. For now this is safe since
+    // `Symbol` is only ever handed out by reference and can't be cloned.
+    </span>inner: imp::Symbol&lt;<span class="lifetime">'static</span>&gt;,
 }
 
 <span class="kw">impl </span>Symbol {
@@ -686,10 +687,10 @@
     /// symbol name:
     ///
     /// * The `Display` implementation will print out the demangled symbol.
-    /// * The raw `str` value of the symbol can be accessed (if it&#39;s valid
+    /// * The raw `str` value of the symbol can be accessed (if it's valid
     ///   utf-8).
     /// * The raw bytes for the symbol name can be accessed.
-    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolName&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="self">self</span>.inner.name()
     }
 
@@ -700,7 +701,7 @@
 
     <span class="doccomment">/// Returns the raw filename as a slice. This is mainly useful for `no_std`
     /// environments.
-    </span><span class="kw">pub fn </span>filename_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>filename_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;BytesOrWideString&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="self">self</span>.inner.filename_raw()
     }
 
@@ -731,7 +732,7 @@
     ///
     /// This function requires the `std` feature of the `backtrace` crate to be
     /// enabled, and the `std` feature is enabled by default.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     #[allow(unreachable_code)]
     </span><span class="kw">pub fn </span>filename(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt; {
         <span class="self">self</span>.inner.filename()
@@ -739,41 +740,41 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Symbol {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>d = f.debug_struct(<span class="string">&quot;Symbol&quot;</span>);
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>d = f.debug_struct(<span class="string">"Symbol"</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.name() {
-            d.field(<span class="string">&quot;name&quot;</span>, <span class="kw-2">&amp;</span>name);
+            d.field(<span class="string">"name"</span>, <span class="kw-2">&amp;</span>name);
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(addr) = <span class="self">self</span>.addr() {
-            d.field(<span class="string">&quot;addr&quot;</span>, <span class="kw-2">&amp;</span>addr);
+            d.field(<span class="string">"addr"</span>, <span class="kw-2">&amp;</span>addr);
         }
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
         </span>{
             <span class="kw">if let </span><span class="prelude-val">Some</span>(filename) = <span class="self">self</span>.filename() {
-                d.field(<span class="string">&quot;filename&quot;</span>, <span class="kw-2">&amp;</span>filename);
+                d.field(<span class="string">"filename"</span>, <span class="kw-2">&amp;</span>filename);
             }
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(lineno) = <span class="self">self</span>.lineno() {
-            d.field(<span class="string">&quot;lineno&quot;</span>, <span class="kw-2">&amp;</span>lineno);
+            d.field(<span class="string">"lineno"</span>, <span class="kw-2">&amp;</span>lineno);
         }
         d.finish()
     }
 }
 
 <span class="macro">cfg_if::cfg_if! </span>{
-    <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">&quot;cpp_demangle&quot;</span>)] </span>{
+    <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">"cpp_demangle"</span>)] </span>{
         <span class="comment">// Maybe a parsed C++ symbol, if parsing the mangled symbol as Rust
         // failed.
-        </span><span class="kw">struct </span>OptionCppSymbol&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="prelude-ty">Option</span>&lt;::cpp_demangle::BorrowedSymbol&lt;<span class="lifetime">&#39;a</span>&gt;&gt;);
+        </span><span class="kw">struct </span>OptionCppSymbol&lt;<span class="lifetime">'a</span>&gt;(<span class="prelude-ty">Option</span>&lt;::cpp_demangle::BorrowedSymbol&lt;<span class="lifetime">'a</span>&gt;&gt;);
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; OptionCppSymbol&lt;<span class="lifetime">&#39;a</span>&gt; {
-            <span class="kw">fn </span>parse(input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; OptionCppSymbol&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; OptionCppSymbol&lt;<span class="lifetime">'a</span>&gt; {
+            <span class="kw">fn </span>parse(input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; OptionCppSymbol&lt;<span class="lifetime">'a</span>&gt; {
                 OptionCppSymbol(::cpp_demangle::BorrowedSymbol::new(input).ok())
             }
 
-            <span class="kw">fn </span>none() -&gt; OptionCppSymbol&lt;<span class="lifetime">&#39;a</span>&gt; {
+            <span class="kw">fn </span>none() -&gt; OptionCppSymbol&lt;<span class="lifetime">'a</span>&gt; {
                 OptionCppSymbol(<span class="prelude-val">None</span>)
             }
         }
@@ -782,14 +783,14 @@
 
         <span class="comment">// Make sure to keep this zero-sized, so that the `cpp_demangle` feature
         // has no cost when disabled.
-        </span><span class="kw">struct </span>OptionCppSymbol&lt;<span class="lifetime">&#39;a</span>&gt;(PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>()&gt;);
+        </span><span class="kw">struct </span>OptionCppSymbol&lt;<span class="lifetime">'a</span>&gt;(PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;);
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; OptionCppSymbol&lt;<span class="lifetime">&#39;a</span>&gt; {
-            <span class="kw">fn </span>parse(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; OptionCppSymbol&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; OptionCppSymbol&lt;<span class="lifetime">'a</span>&gt; {
+            <span class="kw">fn </span>parse(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; OptionCppSymbol&lt;<span class="lifetime">'a</span>&gt; {
                 OptionCppSymbol(PhantomData)
             }
 
-            <span class="kw">fn </span>none() -&gt; OptionCppSymbol&lt;<span class="lifetime">&#39;a</span>&gt; {
+            <span class="kw">fn </span>none() -&gt; OptionCppSymbol&lt;<span class="lifetime">'a</span>&gt; {
                 OptionCppSymbol(PhantomData)
             }
         }
@@ -800,15 +801,15 @@
 /// demangled name, the raw bytes, the raw string, etc.
 </span><span class="comment">// Allow dead code for when the `cpp_demangle` feature is not enabled.
 </span><span class="attr">#[allow(dead_code)]
-</span><span class="kw">pub struct </span>SymbolName&lt;<span class="lifetime">&#39;a</span>&gt; {
-    bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-    demangled: <span class="prelude-ty">Option</span>&lt;Demangle&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
-    cpp_demangled: OptionCppSymbol&lt;<span class="lifetime">&#39;a</span>&gt;,
+</span><span class="kw">pub struct </span>SymbolName&lt;<span class="lifetime">'a</span>&gt; {
+    bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
+    demangled: <span class="prelude-ty">Option</span>&lt;Demangle&lt;<span class="lifetime">'a</span>&gt;&gt;,
+    cpp_demangled: OptionCppSymbol&lt;<span class="lifetime">'a</span>&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SymbolName&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SymbolName&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates a new symbol name from the raw underlying bytes.
-    </span><span class="kw">pub fn </span>new(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; SymbolName&lt;<span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>new(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; SymbolName&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">let </span>str_bytes = str::from_utf8(bytes).ok();
         <span class="kw">let </span>demangled = str_bytes.and_then(|s| try_demangle(s).ok());
 
@@ -828,7 +829,7 @@
     <span class="doccomment">/// Returns the raw (mangled) symbol name as a `str` if the symbol is valid utf-8.
     ///
     /// Use the `Display` implementation if you want the demangled version.
-    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; {
+    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; {
         <span class="self">self</span>.demangled
             .as_ref()
             .map(|s| s.as_str())
@@ -836,15 +837,15 @@
     }
 
     <span class="doccomment">/// Returns the raw symbol name as a list of bytes
-    </span><span class="kw">pub fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+    </span><span class="kw">pub fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
         <span class="self">self</span>.bytes
     }
 }
 
 <span class="kw">fn </span>format_symbol_name(
-    fmt: <span class="kw">fn</span>(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result,
+    fmt: <span class="kw">fn</span>(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result,
     <span class="kw-2">mut </span>bytes: <span class="kw-2">&amp;</span>[u8],
-    f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;,
+    f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;,
 ) -&gt; fmt::Result {
     <span class="kw">while </span>bytes.len() &gt; <span class="number">0 </span>{
         <span class="kw">match </span>str::from_utf8(bytes) {
@@ -853,7 +854,7 @@
                 <span class="kw">break</span>;
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                fmt(<span class="string">&quot;\u{FFFD}&quot;</span>, f)<span class="question-mark">?</span>;
+                fmt(<span class="string">"\u{FFFD}"</span>, f)<span class="question-mark">?</span>;
 
                 <span class="kw">match </span>err.error_len() {
                     <span class="prelude-val">Some</span>(len) =&gt; bytes = <span class="kw-2">&amp;</span>bytes[err.valid_up_to() + len..],
@@ -866,9 +867,9 @@
 }
 
 <span class="macro">cfg_if::cfg_if! </span>{
-    <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">&quot;cpp_demangle&quot;</span>)] </span>{
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Display <span class="kw">for </span>SymbolName&lt;<span class="lifetime">&#39;a</span>&gt; {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">"cpp_demangle"</span>)] </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Display <span class="kw">for </span>SymbolName&lt;<span class="lifetime">'a</span>&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>s) = <span class="self">self</span>.demangled {
                     s.fmt(f)
                 } <span class="kw">else if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>cpp) = <span class="self">self</span>.cpp_demangled.<span class="number">0 </span>{
@@ -879,8 +880,8 @@
             }
         }
     } <span class="kw">else </span>{
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Display <span class="kw">for </span>SymbolName&lt;<span class="lifetime">&#39;a</span>&gt; {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Display <span class="kw">for </span>SymbolName&lt;<span class="lifetime">'a</span>&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>s) = <span class="self">self</span>.demangled {
                     s.fmt(f)
                 } <span class="kw">else </span>{
@@ -892,21 +893,21 @@
 }
 
 <span class="macro">cfg_if::cfg_if! </span>{
-    <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">&quot;std&quot;</span>, feature = <span class="string">&quot;cpp_demangle&quot;</span>))] </span>{
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Debug <span class="kw">for </span>SymbolName&lt;<span class="lifetime">&#39;a</span>&gt; {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">if </span><span class="attr">#[cfg(all(feature = <span class="string">"std"</span>, feature = <span class="string">"cpp_demangle"</span>))] </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Debug <span class="kw">for </span>SymbolName&lt;<span class="lifetime">'a</span>&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
                 <span class="kw">use </span>std::fmt::Write;
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>s) = <span class="self">self</span>.demangled {
                     <span class="kw">return </span>s.fmt(f)
                 }
 
-                <span class="comment">// This may to print if the demangled symbol isn&#39;t actually
+                <span class="comment">// This may to print if the demangled symbol isn't actually
                 // valid, so handle the error here gracefully by not propagating
                 // it outwards.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>cpp) = <span class="self">self</span>.cpp_demangled.<span class="number">0 </span>{
                     <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-                    <span class="kw">if </span><span class="macro">write!</span>(s, <span class="string">&quot;{}&quot;</span>, cpp).is_ok() {
+                    <span class="kw">if </span><span class="macro">write!</span>(s, <span class="string">"{}"</span>, cpp).is_ok() {
                         <span class="kw">return </span>s.fmt(f)
                     }
                 }
@@ -915,8 +916,8 @@
             }
         }
     } <span class="kw">else </span>{
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Debug <span class="kw">for </span>SymbolName&lt;<span class="lifetime">&#39;a</span>&gt; {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; fmt::Debug <span class="kw">for </span>SymbolName&lt;<span class="lifetime">'a</span>&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>s) = <span class="self">self</span>.demangled {
                     s.fmt(f)
                 } <span class="kw">else </span>{
@@ -935,12 +936,12 @@
 ///
 /// # Caveats
 ///
-/// While this function is always available it doesn&#39;t actually do anything on
+/// While this function is always available it doesn't actually do anything on
 /// most implementations. Libraries like dbghelp or libbacktrace do not provide
 /// facilities to deallocate state and manage the allocated memory. For now the
 /// `gimli-symbolize` feature of this crate is the only feature where this
 /// function has any effect.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">pub fn </span>clear_symbol_cache() {
     <span class="kw">let </span>_guard = <span class="kw">crate</span>::lock::lock();
     <span class="kw">unsafe </span>{
@@ -952,14 +953,14 @@
     <span class="kw">if </span><span class="attr">#[cfg(miri)] </span>{
         <span class="kw">mod </span>miri;
         <span class="kw">use </span>miri <span class="kw">as </span>imp;
-    } <span class="kw">else if </span><span class="attr">#[cfg(all(windows, target_env = <span class="string">&quot;msvc&quot;</span>, not(target_vendor = <span class="string">&quot;uwp&quot;</span>)))] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(all(windows, target_env = <span class="string">"msvc"</span>, not(target_vendor = <span class="string">"uwp"</span>)))] </span>{
         <span class="kw">mod </span>dbghelp;
         <span class="kw">use </span>dbghelp <span class="kw">as </span>imp;
     } <span class="kw">else if </span><span class="attr">#[cfg(all(
-        any(unix, all(windows, target_env = <span class="string">&quot;gnu&quot;</span>)),
-        not(target_vendor = <span class="string">&quot;uwp&quot;</span>),
-        not(target_os = <span class="string">&quot;emscripten&quot;</span>),
-        any(not(backtrace_in_libstd), feature = <span class="string">&quot;backtrace&quot;</span>),
+        any(unix, all(windows, target_env = <span class="string">"gnu"</span>)),
+        not(target_vendor = <span class="string">"uwp"</span>),
+        not(target_os = <span class="string">"emscripten"</span>),
+        any(not(backtrace_in_libstd), feature = <span class="string">"backtrace"</span>),
     ))] </span>{
         <span class="kw">mod </span>gimli;
         <span class="kw">use </span>gimli <span class="kw">as </span>imp;

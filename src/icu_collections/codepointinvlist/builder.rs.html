@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.4.0/src/codepointinvlist/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.4.0/src/codepointinvlist/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -980,7 +981,7 @@
     }
 
     <span class="doccomment">/// Returns a [`CodePointInversionList`] and consumes the [`CodePointInversionListBuilder`]
-    </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; CodePointInversionList&lt;<span class="lifetime">&#39;static</span>&gt; {
+    </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; CodePointInversionList&lt;<span class="lifetime">'static</span>&gt; {
         <span class="kw">let </span>inv_list: ZeroVec&lt;u32&gt; = ZeroVec::alloc_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.intervals);
         <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// by invariant
         </span>CodePointInversionList::try_from_inversion_list(inv_list).unwrap()
@@ -1048,9 +1049,9 @@
     /// ```
     /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_char(&#39;a&#39;);
+    /// builder.add_char('a');
     /// let check = builder.build();
-    /// assert_eq!(check.iter_chars().next(), Some(&#39;a&#39;));
+    /// assert_eq!(check.iter_chars().next(), Some('a'));
     /// ```
     </span><span class="kw">pub fn </span>add_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) {
         <span class="kw">let </span>to_add = c <span class="kw">as </span>u32;
@@ -1087,9 +1088,9 @@
     /// ```
     /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_range(&amp;(&#39;A&#39;..=&#39;Z&#39;));
+    /// builder.add_range(&amp;('A'..='Z'));
     /// let check = builder.build();
-    /// assert_eq!(check.iter_chars().next(), Some(&#39;A&#39;));
+    /// assert_eq!(check.iter_chars().next(), Some('A'));
     /// ```
     </span><span class="kw">pub fn </span>add_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;char&gt;) {
         <span class="kw">let </span>(start, end) = deconstruct_range(range);
@@ -1129,7 +1130,7 @@
     ///         .unwrap();
     /// builder.add_set(&amp;set);
     /// let check = builder.build();
-    /// assert_eq!(check.iter_chars().next(), Some(&#39;A&#39;));
+    /// assert_eq!(check.iter_chars().next(), Some('A'));
     /// ```
     </span><span class="attr">#[allow(unused_assignments)]
     </span><span class="kw">pub fn </span>add_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, set: <span class="kw-2">&amp;</span>CodePointInversionList) {
@@ -1171,10 +1172,10 @@
     /// ```
     /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_range(&amp;(&#39;A&#39;..=&#39;Z&#39;));
-    /// builder.remove_char(&#39;A&#39;);
+    /// builder.add_range(&amp;('A'..='Z'));
+    /// builder.remove_char('A');
     /// let check = builder.build();
-    /// assert_eq!(check.iter_chars().next(), Some(&#39;B&#39;));
+    /// assert_eq!(check.iter_chars().next(), Some('B'));
     </span><span class="kw">pub fn </span>remove_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) {
         <span class="kw">let </span>to_remove = c <span class="kw">as </span>u32;
         <span class="self">self</span>.remove(to_remove, to_remove + <span class="number">1</span>);
@@ -1187,10 +1188,10 @@
     /// ```
     /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_range(&amp;(&#39;A&#39;..=&#39;Z&#39;));
-    /// builder.remove_range(&amp;(&#39;A&#39;..=&#39;C&#39;));
+    /// builder.add_range(&amp;('A'..='Z'));
+    /// builder.remove_range(&amp;('A'..='C'));
     /// let check = builder.build();
-    /// assert_eq!(check.iter_chars().next(), Some(&#39;D&#39;));
+    /// assert_eq!(check.iter_chars().next(), Some('D'));
     </span><span class="kw">pub fn </span>remove_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;char&gt;) {
         <span class="kw">let </span>(start, end) = deconstruct_range(range);
         <span class="self">self</span>.remove(start, end);
@@ -1204,10 +1205,10 @@
     /// use icu_collections::codepointinvlist::{CodePointInversionList, CodePointInversionListBuilder};
     /// let mut builder = CodePointInversionListBuilder::new();
     /// let set = CodePointInversionList::try_from_inversion_list_slice(&amp;[0x41, 0x46]).unwrap();
-    /// builder.add_range(&amp;(&#39;A&#39;..=&#39;Z&#39;));
-    /// builder.remove_set(&amp;set); // removes &#39;A&#39;..=&#39;E&#39;
+    /// builder.add_range(&amp;('A'..='Z'));
+    /// builder.remove_set(&amp;set); // removes 'A'..='E'
     /// let check = builder.build();
-    /// assert_eq!(check.iter_chars().next(), Some(&#39;F&#39;));
+    /// assert_eq!(check.iter_chars().next(), Some('F'));
     </span><span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// chunks
     </span><span class="kw">pub fn </span>remove_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, set: <span class="kw-2">&amp;</span>CodePointInversionList) {
         set.as_inversion_list()
@@ -1228,11 +1229,11 @@
     /// ```
     /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_range(&amp;(&#39;A&#39;..=&#39;Z&#39;));
-    /// builder.retain_char(&#39;A&#39;);
+    /// builder.add_range(&amp;('A'..='Z'));
+    /// builder.retain_char('A');
     /// let set = builder.build();
     /// let mut check = set.iter_chars();
-    /// assert_eq!(check.next(), Some(&#39;A&#39;));
+    /// assert_eq!(check.next(), Some('A'));
     /// assert_eq!(check.next(), None);
     /// ```
     </span><span class="kw">pub fn </span>retain_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) {
@@ -1248,12 +1249,12 @@
     /// ```
     /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_range(&amp;(&#39;A&#39;..=&#39;Z&#39;));
-    /// builder.retain_range(&amp;(&#39;A&#39;..=&#39;B&#39;));
+    /// builder.add_range(&amp;('A'..='Z'));
+    /// builder.retain_range(&amp;('A'..='B'));
     /// let set = builder.build();
     /// let mut check = set.iter_chars();
-    /// assert_eq!(check.next(), Some(&#39;A&#39;));
-    /// assert_eq!(check.next(), Some(&#39;B&#39;));
+    /// assert_eq!(check.next(), Some('A'));
+    /// assert_eq!(check.next(), Some('B'));
     /// assert_eq!(check.next(), None);
     /// ```
     </span><span class="kw">pub fn </span>retain_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;char&gt;) {
@@ -1273,11 +1274,11 @@
     /// let mut builder = CodePointInversionListBuilder::new();
     /// let set = CodePointInversionList::try_from_inversion_list_slice(&amp;[65, 70])
     ///     .unwrap();
-    /// builder.add_range(&amp;(&#39;A&#39;..=&#39;Z&#39;));
-    /// builder.retain_set(&amp;set); // retains &#39;A&#39;..=&#39;E&#39;
+    /// builder.add_range(&amp;('A'..='Z'));
+    /// builder.retain_set(&amp;set); // retains 'A'..='E'
     /// let check = builder.build();
-    /// assert!(check.contains(&#39;A&#39;));
-    /// assert!(!check.contains(&#39;G&#39;));
+    /// assert!(check.contains('A'));
+    /// assert!(!check.contains('G'));
     /// ```
     </span><span class="attr">#[allow(clippy::indexing_slicing)] </span><span class="comment">// chunks
     </span><span class="kw">pub fn </span>retain_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, set: <span class="kw-2">&amp;</span>CodePointInversionList) {
@@ -1349,7 +1350,7 @@
     /// builder.add_set(&amp;set);
     /// builder.complement();
     /// let check = builder.build();
-    /// assert_eq!(check.iter_chars().next(), Some(&#39;A&#39;));
+    /// assert_eq!(check.iter_chars().next(), Some('A'));
     /// ```
     </span><span class="kw">pub fn </span>complement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if </span>!<span class="self">self</span>.intervals.is_empty() {
@@ -1377,12 +1378,12 @@
     /// ```
     /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_range(&amp;(&#39;A&#39;..=&#39;D&#39;));
-    /// builder.complement_char(&#39;A&#39;);
-    /// builder.complement_char(&#39;E&#39;);
+    /// builder.add_range(&amp;('A'..='D'));
+    /// builder.complement_char('A');
+    /// builder.complement_char('E');
     /// let check = builder.build();
-    /// assert!(check.contains(&#39;E&#39;));
-    /// assert!(!check.contains(&#39;A&#39;));
+    /// assert!(check.contains('E'));
+    /// assert!(!check.contains('A'));
     /// ```
     </span><span class="kw">pub fn </span>complement_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) {
         <span class="kw">let </span>code_point = c <span class="kw">as </span>u32;
@@ -1398,11 +1399,11 @@
     /// ```
     /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_range(&amp;(&#39;A&#39;..=&#39;D&#39;));
-    /// builder.complement_range(&amp;(&#39;C&#39;..=&#39;F&#39;));
+    /// builder.add_range(&amp;('A'..='D'));
+    /// builder.complement_range(&amp;('C'..='F'));
     /// let check = builder.build();
-    /// assert!(check.contains(&#39;F&#39;));
-    /// assert!(!check.contains(&#39;C&#39;));
+    /// assert!(check.contains('F'));
+    /// assert!(!check.contains('C'));
     /// ```
     </span><span class="kw">pub fn </span>complement_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;char&gt;) {
         <span class="kw">let </span>(start, end) = deconstruct_range(range);
@@ -1424,11 +1425,11 @@
     ///     0x41, 0x46, 0x4B, 0x5A,
     /// ])
     /// .unwrap();
-    /// builder.add_range(&amp;(&#39;C&#39;..=&#39;N&#39;)); // 67 - 78
+    /// builder.add_range(&amp;('C'..='N')); // 67 - 78
     /// builder.complement_set(&amp;set);
     /// let check = builder.build();
-    /// assert!(check.contains(&#39;Q&#39;)); // 81
-    /// assert!(!check.contains(&#39;N&#39;)); // 78
+    /// assert!(check.contains('Q')); // 81
+    /// assert!(!check.contains('N')); // 78
     /// ```
     </span><span class="kw">pub fn </span>complement_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, set: <span class="kw-2">&amp;</span>CodePointInversionList) {
         <span class="kw">let </span>inv_list_iter_owned = set.as_inversion_list().iter();
@@ -1477,7 +1478,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>builder = CodePointInversionListBuilder::new();
         builder.add(<span class="number">0x41</span>, <span class="number">0x42</span>);
         <span class="kw">let </span>check: CodePointInversionList = builder.build();
-        <span class="macro">assert_eq!</span>(check.iter_chars().next(), <span class="prelude-val">Some</span>(<span class="string">&#39;A&#39;</span>));
+        <span class="macro">assert_eq!</span>(check.iter_chars().next(), <span class="prelude-val">Some</span>(<span class="string">'A'</span>));
     }
 
     <span class="attr">#[test]
@@ -1654,7 +1655,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_add_char() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = CodePointInversionListBuilder::new();
-        builder.add_char(<span class="string">&#39;a&#39;</span>);
+        builder.add_char(<span class="string">'a'</span>);
         <span class="kw">let </span>expected = [<span class="number">0x61</span>, <span class="number">0x62</span>];
         <span class="macro">assert_eq!</span>(builder.intervals, expected);
     }
@@ -1662,7 +1663,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_add_range() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = CodePointInversionListBuilder::new();
-        builder.add_range(<span class="kw-2">&amp;</span>(<span class="string">&#39;A&#39;</span>..=<span class="string">&#39;Z&#39;</span>));
+        builder.add_range(<span class="kw-2">&amp;</span>(<span class="string">'A'</span>..=<span class="string">'Z'</span>));
         <span class="kw">let </span>expected = [<span class="number">0x41</span>, <span class="number">0x5B</span>];
         <span class="macro">assert_eq!</span>(builder.intervals, expected);
     }
@@ -1678,7 +1679,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_add_invalid_range() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = CodePointInversionListBuilder::new();
-        builder.add_range(<span class="kw-2">&amp;</span>(<span class="string">&#39;Z&#39;</span>..=<span class="string">&#39;A&#39;</span>));
+        builder.add_range(<span class="kw-2">&amp;</span>(<span class="string">'Z'</span>..=<span class="string">'A'</span>));
         <span class="macro">assert!</span>(builder.intervals.is_empty());
     }
 
@@ -1764,7 +1765,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_remove_char() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = generate_tester(<span class="kw-2">&amp;</span>[<span class="number">0x41</span>, <span class="number">0x46</span>]);
-        builder.remove_char(<span class="string">&#39;A&#39;</span>); <span class="comment">// 65
+        builder.remove_char(<span class="string">'A'</span>); <span class="comment">// 65
         </span><span class="kw">let </span>expected = [<span class="number">0x42</span>, <span class="number">0x46</span>];
         <span class="macro">assert_eq!</span>(builder.intervals, expected);
     }
@@ -1772,7 +1773,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_remove_range() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = generate_tester(<span class="kw-2">&amp;</span>[<span class="number">0x41</span>, <span class="number">0x5A</span>]);
-        builder.remove_range(<span class="kw-2">&amp;</span>(<span class="string">&#39;A&#39;</span>..<span class="string">&#39;L&#39;</span>)); <span class="comment">// 65 - 76
+        builder.remove_range(<span class="kw-2">&amp;</span>(<span class="string">'A'</span>..<span class="string">'L'</span>)); <span class="comment">// 65 - 76
         </span><span class="kw">let </span>expected = [<span class="number">0x4C</span>, <span class="number">0x5A</span>];
         <span class="macro">assert_eq!</span>(builder.intervals, expected);
     }
@@ -1791,7 +1792,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_retain_char() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = generate_tester(<span class="kw-2">&amp;</span>[<span class="number">0x41</span>, <span class="number">0x5A</span>]);
-        builder.retain_char(<span class="string">&#39;A&#39;</span>); <span class="comment">// 65
+        builder.retain_char(<span class="string">'A'</span>); <span class="comment">// 65
         </span><span class="kw">let </span>expected = [<span class="number">0x41</span>, <span class="number">0x42</span>];
         <span class="macro">assert_eq!</span>(builder.intervals, expected);
     }
@@ -1799,7 +1800,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_retain_range() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = generate_tester(<span class="kw-2">&amp;</span>[<span class="number">0x41</span>, <span class="number">0x5A</span>]);
-        builder.retain_range(<span class="kw-2">&amp;</span>(<span class="string">&#39;C&#39;</span>..<span class="string">&#39;F&#39;</span>)); <span class="comment">// 67 - 70
+        builder.retain_range(<span class="kw-2">&amp;</span>(<span class="string">'C'</span>..<span class="string">'F'</span>)); <span class="comment">// 67 - 70
         </span><span class="kw">let </span>expected = [<span class="number">0x43</span>, <span class="number">0x46</span>];
         <span class="macro">assert_eq!</span>(builder.intervals, expected);
     }
@@ -1807,7 +1808,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_retain_range_empty() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = generate_tester(<span class="kw-2">&amp;</span>[<span class="number">0x41</span>, <span class="number">0x46</span>]);
-        builder.retain_range(<span class="kw-2">&amp;</span>(<span class="string">&#39;F&#39;</span>..<span class="string">&#39;Z&#39;</span>));
+        builder.retain_range(<span class="kw-2">&amp;</span>(<span class="string">'F'</span>..<span class="string">'Z'</span>));
         <span class="macro">assert!</span>(builder.intervals.is_empty());
     }
 
@@ -1878,8 +1879,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_complement_char() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = generate_tester(<span class="kw-2">&amp;</span>[<span class="number">0x41</span>, <span class="number">0x4C</span>]); <span class="comment">// A - K
-        </span>builder.complement_char(<span class="string">&#39;A&#39;</span>);
-        builder.complement_char(<span class="string">&#39;L&#39;</span>);
+        </span>builder.complement_char(<span class="string">'A'</span>);
+        builder.complement_char(<span class="string">'L'</span>);
         <span class="kw">let </span>expected = [<span class="number">0x42</span>, <span class="number">0x4D</span>];
         <span class="macro">assert_eq!</span>(builder.intervals, expected);
     }
@@ -1887,7 +1888,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_complement_range() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = generate_tester(<span class="kw-2">&amp;</span>[<span class="number">0x46</span>, <span class="number">0x4C</span>]); <span class="comment">// F - K
-        </span>builder.complement_range(<span class="kw-2">&amp;</span>(<span class="string">&#39;A&#39;</span>..=<span class="string">&#39;Z&#39;</span>));
+        </span>builder.complement_range(<span class="kw-2">&amp;</span>(<span class="string">'A'</span>..=<span class="string">'Z'</span>));
         <span class="kw">let </span>expected = [<span class="number">0x41</span>, <span class="number">0x46</span>, <span class="number">0x4C</span>, <span class="number">0x5B</span>];
         <span class="macro">assert_eq!</span>(builder.intervals, expected);
     }

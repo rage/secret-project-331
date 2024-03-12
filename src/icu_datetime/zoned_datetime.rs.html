@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/zoned_datetime.rs`."><title>zoned_datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/zoned_datetime.rs`."><title>zoned_datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -471,19 +472,19 @@
 ///     length::Time::Long,
 /// );
 /// let zdtf = TypedZonedDateTimeFormatter::&lt;Gregorian&gt;::try_new(
-///     &amp;locale!(&quot;en&quot;).into(),
+///     &amp;locale!("en").into(),
 ///     options.into(),
 ///     TimeZoneFormatterOptions::default(),
 /// )
-/// .expect(&quot;Failed to create TypedDateTimeFormatter instance.&quot;);
+/// .expect("Failed to create TypedDateTimeFormatter instance.");
 ///
 /// let datetime =
 ///     DateTime::try_new_gregorian_datetime(2020, 9, 12, 12, 34, 28).unwrap();
-/// let time_zone = CustomTimeZone::from_str(&quot;-07:00&quot;).unwrap();
+/// let time_zone = CustomTimeZone::from_str("-07:00").unwrap();
 ///
 /// let formatted_date = zdtf.format(&amp;datetime, &amp;time_zone);
 ///
-/// assert_writeable_eq!(formatted_date, &quot;Sep 12, 2020, 12:34:28 PM GMT-07:00&quot;);
+/// assert_writeable_eq!(formatted_date, "Sep 12, 2020, 12:34:28 PM GMT-07:00");
 /// ```
 ///
 /// [`TimeZoneFormatter`]: crate::time_zone::TimeZoneFormatter
@@ -514,7 +515,7 @@
     /// );
     ///
     /// let zdtf = TypedZonedDateTimeFormatter::&lt;Gregorian&gt;::try_new(
-    ///     &amp;locale!(&quot;en&quot;).into(),
+    ///     &amp;locale!("en").into(),
     ///     options.into(),
     ///     TimeZoneFormatterOptions::default(),
     /// )
@@ -525,13 +526,13 @@
     ///
     /// assert_writeable_eq!(
     ///     zdtf.format(&amp;datetime, &amp;CustomTimeZone::utc()),
-    ///     &quot;Aug 31, 2022, 1:02:03 AM GMT&quot;,
+    ///     "Aug 31, 2022, 1:02:03 AM GMT",
     /// );
     /// ```
     ///
     /// [data provider]: icu_provider
     </span><span class="attr">#[inline]
-    #[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    #[cfg(feature = <span class="string">"compiled_data"</span>)]
     </span><span class="kw">pub fn </span>try_new(
         locale: <span class="kw-2">&amp;</span>DataLocale,
         date_time_format_options: DateTimeFormatterOptions,
@@ -620,11 +621,11 @@
     ///
     /// [📚 Help choosing a constructor](icu_provider::constructors)
     ///
-    /// &lt;div class=&quot;stab unstable&quot;&gt;
+    /// &lt;div class="stab unstable"&gt;
     /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. It can be enabled with the &quot;experimental&quot; Cargo feature
+    /// including in SemVer minor releases. It can be enabled with the "experimental" Cargo feature
     /// of the icu meta-crate. Use with caution.
-    /// &lt;a href=&quot;https://github.com/unicode-org/icu4x/issues/1317&quot;&gt;#1317&lt;/a&gt;
+    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/1317"&gt;#1317&lt;/a&gt;
     /// &lt;/div&gt;
     ///
     /// # Examples
@@ -646,7 +647,7 @@
     /// options.time_zone_name = Some(components::TimeZoneName::GmtOffset);
     ///
     /// let zdtf = TypedZonedDateTimeFormatter::&lt;Gregorian&gt;::try_new_experimental(
-    ///     &amp;locale!(&quot;en&quot;).into(),
+    ///     &amp;locale!("en").into(),
     ///     options.into(),
     ///     TimeZoneFormatterOptions::default(),
     /// )
@@ -657,13 +658,13 @@
     ///
     /// assert_writeable_eq!(
     ///     zdtf.format(&amp;datetime, &amp;CustomTimeZone::utc()),
-    ///     &quot;August 2022, 01:02 GMT&quot;,
+    ///     "August 2022, 01:02 GMT",
     /// );
     /// ```
     ///
     /// [data provider]: icu_provider
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-    #[cfg(feature = <span class="string">&quot;compiled_data&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    #[cfg(feature = <span class="string">"compiled_data"</span>)]
     #[inline]
     </span><span class="kw">pub fn </span>try_new_experimental(
         locale: <span class="kw-2">&amp;</span>DataLocale,
@@ -698,7 +699,7 @@
     }
 
     <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::try_new_experimental)]
-    #[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    #[cfg(feature = <span class="string">"experimental"</span>)]
     #[inline]
     </span><span class="kw">pub fn </span>try_new_experimental_unstable&lt;P&gt;(
         provider: <span class="kw-2">&amp;</span>P,
@@ -761,26 +762,26 @@
     /// );
     ///
     /// let zdtf = TypedZonedDateTimeFormatter::&lt;Gregorian&gt;::try_new(
-    ///     &amp;locale!(&quot;en&quot;).into(),
+    ///     &amp;locale!("en").into(),
     ///     options.into(),
     ///     Default::default(),
     /// )
-    /// .expect(&quot;Failed to create TypedZonedDateTimeFormatter instance.&quot;);
+    /// .expect("Failed to create TypedZonedDateTimeFormatter instance.");
     ///
     /// let datetime =
     ///     DateTime::try_new_gregorian_datetime(2020, 9, 12, 12, 34, 28).unwrap();
-    /// let time_zone = CustomTimeZone::from_str(&quot;-07:00&quot;).unwrap();
+    /// let time_zone = CustomTimeZone::from_str("-07:00").unwrap();
     ///
     /// let formatted_date = zdtf.format(&amp;datetime, &amp;time_zone);
     ///
-    /// assert_writeable_eq!(formatted_date, &quot;Sep 12, 2020, 12:34:28 PM GMT-07:00&quot;);
+    /// assert_writeable_eq!(formatted_date, "Sep 12, 2020, 12:34:28 PM GMT-07:00");
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>format&lt;<span class="lifetime">&#39;l</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;l </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>format&lt;<span class="lifetime">'l</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'l </span><span class="self">self</span>,
         date: <span class="kw-2">&amp;</span><span class="kw">impl </span>DateTimeInput&lt;Calendar = C&gt;,
         time_zone: <span class="kw-2">&amp;</span><span class="kw">impl </span>TimeZoneInput,
-    ) -&gt; FormattedZonedDateTime&lt;<span class="lifetime">&#39;l</span>&gt; {
+    ) -&gt; FormattedZonedDateTime&lt;<span class="lifetime">'l</span>&gt; {
         <span class="self">self</span>.<span class="number">0</span>.format(date, time_zone)
     }
 
@@ -801,19 +802,19 @@
     /// );
     ///
     /// let zdtf = TypedZonedDateTimeFormatter::&lt;Gregorian&gt;::try_new(
-    ///     &amp;locale!(&quot;en&quot;).into(),
+    ///     &amp;locale!("en").into(),
     ///     options.into(),
     ///     Default::default(),
     /// )
-    /// .expect(&quot;Failed to create TypedZonedDateTimeFormatter instance.&quot;);
+    /// .expect("Failed to create TypedZonedDateTimeFormatter instance.");
     ///
     /// let datetime =
     ///     DateTime::try_new_gregorian_datetime(2020, 9, 12, 12, 34, 28).unwrap();
-    /// let time_zone = CustomTimeZone::from_str(&quot;-07:00&quot;).unwrap();
+    /// let time_zone = CustomTimeZone::from_str("-07:00").unwrap();
     ///
     /// let formatted_string = zdtf.format_to_string(&amp;datetime, &amp;time_zone);
     ///
-    /// assert_eq!(formatted_string, &quot;Sep 12, 2020, 12:34:28 PM GMT-07:00&quot;);
+    /// assert_eq!(formatted_string, "Sep 12, 2020, 12:34:28 PM GMT-07:00");
     /// ```
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>format_to_string(

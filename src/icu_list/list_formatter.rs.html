@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_list-1.4.0/src/list_formatter.rs`."><title>list_formatter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_list" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_list-1.4.0/src/list_formatter.rs`."><title>list_formatter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_list" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -461,7 +462,7 @@
             locale: include,
             style: ListLength,
             error: ListError,
-            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;Creates a new [`ListFormatter`] that produces a &quot;</span>, <span class="macro-nonterminal">$doc</span>, <span class="string">&quot;-type list using compiled data.&quot;</span>)]
+            <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates a new [`ListFormatter`] that produces a "</span>, <span class="macro-nonterminal">$doc</span>, <span class="string">"-type list using compiled data."</span>)]
             </span><span class="doccomment">///
             /// See the [CLDR spec](https://unicode.org/reports/tr35/tr35-general.html#ListPatterns) for
             /// an explanation of the different types.
@@ -502,7 +503,7 @@
         try_new_and_with_length_with_buffer_provider,
         try_new_and_with_length_unstable,
         AndListV1Marker,
-        <span class="string">&quot;and&quot;
+        <span class="string">"and"
     </span>);
     <span class="macro">constructor!</span>(
         try_new_or_with_length,
@@ -510,7 +511,7 @@
         try_new_or_with_length_with_buffer_provider,
         try_new_or_with_length_unstable,
         OrListV1Marker,
-        <span class="string">&quot;or&quot;
+        <span class="string">"or"
     </span>);
     <span class="macro">constructor!</span>(
         try_new_unit_with_length,
@@ -518,7 +519,7 @@
         try_new_unit_with_length_with_buffer_provider,
         try_new_unit_with_length_unstable,
         UnitListV1Marker,
-        <span class="string">&quot;unit&quot;
+        <span class="string">"unit"
     </span>);
 
     <span class="doccomment">/// Returns a [`Writeable`] composed of the input [`Writeable`]s and the language-dependent
@@ -534,15 +535,15 @@
     /// # use icu::locid::locale;
     /// # use writeable::*;
     /// let formatteur = ListFormatter::try_new_and_with_length(
-    ///     &amp;locale!(&quot;fr&quot;).into(),
+    ///     &amp;locale!("fr").into(),
     ///     ListLength::Wide,
     /// )
     /// .unwrap();
-    /// let pays = [&quot;Italie&quot;, &quot;France&quot;, &quot;Espagne&quot;, &quot;Allemagne&quot;];
+    /// let pays = ["Italie", "France", "Espagne", "Allemagne"];
     ///
     /// assert_writeable_parts_eq!(
     ///     formatteur.format(pays.iter()),
-    ///     &quot;Italie, France, Espagne et Allemagne&quot;,
+    ///     "Italie, France, Espagne et Allemagne",
     ///     [
     ///         (0, 6, parts::ELEMENT),
     ///         (6, 8, parts::LITERAL),
@@ -554,10 +555,10 @@
     ///     ]
     /// );
     /// ```
-    </span><span class="kw">pub fn </span>format&lt;<span class="lifetime">&#39;a</span>, W: Writeable + <span class="lifetime">&#39;a</span>, I: Iterator&lt;Item = W&gt; + Clone + <span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>format&lt;<span class="lifetime">'a</span>, W: Writeable + <span class="lifetime">'a</span>, I: Iterator&lt;Item = W&gt; + Clone + <span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         values: I,
-    ) -&gt; FormattedList&lt;<span class="lifetime">&#39;a</span>, W, I&gt; {
+    ) -&gt; FormattedList&lt;<span class="lifetime">'a</span>, W, I&gt; {
         FormattedList {
             formatter: <span class="self">self</span>,
             values,
@@ -580,34 +581,34 @@
 
     <span class="doccomment">/// The [`Part`] used by [`FormattedList`](super::FormattedList) to mark the part of the string that is an element.
     ///
-    /// * `category`: `&quot;list&quot;`
-    /// * `value`: `&quot;element&quot;`
+    /// * `category`: `"list"`
+    /// * `value`: `"element"`
     </span><span class="kw">pub const </span>ELEMENT: Part = Part {
-        category: <span class="string">&quot;list&quot;</span>,
-        value: <span class="string">&quot;element&quot;</span>,
+        category: <span class="string">"list"</span>,
+        value: <span class="string">"element"</span>,
     };
 
     <span class="doccomment">/// The [`Part`] used by [`FormattedList`](super::FormattedList) to mark the part of the string that is a list literal,
-    /// such as &quot;, &quot; or &quot; and &quot;.
+    /// such as ", " or " and ".
     ///
-    /// * `category`: `&quot;list&quot;`
-    /// * `value`: `&quot;literal&quot;`
+    /// * `category`: `"list"`
+    /// * `value`: `"literal"`
     </span><span class="kw">pub const </span>LITERAL: Part = Part {
-        category: <span class="string">&quot;list&quot;</span>,
-        value: <span class="string">&quot;literal&quot;</span>,
+        category: <span class="string">"list"</span>,
+        value: <span class="string">"literal"</span>,
     };
 }
 
 <span class="doccomment">/// The [`Writeable`] implementation that is returned by [`ListFormatter::format`]. See
 /// the [`writeable`] crate for how to consume this.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>FormattedList&lt;<span class="lifetime">&#39;a</span>, W: Writeable + <span class="lifetime">&#39;a</span>, I: Iterator&lt;Item = W&gt; + Clone + <span class="lifetime">&#39;a</span>&gt; {
-    formatter: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ListFormatter,
+</span><span class="kw">pub struct </span>FormattedList&lt;<span class="lifetime">'a</span>, W: Writeable + <span class="lifetime">'a</span>, I: Iterator&lt;Item = W&gt; + Clone + <span class="lifetime">'a</span>&gt; {
+    formatter: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ListFormatter,
     values: I,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W: Writeable + <span class="lifetime">&#39;a</span>, I: Iterator&lt;Item = W&gt; + Clone + <span class="lifetime">&#39;a</span>&gt; Writeable
-    <span class="kw">for </span>FormattedList&lt;<span class="lifetime">&#39;a</span>, W, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W: Writeable + <span class="lifetime">'a</span>, I: Iterator&lt;Item = W&gt; + Clone + <span class="lifetime">'a</span>&gt; Writeable
+    <span class="kw">for </span>FormattedList&lt;<span class="lifetime">'a</span>, W, I&gt;
 {
     <span class="kw">fn </span>write_to_parts&lt;V: PartsWrite + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sink: <span class="kw-2">&amp;mut </span>V) -&gt; fmt::Result {
         <span class="macro">macro_rules! </span>literal {
@@ -706,15 +707,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W: Writeable + <span class="lifetime">&#39;a</span>, I: Iterator&lt;Item = W&gt; + Clone + <span class="lifetime">&#39;a</span>&gt; core::fmt::Display
-    <span class="kw">for </span>FormattedList&lt;<span class="lifetime">&#39;a</span>, W, I&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W: Writeable + <span class="lifetime">'a</span>, I: Iterator&lt;Item = W&gt; + Clone + <span class="lifetime">'a</span>&gt; core::fmt::Display
+    <span class="kw">for </span>FormattedList&lt;<span class="lifetime">'a</span>, W, I&gt;
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
         <span class="self">self</span>.write_to(f)
     }
 }
 
-<span class="attr">#[cfg(all(test, feature = <span class="string">&quot;datagen&quot;</span>))]
+<span class="attr">#[cfg(all(test, feature = <span class="string">"datagen"</span>))]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>writeable::{assert_writeable_eq, assert_writeable_parts_eq};
@@ -729,20 +730,20 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_slices() {
         <span class="kw">let </span>formatter = formatter(ListLength::Wide);
-        <span class="kw">let </span>values = [<span class="string">&quot;one&quot;</span>, <span class="string">&quot;two&quot;</span>, <span class="string">&quot;three&quot;</span>, <span class="string">&quot;four&quot;</span>, <span class="string">&quot;five&quot;</span>];
+        <span class="kw">let </span>values = [<span class="string">"one"</span>, <span class="string">"two"</span>, <span class="string">"three"</span>, <span class="string">"four"</span>, <span class="string">"five"</span>];
 
-        <span class="macro">assert_writeable_eq!</span>(formatter.format(values[<span class="number">0</span>..<span class="number">0</span>].iter()), <span class="string">&quot;&quot;</span>);
-        <span class="macro">assert_writeable_eq!</span>(formatter.format(values[<span class="number">0</span>..<span class="number">1</span>].iter()), <span class="string">&quot;one&quot;</span>);
-        <span class="macro">assert_writeable_eq!</span>(formatter.format(values[<span class="number">0</span>..<span class="number">2</span>].iter()), <span class="string">&quot;$one;two+&quot;</span>);
-        <span class="macro">assert_writeable_eq!</span>(formatter.format(values[<span class="number">0</span>..<span class="number">3</span>].iter()), <span class="string">&quot;@one:two.three!&quot;</span>);
+        <span class="macro">assert_writeable_eq!</span>(formatter.format(values[<span class="number">0</span>..<span class="number">0</span>].iter()), <span class="string">""</span>);
+        <span class="macro">assert_writeable_eq!</span>(formatter.format(values[<span class="number">0</span>..<span class="number">1</span>].iter()), <span class="string">"one"</span>);
+        <span class="macro">assert_writeable_eq!</span>(formatter.format(values[<span class="number">0</span>..<span class="number">2</span>].iter()), <span class="string">"$one;two+"</span>);
+        <span class="macro">assert_writeable_eq!</span>(formatter.format(values[<span class="number">0</span>..<span class="number">3</span>].iter()), <span class="string">"@one:two.three!"</span>);
         <span class="macro">assert_writeable_eq!</span>(
             formatter.format(values[<span class="number">0</span>..<span class="number">4</span>].iter()),
-            <span class="string">&quot;@one:two,three.four!&quot;
+            <span class="string">"@one:two,three.four!"
         </span>);
 
         <span class="macro">assert_writeable_parts_eq!</span>(
             formatter.format(values.iter()),
-            <span class="string">&quot;@one:two,three,four.five!&quot;</span>,
+            <span class="string">"@one:two,three,four.five!"</span>,
             [
                 (<span class="number">0</span>, <span class="number">1</span>, parts::LITERAL),
                 (<span class="number">1</span>, <span class="number">4</span>, parts::ELEMENT),
@@ -769,7 +770,7 @@
 
         <span class="macro">assert_writeable_parts_eq!</span>(
             formatter.format(vecdeque.iter()),
-            <span class="string">&quot;$48;10+&quot;</span>,
+            <span class="string">"$48;10+"</span>,
             [
                 (<span class="number">0</span>, <span class="number">1</span>, parts::LITERAL),
                 (<span class="number">1</span>, <span class="number">3</span>, parts::ELEMENT),
@@ -786,7 +787,7 @@
 
         <span class="macro">assert_writeable_parts_eq!</span>(
             formatter.format(core::iter::repeat(<span class="number">5</span>).take(<span class="number">2</span>)),
-            <span class="string">&quot;$5;5+&quot;</span>,
+            <span class="string">"$5;5+"</span>,
             [
                 (<span class="number">0</span>, <span class="number">1</span>, parts::LITERAL),
                 (<span class="number">1</span>, <span class="number">2</span>, parts::ELEMENT),
@@ -801,7 +802,7 @@
     </span><span class="kw">fn </span>test_conditional() {
         <span class="kw">let </span>formatter = formatter(ListLength::Narrow);
 
-        <span class="macro">assert_writeable_eq!</span>(formatter.format([<span class="string">&quot;Beta&quot;</span>, <span class="string">&quot;Alpha&quot;</span>].iter()), <span class="string">&quot;Beta :o Alpha&quot;</span>);
+        <span class="macro">assert_writeable_eq!</span>(formatter.format([<span class="string">"Beta"</span>, <span class="string">"Alpha"</span>].iter()), <span class="string">"Beta :o Alpha"</span>);
     }
 
     <span class="macro">macro_rules! </span>test {
@@ -818,53 +819,53 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_basic() {
-        <span class="macro">test!</span>(<span class="string">&quot;fr&quot;</span>, try_new_or_with_length, ([<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>], <span class="string">&quot;A ou B&quot;</span>),);
+        <span class="macro">test!</span>(<span class="string">"fr"</span>, try_new_or_with_length, ([<span class="string">"A"</span>, <span class="string">"B"</span>], <span class="string">"A ou B"</span>),);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_spanish() {
         <span class="macro">test!</span>(
-            <span class="string">&quot;es&quot;</span>,
+            <span class="string">"es"</span>,
             try_new_and_with_length,
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;Mallorca&quot;</span>], <span class="string">&quot;x y Mallorca&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;Ibiza&quot;</span>], <span class="string">&quot;x e Ibiza&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;Hidalgo&quot;</span>], <span class="string">&quot;x e Hidalgo&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;Hierva&quot;</span>], <span class="string">&quot;x y Hierva&quot;</span>),
+            ([<span class="string">"x"</span>, <span class="string">"Mallorca"</span>], <span class="string">"x y Mallorca"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"Ibiza"</span>], <span class="string">"x e Ibiza"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"Hidalgo"</span>], <span class="string">"x e Hidalgo"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"Hierva"</span>], <span class="string">"x y Hierva"</span>),
         );
 
         <span class="macro">test!</span>(
-            <span class="string">&quot;es&quot;</span>,
+            <span class="string">"es"</span>,
             try_new_or_with_length,
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;Ibiza&quot;</span>], <span class="string">&quot;x o Ibiza&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;Okinawa&quot;</span>], <span class="string">&quot;x u Okinawa&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;8 más&quot;</span>], <span class="string">&quot;x u 8 más&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;8&quot;</span>], <span class="string">&quot;x u 8&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;87 más&quot;</span>], <span class="string">&quot;x u 87 más&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;87&quot;</span>], <span class="string">&quot;x u 87&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;11 más&quot;</span>], <span class="string">&quot;x u 11 más&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;11&quot;</span>], <span class="string">&quot;x u 11&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;110 más&quot;</span>], <span class="string">&quot;x o 110 más&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;110&quot;</span>], <span class="string">&quot;x o 110&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;11.000 más&quot;</span>], <span class="string">&quot;x u 11.000 más&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;11.000&quot;</span>], <span class="string">&quot;x u 11.000&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;11.000,92 más&quot;</span>], <span class="string">&quot;x u 11.000,92 más&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;11.000,92&quot;</span>], <span class="string">&quot;x u 11.000,92&quot;</span>),
+            ([<span class="string">"x"</span>, <span class="string">"Ibiza"</span>], <span class="string">"x o Ibiza"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"Okinawa"</span>], <span class="string">"x u Okinawa"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"8 más"</span>], <span class="string">"x u 8 más"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"8"</span>], <span class="string">"x u 8"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"87 más"</span>], <span class="string">"x u 87 más"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"87"</span>], <span class="string">"x u 87"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"11 más"</span>], <span class="string">"x u 11 más"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"11"</span>], <span class="string">"x u 11"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"110 más"</span>], <span class="string">"x o 110 más"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"110"</span>], <span class="string">"x o 110"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"11.000 más"</span>], <span class="string">"x u 11.000 más"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"11.000"</span>], <span class="string">"x u 11.000"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"11.000,92 más"</span>], <span class="string">"x u 11.000,92 más"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"11.000,92"</span>], <span class="string">"x u 11.000,92"</span>),
         );
 
         <span class="macro">test!</span>(
-            <span class="string">&quot;es-AR&quot;</span>,
+            <span class="string">"es-AR"</span>,
             try_new_and_with_length,
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;Ibiza&quot;</span>], <span class="string">&quot;x e Ibiza&quot;</span>),
+            ([<span class="string">"x"</span>, <span class="string">"Ibiza"</span>], <span class="string">"x e Ibiza"</span>),
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_hebrew() {
         <span class="macro">test!</span>(
-            <span class="string">&quot;he&quot;</span>,
+            <span class="string">"he"</span>,
             try_new_and_with_length,
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;יפו&quot;</span>], <span class="string">&quot;x ויפו&quot;</span>),
-            ([<span class="string">&quot;x&quot;</span>, <span class="string">&quot;Ibiza&quot;</span>], <span class="string">&quot;x ו‑Ibiza&quot;</span>),
+            ([<span class="string">"x"</span>, <span class="string">"יפו"</span>], <span class="string">"x ויפו"</span>),
+            ([<span class="string">"x"</span>, <span class="string">"Ibiza"</span>], <span class="string">"x ו‑Ibiza"</span>),
         );
     }
 }

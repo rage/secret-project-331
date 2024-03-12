@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/pem-0.8.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="pem" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/pem-0.8.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="pem" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -640,17 +641,17 @@
 //! tag that encloses base64-encoded binary data (see:
 //! https://en.wikipedia.org/wiki/Privacy-enhanced_Electronic_Mail).
 //!
-//! This crate&#39;s documentation provides a few simple examples along with
+//! This crate's documentation provides a few simple examples along with
 //! documentation on the public methods for the crate.
 //!
 //! # Usage
 //!
 //! This crate is [on crates.io](https://crates.io/crates/pem) and can be used
-//! by adding `pem` to your dependencies in your project&#39;s `Cargo.toml`.
+//! by adding `pem` to your dependencies in your project's `Cargo.toml`.
 //!
 //! ```toml
 //! [dependencies]
-//! pem = &quot;0.8&quot;
+//! pem = "0.8"
 //! ```
 //!
 //! and this to your crate root:
@@ -669,7 +670,7 @@
 //!
 //! use pem::parse;
 //!
-//! const SAMPLE: &amp;&#39;static str = &quot;-----BEGIN RSA PRIVATE KEY-----
+//! const SAMPLE: &amp;'static str = "-----BEGIN RSA PRIVATE KEY-----
 //! MIIBPQIBAAJBAOsfi5AGYhdRs/x6q5H7kScxA0Kzzqe6WI6gf6+tc6IvKQJo5rQc
 //! dWWSQ0nRGt2hOPDO+35NKhQEjBQxPh/v7n0CAwEAAQJBAOGaBAyuw0ICyENy5NsO
 //! 2gkT00AWTSzM9Zns0HedY31yEabkuFvrMCHjscEF7u3Y6PB7An3IzooBHchsFDei
@@ -678,10 +679,10 @@
 //! TTGsEtITid1ogAECIQDAaFl90ZgS5cMrL3wCeatVKzVUmuJmB/VAmlLFFGzK0QIh
 //! ANJGc7AFk4fyFD/OezhwGHbWmo/S+bfeAiIh2Ss2FxKJ
 //! -----END RSA PRIVATE KEY-----
-//! &quot;;
+//! ";
 //!
 //!  let pem = parse(SAMPLE).unwrap();
-//!  assert_eq!(pem.tag, &quot;RSA PRIVATE KEY&quot;);
+//!  assert_eq!(pem.tag, "RSA PRIVATE KEY");
 //! ```
 //!
 //! # Example: parse a set of PEM-encoded test
@@ -694,7 +695,7 @@
 //!
 //! use pem::parse_many;
 //!
-//! const SAMPLE: &amp;&#39;static str = &quot;-----BEGIN INTERMEDIATE CERT-----
+//! const SAMPLE: &amp;'static str = "-----BEGIN INTERMEDIATE CERT-----
 //! MIIBPQIBAAJBAOsfi5AGYhdRs/x6q5H7kScxA0Kzzqe6WI6gf6+tc6IvKQJo5rQc
 //! dWWSQ0nRGt2hOPDO+35NKhQEjBQxPh/v7n0CAwEAAQJBAOGaBAyuw0ICyENy5NsO
 //! 2gkT00AWTSzM9Zns0HedY31yEabkuFvrMCHjscEF7u3Y6PB7An3IzooBHchsFDei
@@ -713,15 +714,15 @@
 //! TTGsEtITid1ogAECIQDAaFl90ZgS5cMrL3wCeatVKzVUmuJmB/VAmlLFFGzK0QIh
 //! ANJGc7AFk4fyFD/OezhwGHbWmo/S+bfeAiIh2Ss2FxKJ
 //! -----END CERTIFICATE-----
-//! &quot;;
+//! ";
 //!
 //!  let pems = parse_many(SAMPLE);
 //!  assert_eq!(pems.len(), 2);
-//!  assert_eq!(pems[0].tag, &quot;INTERMEDIATE CERT&quot;);
-//!  assert_eq!(pems[1].tag, &quot;CERTIFICATE&quot;);
+//!  assert_eq!(pems[0].tag, "INTERMEDIATE CERT");
+//!  assert_eq!(pems[1].tag, "CERTIFICATE");
 //! ```
 
-</span><span class="attr">#![recursion_limit = <span class="string">&quot;1024&quot;</span>]
+</span><span class="attr">#![recursion_limit = <span class="string">"1024"</span>]
 #![deny(
     missing_docs,
     missing_debug_implementations,
@@ -742,7 +743,7 @@
 <span class="kw">use </span>std::str;
 
 <span class="kw">const </span>REGEX_STR: <span class="kw-2">&amp;</span>str =
-    <span class="string">r&quot;(?s)-----BEGIN (?P&lt;begin&gt;.*?)-----[ \t\n\r]*(?P&lt;data&gt;.*?)-----END (?P&lt;end&gt;.*?)-----[ \t\n\r]*&quot;</span>;
+    <span class="string">r"(?s)-----BEGIN (?P&lt;begin&gt;.*?)-----[ \t\n\r]*(?P&lt;data&gt;.*?)-----END (?P&lt;end&gt;.*?)-----[ \t\n\r]*"</span>;
 
 <span class="doccomment">/// The line length for PEM encoding
 </span><span class="kw">const </span>LINE_WRAP: usize = <span class="number">64</span>;
@@ -778,13 +779,13 @@
 
 <span class="kw">impl </span>Pem {
     <span class="kw">fn </span>new_from_captures(caps: Captures) -&gt; <span class="prelude-ty">Result</span>&lt;Pem&gt; {
-        <span class="kw">fn </span>as_utf8&lt;<span class="lifetime">&#39;a</span>&gt;(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; {
+        <span class="kw">fn </span>as_utf8&lt;<span class="lifetime">'a</span>&gt;(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; {
             <span class="prelude-val">Ok</span>(str::from_utf8(bytes).map_err(PemError::NotUtf8)<span class="question-mark">?</span>)
         }
 
         <span class="comment">// Verify that the begin section exists
         </span><span class="kw">let </span>tag = as_utf8(
-            caps.name(<span class="string">&quot;begin&quot;</span>)
+            caps.name(<span class="string">"begin"</span>)
                 .ok_or_else(|| PemError::MissingBeginTag)<span class="question-mark">?
                 </span>.as_bytes(),
         )<span class="question-mark">?</span>;
@@ -794,7 +795,7 @@
 
         <span class="comment">// as well as the end section
         </span><span class="kw">let </span>tag_end = as_utf8(
-            caps.name(<span class="string">&quot;end&quot;</span>)
+            caps.name(<span class="string">"end"</span>)
                 .ok_or_else(|| PemError::MissingEndTag)<span class="question-mark">?
                 </span>.as_bytes(),
         )<span class="question-mark">?</span>;
@@ -809,7 +810,7 @@
 
         <span class="comment">// If they did, then we can grab the data section
         </span><span class="kw">let </span>raw_data = as_utf8(
-            caps.name(<span class="string">&quot;data&quot;</span>)
+            caps.name(<span class="string">"data"</span>)
                 .ok_or_else(|| PemError::MissingData)<span class="question-mark">?
                 </span>.as_bytes(),
         )<span class="question-mark">?</span>;
@@ -836,7 +837,7 @@
 ///
 /// use pem::parse;
 ///
-/// const SAMPLE: &amp;&#39;static str = &quot;-----BEGIN RSA PRIVATE KEY-----
+/// const SAMPLE: &amp;'static str = "-----BEGIN RSA PRIVATE KEY-----
 /// MIIBPQIBAAJBAOsfi5AGYhdRs/x6q5H7kScxA0Kzzqe6WI6gf6+tc6IvKQJo5rQc
 /// dWWSQ0nRGt2hOPDO+35NKhQEjBQxPh/v7n0CAwEAAQJBAOGaBAyuw0ICyENy5NsO
 /// 2gkT00AWTSzM9Zns0HedY31yEabkuFvrMCHjscEF7u3Y6PB7An3IzooBHchsFDei
@@ -845,11 +846,11 @@
 /// TTGsEtITid1ogAECIQDAaFl90ZgS5cMrL3wCeatVKzVUmuJmB/VAmlLFFGzK0QIh
 /// ANJGc7AFk4fyFD/OezhwGHbWmo/S+bfeAiIh2Ss2FxKJ
 /// -----END RSA PRIVATE KEY-----
-/// &quot;;
+/// ";
 /// let SAMPLE_BYTES: Vec&lt;u8&gt; = SAMPLE.into();
 ///
 ///  let pem = parse(SAMPLE_BYTES).unwrap();
-///  assert_eq!(pem.tag, &quot;RSA PRIVATE KEY&quot;);
+///  assert_eq!(pem.tag, "RSA PRIVATE KEY");
 /// ```
 ///
 /// # Example: parse PEM-encoded data from a String
@@ -857,7 +858,7 @@
 ///
 /// use pem::parse;
 ///
-/// const SAMPLE: &amp;&#39;static str = &quot;-----BEGIN RSA PRIVATE KEY-----
+/// const SAMPLE: &amp;'static str = "-----BEGIN RSA PRIVATE KEY-----
 /// MIIBPQIBAAJBAOsfi5AGYhdRs/x6q5H7kScxA0Kzzqe6WI6gf6+tc6IvKQJo5rQc
 /// dWWSQ0nRGt2hOPDO+35NKhQEjBQxPh/v7n0CAwEAAQJBAOGaBAyuw0ICyENy5NsO
 /// 2gkT00AWTSzM9Zns0HedY31yEabkuFvrMCHjscEF7u3Y6PB7An3IzooBHchsFDei
@@ -866,11 +867,11 @@
 /// TTGsEtITid1ogAECIQDAaFl90ZgS5cMrL3wCeatVKzVUmuJmB/VAmlLFFGzK0QIh
 /// ANJGc7AFk4fyFD/OezhwGHbWmo/S+bfeAiIh2Ss2FxKJ
 /// -----END RSA PRIVATE KEY-----
-/// &quot;;
+/// ";
 /// let SAMPLE_STRING: String = SAMPLE.into();
 ///
 ///  let pem = parse(SAMPLE_STRING).unwrap();
-///  assert_eq!(pem.tag, &quot;RSA PRIVATE KEY&quot;);
+///  assert_eq!(pem.tag, "RSA PRIVATE KEY");
 /// ```
 </span><span class="kw">pub fn </span>parse&lt;B: AsRef&lt;[u8]&gt;&gt;(input: B) -&gt; <span class="prelude-ty">Result</span>&lt;Pem&gt; {
     ASCII_ARMOR
@@ -887,7 +888,7 @@
 ///
 /// use pem::parse_many;
 ///
-/// const SAMPLE: &amp;&#39;static str = &quot;-----BEGIN INTERMEDIATE CERT-----
+/// const SAMPLE: &amp;'static str = "-----BEGIN INTERMEDIATE CERT-----
 /// MIIBPQIBAAJBAOsfi5AGYhdRs/x6q5H7kScxA0Kzzqe6WI6gf6+tc6IvKQJo5rQc
 /// dWWSQ0nRGt2hOPDO+35NKhQEjBQxPh/v7n0CAwEAAQJBAOGaBAyuw0ICyENy5NsO
 /// 2gkT00AWTSzM9Zns0HedY31yEabkuFvrMCHjscEF7u3Y6PB7An3IzooBHchsFDei
@@ -906,13 +907,13 @@
 /// TTGsEtITid1ogAECIQDAaFl90ZgS5cMrL3wCeatVKzVUmuJmB/VAmlLFFGzK0QIh
 /// ANJGc7AFk4fyFD/OezhwGHbWmo/S+bfeAiIh2Ss2FxKJ
 /// -----END CERTIFICATE-----
-/// &quot;;
+/// ";
 /// let SAMPLE_BYTES: Vec&lt;u8&gt; = SAMPLE.into();
 ///
 ///  let pems = parse_many(SAMPLE_BYTES);
 ///  assert_eq!(pems.len(), 2);
-///  assert_eq!(pems[0].tag, &quot;INTERMEDIATE CERT&quot;);
-///  assert_eq!(pems[1].tag, &quot;CERTIFICATE&quot;);
+///  assert_eq!(pems[0].tag, "INTERMEDIATE CERT");
+///  assert_eq!(pems[1].tag, "CERTIFICATE");
 /// ```
 ///
 /// # Example: parse a set of PEM-encoded data from a String
@@ -921,7 +922,7 @@
 ///
 /// use pem::parse_many;
 ///
-/// const SAMPLE: &amp;&#39;static str = &quot;-----BEGIN INTERMEDIATE CERT-----
+/// const SAMPLE: &amp;'static str = "-----BEGIN INTERMEDIATE CERT-----
 /// MIIBPQIBAAJBAOsfi5AGYhdRs/x6q5H7kScxA0Kzzqe6WI6gf6+tc6IvKQJo5rQc
 /// dWWSQ0nRGt2hOPDO+35NKhQEjBQxPh/v7n0CAwEAAQJBAOGaBAyuw0ICyENy5NsO
 /// 2gkT00AWTSzM9Zns0HedY31yEabkuFvrMCHjscEF7u3Y6PB7An3IzooBHchsFDei
@@ -940,13 +941,13 @@
 /// TTGsEtITid1ogAECIQDAaFl90ZgS5cMrL3wCeatVKzVUmuJmB/VAmlLFFGzK0QIh
 /// ANJGc7AFk4fyFD/OezhwGHbWmo/S+bfeAiIh2Ss2FxKJ
 /// -----END CERTIFICATE-----
-/// &quot;;
+/// ";
 ///  let SAMPLE_STRING: Vec&lt;u8&gt; = SAMPLE.into();
 ///
 ///  let pems = parse_many(SAMPLE_STRING);
 ///  assert_eq!(pems.len(), 2);
-///  assert_eq!(pems[0].tag, &quot;INTERMEDIATE CERT&quot;);
-///  assert_eq!(pems[1].tag, &quot;CERTIFICATE&quot;);
+///  assert_eq!(pems[0].tag, "INTERMEDIATE CERT");
+///  assert_eq!(pems[1].tag, "CERTIFICATE");
 /// ```
 </span><span class="kw">pub fn </span>parse_many&lt;B: AsRef&lt;[u8]&gt;&gt;(input: B) -&gt; Vec&lt;Pem&gt; {
     <span class="comment">// Each time our regex matches a PEM section, we need to decode it.
@@ -963,7 +964,7 @@
 ///  use pem::{Pem, encode};
 ///
 ///  let pem = Pem {
-///     tag: String::from(&quot;FOO&quot;),
+///     tag: String::from("FOO"),
 ///     contents: vec![1, 2, 3, 4],
 ///   };
 ///   encode(&amp;pem);
@@ -985,21 +986,21 @@
 ///  use pem::{Pem, encode_config, EncodeConfig, LineEnding};
 ///
 ///  let pem = Pem {
-///     tag: String::from(&quot;FOO&quot;),
+///     tag: String::from("FOO"),
 ///     contents: vec![1, 2, 3, 4],
 ///   };
 ///   encode_config(&amp;pem, EncodeConfig { line_ending: LineEnding::LF });
 /// ```
 </span><span class="kw">pub fn </span>encode_config(pem: <span class="kw-2">&amp;</span>Pem, config: EncodeConfig) -&gt; String {
     <span class="kw">let </span>line_ending = <span class="kw">match </span>config.line_ending {
-        LineEnding::CRLF =&gt; <span class="string">&quot;\r\n&quot;</span>,
-        LineEnding::LF =&gt; <span class="string">&quot;\n&quot;</span>,
+        LineEnding::CRLF =&gt; <span class="string">"\r\n"</span>,
+        LineEnding::LF =&gt; <span class="string">"\n"</span>,
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>output = String::new();
 
     <span class="kw">let </span>contents = <span class="kw">if </span>pem.contents.is_empty() {
-        String::from(<span class="string">&quot;&quot;</span>)
+        String::from(<span class="string">""</span>)
     } <span class="kw">else </span>{
         base64::encode_config(
             <span class="kw-2">&amp;</span>pem.contents,
@@ -1007,11 +1008,11 @@
         )
     };
 
-    output.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;-----BEGIN {}-----{}&quot;</span>, pem.tag, line_ending));
+    output.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"-----BEGIN {}-----{}"</span>, pem.tag, line_ending));
     <span class="kw">for </span>c <span class="kw">in </span>contents.as_bytes().chunks(LINE_WRAP) {
-        output.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, str::from_utf8(c).unwrap(), line_ending));
+        output.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}{}"</span>, str::from_utf8(c).unwrap(), line_ending));
     }
-    output.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;-----END {}-----{}&quot;</span>, pem.tag, line_ending));
+    output.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"-----END {}-----{}"</span>, pem.tag, line_ending));
 
     output
 }
@@ -1024,11 +1025,11 @@
 ///
 ///  let data = vec![
 ///     Pem {
-///         tag: String::from(&quot;FOO&quot;),
+///         tag: String::from("FOO"),
 ///         contents: vec![1, 2, 3, 4],
 ///     },
 ///     Pem {
-///         tag: String::from(&quot;BAR&quot;),
+///         tag: String::from("BAR"),
 ///         contents: vec![5, 6, 7, 8],
 ///     },
 ///   ];
@@ -1038,7 +1039,7 @@
     pems.iter()
         .map(encode)
         .collect::&lt;Vec&lt;String&gt;&gt;()
-        .join(<span class="string">&quot;\r\n&quot;</span>)
+        .join(<span class="string">"\r\n"</span>)
 }
 
 <span class="doccomment">/// Encode multiple PEM structs into a PEM-encoded data string with additional
@@ -1052,11 +1053,11 @@
 ///
 ///  let data = vec![
 ///     Pem {
-///         tag: String::from(&quot;FOO&quot;),
+///         tag: String::from("FOO"),
 ///         contents: vec![1, 2, 3, 4],
 ///     },
 ///     Pem {
-///         tag: String::from(&quot;BAR&quot;),
+///         tag: String::from("BAR"),
 ///         contents: vec![5, 6, 7, 8],
 ///     },
 ///   ];
@@ -1064,8 +1065,8 @@
 /// ```
 </span><span class="kw">pub fn </span>encode_many_config(pems: <span class="kw-2">&amp;</span>[Pem], config: EncodeConfig) -&gt; String {
     <span class="kw">let </span>line_ending = <span class="kw">match </span>config.line_ending {
-        LineEnding::CRLF =&gt; <span class="string">&quot;\r\n&quot;</span>,
-        LineEnding::LF =&gt; <span class="string">&quot;\n&quot;</span>,
+        LineEnding::CRLF =&gt; <span class="string">"\r\n"</span>,
+        LineEnding::LF =&gt; <span class="string">"\n"</span>,
     };
     pems.iter()
         .map(|value| encode_config(value, config))
@@ -1078,7 +1079,7 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>std::error::Error;
 
-    <span class="kw">const </span>SAMPLE_CRLF: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;-----BEGIN RSA PRIVATE KEY-----\r
+    <span class="kw">const </span>SAMPLE_CRLF: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"-----BEGIN RSA PRIVATE KEY-----\r
 MIIBPQIBAAJBAOsfi5AGYhdRs/x6q5H7kScxA0Kzzqe6WI6gf6+tc6IvKQJo5rQc\r
 dWWSQ0nRGt2hOPDO+35NKhQEjBQxPh/v7n0CAwEAAQJBAOGaBAyuw0ICyENy5NsO\r
 2gkT00AWTSzM9Zns0HedY31yEabkuFvrMCHjscEF7u3Y6PB7An3IzooBHchsFDei\r
@@ -1097,9 +1098,9 @@ ijoUXIDruJQEGFGvZTsi1D2RehXiT90CIQC4HOQUYKCydB7oWi1SHDokFW2yFyo6\r
 /+lf3fgNjPI6OQIgUPmTFXciXxT1msh3gFLf3qt2Kv8wbr9Ad9SXjULVpGkCIB+g\r
 RzHX0lkJl9Stshd/7Gbt65/QYq+v+xvAeT0CoyIg\r
 -----END RSA PUBLIC KEY-----\r
-&quot;</span>;
+"</span>;
 
-    <span class="kw">const </span>SAMPLE_LF: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;-----BEGIN RSA PRIVATE KEY-----
+    <span class="kw">const </span>SAMPLE_LF: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"-----BEGIN RSA PRIVATE KEY-----
 MIIBPQIBAAJBAOsfi5AGYhdRs/x6q5H7kScxA0Kzzqe6WI6gf6+tc6IvKQJo5rQc
 dWWSQ0nRGt2hOPDO+35NKhQEjBQxPh/v7n0CAwEAAQJBAOGaBAyuw0ICyENy5NsO
 2gkT00AWTSzM9Zns0HedY31yEabkuFvrMCHjscEF7u3Y6PB7An3IzooBHchsFDei
@@ -1118,24 +1119,24 @@ ijoUXIDruJQEGFGvZTsi1D2RehXiT90CIQC4HOQUYKCydB7oWi1SHDokFW2yFyo6
 /+lf3fgNjPI6OQIgUPmTFXciXxT1msh3gFLf3qt2Kv8wbr9Ad9SXjULVpGkCIB+g
 RzHX0lkJl9Stshd/7Gbt65/QYq+v+xvAeT0CoyIg
 -----END RSA PUBLIC KEY-----
-&quot;</span>;
+"</span>;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_works() {
         <span class="kw">let </span>pem = parse(SAMPLE_CRLF).unwrap();
-        <span class="macro">assert_eq!</span>(pem.tag, <span class="string">&quot;RSA PRIVATE KEY&quot;</span>);
+        <span class="macro">assert_eq!</span>(pem.tag, <span class="string">"RSA PRIVATE KEY"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_invalid_framing() {
-        <span class="kw">let </span>input = <span class="string">&quot;--BEGIN data-----
-        -----END data-----&quot;</span>;
+        <span class="kw">let </span>input = <span class="string">"--BEGIN data-----
+        -----END data-----"</span>;
         <span class="macro">assert_eq!</span>(parse(<span class="kw-2">&amp;</span>input), <span class="prelude-val">Err</span>(PemError::MalformedFraming));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_invalid_begin() {
-        <span class="kw">let </span>input = <span class="string">&quot;-----BEGIN -----
+        <span class="kw">let </span>input = <span class="string">"-----BEGIN -----
 MIIBOgIBAAJBAMIeCnn9G/7g2Z6J+qHOE2XCLLuPoh5NHTO2Fm+PbzBvafBo0oYo
 QVVy7frzxmOqx6iIZBxTyfAQqBPO3Br59BMCAwEAAQJAX+PjHPuxdqiwF6blTkS0
 RFI1MrnzRbCmOkM6tgVO0cd6r5Z4bDGLusH9yjI9iI84gPRjK0AzymXFmBGuREHI
@@ -1143,13 +1144,13 @@ sQIhAPKf4pp+Prvutgq2ayygleZChBr1DC4XnnufBNtaswyvAiEAzNGVKgNvzuhk
 ijoUXIDruJQEGFGvZTsi1D2RehXiT90CIQC4HOQUYKCydB7oWi1SHDokFW2yFyo6
 /+lf3fgNjPI6OQIgUPmTFXciXxT1msh3gFLf3qt2Kv8wbr9Ad9SXjULVpGkCIB+g
 RzHX0lkJl9Stshd/7Gbt65/QYq+v+xvAeT0CoyIg
------END RSA PUBLIC KEY-----&quot;</span>;
+-----END RSA PUBLIC KEY-----"</span>;
         <span class="macro">assert_eq!</span>(parse(<span class="kw-2">&amp;</span>input), <span class="prelude-val">Err</span>(PemError::MissingBeginTag));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_invalid_end() {
-        <span class="kw">let </span>input = <span class="string">&quot;-----BEGIN DATA-----
+        <span class="kw">let </span>input = <span class="string">"-----BEGIN DATA-----
 MIIBOgIBAAJBAMIeCnn9G/7g2Z6J+qHOE2XCLLuPoh5NHTO2Fm+PbzBvafBo0oYo
 QVVy7frzxmOqx6iIZBxTyfAQqBPO3Br59BMCAwEAAQJAX+PjHPuxdqiwF6blTkS0
 RFI1MrnzRbCmOkM6tgVO0cd6r5Z4bDGLusH9yjI9iI84gPRjK0AzymXFmBGuREHI
@@ -1157,13 +1158,13 @@ sQIhAPKf4pp+Prvutgq2ayygleZChBr1DC4XnnufBNtaswyvAiEAzNGVKgNvzuhk
 ijoUXIDruJQEGFGvZTsi1D2RehXiT90CIQC4HOQUYKCydB7oWi1SHDokFW2yFyo6
 /+lf3fgNjPI6OQIgUPmTFXciXxT1msh3gFLf3qt2Kv8wbr9Ad9SXjULVpGkCIB+g
 RzHX0lkJl9Stshd/7Gbt65/QYq+v+xvAeT0CoyIg
------END -----&quot;</span>;
+-----END -----"</span>;
         <span class="macro">assert_eq!</span>(parse(<span class="kw-2">&amp;</span>input), <span class="prelude-val">Err</span>(PemError::MissingEndTag));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_invalid_data() {
-        <span class="kw">let </span>input = <span class="string">&quot;-----BEGIN DATA-----
+        <span class="kw">let </span>input = <span class="string">"-----BEGIN DATA-----
 MIIBOgIBAAJBAMIeCnn9G/7g2Z6J+qHOE2XCLLuPoh5NHTO2Fm+PbzBvafBo0oY?
 QVVy7frzxmOqx6iIZBxTyfAQqBPO3Br59BMCAwEAAQJAX+PjHPuxdqiwF6blTkS0
 RFI1MrnzRbCmOkM6tgVO0cd6r5Z4bDGLusH9yjI9iI84gPRjK0AzymXFmBGuREHI
@@ -1171,12 +1172,12 @@ sQIhAPKf4pp+Prvutgq2ayygleZChBr1DC4XnnufBNtaswyvAiEAzNGVKgNvzuhk
 ijoUXIDruJQEGFGvZTsi1D2RehXiT90CIQC4HOQUYKCydB7oWi1SHDokFW2yFyo6
 /+lf3fgNjPI6OQIgUPmTFXciXxT1msh3gFLf3qt2Kv8wbr9Ad9SXjULVpGkCIB+g
 RzHX0lkJl9Stshd/7Gbt65/QYq+v+xvAeT0CoyIg
------END DATA-----&quot;</span>;
+-----END DATA-----"</span>;
         <span class="kw">match </span>parse(<span class="kw-2">&amp;</span>input) {
             <span class="prelude-val">Err</span>(e @ PemError::InvalidData(<span class="kw">_</span>)) =&gt; {
                 <span class="macro">assert_eq!</span>(
-                    <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, e.source().unwrap()),
-                    <span class="string">&quot;Invalid byte 63, offset 63.&quot;
+                    <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}"</span>, e.source().unwrap()),
+                    <span class="string">"Invalid byte 63, offset 63."
                 </span>);
             }
             <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
@@ -1185,8 +1186,8 @@ RzHX0lkJl9Stshd/7Gbt65/QYq+v+xvAeT0CoyIg
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_empty_data() {
-        <span class="kw">let </span>input = <span class="string">&quot;-----BEGIN DATA-----
------END DATA-----&quot;</span>;
+        <span class="kw">let </span>input = <span class="string">"-----BEGIN DATA-----
+-----END DATA-----"</span>;
         <span class="kw">let </span>pem = parse(<span class="kw-2">&amp;</span>input).unwrap();
         <span class="macro">assert_eq!</span>(pem.contents.len(), <span class="number">0</span>);
     }
@@ -1195,18 +1196,18 @@ RzHX0lkJl9Stshd/7Gbt65/QYq+v+xvAeT0CoyIg
     </span><span class="kw">fn </span>test_parse_many_works() {
         <span class="kw">let </span>pems = parse_many(SAMPLE_CRLF);
         <span class="macro">assert_eq!</span>(pems.len(), <span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(pems[<span class="number">0</span>].tag, <span class="string">&quot;RSA PRIVATE KEY&quot;</span>);
-        <span class="macro">assert_eq!</span>(pems[<span class="number">1</span>].tag, <span class="string">&quot;RSA PUBLIC KEY&quot;</span>);
+        <span class="macro">assert_eq!</span>(pems[<span class="number">0</span>].tag, <span class="string">"RSA PRIVATE KEY"</span>);
+        <span class="macro">assert_eq!</span>(pems[<span class="number">1</span>].tag, <span class="string">"RSA PUBLIC KEY"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_encode_empty_contents() {
         <span class="kw">let </span>pem = Pem {
-            tag: String::from(<span class="string">&quot;FOO&quot;</span>),
+            tag: String::from(<span class="string">"FOO"</span>),
             contents: <span class="macro">vec!</span>[],
         };
         <span class="kw">let </span>encoded = encode(<span class="kw-2">&amp;</span>pem);
-        <span class="macro">assert!</span>(encoded != <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert!</span>(encoded != <span class="string">""</span>);
 
         <span class="kw">let </span>pem_out = parse(<span class="kw-2">&amp;</span>encoded).unwrap();
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>pem, <span class="kw-2">&amp;</span>pem_out);
@@ -1215,11 +1216,11 @@ RzHX0lkJl9Stshd/7Gbt65/QYq+v+xvAeT0CoyIg
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_encode_contents() {
         <span class="kw">let </span>pem = Pem {
-            tag: String::from(<span class="string">&quot;FOO&quot;</span>),
+            tag: String::from(<span class="string">"FOO"</span>),
             contents: <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>],
         };
         <span class="kw">let </span>encoded = encode(<span class="kw-2">&amp;</span>pem);
-        <span class="macro">assert!</span>(encoded != <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert!</span>(encoded != <span class="string">""</span>);
 
         <span class="kw">let </span>pem_out = parse(<span class="kw-2">&amp;</span>encoded).unwrap();
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>pem, <span class="kw-2">&amp;</span>pem_out);
@@ -1236,14 +1237,14 @@ RzHX0lkJl9Stshd/7Gbt65/QYq+v+xvAeT0CoyIg
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_encode_config_contents() {
         <span class="kw">let </span>pem = Pem {
-            tag: String::from(<span class="string">&quot;FOO&quot;</span>),
+            tag: String::from(<span class="string">"FOO"</span>),
             contents: <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>],
         };
         <span class="kw">let </span>config = EncodeConfig {
             line_ending: LineEnding::LF,
         };
         <span class="kw">let </span>encoded = encode_config(<span class="kw-2">&amp;</span>pem, config);
-        <span class="macro">assert!</span>(encoded != <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert!</span>(encoded != <span class="string">""</span>);
 
         <span class="kw">let </span>pem_out = parse(<span class="kw-2">&amp;</span>encoded).unwrap();
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>pem, <span class="kw-2">&amp;</span>pem_out);

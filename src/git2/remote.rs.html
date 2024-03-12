@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.1/src/remote.rs`."><title>remote.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.2/src/remote.rs`."><title>remote.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1143,29 +1144,29 @@
 ///
 /// The lifetime is the lifetime of the repository that it is attached to. The
 /// remote is used to manage fetches and pushes as well as refspecs.
-</span><span class="kw">pub struct </span>Remote&lt;<span class="lifetime">&#39;repo</span>&gt; {
+</span><span class="kw">pub struct </span>Remote&lt;<span class="lifetime">'repo</span>&gt; {
     raw: <span class="kw-2">*mut </span>raw::git_remote,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;repo </span>Repository&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'repo </span>Repository&gt;,
 }
 
 <span class="doccomment">/// An iterator over the refspecs that a remote contains.
-</span><span class="kw">pub struct </span>Refspecs&lt;<span class="lifetime">&#39;remote</span>&gt; {
+</span><span class="kw">pub struct </span>Refspecs&lt;<span class="lifetime">'remote</span>&gt; {
     range: Range&lt;usize&gt;,
-    remote: <span class="kw-2">&amp;</span><span class="lifetime">&#39;remote </span>Remote&lt;<span class="lifetime">&#39;remote</span>&gt;,
+    remote: <span class="kw-2">&amp;</span><span class="lifetime">'remote </span>Remote&lt;<span class="lifetime">'remote</span>&gt;,
 }
 
 <span class="doccomment">/// Description of a reference advertised by a remote server, given out on calls
 /// to `list`.
-</span><span class="kw">pub struct </span>RemoteHead&lt;<span class="lifetime">&#39;remote</span>&gt; {
+</span><span class="kw">pub struct </span>RemoteHead&lt;<span class="lifetime">'remote</span>&gt; {
     raw: <span class="kw-2">*const </span>raw::git_remote_head,
-    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;remote </span>str&gt;,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'remote </span>str&gt;,
 }
 
 <span class="doccomment">/// Options which can be specified to various fetch operations.
-</span><span class="kw">pub struct </span>FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
-    callbacks: <span class="prelude-ty">Option</span>&lt;RemoteCallbacks&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;,
+</span><span class="kw">pub struct </span>FetchOptions&lt;<span class="lifetime">'cb</span>&gt; {
+    callbacks: <span class="prelude-ty">Option</span>&lt;RemoteCallbacks&lt;<span class="lifetime">'cb</span>&gt;&gt;,
     depth: i32,
-    proxy: <span class="prelude-ty">Option</span>&lt;ProxyOptions&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;,
+    proxy: <span class="prelude-ty">Option</span>&lt;ProxyOptions&lt;<span class="lifetime">'cb</span>&gt;&gt;,
     prune: FetchPrune,
     update_fetchhead: bool,
     download_tags: AutotagOption,
@@ -1175,9 +1176,9 @@
 }
 
 <span class="doccomment">/// Options to control the behavior of a git push.
-</span><span class="kw">pub struct </span>PushOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
-    callbacks: <span class="prelude-ty">Option</span>&lt;RemoteCallbacks&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;,
-    proxy: <span class="prelude-ty">Option</span>&lt;ProxyOptions&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;,
+</span><span class="kw">pub struct </span>PushOptions&lt;<span class="lifetime">'cb</span>&gt; {
+    callbacks: <span class="prelude-ty">Option</span>&lt;RemoteCallbacks&lt;<span class="lifetime">'cb</span>&gt;&gt;,
+    proxy: <span class="prelude-ty">Option</span>&lt;ProxyOptions&lt;<span class="lifetime">'cb</span>&gt;&gt;,
     pb_parallelism: u32,
     follow_redirects: RemoteRedirect,
     custom_headers: Vec&lt;CString&gt;,
@@ -1185,10 +1186,10 @@
 }
 
 <span class="doccomment">/// Holds callbacks for a connection to a `Remote`. Disconnects when dropped
-</span><span class="kw">pub struct </span>RemoteConnection&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;connection</span>, <span class="lifetime">&#39;cb</span>&gt; {
-    _callbacks: Box&lt;RemoteCallbacks&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;,
-    _proxy: ProxyOptions&lt;<span class="lifetime">&#39;cb</span>&gt;,
-    remote: <span class="kw-2">&amp;</span><span class="lifetime">&#39;connection </span><span class="kw-2">mut </span>Remote&lt;<span class="lifetime">&#39;repo</span>&gt;,
+</span><span class="kw">pub struct </span>RemoteConnection&lt;<span class="lifetime">'repo</span>, <span class="lifetime">'connection</span>, <span class="lifetime">'cb</span>&gt; {
+    _callbacks: Box&lt;RemoteCallbacks&lt;<span class="lifetime">'cb</span>&gt;&gt;,
+    _proxy: ProxyOptions&lt;<span class="lifetime">'cb</span>&gt;,
+    remote: <span class="kw-2">&amp;</span><span class="lifetime">'connection </span><span class="kw-2">mut </span>Remote&lt;<span class="lifetime">'repo</span>&gt;,
 }
 
 <span class="doccomment">/// Remote redirection settings; whether redirects to another host are
@@ -1206,13 +1207,13 @@
     </span>All,
 }
 
-<span class="kw">pub fn </span>remote_into_raw(remote: Remote&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="kw-2">*mut </span>raw::git_remote {
+<span class="kw">pub fn </span>remote_into_raw(remote: Remote&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="kw-2">*mut </span>raw::git_remote {
     <span class="kw">let </span>ret = remote.raw;
     mem::forget(remote);
     ret
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Remote&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Remote&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="doccomment">/// Ensure the remote name is well-formed.
     </span><span class="kw">pub fn </span>is_valid_name(remote_name: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="kw">crate</span>::init();
@@ -1231,10 +1232,10 @@
     <span class="doccomment">/// Create a detached remote
     ///
     /// Create a remote with the given URL in-memory. You can use this
-    /// when you have a URL instead of a remote&#39;s name.
+    /// when you have a URL instead of a remote's name.
     /// Contrasted with an anonymous remote, a detached remote will not
     /// consider any repo configuration values.
-    </span><span class="kw">pub fn </span>create_detached&lt;S: Into&lt;Vec&lt;u8&gt;&gt;&gt;(url: S) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>create_detached&lt;S: Into&lt;Vec&lt;u8&gt;&gt;&gt;(url: S) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">'repo</span>&gt;, Error&gt; {
         <span class="kw">crate</span>::init();
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">let </span>url = CString::new(url)<span class="question-mark">?</span>;
@@ -1244,7 +1245,7 @@
         }
     }
 
-    <span class="doccomment">/// Get the remote&#39;s name.
+    <span class="doccomment">/// Get the remote's name.
     ///
     /// Returns `None` if this remote has not yet been named or if the name is
     /// not valid utf-8
@@ -1252,38 +1253,38 @@
         <span class="self">self</span>.name_bytes().and_then(|s| str::from_utf8(s).ok())
     }
 
-    <span class="doccomment">/// Get the remote&#39;s name, in bytes.
+    <span class="doccomment">/// Get the remote's name, in bytes.
     ///
     /// Returns `None` if this remote has not yet been named
     </span><span class="kw">pub fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_remote_name(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the remote&#39;s URL.
+    <span class="doccomment">/// Get the remote's URL.
     ///
     /// Returns `None` if the URL is not valid utf-8
     </span><span class="kw">pub fn </span>url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         str::from_utf8(<span class="self">self</span>.url_bytes()).ok()
     }
 
-    <span class="doccomment">/// Get the remote&#39;s URL as a byte array.
+    <span class="doccomment">/// Get the remote's URL as a byte array.
     </span><span class="kw">pub fn </span>url_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_remote_url(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)).unwrap() }
     }
 
-    <span class="doccomment">/// Get the remote&#39;s pushurl.
+    <span class="doccomment">/// Get the remote's pushurl.
     ///
     /// Returns `None` if the pushurl is not valid utf-8
     </span><span class="kw">pub fn </span>pushurl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="self">self</span>.pushurl_bytes().and_then(|s| str::from_utf8(s).ok())
     }
 
-    <span class="doccomment">/// Get the remote&#39;s pushurl as a byte array.
+    <span class="doccomment">/// Get the remote's pushurl as a byte array.
     </span><span class="kw">pub fn </span>pushurl_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_remote_pushurl(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the remote&#39;s default branch.
+    <span class="doccomment">/// Get the remote's default branch.
     ///
     /// The remote (or more exactly its transport) must have connected to the
     /// remote repository. This default branch is available as soon as the
@@ -1315,12 +1316,12 @@
     <span class="doccomment">/// Open a connection to a remote with callbacks and proxy settings
     ///
     /// Returns a `RemoteConnection` that will disconnect once dropped
-    </span><span class="kw">pub fn </span>connect_auth&lt;<span class="lifetime">&#39;connection</span>, <span class="lifetime">&#39;cb</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;connection </span><span class="kw-2">mut </span><span class="self">self</span>,
+    </span><span class="kw">pub fn </span>connect_auth&lt;<span class="lifetime">'connection</span>, <span class="lifetime">'cb</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'connection </span><span class="kw-2">mut </span><span class="self">self</span>,
         dir: Direction,
-        cb: <span class="prelude-ty">Option</span>&lt;RemoteCallbacks&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;,
-        proxy_options: <span class="prelude-ty">Option</span>&lt;ProxyOptions&lt;<span class="lifetime">&#39;cb</span>&gt;&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;RemoteConnection&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;connection</span>, <span class="lifetime">&#39;cb</span>&gt;, Error&gt; {
+        cb: <span class="prelude-ty">Option</span>&lt;RemoteCallbacks&lt;<span class="lifetime">'cb</span>&gt;&gt;,
+        proxy_options: <span class="prelude-ty">Option</span>&lt;ProxyOptions&lt;<span class="lifetime">'cb</span>&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;RemoteConnection&lt;<span class="lifetime">'repo</span>, <span class="lifetime">'connection</span>, <span class="lifetime">'cb</span>&gt;, Error&gt; {
         <span class="kw">let </span>cb = Box::new(cb.unwrap_or_else(RemoteCallbacks::new));
         <span class="kw">let </span>proxy_options = proxy_options.unwrap_or_else(ProxyOptions::new);
         <span class="kw">unsafe </span>{
@@ -1355,7 +1356,7 @@
 
     <span class="doccomment">/// Download and index the packfile
     ///
-    /// Connect to the remote if it hasn&#39;t been done yet, negotiate with the
+    /// Connect to the remote if it hasn't been done yet, negotiate with the
     /// remote git which objects are missing, download and index the packfile.
     ///
     /// The .idx file will be created and both it and the packfile with be
@@ -1366,7 +1367,7 @@
     </span><span class="kw">pub fn </span>download&lt;Str: AsRef&lt;str&gt; + <span class="kw">crate</span>::IntoCString + Clone&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         specs: <span class="kw-2">&amp;</span>[Str],
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>FetchOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>FetchOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>(_a, _b, arr) = <span class="kw">crate</span>::util::iter2cstrs(specs.iter())<span class="question-mark">?</span>;
         <span class="kw">let </span>raw = opts.map(|o| o.raw());
@@ -1388,7 +1389,7 @@
     }
 
     <span class="doccomment">/// Get the number of refspecs for a remote
-    </span><span class="kw">pub fn </span>refspecs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Refspecs&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>refspecs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Refspecs&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">let </span>cnt = <span class="kw">unsafe </span>{ raw::git_remote_refspec_count(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) <span class="kw">as </span>usize };
         Refspecs {
             range: <span class="number">0</span>..cnt,
@@ -1399,7 +1400,7 @@
     <span class="doccomment">/// Get the `nth` refspec from this remote.
     ///
     /// The `refspecs` iterator can be used to iterate over all refspecs.
-    </span><span class="kw">pub fn </span>get_refspec(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;Refspec&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>get_refspec(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;Refspec&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = raw::git_remote_get_refspec(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw, i <span class="kw">as </span>libc::size_t);
             Binding::from_raw_opt(ptr)
@@ -1413,20 +1414,20 @@
     ///
     /// # Examples
     ///
-    /// Example of functionality similar to `git fetch origin/main`:
+    /// Example of functionality similar to `git fetch origin main`:
     ///
     /// ```no_run
     /// fn fetch_origin_main(repo: git2::Repository) -&gt; Result&lt;(), git2::Error&gt; {
-    ///     repo.find_remote(&quot;origin&quot;)?.fetch(&amp;[&quot;main&quot;], None, None)
+    ///     repo.find_remote("origin")?.fetch(&amp;["main"], None, None)
     /// }
     ///
-    /// let repo = git2::Repository::discover(&quot;rust&quot;).unwrap();
+    /// let repo = git2::Repository::discover("rust").unwrap();
     /// fetch_origin_main(repo).unwrap();
     /// ```
     </span><span class="kw">pub fn </span>fetch&lt;Str: AsRef&lt;str&gt; + <span class="kw">crate</span>::IntoCString + Clone&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         refspecs: <span class="kw-2">&amp;</span>[Str],
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>FetchOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>FetchOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
         reflog_msg: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>(_a, _b, arr) = <span class="kw">crate</span>::util::iter2cstrs(refspecs.iter())<span class="question-mark">?</span>;
@@ -1441,7 +1442,7 @@
     <span class="doccomment">/// Update the tips to the new state
     </span><span class="kw">pub fn </span>update_tips(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        callbacks: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        callbacks: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;&gt;,
         update_fetchhead: bool,
         download_tags: AutotagOption,
         msg: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
@@ -1465,13 +1466,13 @@
     /// Perform all the steps for a push. If no refspecs are passed then the
     /// configured refspecs will be used.
     ///
-    /// Note that you&#39;ll likely want to use `RemoteCallbacks` and set
+    /// Note that you'll likely want to use `RemoteCallbacks` and set
     /// `push_update_reference` to test whether all the references were pushed
     /// successfully.
     </span><span class="kw">pub fn </span>push&lt;Str: AsRef&lt;str&gt; + <span class="kw">crate</span>::IntoCString + Clone&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         refspecs: <span class="kw-2">&amp;</span>[Str],
-        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>PushOptions&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        opts: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>PushOptions&lt;<span class="lifetime">'_</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>(_a, _b, arr) = <span class="kw">crate</span>::util::iter2cstrs(refspecs.iter())<span class="question-mark">?</span>;
         <span class="kw">let </span>raw = opts.map(|o| o.raw());
@@ -1482,11 +1483,11 @@
     }
 
     <span class="doccomment">/// Get the statistics structure that is filled in by the fetch operation.
-    </span><span class="kw">pub fn </span>stats(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Progress&lt;<span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>stats(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Progress&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">unsafe </span>{ Binding::from_raw(raw::git_remote_stats(<span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the remote repository&#39;s reference advertisement list.
+    <span class="doccomment">/// Get the remote repository's reference advertisement list.
     ///
     /// Get the list of references with which the server responds to a new
     /// connection.
@@ -1494,25 +1495,25 @@
     /// The remote (or more exactly its transport) must have connected to the
     /// remote repository. This list is available as soon as the connection to
     /// the remote is initiated and it remains available after disconnecting.
-    </span><span class="kw">pub fn </span>list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[RemoteHead&lt;<span class="lifetime">&#39;_</span>&gt;], Error&gt; {
+    </span><span class="kw">pub fn </span>list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[RemoteHead&lt;<span class="lifetime">'_</span>&gt;], Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>size = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>base = ptr::null_mut();
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_remote_ls(<span class="kw-2">&amp;mut </span>base, <span class="kw-2">&amp;mut </span>size, <span class="self">self</span>.raw));
             <span class="macro">assert_eq!</span>(
-                mem::size_of::&lt;RemoteHead&lt;<span class="lifetime">&#39;_</span>&gt;&gt;(),
+                mem::size_of::&lt;RemoteHead&lt;<span class="lifetime">'_</span>&gt;&gt;(),
                 mem::size_of::&lt;<span class="kw-2">*const </span>raw::git_remote_head&gt;()
             );
             <span class="kw">let </span>slice = slice::from_raw_parts(base <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>, size <span class="kw">as </span>usize);
             <span class="prelude-val">Ok</span>(mem::transmute::&lt;
                 <span class="kw-2">&amp;</span>[<span class="kw-2">*const </span>raw::git_remote_head],
-                <span class="kw-2">&amp;</span>[RemoteHead&lt;<span class="lifetime">&#39;_</span>&gt;],
+                <span class="kw-2">&amp;</span>[RemoteHead&lt;<span class="lifetime">'_</span>&gt;],
             &gt;(slice))
         }
     }
 
     <span class="doccomment">/// Prune tracking refs that are no longer present on remote
-    </span><span class="kw">pub fn </span>prune(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callbacks: <span class="prelude-ty">Option</span>&lt;RemoteCallbacks&lt;<span class="lifetime">&#39;_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">pub fn </span>prune(<span class="kw-2">&amp;mut </span><span class="self">self</span>, callbacks: <span class="prelude-ty">Option</span>&lt;RemoteCallbacks&lt;<span class="lifetime">'_</span>&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">let </span>cbs = Box::new(callbacks.unwrap_or_else(RemoteCallbacks::new));
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_remote_prune(<span class="self">self</span>.raw, <span class="kw-2">&amp;</span>cbs.raw()));
@@ -1520,7 +1521,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Get the remote&#39;s list of fetch refspecs
+    <span class="doccomment">/// Get the remote's list of fetch refspecs
     </span><span class="kw">pub fn </span>fetch_refspecs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;StringArray, Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw: raw::git_strarray = mem::zeroed();
@@ -1529,7 +1530,7 @@
         }
     }
 
-    <span class="doccomment">/// Get the remote&#39;s list of push refspecs
+    <span class="doccomment">/// Get the remote's list of push refspecs
     </span><span class="kw">pub fn </span>push_refspecs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;StringArray, Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>raw: raw::git_strarray = mem::zeroed();
@@ -1539,8 +1540,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Clone <span class="kw">for </span>Remote&lt;<span class="lifetime">&#39;repo</span>&gt; {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Remote&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Clone <span class="kw">for </span>Remote&lt;<span class="lifetime">'repo</span>&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Remote&lt;<span class="lifetime">'repo</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
         <span class="kw">let </span>rc = <span class="kw">unsafe </span>{ <span class="macro">call!</span>(raw::git_remote_dup(<span class="kw-2">&amp;mut </span>ret, <span class="self">self</span>.raw)) };
         <span class="macro">assert_eq!</span>(rc, <span class="number">0</span>);
@@ -1551,10 +1552,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Remote&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Binding <span class="kw">for </span>Remote&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_remote;
 
-    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_remote) -&gt; Remote&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_remote) -&gt; Remote&lt;<span class="lifetime">'repo</span>&gt; {
         Remote {
             raw,
             _marker: marker::PhantomData,
@@ -1565,33 +1566,33 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Remote&lt;<span class="lifetime">&#39;repo</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Drop <span class="kw">for </span>Remote&lt;<span class="lifetime">'repo</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ raw::git_remote_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Iterator <span class="kw">for </span>Refspecs&lt;<span class="lifetime">&#39;repo</span>&gt; {
-    <span class="kw">type </span>Item = Refspec&lt;<span class="lifetime">&#39;repo</span>&gt;;
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Refspec&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; Iterator <span class="kw">for </span>Refspecs&lt;<span class="lifetime">'repo</span>&gt; {
+    <span class="kw">type </span>Item = Refspec&lt;<span class="lifetime">'repo</span>&gt;;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Refspec&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.range.next().and_then(|i| <span class="self">self</span>.remote.get_refspec(i))
     }
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
         <span class="self">self</span>.range.size_hint()
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; DoubleEndedIterator <span class="kw">for </span>Refspecs&lt;<span class="lifetime">&#39;repo</span>&gt; {
-    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Refspec&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; DoubleEndedIterator <span class="kw">for </span>Refspecs&lt;<span class="lifetime">'repo</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Refspec&lt;<span class="lifetime">'repo</span>&gt;&gt; {
         <span class="self">self</span>.range
             .next_back()
             .and_then(|i| <span class="self">self</span>.remote.get_refspec(i))
     }
 }
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; FusedIterator <span class="kw">for </span>Refspecs&lt;<span class="lifetime">&#39;repo</span>&gt; {}
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; ExactSizeIterator <span class="kw">for </span>Refspecs&lt;<span class="lifetime">&#39;repo</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; FusedIterator <span class="kw">for </span>Refspecs&lt;<span class="lifetime">'repo</span>&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>&gt; ExactSizeIterator <span class="kw">for </span>Refspecs&lt;<span class="lifetime">'repo</span>&gt; {}
 
 <span class="attr">#[allow(missing_docs)] </span><span class="comment">// not documented in libgit2 :(
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;remote</span>&gt; RemoteHead&lt;<span class="lifetime">&#39;remote</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'remote</span>&gt; RemoteHead&lt;<span class="lifetime">'remote</span>&gt; {
     <span class="doccomment">/// Flag if this is available locally.
     </span><span class="kw">pub fn </span>is_local(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).local != <span class="number">0 </span>}
@@ -1615,15 +1616,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; Default <span class="kw">for </span>FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; Default <span class="kw">for </span>FetchOptions&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; FetchOptions&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="doccomment">/// Creates a new blank set of fetch options
-    </span><span class="kw">pub fn </span>new() -&gt; FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>new() -&gt; FetchOptions&lt;<span class="lifetime">'cb</span>&gt; {
         FetchOptions {
             callbacks: <span class="prelude-val">None</span>,
             proxy: <span class="prelude-val">None</span>,
@@ -1638,13 +1639,13 @@
     }
 
     <span class="doccomment">/// Set the callbacks to use for the fetch operation.
-    </span><span class="kw">pub fn </span>remote_callbacks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cbs: RemoteCallbacks&lt;<span class="lifetime">&#39;cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>remote_callbacks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cbs: RemoteCallbacks&lt;<span class="lifetime">'cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.callbacks = <span class="prelude-val">Some</span>(cbs);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Set the proxy options to use for the fetch operation.
-    </span><span class="kw">pub fn </span>proxy_options(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: ProxyOptions&lt;<span class="lifetime">&#39;cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>proxy_options(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: ProxyOptions&lt;<span class="lifetime">'cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.proxy = <span class="prelude-val">Some</span>(opts);
         <span class="self">self
     </span>}
@@ -1666,8 +1667,8 @@
     <span class="doccomment">/// Set fetch depth, a value less or equal to 0 is interpreted as pull
     /// everything (effectively the same as not declaring a limit depth).
 
-    </span><span class="comment">// FIXME(blyxyas): We currently don&#39;t have a test for shallow functions
-    // because libgit2 doesn&#39;t support local shallow clones.
+    </span><span class="comment">// FIXME(blyxyas): We currently don't have a test for shallow functions
+    // because libgit2 doesn't support local shallow clones.
     // https://github.com/rust-lang/git2-rs/pull/979#issuecomment-1716299900
     </span><span class="kw">pub fn </span>depth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, depth: i32) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.depth = depth.max(<span class="number">0</span>);
@@ -1675,7 +1676,7 @@
     </span>}
 
     <span class="doccomment">/// Set how to behave regarding tags on the remote, such as auto-downloading
-    /// tags for objects we&#39;re downloading or downloading all of them.
+    /// tags for objects we're downloading or downloading all of them.
     ///
     /// The default is to auto-follow tags.
     </span><span class="kw">pub fn </span>download_tags(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opt: AutotagOption) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
@@ -1704,11 +1705,11 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; Binding <span class="kw">for </span>FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; Binding <span class="kw">for </span>FetchOptions&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="kw">type </span>Raw = raw::git_fetch_options;
 
-    <span class="kw">unsafe fn </span>from_raw(_raw: raw::git_fetch_options) -&gt; FetchOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
-        <span class="macro">panic!</span>(<span class="string">&quot;unimplemented&quot;</span>);
+    <span class="kw">unsafe fn </span>from_raw(_raw: raw::git_fetch_options) -&gt; FetchOptions&lt;<span class="lifetime">'cb</span>&gt; {
+        <span class="macro">panic!</span>(<span class="string">"unimplemented"</span>);
     }
     <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_fetch_options {
         raw::git_fetch_options {
@@ -1736,15 +1737,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; Default <span class="kw">for </span>PushOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; Default <span class="kw">for </span>PushOptions&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; PushOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; PushOptions&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="doccomment">/// Creates a new blank set of push options
-    </span><span class="kw">pub fn </span>new() -&gt; PushOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+    </span><span class="kw">pub fn </span>new() -&gt; PushOptions&lt;<span class="lifetime">'cb</span>&gt; {
         PushOptions {
             callbacks: <span class="prelude-val">None</span>,
             proxy: <span class="prelude-val">None</span>,
@@ -1756,13 +1757,13 @@
     }
 
     <span class="doccomment">/// Set the callbacks to use for the push operation.
-    </span><span class="kw">pub fn </span>remote_callbacks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cbs: RemoteCallbacks&lt;<span class="lifetime">&#39;cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>remote_callbacks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cbs: RemoteCallbacks&lt;<span class="lifetime">'cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.callbacks = <span class="prelude-val">Some</span>(cbs);
         <span class="self">self
     </span>}
 
     <span class="doccomment">/// Set the proxy options to use for the push operation.
-    </span><span class="kw">pub fn </span>proxy_options(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: ProxyOptions&lt;<span class="lifetime">&#39;cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>proxy_options(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: ProxyOptions&lt;<span class="lifetime">'cb</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.proxy = <span class="prelude-val">Some</span>(opts);
         <span class="self">self
     </span>}
@@ -1799,11 +1800,11 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;cb</span>&gt; Binding <span class="kw">for </span>PushOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'cb</span>&gt; Binding <span class="kw">for </span>PushOptions&lt;<span class="lifetime">'cb</span>&gt; {
     <span class="kw">type </span>Raw = raw::git_push_options;
 
-    <span class="kw">unsafe fn </span>from_raw(_raw: raw::git_push_options) -&gt; PushOptions&lt;<span class="lifetime">&#39;cb</span>&gt; {
-        <span class="macro">panic!</span>(<span class="string">&quot;unimplemented&quot;</span>);
+    <span class="kw">unsafe fn </span>from_raw(_raw: raw::git_push_options) -&gt; PushOptions&lt;<span class="lifetime">'cb</span>&gt; {
+        <span class="macro">panic!</span>(<span class="string">"unimplemented"</span>);
     }
     <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_push_options {
         raw::git_push_options {
@@ -1828,21 +1829,21 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;connection</span>, <span class="lifetime">&#39;cb</span>&gt; RemoteConnection&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;connection</span>, <span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>, <span class="lifetime">'connection</span>, <span class="lifetime">'cb</span>&gt; RemoteConnection&lt;<span class="lifetime">'repo</span>, <span class="lifetime">'connection</span>, <span class="lifetime">'cb</span>&gt; {
     <span class="doccomment">/// Check whether the remote is (still) connected
     </span><span class="kw">pub fn </span>connected(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.remote.connected()
     }
 
-    <span class="doccomment">/// Get the remote repository&#39;s reference advertisement list.
+    <span class="doccomment">/// Get the remote repository's reference advertisement list.
     ///
     /// This list is available as soon as the connection to
     /// the remote is initiated and it remains available after disconnecting.
-    </span><span class="kw">pub fn </span>list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[RemoteHead&lt;<span class="lifetime">&#39;_</span>&gt;], Error&gt; {
+    </span><span class="kw">pub fn </span>list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[RemoteHead&lt;<span class="lifetime">'_</span>&gt;], Error&gt; {
         <span class="self">self</span>.remote.list()
     }
 
-    <span class="doccomment">/// Get the remote&#39;s default branch.
+    <span class="doccomment">/// Get the remote's default branch.
     ///
     /// This default branch is available as soon as the connection to the remote
     /// is initiated and it remains available after disconnecting.
@@ -1851,12 +1852,12 @@
     }
 
     <span class="doccomment">/// access remote bound to this connection
-    </span><span class="kw">pub fn </span>remote(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Remote&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    </span><span class="kw">pub fn </span>remote(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Remote&lt;<span class="lifetime">'repo</span>&gt; {
         <span class="self">self</span>.remote
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;connection</span>, <span class="lifetime">&#39;cb</span>&gt; Drop <span class="kw">for </span>RemoteConnection&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;connection</span>, <span class="lifetime">&#39;cb</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'repo</span>, <span class="lifetime">'connection</span>, <span class="lifetime">'cb</span>&gt; Drop <span class="kw">for </span>RemoteConnection&lt;<span class="lifetime">'repo</span>, <span class="lifetime">'connection</span>, <span class="lifetime">'cb</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         drop(<span class="self">self</span>.remote.disconnect());
     }
@@ -1888,17 +1889,17 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke() {
         <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
-        <span class="macro">t!</span>(repo.remote(<span class="string">&quot;origin&quot;</span>, <span class="string">&quot;/path/to/nowhere&quot;</span>));
+        <span class="macro">t!</span>(repo.remote(<span class="string">"origin"</span>, <span class="string">"/path/to/nowhere"</span>));
         drop(repo);
 
         <span class="kw">let </span>repo = <span class="macro">t!</span>(Repository::init(td.path()));
-        <span class="kw">let </span><span class="kw-2">mut </span>origin = <span class="macro">t!</span>(repo.find_remote(<span class="string">&quot;origin&quot;</span>));
-        <span class="macro">assert_eq!</span>(origin.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;origin&quot;</span>));
-        <span class="macro">assert_eq!</span>(origin.url(), <span class="prelude-val">Some</span>(<span class="string">&quot;/path/to/nowhere&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>origin = <span class="macro">t!</span>(repo.find_remote(<span class="string">"origin"</span>));
+        <span class="macro">assert_eq!</span>(origin.name(), <span class="prelude-val">Some</span>(<span class="string">"origin"</span>));
+        <span class="macro">assert_eq!</span>(origin.url(), <span class="prelude-val">Some</span>(<span class="string">"/path/to/nowhere"</span>));
         <span class="macro">assert_eq!</span>(origin.pushurl(), <span class="prelude-val">None</span>);
 
-        <span class="macro">t!</span>(repo.remote_set_url(<span class="string">&quot;origin&quot;</span>, <span class="string">&quot;/path/to/elsewhere&quot;</span>));
-        <span class="macro">t!</span>(repo.remote_set_pushurl(<span class="string">&quot;origin&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;/path/to/elsewhere&quot;</span>)));
+        <span class="macro">t!</span>(repo.remote_set_url(<span class="string">"origin"</span>, <span class="string">"/path/to/elsewhere"</span>));
+        <span class="macro">t!</span>(repo.remote_set_pushurl(<span class="string">"origin"</span>, <span class="prelude-val">Some</span>(<span class="string">"/path/to/elsewhere"</span>)));
 
         <span class="kw">let </span>stats = origin.stats();
         <span class="macro">assert_eq!</span>(stats.total_objects(), <span class="number">0</span>);
@@ -1909,21 +1910,21 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>create_remote() {
         <span class="kw">let </span>td = TempDir::new().unwrap();
-        <span class="kw">let </span>remote = td.path().join(<span class="string">&quot;remote&quot;</span>);
+        <span class="kw">let </span>remote = td.path().join(<span class="string">"remote"</span>);
         Repository::init_bare(<span class="kw-2">&amp;</span>remote).unwrap();
 
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
         <span class="kw">let </span>url = <span class="kw">if </span><span class="macro">cfg!</span>(unix) {
-            <span class="macro">format!</span>(<span class="string">&quot;file://{}&quot;</span>, remote.display())
+            <span class="macro">format!</span>(<span class="string">"file://{}"</span>, remote.display())
         } <span class="kw">else </span>{
             <span class="macro">format!</span>(
-                <span class="string">&quot;file:///{}&quot;</span>,
-                remote.display().to_string().replace(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;/&quot;</span>)
+                <span class="string">"file:///{}"</span>,
+                remote.display().to_string().replace(<span class="string">"\\"</span>, <span class="string">"/"</span>)
             )
         };
 
-        <span class="kw">let </span><span class="kw-2">mut </span>origin = repo.remote(<span class="string">&quot;origin&quot;</span>, <span class="kw-2">&amp;</span>url).unwrap();
-        <span class="macro">assert_eq!</span>(origin.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;origin&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>origin = repo.remote(<span class="string">"origin"</span>, <span class="kw-2">&amp;</span>url).unwrap();
+        <span class="macro">assert_eq!</span>(origin.name(), <span class="prelude-val">Some</span>(<span class="string">"origin"</span>));
         <span class="macro">assert_eq!</span>(origin.url(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>url[..]));
         <span class="macro">assert_eq!</span>(origin.pushurl(), <span class="prelude-val">None</span>);
 
@@ -1931,18 +1932,18 @@
             <span class="kw">let </span><span class="kw-2">mut </span>specs = origin.refspecs();
             <span class="kw">let </span>spec = specs.next().unwrap();
             <span class="macro">assert!</span>(specs.next().is_none());
-            <span class="macro">assert_eq!</span>(spec.str(), <span class="prelude-val">Some</span>(<span class="string">&quot;+refs/heads/*:refs/remotes/origin/*&quot;</span>));
-            <span class="macro">assert_eq!</span>(spec.dst(), <span class="prelude-val">Some</span>(<span class="string">&quot;refs/remotes/origin/*&quot;</span>));
-            <span class="macro">assert_eq!</span>(spec.src(), <span class="prelude-val">Some</span>(<span class="string">&quot;refs/heads/*&quot;</span>));
+            <span class="macro">assert_eq!</span>(spec.str(), <span class="prelude-val">Some</span>(<span class="string">"+refs/heads/*:refs/remotes/origin/*"</span>));
+            <span class="macro">assert_eq!</span>(spec.dst(), <span class="prelude-val">Some</span>(<span class="string">"refs/remotes/origin/*"</span>));
+            <span class="macro">assert_eq!</span>(spec.src(), <span class="prelude-val">Some</span>(<span class="string">"refs/heads/*"</span>));
             <span class="macro">assert!</span>(spec.is_force());
         }
         <span class="macro">assert!</span>(origin.refspecs().next_back().is_some());
         {
             <span class="kw">let </span>remotes = repo.remotes().unwrap();
             <span class="macro">assert_eq!</span>(remotes.len(), <span class="number">1</span>);
-            <span class="macro">assert_eq!</span>(remotes.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;origin&quot;</span>));
+            <span class="macro">assert_eq!</span>(remotes.get(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="string">"origin"</span>));
             <span class="macro">assert_eq!</span>(remotes.iter().count(), <span class="number">1</span>);
-            <span class="macro">assert_eq!</span>(remotes.iter().next().unwrap(), <span class="prelude-val">Some</span>(<span class="string">&quot;origin&quot;</span>));
+            <span class="macro">assert_eq!</span>(remotes.iter().next().unwrap(), <span class="prelude-val">Some</span>(<span class="string">"origin"</span>));
         }
 
         origin.connect(Direction::Push).unwrap();
@@ -1967,24 +1968,24 @@
         <span class="macro">assert!</span>(!origin.connected());
 
         origin.fetch(<span class="kw-2">&amp;</span>[] <span class="kw">as </span><span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str], <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).unwrap();
-        origin.fetch(<span class="kw-2">&amp;</span>[] <span class="kw">as </span><span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str], <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>)).unwrap();
+        origin.fetch(<span class="kw-2">&amp;</span>[] <span class="kw">as </span><span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str], <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="string">"foo"</span>)).unwrap();
         origin
             .update_tips(<span class="prelude-val">None</span>, <span class="bool-val">true</span>, AutotagOption::Unspecified, <span class="prelude-val">None</span>)
             .unwrap();
         origin
-            .update_tips(<span class="prelude-val">None</span>, <span class="bool-val">true</span>, AutotagOption::All, <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>))
+            .update_tips(<span class="prelude-val">None</span>, <span class="bool-val">true</span>, AutotagOption::All, <span class="prelude-val">Some</span>(<span class="string">"foo"</span>))
             .unwrap();
 
-        <span class="macro">t!</span>(repo.remote_add_fetch(<span class="string">&quot;origin&quot;</span>, <span class="string">&quot;foo&quot;</span>));
-        <span class="macro">t!</span>(repo.remote_add_fetch(<span class="string">&quot;origin&quot;</span>, <span class="string">&quot;bar&quot;</span>));
+        <span class="macro">t!</span>(repo.remote_add_fetch(<span class="string">"origin"</span>, <span class="string">"foo"</span>));
+        <span class="macro">t!</span>(repo.remote_add_fetch(<span class="string">"origin"</span>, <span class="string">"bar"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>rename_remote() {
         <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
-        repo.remote(<span class="string">&quot;origin&quot;</span>, <span class="string">&quot;foo&quot;</span>).unwrap();
-        drop(repo.remote_rename(<span class="string">&quot;origin&quot;</span>, <span class="string">&quot;foo&quot;</span>));
-        drop(repo.remote_delete(<span class="string">&quot;foo&quot;</span>));
+        repo.remote(<span class="string">"origin"</span>, <span class="string">"foo"</span>).unwrap();
+        drop(repo.remote_rename(<span class="string">"origin"</span>, <span class="string">"foo"</span>));
+        drop(repo.remote_delete(<span class="string">"foo"</span>));
     }
 
     <span class="attr">#[test]
@@ -1992,21 +1993,21 @@
         <span class="kw">let </span>td = TempDir::new().unwrap();
         <span class="kw">let </span>repo = Repository::init(td.path()).unwrap();
 
-        <span class="kw">let </span>origin = repo.remote_anonymous(<span class="string">&quot;/path/to/nowhere&quot;</span>).unwrap();
+        <span class="kw">let </span>origin = repo.remote_anonymous(<span class="string">"/path/to/nowhere"</span>).unwrap();
         <span class="macro">assert_eq!</span>(origin.name(), <span class="prelude-val">None</span>);
         drop(origin.clone());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_valid_name() {
-        <span class="macro">assert!</span>(Remote::is_valid_name(<span class="string">&quot;foobar&quot;</span>));
-        <span class="macro">assert!</span>(!Remote::is_valid_name(<span class="string">&quot;\x01&quot;</span>));
+        <span class="macro">assert!</span>(Remote::is_valid_name(<span class="string">"foobar"</span>));
+        <span class="macro">assert!</span>(!Remote::is_valid_name(<span class="string">"\x01"</span>));
     }
 
     <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>is_valid_name_for_invalid_remote() {
-        Remote::is_valid_name(<span class="string">&quot;ab\012&quot;</span>);
+        Remote::is_valid_name(<span class="string">"ab\012"</span>);
     }
 
     <span class="attr">#[test]
@@ -2019,7 +2020,7 @@
         <span class="kw">let </span>progress_hit = Cell::new(<span class="bool-val">false</span>);
         {
             <span class="kw">let </span><span class="kw-2">mut </span>callbacks = RemoteCallbacks::new();
-            <span class="kw">let </span><span class="kw-2">mut </span>origin = repo.remote(<span class="string">&quot;origin&quot;</span>, <span class="kw-2">&amp;</span>url).unwrap();
+            <span class="kw">let </span><span class="kw-2">mut </span>origin = repo.remote(<span class="string">"origin"</span>, <span class="kw-2">&amp;</span>url).unwrap();
 
             callbacks.transfer_progress(|_progress| {
                 progress_hit.set(<span class="bool-val">true</span>);
@@ -2035,9 +2036,9 @@
 
             <span class="kw">let </span>list = <span class="macro">t!</span>(origin.list());
             <span class="macro">assert_eq!</span>(list.len(), <span class="number">2</span>);
-            <span class="macro">assert_eq!</span>(list[<span class="number">0</span>].name(), <span class="string">&quot;HEAD&quot;</span>);
+            <span class="macro">assert_eq!</span>(list[<span class="number">0</span>].name(), <span class="string">"HEAD"</span>);
             <span class="macro">assert!</span>(!list[<span class="number">0</span>].is_local());
-            <span class="macro">assert_eq!</span>(list[<span class="number">1</span>].name(), <span class="string">&quot;refs/heads/main&quot;</span>);
+            <span class="macro">assert_eq!</span>(list[<span class="number">1</span>].name(), <span class="string">"refs/heads/main"</span>);
             <span class="macro">assert!</span>(!list[<span class="number">1</span>].is_local());
         }
         <span class="macro">assert!</span>(progress_hit.get());
@@ -2058,7 +2059,7 @@
             </span><span class="bool-val">true
         </span>});
 
-        <span class="kw">let </span><span class="kw-2">mut </span>origin = repo.remote(<span class="string">&quot;origin&quot;</span>, <span class="kw-2">&amp;</span>url).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>origin = repo.remote(<span class="string">"origin"</span>, <span class="kw-2">&amp;</span>url).unwrap();
 
         {
             <span class="kw">let </span><span class="kw-2">mut </span>connection = origin
@@ -2068,9 +2069,9 @@
 
             <span class="kw">let </span>list = <span class="macro">t!</span>(connection.list());
             <span class="macro">assert_eq!</span>(list.len(), <span class="number">2</span>);
-            <span class="macro">assert_eq!</span>(list[<span class="number">0</span>].name(), <span class="string">&quot;HEAD&quot;</span>);
+            <span class="macro">assert_eq!</span>(list[<span class="number">0</span>].name(), <span class="string">"HEAD"</span>);
             <span class="macro">assert!</span>(!list[<span class="number">0</span>].is_local());
-            <span class="macro">assert_eq!</span>(list[<span class="number">1</span>].name(), <span class="string">&quot;refs/heads/main&quot;</span>);
+            <span class="macro">assert_eq!</span>(list[<span class="number">1</span>].name(), <span class="string">"refs/heads/main"</span>);
             <span class="macro">assert!</span>(!list[<span class="number">1</span>].is_local());
         }
         <span class="macro">assert!</span>(!origin.connected());
@@ -2085,23 +2086,23 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>opts = <span class="kw">crate</span>::RepositoryInitOptions::new();
         opts.bare(<span class="bool-val">true</span>);
-        opts.initial_head(<span class="string">&quot;main&quot;</span>);
+        opts.initial_head(<span class="string">"main"</span>);
         Repository::init_opts(td2.path(), <span class="kw-2">&amp;</span>opts).unwrap();
         <span class="comment">// git push
-        </span><span class="kw">let </span><span class="kw-2">mut </span>remote = repo.remote(<span class="string">&quot;origin&quot;</span>, <span class="kw-2">&amp;</span>url).unwrap();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>remote = repo.remote(<span class="string">"origin"</span>, <span class="kw-2">&amp;</span>url).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>updated = <span class="bool-val">false</span>;
         {
             <span class="kw">let </span><span class="kw-2">mut </span>callbacks = RemoteCallbacks::new();
             callbacks.push_update_reference(|refname, status| {
                 updated = <span class="bool-val">true</span>;
-                <span class="macro">assert_eq!</span>(refname, <span class="string">&quot;refs/heads/main&quot;</span>);
+                <span class="macro">assert_eq!</span>(refname, <span class="string">"refs/heads/main"</span>);
                 <span class="macro">assert_eq!</span>(status, <span class="prelude-val">None</span>);
                 <span class="prelude-val">Ok</span>(())
             });
             <span class="kw">let </span><span class="kw-2">mut </span>options = PushOptions::new();
             options.remote_callbacks(callbacks);
             remote
-                .push(<span class="kw-2">&amp;</span>[<span class="string">&quot;refs/heads/main&quot;</span>], <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>options))
+                .push(<span class="kw-2">&amp;</span>[<span class="string">"refs/heads/main"</span>], <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>options))
                 .unwrap();
         }
         <span class="macro">assert!</span>(updated);
@@ -2109,7 +2110,7 @@
         <span class="kw">let </span>repo = Repository::clone(<span class="kw-2">&amp;</span>url, td3.path()).unwrap();
         <span class="kw">let </span>commit = repo.head().unwrap().target().unwrap();
         <span class="kw">let </span>commit = repo.find_commit(commit).unwrap();
-        <span class="macro">assert_eq!</span>(commit.message(), <span class="prelude-val">Some</span>(<span class="string">&quot;initial\n\nbody&quot;</span>));
+        <span class="macro">assert_eq!</span>(commit.message(), <span class="prelude-val">Some</span>(<span class="string">"initial\n\nbody"</span>));
     }
 
     <span class="attr">#[test]
@@ -2117,7 +2118,7 @@
         <span class="kw">let </span>(td, remote_repo) = <span class="kw">crate</span>::test::repo_init();
         <span class="kw">let </span>oid = remote_repo.head().unwrap().target().unwrap();
         <span class="kw">let </span>commit = remote_repo.find_commit(oid).unwrap();
-        remote_repo.branch(<span class="string">&quot;stale&quot;</span>, <span class="kw-2">&amp;</span>commit, <span class="bool-val">true</span>).unwrap();
+        remote_repo.branch(<span class="string">"stale"</span>, <span class="kw-2">&amp;</span>commit, <span class="bool-val">true</span>).unwrap();
 
         <span class="kw">let </span>td2 = TempDir::new().unwrap();
         <span class="kw">let </span>url = <span class="kw">crate</span>::test::path2url(<span class="kw-2">&amp;</span>td.path());
@@ -2127,7 +2128,7 @@
             <span class="macro">assert_eq!</span>(
                 repo.branches(<span class="prelude-val">Some</span>(<span class="kw">crate</span>::BranchType::Remote))
                     .unwrap()
-                    .filter(|b| b.as_ref().unwrap().<span class="number">0</span>.name().unwrap() == <span class="prelude-val">Some</span>(<span class="string">&quot;origin/stale&quot;</span>))
+                    .filter(|b| b.as_ref().unwrap().<span class="number">0</span>.name().unwrap() == <span class="prelude-val">Some</span>(<span class="string">"origin/stale"</span>))
                     .count(),
                 count,
             );
@@ -2137,16 +2138,16 @@
 
         <span class="comment">// delete `stale` branch on remote repo
         </span><span class="kw">let </span><span class="kw-2">mut </span>stale_branch = remote_repo
-            .find_branch(<span class="string">&quot;stale&quot;</span>, <span class="kw">crate</span>::BranchType::Local)
+            .find_branch(<span class="string">"stale"</span>, <span class="kw">crate</span>::BranchType::Local)
             .unwrap();
         stale_branch.delete().unwrap();
 
         <span class="comment">// prune
-        </span><span class="kw">let </span><span class="kw-2">mut </span>remote = repo.find_remote(<span class="string">&quot;origin&quot;</span>).unwrap();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>remote = repo.find_remote(<span class="string">"origin"</span>).unwrap();
         remote.connect(Direction::Push).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>callbacks = RemoteCallbacks::new();
         callbacks.update_tips(|refname, _a, b| {
-            <span class="macro">assert_eq!</span>(refname, <span class="string">&quot;refs/remotes/origin/stale&quot;</span>);
+            <span class="macro">assert_eq!</span>(refname, <span class="string">"refs/remotes/origin/stale"</span>);
             <span class="macro">assert!</span>(b.is_zero());
             <span class="bool-val">true
         </span>});
@@ -2163,11 +2164,11 @@
         <span class="kw">let </span>url = <span class="kw">crate</span>::test::path2url(td2.path());
         <span class="kw">let </span><span class="kw-2">mut </span>opts = <span class="kw">crate</span>::RepositoryInitOptions::new();
         opts.bare(<span class="bool-val">true</span>);
-        opts.initial_head(<span class="string">&quot;main&quot;</span>);
+        opts.initial_head(<span class="string">"main"</span>);
         <span class="kw">let </span>remote_repo = Repository::init_opts(td2.path(), <span class="kw-2">&amp;</span>opts).unwrap();
 
         <span class="comment">// reject pushing a branch
-        </span><span class="kw">let </span><span class="kw-2">mut </span>remote = repo.remote(<span class="string">&quot;origin&quot;</span>, <span class="kw-2">&amp;</span>url).unwrap();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>remote = repo.remote(<span class="string">"origin"</span>, <span class="kw-2">&amp;</span>url).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>updated = <span class="bool-val">false</span>;
         {
             <span class="kw">let </span><span class="kw-2">mut </span>callbacks = RemoteCallbacks::new();
@@ -2176,16 +2177,16 @@
                 updated = <span class="bool-val">true</span>;
                 <span class="macro">assert_eq!</span>(updates.len(), <span class="number">1</span>);
                 <span class="kw">let </span>u = <span class="kw-2">&amp;</span>updates[<span class="number">0</span>];
-                <span class="macro">assert_eq!</span>(u.src_refname().unwrap(), <span class="string">&quot;refs/heads/main&quot;</span>);
+                <span class="macro">assert_eq!</span>(u.src_refname().unwrap(), <span class="string">"refs/heads/main"</span>);
                 <span class="macro">assert!</span>(u.src().is_zero());
-                <span class="macro">assert_eq!</span>(u.dst_refname().unwrap(), <span class="string">&quot;refs/heads/main&quot;</span>);
+                <span class="macro">assert_eq!</span>(u.dst_refname().unwrap(), <span class="string">"refs/heads/main"</span>);
                 <span class="macro">assert_eq!</span>(u.dst(), oid);
-                <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::from_str(<span class="string">&quot;rejected&quot;</span>))
+                <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::from_str(<span class="string">"rejected"</span>))
             });
             <span class="kw">let </span><span class="kw-2">mut </span>options = PushOptions::new();
             options.remote_callbacks(callbacks);
             <span class="macro">assert!</span>(remote
-                .push(<span class="kw-2">&amp;</span>[<span class="string">&quot;refs/heads/main&quot;</span>], <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>options))
+                .push(<span class="kw-2">&amp;</span>[<span class="string">"refs/heads/main"</span>], <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>options))
                 .is_err());
         }
         <span class="macro">assert!</span>(updated);
@@ -2193,8 +2194,8 @@
 
         <span class="comment">// push 3 branches
         </span><span class="kw">let </span>commit = repo.find_commit(oid).unwrap();
-        repo.branch(<span class="string">&quot;new1&quot;</span>, <span class="kw-2">&amp;</span>commit, <span class="bool-val">true</span>).unwrap();
-        repo.branch(<span class="string">&quot;new2&quot;</span>, <span class="kw-2">&amp;</span>commit, <span class="bool-val">true</span>).unwrap();
+        repo.branch(<span class="string">"new1"</span>, <span class="kw-2">&amp;</span>commit, <span class="bool-val">true</span>).unwrap();
+        repo.branch(<span class="string">"new2"</span>, <span class="kw-2">&amp;</span>commit, <span class="bool-val">true</span>).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>flag = <span class="number">0</span>;
         updated = <span class="bool-val">false</span>;
         {
@@ -2209,19 +2210,19 @@
                     <span class="kw">let </span>src_name = u.src_refname().unwrap();
                     <span class="kw">let </span>dst_name = u.dst_refname().unwrap();
                     <span class="kw">match </span>src_name {
-                        <span class="string">&quot;refs/heads/main&quot; </span>=&gt; {
+                        <span class="string">"refs/heads/main" </span>=&gt; {
                             <span class="macro">assert_eq!</span>(dst_name, src_name);
                             flag |= <span class="number">1</span>;
                         }
-                        <span class="string">&quot;refs/heads/new1&quot; </span>=&gt; {
-                            <span class="macro">assert_eq!</span>(dst_name, <span class="string">&quot;refs/heads/dev1&quot;</span>);
+                        <span class="string">"refs/heads/new1" </span>=&gt; {
+                            <span class="macro">assert_eq!</span>(dst_name, <span class="string">"refs/heads/dev1"</span>);
                             flag |= <span class="number">2</span>;
                         }
-                        <span class="string">&quot;refs/heads/new2&quot; </span>=&gt; {
-                            <span class="macro">assert_eq!</span>(dst_name, <span class="string">&quot;refs/heads/dev2&quot;</span>);
+                        <span class="string">"refs/heads/new2" </span>=&gt; {
+                            <span class="macro">assert_eq!</span>(dst_name, <span class="string">"refs/heads/dev2"</span>);
                             flag |= <span class="number">4</span>;
                         }
-                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected refname: {}&quot;</span>, src_name),
+                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"unexpected refname: {}"</span>, src_name),
                     }
                 }
                 <span class="prelude-val">Ok</span>(())
@@ -2231,9 +2232,9 @@
             remote
                 .push(
                     <span class="kw-2">&amp;</span>[
-                        <span class="string">&quot;refs/heads/main&quot;</span>,
-                        <span class="string">&quot;refs/heads/new1:refs/heads/dev1&quot;</span>,
-                        <span class="string">&quot;refs/heads/new2:refs/heads/dev2&quot;</span>,
+                        <span class="string">"refs/heads/main"</span>,
+                        <span class="string">"refs/heads/new1:refs/heads/dev1"</span>,
+                        <span class="string">"refs/heads/new2:refs/heads/dev2"</span>,
                     ],
                     <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>options),
                 )

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/pool/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/pool/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -691,7 +692,7 @@
 //! use sqlx::Pool;
 //! use sqlx::postgres::Postgres;
 //!
-//! let pool = Pool::&lt;Postgres&gt;::connect(&quot;postgres://&quot;).await?;
+//! let pool = Pool::&lt;Postgres&gt;::connect("postgres://").await?;
 //! ```
 //!
 //! For convenience, database-specific type aliases are provided:
@@ -699,7 +700,7 @@
 //! ```rust,ignore
 //! use sqlx::mssql::MssqlPool;
 //!
-//! let pool = MssqlPool::connect(&quot;mssql://&quot;).await?;
+//! let pool = MssqlPool::connect("mssql://").await?;
 //! ```
 //!
 //! # Using a connection pool
@@ -708,7 +709,7 @@
 //! when executing a query. Notice that only an immutable reference (`&amp;Pool`) is needed.
 //!
 //! ```rust,ignore
-//! sqlx::query(&quot;DELETE FROM articles&quot;).execute(&amp;pool).await?;
+//! sqlx::query("DELETE FROM articles").execute(&amp;pool).await?;
 //! ```
 //!
 //! A connection or transaction may also be manually acquired with
@@ -718,12 +719,12 @@
 </span><span class="kw">use </span><span class="self">self</span>::inner::PoolInner;
 <span class="attr">#[cfg(all(
     any(
-        feature = <span class="string">&quot;postgres&quot;</span>,
-        feature = <span class="string">&quot;mysql&quot;</span>,
-        feature = <span class="string">&quot;mssql&quot;</span>,
-        feature = <span class="string">&quot;sqlite&quot;
+        feature = <span class="string">"postgres"</span>,
+        feature = <span class="string">"mysql"</span>,
+        feature = <span class="string">"mssql"</span>,
+        feature = <span class="string">"sqlite"
     </span>),
-    feature = <span class="string">&quot;any&quot;
+    feature = <span class="string">"any"
 </span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::any::{Any, AnyKind};
 <span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
@@ -776,7 +777,7 @@
 /// Calls to `acquire()` are fair, i.e. fulfilled on a first-come, first-serve basis.
 ///
 /// `Pool` is `Send`, `Sync` and `Clone`. It is intended to be created once at the start of your
-/// application/daemon/web server/etc. and then shared with all tasks throughout the process&#39;
+/// application/daemon/web server/etc. and then shared with all tasks throughout the process'
 /// lifetime. How best to accomplish this depends on your program architecture.
 ///
 /// In Actix-Web, for example, you can share a single pool with all request handlers using [web::Data].
@@ -817,9 +818,9 @@
 ///
 /// We recommend calling [`.close().await`] to gracefully close the pool and its connections
 /// when you are done using it. This will also wake any tasks that are waiting on an `.acquire()`
-/// call, so for long-lived applications it&#39;s a good idea to call `.close()` during shutdown.
+/// call, so for long-lived applications it's a good idea to call `.close()` during shutdown.
 ///
-/// If you&#39;re writing tests, consider using `#[sqlx::test]` which handles the lifetime of
+/// If you're writing tests, consider using `#[sqlx::test]` which handles the lifetime of
 /// the pool for you.
 ///
 /// [`.close().await`]: Pool::close
@@ -838,7 +839,7 @@
 /// a fresh connection. Examples to follow.
 ///
 /// Connection pools facilitate reuse of connections to _amortize_ these costs, helping to ensure
-/// that you&#39;re not paying for them each time you need a connection.
+/// that you're not paying for them each time you need a connection.
 ///
 /// ##### 1. Overhead of Opening a Connection
 /// Opening a database connection is not exactly a cheap operation.
@@ -872,7 +873,7 @@
 ///
 /// These limits have different defaults per database flavor, and may vary between different
 /// distributions of the same database, but are typically configurable on server start;
-/// if you&#39;re paying for managed database hosting then the connection limit will typically vary with
+/// if you're paying for managed database hosting then the connection limit will typically vary with
 /// your pricing tier.
 ///
 /// In MySQL, the default limit is typically 150, plus 1 which is reserved for a user with the
@@ -888,16 +889,16 @@
 /// In any case, exceeding these limits results in an error when opening a new connection, which
 /// in a web server context will turn into a `500 Internal Server Error` if not handled, but should
 /// be turned into either `403 Forbidden` or `429 Too Many Requests` depending on your rate-limiting
-/// scheme. However, in a web context, telling a client &quot;go away, maybe try again later&quot; results in
+/// scheme. However, in a web context, telling a client "go away, maybe try again later" results in
 /// a sub-optimal user experience.
 ///
 /// Instead with a connection pool, clients are made to wait in a fair queue for a connection to
 /// become available; by using a single connection pool for your whole application, you can ensure
-/// that you don&#39;t exceed the connection limit of your database server while allowing response
+/// that you don't exceed the connection limit of your database server while allowing response
 /// time to degrade gracefully at high load.
 ///
 /// Of course, if multiple applications are connecting to the same database server, then you
-/// should ensure that the connection limits for all applications add up to your server&#39;s maximum
+/// should ensure that the connection limits for all applications add up to your server's maximum
 /// connections or less.
 ///
 /// ##### 3. Resource Reuse
@@ -916,7 +917,7 @@
 /// reasons of safety, ergonomics, and efficiency.
 ///
 /// However, because database connections are typically isolated from each other in the database
-/// server (either by threads or separate processes entirely), they don&#39;t typically share prepared
+/// server (either by threads or separate processes entirely), they don't typically share prepared
 /// statements between connections so this work must be redone _for each connection_.
 ///
 /// As with section 1, by facilitating reuse of connections, `Pool` helps to ensure their prepared
@@ -924,7 +925,7 @@
 /// the overhead involved.
 ///
 /// Depending on the database server, a connection will have caches for all kinds of other data as
-/// well and queries will generally benefit from these caches being &quot;warm&quot; (populated with data).
+/// well and queries will generally benefit from these caches being "warm" (populated with data).
 </span><span class="kw">pub struct </span>Pool&lt;DB: Database&gt;(<span class="kw">pub</span>(<span class="kw">crate</span>) Arc&lt;PoolInner&lt;DB&gt;&gt;);
 
 <span class="doccomment">/// A future that resolves when the pool is closed.
@@ -946,7 +947,7 @@
     /// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]
     ///
     /// The default configuration is mainly suited for testing and light-duty applications.
-    /// For production applications, you&#39;ll likely want to make at least few tweaks.
+    /// For production applications, you'll likely want to make at least few tweaks.
     ///
     /// See [`PoolOptions::new()`] for details.
     </span><span class="kw">pub async fn </span>connect(url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
@@ -957,7 +958,7 @@
     /// the given `ConnectOptions`, and immediately establish one connection.
     ///
     /// The default configuration is mainly suited for testing and light-duty applications.
-    /// For production applications, you&#39;ll likely want to make at least few tweaks.
+    /// For production applications, you'll likely want to make at least few tweaks.
     ///
     /// See [`PoolOptions::new()`] for details.
     </span><span class="kw">pub async fn </span>connect_with(
@@ -979,7 +980,7 @@
     /// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]
     ///
     /// The default configuration is mainly suited for testing and light-duty applications.
-    /// For production applications, you&#39;ll likely want to make at least few tweaks.
+    /// For production applications, you'll likely want to make at least few tweaks.
     ///
     /// See [`PoolOptions::new()`] for details.
     </span><span class="kw">pub fn </span>connect_lazy(url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
@@ -992,7 +993,7 @@
     /// The pool will establish connections only as needed.
     ///
     /// The default configuration is mainly suited for testing and light-duty applications.
-    /// For production applications, you&#39;ll likely want to make at least few tweaks.
+    /// For production applications, you'll likely want to make at least few tweaks.
     ///
     /// See [`PoolOptions::new()`] for details.
     </span><span class="kw">pub fn </span>connect_lazy_with(options: &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options) -&gt; <span class="self">Self </span>{
@@ -1007,9 +1008,9 @@
     ///
     /// ### Note: Cancellation/Timeout May Drop Connections
     /// If `acquire` is cancelled or times out after it acquires a connection from the idle queue or
-    /// opens a new one, it will drop that connection because we don&#39;t want to assume it
-    /// is safe to return to the pool, and testing it to see if it&#39;s safe to release could introduce
-    /// subtle bugs if not implemented correctly. To avoid that entirely, we&#39;ve decided to not
+    /// opens a new one, it will drop that connection because we don't want to assume it
+    /// is safe to return to the pool, and testing it to see if it's safe to release could introduce
+    /// subtle bugs if not implemented correctly. To avoid that entirely, we've decided to not
     /// gracefully handle cancellation here.
     ///
     /// However, if your workload is sensitive to dropped connections such as using an in-memory
@@ -1022,7 +1023,7 @@
     ///
     /// This should eliminate any potential `.await` points between acquiring a connection and
     /// returning it.
-    </span><span class="kw">pub fn </span>acquire(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;PoolConnection&lt;DB&gt;, Error&gt;&gt; + <span class="lifetime">&#39;static </span>{
+    </span><span class="kw">pub fn </span>acquire(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;PoolConnection&lt;DB&gt;, Error&gt;&gt; + <span class="lifetime">'static </span>{
         <span class="kw">let </span>shared = <span class="self">self</span>.<span class="number">0</span>.clone();
         <span class="kw">async move </span>{ shared.acquire().<span class="kw">await</span>.map(|conn| conn.reattach()) }
     }
@@ -1036,12 +1037,12 @@
     }
 
     <span class="doccomment">/// Retrieves a connection and immediately begins a new transaction.
-    </span><span class="kw">pub async fn </span>begin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;static</span>, DB&gt;, Error&gt; {
+    </span><span class="kw">pub async fn </span>begin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">'static</span>, DB&gt;, Error&gt; {
         <span class="prelude-val">Ok</span>(Transaction::begin(MaybePoolConnection::PoolConnection(<span class="self">self</span>.acquire().<span class="kw">await</span><span class="question-mark">?</span>)).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Attempts to retrieve a connection and immediately begins a new transaction if successful.
-    </span><span class="kw">pub async fn </span>try_begin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Transaction&lt;<span class="lifetime">&#39;static</span>, DB&gt;&gt;, Error&gt; {
+    </span><span class="kw">pub async fn </span>try_begin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Transaction&lt;<span class="lifetime">'static</span>, DB&gt;&gt;, Error&gt; {
         <span class="kw">match </span><span class="self">self</span>.try_acquire() {
             <span class="prelude-val">Some</span>(conn) =&gt; Transaction::begin(MaybePoolConnection::PoolConnection(conn))
                 .<span class="kw">await
@@ -1072,7 +1073,7 @@
     /// spawned by `Pool` internally and so may be unpredictable otherwise.
     ///
     /// `.close()` may be safely called and `.await`ed on multiple handles concurrently.
-    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Future&lt;Output = ()&gt; + <span class="lifetime">&#39;_ </span>{
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Future&lt;Output = ()&gt; + <span class="lifetime">'_ </span>{
         <span class="self">self</span>.<span class="number">0</span>.close()
     }
 
@@ -1086,7 +1087,7 @@
     /// If the pool is already closed, the future resolves immediately.
     ///
     /// This can be used to cancel long-running operations that hold onto a [`PoolConnection`]
-    /// so they don&#39;t prevent the pool from closing (which would otherwise wait until all
+    /// so they don't prevent the pool from closing (which would otherwise wait until all
     /// connections are returned).
     ///
     /// Examples
@@ -1095,11 +1096,11 @@
     ///
     /// Do something when the pool is closed:
     /// ```rust,no_run
-    /// # #[cfg(feature = &quot;postgres&quot;)]
+    /// # #[cfg(feature = "postgres")]
     /// # async fn bleh() -&gt; sqlx_core::error::Result&lt;()&gt; {
     /// use sqlx::PgPool;
     ///
-    /// let pool = PgPool::connect(&quot;postgresql://...&quot;).await?;
+    /// let pool = PgPool::connect("postgresql://...").await?;
     ///
     /// let pool2 = pool.clone();
     ///
@@ -1108,7 +1109,7 @@
     ///     // This lets you implement any kind of on-close event that you like.
     ///     pool2.close_event().await;
     ///
-    ///     println!(&quot;Pool is closing!&quot;);
+    ///     println!("Pool is closing!");
     ///
     ///     // Imagine maybe recording application statistics or logging a report, etc.
     /// });
@@ -1124,28 +1125,28 @@
     ///
     /// Cancel a long-running operation:
     /// ```rust,no_run
-    /// # #[cfg(feature = &quot;postgres&quot;)]
+    /// # #[cfg(feature = "postgres")]
     /// # async fn bleh() -&gt; sqlx_core::error::Result&lt;()&gt; {
     /// use sqlx::{Executor, PgPool};
     ///
-    /// let pool = PgPool::connect(&quot;postgresql://...&quot;).await?;
+    /// let pool = PgPool::connect("postgresql://...").await?;
     ///
     /// let pool2 = pool.clone();
     ///
     /// tokio::spawn(async move {
     ///     pool2.close_event().do_until(async {
-    ///         // This statement normally won&#39;t return for 30 days!
-    ///         // (Assuming the connection doesn&#39;t time out first, of course.)
-    ///         pool2.execute(&quot;SELECT pg_sleep(&#39;30 days&#39;)&quot;).await;
+    ///         // This statement normally won't return for 30 days!
+    ///         // (Assuming the connection doesn't time out first, of course.)
+    ///         pool2.execute("SELECT pg_sleep('30 days')").await;
     ///
-    ///         // If the pool is closed before the statement completes, this won&#39;t be printed.
-    ///         // This is because `.do_until()` cancels the future it&#39;s given if the
+    ///         // If the pool is closed before the statement completes, this won't be printed.
+    ///         // This is because `.do_until()` cancels the future it's given if the
     ///         // pool is closed first.
-    ///         println!(&quot;Waited!&quot;);
+    ///         println!("Waited!");
     ///     }).await;
     /// });
     ///
-    /// // This normally wouldn&#39;t return until the above statement completed and the connection
+    /// // This normally wouldn't return until the above statement completed and the connection
     /// // was returned to the pool. However, thanks to `.do_until()`, the operation was
     /// // cancelled as soon as we called `.close().await`.
     /// pool.close().await;
@@ -1178,7 +1179,7 @@
         <span class="self">self</span>.<span class="number">0
             </span>.connect_options
             .read()
-            .expect(<span class="string">&quot;write-lock holder panicked&quot;</span>)
+            .expect(<span class="string">"write-lock holder panicked"</span>)
             .clone()
     }
 
@@ -1186,12 +1187,12 @@
     /// existing open connection in the pool will be left as-is.
     </span><span class="kw">pub fn </span>set_connect_options(<span class="kw-2">&amp;</span><span class="self">self</span>, connect_options: &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options) {
         <span class="comment">// technically write() could also panic if the current thread already holds the lock,
-        // but because this method can&#39;t be re-entered by the same thread that shouldn&#39;t be a problem
+        // but because this method can't be re-entered by the same thread that shouldn't be a problem
         </span><span class="kw">let </span><span class="kw-2">mut </span>guard = <span class="self">self
             </span>.<span class="number">0
             </span>.connect_options
             .write()
-            .expect(<span class="string">&quot;write-lock holder panicked&quot;</span>);
+            .expect(<span class="string">"write-lock holder panicked"</span>);
         <span class="kw-2">*</span>guard = Arc::new(connect_options);
     }
 
@@ -1203,12 +1204,12 @@
 
 <span class="attr">#[cfg(all(
     any(
-        feature = <span class="string">&quot;postgres&quot;</span>,
-        feature = <span class="string">&quot;mysql&quot;</span>,
-        feature = <span class="string">&quot;mssql&quot;</span>,
-        feature = <span class="string">&quot;sqlite&quot;
+        feature = <span class="string">"postgres"</span>,
+        feature = <span class="string">"mysql"</span>,
+        feature = <span class="string">"mssql"</span>,
+        feature = <span class="string">"sqlite"
     </span>),
-    feature = <span class="string">&quot;any&quot;
+    feature = <span class="string">"any"
 </span>))]
 </span><span class="kw">impl </span>Pool&lt;Any&gt; {
     <span class="doccomment">/// Returns the database driver currently in-use by this `Pool`.
@@ -1218,7 +1219,7 @@
         <span class="self">self</span>.<span class="number">0
             </span>.connect_options
             .read()
-            .expect(<span class="string">&quot;write-lock holder panicked&quot;</span>)
+            .expect(<span class="string">"write-lock holder panicked"</span>)
             .kind()
     }
 }
@@ -1231,12 +1232,12 @@
 }
 
 <span class="kw">impl</span>&lt;DB: Database&gt; fmt::Debug <span class="kw">for </span>Pool&lt;DB&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        fmt.debug_struct(<span class="string">&quot;Pool&quot;</span>)
-            .field(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.size())
-            .field(<span class="string">&quot;num_idle&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.num_idle())
-            .field(<span class="string">&quot;is_closed&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.is_closed())
-            .field(<span class="string">&quot;options&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.options)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        fmt.debug_struct(<span class="string">"Pool"</span>)
+            .field(<span class="string">"size"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.size())
+            .field(<span class="string">"num_idle"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.num_idle())
+            .field(<span class="string">"is_closed"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.is_closed())
+            .field(<span class="string">"options"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.options)
             .finish()
     }
 }
@@ -1247,10 +1248,10 @@
     /// Cancels the future and returns `Err(PoolClosed)` if/when the pool is closed.
     /// If the pool was already closed, the future is never run.
     </span><span class="kw">pub async fn </span>do_until&lt;Fut: Future&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fut: Fut) -&gt; <span class="prelude-ty">Result</span>&lt;Fut::Output, Error&gt; {
-        <span class="comment">// Check that the pool wasn&#39;t closed already.
+        <span class="comment">// Check that the pool wasn't closed already.
         //
         // We use `poll_immediate()` as it will use the correct waker instead of
-        // a no-op one like `.now_or_never()`, but it won&#39;t actually suspend execution here.
+        // a no-op one like `.now_or_never()`, but it won't actually suspend execution here.
         </span>futures_util::future::poll_immediate(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
             .<span class="kw">await
             </span>.map_or(<span class="prelude-val">Ok</span>(()), |<span class="kw">_</span>| <span class="prelude-val">Err</span>(Error::PoolClosed))<span class="question-mark">?</span>;
@@ -1258,17 +1259,17 @@
         <span class="macro">futures_util::pin_mut!</span>(fut);
 
         <span class="comment">// I find that this is clearer in intent than `futures_util::future::select()`
-        // or `futures_util::select_biased!{}` (which isn&#39;t enabled anyway).
+        // or `futures_util::select_biased!{}` (which isn't enabled anyway).
         </span>futures_util::future::poll_fn(|cx| {
             <span class="comment">// Poll `fut` first as the wakeup event is more likely for it than `self`.
             </span><span class="kw">if let </span>Poll::Ready(ret) = fut.as_mut().poll(cx) {
                 <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(ret));
             }
 
-            <span class="comment">// Can&#39;t really factor out mapping to `Err(Error::PoolClosed)` though it seems like
+            <span class="comment">// Can't really factor out mapping to `Err(Error::PoolClosed)` though it seems like
             // we should because that results in a different `Ok` type each time.
             //
-            // Ideally we&#39;d map to something like `Result&lt;!, Error&gt;` but using `!` as a type
+            // Ideally we'd map to something like `Result&lt;!, Error&gt;` but using `!` as a type
             // is not allowed on stable Rust yet.
             </span><span class="self">self</span>.poll_unpin(cx).map(|<span class="kw">_</span>| <span class="prelude-val">Err</span>(Error::PoolClosed))
         })
@@ -1279,12 +1280,12 @@
 <span class="kw">impl </span>Future <span class="kw">for </span>CloseEvent {
     <span class="kw">type </span>Output = ();
 
-    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(listener) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.listener {
             <span class="macro">futures_core::ready!</span>(listener.poll_unpin(cx));
         }
 
-        <span class="comment">// `EventListener` doesn&#39;t like being polled after it yields, and even if it did it
+        <span class="comment">// `EventListener` doesn't like being polled after it yields, and even if it did it
         // would probably just wait for the next event, neither of which we want.
         //
         // So this way, once we get our close event, we fuse this future to immediately return.

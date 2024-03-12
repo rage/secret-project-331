@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-codegen-4.2.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web_codegen/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web_codegen"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-codegen-4.2.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web_codegen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_web_codegen/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_web_codegen"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -243,7 +244,7 @@
 </pre></div><pre class="rust"><code><span class="doccomment">//! Routing and runtime macros for Actix Web.
 //!
 //! # Actix Web Re-exports
-//! Actix Web re-exports a version of this crate in it&#39;s entirety so you usually don&#39;t have to
+//! Actix Web re-exports a version of this crate in it's entirety so you usually don't have to
 //! specify a dependency on this crate explicitly. Sometimes, however, updates are made to this
 //! crate before the actix-web dependency is updated. Therefore, code examples here will show
 //! explicit imports. Check the latest [actix-web attributes docs] to see which macros
@@ -255,7 +256,7 @@
 //! ```
 //! #[actix_web_codegen::main] // or `#[actix_web::main]` in Actix Web apps
 //! async fn main() {
-//!     async { println!(&quot;Hello world&quot;); }.await
+//!     async { println!("Hello world"); }.await
 //! }
 //! ```
 //!
@@ -268,7 +269,7 @@
 //! ```
 //! # use actix_web::HttpResponse;
 //! # use actix_web_codegen::get;
-//! #[get(&quot;/test&quot;)]
+//! #[get("/test")]
 //! async fn get_handler() -&gt; HttpResponse {
 //!     HttpResponse::Ok().finish()
 //! }
@@ -281,7 +282,7 @@
 //! ```
 //! # use actix_web::HttpResponse;
 //! # use actix_web_codegen::route;
-//! #[route(&quot;/test&quot;, method = &quot;GET&quot;, method = &quot;HEAD&quot;)]
+//! #[route("/test", method = "GET", method = "HEAD")]
 //! async fn get_and_head_handler() -&gt; HttpResponse {
 //!     HttpResponse::Ok().finish()
 //! }
@@ -295,9 +296,9 @@
 //! # use actix_web::HttpResponse;
 //! # use actix_web_codegen::routes;
 //! #[routes]
-//! #[get(&quot;/test&quot;)]
-//! #[get(&quot;/test2&quot;)]
-//! #[delete(&quot;/test&quot;)]
+//! #[get("/test")]
+//! #[get("/test2")]
+//! #[delete("/test")]
 //! async fn example() -&gt; HttpResponse {
 //!     HttpResponse::Ok().finish()
 //! }
@@ -314,11 +315,11 @@
 //! [PATCH]: macro@patch
 //! [DELETE]: macro@delete
 
-</span><span class="attr">#![recursion_limit = <span class="string">&quot;512&quot;</span>]
+</span><span class="attr">#![recursion_limit = <span class="string">"512"</span>]
 #![deny(rust_2018_idioms, nonstandard_style)]
 #![warn(future_incompatible)]
-#![doc(html_logo_url = <span class="string">&quot;https://actix.rs/img/logo.png&quot;</span>)]
-#![doc(html_favicon_url = <span class="string">&quot;https://actix.rs/favicon.ico&quot;</span>)]
+#![doc(html_logo_url = <span class="string">"https://actix.rs/img/logo.png"</span>)]
+#![doc(html_favicon_url = <span class="string">"https://actix.rs/favicon.ico"</span>)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
 </span><span class="kw">use </span>proc_macro::TokenStream;
@@ -330,17 +331,17 @@
 ///
 /// # Syntax
 /// ```plain
-/// #[route(&quot;path&quot;, method=&quot;HTTP_METHOD&quot;[, attributes])]
+/// #[route("path", method="HTTP_METHOD"[, attributes])]
 /// ```
 ///
 /// # Attributes
-/// - `&quot;path&quot;`: Raw literal string with path for which to register handler.
-/// - `name = &quot;resource_name&quot;`: Specifies resource name for the handler. If not set, the function
+/// - `"path"`: Raw literal string with path for which to register handler.
+/// - `name = "resource_name"`: Specifies resource name for the handler. If not set, the function
 ///   name of handler is used.
-/// - `method = &quot;HTTP_METHOD&quot;`: Registers HTTP method to provide guard for. Upper-case string,
-///   &quot;GET&quot;, &quot;POST&quot; for example.
-/// - `guard = &quot;function_name&quot;`: Registers function as guard using `actix_web::guard::fn_guard`.
-/// - `wrap = &quot;Middleware&quot;`: Registers a resource middleware.
+/// - `method = "HTTP_METHOD"`: Registers HTTP method to provide guard for. Upper-case string,
+///   "GET", "POST" for example.
+/// - `guard = "function_name"`: Registers function as guard using `actix_web::guard::fn_guard`.
+/// - `wrap = "Middleware"`: Registers a resource middleware.
 ///
 /// # Notes
 /// Function name can be specified as any expression that is going to be accessible to the generate
@@ -350,7 +351,7 @@
 /// ```
 /// # use actix_web::HttpResponse;
 /// # use actix_web_codegen::route;
-/// #[route(&quot;/test&quot;, method = &quot;GET&quot;, method = &quot;HEAD&quot;, method = &quot;CUSTOM&quot;)]
+/// #[route("/test", method = "GET", method = "HEAD", method = "CUSTOM")]
 /// async fn example() -&gt; HttpResponse {
 ///     HttpResponse::Ok().finish()
 /// }
@@ -365,8 +366,8 @@
 /// # Syntax
 /// ```plain
 /// #[routes]
-/// #[&lt;method&gt;(&quot;path&quot;, ...)]
-/// #[&lt;method&gt;(&quot;path&quot;, ...)]
+/// #[&lt;method&gt;("path", ...)]
+/// #[&lt;method&gt;("path", ...)]
 /// ...
 /// ```
 ///
@@ -381,9 +382,9 @@
 /// # use actix_web::HttpResponse;
 /// # use actix_web_codegen::routes;
 /// #[routes]
-/// #[get(&quot;/test&quot;)]
-/// #[get(&quot;/test2&quot;)]
-/// #[delete(&quot;/test&quot;)]
+/// #[get("/test")]
+/// #[get("/test2")]
+/// #[delete("/test")]
 /// async fn example() -&gt; HttpResponse {
 ///     HttpResponse::Ok().finish()
 /// }
@@ -395,19 +396,19 @@
 
 <span class="macro">macro_rules! </span>method_macro {
     (<span class="macro-nonterminal">$variant</span>:ident, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
-        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;Creates route handler with `actix_web::guard::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$variant</span>), <span class="string">&quot;`.&quot;</span>)]
+        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"Creates route handler with `actix_web::guard::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$variant</span>), <span class="string">"`."</span>)]
         </span><span class="doccomment">///
         /// # Syntax
         /// ```plain
-        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;#[&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method</span>), <span class="string">r#&quot;(&quot;path&quot;[, attributes])]&quot;#</span>)]
+        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"#["</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method</span>), <span class="string">r#"("path"[, attributes])]"#</span>)]
         </span><span class="doccomment">/// ```
         ///
         /// # Attributes
-        /// - `&quot;path&quot;`: Raw literal string with path for which to register handler.
-        /// - `name = &quot;resource_name&quot;`: Specifies resource name for the handler. If not set, the
+        /// - `"path"`: Raw literal string with path for which to register handler.
+        /// - `name = "resource_name"`: Specifies resource name for the handler. If not set, the
         ///   function name of handler is used.
-        /// - `guard = &quot;function_name&quot;`: Registers function as guard using `actix_web::guard::fn_guard`.
-        /// - `wrap = &quot;Middleware&quot;`: Registers a resource middleware.
+        /// - `guard = "function_name"`: Registers function as guard using `actix_web::guard::fn_guard`.
+        /// - `wrap = "Middleware"`: Registers a resource middleware.
         ///
         /// # Notes
         /// Function name can be specified as any expression that is going to be accessible to the
@@ -416,8 +417,8 @@
         /// # Examples
         /// ```
         /// # use actix_web::HttpResponse;
-        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;# use actix_web_codegen::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method</span>), <span class="string">&quot;;&quot;</span>)]
-        #[doc = <span class="macro">concat!</span>(<span class="string">&quot;#[&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method</span>), <span class="string">r#&quot;(&quot;/&quot;)]&quot;#</span>)]
+        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">"# use actix_web_codegen::"</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method</span>), <span class="string">";"</span>)]
+        #[doc = <span class="macro">concat!</span>(<span class="string">"#["</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method</span>), <span class="string">r#"("/")]"#</span>)]
         </span><span class="doccomment">/// async fn example() -&gt; HttpResponse {
         ///     HttpResponse::Ok().finish()
         /// }
@@ -449,13 +450,13 @@
 /// ```
 /// #[actix_web::main]
 /// async fn main() {
-///     async { println!(&quot;Hello world&quot;); }.await
+///     async { println!("Hello world"); }.await
 /// }
 /// ```
 </span><span class="attr">#[proc_macro_attribute]
 </span><span class="kw">pub fn </span>main(<span class="kw">_</span>: TokenStream, item: TokenStream) -&gt; TokenStream {
     <span class="kw">let </span><span class="kw-2">mut </span>output: TokenStream = (<span class="macro">quote! </span>{
-        <span class="attr">#[::actix_web::rt::main(system = <span class="string">&quot;::actix_web::rt::System&quot;</span>)]
+        <span class="attr">#[::actix_web::rt::main(system = <span class="string">"::actix_web::rt::System"</span>)]
     </span>})
     .into();
 
@@ -469,13 +470,13 @@
 /// ```
 /// #[actix_web::test]
 /// async fn test() {
-///     assert_eq!(async { &quot;Hello world&quot; }.await, &quot;Hello world&quot;);
+///     assert_eq!(async { "Hello world" }.await, "Hello world");
 /// }
 /// ```
 </span><span class="attr">#[proc_macro_attribute]
 </span><span class="kw">pub fn </span>test(<span class="kw">_</span>: TokenStream, item: TokenStream) -&gt; TokenStream {
     <span class="kw">let </span><span class="kw-2">mut </span>output: TokenStream = (<span class="macro">quote! </span>{
-        <span class="attr">#[::actix_web::rt::test(system = <span class="string">&quot;::actix_web::rt::System&quot;</span>)]
+        <span class="attr">#[::actix_web::rt::test(system = <span class="string">"::actix_web::rt::System"</span>)]
     </span>})
     .into();
 
